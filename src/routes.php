@@ -565,6 +565,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
     });
+    $app->get('/fluke-metcal', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('fluke-metcal');
+        return $controller($request, $response);
+    });
     $app->get('/calserver/barrierefreiheit', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {

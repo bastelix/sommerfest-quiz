@@ -1,19 +1,19 @@
 {% extends 'layout.twig' %}
 
 {% set links = [
-    { 'href': '#features', 'label': t('calserver_nav_features'), 'icon': 'grid' },
-    { 'href': '#metcal', 'label': t('calserver_nav_metcal'), 'icon': 'link' },
-    { 'href': '#modules', 'label': t('calserver_nav_modules'), 'icon': 'database' },
-    { 'href': '#usecases', 'label': t('calserver_nav_usecases'), 'icon': 'users' },
-    { 'href': '#modes', 'label': t('calserver_nav_modes'), 'icon': 'cog' },
-    { 'href': '#pricing', 'label': t('calserver_nav_pricing'), 'icon': 'credit-card' },
-    { 'href': '#faq', 'label': t('calserver_nav_faq'), 'icon': 'question' }
+    { 'href': '#szenarien', 'label': t('metcal_nav_szenarien'), 'icon': 'thumbnails' },
+    { 'href': '#migration', 'label': t('metcal_nav_migration'), 'icon': 'clock' },
+    { 'href': '#metteam', 'label': t('metcal_nav_metteam'), 'icon': 'link' },
+    { 'href': '#zertifikate', 'label': t('metcal_nav_zertifikate'), 'icon': 'file-text' },
+    { 'href': '#sicherheit', 'label': t('metcal_nav_sicherheit'), 'icon': 'shield' },
+    { 'href': '#pakete', 'label': t('metcal_nav_pakete'), 'icon': 'credit-card' },
+    { 'href': '#faq', 'label': t('metcal_nav_faq'), 'icon': 'question' }
 ] %}
 {% if marketingWikiMenu is defined %}
   {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
 {% endif %}
 
-{% block title %}{{ metaTitle|default('calServer – Kalibrier- und Inventarverwaltung für Teams') }}{% endblock %}
+{% block title %}{{ metaTitle|default('FLUKE MET/CAL mit calServer – Migration & Integration') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
@@ -21,16 +21,46 @@
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/fluke-metcal.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
-  <meta name="page-name" content="calServer – Marketingseite">
+  <meta name="page-name" content="FLUKE MET/CAL mit calServer">
 {% endblock %}
 
 {% block body_theme %}light{% endblock %}
 {% block body_class %}qr-landing calserver-theme{% endblock %}
 
 {% block body %}
+  {% set heroLocale = locale() == 'en' ? 'en' : 'de' %}
+  {% set heroCopy = {
+    'de': {
+      'badge': 'MET/TRACK → calServer',
+      'title': 'FLUKE MET/CAL mit calServer – sicher migrieren, sauber integrieren.',
+      'subtitle': 'Vom MET/TRACK-Altsystem in den calServer – ohne Stillstand. Hybridbetrieb, geprüfte Datenflüsse und DAkkS-taugliche Nachweise in einem Setup.',
+      'bullets': [
+        'Umstieg ohne Produktionspause',
+        'Hybridbetrieb mit METTEAM & Guardband',
+        'Hosting & SSO in Deutschland'
+      ],
+      'ctaPrimary': 'Demo buchen',
+      'ctaSecondary': 'Migrations-Checkliste',
+      'proof': 'Ein System. Klare Prozesse. – DSGVO · Audit-Trails · REST-API'
+    },
+    'en': {
+      'badge': 'MET/TRACK → calServer',
+      'title': 'FLUKE MET/CAL with calServer – migrate safely, integrate cleanly.',
+      'subtitle': 'Move from legacy MET/TRACK into calServer without downtime. Hybrid operations, validated data flows and audit-proof certificates in one setup.',
+      'bullets': [
+        'Transition without production stop',
+        'Hybrid with METTEAM & guardband statements',
+        'Hosting & SSO in Germany'
+      ],
+      'ctaPrimary': 'Book demo',
+      'ctaSecondary': 'Migration checklist',
+      'proof': 'One system. Clear processes. – GDPR · Audit trails · REST API'
+    }
+  }[heroLocale] %}
   <div class="landing-content">
     <header class="qr-topbar">
       <nav class="uk-navbar-container" data-uk-navbar>
@@ -43,8 +73,8 @@
                     aria-controls="qr-offcanvas"
                     aria-expanded="false"
                     aria-label="Menü"></button>
-            <a class="uk-logo cs-logo" href="{{ basePath }}/calserver">
-              <span class="cs-logo__sr">calServer – Digitale Plattform für Kalibrier- und Inventarverwaltung</span>
+            <a class="uk-logo cs-logo" href="{{ basePath }}/fluke-metcal">
+              <span class="cs-logo__sr">FLUKE MET/CAL mit calServer</span>
               <span class="cs-logo__image" aria-hidden="true">
                 <img class="cs-logo__img"
                      src="{{ basePath }}/uploads/calserver-logo.webp"
@@ -174,163 +204,58 @@
            href="https://calendly.com/calhelp/calserver-vorstellung"
            target="_blank"
            rel="noopener">
-          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ t('calserver_nav_demo') }}
+          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ heroCopy.ctaPrimary }}
         </a>
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
-           href="#trial">
-          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>{{ t('calserver_nav_trial') }}
+           href="{{ basePath }}/downloads/metcal-migrations-checkliste.pdf">
+          <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>{{ heroCopy.ctaSecondary }}
         </a>
       </div>
     </div>
 
-    {% set heroLocale = locale() == 'en' ? 'en' : 'de' %}
-    {% set heroCopy = {
-      'de': {
-        'badge': 'Software gehostet in Deutschland',
-        'title': 'Mehr Überblick, weniger Aufwand mit calServer.',
-        'subtitle': 'Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert die Kalibrier- und Inventarverwaltung für das ganze Team.',
-        'bullets': [
-          'Nie wieder Fristen verpassen.',
-          'Transparente Workflows für Labor, Service und Verwaltung.',
-          'In Deutschland betrieben, DSGVO-konform.'
-        ],
-        'ctaPrimary': 'Jetzt testen',
-        'ctaSecondary': 'Demo buchen',
-        'ctaChat': 'Assistent fragen',
-        'proof': 'Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung',
-        'videoBadge': 'Live-Vorschau',
-        'videoAriaLabel': 'YouTube-Video',
-        'videoPreviewTitle': 'Video-Vorschau',
-        'videoPreviewSubtitle': 'calServer Vorstellung auf YouTube',
-        'videoHint': 'Vorstellung hier laden. Mit deinem Klick werden YouTube-Inhalte nachgeladen und Google kann personenbezogene Daten verarbeiten.',
-        'videoButton': 'Video laden',
-        'videoPrivacy': 'Du kannst deine Einwilligung jederzeit in deinen Browser-Einstellungen und mit der Schaltfläche unten links widerrufen.',
-        'videoNoscript': 'JavaScript ist deaktiviert. Öffne das Video direkt auf',
-        'videoNoscriptLink': 'YouTube',
-        'videoNoscriptSuffix': '.',
-        'videoMetaTitle': 'calServer Vorstellung',
-        'videoMetaSubtitle': 'In 3 Minuten durch die wichtigsten Funktionen.',
-        'videoLinkLabel': 'Auf YouTube ansehen',
-        'videoFootnoteStrong': 'Schnelle Suche · Klare Tabellen · Intuitive Workflows · Smarte Analysen · Echtzeit-Insights · Nahtlose Integrationen',
-        'videoFootnoteSpan': 'Mehr Überblick, mehr Tempo, mehr Wow für dein Team.'
-      },
-      'en': {
-        'badge': 'Software hosted in Germany',
-        'title': 'More visibility, less effort with calServer.',
-        'subtitle': 'Instruments, schedules and documents—organized in one place. calServer streamlines calibration and inventory management for your entire team.',
-        'bullets': [
-          'Deadlines come to you, not the other way around.',
-          'Transparent workflows for lab, service and administration.',
-          'Hosted in Germany, GDPR-compliant.'
-        ],
-        'ctaPrimary': 'Start trial',
-        'ctaSecondary': 'Book demo',
-        'ctaChat': 'Ask assistant',
-        'proof': 'Unlimited users · Flexible role models · Daily backups',
-        'videoBadge': 'Live preview',
-        'videoAriaLabel': 'YouTube video',
-        'videoPreviewTitle': 'Video preview',
-        'videoPreviewSubtitle': 'calServer introduction on YouTube',
-        'videoHint': 'Load the introduction right here. By clicking you allow YouTube content to be loaded. Google may process personal data in the process.',
-        'videoButton': 'Load video',
-        'videoPrivacy': 'You can withdraw your consent at any time in your browser settings.',
-        'videoNoscript': 'JavaScript is disabled. Open the video directly on',
-        'videoNoscriptLink': 'YouTube',
-        'videoNoscriptSuffix': '.',
-        'videoMetaTitle': 'calServer introduction',
-        'videoMetaSubtitle': 'Three-minute overview of the key features.',
-        'videoLinkLabel': 'Watch on YouTube',
-        'videoFootnoteStrong': 'Fast search · Clear tables · Intuitive workflows · Smart analytics · Real-time insights · Seamless integrations',
-        'videoFootnoteSpan': 'More visibility, more speed, more wow for your team.'
-      }
-    } %}
-    {% set hero = heroCopy[heroLocale] %}
-
-    <section class="qr-hero uk-section uk-section-large">
-      <div class="qr-hero-bg hero-bg-calserver"
-           aria-hidden="true"
-           data-calserver-hero-bg>
-        <canvas class="calserver-hero-bg__canvas" data-calserver-hero-canvas></canvas>
-      </div>
+    <section class="metcal-hero uk-section uk-section-large" aria-labelledby="metcal-hero-title">
       <div class="uk-container">
-        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calserver-hero-grid" data-uk-grid>
-          <div class="calserver-hero-grid__content" data-uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
-            <span class="qr-badge pill pill--soft">{{ hero.badge }}</span>
-            <h1 class="qr-h1">{{ hero.title }}</h1>
-            <p class="qr-sub">{{ hero.subtitle }}</p>
-            <ul class="uk-list uk-list-bullet hero-list">
-              {% for bullet in hero.bullets %}
-                <li>{{ bullet }}</li>
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
+          <div>
+            <span class="metcal-hero__badge">{{ heroCopy.badge }}</span>
+            <h1 class="metcal-hero__title" id="metcal-hero-title">{{ heroCopy.title }}</h1>
+            <p class="metcal-hero__subtitle">{{ heroCopy.subtitle }}</p>
+            <ul class="metcal-hero__bullets" role="list">
+              {% for bullet in heroCopy.bullets %}
+                <li role="listitem">
+                  <span class="metcal-hero__icon" aria-hidden="true" data-uk-icon="icon: check"></span>{{ bullet }}
+                </li>
               {% endfor %}
             </ul>
-            <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
-              <a class="uk-button uk-button-primary cta-main" href="#trial">
-                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>{{ hero.ctaPrimary }}
-              </a>
-              <a class="btn btn-transparent" href="https://calendly.com/calhelp/calserver-vorstellung"
+            <div class="metcal-hero__actions" role="group" aria-label="Primäre Aktionen">
+              <a class="uk-button uk-button-primary"
+                 href="https://calendly.com/calhelp/calserver-vorstellung"
                  target="_blank"
-                 rel="noopener">
-                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ hero.ctaSecondary }}
+                 rel="noopener"
+                 data-analytics-event="click_cta_demo"
+                 data-analytics-context="page_metcal"
+                 data-analytics-page="/fluke-metcal"
+                 data-analytics-lang="{{ heroLocale }}">
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ heroCopy.ctaPrimary }}
+              </a>
+              <a class="uk-button uk-button-default"
+                 href="{{ basePath }}/downloads/metcal-migrations-checkliste.pdf"
+                 data-analytics-event="download_checkliste"
+                 data-analytics-context="page_metcal"
+                 data-analytics-file="metcal-migrations-checkliste.pdf">
+                <span class="uk-margin-small-right" data-uk-icon="icon: cloud-download"></span>{{ heroCopy.ctaSecondary }}
               </a>
             </div>
-            <div class="qr-proof uk-margin-top">
-              <span>{{ hero.proof }}</span>
-            </div>
-            {% if provenExpertRating is defined and provenExpertRating %}
-              <div class="provenexpert-rating uk-margin-top" aria-label="Bewertungen">
-                {{ provenExpertRating|raw }}
-              </div>
-            {% endif %}
+            <p class="metcal-hero__proof">{{ heroCopy.proof }}</p>
           </div>
-          <div class="calserver-hero-grid__media" data-uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
-            <div class="calserver-hero-video">
-              <span class="pill pill--accent calserver-hero-video__badge">{{ hero.videoBadge }}</span>
-              <div class="calserver-hero-video__frame">
-                <div class="calserver-hero-video__embed"
-                     data-calserver-video
-                     data-video-id="ovHo2SF84u0"
-                     data-video-title="{{ hero.videoMetaTitle }}"
-                     data-video-params="rel=0&playlist=ovHo2SF84u0&loop=1">
-                  <div class="calserver-hero-video__placeholder" role="group" aria-label="{{ hero.videoAriaLabel }}">
-                    <div class="calserver-hero-video__preview" aria-hidden="true">
-                      <span class="calserver-hero-video__preview-title">{{ hero.videoPreviewTitle }}</span>
-                      <span class="calserver-hero-video__preview-subtitle">{{ hero.videoPreviewSubtitle }}</span>
-                    </div>
-                    <p class="calserver-hero-video__hint">{{ hero.videoHint }}</p>
-                    <button class="uk-button uk-button-primary calserver-hero-video__consent-button"
-                            type="button"
-                            data-calserver-video-consent>
-                      {{ hero.videoButton }}
-                    </button>
-                    <p class="calserver-hero-video__privacy-note">{{ hero.videoPrivacy }}</p>
-                  </div>
-                </div>
-                <noscript>
-                  <p class="calserver-hero-video__noscript-note">
-                    {{ hero.videoNoscript }}
-                    <a href="https://www.youtube.com/watch?v=ovHo2SF84u0" target="_blank" rel="noopener">
-                      {{ hero.videoNoscriptLink }}
-                    </a>{{ hero.videoNoscriptSuffix }}
-                  </p>
-                </noscript>
-              </div>
-              <div class="calserver-hero-video__meta">
-                <div class="calserver-hero-video__meta-text">
-                  <strong>{{ hero.videoMetaTitle }}</strong>
-                  <span>{{ hero.videoMetaSubtitle }}</span>
-                </div>
-                <a class="calserver-hero-video__link"
-                   href="https://www.youtube.com/watch?v=ovHo2SF84u0"
-                   target="_blank"
-                   rel="noopener">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: play-circle"></span>{{ hero.videoLinkLabel }}
-                </a>
-              </div>
-              <p class="calserver-hero-video__footnote">
-                <strong>{{ hero.videoFootnoteStrong }}</strong>
-                <br>
-                <span>{{ hero.videoFootnoteSpan }}</span>
-              </p>
+          <div>
+            <div class="metcal-hero__highlight" role="note">
+              <h2 class="metcal-hero__highlight-title">Warum Teams wechseln</h2>
+              <ul class="metcal-hero__highlight-list" role="list">
+                <li role="listitem">Datenmigration mit Dry-Run &amp; Delta-Regeln</li>
+                <li role="listitem">Hybridbetrieb mit MET/CAL, METTEAM und calServer</li>
+                <li role="listitem">DAkkS-konforme Zertifikate und Guardband-Aussagen</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -365,29 +290,6 @@
     </div>
 
     {{ content|raw }}
-
-    {% if landingNews is defined and landingNews %}
-      <section id="calserver-news" class="uk-section uk-section-muted calserver-news">
-        <div class="uk-container">
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
-            <h2 class="uk-heading-medium uk-margin-remove">{{ t('calserver_news_heading') }}</h2>
-            {% if landingNewsIndexUrl is defined and landingNewsIndexUrl %}
-              <a class="uk-button uk-button-text" href="{{ landingNewsIndexUrl }}">{{ t('calserver_news_link') }}</a>
-            {% endif %}
-          </div>
-          <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>
-            {% for item in landingNews %}
-              <div>
-                {% include 'marketing/_news_teaser.twig' with {
-                  entry: item,
-                  newsBasePath: landingNewsBasePath
-                } %}
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-      </section>
-    {% endif %}
 
     <div class="calserver-cookie-banner uk-card uk-card-default uk-card-body"
          id="calserver-cookie-banner"
@@ -468,7 +370,7 @@
         {% for link in links %}
           <li><a href="{{ link.href }}">{{ link.label }}</a></li>
         {% endfor %}
-        <li><a href="{{ basePath }}/fluke-metcal">FLUKE MET/CAL</a></li>
+        <li><a href="{{ basePath }}/calserver">calServer Übersicht</a></li>
       </ul>
     </div>
     <div class="footer-section footer-legal">
@@ -528,11 +430,28 @@
           anchor.textContent = email;
         }
       });
-      var contactForm = document.getElementById('contact-form');
-      if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
-        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/calserver/contact');
-      }
     });
+  </script>
+  <script>
+    (function () {
+      var sticky = document.querySelector('[data-metcal-sticky-cta]');
+      if (!sticky) {
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) {
+            sticky.classList.add('metcal-sticky-cta--visible');
+          } else {
+            sticky.classList.remove('metcal-sticky-cta--visible');
+          }
+        });
+      }, { threshold: 0, rootMargin: '-50% 0px 0px 0px' });
+      var sentinel = document.querySelector('[data-metcal-sticky-sentinel]');
+      if (sentinel) {
+        observer.observe(sentinel);
+      }
+    })();
   </script>
   <script>
     window.marketingChatConfig = {
