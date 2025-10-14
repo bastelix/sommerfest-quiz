@@ -157,11 +157,11 @@ SET content = REPLACE(
 )
 WHERE slug = 'calserver-en';
 
-INSERT INTO pages (slug, title, content)
-VALUES (
-    'fluke-metcal',
-    'FLUKE MET/CAL Integration',
-    $$<!--
+WITH page_payload AS (
+    SELECT
+        'fluke-metcal'::TEXT AS slug,
+        'FLUKE MET/CAL Integration'::TEXT AS title,
+        $$<!--
 kb_id: metcal-integration-v1
 kb_version: 1.0
 kb_tags: ["MET/CAL","MET/TRACK","METTEAM","Migration","Zertifikat","Guardband","DAkkS"]
@@ -459,12 +459,54 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
 }
 </script>
 $$
+        ::TEXT AS content
 )
-ON CONFLICT (slug) DO UPDATE
-SET title = EXCLUDED.title,
-    content = EXCLUDED.content;
+, updated AS (
+    UPDATE pages
+       SET title = page_payload.title,
+           content = page_payload.content,
+           updated_at = CURRENT_TIMESTAMP
+      FROM page_payload
+     WHERE pages.slug = page_payload.slug
+     RETURNING pages.id
+)
+INSERT INTO pages (slug, title, content)
+SELECT page_payload.slug, page_payload.title, page_payload.content
+  FROM page_payload
+ WHERE NOT EXISTS (SELECT 1 FROM updated)
+   AND NOT EXISTS (SELECT 1 FROM pages WHERE slug = page_payload.slug);
 
+WITH seo_payload AS (
+    SELECT
+        p.id AS page_id,
+        'fluke-metcal'::TEXT AS slug,
+        'FLUKE MET/CAL mit calServer – MET/TRACK Migration & METTEAM-Integration'::TEXT AS meta_title,
+        'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung und DAkkS-taugliche Zertifikate – inkl. SSO, DSGVO und Audit-Trails.'::TEXT AS meta_description,
+        '/fluke-metcal'::TEXT AS canonical_url,
+        'index, follow'::TEXT AS robots_meta,
+        'FLUKE MET/CAL mit calServer – MET/TRACK Migration & METTEAM-Integration'::TEXT AS og_title,
+        'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung und DAkkS-taugliche Zertifikate – inkl. SSO, DSGVO und Audit-Trails.'::TEXT AS og_description,
+        '/uploads/calserver-module-device-management.webp'::TEXT AS og_image,
+        'de,en'::TEXT AS hreflang
+      FROM pages p
+     WHERE p.slug = 'fluke-metcal'
+), seo_updated AS (
+    UPDATE page_seo_config AS seo
+       SET meta_title = seo_payload.meta_title,
+           meta_description = seo_payload.meta_description,
+           canonical_url = seo_payload.canonical_url,
+           robots_meta = seo_payload.robots_meta,
+           og_title = seo_payload.og_title,
+           og_description = seo_payload.og_description,
+           og_image = seo_payload.og_image,
+           hreflang = seo_payload.hreflang,
+           updated_at = CURRENT_TIMESTAMP
+      FROM seo_payload
+     WHERE seo.page_id = seo_payload.page_id
+     RETURNING seo.page_id
+)
 INSERT INTO page_seo_config (
+    page_id,
     slug,
     meta_title,
     meta_description,
@@ -475,23 +517,17 @@ INSERT INTO page_seo_config (
     og_image,
     hreflang
 )
-VALUES (
-    'fluke-metcal',
-    'FLUKE MET/CAL mit calServer – MET/TRACK Migration & METTEAM-Integration',
-    'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung und DAkkS-taugliche Zertifikate – inkl. SSO, DSGVO und Audit-Trails.',
-    '/fluke-metcal',
-    'index, follow',
-    'FLUKE MET/CAL mit calServer – MET/TRACK Migration & METTEAM-Integration',
-    'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung und DAkkS-taugliche Zertifikate – inkl. SSO, DSGVO und Audit-Trails.',
-    '/uploads/calserver-module-device-management.webp',
-    'de,en'
-)
-ON CONFLICT (slug) DO UPDATE
-SET meta_title = EXCLUDED.meta_title,
-    meta_description = EXCLUDED.meta_description,
-    canonical_url = EXCLUDED.canonical_url,
-    robots_meta = EXCLUDED.robots_meta,
-    og_title = EXCLUDED.og_title,
-    og_description = EXCLUDED.og_description,
-    og_image = EXCLUDED.og_image,
-    hreflang = EXCLUDED.hreflang;
+SELECT
+    seo_payload.page_id,
+    seo_payload.slug,
+    seo_payload.meta_title,
+    seo_payload.meta_description,
+    seo_payload.canonical_url,
+    seo_payload.robots_meta,
+    seo_payload.og_title,
+    seo_payload.og_description,
+    seo_payload.og_image,
+    seo_payload.hreflang
+  FROM seo_payload
+ WHERE NOT EXISTS (SELECT 1 FROM seo_updated)
+   AND NOT EXISTS (SELECT 1 FROM page_seo_config WHERE page_id = seo_payload.page_id);
