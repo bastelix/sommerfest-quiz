@@ -249,6 +249,177 @@ final class MarketingPageWikiControllerTest extends TestCase
         ], $rows);
     }
 
+    public function testDuplicateAcceptsJsonPayload(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $articleResponse = $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'guide',
+                'title' => 'Guide',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Guide']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $article = json_decode((string) $articleResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $articleId = (int) $article['id'];
+
+        $request = $this->createJsonRequestWithPayload(
+            'POST',
+            '/admin/pages/1/wiki/articles/' . $articleId . '/duplicate',
+            [
+                'slug' => 'guide-copy',
+                'title' => 'Guide Copy',
+            ]
+        );
+
+        $response = $controller->duplicate(
+            $request,
+            new Response(),
+            ['pageId' => 1, 'articleId' => $articleId]
+        );
+
+        $this->assertSame(201, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('guide-copy', $payload['slug']);
+        $this->assertSame('Guide Copy', $payload['title']);
+
+        $rows = $pdo->query('SELECT slug, title FROM marketing_page_wiki_articles ORDER BY id ASC')
+            ?->fetchAll(PDO::FETCH_ASSOC);
+        $this->assertCount(2, $rows);
+        $this->assertSame([
+            ['slug' => 'guide', 'title' => 'Guide'],
+            ['slug' => 'guide-copy', 'title' => 'Guide Copy'],
+        ], $rows);
+    }
+
+    public function testDuplicateRejectsInvalidJson(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $articleResponse = $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'guide',
+                'title' => 'Guide',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Guide']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $article = json_decode((string) $articleResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $articleId = (int) $article['id'];
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles/' . $articleId . '/duplicate', [
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
+        ]);
+        $stream = (new StreamFactory())->createStream('{invalid');
+        $request = $request->withBody($stream);
+
+        $response = $controller->duplicate(
+            $request,
+            new Response(),
+            ['pageId' => 1, 'articleId' => $articleId]
+        );
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
+    public function testSortAcceptsJsonPayload(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $first = json_decode((string) $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'alpha',
+                'title' => 'Alpha',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Alpha']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        )->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+        $second = json_decode((string) $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'beta',
+                'title' => 'Beta',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Beta']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        )->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+        $third = json_decode((string) $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'gamma',
+                'title' => 'Gamma',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Gamma']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        )->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+        $request = $this->createJsonRequestWithPayload(
+            'POST',
+            '/admin/pages/1/wiki/articles/sort',
+            [
+                'order' => [
+                    ['id' => $third['id']],
+                    ['id' => $first['id']],
+                ],
+            ]
+        );
+
+        $response = $controller->sort(
+            $request,
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $this->assertSame(204, $response->getStatusCode());
+
+        $rows = $pdo->query('SELECT id, sort_index FROM marketing_page_wiki_articles ORDER BY sort_index ASC')
+            ?->fetchAll(PDO::FETCH_ASSOC);
+
+        $this->assertSame([
+            ['id' => $third['id'], 'sort_index' => 0],
+            ['id' => $first['id'], 'sort_index' => 1],
+            ['id' => $second['id'], 'sort_index' => 2],
+        ], $rows);
+    }
+
+    public function testSortRejectsInvalidJson(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles/sort', [
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
+        ]);
+        $stream = (new StreamFactory())->createStream('{invalid-json');
+        $request = $request->withBody($stream);
+
+        $response = $controller->sort(
+            $request,
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
     private function createWikiDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');
@@ -313,13 +484,17 @@ final class MarketingPageWikiControllerTest extends TestCase
 
     private function createJsonRequest(array $payload): \Psr\Http\Message\ServerRequestInterface
     {
-        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
+        return $this->createJsonRequestWithPayload('POST', '/admin/pages/1/wiki/articles', $payload);
+    }
+
+    private function createJsonRequestWithPayload(string $method, string $path, array $payload): \Psr\Http\Message\ServerRequestInterface
+    {
+        $request = $this->createRequest($method, $path, [
             'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
         ]);
         $stream = (new StreamFactory())->createStream(json_encode($payload, JSON_THROW_ON_ERROR));
-        $request = $request->withBody($stream);
 
-        return $request;
+        return $request->withBody($stream);
     }
 
     private function createPublisherRoot(): string
