@@ -223,7 +223,7 @@ final class EditorJsToMarkdown
         $text = is_string($value) ? $value : '';
         $text = strip_tags($text, '<b><strong><i><em><u><a><code><mark>');
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5);
-        $text = preg_replace('/\s+/', ' ', $text ?? '') ?? '';
+        $text = preg_replace('/\s+/', ' ', $text) ?? '';
 
         return trim($text);
     }
@@ -232,7 +232,7 @@ final class EditorJsToMarkdown
     {
         $text = is_string($value) ? $value : '';
         $text = strip_tags($text, '<b><strong><i><em><u><a><code><mark><br><span>');
-        $text = preg_replace('/\s+/', ' ', $text ?? '') ?? '';
+        $text = preg_replace('/\s+/', ' ', $text) ?? '';
         $text = str_replace(['javascript:', 'data:'], '', $text);
 
         return trim($text);

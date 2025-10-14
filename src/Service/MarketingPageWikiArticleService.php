@@ -21,7 +21,7 @@ final class MarketingPageWikiArticleService
 
     private EditorJsToMarkdown $converter;
 
-    private ?WikiPublisher $publisher;
+    private WikiPublisher $publisher;
 
     public function __construct(?PDO $pdo = null, ?EditorJsToMarkdown $converter = null, ?WikiPublisher $publisher = null)
     {
@@ -195,7 +195,7 @@ final class MarketingPageWikiArticleService
             throw new RuntimeException('Article could not be loaded after saving.');
         }
 
-        if ($article->isPublished() && $this->publisher !== null) {
+        if ($article->isPublished()) {
             $page = $this->resolvePageSlug($pageId);
             if ($page !== null) {
                 $this->publisher->publish($page, $article);
@@ -267,14 +267,14 @@ final class MarketingPageWikiArticleService
             throw new RuntimeException('Failed to load updated article');
         }
 
-        if ($updated->isPublished() && $this->publisher !== null) {
+        if ($updated->isPublished()) {
             $page = $this->resolvePageSlug($updated->getPageId());
             if ($page !== null) {
                 $this->publisher->publish($page, $updated);
             }
         }
 
-        if (!$updated->isPublished() && $this->publisher !== null) {
+        if (!$updated->isPublished()) {
             $page = $this->resolvePageSlug($updated->getPageId());
             if ($page !== null) {
                 $this->publisher->remove($page, $updated->getLocale(), $updated->getSlug());
@@ -294,11 +294,9 @@ final class MarketingPageWikiArticleService
         $stmt = $this->pdo->prepare('DELETE FROM marketing_page_wiki_articles WHERE id = ?');
         $stmt->execute([$articleId]);
 
-        if ($this->publisher !== null) {
-            $page = $this->resolvePageSlug($article->getPageId());
-            if ($page !== null) {
-                $this->publisher->remove($page, $article->getLocale(), $article->getSlug());
-            }
+        $page = $this->resolvePageSlug($article->getPageId());
+        if ($page !== null) {
+            $this->publisher->remove($page, $article->getLocale(), $article->getSlug());
         }
     }
 
@@ -474,17 +472,17 @@ final class MarketingPageWikiArticleService
     private function hydrateArticle(array $row): MarketingPageWikiArticle
     {
         $editorState = null;
-        if (isset($row['editor_json']) && $row['editor_json'] !== null && $row['editor_json'] !== '') {
+        if (isset($row['editor_json']) && $row['editor_json'] !== '') {
             $decoded = json_decode((string) $row['editor_json'], true);
             if (is_array($decoded)) {
                 $editorState = $decoded;
             }
         }
 
-        $publishedAt = isset($row['published_at']) && $row['published_at'] !== null
+        $publishedAt = isset($row['published_at'])
             ? new DateTimeImmutable((string) $row['published_at'])
             : null;
-        $updatedAt = isset($row['updated_at']) && $row['updated_at'] !== null
+        $updatedAt = isset($row['updated_at'])
             ? new DateTimeImmutable((string) $row['updated_at'])
             : null;
 
@@ -511,7 +509,7 @@ final class MarketingPageWikiArticleService
     private function hydrateVersion(array $row): MarketingPageWikiVersion
     {
         $editorState = null;
-        if (isset($row['editor_json']) && $row['editor_json'] !== null && $row['editor_json'] !== '') {
+        if (isset($row['editor_json']) && $row['editor_json'] !== '') {
             $decoded = json_decode((string) $row['editor_json'], true);
             if (is_array($decoded)) {
                 $editorState = $decoded;
@@ -562,57 +560,19 @@ final class MarketingPageWikiArticleService
     {
         $normalized = preg_replace('/\r\n?/', "\n", $markdown) ?? '';
         $lines = explode("\n", $normalized);
+        /** @var list<array<string,mixed>> $blocks */
         $blocks = [];
+        /** @var list<string> $paragraphLines */
         $paragraphLines = [];
+        /** @var list<string> $listItems */
         $listItems = [];
+        /** @var 'ordered'|'unordered'|null $listType */
         $listType = null;
+        /** @var list<string> $quoteLines */
         $quoteLines = [];
+        /** @var list<string> $codeLines */
         $codeLines = [];
         $inCode = false;
-
-        $flushParagraph = function () use (&$paragraphLines, &$blocks): void {
-            if ($paragraphLines === []) {
-                return;
-            }
-            $text = implode("\n", $paragraphLines);
-            $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-            $text = str_replace("\n", '<br>', $text);
-            $blocks[] = [
-                'type' => 'paragraph',
-                'data' => ['text' => $text],
-            ];
-            $paragraphLines = [];
-        };
-
-        $flushList = function () use (&$listItems, &$listType, &$blocks): void {
-            if ($listItems === []) {
-                return;
-            }
-            $blocks[] = [
-                'type' => 'list',
-                'data' => [
-                    'style' => $listType === 'ordered' ? 'ordered' : 'unordered',
-                    'items' => $listItems,
-                ],
-            ];
-            $listItems = [];
-            $listType = null;
-        };
-
-        $flushQuote = function () use (&$quoteLines, &$blocks): void {
-            if ($quoteLines === []) {
-                return;
-            }
-            $text = implode(' ', array_map(
-                static fn (string $line): string => htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                $quoteLines
-            ));
-            $blocks[] = [
-                'type' => 'quote',
-                'data' => ['text' => $text],
-            ];
-            $quoteLines = [];
-        };
 
         foreach ($lines as $line) {
             $raw = rtrim($line, "\r");
@@ -633,25 +593,25 @@ final class MarketingPageWikiArticleService
             }
 
             if (preg_match('/^```/', $trimmed)) {
-                $flushParagraph();
-                $flushList();
-                $flushQuote();
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushListItems($listItems, $listType, $blocks);
+                $this->flushQuoteLines($quoteLines, $blocks);
                 $inCode = true;
                 $codeLines = [];
                 continue;
             }
 
             if (trim($trimmed) === '') {
-                $flushParagraph();
-                $flushList();
-                $flushQuote();
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushListItems($listItems, $listType, $blocks);
+                $this->flushQuoteLines($quoteLines, $blocks);
                 continue;
             }
 
             if (preg_match('/^(#{1,6})\s+(.*)$/', $trimmed, $matches)) {
-                $flushParagraph();
-                $flushList();
-                $flushQuote();
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushListItems($listItems, $listType, $blocks);
+                $this->flushQuoteLines($quoteLines, $blocks);
                 $level = strlen($matches[1]);
                 $level = max(1, min(6, $level));
                 $text = htmlspecialchars(trim((string) $matches[2]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
@@ -663,10 +623,10 @@ final class MarketingPageWikiArticleService
             }
 
             if (preg_match('/^[-*]\s+(.*)$/', $trimmed, $matches)) {
-                $flushParagraph();
-                $flushQuote();
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushQuoteLines($quoteLines, $blocks);
                 if ($listType === 'ordered') {
-                    $flushList();
+                    $this->flushListItems($listItems, $listType, $blocks);
                 }
                 $listType = 'unordered';
                 $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
@@ -674,10 +634,10 @@ final class MarketingPageWikiArticleService
             }
 
             if (preg_match('/^\d+\.\s+(.*)$/', $trimmed, $matches)) {
-                $flushParagraph();
-                $flushQuote();
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushQuoteLines($quoteLines, $blocks);
                 if ($listType === 'unordered') {
-                    $flushList();
+                    $this->flushListItems($listItems, $listType, $blocks);
                 }
                 $listType = 'ordered';
                 $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
@@ -685,14 +645,14 @@ final class MarketingPageWikiArticleService
             }
 
             if (preg_match('/^>\s?(.*)$/', $trimmed, $matches)) {
-                $flushParagraph();
-                $flushList();
+                $this->flushParagraphLines($paragraphLines, $blocks);
+                $this->flushListItems($listItems, $listType, $blocks);
                 $quoteLines[] = trim((string) $matches[1]);
                 continue;
             }
 
             if ($quoteLines !== []) {
-                $flushQuote();
+                $this->flushQuoteLines($quoteLines, $blocks);
             }
 
             $paragraphLines[] = trim($raw);
@@ -705,9 +665,9 @@ final class MarketingPageWikiArticleService
             ];
         }
 
-        $flushParagraph();
-        $flushList();
-        $flushQuote();
+        $this->flushParagraphLines($paragraphLines, $blocks);
+        $this->flushListItems($listItems, $listType, $blocks);
+        $this->flushQuoteLines($quoteLines, $blocks);
 
         if ($blocks === []) {
             $text = htmlspecialchars(trim($normalized), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
@@ -718,5 +678,68 @@ final class MarketingPageWikiArticleService
         }
 
         return ['blocks' => $blocks];
+    }
+
+    /**
+     * @param list<string> $paragraphLines
+     * @param list<array<string,mixed>> $blocks
+     */
+    private function flushParagraphLines(array &$paragraphLines, array &$blocks): void
+    {
+        if ($paragraphLines === []) {
+            return;
+        }
+
+        $text = implode("\n", $paragraphLines);
+        $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+        $text = str_replace("\n", '<br>', $text);
+        $blocks[] = [
+            'type' => 'paragraph',
+            'data' => ['text' => $text],
+        ];
+        $paragraphLines = [];
+    }
+
+    /**
+     * @param list<string> $listItems
+     * @param 'ordered'|'unordered'|null $listType
+     * @param list<array<string,mixed>> $blocks
+     */
+    private function flushListItems(array &$listItems, ?string &$listType, array &$blocks): void
+    {
+        if ($listItems === []) {
+            return;
+        }
+
+        $blocks[] = [
+            'type' => 'list',
+            'data' => [
+                'style' => $listType === 'ordered' ? 'ordered' : 'unordered',
+                'items' => $listItems,
+            ],
+        ];
+        $listItems = [];
+        $listType = null;
+    }
+
+    /**
+     * @param list<string> $quoteLines
+     * @param list<array<string,mixed>> $blocks
+     */
+    private function flushQuoteLines(array &$quoteLines, array &$blocks): void
+    {
+        if ($quoteLines === []) {
+            return;
+        }
+
+        $text = implode(' ', array_map(
+            static fn (string $line): string => htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+            $quoteLines
+        ));
+        $blocks[] = [
+            'type' => 'quote',
+            'data' => ['text' => $text],
+        ];
+        $quoteLines = [];
     }
 }

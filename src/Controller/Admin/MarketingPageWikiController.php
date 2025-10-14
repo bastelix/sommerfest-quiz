@@ -355,7 +355,7 @@ final class MarketingPageWikiController
     private function titleFromSlug(string $slug): string
     {
         $normalized = str_replace('-', ' ', $slug);
-        $normalized = preg_replace('/\s+/', ' ', $normalized ?? '') ?? '';
+        $normalized = preg_replace('/\s+/', ' ', $normalized) ?? '';
         $normalized = trim($normalized);
 
         if ($normalized === '') {

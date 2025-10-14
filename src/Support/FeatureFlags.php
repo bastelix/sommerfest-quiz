@@ -32,6 +32,8 @@ final class FeatureFlags
             return false;
         }
 
-        return filter_var($value, FILTER_VALIDATE_BOOL) ?? true;
+        $parsed = filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+
+        return $parsed ?? true;
     }
 }

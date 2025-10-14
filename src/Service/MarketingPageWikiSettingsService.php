@@ -30,7 +30,7 @@ final class MarketingPageWikiSettingsService
         }
 
         $updatedAt = null;
-        if (isset($row['updated_at']) && $row['updated_at'] !== null) {
+        if (isset($row['updated_at'])) {
             $updatedAt = new DateTimeImmutable((string) $row['updated_at']);
         }
 
