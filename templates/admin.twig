@@ -1183,6 +1183,13 @@
                         <select id="wikiLocaleFilter" class="uk-select uk-form-small" data-wiki-locale-filter>
                           <option value="all">Alle</option>
                         </select>
+                        <button type="button" class="uk-button uk-button-default" data-wiki-upload>Markdown importieren</button>
+                        <input
+                          type="file"
+                          accept=".md,.markdown,text/markdown"
+                          hidden
+                          data-wiki-upload-input
+                        >
                         <button type="button" class="uk-button uk-button-primary" data-wiki-create>Artikel erstellen</button>
                       </div>
                     </div>

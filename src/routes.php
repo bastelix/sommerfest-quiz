@@ -186,6 +186,8 @@ use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app, TranslationService $translator) {
+    $app->addBodyParsingMiddleware();
+
     $resolveMarketingAccess = static function (Request $request): array {
         $domainType = $request->getAttribute('domainType');
         if (!in_array($domainType, ['main', 'marketing'], true)) {

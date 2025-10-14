@@ -205,6 +205,33 @@ final class MarketingPageWikiArticleService
         return $article;
     }
 
+    public function saveArticleFromMarkdown(
+        int $pageId,
+        string $locale,
+        string $slug,
+        string $title,
+        string $markdown,
+        ?string $excerpt = null,
+        string $status = MarketingPageWikiArticle::STATUS_DRAFT,
+        ?int $articleId = null,
+        ?int $sortIndex = null
+    ): MarketingPageWikiArticle {
+        $editorState = $this->convertMarkdownToEditorState($markdown);
+
+        return $this->saveArticle(
+            $pageId,
+            $locale,
+            $slug,
+            $title,
+            $excerpt,
+            $editorState,
+            $status,
+            $articleId,
+            null,
+            $sortIndex
+        );
+    }
+
     public function updateStatus(int $articleId, string $status): MarketingPageWikiArticle
     {
         if (!in_array($status, [
@@ -526,5 +553,170 @@ final class MarketingPageWikiArticleService
         }
 
         return (string) $json;
+    }
+
+    /**
+     * @return array{blocks:list<array<string,mixed>>}
+     */
+    private function convertMarkdownToEditorState(string $markdown): array
+    {
+        $normalized = preg_replace('/\r\n?/', "\n", $markdown) ?? '';
+        $lines = explode("\n", $normalized);
+        $blocks = [];
+        $paragraphLines = [];
+        $listItems = [];
+        $listType = null;
+        $quoteLines = [];
+        $codeLines = [];
+        $inCode = false;
+
+        $flushParagraph = function () use (&$paragraphLines, &$blocks): void {
+            if ($paragraphLines === []) {
+                return;
+            }
+            $text = implode("\n", $paragraphLines);
+            $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $text = str_replace("\n", '<br>', $text);
+            $blocks[] = [
+                'type' => 'paragraph',
+                'data' => ['text' => $text],
+            ];
+            $paragraphLines = [];
+        };
+
+        $flushList = function () use (&$listItems, &$listType, &$blocks): void {
+            if ($listItems === []) {
+                return;
+            }
+            $blocks[] = [
+                'type' => 'list',
+                'data' => [
+                    'style' => $listType === 'ordered' ? 'ordered' : 'unordered',
+                    'items' => $listItems,
+                ],
+            ];
+            $listItems = [];
+            $listType = null;
+        };
+
+        $flushQuote = function () use (&$quoteLines, &$blocks): void {
+            if ($quoteLines === []) {
+                return;
+            }
+            $text = implode(' ', array_map(
+                static fn (string $line): string => htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                $quoteLines
+            ));
+            $blocks[] = [
+                'type' => 'quote',
+                'data' => ['text' => $text],
+            ];
+            $quoteLines = [];
+        };
+
+        foreach ($lines as $line) {
+            $raw = rtrim($line, "\r");
+            $trimmed = ltrim($raw);
+
+            if ($inCode) {
+                if (preg_match('/^```/', $trimmed)) {
+                    $blocks[] = [
+                        'type' => 'code',
+                        'data' => ['code' => implode("\n", $codeLines)],
+                    ];
+                    $codeLines = [];
+                    $inCode = false;
+                    continue;
+                }
+                $codeLines[] = $raw;
+                continue;
+            }
+
+            if (preg_match('/^```/', $trimmed)) {
+                $flushParagraph();
+                $flushList();
+                $flushQuote();
+                $inCode = true;
+                $codeLines = [];
+                continue;
+            }
+
+            if (trim($trimmed) === '') {
+                $flushParagraph();
+                $flushList();
+                $flushQuote();
+                continue;
+            }
+
+            if (preg_match('/^(#{1,6})\s+(.*)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushList();
+                $flushQuote();
+                $level = strlen($matches[1]);
+                $level = max(1, min(6, $level));
+                $text = htmlspecialchars(trim((string) $matches[2]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $blocks[] = [
+                    'type' => 'header',
+                    'data' => ['level' => $level, 'text' => $text],
+                ];
+                continue;
+            }
+
+            if (preg_match('/^[-*]\s+(.*)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushQuote();
+                if ($listType === 'ordered') {
+                    $flushList();
+                }
+                $listType = 'unordered';
+                $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                continue;
+            }
+
+            if (preg_match('/^\d+\.\s+(.*)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushQuote();
+                if ($listType === 'unordered') {
+                    $flushList();
+                }
+                $listType = 'ordered';
+                $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                continue;
+            }
+
+            if (preg_match('/^>\s?(.*)$/', $trimmed, $matches)) {
+                $flushParagraph();
+                $flushList();
+                $quoteLines[] = trim((string) $matches[1]);
+                continue;
+            }
+
+            if ($quoteLines !== []) {
+                $flushQuote();
+            }
+
+            $paragraphLines[] = trim($raw);
+        }
+
+        if ($inCode) {
+            $blocks[] = [
+                'type' => 'code',
+                'data' => ['code' => implode("\n", $codeLines)],
+            ];
+        }
+
+        $flushParagraph();
+        $flushList();
+        $flushQuote();
+
+        if ($blocks === []) {
+            $text = htmlspecialchars(trim($normalized), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $blocks[] = [
+                'type' => 'paragraph',
+                'data' => ['text' => $text],
+            ];
+        }
+
+        return ['blocks' => $blocks];
     }
 }

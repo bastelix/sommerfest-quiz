@@ -16,6 +16,8 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
+use Slim\Psr7\Stream;
+use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
 
 final class MarketingPageWikiControllerTest extends TestCase
@@ -81,6 +83,76 @@ final class MarketingPageWikiControllerTest extends TestCase
         $row = $pdo->query('SELECT slug, title FROM marketing_page_wiki_articles WHERE page_id = 1')
             ?->fetch(PDO::FETCH_ASSOC);
         $this->assertSame(['slug' => 'introduction', 'title' => 'Introduction'], $row);
+    }
+
+    public function testSaveArticleAcceptsMarkdownUpload(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $markdown = "# Quickstart\n\nDies ist eine Einführung.";
+        $resource = fopen('php://temp', 'wb+');
+        fwrite($resource, $markdown);
+        rewind($resource);
+        $uploaded = new UploadedFile(new Stream($resource), 'quickstart.md', 'text/markdown', strlen($markdown), UPLOAD_ERR_OK);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=test'
+        ]);
+        $request = $request->withUploadedFiles(['markdown' => $uploaded])->withParsedBody(['locale' => 'en']);
+
+        $response = $controller->saveArticle($request, new Response(), ['pageId' => 1]);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('quickstart', $payload['slug']);
+        $this->assertSame('Quickstart', $payload['title']);
+        $this->assertSame('en', $payload['locale']);
+        $this->assertStringContainsString('Dies ist eine Einführung', $payload['contentMarkdown']);
+
+        $row = $pdo->query('SELECT slug, locale, title FROM marketing_page_wiki_articles WHERE page_id = 1')
+            ?->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame(['slug' => 'quickstart', 'locale' => 'en', 'title' => 'Quickstart'], $row);
+    }
+
+    public function testSaveArticleRejectsUploadWithoutMarkdownFile(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=test'
+        ]);
+
+        $response = $controller->saveArticle($request, new Response(), ['pageId' => 1]);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertArrayHasKey('error', $payload);
+    }
+
+    public function testSaveArticleRejectsNonMarkdownUpload(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $resource = fopen('php://temp', 'wb+');
+        fwrite($resource, 'Plain text');
+        rewind($resource);
+        $uploaded = new UploadedFile(new Stream($resource), 'notes.txt', 'text/plain', 10, UPLOAD_ERR_OK);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=test'
+        ])->withUploadedFiles(['markdown' => $uploaded]);
+
+        $response = $controller->saveArticle($request, new Response(), ['pageId' => 1]);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertArrayHasKey('error', $payload);
+        $this->assertStringContainsString('Markdown', $payload['error']);
     }
 
     public function testUpdateStatusReturns400ForInvalidJson(): void
