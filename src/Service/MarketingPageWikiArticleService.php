@@ -614,7 +614,7 @@ final class MarketingPageWikiArticleService
                 $this->flushQuoteLines($quoteLines, $blocks);
                 $level = strlen($matches[1]);
                 $level = max(1, min(6, $level));
-                $text = htmlspecialchars(trim((string) $matches[2]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $text = $this->renderInlineContent(trim((string) $matches[2]));
                 $blocks[] = [
                     'type' => 'header',
                     'data' => ['level' => $level, 'text' => $text],
@@ -629,7 +629,7 @@ final class MarketingPageWikiArticleService
                     $this->flushListItems($listItems, $listType, $blocks);
                 }
                 $listType = 'unordered';
-                $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $listItems[] = $this->renderInlineContent(trim((string) $matches[1]));
                 continue;
             }
 
@@ -640,7 +640,7 @@ final class MarketingPageWikiArticleService
                     $this->flushListItems($listItems, $listType, $blocks);
                 }
                 $listType = 'ordered';
-                $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $listItems[] = $this->renderInlineContent(trim((string) $matches[1]));
                 continue;
             }
 
@@ -691,8 +691,7 @@ final class MarketingPageWikiArticleService
         }
 
         $text = implode("\n", $paragraphLines);
-        $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        $text = str_replace("\n", '<br>', $text);
+        $text = $this->renderInlineContent($text, true);
         $blocks[] = [
             'type' => 'paragraph',
             'data' => ['text' => $text],
@@ -732,14 +731,133 @@ final class MarketingPageWikiArticleService
             return;
         }
 
-        $text = implode(' ', array_map(
-            static fn (string $line): string => htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-            $quoteLines
-        ));
+        $text = implode("\n", $quoteLines);
+        $text = $this->renderInlineContent($text, true);
         $blocks[] = [
             'type' => 'quote',
             'data' => ['text' => $text],
         ];
         $quoteLines = [];
+    }
+
+    private function renderInlineContent(string $text, bool $preserveLineBreaks = false, bool $allowLinks = true): string
+    {
+        $html = $this->parseInlineMarkdown($text, $allowLinks);
+
+        if ($preserveLineBreaks) {
+            $html = str_replace("\n", '<br>', $html);
+        }
+
+        return $html;
+    }
+
+    private function parseInlineMarkdown(string $text, bool $allowLinks = true): string
+    {
+        if ($text === '') {
+            return '';
+        }
+
+        $codePlaceholders = [];
+        $processed = preg_replace_callback(
+            '/`([^`]+)`/',
+            function (array $matches) use (&$codePlaceholders): string {
+                $key = sprintf('<<CODE-%d>>', count($codePlaceholders));
+                $codePlaceholders[$key] = '<code>' . htmlspecialchars($matches[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5) . '</code>';
+
+                return $key;
+            },
+            $text
+        );
+
+        if (!is_string($processed)) {
+            $processed = $text;
+        }
+
+        $linkPlaceholders = [];
+        if ($allowLinks) {
+            $processed = preg_replace_callback(
+                '/\[(.*?)\]\((.*?)\)/',
+                function (array $matches) use (&$linkPlaceholders): string {
+                    $href = $this->resolveMarkdownLink((string) $matches[2]);
+                    if ($href === null) {
+                        return (string) $matches[1];
+                    }
+
+                    $label = $this->parseInlineMarkdown((string) $matches[1], false);
+                    $key = sprintf('<<LINK-%d>>', count($linkPlaceholders));
+                    $linkPlaceholders[$key] = sprintf(
+                        '<a href="%s">%s</a>',
+                        htmlspecialchars($href, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                        $label
+                    );
+
+                    return $key;
+                },
+                $processed
+            );
+
+            if (!is_string($processed)) {
+                $processed = $text;
+            }
+        }
+
+        $escaped = htmlspecialchars($processed, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+        $patterns = [
+            '/(?<!\*)\*\*(?!\s)(.+?)(?<!\s)\*\*(?!\*)/s' => '<strong>$1</strong>',
+            '/(?<!_)__(?!\s)(.+?)(?<!\s)__(?!_)/s' => '<strong>$1</strong>',
+            '/(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)/s' => '<em>$1</em>',
+            '/(?<!_)_(?!\s)(.+?)(?<!\s)_(?!_)/s' => '<em>$1</em>',
+            '/(?<!~)~~(?!\s)(.+?)(?<!\s)~~(?!~)/s' => '<del>$1</del>',
+        ];
+
+        foreach ($patterns as $pattern => $replacement) {
+            $escaped = preg_replace($pattern, $replacement, $escaped) ?? $escaped;
+        }
+
+        foreach ($codePlaceholders as $placeholder => $html) {
+            $escaped = str_replace(htmlspecialchars($placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), $html, $escaped);
+        }
+
+        foreach ($linkPlaceholders as $placeholder => $html) {
+            $escaped = str_replace(htmlspecialchars($placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), $html, $escaped);
+        }
+
+        return $escaped;
+    }
+
+    private function resolveMarkdownLink(string $rawUrl): ?string
+    {
+        $href = trim($rawUrl);
+        if ($href === '') {
+            return null;
+        }
+
+        if (str_starts_with($href, '#') || str_starts_with($href, '/')) {
+            return $href;
+        }
+
+        if (str_starts_with($href, './') || str_starts_with($href, '../')) {
+            return $href;
+        }
+
+        if (preg_match('/^[a-zA-Z][a-zA-Z0-9+.-]*:/', $href, $matches) === 1) {
+            $scheme = strtolower(rtrim($matches[0], ':'));
+            if (!in_array($scheme, ['http', 'https', 'mailto'], true)) {
+                return null;
+            }
+
+            return $href;
+        }
+
+        if (preg_match('/^\/\//', $href) === 1) {
+            return null;
+        }
+
+        if (preg_match('/\s/', $href) === 1) {
+            return null;
+        }
+
+        return $href;
     }
 }
