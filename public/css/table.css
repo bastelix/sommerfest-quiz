@@ -49,6 +49,8 @@
   border-radius: 12px;
   padding: 0.5rem;
   min-height: 44px;
+  position: relative;
+  overflow: visible;
 }
 
 .qr-rowcard:nth-child(even) {
@@ -105,6 +107,7 @@
   min-width: auto;
   display: flex;
   gap: 4px;
+  z-index: 1500;
 }
 
 .qr-action-menu .uk-dropdown .qr-action {
