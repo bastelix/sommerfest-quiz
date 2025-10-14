@@ -28,7 +28,7 @@ final class MarketingPageWikiControllerTest extends TestCase
         $controller = $this->createController($pdo);
 
         $request = $this->createRequest('POST', '/admin/pages/1/wiki/settings', [
-            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
         ]);
         $stream = (new StreamFactory())->createStream(json_encode([
             'active' => true,
@@ -56,7 +56,7 @@ final class MarketingPageWikiControllerTest extends TestCase
         $controller = $this->createController($pdo);
 
         $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
-            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
         ]);
         $stream = (new StreamFactory())->createStream(json_encode([
             'locale' => 'de',
@@ -226,7 +226,7 @@ final class MarketingPageWikiControllerTest extends TestCase
         $secondId = (int) $secondPayload['id'];
 
         $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles/' . $secondId . '/start', [
-            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
         ]);
         $stream = (new StreamFactory())->createStream(json_encode(['isStartDocument' => true], JSON_THROW_ON_ERROR));
         $request = $request->withBody($stream);
@@ -314,7 +314,7 @@ final class MarketingPageWikiControllerTest extends TestCase
     private function createJsonRequest(array $payload): \Psr\Http\Message\ServerRequestInterface
     {
         $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
-            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
         ]);
         $stream = (new StreamFactory())->createStream(json_encode($payload, JSON_THROW_ON_ERROR));
         $request = $request->withBody($stream);
