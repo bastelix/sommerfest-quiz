@@ -153,6 +153,56 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
         $service->reorderArticles($pageId, [9999]);
     }
 
+    public function testMarkdownImportParsesLinksAndFormatting(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'calserver', 'CalServer');
+
+        $markdown = <<<'MD'
+# calServer Manual
+
+[2.3 **Infoleiste (TOP Menü)**](https://example.com/infoleiste)
+
+## ~~7. Sicherheitsmanagement~~
+
+- ~~7.1 Benutzerrollen und Berechtigungen~~
+
+Absatz mit [Link](https://example.com) und `Code`.
+MD;
+
+        $article = $service->saveArticleFromMarkdown(
+            $pageId,
+            'de',
+            'calserver-manual',
+            'CalServer Manual',
+            $markdown
+        );
+
+        $state = $article->getEditorState();
+        $this->assertIsArray($state);
+        $this->assertCount(5, $state['blocks']);
+
+        $this->assertSame('paragraph', $state['blocks'][1]['type']);
+        $this->assertStringContainsString('<a href="https://example.com/infoleiste"', $state['blocks'][1]['data']['text']);
+        $this->assertStringContainsString('<strong>Infoleiste (TOP Menü)</strong>', $state['blocks'][1]['data']['text']);
+
+        $this->assertSame('header', $state['blocks'][2]['type']);
+        $this->assertStringContainsString('<del>7. Sicherheitsmanagement</del>', $state['blocks'][2]['data']['text']);
+
+        $this->assertSame('list', $state['blocks'][3]['type']);
+        $this->assertStringContainsString('<del>7.1 Benutzerrollen und Berechtigungen</del>', $state['blocks'][3]['data']['items'][0]);
+
+        $this->assertSame('paragraph', $state['blocks'][4]['type']);
+        $this->assertStringContainsString('<a href="https://example.com"', $state['blocks'][4]['data']['text']);
+        $this->assertStringContainsString('<code>Code</code>', $state['blocks'][4]['data']['text']);
+
+        $this->assertStringContainsString('<a href="https://example.com/infoleiste"', $article->getContentHtml());
+        $this->assertStringContainsString('<del>7. Sicherheitsmanagement</del>', $article->getContentHtml());
+        $this->assertStringContainsString('<code>Code</code>', $article->getContentHtml());
+    }
+
     private function createDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');

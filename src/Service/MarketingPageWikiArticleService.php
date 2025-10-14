@@ -575,7 +575,7 @@ final class MarketingPageWikiArticleService
                 return;
             }
             $text = implode("\n", $paragraphLines);
-            $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $text = $this->parseInlineMarkdown($text);
             $text = str_replace("\n", '<br>', $text);
             $blocks[] = [
                 'type' => 'paragraph',
@@ -603,10 +603,9 @@ final class MarketingPageWikiArticleService
             if ($quoteLines === []) {
                 return;
             }
-            $text = implode(' ', array_map(
-                static fn (string $line): string => htmlspecialchars($line, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
-                $quoteLines
-            ));
+            $text = implode("\n", $quoteLines);
+            $text = $this->parseInlineMarkdown($text, true);
+            $text = str_replace("\n", '<br>', $text);
             $blocks[] = [
                 'type' => 'quote',
                 'data' => ['text' => $text],
@@ -654,7 +653,7 @@ final class MarketingPageWikiArticleService
                 $flushQuote();
                 $level = strlen($matches[1]);
                 $level = max(1, min(6, $level));
-                $text = htmlspecialchars(trim((string) $matches[2]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $text = $this->parseInlineMarkdown(trim((string) $matches[2]));
                 $blocks[] = [
                     'type' => 'header',
                     'data' => ['level' => $level, 'text' => $text],
@@ -669,7 +668,7 @@ final class MarketingPageWikiArticleService
                     $flushList();
                 }
                 $listType = 'unordered';
-                $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $listItems[] = $this->parseInlineMarkdown(trim((string) $matches[1]));
                 continue;
             }
 
@@ -680,7 +679,7 @@ final class MarketingPageWikiArticleService
                     $flushList();
                 }
                 $listType = 'ordered';
-                $listItems[] = htmlspecialchars(trim((string) $matches[1]), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+                $listItems[] = $this->parseInlineMarkdown(trim((string) $matches[1]));
                 continue;
             }
 
@@ -710,7 +709,7 @@ final class MarketingPageWikiArticleService
         $flushQuote();
 
         if ($blocks === []) {
-            $text = htmlspecialchars(trim($normalized), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            $text = $this->parseInlineMarkdown(trim($normalized));
             $blocks[] = [
                 'type' => 'paragraph',
                 'data' => ['text' => $text],
@@ -718,5 +717,199 @@ final class MarketingPageWikiArticleService
         }
 
         return ['blocks' => $blocks];
+    }
+
+    private function parseInlineMarkdown(string $text, bool $skipLinks = false): string
+    {
+        if ($text === '') {
+            return '';
+        }
+
+        $placeholders = [];
+
+        $text = preg_replace_callback('/`([^`]+)`/', function (array $matches) use (&$placeholders): string {
+            return $this->registerMarkdownPlaceholder(
+                $placeholders,
+                '<code>' . htmlspecialchars($matches[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5) . '</code>'
+            );
+        }, $text) ?? $text;
+
+        if (!$skipLinks) {
+            $text = $this->replaceMarkdownLinks($text, $placeholders);
+        }
+
+        $text = preg_replace_callback('/~~(.+?)~~/s', function (array $matches) use (&$placeholders): string {
+            $content = $this->parseInlineMarkdown($matches[1], true);
+
+            return $this->registerMarkdownPlaceholder($placeholders, '<del>' . $content . '</del>');
+        }, $text) ?? $text;
+
+        $text = preg_replace_callback('/\*\*(.+?)\*\*/s', function (array $matches) use (&$placeholders): string {
+            $content = $this->parseInlineMarkdown($matches[1], true);
+
+            return $this->registerMarkdownPlaceholder($placeholders, '<strong>' . $content . '</strong>');
+        }, $text) ?? $text;
+
+        $text = preg_replace_callback('/__(.+?)__/s', function (array $matches) use (&$placeholders): string {
+            $content = $this->parseInlineMarkdown($matches[1], true);
+
+            return $this->registerMarkdownPlaceholder($placeholders, '<strong>' . $content . '</strong>');
+        }, $text) ?? $text;
+
+        $text = preg_replace_callback('/(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)/s', function (array $matches) use (&$placeholders): string {
+            $content = $this->parseInlineMarkdown($matches[1], true);
+
+            return $this->registerMarkdownPlaceholder($placeholders, '<em>' . $content . '</em>');
+        }, $text) ?? $text;
+
+        $text = preg_replace_callback('/(?<!_)_(?!\s)(.+?)(?<!\s)_(?!_)/s', function (array $matches) use (&$placeholders): string {
+            $content = $this->parseInlineMarkdown($matches[1], true);
+
+            return $this->registerMarkdownPlaceholder($placeholders, '<em>' . $content . '</em>');
+        }, $text) ?? $text;
+
+        $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+
+        foreach (array_reverse($placeholders, true) as $placeholder => $replacement) {
+            $escaped = str_replace($placeholder, $replacement, $escaped);
+        }
+
+        return $escaped;
+    }
+
+    /**
+     * @param array<string,string> $placeholders
+     */
+    private function replaceMarkdownLinks(string $text, array &$placeholders): string
+    {
+        $offset = 0;
+
+        while (($start = strpos($text, '[', $offset)) !== false) {
+            if ($start > 0 && $text[$start - 1] === '!') {
+                $offset = $start + 1;
+                continue;
+            }
+
+            $labelEnd = $this->findClosingDelimiter($text, $start, '[', ']');
+            if ($labelEnd === null) {
+                break;
+            }
+
+            if (!isset($text[$labelEnd + 1]) || $text[$labelEnd + 1] !== '(') {
+                $offset = $labelEnd + 1;
+                continue;
+            }
+
+            $urlEnd = $this->findClosingDelimiter($text, $labelEnd + 1, '(', ')');
+            if ($urlEnd === null) {
+                break;
+            }
+
+            $label = substr($text, $start + 1, $labelEnd - $start - 1);
+            $destination = trim(substr($text, $labelEnd + 2, $urlEnd - ($labelEnd + 2)));
+
+            if ($destination === '') {
+                $offset = $urlEnd + 1;
+                continue;
+            }
+
+            [$url, $title] = $this->splitLinkDestination($destination);
+
+            if (!$this->isAllowedLinkDestination($url)) {
+                $offset = $urlEnd + 1;
+                continue;
+            }
+
+            $labelHtml = $this->parseInlineMarkdown(stripslashes($label), true);
+            if ($labelHtml === '') {
+                $labelHtml = htmlspecialchars($url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
+            }
+
+            $attributes = 'href="' . htmlspecialchars($url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5) . '"';
+            if ($title !== null && $title !== '') {
+                $attributes .= ' title="' . htmlspecialchars($title, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5) . '"';
+            }
+
+            if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                $attributes .= ' target="_blank" rel="noopener"';
+            }
+
+            $placeholder = $this->registerMarkdownPlaceholder(
+                $placeholders,
+                '<a ' . $attributes . '>' . $labelHtml . '</a>'
+            );
+
+            $text = substr($text, 0, $start) . $placeholder . substr($text, $urlEnd + 1);
+            $offset = $start + strlen($placeholder);
+        }
+
+        return $text;
+    }
+
+    private function findClosingDelimiter(string $text, int $start, string $open, string $close): ?int
+    {
+        $length = strlen($text);
+        $depth = 0;
+
+        for ($i = $start; $i < $length; $i++) {
+            $char = $text[$i];
+            if ($char === $open) {
+                $depth++;
+            } elseif ($char === $close) {
+                $depth--;
+                if ($depth === 0) {
+                    return $i;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{0:string,1:?string}
+     */
+    private function splitLinkDestination(string $destination): array
+    {
+        if (preg_match('/^(\S+)(?:\s+"([^"]*)")?$/u', $destination, $matches) === 1) {
+            $url = trim($matches[1]);
+            $title = isset($matches[2]) ? trim($matches[2]) : null;
+
+            return [$url, $title];
+        }
+
+        return [trim($destination), null];
+    }
+
+    /**
+     * @param array<string,string> $placeholders
+     */
+    private function registerMarkdownPlaceholder(array &$placeholders, string $html): string
+    {
+        $key = '@@MDPH' . count($placeholders) . '@@';
+        $placeholders[$key] = $html;
+
+        return $key;
+    }
+
+    private function isAllowedLinkDestination(string $url): bool
+    {
+        if ($url === '') {
+            return false;
+        }
+
+        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+            return true;
+        }
+
+        if (str_starts_with($url, 'mailto:')) {
+            return true;
+        }
+
+        if ($url[0] === '/' || $url[0] === '#') {
+            return true;
+        }
+
+        return false;
     }
 }

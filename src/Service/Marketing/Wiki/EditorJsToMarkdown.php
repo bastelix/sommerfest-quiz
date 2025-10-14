@@ -221,7 +221,7 @@ final class EditorJsToMarkdown
     private function sanitizeInlineText(mixed $value): string
     {
         $text = is_string($value) ? $value : '';
-        $text = strip_tags($text, '<b><strong><i><em><u><a><code><mark>');
+        $text = strip_tags($text, '<b><strong><i><em><u><a><code><mark><del><s>');
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5);
         $text = preg_replace('/\s+/', ' ', $text ?? '') ?? '';
 
@@ -231,7 +231,7 @@ final class EditorJsToMarkdown
     private function sanitizeInlineHtml(mixed $value): string
     {
         $text = is_string($value) ? $value : '';
-        $text = strip_tags($text, '<b><strong><i><em><u><a><code><mark><br><span>');
+        $text = strip_tags($text, '<b><strong><i><em><u><a><code><mark><br><span><del><s>');
         $text = preg_replace('/\s+/', ' ', $text ?? '') ?? '';
         $text = str_replace(['javascript:', 'data:'], '', $text);
 
