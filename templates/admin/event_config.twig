@@ -23,11 +23,13 @@
           <a class="uk-button uk-button-default" href="{{ basePath }}/?event={{ event.slug|default('demo') }}" target="_blank">Vorschau</a>
         </div>
       </div>
+      <div class="uk-margin-top">
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: event.uid|default('') } %}
+      </div>
     </div>
   </div>
 
   <div class="uk-container uk-container-large uk-margin-top">
-    {% include 'admin/components/event_controls.twig' with { currentEventUid: event.uid|default('') } %}
     <div class="uk-grid-large" uk-grid>
       <div class="uk-width-expand@m">
         <ul uk-tab>
