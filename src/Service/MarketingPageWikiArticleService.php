@@ -35,7 +35,7 @@ final class MarketingPageWikiArticleService
      */
     public function getArticlesForPage(int $pageId): array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? ORDER BY locale, sort_index ASC, id ASC');
+        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? ORDER BY locale, is_start_document DESC, sort_index ASC, id ASC');
         $stmt->execute([$pageId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -64,7 +64,7 @@ final class MarketingPageWikiArticleService
             $locale = 'de';
         }
 
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND status = ? ORDER BY sort_index ASC, (published_at IS NULL), published_at DESC, id ASC');
+        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND status = ? ORDER BY is_start_document DESC, sort_index ASC, (published_at IS NULL), published_at DESC, id ASC');
         $stmt->execute([$pageId, $locale, MarketingPageWikiArticle::STATUS_PUBLISHED]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -96,7 +96,8 @@ final class MarketingPageWikiArticleService
         string $status = MarketingPageWikiArticle::STATUS_DRAFT,
         ?int $articleId = null,
         ?DateTimeImmutable $publishedAt = null,
-        ?int $sortIndex = null
+        ?int $sortIndex = null,
+        bool $isStartDocument = false
     ): MarketingPageWikiArticle {
         $normalizedLocale = strtolower(trim($locale)) ?: 'de';
         $normalizedSlug = strtolower(trim($slug));
@@ -184,6 +185,8 @@ final class MarketingPageWikiArticleService
                 $markdown,
             ]);
 
+            $this->applyStartDocumentState($pageId, $normalizedLocale, $id, $isStartDocument);
+
             $this->pdo->commit();
         } catch (PDOException $exception) {
             $this->pdo->rollBack();
@@ -214,7 +217,8 @@ final class MarketingPageWikiArticleService
         ?string $excerpt = null,
         string $status = MarketingPageWikiArticle::STATUS_DRAFT,
         ?int $articleId = null,
-        ?int $sortIndex = null
+        ?int $sortIndex = null,
+        bool $isStartDocument = false
     ): MarketingPageWikiArticle {
         $editorState = $this->convertMarkdownToEditorState($markdown);
 
@@ -228,7 +232,8 @@ final class MarketingPageWikiArticleService
             $status,
             $articleId,
             null,
-            $sortIndex
+            $sortIndex,
+            $isStartDocument
         );
     }
 
@@ -343,8 +348,37 @@ final class MarketingPageWikiArticleService
             MarketingPageWikiArticle::STATUS_DRAFT,
             null,
             null,
-            $sortIndex
+            $sortIndex,
+            false
         );
+    }
+
+    public function setStartDocument(int $articleId, bool $isStartDocument): MarketingPageWikiArticle
+    {
+        $article = $this->getArticleById($articleId);
+        if ($article === null) {
+            throw new RuntimeException('Article not found');
+        }
+
+        $pageId = $article->getPageId();
+        $locale = $article->getLocale();
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->applyStartDocumentState($pageId, $locale, $articleId, $isStartDocument);
+            $this->pdo->commit();
+        } catch (PDOException $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Updating start document failed: ' . $exception->getMessage(), 0, $exception);
+        }
+
+        $updated = $this->getArticleById($articleId);
+        if ($updated === null) {
+            throw new RuntimeException('Article could not be loaded after updating start document.');
+        }
+
+        return $updated;
     }
 
     /**
@@ -498,6 +532,7 @@ final class MarketingPageWikiArticleService
             (string) $row['content_html'],
             (string) $row['status'],
             (int) ($row['sort_index'] ?? 0),
+            (bool) ($row['is_start_document'] ?? false),
             $publishedAt,
             $updatedAt
         );
@@ -524,6 +559,27 @@ final class MarketingPageWikiArticleService
             new DateTimeImmutable((string) $row['created_at']),
             isset($row['created_by']) ? (string) $row['created_by'] : null
         );
+    }
+
+    private function applyStartDocumentState(int $pageId, string $locale, int $articleId, bool $isStartDocument): void
+    {
+        $normalizedLocale = strtolower(trim($locale));
+        if ($normalizedLocale === '') {
+            $normalizedLocale = 'de';
+        }
+
+        if ($isStartDocument) {
+            $clear = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = 0 WHERE page_id = ? AND locale = ? AND id <> ?');
+            $clear->execute([$pageId, $normalizedLocale, $articleId]);
+
+            $set = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = 1 WHERE id = ?');
+            $set->execute([$articleId]);
+
+            return;
+        }
+
+        $reset = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = 0 WHERE id = ?');
+        $reset->execute([$articleId]);
     }
 
     private function resolvePageSlug(int $pageId): ?string

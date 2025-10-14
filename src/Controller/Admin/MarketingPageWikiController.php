@@ -125,6 +125,7 @@ final class MarketingPageWikiController
         $excerpt = isset($body['excerpt']) ? (string) $body['excerpt'] : null;
         $status = isset($body['status']) ? (string) $body['status'] : MarketingPageWikiArticle::STATUS_DRAFT;
         $sortIndex = isset($body['sortIndex']) ? (int) $body['sortIndex'] : null;
+        $isStartDocument = $this->normalizeBoolean($body['isStartDocument'] ?? false);
         $editorState = $this->decodeEditorState($body['editor'] ?? $body['editorState'] ?? null);
 
         try {
@@ -138,7 +139,8 @@ final class MarketingPageWikiController
                 $status,
                 $articleId,
                 null,
-                $sortIndex
+                $sortIndex,
+                $isStartDocument
             );
         } catch (RuntimeException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
@@ -169,6 +171,36 @@ final class MarketingPageWikiController
         $status = isset($body['status']) ? (string) $body['status'] : MarketingPageWikiArticle::STATUS_DRAFT;
         try {
             $article = $this->articleService->updateStatus($articleId, $status);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $response->getBody()->write(json_encode($article->jsonSerialize()));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function updateStartDocument(Request $request, Response $response, array $args): Response
+    {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
+        $articleId = (int) ($args['articleId'] ?? 0);
+        $body = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $body = json_decode((string) $request->getBody(), true);
+        }
+        if (!is_array($body)) {
+            return $response->withStatus(400);
+        }
+
+        $isStartDocument = $this->normalizeBoolean($body['isStartDocument'] ?? false);
+
+        try {
+            $article = $this->articleService->setStartDocument($articleId, $isStartDocument);
         } catch (RuntimeException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
 
@@ -281,6 +313,8 @@ final class MarketingPageWikiController
             $status = MarketingPageWikiArticle::STATUS_DRAFT;
         }
 
+        $isStartDocument = $this->normalizeBoolean($body['isStartDocument'] ?? false);
+
         $slug = isset($body['slug']) && is_string($body['slug']) ? trim($body['slug']) : '';
         if ($slug === '') {
             $slug = $this->slugify((string) pathinfo($clientFilename, PATHINFO_FILENAME));
@@ -312,7 +346,10 @@ final class MarketingPageWikiController
                 $title,
                 $markdown,
                 $excerpt,
-                $status
+                $status,
+                null,
+                null,
+                $isStartDocument
             );
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage());
@@ -522,5 +559,28 @@ final class MarketingPageWikiController
         }
 
         return ['blocks' => []];
+    }
+
+    private function normalizeBoolean(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
+                return true;
+            }
+            if (in_array($normalized, ['0', 'false', 'no', 'off', ''], true)) {
+                return false;
+            }
+        }
+
+        return (bool) $value;
     }
 }

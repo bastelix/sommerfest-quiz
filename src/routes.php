@@ -1256,6 +1256,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->updateStatus($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/start', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->updateStartDocument($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/duplicate', function (Request $request, Response $response, array $args) {
         $controller = new MarketingPageWikiController();
 

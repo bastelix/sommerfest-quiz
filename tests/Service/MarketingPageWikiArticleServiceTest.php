@@ -126,6 +126,57 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
         );
     }
 
+    public function testSetStartDocumentSwitchesArticles(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'landing', 'Landing');
+        $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Intro']]]];
+
+        $first = $service->saveArticle(
+            $pageId,
+            'de',
+            'intro',
+            'Intro',
+            null,
+            $editorState,
+            MarketingPageWikiArticle::STATUS_PUBLISHED,
+            null,
+            null,
+            null,
+            true
+        );
+
+        $second = $service->saveArticle(
+            $pageId,
+            'de',
+            'handbuch',
+            'Handbuch',
+            null,
+            $editorState,
+            MarketingPageWikiArticle::STATUS_PUBLISHED
+        );
+
+        $this->assertTrue($first->isStartDocument());
+        $this->assertFalse($second->isStartDocument());
+
+        $updatedSecond = $service->setStartDocument($second->getId(), true);
+        $this->assertTrue($updatedSecond->isStartDocument());
+
+        $reloadedFirst = $service->getArticleById($first->getId());
+        $this->assertNotNull($reloadedFirst);
+        $this->assertFalse($reloadedFirst->isStartDocument());
+
+        $published = $service->getPublishedArticles($pageId, 'de');
+        $this->assertNotEmpty($published);
+        $this->assertSame('handbuch', $published[0]->getSlug());
+        $this->assertTrue($published[0]->isStartDocument());
+
+        $cleared = $service->setStartDocument($second->getId(), false);
+        $this->assertFalse($cleared->isStartDocument());
+    }
+
     public function testReorderArticlesUpdatesSortIndexes(): void
     {
         $pdo = $this->createDatabase();
@@ -170,10 +221,12 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
             content_html TEXT NOT NULL,
             status TEXT NOT NULL,
             sort_index INTEGER NOT NULL DEFAULT 0,
+            is_start_document INTEGER NOT NULL DEFAULT 0,
             published_at TEXT,
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(page_id, locale, slug)
         )');
+        $pdo->exec('CREATE UNIQUE INDEX marketing_page_wiki_articles_start_doc_idx ON marketing_page_wiki_articles(page_id, locale) WHERE is_start_document = 1');
         $pdo->exec('CREATE TABLE marketing_page_wiki_versions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             article_id INTEGER NOT NULL,
