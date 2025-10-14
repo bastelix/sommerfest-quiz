@@ -32,7 +32,7 @@ if (manager) {
     const loadingRow = manager.querySelector('[data-wiki-loading-row]');
 
     const modalElement = document.getElementById('wikiArticleModal');
-    const modal = modalElement && typeof UIkit !== 'undefined' && UIkit.modal ? UIkit.modal(modalElement) : null;
+    let modalInstance = null;
     const modalTitle = modalElement ? modalElement.querySelector('[data-wiki-modal-title]') : null;
     const modalError = modalElement ? modalElement.querySelector('[data-wiki-article-error]') : null;
     const modalForm = modalElement ? modalElement.querySelector('[data-wiki-article-form]') : null;
@@ -62,7 +62,6 @@ if (manager) {
       !createButton ||
       !uploadButton ||
       !uploadInput ||
-      !modal ||
       !modalTitle ||
       !modalError ||
       !modalIdInput ||
@@ -608,7 +607,24 @@ if (manager) {
       });
     }
 
+    function ensureModal() {
+      if (modalInstance) {
+        return modalInstance;
+      }
+      if (!modalElement || typeof UIkit === 'undefined' || !UIkit.modal) {
+        return null;
+      }
+      try {
+        modalInstance = UIkit.modal(modalElement);
+      } catch (error) {
+        console.warn('Failed to initialise wiki modal', error);
+        modalInstance = null;
+      }
+      return modalInstance;
+    }
+
     function openArticleModal(article) {
+      const modal = ensureModal();
       if (!modal) {
         return;
       }
@@ -641,6 +657,7 @@ if (manager) {
     }
 
     function closeArticleModal() {
+      const modal = ensureModal();
       if (modal) {
         modal.hide();
       }
