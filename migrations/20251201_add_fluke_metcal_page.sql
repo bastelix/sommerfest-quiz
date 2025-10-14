@@ -1,21 +1,35 @@
--- Ensure `pages.slug` is unique so the upsert statements below work on older
--- installations where the index might be missing. This keeps the migration
--- idempotent across environments that predate the dedicated pages schema
--- migration.
+-- installations where the index might be missing or was created without the
+-- UNIQUE flag. This keeps the migration idempotent across environments that
+-- predate the dedicated pages schema migration.
 DO $$
+DECLARE
+    slug_attnum INT2;
 BEGIN
+    SELECT attnum::INT2
+      INTO slug_attnum
+      FROM pg_attribute
+     WHERE attrelid = 'pages'::regclass
+       AND attname = 'slug';
+
+    IF slug_attnum IS NULL THEN
+        RAISE EXCEPTION 'pages.slug column is missing – cannot enforce uniqueness.';
+    END IF;
+
     IF NOT EXISTS (
         SELECT 1
-        FROM pg_indexes
-        WHERE schemaname = 'public'
-          AND tablename = 'pages'
-          AND indexname = 'idx_pages_slug'
+          FROM pg_index
+         WHERE indrelid = 'pages'::regclass
+           AND indisunique
+           AND indkey = ARRAY[slug_attnum]::INT2VECTOR
     ) THEN
         BEGIN
-            CREATE UNIQUE INDEX idx_pages_slug ON pages(slug);
+            -- Ensure there is a unique index on `slug` even if an older
+            -- non-unique index with a similar name exists.
+            EXECUTE 'CREATE UNIQUE INDEX idx_pages_slug_unique ON pages(slug)';
         EXCEPTION
             WHEN duplicate_table THEN
-                -- Another unique index already exists; nothing to do.
+                NULL;
+            WHEN duplicate_object THEN
                 NULL;
         END;
     END IF;
