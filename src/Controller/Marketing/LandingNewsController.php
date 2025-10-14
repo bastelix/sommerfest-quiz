@@ -6,6 +6,7 @@ namespace App\Controller\Marketing;
 
 use App\Domain\Page;
 use App\Service\LandingNewsService;
+use App\Service\MarketingSlugResolver;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -36,13 +37,29 @@ class LandingNewsController
         }
 
         $entries = $this->news->getPublishedForPage($page->getId(), 20);
+        $newsOwnerPage = $page;
+
+        if ($entries === []) {
+            $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
+            if ($baseSlug !== $page->getSlug()) {
+                $basePage = $this->pages->findBySlug($baseSlug);
+                if ($basePage !== null) {
+                    $fallbackEntries = $this->news->getPublishedForPage($basePage->getId(), 20);
+                    if ($fallbackEntries !== []) {
+                        $entries = $fallbackEntries;
+                        $newsOwnerPage = $basePage;
+                    }
+                }
+            }
+        }
+
         if ($entries === []) {
             // No published news, fallback to 404 to avoid empty listing.
             return $response->withStatus(404);
         }
 
         $view = Twig::fromRequest($request);
-        $newsBasePath = $this->buildNewsBasePath($request, $page->getSlug());
+        $newsBasePath = $this->buildNewsBasePath($request, $newsOwnerPage->getSlug());
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
 
         return $view->render($response, 'marketing/landing_news_index.twig', [
@@ -50,7 +67,7 @@ class LandingNewsController
             'entries' => $entries,
             'newsBasePath' => $newsBasePath,
             'newsIndexUrl' => $basePath . $newsBasePath,
-            'landingPageUrl' => $basePath . '/' . $page->getSlug(),
+            'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
             'metaTitle' => sprintf('%s – Neuigkeiten', $page->getTitle()),
             'metaDescription' => sprintf('Aktuelles zu %s.', $page->getTitle()),
         ]);
@@ -69,12 +86,27 @@ class LandingNewsController
         }
 
         $entry = $this->news->findPublished($page->getSlug(), $newsSlug);
+        $newsOwnerPage = $page;
+
+        if ($entry === null) {
+            $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
+            if ($baseSlug !== $page->getSlug()) {
+                $basePage = $this->pages->findBySlug($baseSlug);
+                if ($basePage !== null) {
+                    $entry = $this->news->findPublished($basePage->getSlug(), $newsSlug);
+                    if ($entry !== null) {
+                        $newsOwnerPage = $basePage;
+                    }
+                }
+            }
+        }
+
         if ($entry === null) {
             return $response->withStatus(404);
         }
 
         $view = Twig::fromRequest($request);
-        $newsBasePath = $this->buildNewsBasePath($request, $page->getSlug());
+        $newsBasePath = $this->buildNewsBasePath($request, $newsOwnerPage->getSlug());
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $excerpt = $entry->getExcerpt();
         $description = $excerpt !== null ? trim(strip_tags($excerpt)) : null;
@@ -84,7 +116,7 @@ class LandingNewsController
             'entry' => $entry,
             'newsBasePath' => $newsBasePath,
             'newsIndexUrl' => $basePath . $newsBasePath,
-            'landingPageUrl' => $basePath . '/' . $page->getSlug(),
+            'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
             'metaTitle' => sprintf('%s – %s', $page->getTitle(), $entry->getTitle()),
             'metaDescription' => $description,
         ]);
