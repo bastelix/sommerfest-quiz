@@ -1,3 +1,27 @@
+-- Ensure `pages.slug` is unique so the upsert statements below work on older
+-- installations where the index might be missing. This keeps the migration
+-- idempotent across environments that predate the dedicated pages schema
+-- migration.
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_indexes
+        WHERE schemaname = 'public'
+          AND tablename = 'pages'
+          AND indexname = 'idx_pages_slug'
+    ) THEN
+        BEGIN
+            CREATE UNIQUE INDEX idx_pages_slug ON pages(slug);
+        EXCEPTION
+            WHEN duplicate_table THEN
+                -- Another unique index already exists; nothing to do.
+                NULL;
+        END;
+    END IF;
+END
+$$;
+
 UPDATE pages
 SET content = REPLACE(
     content,
