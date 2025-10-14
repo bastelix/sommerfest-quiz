@@ -314,7 +314,7 @@ if (manager) {
         menuWrapper.appendChild(menuToggle);
 
         const dropdown = document.createElement('div');
-        dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; offset: 0');
+        dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; offset: 0; boundary: window');
 
         const dropdownList = document.createElement('ul');
         dropdownList.className = 'uk-nav uk-dropdown-nav';
