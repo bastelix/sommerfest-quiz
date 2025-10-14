@@ -40,13 +40,30 @@
               &mdash;
             {% endif %}
           </td>
-          <td>
-            <div class="uk-flex uk-flex-middle" style="gap: 12px;">
-              <a class="uk-button uk-button-text" href="{{ basePath }}/admin/landing-news/{{ entry.id }}">{{ t('action_edit') }}</a>
-              <form method="post" action="{{ basePath }}/admin/landing-news/{{ entry.id }}/delete" onsubmit="return confirm('{{ t('confirm_news_delete') }}');">
-                <input type="hidden" name="_token" value="{{ token }}">
-                <button type="submit" class="uk-button uk-button-text uk-text-danger">{{ t('action_delete') }}</button>
-              </form>
+          <td class="uk-table-shrink">
+            <div class="uk-inline">
+              <button
+                class="uk-button uk-button-default uk-button-small"
+                type="button"
+                uk-icon="icon: more; ratio: 0.9"
+                aria-label="{{ t('column_actions') }}"
+              >
+                <span class="uk-hidden">{{ t('column_actions') }}</span>
+              </button>
+              <div uk-dropdown="mode: click; pos: bottom-right; offset: 0">
+                <ul class="uk-nav uk-dropdown-nav">
+                  <li>
+                    <a href="{{ basePath }}/admin/landing-news/{{ entry.id }}" uk-dropdown-close>{{ t('action_edit') }}</a>
+                  </li>
+                  <li class="uk-nav-divider"></li>
+                  <li>
+                    <form method="post" action="{{ basePath }}/admin/landing-news/{{ entry.id }}/delete" onsubmit="return confirm('{{ t('confirm_news_delete') }}');">
+                      <input type="hidden" name="_token" value="{{ token }}">
+                      <button type="submit" class="uk-button uk-button-link uk-text-danger uk-width-1-1 uk-text-left" uk-dropdown-close>{{ t('action_delete') }}</button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
             </div>
           </td>
         </tr>
