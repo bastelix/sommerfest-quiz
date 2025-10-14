@@ -79,6 +79,9 @@ final class MarketingPageWikiController
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
         if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return $response->withStatus(400);
+            }
         }
         if (!is_array($body)) {
             return $response->withStatus(400);
@@ -114,6 +117,9 @@ final class MarketingPageWikiController
         $body = $request->getParsedBody();
         if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return $response->withStatus(400);
+            }
         }
         if (!is_array($body)) {
             return $response->withStatus(400);
@@ -165,6 +171,9 @@ final class MarketingPageWikiController
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
         if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return $response->withStatus(400);
+            }
         }
         if (!is_array($body)) {
             return $response->withStatus(400);
@@ -195,6 +204,9 @@ final class MarketingPageWikiController
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
         if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return $response->withStatus(400);
+            }
         }
         if (!is_array($body)) {
             return $response->withStatus(400);
@@ -476,6 +488,9 @@ final class MarketingPageWikiController
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
         if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return $response->withStatus(400);
+            }
         }
         if (!is_array($body)) {
             $body = [];
@@ -515,6 +530,9 @@ final class MarketingPageWikiController
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
         if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return $response->withStatus(400);
+            }
         }
         if (!is_array($body) || !isset($body['order']) || !is_array($body['order'])) {
             return $response->withStatus(400);
