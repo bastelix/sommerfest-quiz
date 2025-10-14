@@ -1,0 +1,77 @@
+{% set domainChatDomains = domain_chat_domains|default([]) %}
+{% set domainChatMaxSize = (constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') / 1048576)|number_format(1, '.', '') %}
+<h3 class="uk-heading-bullet uk-margin-large-top">{{ t('heading_domain_chat') }}</h3>
+{% if domainChatDomains is empty %}
+  <p class="uk-text-meta">{{ t('text_domain_chat_no_domains') }}</p>
+{% else %}
+  <div
+    class="uk-card uk-card-default uk-card-small uk-margin"
+    data-domain-chat
+    data-empty="{{ t('text_domain_chat_empty') }}"
+    data-loading="{{ t('text_domain_chat_loading') }}"
+    data-error="{{ t('notify_domain_chat_error') }}"
+    data-confirm="{{ t('confirm_domain_chat_delete') }}"
+  >
+    <div class="uk-card-body">
+      <form class="uk-grid-small uk-flex-middle" uk-grid data-domain-chat-form>
+        <div class="uk-width-1-1 uk-width-1-3@m">
+          <label class="uk-form-label" for="domainChatSelect">{{ t('label_domain_chat_domain') }}</label>
+          <div class="uk-form-controls">
+            <select id="domainChatSelect" class="uk-select" data-domain-chat-select>
+              {% for item in domainChatDomains %}
+                {% set optionValue = item.normalized|default(item.domain|default('')) %}
+                <option value="{{ optionValue }}">{{ item.domain|default(optionValue) }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="uk-width-1-1 uk-width-expand@m">
+          <label class="uk-form-label" for="domainChatFile">{{ t('label_domain_chat_upload') }}</label>
+          <div class="uk-form-controls">
+            <input
+              id="domainChatFile"
+              class="uk-input"
+              type="file"
+              accept=".md,.markdown,.html,.htm,.txt"
+              data-domain-chat-upload
+            >
+          </div>
+          <p class="uk-text-meta uk-margin-small-top">{{ t('text_domain_chat_file_hint')|format(domainChatMaxSize) }}</p>
+        </div>
+        <div class="uk-width-1-2 uk-width-auto@m uk-flex uk-flex-bottom">
+          <button type="submit" class="uk-button uk-button-primary uk-width-1-1" data-domain-chat-submit>
+            {{ t('button_domain_chat_upload') }}
+          </button>
+        </div>
+        <div class="uk-width-1-2 uk-width-auto@m uk-flex uk-flex-bottom">
+          <button type="button" class="uk-button uk-button-default uk-width-1-1" data-domain-chat-rebuild>
+            {{ t('button_domain_chat_rebuild') }}
+          </button>
+        </div>
+        <div class="uk-width-1-1 uk-width-auto@m uk-flex uk-flex-bottom">
+          <button type="button" class="uk-button uk-button-default uk-width-1-1" data-domain-chat-download>
+            {{ t('button_domain_chat_download') }}
+          </button>
+        </div>
+      </form>
+      <div class="uk-margin-small" data-domain-chat-status aria-live="polite"></div>
+      <div class="uk-overflow-auto uk-margin">
+        <table class="uk-table uk-table-divider uk-table-small" data-domain-chat-table>
+          <thead>
+            <tr>
+              <th>{{ t('column_domain_chat_name') }}</th>
+              <th class="uk-table-shrink">{{ t('column_domain_chat_size') }}</th>
+              <th class="uk-table-shrink">{{ t('column_domain_chat_updated') }}</th>
+              <th class="uk-table-shrink">{{ t('column_actions') }}</th>
+            </tr>
+          </thead>
+          <tbody data-domain-chat-body>
+            <tr>
+              <td colspan="4">{{ t('text_domain_chat_loading') }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endif %}
