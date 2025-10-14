@@ -329,6 +329,7 @@
 - Replace sticker background upload
 - Add stage container for sticker editor
 - Centralize calhelp placeholder injection
+- Relocate admin event controls
 
 ### Style
 
