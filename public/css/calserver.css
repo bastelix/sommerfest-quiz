@@ -206,6 +206,31 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-
         0 26px 52px -34px rgba(4, 10, 25, 0.82);
 }
 
+.calserver-theme .calserver-news {
+    background: linear-gradient(
+            180deg,
+            color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.94)) 0%,
+            rgba(255, 255, 255, 0.92) 100%
+    );
+    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.08));
+    border-bottom: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.08));
+}
+
+.calserver-theme .calserver-news .uk-heading-medium {
+    font-weight: 600;
+    color: color-mix(in oklab, var(--calserver-primary) 68%, #0f172a 32%);
+}
+
+.calserver-theme .calserver-news .uk-button-text {
+    color: color-mix(in oklab, var(--calserver-primary) 74%, #1f2937 26%);
+}
+
+.calserver-theme .calserver-news .uk-button-text:hover,
+.calserver-theme .calserver-news .uk-button-text:focus {
+    color: color-mix(in oklab, var(--calserver-primary) 88%, #0f172a 12%);
+    text-decoration: none;
+}
+
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary p,
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary li,
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .muted,
