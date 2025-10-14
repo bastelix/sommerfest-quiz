@@ -53,7 +53,18 @@ final class MarketingPageWikiListController
             return $response->withStatus(404);
         }
 
-        $settings = $this->settingsService->getSettingsForPage($page->getId());
+        $settingsPage = $page;
+        $wikiSlug = $slug;
+        $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
+        if ($baseSlug !== $page->getSlug()) {
+            $basePage = $this->pageService->findBySlug($baseSlug);
+            if ($basePage !== null) {
+                $settingsPage = $basePage;
+                $wikiSlug = $baseSlug;
+            }
+        }
+
+        $settings = $this->settingsService->getSettingsForPage($settingsPage->getId());
         if (!$settings->isActive()) {
             return $response->withStatus(404);
         }
@@ -61,7 +72,7 @@ final class MarketingPageWikiListController
         $query = $request->getQueryParams();
         $search = trim((string) ($query['q'] ?? ''));
 
-        $articles = $this->articleService->getPublishedArticles($page->getId(), $locale);
+        $articles = $this->articleService->getPublishedArticles($settingsPage->getId(), $locale);
         if ($search !== '') {
             $articles = array_values(array_filter($articles, static function ($article) use ($search) {
                 $haystack = strtolower($article->getTitle() . ' ' . ($article->getExcerpt() ?? ''));
@@ -88,7 +99,7 @@ final class MarketingPageWikiListController
                     'label' => $page->getTitle(),
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $page->getSlug() . '/wiki',
+                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki',
                     'label' => $menuLabel,
                 ],
             ],

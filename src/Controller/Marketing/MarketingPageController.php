@@ -204,12 +204,23 @@ class MarketingPageController
             $data['landingNewsIndexUrl'] = $basePath . $landingNewsBasePath;
         }
 
-        $wikiSettings = $this->wikiSettings->getSettingsForPage($page->getId());
+        $wikiSlug = $page->getSlug();
+        $wikiPage = $page;
+        $baseWikiSlug = MarketingSlugResolver::resolveBaseSlug($wikiSlug);
+        if ($baseWikiSlug !== $wikiSlug) {
+            $baseWikiPage = $this->pages->findBySlug($baseWikiSlug);
+            if ($baseWikiPage !== null) {
+                $wikiPage = $baseWikiPage;
+                $wikiSlug = $baseWikiSlug;
+            }
+        }
+
+        $wikiSettings = $this->wikiSettings->getSettingsForPage($wikiPage->getId());
         if (FeatureFlags::wikiEnabled() && $wikiSettings->isActive()) {
-            $wikiArticles = $this->wikiArticles->getPublishedArticles($page->getId(), $locale);
+            $wikiArticles = $this->wikiArticles->getPublishedArticles($wikiPage->getId(), $locale);
             if ($wikiArticles !== []) {
                 $label = $wikiSettings->getMenuLabel() ?? 'Dokumentation';
-                $wikiUrl = sprintf('%s/pages/%s/wiki', $basePath, $page->getSlug());
+                $wikiUrl = sprintf('%s/pages/%s/wiki', $basePath, $wikiSlug);
                 $data['marketingWikiMenu'] = [
                     'label' => $label,
                     'url' => $wikiUrl,

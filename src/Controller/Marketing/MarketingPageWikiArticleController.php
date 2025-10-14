@@ -54,12 +54,23 @@ final class MarketingPageWikiArticleController
             return $response->withStatus(404);
         }
 
-        $settings = $this->settingsService->getSettingsForPage($page->getId());
+        $settingsPage = $page;
+        $wikiSlug = $slug;
+        $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
+        if ($baseSlug !== $page->getSlug()) {
+            $basePage = $this->pageService->findBySlug($baseSlug);
+            if ($basePage !== null) {
+                $settingsPage = $basePage;
+                $wikiSlug = $baseSlug;
+            }
+        }
+
+        $settings = $this->settingsService->getSettingsForPage($settingsPage->getId());
         if (!$settings->isActive()) {
             return $response->withStatus(404);
         }
 
-        $article = $this->articleService->findPublishedArticle($page->getId(), $locale, $articleSlug);
+        $article = $this->articleService->findPublishedArticle($settingsPage->getId(), $locale, $articleSlug);
         if ($article === null) {
             return $response->withStatus(404);
         }
@@ -78,11 +89,11 @@ final class MarketingPageWikiArticleController
                     'label' => $page->getTitle(),
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $page->getSlug() . '/wiki',
+                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki',
                     'label' => $menuLabel,
                 ],
                 [
-                    'url' => $basePath . '/pages/' . $page->getSlug() . '/wiki/' . $article->getSlug(),
+                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki/' . $article->getSlug(),
                     'label' => $article->getTitle(),
                 ],
             ],
