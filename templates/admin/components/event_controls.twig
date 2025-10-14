@@ -1,0 +1,43 @@
+{% set currentUid = currentEventUid|default('') %}
+<div
+  class="qr-event-controls uk-margin-small-bottom"
+  data-event-controls
+  data-fetch-error="{{ t('text_events_fetch_error') }}"
+>
+  <div class="uk-grid-small uk-flex-middle" uk-grid>
+    <div class="uk-width-auto uk-visible@m">
+      <label for="eventSelect" class="uk-form-label uk-margin-remove">{{ t('label_event_select') }}</label>
+    </div>
+    <div class="uk-width-expand@m uk-width-1-1">
+      <div id="eventSelectWrap">
+        <select
+          id="eventSelect"
+          class="uk-select"
+          aria-label="{{ t('label_event_select') }}"
+          data-current-event="{{ currentUid }}"
+          data-placeholder="{{ t('label_event_select') }}"
+        ></select>
+      </div>
+    </div>
+    <div class="uk-width-auto">
+      <input
+        id="eventSearchInput"
+        class="uk-input uk-form-small uk-width-small"
+        type="search"
+        placeholder="{{ t('placeholder_event_search')|default('Suchen') }}"
+        hidden
+      >
+    </div>
+    <div class="uk-width-auto">
+      <button
+        id="eventOpenBtn"
+        class="uk-icon-button"
+        uk-icon="icon: link-external"
+        aria-label="{{ t('tip_event_open') }}"
+        uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"
+        data-event-btn
+        disabled
+      ></button>
+    </div>
+  </div>
+</div>

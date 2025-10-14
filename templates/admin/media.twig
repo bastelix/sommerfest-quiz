@@ -66,6 +66,7 @@
 
 <div class="media-tab" data-media-section>
   <h2 class="uk-heading-bullet">{{ t('heading_media') }}</h2>
+  {% include 'admin/components/event_controls.twig' with { currentEventUid: initialEventUid } %}
   <p
     class="uk-text-meta"
     data-media-limit
