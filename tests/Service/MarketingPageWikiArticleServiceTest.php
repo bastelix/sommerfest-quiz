@@ -153,6 +153,73 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
         $service->reorderArticles($pageId, [9999]);
     }
 
+    public function testMarkdownImportPreservesInlineFormatting(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'guide', 'Guide');
+        $markdown = <<<MD
+Intro with a [Quiz link](https://quizrace.example/guide) that mixes *emphasis*, **importance**, ~~legacy~~ notes, and `inline code`.
+
+- Bullet with [Docs](https://quizrace.example/docs)
+MD;
+
+        $article = $service->saveArticleFromMarkdown(
+            $pageId,
+            'de',
+            'imported-formatting',
+            'Imported Formatting',
+            $markdown
+        );
+
+        $state = $article->getEditorState();
+        $this->assertNotNull($state);
+
+        $paragraphBlock = null;
+        foreach ($state['blocks'] as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+            if (($block['type'] ?? '') === 'paragraph') {
+                $paragraphBlock = $block;
+                break;
+            }
+        }
+
+        $this->assertNotNull($paragraphBlock);
+        $paragraphText = (string) ($paragraphBlock['data']['text'] ?? '');
+        $this->assertStringContainsString('<a href="https://quizrace.example/guide">Quiz link</a>', $paragraphText);
+        $this->assertStringContainsString('<em>emphasis</em>', $paragraphText);
+        $this->assertStringContainsString('<strong>importance</strong>', $paragraphText);
+        $this->assertStringContainsString('<del>legacy</del>', $paragraphText);
+        $this->assertStringContainsString('<code>inline code</code>', $paragraphText);
+
+        $listBlock = null;
+        foreach ($state['blocks'] as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+            if (($block['type'] ?? '') === 'list') {
+                $listBlock = $block;
+                break;
+            }
+        }
+
+        $this->assertNotNull($listBlock);
+        $items = $listBlock['data']['items'] ?? [];
+        $this->assertIsArray($items);
+        $this->assertNotSame([], $items);
+        $this->assertStringContainsString('<a href="https://quizrace.example/docs">Docs</a>', (string) ($items[0] ?? ''));
+
+        $html = $article->getContentHtml();
+        $this->assertStringContainsString('<a href="https://quizrace.example/guide">Quiz link</a>', $html);
+        $this->assertStringContainsString('<em>emphasis</em>', $html);
+        $this->assertStringContainsString('<strong>importance</strong>', $html);
+        $this->assertStringContainsString('<del>legacy</del>', $html);
+        $this->assertStringContainsString('<code>inline code</code>', $html);
+    }
+
     private function createDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');
