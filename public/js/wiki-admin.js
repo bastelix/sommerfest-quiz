@@ -140,6 +140,19 @@ if (manager) {
       }
     }
 
+    function slugify(value) {
+      const base = String(value || '').toLowerCase();
+      const normalized = typeof base.normalize === 'function' ? base.normalize('NFD') : base;
+      const ascii = normalized
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ß/g, 'ss');
+      const slug = ascii
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/-+/g, '-');
+      return slug;
+    }
+
     function notify(message, status = 'primary') {
       if (typeof window.notify === 'function') {
         window.notify(message, status);
@@ -639,13 +652,27 @@ if (manager) {
       if (!state.pageId) {
         return;
       }
-      const locale = modalLocaleInput.value.trim();
+      let locale = modalLocaleInput.value.trim();
       const title = modalTitleInput.value.trim();
-      const slug = modalSlugInput.value.trim();
+      let slug = modalSlugInput.value.trim();
       const excerpt = modalExcerptInput.value.trim();
       const content = modalContentInput.value;
       const status = modalStatusSelect.value;
       const id = modalIdInput.value ? Number(modalIdInput.value) : null;
+
+      if (locale) {
+        locale = locale.toLowerCase();
+        modalLocaleInput.value = locale;
+      }
+
+      if (!slug && title) {
+        slug = slugify(title);
+      }
+      const normalizedSlug = slugify(slug);
+      if (normalizedSlug) {
+        slug = normalizedSlug;
+        modalSlugInput.value = slug;
+      }
 
       if (!locale || !title || !slug) {
         modalError.textContent = 'Locale, Titel und Slug dürfen nicht leer sein.';

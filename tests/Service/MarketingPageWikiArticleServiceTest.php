@@ -126,6 +126,31 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
         );
     }
 
+    public function testSaveArticleNormalizesProvidedSlug(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'wissen', 'Wissen');
+        $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Inhalt']]]];
+
+        $article = $service->saveArticle(
+            $pageId,
+            'de',
+            ' Große Einführung 2024 ',
+            'Große Einführung 2024',
+            null,
+            $editorState
+        );
+
+        $this->assertSame('grosse-einfuhrung-2024', $article->getSlug());
+
+        $stmt = $pdo->prepare('SELECT slug FROM marketing_page_wiki_articles WHERE id = ?');
+        $stmt->execute([$article->getId()]);
+        $stored = $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame(['slug' => 'grosse-einfuhrung-2024'], $stored);
+    }
+
     public function testSetStartDocumentSwitchesArticles(): void
     {
         $pdo = $this->createDatabase();

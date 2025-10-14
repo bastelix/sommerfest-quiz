@@ -100,7 +100,7 @@ final class MarketingPageWikiArticleService
         bool $isStartDocument = false
     ): MarketingPageWikiArticle {
         $normalizedLocale = strtolower(trim($locale)) ?: 'de';
-        $normalizedSlug = strtolower(trim($slug));
+        $normalizedSlug = $this->normalizeSlug($slug);
         if ($normalizedSlug === '' || !preg_match('/^[a-z0-9][a-z0-9-]{0,127}$/', $normalizedSlug)) {
             throw new RuntimeException('Invalid article slug.');
         }
@@ -454,7 +454,7 @@ final class MarketingPageWikiArticleService
 
     private function generateDuplicateSlug(int $pageId, string $locale, string $baseSlug): string
     {
-        $normalizedBase = strtolower(trim($baseSlug));
+        $normalizedBase = $this->normalizeSlug($baseSlug);
         if ($normalizedBase === '') {
             $normalizedBase = 'article';
         }
@@ -607,6 +607,29 @@ final class MarketingPageWikiArticleService
         }
 
         return (string) $json;
+    }
+
+    private function normalizeSlug(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        if (function_exists('iconv')) {
+            $transliterated = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+            if (is_string($transliterated) && $transliterated !== '') {
+                $value = $transliterated;
+            }
+        }
+
+        $value = str_replace('ß', 'ss', $value);
+        $value = strtolower($value);
+        $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
+        $value = trim($value, '-');
+        $value = preg_replace('/-+/', '-', $value) ?? '';
+
+        return $value;
     }
 
     /**
