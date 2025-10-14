@@ -25,11 +25,40 @@
     color: #ffffff;
 }
 
+.metcal-hero__claim {
+    margin: 12px 0 18px;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: color-mix(in oklab, #ffffff 82%, var(--calserver-primary) 18%);
+}
+
 .metcal-hero__subtitle {
     max-width: 640px;
     font-size: 1.1rem;
     line-height: 1.6;
     color: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+}
+
+.metcal-hero__illustration {
+    margin-bottom: 24px;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(18, 28, 52, 0.92) 0%, rgba(28, 54, 96, 0.78) 35%, rgba(64, 118, 189, 0.72) 100%);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 46%, rgba(255, 255, 255, 0.18) 54%);
+    box-shadow: 0 35px 90px -60px rgba(11, 17, 31, 0.85);
+    position: relative;
+    overflow: hidden;
+}
+
+.metcal-hero__illustration::after {
+    content: '';
+    position: absolute;
+    inset: 16px;
+    border-radius: 22px;
+    border: 1px dashed rgba(255, 255, 255, 0.32);
+    background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.25) 0, transparent 45%),
+        radial-gradient(circle at 75% 65%, rgba(255, 255, 255, 0.18) 0, transparent 40%);
 }
 
 .metcal-hero__bullets {
@@ -167,6 +196,41 @@
 
 .metcal-section--accent .metcal-section__lead {
     color: rgba(255, 255, 255, 0.86);
+}
+
+.metcal-report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.metcal-report-card {
+    padding: 28px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid rgba(12, 22, 40, 0.08);
+    box-shadow: 0 28px 70px -48px rgba(12, 22, 40, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.metcal-report-card h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: color-mix(in oklab, #0d1730 78%, var(--calserver-primary) 22%);
+}
+
+.metcal-report-card p {
+    margin: 0;
+    color: color-mix(in oklab, #1b2943 76%, var(--calserver-primary) 24%);
+}
+
+.metcal-report-card ul {
+    margin: 0;
+    padding-left: 18px;
+    color: color-mix(in oklab, #243350 74%, var(--calserver-primary) 26%);
 }
 
 .metcal-card-grid {
