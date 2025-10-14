@@ -629,12 +629,23 @@ body.admin-page {
 .admin-page .admin-table-wrapper {
   overflow-x: auto;
   overflow-y: visible;
+  position: relative;
 }
 
 .admin-page .admin-table-wrapper.uk-overflow-auto {
   /* Allow dropdown menus to escape the scroll container while preserving horizontal scrolling */
   overflow-x: auto !important;
   overflow-y: visible !important;
+}
+
+/* Ensure action dropdowns inside admin tables are not clipped by card or background layers */
+.admin-page .uk-card,
+.admin-page .uk-card > :first-child {
+  overflow: visible;
+}
+
+.admin-page [uk-dropdown] {
+  z-index: 1200;
 }
 
 .admin-page .topbar {
