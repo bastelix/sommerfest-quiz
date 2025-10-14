@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(() => {
           notify('Mandant entfernt', 'success');
-          loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+          refreshTenantList();
         })
         .catch(() => notify('Fehler beim Löschen', 'danger'))
         .finally(() => {
@@ -3850,6 +3850,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantTableBody = document.getElementById('tenantTableBody');
   const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
+  const tenantSyncBadge = document.getElementById('tenantSyncBadge');
   const tenantExportBtn = document.getElementById('tenantExportBtn');
   const tenantReportBtn = document.getElementById('tenantReportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
@@ -3864,6 +3865,131 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
   const tenantColumnDefaults = tenantColumnDefs.map(c => c.key);
   let tenantColumns = [...tenantColumnDefaults];
+  let tenantSyncState = null;
+
+  function normalizeTenantSyncState(raw) {
+    if (!raw || typeof raw !== 'object') {
+      return null;
+    }
+    const parseIntSafe = value => {
+      if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : 0;
+      }
+      const num = parseInt(String(value ?? ''), 10);
+      return Number.isNaN(num) ? 0 : num;
+    };
+    return {
+      last_run_at: typeof raw.last_run_at === 'string' && raw.last_run_at !== '' ? raw.last_run_at : null,
+      next_allowed_at: typeof raw.next_allowed_at === 'string' && raw.next_allowed_at !== '' ? raw.next_allowed_at : null,
+      cooldown_seconds: parseIntSafe(raw.cooldown_seconds),
+      stale_after_seconds: parseIntSafe(raw.stale_after_seconds),
+      is_stale: Boolean(raw.is_stale),
+      is_throttled: Boolean(raw.is_throttled)
+    };
+  }
+
+  function renderTenantSyncBadge() {
+    if (!tenantSyncBadge) {
+      return;
+    }
+    if (!tenantSyncState) {
+      tenantSyncBadge.classList.add('uk-hidden');
+      tenantSyncBadge.removeAttribute('title');
+      tenantSyncBadge.removeAttribute('aria-label');
+      return;
+    }
+
+    const parseDate = value => {
+      if (typeof value !== 'string' || value === '') {
+        return null;
+      }
+      const ms = Date.parse(value);
+      return Number.isNaN(ms) ? null : ms;
+    };
+
+    const now = Date.now();
+    const lastRunMs = tenantSyncState.last_run_at ? parseDate(tenantSyncState.last_run_at) : null;
+    const nextAllowedMs = tenantSyncState.next_allowed_at ? parseDate(tenantSyncState.next_allowed_at) : null;
+    const staleByAge = lastRunMs === null
+      ? true
+      : (tenantSyncState.stale_after_seconds > 0
+        ? (now - lastRunMs) > tenantSyncState.stale_after_seconds * 1000
+        : false);
+    const isStale = Boolean(tenantSyncState.is_stale) || staleByAge;
+    const computedThrottled = nextAllowedMs !== null ? nextAllowedMs > now : false;
+    const isThrottled = nextAllowedMs !== null ? computedThrottled : Boolean(tenantSyncState.is_throttled);
+
+    let text = window.transTenantSyncOk || 'Aktuell';
+    let background = '#32d296';
+    if (isStale) {
+      text = window.transTenantSyncStale || 'Sync nötig';
+      background = '#faa05a';
+    } else if (isThrottled) {
+      text = window.transTenantSyncCooling || 'Wartezeit';
+      background = '#1e87f0';
+    }
+
+    tenantSyncBadge.textContent = text;
+    tenantSyncBadge.style.backgroundColor = background;
+    tenantSyncBadge.style.color = '#fff';
+    tenantSyncBadge.classList.remove('uk-hidden');
+
+    if (lastRunMs) {
+      const formatted = new Date(lastRunMs).toLocaleString();
+      const label = `${window.transTenantSyncLastRun || 'Letzter Sync'}: ${formatted}`;
+      tenantSyncBadge.title = label;
+      tenantSyncBadge.setAttribute('aria-label', label);
+    } else {
+      tenantSyncBadge.removeAttribute('title');
+      tenantSyncBadge.removeAttribute('aria-label');
+    }
+  }
+
+  function updateTenantSyncState(state) {
+    tenantSyncState = normalizeTenantSyncState(state);
+    if (typeof window !== 'undefined') {
+      window.tenantSyncState = tenantSyncState;
+    }
+    renderTenantSyncBadge();
+  }
+
+  function extractTenantSyncState(doc) {
+    if (!doc || typeof doc.getElementById !== 'function') {
+      return null;
+    }
+    const meta = doc.getElementById('tenantSyncMeta');
+    if (!meta) {
+      return null;
+    }
+    const { dataset } = meta;
+    const parseIntSafe = value => {
+      const num = parseInt(String(value ?? ''), 10);
+      return Number.isNaN(num) ? 0 : num;
+    };
+    return {
+      last_run_at: dataset.lastRun || null,
+      next_allowed_at: dataset.nextAllowed || null,
+      cooldown_seconds: parseIntSafe(dataset.cooldown),
+      stale_after_seconds: parseIntSafe(dataset.staleAfter),
+      is_stale: dataset.isStale === '1',
+      is_throttled: dataset.isThrottled === '1'
+    };
+  }
+
+  function showTenantSpinner() {
+    if (tenantTableBody) {
+      const columnCount = tenantTableHeadings.length || tenantColumnDefs.length || 1;
+      tenantTableBody.innerHTML = `<tr><td colspan="${columnCount}" class="uk-text-center uk-padding"><div uk-spinner></div></td></tr>`;
+    }
+    if (tenantCards) {
+      tenantCards.innerHTML = '<div class="uk-text-center uk-padding"><div uk-spinner></div></div>';
+    }
+  }
+
+  function refreshTenantList(showSpinner = true) {
+    loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value, showSpinner);
+  }
+
   try {
     const stored = JSON.parse(getStored(STORAGE_KEYS.TENANT_COLUMNS));
     if (Array.isArray(stored)) {
@@ -3910,7 +4036,7 @@ document.addEventListener('DOMContentLoaded', function () {
         tenantColumns = tenantColumnDefaults.filter(k => selected.includes(k));
         try { setStored(STORAGE_KEYS.TENANT_COLUMNS, JSON.stringify(tenantColumns)); } catch (_) {}
         updateTenantColumnVisibility();
-        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+        refreshTenantList();
         if (window.UIkit) UIkit.modal(modal).hide();
       });
     } else {
@@ -3921,17 +4047,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.UIkit) UIkit.modal(modal).show();
   });
   updateTenantColumnVisibility();
-
-  const syncTenants = () => {
-    tenantSyncBtn?.click();
-  };
+  updateTenantSyncState(window.tenantSyncState || null);
 
   tenantStatusFilter?.addEventListener('change', () => {
-    loadTenants(tenantStatusFilter.value, tenantSearchInput?.value);
+    refreshTenantList();
   });
 
   tenantSearchInput?.addEventListener('input', () => {
-    loadTenants(tenantStatusFilter?.value, tenantSearchInput.value);
+    refreshTenantList();
   });
 
   function loadBackups() {
@@ -4109,23 +4232,44 @@ document.addEventListener('DOMContentLoaded', function () {
     tenantSyncBtn.disabled = true;
     tenantSyncBtn.innerHTML = '<div uk-spinner></div>';
     apiFetch('/tenants/sync', { method: 'POST' })
-      .then(r => (r.ok ? r.json() : Promise.reject()))
-      .then(() => {
-        notify('Mandanten eingelesen', 'success');
+      .then(async r => {
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const error = new Error(typeof data?.error === 'string' ? data.error : 'sync-failed');
+          error.data = data;
+          throw error;
+        }
+        return data;
       })
-      .catch(() => notify('Fehler beim Synchronisieren', 'danger'))
+      .then(data => {
+        if (data?.sync) {
+          updateTenantSyncState(data.sync);
+        }
+        if (data?.throttled) {
+          notify(window.transTenantSyncThrottled || 'Sync läuft bereits – bitte später erneut versuchen', 'warning');
+        } else {
+          notify(window.transTenantSyncSuccess || 'Mandanten eingelesen', 'success');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Synchronisieren', 'danger');
+      })
       .finally(() => {
-        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+        refreshTenantList();
         tenantSyncBtn.disabled = false;
         tenantSyncBtn.innerHTML = original;
       });
   });
 
-  function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '') {
+  function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '', showSpinner = true) {
     if (!tenantTableBody) return;
     if (typeof window.domainType !== 'undefined' && window.domainType !== 'main') {
       notify('MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen', 'warning');
       return;
+    }
+    if (showSpinner) {
+      showTenantSpinner();
     }
     const params = new URLSearchParams();
     if (status) params.set('status', status);
@@ -4138,11 +4282,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const doc = parser.parseFromString(html, 'text/html');
         const newBody = doc.getElementById('tenantTableBody');
         const newCards = doc.getElementById('tenantCards');
+        const metaState = extractTenantSyncState(doc);
         if (newBody) {
           tenantTableBody.innerHTML = newBody.innerHTML;
         }
         if (tenantCards && newCards) {
           tenantCards.innerHTML = newCards.innerHTML;
+        }
+        if (metaState) {
+          updateTenantSyncState(metaState);
         }
         updateTenantColumnVisibility();
       })
@@ -4619,7 +4767,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSummary();
       }
       if (initRoute === 'tenants') {
-        syncTenants();
+        refreshTenantList();
       }
     }
     if (tabControl && window.UIkit && UIkit.util) {
@@ -4636,7 +4784,7 @@ document.addEventListener('DOMContentLoaded', function () {
           loadSummary();
         }
         if (index === tenantIdx) {
-          syncTenants();
+          refreshTenantList();
         }
       });
     }
@@ -4647,7 +4795,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (tenantIdx >= 0) {
       adminTabs.children[tenantIdx]?.addEventListener('click', () => {
-        syncTenants();
+        refreshTenantList();
       });
     }
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
@@ -4665,7 +4813,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadSummary();
           }
           if (idx === tenantIdx) {
-            syncTenants();
+            refreshTenantList();
           }
         }
       });
@@ -4850,6 +4998,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const path = window.location.pathname.replace(basePath + '/admin', '');
   const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
   if (currentRoute === 'tenants') {
-    syncTenants();
+    refreshTenantList();
   }
 });

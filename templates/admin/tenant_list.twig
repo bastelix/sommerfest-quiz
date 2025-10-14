@@ -125,3 +125,13 @@
   </div>
 {% endfor %}
 </div>
+<div
+  id="tenantSyncMeta"
+  class="uk-hidden"
+  data-last-run="{{ tenant_sync.last_run_at|default('') }}"
+  data-next-allowed="{{ tenant_sync.next_allowed_at|default('') }}"
+  data-cooldown="{{ tenant_sync.cooldown_seconds|default(0) }}"
+  data-stale-after="{{ tenant_sync.stale_after_seconds|default(0) }}"
+  data-is-stale="{{ tenant_sync.is_stale|default(false) ? '1' : '0' }}"
+  data-is-throttled="{{ tenant_sync.is_throttled|default(false) ? '1' : '0' }}"
+></div>

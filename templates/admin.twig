@@ -1763,7 +1763,10 @@
                     id="tenantSyncBtn"
                     type="button"
                     class="uk-button uk-button-text uk-width-1-1 uk-text-left"
-                    aria-label="Sync">Sync</button>
+                    aria-label="Sync">
+                    Sync
+                    <span class="uk-badge uk-margin-small-left uk-hidden" id="tenantSyncBadge">–</span>
+                  </button>
                 </li>
                 <li>
                   <button
@@ -2026,6 +2029,13 @@
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
+    window.tenantSyncState = {{ tenant_sync|default(null)|json_encode|raw }};
+    window.transTenantSyncOk = '{{ 'Aktuell'|e('js') }}';
+    window.transTenantSyncStale = '{{ 'Sync nötig'|e('js') }}';
+    window.transTenantSyncCooling = '{{ 'Wartezeit'|e('js') }}';
+    window.transTenantSyncLastRun = '{{ 'Letzter Sync'|e('js') }}';
+    window.transTenantSyncThrottled = '{{ 'Sync läuft bereits – bitte später erneut versuchen'|e('js') }}';
+    window.transTenantSyncSuccess = '{{ 'Mandanten eingelesen'|e('js') }}';
     window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode|raw }};
     window.domainStartPageTypeLabels = {{ {
       'main': t('label_domain_type_main'),

@@ -363,10 +363,50 @@ SQL;
         $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
         $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('s1'),('public'),('s2')");
         $service = new TenantService($pdo);
-        $count = $service->importMissing();
-        $this->assertSame(3, $count);
+        $result = $service->importMissing();
+        $this->assertSame(3, $result['imported']);
+        $this->assertFalse($result['throttled']);
+        $this->assertArrayHasKey('sync', $result);
+        $this->assertNotEmpty($result['sync']['last_run_at']);
         $subs = $pdo->query('SELECT subdomain FROM tenants ORDER BY subdomain')->fetchAll(PDO::FETCH_COLUMN);
         $this->assertSame(['main', 's1', 's2'], $subs);
+    }
+
+    public function testImportMissingIsThrottledWithinCooldown(): void {
+        $pdo = new class extends PDO {
+            public function __construct() {
+                parent::__construct('sqlite::memory:');
+            }
+
+            public function getAttribute($attr): mixed {
+                if ($attr === PDO::ATTR_DRIVER_NAME) {
+                    return 'pgsql';
+                }
+                return parent::getAttribute($attr);
+            }
+        };
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
+        $pdo->exec('CREATE TABLE tenants(' .
+            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
+            'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, ' .
+            'stripe_current_period_end TEXT, stripe_cancel_at_period_end INTEGER, ' .
+            'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
+            'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)');
+        $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
+        $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('public')");
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+
+        $service = new TenantService($pdo);
+        $first = $service->importMissing();
+        $this->assertSame(1, $first['imported']);
+        $this->assertFalse($first['throttled']);
+
+        $second = $service->importMissing();
+        $this->assertSame(0, $second['imported']);
+        $this->assertTrue($second['throttled']);
+        $this->assertArrayHasKey('sync', $second);
+        $this->assertTrue($second['sync']['is_throttled']);
     }
 
     public function testImportMissingSyncsTenantsDirectory(): void {
@@ -413,8 +453,9 @@ SQL;
         $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
         $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('public')");
         $service = new TenantService($pdo);
-        $count = $service->importMissing();
-        $this->assertSame(2, $count);
+        $result = $service->importMissing();
+        $this->assertSame(2, $result['imported']);
+        $this->assertFalse($result['throttled']);
         $subs = $pdo->query('SELECT subdomain FROM tenants')->fetchAll(PDO::FETCH_COLUMN);
         $this->assertSame(['main', $sub], $subs);
         $schemas = $pdo->query('SELECT schema_name FROM information_schema.schemata')->fetchAll(PDO::FETCH_COLUMN);

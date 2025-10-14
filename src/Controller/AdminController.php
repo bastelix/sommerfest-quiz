@@ -293,6 +293,7 @@ class AdminController
               'domain_chat_domains' => $domainChatDomains,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
+              'tenant_sync' => $tenantSvc->getSyncState(),
               'stripe_configured' => StripeService::isConfigured()['ok'],
               'stripe_sandbox' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN),
               'currentPath' => $request->getUri()->getPath(),

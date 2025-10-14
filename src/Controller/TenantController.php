@@ -109,8 +109,8 @@ class TenantController
      */
     public function sync(Request $request, Response $response): Response {
         try {
-            $count = $this->service->importMissing();
-            $response->getBody()->write(json_encode(['imported' => $count]));
+            $result = $this->service->importMissing();
+            $response->getBody()->write(json_encode($result));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Throwable $e) {
             $msg = 'Error importing tenants: ' . $e->getMessage();
@@ -184,6 +184,7 @@ class TenantController
             'stripe_dashboard' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN)
                 ? 'https://dashboard.stripe.com/test'
                 : 'https://dashboard.stripe.com',
+            'tenant_sync' => $this->service->getSyncState(),
         ]);
         $response->getBody()->write($html);
         return $response->withHeader('Content-Type', 'text/html');
