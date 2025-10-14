@@ -5,6 +5,7 @@
     { 'href': '#migration', 'label': t('metcal_nav_migration'), 'icon': 'clock' },
     { 'href': '#metteam', 'label': t('metcal_nav_metteam'), 'icon': 'link' },
     { 'href': '#zertifikate', 'label': t('metcal_nav_zertifikate'), 'icon': 'file-text' },
+    { 'href': '#berichte', 'label': t('metcal_nav_berichte'), 'icon': 'database' },
     { 'href': '#sicherheit', 'label': t('metcal_nav_sicherheit'), 'icon': 'shield' },
     { 'href': '#pakete', 'label': t('metcal_nav_pakete'), 'icon': 'credit-card' },
     { 'href': '#faq', 'label': t('metcal_nav_faq'), 'icon': 'question' }
@@ -38,27 +39,31 @@
       'badge': 'MET/TRACK → calServer',
       'title': 'FLUKE MET/CAL mit calServer – sicher migrieren, sauber integrieren.',
       'subtitle': 'Vom MET/TRACK-Altsystem in den calServer – ohne Stillstand. Hybridbetrieb, geprüfte Datenflüsse und DAkkS-taugliche Nachweise in einem Setup.',
+      'claim': 'Ein System. Klare Prozesse. Berichte mit Guardband im Griff.',
       'bullets': [
         'Umstieg ohne Produktionspause',
         'Hybridbetrieb mit METTEAM & Guardband',
         'Hosting & SSO in Deutschland'
       ],
-      'ctaPrimary': 'Demo buchen',
-      'ctaSecondary': 'Migrations-Checkliste',
-      'proof': 'Ein System. Klare Prozesse. – DSGVO · Audit-Trails · REST-API'
+      'ctaPrimary': 'Berichte ansehen',
+      'ctaSecondary': 'Kontakt aufnehmen',
+      'proof': 'Auditfest. DSGVO-konform. Betriebsbereit.',
+      'illustrationAlt': 'Illustration: calServer orchestriert MET/CAL, METTEAM und Reporting-Workflows.'
     },
     'en': {
       'badge': 'MET/TRACK → calServer',
       'title': 'FLUKE MET/CAL with calServer – migrate safely, integrate cleanly.',
       'subtitle': 'Move from legacy MET/TRACK into calServer without downtime. Hybrid operations, validated data flows and audit-proof certificates in one setup.',
+      'claim': 'One system. Clear processes. Guardband-ready reporting on tap.',
       'bullets': [
         'Transition without production stop',
         'Hybrid with METTEAM & guardband statements',
         'Hosting & SSO in Germany'
       ],
-      'ctaPrimary': 'Book demo',
-      'ctaSecondary': 'Migration checklist',
-      'proof': 'One system. Clear processes. – GDPR · Audit trails · REST API'
+      'ctaPrimary': 'View reports',
+      'ctaSecondary': 'Contact us',
+      'proof': 'Audit ready. GDPR aligned. Production proven.',
+      'illustrationAlt': 'Illustration: calServer connects MET/CAL, METTEAM and reporting workflows.'
     }
   }[heroLocale] %}
   <div class="landing-content">
@@ -201,14 +206,12 @@
           {% endfor %}
         </ul>
         <a class="uk-button uk-button-default git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
-           href="https://calendly.com/calhelp/calserver-vorstellung"
-           target="_blank"
-           rel="noopener">
-          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ heroCopy.ctaPrimary }}
+           href="#berichte">
+          <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>{{ heroCopy.ctaPrimary }}
         </a>
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
-           href="{{ basePath }}/downloads/metcal-migrations-checkliste.pdf">
-          <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>{{ heroCopy.ctaSecondary }}
+           href="{{ basePath }}/kontakt">
+          <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>{{ heroCopy.ctaSecondary }}
         </a>
       </div>
     </div>
@@ -219,6 +222,7 @@
           <div>
             <span class="metcal-hero__badge">{{ heroCopy.badge }}</span>
             <h1 class="metcal-hero__title" id="metcal-hero-title">{{ heroCopy.title }}</h1>
+            <p class="metcal-hero__claim">{{ heroCopy.claim }}</p>
             <p class="metcal-hero__subtitle">{{ heroCopy.subtitle }}</p>
             <ul class="metcal-hero__bullets" role="list">
               {% for bullet in heroCopy.bullets %}
@@ -229,26 +233,27 @@
             </ul>
             <div class="metcal-hero__actions" role="group" aria-label="Primäre Aktionen">
               <a class="uk-button uk-button-primary"
-                 href="https://calendly.com/calhelp/calserver-vorstellung"
-                 target="_blank"
-                 rel="noopener"
-                 data-analytics-event="click_cta_demo"
+                 href="#berichte"
+                 data-analytics-event="click_cta_reports"
                  data-analytics-context="page_metcal"
                  data-analytics-page="/fluke-metcal"
+                 data-analytics-target="#berichte"
                  data-analytics-lang="{{ heroLocale }}">
-                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ heroCopy.ctaPrimary }}
+                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>{{ heroCopy.ctaPrimary }}
               </a>
               <a class="uk-button uk-button-default"
-                 href="{{ basePath }}/downloads/metcal-migrations-checkliste.pdf"
-                 data-analytics-event="download_checkliste"
+                 href="{{ basePath }}/kontakt"
+                 data-analytics-event="click_cta_contact"
                  data-analytics-context="page_metcal"
-                 data-analytics-file="metcal-migrations-checkliste.pdf">
-                <span class="uk-margin-small-right" data-uk-icon="icon: cloud-download"></span>{{ heroCopy.ctaSecondary }}
+                 data-analytics-page="/fluke-metcal"
+                 data-analytics-target="/kontakt">
+                <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>{{ heroCopy.ctaSecondary }}
               </a>
             </div>
             <p class="metcal-hero__proof">{{ heroCopy.proof }}</p>
           </div>
           <div>
+            <div class="metcal-hero__illustration" role="img" aria-label="{{ heroCopy.illustrationAlt }}"></div>
             <div class="metcal-hero__highlight" role="note">
               <h2 class="metcal-hero__highlight-title">Warum Teams wechseln</h2>
               <ul class="metcal-hero__highlight-list" role="list">
