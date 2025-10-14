@@ -631,6 +631,12 @@ body.admin-page {
   overflow-y: visible;
 }
 
+.admin-page .admin-table-wrapper.uk-overflow-auto {
+  /* Allow dropdown menus to escape the scroll container while preserving horizontal scrolling */
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
 .admin-page .topbar {
   height: auto;
   flex-wrap: nowrap;
