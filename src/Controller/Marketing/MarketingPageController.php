@@ -123,9 +123,25 @@ class MarketingPageController
         $calhelpNewsPlaceholderActive = $newsReplacement['replaced'];
 
         $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
+        $landingNewsOwnerSlug = $page->getSlug();
+
+        if ($landingNews === []) {
+            $baseSlug = MarketingSlugResolver::resolveBaseSlug($landingNewsOwnerSlug);
+            if ($baseSlug !== $landingNewsOwnerSlug) {
+                $basePage = $this->pages->findBySlug($baseSlug);
+                if ($basePage !== null) {
+                    $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 3);
+                    if ($fallbackNews !== []) {
+                        $landingNews = $fallbackNews;
+                        $landingNewsOwnerSlug = $baseSlug;
+                    }
+                }
+            }
+        }
+
         $landingNewsBasePath = null;
         if ($landingNews !== []) {
-            $landingNewsBasePath = $this->buildNewsBasePath($request, $page->getSlug());
+            $landingNewsBasePath = $this->buildNewsBasePath($request, $landingNewsOwnerSlug);
         }
 
         $mailConfigured = MailService::isConfigured();
