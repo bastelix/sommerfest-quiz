@@ -339,6 +339,20 @@ Schlägt das Onboarding fehl, hilft ein Blick in das Log:
 tail -n 50 logs/onboarding.log
 ```
 
+### Synchronisation der Mandantenliste
+
+Die Mandantenübersicht im Admin-Backend lädt bestehende Einträge nur noch
+über die Tabelle selbst. Ein automatischer Sync beim Öffnen des Tabs findet
+nicht mehr statt; der Abgleich kann weiterhin manuell über den Sync-Button
+oder automatisiert durch einen Hintergrundjob ausgelöst werden. Der Button
+trägt ein Status-Badge, das zwischen „Aktuell“, „Wartezeit“ (Cooldown läuft)
+und „Sync nötig“ unterscheidet.
+
+`TenantService::importMissing()` speichert den Zeitpunkt des letzten Syncs
+und erzwingt eine Wartezeit von fünf Minuten, bevor erneut Mandanten
+eingelesen werden. Wiederholte Aufrufe innerhalb dieser Frist werden
+throttled beantwortet, damit keine parallel laufenden Scans entstehen.
+
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
 einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
 Nur so kann der `acme-companion` die HTTP-Challenge beantworten und das

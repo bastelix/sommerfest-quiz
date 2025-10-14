@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use DateTimeImmutable;
 use PDO;
 use PDOException;
 use App\Infrastructure\Database;
@@ -19,6 +20,10 @@ class TenantService
     private string $migrationsDir;
     private ?NginxService $nginxService;
     private string $tenantsDir;
+
+    private const SYNC_SETTINGS_KEY = 'tenants:last_sync';
+    private const SYNC_COOLDOWN_SECONDS = 300;
+    private const SYNC_STALE_AFTER_SECONDS = 3600;
 
     /**
      * Subdomain used for the default "public" schema.
@@ -611,8 +616,32 @@ class TenantService
 
     /**
      * Import tenant records for schemas that are missing in the tenants table.
+     *
+     * @return array{
+     *   imported:int,
+     *   throttled:bool,
+     *   sync:array{
+     *     last_run_at:?string,
+     *     next_allowed_at:?string,
+     *     cooldown_seconds:int,
+     *     stale_after_seconds:int,
+     *     is_stale:bool,
+     *     is_throttled:bool
+     *   }
+     * }
      */
-    public function importMissing(): int {
+    public function importMissing(): array {
+        $now = new DateTimeImmutable();
+        $lastRun = $this->fetchLastSync();
+        $cooldownEnd = $lastRun?->modify('+' . self::SYNC_COOLDOWN_SECONDS . ' seconds');
+        if ($cooldownEnd !== null && $cooldownEnd > $now) {
+            return [
+                'imported' => 0,
+                'throttled' => true,
+                'sync' => $this->buildSyncState($lastRun, $now),
+            ];
+        }
+
         $existing = $this->pdo
             ->query('SELECT subdomain FROM tenants')
             ->fetchAll(PDO::FETCH_COLUMN);
@@ -661,7 +690,91 @@ class TenantService
             }
         }
 
-        return $count;
+        $this->persistLastSync($now);
+
+        return [
+            'imported' => $count,
+            'throttled' => false,
+            'sync' => $this->buildSyncState($now, $now),
+        ];
+    }
+
+    /**
+     * Provide metadata about the last tenant import.
+     *
+     * @return array{
+     *   last_run_at:?string,
+     *   next_allowed_at:?string,
+     *   cooldown_seconds:int,
+     *   stale_after_seconds:int,
+     *   is_stale:bool,
+     *   is_throttled:bool
+     * }
+     */
+    public function getSyncState(): array {
+        return $this->buildSyncState($this->fetchLastSync());
+    }
+
+    /**
+     * Persist the timestamp of the last tenant import.
+     */
+    private function persistLastSync(DateTimeImmutable $time): void {
+        try {
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO settings(key, value) VALUES(?, ?) '
+                . 'ON CONFLICT(key) DO UPDATE SET value = excluded.value'
+            );
+            $stmt->execute([self::SYNC_SETTINGS_KEY, $time->format(DATE_ATOM)]);
+        } catch (PDOException $e) {
+            // ignore missing settings table – sync throttling will simply be disabled
+        }
+    }
+
+    private function fetchLastSync(): ?DateTimeImmutable {
+        try {
+            $stmt = $this->pdo->prepare('SELECT value FROM settings WHERE key = ?');
+            $stmt->execute([self::SYNC_SETTINGS_KEY]);
+            $value = $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            return null;
+        }
+
+        if (!is_string($value) || $value === '') {
+            return null;
+        }
+
+        try {
+            return new DateTimeImmutable($value);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * @return array{
+     *   last_run_at:?string,
+     *   next_allowed_at:?string,
+     *   cooldown_seconds:int,
+     *   stale_after_seconds:int,
+     *   is_stale:bool,
+     *   is_throttled:bool
+     * }
+     */
+    private function buildSyncState(?DateTimeImmutable $lastRun, ?DateTimeImmutable $now = null): array {
+        $now ??= new DateTimeImmutable();
+        $nextAllowed = $lastRun?->modify('+' . self::SYNC_COOLDOWN_SECONDS . ' seconds');
+        $staleAt = $lastRun?->modify('+' . self::SYNC_STALE_AFTER_SECONDS . ' seconds');
+        $isThrottled = $nextAllowed !== null && $nextAllowed > $now;
+        $isStale = $lastRun === null || ($staleAt !== null && $staleAt < $now);
+
+        return [
+            'last_run_at' => $lastRun?->format(DATE_ATOM),
+            'next_allowed_at' => $nextAllowed?->format(DATE_ATOM),
+            'cooldown_seconds' => self::SYNC_COOLDOWN_SECONDS,
+            'stale_after_seconds' => self::SYNC_STALE_AFTER_SECONDS,
+            'is_stale' => $isStale,
+            'is_throttled' => $isThrottled,
+        ];
     }
 
     /**
