@@ -301,71 +301,73 @@ if (manager) {
 
         const actionsCell = document.createElement('td');
         actionsCell.className = 'uk-table-shrink';
-        const actionWrap = document.createElement('div');
-        actionWrap.className = 'uk-flex uk-flex-wrap';
-        actionWrap.style.gap = '4px';
 
-        const editButton = document.createElement('button');
-        editButton.type = 'button';
-        editButton.className = 'uk-button uk-button-default uk-button-small';
-        editButton.dataset.action = 'edit';
-        editButton.textContent = 'Bearbeiten';
-        actionWrap.appendChild(editButton);
+        const menuWrapper = document.createElement('div');
+        menuWrapper.className = 'uk-inline';
+
+        const menuToggle = document.createElement('button');
+        menuToggle.type = 'button';
+        menuToggle.className = 'uk-button uk-button-default uk-button-small';
+        menuToggle.setAttribute('uk-icon', 'icon: more; ratio: 0.9');
+        menuToggle.setAttribute('aria-label', 'Aktionen');
+        menuToggle.innerHTML = '<span class="uk-hidden">Aktionen</span>';
+        menuWrapper.appendChild(menuToggle);
+
+        const dropdown = document.createElement('div');
+        dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; offset: 0');
+
+        const dropdownList = document.createElement('ul');
+        dropdownList.className = 'uk-nav uk-dropdown-nav';
+
+        const appendActionItem = (label, action, { danger = false, className = '' } = {}) => {
+          if (!label) {
+            return;
+          }
+          const item = document.createElement('li');
+          const link = document.createElement('a');
+          link.href = '#';
+          link.dataset.action = action;
+          link.textContent = label;
+          link.setAttribute('uk-dropdown-close', '');
+          if (danger) {
+            link.classList.add('uk-text-danger');
+          }
+          if (className) {
+            className
+              .split(/\s+/)
+              .filter(Boolean)
+              .forEach(cls => link.classList.add(cls));
+          }
+          item.appendChild(link);
+          dropdownList.appendChild(item);
+        };
+
+        appendActionItem('Bearbeiten', 'edit');
 
         if (article.status === 'published') {
-          const unpublishButton = document.createElement('button');
-          unpublishButton.type = 'button';
-          unpublishButton.className = 'uk-button uk-button-default uk-button-small';
-          unpublishButton.dataset.action = 'set-draft';
-          unpublishButton.textContent = 'Als Entwurf';
-          actionWrap.appendChild(unpublishButton);
+          appendActionItem('Als Entwurf', 'set-draft');
         } else {
-          const publishButton = document.createElement('button');
-          publishButton.type = 'button';
-          publishButton.className = 'uk-button uk-button-primary uk-button-small';
-          publishButton.dataset.action = 'publish';
-          publishButton.textContent = 'Veröffentlichen';
-          actionWrap.appendChild(publishButton);
+          appendActionItem('Veröffentlichen', 'publish', { className: 'uk-text-primary' });
         }
 
         if (article.status === 'archived') {
-          const restoreButton = document.createElement('button');
-          restoreButton.type = 'button';
-          restoreButton.className = 'uk-button uk-button-default uk-button-small';
-          restoreButton.dataset.action = 'restore';
-          restoreButton.textContent = 'Reaktivieren';
-          actionWrap.appendChild(restoreButton);
+          appendActionItem('Reaktivieren', 'restore');
         } else {
-          const archiveButton = document.createElement('button');
-          archiveButton.type = 'button';
-          archiveButton.className = 'uk-button uk-button-default uk-button-small';
-          archiveButton.dataset.action = 'archive';
-          archiveButton.textContent = 'Archivieren';
-          actionWrap.appendChild(archiveButton);
+          appendActionItem('Archivieren', 'archive');
         }
 
-        const duplicateButton = document.createElement('button');
-        duplicateButton.type = 'button';
-        duplicateButton.className = 'uk-button uk-button-default uk-button-small';
-        duplicateButton.dataset.action = 'duplicate';
-        duplicateButton.textContent = 'Duplizieren';
-        actionWrap.appendChild(duplicateButton);
+        appendActionItem('Duplizieren', 'duplicate');
+        appendActionItem('Download', 'download');
 
-        const downloadButton = document.createElement('button');
-        downloadButton.type = 'button';
-        downloadButton.className = 'uk-button uk-button-default uk-button-small';
-        downloadButton.dataset.action = 'download';
-        downloadButton.textContent = 'Download';
-        actionWrap.appendChild(downloadButton);
+        const divider = document.createElement('li');
+        divider.className = 'uk-nav-divider';
+        dropdownList.appendChild(divider);
 
-        const deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.className = 'uk-button uk-button-danger uk-button-small';
-        deleteButton.dataset.action = 'delete';
-        deleteButton.textContent = 'Löschen';
-        actionWrap.appendChild(deleteButton);
+        appendActionItem('Löschen', 'delete', { danger: true });
 
-        actionsCell.appendChild(actionWrap);
+        dropdown.appendChild(dropdownList);
+        menuWrapper.appendChild(dropdown);
+        actionsCell.appendChild(menuWrapper);
         row.appendChild(actionsCell);
 
         articlesTableBody.appendChild(row);
@@ -769,6 +771,14 @@ if (manager) {
           break;
         default:
           break;
+      }
+
+      const dropdownElement = target.closest('[uk-dropdown]');
+      if (dropdownElement && typeof UIkit !== 'undefined' && UIkit.dropdown) {
+        const instance = UIkit.dropdown(dropdownElement);
+        if (instance) {
+          instance.hide(false);
+        }
       }
     }
 
