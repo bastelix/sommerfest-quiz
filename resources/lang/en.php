@@ -438,6 +438,8 @@ return [
     'calserver_nav_faq' => 'FAQ',
     'calserver_nav_demo' => 'Book demo',
     'calserver_nav_trial' => 'Start trial',
+    'calserver_news_heading' => 'Latest calServer news',
+    'calserver_news_link' => 'View all news',
     'marketing_chat_title' => 'Marketing assistant',
     'marketing_chat_intro' => 'Ask the assistant about features, pricing or integrations – answers are based on our documentation.',
     'marketing_chat_intro_message' => 'Hi there! I can look up answers in the documentation. What would you like to know?',

@@ -436,6 +436,8 @@ return [
     'calserver_nav_faq' => 'FAQ',
     'calserver_nav_demo' => 'Demo buchen',
     'calserver_nav_trial' => 'Jetzt testen',
+    'calserver_news_heading' => 'Neuigkeiten von calServer',
+    'calserver_news_link' => 'Alle News',
     'marketing_chat_title' => 'Marketing-Assistent',
     'marketing_chat_intro' => 'Frag unseren Assistenten nach Funktionen, Preisen oder Integrationen – die Antworten basieren auf der Dokumentation.',
     'marketing_chat_intro_message' => 'Hallo! Ich finde Antworten in unserer Dokumentation. Was möchtest du wissen?',
