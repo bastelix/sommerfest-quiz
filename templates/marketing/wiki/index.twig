@@ -56,12 +56,21 @@
 
     .marketing-wiki__header {
       background: linear-gradient(135deg, var(--marketing-wiki-header-from), var(--marketing-wiki-header-to));
-      color: #ffffff;
+      color: var(--marketing-wiki-header-text);
     }
 
-    .marketing-wiki__header a { color: inherit; }
+    .marketing-wiki__header a,
+    .marketing-wiki__header .uk-heading-small,
+    .marketing-wiki__header .uk-text-lead,
+    .marketing-wiki__header .uk-text-meta {
+      color: inherit;
+    }
 
-    .marketing-wiki__header .uk-text-meta { color: #ffffff; }
+    .marketing-wiki__header .uk-breadcrumb > li:nth-child(n+2)::before,
+    .marketing-wiki__header .uk-breadcrumb > li > a,
+    .marketing-wiki__header .uk-breadcrumb > li > span {
+      color: var(--marketing-wiki-header-text);
+    }
 
     .marketing-wiki__card { transition: transform .2s ease, box-shadow .2s ease; }
 
