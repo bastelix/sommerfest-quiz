@@ -569,16 +569,16 @@ final class MarketingPageWikiArticleService
         }
 
         if ($isStartDocument) {
-            $clear = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = 0 WHERE page_id = ? AND locale = ? AND id <> ?');
+            $clear = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = FALSE WHERE page_id = ? AND locale = ? AND id <> ?');
             $clear->execute([$pageId, $normalizedLocale, $articleId]);
 
-            $set = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = 1 WHERE id = ?');
+            $set = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = TRUE WHERE id = ?');
             $set->execute([$articleId]);
 
             return;
         }
 
-        $reset = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = 0 WHERE id = ?');
+        $reset = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = FALSE WHERE id = ?');
         $reset->execute([$articleId]);
     }
 
