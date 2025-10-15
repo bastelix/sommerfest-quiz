@@ -47,11 +47,13 @@ use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
+use App\Service\RagChat\DomainWikiSelectionService;
 use App\Service\RagChat\RagChatService;
 use App\Service\RagChat\RagChatServiceInterface;
 use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
+use App\Service\MarketingPageWikiArticleService;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
 use App\Support\DomainNameHelper;
@@ -273,14 +275,23 @@ return function (\Slim\App $app, TranslationService $translator) {
         $playerService = new PlayerService($pdo);
         $imageUploadService = new ImageUploadService();
         $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
+        $pageService = new PageService($pdo);
         $landingReferenceService = new LandingMediaReferenceService(
-            new PageService($pdo),
+            $pageService,
             new PageSeoConfigService($pdo),
             $configService,
             new LandingNewsService($pdo)
         );
         $domainDocumentStorage = new DomainDocumentStorage();
-        $domainIndexManager = new DomainIndexManager($domainDocumentStorage);
+        $wikiArticleService = new MarketingPageWikiArticleService($pdo);
+        $domainWikiSelectionService = new DomainWikiSelectionService($pdo);
+        $domainIndexManager = new DomainIndexManager(
+            $domainDocumentStorage,
+            null,
+            'python3',
+            $domainWikiSelectionService,
+            $wikiArticleService
+        );
         $mailProviderRepository = null;
         try {
             $mailProviderRepository = new MailProviderRepository($pdo);
@@ -341,7 +352,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute(
                 'domainStartPageController',
-                new DomainStartPageController($domainStartPageService, $settingsService, new PageService($pdo))
+                new DomainStartPageController($domainStartPageService, $settingsService, $pageService)
             )
             ->withAttribute(
                 'domainContactTemplateController',
@@ -349,7 +360,13 @@ return function (\Slim\App $app, TranslationService $translator) {
             )
             ->withAttribute(
                 'domainChatController',
-                new DomainChatKnowledgeController($domainDocumentStorage, $domainIndexManager)
+                new DomainChatKnowledgeController(
+                    $domainDocumentStorage,
+                    $domainIndexManager,
+                    $domainWikiSelectionService,
+                    $wikiArticleService,
+                    $pageService
+                )
             )
             ->withAttribute('qrController', new QrController(
                 $configService,
@@ -1467,6 +1484,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
         return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-chat/wiki-selection', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->updateWikiSelection($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->post('/admin/domain-chat/rebuild', function (Request $request, Response $response) {

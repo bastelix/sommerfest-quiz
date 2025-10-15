@@ -364,6 +364,18 @@ CREATE TABLE IF NOT EXISTS marketing_page_wiki_versions (
 
 CREATE INDEX IF NOT EXISTS marketing_page_wiki_versions_article_idx
     ON marketing_page_wiki_versions(article_id, created_at);
+
+CREATE TABLE IF NOT EXISTS domain_chat_wiki_articles (
+    domain TEXT NOT NULL,
+    article_id INTEGER NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(domain, article_id),
+    FOREIGN KEY (article_id) REFERENCES marketing_page_wiki_articles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS domain_chat_wiki_articles_domain_idx
+    ON domain_chat_wiki_articles(domain);
+
 CREATE UNIQUE INDEX IF NOT EXISTS landing_news_page_slug_idx
     ON landing_news(page_id, slug);
 CREATE INDEX IF NOT EXISTS landing_news_page_published_idx
