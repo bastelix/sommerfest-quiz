@@ -24,7 +24,10 @@
         </div>
       </div>
       <div class="uk-margin-top">
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: event.uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: event.uid|default(''),
+          currentEventName: event.name|default('')
+        } %}
       </div>
     </div>
   </div>
@@ -188,7 +191,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script type="module" src="{{ basePath }}/js/event-controls.js"></script>
   <script src="{{ basePath }}/js/event-config.js" data-event-id="{{ event.uid }}" data-csrf="{{ csrf_token }}"></script>
 {% endblock %}
 

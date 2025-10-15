@@ -776,6 +776,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const cfgInitial = window.quizConfig || {};
   const cfgParams = new URLSearchParams(window.location.search);
   let currentEventUid = cfgParams.get('event') || '';
+  const eventIndicators = document.querySelectorAll('[data-current-event-indicator]');
+  const indicatorNodes = Array.from(eventIndicators);
+  let currentEventName = '';
+  if (!currentEventUid) {
+    const seededUid = indicatorNodes.map(el => el.dataset.currentEventUid || '').find(uid => uid);
+    currentEventUid = seededUid || cfgInitial.event_uid || '';
+  }
+  if (!cfgInitial.event_uid && currentEventUid) {
+    cfgInitial.event_uid = currentEventUid;
+  }
+  if (!currentEventName) {
+    const seededName = indicatorNodes
+      .map(el => (el.querySelector('[data-current-event-name]')?.textContent || '').trim())
+      .find(name => name);
+    currentEventName = seededName || (cfgInitial.header || '');
+  }
   // Verweise auf die Formularfelder
   const cfgFields = {
     logoFile: document.getElementById('cfgLogoFile'),
@@ -3201,39 +3217,86 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsCardsEl = document.getElementById('eventsCards');
   const eventAddBtn = document.getElementById('eventAddBtn');
 
-  function resolveEventControls() {
-    const activeRoot = document.querySelector('#adminSwitcher > li.uk-active [data-event-controls]');
-    const root = activeRoot || document.querySelector('[data-event-controls]');
-    if (!root) {
-      return { root: null, select: null, wrap: null, search: null, openBtn: null };
-    }
-    return {
-      root,
-      select: root.querySelector('#eventSelect'),
-      wrap: root.querySelector('#eventSelectWrap'),
-      search: root.querySelector('#eventSearchInput'),
-      openBtn: root.querySelector('#eventOpenBtn')
-    };
-  }
-
-  const {
-    select: eventSelect,
-    wrap: eventSelectWrap,
-    search: eventSearchInput,
-    openBtn: eventOpenBtn
-  } = resolveEventControls();
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const eventSettingsHeading = document.getElementById('eventSettingsHeading');
   const catalogsHeading = document.getElementById('catalogsHeading');
   const questionsHeading = document.getElementById('questionsHeading');
   const langSelect = document.getElementById('langSelect');
-  const initialSelectValue = eventSelect?.dataset.currentEvent || '';
-  if (!currentEventUid) {
-    currentEventUid = initialSelectValue || cfgInitial.event_uid || '';
+  const eventButtons = document.querySelectorAll('[data-event-btn]');
+
+  function renderCurrentEventIndicator(name, uid, hasEvents = true) {
+    const normalizedName = name || '';
+    const normalizedUid = uid || '';
+    const hasUid = normalizedUid !== '';
+    eventIndicators.forEach(indicator => {
+      const info = indicator.querySelector('[data-current-event-info]');
+      const empty = indicator.querySelector('[data-current-event-empty]');
+      const nameEl = indicator.querySelector('[data-current-event-name]');
+      if (nameEl) {
+        nameEl.textContent = normalizedName;
+      }
+      if (info) {
+        info.hidden = !hasUid;
+      }
+      if (empty) {
+        const message = hasEvents
+          ? (indicator.dataset.empty || '')
+          : (indicator.dataset.none || indicator.dataset.empty || '');
+        empty.textContent = message;
+        empty.hidden = hasUid;
+      }
+      indicator.dataset.currentEventUid = normalizedUid;
+    });
   }
-  if (initialSelectValue && !cfgInitial.event_uid) {
-    cfgInitial.event_uid = initialSelectValue;
+
+  function updateEventButtons(uid) {
+    const enabled = !!uid;
+    eventButtons.forEach(btn => {
+      if ('disabled' in btn) {
+        btn.disabled = !enabled;
+      } else {
+        btn.classList.toggle('uk-disabled', !enabled);
+        btn.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+      }
+    });
   }
+
+  function syncCurrentEventState(list) {
+    const hasEvents = Array.isArray(list) && list.length > 0;
+    if (!hasEvents) {
+      currentEventUid = '';
+      currentEventName = '';
+      cfgInitial.event_uid = '';
+      window.quizConfig = {};
+      updateActiveHeader('');
+      renderCurrentEventIndicator('', '', false);
+      updateEventButtons('');
+      eventDependentSections.forEach(sec => { sec.hidden = true; });
+      return;
+    }
+    const match = list.find(ev => ev.uid === currentEventUid);
+    if (match) {
+      currentEventName = match.name || currentEventName;
+      updateActiveHeader(currentEventName);
+      renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+      updateEventButtons(currentEventUid);
+      eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
+    } else {
+      currentEventUid = '';
+      currentEventName = '';
+      cfgInitial.event_uid = '';
+      window.quizConfig = {};
+      updateActiveHeader('');
+      renderCurrentEventIndicator('', '', true);
+      updateEventButtons('');
+      eventDependentSections.forEach(sec => { sec.hidden = true; });
+    }
+  }
+
+  renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+  updateActiveHeader(currentEventName);
+  updateEventButtons(currentEventUid);
+  eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
   let eventManager;
   let eventEditor;
 
@@ -3284,51 +3347,10 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Veranstaltungen gespeichert', 'success');
-        populateEventSelect(selectable);
+        syncCurrentEventState(selectable);
+        highlightCurrentEvent();
       })
       .catch(() => notify('Fehler beim Speichern', 'danger'));
-  }
-
-  function populateEventSelect(list) {
-    if (!eventSelect) return;
-    eventSelect.innerHTML = '';
-    const placeholder = document.createElement('option');
-    placeholder.value = '';
-    placeholder.textContent = eventSelect.dataset.placeholder || '';
-    eventSelect.appendChild(placeholder);
-
-    if (Array.isArray(list) && list.length > 0) {
-      list.forEach(ev => {
-        const opt = document.createElement('option');
-        opt.value = ev.uid;
-        opt.textContent = ev.name;
-        if (ev.uid === currentEventUid) {
-          opt.selected = true;
-        }
-        eventSelect.appendChild(opt);
-      });
-      const hasCurrent = list.some(ev => ev.uid === currentEventUid);
-      if (!hasCurrent) {
-        currentEventUid = '';
-        cfgInitial.event_uid = '';
-        window.quizConfig = {};
-      }
-    } else {
-      currentEventUid = '';
-      cfgInitial.event_uid = '';
-      window.quizConfig = {};
-    }
-
-    eventSelect.value = currentEventUid || '';
-    eventSelect.dispatchEvent(new Event('change'));
-    eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
-    if (eventSelectWrap) eventSelectWrap.hidden = false;
-    if (eventSearchInput) {
-      eventSearchInput.hidden = !(Array.isArray(list) && list.length >= 10);
-      eventSearchInput.value = '';
-      eventSearchInput.dispatchEvent(new Event('input'));
-    }
-    updateEventSelectDisplay();
   }
 
   function highlightCurrentEvent() {
@@ -3348,25 +3370,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setCurrentEvent(uid, name) {
     if (switchPending || lastSwitchFailed) {
-      if (eventSelect) {
-        eventSelect.value = currentEventUid;
-        updateEventSelectDisplay();
-      }
+      highlightCurrentEvent();
       return Promise.resolve();
     }
     const prevUid = currentEventUid;
-    const prevOpt = eventSelect?.querySelector(`option[value="${prevUid}"]`);
-    const prevName = prevOpt ? prevOpt.textContent : '';
+    const prevName = currentEventName;
     return switchEvent(uid, name)
       .then(cfg => {
-        currentEventUid = uid;
-        cfgInitial.event_uid = uid;
+        currentEventUid = uid || '';
+        currentEventName = currentEventUid ? (name || currentEventName) : '';
+        cfgInitial.event_uid = currentEventUid;
         Object.assign(cfgInitial, cfg);
         window.quizConfig = cfg || {};
-        updateActiveHeader(name, uid);
-        eventDependentSections.forEach(sec => { sec.hidden = !uid; });
+        updateActiveHeader(currentEventName);
+        renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+        updateEventButtons(currentEventUid);
+        eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
         const url = new URL(window.location);
-        if (uid) url.searchParams.set('event', uid); else url.searchParams.delete('event');
+        if (currentEventUid) url.searchParams.set('event', currentEventUid); else url.searchParams.delete('event');
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, '', url.toString());
         }
@@ -3374,14 +3395,11 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => {
         console.error(err);
         notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
-        if (eventSelect) {
-          eventSelect.value = prevUid;
-          updateEventSelectDisplay();
-        }
-        if (eventOpenBtn) {
-          eventOpenBtn.disabled = !prevUid;
-        }
-        updateActiveHeader(prevName, prevUid);
+        currentEventUid = prevUid;
+        currentEventName = prevName;
+        updateActiveHeader(prevName);
+        renderCurrentEventIndicator(prevName, prevUid, true);
+        updateEventButtons(prevUid);
         eventDependentSections.forEach(sec => { sec.hidden = !prevUid; });
         const url = new URL(window.location);
         if (prevUid) url.searchParams.set('event', prevUid); else url.searchParams.delete('event');
@@ -3532,11 +3550,11 @@ document.addEventListener('DOMContentLoaded', function () {
       eventManager.render(list);
       highlightCurrentEvent();
       saveEvents();
-      populateEventSelect(list);
+      syncCurrentEventState(list);
     }
   }
 
-  if (eventManager || eventSelect) {
+  if (eventManager || indicatorNodes.length > 0) {
     const initial = Array.isArray(window.initialEvents)
       ? window.initialEvents.map(d => createEventItem(d))
       : [];
@@ -3545,7 +3563,9 @@ document.addEventListener('DOMContentLoaded', function () {
       eventManager.render(initial);
       highlightCurrentEvent();
     }
-    populateEventSelect(initial);
+    if (!initialEmpty) {
+      syncCurrentEventState(initial);
+    }
     apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
       .then(r => {
         if (!r.ok) {
@@ -3562,7 +3582,7 @@ document.addEventListener('DOMContentLoaded', function () {
           eventManager.render(list);
           highlightCurrentEvent();
         }
-        populateEventSelect(list);
+        syncCurrentEventState(list);
         if (initialEmpty && list.length === 0) {
           notify('Keine Events gefunden', 'warning');
         }
@@ -3592,57 +3612,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
 
-  function updateActiveHeader(name, uid) {
-    if (eventSelect) {
-      const opt = Array.from(eventSelect.options).find(o => o.value === uid);
-      if (opt) {
-        eventSelect.value = opt.value;
-        eventSelect.dispatchEvent(new Event('change'));
-      }
-    }
-    updateEventSelectDisplay();
+  function updateActiveHeader(name) {
     const top = document.getElementById('topbar-title');
-    if (top) top.textContent = name || top.dataset.defaultTitle || '';
+    if (top) {
+      const fallback = top.dataset.defaultTitle || top.dataset.default || top.textContent || '';
+      top.textContent = name || fallback;
+    }
+    const activeHeading = document.querySelector('[data-active-event-title]');
+    if (activeHeading) {
+      const baseTitle = activeHeading.dataset.activeEventTitle || activeHeading.dataset.title || activeHeading.textContent || '';
+      activeHeading.textContent = name ? `${name} – ${baseTitle}` : baseTitle;
+    }
   }
-
-  function updateEventSelectDisplay() {
-    if (!eventSelect) return;
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  eventSelect?.addEventListener('change', () => {
-    const uid = eventSelect.value;
-    const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
-    if (eventOpenBtn) {
-      eventOpenBtn.disabled = !uid;
-    }
-    if (switchPending || lastSwitchFailed) {
-      eventSelect.value = currentEventUid || '';
-      updateEventSelectDisplay();
-      highlightCurrentEvent();
-      return;
-    }
-    if (uid && uid !== currentEventUid) {
-      setCurrentEvent(uid, name);
-    }
-  });
-
-  eventSearchInput?.addEventListener('input', () => {
-    const term = eventSearchInput.value.toLowerCase();
-    Array.from(eventSelect?.options || []).forEach(opt => {
-      if (!opt.value) return;
-      const match = opt.textContent.toLowerCase().includes(term);
-      opt.style.display = match ? '' : 'none';
-    });
-    updateEventSelectDisplay();
-  });
-
-  eventOpenBtn?.addEventListener('click', () => {
-    const uid = eventSelect?.value;
-    if (uid) {
-      window.open(withBase('/?event=' + uid), '_blank');
-    }
-  });
 
   langSelect?.addEventListener('change', () => {
     const lang = langSelect.value;
@@ -4846,13 +4827,22 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
     ]).then(([cfg, events, catalogs, teams]) => {
       Object.assign(cfgInitial, cfg);
-      if (!events.some(e => e.uid === currentEventUid)) {
+      const listHasEvents = Array.isArray(events) && events.length > 0;
+      let ev = events.find(e => e.uid === currentEventUid) || null;
+      if (!ev) {
         currentEventUid = '';
+        currentEventName = '';
         cfgInitial.event_uid = '';
         window.quizConfig = {};
+        ev = {};
+      } else {
+        currentEventName = ev.name || currentEventName;
       }
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
-      const ev = events.find(e => e.uid === currentEventUid) || {};
+      renderCurrentEventIndicator(currentEventName, currentEventUid, listHasEvents);
+      updateEventButtons(currentEventUid);
+      updateActiveHeader(currentEventName);
+      highlightCurrentEvent();
       nameEl.textContent = ev.name || '';
       if (descEl) descEl.textContent = ev.description || '';
       const applyDesign = (params, colorKey) => {
@@ -5198,14 +5188,18 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('current-event-changed', e => {
     const { uid, name, config } = e.detail || {};
     currentEventUid = uid || '';
+    currentEventName = currentEventUid ? (name || currentEventName) : '';
     cfgInitial.event_uid = currentEventUid;
     Object.assign(cfgInitial, config || {});
     window.quizConfig = config || {};
-    updateActiveHeader(name, uid);
-    updateHeading(eventSettingsHeading, name);
-    updateHeading(catalogsHeading, name);
-    updateHeading(questionsHeading, name);
-    eventDependentSections.forEach(sec => { sec.hidden = !uid; });
+    updateActiveHeader(currentEventName);
+    renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+    updateEventButtons(currentEventUid);
+    updateHeading(eventSettingsHeading, currentEventName);
+    updateHeading(catalogsHeading, currentEventName);
+    updateHeading(questionsHeading, currentEventName);
+    eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
+    highlightCurrentEvent();
     if (catSelect) loadCatalogs();
     if (teamListEl) loadTeamList();
     loadSummary();
