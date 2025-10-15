@@ -2816,7 +2816,7 @@ body.high-contrast .calserver-cookie-banner__link {
 .calserver-metcal__card p,
 .calserver-metcal__card ul {
     margin: 0;
-    color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+    color: rgba(255, 255, 255, 0.94);
     line-height: 1.6;
 }
 
@@ -2870,7 +2870,7 @@ body.high-contrast .calserver-cookie-banner__link {
 .calserver-metcal__note {
     margin-top: 16px;
     font-size: 0.9rem;
-    color: color-mix(in oklab, #ffffff 76%, var(--calserver-primary) 24%);
+    color: rgba(255, 255, 255, 0.88);
 }
 
 .calserver-metcal__badge {
