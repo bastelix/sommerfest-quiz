@@ -167,6 +167,7 @@ body[data-theme='dark'] {
 }
 
 .metcal-section--accent {
+    background-color: #101b33;
     background: color-mix(in oklab, var(--calserver-primary) 18%, rgba(11, 18, 32, 0.88) 82%);
     color: rgba(255, 255, 255, 0.94);
 }
