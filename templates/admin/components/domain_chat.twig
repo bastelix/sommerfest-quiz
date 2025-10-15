@@ -1,4 +1,10 @@
 {% set domainChatDomains = domain_chat_domains|default([]) %}
+{% set domainStartPageOptions = domain_start_page_options|default({}) %}
+{% set domainTypeLabels = {
+  'main': t('label_domain_type_main'),
+  'marketing': t('label_domain_type_marketing'),
+  'custom': t('label_domain_type_custom')
+} %}
 {% set domainChatMaxSize = (constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') / 1048576)|number_format(1, '.', '') %}
 <h3 class="uk-heading-bullet uk-margin-large-top">{{ t('heading_domain_chat') }}</h3>
 {% if domainChatDomains is empty %}
@@ -20,7 +26,25 @@
             <select id="domainChatSelect" class="uk-select" data-domain-chat-select>
               {% for item in domainChatDomains %}
                 {% set optionValue = item.normalized|default(item.domain|default('')) %}
-                <option value="{{ optionValue }}">{{ item.domain|default(optionValue) }}</option>
+                {% set baseLabel = item.domain|default(optionValue) %}
+                {% if item.type|default('') == 'marketing' %}
+                  {% set marketingLabel = domainStartPageOptions[optionValue]|default('') %}
+                  {% if marketingLabel is not empty %}
+                    {% set baseLabel = marketingLabel %}
+                  {% else %}
+                    {% set baseLabel = optionValue %}
+                  {% endif %}
+                {% endif %}
+                {% set typeLabel = domainTypeLabels[item.type|default('')]|default('') %}
+                {% set fullLabel = baseLabel %}
+                {% if typeLabel is not empty %}
+                  {% set fullLabel = fullLabel ~ ' – ' ~ typeLabel %}
+                {% endif %}
+                {% set domainHint = item.domain|default('') %}
+                {% if domainHint is not empty and domainHint|lower != baseLabel|lower %}
+                  {% set fullLabel = fullLabel ~ ' (' ~ domainHint ~ ')' %}
+                {% endif %}
+                <option value="{{ optionValue }}">{{ fullLabel }}</option>
               {% endfor %}
             </select>
           </div>
