@@ -2779,7 +2779,7 @@ body.high-contrast .calserver-cookie-banner__link {
     color: #ffffff;
 }
 
-.calserver-metcal__lead {
+.calserver-metcal .calserver-metcal__lead {
     max-width: 880px;
     font-size: 1.1rem;
     line-height: 1.6;
@@ -2867,7 +2867,7 @@ body.high-contrast .calserver-cookie-banner__link {
     background: #fff;
 }
 
-.calserver-metcal__note {
+.calserver-theme .calserver-metcal__note {
     margin-top: 16px;
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.88);
