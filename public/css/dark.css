@@ -314,6 +314,30 @@ body .uk-table tr {
   border-color: #444;
 }
 
+body[data-theme="dark"] .calserver-metcal,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__title,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__lead,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__note,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__footnote,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__eyebrow,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__badge,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__cta .uk-button,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__cta .uk-button .uk-icon,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card h3,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card p,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card ul,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card ul li,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card strong,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__card svg {
+  color: #ffffff;
+}
+
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__cta .uk-button-default:hover,
+body[data-theme="dark"] .calserver-metcal .calserver-metcal__cta .uk-button-default:focus {
+  color: #0b1532;
+}
+
 @media (min-width: 640px) {
   body .sortable-list li,
   body .terms li,
