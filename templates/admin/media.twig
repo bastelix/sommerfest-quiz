@@ -63,10 +63,14 @@
   'landingSeo': t('tooltip_media_landing_seo'),
 } %}
 {% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
+{% set initialEventName = mediaEventName|default(event.name|default('')) %}
 
 <div class="media-tab" data-media-section>
   <h2 class="uk-heading-bullet">{{ t('heading_media') }}</h2>
-  {% include 'admin/components/event_controls.twig' with { currentEventUid: initialEventUid } %}
+  {% include 'admin/components/event_controls.twig' with {
+    currentEventUid: initialEventUid,
+    currentEventName: initialEventName
+  } %}
   <p
     class="uk-text-meta"
     data-media-limit

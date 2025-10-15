@@ -271,6 +271,7 @@ return [
     'label_team_restrict' => 'Only listed teams may join',
     'label_plan' => 'Plan',
     'label_events' => 'Events',
+    'label_event_current' => 'Current event',
     'label_event_select' => 'Select event',
     'placeholder_event_search' => 'Search',
     'label_catalogs' => 'Catalogs',

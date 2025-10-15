@@ -269,6 +269,7 @@ return [
     'label_team_restrict' => 'Nur Teams/Personen aus der Liste dürfen teilnehmen.',
     'label_plan' => 'Abo',
     'label_events' => 'Veranstaltungen',
+    'label_event_current' => 'Aktuelles Event',
     'label_event_select' => 'Veranstaltung wählen',
     'placeholder_event_search' => 'Suchen',
     'label_catalogs' => 'Kataloge',

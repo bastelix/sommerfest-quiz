@@ -213,7 +213,10 @@
           class="uk-heading-bullet"
           data-title="{{ t('heading_event_settings') }}"
         >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('heading_event_settings') }}</h2>
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: config.event_uid|default(''),
+          currentEventName: eventName
+        } %}
         <p class="uk-text-meta uk-margin-small">{{ 'Änderungen werden automatisch gespeichert.' }}</p>
         <form id="configForm" class="uk-form-stacked" method="post" action="/config.json">
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
@@ -425,7 +428,10 @@
             class="uk-heading-bullet"
             data-title="{{ t('heading_catalogs') }}"
           >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('heading_catalogs') }}</h2>
-          {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+          {% include 'admin/components/event_controls.twig' with {
+            currentEventUid: config.event_uid|default(''),
+            currentEventName: eventName
+          } %}
           {% from 'components/table.twig' import qr_rowcards %}
           <div class="uk-overflow-auto uk-visible@m">
             <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
@@ -466,7 +472,10 @@
           class="uk-heading-bullet"
           data-title="{{ t('heading_questions') }}"
         >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('heading_questions') }}</h2>
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: config.event_uid|default(''),
+          currentEventName: eventName
+        } %}
         <div class="uk-margin">
           <label class="uk-form-label" for="catalogSelect">{{ t('label_catalog_select') }}
             <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right" aria-label="{{ t('tip_catalog_select') }}" tabindex="0"></span>
@@ -664,7 +673,10 @@
     <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: config.event_uid|default(''),
+          currentEventName: event.name|default('')
+        } %}
         {% from 'components/table.twig' import qr_rowcards %}
         <div class="uk-overflow-auto uk-visible@m">
           <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
@@ -689,7 +701,10 @@
     </li>
     <li class="{{ activeRoute == 'summary' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: config.event_uid|default(''),
+          currentEventName: event.name|default('')
+        } %}
         <div class="uk-flex uk-flex-between uk-flex-middle" id="summaryEvent">
           <div>
             <h2 class="uk-heading-bullet" id="summaryEventName">{{ event.name }}</h2>
@@ -984,7 +999,10 @@
       </li>
     <li class="{{ activeRoute == 'results' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: config.event_uid|default(''),
+          currentEventName: event.name|default('')
+        } %}
         <div class="uk-flex uk-flex-between uk-flex-middle">
           <h2 class="uk-heading-bullet">{{ t('heading_results') }}</h2>
           <button id="resultsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="{{ t('action_refresh') }}" aria-label="{{ t('action_refresh') }}" data-event-btn disabled></button>
@@ -1057,7 +1075,10 @@
     </li>
     <li class="{{ activeRoute == 'statistics' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
-        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
+        {% include 'admin/components/event_controls.twig' with {
+          currentEventUid: config.event_uid|default(''),
+          currentEventName: event.name|default('')
+        } %}
         <div class="uk-flex uk-flex-middle uk-flex-column uk-flex-row@s uk-flex-between@s">
           <h2 class="uk-heading-bullet">{{ t('heading_statistics') }}</h2>
           <div class="uk-flex uk-flex-middle uk-margin-small-top uk-margin-remove-top@s">

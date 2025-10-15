@@ -1,43 +1,17 @@
 {% set currentUid = currentEventUid|default('') %}
+{% set currentName = currentEventName|default('') %}
 <div
-  class="qr-event-controls uk-margin-small-bottom"
-  data-event-controls
-  data-fetch-error="{{ t('text_events_fetch_error') }}"
+  class="qr-event-indicator uk-alert uk-alert-primary uk-flex uk-flex-middle uk-flex-between uk-margin-small-bottom"
+  data-current-event-indicator
+  data-current-event-uid="{{ currentUid }}"
+  data-empty="{{ t('text_event_required') }}"
+  data-none="{{ t('text_no_events') }}"
 >
-  <div class="uk-grid-small uk-flex-middle" uk-grid>
-    <div class="uk-width-auto uk-visible@m">
-      <label for="eventSelect" class="uk-form-label uk-margin-remove">{{ t('label_event_select') }}</label>
-    </div>
-    <div class="uk-width-expand@m uk-width-1-1">
-      <div id="eventSelectWrap">
-        <select
-          id="eventSelect"
-          class="uk-select"
-          aria-label="{{ t('label_event_select') }}"
-          data-current-event="{{ currentUid }}"
-          data-placeholder="{{ t('label_event_select') }}"
-        ></select>
-      </div>
-    </div>
-    <div class="uk-width-auto">
-      <input
-        id="eventSearchInput"
-        class="uk-input uk-form-small uk-width-small"
-        type="search"
-        placeholder="{{ t('placeholder_event_search')|default('Suchen') }}"
-        hidden
-      >
-    </div>
-    <div class="uk-width-auto">
-      <button
-        id="eventOpenBtn"
-        class="uk-icon-button"
-        uk-icon="icon: link-external"
-        aria-label="{{ t('tip_event_open') }}"
-        uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"
-        data-event-btn
-        disabled
-      ></button>
-    </div>
+  <div class="uk-flex uk-flex-middle uk-flex-wrap" data-current-event-info{% if currentUid is empty %} hidden{% endif %}>
+    <span class="uk-text-bold uk-margin-small-right">{{ t('label_event_current') }}:</span>
+    <span data-current-event-name>{{ currentName }}</span>
+  </div>
+  <div class="uk-text-meta" data-current-event-empty{% if currentUid %} hidden{% endif %}>
+    {{ t('text_event_required') }}
   </div>
 </div>
