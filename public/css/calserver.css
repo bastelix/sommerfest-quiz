@@ -2626,7 +2626,7 @@ body.high-contrast .calserver-cookie-banner__link {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    margin-top: 36px;
+    margin-top: clamp(40px, 5vw, 72px);
 }
 
 .calserver-metcal__cta .uk-button {
