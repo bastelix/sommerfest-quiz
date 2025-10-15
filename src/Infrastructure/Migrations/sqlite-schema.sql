@@ -651,7 +651,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             <a class="uk-button uk-button-default" href="{{ basePath }}/downloads/metcal-migrations-checkliste.pdf" data-analytics-event="download_checkliste" data-analytics-context="calserver_page" data-analytics-file="metcal-migrations-checkliste.pdf">
               <span class="uk-margin-small-right" data-uk-icon="icon: cloud-download"></span>Migrations-Checkliste</a>
           </div>
-          <p class="calserver-metcal__note">Hybridbetrieb? Kein Problem. Wir kombinieren MET/CAL, METTEAM und calServer so, dass Datenqualität, Audit-Trails und Rollenmodelle zusammenpassen.</p>
+          <p class="calserver-metcal__note">immer weiss: Hybridbetrieb? Kein Problem. Wir kombinieren MET/CAL, METTEAM und calServer so, dass Datenqualität, Audit-Trails und Rollenmodelle zusammenpassen.</p>
         </div>
       </div>
     </section>
