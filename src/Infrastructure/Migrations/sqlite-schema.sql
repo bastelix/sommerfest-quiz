@@ -627,20 +627,20 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             <article class="calserver-metcal__card calserver-metcal__card--dark" role="listitem">
               <div class="calserver-metcal__icon-circle" aria-hidden="true" data-uk-icon="icon: link"></div>
               <h3>Hybrid &amp; METTEAM eingebunden</h3>
-              <p><strong>Bidirektionaler Sync</strong> – MET/CAL bleibt produktiv, calServer übernimmt Verwaltung und Reporting.</p>
+              <p><strong>Synchronisation in beide Richtungen</strong> – MET/CAL läuft weiter, calServer erledigt Verwaltung und Berichte.</p>
               <ul>
-                <li>Eigentümerschaft pro Feld &amp; Last-Write-Wins mit Review</li>
-                <li>Änderungsjournal, Delta-Listen und Re-Sync bei Konflikten</li>
-                <li>Aktivierung pro Gerät – sofortige Datenübernahme inklusive Historie</li>
+                <li>Klare Feldregeln mit Freigabe der letzten Änderung</li>
+                <li>Änderungsprotokoll, Abweichungslisten und erneuter Abgleich bei Konflikten</li>
+                <li>Pro Gerät aktivierbar – Daten und Historie sind sofort vorhanden</li>
               </ul>
             </article>
             <article class="calserver-metcal__card calserver-metcal__card--outline" role="listitem">
               <div class="calserver-metcal__icon-circle" aria-hidden="true" data-uk-icon="icon: file-text"></div>
               <h3>Auditfähige Zertifikate</h3>
-              <p><strong>DAkkS-ready Reports</strong> – Guardband, MU und Konformitätslegenden inklusive.</p>
+              <p><strong>DAkkS-taugliche Berichte</strong> – Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet.</p>
               <ul>
-                <li>Zweisprachige Vorlagen, QR-/Barcode und Versionierung</li>
-                <li>Rückführbarkeit &amp; Konformität per Standardtext konfigurierbar</li>
+                <li>Vorlagen in Deutsch und Englisch, inklusive QR-/Barcode und Versionierung</li>
+                <li>Standardtexte steuern Rückführbarkeit und Konformität</li>
                 <li>REST-API, SSO (Azure/Google) und Hosting in Deutschland</li>
               </ul>
             </article>
