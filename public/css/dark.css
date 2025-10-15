@@ -1,16 +1,15 @@
 /* Zusätzliche Styles für Dark Mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #1e1e1e;
-    --color-primary: #0c86d0;
-    --color-text: #f5f5f5;
-    --danger-500: #ff6b6b;
-    --danger-600: #ff4c4c;
-    --qr-card: #1e1e1e;
-    --qr-border: rgba(255, 255, 255, 0.1);
-    --qr-card-border: var(--qr-border);
-    --qr-bg-soft: #161b22;
-  }
+:root {
+  --color-bg: #1e1e1e;
+  --color-primary: #0c86d0;
+  --color-text: #f5f5f5;
+  --danger-500: #ff6b6b;
+  --danger-600: #ff4c4c;
+  --qr-card: #1e1e1e;
+  --qr-border: rgba(255, 255, 255, 0.1);
+  --qr-card-border: var(--qr-border);
+  --qr-bg-soft: #161b22;
+}
 html,
 body {
   background-color: #000 !important;
@@ -354,9 +353,9 @@ body[data-theme="dark"] .calserver-metcal .calserver-metcal__cta .uk-button-defa
   body .mc-option {
     font-size: 1.5rem;
   }
-body .mc-option input {
-  transform: scale(1.3);
-}
+  body .mc-option input {
+    transform: scale(1.3);
+  }
 }
 
 body .flip-card-front,
@@ -710,9 +709,9 @@ body[data-theme="dark"] .uk-table tr {
   body[data-theme="dark"] .mc-option {
     font-size: 1.5rem;
   }
-body[data-theme="dark"] .mc-option input {
-  transform: scale(1.3);
-}
+  body[data-theme="dark"] .mc-option input {
+    transform: scale(1.3);
+  }
 }
 
 body[data-theme="dark"] .flip-card-front,

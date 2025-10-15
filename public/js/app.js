@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const offcanvas = document.getElementById('qr-offcanvas');
   const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
+  const defaultDarkMedia = darkStylesheet ? (darkStylesheet.getAttribute('media') || 'all') : 'all';
   const uikitStylesheet = document.querySelector('link[href*="uikit"]');
   const themeIcons = document.querySelectorAll('.theme-icon');
   const accessibilityIcons = document.querySelectorAll('.accessibility-icon');
@@ -65,16 +66,40 @@ document.addEventListener('DOMContentLoaded', function () {
   const storedTheme = hasStorage ? getStored(STORAGE_KEYS.DARK_MODE) : null;
   let dark;
 
+  const prefersDark = () => {
+    try {
+      return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch (e) {
+      return false;
+    }
+  };
+
   if (storedTheme === null || storedTheme === undefined) {
     dark = document.body.dataset.theme === 'dark' || document.body.classList.contains('dark-mode');
+    if (!dark) {
+      dark = prefersDark();
+    }
   } else {
     const normalizedTheme = String(storedTheme).toLowerCase();
     dark = normalizedTheme === 'true' || normalizedTheme === '1' || normalizedTheme === 'dark';
   }
 
-  if (darkStylesheet) {
-    darkStylesheet.toggleAttribute('disabled', !dark);
+  function syncDarkStylesheet () {
+    if (!darkStylesheet) {
+      return;
+    }
+    if (typeof darkStylesheet.toggleAttribute === 'function') {
+      darkStylesheet.toggleAttribute('disabled', !dark);
+    } else if (!dark) {
+      darkStylesheet.setAttribute('disabled', 'disabled');
+    } else {
+      darkStylesheet.removeAttribute('disabled');
+    }
+    darkStylesheet.disabled = !dark;
+    darkStylesheet.media = dark ? 'all' : defaultDarkMedia;
   }
+
+  syncDarkStylesheet();
 
   document.body.dataset.theme = dark ? 'dark' : 'light';
   document.body.classList.toggle('dark-mode', dark);
@@ -176,9 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (uikitStylesheet) {
         document.body.classList.toggle('uk-light', dark);
       }
-      if (darkStylesheet) {
-        darkStylesheet.toggleAttribute('disabled', !dark);
-      }
+      syncDarkStylesheet();
       if (typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.DARK_MODE) {
         setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
       }
