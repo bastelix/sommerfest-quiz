@@ -412,6 +412,18 @@ body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-grid, .
     align-items: stretch;
 }
 
+body.qr-landing.calhelp-theme:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]):not([data-theme="high-contrast"]) .calhelp-hero-grid__content {
+    color: var(--cs-text-on-dark);
+}
+
+body.qr-landing.calhelp-theme:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]):not([data-theme="high-contrast"]) .calhelp-hero-grid__content .qr-sub {
+    color: color-mix(in oklab, var(--cs-text-on-dark) 92%, rgba(255, 255, 255, 0.72) 8%);
+}
+
+body.qr-landing.calhelp-theme:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]):not([data-theme="high-contrast"]) .calhelp-hero-grid__content .calhelp-trust {
+    color: color-mix(in oklab, var(--cs-text-on-dark) 86%, rgba(255, 255, 255, 0.64) 14%);
+}
+
 body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-grid__media, .calhelp-hero-grid__media) {
     display: flex;
 }
