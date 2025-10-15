@@ -9,6 +9,7 @@ use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\PageService;
 use App\Support\FeatureFlags;
+use App\Support\MarketingWikiThemeResolver;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -88,11 +89,14 @@ final class MarketingPageWikiListController
         $basePath = RouteContext::fromRequest($request)->getBasePath();
         $menuLabel = $settings->getMenuLabel() ?? 'Dokumentation';
 
+        $theme = MarketingWikiThemeResolver::resolve($settingsPage->getSlug());
+
         return $view->render($response, 'marketing/wiki/index.twig', [
             'page' => $page,
             'articles' => $articles,
             'searchTerm' => $search,
             'menuLabel' => $menuLabel,
+            'wikiTheme' => $theme,
             'breadcrumbs' => [
                 [
                     'url' => $basePath . '/' . $page->getSlug(),

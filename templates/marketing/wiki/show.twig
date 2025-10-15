@@ -1,21 +1,82 @@
 {% extends 'layout.twig' %}
 
+{% set themeDefaults = {
+  'bodyClasses': ['marketing-wiki'],
+  'stylesheets': [],
+  'colors': {
+    'headerFrom': '#111827',
+    'headerTo': '#1f2937',
+    'detailHeaderFrom': '#0f172a',
+    'detailHeaderTo': '#1d4ed8',
+    'headerText': '#ffffff',
+    'excerpt': '#4b5563',
+    'calloutBorder': '#3b82f6',
+    'calloutBackground': '#f9fafb',
+    'calloutText': '#0f172a'
+  }
+} %}
+{% set bodyClasses = themeDefaults.bodyClasses %}
+{% set stylesheets = themeDefaults.stylesheets %}
+{% set colors = themeDefaults.colors %}
+{% if wikiTheme is defined %}
+  {% if wikiTheme.bodyClasses is defined and wikiTheme.bodyClasses is iterable %}
+    {% set bodyClasses = wikiTheme.bodyClasses %}
+  {% endif %}
+  {% if wikiTheme.stylesheets is defined and wikiTheme.stylesheets is iterable %}
+    {% set stylesheets = wikiTheme.stylesheets %}
+  {% endif %}
+  {% if wikiTheme.colors is defined %}
+    {% set colors = themeDefaults.colors|merge(wikiTheme.colors) %}
+  {% endif %}
+{% endif %}
+{% set detailClasses = bodyClasses %}
+{% if 'marketing-wiki--detail' not in detailClasses %}
+  {% set detailClasses = detailClasses|merge(['marketing-wiki--detail']) %}
+{% endif %}
+
 {% block title %}{{ article.getTitle() }} – {{ menuLabel }}{% endblock %}
 
-{% block body_class %}marketing-wiki marketing-wiki--detail{% endblock %}
+{% block body_class %}{{ (detailClasses is not empty ? detailClasses : ['marketing-wiki', 'marketing-wiki--detail'])|join(' ') }}{% endblock %}
 
 {% block head %}
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  {% for stylesheet in stylesheets %}
+    <link rel="stylesheet" href="{{ basePath }}/css/{{ stylesheet }}">
+  {% endfor %}
   <style>
-    .marketing-wiki__header { background: linear-gradient(135deg, #0f172a, #1d4ed8); color: #fff; }
+    .marketing-wiki {
+      --marketing-wiki-header-from: {{ colors.detailHeaderFrom }};
+      --marketing-wiki-header-to: {{ colors.detailHeaderTo }};
+      --marketing-wiki-header-text: {{ colors.headerText }};
+      --marketing-wiki-callout-border: {{ colors.calloutBorder }};
+      --marketing-wiki-callout-bg: {{ colors.calloutBackground }};
+      --marketing-wiki-callout-text: {{ colors.calloutText }};
+    }
+
+    .marketing-wiki__header {
+      background: linear-gradient(135deg, var(--marketing-wiki-header-from), var(--marketing-wiki-header-to));
+      color: var(--marketing-wiki-header-text);
+    }
+
     .marketing-wiki__content { max-width: 760px; margin: 0 auto; }
+
     .marketing-wiki__article img { max-width: 100%; height: auto; }
+
     .marketing-wiki__article table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+
     .marketing-wiki__article table th,
     .marketing-wiki__article table td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
-    .wiki-callout { border-left: 4px solid #3b82f6; padding: 16px; background: #f9fafb; margin: 24px 0; }
+
+    .wiki-callout {
+      border-left: 4px solid var(--marketing-wiki-callout-border);
+      padding: 16px;
+      background: var(--marketing-wiki-callout-bg);
+      color: var(--marketing-wiki-callout-text);
+      margin: 24px 0;
+    }
+
     .wiki-callout strong { display: block; margin-bottom: 8px; }
   </style>
 {% endblock %}
