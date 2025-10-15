@@ -28,20 +28,24 @@
         <div class="uk-width-1-1 uk-width-expand@m">
           <label class="uk-form-label" for="domainChatFile">{{ t('label_domain_chat_upload') }}</label>
           <div class="uk-form-controls">
-            <input
-              id="domainChatFile"
-              class="uk-input"
-              type="file"
-              accept=".md,.markdown,.html,.htm,.txt"
-              data-domain-chat-upload
-            >
+            <div class="uk-grid-small" uk-grid>
+              <div class="uk-width-1-1 uk-width-expand@s">
+                <input
+                  id="domainChatFile"
+                  class="uk-input"
+                  type="file"
+                  accept=".md,.markdown,.html,.htm,.txt"
+                  data-domain-chat-upload
+                >
+              </div>
+              <div class="uk-width-1-1 uk-width-auto@s uk-flex uk-flex-bottom uk-flex-right@s">
+                <button type="submit" class="uk-button uk-button-primary uk-width-1-1" data-domain-chat-submit>
+                  {{ t('button_domain_chat_upload') }}
+                </button>
+              </div>
+            </div>
           </div>
           <p class="uk-text-meta uk-margin-small-top">{{ t('text_domain_chat_file_hint')|format(domainChatMaxSize) }}</p>
-        </div>
-        <div class="uk-width-1-2 uk-width-auto@m uk-flex uk-flex-bottom">
-          <button type="submit" class="uk-button uk-button-primary uk-width-1-1" data-domain-chat-submit>
-            {{ t('button_domain_chat_upload') }}
-          </button>
         </div>
         <div class="uk-width-1-2 uk-width-auto@m uk-flex uk-flex-bottom">
           <button type="button" class="uk-button uk-button-default uk-width-1-1" data-domain-chat-rebuild>
