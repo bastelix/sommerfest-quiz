@@ -1034,6 +1034,140 @@ body.qr-landing.calserver-theme .calserver-highlight__intro p {
     opacity: 0.75;
 }
 
+body.qr-landing.calserver-theme:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-modal-dialog {
+    --cs-hosting-modal-surface: color-mix(
+        in oklab,
+        var(--qr-card, #f5f7fb) 94%,
+        rgba(255, 255, 255, 0.92)
+    );
+    --cs-hosting-modal-text: color-mix(
+        in oklab,
+        var(--qr-text, #1c2131) 92%,
+        rgba(28, 33, 49, 0.08)
+    );
+    --cs-hosting-modal-muted: color-mix(
+        in oklab,
+        var(--qr-muted, #5c6580) 90%,
+        rgba(92, 101, 128, 0.18)
+    );
+    --cs-hosting-modal-border: color-mix(
+        in oklab,
+        var(--qr-card-border, #d8deeb) 82%,
+        transparent
+    );
+    --cs-hosting-modal-bullet: color-mix(
+        in oklab,
+        var(--calserver-primary, #1f63e6) 52%,
+        transparent
+    );
+    --cs-hosting-modal-title: color-mix(
+        in oklab,
+        var(--calserver-primary, #1f63e6) 32%,
+        var(--cs-hosting-modal-text) 68%
+    );
+    background: var(--cs-hosting-modal-surface);
+    color: var(--cs-hosting-modal-text);
+    border: 1px solid var(--cs-hosting-modal-border);
+    border-radius: 16px;
+    box-shadow: 0 32px 72px -48px rgba(12, 26, 54, 0.45),
+        0 18px 36px -28px rgba(15, 23, 42, 0.28);
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-modal-title,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-modal-title,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-modal-title {
+    color: var(--cs-hosting-modal-title);
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-list-bullet
+    > li::before,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-list-bullet
+    > li::before,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    .uk-list-bullet
+    > li::before {
+    border-color: var(--cs-hosting-modal-bullet);
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    p,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    p,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    p {
+    color: var(--cs-hosting-modal-muted);
+}
+
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .marketing-chat__dialog,
 body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
     --marketing-chat-surface: color-mix(
@@ -1066,6 +1200,82 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketin
         rgba(31, 99, 230, 0.45) 50%,
         rgba(255, 255, 255, 0.18) 50%
     );
+}
+
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+    #modal-standard-hosting
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    #modal-standard-hosting
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+    #modal-performance-hosting
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    #modal-performance-hosting
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+    #modal-enterprise-hosting
+    .uk-modal-dialog,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    #modal-enterprise-hosting
+    .uk-modal-dialog {
+    --cs-hosting-modal-surface: color-mix(
+        in oklab,
+        rgba(8, 14, 28, 0.92) 82%,
+        color-mix(in oklab, var(--calserver-primary, #1f63e6) 24%, transparent) 18%
+    );
+    --cs-hosting-modal-text: color-mix(
+        in oklab,
+        #ffffff 94%,
+        rgba(255, 255, 255, 0.72) 6%
+    );
+    --cs-hosting-modal-muted: color-mix(
+        in oklab,
+        rgba(203, 214, 245, 0.92) 86%,
+        rgba(255, 255, 255, 0.64) 14%
+    );
+    --cs-hosting-modal-border: color-mix(
+        in oklab,
+        rgba(31, 99, 230, 0.5) 54%,
+        rgba(255, 255, 255, 0.22) 46%
+    );
+    --cs-hosting-modal-bullet: color-mix(
+        in oklab,
+        var(--calserver-primary, #1f63e6) 78%,
+        rgba(255, 255, 255, 0.28)
+    );
+    --cs-hosting-modal-title: color-mix(
+        in oklab,
+        #ffffff 94%,
+        var(--calserver-primary, #1f63e6) 6%
+    );
+    background: var(--cs-hosting-modal-surface);
+    color: var(--cs-hosting-modal-text);
+    border-color: var(--cs-hosting-modal-border);
+    box-shadow: 0 42px 88px -52px color-mix(
+            in oklab,
+            var(--calserver-primary, #1f63e6) 48%,
+            rgba(10, 18, 34, 0.82)
+        ),
+        0 22px 44px -30px rgba(7, 14, 28, 0.7);
+}
+
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    p,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    :is(
+        #modal-standard-hosting,
+        #modal-performance-hosting,
+        #modal-enterprise-hosting
+    )
+    p {
+    color: var(--cs-hosting-modal-text);
 }
 
 @media (max-width: 640px) {
