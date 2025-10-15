@@ -3,7 +3,12 @@
 {% set groups = [
   {
     items: [
-      { href: basePath ~ '/admin/dashboard', icon: 'home', text: t('tab_dashboard') },
+      {
+        href: basePath ~ '/admin/dashboard',
+        icon: 'home',
+        text: t('tab_dashboard'),
+        noEvent: true
+      },
     ]
   },
   {
@@ -22,9 +27,27 @@
   {
     header: t('menu_content'),
     items: [
-      { href: basePath ~ '/admin/media', icon: 'image', text: t('tab_media'), roles: ['admin', 'catalog-editor'] },
-      { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), roles: ['admin', 'catalog-editor'] },
-      { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages'), admin: true },
+      {
+        href: basePath ~ '/admin/media',
+        icon: 'image',
+        text: t('tab_media'),
+        roles: ['admin', 'catalog-editor'],
+        noEvent: true
+      },
+      {
+        href: basePath ~ '/admin/rag-chat',
+        icon: 'comments',
+        text: t('tab_rag_chat'),
+        roles: ['admin', 'catalog-editor'],
+        noEvent: true
+      },
+      {
+        href: basePath ~ '/admin/pages',
+        icon: 'file-edit',
+        text: t('tab_pages'),
+        admin: true,
+        noEvent: true
+      },
     ]
   },
   {

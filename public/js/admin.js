@@ -11,6 +11,7 @@ import {
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
 const escape = url => encodeURI(url);
+const transEventsFetchError = window.transEventsFetchError || 'Veranstaltungen konnten nicht geladen werden';
 
 function isAllowed(url, allowedPaths = []) {
   try {
@@ -3565,32 +3566,39 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (!initialEmpty) {
       syncCurrentEventState(initial);
+    } else {
+      renderCurrentEventIndicator(currentEventName, currentEventUid, false);
+      updateEventButtons(currentEventUid);
+      eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     }
-    apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
-      .then(r => {
-        if (!r.ok) {
-          if (r.status === 401 || r.status === 403) {
-            notify('Bitte einloggen', 'warning');
+    if (eventManager) {
+      apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
+        .then(r => {
+          if (!r.ok) {
+            if (r.status === 401 || r.status === 403) {
+              notify('Bitte einloggen', 'warning');
+            }
+            throw new Error(`HTTP ${r.status}`);
           }
-          throw new Error(`HTTP ${r.status}`);
-        }
-        return r.json();
-      })
-      .then(data => {
-        const list = data.map(d => createEventItem(d));
-        if (eventManager) {
+          return r.json();
+        })
+        .then(data => {
+          const list = data.map(d => createEventItem(d));
           eventManager.render(list);
           highlightCurrentEvent();
-        }
-        syncCurrentEventState(list);
-        if (initialEmpty && list.length === 0) {
-          notify('Keine Events gefunden', 'warning');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        notify(err.message || 'HTTP-Fehler', 'warning');
-      });
+          syncCurrentEventState(list);
+          if (initialEmpty && list.length === 0) {
+            notify('Keine Events gefunden', 'warning');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          const message = err instanceof TypeError
+            ? transEventsFetchError
+            : (err.message && err.message.trim() ? err.message : transEventsFetchError);
+          notify(message, 'warning');
+        });
+    }
   }
 
   eventAddBtn?.addEventListener('click', e => {
