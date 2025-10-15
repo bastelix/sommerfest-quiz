@@ -2931,12 +2931,25 @@ body.high-contrast .calserver-cookie-banner__link {
 }
 
 @media (max-width: 640px) {
-    .calserver-metcal__card {
-        padding: 20px;
+    .calserver-metcal__grid {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        padding: 0 8px 16px;
     }
 
-    .calserver-metcal__grid {
-        gap: 16px;
+    .calserver-metcal__grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .calserver-metcal__card {
+        padding: 20px;
+        flex: 0 0 85%;
+        scroll-snap-align: start;
+        scroll-margin: 8px;
     }
 
     .calserver-metcal__cta {
