@@ -49,7 +49,9 @@ document.addEventListener('DOMContentLoaded', function () {
   if (teamNameBtn) {
     const placeholder = teamNameBtn.textContent;
     const update = () => {
-      const name = getStored(STORAGE_KEYS.PLAYER_NAME);
+      const name = (typeof STORAGE_KEYS !== 'undefined' && typeof getStored === 'function' && STORAGE_KEYS.PLAYER_NAME)
+        ? getStored(STORAGE_KEYS.PLAYER_NAME)
+        : null;
       teamNameBtn.textContent = name || placeholder;
     };
     update();
@@ -59,14 +61,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const storedTheme = getStored(STORAGE_KEYS.DARK_MODE);
+  const hasStorage = typeof STORAGE_KEYS !== 'undefined' && typeof getStored === 'function';
+  const storedTheme = hasStorage ? getStored(STORAGE_KEYS.DARK_MODE) : null;
   let dark;
 
   if (storedTheme === null || storedTheme === undefined) {
     dark = document.body.dataset.theme === 'dark' || document.body.classList.contains('dark-mode');
   } else {
     const normalizedTheme = String(storedTheme).toLowerCase();
-    dark = normalizedTheme === 'true' || normalizedTheme === '1';
+    dark = normalizedTheme === 'true' || normalizedTheme === '1' || normalizedTheme === 'dark';
   }
 
   if (darkStylesheet) {
@@ -113,7 +116,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  let accessible = getStored(STORAGE_KEYS.BARRIER_FREE) === 'true';
+  const storedBarrierFree = (typeof STORAGE_KEYS !== 'undefined' && typeof getStored === 'function' && STORAGE_KEYS.BARRIER_FREE)
+    ? getStored(STORAGE_KEYS.BARRIER_FREE)
+    : null;
+  let accessible = storedBarrierFree === 'true' || storedBarrierFree === '1';
   if (accessible) {
     document.body.classList.add('high-contrast');
   }
@@ -173,7 +179,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (darkStylesheet) {
         darkStylesheet.toggleAttribute('disabled', !dark);
       }
-      setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
+      if (typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.DARK_MODE) {
+        setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
+      }
       if (themeIcons.length) {
         themeIcons.forEach((icon) => {
           icon.innerHTML = dark ? sunSVG : moonSVG;
@@ -188,7 +196,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (accessibilityBtn) {
       event.preventDefault();
       accessible = document.body.classList.toggle('high-contrast');
-      setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
+      if (typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.BARRIER_FREE) {
+        setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
+      }
       if (accessibilityIcons.length) {
         accessibilityIcons.forEach((icon) => {
           icon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
