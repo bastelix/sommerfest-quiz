@@ -2573,7 +2573,7 @@ body.high-contrast .calserver-cookie-banner__link {
     max-width: 880px;
     font-size: 1.1rem;
     line-height: 1.6;
-    color: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
+    color: #ffffff;
 }
 
 .calserver-metcal__grid {
