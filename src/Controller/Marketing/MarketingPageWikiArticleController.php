@@ -9,6 +9,7 @@ use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\PageService;
 use App\Support\FeatureFlags;
+use App\Support\MarketingWikiThemeResolver;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -79,10 +80,13 @@ final class MarketingPageWikiArticleController
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
 
+        $theme = MarketingWikiThemeResolver::resolve($settingsPage->getSlug());
+
         return $view->render($response, 'marketing/wiki/show.twig', [
             'page' => $page,
             'article' => $article,
             'menuLabel' => $menuLabel,
+            'wikiTheme' => $theme,
             'breadcrumbs' => [
                 [
                     'url' => $basePath . '/' . $page->getSlug(),
