@@ -291,7 +291,7 @@ PHP_SCRIPT;
                 sort_index INTEGER NOT NULL DEFAULT 0,
                 published_at TEXT,
                 updated_at TEXT,
-                is_start_document INTEGER NOT NULL DEFAULT 0
+                is_start_document BOOLEAN NOT NULL DEFAULT FALSE
             )
         SQL);
         $pdo->exec(<<<'SQL'

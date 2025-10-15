@@ -313,12 +313,12 @@ MD;
             content_html TEXT NOT NULL,
             status TEXT NOT NULL,
             sort_index INTEGER NOT NULL DEFAULT 0,
-            is_start_document INTEGER NOT NULL DEFAULT 0,
+            is_start_document BOOLEAN NOT NULL DEFAULT FALSE,
             published_at TEXT,
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(page_id, locale, slug)
         )');
-        $pdo->exec('CREATE UNIQUE INDEX marketing_page_wiki_articles_start_doc_idx ON marketing_page_wiki_articles(page_id, locale) WHERE is_start_document = 1');
+        $pdo->exec('CREATE UNIQUE INDEX marketing_page_wiki_articles_start_doc_idx ON marketing_page_wiki_articles(page_id, locale) WHERE is_start_document');
         $pdo->exec('CREATE TABLE marketing_page_wiki_versions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             article_id INTEGER NOT NULL,
