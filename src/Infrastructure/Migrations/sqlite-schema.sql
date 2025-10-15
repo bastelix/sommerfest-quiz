@@ -1866,10 +1866,19 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
 
 <section id="migration" class="uk-section metcal-section" aria-labelledby="metcal-migration-heading">
   <div class="uk-container">
-    <span class="metcal-eyebrow">Migration</span>
-    <h2 class="metcal-section__title" id="metcal-migration-heading">So läuft der Umstieg von MET/TRACK nach calServer.</h2>
-    <p class="metcal-section__lead">Wir planen, testen und dokumentieren den Wechsel – inklusive Freeze-Fenster, Delta-Sync und Abnahmebericht.</p>
-    <ol class="metcal-timeline" role="list">
+          <span class="metcal-eyebrow">Migration</span>
+          <h2 class="metcal-section__title" id="metcal-migration-heading">So läuft der Umstieg von MET/TRACK nach calServer.</h2>
+          <p class="metcal-section__lead">Wir planen, testen und dokumentieren den Wechsel – inklusive Freeze-Fenster, Delta-Sync und Abnahmebericht.</p>
+          <div class="metcal-migration-offer" role="note" aria-labelledby="metcal-migration-offer-title">
+            <h3 class="metcal-migration-offer__title" id="metcal-migration-offer-title">Migration ohne Stillstand</h3>
+            <ul class="metcal-migration-offer__list" role="list">
+              <li class="metcal-migration-offer__item" role="listitem">Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.</li>
+              <li class="metcal-migration-offer__item" role="listitem">Datenmapping für Kunden, Geräte, Historien und Dokumente.</li>
+              <li class="metcal-migration-offer__item" role="listitem">Delta-Sync &amp; Freeze-Fenster für den Go-Live.</li>
+              <li class="metcal-migration-offer__item" role="listitem">Abnahmebericht mit KPIs und Korrekturschleifen.</li>
+            </ul>
+          </div>
+          <ol class="metcal-timeline" role="list">
       <li class="metcal-timeline__item" aria-label="Schritt 1 Assessment">
         <span class="metcal-timeline__badge">1</span>
         <div class="metcal-timeline__body">
