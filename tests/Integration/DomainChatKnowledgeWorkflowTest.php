@@ -6,31 +6,43 @@ namespace Tests\Integration;
 
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Marketing\MarketingChatController;
+use App\Service\MarketingPageWikiArticleService;
+use App\Service\PageService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
+use App\Service\RagChat\DomainWikiSelectionService;
 use App\Service\RagChat\RagChatService;
+use PDO;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
 
+use function basename;
 use function bin2hex;
 use function chdir;
+use function dirname;
 use function file_exists;
 use function file_get_contents;
 use function file_put_contents;
 use function getcwd;
-use function json_decode;
-use function json_encode;
-use function mkdir;
-use function random_bytes;
-use function scandir;
-use function sys_get_temp_dir;
-use function tempnam;
-use function unlink;
+use function getenv;
+use function glob;
 use function is_dir;
 use function is_file;
 use function is_link;
+use function json_decode;
+use function json_encode;
+use function mkdir;
+use function putenv;
+use function random_bytes;
 use function rmdir;
+use function scandir;
+use function sprintf;
+use function sys_get_temp_dir;
+use function tempnam;
+use function unlink;
+
+use const JSON_THROW_ON_ERROR;
 
 final class DomainChatKnowledgeWorkflowTest extends TestCase
 {
@@ -79,63 +91,6 @@ if ($uploadsDir !== '' && is_dir($uploadsDir)) {
                     break;
                 }
             }
-        }
-    }
-
-    public function testRebuildFailureReturnsErrorResponse(): void
-    {
-        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
-        $domainsDir = $baseDir . '/domains';
-        $projectRoot = $baseDir . '/project';
-        $scriptsDir = $projectRoot . '/scripts';
-
-        mkdir($domainsDir, 0775, true);
-        mkdir($scriptsDir, 0775, true);
-
-        $pipelineScript = <<<'PHP_SCRIPT'
-<?php
-declare(strict_types=1);
-
-fwrite(STDERR, "Simulated pipeline failure\n");
-exit(2);
-PHP_SCRIPT;
-        file_put_contents($scriptsDir . '/rag_pipeline.py', $pipelineScript);
-
-        try {
-            $storage = new DomainDocumentStorage($domainsDir);
-
-            $tempFile = tempnam(sys_get_temp_dir(), 'upload');
-            file_put_contents($tempFile, 'Domain knowledge');
-            $uploaded = new UploadedFile(
-                $tempFile,
-                'guide.md',
-                'text/markdown',
-                strlen('Domain knowledge'),
-                UPLOAD_ERR_OK
-            );
-            $storage->storeDocument('failure.test', $uploaded);
-
-            if (is_file($tempFile)) {
-                unlink($tempFile);
-            }
-
-            $indexManager = new DomainIndexManager($storage, $projectRoot, 'php');
-            $controller = new DomainChatKnowledgeController($storage, $indexManager);
-            $responseFactory = new ResponseFactory();
-
-            $request = $this->createRequest(
-                'POST',
-                '/admin/domain-chat/rebuild?domain=failure.test',
-                ['Accept' => 'application/json']
-            );
-
-            $response = $controller->rebuild($request, $responseFactory->createResponse());
-            $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-
-            self::assertSame(422, $response->getStatusCode());
-            self::assertSame('Simulated pipeline failure', $payload['error']);
-        } finally {
-            $this->cleanupDirectory($baseDir);
         }
     }
 }
@@ -252,6 +207,237 @@ PHP_SCRIPT;
         }
     }
 
+    public function testRebuildFailureReturnsErrorResponse(): void
+    {
+        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
+        $domainsDir = $baseDir . '/domains';
+        $projectRoot = $baseDir . '/project';
+        $scriptsDir = $projectRoot . '/scripts';
+
+        mkdir($domainsDir, 0775, true);
+        mkdir($scriptsDir, 0775, true);
+
+        $pipelineScript = <<<'PHP_SCRIPT'
+<?php
+declare(strict_types=1);
+
+fwrite(STDERR, "Simulated pipeline failure\n");
+exit(2);
+PHP_SCRIPT;
+        file_put_contents($scriptsDir . '/rag_pipeline.py', $pipelineScript);
+
+        try {
+            $storage = new DomainDocumentStorage($domainsDir);
+
+            $tempFile = tempnam(sys_get_temp_dir(), 'upload');
+            file_put_contents($tempFile, 'Domain knowledge');
+            $uploaded = new UploadedFile(
+                $tempFile,
+                'guide.md',
+                'text/markdown',
+                strlen('Domain knowledge'),
+                UPLOAD_ERR_OK
+            );
+            $storage->storeDocument('failure.test', $uploaded);
+
+            if (is_file($tempFile)) {
+                unlink($tempFile);
+            }
+
+            $indexManager = new DomainIndexManager($storage, $projectRoot, 'php');
+            $controller = new DomainChatKnowledgeController($storage, $indexManager);
+            $responseFactory = new ResponseFactory();
+
+            $request = $this->createRequest(
+                'POST',
+                '/admin/domain-chat/rebuild?domain=failure.test',
+                ['Accept' => 'application/json']
+            );
+
+            $response = $controller->rebuild($request, $responseFactory->createResponse());
+            $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertSame(422, $response->getStatusCode());
+            self::assertSame('Simulated pipeline failure', $payload['error']);
+        } finally {
+            $this->cleanupDirectory($baseDir);
+        }
+    }
+
+    public function testWikiSelectionFeedsDomainIndex(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                slug TEXT NOT NULL UNIQUE,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL
+            )
+        SQL);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE marketing_page_wiki_articles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                page_id INTEGER NOT NULL,
+                slug TEXT NOT NULL,
+                locale TEXT NOT NULL,
+                title TEXT NOT NULL,
+                excerpt TEXT,
+                editor_json TEXT,
+                content_md TEXT NOT NULL,
+                content_html TEXT NOT NULL,
+                status TEXT NOT NULL,
+                sort_index INTEGER NOT NULL DEFAULT 0,
+                published_at TEXT,
+                updated_at TEXT,
+                is_start_document INTEGER NOT NULL DEFAULT 0
+            )
+        SQL);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domain_chat_wiki_articles (
+                domain TEXT NOT NULL,
+                article_id INTEGER NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY(domain, article_id)
+            )
+        SQL);
+        $this->setDatabase($pdo);
+
+        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
+        $domainsDir = $baseDir . '/domains';
+        $projectRoot = $baseDir . '/project';
+        $scriptsDir = $projectRoot . '/scripts';
+
+        mkdir($domainsDir, 0775, true);
+        mkdir($scriptsDir, 0775, true);
+
+        $pipelineScript = <<<'PHP_SCRIPT'
+<?php
+declare(strict_types=1);
+
+$uploadsDir = $argv[1] ?? '';
+$corpusPath = null;
+$indexPath = null;
+for ($i = 2; $i < $argc; $i++) {
+    if ($argv[$i] === '--corpus' && isset($argv[$i + 1])) {
+        $corpusPath = $argv[++$i];
+        continue;
+    }
+    if ($argv[$i] === '--index' && isset($argv[$i + 1])) {
+        $indexPath = $argv[++$i];
+        continue;
+    }
+}
+
+$files = [];
+if ($uploadsDir !== '' && is_dir($uploadsDir)) {
+    $items = glob($uploadsDir . DIRECTORY_SEPARATOR . '*') ?: [];
+    sort($items);
+    foreach ($items as $item) {
+        if (!is_file($item)) {
+            continue;
+        }
+        $contents = file_get_contents($item);
+        if ($contents === false) {
+            continue;
+        }
+        $files[] = basename($item) . ':' . trim($contents);
+    }
+}
+
+if ($corpusPath !== null) {
+    file_put_contents($corpusPath, json_encode(['files' => $files]) . PHP_EOL);
+}
+
+if ($indexPath !== null) {
+    file_put_contents($indexPath, json_encode(['files' => $files]));
+}
+PHP_SCRIPT;
+        file_put_contents($scriptsDir . '/rag_pipeline.py', $pipelineScript);
+
+        $pageService = new PageService($pdo);
+        $page = $pageService->create('calserver', 'Calserver', '<p>Calserver</p>');
+
+        $publishedAt = '2025-03-01T12:00:00+00:00';
+        $insertArticle = $pdo->prepare(<<<'SQL'
+            INSERT INTO marketing_page_wiki_articles (
+                page_id, slug, locale, title, excerpt, editor_json, content_md, content_html,
+                status, sort_index, published_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        SQL);
+        $insertArticle->execute([
+            $page->getId(),
+            'getting-started',
+            'de',
+            'Getting Started',
+            'Concise summary',
+            json_encode(['time' => 0, 'blocks' => []]),
+            'Detailed content body.',
+            '<p>Detailed content body.</p>',
+            'published',
+            1,
+            $publishedAt,
+        ]);
+        $articleId = (int) $pdo->lastInsertId();
+
+        $previousMarketing = getenv('MARKETING_DOMAINS');
+        putenv('MARKETING_DOMAINS=calserver.com');
+        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+
+        $wikiSelection = new DomainWikiSelectionService($pdo);
+        $wikiSelection->replaceSelection('calserver.com', [$articleId]);
+
+        $wikiArticles = new MarketingPageWikiArticleService($pdo);
+        $storage = new DomainDocumentStorage($domainsDir);
+        $indexManager = new DomainIndexManager($storage, $projectRoot, 'php', $wikiSelection, $wikiArticles);
+
+        try {
+            $result = $indexManager->rebuild('calserver.com');
+
+            self::assertTrue($result['success']);
+            self::assertArrayHasKey('stdout', $result);
+            self::assertSame(false, $result['cleared']);
+
+            $uploadsDir = $storage->getUploadsDirectory('calserver.com');
+            self::assertDirectoryExists($uploadsDir);
+
+            $wikiFiles = glob($uploadsDir . DIRECTORY_SEPARATOR . 'wiki-*.md');
+            self::assertIsArray($wikiFiles);
+            self::assertCount(1, $wikiFiles);
+
+            $wikiFile = $wikiFiles[0];
+            self::assertStringContainsString('wiki-', basename($wikiFile));
+            $markdown = file_get_contents($wikiFile);
+            self::assertIsString($markdown);
+            self::assertStringContainsString('# Getting Started', $markdown);
+            self::assertStringContainsString('Concise summary', $markdown);
+            self::assertStringContainsString('Detailed content body.', $markdown);
+
+            $expectedFilename = sprintf('wiki-%06d-de-getting-started.md', $articleId);
+            self::assertSame($expectedFilename, basename($wikiFile));
+
+            $indexPath = $storage->getIndexPath('calserver.com');
+            self::assertFileExists($indexPath);
+            $indexPayload = json_decode((string) file_get_contents($indexPath), true, 512, JSON_THROW_ON_ERROR);
+            self::assertArrayHasKey('files', $indexPayload);
+            self::assertCount(1, $indexPayload['files']);
+            self::assertStringContainsString($expectedFilename, $indexPayload['files'][0]);
+            self::assertStringContainsString('Concise summary', $indexPayload['files'][0]);
+            self::assertStringContainsString('Detailed content body.', $indexPayload['files'][0]);
+        } finally {
+            if ($previousMarketing === false) {
+                putenv('MARKETING_DOMAINS');
+                unset($_ENV['MARKETING_DOMAINS']);
+            } else {
+                putenv('MARKETING_DOMAINS=' . $previousMarketing);
+                $_ENV['MARKETING_DOMAINS'] = $previousMarketing;
+            }
+
+            $this->cleanupDirectory($baseDir);
+        }
+    }
+
     public function testRebuildSucceedsWhenWorkingDirectoryIsEnforced(): void
     {
         $originalCwd = getcwd();
@@ -272,10 +458,17 @@ import json
 import sys
 from pathlib import Path
 
-import rag_chatbot
-
 
 def main() -> None:
+    project_root = Path.cwd()
+    if not (project_root / "rag_chatbot").exists():
+        raise ModuleNotFoundError("No module named 'rag_chatbot'")
+
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
+    import rag_chatbot
+
     uploads_dir = Path(sys.argv[1])
     args = sys.argv[2:]
 
@@ -346,7 +539,7 @@ PYTHON;
         $corpusPath = $storage->getCorpusPath($domain);
         $indexPath = $storage->getIndexPath($domain);
 
-        chdir(__DIR__ . '/../../public');
+        chdir(dirname(__DIR__, 2) . '/public');
 
         try {
             $manualResult = \App\runSyncProcess(

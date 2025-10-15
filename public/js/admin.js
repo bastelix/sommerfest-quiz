@@ -1441,8 +1441,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const downloadButton = domainChatContainer.querySelector('[data-domain-chat-download]');
     const tableBody = domainChatContainer.querySelector('[data-domain-chat-body]');
     const statusBox = domainChatContainer.querySelector('[data-domain-chat-status]');
+    const wikiContainer = domainChatContainer.querySelector('[data-domain-chat-wiki]');
+    const wikiList = domainChatContainer.querySelector('[data-domain-chat-wiki-list]');
+    const wikiMessage = domainChatContainer.querySelector('[data-domain-chat-wiki-message]');
+    const wikiSaveButton = domainChatContainer.querySelector('[data-domain-chat-wiki-save]');
+    const wikiDescription = domainChatContainer.querySelector('[data-domain-chat-wiki-description]');
     const maxUploadSize = Number(window.domainChatMaxSize || 0);
     let currentDomain = domainSelect?.value?.trim() || '';
+    let wikiState = {
+      enabled: false,
+      available: false,
+      articles: [],
+      pageSlug: null,
+    };
 
     const formatBytes = bytes => {
       const value = Number(bytes);
@@ -1491,6 +1502,185 @@ document.addEventListener('DOMContentLoaded', function () {
         statusBox.appendChild(pre);
       }
       statusBox.hidden = false;
+    };
+
+    const setWikiMessage = (message, variant = 'warning') => {
+      if (!wikiMessage) {
+        return;
+      }
+      if (!message) {
+        wikiMessage.textContent = '';
+        wikiMessage.hidden = true;
+        return;
+      }
+      let className = 'uk-alert uk-alert-warning uk-margin-small';
+      if (variant === 'success') {
+        className = 'uk-alert uk-alert-success uk-margin-small';
+      } else if (variant === 'danger') {
+        className = 'uk-alert uk-alert-danger uk-margin-small';
+      }
+      wikiMessage.className = className;
+      wikiMessage.textContent = message;
+      wikiMessage.hidden = false;
+    };
+
+    const updateWikiSaveState = () => {
+      if (!wikiSaveButton) {
+        return;
+      }
+      const canEdit = wikiState.enabled && wikiState.available && wikiState.articles.length > 0;
+      if (!canEdit) {
+        wikiSaveButton.disabled = true;
+        wikiSaveButton.hidden = true;
+        return;
+      }
+      const dirty = wikiState.articles.some(article => article.selected !== article.initialSelected);
+      wikiSaveButton.disabled = !dirty;
+      wikiSaveButton.hidden = false;
+    };
+
+    const renderWikiArticles = wiki => {
+      if (!wikiContainer) {
+        return;
+      }
+      if (!wiki) {
+        wikiContainer.hidden = false;
+        if (wikiDescription) {
+          wikiDescription.hidden = true;
+        }
+        if (wikiList) {
+          wikiList.innerHTML = '';
+          wikiList.hidden = true;
+        }
+        if (wikiSaveButton) {
+          wikiSaveButton.disabled = true;
+          wikiSaveButton.hidden = true;
+        }
+        setWikiMessage(domainChatTranslations.loading || 'Loading…', 'warning');
+        wikiState = {
+          enabled: false,
+          available: false,
+          articles: [],
+          pageSlug: null,
+        };
+        return;
+      }
+
+      wikiContainer.hidden = false;
+      const enabled = wiki.enabled !== false;
+      const available = enabled && wiki.available !== false;
+      if (wikiDescription) {
+        wikiDescription.hidden = !available;
+      }
+      const rawArticles = Array.isArray(wiki.articles) ? wiki.articles : [];
+
+      wikiState = {
+        enabled,
+        available,
+        articles: rawArticles.map(article => ({
+          id: Number(article.id) || 0,
+          title: typeof article.title === 'string' ? article.title : '',
+          slug: typeof article.slug === 'string' ? article.slug : '',
+          locale: typeof article.locale === 'string' ? article.locale : '',
+          excerpt: typeof article.excerpt === 'string' ? article.excerpt : '',
+          publishedAt: typeof article.publishedAt === 'string' ? article.publishedAt : '',
+          isStartDocument: article.isStartDocument === true,
+          selected: article.selected === true,
+          initialSelected: article.selected === true,
+        })),
+        pageSlug: typeof wiki.pageSlug === 'string' ? wiki.pageSlug : null,
+      };
+
+      if (!enabled) {
+        if (wikiList) {
+          wikiList.innerHTML = '';
+          wikiList.hidden = true;
+        }
+        if (wikiSaveButton) {
+          wikiSaveButton.disabled = true;
+          wikiSaveButton.hidden = true;
+        }
+        setWikiMessage(domainChatTranslations.wikiUnavailable || domainChatTranslations.error || '', 'warning');
+        return;
+      }
+
+      if (!available) {
+        if (wikiList) {
+          wikiList.innerHTML = '';
+          wikiList.hidden = true;
+        }
+        if (wikiSaveButton) {
+          wikiSaveButton.disabled = true;
+          wikiSaveButton.hidden = true;
+        }
+        setWikiMessage(domainChatTranslations.wikiUnavailable || '', 'warning');
+        return;
+      }
+
+      if (wikiState.articles.length === 0) {
+        if (wikiList) {
+          wikiList.innerHTML = '';
+          wikiList.hidden = true;
+        }
+        if (wikiSaveButton) {
+          wikiSaveButton.disabled = true;
+          wikiSaveButton.hidden = true;
+        }
+        setWikiMessage(domainChatTranslations.wikiEmpty || '', 'warning');
+        return;
+      }
+
+      setWikiMessage('');
+      if (wikiList) {
+        wikiList.innerHTML = '';
+        wikiList.hidden = false;
+        wikiState.articles.forEach(article => {
+          const item = document.createElement('li');
+          const header = document.createElement('div');
+          header.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'uk-checkbox uk-margin-small-right';
+          checkbox.checked = article.selected;
+          checkbox.dataset.articleId = String(article.id);
+          checkbox.addEventListener('change', () => {
+            article.selected = checkbox.checked;
+            updateWikiSaveState();
+          });
+          header.appendChild(checkbox);
+
+          const localeBadge = document.createElement('span');
+          localeBadge.className = 'uk-label uk-label-light uk-margin-small-right';
+          localeBadge.textContent = (article.locale || '').toUpperCase() || 'DE';
+          header.appendChild(localeBadge);
+
+          const titleSpan = document.createElement('span');
+          titleSpan.className = 'uk-text-bold';
+          titleSpan.textContent = article.title || article.slug || '';
+          header.appendChild(titleSpan);
+
+          item.appendChild(header);
+
+          if (article.slug) {
+            const slugLine = document.createElement('div');
+            slugLine.className = 'uk-text-meta';
+            slugLine.textContent = article.slug;
+            item.appendChild(slugLine);
+          }
+
+          if (article.excerpt) {
+            const excerptLine = document.createElement('div');
+            excerptLine.className = 'uk-text-meta';
+            excerptLine.textContent = article.excerpt;
+            item.appendChild(excerptLine);
+          }
+
+          wikiList.appendChild(item);
+        });
+      }
+
+      updateWikiSaveState();
     };
 
     const parseFileName = header => {
@@ -1577,16 +1767,31 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const loadDocuments = domain => {
-      if (!tableBody || domain === '') {
+      if (domain === '') {
+        if (wikiContainer) {
+          wikiContainer.hidden = true;
+        }
+        if (tableBody) {
+          tableBody.innerHTML = '';
+        }
+
         return Promise.resolve();
       }
-      tableBody.innerHTML = '';
-      const loadingRow = document.createElement('tr');
-      const loadingCell = document.createElement('td');
-      loadingCell.colSpan = 4;
-      loadingCell.textContent = domainChatTranslations.loading || 'Lade …';
-      loadingRow.appendChild(loadingCell);
-      tableBody.appendChild(loadingRow);
+
+      if (wikiContainer) {
+        wikiContainer.hidden = false;
+        renderWikiArticles(null);
+      }
+
+      if (tableBody) {
+        tableBody.innerHTML = '';
+        const loadingRow = document.createElement('tr');
+        const loadingCell = document.createElement('td');
+        loadingCell.colSpan = 4;
+        loadingCell.textContent = domainChatTranslations.loading || 'Lade …';
+        loadingRow.appendChild(loadingCell);
+        tableBody.appendChild(loadingRow);
+      }
 
       return apiFetch(`/admin/domain-chat/documents?domain=${encodeURIComponent(domain)}`)
         .then(res => res.json().catch(() => ({})).then(data => {
@@ -1596,16 +1801,25 @@ document.addEventListener('DOMContentLoaded', function () {
           currentDomain = typeof data.domain === 'string' && data.domain !== '' ? data.domain : domain;
           const docs = Array.isArray(data.documents) ? data.documents : [];
           renderDocuments(docs);
+          if (wikiContainer) {
+            renderWikiArticles(data.wiki ?? { enabled: true, available: false, articles: [] });
+          }
           showStatus('', 'primary');
         }))
         .catch(err => {
-          tableBody.innerHTML = '';
-          const errorRow = document.createElement('tr');
-          const errorCell = document.createElement('td');
-          errorCell.colSpan = 4;
-          errorCell.textContent = err.message || domainChatTranslations.error || 'Fehler';
-          errorRow.appendChild(errorCell);
-          tableBody.appendChild(errorRow);
+          if (tableBody) {
+            tableBody.innerHTML = '';
+            const errorRow = document.createElement('tr');
+            const errorCell = document.createElement('td');
+            errorCell.colSpan = 4;
+            errorCell.textContent = err.message || domainChatTranslations.error || 'Fehler';
+            errorRow.appendChild(errorCell);
+            tableBody.appendChild(errorRow);
+          }
+          if (wikiContainer) {
+            renderWikiArticles({ enabled: true, available: false, articles: [] });
+            setWikiMessage(err.message || domainChatTranslations.error || 'Fehler', 'danger');
+          }
           showStatus(err.message || domainChatTranslations.error || 'Fehler', 'danger');
         });
     };
@@ -1674,6 +1888,57 @@ document.addEventListener('DOMContentLoaded', function () {
             if (downloadButton) {
               downloadButton.disabled = false;
             }
+          });
+      });
+    }
+
+    if (wikiSaveButton) {
+      wikiSaveButton.addEventListener('click', () => {
+        const selectedDomain = domainSelect?.value?.trim() || currentDomain;
+        if (!selectedDomain) {
+          notify(domainChatTranslations.error || 'Keine Domain ausgewählt', 'danger');
+          return;
+        }
+        if (!wikiState.enabled || !wikiState.available) {
+          notify(domainChatTranslations.wikiUnavailable || domainChatTranslations.error || 'Aktion nicht verfügbar', 'danger');
+          return;
+        }
+
+        const selectedIds = wikiState.articles
+          .filter(article => article.selected)
+          .map(article => article.id)
+          .filter(id => Number.isInteger(id) && id > 0);
+
+        wikiSaveButton.disabled = true;
+
+        apiFetch('/admin/domain-chat/wiki-selection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain: selectedDomain, articles: selectedIds }),
+        })
+          .then(res => res.json().catch(() => ({})).then(data => {
+            if (!res.ok || data.success !== true) {
+              const message = typeof data.error === 'string'
+                ? data.error
+                : (domainChatTranslations.wikiError || domainChatTranslations.error || 'Speichern fehlgeschlagen');
+              throw new Error(message);
+            }
+
+            if (wikiContainer) {
+              renderWikiArticles(data.wiki ?? { enabled: true, available: false, articles: [] });
+            }
+
+            const successMessage = domainChatTranslations.wikiSaved || 'Auswahl gespeichert';
+            showStatus(successMessage, 'success');
+            notify(successMessage, 'success');
+          }))
+          .catch(err => {
+            const message = err.message || domainChatTranslations.wikiError || domainChatTranslations.error || 'Speichern fehlgeschlagen';
+            notify(message, 'danger');
+            setWikiMessage(message, 'danger');
+          })
+          .finally(() => {
+            updateWikiSaveState();
           });
       });
     }
@@ -1800,6 +2065,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (currentDomain !== '') {
       loadDocuments(currentDomain);
+    } else if (wikiContainer) {
+      wikiContainer.hidden = true;
     }
   }
   function collectCfgData() {

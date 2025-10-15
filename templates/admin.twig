@@ -2070,7 +2070,11 @@
       'rebuildError': t('notify_domain_chat_rebuild_error'),
       'downloadError': t('notify_domain_chat_download_error'),
       'downloadMissing': t('notify_domain_chat_download_missing'),
-      'confirmDelete': t('confirm_domain_chat_delete')
+      'confirmDelete': t('confirm_domain_chat_delete'),
+      'wikiSaved': t('notify_domain_chat_wiki_saved'),
+      'wikiError': t('notify_domain_chat_wiki_error'),
+      'wikiUnavailable': t('text_domain_chat_wiki_unavailable'),
+      'wikiEmpty': t('text_domain_chat_wiki_empty')
     }|json_encode|raw }};
     window.domainChatMaxSize = {{ constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') }};
     window.pagesContent = {{ page_contents|json_encode|raw }};

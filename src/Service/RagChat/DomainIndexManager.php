@@ -4,10 +4,22 @@ declare(strict_types=1);
 
 namespace App\Service\RagChat;
 
+use App\Domain\MarketingPageWikiArticle;
+use App\Service\MarketingPageWikiArticleService;
 use InvalidArgumentException;
 use RuntimeException;
 
 use function App\runSyncProcess;
+use function array_fill_keys;
+use function file_put_contents;
+use function glob;
+use function implode;
+use function is_file;
+use function preg_replace;
+use function sprintf;
+use function strtolower;
+use function trim;
+use function unlink;
 
 final class DomainIndexManager
 {
@@ -17,14 +29,22 @@ final class DomainIndexManager
 
     private string $pythonBinary;
 
+    private ?DomainWikiSelectionService $wikiSelection;
+
+    private ?MarketingPageWikiArticleService $wikiArticles;
+
     public function __construct(
         DomainDocumentStorage $storage,
         ?string $projectRoot = null,
-        string $pythonBinary = 'python3'
+        string $pythonBinary = 'python3',
+        ?DomainWikiSelectionService $wikiSelection = null,
+        ?MarketingPageWikiArticleService $wikiArticles = null
     ) {
         $this->storage = $storage;
         $this->projectRoot = $projectRoot ?? dirname(__DIR__, 3);
         $this->pythonBinary = $pythonBinary;
+        $this->wikiSelection = $wikiSelection;
+        $this->wikiArticles = $wikiArticles;
     }
 
     /**
@@ -38,8 +58,11 @@ final class DomainIndexManager
             throw new RuntimeException('Invalid domain supplied.', 0, $exception);
         }
 
+        $uploadsDir = $this->storage->getUploadsDirectory($normalized);
         $documents = $this->storage->getDocumentFiles($normalized);
-        if ($documents === []) {
+        $wikiDocuments = $this->prepareWikiDocuments($normalized, $uploadsDir);
+        $allDocuments = array_merge($documents, $wikiDocuments);
+        if ($allDocuments === []) {
             $this->storage->removeIndex($normalized);
 
             return [
@@ -52,7 +75,6 @@ final class DomainIndexManager
 
         $corpusPath = $this->storage->getCorpusPath($normalized);
         $indexPath = $this->storage->getIndexPath($normalized);
-        $uploadsDir = $this->storage->getUploadsDirectory($normalized);
         $this->ensureDirectory(dirname($corpusPath));
 
         $script = $this->projectRoot . '/scripts/rag_pipeline.py';
@@ -85,6 +107,122 @@ final class DomainIndexManager
         }
 
         return $result;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function prepareWikiDocuments(string $domain, string $uploadsDir): array
+    {
+        if ($this->wikiSelection === null || $this->wikiArticles === null) {
+            return [];
+        }
+
+        $existingPattern = $uploadsDir . DIRECTORY_SEPARATOR . 'wiki-*.md';
+        $existingFiles = glob($existingPattern) ?: [];
+
+        $articleIds = $this->wikiSelection->getSelectedArticleIds($domain);
+        if ($articleIds === []) {
+            $this->cleanupWikiFiles($existingFiles, []);
+
+            return [];
+        }
+
+        $this->ensureDirectory($uploadsDir);
+
+        $writtenFiles = [];
+        foreach ($articleIds as $articleId) {
+            $article = $this->wikiArticles->getArticleById($articleId);
+            if ($article === null || !$article->isPublished()) {
+                continue;
+            }
+
+            $writtenFiles[] = $this->writeWikiDocument($uploadsDir, $domain, $article);
+        }
+
+        $this->cleanupWikiFiles($existingFiles, $writtenFiles);
+
+        return $writtenFiles;
+    }
+
+    private function writeWikiDocument(string $uploadsDir, string $domain, MarketingPageWikiArticle $article): string
+    {
+        $slug = $this->sanitizeSlug($article->getSlug());
+        $filename = sprintf(
+            'wiki-%06d-%s-%s.md',
+            $article->getId(),
+            strtolower($article->getLocale()),
+            $slug
+        );
+        $path = $uploadsDir . DIRECTORY_SEPARATOR . $filename;
+
+        $content = $this->renderWikiMarkdown($domain, $article);
+        if (file_put_contents($path, $content) === false) {
+            throw new RuntimeException(sprintf('Failed to export wiki article %d for domain %s.', $article->getId(), $domain));
+        }
+
+        return $path;
+    }
+
+    /**
+     * @param list<string> $existingFiles
+     * @param list<string> $writtenFiles
+     */
+    private function cleanupWikiFiles(array $existingFiles, array $writtenFiles): void
+    {
+        if ($existingFiles === []) {
+            return;
+        }
+
+        $keep = array_fill_keys($writtenFiles, true);
+        foreach ($existingFiles as $file) {
+            if (!isset($keep[$file]) && is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
+
+    private function renderWikiMarkdown(string $domain, MarketingPageWikiArticle $article): string
+    {
+        $lines = [];
+        $title = trim($article->getTitle());
+        if ($title !== '') {
+            $lines[] = '# ' . $title;
+        }
+
+        $meta = sprintf(
+            '> Domain: %s | Locale: %s | Slug: %s',
+            $domain,
+            $article->getLocale(),
+            $article->getSlug()
+        );
+        $lines[] = $meta;
+
+        $excerpt = $article->getExcerpt();
+        if ($excerpt !== null && trim($excerpt) !== '') {
+            $lines[] = '';
+            $lines[] = trim($excerpt);
+        }
+
+        $content = trim($article->getContentMarkdown());
+        if ($content !== '') {
+            $lines[] = '';
+            $lines[] = $content;
+        }
+
+        if ($lines === []) {
+            return '';
+        }
+
+        return implode("\n", $lines) . "\n";
+    }
+
+    private function sanitizeSlug(string $slug): string
+    {
+        $normalized = strtolower(trim($slug));
+        $normalized = preg_replace('/[^a-z0-9-]+/', '-', $normalized) ?? '';
+
+        return trim($normalized, '-') ?: 'article';
     }
 
     private function ensureDirectory(string $path): void
