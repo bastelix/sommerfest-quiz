@@ -67,6 +67,51 @@
 
     .marketing-wiki__search { max-width: 540px; margin: 0 auto; }
 
+    .marketing-wiki__search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .marketing-wiki__search-input {
+      height: 56px;
+      font-size: 1.125rem;
+      padding: 0 18px;
+    }
+    .marketing-wiki__search-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 56px;
+      padding: 0 24px;
+      font-weight: 600;
+    }
+    .marketing-wiki__search-button [uk-icon] {
+      margin-top: -2px;
+    }
+    @media (max-width: 640px) {
+      .marketing-wiki__search-row {
+        grid-template-columns: 1fr;
+      }
+      .marketing-wiki__search-button {
+        width: 100%;
+        height: 48px;
+      }
+      .marketing-wiki__search-input {
+        height: 48px;
+        font-size: 1rem;
+      }
+      .marketing-wiki__search-button-text--desktop {
+        display: none;
+      }
+    }
+    @media (min-width: 641px) {
+      .marketing-wiki__search-button-text--mobile {
+        display: none;
+      }
+    }
+    
     .marketing-wiki__list { margin-top: 40px; }
 
     .marketing-wiki__excerpt { color: var(--marketing-wiki-excerpt); }
@@ -91,15 +136,23 @@
       </nav>
       <h1 class="uk-heading-small uk-margin-remove">{{ menuLabel }}</h1>
       <p class="uk-text-lead uk-margin-small-top">Antworten, Schritt-für-Schritt-Anleitungen und Hintergrundwissen zur {{ page.getTitle() }}.</p>
-      <form method="get" class="marketing-wiki__search uk-search uk-search-large uk-margin-top">
+      <form method="get" class="marketing-wiki__search uk-margin-top">
         <label class="uk-hidden" for="wiki-search">Suche</label>
-        <input id="wiki-search"
-               name="q"
-               class="uk-search-input"
-               type="search"
-               placeholder="Artikel suchen"
-               value="{{ searchTerm }}">
-        <button type="submit" class="uk-search-icon-flip" uk-search-icon aria-label="Suchen"></button>
+        <div class="marketing-wiki__search-row">
+          <input id="wiki-search"
+                 name="q"
+                 class="uk-input marketing-wiki__search-input"
+                 type="search"
+                 placeholder="Artikel suchen"
+                 value="{{ searchTerm }}">
+          <button type="submit"
+                  class="uk-button uk-button-primary marketing-wiki__search-button"
+                  aria-label="Suche starten">
+            <span uk-icon="search" aria-hidden="true"></span>
+            <span class="marketing-wiki__search-button-text--desktop">Suchen</span>
+            <span class="marketing-wiki__search-button-text--mobile">Suche</span>
+          </button>
+        </div>
       </form>
     </div>
   </div>
