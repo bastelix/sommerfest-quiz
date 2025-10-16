@@ -1893,11 +1893,11 @@ VALUES (
     'FLUKE MET/CAL Integration',
     $$<!--
 kb_id: metcal-integration-v1
-kb_version: 1.0
+kb_version: 1.2
 kb_tags: ["MET/CAL","MET/TRACK","METTEAM","Migration","Zertifikat","Guardband","DAkkS"]
-kb_synonyms: ["METCAL","MET TRACK","MET/TRACK","MU","Konformität"]
-updated_at: 2024-06-13
-summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer, die Hybrid-Integration mit METTEAM und die Erstellung DAkkS-tauglicher Zertifikate – inklusive SSO, DSGVO und Audit-Trails.
+kb_synonyms: ["METCAL","MET TRACK","MET/TRACK","MET TEAM","METTEAM","Guardband","Reports"]
+updated_at: 2025-04-05
+summary: Diese Seite zeigt Migration von MET/TRACK nach calServer, Hybridbetrieb mit METTEAM sowie Reporting & Guardband – ohne Paket-Section auf der Landing Page.
 -->
 <div data-metcal-sticky-sentinel></div>
 
@@ -1940,19 +1940,19 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
 
 <section id="migration" class="uk-section metcal-section" aria-labelledby="metcal-migration-heading">
   <div class="uk-container">
-          <span class="metcal-eyebrow">Migration</span>
-          <h2 class="metcal-section__title" id="metcal-migration-heading">So läuft der Umstieg von MET/TRACK nach calServer.</h2>
-          <p class="metcal-section__lead">Wir planen, testen und dokumentieren den Wechsel – inklusive Freeze-Fenster, Delta-Sync und Abnahmebericht.</p>
-          <div class="metcal-migration-offer" role="note" aria-labelledby="metcal-migration-offer-title">
-            <h3 class="metcal-migration-offer__title" id="metcal-migration-offer-title">Migration ohne Stillstand</h3>
-            <ul class="metcal-migration-offer__list" role="list">
-              <li class="metcal-migration-offer__item" role="listitem">Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.</li>
-              <li class="metcal-migration-offer__item" role="listitem">Datenmapping für Kunden, Geräte, Historien und Dokumente.</li>
-              <li class="metcal-migration-offer__item" role="listitem">Delta-Sync &amp; Freeze-Fenster für den Go-Live.</li>
-              <li class="metcal-migration-offer__item" role="listitem">Abnahmebericht mit KPIs und Korrekturschleifen.</li>
-            </ul>
-          </div>
-          <ol class="metcal-timeline" role="list">
+    <span class="metcal-eyebrow">Migration</span>
+    <h2 class="metcal-section__title" id="metcal-migration-heading">So läuft der Umstieg von MET/TRACK nach calServer.</h2>
+    <p class="metcal-section__lead">Wir planen, testen und dokumentieren den Wechsel – inklusive Freeze-Fenster, Delta-Sync und Abnahmebericht.</p>
+    <div class="metcal-migration-offer" role="note" aria-labelledby="metcal-migration-offer-title">
+      <h3 class="metcal-migration-offer__title" id="metcal-migration-offer-title">Migration ohne Stillstand</h3>
+      <ul class="metcal-migration-offer__list" role="list">
+        <li class="metcal-migration-offer__item" role="listitem">Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.</li>
+        <li class="metcal-migration-offer__item" role="listitem">Datenmapping für Kunden, Geräte, Historien und Dokumente.</li>
+        <li class="metcal-migration-offer__item" role="listitem">Delta-Sync &amp; Freeze-Fenster für den Go-Live.</li>
+        <li class="metcal-migration-offer__item" role="listitem">Abnahmebericht mit KPIs und Korrekturschleifen.</li>
+      </ul>
+    </div>
+    <ol class="metcal-timeline" role="list">
       <li class="metcal-timeline__item" aria-label="Schritt 1 Assessment">
         <span class="metcal-timeline__badge">1</span>
         <div class="metcal-timeline__body">
@@ -2038,6 +2038,40 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
   </div>
 </section>
 
+<section id="berichte" class="uk-section metcal-section metcal-section--light" aria-labelledby="metcal-reports-heading">
+  <div class="uk-container">
+    <span class="metcal-eyebrow">Berichte &amp; Monitoring</span>
+    <h2 class="metcal-section__title" id="metcal-reports-heading">Berichte im Griff – nachvollziehbar und versandfertig.</h2>
+    <p class="metcal-section__lead">Templates, Guardband und Automatisierung für reproduzierbare Nachweise, die Auditfragen vorwegnehmen.</p>
+    <div class="metcal-report-grid" role="list">
+      <article class="metcal-report-card" role="listitem">
+        <h3>Vorlagen &amp; Guardband</h3>
+        <p>Standardisierte Layouts mit Konformitätslogik, Messwert-Tabellen und zweisprachigen Textbausteinen.</p>
+        <ul>
+          <li>Guardband- und MU-Varianten je Produktlinie</li>
+          <li>Seriennummern, QR/Barcode und Signaturfelder</li>
+        </ul>
+      </article>
+      <article class="metcal-report-card" role="listitem">
+        <h3>Review &amp; Freigabe</h3>
+        <p>Vier-Augen-Freigabe mit Kommentar-Log, Golden Samples und Diff-Ansicht pro Änderung.</p>
+        <ul>
+          <li>Abweichungsberichte als PDF/A</li>
+          <li>Checklisten für Audit-Fragen</li>
+        </ul>
+      </article>
+      <article class="metcal-report-card" role="listitem">
+        <h3>Verteilung &amp; Archiv</h3>
+        <p>Versand via Portal, API oder E-Mail, inklusive Portalablage, Downloadhistorie und Ablaufsteuerung.</p>
+        <ul>
+          <li>Rollenbasierte Sichtbarkeit</li>
+          <li>Automatisierte Erinnerungen</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
 <section id="sicherheit" class="uk-section metcal-section metcal-section--light" aria-labelledby="metcal-security-heading">
   <div class="uk-container">
     <span class="metcal-eyebrow">Sicherheit &amp; Betrieb</span>
@@ -2058,55 +2092,6 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
       <article class="metcal-security" role="listitem">
         <h3>Betrieb &amp; Support</h3>
         <p>Monitoring, Update-Pfade, Rollback-Plan und dedizierte Ansprechpartner:innen.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section id="pakete" class="uk-section metcal-section" aria-labelledby="metcal-packages-heading">
-  <div class="uk-container">
-    <span class="metcal-eyebrow">Pakete</span>
-    <h2 class="metcal-section__title" id="metcal-packages-heading">Pakete mit klaren Outcomes.</h2>
-    <div class="metcal-packages" role="list">
-      <article class="metcal-package" role="listitem">
-        <h3>Startklar</h3>
-        <p class="metcal-package__subtitle">Quick-Start für Inventar &amp; Fälligkeiten.</p>
-        <ul class="metcal-package__list">
-          <li>Setup &amp; Basisrollen</li>
-          <li>1 Reportvorlage</li>
-          <li>Schulung (½ Tag)</li>
-        </ul>
-        <p class="metcal-package__outcome"><strong>Outcome:</strong> produktiver Start.</p>
-      </article>
-      <article class="metcal-package metcal-package--highlight" role="listitem">
-        <h3>Migration Sprint</h3>
-        <p class="metcal-package__subtitle">MET/TRACK → calServer mit Dry-Run &amp; Cut-over.</p>
-        <ul class="metcal-package__list">
-          <li>Daten-Assessment &amp; Mapping</li>
-          <li>Dry-Run &amp; Delta-Regeln</li>
-          <li>Go-Live-Begleitung &amp; Abnahme</li>
-        </ul>
-        <p class="metcal-package__outcome"><strong>Outcome:</strong> geprüfte Datenbasis.</p>
-      </article>
-      <article class="metcal-package" role="listitem">
-        <h3>Integration Sprint</h3>
-        <p class="metcal-package__subtitle">METTEAM &amp; Hybridbetrieb stabilisieren.</p>
-        <ul class="metcal-package__list">
-          <li>Treiber- &amp; Sync-Regeln</li>
-          <li>Konfliktlogik &amp; Journal</li>
-          <li>Tests &amp; Übergabe</li>
-        </ul>
-        <p class="metcal-package__outcome"><strong>Outcome:</strong> Hybrid ohne Doppelpflege.</p>
-      </article>
-      <article class="metcal-package" role="listitem">
-        <h3>Care &amp; Compliance</h3>
-        <p class="metcal-package__subtitle">Laufende Betreuung &amp; Auditvorbereitung.</p>
-        <ul class="metcal-package__list">
-          <li>Report-Updates</li>
-          <li>Backup-Checks</li>
-          <li>Audit-Vorbereitung</li>
-        </ul>
-        <p class="metcal-package__outcome"><strong>Outcome:</strong> dauerhaft auditfähig.</p>
       </article>
     </div>
   </div>
@@ -2157,25 +2142,23 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
   <div class="metcal-sticky-cta__inner">
     <div class="metcal-sticky-cta__copy">
       <strong>Bereit für den Wechsel?</strong>
-      <span>Wir planen Migration, Hybridbetrieb und Zertifikate gemeinsam – ohne Stillstand.</span>
+      <span>Wir planen Migration, Hybridbetrieb und Berichte gemeinsam – ohne Stillstand.</span>
     </div>
     <div class="metcal-sticky-cta__actions" role="group" aria-label="Schnellzugriff">
       <a class="uk-button uk-button-primary"
-         href="https://calendly.com/calhelp/calserver-vorstellung"
-         target="_blank"
-         rel="noopener"
-         data-analytics-event="click_cta_demo"
+         href="#berichte"
+         data-analytics-event="click_cta_reports"
          data-analytics-context="sticky_metcal"
          data-analytics-page="/fluke-metcal"
-         data-analytics-lang="de">
-        <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
+         data-analytics-target="#berichte">
+        <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Berichte ansehen
       </a>
       <a class="uk-button uk-button-default"
-         href="{{ basePath }}/downloads/metcal-migrations-checkliste.md"
-         data-analytics-event="download_checkliste"
+         href="{{ basePath }}/kontakt"
+         data-analytics-event="click_cta_contact"
          data-analytics-context="sticky_metcal"
-         data-analytics-file="metcal-migrations-checkliste.md">
-        <span class="uk-margin-small-right" data-uk-icon="icon: cloud-download"></span>Migrations-Checkliste
+         data-analytics-target="/kontakt">
+        <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>Kontakt aufnehmen
       </a>
     </div>
   </div>
