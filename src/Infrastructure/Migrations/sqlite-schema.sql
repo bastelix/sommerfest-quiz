@@ -653,7 +653,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
               <ul>
                 <li>Vorlagen in Deutsch und Englisch, inklusive QR-/Barcode und Versionierung</li>
                 <li>Standardtexte steuern Rückführbarkeit und Konformität</li>
-                <li>REST-API, SSO (Azure/Google) und Hosting in Deutschland</li>
+                <li>Endlich korrekte Anzeigen der erweiterten Messunsicherheit durch inteligente Feldformeln in der Software</li>
               </ul>
             </article>
           </div>
