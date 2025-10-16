@@ -21,8 +21,6 @@
   'renamed': t('message_media_renamed'),
   'deleted': t('message_media_deleted'),
   'requestFailed': t('error_media_request_failed'),
-  'eventRequired': t('error_media_event_required'),
-  'eventHint': t('text_media_event_hint'),
   'noFiles': t('text_media_no_files'),
   'download': t('action_download'),
   'replace': t('button_media_replace'),
@@ -62,15 +60,9 @@
   'landingMarkup': t('tooltip_media_landing_markup'),
   'landingSeo': t('tooltip_media_landing_seo'),
 } %}
-{% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
-{% set initialEventName = mediaEventName|default(event.name|default('')) %}
 
 <div class="media-tab" data-media-section>
   <h2 class="uk-heading-bullet">{{ t('heading_media') }}</h2>
-  {% include 'admin/components/event_controls.twig' with {
-    currentEventUid: initialEventUid,
-    currentEventName: initialEventName
-  } %}
   <p
     class="uk-text-meta"
     data-media-limit
@@ -82,7 +74,6 @@
     class="uk-grid-large media-grid"
     uk-grid
     data-media-root
-    data-event-uid="{{ initialEventUid }}"
     data-limits="{{ limits|json_encode|e('html_attr') }}"
     data-translations="{{ translations|json_encode|e('html_attr') }}"
     data-landing-slugs="{{ landingSlugs|json_encode|e('html_attr') }}"
@@ -91,18 +82,6 @@
       <div class="uk-card uk-card-default uk-card-small uk-margin media-controls-card">
         <div class="uk-card-header uk-padding-small">
           <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="mediaScope">{{ t('label_media_scope') }}</label>
-              <select
-                id="mediaScope"
-                class="uk-select uk-form-small"
-                data-media-scope
-                aria-describedby="mediaScopeHint"
-              >
-                <option value="global" selected>{{ t('label_media_scope_global') }}</option>
-                <option value="event"{% if initialEventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
-              </select>
-            </div>
             <div class="uk-width-1-1 uk-width-expand@m" data-media-landing-filter>
               <label class="uk-form-label" for="mediaLanding">{{ t('label_media_filter_landing') }}</label>
               <select
@@ -176,9 +155,6 @@
           </div>
         </div>
         <div class="uk-card-footer uk-padding-small">
-          <p class="uk-text-meta uk-margin-remove" id="mediaScopeHint" data-media-event-hint hidden>
-            {{ t('text_media_event_hint') }}
-          </p>
         </div>
       </div>
 
