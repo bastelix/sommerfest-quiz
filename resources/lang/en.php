@@ -444,6 +444,7 @@ return [
     'calserver_nav_modules' => 'Modules',
     'calserver_nav_usecases' => 'Use cases',
     'calserver_nav_modes' => 'Operating modes',
+    'calserver_nav_news' => 'News',
     'calserver_nav_pricing' => 'Pricing',
     'calserver_nav_faq' => 'FAQ',
     'calserver_nav_demo' => 'Book demo',

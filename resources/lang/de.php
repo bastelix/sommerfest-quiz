@@ -442,6 +442,7 @@ return [
     'calserver_nav_modules' => 'Module',
     'calserver_nav_usecases' => 'Anwendungsfälle',
     'calserver_nav_modes' => 'Betriebsarten',
+    'calserver_nav_news' => 'Neuigkeiten',
     'calserver_nav_pricing' => 'Preise',
     'calserver_nav_faq' => 'FAQ',
     'calserver_nav_demo' => 'Demo buchen',
