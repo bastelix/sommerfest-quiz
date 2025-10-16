@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\ConfigService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\MediaLibraryService;
 use JsonException;
@@ -19,17 +18,14 @@ use Slim\Views\Twig;
 class AdminMediaController
 {
     private MediaLibraryService $media;
-    private ConfigService $config;
     private LandingMediaReferenceService $landing;
     private const FOLDER_NONE = '__no_folder__';
 
     public function __construct(
         MediaLibraryService $media,
-        ConfigService $config,
         LandingMediaReferenceService $landing
     ) {
         $this->media = $media;
-        $this->config = $config;
         $this->landing = $landing;
     }
 
@@ -41,16 +37,10 @@ class AdminMediaController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
 
-        $eventUid = (string) ($_SESSION['event_uid'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = $this->config->getActiveEventUid();
-        }
-
         $role = (string) ($_SESSION['user']['role'] ?? '');
 
         return $view->render($response, 'admin/media.twig', [
             'csrf_token' => $csrf,
-            'eventUid' => $eventUid,
             'limits' => $this->media->getLimits(),
             'mediaLandingSlugs' => $this->landing->getLandingSlugs(),
             'role' => $role,
@@ -64,19 +54,14 @@ class AdminMediaController
      */
     public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $scope = (string) ($params['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $scope = MediaLibraryService::SCOPE_GLOBAL;
         $page = max(1, (int) ($params['page'] ?? 1));
         $perPage = (int) ($params['perPage'] ?? 20);
         $perPage = max(1, min(100, $perPage));
         $search = trim((string) ($params['search'] ?? ''));
 
-        $eventUid = (string) ($params['event'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
-        }
-
         try {
-            $files = $this->media->listFiles($scope, $eventUid !== '' ? $eventUid : null);
+            $files = $this->media->listFiles($scope, null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }
@@ -88,44 +73,42 @@ class AdminMediaController
             'active' => '',
         ];
 
-        if ($scope === MediaLibraryService::SCOPE_GLOBAL) {
-            $landingReferences = $this->landing->collect();
-            $landingData['slugs'] = $landingReferences['slugs'];
-            $landingData['missing'] = $landingReferences['missing'];
+        $landingReferences = $this->landing->collect();
+        $landingData['slugs'] = $landingReferences['slugs'];
+        $landingData['missing'] = $landingReferences['missing'];
 
-            $map = $landingReferences['files'];
-            foreach ($files as &$file) {
-                $normalized = $this->landing->normalizeFilePath((string) ($file['path'] ?? $file['url'] ?? ''));
-                if ($normalized !== null && isset($map[$normalized])) {
-                    $file['landing'] = $map[$normalized];
-                }
+        $map = $landingReferences['files'];
+        foreach ($files as &$file) {
+            $normalized = $this->landing->normalizeFilePath((string) ($file['path'] ?? $file['url'] ?? ''));
+            if ($normalized !== null && isset($map[$normalized])) {
+                $file['landing'] = $map[$normalized];
             }
-            unset($file);
+        }
+        unset($file);
 
-            $landingFilter = trim((string) ($params['landing'] ?? ''));
-            if ($landingFilter !== '') {
-                $files = array_values(array_filter(
-                    $files,
-                    static function (array $file) use ($landingFilter): bool {
-                        if (!isset($file['landing']) || !is_array($file['landing'])) {
-                            return false;
-                        }
-                        foreach ($file['landing'] as $reference) {
-                            if (!is_array($reference)) {
-                                continue;
-                            }
-                            if ((string) ($reference['slug'] ?? '') === $landingFilter) {
-                                return true;
-                            }
-                        }
-
+        $landingFilter = trim((string) ($params['landing'] ?? ''));
+        if ($landingFilter !== '') {
+            $files = array_values(array_filter(
+                $files,
+                static function (array $file) use ($landingFilter): bool {
+                    if (!isset($file['landing']) || !is_array($file['landing'])) {
                         return false;
                     }
-                ));
-            }
+                    foreach ($file['landing'] as $reference) {
+                        if (!is_array($reference)) {
+                            continue;
+                        }
+                        if ((string) ($reference['slug'] ?? '') === $landingFilter) {
+                            return true;
+                        }
+                    }
 
-            $landingData['active'] = $landingFilter;
+                    return false;
+                }
+            ));
         }
+
+        $landingData['active'] = $landingFilter;
 
         $availableTags = $this->collectTags($files);
         $availableFolders = $this->collectFolders($files);
@@ -235,11 +218,7 @@ class AdminMediaController
         if (!is_array($body)) {
             $body = [];
         }
-        $scope = (string) ($body['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
-        $eventUid = (string) ($body['event'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
-        }
+        $scope = MediaLibraryService::SCOPE_GLOBAL;
 
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {
@@ -265,7 +244,7 @@ class AdminMediaController
             $stored = $this->media->uploadFile(
                 $scope,
                 $file,
-                $eventUid !== '' ? $eventUid : null,
+                null,
                 $options !== [] ? $options : null
             );
         } catch (RuntimeException $e) {
@@ -290,12 +269,8 @@ class AdminMediaController
             $body = [];
         }
 
-        $scope = (string) ($body['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $scope = MediaLibraryService::SCOPE_GLOBAL;
         $name = (string) ($body['name'] ?? '');
-        $eventUid = (string) ($body['event'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
-        }
 
         if ($name === '') {
             return $this->jsonError($response, 'invalid filename', 400);
@@ -309,7 +284,7 @@ class AdminMediaController
         $file = $files['file'];
 
         try {
-            $stored = $this->media->replaceFile($scope, $name, $file, $eventUid !== '' ? $eventUid : null);
+            $stored = $this->media->replaceFile($scope, $name, $file, null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }
@@ -326,19 +301,15 @@ class AdminMediaController
      */
     public function convert(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
-        $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $scope = MediaLibraryService::SCOPE_GLOBAL;
         $name = (string) ($data['name'] ?? '');
-        $eventUid = (string) ($data['event'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
-        }
 
         if ($name === '') {
             return $this->jsonError($response, 'invalid filename', 400);
         }
 
         try {
-            $file = $this->media->convertFile($scope, $name, $eventUid !== '' ? $eventUid : null);
+            $file = $this->media->convertFile($scope, $name, null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }
@@ -355,13 +326,9 @@ class AdminMediaController
      */
     public function rename(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
-        $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $scope = MediaLibraryService::SCOPE_GLOBAL;
         $old = (string) ($data['oldName'] ?? '');
         $new = (string) ($data['newName'] ?? '');
-        $eventUid = (string) ($data['event'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
-        }
 
         if ($old === '' || $new === '') {
             return $this->jsonError($response, 'invalid filename', 400);
@@ -381,7 +348,7 @@ class AdminMediaController
                 $scope,
                 $old,
                 $new,
-                $eventUid !== '' ? $eventUid : null,
+                null,
                 $options !== [] ? $options : null
             );
         } catch (RuntimeException $e) {
@@ -400,19 +367,15 @@ class AdminMediaController
      */
     public function delete(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
-        $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $scope = MediaLibraryService::SCOPE_GLOBAL;
         $name = (string) ($data['name'] ?? '');
-        $eventUid = (string) ($data['event'] ?? '');
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
-        }
 
         if ($name === '') {
             return $this->jsonError($response, 'invalid filename', 400);
         }
 
         try {
-            $this->media->deleteFile($scope, $name, $eventUid !== '' ? $eventUid : null);
+            $this->media->deleteFile($scope, $name, null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }

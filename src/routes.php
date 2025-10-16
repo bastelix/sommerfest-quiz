@@ -382,7 +382,6 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('landingMediaReferenceService', $landingReferenceService)
             ->withAttribute('adminMediaController', new AdminMediaController(
                 $mediaLibraryService,
-                $configService,
                 $landingReferenceService
             ))
             ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
@@ -846,7 +845,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         new LandingNewsService($pdo)
                     );
                 }
-                $controller = new AdminMediaController($service, $config, $landing);
+                $controller = new AdminMediaController($service, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -868,7 +867,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         $config
                     );
                 }
-                $controller = new AdminMediaController($service, $config, $landing);
+                $controller = new AdminMediaController($service, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -890,7 +889,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         $config
                     );
                 }
-                $controller = new AdminMediaController($service, $config, $landing);
+                $controller = new AdminMediaController($service, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -912,7 +911,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         $config
                     );
                 }
-                $controller = new AdminMediaController($service, $config, $landing);
+                $controller = new AdminMediaController($service, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -934,7 +933,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         $config
                     );
                 }
-                $controller = new AdminMediaController($service, $config, $landing);
+                $controller = new AdminMediaController($service, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -956,7 +955,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         $config
                     );
                 }
-                $controller = new AdminMediaController($service, $config, $landing);
+                $controller = new AdminMediaController($service, $landing);
             } else {
                 return $response->withStatus(500);
             }

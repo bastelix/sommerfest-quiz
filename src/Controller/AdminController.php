@@ -302,7 +302,6 @@ class AdminController
               'version' => $version,
               'mediaLimits' => $mediaLimits,
               'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs(),
-              'mediaEventUid' => $uid,
               'ragChatSecretPlaceholder' => self::CHAT_SECRET_PLACEHOLDER,
           ]);
     }

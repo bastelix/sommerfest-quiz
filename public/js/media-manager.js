@@ -110,8 +110,6 @@ ready(() => {
       renamed: 'File renamed.',
       deleted: 'File deleted.',
       requestFailed: 'Action failed.',
-      eventRequired: 'Please select an event first.',
-      eventHint: '',
       noFiles: 'No files available.',
       download: 'Download',
       replace: 'Replace',
@@ -158,7 +156,6 @@ ready(() => {
     };
 
     const limitText = tab.querySelector('[data-media-limit]');
-    const scopeSelect = root.querySelector('[data-media-scope]');
     const searchInput = root.querySelector('[data-media-search]');
     const refreshBtn = root.querySelector('[data-media-refresh]');
     const prevBtn = root.querySelector('[data-media-prev]');
@@ -167,7 +164,6 @@ ready(() => {
     const paginationLabel = root.querySelector('[data-media-pagination]');
     const emptyMessage = root.querySelector('[data-media-empty]');
     const errorBox = root.querySelector('[data-media-error]');
-    const eventHint = root.querySelector('[data-media-event-hint]');
     const tagFilterContainer = root.querySelector('[data-media-filter-tags]');
     const folderFilterSelect = root.querySelector('[data-media-filter-folder]');
     const clearFiltersBtn = root.querySelector('[data-media-clear-filters]');
@@ -217,7 +213,6 @@ ready(() => {
 
     const initialLimits = parseJsonAttribute(root, 'data-limits', {});
     const limitTemplate = limitText?.dataset.template || '';
-    const initialEventUid = root.getAttribute('data-event-uid') || '';
     const initialLandingSlugs = parseJsonAttribute(root, 'data-landing-slugs', []);
     const NO_FOLDER_FILTER = '__no_folder__';
 
@@ -231,7 +226,6 @@ ready(() => {
       selectedName: '',
       pendingFile: null,
       uploading: false,
-      eventUid: initialEventUid,
       loading: false,
       filters: {
         tags: [],
@@ -419,10 +413,25 @@ ready(() => {
 
     function updatePreview(file) {
       if (!previewImage || !previewPlaceholder || !previewMeta || !previewActions) return;
+      const placeholderText = typeof defaultPreviewPlaceholderText === 'string'
+        ? defaultPreviewPlaceholderText
+        : (previewPlaceholder?.textContent || '');
+      const convertContainer = typeof previewConvertContainer !== 'undefined'
+        ? previewConvertContainer
+        : null;
+      const convertButton = typeof previewConvert !== 'undefined'
+        ? previewConvert
+        : null;
+      const landingSection = typeof previewLanding !== 'undefined'
+        ? previewLanding
+        : null;
+      const landingListEl = typeof previewLandingList !== 'undefined'
+        ? previewLandingList
+        : null;
       if (!file) {
         previewImage.hidden = true;
         previewImage.src = '';
-        previewPlaceholder.textContent = defaultPreviewPlaceholderText;
+        previewPlaceholder.textContent = placeholderText;
         previewPlaceholder.hidden = false;
         previewMeta.hidden = true;
         previewActions.hidden = true;
@@ -436,29 +445,43 @@ ready(() => {
           previewDownload.href = '#';
           previewDownload.removeAttribute('download');
         }
-        if (previewConvertContainer) previewConvertContainer.hidden = true;
-        if (previewConvert) {
-          previewConvert.disabled = true;
-          previewConvert.setAttribute('aria-disabled', 'true');
+        if (convertContainer) convertContainer.hidden = true;
+        if (convertButton) {
+          convertButton.disabled = true;
+          convertButton.setAttribute('aria-disabled', 'true');
         }
-        if (previewLanding) previewLanding.hidden = true;
-        if (previewLandingList) previewLandingList.innerHTML = '';
+        if (landingSection) landingSection.hidden = true;
+        if (landingListEl) landingListEl.innerHTML = '';
         renderMetadataEditor(null);
         return;
       }
       const url = withBase(file.url || file.path || '');
       const hasUrl = !!url;
-      const previewable = canPreview(file) && hasUrl;
+      const canPreviewFn = typeof canPreview === 'function'
+        ? canPreview
+        : (candidate) => {
+          if (!candidate) {
+            return false;
+          }
+          const name = String(candidate.name || '').toLowerCase();
+          const extension = String(candidate.extension || '').toLowerCase();
+          const ext = extension || (name.includes('.') ? name.split('.').pop() : '');
+          if (!ext) {
+            return false;
+          }
+          return ['png', 'jpg', 'jpeg', 'webp', 'svg'].includes(ext);
+        };
+      const previewable = canPreviewFn(file) && hasUrl;
       if (previewable) {
         previewImage.src = url;
         previewImage.alt = `${translations.preview}: ${file.name}`;
         previewImage.hidden = false;
-        previewPlaceholder.textContent = defaultPreviewPlaceholderText;
+        previewPlaceholder.textContent = placeholderText;
         previewPlaceholder.hidden = true;
       } else {
         previewImage.hidden = true;
         previewImage.src = '';
-        previewPlaceholder.textContent = translations.noPreview || defaultPreviewPlaceholderText;
+        previewPlaceholder.textContent = translations.noPreview || placeholderText;
         previewPlaceholder.hidden = false;
       }
       if (previewName) previewName.textContent = file.name;
@@ -480,15 +503,34 @@ ready(() => {
         previewDownload.href = url || '#';
         previewDownload.setAttribute('download', file.name || '');
       }
-      const convertible = canConvert(file);
-      if (previewConvertContainer) {
-        previewConvertContainer.hidden = !convertible;
+      const canConvertFn = typeof canConvert === 'function'
+        ? canConvert
+        : (candidate) => {
+          if (!candidate) {
+            return false;
+          }
+          const name = String(candidate.name || '').toLowerCase();
+          const extension = String(candidate.extension || '').toLowerCase();
+          const ext = extension || (name.includes('.') ? name.split('.').pop() : '');
+          if (!ext) {
+            return false;
+          }
+          if (ext === 'webp' || ext === 'svg') {
+            return false;
+          }
+          return ['png', 'jpg', 'jpeg', 'mp4'].includes(ext);
+        };
+      const convertible = canConvertFn(file);
+      if (convertContainer) {
+        convertContainer.hidden = !convertible;
       }
-      if (previewConvert) {
-        previewConvert.disabled = !convertible || state.converting;
-        previewConvert.setAttribute('aria-disabled', previewConvert.disabled ? 'true' : 'false');
+      if (convertButton) {
+        convertButton.disabled = !convertible || state.converting;
+        convertButton.setAttribute('aria-disabled', convertButton.disabled ? 'true' : 'false');
       }
-      renderLandingPreview(file);
+      if (typeof renderLandingPreview === 'function') {
+        renderLandingPreview(file);
+      }
       renderMetadataEditor(file);
     }
 
@@ -985,23 +1027,6 @@ ready(() => {
       renderLandingFilter();
     }
 
-    function updateEventHint() {
-      if (!eventHint) return;
-      const visible = state.scope === 'event' && !state.eventUid;
-      eventHint.hidden = !visible;
-      if (visible) {
-        eventHint.textContent = translations.eventHint || translations.eventRequired;
-      }
-    }
-
-    function refreshEventOption() {
-      if (!scopeSelect) return;
-      const eventOption = scopeSelect.querySelector('option[value="event"]');
-      if (eventOption) {
-        eventOption.disabled = !state.eventUid;
-      }
-    }
-
     function updateSelectedLabel() {
       if (!selectedText) return;
       if (!state.pendingFile) {
@@ -1014,15 +1039,13 @@ ready(() => {
     }
 
     function updateUploadState() {
-      const needsEvent = state.scope === 'event' && !state.eventUid;
-      const canUpload = !!state.pendingFile && !state.uploading && !needsEvent;
+      const canUpload = !!state.pendingFile && !state.uploading;
       if (submitBtn) submitBtn.disabled = !canUpload;
       if (dropZone) {
         dropZone.classList.toggle('is-disabled', state.uploading);
         dropZone.setAttribute('aria-disabled', state.uploading ? 'true' : 'false');
         dropZone.tabIndex = state.uploading ? -1 : 0;
       }
-      updateEventHint();
       updateSelectedLabel();
     }
 
@@ -1053,21 +1076,6 @@ ready(() => {
     }
 
     async function loadFiles() {
-      if (state.scope === 'event' && !state.eventUid) {
-        state.files = [];
-        state.page = 1;
-        state.totalPages = 1;
-        state.available.tags = [];
-        state.available.folders = [];
-        state.landing.missing = [];
-        renderFiles();
-        showError(translations.eventRequired);
-        updatePagination();
-        renderFilterControls();
-        renderLandingMissing();
-        updateLandingFilterVisibility();
-        return;
-      }
       state.loading = true;
       clearError();
       if (root) root.setAttribute('aria-busy', 'true');
@@ -1086,9 +1094,6 @@ ready(() => {
       if (state.scope === 'global' && state.landing.slug) {
         params.set('landing', state.landing.slug);
       }
-      if (state.scope === 'event' && state.eventUid) {
-        params.set('event', state.eventUid);
-      }
       try {
         const data = await fetchJson(`/admin/media/files?${params.toString()}`);
         state.files = Array.isArray(data.files) ? data.files : [];
@@ -1102,17 +1107,12 @@ ready(() => {
         const activeFilters = filters.active || {};
         state.filters.tags = Array.isArray(activeFilters.tags) ? uniqueTags(activeFilters.tags) : [];
         state.filters.folder = typeof activeFilters.folder === 'string' ? activeFilters.folder : '';
-        if (state.scope === 'global') {
-          const landing = data.landing || {};
-          if (Array.isArray(landing.slugs)) {
-            state.landing.slugs = landing.slugs;
-          }
-          state.landing.missing = Array.isArray(landing.missing) ? landing.missing : [];
-          state.landing.slug = typeof landing.active === 'string' ? landing.active : state.landing.slug;
-        } else {
-          state.landing.missing = [];
-          state.landing.slug = '';
+        const landing = data.landing || {};
+        if (Array.isArray(landing.slugs)) {
+          state.landing.slugs = landing.slugs;
         }
+        state.landing.missing = Array.isArray(landing.missing) ? landing.missing : [];
+        state.landing.slug = typeof landing.active === 'string' ? landing.active : state.landing.slug;
         renderFiles();
         clearError();
         renderLandingMissing();
@@ -1160,16 +1160,9 @@ ready(() => {
 
     function startUpload(file) {
       if (!file || state.uploading) return;
-      if (state.scope === 'event' && !state.eventUid) {
-        showError(translations.eventRequired);
-        return;
-      }
       const formData = new FormData();
       formData.append('file', file);
       formData.append('scope', state.scope);
-      if (state.scope === 'event' && state.eventUid) {
-        formData.append('event', state.eventUid);
-      }
       const nameValue = nameInput?.value?.trim();
       if (nameValue) {
         formData.append('name', nameValue);
@@ -1252,7 +1245,6 @@ ready(() => {
         scope: state.scope,
         oldName: file.name,
         newName: file.name,
-        event: state.scope === 'event' ? state.eventUid : '',
       };
 
       if (Object.prototype.hasOwnProperty.call(changes, 'tags')) {
@@ -1322,10 +1314,6 @@ ready(() => {
       if (!file || state.replacing || state.uploading) {
         return;
       }
-      if (state.scope === 'event' && !state.eventUid) {
-        showError(translations.eventRequired);
-        return;
-      }
       const picker = document.createElement('input');
       picker.type = 'file';
       picker.style.display = 'none';
@@ -1353,17 +1341,10 @@ ready(() => {
       if (!file || !replacement || state.replacing) {
         return;
       }
-      if (state.scope === 'event' && !state.eventUid) {
-        showError(translations.eventRequired);
-        return;
-      }
       const formData = new FormData();
       formData.append('file', replacement);
       formData.append('scope', state.scope);
       formData.append('name', file.name);
-      if (state.scope === 'event' && state.eventUid) {
-        formData.append('event', state.eventUid);
-      }
       try {
         state.replacing = true;
         const data = await fetchJson('/admin/media/replace', {
@@ -1385,10 +1366,6 @@ ready(() => {
       if (!file || state.converting || !canConvert(file)) {
         return;
       }
-      if (state.scope === 'event' && !state.eventUid) {
-        showError(translations.eventRequired);
-        return;
-      }
       startConvert(file);
     }
 
@@ -1399,10 +1376,6 @@ ready(() => {
       if (!canConvert(file)) {
         return;
       }
-      if (state.scope === 'event' && !state.eventUid) {
-        showError(translations.eventRequired);
-        return;
-      }
       try {
         state.converting = true;
         updatePreview(file);
@@ -1411,8 +1384,7 @@ ready(() => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             scope: state.scope,
-            name: file.name,
-            event: state.scope === 'event' ? state.eventUid : ''
+            name: file.name
           })
         });
         updateLimitText(data.limits || {});
@@ -1442,8 +1414,7 @@ ready(() => {
           body: JSON.stringify({
             scope: state.scope,
             oldName: file.name,
-            newName,
-            event: state.scope === 'event' ? state.eventUid : ''
+            newName
           })
         });
         updateLimitText(data.limits || {});
@@ -1465,8 +1436,7 @@ ready(() => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             scope: state.scope,
-            name: file.name,
-            event: state.scope === 'event' ? state.eventUid : ''
+            name: file.name
           })
         });
         updateLimitText(data.limits || {});
@@ -1479,23 +1449,6 @@ ready(() => {
       } catch (err) {
         notify(err.message, 'danger');
       }
-    }
-
-    if (scopeSelect) {
-      scopeSelect.addEventListener('change', () => {
-        state.scope = scopeSelect.value || 'global';
-        state.page = 1;
-        if (state.scope !== 'global') {
-          state.landing.slug = '';
-          state.landing.missing = [];
-          if (landingFilterSelect) landingFilterSelect.value = '';
-        }
-        updateUploadState();
-        updateLandingFilterVisibility();
-        renderLandingFilter();
-        renderLandingMissing();
-        loadFiles();
-      });
     }
 
     if (searchInput) {
@@ -1553,10 +1506,6 @@ ready(() => {
     });
 
     landingFilterSelect?.addEventListener('change', () => {
-      if (state.scope !== 'global') {
-        if (landingFilterSelect) landingFilterSelect.value = '';
-        return;
-      }
       const value = landingFilterSelect.value || '';
       if (state.landing.slug === value) {
         return;
@@ -1588,16 +1537,7 @@ ready(() => {
         landingFilterSelect.value = slug;
         state.landing.slug = slug;
       }
-      if (state.scope !== 'global' && scopeSelect) {
-        scopeSelect.value = 'global';
-        state.scope = 'global';
-        state.page = 1;
-        updateUploadState();
-        updateLandingFilterVisibility();
-        loadFiles();
-      } else {
-        updateUploadState();
-      }
+      updateUploadState();
       nameInput?.focus?.();
     });
 
@@ -1738,18 +1678,6 @@ ready(() => {
       }
     });
 
-    document.addEventListener('current-event-changed', (event) => {
-      const detail = event.detail || {};
-      state.eventUid = detail.uid || '';
-      refreshEventOption();
-      updateUploadState();
-      if (state.scope === 'event') {
-        state.page = 1;
-        loadFiles();
-      }
-    });
-
-    refreshEventOption();
     updateUploadState();
     updatePagination();
     loadFiles();
