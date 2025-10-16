@@ -29,28 +29,27 @@
                 <optgroup label="{{ t('optgroup_domain_chat_domains') }}">
                   {% for item in domainChatDomains %}
                     {% set optionValue = item.normalized|default(item.domain|default('')) %}
-                    {% if optionValue is empty %}
-                      {% continue %}
-                    {% endif %}
-                    {% set baseLabel = item.domain|default(optionValue) %}
-                    {% if item.type|default('') == 'marketing' %}
-                      {% set marketingLabel = domainStartPageOptions[optionValue]|default('') %}
-                      {% if marketingLabel is not empty %}
-                        {% set baseLabel = marketingLabel %}
-                      {% else %}
-                        {% set baseLabel = optionValue %}
+                    {% if optionValue is not empty %}
+                      {% set baseLabel = item.domain|default(optionValue) %}
+                      {% if item.type|default('') == 'marketing' %}
+                        {% set marketingLabel = domainStartPageOptions[optionValue]|default('') %}
+                        {% if marketingLabel is not empty %}
+                          {% set baseLabel = marketingLabel %}
+                        {% else %}
+                          {% set baseLabel = optionValue %}
+                        {% endif %}
                       {% endif %}
+                      {% set typeLabel = domainTypeLabels[item.type|default('')]|default('') %}
+                      {% set fullLabel = baseLabel %}
+                      {% if typeLabel is not empty %}
+                        {% set fullLabel = fullLabel ~ ' – ' ~ typeLabel %}
+                      {% endif %}
+                      {% set domainHint = item.domain|default('') %}
+                      {% if domainHint is not empty and domainHint|lower != baseLabel|lower %}
+                        {% set fullLabel = fullLabel ~ ' (' ~ domainHint ~ ')' %}
+                      {% endif %}
+                      <option value="{{ optionValue }}" data-type="{{ item.type|default('domain') }}">{{ fullLabel }}</option>
                     {% endif %}
-                    {% set typeLabel = domainTypeLabels[item.type|default('')]|default('') %}
-                    {% set fullLabel = baseLabel %}
-                    {% if typeLabel is not empty %}
-                      {% set fullLabel = fullLabel ~ ' – ' ~ typeLabel %}
-                    {% endif %}
-                    {% set domainHint = item.domain|default('') %}
-                    {% if domainHint is not empty and domainHint|lower != baseLabel|lower %}
-                      {% set fullLabel = fullLabel ~ ' (' ~ domainHint ~ ')' %}
-                    {% endif %}
-                    <option value="{{ optionValue }}" data-type="{{ item.type|default('domain') }}">{{ fullLabel }}</option>
                   {% endfor %}
                 </optgroup>
               {% endif %}
@@ -58,19 +57,18 @@
                 <optgroup label="{{ t('optgroup_domain_chat_pages') }}">
                   {% for page in domainChatPages %}
                     {% set pageSlug = page.slug|default('') %}
-                    {% if pageSlug is empty %}
-                      {% continue %}
+                    {% if pageSlug is not empty %}
+                      {% set baseLabel = page.title|default(pageSlug) %}
+                      {% set typeLabel = t('label_domain_chat_marketing_page') %}
+                      {% set fullLabel = baseLabel %}
+                      {% if typeLabel is not empty %}
+                        {% set fullLabel = fullLabel ~ ' – ' ~ typeLabel %}
+                      {% endif %}
+                      {% if pageSlug|lower != baseLabel|lower %}
+                        {% set fullLabel = fullLabel ~ ' (' ~ pageSlug ~ ')' %}
+                      {% endif %}
+                      <option value="{{ pageSlug }}" data-type="marketing-page">{{ fullLabel }}</option>
                     {% endif %}
-                    {% set baseLabel = page.title|default(pageSlug) %}
-                    {% set typeLabel = t('label_domain_chat_marketing_page') %}
-                    {% set fullLabel = baseLabel %}
-                    {% if typeLabel is not empty %}
-                      {% set fullLabel = fullLabel ~ ' – ' ~ typeLabel %}
-                    {% endif %}
-                    {% if pageSlug|lower != baseLabel|lower %}
-                      {% set fullLabel = fullLabel ~ ' (' ~ pageSlug ~ ')' %}
-                    {% endif %}
-                    <option value="{{ pageSlug }}" data-type="marketing-page">{{ fullLabel }}</option>
                   {% endfor %}
                 </optgroup>
               {% endif %}
