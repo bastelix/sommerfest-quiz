@@ -500,7 +500,7 @@ return [
     'text_domain_start_pages_error' => 'Startseiten konnten nicht geladen werden.',
     'heading_domain_chat' => 'KI-Dokumentation pro Domain',
     'text_domain_chat_no_domains' => 'Es sind keine Domains konfiguriert.',
-    'label_domain_chat_domain' => 'Domain',
+    'label_domain_chat_domain' => 'Page',
     'label_domain_chat_upload' => 'Dokument hinzufügen',
     'button_domain_chat_upload' => 'Hochladen',
     'button_domain_chat_rebuild' => 'Index neu aufbauen',
