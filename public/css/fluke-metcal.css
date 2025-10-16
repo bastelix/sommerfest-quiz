@@ -5,9 +5,9 @@
 }
 
 body[data-theme='dark'] {
-    --metcal-text-strong: rgba(255, 255, 255, 0.94);
-    --metcal-text: rgba(255, 255, 255, 0.86);
-    --metcal-text-muted: rgba(255, 255, 255, 0.72);
+    --metcal-text-strong: rgba(241, 245, 255, 0.96);
+    --metcal-text: rgba(219, 229, 255, 0.88);
+    --metcal-text-muted: rgba(185, 200, 228, 0.78);
 }
 
 .metcal-hero {
@@ -518,6 +518,67 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
 .metcal-faq__content {
     padding: 0 24px 24px;
     color: var(--metcal-text);
+}
+
+body[data-theme='dark'] .metcal-section--light {
+    background: color-mix(in oklab, #060b16 78%, var(--calserver-primary) 22%);
+}
+
+body[data-theme='dark'] .metcal-card,
+body[data-theme='dark'] .metcal-migration-transfer,
+body[data-theme='dark'] .metcal-timeline__item,
+body[data-theme='dark'] .metcal-feature,
+body[data-theme='dark'] .metcal-security,
+body[data-theme='dark'] .metcal-package,
+body[data-theme='dark'] .metcal-faq__item {
+    background: #101a2f;
+    border-color: rgba(82, 118, 189, 0.35);
+    box-shadow: 0 28px 72px -48px rgba(3, 8, 18, 0.85);
+    color: var(--metcal-text);
+}
+
+body[data-theme='dark'] .metcal-card--accent,
+body[data-theme='dark'] .metcal-package--highlight,
+body[data-theme='dark'] .metcal-section--accent .metcal-feature,
+body[data-theme='dark'] .metcal-section--accent .metcal-timeline__item {
+    background: color-mix(in oklab, var(--calserver-primary) 32%, #0d182e 68%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.16));
+    color: rgba(241, 245, 255, 0.94);
+}
+
+body[data-theme='dark'] .metcal-migration-offer {
+    background: color-mix(in oklab, var(--calserver-primary) 24%, #0e192f 76%);
+    border-color: rgba(88, 128, 199, 0.42);
+    box-shadow: 0 24px 64px -46px rgba(3, 8, 18, 0.82);
+}
+
+body[data-theme='dark'] .metcal-package {
+    color: var(--metcal-text);
+}
+
+body[data-theme='dark'] .metcal-package__subtitle,
+body[data-theme='dark'] .metcal-package__outcome,
+body[data-theme='dark'] .metcal-card__text,
+body[data-theme='dark'] .metcal-migration-offer__list,
+body[data-theme='dark'] .metcal-feature-list,
+body[data-theme='dark'] .metcal-feature-list li,
+body[data-theme='dark'] .metcal-package__list,
+body[data-theme='dark'] .metcal-transfer-list,
+body[data-theme='dark'] .metcal-timeline__body p {
+    color: var(--metcal-text);
+}
+
+body[data-theme='dark'] .metcal-card__title,
+body[data-theme='dark'] .metcal-migration-offer__title,
+body[data-theme='dark'] .metcal-subheading,
+body[data-theme='dark'] .metcal-timeline__body h3,
+body[data-theme='dark'] .metcal-faq__toggle {
+    color: var(--metcal-text-strong);
+}
+
+body[data-theme='dark'] .metcal-faq__toggle:hover,
+body[data-theme='dark'] .metcal-faq__toggle:focus {
+    background: color-mix(in oklab, var(--calserver-primary) 34%, #0a1426 66%);
 }
 
 .metcal-sticky-cta {
