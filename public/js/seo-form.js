@@ -325,28 +325,48 @@ export function initSeoForm() {
       domain: ctx.domain
     }),
     'fluke-metcal': ctx => ({
-      metaTitle: 'FLUKE MET/CAL mit calServer – MET/TRACK Migration & METTEAM-Integration',
+      metaTitle: 'FLUKE MET/CAL mit calServer – sicher migrieren, sauber integrieren',
       metaDescription:
-        'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung und Guardband-Reports – inkl. SSO, DSGVO und Audit-Trails.',
+        'Vom MET/TRACK-Altsystem ohne Stillstand in den calServer: Hybridbetrieb mit METTEAM, Guardband-Reports sowie Hosting & SSO in Deutschland.',
       slug: '/fluke-metcal',
       canonical: `${ctx.baseUrl}/fluke-metcal`,
       robots: 'index, follow',
-      ogTitle: 'FLUKE MET/CAL mit calServer',
+      ogTitle: 'FLUKE MET/CAL mit calServer – Migration ohne Stillstand',
       ogDescription:
-        'Migration ohne Stillstand, Hybridbetrieb mit METTEAM und auditfähige Guardband-Reports: calServer verbindet MET/CAL, MET/TRACK und METTEAM in einem System.',
+        'calServer orchestriert MET/CAL, MET/TRACK und METTEAM: Freeze-Fenster, Delta-Sync und auditfeste Guardband-Reports halten den Betrieb am Laufen.',
       ogImage: `${ctx.baseUrl}/uploads/calserver-module-device-management.webp`,
       schema: `{
   "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "FLUKE MET/CAL Integration",
+  "@type": "FAQPage",
+  "name": "FLUKE MET/CAL Migration mit calServer",
   "url": "${ctx.baseUrl}/fluke-metcal",
-  "description": "Sauberer Umstieg von MET/TRACK nach calServer, Hybridbetrieb mit METTEAM und Guardband-Reports inklusive auditfähiger Zertifikate.",
-  "about": ["FLUKE MET/CAL", "MET/TRACK", "METTEAM", "Migration"],
-  "publisher": {
-    "@type": "Organization",
-    "name": "calServer",
-    "url": "${ctx.baseUrl}/calserver"
-  }
+  "description": "Sicherer MET/TRACK-Umstieg in den calServer – mit METTEAM-Hybridbetrieb, Guardband-Reports und dokumentierten Prozessen.",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wie gelingt der Umstieg ohne Stillstand?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "calServer plant Freeze-Fenster, Delta-Sync und Dry-Runs, damit MET/CAL produktiv bleibt, während Daten übernommen werden."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wie bleibt METTEAM eingebunden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bidirektionale Synchronisation, Guardband-Logik und klare Rollenmodelle sichern einen durchgängigen Hybridbetrieb."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Sind Zertifikate auditfest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Guardband-Reports, Änderungsjournal und Hosting in Deutschland liefern DAkkS-taugliche Nachweise für Audits."
+      }
+    }
+  ]
  }`,
       hreflang: `<link rel="alternate" href="${ctx.baseUrl}/fluke-metcal" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/fluke-metcal?lang=en" hreflang="en" />`,
       domain: ctx.domain
