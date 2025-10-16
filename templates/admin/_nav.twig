@@ -1,5 +1,3 @@
-{% set event_uid = event.uid|default('') %}
-{% set eventSuffix = event_uid ? ('?event=' ~ event_uid) : '' %}
 {% set groups = [
   {
     items: [
@@ -80,7 +78,7 @@
               and (it.domain is not defined or it.domain == domainType) %}
             {% set active = current starts with it.href ? 'uk-active' : '' %}
             <li class="{{ active }}">
-              <a href="{{ it.href ~ (it.noEvent ? '' : eventSuffix) }}">
+              <a href="{{ it.href }}">
                 <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
                 <span class="qr-nav-text">{{ it.text }}</span>
               </a>
@@ -95,7 +93,7 @@
             and (it.domain is not defined or it.domain == domainType) %}
           {% set active = current starts with it.href ? 'uk-active' : '' %}
           <li class="{{ active }}">
-            <a href="{{ it.href ~ (it.noEvent ? '' : eventSuffix) }}">
+            <a href="{{ it.href }}">
               <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
               <span class="qr-nav-text">{{ it.text }}</span>
             </a>
