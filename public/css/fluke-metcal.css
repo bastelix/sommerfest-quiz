@@ -22,7 +22,7 @@ body[data-theme='dark'] {
     padding: 6px 14px;
     border-radius: 999px;
     background: color-mix(in oklab, var(--calserver-primary) 72%, rgba(255, 255, 255, 0.08) 28%);
-    color: rgba(255, 255, 255, 0.88);
+    color: var(--metcal-text-strong);
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -34,21 +34,21 @@ body[data-theme='dark'] {
     margin-bottom: 16px;
     font-size: clamp(2.4rem, 3.4vw, 3.1rem);
     font-weight: 600;
-    color: #ffffff;
+    color: var(--metcal-text-strong);
 }
 
 .metcal-hero__claim {
     margin: 12px 0 18px;
     font-size: 1.05rem;
     font-weight: 500;
-    color: color-mix(in oklab, #ffffff 82%, var(--calserver-primary) 18%);
+    color: var(--metcal-text);
 }
 
 .metcal-hero__subtitle {
     max-width: 640px;
     font-size: 1.1rem;
     line-height: 1.6;
-    color: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+    color: var(--metcal-text);
 }
 
 .metcal-hero__illustration {
@@ -80,7 +80,7 @@ body[data-theme='dark'] {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    color: color-mix(in oklab, #ffffff 82%, var(--calserver-primary) 18%);
+    color: var(--metcal-text);
 }
 
 .metcal-hero__bullets li {
@@ -92,7 +92,7 @@ body[data-theme='dark'] {
 .metcal-hero__icon {
     width: 20px;
     height: 20px;
-    color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+    color: var(--metcal-text-strong);
 }
 
 .metcal-hero__actions {
@@ -120,7 +120,11 @@ body[data-theme='dark'] {
 
 .metcal-hero__actions .uk-button-default {
     background: transparent;
-    color: rgba(255, 255, 255, 0.92);
+    color: var(--metcal-text-strong);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(11, 23, 44, 0.36) 58%);
+}
+
+body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.36) 58%);
 }
 
@@ -133,7 +137,7 @@ body[data-theme='dark'] {
 .metcal-hero__proof {
     margin-top: 24px;
     font-size: 0.95rem;
-    color: color-mix(in oklab, #ffffff 72%, var(--calserver-primary) 28%);
+    color: var(--metcal-text-muted);
 }
 
 .metcal-hero__highlight {
@@ -185,7 +189,7 @@ body[data-theme='dark'] {
     padding: 6px 12px;
     border-radius: 999px;
     background: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.1) 48%);
-    color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+    color: var(--metcal-text-strong);
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
