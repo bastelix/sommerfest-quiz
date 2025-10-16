@@ -2080,6 +2080,7 @@
     window.transDomainContactTemplateLoadError = '{{ t('notify_domain_contact_template_load_error')|e('js') }}';
     window.transDomainContactTemplateInvalidDomain = '{{ t('notify_domain_contact_template_invalid_domain')|e('js') }}';
     window.domainChatDomains = {{ domain_chat_domains|default([])|json_encode|raw }};
+    window.domainChatPages = {{ domain_chat_pages|default([])|json_encode|raw }};
     window.domainChatTranslations = {{ {
       'loading': t('text_domain_chat_loading'),
       'empty': t('text_domain_chat_empty'),

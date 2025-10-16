@@ -207,6 +207,102 @@ PHP_SCRIPT;
         }
     }
 
+    public function testUpdateWikiSelectionAcceptsPageSlug(): void
+    {
+        $pdo = $this->createWikiTestDatabase();
+        $pageService = new PageService($pdo);
+        $page = $pageService->create('calserver', 'Calserver', '<p>Calserver</p>');
+        $articleId = $this->createWikiArticle($pdo, $page->getId(), 'getting-started');
+
+        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
+        $domainsDir = $baseDir . '/domains';
+        mkdir($domainsDir, 0775, true);
+
+        $storage = new DomainDocumentStorage($domainsDir);
+        $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
+        $wikiSelection = new DomainWikiSelectionService($pdo);
+        $wikiArticles = new MarketingPageWikiArticleService($pdo);
+        $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
+
+        $responseFactory = new ResponseFactory();
+        $request = $this->createRequest('POST', '/admin/domain-chat/wiki-selection', [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ]);
+        $request->getBody()->write(json_encode([
+            'domain' => 'calserver',
+            'articles' => [$articleId],
+        ], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        try {
+            $response = $controller->updateWikiSelection($request, $responseFactory->createResponse());
+            $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertSame(200, $response->getStatusCode());
+            self::assertArrayHasKey('success', $payload);
+            self::assertTrue($payload['success']);
+            self::assertSame([$articleId], $wikiSelection->getSelectedArticleIds('calserver'));
+            self::assertArrayHasKey('wiki', $payload);
+            self::assertSame('calserver', $payload['wiki']['pageSlug']);
+        } finally {
+            $this->cleanupDirectory($baseDir);
+        }
+    }
+
+    public function testUpdateWikiSelectionAcceptsMarketingDomain(): void
+    {
+        $pdo = $this->createWikiTestDatabase();
+        $pageService = new PageService($pdo);
+        $page = $pageService->create('calserver', 'Calserver', '<p>Calserver</p>');
+        $articleId = $this->createWikiArticle($pdo, $page->getId(), 'getting-started');
+
+        $previousMarketing = getenv('MARKETING_DOMAINS');
+        putenv('MARKETING_DOMAINS=calserver.com');
+        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+
+        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
+        $domainsDir = $baseDir . '/domains';
+        mkdir($domainsDir, 0775, true);
+
+        $storage = new DomainDocumentStorage($domainsDir);
+        $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
+        $wikiSelection = new DomainWikiSelectionService($pdo);
+        $wikiArticles = new MarketingPageWikiArticleService($pdo);
+        $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
+
+        $responseFactory = new ResponseFactory();
+        $request = $this->createRequest('POST', '/admin/domain-chat/wiki-selection', [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ]);
+        $request->getBody()->write(json_encode([
+            'domain' => 'calserver.com',
+            'articles' => [$articleId],
+        ], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        try {
+            $response = $controller->updateWikiSelection($request, $responseFactory->createResponse());
+            $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertSame(200, $response->getStatusCode());
+            self::assertTrue($payload['success']);
+            self::assertSame([$articleId], $wikiSelection->getSelectedArticleIds('calserver'));
+            self::assertSame('calserver', $payload['wiki']['pageSlug']);
+        } finally {
+            if ($previousMarketing === false) {
+                putenv('MARKETING_DOMAINS');
+                unset($_ENV['MARKETING_DOMAINS']);
+            } else {
+                putenv('MARKETING_DOMAINS=' . $previousMarketing);
+                $_ENV['MARKETING_DOMAINS'] = $previousMarketing;
+            }
+
+            $this->cleanupDirectory($baseDir);
+        }
+    }
+
     public function testRebuildFailureReturnsErrorResponse(): void
     {
         $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
@@ -574,6 +670,79 @@ PYTHON;
             chdir($originalCwd);
             $this->cleanupDirectory($baseDir);
         }
+    }
+
+    private function createWikiArticle(PDO $pdo, int $pageId, string $slug): int
+    {
+        $insertArticle = $pdo->prepare(<<<'SQL'
+            INSERT INTO marketing_page_wiki_articles (
+                page_id, slug, locale, title, excerpt, editor_json, content_md, content_html,
+                status, sort_index, published_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        SQL);
+        $insertArticle->execute([
+            $pageId,
+            $slug,
+            'de',
+            'Article ' . $slug,
+            'Excerpt ' . $slug,
+            json_encode(['time' => 0, 'blocks' => []], JSON_THROW_ON_ERROR),
+            'Content for ' . $slug,
+            '<p>Content for ' . $slug . '</p>',
+            'published',
+            1,
+            '2024-01-01T00:00:00+00:00',
+        ]);
+
+        return (int) $pdo->lastInsertId();
+    }
+
+    private function createWikiTestDatabase(): PDO
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('PRAGMA foreign_keys = ON');
+
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                slug TEXT UNIQUE NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL
+            )
+        SQL);
+
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE marketing_page_wiki_articles (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                page_id INTEGER NOT NULL,
+                slug TEXT NOT NULL,
+                locale TEXT NOT NULL DEFAULT 'de',
+                title TEXT NOT NULL,
+                excerpt TEXT,
+                editor_json TEXT,
+                content_md TEXT NOT NULL,
+                content_html TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'draft',
+                sort_index INTEGER NOT NULL DEFAULT 0,
+                published_at TEXT,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                is_start_document INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
+            )
+        SQL);
+
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domain_chat_wiki_articles (
+                domain TEXT NOT NULL,
+                article_id INTEGER NOT NULL,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY(domain, article_id),
+                FOREIGN KEY (article_id) REFERENCES marketing_page_wiki_articles(id) ON DELETE CASCADE
+            )
+        SQL);
+
+        return $pdo;
     }
 
     private function cleanupDirectory(string $path): void

@@ -300,7 +300,15 @@ final class DomainChatKnowledgeController
             return null;
         }
 
+        $page = $this->pageService->findBySlug($domain);
+        if ($page instanceof Page) {
+            return $page;
+        }
+
         $baseSlug = MarketingSlugResolver::resolveBaseSlug($domain);
+        if ($baseSlug === $domain) {
+            return null;
+        }
 
         return $this->pageService->findBySlug($baseSlug);
     }
@@ -344,7 +352,19 @@ final class DomainChatKnowledgeController
             }
         }
 
-        $normalized = DomainNameHelper::canonicalizeSlug($domain);
+        $candidate = trim($domain);
+        if ($candidate === '') {
+            throw new InvalidArgumentException('Invalid domain parameter.');
+        }
+
+        if ($this->pageService !== null) {
+            $page = $this->pageService->findBySlug($candidate);
+            if ($page instanceof Page) {
+                return $page->getSlug();
+            }
+        }
+
+        $normalized = DomainNameHelper::canonicalizeSlug($candidate);
         if ($normalized === '') {
             throw new InvalidArgumentException('Invalid domain parameter.');
         }

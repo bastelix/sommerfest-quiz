@@ -192,6 +192,22 @@ class AdminController
         $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
         $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $uri->getHost());
 
+        $domainChatPages = [];
+        $seenPageSlugs = [];
+        foreach ($marketingPages as $page) {
+            $slug = $page->getSlug();
+            if ($slug === '' || isset($seenPageSlugs[$slug])) {
+                continue;
+            }
+
+            $seenPageSlugs[$slug] = true;
+            $domainChatPages[] = [
+                'slug' => $slug,
+                'title' => $page->getTitle(),
+                'type' => 'marketing',
+            ];
+        }
+
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
             $base = Database::connectFromEnv();
@@ -291,6 +307,7 @@ class AdminController
               'pageTab' => $pageTab,
               'domain_start_page_options' => $domainStartPageOptions,
               'domain_chat_domains' => $domainChatDomains,
+              'domain_chat_pages' => $domainChatPages,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'tenant_sync' => $tenantSvc->getSyncState(),
