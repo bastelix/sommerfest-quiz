@@ -40,11 +40,11 @@
       'badge': 'MET/TRACK → calServer',
       'title': 'FLUKE MET/CAL mit calServer – sicher migrieren, sauber integrieren.',
       'subtitle': 'Vom MET/TRACK-Altsystem in den calServer – ohne Stillstand. Hybridbetrieb, geprüfte Datenflüsse und DAkkS-taugliche Nachweise in einem Setup.',
-      'claim': 'Ein System. Klare Prozesse. Berichte mit Guardband im Griff.',
+      'claim': 'Ein System. Klare Prozesse. Kalibrierscheine im Griff.',
       'bullets': [
         'Umstieg ohne Produktionspause',
-        'Hybridbetrieb mit METTEAM & Guardband',
-        'Hosting & SSO in Deutschland'
+        'Hybridbetrieb mit METTEAM',
+        'Hosting und Entwicklung in Deutschland'
       ],
       'ctaPrimary': 'Berichte ansehen',
       'ctaSecondary': 'Kontakt aufnehmen',
@@ -58,8 +58,8 @@
       'claim': 'One system. Clear processes. Guardband-ready reporting on tap.',
       'bullets': [
         'Transition without production stop',
-        'Hybrid with METTEAM & guardband statements',
-        'Hosting & SSO in Germany'
+        'Hybrid with METTEAM',
+        'Hosting and Development in Germany'
       ],
       'ctaPrimary': 'View reports',
       'ctaSecondary': 'Contact us',
@@ -79,7 +79,7 @@
                     aria-controls="qr-offcanvas"
                     aria-expanded="false"
                     aria-label="Menü"></button>
-            <a class="uk-logo cs-logo" href="{{ basePath }}/fluke-metcal">
+            <a class="uk-logo cs-logo" href="{{ basePath }}/calserver">
               <span class="cs-logo__sr">FLUKE MET/CAL mit calServer</span>
               <span class="cs-logo__image" aria-hidden="true">
                 <img class="cs-logo__img"
@@ -211,7 +211,7 @@
           <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>{{ heroCopy.ctaPrimary }}
         </a>
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
-           href="{{ calserverContactHref }}">
+           href="{{ basePath }}/calserver#trial">
           <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>{{ heroCopy.ctaSecondary }}
         </a>
       </div>
@@ -243,11 +243,11 @@
                 <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>{{ heroCopy.ctaPrimary }}
               </a>
               <a class="uk-button uk-button-default"
-                 href="{{ calserverContactHref }}"
+                 href="{{ basePath }}/calserver#trial"
                  data-analytics-event="click_cta_contact"
                  data-analytics-context="page_metcal"
                  data-analytics-page="/fluke-metcal"
-                 data-analytics-target="/calserver#contact-us">
+                 data-analytics-target="/calserver#trial">
                 <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>{{ heroCopy.ctaSecondary }}
               </a>
             </div>
@@ -258,6 +258,7 @@
             <div class="metcal-hero__highlight" role="note">
               <h2 class="metcal-hero__highlight-title">Warum Teams wechseln</h2>
               <ul class="metcal-hero__highlight-list" role="list">
+                <li role="listitem">Datenübernahme direkt von MET/TRACK</li>
                 <li role="listitem">Datenmigration mit Dry-Run &amp; Delta-Regeln</li>
                 <li role="listitem">Hybridbetrieb mit MET/CAL, METTEAM und calServer</li>
                 <li role="listitem">DAkkS-konforme Zertifikate und Guardband-Aussagen</li>

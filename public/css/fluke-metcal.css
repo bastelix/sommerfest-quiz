@@ -152,6 +152,7 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     margin-bottom: 12px;
     font-size: 1.2rem;
     font-weight: 600;
+    color: #fff;
 }
 
 .metcal-hero__highlight-list {
@@ -188,9 +189,11 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     margin-top: 48px;
 }
 
-.metcal-metteam__note {
-    margin-top: 32px;
+.metcal-metteam .metcal-metteam__note {
+    margin-top: clamp(40px, 6vw, 72px);
     max-width: 760px;
+    position: relative;
+    z-index: 2;
 }
 
 .metcal-eyebrow {
