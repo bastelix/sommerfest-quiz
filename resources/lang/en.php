@@ -502,7 +502,7 @@ return [
     'text_domain_start_pages_error' => 'Start pages could not be loaded.',
     'heading_domain_chat' => 'Domain-specific AI knowledge',
     'text_domain_chat_no_domains' => 'No domains configured yet.',
-    'label_domain_chat_domain' => 'Domain',
+    'label_domain_chat_domain' => 'Page',
     'label_domain_chat_upload' => 'Add documentation',
     'button_domain_chat_upload' => 'Upload',
     'button_domain_chat_rebuild' => 'Rebuild index',
