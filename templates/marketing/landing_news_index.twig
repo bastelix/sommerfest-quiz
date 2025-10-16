@@ -1,22 +1,33 @@
 {% extends 'layout.twig' %}
 
+{% set newsBaseSlug = newsOwnerBaseSlug|default(page.slug) %}
+{% set isCalserverTheme = newsBaseSlug == 'calserver' %}
+
 {% block title %}{{ metaTitle|default('Neuigkeiten') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  {% if isCalserverTheme %}
+    <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
+  {% endif %}
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
 {% endblock %}
 
-{% block body_theme %}dark{% endblock %}
+{% block body_theme %}{% if isCalserverTheme %}light{% else %}dark{% endif %}{% endblock %}
 
-{% block body_class %}qr-landing dark-mode{% endblock %}
+{% block body_class %}qr-landing {% if isCalserverTheme %}calserver-theme calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
 
 {% block body %}
   <div class="landing-content">
-    <section class="uk-section uk-section-default">
+    {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
+    {% set sectionClasses = 'uk-section uk-section-default landing-news' %}
+    {% if isCalserverTheme %}
+      {% set sectionClasses = 'uk-section uk-section-muted landing-news calserver-news calserver-news--listing' %}
+    {% endif %}
+    <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container">
         <a class="uk-button uk-button-text uk-margin-small-bottom" href="{{ landingPageUrl|default(basePath ~ '/' ~ page.slug) }}">&larr; Zur Landingpage</a>
         <h1 class="uk-heading-medium">Neuigkeiten zu {{ page.title }}</h1>
