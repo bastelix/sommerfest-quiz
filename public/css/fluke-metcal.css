@@ -2,12 +2,20 @@
     --metcal-text-strong: #0b162d;
     --metcal-text: #16213d;
     --metcal-text-muted: #243253;
+    --metcal-surface: #ffffff;
+    --metcal-surface-muted: rgba(255, 255, 255, 0.96);
+    --metcal-surface-accent: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.92) 88%);
+    --metcal-border-soft: rgba(15, 25, 46, 0.08);
 }
 
 body[data-theme='dark'] {
     --metcal-text-strong: rgba(255, 255, 255, 0.94);
     --metcal-text: rgba(255, 255, 255, 0.86);
     --metcal-text-muted: rgba(255, 255, 255, 0.72);
+    --metcal-surface: rgba(15, 25, 46, 0.78);
+    --metcal-surface-muted: rgba(13, 22, 38, 0.72);
+    --metcal-surface-accent: rgba(28, 54, 96, 0.72);
+    --metcal-border-soft: rgba(120, 168, 255, 0.35);
 }
 
 .metcal-hero {
@@ -21,8 +29,9 @@ body[data-theme='dark'] {
     align-items: center;
     padding: 6px 14px;
     border-radius: 999px;
-    background: color-mix(in oklab, var(--calserver-primary) 72%, rgba(255, 255, 255, 0.08) 28%);
-    color: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.88);
+    color: var(--metcal-text-strong);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 25, 46, 0.14) 74%);
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -34,21 +43,21 @@ body[data-theme='dark'] {
     margin-bottom: 16px;
     font-size: clamp(2.4rem, 3.4vw, 3.1rem);
     font-weight: 600;
-    color: #ffffff;
+    color: var(--metcal-text-strong);
 }
 
 .metcal-hero__claim {
     margin: 12px 0 18px;
     font-size: 1.05rem;
     font-weight: 500;
-    color: color-mix(in oklab, #ffffff 82%, var(--calserver-primary) 18%);
+    color: var(--metcal-text);
 }
 
 .metcal-hero__subtitle {
     max-width: 640px;
     font-size: 1.1rem;
     line-height: 1.6;
-    color: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+    color: var(--metcal-text);
 }
 
 .metcal-hero__illustration {
@@ -80,7 +89,7 @@ body[data-theme='dark'] {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    color: color-mix(in oklab, #ffffff 82%, var(--calserver-primary) 18%);
+    color: var(--metcal-text);
 }
 
 .metcal-hero__bullets li {
@@ -92,7 +101,7 @@ body[data-theme='dark'] {
 .metcal-hero__icon {
     width: 20px;
     height: 20px;
-    color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+    color: var(--calserver-primary);
 }
 
 .metcal-hero__actions {
@@ -120,8 +129,8 @@ body[data-theme='dark'] {
 
 .metcal-hero__actions .uk-button-default {
     background: transparent;
-    color: rgba(255, 255, 255, 0.92);
-    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.36) 58%);
+    color: var(--metcal-text-strong);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(12, 22, 40, 0.32) 58%);
 }
 
 .metcal-hero__actions .uk-button-default:hover,
@@ -133,7 +142,26 @@ body[data-theme='dark'] {
 .metcal-hero__proof {
     margin-top: 24px;
     font-size: 0.95rem;
-    color: color-mix(in oklab, #ffffff 72%, var(--calserver-primary) 28%);
+    color: var(--metcal-text);
+}
+
+body[data-theme='dark'] .metcal-hero__badge {
+    background: color-mix(in oklab, var(--calserver-primary) 72%, rgba(255, 255, 255, 0.12) 28%);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: color-mix(in oklab, rgba(255, 255, 255, 0.35) 54%, var(--calserver-primary) 46%);
+}
+
+body[data-theme='dark'] .metcal-hero__title,
+body[data-theme='dark'] .metcal-hero__claim,
+body[data-theme='dark'] .metcal-hero__subtitle,
+body[data-theme='dark'] .metcal-hero__bullets,
+body[data-theme='dark'] .metcal-hero__proof {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
+    color: rgba(255, 255, 255, 0.92);
+    border-color: color-mix(in oklab, rgba(255, 255, 255, 0.38) 58%, var(--calserver-primary) 42%);
 }
 
 .metcal-hero__highlight {
@@ -184,12 +212,19 @@ body[data-theme='dark'] {
     gap: 8px;
     padding: 6px 12px;
     border-radius: 999px;
-    background: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.1) 48%);
-    color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--metcal-text-strong);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, rgba(15, 25, 46, 0.12) 78%);
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     font-weight: 600;
+}
+
+body[data-theme='dark'] .metcal-eyebrow {
+    background: color-mix(in oklab, var(--calserver-primary) 58%, rgba(15, 25, 46, 0.42) 42%);
+    color: rgba(255, 255, 255, 0.92);
+    border-color: color-mix(in oklab, rgba(255, 255, 255, 0.3) 62%, var(--calserver-primary) 38%);
 }
 
 .metcal-section__title {
@@ -220,8 +255,8 @@ body[data-theme='dark'] {
 .metcal-report-card {
     padding: 28px;
     border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid rgba(12, 22, 40, 0.08);
+    background: var(--metcal-surface);
+    border: 1px solid var(--metcal-border-soft);
     box-shadow: 0 28px 70px -48px rgba(12, 22, 40, 0.35);
     display: flex;
     flex-direction: column;
@@ -255,14 +290,14 @@ body[data-theme='dark'] {
 .metcal-card {
     padding: 28px;
     border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid rgba(15, 25, 46, 0.08);
+    background: var(--metcal-surface);
+    border: 1px solid var(--metcal-border-soft);
     box-shadow: 0 30px 70px -40px rgba(12, 22, 40, 0.28);
 }
 
 .metcal-card--accent {
-    background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.92) 88%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 36%, rgba(12, 22, 40, 0.08) 64%);
+    background: var(--metcal-surface-accent);
+    border-color: color-mix(in oklab, var(--calserver-primary) 46%, var(--metcal-border-soft) 54%);
 }
 
 .metcal-card__title {
@@ -298,8 +333,8 @@ body[data-theme='dark'] {
     gap: 16px;
     padding: 20px 24px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.96);
-    border: 1px solid rgba(15, 25, 46, 0.08);
+    background: var(--metcal-surface-muted);
+    border: 1px solid var(--metcal-border-soft);
     box-shadow: 0 24px 64px -40px rgba(12, 22, 40, 0.2);
 }
 
@@ -341,16 +376,16 @@ body[data-theme='dark'] {
     margin-top: 32px;
     padding: 28px;
     border-radius: 20px;
-    background: color-mix(in oklab, var(--calserver-primary) 8%, rgba(15, 25, 46, 0.04) 92%);
-    border: 1px solid rgba(15, 25, 46, 0.08);
+    background: color-mix(in oklab, var(--calserver-primary) 8%, var(--metcal-surface) 92%);
+    border: 1px solid var(--metcal-border-soft);
 }
 
 .metcal-migration-offer {
     margin-top: 24px;
     padding: 24px;
     border-radius: 18px;
-    background: color-mix(in oklab, var(--calserver-primary) 10%, rgba(255, 255, 255, 0.94) 90%);
-    border: 1px solid rgba(15, 25, 46, 0.1);
+    background: color-mix(in oklab, var(--calserver-primary) 10%, var(--metcal-surface) 90%);
+    border: 1px solid var(--metcal-border-soft);
     box-shadow: 0 20px 48px -36px rgba(12, 22, 40, 0.28);
 }
 
@@ -398,8 +433,8 @@ body[data-theme='dark'] {
 .metcal-feature {
     padding: 24px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.96);
-    border: 1px solid rgba(15, 25, 46, 0.08);
+    background: var(--metcal-surface-muted);
+    border: 1px solid var(--metcal-border-soft);
     color: var(--metcal-text);
 }
 
@@ -437,8 +472,8 @@ body[data-theme='dark'] {
 .metcal-security {
     padding: 24px;
     border-radius: 18px;
-    background: #ffffff;
-    border: 1px solid rgba(15, 25, 46, 0.08);
+    background: var(--metcal-surface);
+    border: 1px solid var(--metcal-border-soft);
     box-shadow: 0 18px 48px -30px rgba(12, 22, 40, 0.2);
     color: var(--metcal-text);
 }
@@ -452,8 +487,8 @@ body[data-theme='dark'] {
 .metcal-package {
     padding: 28px;
     border-radius: 20px;
-    background: #ffffff;
-    border: 1px solid rgba(15, 25, 46, 0.08);
+    background: var(--metcal-surface);
+    border: 1px solid var(--metcal-border-soft);
     box-shadow: 0 24px 64px -40px rgba(12, 22, 40, 0.24);
     display: flex;
     flex-direction: column;
@@ -461,8 +496,8 @@ body[data-theme='dark'] {
 }
 
 .metcal-package--highlight {
-    background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.92) 88%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 38%, rgba(12, 22, 40, 0.08) 62%);
+    background: var(--metcal-surface-accent);
+    border-color: color-mix(in oklab, var(--calserver-primary) 38%, var(--metcal-border-soft) 62%);
 }
 
 .metcal-package__subtitle {
@@ -488,14 +523,14 @@ body[data-theme='dark'] {
 
 .metcal-faq__item {
     border-radius: 16px;
-    background: #ffffff;
-    border: 1px solid rgba(15, 25, 46, 0.1);
+    background: var(--metcal-surface);
+    border: 1px solid var(--metcal-border-soft);
     margin-bottom: 12px;
     overflow: hidden;
 }
 
 .metcal-section--light .metcal-faq__item {
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--metcal-surface-muted);
 }
 
 .metcal-faq__toggle {
