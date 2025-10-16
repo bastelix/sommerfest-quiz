@@ -170,16 +170,27 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     background: color-mix(in oklab, var(--calserver-primary) 6%, rgba(13, 23, 44, 0.06) 94%);
 }
 
-.metcal-section--accent {
-    background-color: #101b33;
-    background: color-mix(in oklab, var(--calserver-primary) 18%, rgba(11, 18, 32, 0.88) 82%);
-    color: rgba(255, 255, 255, 0.94);
+
+.metcal-metteam {
+    position: relative;
 }
 
-.metcal-section--accent .metcal-eyebrow,
-.metcal-section--accent .metcal-section__title,
-.metcal-section--accent .metcal-section__lead {
-    color: rgba(255, 255, 255, 0.92);
+.metcal-metteam .calserver-metcal__inner {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.metcal-metteam__header {
+    max-width: 880px;
+}
+
+.metcal-metteam__grid {
+    margin-top: 48px;
+}
+
+.metcal-metteam__note {
+    margin-top: 32px;
+    max-width: 760px;
 }
 
 .metcal-eyebrow {
@@ -209,16 +220,6 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     max-width: 720px;
     font-size: 1.05rem;
     color: var(--metcal-text);
-}
-
-.metcal-section--accent .metcal-section__lead {
-    color: rgba(255, 255, 255, 0.86);
-}
-
-.metcal-section--accent .metcal-eyebrow {
-    background: color-mix(in oklab, rgba(255, 255, 255, 0.18) 32%, var(--calserver-primary) 68%);
-    color: rgba(255, 255, 255, 0.95);
-    border: 1px solid color-mix(in oklab, rgba(255, 255, 255, 0.36) 38%, var(--calserver-primary) 62%);
 }
 
 .metcal-report-grid {
@@ -313,11 +314,6 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     box-shadow: 0 24px 64px -40px rgba(12, 22, 40, 0.2);
 }
 
-.metcal-section--accent .metcal-timeline__item {
-    background: rgba(10, 18, 34, 0.74);
-    border-color: color-mix(in oklab, var(--calserver-primary) 48%, rgba(255, 255, 255, 0.14));
-}
-
 .metcal-timeline__badge {
     width: 36px;
     height: 36px;
@@ -335,11 +331,6 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--metcal-text-strong);
-}
-
-.metcal-section--accent .metcal-timeline__body h3,
-.metcal-section--accent .metcal-timeline__body p {
-    color: rgba(255, 255, 255, 0.9);
 }
 
 .metcal-timeline__body p {
@@ -411,12 +402,6 @@ body[data-theme='dark'] .metcal-hero__actions .uk-button-default {
     background: rgba(255, 255, 255, 0.96);
     border: 1px solid rgba(15, 25, 46, 0.08);
     color: var(--metcal-text);
-}
-
-.metcal-section--accent .metcal-feature {
-    background: rgba(10, 18, 34, 0.74);
-    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.12));
-    color: rgba(255, 255, 255, 0.9);
 }
 
 .metcal-feature h3 {
@@ -544,9 +529,7 @@ body[data-theme='dark'] .metcal-faq__item {
 }
 
 body[data-theme='dark'] .metcal-card--accent,
-body[data-theme='dark'] .metcal-package--highlight,
-body[data-theme='dark'] .metcal-section--accent .metcal-feature,
-body[data-theme='dark'] .metcal-section--accent .metcal-timeline__item {
+body[data-theme='dark'] .metcal-package--highlight {
     background: color-mix(in oklab, var(--calserver-primary) 32%, #0d182e 68%);
     border-color: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.16));
     color: rgba(241, 245, 255, 0.94);
