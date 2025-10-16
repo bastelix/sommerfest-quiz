@@ -1,5 +1,7 @@
 {% extends 'layout.twig' %}
 
+{% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
+
 {% set links = [
     { 'href': '#szenarien', 'label': t('metcal_nav_szenarien'), 'icon': 'thumbnails' },
     { 'href': '#migration', 'label': t('metcal_nav_migration'), 'icon': 'clock' },
