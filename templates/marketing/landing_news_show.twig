@@ -1,28 +1,39 @@
 {% extends 'layout.twig' %}
 
+{% set newsBaseSlug = newsOwnerBaseSlug|default(page.slug) %}
+{% set isCalserverTheme = newsBaseSlug == 'calserver' %}
+
 {% block title %}{{ metaTitle|default(entry.title ~ ' – Neuigkeiten') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  {% if isCalserverTheme %}
+    <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
+  {% endif %}
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
 {% endblock %}
 
-{% block body_theme %}dark{% endblock %}
+{% block body_theme %}{% if isCalserverTheme %}light{% else %}dark{% endif %}{% endblock %}
 
-{% block body_class %}qr-landing dark-mode{% endblock %}
+{% block body_class %}qr-landing {% if isCalserverTheme %}calserver-theme calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
 
 {% block body %}
   <div class="landing-content">
-    <section class="uk-section uk-section-default">
+    {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
+    {% set sectionClasses = 'uk-section uk-section-default landing-news' %}
+    {% if isCalserverTheme %}
+      {% set sectionClasses = 'uk-section uk-section-muted landing-news calserver-news calserver-news--detail' %}
+    {% endif %}
+    <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container uk-container-small">
         <nav class="uk-margin-bottom">
           <a class="uk-button uk-button-text" href="{{ newsIndexUrl }}">&larr; Zur Übersicht</a>
           <a class="uk-button uk-button-text uk-margin-left" href="{{ landingPageUrl|default(basePath ~ '/' ~ page.slug) }}">Landingpage</a>
         </nav>
-        <article class="landing-news-entry uk-article">
+        <article class="landing-news-entry uk-article{% if isCalserverTheme %} calserver-news-entry{% endif %}">
           <h1 class="uk-article-title">{{ entry.title }}</h1>
           {% if entry.publishedAt %}
             <p class="uk-article-meta">Veröffentlicht am {{ entry.publishedAt|date('d.m.Y') }}</p>

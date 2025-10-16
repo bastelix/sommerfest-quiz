@@ -62,12 +62,16 @@ class LandingNewsController
         $newsBasePath = $this->buildNewsBasePath($request, $newsOwnerPage->getSlug());
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
 
+        $newsOwnerBaseSlug = MarketingSlugResolver::resolveBaseSlug($newsOwnerPage->getSlug());
+
         return $view->render($response, 'marketing/landing_news_index.twig', [
             'page' => $page,
             'entries' => $entries,
             'newsBasePath' => $newsBasePath,
             'newsIndexUrl' => $basePath . $newsBasePath,
             'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
+            'newsOwnerSlug' => $newsOwnerPage->getSlug(),
+            'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
             'metaTitle' => sprintf('%s – Neuigkeiten', $page->getTitle()),
             'metaDescription' => sprintf('Aktuelles zu %s.', $page->getTitle()),
         ]);
@@ -111,12 +115,16 @@ class LandingNewsController
         $excerpt = $entry->getExcerpt();
         $description = $excerpt !== null ? trim(strip_tags($excerpt)) : null;
 
+        $newsOwnerBaseSlug = MarketingSlugResolver::resolveBaseSlug($newsOwnerPage->getSlug());
+
         return $view->render($response, 'marketing/landing_news_show.twig', [
             'page' => $page,
             'entry' => $entry,
             'newsBasePath' => $newsBasePath,
             'newsIndexUrl' => $basePath . $newsBasePath,
             'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
+            'newsOwnerSlug' => $newsOwnerPage->getSlug(),
+            'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
             'metaTitle' => sprintf('%s – %s', $page->getTitle(), $entry->getTitle()),
             'metaDescription' => $description,
         ]);
