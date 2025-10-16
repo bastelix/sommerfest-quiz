@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% set calserverContactHref = basePath ~ '/calserver#contact' %}
+{% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
 {% set links = [
   { 'href': '#hero', 'label': 'Start', 'icon': 'home' },
   { 'href': '#trust', 'label': 'Vertrauen', 'icon': 'lock' },
@@ -601,7 +601,7 @@
                 <span class="uk-margin-small-right" data-uk-icon="icon: clock"></span>15-Min-Kurz-Check
               </a>
             </div>
-            <p class="uk-text-small uk-margin-medium-top">Wir führen das Gespräch entlang Ihrer Prioritäten – bitte kurz <a href="#contact-info">signalisieren, worum es geht</a>. Ohne Buzzwords, ohne Theater.</p>
+            <p class="uk-text-small uk-margin-medium-top">Wir führen das Gespräch entlang Ihrer Prioritäten – bitte kurz <a href="{{ calserverContactHref }}">signalisieren, worum es geht</a>. Ohne Buzzwords, ohne Theater.</p>
           </div>
         </div>
       </div>
