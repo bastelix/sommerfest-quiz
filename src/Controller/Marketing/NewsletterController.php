@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Infrastructure\Database;
+use App\Service\DomainStartPageService;
 use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
+use App\Service\MarketingNewsletterConfigService;
+use App\Service\MarketingSlugResolver;
 use App\Service\NewsletterSubscriptionService;
 use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -36,16 +39,39 @@ class NewsletterController
         }
 
         $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager);
+        $domainService = new DomainStartPageService($pdo);
+        $configService = new MarketingNewsletterConfigService($pdo);
 
         $success = false;
+        $marketingSlug = null;
+        $ctas = [];
         try {
-            $success = $service->confirmSubscription($token);
+            $result = $service->confirmSubscription($token);
+            $success = $result->isSuccess();
+            if ($success) {
+                $metadata = $result->getMetadata();
+                $landingHost = isset($metadata['landing']) ? (string) $metadata['landing'] : '';
+                $resolved = $landingHost !== '' ? $domainService->getStartPage($landingHost) : null;
+                if ($resolved === null || $resolved === '') {
+                    $resolved = 'landing';
+                }
+
+                $marketingSlug = MarketingSlugResolver::resolveBaseSlug($resolved);
+                if ($marketingSlug === '') {
+                    $marketingSlug = 'landing';
+                }
+
+                $ctas = $configService->getCtasForSlug($marketingSlug);
+                if ($ctas === [] && $marketingSlug !== 'landing') {
+                    $ctas = $configService->getCtasForSlug('landing');
+                }
+            }
         } catch (RuntimeException $exception) {
             error_log('Newsletter confirmation failed: ' . $exception->getMessage());
             $success = false;
         }
 
-        return $this->renderStatus($request, $response, $success, 'confirm');
+        return $this->renderStatus($request, $response, $success, 'confirm', $marketingSlug, $ctas);
     }
 
     public function unsubscribe(Request $request, Response $response): Response
@@ -96,13 +122,24 @@ class NewsletterController
         return $success ? $response->withStatus(204) : $response->withStatus(400);
     }
 
-    private function renderStatus(Request $request, Response $response, bool $success, string $mode): Response
-    {
+    /**
+     * @param list<array{label:string,url:string,style:string}> $ctas
+     */
+    private function renderStatus(
+        Request $request,
+        Response $response,
+        bool $success,
+        string $mode,
+        ?string $marketingSlug = null,
+        array $ctas = []
+    ): Response {
         $twig = Twig::fromRequest($request);
 
         return $twig->render($response, 'marketing/newsletter_status.twig', [
             'success' => $success,
             'mode' => $mode,
+            'marketingSlug' => $marketingSlug,
+            'ctas' => $ctas,
         ]);
     }
 }

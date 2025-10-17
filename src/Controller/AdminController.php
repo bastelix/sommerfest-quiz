@@ -27,6 +27,7 @@ use App\Service\MediaLibraryService;
 use App\Service\ImageUploadService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
+use App\Service\MarketingNewsletterConfigService;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -153,6 +154,11 @@ class AdminController
         $seoSvc = new PageSeoConfigService($pdo);
         $landingNewsService = new LandingNewsService($pdo);
         $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
+        $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
+        $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped();
+        $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
+        sort($marketingNewsletterSlugs);
+        $marketingNewsletterStyles = $newsletterConfigService->getAllowedStyles();
         $pages = [];
         $pageContents = [];
         $allPages = $pageSvc->getAll();
@@ -308,6 +314,9 @@ class AdminController
               'domain_start_page_options' => $domainStartPageOptions,
               'domain_chat_domains' => $domainChatDomains,
               'domain_chat_pages' => $domainChatPages,
+              'marketingNewsletterConfigs' => $marketingNewsletterConfigs,
+              'marketingNewsletterSlugs' => $marketingNewsletterSlugs,
+              'marketingNewsletterStyles' => $marketingNewsletterStyles,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'tenant_sync' => $tenantSvc->getSyncState(),

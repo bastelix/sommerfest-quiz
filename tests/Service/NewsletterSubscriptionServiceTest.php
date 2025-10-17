@@ -88,7 +88,9 @@ SQL
         $this->assertArrayHasKey('token', $params);
         $token = (string) $params['token'];
 
-        $this->assertTrue($service->confirmSubscription($token));
+        $result = $service->confirmSubscription($token);
+        $this->assertTrue($result->isSuccess());
+        $this->assertSame(['ip' => '127.0.0.1'], $result->getMetadata());
 
         $stmt = $this->pdo->prepare('SELECT status, consent_confirmed_at FROM newsletter_subscriptions WHERE email = :email');
         $stmt->execute(['email' => 'user@example.com']);

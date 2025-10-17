@@ -116,6 +116,48 @@ document.addEventListener('DOMContentLoaded', function () {
   const domainStartPageOptions = { ...initialDomainStartPageOptions };
   window.domainStartPageOptions = domainStartPageOptions;
   const coreDomainStartPageOrder = ['help', 'events'];
+  const marketingNewsletterSection = document.getElementById('marketingNewsletterConfigSection');
+  const marketingNewsletterSlugInput = document.getElementById('marketingNewsletterSlug');
+  const marketingNewsletterSlugOptions = document.getElementById('marketingNewsletterSlugOptions');
+  const marketingNewsletterTable = document.getElementById('marketingNewsletterConfigTable');
+  const marketingNewsletterTableBody = marketingNewsletterTable ? marketingNewsletterTable.querySelector('tbody') : null;
+  const marketingNewsletterAddBtn = document.getElementById('marketingNewsletterAddRow');
+  const marketingNewsletterSaveBtn = document.getElementById('marketingNewsletterSave');
+  const marketingNewsletterResetBtn = document.getElementById('marketingNewsletterReset');
+  const marketingNewsletterRaw = window.marketingNewsletterConfigs || {};
+  const marketingNewsletterData = {};
+  Object.entries(marketingNewsletterRaw).forEach(([slug, items]) => {
+    const normalizedSlug = typeof slug === 'string' ? slug.trim().toLowerCase() : '';
+    if (normalizedSlug === '') {
+      return;
+    }
+    marketingNewsletterData[normalizedSlug] = Array.isArray(items)
+      ? items.map(item => ({
+          label: typeof item.label === 'string' ? item.label : '',
+          url: typeof item.url === 'string' ? item.url : '',
+          style: typeof item.style === 'string' && item.style !== '' ? item.style : 'primary'
+        }))
+      : [];
+  });
+  const marketingNewsletterSlugs = Array.from(new Set(
+    (window.marketingNewsletterSlugs || [])
+      .map(slug => (typeof slug === 'string' ? slug.trim().toLowerCase() : ''))
+      .filter(slug => slug !== '')
+  ));
+  Object.keys(marketingNewsletterData).forEach(slug => {
+    if (slug !== '' && !marketingNewsletterSlugs.includes(slug)) {
+      marketingNewsletterSlugs.push(slug);
+    }
+  });
+  const marketingNewsletterStyles = Array.isArray(window.marketingNewsletterStyles) && window.marketingNewsletterStyles.length
+    ? window.marketingNewsletterStyles.slice()
+    : ['primary', 'secondary', 'link'];
+  const marketingNewsletterStyleLabels = window.marketingNewsletterStyleLabels || {};
+  const transMarketingNewsletterSaved = window.transMarketingNewsletterSaved || 'Konfiguration gespeichert.';
+  const transMarketingNewsletterError = window.transMarketingNewsletterError || 'Speichern fehlgeschlagen.';
+  const transMarketingNewsletterInvalidSlug = window.transMarketingNewsletterInvalidSlug || 'Slug erforderlich';
+  const transMarketingNewsletterRemove = window.transMarketingNewsletterRemove || 'Entfernen';
+  const transMarketingNewsletterEmpty = window.transMarketingNewsletterEmpty || 'Keine Einträge vorhanden.';
   const labelFromSlug = slug => {
     if (typeof slug !== 'string' || slug === '') {
       return '';
@@ -5227,6 +5269,250 @@ document.addEventListener('DOMContentLoaded', function () {
       ragChatFields.token.value = '';
     }
   });
+
+  if (marketingNewsletterSection && marketingNewsletterSlugInput && marketingNewsletterTableBody) {
+    const columnCount = marketingNewsletterTable
+      ? marketingNewsletterTable.querySelectorAll('thead th').length || 5
+      : 5;
+    const normalizeNewsletterSlug = value => (typeof value === 'string' ? value.trim().toLowerCase() : '');
+    const ensureSlugTracked = slug => {
+      if (slug === '') {
+        return;
+      }
+      if (!Object.prototype.hasOwnProperty.call(marketingNewsletterData, slug)) {
+        marketingNewsletterData[slug] = [];
+      }
+      if (!marketingNewsletterSlugs.includes(slug)) {
+        marketingNewsletterSlugs.push(slug);
+      }
+    };
+    const refreshSlugOptions = () => {
+      if (!marketingNewsletterSlugOptions) {
+        return;
+      }
+      const sorted = Array.from(new Set(marketingNewsletterSlugs.map(normalizeNewsletterSlug)))
+        .filter(slug => slug !== '')
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      marketingNewsletterSlugOptions.innerHTML = '';
+      sorted.forEach(slug => {
+        const option = document.createElement('option');
+        option.value = slug;
+        marketingNewsletterSlugOptions.appendChild(option);
+      });
+    };
+    const createStyleSelect = selected => {
+      const select = document.createElement('select');
+      select.className = 'uk-select';
+      select.setAttribute('data-newsletter-field', 'style');
+      marketingNewsletterStyles.forEach(style => {
+        const option = document.createElement('option');
+        option.value = style;
+        option.textContent = marketingNewsletterStyleLabels[style] || labelFromSlug(style);
+        select.appendChild(option);
+      });
+      select.value = marketingNewsletterStyles.includes(selected) ? selected : (marketingNewsletterStyles[0] || 'primary');
+
+      return select;
+    };
+    const createNewsletterRow = (entry, index) => {
+      const tr = document.createElement('tr');
+      tr.dataset.newsletterRow = '1';
+
+      const positionCell = document.createElement('td');
+      positionCell.className = 'uk-text-muted';
+      positionCell.dataset.newsletterPosition = '1';
+      positionCell.textContent = String(index + 1);
+      tr.appendChild(positionCell);
+
+      const labelCell = document.createElement('td');
+      const labelInput = document.createElement('input');
+      labelInput.type = 'text';
+      labelInput.className = 'uk-input';
+      labelInput.value = entry.label || '';
+      labelInput.setAttribute('data-newsletter-field', 'label');
+      labelCell.appendChild(labelInput);
+      tr.appendChild(labelCell);
+
+      const urlCell = document.createElement('td');
+      const urlInput = document.createElement('input');
+      urlInput.type = 'text';
+      urlInput.className = 'uk-input';
+      urlInput.value = entry.url || '';
+      urlInput.setAttribute('data-newsletter-field', 'url');
+      urlCell.appendChild(urlInput);
+      tr.appendChild(urlCell);
+
+      const styleCell = document.createElement('td');
+      styleCell.appendChild(createStyleSelect(entry.style));
+      tr.appendChild(styleCell);
+
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'uk-text-center';
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'uk-button uk-button-text uk-text-danger';
+      removeBtn.textContent = transMarketingNewsletterRemove;
+      removeBtn.setAttribute('data-remove-newsletter-row', '1');
+      actionsCell.appendChild(removeBtn);
+      tr.appendChild(actionsCell);
+
+      return tr;
+    };
+    const showNewsletterPlaceholder = () => {
+      marketingNewsletterTableBody.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.dataset.placeholder = '1';
+      const td = document.createElement('td');
+      td.colSpan = columnCount;
+      td.className = 'uk-text-muted';
+      td.textContent = transMarketingNewsletterEmpty;
+      tr.appendChild(td);
+      marketingNewsletterTableBody.appendChild(tr);
+    };
+    const updateNewsletterPositions = () => {
+      Array.from(marketingNewsletterTableBody.querySelectorAll('tr[data-newsletter-row]')).forEach((row, index) => {
+        const cell = row.querySelector('[data-newsletter-position]');
+        if (cell) {
+          cell.textContent = String(index + 1);
+        }
+      });
+    };
+    const renderNewsletterRows = slug => {
+      const normalizedSlug = normalizeNewsletterSlug(slug);
+      marketingNewsletterTableBody.innerHTML = '';
+      if (normalizedSlug === '') {
+        showNewsletterPlaceholder();
+        return;
+      }
+      const entries = (marketingNewsletterData[normalizedSlug] || []).map(item => ({ ...item }));
+      if (entries.length === 0) {
+        showNewsletterPlaceholder();
+        return;
+      }
+      entries.forEach((entry, index) => {
+        marketingNewsletterTableBody.appendChild(createNewsletterRow(entry, index));
+      });
+      updateNewsletterPositions();
+    };
+    const gatherNewsletterEntries = () => {
+      return Array.from(marketingNewsletterTableBody.querySelectorAll('tr[data-newsletter-row]')).map(row => {
+        const label = row.querySelector('[data-newsletter-field="label"]');
+        const url = row.querySelector('[data-newsletter-field="url"]');
+        const style = row.querySelector('[data-newsletter-field="style"]');
+        return {
+          label: label && typeof label.value === 'string' ? label.value.trim() : '',
+          url: url && typeof url.value === 'string' ? url.value.trim() : '',
+          style: style && typeof style.value === 'string' ? style.value.trim() : ''
+        };
+      });
+    };
+    const syncNewsletterEntries = (slug, entries) => {
+      const normalizedSlug = normalizeNewsletterSlug(slug);
+      if (normalizedSlug === '') {
+        return;
+      }
+      marketingNewsletterData[normalizedSlug] = entries.map(item => ({
+        label: item.label || '',
+        url: item.url || '',
+        style: marketingNewsletterStyles.includes(item.style) ? item.style : (marketingNewsletterStyles[0] || 'primary')
+      }));
+      ensureSlugTracked(normalizedSlug);
+      refreshSlugOptions();
+    };
+
+    refreshSlugOptions();
+    let initialSlug = normalizeNewsletterSlug(marketingNewsletterSlugInput.value);
+    if (initialSlug === '') {
+      if (marketingNewsletterSlugs.includes('landing')) {
+        initialSlug = 'landing';
+      } else if (marketingNewsletterSlugs.length) {
+        initialSlug = marketingNewsletterSlugs[0];
+      }
+      if (initialSlug !== '') {
+        marketingNewsletterSlugInput.value = initialSlug;
+      }
+    }
+    renderNewsletterRows(initialSlug);
+
+    const handleSlugChange = () => {
+      const slug = normalizeNewsletterSlug(marketingNewsletterSlugInput.value);
+      if (slug !== '' && !Object.prototype.hasOwnProperty.call(marketingNewsletterData, slug)) {
+        marketingNewsletterData[slug] = [];
+      }
+      renderNewsletterRows(slug);
+    };
+
+    marketingNewsletterSlugInput.addEventListener('change', handleSlugChange);
+    marketingNewsletterSlugInput.addEventListener('blur', handleSlugChange);
+
+    marketingNewsletterAddBtn?.addEventListener('click', () => {
+      const slug = normalizeNewsletterSlug(marketingNewsletterSlugInput.value);
+      if (slug === '') {
+        notify(transMarketingNewsletterInvalidSlug, 'warning');
+        marketingNewsletterSlugInput.focus();
+        return;
+      }
+      ensureSlugTracked(slug);
+      const placeholder = marketingNewsletterTableBody.querySelector('tr[data-placeholder]');
+      if (placeholder) {
+        placeholder.remove();
+      }
+      marketingNewsletterTableBody.appendChild(
+        createNewsletterRow(
+          { label: '', url: '', style: marketingNewsletterStyles[0] || 'primary' },
+          marketingNewsletterTableBody.querySelectorAll('tr[data-newsletter-row]').length
+        )
+      );
+      updateNewsletterPositions();
+    });
+
+    marketingNewsletterTableBody.addEventListener('click', event => {
+      const target = event.target instanceof HTMLElement ? event.target.closest('[data-remove-newsletter-row]') : null;
+      if (!target) {
+        return;
+      }
+      const row = target.closest('tr');
+      if (row) {
+        row.remove();
+        if (!marketingNewsletterTableBody.querySelector('tr[data-newsletter-row]')) {
+          showNewsletterPlaceholder();
+        } else {
+          updateNewsletterPositions();
+        }
+      }
+    });
+
+    marketingNewsletterSaveBtn?.addEventListener('click', () => {
+      const slug = normalizeNewsletterSlug(marketingNewsletterSlugInput.value);
+      if (slug === '') {
+        notify(transMarketingNewsletterInvalidSlug, 'warning');
+        marketingNewsletterSlugInput.focus();
+        return;
+      }
+      const entries = gatherNewsletterEntries();
+      apiFetch('/admin/marketing-newsletter-configs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug, entries })
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('save-failed');
+          }
+          syncNewsletterEntries(slug, entries);
+          notify(transMarketingNewsletterSaved, 'success');
+          renderNewsletterRows(slug);
+        })
+        .catch(() => {
+          notify(transMarketingNewsletterError, 'danger');
+        });
+    });
+
+    marketingNewsletterResetBtn?.addEventListener('click', () => {
+      const slug = normalizeNewsletterSlug(marketingNewsletterSlugInput.value);
+      renderNewsletterRows(slug);
+    });
+  }
 
   ragChatFields.form?.addEventListener('submit', event => {
     event.preventDefault();
