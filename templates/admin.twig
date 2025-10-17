@@ -1637,6 +1637,47 @@
             </form>
           </div>
         </div>
+
+        <h3 class="uk-heading-bullet">{{ t('heading_marketing_newsletter_ctas') }}</h3>
+        <p class="uk-text-meta">{{ t('text_marketing_newsletter_ctas_hint') }}</p>
+        <div id="marketingNewsletterConfigSection" class="uk-card uk-card-default uk-card-body uk-margin">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="text" id="marketingNewsletterSlug" list="marketingNewsletterSlugOptions" placeholder="landing">
+              <datalist id="marketingNewsletterSlugOptions">
+                {% for slug in marketingNewsletterSlugs %}
+                  <option value="{{ slug }}"></option>
+                {% endfor %}
+              </datalist>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_marketing_newsletter_slug_hint') }}</p>
+          </div>
+          <div class="uk-overflow-auto uk-margin">
+            <table class="uk-table uk-table-small uk-table-divider uk-table-middle" id="marketingNewsletterConfigTable" data-empty="{{ t('text_marketing_newsletter_empty') }}">
+              <thead>
+                <tr>
+                  <th class="uk-table-shrink">#</th>
+                  <th>{{ t('label_marketing_newsletter_label') }}</th>
+                  <th>{{ t('label_marketing_newsletter_url') }}</th>
+                  <th class="uk-table-shrink">{{ t('label_marketing_newsletter_style') }}</th>
+                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+            <div class="uk-flex uk-flex-left" style="gap: 8px;">
+              <button type="button" id="marketingNewsletterAddRow" class="uk-button uk-button-default">{{ t('button_marketing_newsletter_add_entry') }}</button>
+            </div>
+            <div class="uk-flex uk-flex-right" style="gap: 8px;">
+              <button type="button" id="marketingNewsletterReset" class="uk-button uk-button-default">{{ t('action_reset') }}</button>
+              <button type="button" id="marketingNewsletterSave" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+            </div>
+          </div>
+        </div>
+
         <h3 class="uk-heading-bullet">{{ t('heading_registration') }}</h3>
         <div class="uk-margin uk-flex uk-flex-middle">
           <label><input class="uk-checkbox" type="checkbox" id="cfgRegistrationEnabled" {% if settings.registration_enabled == '1' %}checked{% endif %}> {{ t('label_registration_enabled') }}</label>
@@ -2058,6 +2099,14 @@
     window.transTenantSyncThrottled = '{{ 'Sync läuft bereits – bitte später erneut versuchen'|e('js') }}';
     window.transTenantSyncSuccess = '{{ 'Mandanten eingelesen'|e('js') }}';
     window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode|raw }};
+    window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode|raw }};
+    window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode|raw }};
+    window.marketingNewsletterStyles = {{ marketingNewsletterStyles|default([])|json_encode|raw }};
+    window.marketingNewsletterStyleLabels = {{ {
+      'primary': t('label_marketing_newsletter_style_primary'),
+      'secondary': t('label_marketing_newsletter_style_secondary'),
+      'link': t('label_marketing_newsletter_style_link')
+    }|json_encode|raw }};
     window.domainStartPageTypeLabels = {{ {
       'main': t('label_domain_type_main'),
       'marketing': t('label_domain_type_marketing'),
@@ -2079,6 +2128,11 @@
     window.transDomainContactTemplateError = '{{ t('notify_domain_contact_template_error')|e('js') }}';
     window.transDomainContactTemplateLoadError = '{{ t('notify_domain_contact_template_load_error')|e('js') }}';
     window.transDomainContactTemplateInvalidDomain = '{{ t('notify_domain_contact_template_invalid_domain')|e('js') }}';
+    window.transMarketingNewsletterSaved = '{{ t('message_marketing_newsletter_saved')|e('js') }}';
+    window.transMarketingNewsletterError = '{{ t('message_marketing_newsletter_error')|e('js') }}';
+    window.transMarketingNewsletterInvalidSlug = '{{ t('error_marketing_newsletter_invalid_slug')|e('js') }}';
+    window.transMarketingNewsletterRemove = '{{ t('button_marketing_newsletter_remove_entry')|e('js') }}';
+    window.transMarketingNewsletterEmpty = '{{ t('text_marketing_newsletter_empty')|e('js') }}';
     window.domainChatDomains = {{ domain_chat_domains|default([])|json_encode|raw }};
     window.domainChatPages = {{ domain_chat_pages|default([])|json_encode|raw }};
     window.domainChatTranslations = {{ {

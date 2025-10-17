@@ -69,26 +69,27 @@ class NewsletterSubscriptionService
     /**
      * Confirm a pending subscription via token.
      */
-    public function confirmSubscription(string $token): bool
+    public function confirmSubscription(string $token): NewsletterConfirmationResult
     {
         $token = trim($token);
         if ($token === '') {
-            return false;
+            return NewsletterConfirmationResult::failure();
         }
 
         $email = $this->confirmationService->confirmToken($token);
         if ($email === null) {
-            return false;
+            return NewsletterConfirmationResult::failure();
         }
 
         $subscription = $this->findSubscription($email);
         if ($subscription === null) {
             $this->ensureSubscriptionRow($email);
-            $subscription = ['attributes' => null];
+            $subscription = ['attributes' => null, 'consent_metadata' => null];
         }
 
         $this->markSubscribed($email);
         $attributes = $this->decodeScalarMap($subscription['attributes'] ?? null);
+        $metadata = $this->decodeScalarMap($subscription['consent_metadata'] ?? null);
 
         if ($this->providerManager->isConfigured()) {
             try {
@@ -102,7 +103,7 @@ class NewsletterSubscriptionService
             }
         }
 
-        return true;
+        return NewsletterConfirmationResult::success($metadata);
     }
 
     /**

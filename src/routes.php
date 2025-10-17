@@ -53,6 +53,7 @@ use App\Service\RagChat\RagChatServiceInterface;
 use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
+use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
@@ -84,6 +85,7 @@ use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\MailProviderController;
 use App\Controller\Admin\DomainContactTemplateController;
+use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
@@ -263,6 +265,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainStartPageService = new DomainStartPageService($pdo);
         $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
+        $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
@@ -357,6 +360,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute(
                 'domainContactTemplateController',
                 new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)
+            )
+            ->withAttribute(
+                'marketingNewsletterConfigController',
+                new MarketingNewsletterConfigController($marketingNewsletterConfigService)
             )
             ->withAttribute(
                 'domainChatController',
@@ -1506,6 +1513,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/domain-contact-template', function (Request $request, Response $response) {
         /** @var DomainContactTemplateController $controller */
         $controller = $request->getAttribute('domainContactTemplateController');
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/marketing-newsletter-configs', function (Request $request, Response $response) {
+        /** @var MarketingNewsletterConfigController $controller */
+        $controller = $request->getAttribute('marketingNewsletterConfigController');
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/marketing-newsletter-configs', function (Request $request, Response $response) {
+        /** @var MarketingNewsletterConfigController $controller */
+        $controller = $request->getAttribute('marketingNewsletterConfigController');
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
