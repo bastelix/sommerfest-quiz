@@ -48,6 +48,11 @@ class MarketingPageController
         'future-is-green' => 'Future is Green',
     ];
 
+    private const STATIC_CONTENT_FILES = [
+        'calhelp' => 'calhelp.html',
+        'calserver' => 'calserver.html',
+    ];
+
     private PageService $pages;
     private PageSeoConfigService $seo;
     private ?string $slug;
@@ -95,9 +100,7 @@ class MarketingPageController
             return $response->withStatus(404);
         }
 
-        if ($page->getSlug() === 'calhelp') {
-            $page = $this->syncCalhelpContent($page);
-        }
+        $page = $this->syncStaticContent($page);
 
         $html = $page->getContent();
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -267,9 +270,15 @@ class MarketingPageController
         }
     }
 
-    private function syncCalhelpContent(Page $page): Page
+    private function syncStaticContent(Page $page): Page
     {
-        $filePath = dirname(__DIR__, 3) . '/content/marketing/calhelp.html';
+        $slug = $page->getSlug();
+        $fileName = self::STATIC_CONTENT_FILES[$slug] ?? null;
+        if ($fileName === null) {
+            return $page;
+        }
+
+        $filePath = dirname(__DIR__, 3) . '/content/marketing/' . $fileName;
         if (!is_readable($filePath)) {
             return $page;
         }
@@ -279,21 +288,21 @@ class MarketingPageController
             return $page;
         }
 
-        if ($this->normalizeCalhelpHtml($fileContent) === $this->normalizeCalhelpHtml($page->getContent())) {
+        if ($this->normalizeStaticHtml($fileContent) === $this->normalizeStaticHtml($page->getContent())) {
             return $page;
         }
 
-        $this->pages->save($page->getSlug(), $fileContent);
-        $syncedPage = $this->pages->findBySlug($page->getSlug());
+        $this->pages->save($slug, $fileContent);
+        $syncedPage = $this->pages->findBySlug($slug);
 
         if ($syncedPage !== null) {
             return $syncedPage;
         }
 
-        return new Page($page->getId(), $page->getSlug(), $page->getTitle(), $fileContent);
+        return new Page($page->getId(), $slug, $page->getTitle(), $fileContent);
     }
 
-    private function normalizeCalhelpHtml(string $html): string
+    private function normalizeStaticHtml(string $html): string
     {
         return trim(str_replace(["\r\n", "\r"], "\n", $html));
     }
