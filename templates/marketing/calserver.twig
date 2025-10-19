@@ -1,14 +1,130 @@
 {% extends 'layout.twig' %}
 
 {% set links = [
+    { 'href': '#trust', 'label': t('calserver_mega_overview_trust'), 'icon': 'star' },
     { 'href': '#features', 'label': t('calserver_nav_features'), 'icon': 'grid' },
-    { 'href': '#metcal', 'label': t('calserver_nav_metcal'), 'icon': 'link' },
     { 'href': '#modules', 'label': t('calserver_nav_modules'), 'icon': 'database' },
     { 'href': '#usecases', 'label': t('calserver_nav_usecases'), 'icon': 'users' },
+    { 'href': '#metcal', 'label': t('calserver_nav_metcal'), 'icon': 'link' },
     { 'href': '#modes', 'label': t('calserver_nav_modes'), 'icon': 'cog' },
     { 'href': '#calserver-news', 'label': t('calserver_nav_news'), 'icon': 'rss' },
     { 'href': '#pricing', 'label': t('calserver_nav_pricing'), 'icon': 'credit-card' },
-    { 'href': '#faq', 'label': t('calserver_nav_faq'), 'icon': 'question' }
+    { 'href': '#faq', 'label': t('calserver_nav_faq'), 'icon': 'question' },
+    { 'href': '#demo', 'label': t('calserver_mega_resources_contact'), 'icon': 'play' }
+] %}
+{% set megaNav = [
+  {
+    'label': t('calserver_mega_overview'),
+    'items': [
+      { 'href': '#trust', 'label': t('calserver_mega_overview_trust'), 'explain': 'overview_trust' },
+      { 'href': '#demo', 'label': t('calserver_mega_overview_demo'), 'explain': 'overview_demo' }
+    ],
+    'explain': [
+      {
+        'key': 'overview_trust',
+        'title': t('calserver_mega_overview_trust_title'),
+        'description': t('calserver_mega_overview_trust_desc'),
+        'subline': t('calserver_mega_overview_trust_subline')
+      },
+      {
+        'key': 'overview_demo',
+        'title': t('calserver_mega_overview_demo_title'),
+        'description': t('calserver_mega_overview_demo_desc'),
+        'subline': t('calserver_mega_overview_demo_subline')
+      }
+    ]
+  },
+  {
+    'label': t('calserver_mega_features'),
+    'items': [
+      { 'href': '#features', 'label': t('calserver_mega_features_features'), 'explain': 'features_overview' },
+      { 'href': '#modules', 'label': t('calserver_mega_features_modules'), 'explain': 'features_modules' }
+    ],
+    'explain': [
+      {
+        'key': 'features_overview',
+        'title': t('calserver_mega_features_features_title'),
+        'description': t('calserver_mega_features_features_desc'),
+        'subline': t('calserver_mega_features_features_subline')
+      },
+      {
+        'key': 'features_modules',
+        'title': t('calserver_mega_features_modules_title'),
+        'description': t('calserver_mega_features_modules_desc'),
+        'subline': t('calserver_mega_features_modules_subline')
+      }
+    ]
+  },
+  {
+    'label': t('calserver_mega_solutions'),
+    'items': [
+      { 'href': '#usecases', 'label': t('calserver_mega_solutions_usecases'), 'explain': 'solutions_usecases' },
+      { 'href': '#metcal', 'label': t('calserver_mega_solutions_metcal'), 'explain': 'solutions_metcal' }
+    ],
+    'explain': [
+      {
+        'key': 'solutions_usecases',
+        'title': t('calserver_mega_solutions_usecases_title'),
+        'description': t('calserver_mega_solutions_usecases_desc'),
+        'subline': t('calserver_mega_solutions_usecases_subline')
+      },
+      {
+        'key': 'solutions_metcal',
+        'title': t('calserver_mega_solutions_metcal_title'),
+        'description': t('calserver_mega_solutions_metcal_desc'),
+        'subline': t('calserver_mega_solutions_metcal_subline')
+      }
+    ]
+  },
+  {
+    'label': t('calserver_mega_operations'),
+    'items': [
+      { 'href': '#modes', 'label': t('calserver_mega_operations_modes'), 'explain': 'operations_modes' },
+      { 'href': '#pricing', 'label': t('calserver_mega_operations_pricing'), 'explain': 'operations_pricing' }
+    ],
+    'explain': [
+      {
+        'key': 'operations_modes',
+        'title': t('calserver_mega_operations_modes_title'),
+        'description': t('calserver_mega_operations_modes_desc'),
+        'subline': t('calserver_mega_operations_modes_subline')
+      },
+      {
+        'key': 'operations_pricing',
+        'title': t('calserver_mega_operations_pricing_title'),
+        'description': t('calserver_mega_operations_pricing_desc'),
+        'subline': t('calserver_mega_operations_pricing_subline')
+      }
+    ]
+  },
+  {
+    'label': t('calserver_mega_resources'),
+    'items': [
+      { 'href': '#calserver-news', 'label': t('calserver_mega_resources_news'), 'explain': 'resources_news' },
+      { 'href': '#faq', 'label': t('calserver_mega_resources_faq'), 'explain': 'resources_faq' },
+      { 'href': '#demo', 'label': t('calserver_mega_resources_contact'), 'explain': 'resources_contact' }
+    ],
+    'explain': [
+      {
+        'key': 'resources_news',
+        'title': t('calserver_mega_resources_news_title'),
+        'description': t('calserver_mega_resources_news_desc'),
+        'subline': t('calserver_mega_resources_news_subline')
+      },
+      {
+        'key': 'resources_faq',
+        'title': t('calserver_mega_resources_faq_title'),
+        'description': t('calserver_mega_resources_faq_desc'),
+        'subline': t('calserver_mega_resources_faq_subline')
+      },
+      {
+        'key': 'resources_contact',
+        'title': t('calserver_mega_resources_contact_title'),
+        'description': t('calserver_mega_resources_contact_desc'),
+        'subline': t('calserver_mega_resources_contact_subline')
+      }
+    ]
+  }
 ] %}
 {% if marketingWikiMenu is defined %}
   {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
@@ -33,7 +149,8 @@
 
 {% block body %}
   <div class="landing-content">
-    <header class="qr-topbar">
+    <header class="qr-topbar uk-position-sticky uk-top" id="start"
+            data-uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
       <nav class="uk-navbar-container" data-uk-navbar>
         <div class="uk-navbar-left">
           <div class="uk-navbar-item">
@@ -57,16 +174,56 @@
             </a>
           </div>
         </div>
-        <div class="uk-navbar-right">
-          <ul class="uk-navbar-nav uk-visible@m">
-            {% for link in links %}
+        <div class="uk-navbar-center uk-visible@m">
+          <ul class="uk-navbar-nav cs-mega-nav">
+            {% for group in megaNav %}
+              {% set primaryItem = group.items|first %}
               <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-                </a>
+                <a href="{{ primaryItem.href }}"{% if primaryItem.href starts with '#' %} data-uk-scroll{% endif %}>{{ group.label }}</a>
+                <div class="uk-navbar-dropdown uk-padding-remove"
+                     data-uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                  <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" data-uk-grid>
+                    <div>
+                      <ul class="uk-nav uk-navbar-dropdown-nav">
+                        {% for item in group.items %}
+                          <li>
+                            <a href="{{ item.href }}"{% if item.href starts with '#' %} data-uk-scroll{% endif %}{% if item.explain is defined %} data-explain="{{ item.explain }}"{% endif %}>
+                              {{ item.label }}
+                            </a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    {% if group.explain is defined and group.explain|length %}
+                      <div class="menu-explain">
+                        {% for pane in group.explain %}
+                          <div class="explain-pane{% if not loop.first %} uk-hidden{% endif %}" data-explain-pane="{{ pane.key }}">
+                            <h5>{{ pane.title }}</h5>
+                            <p>{{ pane.description }}</p>
+                            {% if pane.subline is defined and pane.subline %}
+                              <p class="menu-explain__subline">{{ pane.subline }}</p>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
               </li>
             {% endfor %}
+            {% if marketingWikiMenu is defined %}
+              <li>
+                <a href="{{ marketingWikiMenu.url }}">{{ marketingWikiMenu.label }}</a>
+              </li>
+            {% endif %}
           </ul>
+        </div>
+        <div class="uk-navbar-right">
+          <div class="uk-navbar-item cs-cta uk-visible@m">
+            <a class="cs-primary-link" href="#trial" data-uk-scroll>
+              <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>{{ t('calserver_nav_trial') }}
+            </a>
+          </div>
           <div class="uk-navbar-item config-menu uk-inline">
             <button id="configMenuToggle"
                     type="button"
@@ -532,6 +689,53 @@
       } catch (error) {
         /* empty */
       }
+    })();
+  </script>
+  <script>
+    (function () {
+      if (!document.body.classList.contains('calserver-theme')) {
+        return;
+      }
+
+      var hoverIntentTimer;
+
+      function scheduleSwap(event) {
+        var link = event.target.closest('a[data-explain]');
+        if (!link || !link.closest('.cs-mega-nav')) {
+          return;
+        }
+
+        clearTimeout(hoverIntentTimer);
+
+        if (event.type === 'focusin') {
+          swapPane(link);
+          return;
+        }
+
+        hoverIntentTimer = setTimeout(function () {
+          swapPane(link);
+        }, 90);
+      }
+
+      function swapPane(link) {
+        var dropdown = link.closest('.uk-navbar-dropdown');
+        if (!dropdown) {
+          return;
+        }
+
+        var explainKey = link.getAttribute('data-explain');
+        if (!explainKey) {
+          return;
+        }
+
+        dropdown.querySelectorAll('.menu-explain .explain-pane').forEach(function (pane) {
+          var key = pane.getAttribute('data-explain-pane');
+          pane.classList.toggle('uk-hidden', key !== explainKey);
+        });
+      }
+
+      document.addEventListener('mouseover', scheduleSwap, true);
+      document.addEventListener('focusin', scheduleSwap, true);
     })();
   </script>
   <script>
