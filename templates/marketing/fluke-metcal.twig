@@ -445,19 +445,68 @@
       if (!sticky) {
         return;
       }
-      var observer = new IntersectionObserver(function (entries) {
+      var storageKey = 'metcalStickyDismissed';
+      var isDismissed = false;
+      try {
+        isDismissed = typeof localStorage !== 'undefined' && localStorage.getItem(storageKey) === 'true';
+      } catch (error) {
+        isDismissed = false;
+      }
+
+      var observer;
+
+      function hideSticky(permanent) {
+        sticky.classList.remove('metcal-sticky-cta--visible');
+        sticky.classList.add('metcal-sticky-cta--dismissed');
+        sticky.setAttribute('aria-hidden', 'true');
+        if (observer) {
+          observer.disconnect();
+        }
+        if (permanent) {
+          try {
+            if (typeof localStorage !== 'undefined') {
+              localStorage.setItem(storageKey, 'true');
+            }
+          } catch (error) {
+            /* empty */
+          }
+        }
+      }
+
+      if (isDismissed) {
+        hideSticky(false);
+        return;
+      }
+
+      var dismissButton = sticky.querySelector('[data-metcal-sticky-dismiss]');
+      if (dismissButton) {
+        dismissButton.addEventListener('click', function (event) {
+          event.preventDefault();
+          hideSticky(true);
+        });
+      }
+
+      var sentinel = document.querySelector('[data-metcal-sticky-sentinel]');
+      if (!sentinel) {
+        return;
+      }
+
+      observer = new IntersectionObserver(function (entries) {
+        if (sticky.classList.contains('metcal-sticky-cta--dismissed')) {
+          return;
+        }
         entries.forEach(function (entry) {
           if (!entry.isIntersecting) {
             sticky.classList.add('metcal-sticky-cta--visible');
+            sticky.removeAttribute('aria-hidden');
           } else {
             sticky.classList.remove('metcal-sticky-cta--visible');
+            sticky.setAttribute('aria-hidden', 'true');
           }
         });
       }, { threshold: 0, rootMargin: '-50% 0px 0px 0px' });
-      var sentinel = document.querySelector('[data-metcal-sticky-sentinel]');
-      if (sentinel) {
-        observer.observe(sentinel);
-      }
+
+      observer.observe(sentinel);
     })();
   </script>
   <script>
