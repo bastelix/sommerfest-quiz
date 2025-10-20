@@ -256,6 +256,39 @@
     }
   }
 
+  function pauseOtherModuleVideos(activeVideo) {
+    moduleVideoControls.forEach(function (entry) {
+      const video = entry.video;
+      if (!video || video === activeVideo) {
+        return;
+      }
+
+      try {
+        video.pause();
+      } catch (error) {
+        /* empty */
+      }
+    });
+  }
+
+  function playModuleVideo(video, figure) {
+    if (!video) {
+      return;
+    }
+
+    pauseOtherModuleVideos(video);
+
+    try {
+      if (video.readyState > 0) {
+        video.currentTime = 0;
+      }
+    } catch (error) {
+      /* empty */
+    }
+
+    attemptModuleVideoAutoplay(video, figure);
+  }
+
   function syncModuleVideoStates() {
     moduleVideoControls.forEach(function (entry) {
       updateModuleVideoState(entry, isModuleVideoFullscreen(entry.video));
@@ -405,6 +438,105 @@
     }
 
     syncModuleVideoStates();
+  }
+
+  function extractPanelFromEvent(event, switcher) {
+    if (!event) {
+      return null;
+    }
+
+    const detail = event.detail;
+    if (detail) {
+      if (Array.isArray(detail)) {
+        const candidate = detail[0];
+        if (candidate && typeof candidate.querySelector === 'function') {
+          return candidate;
+        }
+      } else if (detail.item && typeof detail.item.querySelector === 'function') {
+        return detail.item;
+      } else if (detail[0] && typeof detail[0].querySelector === 'function') {
+        return detail[0];
+      }
+    }
+
+    if (switcher) {
+      const active = switcher.querySelector('li.uk-active');
+      if (active) {
+        return active;
+      }
+    }
+
+    return null;
+  }
+
+  function focusModuleVideo(panel) {
+    if (!panel || typeof panel.querySelector !== 'function') {
+      return;
+    }
+
+    const figure =
+      (typeof panel.matches === 'function' && panel.matches(MODULE_FIGURE_SELECTOR))
+        ? panel
+        : panel.querySelector(MODULE_FIGURE_SELECTOR);
+
+    if (!figure) {
+      return;
+    }
+
+    const video = figure.querySelector(MODULE_VIDEO_SELECTOR);
+    if (!video) {
+      return;
+    }
+
+    playModuleVideo(video, figure);
+  }
+
+  function initModuleSwitcherAutoplay() {
+    const switcher = document.getElementById('calserver-modules-switcher');
+    if (!switcher) {
+      return;
+    }
+
+    const handlePanelChange = function (event) {
+      const panel = extractPanelFromEvent(event, switcher);
+      if (panel) {
+        focusModuleVideo(panel);
+      }
+    };
+
+    switcher.addEventListener('shown', handlePanelChange);
+    switcher.addEventListener('show', handlePanelChange);
+
+    const nav = document.querySelector('.calserver-modules-nav');
+    if (nav) {
+      nav.addEventListener('click', function (event) {
+        const link = event.target.closest('a[href^="#"]');
+        if (!link) {
+          return;
+        }
+
+        const targetId = (link.getAttribute('href') || '').replace(/^#/, '');
+        if (!targetId) {
+          return;
+        }
+
+        const schedule = (typeof window.requestAnimationFrame === 'function')
+          ? window.requestAnimationFrame.bind(window)
+          : function (callback) {
+              return window.setTimeout(callback, 16);
+            };
+
+        schedule(function () {
+          const figure = document.getElementById(targetId);
+          if (!figure) {
+            return;
+          }
+
+          const panel = figure.closest('li') || figure;
+          focusModuleVideo(panel);
+        });
+      });
+    }
   }
 
   function getModuleDownloadLabel() {
@@ -960,6 +1092,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', initModuleVideoFullscreen);
+  document.addEventListener('DOMContentLoaded', initModuleSwitcherAutoplay);
   document.addEventListener('DOMContentLoaded', initModuleDownloadLinks);
   document.addEventListener('DOMContentLoaded', initHeroBackground);
   document.addEventListener('DOMContentLoaded', initProSealWidgets);
