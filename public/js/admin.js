@@ -4168,7 +4168,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantReportBtn = document.getElementById('tenantReportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
   const tenantSearchInput = document.getElementById('tenantSearchInput');
-  const tenantColumnBtn = document.getElementById('tenantColumnBtn');
+  let tenantColumnBtn = document.getElementById('tenantColumnBtn');
   const tenantTable = tenantTableBody?.closest('table');
   const tenantTableHeadings = tenantTable?.querySelectorAll('thead th') || [];
   const tenantColumnDefs = [
@@ -4323,7 +4323,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   }
-  tenantColumnBtn?.addEventListener('click', () => {
+  function handleTenantColumnClick() {
     let modal = document.getElementById('tenantColumnModal');
     if (!modal) {
       modal = document.createElement('div');
@@ -4358,7 +4358,18 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
     if (window.UIkit) UIkit.modal(modal).show();
-  });
+  }
+
+  function bindTenantColumnButton() {
+    tenantColumnBtn = document.getElementById('tenantColumnBtn');
+    if (!tenantColumnBtn) {
+      return;
+    }
+    tenantColumnBtn.removeEventListener('click', handleTenantColumnClick);
+    tenantColumnBtn.addEventListener('click', handleTenantColumnClick);
+  }
+
+  bindTenantColumnButton();
   updateTenantColumnVisibility();
   updateTenantSyncState(window.tenantSyncState || null);
 
@@ -4598,9 +4609,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const metaState = extractTenantSyncState(doc);
         if (newBody) {
           tenantTableBody.innerHTML = newBody.innerHTML;
+          bindTenantColumnButton();
         }
         if (tenantCards && newCards) {
           tenantCards.innerHTML = newCards.innerHTML;
+          bindTenantColumnButton();
         }
         if (metaState) {
           updateTenantSyncState(metaState);
