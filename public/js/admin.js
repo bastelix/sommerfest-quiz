@@ -100,6 +100,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const ragChatSecretPlaceholder = window.ragChatSecretPlaceholder || '__SECRET_PRESENT__';
   const ragChatTokenPlaceholder = window.ragChatTokenPlaceholder || '••••••••';
   const transRagChatSaved = window.transRagChatSaved || 'Einstellung gespeichert';
+  const transCatalogsFetchError = window.transCatalogsFetchError || 'Kataloge konnten nicht geladen werden';
+  const transCatalogsForbidden = window.transCatalogsForbidden || 'Keine Berechtigung zum Laden der Kataloge';
   const transRagChatSaveError = window.transRagChatSaveError || 'Fehler beim Speichern';
   const transRagChatTokenSaved = window.transRagChatTokenSaved || '';
   const transRagChatTokenMissing = window.transRagChatTokenMissing || '';
@@ -2501,14 +2503,16 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  async function loadCatalogs() {
-    catalogManager?.setColumnLoading('name', true);
-    try {
-      const res = await fetch(withBase('/admin/catalogs/data'));
-      if (!res.ok) throw new Error('fail');
-      const data = await res.json();
-      const list = data.items || data;
-      catalogs = list.map((c, i) => ({ ...c, id: c.uid || c.slug || (Date.now() + i) }));
+  function applyCatalogList(list = []) {
+    const timestamp = Date.now();
+    catalogs = (Array.isArray(list) ? list : []).map((item, index) => {
+      const baseId = item?.id ?? item?.uid ?? item?.slug ?? item?.sort_order;
+      const id = baseId !== undefined && baseId !== null && baseId !== ''
+        ? String(baseId)
+        : String(timestamp + index);
+      return { ...item, id };
+    });
+    if (catSelect) {
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
@@ -2516,42 +2520,53 @@ document.addEventListener('DOMContentLoaded', function () {
         opt.textContent = c.name || c.sort_order || c.slug;
         catSelect.appendChild(opt);
       });
-      catalogManager.render(catalogs);
+    }
+    catalogManager.render(catalogs);
+    if (catSelect) {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
       const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
       if (selected) {
-        catSelect.value = selected.id;
+        catSelect.value = String(selected.id);
         loadCatalog(selected.id);
       }
+    }
+  }
+
+  async function loadLegacyCatalogs() {
+    const res = await apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) {
+      throw new Error(`Legacy catalogs request failed with status ${res.status}`);
+    }
+    const list = await res.json();
+    applyCatalogList(list);
+  }
+
+  async function loadCatalogs() {
+    catalogManager?.setColumnLoading('name', true);
+    try {
+      const res = await apiFetch('/admin/catalogs/data', { headers: { 'Accept': 'application/json' } });
+      if (res.status === 404) {
+        await loadLegacyCatalogs();
+        return;
+      }
+      if (res.status === 401 || res.status === 403) {
+        notify(transCatalogsForbidden, 'warning', 4000);
+        return;
+      }
+      if (!res.ok) {
+        throw new Error(`Admin catalogs request failed with status ${res.status}`);
+      }
+      const data = await res.json();
+      if (data && typeof data === 'object' && data.useLegacy) {
+        await loadLegacyCatalogs();
+        return;
+      }
+      const list = data.items || data;
+      applyCatalogList(list);
     } catch (err) {
       console.error(err);
-      apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
-        .then(r => r.json())
-        .then(list => {
-          catalogs = list.map((c, i) => {
-            if (!c.uid && !c.slug) {
-              return { ...c, id: Date.now() + i };
-            }
-            return { ...c, id: c.uid || c.slug };
-          });
-          catSelect.innerHTML = '';
-          catalogs.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = c.name || c.sort_order || c.slug;
-            catSelect.appendChild(opt);
-          });
-          catalogManager.render(catalogs);
-          const params = new URLSearchParams(window.location.search);
-          const slug = params.get('katalog');
-          const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
-          if (selected) {
-            catSelect.value = selected.id;
-            loadCatalog(selected.id);
-          }
-        })
-        .catch(e => console.error(e));
+      notify(transCatalogsFetchError, 'danger', 4000);
     } finally {
       catalogManager?.setColumnLoading('name', false);
     }
