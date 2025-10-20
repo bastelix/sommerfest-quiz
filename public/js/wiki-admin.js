@@ -449,6 +449,11 @@ if (manager) {
         actionsCell.appendChild(menuWrapper);
         row.appendChild(actionsCell);
 
+        if (window.UIkit) {
+          UIkit.icon(menuToggle);
+          UIkit.dropdown(dropdown);
+        }
+
         articlesTableBody.appendChild(row);
       });
     }
