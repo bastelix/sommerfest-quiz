@@ -1,0 +1,276 @@
+import { formatTimestamp } from './results-utils.js';
+
+export class ResultsDataService {
+  constructor(options = {}) {
+    this.basePath = options.basePath || '';
+    this.eventUid = options.eventUid || '';
+    this.shareToken = options.shareToken || '';
+    this.variant = options.variant === 'sponsor' ? 'sponsor' : 'public';
+    this.catalogMap = null;
+    this.catalogCount = 0;
+  }
+
+  withBase(path) {
+    return `${this.basePath}${path}`;
+  }
+
+  setEventUid(uid) {
+    this.eventUid = uid || '';
+    this.catalogMap = null;
+    this.catalogCount = 0;
+  }
+
+  setShareToken(token) {
+    this.shareToken = token || '';
+  }
+
+  setVariant(variant) {
+    this.variant = variant === 'sponsor' ? 'sponsor' : 'public';
+  }
+
+  buildQuery() {
+    const params = new URLSearchParams();
+    if (this.eventUid) {
+      params.set('event_uid', this.eventUid);
+    }
+    if (this.shareToken) {
+      params.set('share_token', this.shareToken);
+      params.set('variant', this.variant);
+    }
+    const query = params.toString();
+    return query ? `?${query}` : '';
+  }
+
+  fetchCatalogMap() {
+    if (this.catalogMap) {
+      return Promise.resolve(this.catalogMap);
+    }
+    const params = new URLSearchParams();
+    if (this.eventUid) {
+      params.set('event', this.eventUid);
+    }
+    if (this.shareToken) {
+      params.set('share_token', this.shareToken);
+      params.set('variant', this.variant);
+    }
+    const query = params.toString();
+    const url = this.withBase(`/kataloge/catalogs.json${query ? `?${query}` : ''}`);
+    return fetch(url, {
+      headers: { Accept: 'application/json' }
+    })
+      .then((r) => {
+        if (!r.ok) {
+          throw new Error('catalogs');
+        }
+        return r.json();
+      })
+      .then((list) => {
+        const map = {};
+        if (Array.isArray(list)) {
+          this.catalogCount = list.length;
+          list.forEach((catalog) => {
+            const name = catalog.name || '';
+            if (catalog.uid) map[catalog.uid] = name;
+            if (catalog.sort_order) map[catalog.sort_order] = name;
+            if (catalog.slug) map[catalog.slug] = name;
+          });
+        } else {
+          this.catalogCount = 0;
+        }
+        this.catalogMap = map;
+        return map;
+      })
+      .catch(() => {
+        this.catalogMap = {};
+        this.catalogCount = 0;
+        return {};
+      });
+  }
+
+  load() {
+    if (!this.eventUid) {
+      return Promise.resolve({
+        rows: [],
+        questionRows: [],
+        catalogCount: this.catalogCount,
+        catalogMap: this.catalogMap || {},
+      });
+    }
+    const query = this.buildQuery();
+    return Promise.all([
+      this.fetchCatalogMap(),
+      fetch(this.withBase(`/results.json${query}`), { headers: { Accept: 'application/json' } }).then((r) => {
+        if (!r.ok) {
+          throw new Error('results');
+        }
+        return r.json();
+      }),
+      fetch(this.withBase(`/question-results.json${query}`), { headers: { Accept: 'application/json' } }).then((r) => {
+        if (!r.ok) {
+          throw new Error('question-results');
+        }
+        return r.json();
+      }),
+    ]).then(([catalogMap, rows, questionRows]) => {
+      if (Array.isArray(rows)) {
+        rows.forEach((row) => {
+          if (catalogMap[row.catalog]) {
+            row.catalogName = catalogMap[row.catalog];
+            row.catalog = catalogMap[row.catalog];
+          }
+        });
+        rows.sort((a, b) => b.time - a.time);
+      }
+      if (Array.isArray(questionRows)) {
+        questionRows.forEach((row) => {
+          if (catalogMap[row.catalog]) {
+            row.catalogName = catalogMap[row.catalog];
+            row.catalog = catalogMap[row.catalog];
+          }
+        });
+      }
+      return {
+        rows: Array.isArray(rows) ? rows : [],
+        questionRows: Array.isArray(questionRows) ? questionRows : [],
+        catalogCount: this.catalogCount || Object.keys(catalogMap).length,
+        catalogMap,
+      };
+    });
+  }
+}
+
+export function computeRankings(rows, questionRows, catalogCount = 0) {
+  const catalogs = new Set();
+  const puzzleTimes = new Map();
+  const catTimes = new Map();
+  const scorePoints = new Map();
+  const attemptMetrics = new Map();
+
+  questionRows.forEach((entry) => {
+    const team = entry.name || '';
+    const catalog = entry.catalog || '';
+    if (!team || !catalog) return;
+    const attempt = Number.isFinite(entry.attempt) ? Number(entry.attempt) : parseInt(entry.attempt, 10) || 1;
+    const key = `${team}|${catalog}|${attempt}`;
+    const finalPoints = Number.isFinite(entry.final_points)
+      ? Number(entry.final_points)
+      : Number.isFinite(entry.finalPoints)
+        ? Number(entry.finalPoints)
+        : Number.isFinite(entry.points) ? Number(entry.points) : 0;
+    const efficiency = Number.isFinite(entry.efficiency)
+      ? Number(entry.efficiency)
+      : (entry.correct ? 1 : 0);
+    const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
+    summary.points += Math.max(0, finalPoints || 0);
+    summary.effSum += Math.max(0, efficiency || 0);
+    summary.count += 1;
+    attemptMetrics.set(key, summary);
+  });
+
+  rows.forEach((row) => {
+    const team = row.name || '';
+    const catalog = row.catalog || '';
+    if (!team || !catalog) return;
+    catalogs.add(catalog);
+
+    if (row.puzzleTime) {
+      const prev = puzzleTimes.get(team);
+      const timeVal = Number(row.puzzleTime);
+      if (!prev || timeVal < prev) puzzleTimes.set(team, timeVal);
+    }
+
+    let tMap = catTimes.get(team);
+    if (!tMap) {
+      tMap = new Map();
+      catTimes.set(team, tMap);
+    }
+    const prevTime = tMap.get(catalog);
+    const playedTime = Number(row.time);
+    if (prevTime === undefined || playedTime < prevTime) {
+      tMap.set(catalog, playedTime);
+    }
+
+    const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
+    const key = `${team}|${catalog}|${attempt}`;
+    const summary = attemptMetrics.get(key);
+    let finalPoints;
+    let effSum;
+    let questionCount;
+    if (summary && summary.count > 0) {
+      finalPoints = summary.points;
+      effSum = summary.effSum;
+      questionCount = summary.count;
+    } else {
+      const fallbackPoints = Number.isFinite(row.points) ? Number(row.points) : Number(row.correct) || 0;
+      finalPoints = fallbackPoints;
+      const totalQuestions = Number.isFinite(row.total) ? Number(row.total) : parseInt(row.total, 10) || 0;
+      questionCount = totalQuestions > 0 ? totalQuestions : 0;
+      const correctCount = Number.isFinite(row.correct) ? Number(row.correct) : parseInt(row.correct, 10) || 0;
+      const avgFallback = questionCount > 0 ? correctCount / questionCount : 0;
+      effSum = avgFallback * questionCount;
+    }
+    const average = questionCount > 0 ? effSum / questionCount : 0;
+
+    let sMap = scorePoints.get(team);
+    if (!sMap) {
+      sMap = new Map();
+      scorePoints.set(team, sMap);
+    }
+    const prev = sMap.get(catalog);
+    if (!prev || finalPoints > prev.points || (finalPoints === prev.points && average > prev.avg)) {
+      sMap.set(catalog, {
+        points: finalPoints,
+        effSum,
+        count: questionCount,
+        avg: average,
+      });
+    }
+  });
+
+  const puzzleArr = [];
+  puzzleTimes.forEach((time, name) => {
+    puzzleArr.push({ name, value: formatTimestamp(time), raw: time });
+  });
+  puzzleArr.sort((a, b) => a.raw - b.raw);
+  const puzzleList = puzzleArr.slice(0, 3);
+
+  const totalCats = catalogCount || catalogs.size;
+  const finishers = [];
+  catTimes.forEach((map, name) => {
+    if (map.size === totalCats) {
+      let last = -Infinity;
+      map.forEach((t) => {
+        if (t > last) last = t;
+      });
+      finishers.push({ name, finished: last });
+    }
+  });
+  finishers.sort((a, b) => a.finished - b.finished);
+  const catalogList = finishers.slice(0, 3).map((item) => ({
+    name: item.name,
+    value: formatTimestamp(item.finished),
+    raw: item.finished,
+  }));
+
+  const totalScores = [];
+  scorePoints.forEach((map, name) => {
+    let total = 0;
+    let effSumTotal = 0;
+    let questionCountTotal = 0;
+    map.forEach((entry) => {
+      total += entry.points;
+      effSumTotal += entry.effSum;
+      questionCountTotal += entry.count;
+    });
+    const avgEfficiency = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
+    const display = `${total} Punkte (Ø ${(avgEfficiency * 100).toFixed(0)}%)`;
+    totalScores.push({ name, value: display, raw: total, avg: avgEfficiency });
+  });
+  totalScores.sort((a, b) => {
+    if (b.raw !== a.raw) return b.raw - a.raw;
+    return (b.avg ?? 0) - (a.avg ?? 0);
+  });
+  const pointsList = totalScores.slice(0, 3);
+
+  return { puzzleList, catalogList, pointsList };
+}

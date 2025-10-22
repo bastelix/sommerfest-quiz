@@ -1,6 +1,7 @@
 /* global UIkit */
 import { applyLazyImage } from './lazy-images.js';
-let catalogCount = 0;
+import { ResultsDataService, computeRankings } from './results-data-service.js';
+import { formatTimestamp, formatPointsCell, insertSoftHyphens, escapeHtml } from './results-utils.js';
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const wrongBody = document.getElementById('wrongTableBody');
@@ -12,39 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   let fallbackEventUid = params.get('event') || '';
   let activeRequestId = 0;
+  const dataService = new ResultsDataService({ basePath });
 
   const PAGE_SIZE = 10;
   let resultsData = [];
   let currentPage = 1;
-
-  function formatTime(ts) {
-    const d = new Date(ts * 1000);
-    const pad = n => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-
-  function formatPointsCell(points, maxPoints) {
-    const pts = Number.isFinite(points) ? points : Number.parseInt(points, 10);
-    const normalizedPts = Number.isFinite(pts) ? pts : 0;
-    const max = Number.isFinite(maxPoints) ? maxPoints : Number.parseInt(maxPoints, 10);
-    if (Number.isFinite(max) && max > 0) {
-      return `${normalizedPts}/${max}`;
-    }
-    return String(normalizedPts);
-  }
-
-  function insertSoftHyphens(text) {
-    return text ? text.replace(/\/-/g, '\u00AD') : '';
-  }
-
-  function escapeHtml(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
 
   function sanitizePageNumber(num, total) {
     let n = parseInt(num, 10);
@@ -114,8 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
         r.catalogName || r.catalog,
         `${r.correct}/${r.total}`,
         pointsCell,
-        formatTime(r.time),
-        r.puzzleTime ? formatTime(r.puzzleTime) : '',
+        formatTimestamp(r.time),
+        r.puzzleTime ? formatTimestamp(r.puzzleTime) : '',
         null
       ];
       const nameCell = document.createElement('td');
@@ -234,135 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pagination.appendChild(nextLi);
   }
 
-  function computeRankings(rows, qrows) {
-    const catalogs = new Set();
-    const puzzleTimes = new Map();
-    const catTimes = new Map();
-    const scorePoints = new Map();
-    const attemptMetrics = new Map();
-
-    qrows.forEach(r => {
-      const team = r.name || '';
-      const catalog = r.catalog || '';
-      if (!team || !catalog) return;
-      const attempt = Number.isFinite(r.attempt) ? Number(r.attempt) : parseInt(r.attempt, 10) || 1;
-      const key = `${team}|${catalog}|${attempt}`;
-      const finalPoints = Number.isFinite(r.final_points)
-        ? Number(r.final_points)
-        : Number.isFinite(r.finalPoints)
-          ? Number(r.finalPoints)
-          : Number.isFinite(r.points) ? Number(r.points) : 0;
-      const efficiency = Number.isFinite(r.efficiency)
-        ? Number(r.efficiency)
-        : (r.correct ? 1 : 0);
-      const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
-      summary.points += Math.max(0, finalPoints || 0);
-      summary.effSum += Math.max(0, efficiency || 0);
-      summary.count += 1;
-      attemptMetrics.set(key, summary);
-    });
-
-    rows.forEach(r => {
-      const team = r.name || '';
-      const catalog = r.catalog || '';
-      if (!team || !catalog) return;
-      catalogs.add(catalog);
-
-      if (r.puzzleTime) {
-        const prev = puzzleTimes.get(team);
-        const timeVal = Number(r.puzzleTime);
-        if (!prev || timeVal < prev) puzzleTimes.set(team, timeVal);
-      }
-
-      let tMap = catTimes.get(team);
-      if (!tMap) { tMap = new Map(); catTimes.set(team, tMap); }
-      const prevTime = tMap.get(catalog);
-      const playedTime = Number(r.time);
-      if (prevTime === undefined || playedTime < prevTime) {
-        tMap.set(catalog, playedTime);
-      }
-
-      const attempt = Number.isFinite(r.attempt) ? Number(r.attempt) : parseInt(r.attempt, 10) || 1;
-      const key = `${team}|${catalog}|${attempt}`;
-      const summary = attemptMetrics.get(key);
-      let finalPoints;
-      let effSum;
-      let questionCount;
-      if (summary && summary.count > 0) {
-        finalPoints = summary.points;
-        effSum = summary.effSum;
-        questionCount = summary.count;
-      } else {
-        const fallbackPoints = Number.isFinite(r.points) ? Number(r.points) : Number(r.correct) || 0;
-        finalPoints = fallbackPoints;
-        const totalQuestions = Number.isFinite(r.total) ? Number(r.total) : parseInt(r.total, 10) || 0;
-        questionCount = totalQuestions > 0 ? totalQuestions : 0;
-        const correctCount = Number.isFinite(r.correct) ? Number(r.correct) : parseInt(r.correct, 10) || 0;
-        const avgFallback = questionCount > 0 ? correctCount / questionCount : 0;
-        effSum = avgFallback * questionCount;
-      }
-      const average = questionCount > 0 ? effSum / questionCount : 0;
-
-      let sMap = scorePoints.get(team);
-      if (!sMap) { sMap = new Map(); scorePoints.set(team, sMap); }
-      const prev = sMap.get(catalog);
-      if (!prev || finalPoints > prev.points || (finalPoints === prev.points && average > prev.avg)) {
-        sMap.set(catalog, {
-          points: finalPoints,
-          effSum,
-          count: questionCount,
-          avg: average
-        });
-      }
-    });
-
-    const puzzleArr = [];
-    puzzleTimes.forEach((time, name) => {
-      puzzleArr.push({ name, value: formatTime(time), raw: time });
-    });
-    puzzleArr.sort((a, b) => a.raw - b.raw);
-    const puzzleList = puzzleArr.slice(0, 3);
-
-    const totalCats = catalogCount || catalogs.size;
-    const finishers = [];
-    catTimes.forEach((map, name) => {
-      if (map.size === totalCats) {
-        let last = -Infinity;
-        map.forEach(t => { if (t > last) last = t; });
-        finishers.push({ name, finished: last });
-      }
-    });
-    finishers.sort((a, b) => a.finished - b.finished);
-    const catalogList = finishers.slice(0, 3).map(item => ({
-      name: item.name,
-      value: formatTime(item.finished),
-      raw: item.finished
-    }));
-
-    const totalScores = [];
-    scorePoints.forEach((map, name) => {
-      let total = 0;
-      let effSumTotal = 0;
-      let questionCountTotal = 0;
-      map.forEach(entry => {
-        total += entry.points;
-        effSumTotal += entry.effSum;
-        questionCountTotal += entry.count;
-      });
-      const avgEfficiency = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
-      const display = `${total} Punkte (Ø ${(avgEfficiency * 100).toFixed(0)}%)`;
-      totalScores.push({ name, value: display, raw: total, avg: avgEfficiency });
-    });
-    totalScores.sort((a, b) => {
-      if (b.raw !== a.raw) return b.raw - a.raw;
-      return (b.avg ?? 0) - (a.avg ?? 0);
-    });
-    const pointsList = totalScores.slice(0, 3);
-
-    return { puzzleList, catalogList, pointsList };
-  }
-
-
   function renderRankings(rankings) {
     if (!grid) return;
     grid.innerHTML = '';
@@ -436,36 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  let catalogMap = null;
-
-  function fetchCatalogMap() {
-    if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch(withBase('/kataloge/catalogs.json'), {
-      headers: { 'Accept': 'application/json' }
-    })
-      .then(r => r.json())
-      .then(list => {
-        const map = {};
-        if (Array.isArray(list)) {
-          catalogCount = list.length;
-          list.forEach(c => {
-            const name = c.name || '';
-            if (c.uid) map[c.uid] = name;
-            if (c.sort_order) map[c.sort_order] = name;
-            if (c.slug) map[c.slug] = name;
-          });
-        } else {
-          catalogCount = 0;
-        }
-        catalogMap = map;
-        return map;
-      })
-      .catch(() => {
-        catalogMap = {};
-        return catalogMap;
-      });
-  }
-
   function renderNoEvent() {
     if (grid) {
       grid.innerHTML = '<p>Kein Event ausgewählt</p>';
@@ -493,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const buildEventQuery = uid => (uid ? `?event=${encodeURIComponent(uid)}` : '');
   const getCurrentEventUid = () => {
     const configUid = (window.quizConfig || {}).event_uid || '';
     return configUid || fallbackEventUid;
@@ -506,21 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const requestId = ++activeRequestId;
-    const eventQuery = buildEventQuery(currentEventUid);
-    Promise.all([
-      fetchCatalogMap(),
-      fetch(withBase('/results.json' + eventQuery)).then(r => r.json()),
-      fetch(withBase('/question-results.json' + eventQuery)).then(r => r.json())
-    ])
-      .then(([catMap, rows, qrows]) => {
+    dataService.setEventUid(currentEventUid);
+    dataService.load()
+      .then(({ rows, questionRows, catalogCount }) => {
         if (requestId !== activeRequestId) {
           return;
         }
-        rows.forEach(r => {
-          if (!r.catalogName && catMap[r.catalog]) r.catalogName = catMap[r.catalog];
-          if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
-        });
-        rows.sort((a, b) => b.time - a.time);
         resultsData = rows;
         currentPage = 1;
         renderPage(currentPage);
@@ -528,14 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshLightboxes();
         updatePagination();
 
-        const rankings = computeRankings(rows, qrows);
+        const rankings = computeRankings(rows, questionRows, catalogCount);
         renderRankings(rankings);
 
-        qrows.forEach(r => {
-          if (!r.catalogName && catMap[r.catalog]) r.catalogName = catMap[r.catalog];
-          if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
-        });
-        const wrongOnly = qrows.filter(r => !r.correct);
+        const wrongOnly = questionRows.filter(r => !r.correct);
         renderWrongTable(wrongOnly);
       })
       .catch(err => {
@@ -617,8 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('event:changed', e => {
     const detail = e.detail || {};
     fallbackEventUid = typeof detail.uid === 'string' ? detail.uid : fallbackEventUid;
-    catalogMap = null;
-    catalogCount = 0;
+    dataService.setEventUid(fallbackEventUid);
     resultsData = [];
     currentPage = 1;
     load();

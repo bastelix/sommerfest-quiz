@@ -55,7 +55,15 @@ class ResultController
      */
     public function get(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
+        $shareToken = (string)($params['share_token'] ?? '');
+        $variantParam = strtolower((string)($params['variant'] ?? ''));
+        if ($shareToken !== '' && $eventUid !== '') {
+            $variant = $variantParam === 'sponsor' ? 'sponsor' : 'public';
+            if ($this->config->verifyDashboardToken($eventUid, $shareToken, $variant) === null) {
+                return $response->withStatus(403);
+            }
+        }
         $content = json_encode($this->service->getAll($eventUid), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
@@ -66,7 +74,15 @@ class ResultController
      */
     public function getQuestions(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $eventUid = (string)($params['event_uid'] ?? '');
+        $eventUid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
+        $shareToken = (string)($params['share_token'] ?? '');
+        $variantParam = strtolower((string)($params['variant'] ?? ''));
+        if ($shareToken !== '' && $eventUid !== '') {
+            $variant = $variantParam === 'sponsor' ? 'sponsor' : 'public';
+            if ($this->config->verifyDashboardToken($eventUid, $shareToken, $variant) === null) {
+                return $response->withStatus(403);
+            }
+        }
         $content = json_encode($this->service->getQuestionResults($eventUid), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');

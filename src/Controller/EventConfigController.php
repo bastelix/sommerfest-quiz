@@ -99,4 +99,28 @@ class EventConfigController
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }
+
+    /**
+     * Rotate the public or sponsor dashboard token for the given event.
+     */
+    public function rotateToken(Request $request, Response $response, array $args): Response {
+        $uid = (string) ($args['id'] ?? '');
+        $event = $this->events->getByUid($uid);
+        if ($event === null) {
+            return $response->withStatus(404);
+        }
+
+        $data = $request->getParsedBody();
+        $variant = is_array($data) ? (string) ($data['variant'] ?? 'public') : 'public';
+        $variant = $variant === 'sponsor' ? 'sponsor' : 'public';
+
+        $token = $this->config->generateDashboardToken();
+        $this->config->setDashboardToken($uid, $variant, $token);
+
+        $payload = ['variant' => $variant, 'token' => $token];
+        $content = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        $response->getBody()->write($content);
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }

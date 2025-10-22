@@ -1,0 +1,74 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ event.name }} · Live-Dashboard{% endblock %}
+
+{% block head %}
+  {{ parent() }}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <style>
+    :root {
+      --dashboard-accent: {{ config.buttonColor|default('#1e87f0') }};
+    }
+    .dashboard-modules .uk-card {
+      border-top: 3px solid var(--dashboard-accent);
+    }
+    .dashboard-status {
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .dashboard-info {
+      border-left: 4px solid var(--dashboard-accent);
+      padding-left: 1rem;
+    }
+    .dashboard-media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+  </style>
+{% endblock %}
+
+{% block body_class %}uk-background-muted{% endblock %}
+
+{% block body %}
+  <div class="uk-container uk-container-large uk-padding-small">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-medium-top" data-dashboard-header>
+      <div>
+        <h1 class="uk-heading-bullet uk-margin-remove">{{ event.name }}</h1>
+        {% if dashboard.visibility.start or dashboard.visibility.end %}
+          <div class="uk-text-meta">
+            {% if dashboard.visibility.start %}Sichtbar ab {{ dashboard.visibility.start|date('d.m.Y H:i') }}{% endif %}
+            {% if dashboard.visibility.start and dashboard.visibility.end %} · {% endif %}
+            {% if dashboard.visibility.end %}Bis {{ dashboard.visibility.end|date('d.m.Y H:i') }}{% endif %}
+          </div>
+        {% endif %}
+      </div>
+      <div class="dashboard-status uk-flex">
+        <span id="dashboardStatusLabel" class="uk-text-meta"></span>
+        <button class="uk-button uk-button-default" id="dashboardRefreshBtn" type="button">Aktualisieren</button>
+      </div>
+    </div>
+    {% if not dashboard.active %}
+      <div class="uk-alert uk-alert-warning uk-margin">Das Dashboard ist derzeit nicht aktiv.</div>
+    {% endif %}
+    <div id="dashboardModules" class="dashboard-modules uk-margin-large-top" data-dashboard-root></div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    window.dashboardConfig = {{ {
+      eventUid: event.uid,
+      slug: event.slug,
+      modules: dashboard.modules,
+      refreshInterval: dashboard.refreshInterval,
+      infoText: dashboard.infoText,
+      mediaItems: dashboard.mediaItems,
+      shareToken: dashboard.shareToken,
+      variant: dashboard.variant,
+      active: dashboard.active,
+      visibility: dashboard.visibility
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+  </script>
+  <script type="module" src="{{ basePath }}/js/event-dashboard.js"></script>
+{% endblock %}
