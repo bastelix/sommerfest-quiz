@@ -15,6 +15,77 @@ class ResultControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public function testDownloadOmitsEpochForZeroTime(): void {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE catalogs(
+                uid TEXT PRIMARY KEY,
+                sort_order INTEGER,
+                slug TEXT,
+                file TEXT,
+                name TEXT,
+                description TEXT,
+                raetsel_buchstabe TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo) " .
+            "VALUES('Team Zero','catalog-1',1,4,7,10,15,0,0,NULL)"
+        );
+
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+        $config = new \App\Service\ConfigService($pdo);
+        $service = new \App\Service\ResultService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $config);
+        $catalogs = new \App\Service\CatalogService($pdo, $config);
+        $events = new \App\Service\EventService($pdo, $config);
+        $controller = new \App\Controller\ResultController(
+            $service,
+            $config,
+            $teams,
+            $catalogs,
+            sys_get_temp_dir(),
+            $events
+        );
+
+        $request = $this->createRequest('GET', '/results.csv');
+        $response = $controller->download($request, new \Slim\Psr7\Response());
+        $body = (string) $response->getBody();
+        $csv = preg_replace('/^\xEF\xBB\xBF/', '', $body) ?? $body;
+        $lines = array_values(array_filter(explode("\n", trim($csv))));
+        $this->assertCount(2, $lines);
+        $rows = array_map(static fn(string $line): array => str_getcsv($line, ';'), $lines);
+
+        $this->assertSame('', $rows[1][7]);
+        $this->assertSame('', $rows[1][8]);
+        $this->assertStringNotContainsString('1970-01-01', $csv);
+    }
+
     public function testResultsPdfIsGenerated(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);

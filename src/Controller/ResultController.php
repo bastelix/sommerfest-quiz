@@ -520,6 +520,11 @@ class ResultController
      * @return list<string|int>
      */
     private function mapResultRow(array $r): array {
+        $time = $this->formatTimestamp($r['time'] ?? null);
+        $puzzleTime = array_key_exists('puzzleTime', $r)
+            ? $this->formatTimestamp($r['puzzleTime'])
+            : '';
+
         return [
             (string)($r['name'] ?? ''),
             (int)($r['attempt'] ?? 0),
@@ -528,10 +533,46 @@ class ResultController
             (int)($r['total'] ?? 0),
             (int)($r['points'] ?? 0),
             (int)($r['max_points'] ?? 0),
-            date('Y-m-d H:i', (int)($r['time'] ?? 0)),
-            isset($r['puzzleTime']) ? date('Y-m-d H:i', (int) $r['puzzleTime']) : '',
+            $time,
+            $puzzleTime,
             (string)($r['photo'] ?? ''),
         ];
+    }
+
+    /**
+     * Convert a timestamp-like value into a formatted string or an empty placeholder.
+     *
+     * @param int|float|string|null $value
+     */
+    private function formatTimestamp($value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '0') {
+                return '';
+            }
+            if (!is_numeric($trimmed)) {
+                return '';
+            }
+            $timestamp = (int) round((float) $trimmed);
+        } elseif (is_int($value) || is_float($value)) {
+            if ($value <= 0) {
+                return '';
+            }
+            $timestamp = (int) round($value);
+        } else {
+            return '';
+        }
+
+        if ($timestamp <= 0) {
+            return '';
+        }
+
+        return date('Y-m-d H:i', $timestamp);
     }
 
     /**
