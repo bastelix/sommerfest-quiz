@@ -987,6 +987,56 @@ body.admin-page {
   margin-bottom: 0;
 }
 
+.dashboard-leader {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-leader__summary {
+  border-left: 4px solid var(--dashboard-accent);
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dashboard-leader__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #555;
+}
+
+.dashboard-leader__name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dashboard-leader__points {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--dashboard-accent);
+}
+
+.dashboard-leader__meta {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.dashboard-leader__list {
+  margin: 0;
+}
+
+.dashboard-leader__list li {
+  padding: 0.5rem 0;
+}
+
+.dashboard-leader__delta {
+  margin-top: 0.25rem;
+}
+
 @media (min-width: 1024px) {
   .dashboard-tile--wide {
     grid-column: span 2;
