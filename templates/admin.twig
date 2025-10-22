@@ -357,6 +357,25 @@
               </div>
               <div>
                 <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgCountdownEnabled" name="countdownEnabled" value="1" {% if config.countdownEnabled %}checked{% endif %}> {{ t('label_countdown_enabled') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_countdown_enabled') }}; pos: right" aria-label="{{ t('tip_countdown_enabled') }}" tabindex="0"></span>
+                  </label>
+                  <div class="uk-text-meta">{{ t('text_countdown_enabled_hint') }}</div>
+                </div>
+              </div>
+              <div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="cfgCountdown">{{ t('label_countdown_default') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_countdown_default') }}; pos: right" aria-label="{{ t('tip_countdown_default') }}" tabindex="0"></span>
+                  </label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" type="number" min="0" id="cfgCountdown" name="countdown" value="{{ config.countdown|default('') }}">
+                  </div>
+                  <div class="uk-text-meta">{{ t('text_countdown_default_hint') }}</div>
+                </div>
+              </div>
+              <div>
+                <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled" name="puzzleWordEnabled" value="1" {% if config.puzzleWordEnabled %}checked{% endif %}> {{ t('label_puzzle_word') }}
                     <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right" aria-label="{{ t('tip_puzzle_word') }}" tabindex="0"></span>
                   </label>
@@ -2196,6 +2215,7 @@
     window.transRestartTenant = '{{ t('action_restart_tenant') }}';
     window.transImageReady = '{{ t('text_background_uploaded') }}';
     window.transEventSettingsHelp = '{{ t('text_event_settings_help')|e('js') }}';
+    window.transCountdownInvalid = '{{ t('message_countdown_invalid')|e('js') }}';
     window.transEventsFetchError = '{{ t('text_events_fetch_error')|e('js') }}';
     window.transSummaryLoadingCatalogs = '{{ t('text_summary_loading_catalogs')|e('js') }}';
     window.transSummaryLoadingTeams = '{{ t('text_summary_loading_teams')|e('js') }}';

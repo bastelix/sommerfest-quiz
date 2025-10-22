@@ -135,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const transRagChatSaveError = window.transRagChatSaveError || 'Fehler beim Speichern';
   const transRagChatTokenSaved = window.transRagChatTokenSaved || '';
   const transRagChatTokenMissing = window.transRagChatTokenMissing || '';
+  const transCountdownInvalid = window.transCountdownInvalid || 'Zeitlimit muss 0 oder größer sein.';
   const pagesInitial = window.pagesContent || {};
   const profileForm = document.getElementById('profileForm');
   const profileSaveBtn = document.getElementById('profileSaveBtn');
@@ -953,6 +954,8 @@ document.addEventListener('DOMContentLoaded', function () {
     competitionMode: document.getElementById('cfgCompetitionMode'),
     teamResults: document.getElementById('cfgTeamResults'),
     photoUpload: document.getElementById('cfgPhotoUpload'),
+    countdownEnabled: document.getElementById('cfgCountdownEnabled'),
+    countdown: document.getElementById('cfgCountdown'),
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
@@ -1222,6 +1225,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (cfgFields.photoUpload) {
       cfgFields.photoUpload.checked = data.photoUpload !== false;
+    }
+    if (cfgFields.countdownEnabled) {
+      const rawCountdownEnabled = data.countdownEnabled ?? data.countdown_enabled ?? false;
+      cfgFields.countdownEnabled.checked = rawCountdownEnabled === true
+        || rawCountdownEnabled === '1'
+        || rawCountdownEnabled === 1
+        || String(rawCountdownEnabled).toLowerCase() === 'true';
+    }
+    if (cfgFields.countdown) {
+      const rawCountdown = data.countdown ?? data.defaultCountdown ?? '';
+      if (rawCountdown === null || rawCountdown === undefined || rawCountdown === '') {
+        cfgFields.countdown.value = '';
+      } else {
+        const parsedCountdown = Number.parseInt(rawCountdown, 10);
+        cfgFields.countdown.value = Number.isNaN(parsedCountdown)
+          ? ''
+          : String(Math.max(parsedCountdown, 0));
+      }
     }
     if (cfgFields.puzzleEnabled) {
       cfgFields.puzzleEnabled.checked = data.puzzleWordEnabled !== false;
@@ -2245,6 +2266,32 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.competitionMode) data.competitionMode = cfgFields.competitionMode.checked;
     if (cfgFields.teamResults) data.teamResults = cfgFields.teamResults.checked;
     if (cfgFields.photoUpload) data.photoUpload = cfgFields.photoUpload.checked;
+    if (cfgFields.countdownEnabled) {
+      data.countdownEnabled = cfgFields.countdownEnabled.checked ? '1' : '0';
+    }
+    if (cfgFields.countdown) {
+      const rawValue = cfgFields.countdown.value;
+      const trimmed = rawValue == null ? '' : String(rawValue).trim();
+      if (trimmed === '') {
+        data.countdown = '';
+        cfgFields.countdown.value = '';
+      } else {
+        const parsed = Number.parseInt(trimmed, 10);
+        if (Number.isNaN(parsed)) {
+          data.countdown = '';
+          cfgFields.countdown.value = '';
+        } else if (parsed < 0) {
+          data.countdown = '0';
+          cfgFields.countdown.value = '0';
+          if (typeof notify === 'function') {
+            notify(transCountdownInvalid, 'warning');
+          }
+        } else {
+          data.countdown = String(parsed);
+          cfgFields.countdown.value = String(parsed);
+        }
+      }
+    }
     if (cfgFields.puzzleEnabled) {
       data.puzzleWordEnabled = cfgFields.puzzleEnabled.checked;
       data.puzzleWord = cfgFields.puzzleWord?.value || '';
@@ -2852,9 +2899,12 @@ document.addEventListener('DOMContentLoaded', function () {
     countdownInput.disabled = !countdownEnabled;
     const countdownMeta = document.createElement('div');
     countdownMeta.className = 'uk-text-meta';
+    const countdownDisabledHint = cfgFields.countdownEnabled
+      ? 'In den Event-Einstellungen unter „Extras“ den Countdown aktivieren, um ein Zeitlimit festzulegen.'
+      : 'Countdown aktivieren, um ein Zeitlimit festzulegen.';
     countdownMeta.textContent = countdownEnabled
       ? 'Leer für Standardwert, 0 deaktiviert den Timer.'
-      : 'Countdown im Tab „Extras“ aktivieren, um ein Zeitlimit festzulegen.';
+      : countdownDisabledHint;
     countdownGroup.appendChild(countdownLabel);
     countdownGroup.appendChild(countdownInput);
     countdownGroup.appendChild(countdownMeta);
