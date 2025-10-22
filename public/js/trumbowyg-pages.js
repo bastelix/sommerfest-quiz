@@ -265,6 +265,91 @@ function applyLandingStyling(element) {
   element.classList.add('dark-mode');
 }
 
+const PAGE_EDITOR_BUTTON_GROUPS = [
+  ['viewHTML'],
+  ['formatting'],
+  ['bold', 'italic', 'underline'],
+  ['link'],
+  ['insertImage'],
+  ['unorderedList', 'orderedList'],
+  ['variable'],
+  ['template'],
+  ['fullscreen']
+];
+
+const getEditorElement = form => (form ? form.querySelector('.page-editor') : null);
+
+const resetLandingStyling = element => {
+  if (!element) {
+    return;
+  }
+  element.classList.remove('landing-editor', 'dark-mode');
+  element.removeAttribute('data-theme');
+};
+
+const ensurePageEditorInitialized = form => {
+  const editorEl = getEditorElement(form);
+  if (!editorEl || editorEl.dataset.editorInitialized === '1') {
+    return editorEl;
+  }
+
+  const initial = editorEl.dataset.content || '';
+  const sanitized = sanitize(initial);
+  editorEl.innerHTML = sanitized;
+  editorEl.dataset.content = sanitized;
+
+  if (form?.dataset.landing === 'true') {
+    applyLandingStyling(editorEl);
+  } else {
+    resetLandingStyling(editorEl);
+  }
+
+  $(editorEl).trumbowyg({
+    lang: 'de',
+    btns: PAGE_EDITOR_BUTTON_GROUPS,
+    plugins: { template: true, variable: true }
+  });
+  editorEl.dataset.editorInitialized = '1';
+  return editorEl;
+};
+
+const teardownPageEditor = form => {
+  const editorEl = getEditorElement(form);
+  if (!editorEl || editorEl.dataset.editorInitialized !== '1') {
+    return;
+  }
+
+  let html = '';
+  try {
+    html = $(editorEl).trumbowyg('html');
+  } catch (error) {
+    if (window.console && typeof window.console.warn === 'function') {
+      window.console.warn('Failed to read page editor HTML before teardown', error);
+    }
+  }
+
+  if (typeof html === 'string') {
+    const sanitized = sanitize(html);
+    editorEl.dataset.content = sanitized;
+    const slug = form?.dataset.slug;
+    if (slug && window.pagesContent && typeof window.pagesContent === 'object') {
+      window.pagesContent[slug] = sanitized;
+    }
+  }
+
+  try {
+    $(editorEl).trumbowyg('destroy');
+  } catch (error) {
+    if (window.console && typeof window.console.warn === 'function') {
+      window.console.warn('Failed to destroy page editor instance', error);
+    }
+  }
+
+  editorEl.innerHTML = '';
+  resetLandingStyling(editorEl);
+  delete editorEl.dataset.editorInitialized;
+};
+
 const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
 
@@ -378,38 +463,24 @@ const setupPageForm = form => {
     return;
   }
 
-  const initial = editorEl.dataset.content || '';
-  if (!editorEl.dataset.editorInitialized) {
-    if (initial) {
-      editorEl.innerHTML = sanitize(initial);
-    }
-    if (form.dataset.landing === 'true') {
-      applyLandingStyling(editorEl);
-    }
-    $(editorEl).trumbowyg({
-      lang: 'de',
-      btns: [
-        ['viewHTML'],
-        ['formatting'],
-        ['bold', 'italic', 'underline'],
-        ['link'],
-        ['insertImage'],
-        ['unorderedList', 'orderedList'],
-        ['variable'],
-        ['template'],
-        ['fullscreen']
-      ],
-      plugins: { template: true, variable: true }
-    });
-    editorEl.dataset.editorInitialized = '1';
+  if (form.classList.contains('uk-hidden')) {
+    editorEl.innerHTML = '';
+    resetLandingStyling(editorEl);
+  } else {
+    ensurePageEditorInitialized(form);
   }
 
   const saveBtn = form.querySelector('.save-page-btn');
   if (saveBtn && !saveBtn.dataset.bound) {
     saveBtn.addEventListener('click', event => {
       event.preventDefault();
-      const html = sanitize($(editorEl).trumbowyg('html'));
+      const activeEditor = ensurePageEditorInitialized(form) || editorEl;
+      const html = sanitize($(activeEditor).trumbowyg('html'));
       input.value = html;
+      editorEl.dataset.content = html;
+      if (window.pagesContent && typeof window.pagesContent === 'object') {
+        window.pagesContent[slug] = html;
+      }
       apiFetch(`/admin/pages/${encodeURIComponent(slug)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -516,6 +587,7 @@ const removePageFromInterface = slug => {
 
   const form = container.querySelector(`.page-form[data-slug="${normalized}"]`);
   if (form) {
+    teardownPageEditor(form);
     form.remove();
   }
 
@@ -583,7 +655,13 @@ export function initPageSelection() {
       activeSlug = forms[0]?.dataset.slug || '';
     }
     forms.forEach(form => {
-      form.classList.toggle('uk-hidden', form.dataset.slug !== activeSlug);
+      const isActive = form.dataset.slug === activeSlug;
+      form.classList.toggle('uk-hidden', !isActive);
+      if (isActive) {
+        ensurePageEditorInitialized(form);
+      } else {
+        teardownPageEditor(form);
+      }
     });
   };
 
@@ -692,17 +770,17 @@ const initPageCreation = () => {
 };
 
 export function showPreview() {
-  const editor = document.querySelector('.page-editor');
+  const activeForm = document.querySelector('.page-form:not(.uk-hidden)');
+  const editor = activeForm ? ensurePageEditorInitialized(activeForm) : null;
   if (!editor) return;
   const html = sanitize($(editor).trumbowyg('html'));
   const target = document.getElementById('preview-content');
   if (target) {
     target.innerHTML = html;
-    if (editor.classList.contains('landing-editor')) {
+    if (activeForm?.dataset.landing === 'true') {
       applyLandingStyling(target);
     } else {
-      target.classList.remove('landing-editor', 'dark-mode');
-      target.removeAttribute('data-theme');
+      resetLandingStyling(target);
     }
   }
   if (window.UIkit) {
