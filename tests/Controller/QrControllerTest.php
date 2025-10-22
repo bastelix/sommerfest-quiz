@@ -130,6 +130,20 @@ class QrControllerTest extends TestCase
         $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
     }
 
+    public function testTeamQrAcceptsLongAbsoluteUrl(): void {
+        $app = $this->getAppInstance();
+        $longUrl = 'https://example.com/' . str_repeat('section/', 32) . 'final';
+        $request = $this->createRequest('GET', '/qr/team')->withQueryParams(['t' => $longUrl]);
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
+    }
+
     public function testTeamQrConditionalRequest(): void {
         $app = $this->getAppInstance();
         $initial = $app->handle($this->createRequest('GET', '/qr/team'));
