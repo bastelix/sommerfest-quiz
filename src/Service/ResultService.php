@@ -27,7 +27,7 @@ class ResultService
      */
     public function getAll(string $eventUid = ''): array {
         $sql = <<<'SQL'
-            SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time,
+            SELECT r.name, r.catalog, r.attempt, r.correct, r.points, r.total, r.max_points, r.time,
                 r.puzzleTime AS "puzzleTime", r.photo,
                 c.name AS catalogName
             FROM results r
@@ -47,6 +47,10 @@ class ResultService
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
+            $row['correct'] = isset($row['correct']) ? (int) $row['correct'] : 0;
+            $row['points'] = isset($row['points']) ? (int) $row['points'] : 0;
+            $row['total'] = isset($row['total']) ? (int) $row['total'] : 0;
+            $row['max_points'] = isset($row['max_points']) ? (int) $row['max_points'] : 0;
             foreach (["options","answers","terms","items"] as $k) {
                 if (isset($row[$k])) {
                     $row[$k] = json_decode((string)$row[$k], true);
@@ -64,8 +68,8 @@ class ResultService
     public function getQuestionResults(string $eventUid = ''): array {
         $sql = <<<'SQL'
             SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
-                qr.answer_text, qr.photo, qr.consent,
-                q.type, q.prompt, q.options, q.answers, q.terms, q.items,
+                qr.points, qr.answer_text, qr.photo, qr.consent,
+                q.type, q.prompt, q.points AS question_points, q.options, q.answers, q.terms, q.items,
                 c.name AS catalogName
             FROM question_results qr
             LEFT JOIN questions q ON q.id = qr.question_id
@@ -85,6 +89,11 @@ class ResultService
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
+            $row['points'] = isset($row['points']) ? (int) $row['points'] : 0;
+            if (isset($row['question_points'])) {
+                $row['questionPoints'] = (int) $row['question_points'];
+                unset($row['question_points']);
+            }
             foreach (["options", "answers", "terms", "items"] as $k) {
                 if (isset($row[$k])) {
                     $row[$k] = json_decode((string) $row[$k], true);
@@ -102,7 +111,7 @@ class ResultService
      * @return array<int, array<string, mixed>>
      */
     public function getQuestionRows(string $eventUid = ''): array {
-        $sql = 'SELECT name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid '
+        $sql = 'SELECT name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid '
             . 'FROM question_results';
         $params = [];
         if ($eventUid !== '') {
@@ -152,28 +161,34 @@ class ResultService
             'catalog' => $catalog,
             'attempt' => $attempt,
             'correct' => (int)($data['correct'] ?? 0),
+            'points' => 0,
             'total' => (int)($data['total'] ?? 0),
+            'max_points' => 0,
             'time' => time(),
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
             'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
         ];
         $stmt = $this->pdo->prepare(
-            'INSERT INTO results(name,catalog,attempt,correct,total,time,' .
-            'puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?)'
+            'INSERT INTO results(name,catalog,attempt,correct,points,total,max_points,time,' .
+            'puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?,?)'
         );
+        $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
+        $summary = $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers, $eventUid);
+        $entry['points'] = $summary['points'];
+        $entry['max_points'] = $summary['max'];
         $stmt->execute([
             $entry['name'],
             $entry['catalog'],
             $entry['attempt'],
             $entry['correct'],
+            $entry['points'],
             $entry['total'],
+            $entry['max_points'],
             $entry['time'],
             $entry['puzzleTime'],
             $entry['photo'],
             $eventUid !== '' ? $eventUid : null,
         ]);
-        $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
-        $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers, $eventUid);
         return $entry;
     }
 
@@ -181,6 +196,7 @@ class ResultService
      * Store individual question results.
      *
      * @param list<int> $wrongIdx
+     * @return array{points:int,max:int}
      */
     private function addQuestionResults(
         string $name,
@@ -190,29 +206,42 @@ class ResultService
         int $total,
         array $answers = [],
         string $eventUid = ''
-    ): void {
+    ): array {
         $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
         $uidStmt->execute([$catalog, $catalog, $catalog]);
         $uid = $uidStmt->fetchColumn();
         if ($uid === false) {
-            return;
+            return ['points' => 0, 'max' => 0];
         }
         $qStmt = $this->pdo->prepare(
-            "SELECT id FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
+            "SELECT id, points FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
         );
         $qStmt->execute([$uid]);
-        $ids = $qStmt->fetchAll(PDO::FETCH_COLUMN);
-        if (!$ids) {
-            return;
+        $rows = $qStmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$rows) {
+            return ['points' => 0, 'max' => 0];
         }
         $ins = $this->pdo->prepare(
             'INSERT INTO question_results(' .
-            'name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid' .
-            ') VALUES(?,?,?,?,?,?,?,?,?)'
+            'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid' .
+            ') VALUES(?,?,?,?,?,?,?,?,?,?)'
         );
-        for ($i = 0; $i < min(count($ids), $total); $i++) {
-            $qid = (int)$ids[$i];
+        $awarded = 0;
+        $maxPoints = 0;
+        $limit = min(count($rows), $total);
+        for ($i = 0; $i < $limit; $i++) {
+            $row = $rows[$i];
+            $qid = (int)$row['id'];
+            $questionPoints = isset($row['points']) ? (int)$row['points'] : 1;
+            if ($questionPoints < 0) {
+                $questionPoints = 0;
+            } elseif ($questionPoints > 100) {
+                $questionPoints = 100;
+            }
+            $maxPoints += $questionPoints;
             $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
+            $points = $correct === 1 ? $questionPoints : 0;
+            $awarded += $points;
             $ans = $answers[$i] ?? [];
             $text = isset($ans['text']) ? (string)$ans['text'] : null;
             $photo = isset($ans['photo']) ? (string)$ans['photo'] : null;
@@ -223,12 +252,14 @@ class ResultService
                 $qid,
                 $attempt,
                 $correct,
+                $points,
                 $text,
                 $photo,
                 $consent,
                 $eventUid,
             ]);
         }
+        return ['points' => $awarded, 'max' => $maxPoints];
     }
 
     /**
@@ -309,14 +340,14 @@ class ResultService
             $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
             $del->execute([$eventUid]);
             $stmt = $this->pdo->prepare(
-                'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) '
-                . 'VALUES(?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO results(name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid) '
+                . 'VALUES(?,?,?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM results');
             $stmt = $this->pdo->prepare(
-                'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) '
-                . 'VALUES(?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO results(name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid) '
+                . 'VALUES(?,?,?,?,?,?,?,?,?,?,?)'
             );
         }
         foreach ($results as $row) {
@@ -325,7 +356,9 @@ class ResultService
                 (string)($row['catalog'] ?? ''),
                 (int)($row['attempt'] ?? 1),
                 (int)($row['correct'] ?? 0),
+                (int)($row['points'] ?? 0),
                 (int)($row['total'] ?? 0),
+                (int)($row['max_points'] ?? 0),
                 (int)($row['time'] ?? time()),
                 isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null,
                 isset($row['photo']) ? (string)$row['photo'] : null,
@@ -348,15 +381,15 @@ class ResultService
             $del->execute([$eventUid]);
             $stmt = $this->pdo->prepare(
                 'INSERT INTO question_results(' .
-                'name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) ' .
-                'VALUES(?,?,?,?,?,?,?,?,?)'
+                'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid) ' .
+                'VALUES(?,?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM question_results');
             $stmt = $this->pdo->prepare(
                 'INSERT INTO question_results(' .
-                'name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) ' .
-                'VALUES(?,?,?,?,?,?,?,?,?)'
+                'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid) ' .
+                'VALUES(?,?,?,?,?,?,?,?,?,?)'
             );
         }
         foreach ($rows as $row) {
@@ -366,6 +399,7 @@ class ResultService
                 (int)($row['question_id'] ?? 0),
                 (int)($row['attempt'] ?? 1),
                 (int)($row['correct'] ?? 0),
+                (int)($row['points'] ?? 0),
                 isset($row['answer_text']) ? (string)$row['answer_text'] : null,
                 isset($row['photo']) ? (string)$row['photo'] : null,
                 isset($row['consent']) ? (int)((bool)$row['consent']) : null,

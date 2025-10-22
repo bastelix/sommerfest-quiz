@@ -82,7 +82,9 @@ class ResultControllerTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -136,7 +138,7 @@ class ResultControllerTest extends TestCase
         $this->assertNotEmpty($pdf);
         $this->assertStringContainsString('Event', $pdf);
         $this->assertStringContainsString('Team1', $pdf);
-        $this->assertStringContainsString('Punkte: 0 von 0', $pdf);
+        $this->assertStringContainsString('Punkte: 0 von 5', $pdf);
     }
 
     public function testPdfReflectsActiveEvent(): void {
@@ -197,7 +199,8 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
-            'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, ' .
+            'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, points INTEGER NOT NULL DEFAULT 0, ' .
+            'total INTEGER NOT NULL, max_points INTEGER NOT NULL DEFAULT 0, ' .
             'time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
             ');'
         );
@@ -208,7 +211,7 @@ class ResultControllerTest extends TestCase
             'CREATE TABLE question_results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
             'question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, ' .
-            'answer_text TEXT, photo TEXT, consent BOOLEAN, event_uid TEXT' .
+            'points INTEGER NOT NULL DEFAULT 0, answer_text TEXT, photo TEXT, consent BOOLEAN, event_uid TEXT' .
             ');'
         );
         $pdo->exec(

@@ -31,6 +31,7 @@ class AwardService
             $catalog = (string)($row['catalog'] ?? '');
             $time = (int)($row['time'] ?? 0);
             $correct = (int)($row['correct'] ?? 0);
+            $points = isset($row['points']) ? (int)$row['points'] : $correct;
             $puzzle = isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null;
 
             $catalogs[$catalog] = true;
@@ -45,8 +46,8 @@ class AwardService
                 $catalogTimes[$team][$catalog] = $time;
             }
 
-            if (!isset($scores[$team][$catalog]) || $correct > $scores[$team][$catalog]) {
-                $scores[$team][$catalog] = $correct;
+            if (!isset($scores[$team][$catalog]) || $points > $scores[$team][$catalog]) {
+                $scores[$team][$catalog] = $points;
             }
         }
 
@@ -111,7 +112,7 @@ class AwardService
             ],
             'points' => [
                 'title' => 'Highscore-Champions',
-                'desc' => 'Team mit den meisten Lösungen aller Fragen',
+                'desc' => 'Team mit den meisten Punkten',
             ],
             'puzzle' => [
                 'title' => 'Rätselwort-Bestzeit',
@@ -159,7 +160,7 @@ class AwardService
             ],
             'points' => [
                 'title' => 'Highscore-Champions',
-                'desc' => 'Team mit den meisten Lösungen aller Fragen',
+                'desc' => 'Team mit den meisten Punkten',
             ],
             'puzzle' => [
                 'title' => 'Rätselwort-Bestzeit',
@@ -190,12 +191,12 @@ class AwardService
         return match ($place) {
             2 => match ($key) {
                 'puzzle' => 'zweit schnellstes Lösen des Rätselworts',
-                'points' => 'zweit bestes Team mit den meisten Lösungen aller Fragen',
+                'points' => 'zweit bestes Team mit den meisten Punkten',
                 default => $default,
             },
             3 => match ($key) {
                 'puzzle' => 'dritt schnellstes Lösen des Rätselworts',
-                'points' => 'dritt bestes Team mit den meisten Lösungen aller Fragen',
+                'points' => 'dritt bestes Team mit den meisten Punkten',
                 default => $default,
             },
             default => $default,

@@ -22,7 +22,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -57,7 +59,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -92,7 +96,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -123,7 +129,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -159,7 +167,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -194,7 +204,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -228,7 +240,9 @@ class ResultServiceTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -251,6 +265,7 @@ class ResultServiceTest extends TestCase
                 question_id INTEGER NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -284,13 +299,15 @@ class ResultServiceTest extends TestCase
         $service = new ResultService($pdo);
         $service->add(['name' => 'Team', 'catalog' => 'cat1', 'correct' => 1, 'total' => 2, 'wrong' => [2]]);
 
-        $stmt = $pdo->query('SELECT question_id, correct FROM question_results ORDER BY id');
+        $stmt = $pdo->query('SELECT question_id, correct, points FROM question_results ORDER BY id');
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $this->assertCount(2, $rows);
         $this->assertSame('1', (string)$rows[0]['question_id']);
         $this->assertSame('1', (string)$rows[0]['correct']);
+        $this->assertSame('1', (string)$rows[0]['points']);
         $this->assertSame('2', (string)$rows[1]['question_id']);
         $this->assertSame('0', (string)$rows[1]['correct']);
+        $this->assertSame('0', (string)$rows[1]['points']);
     }
 
     public function testClearRemovesResultsAndQuestionResults(): void {
@@ -327,6 +344,7 @@ class ResultServiceTest extends TestCase
                 question_id INTEGER NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -406,6 +424,7 @@ class ResultServiceTest extends TestCase
                 question_id INTEGER NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -562,7 +581,9 @@ class ResultServiceTest extends TestCase
             'catalog TEXT NOT NULL,' .
             'attempt INTEGER NOT NULL,' .
             'correct INTEGER NOT NULL,' .
+            'points INTEGER NOT NULL DEFAULT 0,' .
             'total INTEGER NOT NULL,' .
+            'max_points INTEGER NOT NULL DEFAULT 0,' .
             'time INTEGER NOT NULL,' .
             'puzzleTime INTEGER,' .
             'photo TEXT,' .
@@ -577,6 +598,7 @@ class ResultServiceTest extends TestCase
             'question_id INTEGER NOT NULL,' .
             'attempt INTEGER NOT NULL,' .
             'correct INTEGER NOT NULL,' .
+            'points INTEGER NOT NULL DEFAULT 0,' .
             'answer_text TEXT,' .
             'photo TEXT,' .
             'consent INTEGER,' .
