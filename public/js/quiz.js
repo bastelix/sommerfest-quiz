@@ -210,6 +210,8 @@ async function runQuiz(questions, skipIntro){
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
   const showCheck = cfg.CheckAnswerButton !== 'no';
+  const SCORE_ALPHA = 1.0;
+  const SCORE_FLOOR = 0.0;
   if(cfg.colors){
     if(cfg.colors.primary){
       document.documentElement.style.setProperty('--primary-color', cfg.colors.primary);
@@ -235,6 +237,8 @@ async function runQuiz(questions, skipIntro){
     questionEl: null,
     scoreIndex: null,
     expired: false,
+    previewEl: null,
+    basePoints: null,
   };
 
   function parseCountdownFlag(value){
@@ -276,6 +280,65 @@ async function runQuiz(questions, skipIntro){
     countdownState.questionEl = null;
     countdownState.scoreIndex = null;
     countdownState.expired = false;
+    countdownState.previewEl = null;
+    countdownState.basePoints = null;
+  }
+
+  function computePreviewPoints(basePoints, totalSeconds, remainingSeconds){
+    if(!Number.isFinite(basePoints) || basePoints <= 0){
+      return 0;
+    }
+    if(!Number.isFinite(totalSeconds) || totalSeconds <= 0){
+      return Math.round(basePoints);
+    }
+    const safeRemaining = Math.max(0, Math.min(remainingSeconds ?? 0, totalSeconds));
+    const ratio = totalSeconds > 0 ? safeRemaining / totalSeconds : 1;
+    const multiplier = Math.max(Math.pow(ratio, SCORE_ALPHA), SCORE_FLOOR);
+    return Math.round(basePoints * multiplier);
+  }
+
+  function updateTimerPreview(basePoints, totalSeconds, remainingSeconds){
+    if(!countdownState.previewEl){
+      return;
+    }
+    const previewPoints = computePreviewPoints(basePoints ?? 0, totalSeconds ?? 0, remainingSeconds ?? 0);
+    countdownState.previewEl.textContent = `Maximal noch: ${previewPoints}`;
+  }
+
+  function getTimingSnapshot(questionEl){
+    if(!questionEl) return null;
+    const timerEl = questionEl.querySelector('.question-timer');
+    if(!timerEl) return null;
+    const totalRaw = timerEl.dataset.initialSeconds;
+    const total = totalRaw ? parseInt(totalRaw, 10) : NaN;
+    if(Number.isNaN(total) || total <= 0){
+      return { totalTimeSec: Number.isNaN(total) ? null : total, timeLeftSec: null };
+    }
+    const remainingRaw = timerEl.dataset.remainingSeconds;
+    let remaining = remainingRaw ? parseInt(remainingRaw, 10) : NaN;
+    if(Number.isNaN(remaining)){
+      remaining = 0;
+    }
+    remaining = Math.max(0, Math.min(remaining, total));
+    return { totalTimeSec: total, timeLeftSec: remaining };
+  }
+
+  function updateAnswerEntry(idx, extraData = {}, questionEl = null){
+    if(idx === null || idx === undefined){
+      return;
+    }
+    const base = (answers[idx] && typeof answers[idx] === 'object') ? answers[idx] : {};
+    if(extraData && typeof extraData === 'object'){
+      Object.assign(base, extraData);
+    }
+    const snapshot = getTimingSnapshot(questionEl || countdownState.questionEl || null);
+    if(snapshot){
+      base.timeLeftSec = snapshot.timeLeftSec;
+    } else if(!('timeLeftSec' in base)){
+      base.timeLeftSec = null;
+    }
+    base.isCorrect = !!results[idx];
+    answers[idx] = base;
   }
 
   function getQuestionCountdownSeconds(question){
@@ -307,14 +370,24 @@ async function runQuiz(questions, skipIntro){
       valueEl.className = 'question-timer__value';
       timerEl.appendChild(labelEl);
       timerEl.appendChild(valueEl);
+      const previewEl = document.createElement('span');
+      previewEl.className = 'question-timer__preview';
+      timerEl.appendChild(previewEl);
       questionEl.insertBefore(timerEl, questionEl.firstChild);
     }
     const valueEl = timerEl.querySelector('.question-timer__value');
     if(!valueEl){
       return;
     }
+    let previewEl = timerEl.querySelector('.question-timer__preview');
+    if(!previewEl){
+      previewEl = document.createElement('span');
+      previewEl.className = 'question-timer__preview';
+      timerEl.appendChild(previewEl);
+    }
     timerEl.classList.remove('question-timer--expired');
     timerEl.dataset.initialSeconds = String(seconds);
+    timerEl.dataset.remainingSeconds = String(seconds);
     valueEl.textContent = `${seconds}s`;
     questionEl.classList.remove('question--timeout');
     questionEl.dataset.timedOut = '0';
@@ -329,6 +402,9 @@ async function runQuiz(questions, skipIntro){
     countdownState.questionEl = questionEl;
     countdownState.scoreIndex = scoreIndex;
     countdownState.expired = false;
+    countdownState.previewEl = previewEl;
+    countdownState.basePoints = scoreIndex !== null ? (questionPoints[scoreIndex] ?? 0) : null;
+    updateTimerPreview(countdownState.basePoints, countdownState.totalSeconds, countdownState.secondsRemaining);
     countdownState.intervalId = window.setInterval(() => {
       if(!countdownState.questionEl || countdownState.questionEl !== questionEl){
         stopCountdown();
@@ -340,6 +416,10 @@ async function runQuiz(questions, skipIntro){
       } else if(countdownState.valueEl){
         countdownState.valueEl.textContent = `${countdownState.secondsRemaining}s`;
       }
+      if(countdownState.container){
+        countdownState.container.dataset.remainingSeconds = String(Math.max(countdownState.secondsRemaining, 0));
+      }
+      updateTimerPreview(countdownState.basePoints, countdownState.totalSeconds, Math.max(countdownState.secondsRemaining, 0));
     }, 1000);
   }
 
@@ -361,7 +441,9 @@ async function runQuiz(questions, skipIntro){
     }
     if(countdownState.container){
       countdownState.container.classList.add('question-timer--expired');
+      countdownState.container.dataset.remainingSeconds = '0';
     }
+    updateTimerPreview(countdownState.basePoints, countdownState.totalSeconds, 0);
     if(scoreIndex !== null && results[scoreIndex] === true){
       countdownState.autoAdvanceId = window.setTimeout(() => {
         if(elements[current] === questionEl && current < totalQuestions + 1){
@@ -378,9 +460,12 @@ async function runQuiz(questions, skipIntro){
       feedbackEl.textContent = '⏱️ Zeit abgelaufen! Die Frage zählt nicht.';
       feedbackEl.classList.add('question-feedback--timeout');
     }
-    if(scoreIndex !== null && results[scoreIndex] !== true){
-      results[scoreIndex] = false;
-      earnedPoints[scoreIndex] = 0;
+    if(scoreIndex !== null){
+      if(results[scoreIndex] !== true){
+        results[scoreIndex] = false;
+        earnedPoints[scoreIndex] = 0;
+      }
+      updateAnswerEntry(scoreIndex, {}, questionEl);
     }
     countdownState.autoAdvanceId = window.setTimeout(() => {
       if(elements[current] === questionEl && current < totalQuestions + 1){
@@ -829,6 +914,7 @@ async function runQuiz(questions, skipIntro){
     if(idx !== null && idx !== undefined){
       earnedPoints[idx] = correct ? (questionPoints[idx] ?? 0) : 0;
     }
+    updateAnswerEntry(idx, {}, container);
     renderFeedback(
       feedback,
       correct,
@@ -998,6 +1084,7 @@ async function runQuiz(questions, skipIntro){
     if(idx !== null && idx !== undefined){
       earnedPoints[idx] = allCorrect ? (questionPoints[idx] ?? 0) : 0;
     }
+    updateAnswerEntry(idx, {}, div);
     renderFeedback(
       feedback,
       allCorrect,
@@ -1060,6 +1147,7 @@ async function runQuiz(questions, skipIntro){
       correct,
       correct ? '✅ Korrekt!' : '❌ Das ist nicht korrekt.'
     );
+    updateAnswerEntry(idx, {}, div);
   }
 
   // Erstellt das DOM für eine Multiple-Choice-Frage
@@ -1309,6 +1397,7 @@ async function runQuiz(questions, skipIntro){
           if(idx !== null && idx !== undefined){
             earnedPoints[idx] = swipeCorrect ? (questionPoints[idx] ?? 0) : 0;
           }
+          updateAnswerEntry(idx, {}, div);
           next();
         }
       }, SWIPE_ANIM_MS);
@@ -1379,11 +1468,11 @@ async function runQuiz(questions, skipIntro){
         feedback.classList.add('uk-text-danger');
         return;
       }
-      answers[idx] = { text: text.value.trim(), photo: photoPath, consent: q.consent ? true : null };
       results[idx] = true;
       if(idx !== null && idx !== undefined){
         earnedPoints[idx] = questionPoints[idx] ?? 0;
       }
+      updateAnswerEntry(idx, { text: text.value.trim(), photo: photoPath, consent: q.consent ? true : null }, div);
       next();
     });
 

@@ -266,6 +266,11 @@ class ResultServiceTest extends TestCase
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
                 points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -299,15 +304,28 @@ class ResultServiceTest extends TestCase
         $service = new ResultService($pdo);
         $service->add(['name' => 'Team', 'catalog' => 'cat1', 'correct' => 1, 'total' => 2, 'wrong' => [2]]);
 
-        $stmt = $pdo->query('SELECT question_id, correct, points FROM question_results ORDER BY id');
+        $stmt = $pdo->query(
+            'SELECT question_id, correct, points, final_points, efficiency, time_left_sec, is_correct, scoring_version '
+            . 'FROM question_results ORDER BY id'
+        );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $this->assertCount(2, $rows);
         $this->assertSame('1', (string)$rows[0]['question_id']);
         $this->assertSame('1', (string)$rows[0]['correct']);
         $this->assertSame('1', (string)$rows[0]['points']);
+        $this->assertSame('1', (string)$rows[0]['final_points']);
+        $this->assertSame(1.0, (float)$rows[0]['efficiency']);
+        $this->assertNull($rows[0]['time_left_sec']);
+        $this->assertSame('1', (string)$rows[0]['is_correct']);
+        $this->assertSame('1', (string)$rows[0]['scoring_version']);
         $this->assertSame('2', (string)$rows[1]['question_id']);
         $this->assertSame('0', (string)$rows[1]['correct']);
         $this->assertSame('0', (string)$rows[1]['points']);
+        $this->assertSame('0', (string)$rows[1]['final_points']);
+        $this->assertSame(0.0, (float)$rows[1]['efficiency']);
+        $this->assertNull($rows[1]['time_left_sec']);
+        $this->assertSame('0', (string)$rows[1]['is_correct']);
+        $this->assertSame('1', (string)$rows[1]['scoring_version']);
     }
 
     public function testClearRemovesResultsAndQuestionResults(): void {
@@ -345,6 +363,11 @@ class ResultServiceTest extends TestCase
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
                 points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -425,6 +448,11 @@ class ResultServiceTest extends TestCase
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
                 points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -511,6 +539,12 @@ class ResultServiceTest extends TestCase
                 question_id INTEGER NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
@@ -599,6 +633,11 @@ class ResultServiceTest extends TestCase
             'attempt INTEGER NOT NULL,' .
             'correct INTEGER NOT NULL,' .
             'points INTEGER NOT NULL DEFAULT 0,' .
+            'time_left_sec INTEGER,' .
+            'final_points INTEGER NOT NULL DEFAULT 0,' .
+            'efficiency REAL NOT NULL DEFAULT 0,' .
+            'is_correct INTEGER,' .
+            'scoring_version INTEGER NOT NULL DEFAULT 1,' .
             'answer_text TEXT,' .
             'photo TEXT,' .
             'consent INTEGER,' .

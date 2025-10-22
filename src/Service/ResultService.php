@@ -14,6 +14,12 @@ class ResultService
 {
     private PDO $pdo;
 
+    private const TIME_SCORE_ALPHA = 1.0;
+
+    private const TIME_SCORE_FLOOR = 0.0;
+
+    private const SCORING_VERSION = 1;
+
     /**
      * Inject database connection.
      */
@@ -68,7 +74,8 @@ class ResultService
     public function getQuestionResults(string $eventUid = ''): array {
         $sql = <<<'SQL'
             SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
-                qr.points, qr.answer_text, qr.photo, qr.consent,
+                qr.points, qr.time_left_sec, qr.final_points, qr.efficiency, qr.is_correct, qr.scoring_version,
+                qr.answer_text, qr.photo, qr.consent,
                 q.type, q.prompt, q.points AS question_points, q.options, q.answers, q.terms, q.items,
                 c.name AS catalogName
             FROM question_results qr
@@ -90,6 +97,25 @@ class ResultService
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             $row['points'] = isset($row['points']) ? (int) $row['points'] : 0;
+            if (array_key_exists('time_left_sec', $row)) {
+                $row['timeLeftSec'] = $row['time_left_sec'] !== null ? (int) $row['time_left_sec'] : null;
+                unset($row['time_left_sec']);
+            }
+            if (array_key_exists('final_points', $row)) {
+                $row['finalPoints'] = (int) $row['final_points'];
+                unset($row['final_points']);
+            }
+            if (array_key_exists('efficiency', $row)) {
+                $row['efficiency'] = isset($row['efficiency']) ? (float) $row['efficiency'] : 0.0;
+            }
+            if (array_key_exists('is_correct', $row)) {
+                $row['isCorrect'] = $row['is_correct'] !== null ? (bool) $row['is_correct'] : null;
+                unset($row['is_correct']);
+            }
+            if (array_key_exists('scoring_version', $row)) {
+                $row['scoringVersion'] = (int) $row['scoring_version'];
+                unset($row['scoring_version']);
+            }
             if (isset($row['question_points'])) {
                 $row['questionPoints'] = (int) $row['question_points'];
                 unset($row['question_points']);
@@ -111,7 +137,8 @@ class ResultService
      * @return array<int, array<string, mixed>>
      */
     public function getQuestionRows(string $eventUid = ''): array {
-        $sql = 'SELECT name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid '
+        $sql = 'SELECT name,catalog,question_id,attempt,correct,points,time_left_sec,final_points,efficiency,is_correct,scoring_version,' .
+            'answer_text,photo,consent,event_uid '
             . 'FROM question_results';
         $params = [];
         if ($eventUid !== '') {
@@ -223,10 +250,11 @@ class ResultService
         }
         $ins = $this->pdo->prepare(
             'INSERT INTO question_results(' .
-            'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid' .
-            ') VALUES(?,?,?,?,?,?,?,?,?,?)'
+            'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid,' .
+            'time_left_sec,final_points,efficiency,is_correct,scoring_version' .
+            ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
-        $awarded = 0;
+        $finalAwarded = 0;
         $maxPoints = 0;
         $limit = min(count($rows), $total);
         for ($i = 0; $i < $limit; $i++) {
@@ -238,28 +266,105 @@ class ResultService
             } elseif ($questionPoints > 100) {
                 $questionPoints = 100;
             }
+            $questionTime = isset($row['countdown']) ? (int)$row['countdown'] : 0;
+            if ($questionTime < 0) {
+                $questionTime = 0;
+            }
             $maxPoints += $questionPoints;
             $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
-            $points = $correct === 1 ? $questionPoints : 0;
-            $awarded += $points;
-            $ans = $answers[$i] ?? [];
-            $text = isset($ans['text']) ? (string)$ans['text'] : null;
-            $photo = isset($ans['photo']) ? (string)$ans['photo'] : null;
-            $consent = isset($ans['consent']) ? (int)((bool)$ans['consent']) : null;
+            $basePoints = $correct === 1 ? $questionPoints : 0;
+            $answerData = $answers[$i] ?? [];
+            if (!is_array($answerData)) {
+                $answerData = [];
+            }
+            $rawTimeLeft = $answerData['timeLeftSec'] ?? $answerData['time_left_sec'] ?? null;
+            $timeLeft = null;
+            if ($rawTimeLeft !== null && $rawTimeLeft !== '') {
+                if (is_numeric($rawTimeLeft)) {
+                    $timeLeft = (int)$rawTimeLeft;
+                } elseif (is_string($rawTimeLeft)) {
+                    $timeLeft = (int) round((float)$rawTimeLeft);
+                }
+            }
+            if ($questionTime > 0) {
+                $timeLeft = $timeLeft === null ? 0 : $timeLeft;
+                $timeLeft = max(0, min($timeLeft, $questionTime));
+            } else {
+                $timeLeft = null;
+            }
+            [$finalPoints, $efficiency] = $this->computeTimedScore(
+                $questionPoints,
+                $questionTime,
+                $timeLeft,
+                $correct === 1
+            );
+            $finalAwarded += $finalPoints;
+            $text = isset($answerData['text']) ? (string)$answerData['text'] : null;
+            $photo = isset($answerData['photo']) ? (string)$answerData['photo'] : null;
+            $consent = isset($answerData['consent']) ? (int)((bool)$answerData['consent']) : null;
             $ins->execute([
                 $name,
                 $catalog,
                 $qid,
                 $attempt,
                 $correct,
-                $points,
+                $basePoints,
                 $text,
                 $photo,
                 $consent,
                 $eventUid,
+                $timeLeft,
+                $finalPoints,
+                $efficiency,
+                $correct === 1,
+                self::SCORING_VERSION,
             ]);
         }
-        return ['points' => $awarded, 'max' => $maxPoints];
+        return ['points' => $finalAwarded, 'max' => $maxPoints];
+    }
+
+    /**
+     * Compute time-adjusted score and efficiency for a question.
+     *
+     * @param int $basePoints configured points for the question
+     * @param int $totalTime countdown duration in seconds
+     * @param int|null $timeLeft remaining seconds when the answer was submitted
+     * @param bool $isCorrect whether the player answered correctly
+     * @return array{int,float} [finalPoints, efficiency]
+     */
+    private function computeTimedScore(int $basePoints, int $totalTime, ?int $timeLeft, bool $isCorrect): array
+    {
+        if ($basePoints <= 0 || !$isCorrect) {
+            return [0, 0.0];
+        }
+
+        if ($totalTime <= 0) {
+            return [$basePoints, 1.0];
+        }
+
+        $clampedTimeLeft = $timeLeft ?? 0;
+        if ($clampedTimeLeft < 0) {
+            $clampedTimeLeft = 0;
+        } elseif ($clampedTimeLeft > $totalTime) {
+            $clampedTimeLeft = $totalTime;
+        }
+
+        $ratio = $totalTime > 0 ? $clampedTimeLeft / $totalTime : 1.0;
+        if ($ratio < 0.0) {
+            $ratio = 0.0;
+        } elseif ($ratio > 1.0) {
+            $ratio = 1.0;
+        }
+
+        $multiplier = max(pow($ratio, self::TIME_SCORE_ALPHA), self::TIME_SCORE_FLOOR);
+        $finalPoints = (int) round($basePoints * $multiplier);
+        if ($finalPoints < 0) {
+            $finalPoints = 0;
+        } elseif ($finalPoints > $basePoints) {
+            $finalPoints = $basePoints;
+        }
+
+        return [$finalPoints, $ratio];
     }
 
     /**
@@ -381,18 +486,30 @@ class ResultService
             $del->execute([$eventUid]);
             $stmt = $this->pdo->prepare(
                 'INSERT INTO question_results(' .
-                'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid) ' .
-                'VALUES(?,?,?,?,?,?,?,?,?,?)'
+                'name,catalog,question_id,attempt,correct,points,time_left_sec,final_points,efficiency,' .
+                'is_correct,scoring_version,answer_text,photo,consent,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM question_results');
             $stmt = $this->pdo->prepare(
                 'INSERT INTO question_results(' .
-                'name,catalog,question_id,attempt,correct,points,answer_text,photo,consent,event_uid) ' .
-                'VALUES(?,?,?,?,?,?,?,?,?,?)'
+                'name,catalog,question_id,attempt,correct,points,time_left_sec,final_points,efficiency,' .
+                'is_correct,scoring_version,answer_text,photo,consent,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         }
         foreach ($rows as $row) {
+            $timeLeft = $row['time_left_sec'] ?? $row['timeLeftSec'] ?? null;
+            if ($timeLeft !== null && $timeLeft !== '') {
+                $timeLeft = (int) $timeLeft;
+            } else {
+                $timeLeft = null;
+            }
+            $finalPoints = (int) ($row['final_points'] ?? $row['finalPoints'] ?? $row['points'] ?? 0);
+            $efficiencyRaw = $row['efficiency'] ?? null;
+            $efficiency = $efficiencyRaw !== null ? (float) $efficiencyRaw : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
+            $isCorrectRaw = $row['is_correct'] ?? $row['isCorrect'] ?? null;
+            $isCorrect = $isCorrectRaw === null ? (int)($row['correct'] ?? 0) === 1 : (bool) $isCorrectRaw;
+            $scoringVersion = (int) ($row['scoring_version'] ?? $row['scoringVersion'] ?? self::SCORING_VERSION);
             $params = [
                 (string)($row['name'] ?? ''),
                 (string)($row['catalog'] ?? ''),
@@ -400,6 +517,11 @@ class ResultService
                 (int)($row['attempt'] ?? 1),
                 (int)($row['correct'] ?? 0),
                 (int)($row['points'] ?? 0),
+                $timeLeft,
+                $finalPoints,
+                $efficiency,
+                $isCorrect,
+                $scoringVersion,
                 isset($row['answer_text']) ? (string)$row['answer_text'] : null,
                 isset($row['photo']) ? (string)$row['photo'] : null,
                 isset($row['consent']) ? (int)((bool)$row['consent']) : null,

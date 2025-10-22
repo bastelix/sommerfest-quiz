@@ -102,6 +102,12 @@ class ResultControllerTest extends TestCase
                 question_id INTEGER NOT NULL,
                 attempt INTEGER NOT NULL,
                 correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
                 answer_text TEXT,
                 photo TEXT,
                 consent BOOLEAN,
@@ -211,7 +217,9 @@ class ResultControllerTest extends TestCase
             'CREATE TABLE question_results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
             'question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, ' .
-            'points INTEGER NOT NULL DEFAULT 0, answer_text TEXT, photo TEXT, consent BOOLEAN, event_uid TEXT' .
+            'points INTEGER NOT NULL DEFAULT 0, time_left_sec INTEGER, final_points INTEGER NOT NULL DEFAULT 0, ' .
+            'efficiency REAL NOT NULL DEFAULT 0, is_correct INTEGER, scoring_version INTEGER NOT NULL DEFAULT 1, ' .
+            'answer_text TEXT, photo TEXT, consent BOOLEAN, event_uid TEXT' .
             ');'
         );
         $pdo->exec(
