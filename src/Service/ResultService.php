@@ -263,8 +263,8 @@ class ResultService
             $questionPoints = isset($row['points']) ? (int)$row['points'] : 1;
             if ($questionPoints < 0) {
                 $questionPoints = 0;
-            } elseif ($questionPoints > 100) {
-                $questionPoints = 100;
+            } elseif ($questionPoints > 10000) {
+                $questionPoints = 10000;
             }
             $questionTime = isset($row['countdown']) ? (int)$row['countdown'] : 0;
             if ($questionTime < 0) {
