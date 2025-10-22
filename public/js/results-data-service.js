@@ -201,8 +201,8 @@ export class ResultsDataService {
             ? Math.max(0, Math.min(efficiencyCandidate, 1))
             : ((parseNumeric(row.correct) ?? 0) > 0 ? 1 : 0);
           const summary = attemptSummaries.get(key) || { points: 0, effSum: 0, count: 0 };
-          summary.points += Math.max(0, finalPoints);
-          summary.effSum += Math.max(0, efficiency);
+          summary.points += Number.isFinite(finalPoints) ? finalPoints : 0;
+          summary.effSum += Math.max(0, Math.min(efficiency, 1));
           summary.count += 1;
           attemptSummaries.set(key, summary);
         });
@@ -220,7 +220,7 @@ export class ResultsDataService {
           const key = `${team}|${catalog}|${attempt}`;
           const summary = attemptSummaries.get(key);
           if (summary && summary.count > 0) {
-            const totalPoints = Math.max(0, Math.round(summary.points));
+            const totalPoints = Math.round(summary.points);
             row.finalPoints = totalPoints;
             row.final_points = totalPoints;
             const avg = summary.effSum / summary.count;
@@ -232,7 +232,7 @@ export class ResultsDataService {
               ?? parseNumeric(row.points)
               ?? parseNumeric(row.correct)
               ?? 0;
-            const safeFallback = Math.max(0, Math.round(fallbackFinal));
+            const safeFallback = Math.round(fallbackFinal);
             row.finalPoints = safeFallback;
             row.final_points = safeFallback;
             const totalQuestions = parseNumeric(row.total);
@@ -304,8 +304,8 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       ? Number(entry.efficiency)
       : (entry.correct ? 1 : 0);
     const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
-    summary.points += Math.max(0, finalPoints || 0);
-    summary.effSum += Math.max(0, efficiency || 0);
+    summary.points += Number.isFinite(finalPoints) ? finalPoints : 0;
+    summary.effSum += Math.max(0, Math.min(efficiency, 1));
     summary.count += 1;
     attemptMetrics.set(key, summary);
   });
@@ -363,10 +363,10 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       const totalQuestions = Number.isFinite(row.total) ? Number(row.total) : parseInt(row.total, 10) || 0;
       questionCount = totalQuestions > 0 ? totalQuestions : 0;
       const correctCount = Number.isFinite(row.correct) ? Number(row.correct) : parseInt(row.correct, 10) || 0;
-      const avgFallback = questionCount > 0 ? correctCount / questionCount : 0;
+      const avgFallback = questionCount > 0 ? Math.max(0, Math.min(correctCount / questionCount, 1)) : 0;
       effSum = avgFallback * questionCount;
     }
-    const average = questionCount > 0 ? effSum / questionCount : 0;
+    const average = questionCount > 0 ? Math.max(0, Math.min(effSum / questionCount, 1)) : 0;
 
     let sMap = scorePoints.get(team);
     if (!sMap) {
@@ -476,7 +476,9 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       effSumTotal += entry.effSum;
       questionCountTotal += entry.count;
     });
-    const avgEfficiency = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
+    const avgEfficiency = questionCountTotal > 0
+      ? Math.max(0, Math.min(effSumTotal / questionCountTotal, 1))
+      : 0;
     const display = `${total} Punkte (Ø ${(avgEfficiency * 100).toFixed(0)}%)`;
     totalScores.push({ name, value: display, raw: total, avg: avgEfficiency });
     if (questionCountTotal > 0) {

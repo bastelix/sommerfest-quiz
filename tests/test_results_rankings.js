@@ -30,4 +30,27 @@ r = computeRankings(rows, [], 3);
 assert.strictEqual(r.catalogList.length, 1);
 assert.strictEqual(r.catalogList[0].name, 'Team1');
 assert.strictEqual(r.accuracyList[0].value, 'Ø 50 %');
+
+const penaltyRows = [
+    { name: 'Penalty', catalog: 'Main', correct: 1, total: 2, time: 5, attempt: 1 },
+    { name: 'Neutral', catalog: 'Main', correct: 2, total: 2, time: 4, attempt: 1 }
+];
+const penaltyQuestions = [
+    { name: 'Penalty', catalog: 'Main', attempt: 1, final_points: 50, efficiency: 0.7 },
+    { name: 'Penalty', catalog: 'Main', attempt: 1, final_points: -100, efficiency: -0.3 },
+    { name: 'Neutral', catalog: 'Main', attempt: 1, final_points: 40, efficiency: 0.8 },
+    { name: 'Neutral', catalog: 'Main', attempt: 1, final_points: 30, efficiency: 1.2 }
+];
+
+const penaltyRankings = computeRankings(penaltyRows, penaltyQuestions, 1);
+assert.strictEqual(penaltyRankings.pointsList.length, 2);
+assert.strictEqual(penaltyRankings.pointsList[0].name, 'Neutral');
+assert.strictEqual(penaltyRankings.pointsList[0].raw, 70);
+assert.strictEqual(penaltyRankings.pointsList[1].name, 'Penalty');
+assert.strictEqual(penaltyRankings.pointsList[1].raw, -50);
+assert.strictEqual(penaltyRankings.accuracyList.length, 2);
+assert.strictEqual(penaltyRankings.accuracyList[0].name, 'Neutral');
+assert.ok(penaltyRankings.accuracyList[0].raw <= 1 && penaltyRankings.accuracyList[0].raw >= 0);
+assert.strictEqual(penaltyRankings.accuracyList[1].name, 'Penalty');
+assert.ok(penaltyRankings.accuracyList[1].raw <= 1 && penaltyRankings.accuracyList[1].raw >= 0);
 console.log('ok');
