@@ -537,6 +537,7 @@ Alle wesentlichen Einstellungen werden in der Datenbank gespeichert und können 
   "pageTitle": "Modernes Quiz mit UIkit",
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",
+  "startTheme": "light",
   "CheckAnswerButton": "no",
   "QRRestrict": false,
   "competitionMode": false,
@@ -557,7 +558,7 @@ Hinweis: Platzhaltergrafiken für Landingpage, calServer und SEO werden nicht mi
 Der Parameter `displayErrorDetails` kann auch über die Umgebungsvariable
 `DISPLAY_ERROR_DETAILS` gesetzt werden.
 
-Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. `QRRemember` speichert gescannte Namen und erspart das erneute Einscannen. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus, verhindert Wiederholungen bereits abgeschlossener Kataloge und unterbindet die Anzeige der Katalogübersicht. Die Startseite prüft dabei serverseitig, ob für Spieler und Katalog bereits ein Ergebnis vorliegt, und blockiert bei Wiederholungen den Start. Ein Fragenkatalog kann dann nur über einen direkten QR-Code-Link gestartet werden. Im Wettkampfmodus führt ein Aufruf der Hauptseite ohne gültigen Katalog-Parameter automatisch zur Hilfe-Seite. Über `teamResults` lässt sich steuern, ob Teams nach Abschluss aller Kataloge ihre eigene Ergebnisübersicht angezeigt bekommen. `photoUpload` blendet die Buttons zum Hochladen von Beweisfotos ein oder aus. `puzzleWordEnabled` schaltet das Rätselwort-Spiel frei und `puzzleFeedback` definiert den Text, der nach korrekter Eingabe angezeigt wird. `inviteText` enthält ein optionales Anschreiben für teilnehmende Teams.
+Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. Die Option `startTheme` bestimmt, ob die Teilnehmeroberfläche standardmäßig hell (`light`) oder dunkel (`dark`) geladen wird. `QRRemember` speichert gescannte Namen und erspart das erneute Einscannen. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus, verhindert Wiederholungen bereits abgeschlossener Kataloge und unterbindet die Anzeige der Katalogübersicht. Die Startseite prüft dabei serverseitig, ob für Spieler und Katalog bereits ein Ergebnis vorliegt, und blockiert bei Wiederholungen den Start. Ein Fragenkatalog kann dann nur über einen direkten QR-Code-Link gestartet werden. Im Wettkampfmodus führt ein Aufruf der Hauptseite ohne gültigen Katalog-Parameter automatisch zur Hilfe-Seite. Über `teamResults` lässt sich steuern, ob Teams nach Abschluss aller Kataloge ihre eigene Ergebnisübersicht angezeigt bekommen. `photoUpload` blendet die Buttons zum Hochladen von Beweisfotos ein oder aus. `puzzleWordEnabled` schaltet das Rätselwort-Spiel frei und `puzzleFeedback` definiert den Text, der nach korrekter Eingabe angezeigt wird. `inviteText` enthält ein optionales Anschreiben für teilnehmende Teams.
 
 `ConfigService` verwaltet diese Werte in der Datenbank. Jeder Event besitzt dabei eine eigene Konfiguration.
 Welcher Event aktuell bearbeitet wird, steht in der Tabelle `active_event`. Ein GET auf `/config.json`

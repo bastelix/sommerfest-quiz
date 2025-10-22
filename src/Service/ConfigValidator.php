@@ -22,6 +22,7 @@ class ConfigValidator
         'pageTitle' => 'Modernes Quiz mit UIkit',
         'backgroundColor' => '#ffffff',
         'buttonColor' => '#1e87f0',
+        'startTheme' => 'light',
         'CheckAnswerButton' => 'no',
         'QRUser' => false,
         'QRRestrict' => false,
@@ -87,6 +88,15 @@ class ConfigValidator
             $btn = self::DEFAULTS['buttonColor'];
         }
         $config['buttonColor'] = $btn;
+
+        // startTheme (light/dark)
+        $themeRaw = (string)($data['startTheme'] ?? self::DEFAULTS['startTheme']);
+        $normalizedTheme = strtolower($themeRaw);
+        if (!in_array($normalizedTheme, ['light', 'dark'], true)) {
+            $errors['startTheme'] = 'Ungültige Startansicht. Bitte "hell" oder "dunkel" wählen.';
+            $normalizedTheme = self::DEFAULTS['startTheme'];
+        }
+        $config['startTheme'] = $normalizedTheme;
 
         // CheckAnswerButton expects yes/no
         $chk = isset($data['CheckAnswerButton']) && $data['CheckAnswerButton'] !== 'no';

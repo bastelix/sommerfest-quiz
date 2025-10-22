@@ -946,6 +946,7 @@ document.addEventListener('DOMContentLoaded', function () {
     pageTitle: document.getElementById('cfgPageTitle'),
     backgroundColor: document.getElementById('cfgBackgroundColor'),
     buttonColor: document.getElementById('cfgButtonColor'),
+    startTheme: document.getElementById('cfgStartTheme'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
     randomNames: document.getElementById('cfgRandomNames'),
@@ -1212,6 +1213,10 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.pageTitle.value = data.pageTitle || '';
     cfgFields.backgroundColor.value = data.backgroundColor || '';
     cfgFields.buttonColor.value = data.buttonColor || '';
+    if (cfgFields.startTheme) {
+      const normalizedTheme = (data.startTheme || '').toLowerCase();
+      cfgFields.startTheme.value = normalizedTheme === 'dark' ? 'dark' : 'light';
+    }
     cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
     cfgFields.qrUser.checked = !!data.QRUser;
     if (cfgFields.randomNames) {
@@ -2266,6 +2271,10 @@ document.addEventListener('DOMContentLoaded', function () {
       CheckAnswerButton: cfgFields.checkAnswerButton?.checked ? 'yes' : 'no',
       QRUser: cfgFields.qrUser?.checked ? '1' : '0'
     };
+    if (cfgFields.startTheme) {
+      const selectedTheme = (cfgFields.startTheme.value || '').toLowerCase();
+      data.startTheme = selectedTheme === 'dark' ? 'dark' : 'light';
+    }
     if (cfgFields.randomNames) data.randomNames = cfgFields.randomNames.checked;
     if (cfgFields.shuffleQuestions) data.shuffleQuestions = cfgFields.shuffleQuestions.checked;
     if (cfgFields.teamRestrict) data.QRRestrict = cfgFields.teamRestrict.checked ? '1' : '0';

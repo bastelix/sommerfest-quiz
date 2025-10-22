@@ -284,6 +284,19 @@
                 </div>
               </div>
             </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgStartTheme">{{ t('label_start_theme') }}
+                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_start_theme') }}; pos: right" aria-label="{{ t('tip_start_theme') }}" tabindex="0"></span>
+                </label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="cfgStartTheme" name="startTheme">
+                    <option value="light" {% if config.startTheme|default('light') != 'dark' %}selected{% endif %}>{{ t('option_theme_light') }}</option>
+                    <option value="dark" {% if config.startTheme|default('light') == 'dark' %}selected{% endif %}>{{ t('option_theme_dark') }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
             <div class="uk-width-1-1">
               <h3 class="uk-heading-bullet">{{ t('heading_game_options') }}</h3>
             </div>
