@@ -844,7 +844,13 @@
             </form>
           </div>
         </div>
-        <div class="card-grid" uk-grid id="summaryCatalogs">
+        <div
+          class="card-grid"
+          uk-grid
+          id="summaryCatalogs"
+          data-summary-page-size="6"
+          data-empty-text="{{ t('text_no_catalogs') }}"
+        >
           {% for c in catalogs %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card qr-card uk-card-body">
@@ -864,9 +870,26 @@
           </div>
           {% endfor %}
         </div>
+        <div class="uk-margin-small" id="summaryCatalogsPager" hidden>
+          <p class="uk-text-meta" id="summaryCatalogsMeta" aria-live="polite"></p>
+          <button
+            id="summaryCatalogsMore"
+            class="uk-button uk-button-default uk-button-small uk-margin-small-top"
+            type="button"
+            hidden
+          >
+            {{ t('action_summary_load_more_catalogs') }}
+          </button>
+        </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_teams') }}</h3>
-        <div class="card-grid" uk-grid id="summaryTeams">
+        <div
+          class="card-grid"
+          uk-grid
+          id="summaryTeams"
+          data-summary-page-size="6"
+          data-empty-text="{{ t('text_no_data') }}"
+        >
           {% for t in teams %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card qr-card uk-card-body uk-position-relative">
@@ -885,6 +908,17 @@
             <div class="export-card uk-card qr-card uk-card-body">{{ t('text_no_data') }}</div>
           </div>
           {% endfor %}
+        </div>
+        <div class="uk-margin-small" id="summaryTeamsPager" hidden>
+          <p class="uk-text-meta" id="summaryTeamsMeta" aria-live="polite"></p>
+          <button
+            id="summaryTeamsMore"
+            class="uk-button uk-button-default uk-button-small uk-margin-small-top"
+            type="button"
+            hidden
+          >
+            {{ t('action_summary_load_more_teams') }}
+          </button>
         </div>
         <div class="uk-margin" uk-grid>
           <div class="uk-width-1-1 uk-width-auto@m">
@@ -2163,6 +2197,14 @@
     window.transImageReady = '{{ t('text_background_uploaded') }}';
     window.transEventSettingsHelp = '{{ t('text_event_settings_help')|e('js') }}';
     window.transEventsFetchError = '{{ t('text_events_fetch_error')|e('js') }}';
+    window.transSummaryLoadingCatalogs = '{{ t('text_summary_loading_catalogs')|e('js') }}';
+    window.transSummaryLoadingTeams = '{{ t('text_summary_loading_teams')|e('js') }}';
+    window.transSummaryLoadingEvent = '{{ t('text_summary_loading_event')|e('js') }}';
+    window.transSummaryCatalogProgress = '{{ t('text_summary_catalogs_progress')|e('js') }}';
+    window.transSummaryTeamProgress = '{{ t('text_summary_teams_progress')|e('js') }}';
+    window.transSummaryLoadError = '{{ t('text_summary_load_error')|e('js') }}';
+    window.transSummaryNoCatalogs = '{{ t('text_no_catalogs')|e('js') }}';
+    window.transSummaryNoTeams = '{{ t('text_no_data')|e('js') }}';
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
     window.transActions = '{{ t('column_actions') }}';
     window.transDelete = '{{ t('action_delete') }}';

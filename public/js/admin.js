@@ -2291,11 +2291,48 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }).catch(() => notify('Fehler beim Speichern', 'danger'));
   });
+  function bindTeamPrintButtons(root = document) {
+    if (!root || typeof root.querySelectorAll !== 'function') {
+      return;
+    }
+    const buttons = root.querySelectorAll('.qr-print-btn');
+    buttons.forEach(btn => {
+      if (!btn || btn.dataset.summaryTeamBound === '1') {
+        return;
+      }
+      btn.dataset.summaryTeamBound = '1';
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        const rawTeam = btn.getAttribute('data-team') || btn.dataset.team || '';
+        if (!rawTeam) {
+          return;
+        }
+        const team = String(rawTeam);
+        let link;
+        if (currentEventUid) {
+          const eventParam = encodeURIComponent(currentEventUid);
+          link = window.baseUrl
+            ? window.baseUrl + '/?event=' + eventParam + '&t=' + encodeURIComponent(team)
+            : withBase('/?event=' + eventParam + '&t=' + encodeURIComponent(team));
+        } else {
+          link = window.baseUrl
+            ? window.baseUrl + '/?t=' + encodeURIComponent(team)
+            : withBase('/?t=' + encodeURIComponent(team));
+        }
+        let url = '/qr.pdf?t=' + encodeURIComponent(link) + '&rounded=1';
+        if (currentEventUid) {
+          url += '&event=' + encodeURIComponent(currentEventUid);
+        }
+        window.open(withBase(url), '_blank');
+      });
+    });
+  }
+
   const summaryPrintBtn = document.getElementById('summaryPrintBtn');
   summaryPrintBtn?.addEventListener('click', function (e) {
-  e.preventDefault();
-  window.print();
-});
+    e.preventDefault();
+    window.print();
+  });
   // sticker editor handled in sticker-editor.js
   const openInvitesBtn = document.getElementById('openInvitesBtn');
   openInvitesBtn?.addEventListener('click', function (e) {
@@ -2306,29 +2343,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  document.querySelectorAll('.qr-print-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      const team = btn.getAttribute('data-team');
-      if (team) {
-        let link;
-        if (currentEventUid) {
-          link = window.baseUrl
-            ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + team
-            : withBase('/?event=' + currentEventUid + '&t=' + team);
-        } else {
-          link = window.baseUrl
-            ? window.baseUrl + '/?t=' + team
-            : withBase('/?t=' + team);
-        }
-        let url = '/qr.pdf?t=' + encodeURIComponent(link) + '&rounded=1';
-        if (currentEventUid) {
-          url += '&event=' + encodeURIComponent(currentEventUid);
-        }
-        window.open(withBase(url), '_blank');
-      }
-    });
-  });
+  bindTeamPrintButtons();
 
   // --------- Fragen bearbeiten ---------
   const container = document.getElementById('questions');
@@ -4997,6 +5012,207 @@ document.addEventListener('DOMContentLoaded', function () {
     applyLazyImage(img, null);
   }
 
+  let summaryRequestId = 0;
+
+  function createSummaryPager(options) {
+    const {
+      container,
+      metaEl,
+      loadMoreBtn,
+      pagerWrapper,
+      loadingText,
+      emptyText,
+      progressText,
+      perPage,
+      fetchPage,
+      renderItems,
+      afterRender,
+      isActive
+    } = options;
+
+    let loading = false;
+    let loaded = 0;
+    let total = 0;
+    let currentPerPage = typeof perPage === 'number' && perPage > 0 ? perPage : 0;
+
+    const ensureActive = () => (typeof isActive === 'function' ? isActive() : true);
+
+    const showWrapper = () => {
+      if (pagerWrapper) {
+        pagerWrapper.hidden = false;
+      }
+    };
+
+    const setMetaText = text => {
+      if (!metaEl) {
+        return;
+      }
+      const normalized = typeof text === 'string' ? text : '';
+      metaEl.textContent = normalized;
+      metaEl.hidden = normalized === '';
+    };
+
+    const hideMeta = () => {
+      if (!metaEl) {
+        return;
+      }
+      metaEl.textContent = '';
+      metaEl.hidden = true;
+    };
+
+    const hideLoadMore = () => {
+      if (!loadMoreBtn) {
+        return;
+      }
+      loadMoreBtn.hidden = true;
+      loadMoreBtn.dataset.nextPage = '';
+    };
+
+    const showLoadMore = nextPage => {
+      if (!loadMoreBtn) {
+        return;
+      }
+      if (nextPage && (!total || loaded < total)) {
+        loadMoreBtn.hidden = false;
+        loadMoreBtn.dataset.nextPage = String(nextPage);
+      } else {
+        hideLoadMore();
+      }
+    };
+
+    const reset = () => {
+      if (container) {
+        container.innerHTML = '';
+      }
+      loaded = 0;
+      total = 0;
+      currentPerPage = typeof perPage === 'number' && perPage > 0 ? perPage : currentPerPage;
+      hideLoadMore();
+      if (loadMoreBtn) {
+        loadMoreBtn.removeAttribute('disabled');
+      }
+      if (loadingText) {
+        showWrapper();
+        setMetaText(loadingText);
+      } else {
+        hideMeta();
+        if (pagerWrapper) {
+          pagerWrapper.hidden = true;
+        }
+      }
+    };
+
+    async function load(page = 1, append = false) {
+      if (!container || loading) {
+        return;
+      }
+      loading = true;
+      if (!append) {
+        container.innerHTML = '';
+        loaded = 0;
+      }
+      if (loadingText) {
+        showWrapper();
+        setMetaText(loadingText);
+      }
+      if (loadMoreBtn) {
+        loadMoreBtn.hidden = true;
+        loadMoreBtn.dataset.nextPage = '';
+        loadMoreBtn.setAttribute('disabled', 'disabled');
+      }
+
+      try {
+        const data = await fetchPage(page, currentPerPage);
+        if (!ensureActive()) {
+          return;
+        }
+        let items = [];
+        let pager = null;
+        if (Array.isArray(data)) {
+          items = data;
+        } else if (data && typeof data === 'object') {
+          items = Array.isArray(data.items) ? data.items : [];
+          pager = data.pager && typeof data.pager === 'object' ? data.pager : null;
+        }
+        if (!append) {
+          container.innerHTML = '';
+          loaded = 0;
+        }
+        if (!items.length && loaded === 0) {
+          showWrapper();
+          setMetaText(emptyText);
+          hideLoadMore();
+          return;
+        }
+        renderItems(items, append);
+        loaded += items.length;
+        if (pager) {
+          if (typeof pager.perPage === 'number' && pager.perPage > 0) {
+            currentPerPage = pager.perPage;
+          }
+          if (typeof pager.total === 'number' && pager.total >= 0) {
+            total = pager.total;
+          }
+          if (!total && typeof pager.count === 'number' && pager.count >= 0) {
+            total = pager.count;
+          }
+          if (!total) {
+            total = loaded;
+          }
+          const hasNext = typeof pager.nextPage === 'number' && pager.nextPage > 0;
+          if (hasNext && (!total || loaded < total)) {
+            showLoadMore(pager.nextPage);
+          } else if (total && loaded < total && currentPerPage > 0) {
+            showLoadMore(page + 1);
+          } else {
+            hideLoadMore();
+          }
+        } else {
+          total = Math.max(total, loaded);
+          hideLoadMore();
+        }
+        showWrapper();
+        if (progressText && total && metaEl) {
+          const text = progressText
+            .replace('%current%', String(Math.min(loaded, total)))
+            .replace('%total%', String(total));
+          setMetaText(text);
+        } else if (!loaded) {
+          setMetaText(emptyText);
+        } else if (metaEl) {
+          hideMeta();
+        }
+        if (typeof afterRender === 'function') {
+          afterRender();
+        }
+      } catch (err) {
+        if (ensureActive()) {
+          showWrapper();
+          setMetaText(window.transSummaryLoadError || emptyText);
+          hideLoadMore();
+        }
+      } finally {
+        if (loadMoreBtn) {
+          loadMoreBtn.removeAttribute('disabled');
+        }
+        loading = false;
+      }
+    }
+
+    loadMoreBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      const next = parseInt(loadMoreBtn.dataset.nextPage || '0', 10);
+      if (next > 0) {
+        load(next, true);
+      }
+    });
+
+    return {
+      load,
+      reset
+    };
+  }
+
   function loadSummary() {
     const nameEl = document.getElementById('summaryEventName');
     const descEl = document.getElementById('summaryEventDesc');
@@ -5004,16 +5220,212 @@ document.addEventListener('DOMContentLoaded', function () {
     const catalogsEl = document.getElementById('summaryCatalogs');
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
+
+    const requestId = ++summaryRequestId;
+    const isActive = () => requestId === summaryRequestId;
+
     const opts = { headers: { 'Accept': 'application/json' } };
+    const loadingEventText = window.transSummaryLoadingEvent || '';
+    nameEl.textContent = loadingEventText;
+    if (descEl) descEl.textContent = '';
+    if (qrImg) {
+      clearQrImage(qrImg);
+      qrImg.hidden = true;
+    }
+
+    const catalogsWrapper = document.getElementById('summaryCatalogsPager');
+    const teamsWrapper = document.getElementById('summaryTeamsPager');
+    const catalogsMeta = document.getElementById('summaryCatalogsMeta');
+    const teamsMeta = document.getElementById('summaryTeamsMeta');
+    const catalogsMoreBtn = document.getElementById('summaryCatalogsMore');
+    const teamsMoreBtn = document.getElementById('summaryTeamsMore');
+
+    const catalogsEmpty = catalogsEl.dataset.emptyText || window.transSummaryNoCatalogs || '';
+    const teamsEmpty = teamsEl.dataset.emptyText || window.transSummaryNoTeams || '';
+    const catalogsProgress = window.transSummaryCatalogProgress || '';
+    const teamsProgress = window.transSummaryTeamProgress || '';
+    const catalogsLoading = window.transSummaryLoadingCatalogs || '';
+    const teamsLoading = window.transSummaryLoadingTeams || '';
+
+    const parsePageSize = el => {
+      const raw = el?.dataset?.summaryPageSize || '';
+      const size = parseInt(raw, 10);
+      return Number.isFinite(size) && size > 0 ? size : 0;
+    };
+
+    const applySummaryDesign = (params, colorKey) => {
+      if (cfgInitial.qrLogoPath) {
+        params.set('logo_path', cfgInitial.qrLogoPath);
+      } else {
+        const l1 = cfgInitial.qrLabelLine1 || '';
+        const l2 = cfgInitial.qrLabelLine2 || '';
+        if (l1) params.set('text1', l1);
+        if (l2) params.set('text2', l2);
+      }
+      if (cfgInitial.qrLogoWidth) {
+        params.set('logo_width', String(cfgInitial.qrLogoWidth));
+      }
+      const rounded = cfgInitial.qrRounded !== false;
+      const roundMode = rounded ? (cfgInitial.qrRoundMode || 'margin') : 'none';
+      params.set('round_mode', roundMode);
+      params.set('rounded', rounded ? '1' : '0');
+      params.set('logo_punchout', cfgInitial.qrLogoPunchout !== false ? '1' : '0');
+      const col = cfgInitial[colorKey] || '';
+      if (col) params.set('fg', col.replace('#', ''));
+    };
+
+    const catalogPager = createSummaryPager({
+      container: catalogsEl,
+      metaEl: catalogsMeta,
+      loadMoreBtn: catalogsMoreBtn,
+      pagerWrapper: catalogsWrapper,
+      loadingText: catalogsLoading,
+      emptyText: catalogsEmpty,
+      progressText: catalogsProgress,
+      perPage: parsePageSize(catalogsEl),
+      fetchPage: (page, perPage) => {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        if (perPage) params.set('per_page', String(perPage));
+        return apiFetch(`/kataloge/catalogs.json?${params.toString()}`, opts).then(r => r.json());
+      },
+      renderItems: items => {
+        items.forEach(c => {
+          if (!c || typeof c !== 'object') {
+            return;
+          }
+          const slug = typeof c.slug === 'string' ? c.slug : '';
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
+          const card = document.createElement('div');
+          card.className = 'export-card uk-card qr-card uk-card-body';
+          const path = currentEventUid
+            ? '/?event=' + encodeURIComponent(currentEventUid) + '&katalog=' + encodeURIComponent(slug)
+            : '/?katalog=' + encodeURIComponent(slug);
+          const qrLink = window.baseUrl ? window.baseUrl + path : withBase(path);
+          const linkEl = document.createElement('a');
+          linkEl.href = qrLink;
+          linkEl.target = '_blank';
+          linkEl.textContent = c.name || '';
+          const h4 = document.createElement('h4');
+          h4.className = 'uk-card-title';
+          h4.appendChild(linkEl);
+          const p = document.createElement('p');
+          p.textContent = c.description || '';
+          const img = document.createElement('img');
+          img.alt = 'QR';
+          img.width = 96;
+          img.height = 96;
+          const params = new URLSearchParams();
+          params.set('t', qrLink);
+          applySummaryDesign(params, 'qrColorCatalog');
+          setQrImage(img, '/qr/catalog', qrLink, params);
+          const designBtn = document.createElement('button');
+          designBtn.className = 'uk-icon-button uk-margin-small-top';
+          designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
+          designBtn.type = 'button';
+          designBtn.addEventListener('click', () => {
+            openQrDesignModal(img, '/qr/catalog', qrLink, c.name || '');
+          });
+          card.appendChild(h4);
+          card.appendChild(p);
+          card.appendChild(img);
+          card.appendChild(designBtn);
+          wrapper.appendChild(card);
+          catalogsEl.appendChild(wrapper);
+        });
+      },
+      afterRender: () => {},
+      isActive
+    });
+    catalogPager.reset();
+
+    const teamPager = createSummaryPager({
+      container: teamsEl,
+      metaEl: teamsMeta,
+      loadMoreBtn: teamsMoreBtn,
+      pagerWrapper: teamsWrapper,
+      loadingText: teamsLoading,
+      emptyText: teamsEmpty,
+      progressText: teamsProgress,
+      perPage: parsePageSize(teamsEl),
+      fetchPage: (page, perPage) => {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        if (perPage) params.set('per_page', String(perPage));
+        if (currentEventUid) {
+          params.set('event_uid', currentEventUid);
+        }
+        return apiFetch(`/teams.json?${params.toString()}`, opts).then(r => r.json());
+      },
+      renderItems: items => {
+        items.forEach(teamName => {
+          if (typeof teamName !== 'string' || teamName === '') {
+            return;
+          }
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
+          const card = document.createElement('div');
+          card.className = 'export-card uk-card qr-card uk-card-body uk-position-relative';
+          const btn = document.createElement('button');
+          btn.className = 'qr-print-btn uk-icon-button uk-position-top-right';
+          btn.setAttribute('data-team', teamName);
+          btn.setAttribute('uk-icon', 'icon: print');
+          btn.setAttribute('aria-label', 'QR-Code drucken');
+          const h4 = document.createElement('h4');
+          h4.className = 'uk-card-title';
+          h4.textContent = teamName;
+          const img = document.createElement('img');
+          let link;
+          if (currentEventUid) {
+            const eventParam = encodeURIComponent(currentEventUid);
+            link = window.baseUrl
+              ? window.baseUrl + '/?event=' + eventParam + '&t=' + encodeURIComponent(teamName)
+              : withBase('/?event=' + eventParam + '&t=' + encodeURIComponent(teamName));
+          } else {
+            link = window.baseUrl
+              ? window.baseUrl + '/?t=' + encodeURIComponent(teamName)
+              : withBase('/?t=' + encodeURIComponent(teamName));
+          }
+          const params = new URLSearchParams();
+          params.set('t', link);
+          applySummaryDesign(params, 'qrColorTeam');
+          img.alt = 'QR';
+          img.width = 96;
+          img.height = 96;
+          setQrImage(img, '/qr/team', link, params);
+          const designBtn = document.createElement('button');
+          designBtn.className = 'uk-icon-button uk-position-top-left';
+          designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
+          designBtn.type = 'button';
+          designBtn.addEventListener('click', () => {
+            openQrDesignModal(img, '/qr/team', link, teamName);
+          });
+          card.appendChild(btn);
+          card.appendChild(h4);
+          card.appendChild(img);
+          card.appendChild(designBtn);
+          wrapper.appendChild(card);
+          teamsEl.appendChild(wrapper);
+        });
+        bindTeamPrintButtons(teamsEl);
+      },
+      afterRender: () => {},
+      isActive
+    });
+    teamPager.reset();
+
     const cfgPromise = currentEventUid
       ? apiFetch(`/events/${currentEventUid}/config.json`, opts).then(r => r.json()).catch(() => ({}))
       : apiFetch('/config.json', opts).then(r => r.json()).catch(() => ({}));
+
     Promise.all([
       cfgPromise,
-      apiFetch('/events.json', opts).then(r => r.json()).catch(() => []),
-      apiFetch('/kataloge/catalogs.json', opts).then(r => r.json()).catch(() => []),
-      apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
-    ]).then(([cfg, events, catalogs, teams]) => {
+      apiFetch('/events.json', opts).then(r => r.json()).catch(() => [])
+    ]).then(([cfg, events]) => {
+      if (!isActive()) {
+        return;
+      }
       const nextConfig = (cfg && typeof cfg === 'object') ? cfg : {};
       populateEventSelectors(events);
       const selectableHasEvents = availableEvents.length > 0;
@@ -5044,130 +5456,48 @@ document.addEventListener('DOMContentLoaded', function () {
       updateActiveHeader(currentEventName);
       highlightCurrentEvent();
       nameEl.textContent = ev.name || '';
-      if (descEl) descEl.textContent = ev.description || '';
-      const applyDesign = (params, colorKey) => {
-        if (cfgInitial.qrLogoPath) {
-          params.set('logo_path', cfgInitial.qrLogoPath);
-        } else {
-          const l1 = cfgInitial.qrLabelLine1 || '';
-          const l2 = cfgInitial.qrLabelLine2 || '';
-          if (l1) params.set('text1', l1);
-          if (l2) params.set('text2', l2);
-        }
-        if (cfgInitial.qrLogoWidth) {
-          params.set('logo_width', String(cfgInitial.qrLogoWidth));
-        }
-        const rounded = cfgInitial.qrRounded !== false;
-        const roundMode = rounded ? (cfgInitial.qrRoundMode || 'margin') : 'none';
-        params.set('round_mode', roundMode);
-        params.set('rounded', rounded ? '1' : '0');
-        params.set('logo_punchout', cfgInitial.qrLogoPunchout !== false ? '1' : '0');
-        const col = cfgInitial[colorKey] || '';
-        if (col) params.set('fg', col.replace('#', ''));
-      };
+      if (descEl) {
+        descEl.textContent = ev.description || '';
+      }
       if (qrImg) {
         if (ev.uid) {
+          const eventParam = encodeURIComponent(ev.uid);
           qrImg.hidden = false;
-          const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid));
+          const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + eventParam);
           const params = new URLSearchParams();
           params.set('t', link);
           params.set('event', ev.uid);
-          applyDesign(params, 'qrColorEvent');
+          applySummaryDesign(params, 'qrColorEvent');
           setQrImage(qrImg, '/qr/event', link, params);
         } else {
           clearQrImage(qrImg);
           qrImg.hidden = true;
         }
       }
-      catalogsEl.innerHTML = '';
-      catalogs.forEach(c => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
-        const card = document.createElement('div');
-        card.className = 'export-card uk-card qr-card uk-card-body';
-        const path = ev.uid
-          ? '/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug)
-          : '/?katalog=' + encodeURIComponent(c.slug);
-        const qrLink = window.baseUrl + path;
-        const linkEl = document.createElement('a');
-        linkEl.href = qrLink;
-        linkEl.target = '_blank';
-        linkEl.textContent = c.name || '';
-        const h4 = document.createElement('h4');
-        h4.className = 'uk-card-title';
-        h4.appendChild(linkEl);
-        const p = document.createElement('p');
-        p.textContent = c.description || '';
-        const img = document.createElement('img');
-        img.alt = 'QR';
-        img.width = 96;
-        img.height = 96;
-        const cParams = new URLSearchParams();
-        cParams.set('t', qrLink);
-        applyDesign(cParams, 'qrColorCatalog');
-        setQrImage(img, '/qr/catalog', qrLink, cParams);
-        const designBtn = document.createElement('button');
-        designBtn.className = 'uk-icon-button uk-margin-small-top';
-        designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
-        designBtn.type = 'button';
-        designBtn.addEventListener('click', () => {
-          openQrDesignModal(img, '/qr/catalog', qrLink, c.name || '');
-        });
-        card.appendChild(h4);
-        card.appendChild(p);
-        card.appendChild(img);
-        card.appendChild(designBtn);
-        wrapper.appendChild(card);
-        catalogsEl.appendChild(wrapper);
-      });
-      teamsEl.innerHTML = '';
-      teams.forEach(t => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
-        const card = document.createElement('div');
-        card.className = 'export-card uk-card qr-card uk-card-body uk-position-relative';
-        const btn = document.createElement('button');
-        btn.className = 'qr-print-btn uk-icon-button uk-position-top-right';
-        btn.setAttribute('data-team', t);
-        btn.setAttribute('uk-icon', 'icon: print');
-        btn.setAttribute('aria-label', 'QR-Code drucken');
-        const h4 = document.createElement('h4');
-        h4.className = 'uk-card-title';
-        h4.textContent = t;
-        const img = document.createElement('img');
-        let link;
-        if (currentEventUid) {
-          link = window.baseUrl
-            ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + t
-            : withBase('/?event=' + currentEventUid + '&t=' + t);
-        } else {
-          link = window.baseUrl
-            ? window.baseUrl + '/?t=' + t
-            : withBase('/?t=' + t);
-        }
-        const tParams = new URLSearchParams();
-        tParams.set('t', link);
-        applyDesign(tParams, 'qrColorTeam');
-        img.alt = 'QR';
-        img.width = 96;
-        img.height = 96;
-        setQrImage(img, '/qr/team', link, tParams);
-        const designBtn = document.createElement('button');
-        designBtn.className = 'uk-icon-button uk-position-top-left';
-        designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
-        designBtn.type = 'button';
-        designBtn.addEventListener('click', () => {
-          openQrDesignModal(img, '/qr/team', link, t);
-        });
-        card.appendChild(btn);
-        card.appendChild(h4);
-        card.appendChild(img);
-        card.appendChild(designBtn);
-        wrapper.appendChild(card);
-        teamsEl.appendChild(wrapper);
-      });
+      catalogPager.load(1);
+      teamPager.load(1);
+    }).catch(() => {
+      if (!isActive()) {
+        return;
+      }
+      if (catalogsWrapper) {
+        catalogsWrapper.hidden = false;
+      }
+      if (catalogsMeta) {
+        catalogsMeta.textContent = window.transSummaryLoadError || catalogsEmpty;
+        catalogsMeta.hidden = false;
+      }
+      if (teamsWrapper) {
+        teamsWrapper.hidden = false;
+      }
+      if (teamsMeta) {
+        teamsMeta.textContent = window.transSummaryLoadError || teamsEmpty;
+        teamsMeta.hidden = false;
+      }
     });
   }
+
+  
 
   function activeHelpText() {
     if (!adminTabs) return '';
