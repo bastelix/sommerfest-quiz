@@ -76,7 +76,7 @@ class ResultService
             SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
                 qr.points, qr.time_left_sec, qr.final_points, qr.efficiency, qr.is_correct, qr.scoring_version,
                 qr.answer_text, qr.photo, qr.consent,
-                q.type, q.prompt, q.points AS question_points, q.options, q.answers, q.terms, q.items,
+                q.type, q.prompt, q.points AS question_points, q.countdown AS question_countdown, q.options, q.answers, q.terms, q.items,
                 c.name AS catalogName
             FROM question_results qr
             LEFT JOIN questions q ON q.id = qr.question_id
@@ -119,6 +119,12 @@ class ResultService
             if (isset($row['question_points'])) {
                 $row['questionPoints'] = (int) $row['question_points'];
                 unset($row['question_points']);
+            }
+            if (array_key_exists('question_countdown', $row)) {
+                $row['questionCountdown'] = $row['question_countdown'] !== null
+                    ? (int) $row['question_countdown']
+                    : null;
+                unset($row['question_countdown']);
             }
             foreach (["options", "answers", "terms", "items"] as $k) {
                 if (isset($row[$k])) {
@@ -241,7 +247,7 @@ class ResultService
             return ['points' => 0, 'max' => 0];
         }
         $qStmt = $this->pdo->prepare(
-            "SELECT id, points FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
+            "SELECT id, points, countdown FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
         );
         $qStmt->execute([$uid]);
         $rows = $qStmt->fetchAll(PDO::FETCH_ASSOC);

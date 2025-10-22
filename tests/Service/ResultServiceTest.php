@@ -290,6 +290,7 @@ class ResultServiceTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                countdown INTEGER,
                 cards TEXT,
                 right_label TEXT,
                 left_label TEXT
@@ -430,6 +431,7 @@ class ResultServiceTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                countdown INTEGER,
                 cards TEXT,
                 right_label TEXT,
                 left_label TEXT
@@ -564,6 +566,7 @@ class ResultServiceTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                countdown INTEGER,
                 cards TEXT,
                 right_label TEXT,
                 left_label TEXT
@@ -650,7 +653,8 @@ class ResultServiceTest extends TestCase
             'catalog_uid TEXT NOT NULL,' .
             'sort_order INTEGER,' .
             'type TEXT NOT NULL,' .
-            'prompt TEXT NOT NULL' .
+            'prompt TEXT NOT NULL,' .
+            'countdown INTEGER' .
             ')'
         );
         $pdo->exec(
