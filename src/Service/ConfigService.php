@@ -155,6 +155,31 @@ class ConfigService
     }
 
     /**
+     * Decrypt a stored dashboard token while supporting legacy plaintext values.
+     */
+    private function resolveDashboardToken(?string $value): ?string {
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        $plain = $this->tokenCipher->decrypt($trimmed);
+        if (is_string($plain) && $plain !== '') {
+            return $plain;
+        }
+
+        if (preg_match('/^[A-Za-z0-9_-]{16,}$/', $trimmed) === 1) {
+            return $trimmed;
+        }
+
+        return null;
+    }
+
+    /**
      * Persist a dashboard token for the given event.
      */
     public function setDashboardToken(string $uid, string $variant, ?string $token): void {
@@ -192,8 +217,8 @@ class ConfigService
         $public = $row['dashboard_share_token'] ?? null;
         $sponsor = $row['dashboard_sponsor_token'] ?? null;
         return [
-            'public' => is_string($public) ? $this->tokenCipher->decrypt($public) : null,
-            'sponsor' => is_string($sponsor) ? $this->tokenCipher->decrypt($sponsor) : null,
+            'public' => $this->resolveDashboardToken(is_string($public) ? $public : null),
+            'sponsor' => $this->resolveDashboardToken(is_string($sponsor) ? $sponsor : null),
         ];
     }
 
@@ -637,7 +662,12 @@ class ConfigService
         ];
         $map = [];
         foreach ($keys as $k) {
-            $map[strtolower($k)] = $k;
+            $lower = strtolower($k);
+            $map[$lower] = $k;
+            $snake = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $k));
+            if ($snake !== $lower) {
+                $map[$snake] = $k;
+            }
         }
         $map['title'] = 'pageTitle';
         $map['loginrequired'] = 'QRUser';
@@ -664,7 +694,7 @@ class ConfigService
                     FILTER_NULL_ON_FAILURE
                 );
             } elseif ($key === 'dashboardShareToken' || $key === 'dashboardSponsorToken') {
-                $normalized[$key] = is_string($v) ? $this->tokenCipher->decrypt($v) : null;
+                $normalized[$key] = $this->resolveDashboardToken(is_string($v) ? $v : null);
             } elseif ($key === 'dashboardRefreshInterval') {
                 $normalized[$key] = $v !== null ? (int) $v : null;
             } else {
