@@ -21,14 +21,14 @@
   let currentEventSlug = '';
   const DEFAULT_MODULES = [
     { id: 'header', enabled: true },
-    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog'] } },
+    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
     { id: 'results', enabled: true },
     { id: 'wrongAnswers', enabled: false },
     { id: 'infoBanner', enabled: false },
     { id: 'qrCodes', enabled: false, options: { catalogs: [] } },
     { id: 'media', enabled: false },
   ];
-  const METRIC_KEYS = ['points', 'puzzle', 'catalog'];
+  const METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
   const QR_MODULE_ID = 'qrCodes';
   const qrModuleElement = modulesList?.querySelector('[data-module-id="' + QR_MODULE_ID + '"]') || null;
   const qrCatalogContainer = qrModuleElement?.querySelector('[data-module-catalogs]') || null;
