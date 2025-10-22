@@ -2355,6 +2355,44 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
+  const parseBoolean = value => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value > 0;
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      return ['1', 'true', 'yes', 'on'].includes(normalized);
+    }
+    return false;
+  };
+
+  function isCountdownFeatureEnabled() {
+    const raw = cfgInitial.countdownEnabled ?? cfgInitial.countdown_enabled ?? false;
+    return parseBoolean(raw);
+  }
+
+  function getDefaultCountdownSeconds() {
+    const raw = cfgInitial.countdown ?? cfgInitial.defaultCountdown ?? 0;
+    const parsed = Number.parseInt(raw, 10);
+    if (!Number.isNaN(parsed) && parsed > 0) {
+      return parsed;
+    }
+    return null;
+  }
+
+  function parseCountdownValue(value) {
+    if (value === null || value === undefined) return null;
+    const trimmed = String(value).trim();
+    if (trimmed === '') return null;
+    const parsed = Number.parseInt(trimmed, 10);
+    if (Number.isNaN(parsed) || parsed < 0) {
+      return null;
+    }
+    return parsed;
+  }
+
+  // Zähler für eindeutige Namen von Eingabefeldern
+  let cardIndex = 0;
+
   container?.addEventListener('input', () => saveQuestions());
   container?.addEventListener('change', () => saveQuestions());
   if (container && window.UIkit && UIkit.util) {
@@ -2667,6 +2705,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Rendert alle Fragen im Editor neu
   function renderAll(data) {
     container.innerHTML = '';
+    cardIndex = 0;
     data.forEach((q, i) => container.appendChild(createCard(q, i)));
   }
 
@@ -2718,6 +2757,36 @@ document.addEventListener('DOMContentLoaded', function () {
     prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
     prompt.placeholder = 'Fragetext';
     prompt.value = q.prompt || '';
+    const countdownEnabled = isCountdownFeatureEnabled();
+    const defaultCountdown = getDefaultCountdownSeconds();
+    const countdownId = `countdown-${cardIndex}`;
+    const countdownGroup = document.createElement('div');
+    countdownGroup.className = 'uk-margin-small-bottom';
+    const countdownLabel = document.createElement('label');
+    countdownLabel.className = 'uk-form-label';
+    countdownLabel.setAttribute('for', countdownId);
+    countdownLabel.textContent = 'Zeitlimit (Sekunden)';
+    const countdownInput = document.createElement('input');
+    countdownInput.className = 'uk-input countdown-input';
+    countdownInput.type = 'number';
+    countdownInput.min = '0';
+    countdownInput.id = countdownId;
+    const hasCountdown = Object.prototype.hasOwnProperty.call(q, 'countdown');
+    if (hasCountdown && q.countdown !== null && q.countdown !== undefined) {
+      countdownInput.value = String(q.countdown);
+    }
+    countdownInput.placeholder = defaultCountdown !== null
+      ? `Standard: ${defaultCountdown}s`
+      : 'z.\u00A0B. 45';
+    countdownInput.disabled = !countdownEnabled;
+    const countdownMeta = document.createElement('div');
+    countdownMeta.className = 'uk-text-meta';
+    countdownMeta.textContent = countdownEnabled
+      ? 'Leer für Standardwert, 0 deaktiviert den Timer.'
+      : 'Countdown im Tab „Extras“ aktivieren, um ein Zeitlimit festzulegen.';
+    countdownGroup.appendChild(countdownLabel);
+    countdownGroup.appendChild(countdownInput);
+    countdownGroup.appendChild(countdownMeta);
     const fields = document.createElement('div');
     fields.className = 'fields';
     const removeBtn = document.createElement('button');
@@ -2955,6 +3024,7 @@ document.addEventListener('DOMContentLoaded', function () {
     formCol.appendChild(typeSelect);
     formCol.appendChild(typeInfo);
     formCol.appendChild(prompt);
+    formCol.appendChild(countdownGroup);
     formCol.appendChild(fields);
     formCol.appendChild(removeBtn);
 
@@ -2971,6 +3041,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updatePreview() {
       preview.innerHTML = '';
+      const countdownValue = parseCountdownValue(countdownInput.value);
+      const effectiveCountdown = countdownEnabled
+        ? (countdownValue !== null ? countdownValue : defaultCountdown)
+        : null;
+      if (countdownEnabled) {
+        if (effectiveCountdown !== null && effectiveCountdown > 0) {
+          const timer = document.createElement('div');
+          timer.className = 'question-timer uk-margin-small-bottom';
+          const timerLabel = document.createElement('span');
+          timerLabel.className = 'question-timer__label';
+          timerLabel.textContent = 'Zeitlimit:';
+          const timerValue = document.createElement('span');
+          timerValue.className = 'question-timer__value';
+          timerValue.textContent = `${effectiveCountdown}s`;
+          timer.appendChild(timerLabel);
+          timer.appendChild(timerValue);
+          preview.appendChild(timer);
+        } else if (countdownValue === 0) {
+          const noTimer = document.createElement('div');
+          noTimer.className = 'uk-text-meta uk-margin-small-bottom';
+          noTimer.textContent = 'Kein Timer für diese Frage.';
+          preview.appendChild(noTimer);
+        }
+      }
       const h = document.createElement('h4');
       h.textContent = insertSoftHyphens(prompt.value || 'Vorschau');
       preview.appendChild(h);
@@ -3150,6 +3244,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     prompt.addEventListener('input', updatePreview);
     fields.addEventListener('input', updatePreview);
+    countdownInput.addEventListener('input', updatePreview);
+    countdownInput.addEventListener('change', updatePreview);
     typeSelect.addEventListener('change', updatePreview);
     updatePreview();
 
@@ -3158,6 +3254,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Sammelt alle Eingaben aus den Karten in ein Array von Fragen
+  function getCountdownValue(card) {
+    const input = card.querySelector('.countdown-input');
+    if (!input) return null;
+    return parseCountdownValue(input.value);
+  }
+
   function collect() {
     return Array.from(container.querySelectorAll('.question-card')).map(card => {
       const type = card.querySelector('.type-select').value;
@@ -3166,13 +3268,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const items = Array.from(card.querySelectorAll('.item-row .item'))
           .map(i => i.value.trim())
           .filter(Boolean);
-        return { type, prompt, items };
+        const obj = { type, prompt, items };
+        const countdown = getCountdownValue(card);
+        if (countdown !== null) obj.countdown = countdown;
+        return obj;
       } else if (type === 'assign') {
         const terms = Array.from(card.querySelectorAll('.term-row')).map(r => ({
           term: r.querySelector('.term').value.trim(),
           definition: r.querySelector('.definition').value.trim()
         })).filter(t => t.term || t.definition);
-        return { type, prompt, terms };
+        const obj = { type, prompt, terms };
+        const countdown = getCountdownValue(card);
+        if (countdown !== null) obj.countdown = countdown;
+        return obj;
       } else if (type === 'swipe') {
         const cards = Array.from(card.querySelectorAll('.card-row')).map(r => ({
           text: r.querySelector('.card-text').value.trim(),
@@ -3183,13 +3291,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const obj = { type, prompt, cards };
         if (rightLabel) obj.rightLabel = rightLabel;
         if (leftLabel) obj.leftLabel = leftLabel;
+        const countdown = getCountdownValue(card);
+        if (countdown !== null) obj.countdown = countdown;
         return obj;
       } else if (type === 'flip') {
         const answer = card.querySelector('.flip-answer').value.trim();
-        return { type, prompt, answer };
+        const obj = { type, prompt, answer };
+        const countdown = getCountdownValue(card);
+        if (countdown !== null) obj.countdown = countdown;
+        return obj;
       } else if (type === 'photoText') {
         const consent = card.querySelector('.consent-box').checked;
-        return { type, prompt, consent };
+        const obj = { type, prompt, consent };
+        const countdown = getCountdownValue(card);
+        if (countdown !== null) obj.countdown = countdown;
+        return obj;
       } else {
         const options = Array.from(card.querySelectorAll('.option-row .option'))
           .map(i => i.value.trim())
@@ -3198,7 +3314,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const answers = checks
           .map((c, i) => (c.checked ? i : -1))
           .filter(i => i >= 0);
-        return { type, prompt, options, answers };
+        const obj = { type, prompt, options, answers };
+        const countdown = getCountdownValue(card);
+        if (countdown !== null) obj.countdown = countdown;
+        return obj;
       }
     });
   }
@@ -4730,9 +4849,6 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(() => notify('Mandanten konnten nicht geladen werden', 'danger'));
   }
-
-  // Zähler für eindeutige Namen von Eingabefeldern
-  let cardIndex = 0;
 
   // --------- Hilfe-Seitenleiste ---------
   const helpButtons = document.querySelectorAll('.help-toggle');

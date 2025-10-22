@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWord TEXT,
     puzzleFeedback TEXT,
     collectPlayerUid BOOLEAN,
+    countdownEnabled BOOLEAN,
+    countdown INTEGER,
     inviteText TEXT,
     qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT,
@@ -190,6 +192,7 @@ CREATE TABLE IF NOT EXISTS questions (
     cards TEXT DEFAULT '[]',
     right_label TEXT,
     left_label TEXT,
+    countdown INTEGER,
     FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE,
     UNIQUE(catalog_uid, sort_order)
 );

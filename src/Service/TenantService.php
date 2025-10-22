@@ -307,13 +307,40 @@ class TenantService
                     'raetsel_buchstabe,comment,event_uid' .
                 ') VALUES(?,?,?,?,?,?,?,?,?)'
             );
-            $qStmt = $this->hasTable('questions')
-                ? $this->pdo->prepare(
-                    'INSERT INTO questions(' .
-                        'catalog_uid,type,prompt,options,answers,terms,items,sort_order' .
-                    ') VALUES(?,?,?,?,?,?,?,?)'
-                )
-                : null;
+            $qStmt = null;
+            $hasCards = false;
+            $hasRightLabel = false;
+            $hasLeftLabel = false;
+            $hasCountdown = false;
+            if ($this->hasTable('questions')) {
+                $hasCards = $this->hasColumn('questions', 'cards');
+                $hasRightLabel = $this->hasColumn('questions', 'right_label');
+                $hasLeftLabel = $this->hasColumn('questions', 'left_label');
+                $hasCountdown = $this->hasColumn('questions', 'countdown');
+                $columns = ['catalog_uid', 'type', 'prompt', 'options', 'answers', 'terms', 'items'];
+                $placeholders = ['?', '?', '?', '?', '?', '?', '?'];
+                if ($hasCards) {
+                    $columns[] = 'cards';
+                    $placeholders[] = '?';
+                }
+                if ($hasRightLabel) {
+                    $columns[] = 'right_label';
+                    $placeholders[] = '?';
+                }
+                if ($hasLeftLabel) {
+                    $columns[] = 'left_label';
+                    $placeholders[] = '?';
+                }
+                $columns[] = 'sort_order';
+                $placeholders[] = '?';
+                if ($hasCountdown) {
+                    $columns[] = 'countdown';
+                    $placeholders[] = '?';
+                }
+                $qStmt = $this->pdo->prepare(
+                    'INSERT INTO questions(' . implode(',', $columns) . ') VALUES(' . implode(',', $placeholders) . ')'
+                );
+            }
             foreach ($catalogs as $cat) {
                 $catStmt->execute([
                     $cat['uid'] ?? '',
@@ -331,7 +358,7 @@ class TenantService
                     if (is_readable($file)) {
                         $questions = json_decode(file_get_contents($file), true) ?? [];
                         foreach ($questions as $i => $q) {
-                            $qStmt->execute([
+                            $params = [
                                 $cat['uid'] ?? '',
                                 $q['type'] ?? '',
                                 $q['prompt'] ?? '',
@@ -339,8 +366,23 @@ class TenantService
                                 isset($q['answers']) ? json_encode($q['answers']) : null,
                                 isset($q['terms']) ? json_encode($q['terms']) : null,
                                 isset($q['items']) ? json_encode($q['items']) : null,
-                                $i + 1,
-                            ]);
+                            ];
+                            if ($hasCards) {
+                                $params[] = isset($q['cards']) ? json_encode($q['cards']) : null;
+                            }
+                            if ($hasRightLabel) {
+                                $params[] = $q['rightLabel'] ?? null;
+                            }
+                            if ($hasLeftLabel) {
+                                $params[] = $q['leftLabel'] ?? null;
+                            }
+                            $params[] = $i + 1;
+                            if ($hasCountdown) {
+                                $params[] = array_key_exists('countdown', $q)
+                                    ? (is_numeric($q['countdown']) ? (int) $q['countdown'] : null)
+                                    : null;
+                            }
+                            $qStmt->execute($params);
                         }
                     }
                 }

@@ -123,11 +123,18 @@
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="countdown">Countdown</label>
+                <label>
+                  <input class="uk-checkbox" id="countdownEnabled" name="countdownEnabled" type="checkbox" {% if config.countdownEnabled %}checked{% endif %}>
+                  Countdown aktivieren
+                </label>
+                <div class="uk-text-meta">Zeigt einen Timer bei Fragen mit hinterlegter Zeitvorgabe.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="countdown">Standard-Zeitlimit (Sekunden)</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="countdown" name="countdown" type="number" min="0" placeholder="0">
+                  <input class="uk-input" id="countdown" name="countdown" type="number" min="0" placeholder="0" value="{{ config.countdown|default('') }}">
                 </div>
-                <div class="uk-text-meta">Zeitlimit pro Frage in Sekunden. 0 bedeutet kein Limit.</div>
+                <div class="uk-text-meta">Leer lassen oder 0 für kein globales Limit. Einzelne Fragen können ein eigenes Zeitlimit setzen.</div>
               </div>
             </form>
           </li>

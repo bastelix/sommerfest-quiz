@@ -40,6 +40,10 @@ window.quizConfig = {
   // Spieler-UIDs sammeln und serverseitig speichern
   collectPlayerUid: false,
 
+  // Countdown pro Frage aktivieren und Standardwert festlegen
+  countdownEnabled: false,
+  countdown: 0,
+
   // Rätselwort aktivieren und Begriff festlegen
   puzzleWordEnabled: true,
   puzzleWord: '',
