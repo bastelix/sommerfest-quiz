@@ -7,6 +7,7 @@ import {
   switchPending,
   lastSwitchFailed
 } from './event-switcher.js';
+import { applyLazyImage } from './lazy-images.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
@@ -4928,7 +4929,7 @@ document.addEventListener('DOMContentLoaded', function () {
         params.set('round_mode', roundMode);
         params.set('rounded', rounded ? '1' : '0');
         params.set('logo_punchout', punchout);
-        img.src = withBase(endpoint + '?' + params.toString());
+        applyLazyImage(img, withBase(endpoint + '?' + params.toString()), { forceLoad: true });
       });
       const lines = (qrLabelInput?.value || '').split(/\n/, 2);
       const data = {
@@ -4955,7 +4956,7 @@ document.addEventListener('DOMContentLoaded', function () {
         qrEc: ecVal,
       });
     } else if (currentQrImg) {
-      currentQrImg.src = qrPreview.src;
+      applyLazyImage(currentQrImg, qrPreview.src, { forceLoad: true });
       const data = { qrRounded: rounded };
       data[field] = colorVal;
       if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
@@ -4970,6 +4971,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (qrDesignModal && window.UIkit) UIkit.modal(qrDesignModal).hide();
   });
+
+  function setQrImage(img, endpoint, target, params, options = {}) {
+    if (!img) return;
+    img.classList.add('qr-img');
+    img.dataset.endpoint = endpoint;
+    img.dataset.target = target;
+    const url = withBase(endpoint + '?' + params.toString());
+    applyLazyImage(img, url, options);
+  }
+
+  function clearQrImage(img) {
+    if (!img) return;
+    img.classList.add('qr-img');
+    img.dataset.endpoint = '';
+    img.dataset.target = '';
+    applyLazyImage(img, null);
+  }
 
   function loadSummary() {
     const nameEl = document.getElementById('summaryEventName');
@@ -5032,17 +5050,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (ev.uid) {
           qrImg.hidden = false;
           const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid));
-          qrImg.dataset.endpoint = '/qr/event';
-          qrImg.dataset.target = link;
           const params = new URLSearchParams();
           params.set('t', link);
           params.set('event', ev.uid);
           applyDesign(params, 'qrColorEvent');
-          qrImg.src = withBase('/qr/event?' + params.toString());
+          setQrImage(qrImg, '/qr/event', link, params);
         } else {
-          qrImg.removeAttribute('src');
-          qrImg.dataset.endpoint = '';
-          qrImg.dataset.target = '';
+          clearQrImage(qrImg);
           qrImg.hidden = true;
         }
       }
@@ -5066,15 +5080,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const p = document.createElement('p');
         p.textContent = c.description || '';
         const img = document.createElement('img');
-        img.dataset.endpoint = '/qr/catalog';
-        img.dataset.target = qrLink;
-        const cParams = new URLSearchParams();
-        cParams.set('t', qrLink);
-        applyDesign(cParams, 'qrColorCatalog');
-        img.src = withBase('/qr/catalog?' + cParams.toString());
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
+        const cParams = new URLSearchParams();
+        cParams.set('t', qrLink);
+        applyDesign(cParams, 'qrColorCatalog');
+        setQrImage(img, '/qr/catalog', qrLink, cParams);
         const designBtn = document.createElement('button');
         designBtn.className = 'uk-icon-button uk-margin-small-top';
         designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
@@ -5104,7 +5116,6 @@ document.addEventListener('DOMContentLoaded', function () {
         h4.className = 'uk-card-title';
         h4.textContent = t;
         const img = document.createElement('img');
-        img.dataset.endpoint = '/qr/team';
         let link;
         if (currentEventUid) {
           link = window.baseUrl
@@ -5115,14 +5126,13 @@ document.addEventListener('DOMContentLoaded', function () {
             ? window.baseUrl + '/?t=' + t
             : withBase('/?t=' + t);
         }
-        img.dataset.target = link;
         const tParams = new URLSearchParams();
         tParams.set('t', link);
         applyDesign(tParams, 'qrColorTeam');
-        img.src = withBase('/qr/team?' + tParams.toString());
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
+        setQrImage(img, '/qr/team', link, tParams);
         const designBtn = document.createElement('button');
         designBtn.className = 'uk-icon-button uk-position-top-left';
         designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
