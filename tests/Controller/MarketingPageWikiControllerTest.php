@@ -50,6 +50,53 @@ final class MarketingPageWikiControllerTest extends TestCase
         $this->assertSame(['is_active' => 1, 'menu_label' => 'Docs'], $stored);
     }
 
+    public function testIndexReturnsTrimmedArticles(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'guide',
+                'title' => 'Guide',
+                'excerpt' => 'Kurzbeschreibung',
+                'editor' => [
+                    'blocks' => [
+                        ['type' => 'paragraph', 'data' => ['text' => 'Einführung']],
+                    ],
+                ],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $response = $controller->index(
+            $this->createRequest('GET', '/admin/pages/1/wiki'),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($payload['articles']);
+        $this->assertCount(1, $payload['articles']);
+
+        $article = $payload['articles'][0];
+        $this->assertSame('guide', $article['slug']);
+        $this->assertSame('Guide', $article['title']);
+        $this->assertSame('Kurzbeschreibung', $article['excerpt']);
+        $this->assertArrayHasKey('contentMarkdown', $article);
+        $this->assertSame('draft', $article['status']);
+        $this->assertArrayHasKey('sortIndex', $article);
+        $this->assertArrayHasKey('isStartDocument', $article);
+        $this->assertArrayHasKey('publishedAt', $article);
+        $this->assertArrayHasKey('updatedAt', $article);
+        $this->assertArrayNotHasKey('contentHtml', $article);
+        $this->assertArrayNotHasKey('editorState', $article);
+    }
+
     public function testSaveArticleAcceptsJsonPayload(): void
     {
         $pdo = $this->createWikiDatabase();

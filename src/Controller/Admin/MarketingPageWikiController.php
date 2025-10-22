@@ -59,7 +59,7 @@ final class MarketingPageWikiController
                 'menuLabel' => $settings->getMenuLabel(),
                 'updatedAt' => $settings->getUpdatedAt()?->format(DateTimeImmutable::ATOM),
             ],
-            'articles' => array_map(static fn (MarketingPageWikiArticle $article): array => $article->jsonSerialize(), $articles),
+            'articles' => array_map(fn (MarketingPageWikiArticle $article): array => $this->serializeArticle($article, false), $articles),
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -155,7 +155,7 @@ final class MarketingPageWikiController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $response->getBody()->write(json_encode($article->jsonSerialize()));
+        $response->getBody()->write(json_encode($this->serializeArticle($article)));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -188,7 +188,7 @@ final class MarketingPageWikiController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $response->getBody()->write(json_encode($article->jsonSerialize()));
+        $response->getBody()->write(json_encode($this->serializeArticle($article)));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -222,7 +222,7 @@ final class MarketingPageWikiController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $response->getBody()->write(json_encode($article->jsonSerialize()));
+        $response->getBody()->write(json_encode($this->serializeArticle($article)));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -239,7 +239,7 @@ final class MarketingPageWikiController
             return $response->withStatus(404);
         }
 
-        $response->getBody()->write(json_encode($article->jsonSerialize()));
+        $response->getBody()->write(json_encode($this->serializeArticle($article)));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -370,7 +370,7 @@ final class MarketingPageWikiController
             return $this->jsonError($response, $exception->getMessage());
         }
 
-        $response->getBody()->write(json_encode($article->jsonSerialize()));
+        $response->getBody()->write(json_encode($this->serializeArticle($article)));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -514,7 +514,7 @@ final class MarketingPageWikiController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $response->getBody()->write(json_encode($duplicate->jsonSerialize()));
+        $response->getBody()->write(json_encode($this->serializeArticle($duplicate)));
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
     }
@@ -563,6 +563,34 @@ final class MarketingPageWikiController
         }
 
         return $response->withStatus(204);
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function serializeArticle(MarketingPageWikiArticle $article, bool $includeHeavyFields = true): array
+    {
+        $payload = [
+            'id' => $article->getId(),
+            'pageId' => $article->getPageId(),
+            'slug' => $article->getSlug(),
+            'locale' => $article->getLocale(),
+            'title' => $article->getTitle(),
+            'excerpt' => $article->getExcerpt(),
+            'contentMarkdown' => $article->getContentMarkdown(),
+            'status' => $article->getStatus(),
+            'sortIndex' => $article->getSortIndex(),
+            'isStartDocument' => $article->isStartDocument(),
+            'publishedAt' => $article->getPublishedAt()?->format(DateTimeImmutable::ATOM),
+            'updatedAt' => $article->getUpdatedAt()?->format(DateTimeImmutable::ATOM),
+        ];
+
+        if ($includeHeavyFields) {
+            $payload['editorState'] = $article->getEditorState();
+            $payload['contentHtml'] = $article->getContentHtml();
+        }
+
+        return $payload;
     }
 
     /**
