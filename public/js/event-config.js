@@ -21,6 +21,7 @@
   let currentEventSlug = '';
   const DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
+    { id: 'pointsLeader', enabled: true, layout: 'wide' },
     { id: 'rankings', enabled: true, layout: 'wide', options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
     { id: 'results', enabled: true, layout: 'full' },
     { id: 'wrongAnswers', enabled: false, layout: 'auto' },

@@ -16,6 +16,7 @@ const eventIdentifier = config.slug || config.eventUid || '';
 const DASHBOARD_LAYOUT_OPTIONS = new Set(['auto', 'wide', 'full']);
 const MODULE_DEFAULT_LAYOUTS = {
   header: 'full',
+  pointsLeader: 'wide',
   rankings: 'wide',
   results: 'full',
   wrongAnswers: 'auto',
@@ -75,6 +76,120 @@ function createModuleCard(title, content, layout = 'auto') {
   card.appendChild(content);
   wrapper.appendChild(card);
   return wrapper;
+}
+
+function formatPercentage(value) {
+  if (!Number.isFinite(value)) {
+    return null;
+  }
+  const clamped = Math.max(0, Math.min(value, 1));
+  const percent = Math.round(clamped * 1000) / 10;
+  const localized = percent.toString().replace('.', ',');
+  return `${localized} %`;
+}
+
+function renderPointsLeaderModule(rankings, moduleConfig) {
+  const container = document.createElement('div');
+  container.className = 'dashboard-leader';
+  const list = Array.isArray(rankings?.pointsList) ? rankings.pointsList : [];
+  if (list.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'uk-text-meta';
+    empty.textContent = 'Noch keine Punkte erfasst.';
+    container.appendChild(empty);
+    return createModuleCard('Punkteführer', container, resolveModuleLayout(moduleConfig));
+  }
+
+  const leader = list[0];
+  const runnerUp = list.length > 1 ? list[1] : null;
+
+  const summary = document.createElement('div');
+  summary.className = 'dashboard-leader__summary';
+
+  const summaryLabel = document.createElement('div');
+  summaryLabel.className = 'dashboard-leader__label';
+  summaryLabel.textContent = 'Aktueller Spitzenreiter';
+  summary.appendChild(summaryLabel);
+
+  const leaderName = document.createElement('div');
+  leaderName.className = 'dashboard-leader__name';
+  leaderName.textContent = leader?.name || '–';
+  summary.appendChild(leaderName);
+
+  const pointsValue = Number.isFinite(leader?.raw) ? Math.round(leader.raw) : null;
+  const leaderPoints = document.createElement('div');
+  leaderPoints.className = 'dashboard-leader__points';
+  leaderPoints.textContent = pointsValue !== null ? `${pointsValue} Punkte` : (leader?.value || '–');
+  summary.appendChild(leaderPoints);
+
+  if (Number.isFinite(leader?.avg)) {
+    const efficiency = document.createElement('div');
+    efficiency.className = 'dashboard-leader__meta';
+    const percentage = formatPercentage(leader.avg);
+    if (percentage) {
+      efficiency.textContent = `Trefferquote: ${percentage}`;
+      summary.appendChild(efficiency);
+    }
+  }
+
+  if (runnerUp && Number.isFinite(leader?.raw) && Number.isFinite(runnerUp.raw)) {
+    const diff = Math.round(leader.raw - runnerUp.raw);
+    const leadLine = document.createElement('div');
+    leadLine.className = 'dashboard-leader__meta';
+    if (diff > 0) {
+      leadLine.textContent = `Vorsprung: ${diff} Punkt${diff === 1 ? '' : 'e'} vor ${runnerUp.name}`;
+    } else {
+      leadLine.textContent = `Gleichauf mit ${runnerUp.name}`;
+    }
+    summary.appendChild(leadLine);
+  }
+
+  container.appendChild(summary);
+
+  const listElement = document.createElement('ol');
+  listElement.className = 'dashboard-leader__list uk-list uk-list-striped';
+
+  const leaderPointsRaw = Number.isFinite(leader?.raw) ? leader.raw : null;
+  list.slice(0, 5).forEach((entry, index) => {
+    const item = document.createElement('li');
+
+    const row = document.createElement('div');
+    row.className = 'uk-flex uk-flex-between';
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = `${index + 1}. ${entry.name}`;
+    const pointsSpan = document.createElement('span');
+    if (Number.isFinite(entry.raw)) {
+      pointsSpan.textContent = `${Math.round(entry.raw)} Punkte`;
+    } else {
+      pointsSpan.textContent = entry.value || '–';
+    }
+    row.appendChild(nameSpan);
+    row.appendChild(pointsSpan);
+    item.appendChild(row);
+
+    if (index === 0) {
+      const note = document.createElement('div');
+      note.className = 'dashboard-leader__delta uk-text-meta';
+      note.textContent = 'Führt nach Punkten';
+      item.appendChild(note);
+    } else if (leaderPointsRaw !== null && Number.isFinite(entry.raw)) {
+      const delta = Math.round(leaderPointsRaw - entry.raw);
+      const note = document.createElement('div');
+      note.className = 'dashboard-leader__delta uk-text-meta';
+      if (delta > 0) {
+        note.textContent = `Rückstand: ${delta} Punkt${delta === 1 ? '' : 'e'}`;
+      } else {
+        note.textContent = 'Gleichauf mit der Spitze';
+      }
+      item.appendChild(note);
+    }
+
+    listElement.appendChild(item);
+  });
+
+  container.appendChild(listElement);
+
+  return createModuleCard('Punkteführer', container, resolveModuleLayout(moduleConfig));
 }
 
 function findCatalogByIdentifier(identifier, catalogList) {
@@ -355,7 +470,10 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
   activeModules.forEach((module) => {
     if (!module || !module.enabled) return;
     const layout = resolveModuleLayout(module);
-    if (module.id === 'rankings') {
+    if (module.id === 'pointsLeader') {
+      modulesRoot.appendChild(renderPointsLeaderModule(rankings, module));
+      hasModuleOutput = true;
+    } else if (module.id === 'rankings') {
       modulesRoot.appendChild(renderRankingsModule(rankings, module));
       hasModuleOutput = true;
     } else if (module.id === 'results') {

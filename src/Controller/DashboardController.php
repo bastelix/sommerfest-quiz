@@ -97,6 +97,7 @@ class DashboardController
         }
         $defaults = [
             ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'pointsLeader', 'enabled' => true, 'layout' => 'wide'],
             [
                 'id' => 'rankings',
                 'enabled' => true,

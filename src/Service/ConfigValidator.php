@@ -232,6 +232,7 @@ class ConfigValidator
     private function defaultDashboardModules(): array {
         return [
             ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'pointsLeader', 'enabled' => true, 'layout' => 'wide'],
             [
                 'id' => 'rankings',
                 'enabled' => true,
