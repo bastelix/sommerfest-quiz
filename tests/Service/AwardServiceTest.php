@@ -194,6 +194,43 @@ class AwardServiceTest extends TestCase
         );
     }
 
+    public function testNegativeFinalPointsReduceTotalsAndClampEfficiency(): void {
+        $svc = new AwardService();
+        $results = [
+            ['name' => 'Neutral', 'catalog' => 'main', 'time' => 15, 'duration_sec' => 320, 'correct' => 4, 'attempt' => 1],
+            ['name' => 'Penalty', 'catalog' => 'main', 'time' => 18, 'duration_sec' => 340, 'correct' => 3, 'attempt' => 1],
+            ['name' => 'Bonus', 'catalog' => 'main', 'time' => 16, 'duration_sec' => 330, 'correct' => 3, 'attempt' => 1],
+        ];
+        $questionResults = [
+            ['name' => 'Neutral', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 40, 'efficiency' => 0.8],
+            ['name' => 'Neutral', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 30, 'efficiency' => 1.3],
+            ['name' => 'Penalty', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 60, 'efficiency' => 0.7],
+            ['name' => 'Penalty', 'catalog' => 'main', 'attempt' => 1, 'final_points' => -120, 'efficiency' => -0.4],
+            ['name' => 'Bonus', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 25, 'efficiency' => 0.5],
+            ['name' => 'Bonus', 'catalog' => 'main', 'attempt' => 1, 'final_points' => 15, 'efficiency' => 0.6],
+        ];
+
+        $rankings = $svc->computeRankings($results, null, $questionResults);
+
+        $this->assertSame(
+            [
+                ['team' => 'Neutral', 'place' => 1],
+                ['team' => 'Bonus', 'place' => 2],
+                ['team' => 'Penalty', 'place' => 3],
+            ],
+            $rankings['points']
+        );
+
+        $this->assertSame(
+            [
+                ['team' => 'Neutral', 'place' => 1],
+                ['team' => 'Bonus', 'place' => 2],
+                ['team' => 'Penalty', 'place' => 3],
+            ],
+            $rankings['accuracy']
+        );
+    }
+
     public function testGetAwardsListsDescriptions(): void {
         $svc = new AwardService();
         $rankings = [

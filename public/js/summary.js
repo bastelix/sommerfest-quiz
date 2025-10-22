@@ -109,7 +109,7 @@ function computePlayerRankings(rows, questionRows, catalogCount, playerName){
     const efficiencyVal = parseOptionalFloat(row.efficiency);
     const efficiency = efficiencyVal !== null ? Math.max(0, Math.min(efficiencyVal, 1)) : (parseIntOr(row.correct, 0) === 1 ? 1 : 0);
     const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
-    summary.points += Math.max(0, pointsVal);
+    summary.points += pointsVal;
     summary.effSum += efficiency;
     summary.count += 1;
     attemptMetrics.set(key, summary);
@@ -139,14 +139,14 @@ function computePlayerRankings(rows, questionRows, catalogCount, playerName){
       questionCount = summary.count;
     }else{
       const fallbackPoints = parseIntOr(row.points ?? row.correct, 0);
-      finalPoints = Math.max(0, fallbackPoints);
+      finalPoints = fallbackPoints;
       const totalQuestions = Math.max(0, parseIntOr(row.total, 0));
       questionCount = totalQuestions;
       const correctCount = Math.max(0, parseIntOr(row.correct, 0));
-      const avgFallback = totalQuestions > 0 ? correctCount / totalQuestions : 0;
+      const avgFallback = totalQuestions > 0 ? Math.max(0, Math.min(correctCount / totalQuestions, 1)) : 0;
       effSum = avgFallback * totalQuestions;
     }
-    const average = questionCount > 0 ? effSum / questionCount : 0;
+    const average = questionCount > 0 ? Math.max(0, Math.min(effSum / questionCount, 1)) : 0;
 
     const puzzleTime = parseOptionalInt(row.puzzleTime);
     if(puzzleTime !== null){
@@ -223,7 +223,7 @@ function computePlayerRankings(rows, questionRows, catalogCount, playerName){
       effSumTotal += Number.isFinite(entry.effSum) ? entry.effSum : 0;
       questionCountTotal += Number.isFinite(entry.count) ? entry.count : 0;
     });
-    const avg = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
+    const avg = questionCountTotal > 0 ? Math.max(0, Math.min(effSumTotal / questionCountTotal, 1)) : 0;
     scoreList.push({ name, points: total, avg });
   });
   scoreList.sort((a, b) => {

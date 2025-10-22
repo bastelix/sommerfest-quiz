@@ -42,6 +42,11 @@ class AwardService
             $finalPoints = (int) $finalPointsRaw;
             $efficiencyRaw = $row['efficiency'] ?? null;
             $efficiency = $efficiencyRaw !== null ? (float) $efficiencyRaw : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
+            if ($efficiency < 0.0) {
+                $efficiency = 0.0;
+            } elseif ($efficiency > 1.0) {
+                $efficiency = 1.0;
+            }
             if (!isset($attemptMetrics[$key])) {
                 $attemptMetrics[$key] = [
                     'points' => 0,
@@ -49,8 +54,8 @@ class AwardService
                     'questionCount' => 0,
                 ];
             }
-            $attemptMetrics[$key]['points'] += max(0, $finalPoints);
-            $attemptMetrics[$key]['efficiencySum'] += max(0.0, $efficiency);
+            $attemptMetrics[$key]['points'] += $finalPoints;
+            $attemptMetrics[$key]['efficiencySum'] += $efficiency;
             $attemptMetrics[$key]['questionCount']++;
         }
 
@@ -92,10 +97,20 @@ class AwardService
                     $effSum = 0.0;
                 } else {
                     $avgFallback = $correct / $questionCount;
+                    if ($avgFallback < 0.0) {
+                        $avgFallback = 0.0;
+                    } elseif ($avgFallback > 1.0) {
+                        $avgFallback = 1.0;
+                    }
                     $effSum = $avgFallback * $questionCount;
                 }
             }
             $average = $questionCount === 0 ? 0.0 : $effSum / $questionCount;
+            if ($average < 0.0) {
+                $average = 0.0;
+            } elseif ($average > 1.0) {
+                $average = 1.0;
+            }
 
             $catalogs[$catalog] = true;
 
@@ -234,6 +249,11 @@ class AwardService
                 $questionCountTotal += (int) $entry['questionCount'];
             }
             $avgEfficiency = $questionCountTotal === 0 ? 0.0 : $effSumTotal / $questionCountTotal;
+            if ($avgEfficiency < 0.0) {
+                $avgEfficiency = 0.0;
+            } elseif ($avgEfficiency > 1.0) {
+                $avgEfficiency = 1.0;
+            }
             $scoreList[] = ['team' => $team, 'score' => $total, 'avgEfficiency' => $avgEfficiency];
             if ($questionCountTotal > 0) {
                 $accuracyCandidates[] = [
