@@ -97,7 +97,7 @@ function renderPointsLeaderModule(rankings, moduleConfig) {
     empty.className = 'uk-text-meta';
     empty.textContent = 'Noch keine Punkte erfasst.';
     container.appendChild(empty);
-    return createModuleCard('Punkteführer', container, resolveModuleLayout(moduleConfig));
+    return createModuleCard('Platzierungen', container, resolveModuleLayout(moduleConfig));
   }
 
   const leader = list[0];
@@ -189,7 +189,7 @@ function renderPointsLeaderModule(rankings, moduleConfig) {
 
   container.appendChild(listElement);
 
-  return createModuleCard('Punkteführer', container, resolveModuleLayout(moduleConfig));
+  return createModuleCard('Platzierungen', container, resolveModuleLayout(moduleConfig));
 }
 
 function findCatalogByIdentifier(identifier, catalogList) {
