@@ -500,6 +500,10 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
     placeholder.textContent = 'Keine Module aktiviert';
     modulesRoot.appendChild(placeholder);
   }
+
+  if (window.UIkit?.update) {
+    window.UIkit.update(modulesRoot, 'mutation');
+  }
 }
 
 function handleDataLoad(data) {
