@@ -55,7 +55,12 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   color: var(--topbar-text, var(--qr-fg));
   border: 1px solid var(--drop-border, var(--qr-border));
 }
+body:not([data-theme="dark"]) .uk-offcanvas-bar{
+  --uk-inverse: dark;
+  color: var(--topbar-text, var(--qr-fg));
+}
 .uk-offcanvas-bar .uk-nav-header,
+.uk-offcanvas-bar .uk-nav-default .uk-nav-header,
 .uk-offcanvas-bar .uk-nav.uk-nav-divider{
   color: var(--topbar-text, var(--qr-fg));
   border-color: var(--qr-border);
