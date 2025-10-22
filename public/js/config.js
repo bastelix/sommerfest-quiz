@@ -12,6 +12,7 @@ window.quizConfig = {
   // Farbschema der Anwendung
   backgroundColor: '#ffffff',
   buttonColor: '#1e87f0',
+  startTheme: 'light',
 
   // Falls "no", wird der Button "Antwort prüfen" ausgeblendet
   CheckAnswerButton: 'no',

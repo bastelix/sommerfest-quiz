@@ -31,6 +31,7 @@ class HelpControllerTest extends TestCase
                 subheader TEXT,
                 backgroundColor TEXT,
                 buttonColor TEXT,
+                startTheme TEXT,
                 CheckAnswerButton TEXT,
                 adminUser TEXT,
                 adminPass TEXT,

@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS config (
     pageTitle TEXT,
     backgroundColor TEXT,
     buttonColor TEXT,
+    startTheme TEXT,
     CheckAnswerButton TEXT,
     QRRestrict BOOLEAN,
     randomNames BOOLEAN DEFAULT TRUE,
