@@ -59,7 +59,35 @@
   };
 })();
 
-const currentEventUid = (window.quizConfig || {}).event_uid || '';
+const quizConfig = window.quizConfig || {};
+if(!window.quizConfig){
+  window.quizConfig = quizConfig;
+}
+
+const currentEventUid = (() => {
+  const initial = typeof quizConfig.event_uid === 'string' ? quizConfig.event_uid : '';
+  if(initial){
+    quizConfig.event_uid = initial;
+    return initial;
+  }
+  let search = '';
+  if(typeof window !== 'undefined' && window.location && typeof window.location.search === 'string'){
+    search = window.location.search;
+  }else if(typeof location !== 'undefined' && typeof location.search === 'string'){
+    search = location.search;
+  }
+  let resolved = '';
+  if(search){
+    try{
+      const params = new URLSearchParams(search);
+      resolved = params.get('event') || params.get('event_uid') || '';
+    }catch(e){
+      resolved = '';
+    }
+  }
+  quizConfig.event_uid = typeof resolved === 'string' ? resolved : '';
+  return quizConfig.event_uid;
+})();
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
