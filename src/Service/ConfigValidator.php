@@ -234,6 +234,7 @@ class ConfigValidator
             ['id' => 'results', 'enabled' => true],
             ['id' => 'wrongAnswers', 'enabled' => false],
             ['id' => 'infoBanner', 'enabled' => false],
+            ['id' => 'qrCodes', 'enabled' => false, 'options' => ['catalogs' => []]],
             ['id' => 'media', 'enabled' => false],
         ];
     }
@@ -295,6 +296,24 @@ class ConfigValidator
                     $metrics = self::DASHBOARD_ALLOWED_METRICS;
                 }
                 $entry['options'] = ['metrics' => $metrics];
+            } elseif ($id === 'qrCodes') {
+                $catalogs = [];
+                $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
+                $rawCatalogs = $options['catalogs'] ?? [];
+                if (is_array($rawCatalogs)) {
+                    foreach ($rawCatalogs as $catalogId) {
+                        $normalizedId = trim((string)$catalogId);
+                        if ($normalizedId === '') {
+                            continue;
+                        }
+                        if (!in_array($normalizedId, $catalogs, true)) {
+                            $catalogs[] = $normalizedId;
+                        }
+                    }
+                } elseif (is_string($rawCatalogs) && $rawCatalogs !== '') {
+                    $catalogs[] = $rawCatalogs;
+                }
+                $entry['options'] = ['catalogs' => $catalogs];
             } elseif (isset($module['options']) && is_array($module['options']) && $module['options'] !== []) {
                 $entry['options'] = $module['options'];
             }

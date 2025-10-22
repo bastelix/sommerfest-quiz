@@ -25,9 +25,191 @@
     { id: 'results', enabled: true },
     { id: 'wrongAnswers', enabled: false },
     { id: 'infoBanner', enabled: false },
+    { id: 'qrCodes', enabled: false, options: { catalogs: [] } },
     { id: 'media', enabled: false },
   ];
   const METRIC_KEYS = ['points', 'puzzle', 'catalog'];
+  const QR_MODULE_ID = 'qrCodes';
+  const qrModuleElement = modulesList?.querySelector('[data-module-id="' + QR_MODULE_ID + '"]') || null;
+  const qrCatalogContainer = qrModuleElement?.querySelector('[data-module-catalogs]') || null;
+  const qrCatalogEmptyNote = qrModuleElement?.querySelector('[data-module-catalogs-empty]') || null;
+  let dashboardCatalogs = [];
+  let catalogFetchEpoch = 0;
+  let currentModulesConfig = DEFAULT_MODULES;
+
+  const normalizeCatalogList = (rawList) => {
+    if (!Array.isArray(rawList)) {
+      return [];
+    }
+    return rawList.map((item) => {
+      const uid = item?.uid ? String(item.uid) : '';
+      const slug = item?.slug ? String(item.slug) : '';
+      const sortOrder = item?.sort_order !== undefined && item?.sort_order !== null
+        ? String(item.sort_order)
+        : '';
+      const name = item?.name ? String(item.name) : (slug || sortOrder || uid);
+      return { uid, slug, sortOrder, name };
+    });
+  };
+
+  const getQrModuleSelection = (modules) => {
+    if (!Array.isArray(modules)) {
+      return [];
+    }
+    const module = modules.find((entry) => entry && entry.id === QR_MODULE_ID);
+    if (!module) {
+      return [];
+    }
+    const raw = module.options?.catalogs;
+    if (Array.isArray(raw)) {
+      return raw
+        .map((value) => String(value ?? '').trim())
+        .filter((value) => value !== '');
+    }
+    if (typeof raw === 'string' && raw.trim() !== '') {
+      return [raw.trim()];
+    }
+    return [];
+  };
+
+  function syncQrModuleOptions(selectedIds = [], mark = false) {
+    if (!qrCatalogContainer) {
+      if (mark) {
+        updateModulesInput(true);
+      }
+      return;
+    }
+    const normalizedSelection = Array.isArray(selectedIds)
+      ? Array.from(new Set(selectedIds.map((value) => String(value ?? '').trim()).filter((value) => value !== '')))
+      : [];
+
+    qrCatalogContainer.innerHTML = '';
+    if (!dashboardCatalogs.length) {
+      if (qrCatalogEmptyNote) {
+        qrCatalogEmptyNote.hidden = false;
+      }
+      if (mark) {
+        updateModulesInput(true);
+      } else {
+        updateModulesInput(false);
+      }
+      return;
+    }
+
+    if (qrCatalogEmptyNote) {
+      qrCatalogEmptyNote.hidden = true;
+    }
+
+    const seen = new Set();
+    dashboardCatalogs.forEach((catalog) => {
+      const identifier = catalog.uid || catalog.slug || catalog.sortOrder || '';
+      if (!identifier) {
+        return;
+      }
+      const label = document.createElement('label');
+      label.className = 'uk-display-block uk-margin-small-bottom';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'uk-checkbox';
+      checkbox.value = identifier;
+      checkbox.dataset.moduleCatalog = '1';
+      if (catalog.uid) {
+        checkbox.dataset.catalogUid = catalog.uid;
+      }
+      if (catalog.slug) {
+        checkbox.dataset.catalogSlug = catalog.slug;
+      }
+      if (catalog.sortOrder) {
+        checkbox.dataset.catalogSort = catalog.sortOrder;
+      }
+      if (
+        normalizedSelection.includes(identifier)
+        || (catalog.uid && normalizedSelection.includes(catalog.uid))
+        || (catalog.slug && normalizedSelection.includes(catalog.slug))
+        || (catalog.sortOrder && normalizedSelection.includes(String(catalog.sortOrder)))
+      ) {
+        checkbox.checked = true;
+        seen.add(identifier);
+        if (catalog.uid) seen.add(catalog.uid);
+        if (catalog.slug) seen.add(catalog.slug);
+        if (catalog.sortOrder) seen.add(String(catalog.sortOrder));
+      }
+      label.appendChild(checkbox);
+      const span = document.createElement('span');
+      span.className = 'uk-margin-small-left';
+      span.textContent = catalog.name;
+      label.appendChild(span);
+      qrCatalogContainer.appendChild(label);
+    });
+
+    normalizedSelection.forEach((id) => {
+      const normalizedId = String(id);
+      if (seen.has(normalizedId)) {
+        return;
+      }
+      const label = document.createElement('label');
+      label.className = 'uk-display-block uk-margin-small-bottom uk-text-muted';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'uk-checkbox';
+      checkbox.value = normalizedId;
+      checkbox.dataset.moduleCatalog = '1';
+      checkbox.checked = true;
+      label.appendChild(checkbox);
+      const span = document.createElement('span');
+      span.className = 'uk-margin-small-left';
+      span.textContent = `Nicht gefunden (${normalizedId})`;
+      label.appendChild(span);
+      qrCatalogContainer.appendChild(label);
+    });
+
+    if (mark) {
+      updateModulesInput(true);
+    } else {
+      updateModulesInput(false);
+    }
+  }
+
+  function loadDashboardCatalogOptions(selectedIds = []) {
+    if (!modulesList) {
+      return Promise.resolve();
+    }
+    const requestId = ++catalogFetchEpoch;
+    return fetch(withBase('/kataloge/catalogs.json'), {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+      cache: 'no-store'
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('catalogs');
+        }
+        return res.json();
+      })
+      .then((payload) => {
+        if (requestId !== catalogFetchEpoch) {
+          return;
+        }
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.items)
+            ? payload.items
+            : [];
+        dashboardCatalogs = normalizeCatalogList(list);
+        const domSelection = getQrModuleSelection(readModulesFromDom());
+        const effectiveSelection = domSelection.length ? domSelection : selectedIds;
+        syncQrModuleOptions(effectiveSelection, false);
+      })
+      .catch(() => {
+        if (requestId !== catalogFetchEpoch) {
+          return;
+        }
+        dashboardCatalogs = [];
+        const domSelection = getQrModuleSelection(readModulesFromDom());
+        const effectiveSelection = domSelection.length ? domSelection : selectedIds;
+        syncQrModuleOptions(effectiveSelection, false);
+      });
+  }
 
   const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
@@ -173,6 +355,23 @@
           }
         });
         entry.options = { metrics: metrics.length ? metrics : METRIC_KEYS };
+      } else if (id === QR_MODULE_ID) {
+        const catalogs = [];
+        item.querySelectorAll('[data-module-catalog]').forEach((catalogEl) => {
+          if (!catalogEl.checked) {
+            return;
+          }
+          const rawValue = catalogEl.value
+            || catalogEl.dataset.catalogUid
+            || catalogEl.dataset.catalogSlug
+            || catalogEl.dataset.catalogSort
+            || '';
+          const normalized = String(rawValue).trim();
+          if (normalized && !catalogs.includes(normalized)) {
+            catalogs.push(normalized);
+          }
+        });
+        entry.options = { catalogs };
       }
       modules.push(entry);
     });
@@ -182,6 +381,7 @@
   function applyModules(modules) {
     if (!modulesList) return;
     const configured = Array.isArray(modules) && modules.length ? modules : DEFAULT_MODULES;
+    currentModulesConfig = configured;
     const map = new Map();
     modulesList.querySelectorAll('[data-module-id]').forEach((item) => {
       map.set(item.dataset.moduleId, item);
@@ -215,7 +415,8 @@
         }
       }
     });
-    updateModulesInput(false);
+    const qrSelection = getQrModuleSelection(configured);
+    syncQrModuleOptions(qrSelection, false);
   }
 
   function updateModulesInput(mark = false) {
@@ -290,6 +491,8 @@
     currentShareToken = '';
     currentSponsorToken = '';
     currentEventSlug = '';
+    dashboardCatalogs = [];
+    catalogFetchEpoch += 1;
     if (modulesList) {
       applyModules([]);
     }
@@ -310,6 +513,7 @@
       .then(({ event, config }) => {
         const data = { ...config };
         if (event?.name && !data.pageTitle) data.pageTitle = event.name;
+        const modulesConfig = Array.isArray(config?.dashboardModules) ? config.dashboardModules : [];
         Object.entries(data).forEach(([key, value]) => {
           if (Array.isArray(value)) return;
           const el = document.getElementById(key);
@@ -331,8 +535,9 @@
         currentShareToken = config?.dashboardShareToken || '';
         currentSponsorToken = config?.dashboardSponsorToken || '';
         if (modulesList) {
-          applyModules(config?.dashboardModules || []);
+          applyModules(modulesConfig);
         }
+        loadDashboardCatalogOptions(getQrModuleSelection(modulesConfig));
         updateShareInputs();
         applyRules();
         isDirty = false;
@@ -425,7 +630,7 @@
       reader.readAsDataURL(file);
     });
     modulesList?.addEventListener('change', (event) => {
-      if (event.target.matches('[data-module-toggle], [data-module-metric]')) {
+      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog]')) {
         updateModulesInput(true);
       }
     });

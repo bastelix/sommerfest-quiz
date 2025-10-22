@@ -989,8 +989,16 @@ document.addEventListener('DOMContentLoaded', function () {
     { id: 'results', enabled: true },
     { id: 'wrongAnswers', enabled: false },
     { id: 'infoBanner', enabled: false },
+    { id: 'qrCodes', enabled: false, options: { catalogs: [] } },
     { id: 'media', enabled: false }
   ];
+  const DASHBOARD_QR_MODULE_ID = 'qrCodes';
+  const dashboardQrModule = dashboardModulesList?.querySelector('[data-module-id="' + DASHBOARD_QR_MODULE_ID + '"]') || null;
+  const dashboardQrCatalogContainer = dashboardQrModule?.querySelector('[data-module-catalogs]') || null;
+  const dashboardQrEmptyNote = dashboardQrModule?.querySelector('[data-module-catalogs-empty]') || null;
+  const dashboardQrMissingLabel = dashboardQrModule?.dataset.missingLabel || 'Catalog not found';
+  let dashboardQrCatalogs = [];
+  let dashboardQrFetchEpoch = 0;
   let dashboardPublicToken = cfgInitial.dashboardShareToken || '';
   let dashboardSponsorToken = cfgInitial.dashboardSponsorToken || '';
   const ragChatFields = {
@@ -1023,6 +1031,181 @@ document.addEventListener('DOMContentLoaded', function () {
     ragChatFields.tokenStatus.textContent = hasToken
       ? (transRagChatTokenSaved || '')
       : (transRagChatTokenMissing || '');
+  }
+
+  const normalizeDashboardCatalogList = (rawList) => {
+    if (!Array.isArray(rawList)) {
+      return [];
+    }
+    return rawList.map((item) => {
+      const uid = item?.uid ? String(item.uid) : '';
+      const slug = item?.slug ? String(item.slug) : '';
+      const sortOrder = item?.sort_order !== undefined && item?.sort_order !== null
+        ? String(item.sort_order)
+        : '';
+      const name = item?.name ? String(item.name) : (slug || sortOrder || uid);
+      return { uid, slug, sortOrder, name };
+    });
+  };
+
+  const getDashboardQrSelection = (modules) => {
+    if (!Array.isArray(modules)) {
+      return [];
+    }
+    const module = modules.find((entry) => entry && entry.id === DASHBOARD_QR_MODULE_ID);
+    if (!module) {
+      return [];
+    }
+    const raw = module.options?.catalogs;
+    if (Array.isArray(raw)) {
+      return raw
+        .map((value) => String(value ?? '').trim())
+        .filter((value) => value !== '');
+    }
+    if (typeof raw === 'string' && raw.trim() !== '') {
+      return [raw.trim()];
+    }
+    return [];
+  };
+
+  function syncDashboardQrOptions(selectedIds = [], mark = false) {
+    if (!dashboardQrCatalogContainer) {
+      if (mark) {
+        updateDashboardModules(true);
+      }
+      return;
+    }
+    const normalizedSelection = Array.isArray(selectedIds)
+      ? Array.from(new Set(selectedIds.map((value) => String(value ?? '').trim()).filter((value) => value !== '')))
+      : [];
+
+    dashboardQrCatalogContainer.innerHTML = '';
+    if (!dashboardQrCatalogs.length) {
+      if (dashboardQrEmptyNote) {
+        dashboardQrEmptyNote.hidden = false;
+      }
+      if (mark) {
+        updateDashboardModules(true);
+      } else {
+        updateDashboardModules(false);
+      }
+      return;
+    }
+
+    if (dashboardQrEmptyNote) {
+      dashboardQrEmptyNote.hidden = true;
+    }
+
+    const seen = new Set();
+    dashboardQrCatalogs.forEach((catalog) => {
+      const identifier = catalog.uid || catalog.slug || catalog.sortOrder || '';
+      if (!identifier) {
+        return;
+      }
+      const label = document.createElement('label');
+      label.className = 'uk-display-block uk-margin-small-bottom';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'uk-checkbox';
+      checkbox.value = identifier;
+      checkbox.dataset.moduleCatalog = '1';
+      if (catalog.uid) {
+        checkbox.dataset.catalogUid = catalog.uid;
+      }
+      if (catalog.slug) {
+        checkbox.dataset.catalogSlug = catalog.slug;
+      }
+      if (catalog.sortOrder) {
+        checkbox.dataset.catalogSort = catalog.sortOrder;
+      }
+      if (
+        normalizedSelection.includes(identifier)
+        || (catalog.uid && normalizedSelection.includes(catalog.uid))
+        || (catalog.slug && normalizedSelection.includes(catalog.slug))
+        || (catalog.sortOrder && normalizedSelection.includes(String(catalog.sortOrder)))
+      ) {
+        checkbox.checked = true;
+        seen.add(identifier);
+        if (catalog.uid) seen.add(catalog.uid);
+        if (catalog.slug) seen.add(catalog.slug);
+        if (catalog.sortOrder) seen.add(String(catalog.sortOrder));
+      }
+      label.appendChild(checkbox);
+      const span = document.createElement('span');
+      span.className = 'uk-margin-small-left';
+      span.textContent = catalog.name;
+      label.appendChild(span);
+      dashboardQrCatalogContainer.appendChild(label);
+    });
+
+    normalizedSelection.forEach((id) => {
+      const normalizedId = String(id);
+      if (seen.has(normalizedId)) {
+        return;
+      }
+      const label = document.createElement('label');
+      label.className = 'uk-display-block uk-margin-small-bottom uk-text-muted';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'uk-checkbox';
+      checkbox.value = normalizedId;
+      checkbox.dataset.moduleCatalog = '1';
+      checkbox.checked = true;
+      label.appendChild(checkbox);
+      const span = document.createElement('span');
+      span.className = 'uk-margin-small-left';
+      span.textContent = `${dashboardQrMissingLabel} (${normalizedId})`;
+      label.appendChild(span);
+      dashboardQrCatalogContainer.appendChild(label);
+    });
+
+    if (mark) {
+      updateDashboardModules(true);
+    } else {
+      updateDashboardModules(false);
+    }
+  }
+
+  function loadDashboardQrCatalogOptions(selectedIds = [], mark = false) {
+    if (!dashboardModulesList) {
+      return Promise.resolve();
+    }
+    const targetSelection = Array.isArray(selectedIds) ? selectedIds : [];
+    if (dashboardQrCatalogs.length > 0) {
+      syncDashboardQrOptions(targetSelection, mark);
+      return Promise.resolve();
+    }
+    const requestId = ++dashboardQrFetchEpoch;
+    return apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('catalogs');
+        }
+        return res.json();
+      })
+      .then((payload) => {
+        if (requestId !== dashboardQrFetchEpoch) {
+          return;
+        }
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.items)
+            ? payload.items
+            : [];
+        dashboardQrCatalogs = normalizeDashboardCatalogList(list);
+        const domSelection = getDashboardQrSelection(readDashboardModules());
+        const effectiveSelection = domSelection.length ? domSelection : targetSelection;
+        syncDashboardQrOptions(effectiveSelection, mark);
+      })
+      .catch(() => {
+        if (requestId !== dashboardQrFetchEpoch) {
+          return;
+        }
+        dashboardQrCatalogs = [];
+        const domSelection = getDashboardQrSelection(readDashboardModules());
+        const effectiveSelection = domSelection.length ? domSelection : targetSelection;
+        syncDashboardQrOptions(effectiveSelection, mark);
+      });
   }
 
   function renderRagChatSettings() {
@@ -1260,6 +1443,23 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         });
         entry.options = { metrics: metrics.length ? metrics : DASHBOARD_METRIC_KEYS };
+      } else if (id === DASHBOARD_QR_MODULE_ID) {
+        const catalogs = [];
+        item.querySelectorAll('[data-module-catalog]').forEach(catalogEl => {
+          if (!catalogEl.checked) {
+            return;
+          }
+          const rawValue = catalogEl.value
+            || catalogEl.dataset.catalogUid
+            || catalogEl.dataset.catalogSlug
+            || catalogEl.dataset.catalogSort
+            || '';
+          const normalized = String(rawValue).trim();
+          if (normalized && !catalogs.includes(normalized)) {
+            catalogs.push(normalized);
+          }
+        });
+        entry.options = { catalogs };
       }
       modules.push(entry);
     });
@@ -1314,6 +1514,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
     updateDashboardModules(false);
+    loadDashboardQrCatalogOptions(getDashboardQrSelection(configured));
   }
 
   function updateDashboardModules(mark = false) {
@@ -2577,7 +2778,7 @@ document.addEventListener('DOMContentLoaded', function () {
     el.addEventListener('input', queueCfgSave);
   });
   dashboardModulesList?.addEventListener('change', event => {
-    if (event.target.matches('[data-module-toggle], [data-module-metric]')) {
+    if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog]')) {
       updateDashboardModules(true);
     }
   });
@@ -4295,6 +4496,8 @@ document.addEventListener('DOMContentLoaded', function () {
         updateDashboardShareLinks();
         cfgInitial.event_uid = currentEventUid;
         Object.assign(cfgInitial, cfg);
+        dashboardQrCatalogs = [];
+        dashboardQrFetchEpoch += 1;
         window.quizConfig = cfg || {};
         updateActiveHeader(currentEventName);
         renderCurrentEventIndicator(currentEventName, currentEventUid);
