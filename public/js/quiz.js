@@ -90,7 +90,7 @@ function normalizePoints(value, scorable = true){
   const parsed = Number.parseInt(value, 10);
   if(Number.isNaN(parsed)) return 1;
   if(parsed < 0) return 0;
-  if(parsed > 100) return 100;
+  if(parsed > 10000) return 10000;
   return parsed;
 }
 

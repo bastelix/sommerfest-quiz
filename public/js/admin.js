@@ -2967,13 +2967,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const pointsLabel = document.createElement('label');
     pointsLabel.className = 'uk-form-label';
     pointsLabel.setAttribute('for', pointsId);
-    pointsLabel.textContent = 'Punkte (0–100)';
+    pointsLabel.textContent = 'Punkte (0–10000)';
     const pointsInput = document.createElement('input');
     pointsInput.className = 'uk-input points-input';
     pointsInput.type = 'number';
     pointsInput.id = pointsId;
     pointsInput.min = '0';
-    pointsInput.max = '100';
+    pointsInput.max = '10000';
     pointsInput.step = '1';
     pointsInput.setAttribute('aria-label', 'Punkte pro Frage');
     const existingPoints = parseQuestionPoints(q.points);
@@ -3007,7 +3007,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const normalized = normalizeQuestionPoints(value, true);
         pointsInput.value = String(normalized);
         lastScorablePoints = normalized;
-        pointsMeta.textContent = 'Punkte pro Frage (0–100). Leer ergibt 1 Punkt.';
+        pointsMeta.textContent = 'Punkte pro Frage (0–10000). Leer ergibt 1 Punkt.';
       }
     }
 
@@ -3530,8 +3530,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (value < 0) {
       return 0;
     }
-    if (value > 100) {
-      return 100;
+    if (value > 10000) {
+      return 10000;
     }
     return Math.round(value);
   }

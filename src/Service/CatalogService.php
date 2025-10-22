@@ -41,8 +41,8 @@ class CatalogService
         if ($points < 0) {
             return 0;
         }
-        if ($points > 100) {
-            return 100;
+        if ($points > 10000) {
+            return 10000;
         }
         return $points;
     }
