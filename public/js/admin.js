@@ -2297,29 +2297,32 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  document.querySelectorAll('.qr-print-btn').forEach(btn => {
+  function bindTeamPrintButton(btn) {
+    if (!btn || btn.dataset.printBound === '1') return;
+    btn.dataset.printBound = '1';
     btn.addEventListener('click', e => {
       e.preventDefault();
       const team = btn.getAttribute('data-team');
-      if (team) {
-        let link;
-        if (currentEventUid) {
-          link = window.baseUrl
-            ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + team
-            : withBase('/?event=' + currentEventUid + '&t=' + team);
-        } else {
-          link = window.baseUrl
-            ? window.baseUrl + '/?t=' + team
-            : withBase('/?t=' + team);
-        }
-        let url = '/qr.pdf?t=' + encodeURIComponent(link) + '&rounded=1';
-        if (currentEventUid) {
-          url += '&event=' + encodeURIComponent(currentEventUid);
-        }
-        window.open(withBase(url), '_blank');
+      if (!team) return;
+      let link;
+      if (currentEventUid) {
+        link = window.baseUrl
+          ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + team
+          : withBase('/?event=' + currentEventUid + '&t=' + team);
+      } else {
+        link = window.baseUrl
+          ? window.baseUrl + '/?t=' + team
+          : withBase('/?t=' + team);
       }
+      let url = '/qr.pdf?t=' + encodeURIComponent(link) + '&rounded=1';
+      if (currentEventUid) {
+        url += '&event=' + encodeURIComponent(currentEventUid);
+      }
+      window.open(withBase(url), '_blank');
     });
-  });
+  }
+
+  document.querySelectorAll('.qr-print-btn').forEach(bindTeamPrintButton);
 
   // --------- Fragen bearbeiten ---------
   const container = document.getElementById('questions');
@@ -4971,24 +4974,429 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrDesignModal && window.UIkit) UIkit.modal(qrDesignModal).hide();
   });
 
+  const summaryPageSize = 12;
+  const summaryNameEl = document.getElementById('summaryEventName');
+  const summaryDescEl = document.getElementById('summaryEventDesc');
+  const summaryQrImg = document.getElementById('summaryEventQr');
+  const summaryCatalogsEl = document.getElementById('summaryCatalogs');
+  const summaryCatalogsPager = document.getElementById('summaryCatalogsPager');
+  const summaryCatalogsStatus = document.getElementById('summaryCatalogsStatus');
+  const summaryCatalogsMoreBtn = document.getElementById('summaryCatalogsMoreBtn');
+  const summaryTeamsEl = document.getElementById('summaryTeams');
+  const summaryTeamsPager = document.getElementById('summaryTeamsPager');
+  const summaryTeamsStatus = document.getElementById('summaryTeamsStatus');
+  const summaryTeamsMoreBtn = document.getElementById('summaryTeamsMoreBtn');
+  const summaryLoadingText = window.transSummaryLoading || 'Wird geladen …';
+  const summaryAllLoadedText = window.transSummaryAllLoaded || 'Alle Einträge geladen.';
+  const summaryDefaultStatusTemplate = window.transSummaryPageStatus || 'Seite %current% von %total% (%count%)';
+  const summaryCatalogsEmptyText = summaryCatalogsEl?.dataset.empty || window.transSummaryNoCatalogs || window.transNoCatalogs || 'Keine Kataloge';
+  const summaryTeamsEmptyText = summaryTeamsEl?.dataset.empty || window.transSummaryNoTeams || window.transNoData || 'Keine Daten';
+  const summaryCatalogsErrorText = summaryCatalogsEl?.dataset.error || window.transSummaryCatalogsError || transCatalogsFetchError;
+  const summaryTeamsErrorText = summaryTeamsEl?.dataset.error || window.transSummaryTeamsError || 'Teams konnten nicht geladen werden';
+  let summaryCurrentEvent = {};
+
+  function applySummaryQrDesign(params, colorKey) {
+    if (!params) return;
+    if (cfgInitial.qrLogoPath) {
+      params.set('logo_path', cfgInitial.qrLogoPath);
+    } else {
+      const l1 = cfgInitial.qrLabelLine1 || '';
+      const l2 = cfgInitial.qrLabelLine2 || '';
+      if (l1) params.set('text1', l1);
+      if (l2) params.set('text2', l2);
+    }
+    if (cfgInitial.qrLogoWidth) {
+      params.set('logo_width', String(cfgInitial.qrLogoWidth));
+    }
+    const rounded = cfgInitial.qrRounded !== false;
+    const roundMode = rounded ? (cfgInitial.qrRoundMode || 'margin') : 'none';
+    params.set('round_mode', roundMode);
+    params.set('rounded', rounded ? '1' : '0');
+    params.set('logo_punchout', cfgInitial.qrLogoPunchout !== false ? '1' : '0');
+    const col = cfgInitial[colorKey] || '';
+    if (col) params.set('fg', col.replace('#', ''));
+  }
+
+  function createSummaryMessageCard(message) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uk-width-1-1';
+    const card = document.createElement('div');
+    card.className = 'export-card uk-card qr-card uk-card-body';
+    card.textContent = message;
+    wrapper.appendChild(card);
+    return wrapper;
+  }
+
+  function createCatalogCard(catalog) {
+    const slug = typeof catalog?.slug === 'string' ? catalog.slug : '';
+    const name = typeof catalog?.name === 'string' ? catalog.name : '';
+    const description = typeof catalog?.description === 'string' ? catalog.description : '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
+    const card = document.createElement('div');
+    card.className = 'export-card uk-card qr-card uk-card-body';
+    const eventUid = summaryCurrentEvent?.uid || currentEventUid || '';
+    const path = eventUid
+      ? '/?event=' + encodeURIComponent(eventUid) + '&katalog=' + encodeURIComponent(slug)
+      : '/?katalog=' + encodeURIComponent(slug);
+    const qrLink = window.baseUrl
+      ? window.baseUrl + path
+      : withBase(path);
+    const linkEl = document.createElement('a');
+    linkEl.href = qrLink;
+    linkEl.target = '_blank';
+    linkEl.textContent = name || '';
+    const h4 = document.createElement('h4');
+    h4.className = 'uk-card-title';
+    h4.appendChild(linkEl);
+    const p = document.createElement('p');
+    p.textContent = description || '';
+    const img = document.createElement('img');
+    img.className = 'qr-img';
+    img.dataset.endpoint = '/qr/catalog';
+    img.dataset.target = qrLink;
+    const params = new URLSearchParams();
+    params.set('t', qrLink);
+    applySummaryQrDesign(params, 'qrColorCatalog');
+    img.src = withBase('/qr/catalog?' + params.toString());
+    img.alt = 'QR';
+    img.width = 96;
+    img.height = 96;
+    const designBtn = document.createElement('button');
+    designBtn.className = 'uk-icon-button uk-margin-small-top';
+    designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
+    designBtn.type = 'button';
+    designBtn.addEventListener('click', () => {
+      openQrDesignModal(img, '/qr/catalog', qrLink, name || '');
+    });
+    card.appendChild(h4);
+    card.appendChild(p);
+    card.appendChild(img);
+    card.appendChild(designBtn);
+    wrapper.appendChild(card);
+    return wrapper;
+  }
+
+  function createTeamCard(teamName) {
+    const name = typeof teamName === 'string' ? teamName : String(teamName || '');
+    if (!name) return null;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
+    const card = document.createElement('div');
+    card.className = 'export-card uk-card qr-card uk-card-body uk-position-relative';
+    const btn = document.createElement('button');
+    btn.className = 'qr-print-btn uk-icon-button uk-position-top-right';
+    btn.type = 'button';
+    btn.dataset.team = name;
+    btn.setAttribute('data-team', name);
+    btn.setAttribute('uk-icon', 'icon: print');
+    btn.setAttribute('aria-label', 'QR-Code drucken');
+    const h4 = document.createElement('h4');
+    h4.className = 'uk-card-title';
+    h4.textContent = name;
+    const img = document.createElement('img');
+    img.className = 'qr-img';
+    img.dataset.endpoint = '/qr/team';
+    let link;
+    if (summaryCurrentEvent?.uid || currentEventUid) {
+      const uid = summaryCurrentEvent?.uid || currentEventUid;
+      link = window.baseUrl
+        ? window.baseUrl + '/?event=' + uid + '&t=' + name
+        : withBase('/?event=' + uid + '&t=' + name);
+    } else {
+      link = window.baseUrl
+        ? window.baseUrl + '/?t=' + name
+        : withBase('/?t=' + name);
+    }
+    img.dataset.target = link;
+    const params = new URLSearchParams();
+    params.set('t', link);
+    applySummaryQrDesign(params, 'qrColorTeam');
+    img.src = withBase('/qr/team?' + params.toString());
+    img.alt = 'QR';
+    img.width = 96;
+    img.height = 96;
+    const designBtn = document.createElement('button');
+    designBtn.className = 'uk-icon-button uk-position-top-left';
+    designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
+    designBtn.type = 'button';
+    designBtn.addEventListener('click', () => {
+      openQrDesignModal(img, '/qr/team', link, name);
+    });
+    card.appendChild(btn);
+    card.appendChild(h4);
+    card.appendChild(img);
+    card.appendChild(designBtn);
+    wrapper.appendChild(card);
+    bindTeamPrintButton(btn);
+    return wrapper;
+  }
+
+  const summaryCatalogState = {
+    container: summaryCatalogsEl,
+    pager: summaryCatalogsPager,
+    statusEl: summaryCatalogsStatus,
+    moreBtn: summaryCatalogsMoreBtn,
+    emptyMessage: summaryCatalogsEmptyText,
+    errorMessage: summaryCatalogsErrorText,
+    statusTemplate: summaryCatalogsStatus?.dataset.template || summaryDefaultStatusTemplate,
+    pageSize: summaryPageSize,
+    renderItem: createCatalogCard,
+    moreLabelFallback: window.transSummaryLoadMoreCatalogs || window.transSummaryLoadMore || 'Mehr laden',
+    items: [],
+    rendered: 0,
+    totalPages: 0,
+    loading: false,
+    pending: null,
+    currentRequest: null,
+  };
+
+  const summaryTeamState = {
+    container: summaryTeamsEl,
+    pager: summaryTeamsPager,
+    statusEl: summaryTeamsStatus,
+    moreBtn: summaryTeamsMoreBtn,
+    emptyMessage: summaryTeamsEmptyText,
+    errorMessage: summaryTeamsErrorText,
+    statusTemplate: summaryTeamsStatus?.dataset.template || summaryDefaultStatusTemplate,
+    pageSize: summaryPageSize,
+    renderItem: createTeamCard,
+    moreLabelFallback: window.transSummaryLoadMoreTeams || window.transSummaryLoadMore || 'Mehr laden',
+    items: [],
+    rendered: 0,
+    totalPages: 0,
+    loading: false,
+    pending: null,
+    currentRequest: null,
+  };
+
+  function resetSummaryList(state) {
+    if (!state) return;
+    state.items = [];
+    state.rendered = 0;
+    state.totalPages = 0;
+    state.pending = null;
+    state.currentRequest = null;
+    if (state.container) state.container.innerHTML = '';
+    if (state.statusEl) state.statusEl.textContent = '';
+    if (state.pager) state.pager.hidden = true;
+    setSummaryButtonState(state, 'hide');
+  }
+
+  function setSummaryButtonState(state, mode) {
+    const btn = state?.moreBtn;
+    if (!btn) return;
+    const moreLabel = btn.dataset.labelMore || state.moreLabelFallback || window.transSummaryLoadMore || 'Mehr laden';
+    const loadingLabel = btn.dataset.labelLoading || summaryLoadingText;
+    const finishedLabel = btn.dataset.labelFinished || summaryAllLoadedText;
+    if (mode === 'loading') {
+      btn.hidden = false;
+      btn.disabled = true;
+      btn.textContent = loadingLabel;
+    } else if (mode === 'finished') {
+      btn.hidden = false;
+      btn.disabled = true;
+      btn.textContent = finishedLabel;
+    } else if (mode === 'more') {
+      btn.hidden = false;
+      btn.disabled = false;
+      btn.textContent = moreLabel;
+    } else if (mode === 'hide') {
+      btn.hidden = true;
+      btn.disabled = true;
+      btn.textContent = moreLabel;
+    }
+  }
+
+  function showSummaryLoading(state) {
+    if (!state) return;
+    if (state.pager) state.pager.hidden = false;
+    if (state.statusEl) state.statusEl.textContent = summaryLoadingText;
+    setSummaryButtonState(state, 'loading');
+  }
+
+  function updateSummaryStatus(state) {
+    if (!state?.statusEl) return;
+    if (!state.items.length) {
+      state.statusEl.textContent = '';
+      return;
+    }
+    const totalPages = state.totalPages || Math.ceil(state.items.length / state.pageSize);
+    const currentPage = Math.min(totalPages, Math.max(1, Math.ceil(state.rendered / state.pageSize)));
+    const template = state.statusTemplate || summaryDefaultStatusTemplate;
+    let text = template;
+    text = text.replace(/%current%/g, String(currentPage));
+    text = text.replace(/%total%/g, String(totalPages));
+    text = text.replace(/%count%/g, String(state.items.length));
+    state.statusEl.textContent = text;
+  }
+
+  function updateSummaryPaginationState(state) {
+    if (!state) return;
+    if (state.pager) state.pager.hidden = state.items.length === 0;
+    updateSummaryStatus(state);
+    if (!state.moreBtn) return;
+    if (!state.items.length) {
+      setSummaryButtonState(state, 'hide');
+    } else if (state.rendered >= state.items.length) {
+      setSummaryButtonState(state, 'finished');
+    } else {
+      setSummaryButtonState(state, 'more');
+    }
+  }
+
+  function renderSummaryNextPage(state) {
+    if (!state?.container) return;
+    const total = state.items.length;
+    if (!total) {
+      updateSummaryPaginationState(state);
+      return;
+    }
+    const start = state.rendered;
+    const end = Math.min(total, start + state.pageSize);
+    if (start >= end) {
+      updateSummaryPaginationState(state);
+      return;
+    }
+    for (let i = start; i < end; i++) {
+      const node = state.renderItem ? state.renderItem(state.items[i], i) : null;
+      if (node) state.container.appendChild(node);
+    }
+    state.rendered = end;
+    updateSummaryPaginationState(state);
+  }
+
+  function renderSummaryMessage(state, message) {
+    if (!state?.container) return;
+    state.container.innerHTML = '';
+    state.container.appendChild(createSummaryMessageCard(message));
+    if (state.statusEl) state.statusEl.textContent = '';
+    if (state.pager) state.pager.hidden = true;
+    setSummaryButtonState(state, 'hide');
+  }
+
+  summaryCatalogState.moreBtn?.addEventListener('click', () => {
+    if (summaryCatalogState.loading) return;
+    renderSummaryNextPage(summaryCatalogState);
+  });
+
+  summaryTeamState.moreBtn?.addEventListener('click', () => {
+    if (summaryTeamState.loading) return;
+    renderSummaryNextPage(summaryTeamState);
+  });
+
+  function loadSummaryCatalogs() {
+    if (!summaryCatalogState.container) return Promise.resolve();
+    resetSummaryList(summaryCatalogState);
+    summaryCatalogState.loading = true;
+    showSummaryLoading(summaryCatalogState);
+    const requestToken = {};
+    summaryCatalogState.currentRequest = requestToken;
+    const opts = { headers: { 'Accept': 'application/json' } };
+    const promise = apiFetch('/kataloge/catalogs.json', opts)
+      .then(r => r.json())
+      .then(data => {
+        if (summaryCatalogState.currentRequest !== requestToken) return;
+        summaryCatalogState.items = Array.isArray(data) ? data : [];
+        summaryCatalogState.totalPages = summaryCatalogState.items.length
+          ? Math.ceil(summaryCatalogState.items.length / summaryCatalogState.pageSize)
+          : 0;
+        summaryCatalogState.container.innerHTML = '';
+        if (!summaryCatalogState.items.length) {
+          renderSummaryMessage(summaryCatalogState, summaryCatalogState.emptyMessage);
+          return;
+        }
+        renderSummaryNextPage(summaryCatalogState);
+      })
+      .catch(() => {
+        if (summaryCatalogState.currentRequest !== requestToken) return;
+        renderSummaryMessage(summaryCatalogState, summaryCatalogState.errorMessage);
+      });
+    summaryCatalogState.pending = promise.finally(() => {
+      if (summaryCatalogState.currentRequest !== requestToken) {
+        return;
+      }
+      summaryCatalogState.loading = false;
+      updateSummaryPaginationState(summaryCatalogState);
+      summaryCatalogState.pending = null;
+    });
+    return summaryCatalogState.pending;
+  }
+
+  function loadSummaryTeams() {
+    if (!summaryTeamState.container) return Promise.resolve();
+    resetSummaryList(summaryTeamState);
+    summaryTeamState.loading = true;
+    showSummaryLoading(summaryTeamState);
+    const requestToken = {};
+    summaryTeamState.currentRequest = requestToken;
+    const opts = { headers: { 'Accept': 'application/json' } };
+    const promise = apiFetch('/teams.json', opts)
+      .then(r => r.json())
+      .then(data => {
+        if (summaryTeamState.currentRequest !== requestToken) return;
+        summaryTeamState.items = Array.isArray(data) ? data : [];
+        summaryTeamState.totalPages = summaryTeamState.items.length
+          ? Math.ceil(summaryTeamState.items.length / summaryTeamState.pageSize)
+          : 0;
+        summaryTeamState.container.innerHTML = '';
+        if (!summaryTeamState.items.length) {
+          renderSummaryMessage(summaryTeamState, summaryTeamState.emptyMessage);
+          return;
+        }
+        renderSummaryNextPage(summaryTeamState);
+      })
+      .catch(() => {
+        if (summaryTeamState.currentRequest !== requestToken) return;
+        renderSummaryMessage(summaryTeamState, summaryTeamState.errorMessage);
+      });
+    summaryTeamState.pending = promise.finally(() => {
+      if (summaryTeamState.currentRequest !== requestToken) {
+        return;
+      }
+      summaryTeamState.loading = false;
+      updateSummaryPaginationState(summaryTeamState);
+      summaryTeamState.pending = null;
+    });
+    return summaryTeamState.pending;
+  }
+
+  function updateSummaryEventQr(ev) {
+    if (!summaryQrImg) return;
+    if (ev?.uid) {
+      summaryQrImg.hidden = false;
+      const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid));
+      summaryQrImg.dataset.endpoint = '/qr/event';
+      summaryQrImg.dataset.target = link;
+      const params = new URLSearchParams();
+      params.set('t', link);
+      params.set('event', ev.uid);
+      applySummaryQrDesign(params, 'qrColorEvent');
+      summaryQrImg.src = withBase('/qr/event?' + params.toString());
+    } else {
+      summaryQrImg.removeAttribute('src');
+      summaryQrImg.dataset.endpoint = '';
+      summaryQrImg.dataset.target = '';
+      summaryQrImg.hidden = true;
+    }
+  }
+
   function loadSummary() {
-    const nameEl = document.getElementById('summaryEventName');
-    const descEl = document.getElementById('summaryEventDesc');
-    const qrImg = document.getElementById('summaryEventQr');
-    const catalogsEl = document.getElementById('summaryCatalogs');
-    const teamsEl = document.getElementById('summaryTeams');
-    if (!nameEl || !catalogsEl || !teamsEl) return;
+    if (!summaryNameEl || !summaryCatalogState.container || !summaryTeamState.container) {
+      return Promise.resolve();
+    }
+    resetSummaryList(summaryCatalogState);
+    resetSummaryList(summaryTeamState);
     const opts = { headers: { 'Accept': 'application/json' } };
     const cfgPromise = currentEventUid
       ? apiFetch(`/events/${currentEventUid}/config.json`, opts).then(r => r.json()).catch(() => ({}))
       : apiFetch('/config.json', opts).then(r => r.json()).catch(() => ({}));
-    Promise.all([
+    return Promise.all([
       cfgPromise,
-      apiFetch('/events.json', opts).then(r => r.json()).catch(() => []),
-      apiFetch('/kataloge/catalogs.json', opts).then(r => r.json()).catch(() => []),
-      apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
-    ]).then(([cfg, events, catalogs, teams]) => {
+      apiFetch('/events.json', opts).then(r => r.json()).catch(() => [])
+    ]).then(([cfg, events]) => {
       Object.assign(cfgInitial, cfg);
+      window.quizConfig = cfg || {};
       populateEventSelectors(events);
       const selectableHasEvents = availableEvents.length > 0;
       let ev = events.find(e => e.uid === currentEventUid) || null;
@@ -5000,143 +5408,23 @@ document.addEventListener('DOMContentLoaded', function () {
         ev = {};
       } else {
         currentEventName = ev.name || currentEventName;
+        cfgInitial.event_uid = ev.uid;
       }
+      summaryCurrentEvent = ev;
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
       renderCurrentEventIndicator(currentEventName, currentEventUid, selectableHasEvents);
       updateEventButtons(currentEventUid);
       updateActiveHeader(currentEventName);
       highlightCurrentEvent();
-      nameEl.textContent = ev.name || '';
-      if (descEl) descEl.textContent = ev.description || '';
-      const applyDesign = (params, colorKey) => {
-        if (cfgInitial.qrLogoPath) {
-          params.set('logo_path', cfgInitial.qrLogoPath);
-        } else {
-          const l1 = cfgInitial.qrLabelLine1 || '';
-          const l2 = cfgInitial.qrLabelLine2 || '';
-          if (l1) params.set('text1', l1);
-          if (l2) params.set('text2', l2);
-        }
-        if (cfgInitial.qrLogoWidth) {
-          params.set('logo_width', String(cfgInitial.qrLogoWidth));
-        }
-        const rounded = cfgInitial.qrRounded !== false;
-        const roundMode = rounded ? (cfgInitial.qrRoundMode || 'margin') : 'none';
-        params.set('round_mode', roundMode);
-        params.set('rounded', rounded ? '1' : '0');
-        params.set('logo_punchout', cfgInitial.qrLogoPunchout !== false ? '1' : '0');
-        const col = cfgInitial[colorKey] || '';
-        if (col) params.set('fg', col.replace('#', ''));
-      };
-      if (qrImg) {
-        if (ev.uid) {
-          qrImg.hidden = false;
-          const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid));
-          qrImg.dataset.endpoint = '/qr/event';
-          qrImg.dataset.target = link;
-          const params = new URLSearchParams();
-          params.set('t', link);
-          params.set('event', ev.uid);
-          applyDesign(params, 'qrColorEvent');
-          qrImg.src = withBase('/qr/event?' + params.toString());
-        } else {
-          qrImg.removeAttribute('src');
-          qrImg.dataset.endpoint = '';
-          qrImg.dataset.target = '';
-          qrImg.hidden = true;
-        }
-      }
-      catalogsEl.innerHTML = '';
-      catalogs.forEach(c => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
-        const card = document.createElement('div');
-        card.className = 'export-card uk-card qr-card uk-card-body';
-        const path = ev.uid
-          ? '/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug)
-          : '/?katalog=' + encodeURIComponent(c.slug);
-        const qrLink = window.baseUrl + path;
-        const linkEl = document.createElement('a');
-        linkEl.href = qrLink;
-        linkEl.target = '_blank';
-        linkEl.textContent = c.name || '';
-        const h4 = document.createElement('h4');
-        h4.className = 'uk-card-title';
-        h4.appendChild(linkEl);
-        const p = document.createElement('p');
-        p.textContent = c.description || '';
-        const img = document.createElement('img');
-        img.dataset.endpoint = '/qr/catalog';
-        img.dataset.target = qrLink;
-        const cParams = new URLSearchParams();
-        cParams.set('t', qrLink);
-        applyDesign(cParams, 'qrColorCatalog');
-        img.src = withBase('/qr/catalog?' + cParams.toString());
-        img.alt = 'QR';
-        img.width = 96;
-        img.height = 96;
-        const designBtn = document.createElement('button');
-        designBtn.className = 'uk-icon-button uk-margin-small-top';
-        designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
-        designBtn.type = 'button';
-        designBtn.addEventListener('click', () => {
-          openQrDesignModal(img, '/qr/catalog', qrLink, c.name || '');
-        });
-        card.appendChild(h4);
-        card.appendChild(p);
-        card.appendChild(img);
-        card.appendChild(designBtn);
-        wrapper.appendChild(card);
-        catalogsEl.appendChild(wrapper);
-      });
-      teamsEl.innerHTML = '';
-      teams.forEach(t => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
-        const card = document.createElement('div');
-        card.className = 'export-card uk-card qr-card uk-card-body uk-position-relative';
-        const btn = document.createElement('button');
-        btn.className = 'qr-print-btn uk-icon-button uk-position-top-right';
-        btn.setAttribute('data-team', t);
-        btn.setAttribute('uk-icon', 'icon: print');
-        btn.setAttribute('aria-label', 'QR-Code drucken');
-        const h4 = document.createElement('h4');
-        h4.className = 'uk-card-title';
-        h4.textContent = t;
-        const img = document.createElement('img');
-        img.dataset.endpoint = '/qr/team';
-        let link;
-        if (currentEventUid) {
-          link = window.baseUrl
-            ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + t
-            : withBase('/?event=' + currentEventUid + '&t=' + t);
-        } else {
-          link = window.baseUrl
-            ? window.baseUrl + '/?t=' + t
-            : withBase('/?t=' + t);
-        }
-        img.dataset.target = link;
-        const tParams = new URLSearchParams();
-        tParams.set('t', link);
-        applyDesign(tParams, 'qrColorTeam');
-        img.src = withBase('/qr/team?' + tParams.toString());
-        img.alt = 'QR';
-        img.width = 96;
-        img.height = 96;
-        const designBtn = document.createElement('button');
-        designBtn.className = 'uk-icon-button uk-position-top-left';
-        designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
-        designBtn.type = 'button';
-        designBtn.addEventListener('click', () => {
-          openQrDesignModal(img, '/qr/team', link, t);
-        });
-        card.appendChild(btn);
-        card.appendChild(h4);
-        card.appendChild(img);
-        card.appendChild(designBtn);
-        wrapper.appendChild(card);
-        teamsEl.appendChild(wrapper);
-      });
+      summaryNameEl.textContent = ev.name || '';
+      if (summaryDescEl) summaryDescEl.textContent = ev.description || '';
+      updateHeading(eventSettingsHeading, currentEventName);
+      updateHeading(catalogsHeading, currentEventName);
+      updateHeading(questionsHeading, currentEventName);
+      updateSummaryEventQr(ev);
+      const catalogsPromise = loadSummaryCatalogs();
+      const teamsPromise = loadSummaryTeams();
+      return Promise.all([catalogsPromise, teamsPromise]);
     });
   }
 

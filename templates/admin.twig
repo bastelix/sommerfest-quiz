@@ -844,7 +844,13 @@
             </form>
           </div>
         </div>
-        <div class="card-grid" uk-grid id="summaryCatalogs">
+        <div
+          class="card-grid"
+          uk-grid
+          id="summaryCatalogs"
+          data-empty="{{ t('text_summary_no_catalogs') }}"
+          data-error="{{ t('text_catalogs_fetch_error') }}"
+        >
           {% for c in catalogs %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card qr-card uk-card-body">
@@ -864,9 +870,28 @@
           </div>
           {% endfor %}
         </div>
+        <div class="uk-margin-small-top uk-flex uk-flex-middle uk-flex-between" id="summaryCatalogsPager" hidden>
+          <span class="uk-text-meta" id="summaryCatalogsStatus" data-template="{{ t('text_summary_page_status') }}"></span>
+          <button
+            type="button"
+            class="uk-button uk-button-default uk-button-small"
+            id="summaryCatalogsMoreBtn"
+            data-label-more="{{ t('action_load_more_catalogs') }}"
+            data-label-loading="{{ t('text_loading') }}"
+            data-label-finished="{{ t('text_summary_all_loaded') }}"
+          >
+            {{ t('action_load_more_catalogs') }}
+          </button>
+        </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_teams') }}</h3>
-        <div class="card-grid" uk-grid id="summaryTeams">
+        <div
+          class="card-grid"
+          uk-grid
+          id="summaryTeams"
+          data-empty="{{ t('text_summary_no_teams') }}"
+          data-error="{{ t('text_summary_teams_error') }}"
+        >
           {% for t in teams %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card qr-card uk-card-body uk-position-relative">
@@ -885,6 +910,19 @@
             <div class="export-card uk-card qr-card uk-card-body">{{ t('text_no_data') }}</div>
           </div>
           {% endfor %}
+        </div>
+        <div class="uk-margin-small-top uk-flex uk-flex-middle uk-flex-between" id="summaryTeamsPager" hidden>
+          <span class="uk-text-meta" id="summaryTeamsStatus" data-template="{{ t('text_summary_page_status') }}"></span>
+          <button
+            type="button"
+            class="uk-button uk-button-default uk-button-small"
+            id="summaryTeamsMoreBtn"
+            data-label-more="{{ t('action_load_more_teams') }}"
+            data-label-loading="{{ t('text_loading') }}"
+            data-label-finished="{{ t('text_summary_all_loaded') }}"
+          >
+            {{ t('action_load_more_teams') }}
+          </button>
         </div>
         <div class="uk-margin" uk-grid>
           <div class="uk-width-1-1 uk-width-auto@m">
@@ -2163,6 +2201,16 @@
     window.transImageReady = '{{ t('text_background_uploaded') }}';
     window.transEventSettingsHelp = '{{ t('text_event_settings_help')|e('js') }}';
     window.transEventsFetchError = '{{ t('text_events_fetch_error')|e('js') }}';
+    window.transCatalogsFetchError = '{{ t('text_catalogs_fetch_error')|e('js') }}';
+    window.transSummaryLoadMoreCatalogs = '{{ t('action_load_more_catalogs')|e('js') }}';
+    window.transSummaryLoadMoreTeams = '{{ t('action_load_more_teams')|e('js') }}';
+    window.transSummaryLoading = '{{ t('text_loading')|e('js') }}';
+    window.transSummaryAllLoaded = '{{ t('text_summary_all_loaded')|e('js') }}';
+    window.transSummaryPageStatus = '{{ t('text_summary_page_status')|e('js') }}';
+    window.transSummaryNoCatalogs = '{{ t('text_summary_no_catalogs')|e('js') }}';
+    window.transSummaryNoTeams = '{{ t('text_summary_no_teams')|e('js') }}';
+    window.transSummaryCatalogsError = '{{ t('text_catalogs_fetch_error')|e('js') }}';
+    window.transSummaryTeamsError = '{{ t('text_summary_teams_error')|e('js') }}';
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
     window.transActions = '{{ t('column_actions') }}';
     window.transDelete = '{{ t('action_delete') }}';
