@@ -730,7 +730,8 @@ async function runQuiz(questions, skipIntro){
       }
       if(total !== null && solved.length === total){
         const link = document.createElement('a');
-        link.href = '/summary';
+        const summaryPath = '/summary' + (currentEventUid ? `?event=${encodeURIComponent(currentEventUid)}` : '');
+        link.href = withBase(summaryPath);
         link.className = 'uk-button uk-button-primary uk-margin-top';
         link.textContent = 'Ergebnisübersicht';
         styleButton(link);

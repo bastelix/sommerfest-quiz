@@ -21,6 +21,9 @@ function formatPointsDisplay(points, maxPoints){
 }
 document.addEventListener('DOMContentLoaded', () => {
   const eventUid = (window.quizConfig || {}).event_uid || '';
+  const eventQuery = eventUid ? `?event_uid=${encodeURIComponent(eventUid)}` : '';
+  const resultsJsonPath = '/results.json' + eventQuery;
+  const questionResultsPath = '/question-results.json' + eventQuery;
   const cfg = window.quizConfig || {};
   const playerUidKey = STORAGE_KEYS.PLAYER_UID;
   const resultsBtn = document.getElementById('show-results-btn');
@@ -42,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let catalogMap = null;
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } })
+    const catalogQuery = eventUid ? `?event=${encodeURIComponent(eventUid)}` : '';
+    return fetch(withBase('/kataloge/catalogs.json' + catalogQuery), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         const map = {};
@@ -71,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function fetchPuzzleTimeFromResults(name){
     try{
-      const list = await fetch(withBase('/results.json')).then(r => r.json());
+      const list = await fetch(withBase(resultsJsonPath)).then(r => r.json());
       if(Array.isArray(list)){
         for(let i=list.length-1; i>=0; i--){
           const e = list[i];
@@ -194,8 +198,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     Promise.all([
       fetchCatalogMap(),
-      fetch(withBase('/results.json')).then(r => r.json()),
-      fetch(withBase('/question-results.json')).then(r => r.json())
+      fetch(withBase(resultsJsonPath)).then(r => r.json()),
+      fetch(withBase(questionResultsPath)).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
         const filtered = rows.filter(row => row.name === user);
@@ -313,10 +317,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if(uid) data.player_uid = uid;
           }
           let debugTimer = null;
-          fetch(withBase('/results?debug=1'), {
+          const debugQuery = '?debug=1' + (eventUid ? `&event_uid=${encodeURIComponent(eventUid)}` : '');
+          fetch(withBase('/results' + debugQuery), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            body: JSON.stringify({
+              ...data,
+              ...(eventUid ? { event_uid: eventUid } : {})
+            })
           })
         .then(async r => {
           if(!r.ok){
