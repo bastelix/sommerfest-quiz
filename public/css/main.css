@@ -315,15 +315,32 @@ body.uk-padding {
 .topbar .uk-navbar-item,
 .topbar .uk-navbar-nav > li > a,
 .topbar .uk-navbar-toggle {
-  height: 56px;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar .uk-navbar-item,
+.topbar .uk-navbar-nav > li > a,
+.topbar .uk-navbar-toggle:not(.git-btn) {
+  height: 56px;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   padding-top: 0;
   padding-bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+.topbar .uk-navbar-toggle.git-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+}
+
+.uk-navbar-toggle.git-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
 }
 .topbar .uk-navbar-center {
   flex: 1;
