@@ -226,6 +226,7 @@
   document.addEventListener('current-event-changed', (e) => {
     const { uid = '', name = '' } = e.detail || {};
     eventId = uid;
+    clearTimeout(autosaveTimer);
     isDirty = false;
     clearForm();
     currentEventSelects.forEach((select) => {
@@ -256,7 +257,7 @@
     }
     puzzleWordEnabled?.addEventListener('change', applyRules);
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
-    document.querySelectorAll('input, textarea, select').forEach((el) => {
+    document.querySelectorAll('form input, form textarea, form select').forEach((el) => {
       el.addEventListener('input', markDirty);
       el.addEventListener('change', markDirty);
     });
