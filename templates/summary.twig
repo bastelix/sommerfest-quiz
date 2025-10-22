@@ -20,19 +20,14 @@
   {% embed 'topbar.twig' %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
-        <div id="eventSelectWrap" class="uk-flex uk-flex-middle uk-visible@m" hidden>
-          <select id="eventSelect" class="uk-select uk-flex-1" aria-label="{{ t('label_events') }}"></select>
-          <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom" data-event-btn disabled></button>
-        </div>
         <span id="eventTitle" class="uk-navbar-title uk-text-center">{{ event.name|default('Sommerfest 2025') }}</span>
       </div>
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small uk-text-center">
-    <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
     <h2 class="uk-heading-bullet uk-margin-small-top">Herzlichen Glückwunsch, es wurden alle Kataloge gelöst!</h2>
     {% if config.teamResults is not defined or config.teamResults %}
-    <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisse anzeigen</button>
+    <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisübersicht anzeigen</button>
     {% endif %}
     <button id="finish-session-btn" class="uk-button uk-button-default uk-margin-top">Beenden</button>
     {% if config.photoUpload is not defined or config.photoUpload %}
@@ -47,7 +42,6 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>
-  <script type="module" src="{{ basePath }}/js/events.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
   </script>
