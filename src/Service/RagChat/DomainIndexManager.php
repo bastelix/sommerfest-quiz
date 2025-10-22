@@ -61,8 +61,7 @@ final class DomainIndexManager
         $uploadsDir = $this->storage->getUploadsDirectory($normalized);
         $documents = $this->storage->getDocumentFiles($normalized);
         $wikiDocuments = $this->prepareWikiDocuments($normalized, $uploadsDir);
-        $allDocuments = array_merge($documents, $wikiDocuments);
-        if ($allDocuments === []) {
+        if ($documents === [] && $wikiDocuments === []) {
             $this->storage->removeIndex($normalized);
 
             return [
@@ -72,6 +71,8 @@ final class DomainIndexManager
                 'cleared' => true,
             ];
         }
+
+        $allDocuments = array_merge($documents, $wikiDocuments);
 
         $corpusPath = $this->storage->getCorpusPath($normalized);
         $indexPath = $this->storage->getIndexPath($normalized);

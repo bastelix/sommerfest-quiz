@@ -32,9 +32,14 @@ class DashboardController
         $variantParam = strtolower((string) ($request->getQueryParams()['variant'] ?? ''));
         $variant = $variantParam === 'sponsor' ? 'sponsor' : 'public';
 
+        /** @var array<string, mixed>|null $event */
         $event = $this->events->getBySlug($slug);
         if ($event === null) {
             return $response->withStatus(404);
+        }
+
+        if (!array_key_exists('uid', $event)) {
+            return $response->withStatus(500);
         }
 
         $uid = (string) $event['uid'];

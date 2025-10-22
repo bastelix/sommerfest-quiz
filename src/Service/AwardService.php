@@ -68,17 +68,22 @@ class AwardService
             if ($summary !== null) {
                 $finalPoints = (int) $summary['points'];
                 $effSum = (float) $summary['efficiencySum'];
-                $questionCount = (int) $summary['questionCount'];
+                $questionCount = max(0, (int) $summary['questionCount']);
             } else {
                 $finalPoints = $points;
                 $questionCount = (int)($row['total'] ?? 0);
                 if ($questionCount < 0) {
                     $questionCount = 0;
                 }
-                $avgFallback = $questionCount > 0 ? $correct / $questionCount : 0.0;
-                $effSum = $avgFallback * $questionCount;
+                if ($questionCount === 0) {
+                    $avgFallback = 0.0;
+                    $effSum = 0.0;
+                } else {
+                    $avgFallback = $correct / $questionCount;
+                    $effSum = $avgFallback * $questionCount;
+                }
             }
-            $average = $questionCount > 0 ? $effSum / $questionCount : 0.0;
+            $average = $questionCount === 0 ? 0.0 : $effSum / $questionCount;
 
             $catalogs[$catalog] = true;
 
@@ -141,7 +146,7 @@ class AwardService
                 $effSumTotal += (float) $entry['efficiencySum'];
                 $questionCountTotal += (int) $entry['questionCount'];
             }
-            $avgEfficiency = $questionCountTotal > 0 ? $effSumTotal / $questionCountTotal : 0.0;
+            $avgEfficiency = $questionCountTotal === 0 ? 0.0 : $effSumTotal / $questionCountTotal;
             $scoreList[] = ['team' => $team, 'score' => $total, 'avgEfficiency' => $avgEfficiency];
         }
         usort(

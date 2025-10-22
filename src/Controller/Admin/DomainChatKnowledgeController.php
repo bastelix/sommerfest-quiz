@@ -268,9 +268,11 @@ final class DomainChatKnowledgeController
         $selectedIds = $this->wikiSelection->getSelectedArticleIds($domain);
         $selectedLookup = $selectedIds !== [] ? array_flip($selectedIds) : [];
 
+        /** @var list<MarketingPageWikiArticle> $articles */
+        $articles = $this->wikiArticles->getArticlesForPage($page->getId());
+
         $entries = [];
-        /** @var MarketingPageWikiArticle $article */
-        foreach ($this->wikiArticles->getArticlesForPage($page->getId()) as $article) {
+        foreach ($articles as $article) {
             if (!$article->isPublished()) {
                 continue;
             }

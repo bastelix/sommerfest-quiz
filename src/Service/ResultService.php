@@ -356,11 +356,6 @@ class ResultService
         }
 
         $ratio = $clampedTimeLeft / $totalTime;
-        if ($ratio < 0.0) {
-            $ratio = 0.0;
-        } elseif ($ratio > 1.0) {
-            $ratio = 1.0;
-        }
 
         $multiplier = max(pow($ratio, self::TIME_SCORE_ALPHA), self::TIME_SCORE_FLOOR);
         $finalPoints = (int) round($basePoints * $multiplier);

@@ -47,15 +47,7 @@ final class DomainWikiSelectionService
         $filtered = [];
 
         foreach ($articleIds as $id) {
-            if (is_int($id)) {
-                $candidate = $id;
-            } else {
-                $numeric = (string) $id;
-                if ($numeric === '' || !ctype_digit($numeric)) {
-                    throw new InvalidArgumentException('Invalid article identifier provided.');
-                }
-                $candidate = (int) $numeric;
-            }
+            $candidate = $this->normalizeArticleId($id);
 
             if ($candidate <= 0) {
                 throw new InvalidArgumentException('Article identifiers must be positive integers.');
@@ -106,5 +98,22 @@ final class DomainWikiSelectionService
         }
 
         return $normalized;
+    }
+
+    /**
+     * @param int|string $value
+     */
+    private function normalizeArticleId($value): int
+    {
+        if (is_int($value)) {
+            return $value;
+        }
+
+        $numeric = trim((string) $value);
+        if ($numeric === '' || !ctype_digit($numeric)) {
+            throw new InvalidArgumentException('Invalid article identifier provided.');
+        }
+
+        return (int) $numeric;
     }
 }

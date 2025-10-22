@@ -213,10 +213,12 @@ class ConfigValidator
                 $parsed[$key] = $dt;
             }
         }
-        if (($parsed['dashboardVisibilityStart'] ?? null) !== null && ($parsed['dashboardVisibilityEnd'] ?? null) !== null) {
-            if ($parsed['dashboardVisibilityStart'] > $parsed['dashboardVisibilityEnd']) {
-                $errors['dashboardVisibilityEnd'] = 'Endzeit muss nach der Startzeit liegen.';
-            }
+        $visibilityStart = $parsed['dashboardVisibilityStart'] ?? null;
+        $visibilityEnd = $parsed['dashboardVisibilityEnd'] ?? null;
+        if ($visibilityStart instanceof DateTimeImmutable && $visibilityEnd instanceof DateTimeImmutable
+            && $visibilityStart > $visibilityEnd
+        ) {
+            $errors['dashboardVisibilityEnd'] = 'Endzeit muss nach der Startzeit liegen.';
         }
 
         return ['config' => $config, 'errors' => $errors];
