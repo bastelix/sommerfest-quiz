@@ -6,10 +6,12 @@
   const PROSEAL_SELECTOR = '[data-calserver-proseal]';
   const MODULE_VIDEO_SELECTOR = '.calserver-module-figure__video';
   const MODULE_FIGURE_SELECTOR = '.calserver-module-figure';
+  const MODULE_VIDEO_USER_EVENTS = ['click', 'keydown', 'pointerdown', 'touchstart'];
   let proSealScriptLoading = false;
   let proSealScriptLoaded = false;
   const proSealQueue = [];
   const moduleVideoControls = [];
+  let moduleVideoLegacyFallbackAttached = false;
   let moduleFullscreenListenersAttached = false;
 
   function readPreferences() {
@@ -204,6 +206,184 @@
     }
   }
 
+  function getModuleVideoFigure(video) {
+    if (!video || typeof video.closest !== 'function') {
+      return null;
+    }
+
+    return video.closest(MODULE_FIGURE_SELECTOR);
+  }
+
+  function getModuleVideoPanel(video) {
+    const figure = getModuleVideoFigure(video);
+    if (!figure) {
+      return null;
+    }
+
+    const panel = typeof figure.closest === 'function' ? figure.closest('li') : null;
+    return panel || figure;
+  }
+
+  function isModuleVideoActive(video) {
+    const panel = getModuleVideoPanel(video);
+    if (!panel || !panel.classList) {
+      return false;
+    }
+
+    if (panel.classList.contains('uk-active')) {
+      return true;
+    }
+
+    if (typeof panel.matches === 'function') {
+      try {
+        return panel.matches('.uk-active');
+      } catch (error) {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  function loadModuleVideo(video, figure) {
+    if (!video || video.dataset.calserverVideoState === 'loaded') {
+      return false;
+    }
+
+    const resolvedFigure = figure || getModuleVideoFigure(video);
+    const poster = video.getAttribute('data-poster');
+    if (poster) {
+      video.poster = poster;
+    }
+
+    const sources = video.querySelectorAll('source[data-src]');
+    if (sources && sources.length) {
+      sources.forEach(function (source) {
+        const value = source.getAttribute('data-src');
+        if (value) {
+          source.setAttribute('src', value);
+        }
+      });
+    }
+
+    const src = video.getAttribute('data-src');
+    if (src) {
+      video.src = src;
+    }
+
+    try {
+      if (typeof video.load === 'function') {
+        video.load();
+      }
+    } catch (error) {
+      /* empty */
+    }
+
+    video.dataset.calserverVideoState = 'loaded';
+
+    if (resolvedFigure && resolvedFigure.classList) {
+      resolvedFigure.classList.add('calserver-module-figure--video-loaded');
+    }
+
+    return true;
+  }
+
+  function setupModuleVideoLegacyFallback(videos) {
+    if (typeof document === 'undefined' || moduleVideoLegacyFallbackAttached) {
+      return;
+    }
+
+    const list = Array.prototype.slice.call(videos || []);
+    if (!list.length) {
+      return;
+    }
+
+    moduleVideoLegacyFallbackAttached = true;
+
+    let triggered = false;
+
+    const handleInteraction = function () {
+      if (triggered) {
+        return;
+      }
+
+      triggered = true;
+
+      MODULE_VIDEO_USER_EVENTS.forEach(function (eventName) {
+        document.removeEventListener(eventName, handleInteraction, false);
+      });
+
+      list.forEach(function (video) {
+        if (!video) {
+          return;
+        }
+
+        const figure = getModuleVideoFigure(video);
+        const loaded = loadModuleVideo(video, figure);
+        if (loaded && isModuleVideoActive(video)) {
+          attemptModuleVideoAutoplay(video, figure);
+        }
+      });
+    };
+
+    MODULE_VIDEO_USER_EVENTS.forEach(function (eventName) {
+      document.addEventListener(eventName, handleInteraction, false);
+    });
+  }
+
+  function setupModuleVideoLazyLoading(videos) {
+    const list = Array.prototype.slice.call(videos || []);
+    if (!list.length) {
+      return;
+    }
+
+    const supportsObserver =
+      typeof window !== 'undefined' && typeof window.IntersectionObserver === 'function';
+
+    if (!supportsObserver) {
+      setupModuleVideoLegacyFallback(list);
+      return;
+    }
+
+    const observer = new window.IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (entry) {
+        if (!entry) {
+          return;
+        }
+
+        const isVisible =
+          (typeof entry.isIntersecting === 'boolean' && entry.isIntersecting) ||
+          entry.intersectionRatio > 0;
+
+        if (!isVisible) {
+          return;
+        }
+
+        const video = entry.target;
+        if (!video) {
+          return;
+        }
+
+        const figure = getModuleVideoFigure(video);
+        const loaded = loadModuleVideo(video, figure);
+
+        if (loaded && isModuleVideoActive(video)) {
+          attemptModuleVideoAutoplay(video, figure);
+        }
+
+        obs.unobserve(video);
+      });
+    }, { rootMargin: '0px 0px 200px 0px', threshold: 0 });
+
+    list.forEach(function (video) {
+      if (!video || video.dataset.calserverVideoState === 'loaded') {
+        return;
+      }
+
+      observer.observe(video);
+    });
+  }
+
   function disableModuleVideoAutoplay(video, figure) {
     if (!video || video.dataset.calserverAutoplay === 'manual') {
       return;
@@ -276,6 +456,10 @@
       return;
     }
 
+    const resolvedFigure = figure || getModuleVideoFigure(video);
+
+    loadModuleVideo(video, resolvedFigure);
+
     pauseOtherModuleVideos(video);
 
     try {
@@ -286,7 +470,7 @@
       /* empty */
     }
 
-    attemptModuleVideoAutoplay(video, figure);
+    attemptModuleVideoAutoplay(video, resolvedFigure);
   }
 
   function syncModuleVideoStates() {
@@ -299,6 +483,9 @@
     if (!video) {
       return;
     }
+
+    const figure = getModuleVideoFigure(video);
+    loadModuleVideo(video, figure);
 
     const request =
       video.requestFullscreen ||
@@ -413,8 +600,6 @@
     video.addEventListener('webkitendfullscreen', function () {
       updateModuleVideoState(entry, false);
     });
-
-    attemptModuleVideoAutoplay(video, figure);
   }
 
   function initModuleVideoFullscreen() {
@@ -425,9 +610,13 @@
 
     const labels = getModuleVideoLabels();
 
-    videos.forEach(function (video) {
+    const videoList = Array.prototype.slice.call(videos);
+
+    videoList.forEach(function (video) {
       registerModuleVideo(video, labels);
     });
+
+    setupModuleVideoLazyLoading(videoList);
 
     if (!moduleFullscreenListenersAttached) {
       ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'].forEach(function (eventName) {
@@ -579,12 +768,24 @@
         return;
       }
 
-      const source = video.querySelector('source[src]');
-      if (!source) {
-        return;
+      let href = '';
+
+      const sourceWithSrc = video.querySelector('source[src]');
+      if (sourceWithSrc) {
+        href = sourceWithSrc.getAttribute('src') || '';
       }
 
-      const href = source.getAttribute('src');
+      if (!href) {
+        href = video.getAttribute('data-src') || '';
+      }
+
+      if (!href) {
+        const sourceWithData = video.querySelector('source[data-src]');
+        if (sourceWithData) {
+          href = sourceWithData.getAttribute('data-src') || '';
+        }
+      }
+
       if (!href || href.toLowerCase().indexOf('.mp4') === -1) {
         return;
       }
