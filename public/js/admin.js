@@ -3413,8 +3413,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!hasEvents) {
       currentEventUid = '';
       currentEventName = '';
+      const configClone = replaceInitialConfig({});
       cfgInitial.event_uid = '';
-      window.quizConfig = {};
+      configClone.event_uid = '';
+      window.quizConfig = configClone;
+      renderCfg(configClone);
       updateActiveHeader('');
       renderCurrentEventIndicator('', '', false);
       updateEventButtons('');
@@ -3431,8 +3434,11 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       currentEventUid = '';
       currentEventName = '';
+      const configClone = replaceInitialConfig({});
       cfgInitial.event_uid = '';
-      window.quizConfig = {};
+      configClone.event_uid = '';
+      window.quizConfig = configClone;
+      renderCfg(configClone);
       updateActiveHeader('');
       renderCurrentEventIndicator('', '', availableEvents.length > 0);
       updateEventButtons('');
@@ -3526,9 +3532,11 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(cfg => {
         currentEventUid = uid || '';
         currentEventName = currentEventUid ? (name || currentEventName) : '';
+        const configClone = replaceInitialConfig(cfg);
         cfgInitial.event_uid = currentEventUid;
-        Object.assign(cfgInitial, cfg);
-        window.quizConfig = cfg || {};
+        configClone.event_uid = currentEventUid;
+        window.quizConfig = configClone;
+        renderCfg(configClone);
         updateActiveHeader(currentEventName);
         renderCurrentEventIndicator(currentEventName, currentEventUid);
         updateEventButtons(currentEventUid);
@@ -5001,15 +5009,14 @@ document.addEventListener('DOMContentLoaded', function () {
       const selectableHasEvents = availableEvents.length > 0;
       const previousUid = currentEventUid;
       let ev = events.find(e => e.uid === currentEventUid) || null;
+      let configClone;
       if (!ev && previousUid) {
-        const configClone = replaceInitialConfig({});
+        configClone = replaceInitialConfig({});
         currentEventUid = '';
         currentEventName = '';
-        cfgInitial.event_uid = currentEventUid;
-        window.quizConfig = configClone;
         ev = {};
       } else {
-        const configClone = replaceInitialConfig(nextConfig);
+        configClone = replaceInitialConfig(nextConfig);
         if (!ev) {
           currentEventUid = '';
           currentEventName = '';
@@ -5017,9 +5024,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           currentEventName = ev.name || currentEventName;
         }
-        cfgInitial.event_uid = currentEventUid;
-        window.quizConfig = configClone;
       }
+      cfgInitial.event_uid = currentEventUid;
+      configClone.event_uid = currentEventUid;
+      window.quizConfig = configClone;
+      renderCfg(configClone);
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
       renderCurrentEventIndicator(currentEventName, currentEventUid, selectableHasEvents);
       updateEventButtons(currentEventUid);
@@ -5374,7 +5383,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const nextConfig = (config && typeof config === 'object') ? config : {};
     const configClone = replaceInitialConfig(nextConfig);
     cfgInitial.event_uid = currentEventUid;
+    configClone.event_uid = currentEventUid;
     window.quizConfig = configClone;
+    renderCfg(configClone);
     updateActiveHeader(currentEventName);
     renderCurrentEventIndicator(currentEventName, currentEventUid, availableEvents.length > 0);
     updateEventButtons(currentEventUid);
