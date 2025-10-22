@@ -238,18 +238,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const cards = [
       {
         title: 'Rätselwort-Bestzeit',
-        list: rankings.puzzleList,
+        list: rankings.puzzleList || [],
         tooltip: 'Top 3 Platzierungen für das schnellste Lösen des Rätselworts'
       },
       {
         title: 'Katalogmeister',
-        list: rankings.catalogList,
+        list: rankings.catalogList || [],
         tooltip: 'Top 3 Teams/Spieler, die alle Fragenkataloge am schnellsten bearbeitet haben'
       },
       {
         title: 'Highscore-Champions',
-        list: rankings.pointsList,
+        list: rankings.pointsList || [],
         tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten'
+      },
+      {
+        title: 'Trefferquote-Champions',
+        list: rankings.accuracyList || [],
+        tooltip: 'Top 3 Teams/Spieler mit der höchsten durchschnittlichen Effizienz'
       },
     ];
     const MAX_ITEMS = 3;

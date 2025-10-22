@@ -18,7 +18,8 @@ class AwardService
      * @return array{
      *     puzzle:list<array{team:string,place:int}>,
      *     catalog:list<array{team:string,place:int}>,
-     *     points:list<array{team:string,place:int}>
+     *     points:list<array{team:string,place:int}>,
+     *     accuracy:list<array{team:string,place:int}>
      * }
      */
     public function computeRankings(array $results, ?int $catalogCount = null, array $questionResults = []): array {
@@ -132,6 +133,7 @@ class AwardService
         }
 
         $scoreList = [];
+        $accuracyCandidates = [];
         foreach ($scores as $team => $map) {
             $total = 0;
             $effSumTotal = 0.0;
@@ -143,6 +145,14 @@ class AwardService
             }
             $avgEfficiency = $questionCountTotal > 0 ? $effSumTotal / $questionCountTotal : 0.0;
             $scoreList[] = ['team' => $team, 'score' => $total, 'avgEfficiency' => $avgEfficiency];
+            if ($questionCountTotal > 0) {
+                $accuracyCandidates[] = [
+                    'team' => $team,
+                    'avgEfficiency' => $avgEfficiency,
+                    'questionCount' => $questionCountTotal,
+                    'score' => $total,
+                ];
+            }
         }
         usort(
             $scoreList,
@@ -160,10 +170,37 @@ class AwardService
             $pointsRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
         }
 
+        usort(
+            $accuracyCandidates,
+            static function (array $a, array $b): int {
+                $cmp = $b['avgEfficiency'] <=> $a['avgEfficiency'];
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+
+                $cmp = $b['questionCount'] <=> $a['questionCount'];
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+
+                $cmp = $b['score'] <=> $a['score'];
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+
+                return $a['team'] <=> $b['team'];
+            }
+        );
+        $accuracyRanks = [];
+        foreach (array_slice($accuracyCandidates, 0, 3) as $idx => $row) {
+            $accuracyRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+        }
+
         return [
             'puzzle' => $puzzleRanks,
             'catalog' => $catalogRanks,
             'points' => $pointsRanks,
+            'accuracy' => $accuracyRanks,
         ];
     }
 
@@ -174,7 +211,8 @@ class AwardService
      * @param array{
      *     puzzle:list<array{team:string,place:int}>,
      *     catalog:list<array{team:string,place:int}>,
-     *     points:list<array{team:string,place:int}>
+     *     points:list<array{team:string,place:int}>,
+     *     accuracy:list<array{team:string,place:int}>
      * } $rankings
      * @param array<string,array{title:string,desc:string}>|null $info
      */
@@ -191,6 +229,10 @@ class AwardService
             'puzzle' => [
                 'title' => 'Rätselwort-Bestzeit',
                 'desc' => 'schnellstes Lösen des Rätselworts',
+            ],
+            'accuracy' => [
+                'title' => 'Trefferquote-Champions',
+                'desc' => 'beste durchschnittliche Effizienz über alle Fragen',
             ],
         ];
         $info = $info ? $info + $defaults : $defaults;
@@ -221,7 +263,8 @@ class AwardService
      * @param array{
      *     puzzle:list<array{team:string,place:int}>,
      *     catalog:list<array{team:string,place:int}>,
-     *     points:list<array{team:string,place:int}>
+     *     points:list<array{team:string,place:int}>,
+     *     accuracy:list<array{team:string,place:int}>
      * } $rankings
      * @param array<string,array{title:string,desc:string}>|null $info
      * @return list<array{place:int,title:string,desc:string}>
@@ -239,6 +282,10 @@ class AwardService
             'puzzle' => [
                 'title' => 'Rätselwort-Bestzeit',
                 'desc' => 'schnellstes Lösen des Rätselworts',
+            ],
+            'accuracy' => [
+                'title' => 'Trefferquote-Champions',
+                'desc' => 'beste durchschnittliche Effizienz über alle Fragen',
             ],
         ];
         $info = $info ? $info + $defaults : $defaults;
@@ -266,11 +313,13 @@ class AwardService
             2 => match ($key) {
                 'puzzle' => 'zweit schnellstes Lösen des Rätselworts',
                 'points' => 'zweit bestes Team mit den meisten Punkten',
+                'accuracy' => 'zweit beste durchschnittliche Effizienz',
                 default => $default,
             },
             3 => match ($key) {
                 'puzzle' => 'dritt schnellstes Lösen des Rätselworts',
                 'points' => 'dritt bestes Team mit den meisten Punkten',
+                'accuracy' => 'dritt beste durchschnittliche Effizienz',
                 default => $default,
             },
             default => $default,

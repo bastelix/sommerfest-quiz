@@ -15,15 +15,19 @@ if (typeof context.computeRankings !== 'function') {
 const computeRankings = context.computeRankings;
 
 const rows = [
-    { name: 'Team1', catalog: 'A', correct: 3, time: 10 }
+    { name: 'Team1', catalog: 'A', correct: 3, total: 5, time: 10 }
 ];
 let r = computeRankings(rows, [], 3);
 assert.strictEqual(r.catalogList.length, 0);
+assert.strictEqual(r.accuracyList.length, 1);
+assert.strictEqual(r.accuracyList[0].name, 'Team1');
+assert.strictEqual(r.accuracyList[0].value, 'Ø 60 %');
 
-rows.push({ name: 'Team1', catalog: 'B', correct: 2, time: 20 });
-rows.push({ name: 'Team1', catalog: 'C', correct: 1, time: 30 });
+rows.push({ name: 'Team1', catalog: 'B', correct: 2, total: 4, time: 20 });
+rows.push({ name: 'Team1', catalog: 'C', correct: 1, total: 3, time: 30 });
 
 r = computeRankings(rows, [], 3);
 assert.strictEqual(r.catalogList.length, 1);
 assert.strictEqual(r.catalogList[0].name, 'Team1');
+assert.strictEqual(r.accuracyList[0].value, 'Ø 50 %');
 console.log('ok');

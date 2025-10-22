@@ -51,14 +51,15 @@ function createModuleCard(title, content) {
 }
 
 function renderRankingsModule(rankings, moduleConfig) {
-  const safeRankings = rankings || {
-    puzzleList: [],
-    catalogList: [],
-    pointsList: [],
+  const safeRankings = {
+    puzzleList: (rankings && rankings.puzzleList) || [],
+    catalogList: (rankings && rankings.catalogList) || [],
+    pointsList: (rankings && rankings.pointsList) || [],
+    accuracyList: (rankings && rankings.accuracyList) || [],
   };
   const metrics = Array.isArray(moduleConfig.options?.metrics) && moduleConfig.options.metrics.length
     ? moduleConfig.options.metrics
-    : ['puzzle', 'catalog', 'points'];
+    : ['puzzle', 'catalog', 'points', 'accuracy'];
   const cardDefinitions = {
     puzzle: {
       title: 'Rätselwort-Bestzeit',
@@ -75,9 +76,14 @@ function renderRankingsModule(rankings, moduleConfig) {
       list: safeRankings.pointsList,
       tooltip: 'Top 3 Teams mit den meisten Punkten',
     },
+    accuracy: {
+      title: 'Trefferquote-Champions',
+      list: safeRankings.accuracyList,
+      tooltip: 'Top 3 Teams mit der höchsten durchschnittlichen Effizienz',
+    },
   };
   const grid = document.createElement('div');
-  grid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m';
+  grid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m';
   grid.setAttribute('uk-grid', '');
   metrics.forEach((metric) => {
     const def = cardDefinitions[metric];

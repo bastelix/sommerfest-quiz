@@ -145,6 +145,15 @@ class AwardServiceTest extends TestCase
             ],
             $rankings['points']
         );
+
+        $this->assertSame(
+            [
+                ['team' => 'TeamD', 'place' => 1],
+                ['team' => 'TeamA', 'place' => 2],
+                ['team' => 'TeamC', 'place' => 3],
+            ],
+            $rankings['accuracy']
+        );
     }
 
     public function testPointsRankingUsesEfficiencyTieBreak(): void {
@@ -174,6 +183,14 @@ class AwardServiceTest extends TestCase
                 ['team' => 'Slow', 'place' => 2],
             ],
             $rankings['points']
+        );
+
+        $this->assertSame(
+            [
+                ['team' => 'Fast', 'place' => 1],
+                ['team' => 'Slow', 'place' => 2],
+            ],
+            $rankings['accuracy']
         );
     }
 
