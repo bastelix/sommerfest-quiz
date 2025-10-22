@@ -36,9 +36,15 @@ $allowedExt = [
     'txt',
     'map',
     'webp',
+    'avif',
     'woff',
     'woff2',
     'ttf',
+    'mp4',
+    'webm',
+    'ogg',
+    'mp3',
+    'pdf',
 ];
 
 if (
@@ -70,6 +76,11 @@ if (
         'woff2' => 'font/woff2',
         'ttf' => 'font/ttf',
         'map' => 'application/json; charset=UTF-8',
+        'mp4' => 'video/mp4',
+        'webm' => 'video/webm',
+        'ogg' => 'application/ogg',
+        'mp3' => 'audio/mpeg',
+        'pdf' => 'application/pdf',
     ];
     $type = $types[$ext] ?? mime_content_type($path) ?: 'application/octet-stream';
     header('Content-Type: ' . $type);

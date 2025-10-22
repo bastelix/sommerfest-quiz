@@ -230,6 +230,20 @@ Kopiere das Beispiel `vhost.d/example.com` und passe den Wert
 Die optionale Variable `CLIENT_MAX_BODY_SIZE` in `.env` liefert dabei nur
 einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
 
+### Static upload MIME types
+
+The development router in `public/router.php` whitelists static file extensions
+to mirror the production web server configuration. Ensure nginx or Apache serve
+the same list from `/uploads/` with matching MIME types so media downloads do
+not fall back to the PHP handler. The current extensions are:
+
+```
+avif, css, gif, html, ico, jpeg, jpg, js, json, map, mp3, mp4, ogg, pdf,
+png, svg, ttf, txt, webm, webp, woff, woff2
+```
+
+Keep this list in sync if additional media formats are introduced.
+
 Zum Start genügt:
 ```bash
 cp sample.env .env
