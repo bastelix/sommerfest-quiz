@@ -20,15 +20,16 @@
   let currentSponsorToken = '';
   let currentEventSlug = '';
   const DEFAULT_MODULES = [
-    { id: 'header', enabled: true },
-    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog'] } },
-    { id: 'results', enabled: true },
-    { id: 'wrongAnswers', enabled: false },
-    { id: 'infoBanner', enabled: false },
-    { id: 'qrCodes', enabled: false, options: { catalogs: [] } },
-    { id: 'media', enabled: false },
+    { id: 'header', enabled: true, layout: 'full' },
+    { id: 'rankings', enabled: true, layout: 'full', options: { metrics: ['points', 'puzzle', 'catalog'] } },
+    { id: 'results', enabled: true, layout: 'full' },
+    { id: 'wrongAnswers', enabled: false, layout: 'full' },
+    { id: 'infoBanner', enabled: false, layout: 'full' },
+    { id: 'qrCodes', enabled: false, layout: 'full', options: { catalogs: [] } },
+    { id: 'media', enabled: false, layout: 'full' },
   ];
   const METRIC_KEYS = ['points', 'puzzle', 'catalog'];
+  const LAYOUT_OPTIONS = ['one-third', 'two-thirds', 'full'];
   const QR_MODULE_ID = 'qrCodes';
   const qrModuleElement = modulesList?.querySelector('[data-module-id="' + QR_MODULE_ID + '"]') || null;
   const qrCatalogContainer = qrModuleElement?.querySelector('[data-module-catalogs]') || null;
@@ -373,6 +374,12 @@
         });
         entry.options = { catalogs };
       }
+      const defaultLayout = item.dataset.moduleDefaultLayout || 'full';
+      const layoutSelect = item.querySelector('[data-module-layout]');
+      const rawLayout = layoutSelect && typeof layoutSelect.value === 'string'
+        ? layoutSelect.value
+        : defaultLayout;
+      entry.layout = LAYOUT_OPTIONS.includes(rawLayout) ? rawLayout : defaultLayout;
       modules.push(entry);
     });
     return modules;
@@ -392,6 +399,14 @@
       modulesList.appendChild(item);
       const toggle = item.querySelector('[data-module-toggle]');
       if (toggle) toggle.checked = !!module.enabled;
+      const layoutSelect = item.querySelector('[data-module-layout]');
+      if (layoutSelect) {
+        const defaultLayout = item.dataset.moduleDefaultLayout || 'full';
+        const layoutValue = typeof module.layout === 'string' && LAYOUT_OPTIONS.includes(module.layout)
+          ? module.layout
+          : defaultLayout;
+        layoutSelect.value = layoutValue;
+      }
       if (module.id === 'rankings') {
         const metrics = Array.isArray(module.options?.metrics) && module.options.metrics.length
           ? module.options.metrics
@@ -408,6 +423,10 @@
         modulesList.appendChild(item);
         const toggle = item.querySelector('[data-module-toggle]');
         if (toggle) toggle.checked = !!module.enabled;
+        const layoutSelect = item.querySelector('[data-module-layout]');
+        if (layoutSelect) {
+          layoutSelect.value = item.dataset.moduleDefaultLayout || 'full';
+        }
         if (module.id === 'rankings') {
           item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
             metricEl.checked = METRIC_KEYS.includes(metricEl.value);
@@ -630,7 +649,7 @@
       reader.readAsDataURL(file);
     });
     modulesList?.addEventListener('change', (event) => {
-      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog]')) {
+      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout]')) {
         updateModulesInput(true);
       }
     });

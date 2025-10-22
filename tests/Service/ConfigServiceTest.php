@@ -117,7 +117,19 @@ class ConfigServiceTest extends TestCase
         };
 
         $service = new ConfigService($pdo, $tokenCipher);
-        $modules = ['scores', 'media'];
+        $modules = [
+            [
+                'id' => 'rankings',
+                'enabled' => true,
+                'layout' => 'two-thirds',
+                'options' => ['metrics' => ['points', 'catalog']],
+            ],
+            [
+                'id' => 'media',
+                'enabled' => false,
+                'layout' => 'one-third',
+            ],
+        ];
         $service->saveConfig([
             'event_uid' => 'dash-event',
             'dashboardModules' => $modules,

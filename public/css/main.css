@@ -927,6 +927,62 @@ body.admin-page {
   image-rendering: pixelated;
 }
 
+.dashboard-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-tile {
+  grid-column: span 12;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dashboard-tile > .uk-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-tile--one-third {
+  grid-column: span 4;
+}
+
+.dashboard-tile--two-thirds {
+  grid-column: span 8;
+}
+
+.dashboard-tile--full {
+  grid-column: span 12;
+}
+
+@media (max-width: 1280px) {
+  .dashboard-modules-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .dashboard-tile--one-third {
+    grid-column: span 4;
+  }
+
+  .dashboard-tile--two-thirds {
+    grid-column: span 8;
+  }
+}
+
+@media (max-width: 960px) {
+  .dashboard-modules-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .dashboard-tile--one-third,
+  .dashboard-tile--two-thirds {
+    grid-column: span 6;
+  }
+}
+
 /* Dashboard calendar */
 #calendar table {
   width: 100%;
@@ -975,6 +1031,13 @@ body.admin-page {
   }
   .dashboard-grid > * {
     padding-left: 8px;
+  }
+  .dashboard-modules-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .dashboard-tile {
+    grid-column: span 1;
   }
 }
 

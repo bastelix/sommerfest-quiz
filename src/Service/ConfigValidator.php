@@ -49,6 +49,8 @@ class ConfigValidator
 
     private const DASHBOARD_ALLOWED_METRICS = ['points', 'puzzle', 'catalog', 'accuracy'];
 
+    private const DASHBOARD_ALLOWED_LAYOUTS = ['one-third', 'two-thirds', 'full'];
+
     private const DASHBOARD_MIN_REFRESH = 5;
 
     private const DASHBOARD_MAX_REFRESH = 300;
@@ -225,17 +227,17 @@ class ConfigValidator
     }
 
     /**
-     * @return array<int,array{id:string,enabled:bool,options?:array<string,mixed>}>
+     * @return array<int,array{id:string,enabled:bool,layout:string,options?:array<string,mixed>}>
      */
     private function defaultDashboardModules(): array {
         return [
-            ['id' => 'header', 'enabled' => true],
-            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => self::DASHBOARD_ALLOWED_METRICS]],
-            ['id' => 'results', 'enabled' => true],
-            ['id' => 'wrongAnswers', 'enabled' => false],
-            ['id' => 'infoBanner', 'enabled' => false],
-            ['id' => 'qrCodes', 'enabled' => false, 'options' => ['catalogs' => []]],
-            ['id' => 'media', 'enabled' => false],
+            ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'rankings', 'enabled' => true, 'layout' => 'full', 'options' => ['metrics' => self::DASHBOARD_ALLOWED_METRICS]],
+            ['id' => 'results', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'full'],
+            ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'full'],
+            ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'full', 'options' => ['catalogs' => []]],
+            ['id' => 'media', 'enabled' => false, 'layout' => 'full'],
         ];
     }
 
@@ -243,7 +245,7 @@ class ConfigValidator
      * Normalize the dashboard modules configuration.
      *
      * @param mixed $value
-     * @return array<int,array{id:string,enabled:bool,options?:array<string,mixed>}>
+     * @return array<int,array{id:string,enabled:bool,layout:string,options?:array<string,mixed>}>
      */
     private function normalizeDashboardModules($value): array {
         $modules = [];
@@ -317,6 +319,11 @@ class ConfigValidator
             } elseif (isset($module['options']) && is_array($module['options']) && $module['options'] !== []) {
                 $entry['options'] = $module['options'];
             }
+            $rawLayout = isset($module['layout']) ? (string)$module['layout'] : '';
+            $baseLayout = (string) $base['layout'];
+            $entry['layout'] = in_array($rawLayout, self::DASHBOARD_ALLOWED_LAYOUTS, true)
+                ? $rawLayout
+                : $baseLayout;
             $normalized[] = $entry;
             $seen[$id] = true;
         }

@@ -172,7 +172,7 @@
                 <label class="uk-form-label">Module &amp; Reihenfolge</label>
                 <div class="uk-text-meta">Aktivierte Module erscheinen im Dashboard. Die Reihenfolge lässt sich per Drag &amp; Drop verändern.</div>
                 <ul class="uk-list uk-list-divider uk-margin-small-top" data-dashboard-modules uk-sortable="handle: .module-handle">
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="header">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="header" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">Header</h4>
@@ -183,8 +183,16 @@
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
                     </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
+                    </div>
                   </li>
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankings">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankings" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">Ranking-Kacheln</h4>
@@ -195,6 +203,14 @@
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
                     </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
+                    </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-text-meta">Kennzahlen</div>
                       <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="points" data-module-metric> Punkte</label>
@@ -203,7 +219,7 @@
                       <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="accuracy" data-module-metric> Trefferquote</label>
                     </div>
                   </li>
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="results">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="results" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">Ergebnisliste</h4>
@@ -214,8 +230,16 @@
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
                     </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
+                    </div>
                   </li>
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="wrongAnswers">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="wrongAnswers" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">Falsch beantwortete Fragen</h4>
@@ -226,8 +250,16 @@
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
                     </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
+                    </div>
                   </li>
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="infoBanner">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="infoBanner" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">Infobanner</h4>
@@ -238,8 +270,16 @@
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
                     </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
+                    </div>
                   </li>
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="qrCodes">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="qrCodes" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">QR-Kataloge</h4>
@@ -250,13 +290,21 @@
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
                     </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
+                    </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-text-meta">Katalogauswahl</div>
                       <div class="uk-grid-small uk-child-width-1-2@m" uk-grid data-module-catalogs></div>
                       <div class="uk-text-meta uk-margin-small-top" data-module-catalogs-empty>Keine Kataloge verfügbar.</div>
                     </div>
                   </li>
-                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="media">
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="media" data-module-default-layout="full">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
                         <h4 class="uk-margin-remove">Medienbereich</h4>
@@ -266,6 +314,14 @@
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
                         <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
                       </div>
+                    </div>
+                    <div class="uk-margin-small-top uk-flex uk-flex-between uk-flex-middle">
+                      <div class="uk-text-meta">Spaltenbreite</div>
+                      <select class="uk-select uk-form-small uk-form-width-small" data-module-layout>
+                        <option value="full">Volle Breite</option>
+                        <option value="two-thirds">2/3 Breite</option>
+                        <option value="one-third">1/3 Breite</option>
+                      </select>
                     </div>
                   </li>
                 </ul>

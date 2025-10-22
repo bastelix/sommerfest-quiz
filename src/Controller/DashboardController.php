@@ -94,13 +94,13 @@ class DashboardController
             $modules = $value;
         }
         $defaults = [
-            ['id' => 'header', 'enabled' => true],
-            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => ['points', 'puzzle', 'catalog']]],
-            ['id' => 'results', 'enabled' => true],
-            ['id' => 'wrongAnswers', 'enabled' => false],
-            ['id' => 'infoBanner', 'enabled' => false],
-            ['id' => 'qrCodes', 'enabled' => false, 'options' => ['catalogs' => []]],
-            ['id' => 'media', 'enabled' => false],
+            ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'rankings', 'enabled' => true, 'layout' => 'full', 'options' => ['metrics' => ['points', 'puzzle', 'catalog']]],
+            ['id' => 'results', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'full'],
+            ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'full'],
+            ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'full', 'options' => ['catalogs' => []]],
+            ['id' => 'media', 'enabled' => false, 'layout' => 'full'],
         ];
 
         if ($modules === []) {
@@ -114,6 +114,7 @@ class DashboardController
 
         $normalized = [];
         $seen = [];
+        $layouts = ['one-third', 'two-thirds', 'full'];
         foreach ($modules as $module) {
             if (!is_array($module)) {
                 continue;
@@ -159,6 +160,9 @@ class DashboardController
                 $entry['options'] = $module['options'];
             }
             $entry['enabled'] = (bool) $entry['enabled'];
+            $rawLayout = isset($module['layout']) ? (string) $module['layout'] : '';
+            $baseLayout = (string) $base['layout'];
+            $entry['layout'] = in_array($rawLayout, $layouts, true) ? $rawLayout : $baseLayout;
             $normalized[] = $entry;
             $seen[$id] = true;
         }
