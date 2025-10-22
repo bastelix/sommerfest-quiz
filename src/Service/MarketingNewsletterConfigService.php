@@ -118,7 +118,7 @@ class MarketingNewsletterConfigService
     /**
      * Replace CTA entries for a slug with the supplied list.
      *
-     * @param list<array{label:string,url:string,style?:string}> $entries
+     * @param list<array{label?:string,url?:string,style?:string}> $entries
      */
     public function saveEntries(string $slug, array $entries): void
     {
@@ -129,6 +129,10 @@ class MarketingNewsletterConfigService
 
         $items = [];
         foreach ($entries as $entry) {
+            if (!array_key_exists('label', $entry) || !array_key_exists('url', $entry)) {
+                continue;
+            }
+
             $label = trim((string) $entry['label']);
             $url = trim((string) $entry['url']);
             if ($label === '' || $url === '') {
