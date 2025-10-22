@@ -17,6 +17,12 @@ const basePath = window.basePath || '';
 const withBase = path => basePath + path;
 const escape = url => encodeURI(url);
 const transEventsFetchError = window.transEventsFetchError || 'Veranstaltungen konnten nicht geladen werden';
+const transDashboardLinkCopied = window.transDashboardLinkCopied || 'Link kopiert';
+const transDashboardLinkMissing = window.transDashboardLinkMissing || 'Kein Link verfügbar';
+const transDashboardCopyFailed = window.transDashboardCopyFailed || 'Kopieren fehlgeschlagen';
+const transDashboardTokenRotated = window.transDashboardTokenRotated || 'Neues Token erstellt';
+const transDashboardTokenRotateError = window.transDashboardTokenRotateError || 'Token konnte nicht erneuert werden';
+const transDashboardNoEvent = window.transDashboardNoEvent || 'Kein Event ausgewählt';
 
 function isAllowed(url, allowedPaths = []) {
   try {
@@ -901,6 +907,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .map(el => el.querySelector('[data-current-event-select]'))
     .filter(el => el);
   let currentEventName = '';
+  let currentEventSlug = window.initialEventSlug || cfgInitial.slug || '';
   let availableEvents = [];
   if (!currentEventUid) {
     const seededUid = indicatorNodes.map(el => el.dataset.currentEventUid || '').find(uid => uid);
@@ -959,8 +966,32 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
-    registrationEnabled: document.getElementById('cfgRegistrationEnabled')
+    registrationEnabled: document.getElementById('cfgRegistrationEnabled'),
+    dashboardRefreshInterval: document.getElementById('cfgDashboardRefreshInterval'),
+    dashboardInfoText: document.getElementById('cfgDashboardInfoText'),
+    dashboardMediaEmbed: document.getElementById('cfgDashboardMediaEmbed'),
+    dashboardShareEnabled: document.getElementById('cfgDashboardShareEnabled'),
+    dashboardSponsorEnabled: document.getElementById('cfgDashboardSponsorEnabled'),
+    dashboardVisibilityStart: document.getElementById('cfgDashboardVisibilityStart'),
+    dashboardVisibilityEnd: document.getElementById('cfgDashboardVisibilityEnd')
   };
+  const dashboardModulesList = document.querySelector('[data-dashboard-modules]');
+  const dashboardModulesInput = document.getElementById('cfgDashboardModules');
+  const dashboardShareInputs = {
+    public: document.querySelector('[data-share-link="public"]'),
+    sponsor: document.querySelector('[data-share-link="sponsor"]')
+  };
+  const DASHBOARD_METRIC_KEYS = ['points', 'puzzle', 'catalog'];
+  const DASHBOARD_DEFAULT_MODULES = [
+    { id: 'header', enabled: true },
+    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog'] } },
+    { id: 'results', enabled: true },
+    { id: 'wrongAnswers', enabled: false },
+    { id: 'infoBanner', enabled: false },
+    { id: 'media', enabled: false }
+  ];
+  let dashboardPublicToken = cfgInitial.dashboardShareToken || '';
+  let dashboardSponsorToken = cfgInitial.dashboardSponsorToken || '';
   const ragChatFields = {
     form: document.getElementById('ragChatForm'),
     url: document.getElementById('ragChatUrl'),
@@ -1204,6 +1235,122 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
   }
+  function readDashboardModules() {
+    if (!dashboardModulesList) {
+      return [];
+    }
+    const modules = [];
+    dashboardModulesList.querySelectorAll('[data-module-id]').forEach(item => {
+      const id = item.dataset.moduleId || '';
+      if (!id) {
+        return;
+      }
+      const toggle = item.querySelector('[data-module-toggle]');
+      const enabled = toggle ? toggle.checked : true;
+      const entry = { id, enabled };
+      if (id === 'rankings') {
+        const metrics = [];
+        item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
+          if (metricEl.checked) {
+            const value = metricEl.value || '';
+            if (value && !metrics.includes(value) && DASHBOARD_METRIC_KEYS.includes(value)) {
+              metrics.push(value);
+            }
+          }
+        });
+        entry.options = { metrics: metrics.length ? metrics : DASHBOARD_METRIC_KEYS };
+      }
+      modules.push(entry);
+    });
+    return modules;
+  }
+
+  function applyDashboardModules(modules) {
+    if (!dashboardModulesList) {
+      return;
+    }
+    const configured = Array.isArray(modules) && modules.length ? modules : DASHBOARD_DEFAULT_MODULES;
+    const map = new Map();
+    dashboardModulesList.querySelectorAll('[data-module-id]').forEach(item => {
+      map.set(item.dataset.moduleId, item);
+    });
+    configured.forEach(module => {
+      const item = map.get(module.id);
+      if (!item) {
+        return;
+      }
+      dashboardModulesList.appendChild(item);
+      const toggle = item.querySelector('[data-module-toggle]');
+      if (toggle) {
+        toggle.checked = !!module.enabled;
+      }
+      if (module.id === 'rankings') {
+        const metrics = Array.isArray(module.options?.metrics) && module.options.metrics.length
+          ? module.options.metrics
+          : DASHBOARD_METRIC_KEYS;
+        item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
+          metricEl.checked = metrics.includes(metricEl.value);
+        });
+      }
+    });
+    DASHBOARD_DEFAULT_MODULES.forEach(module => {
+      if (configured.some(entry => entry.id === module.id)) {
+        return;
+      }
+      const item = map.get(module.id);
+      if (!item) {
+        return;
+      }
+      dashboardModulesList.appendChild(item);
+      const toggle = item.querySelector('[data-module-toggle]');
+      if (toggle) {
+        toggle.checked = !!module.enabled;
+      }
+      if (module.id === 'rankings') {
+        item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
+          metricEl.checked = DASHBOARD_METRIC_KEYS.includes(metricEl.value);
+        });
+      }
+    });
+    updateDashboardModules(false);
+  }
+
+  function updateDashboardModules(mark = false) {
+    if (dashboardModulesInput) {
+      try {
+        dashboardModulesInput.value = JSON.stringify(readDashboardModules());
+      } catch (err) {
+        dashboardModulesInput.value = '[]';
+      }
+    }
+    if (mark) {
+      queueCfgSave();
+    }
+  }
+
+  function buildDashboardShareLink(variant) {
+    const slug = currentEventSlug || '';
+    const token = variant === 'sponsor' ? dashboardSponsorToken : dashboardPublicToken;
+    if (!slug || !token) {
+      return '';
+    }
+    const path = `/event/${encodeURIComponent(slug)}/dashboard/${encodeURIComponent(token)}`;
+    const url = new URL(withBase(path), window.location.origin);
+    if (variant === 'sponsor') {
+      url.searchParams.set('variant', 'sponsor');
+    }
+    return url.toString();
+  }
+
+  function updateDashboardShareLinks() {
+    if (dashboardShareInputs.public) {
+      dashboardShareInputs.public.value = buildDashboardShareLink('public');
+    }
+    if (dashboardShareInputs.sponsor) {
+      dashboardShareInputs.sponsor.value = buildDashboardShareLink('sponsor');
+    }
+  }
+
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
     if (cfgFields.logoPreview) {
@@ -1259,6 +1406,46 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.registrationEnabled) {
       cfgFields.registrationEnabled.checked = settingsInitial.registration_enabled === '1';
     }
+    if (cfgFields.dashboardRefreshInterval) {
+      const rawRefresh = data.dashboardRefreshInterval ?? 15;
+      const parsedRefresh = Number.parseInt(rawRefresh, 10);
+      if (Number.isNaN(parsedRefresh)) {
+        cfgFields.dashboardRefreshInterval.value = '15';
+      } else {
+        const clamped = Math.min(Math.max(parsedRefresh, 5), 300);
+        cfgFields.dashboardRefreshInterval.value = String(clamped);
+      }
+    }
+    if (cfgFields.dashboardInfoText) {
+      cfgFields.dashboardInfoText.value = data.dashboardInfoText || '';
+    }
+    if (cfgFields.dashboardMediaEmbed) {
+      cfgFields.dashboardMediaEmbed.value = data.dashboardMediaEmbed || '';
+    }
+    if (cfgFields.dashboardShareEnabled) {
+      const enabled = data.dashboardShareEnabled === true
+        || data.dashboardShareEnabled === '1'
+        || String(data.dashboardShareEnabled).toLowerCase() === 'true';
+      cfgFields.dashboardShareEnabled.checked = enabled;
+    }
+    if (cfgFields.dashboardSponsorEnabled) {
+      const enabledSponsor = data.dashboardSponsorEnabled === true
+        || data.dashboardSponsorEnabled === '1'
+        || String(data.dashboardSponsorEnabled).toLowerCase() === 'true';
+      cfgFields.dashboardSponsorEnabled.checked = enabledSponsor;
+    }
+    if (cfgFields.dashboardVisibilityStart) {
+      cfgFields.dashboardVisibilityStart.value = data.dashboardVisibilityStart || '';
+    }
+    if (cfgFields.dashboardVisibilityEnd) {
+      cfgFields.dashboardVisibilityEnd.value = data.dashboardVisibilityEnd || '';
+    }
+    if (dashboardModulesList) {
+      applyDashboardModules(data.dashboardModules || []);
+    }
+    dashboardPublicToken = data.dashboardShareToken || '';
+    dashboardSponsorToken = data.dashboardSponsorToken || '';
+    updateDashboardShareLinks();
     puzzleFeedback = data.puzzleFeedback || '';
     updatePuzzleFeedbackUI();
     inviteText = data.inviteText || '';
@@ -2302,6 +2489,39 @@ document.addEventListener('DOMContentLoaded', function () {
       data.puzzleWordEnabled = cfgFields.puzzleEnabled.checked;
       data.puzzleWord = cfgFields.puzzleWord?.value || '';
     }
+    if (cfgFields.dashboardRefreshInterval) {
+      const rawRefresh = cfgFields.dashboardRefreshInterval.value;
+      const parsedRefresh = Number.parseInt(rawRefresh, 10);
+      if (Number.isNaN(parsedRefresh)) {
+        data.dashboardRefreshInterval = '15';
+        cfgFields.dashboardRefreshInterval.value = '15';
+      } else {
+        const clamped = Math.min(Math.max(parsedRefresh, 5), 300);
+        data.dashboardRefreshInterval = String(clamped);
+        cfgFields.dashboardRefreshInterval.value = String(clamped);
+      }
+    }
+    if (dashboardModulesList) {
+      data.dashboardModules = readDashboardModules();
+    }
+    if (cfgFields.dashboardInfoText) {
+      data.dashboardInfoText = cfgFields.dashboardInfoText.value || '';
+    }
+    if (cfgFields.dashboardMediaEmbed) {
+      data.dashboardMediaEmbed = cfgFields.dashboardMediaEmbed.value || '';
+    }
+    if (cfgFields.dashboardShareEnabled) {
+      data.dashboardShareEnabled = cfgFields.dashboardShareEnabled.checked ? '1' : '0';
+    }
+    if (cfgFields.dashboardSponsorEnabled) {
+      data.dashboardSponsorEnabled = cfgFields.dashboardSponsorEnabled.checked ? '1' : '0';
+    }
+    if (cfgFields.dashboardVisibilityStart) {
+      data.dashboardVisibilityStart = cfgFields.dashboardVisibilityStart.value || '';
+    }
+    if (cfgFields.dashboardVisibilityEnd) {
+      data.dashboardVisibilityEnd = cfgFields.dashboardVisibilityEnd.value || '';
+    }
     if (puzzleFeedback) data.puzzleFeedback = puzzleFeedback;
     if (inviteText) data.inviteText = inviteText;
     return data;
@@ -2346,6 +2566,76 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!el || ['logoFile', 'logoPreview', 'registrationEnabled', 'puzzleEnabled'].includes(key)) return;
     el.addEventListener('change', queueCfgSave);
     el.addEventListener('input', queueCfgSave);
+  });
+  dashboardModulesList?.addEventListener('change', event => {
+    if (event.target.matches('[data-module-toggle], [data-module-metric]')) {
+      updateDashboardModules(true);
+    }
+  });
+  dashboardModulesList?.addEventListener('moved', () => {
+    updateDashboardModules(true);
+  });
+  document.querySelectorAll('[data-copy-link]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const variant = btn.dataset.copyLink === 'sponsor' ? 'sponsor' : 'public';
+      const input = dashboardShareInputs[variant];
+      if (!input || !input.value) {
+        notify(transDashboardLinkMissing, 'warning');
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(input.value)
+          .then(() => notify(transDashboardLinkCopied, 'success'))
+          .catch(() => notify(transDashboardCopyFailed, 'danger'));
+      } else {
+        input.select();
+        try {
+          document.execCommand('copy');
+          notify(transDashboardLinkCopied, 'success');
+        } catch (err) {
+          notify(transDashboardCopyFailed, 'danger');
+        }
+      }
+    });
+  });
+  document.querySelectorAll('[data-rotate-token]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!currentEventUid) {
+        notify(transDashboardNoEvent, 'warning');
+        return;
+      }
+      const variant = btn.dataset.rotateToken === 'sponsor' ? 'sponsor' : 'public';
+      btn.disabled = true;
+      apiFetch(`/admin/event/${encodeURIComponent(currentEventUid)}/dashboard-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ variant })
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('rotate-failed');
+          }
+          return res.json().catch(() => ({}));
+        })
+        .then(payload => {
+          const token = payload?.token || '';
+          if (variant === 'sponsor') {
+            dashboardSponsorToken = token;
+            cfgInitial.dashboardSponsorToken = token;
+          } else {
+            dashboardPublicToken = token;
+            cfgInitial.dashboardShareToken = token;
+          }
+          updateDashboardShareLinks();
+          notify(transDashboardTokenRotated, 'success');
+        })
+        .catch(() => {
+          notify(transDashboardTokenRotateError, 'danger');
+        })
+        .finally(() => {
+          btn.disabled = false;
+        });
+    });
   });
   puzzleFeedbackBtn?.addEventListener('click', () => {
     if (puzzleTextarea) {
@@ -3735,7 +4025,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const rawUid = item?.uid ?? item?.id ?? '';
             const uid = typeof rawUid === 'string' ? rawUid : (rawUid ? String(rawUid) : '');
             const name = typeof item?.name === 'string' ? item.name.trim() : '';
-            return { uid, name };
+            const slug = typeof item?.slug === 'string' ? item.slug.trim() : '';
+            return { uid, name, slug };
           })
           .filter(ev => ev.uid !== '' && ev.name !== '' && !ev.name.startsWith('__draft__'))
       : [];
@@ -3823,6 +4114,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!hasEvents) {
       currentEventUid = '';
       currentEventName = '';
+      currentEventSlug = '';
       cfgInitial.event_uid = '';
       window.quizConfig = {};
       updateActiveHeader('');
@@ -3834,15 +4126,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const match = list.find(ev => ev.uid === currentEventUid);
     if (match) {
       currentEventName = match.name || currentEventName;
+      currentEventSlug = match.slug || currentEventSlug;
       updateActiveHeader(currentEventName);
       renderCurrentEventIndicator(currentEventName, currentEventUid, availableEvents.length > 0);
       updateEventButtons(currentEventUid);
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
+      updateDashboardShareLinks();
     } else {
       currentEventUid = '';
       currentEventName = '';
+      currentEventSlug = '';
       cfgInitial.event_uid = '';
       window.quizConfig = {};
+      updateDashboardShareLinks();
       updateActiveHeader('');
       renderCurrentEventIndicator('', '', availableEvents.length > 0);
       updateEventButtons('');
@@ -3862,6 +4158,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return {
       id,
       uid: id,
+      slug: ev.slug || ev.uid || id,
       name: ev.name || '',
       start_date: ev.start_date || new Date().toISOString().slice(0, 16),
       end_date: ev.end_date || new Date().toISOString().slice(0, 16),
@@ -3877,6 +4174,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const isDraft = trimmedName === '';
       return {
         uid: ev.id,
+        slug: ev.slug || ev.id,
         name: isDraft ? `__draft__${ev.id}` : trimmedName,
         start_date: ev.start_date,
         end_date: ev.end_date,
@@ -3932,10 +4230,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const prevUid = currentEventUid;
     const prevName = currentEventName;
+    const prevSlug = currentEventSlug;
     return switchEvent(uid, name)
       .then(cfg => {
         currentEventUid = uid || '';
         currentEventName = currentEventUid ? (name || currentEventName) : '';
+        const matched = availableEvents.find(ev => ev.uid === currentEventUid);
+        currentEventSlug = matched?.slug || currentEventSlug;
+        updateDashboardShareLinks();
         cfgInitial.event_uid = currentEventUid;
         Object.assign(cfgInitial, cfg);
         window.quizConfig = cfg || {};
@@ -3964,6 +4266,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, '', url.toString());
         }
+        currentEventSlug = prevSlug;
+        updateDashboardShareLinks();
         highlightCurrentEvent();
       });
   }
@@ -5852,6 +6156,8 @@ document.addEventListener('DOMContentLoaded', function () {
         cfgInitial.event_uid = currentEventUid;
         window.quizConfig = configClone;
       }
+      currentEventSlug = ev?.slug || (currentEventUid ? currentEventSlug : '');
+      updateDashboardShareLinks();
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
       renderCurrentEventIndicator(currentEventName, currentEventUid, selectableHasEvents);
       updateEventButtons(currentEventUid);
@@ -6121,6 +6427,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const configClone = replaceInitialConfig(nextConfig);
     cfgInitial.event_uid = currentEventUid;
     window.quizConfig = configClone;
+    renderCfg(configClone);
     updateActiveHeader(currentEventName);
     renderCurrentEventIndicator(currentEventName, currentEventUid, availableEvents.length > 0);
     updateEventButtons(currentEventUid);

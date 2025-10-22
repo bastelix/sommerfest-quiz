@@ -9,6 +9,7 @@ use PDO;
 use PDOException;
 use RuntimeException;
 use Throwable;
+use App\Support\TokenCipher;
 
 /**
  * Handles reading and writing application configuration values.
@@ -17,6 +18,7 @@ class ConfigService
 {
     private PDO $pdo;
     private ?string $activeEvent = null;
+    private TokenCipher $tokenCipher;
 
     /**
      * List of configuration keys that should be treated as booleans.
@@ -43,13 +45,26 @@ class ConfigService
         'stickerPrintHeader',
         'stickerPrintSubheader',
         'stickerPrintCatalog',
+        'dashboardShareEnabled',
+        'dashboardSponsorEnabled',
+    ];
+
+    /**
+     * Columns that store JSON payloads and should be encoded/decoded automatically.
+     *
+     * @var array<int,string>
+     */
+    private const JSON_COLUMNS = [
+        'colors',
+        'dashboardModules',
     ];
 
     /**
      * Inject PDO instance used for database operations.
      */
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo, ?TokenCipher $tokenCipher = null) {
         $this->pdo = $pdo;
+        $this->tokenCipher = $tokenCipher ?? new TokenCipher();
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS active_event(' .
             'event_uid TEXT PRIMARY KEY' .
@@ -130,6 +145,80 @@ class ConfigService
             return $this->normalizeKeys($row);
         }
         return [];
+    }
+
+    /**
+     * Create a new random dashboard token consisting of URL-safe characters.
+     */
+    public function generateDashboardToken(): string {
+        return rtrim(strtr(base64_encode(random_bytes(18)), '+/', '-_'), '=');
+    }
+
+    /**
+     * Persist a dashboard token for the given event.
+     */
+    public function setDashboardToken(string $uid, string $variant, ?string $token): void {
+        if ($uid === '') {
+            return;
+        }
+        $this->ensureConfigForEvent($uid);
+        $column = $variant === 'sponsor' ? 'dashboard_sponsor_token' : 'dashboard_share_token';
+        $sql = "UPDATE config SET {$column} = :token WHERE event_uid = :uid";
+        $stmt = $this->pdo->prepare($sql);
+        $normalized = $token !== null ? trim($token) : '';
+        if ($normalized === '') {
+            $stmt->bindValue(':token', null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(':token', $this->tokenCipher->encrypt($normalized));
+        }
+        $stmt->bindValue(':uid', $uid);
+        $stmt->execute();
+    }
+
+    /**
+     * Retrieve decrypted dashboard tokens for the event.
+     *
+     * @return array{public:?string,sponsor:?string}
+     */
+    public function getDashboardTokens(string $uid): array {
+        if ($uid === '') {
+            return ['public' => null, 'sponsor' => null];
+        }
+        $stmt = $this->pdo->prepare(
+            'SELECT dashboard_share_token, dashboard_sponsor_token FROM config WHERE event_uid = ? LIMIT 1'
+        );
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $public = $row['dashboard_share_token'] ?? null;
+        $sponsor = $row['dashboard_sponsor_token'] ?? null;
+        return [
+            'public' => is_string($public) ? $this->tokenCipher->decrypt($public) : null,
+            'sponsor' => is_string($sponsor) ? $this->tokenCipher->decrypt($sponsor) : null,
+        ];
+    }
+
+    /**
+     * Validate a share token for the specified event and return the matched variant.
+     */
+    public function verifyDashboardToken(string $uid, string $token, ?string $variant = null): ?string {
+        $token = trim($token);
+        if ($uid === '' || $token === '') {
+            return null;
+        }
+        $tokens = $this->getDashboardTokens($uid);
+        if (($variant === null || $variant === 'public')
+            && $tokens['public'] !== null
+            && hash_equals($tokens['public'], $token)
+        ) {
+            return 'public';
+        }
+        if (($variant === null || $variant === 'sponsor')
+            && $tokens['sponsor'] !== null
+            && hash_equals($tokens['sponsor'], $token)
+        ) {
+            return 'sponsor';
+        }
+        return null;
     }
 
     /**
@@ -257,6 +346,14 @@ class ConfigService
             'stickerDescWidth',
             'stickerDescHeight',
             'stickerBgPath',
+            'dashboardModules',
+            'dashboardRefreshInterval',
+            'dashboardShareEnabled',
+            'dashboardSponsorEnabled',
+            'dashboardInfoText',
+            'dashboardMediaEmbed',
+            'dashboardVisibilityStart',
+            'dashboardVisibilityEnd',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
@@ -288,8 +385,12 @@ class ConfigService
             foreach ($filtered as $k => $v) {
                 if (is_bool($v)) {
                     $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-                } elseif ($k === 'colors') {
-                    $stmt->bindValue(':' . $k, json_encode($v, JSON_THROW_ON_ERROR));
+                } elseif (in_array($k, self::JSON_COLUMNS, true)) {
+                    if ($v === null) {
+                        $stmt->bindValue(':' . $k, null, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue(':' . $k, json_encode($v, JSON_THROW_ON_ERROR));
+                    }
                 } else {
                     $stmt->bindValue(':' . $k, $v);
                 }
@@ -521,6 +622,16 @@ class ConfigService
             'stickerDescWidth',
             'stickerDescHeight',
             'stickerBgPath',
+            'dashboardModules',
+            'dashboardRefreshInterval',
+            'dashboardShareEnabled',
+            'dashboardSponsorEnabled',
+            'dashboardInfoText',
+            'dashboardMediaEmbed',
+            'dashboardVisibilityStart',
+            'dashboardVisibilityEnd',
+            'dashboardShareToken',
+            'dashboardSponsorToken',
         ];
         $map = [];
         foreach ($keys as $k) {
@@ -531,16 +642,18 @@ class ConfigService
         $normalized = [];
         foreach ($row as $k => $v) {
             $key = $map[strtolower($k)] ?? $k;
-            if ($key === 'colors') {
-                if (is_string($v)) {
+            if (in_array($key, self::JSON_COLUMNS, true)) {
+                if (is_string($v) && $v !== '') {
                     try {
                         $decoded = json_decode($v, true, 512, JSON_THROW_ON_ERROR);
                         $normalized[$key] = is_array($decoded) ? $decoded : [];
                     } catch (JsonException $e) {
                         $normalized[$key] = [];
                     }
+                } elseif (is_array($v)) {
+                    $normalized[$key] = $v;
                 } else {
-                    $normalized[$key] = is_array($v) ? $v : [];
+                    $normalized[$key] = [];
                 }
             } elseif (in_array($key, self::BOOL_KEYS, true)) {
                 $normalized[$key] = $v === null ? null : filter_var(
@@ -548,6 +661,10 @@ class ConfigService
                     FILTER_VALIDATE_BOOL,
                     FILTER_NULL_ON_FAILURE
                 );
+            } elseif ($key === 'dashboardShareToken' || $key === 'dashboardSponsorToken') {
+                $normalized[$key] = is_string($v) ? $this->tokenCipher->decrypt($v) : null;
+            } elseif ($key === 'dashboardRefreshInterval') {
+                $normalized[$key] = $v !== null ? (int) $v : null;
             } else {
                 $normalized[$key] = $v;
             }

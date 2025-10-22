@@ -78,6 +78,7 @@ use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
 use App\Controller\EventConfigController;
+use App\Controller\DashboardController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
@@ -157,6 +158,7 @@ require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/EventController.php';
 require_once __DIR__ . '/Controller/EventListController.php';
 require_once __DIR__ . '/Controller/EventConfigController.php';
+require_once __DIR__ . '/Controller/DashboardController.php';
 require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
@@ -330,6 +332,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 'eventConfigController',
                 new EventConfigController($eventService, $configService, $imageUploadService)
             )
+            ->withAttribute('dashboardController', new DashboardController($configService, $eventService))
             ->withAttribute(
                 'tenantController',
                 new TenantController(
@@ -1388,6 +1391,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('resultController')->getQuestions($request, $response);
     });
 
+    $app->get('/event/{slug}/dashboard/{token}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('dashboardController')->view($request, $response, $args);
+    });
+
     $app->get('/results/download', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->download($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
@@ -1597,6 +1604,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->patch('/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->post('/admin/event/{id}/dashboard-token', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('eventConfigController')->rotateToken($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER))->add(new CsrfMiddleware());
 
     $app->post('/invite', function (Request $request, Response $response) {
         $pdo = $request->getAttribute('pdo');

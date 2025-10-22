@@ -36,6 +36,7 @@ class EventService
      *
      * @return list<array{
      *     uid:string,
+     *     slug:string,
      *     name:string,
      *     start_date:?string,
      *     end_date:?string,
@@ -44,7 +45,7 @@ class EventService
      * }>
      */
     public function getAll(): array {
-        $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
+        $sql = 'SELECT uid,slug,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
         $rows = [];
 
         try {
@@ -59,6 +60,7 @@ class EventService
         }
 
         $events = array_map(function (array $row) {
+            $row['slug'] = (string) ($row['slug'] ?? $row['uid'] ?? '');
             $row['start_date'] = $this->formatDate($row['start_date'] ?? null);
             $row['end_date'] = $this->formatDate($row['end_date'] ?? null);
             $row['published'] = (bool)($row['published'] ?? false);
