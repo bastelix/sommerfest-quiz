@@ -2565,6 +2565,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return '';
     }
     const span = document.createElement('span');
+    span.classList.add('uk-text-truncate');
     span.textContent = preview;
     if (full && full !== preview) {
       span.title = full;
