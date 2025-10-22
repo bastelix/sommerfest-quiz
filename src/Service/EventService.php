@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
+use PDOException;
 use App\Service\ConfigService;
 use App\Service\TenantService;
 
@@ -44,17 +45,17 @@ class EventService
      */
     public function getAll(): array {
         $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
-        $stmt = $this->pdo->query($sql);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = [];
+
+        try {
+            $stmt = $this->pdo->query($sql);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $exception) {
+            error_log('Failed to load events from database: ' . $exception->getMessage());
+        }
 
         if ($rows === []) {
-            $path = dirname(__DIR__, 2) . '/data/events.json';
-            if (is_readable($path)) {
-                $json = json_decode(file_get_contents($path), true);
-                if (is_array($json)) {
-                    $rows = $json;
-                }
-            }
+            $rows = $this->loadEventsFromJson();
         }
 
         $events = array_map(function (array $row) {
@@ -67,6 +68,26 @@ class EventService
         error_log('Event count: ' . count($events));
 
         return $events;
+    }
+
+    /**
+     * Load the fallback event list from the static JSON file.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function loadEventsFromJson(): array {
+        $path = dirname(__DIR__, 2) . '/data/events.json';
+        if (!is_readable($path)) {
+            return [];
+        }
+
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            return [];
+        }
+
+        $json = json_decode($contents, true);
+        return is_array($json) ? $json : [];
     }
 
     /**

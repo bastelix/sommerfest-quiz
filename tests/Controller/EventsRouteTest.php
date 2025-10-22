@@ -8,6 +8,7 @@ use App\Application\Handlers\HttpErrorHandler;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Controller\EventController;
 use App\Domain\Roles;
+use App\Infrastructure\Database;
 use App\Service\ConfigService;
 use App\Service\EventService;
 use App\Service\TenantService;
@@ -106,5 +107,63 @@ class EventsRouteTest extends TestCase
         @session_destroy();
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
+    }
+
+    public function testEventsListFallsBackToJsonWhenDatabaseFails(): void {
+        $pdo = $this->createDatabase();
+        $this->setDatabase($pdo);
+
+        $dsn = getenv('POSTGRES_DSN') ?: '';
+        $user = getenv('POSTGRES_USER') ?: '';
+        $password = getenv('POSTGRES_PASSWORD') ?: '';
+        $options = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+
+        Database::setFactory(function () use ($dsn, $user, $password, $options) {
+            return new class($dsn, $user, $password, $options) extends \PDO {
+                public function __construct(string $dsn, string $user, string $password, array $options) {
+                    parent::__construct($dsn, $user, $password, $options);
+                }
+
+                public function query(
+                    string $query,
+                    ?int $fetchMode = null,
+                    mixed ...$fetchModeArgs
+                ): \PDOStatement|false {
+                    if (trim($query) === 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order') {
+                        throw new \PDOException('Simulated database failure');
+                    }
+
+                    if ($fetchMode === null) {
+                        return parent::query($query);
+                    }
+
+                    return parent::query($query, $fetchMode, ...$fetchModeArgs);
+                }
+            };
+        });
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/events.json', ['HTTP_ACCEPT' => 'application/json']);
+            $response = $app->handle($request);
+
+            $this->assertSame(200, $response->getStatusCode());
+
+            $payload = json_decode((string) $response->getBody(), true);
+            $this->assertIsArray($payload);
+
+            $path = dirname(__DIR__, 2) . '/data/events.json';
+            $expected = json_decode((string) file_get_contents($path), true);
+            $this->assertIsArray($expected);
+
+            $expected = array_map(static function (array $event): array {
+                $event['published'] = (bool)($event['published'] ?? false);
+                return $event;
+            }, $expected);
+
+            $this->assertSame($expected, $payload);
+        } finally {
+            Database::setFactory(null);
+        }
     }
 }
