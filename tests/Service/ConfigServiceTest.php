@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\ConfigService;
+use App\Support\TokenCipher;
 use PDO;
 use Tests\TestCase;
 use Throwable;
@@ -43,7 +44,7 @@ class ConfigServiceTest extends TestCase
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
         $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY REFERENCES events(uid))');
         $pdo->exec("INSERT INTO events(uid) VALUES('ev1')");
-        $service = new ConfigService($pdo);
+        $service = $this->createService($pdo);
         $data = ['event_uid' => 'ev1', 'pageTitle' => 'Demo', 'QRUser' => false, 'QRRemember' => true];
 
         $service->saveConfig($data);
@@ -66,7 +67,7 @@ class ConfigServiceTest extends TestCase
             );
             SQL
         );
-        $service = new ConfigService($pdo);
+        $service = $this->createService($pdo);
         $pdo->exec("INSERT INTO config(pageTitle,event_uid) VALUES('Demo','ev1')");
 
         $this->assertSame([], $service->getConfig());
@@ -100,7 +101,7 @@ class ConfigServiceTest extends TestCase
             );
             SQL
         );
-        $service = new ConfigService($pdo);
+        $service = $this->createService($pdo);
 
         $this->assertNull($service->getJson());
         $this->assertSame([], $service->getConfig());
@@ -116,7 +117,7 @@ class ConfigServiceTest extends TestCase
             "CREATE TRIGGER fail_insert BEFORE INSERT ON active_event " .
             "BEGIN SELECT RAISE(FAIL, 'no insert'); END;"
         );
-        $service = new ConfigService($pdo);
+        $service = $this->createService($pdo);
 
         try {
             $service->setActiveEventUid('bar');
@@ -137,7 +138,7 @@ class ConfigServiceTest extends TestCase
         $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY REFERENCES events(uid))');
         $pdo->exec("INSERT INTO events(uid) VALUES('ev1')");
         $pdo->exec("INSERT INTO active_event(event_uid) VALUES('ev1')");
-        $service = new ConfigService($pdo);
+        $service = $this->createService($pdo);
 
         $service->setActiveEventUid('ev2');
 
@@ -146,13 +147,70 @@ class ConfigServiceTest extends TestCase
     }
 
     public function testSetActiveEventUidDoesNotInsertConfigForEmptyEvent(): void {
-        $pdo = $this->createDatabase();
-        $pdo->exec('PRAGMA foreign_keys = ON');
-        $service = new ConfigService($pdo);
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $service = $this->createService($pdo);
 
         $service->setActiveEventUid('');
 
         $count = (int) $pdo->query('SELECT COUNT(*) FROM config')->fetchColumn();
         $this->assertSame(0, $count);
+    }
+
+    public function testSavesDashboardConfigurationFields(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                dashboard_modules TEXT,
+                dashboard_refresh_interval INTEGER,
+                dashboard_share_enabled INTEGER,
+                dashboard_sponsor_enabled INTEGER,
+                dashboard_info_text TEXT,
+                dashboard_media_embed TEXT,
+                dashboard_visibility_start TEXT,
+                dashboard_visibility_end TEXT
+            );
+            SQL
+        );
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec("INSERT INTO events(uid) VALUES('ev1')");
+        $service = $this->createService($pdo);
+
+        $modules = [
+            ['id' => 'header', 'enabled' => true],
+            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => ['points']]],
+        ];
+        $service->saveConfig([
+            'event_uid' => 'ev1',
+            'dashboardModules' => $modules,
+            'dashboardRefreshInterval' => 45,
+            'dashboardShareEnabled' => true,
+            'dashboardSponsorEnabled' => true,
+            'dashboardInfoText' => '<p>Welcome</p>',
+            'dashboardMediaEmbed' => 'https://example.com/live',
+            'dashboardVisibilityStart' => '2024-08-01T10:00',
+            'dashboardVisibilityEnd' => '2024-08-01T18:00',
+        ]);
+
+        $config = $service->getConfigForEvent('ev1');
+
+        $this->assertSame($modules, $config['dashboardModules']);
+        $this->assertSame(45, $config['dashboardRefreshInterval']);
+        $this->assertTrue($config['dashboardShareEnabled']);
+        $this->assertTrue($config['dashboardSponsorEnabled']);
+        $this->assertSame('<p>Welcome</p>', $config['dashboardInfoText']);
+        $this->assertSame('https://example.com/live', $config['dashboardMediaEmbed']);
+        $this->assertSame('2024-08-01T10:00', $config['dashboardVisibilityStart']);
+        $this->assertSame('2024-08-01T18:00', $config['dashboardVisibilityEnd']);
+    }
+
+    private function createService(PDO $pdo): ConfigService
+    {
+        return new ConfigService($pdo, new TokenCipher('test-secret'));
     }
 }

@@ -60,6 +60,24 @@ class ConfigService
     ];
 
     /**
+     * Mapping between config keys and database column names when they differ.
+     *
+     * @var array<string,string>
+     */
+    private const COLUMN_ALIASES = [
+        'dashboardModules' => 'dashboard_modules',
+        'dashboardRefreshInterval' => 'dashboard_refresh_interval',
+        'dashboardShareEnabled' => 'dashboard_share_enabled',
+        'dashboardSponsorEnabled' => 'dashboard_sponsor_enabled',
+        'dashboardInfoText' => 'dashboard_info_text',
+        'dashboardMediaEmbed' => 'dashboard_media_embed',
+        'dashboardVisibilityStart' => 'dashboard_visibility_start',
+        'dashboardVisibilityEnd' => 'dashboard_visibility_end',
+        'dashboardShareToken' => 'dashboard_share_token',
+        'dashboardSponsorToken' => 'dashboard_sponsor_token',
+    ];
+
+    /**
      * Inject PDO instance used for database operations.
      */
     public function __construct(PDO $pdo, ?TokenCipher $tokenCipher = null) {
@@ -356,15 +374,44 @@ class ConfigService
             'dashboardVisibilityStart',
             'dashboardVisibilityEnd',
         ];
-        $existing = array_map('strtolower', $this->getConfigColumns());
+        $existingColumns = $this->getConfigColumns();
+        $existingMap = [];
+        foreach ($existingColumns as $column) {
+            $existingMap[strtolower($column)] = $column;
+        }
+        $aliasMap = [];
+        $reverseAliasMap = [];
+        foreach (self::COLUMN_ALIASES as $configKey => $columnName) {
+            $aliasMap[strtolower($configKey)] = ['column' => $columnName, 'key' => $configKey];
+            $reverseAliasMap[strtolower($columnName)] = $configKey;
+        }
+
         $filtered = array_intersect_key($data, array_flip($keys));
-        $filtered = array_filter(
-            $filtered,
-            fn ($v, $k) => in_array(strtolower((string) $k), $existing, true),
-            ARRAY_FILTER_USE_BOTH
-        );
+        $normalizedColumns = [];
+        foreach ($filtered as $key => $value) {
+            $lowerKey = strtolower((string) $key);
+            if (isset($aliasMap[$lowerKey])) {
+                $targetColumn = $aliasMap[$lowerKey]['column'];
+                $columnLower = strtolower($targetColumn);
+                if (!isset($existingMap[$columnLower])) {
+                    continue;
+                }
+                $column = $existingMap[$columnLower];
+                $normalizedColumns[$column] = ['key' => $aliasMap[$lowerKey]['key'], 'value' => $value];
+                continue;
+            }
+            if (!isset($existingMap[$lowerKey])) {
+                continue;
+            }
+            $column = $existingMap[$lowerKey];
+            $normalizedColumns[$column] = [
+                'key' => $reverseAliasMap[$lowerKey] ?? (string) $key,
+                'value' => $value,
+            ];
+        }
         $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
-        $filtered['event_uid'] = $uid;
+        $eventColumn = $existingMap['event_uid'] ?? 'event_uid';
+        $normalizedColumns[$eventColumn] = ['key' => 'event_uid', 'value' => $uid];
 
         $this->pdo->beginTransaction();
         try {
@@ -373,27 +420,31 @@ class ConfigService
 
             if ($check->fetchColumn()) {
                 $sets = [];
-                foreach (array_keys($filtered) as $k) {
-                    $sets[] = "$k=:$k";
+                foreach (array_keys($normalizedColumns) as $column) {
+                    $sets[] = "$column=:$column";
                 }
                 $sql = 'UPDATE config SET ' . implode(',', $sets) . ' WHERE event_uid=:event_uid';
             } else {
-                $cols = array_keys($filtered);
+                $cols = array_keys($normalizedColumns);
                 $params = ':' . implode(', :', $cols);
                 $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
             }
             $stmt = $this->pdo->prepare($sql);
-            foreach ($filtered as $k => $v) {
-                if (is_bool($v)) {
-                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-                } elseif (in_array($k, self::JSON_COLUMNS, true)) {
-                    if ($v === null) {
-                        $stmt->bindValue(':' . $k, null, PDO::PARAM_NULL);
+            foreach ($normalizedColumns as $column => $info) {
+                $value = $info['value'];
+                $configKey = $info['key'];
+                if (is_bool($value)) {
+                    $stmt->bindValue(':' . $column, $value, PDO::PARAM_BOOL);
+                } elseif (in_array($configKey, self::JSON_COLUMNS, true)) {
+                    if ($value === null) {
+                        $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
                     } else {
-                        $stmt->bindValue(':' . $k, json_encode($v, JSON_THROW_ON_ERROR));
+                        $stmt->bindValue(':' . $column, json_encode($value, JSON_THROW_ON_ERROR));
                     }
+                } elseif ($value === null) {
+                    $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
                 } else {
-                    $stmt->bindValue(':' . $k, $v);
+                    $stmt->bindValue(':' . $column, $value);
                 }
             }
             $stmt->execute();
@@ -638,6 +689,9 @@ class ConfigService
         $map = [];
         foreach ($keys as $k) {
             $map[strtolower($k)] = $k;
+        }
+        foreach (self::COLUMN_ALIASES as $configKey => $columnName) {
+            $map[strtolower($columnName)] = $configKey;
         }
         $map['title'] = 'pageTitle';
         $map['loginrequired'] = 'QRUser';
