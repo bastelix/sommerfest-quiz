@@ -449,12 +449,20 @@ if (manager) {
         actionsCell.appendChild(menuWrapper);
         row.appendChild(actionsCell);
 
-        if (window.UIkit) {
-          UIkit.icon(menuToggle);
-          UIkit.dropdown(dropdown);
-        }
-
         articlesTableBody.appendChild(row);
+
+        if (window.UIkit) {
+          if (typeof UIkit.update === 'function') {
+            UIkit.update(menuWrapper, 'mutation');
+          } else {
+            if (typeof UIkit.icon === 'function') {
+              UIkit.icon(menuToggle);
+            }
+            if (typeof UIkit.dropdown === 'function') {
+              UIkit.dropdown(dropdown, { toggle: menuToggle });
+            }
+          }
+        }
       });
     }
 
