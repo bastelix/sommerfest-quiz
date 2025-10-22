@@ -297,8 +297,6 @@ class ResultController
                 $photos[$team][] = (string)$qr['photo'];
             }
         }
-        $maxPoints = array_sum($catalogMax);
-
         $catalogCount = 0;
         $catsJson = $this->catalogs->read('catalogs.json');
         if ($catsJson !== null) {
