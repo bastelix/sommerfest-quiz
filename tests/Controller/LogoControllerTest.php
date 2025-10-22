@@ -6,6 +6,7 @@ namespace Tests\Controller;
 
 use App\Controller\LogoController;
 use App\Service\ConfigService;
+use App\Service\ImageUploadService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\UploadedFile;
@@ -130,6 +131,86 @@ class LogoControllerTest extends TestCase
         unlink($tmpConfig);
         unlink($logoFile);
         unlink(sys_get_temp_dir() . '/uploads/logo.webp');
+    }
+
+    public function testPostAndGetSvg(): void {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                randomNames INTEGER DEFAULT 1,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
+        );
+        $eventUid = 'svgtest';
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('$eventUid','$eventUid','SVG Test')");
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid($eventUid);
+        $baseDir = dirname(__DIR__, 2) . '/data';
+        $controller = new LogoController($cfg, new ImageUploadService($baseDir));
+
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" /></svg>';
+        $resource = fopen('php://temp', 'rb+');
+        fwrite($resource, $svg);
+        rewind($resource);
+
+        $uploaded = new UploadedFile(
+            new Stream($resource),
+            'logo.svg',
+            'image/svg+xml',
+            strlen($svg),
+            UPLOAD_ERR_OK
+        );
+        $request = $this->createRequest('POST', '/logo.png');
+        $request = $request->withUploadedFiles(['file' => $uploaded]);
+
+        $postResponse = $controller->post($request, new Response());
+        $this->assertEquals(204, $postResponse->getStatusCode());
+
+        $svgRequest = $this->createRequest('GET', '/logo.svg')
+            ->withAttribute('file', 'logo-' . $eventUid . '.svg')
+            ->withAttribute('ext', 'svg');
+        $response = $controller->get($svgRequest, new Response());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame('image/svg+xml', $response->getHeaderLine('Content-Type'));
+        $this->assertSame($svg, (string) $response->getBody());
+
+        $pngRequest = $this->createRequest('GET', '/logo.png')
+            ->withAttribute('file', 'logo-' . $eventUid . '.png')
+            ->withAttribute('ext', 'png');
+        $fallback = $controller->get($pngRequest, new Response());
+        $this->assertEquals(200, $fallback->getStatusCode());
+        $this->assertSame('image/svg+xml', $fallback->getHeaderLine('Content-Type'));
+        $this->assertSame($svg, (string) $fallback->getBody());
+
+        fclose($resource);
+        $storedPath = $baseDir . '/events/' . $eventUid . '/images/logo.svg';
+        @unlink($storedPath);
+        @rmdir(dirname($storedPath));
+        @rmdir(dirname(dirname($storedPath)));
     }
 
     public function testLogoPerEvent(): void {

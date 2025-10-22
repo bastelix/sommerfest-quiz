@@ -1885,6 +1885,12 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/logo.webp', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/{file:logo(?:-[\w-]+)?\.svg}', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'svg'), $response);
+    });
+    $app->post('/logo.svg', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
 
     $app->get('/{file:qrlogo(?:-[\w-]+)?\.png}', function (Request $request, Response $response) {
         return $request->getAttribute('qrLogoController')->get($request->withAttribute('ext', 'png'), $response);

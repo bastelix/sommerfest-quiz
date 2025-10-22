@@ -63,7 +63,7 @@ Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien l
 
 | Typ                 | Beispielpfad                              | Qualität |
 |---------------------|------------------------------------------|----------|
-| Logo                | `/events/<uid>/images/logo.png`          | 80 (`QUALITY_LOGO`)
+| Logo                | `/events/<uid>/images/logo.{png,webp,svg}` | 80 (`QUALITY_LOGO`)
 | Sticker-Hintergrund | `/events/<uid>/images/sticker-bg.png`    | 90 (`QUALITY_STICKER`)
 | Foto                | `/uploads/photo.jpg`                     | 70 (`QUALITY_PHOTO`)
 

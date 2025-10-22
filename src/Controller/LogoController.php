@@ -39,17 +39,28 @@ class LogoController
         }
 
         $this->config->migrateEventImages($uid);
-        $dir = $this->config->getEventImagesDir($uid);
-        $path = $dir . '/logo.' . $ext;
-        if (!is_file($path)) {
-            $alt = $dir . '/logo.' . ($ext === 'png' ? 'webp' : 'png');
-            if (is_file($alt)) {
-                $path = $alt;
-                $ext = strtolower(pathinfo($alt, PATHINFO_EXTENSION));
-            } else {
-                $path = __DIR__ . '/../../public/favicon.svg';
-                $ext = 'svg';
+        $candidates = ['png', 'webp', 'svg'];
+        $searchOrder = array_values(array_unique(array_merge([$ext], array_diff($candidates, [$ext]))));
+        $path = null;
+        $directories = [];
+        if ($uid !== '') {
+            $directories[] = $this->config->getEventImagesDir($uid);
+        }
+        $directories[] = $this->config->getGlobalUploadsDir();
+
+        foreach ($directories as $dir) {
+            foreach ($searchOrder as $candidate) {
+                $candidatePath = rtrim($dir, '/') . '/logo.' . $candidate;
+                if (is_file($candidatePath)) {
+                    $path = $candidatePath;
+                    $ext = $candidate;
+                    break 2;
+                }
             }
+        }
+        if ($path === null) {
+            $path = __DIR__ . '/../../public/favicon.svg';
+            $ext = 'svg';
         }
         $contentType = match ($ext) {
             'webp' => 'image/webp',
@@ -76,8 +87,8 @@ class LogoController
             $this->images->validate(
                 $file,
                 5 * 1024 * 1024,
-                ['png', 'webp'],
-                ['image/png', 'image/webp']
+                ['png', 'webp', 'svg'],
+                ['image/png', 'image/webp', 'image/svg+xml']
             );
         } catch (\RuntimeException $e) {
             $response->getBody()->write($e->getMessage());

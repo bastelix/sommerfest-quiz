@@ -681,7 +681,7 @@ beschreibbar sein.
 Neben Mandanten-Zertifikaten kann das SSL-Zertifikat der Admin-Domain über einen POST auf `/api/renew-ssl` erneuert werden. Der Aufruf startet den Hauptcontainer neu.
 
 ### Logo hochladen
-Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in der Datenbank gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.
+Das aktuelle Logo wird unter `/logo.png`, `/logo.webp` oder `/logo.svg` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG-, WebP- oder SVG-Datei hochladen. Nach dem Upload wird der Pfad automatisch in der Datenbank gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.
 
 ### Sicherheit und Haftung
 Die Software wird ohne Gewähr bereitgestellt. Alle Rechte liegen bei René Buske. Eine Haftung für Schäden, die aus der Nutzung entstehen, ist ausgeschlossen. Die integrierten Maßnahmen zur Barrierefreiheit verbessern die Zugänglichkeit, sie ersetzen jedoch keine individuelle Prüfung.
