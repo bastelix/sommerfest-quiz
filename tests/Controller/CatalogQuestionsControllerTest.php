@@ -43,6 +43,7 @@ class CatalogQuestionsControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                countdown INTEGER,
                 cards TEXT,
                 right_label TEXT,
                 left_label TEXT,

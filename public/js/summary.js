@@ -19,6 +19,77 @@ function formatPointsDisplay(points, maxPoints){
   }
   return String(normalizedPoints);
 }
+
+function parseIntOr(value, fallback = 0){
+  if(typeof value === 'number' && Number.isFinite(value)){
+    return Math.trunc(value);
+  }
+  if(typeof value === 'boolean'){
+    return value ? 1 : 0;
+  }
+  if(typeof value === 'string'){
+    const trimmed = value.trim();
+    if(trimmed === '') return fallback;
+    const parsed = Number.parseInt(trimmed, 10);
+    if(!Number.isNaN(parsed)){
+      return parsed;
+    }
+    const numeric = Number(trimmed);
+    if(Number.isFinite(numeric)){
+      return Math.trunc(numeric);
+    }
+  }
+  return fallback;
+}
+
+function parseOptionalInt(value){
+  if(value === null || value === undefined) return null;
+  if(typeof value === 'string' && value.trim() === '') return null;
+  const numeric = Number(value);
+  if(Number.isFinite(numeric)){
+    return Math.trunc(numeric);
+  }
+  return null;
+}
+
+function parseOptionalFloat(value){
+  if(value === null || value === undefined) return null;
+  if(typeof value === 'string' && value.trim() === '') return null;
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
+function isTruthyFlag(value){
+  if(value === null || value === undefined) return false;
+  if(typeof value === 'boolean') return value;
+  if(typeof value === 'number') return value !== 0;
+  if(typeof value === 'string'){
+    const normalized = value.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+  }
+  return false;
+}
+
+function formatEfficiencyPercent(value){
+  if(!Number.isFinite(value)) return '';
+  const percent = Math.round(value * 1000) / 10;
+  const str = Number.isFinite(percent) ? percent.toString() : '0';
+  return `${str.replace('.', ',')} %`;
+}
+
+function formatTimeInfo(timeLeft, total){
+  const totalVal = parseOptionalInt(total);
+  const leftVal = parseOptionalInt(timeLeft);
+  if(totalVal !== null && totalVal > 0){
+    const clamped = Math.max(0, Math.min(leftVal === null ? 0 : leftVal, totalVal));
+    return `${clamped}s von ${totalVal}s verbleibend`;
+  }
+  if(leftVal !== null){
+    const safe = Math.max(0, leftVal);
+    return `${safe}s verbleibend`;
+  }
+  return '–';
+}
 document.addEventListener('DOMContentLoaded', () => {
   const eventUid = (window.quizConfig || {}).event_uid || '';
   const eventQuery = eventUid ? `?event_uid=${encodeURIComponent(eventUid)}` : '';
@@ -29,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
+  const finishBtn = document.getElementById('finish-session-btn');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const resultsEnabled = !(window.quizConfig && window.quizConfig.teamResults === false);
@@ -41,6 +113,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
   const user = safeUserName(getStored(STORAGE_KEYS.PLAYER_NAME) || '');
+  const countdownEnabled = isTruthyFlag(cfg.countdownEnabled ?? cfg.countdown_enabled);
+  const defaultCountdown = parseIntOr(cfg.countdown ?? cfg.defaultCountdown ?? 0, 0);
+
+  if (finishBtn) {
+    finishBtn.addEventListener('click', () => {
+      [
+        STORAGE_KEYS.PLAYER_NAME,
+        STORAGE_KEYS.PLAYER_UID,
+        STORAGE_KEYS.CATALOG,
+        STORAGE_KEYS.CATALOG_NAME,
+        STORAGE_KEYS.CATALOG_DESC,
+        STORAGE_KEYS.CATALOG_COMMENT,
+        STORAGE_KEYS.CATALOG_UID,
+        STORAGE_KEYS.CATALOG_SORT,
+        STORAGE_KEYS.LETTER,
+        STORAGE_KEYS.PUZZLE_SOLVED,
+        STORAGE_KEYS.PUZZLE_TIME,
+        STORAGE_KEYS.QUIZ_SOLVED
+      ].forEach(key => clearStored(key));
+      const target = eventUid ? `/?event=${encodeURIComponent(eventUid)}` : '/';
+      window.location.href = withBase(target);
+    });
+  }
 
   let catalogMap = null;
   function fetchCatalogMap() {
@@ -183,13 +278,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const userP = document.createElement('p');
     userP.className = 'uk-text-center';
     userP.textContent = user;
-    const tbodyContainer = document.createElement('div');
-    tbodyContainer.id = 'team-results';
-    tbodyContainer.className = 'uk-overflow-auto';
+    const contentWrap = document.createElement('div');
+    contentWrap.id = 'team-results';
+    contentWrap.className = 'results-modal-content';
     const closeBtn = document.createElement('button');
     closeBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
     closeBtn.textContent = 'Schließen';
-    dialog.append(title, userP, tbodyContainer, closeBtn);
+    dialog.append(title, userP, contentWrap, closeBtn);
     modal.appendChild(dialog);
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
@@ -202,16 +297,115 @@ document.addEventListener('DOMContentLoaded', () => {
       fetch(withBase(questionResultsPath)).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
-        const filtered = rows.filter(row => row.name === user);
-        const map = new Map();
+        const catalogLookup = (catMap && typeof catMap === 'object') ? catMap : {};
+        const filtered = Array.isArray(rows) ? rows.filter(row => row && row.name === user) : [];
+        const summaryMap = new Map();
         filtered.forEach(r => {
-          const info = catMap[r.catalog] || { name: r.catalog, slug: r.catalog };
-          const name = r.catalogName || info.name;
-          const pointsText = formatPointsDisplay(r.points, r.max_points);
-          const correctText = `${r.correct}/${r.total}`;
+          if(!r) return;
+          const info = catalogLookup[r.catalog] || { name: r.catalog, slug: r.catalog };
+          const displayName = r.catalogName || info.name;
+          const pointsVal = parseIntOr(r.points, 0);
+          const maxPointsVal = parseIntOr(r.max_points ?? r.maxPoints, 0);
+          const correctVal = parseIntOr(r.correct, 0);
+          const totalVal = parseIntOr(r.total, 0);
+          const attemptVal = parseIntOr(r.attempt, 1);
+          const pointsText = formatPointsDisplay(pointsVal, maxPointsVal);
+          const correctText = `${correctVal}/${totalVal}`;
           const summaryText = pointsText ? `${correctText} · ${pointsText}` : correctText;
-          map.set(name, { res: summaryText, slug: info.slug });
+          summaryMap.set(displayName, {
+            res: summaryText,
+            slug: info.slug,
+            points: pointsVal,
+            maxPoints: maxPointsVal,
+            correct: correctVal,
+            total: totalVal,
+            attempt: attemptVal,
+            catalogRef: r.catalog,
+            displayName: displayName
+          });
         });
+
+        const summaryValues = Array.from(summaryMap.values());
+        const totalPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.points) ? entry.points : 0), 0);
+        const totalMaxPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.maxPoints) ? entry.maxPoints : 0), 0);
+        const totalCorrect = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.correct) ? entry.correct : 0), 0);
+        const totalQuestions = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.total) ? entry.total : 0), 0);
+
+        const attemptByCatalog = new Map();
+        const displayNameByCatalog = new Map();
+        summaryValues.forEach(entry => {
+          if(entry.catalogRef){
+            const key = String(entry.catalogRef);
+            attemptByCatalog.set(key, entry.attempt);
+            displayNameByCatalog.set(key, entry.displayName);
+          }
+        });
+
+        const questionList = Array.isArray(qrows) ? qrows.filter(row => row && row.name === user) : [];
+        const relevantQuestions = questionList.filter(row => {
+          if(!row) return false;
+          const catalogKeyRaw = row.catalog ?? '';
+          const catalogKey = catalogKeyRaw !== null && catalogKeyRaw !== undefined ? String(catalogKeyRaw) : '';
+          if(!catalogKey) return false;
+          const expectedAttempt = attemptByCatalog.get(catalogKey);
+          if(expectedAttempt === undefined) return false;
+          const attemptVal = parseIntOr(row.attempt, 1);
+          return attemptVal === expectedAttempt;
+        });
+
+        let efficiencySum = 0;
+        let efficiencyCount = 0;
+        relevantQuestions.forEach(row => {
+          const effVal = parseOptionalFloat(row.efficiency);
+          if(effVal !== null){
+            const clamped = Math.max(0, Math.min(effVal, 1));
+            efficiencySum += clamped;
+            efficiencyCount += 1;
+          }
+        });
+        const averageEfficiency = efficiencyCount > 0 ? efficiencySum / efficiencyCount : null;
+
+        const createStatCard = (label, value, description = '') => {
+          const col = document.createElement('div');
+          const card = document.createElement('div');
+          card.className = 'uk-card qr-card uk-card-body uk-padding-small uk-text-center';
+          const heading = document.createElement('h5');
+          heading.className = 'uk-margin-remove';
+          heading.textContent = label;
+          const valueEl = document.createElement('div');
+          valueEl.className = 'uk-text-large uk-margin-small-top';
+          valueEl.textContent = value;
+          card.append(heading, valueEl);
+          if(description){
+            const desc = document.createElement('p');
+            desc.className = 'uk-text-meta uk-margin-small-top';
+            desc.textContent = description;
+            card.appendChild(desc);
+          }
+          col.appendChild(card);
+          return col;
+        };
+
+        if(summaryValues.length && contentWrap){
+          const statsGrid = document.createElement('div');
+          statsGrid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s uk-margin-top';
+          statsGrid.setAttribute('uk-grid', 'margin: small');
+          statsGrid.appendChild(createStatCard('Gesamtpunkte', formatPointsDisplay(totalPoints, totalMaxPoints)));
+          const correctValue = totalQuestions > 0 ? `${totalCorrect}/${totalQuestions}` : String(totalCorrect);
+          statsGrid.appendChild(createStatCard('Richtige Antworten', correctValue));
+          if(averageEfficiency !== null){
+            statsGrid.appendChild(createStatCard('Ø Effizienz', formatEfficiencyPercent(averageEfficiency)));
+          }
+          contentWrap.appendChild(statsGrid);
+        }
+
+        const catHeading = document.createElement('h4');
+        catHeading.className = 'uk-heading-bullet uk-margin-top';
+        catHeading.textContent = 'Katalogübersicht';
+        if(contentWrap) contentWrap.appendChild(catHeading);
+
+        const tableWrap = document.createElement('div');
+        tableWrap.className = 'uk-overflow-auto';
         const table = document.createElement('table');
         table.className = 'uk-table uk-table-divider';
         const thead = document.createElement('thead');
@@ -224,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
         thead.appendChild(trh);
         table.appendChild(thead);
         const tb = document.createElement('tbody');
-        if(map.size === 0){
+        if(summaryMap.size === 0){
           const tr = document.createElement('tr');
           const td = document.createElement('td');
           td.colSpan = 2;
@@ -232,20 +426,20 @@ document.addEventListener('DOMContentLoaded', () => {
           tr.appendChild(td);
           tb.appendChild(tr);
         }else{
-          map.forEach((info, cat) => {
+          summaryMap.forEach((info, cat) => {
             const tr = document.createElement('tr');
             const td1 = document.createElement('td');
-            const a = document.createElement('a');
+            const link = document.createElement('a');
             if (info.slug) {
               let href = '/?katalog=' + encodeURIComponent(info.slug);
               if(eventUid) href += '&event=' + encodeURIComponent(eventUid);
-              a.href = href;
-              a.target = '_blank';
+              link.href = href;
+              link.target = '_blank';
             } else {
-              a.href = '#';
+              link.href = '#';
             }
-            a.textContent = cat;
-            td1.appendChild(a);
+            link.textContent = cat;
+            td1.appendChild(link);
             const td2 = document.createElement('td');
             td2.textContent = info.res;
             tr.appendChild(td1);
@@ -254,21 +448,98 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
         table.appendChild(tb);
-        if(tbodyContainer) tbodyContainer.appendChild(table);
+        tableWrap.appendChild(table);
+        if(contentWrap) contentWrap.appendChild(tableWrap);
 
-        const wrong = qrows.filter(row => row.name === user && !row.correct);
-        if (wrong.length) {
+        if(countdownEnabled && relevantQuestions.length && contentWrap){
+          const questionHeading = document.createElement('h4');
+          questionHeading.className = 'uk-heading-bullet uk-margin-top';
+          questionHeading.textContent = 'Punkte pro Frage';
+          contentWrap.appendChild(questionHeading);
+
+          const questionWrap = document.createElement('div');
+          questionWrap.className = 'uk-overflow-auto';
+          const qTable = document.createElement('table');
+          qTable.className = 'uk-table uk-table-divider uk-table-small';
+          const qThead = document.createElement('thead');
+          const qHeadRow = document.createElement('tr');
+          ['Katalog', 'Frage', 'Punkte', 'Restzeit', 'Effizienz', 'Ergebnis'].forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            qHeadRow.appendChild(th);
+          });
+          qThead.appendChild(qHeadRow);
+          qTable.appendChild(qThead);
+          const qTbody = document.createElement('tbody');
+          relevantQuestions.forEach(row => {
+            const tr = document.createElement('tr');
+            const catalogKeyRaw = row.catalog ?? '';
+            const catalogKey = catalogKeyRaw !== null && catalogKeyRaw !== undefined ? String(catalogKeyRaw) : '';
+            const displayName = row.catalogName || displayNameByCatalog.get(catalogKey) || (catalogLookup[catalogKey] ? catalogLookup[catalogKey].name : catalogKey);
+            const finalPoints = parseIntOr(row.finalPoints ?? row.final_points ?? row.points, 0);
+            const questionPoints = parseIntOr(row.questionPoints ?? row.points, 0);
+            const timeLeft = parseOptionalInt(row.timeLeftSec ?? row.time_left_sec);
+            let totalTime = parseOptionalInt(row.questionCountdown ?? row.countdown);
+            if((totalTime === null || totalTime <= 0) && countdownEnabled && defaultCountdown > 0){
+              totalTime = defaultCountdown;
+            }
+            const efficiencyVal = parseOptionalFloat(row.efficiency);
+            const efficiencyText = efficiencyVal !== null ? formatEfficiencyPercent(efficiencyVal) : '–';
+            const isCorrectRaw = row.isCorrect;
+            const correctFlag = parseIntOr(row.correct, 0) === 1;
+            const isCorrect = isCorrectRaw === undefined || isCorrectRaw === null ? correctFlag : !!isCorrectRaw;
+            const catalogTd = document.createElement('td');
+            catalogTd.textContent = insertSoftHyphens(displayName || '');
+            const questionTd = document.createElement('td');
+            questionTd.textContent = insertSoftHyphens(row.prompt || '');
+            const pointsTd = document.createElement('td');
+            pointsTd.textContent = formatPointsDisplay(finalPoints, questionPoints);
+            const timeTd = document.createElement('td');
+            timeTd.textContent = formatTimeInfo(timeLeft, totalTime);
+            const efficiencyTd = document.createElement('td');
+            efficiencyTd.textContent = efficiencyText;
+            const resultTd = document.createElement('td');
+            resultTd.textContent = isCorrect ? 'Richtig' : 'Falsch';
+            resultTd.className = isCorrect ? 'uk-text-success' : 'uk-text-danger';
+            tr.append(catalogTd, questionTd, pointsTd, timeTd, efficiencyTd, resultTd);
+            qTbody.appendChild(tr);
+          });
+          if(!qTbody.children.length){
+            const tr = document.createElement('tr');
+            const td = document.createElement('td');
+            td.colSpan = 6;
+            td.textContent = 'Keine Fragen mit Zeitwertung';
+            tr.appendChild(td);
+            qTbody.appendChild(tr);
+          }
+          qTable.appendChild(qTbody);
+          questionWrap.appendChild(qTable);
+          contentWrap.appendChild(questionWrap);
+        }
+
+        const wrong = relevantQuestions.filter(row => {
+          if(!row) return false;
+          const isCorrectRaw = row.isCorrect;
+          if(isCorrectRaw !== undefined && isCorrectRaw !== null){
+            return !isCorrectRaw;
+          }
+          return parseIntOr(row.correct, 0) !== 1;
+        });
+        if (wrong.length && contentWrap) {
+          const wrongSection = document.createElement('div');
+          wrongSection.className = 'uk-margin-top';
           const h = document.createElement('h4');
           h.textContent = 'Falsch beantwortete Fragen';
-          tbodyContainer.appendChild(h);
+          wrongSection.appendChild(h);
           wrong.forEach(w => {
-            const card = renderQuestionPreview(w, catMap);
-            tbodyContainer.appendChild(card);
+            const card = renderQuestionPreview(w, catalogLookup);
+            wrongSection.appendChild(card);
           });
+          contentWrap.appendChild(wrongSection);
         }
       })
       .catch(() => {
-        if(tbodyContainer) tbodyContainer.textContent = 'Fehler beim Laden';
+        if(contentWrap) contentWrap.textContent = 'Fehler beim Laden';
       });
 
     ui.show();
