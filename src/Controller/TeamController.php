@@ -38,7 +38,37 @@ class TeamController
     public function get(Request $request, Response $response): Response {
         $this->setEventFromRequest($request);
         $data = $this->service->getAll();
-        $response->getBody()->write(json_encode($data));
+        $params = $request->getQueryParams();
+        $perPage = isset($params['per_page']) ? (int) $params['per_page'] : 0;
+        $page = isset($params['page']) ? (int) $params['page'] : 1;
+        $page = $page > 0 ? $page : 1;
+
+        if ($perPage > 0) {
+            $total = count($data);
+            $offset = ($page - 1) * $perPage;
+            $slice = array_slice($data, $offset, $perPage);
+            $count = count($slice);
+            $next = ($offset + $count) < $total ? $page + 1 : null;
+            $payload = [
+                'items' => array_values($slice),
+                'pager' => [
+                    'page' => $page,
+                    'perPage' => $perPage,
+                    'total' => $total,
+                    'count' => $count,
+                    'nextPage' => $next,
+                ],
+            ];
+        } else {
+            $payload = $data;
+        }
+
+        $json = json_encode($payload);
+        if ($json === false) {
+            return $response->withStatus(500);
+        }
+
+        $response->getBody()->write($json);
         return $response->withHeader('Content-Type', 'application/json');
     }
 

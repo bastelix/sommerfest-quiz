@@ -57,6 +57,39 @@ class CatalogController
             return $response->withStatus(404);
         }
 
+        if ($file === 'catalogs.json') {
+            $perPage = isset($params['per_page']) ? (int) $params['per_page'] : 0;
+            $page = isset($params['page']) ? (int) $params['page'] : 1;
+            $page = $page > 0 ? $page : 1;
+
+            if ($perPage > 0) {
+                $decoded = json_decode($content, true);
+                if (is_array($decoded)) {
+                    $total = count($decoded);
+                    $offset = ($page - 1) * $perPage;
+                    $slice = array_slice($decoded, $offset, $perPage);
+                    $count = count($slice);
+                    $next = ($offset + $count) < $total ? $page + 1 : null;
+                    $payload = [
+                        'items' => array_values($slice),
+                        'pager' => [
+                            'page' => $page,
+                            'perPage' => $perPage,
+                            'total' => $total,
+                            'count' => $count,
+                            'nextPage' => $next,
+                        ],
+                    ];
+                    $json = json_encode($payload);
+                    if ($json === false) {
+                        return $response->withStatus(500);
+                    }
+                    $response->getBody()->write($json);
+                    return $response->withHeader('Content-Type', 'application/json');
+                }
+            }
+        }
+
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }
