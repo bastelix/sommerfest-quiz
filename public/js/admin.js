@@ -1188,7 +1188,13 @@ document.addEventListener('DOMContentLoaded', function () {
             bar.setAttribute('hidden', 'hidden');
           }, 1000);
           const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
-          const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+          const ext = (() => {
+            if (!file) return 'png';
+            const name = file.name.toLowerCase();
+            if (name.endsWith('.svg')) return 'svg';
+            if (name.endsWith('.webp')) return 'webp';
+            return 'png';
+          })();
           cfgInitial.logoPath = currentEventUid
             ? `/logo-${currentEventUid}.${ext}`
             : `/logo.${ext}`;
