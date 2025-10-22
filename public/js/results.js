@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finalPointsCell,
         efficiencyCell,
         formatTimestamp(r.time),
-        r.puzzleTime ? formatTimestamp(r.puzzleTime) : '',
+        formatTimestamp(r.puzzleTime),
         null
       ];
       const nameCell = document.createElement('td');

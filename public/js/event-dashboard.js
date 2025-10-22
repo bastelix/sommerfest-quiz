@@ -261,7 +261,7 @@ function renderResultsTable(rows, layout) {
       const timeCell = document.createElement('td');
       timeCell.textContent = formatTimestamp(row.time);
       const puzzleCell = document.createElement('td');
-      puzzleCell.textContent = row.puzzleTime ? formatTimestamp(row.puzzleTime) : '';
+      puzzleCell.textContent = formatTimestamp(row.puzzleTime);
       [nameCell, attemptCell, catalogCell, pointsCell, timeCell, puzzleCell].forEach((cell) => {
         tr.appendChild(cell);
       });
