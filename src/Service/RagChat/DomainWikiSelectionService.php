@@ -39,7 +39,7 @@ final class DomainWikiSelectionService
     }
 
     /**
-     * @param int[] $articleIds
+     * @param list<int|string> $articleIds
      */
     public function replaceSelection(string $domain, array $articleIds): void
     {
@@ -49,10 +49,12 @@ final class DomainWikiSelectionService
         foreach ($articleIds as $id) {
             if (is_int($id)) {
                 $candidate = $id;
-            } elseif (is_string($id) && ctype_digit($id)) {
-                $candidate = (int) $id;
             } else {
-                throw new InvalidArgumentException('Invalid article identifier provided.');
+                $numeric = (string) $id;
+                if ($numeric === '' || !ctype_digit($numeric)) {
+                    throw new InvalidArgumentException('Invalid article identifier provided.');
+                }
+                $candidate = (int) $numeric;
             }
 
             if ($candidate <= 0) {

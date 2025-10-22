@@ -122,7 +122,7 @@ class ConfigValidator
 
         // countdown in seconds (non-negative integer)
         $countdownRaw = $data['countdown'] ?? self::DEFAULTS['countdown'];
-        if ($countdownRaw === null || $countdownRaw === '') {
+        if (is_string($countdownRaw) && $countdownRaw === '') {
             $config['countdown'] = 0;
         } else {
             $countdown = filter_var(

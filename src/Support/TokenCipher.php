@@ -24,7 +24,7 @@ class TokenCipher
         }
 
         $ivLength = openssl_cipher_iv_length(self::CIPHER);
-        if (!is_int($ivLength) || $ivLength <= 0) {
+        if ($ivLength <= 0) {
             throw new RuntimeException('Unable to determine IV length for dashboard token cipher.');
         }
 
@@ -41,7 +41,7 @@ class TokenCipher
         $iv = random_bytes($this->ivLength);
         $tag = '';
         $cipher = openssl_encrypt($value, self::CIPHER, $this->key, OPENSSL_RAW_DATA, $iv, $tag);
-        if ($cipher === false || $tag === '' || strlen($tag) !== 16) {
+        if ($cipher === false || strlen($tag) !== 16) {
             throw new RuntimeException('Failed to encrypt dashboard token.');
         }
 

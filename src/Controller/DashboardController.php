@@ -37,7 +37,7 @@ class DashboardController
             return $response->withStatus(404);
         }
 
-        $uid = (string) ($event['uid'] ?? '');
+        $uid = (string) $event['uid'];
         $matchedVariant = $this->config->verifyDashboardToken($uid, $token, $variant);
         if ($matchedVariant === null) {
             return $response->withStatus(403);

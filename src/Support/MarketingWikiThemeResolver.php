@@ -131,34 +131,44 @@ final class MarketingWikiThemeResolver
     public static function resolve(string $slug): array
     {
         $normalized = strtolower(trim($slug));
+        /** @var array<string, mixed>|null $theme */
         $theme = self::THEME_MAP[$normalized] ?? null;
 
         $bodyClasses = [self::BASE_BODY_CLASS];
-        if ($theme !== null && isset($theme['bodyClasses'])) {
-            foreach ($theme['bodyClasses'] as $class) {
-                $trimmed = trim($class);
-                if ($trimmed !== '' && !in_array($trimmed, $bodyClasses, true)) {
-                    $bodyClasses[] = $trimmed;
+        if ($theme !== null) {
+            $themeBodyClasses = $theme['bodyClasses'] ?? null;
+            if (is_array($themeBodyClasses)) {
+                foreach ($themeBodyClasses as $class) {
+                    $trimmed = trim((string) $class);
+                    if ($trimmed !== '' && !in_array($trimmed, $bodyClasses, true)) {
+                        $bodyClasses[] = $trimmed;
+                    }
                 }
             }
         }
 
         $stylesheets = [];
-        if ($theme !== null && isset($theme['stylesheets'])) {
-            foreach ($theme['stylesheets'] as $stylesheet) {
-                $trimmed = trim($stylesheet);
-                if ($trimmed !== '' && !in_array($trimmed, $stylesheets, true)) {
-                    $stylesheets[] = $trimmed;
+        if ($theme !== null) {
+            $themeStylesheets = $theme['stylesheets'] ?? null;
+            if (is_array($themeStylesheets)) {
+                foreach ($themeStylesheets as $stylesheet) {
+                    $trimmed = trim((string) $stylesheet);
+                    if ($trimmed !== '' && !in_array($trimmed, $stylesheets, true)) {
+                        $stylesheets[] = $trimmed;
+                    }
                 }
             }
         }
 
         $colors = self::defaultColors();
-        if ($theme !== null && isset($theme['colors'])) {
-            foreach ($theme['colors'] as $key => $value) {
-                $trimmed = trim($value);
-                if ($trimmed !== '') {
-                    $colors[$key] = $trimmed;
+        if ($theme !== null) {
+            $themeColors = $theme['colors'] ?? null;
+            if (is_array($themeColors)) {
+                foreach ($themeColors as $key => $value) {
+                    $trimmed = trim((string) $value);
+                    if ($trimmed !== '') {
+                        $colors[$key] = $trimmed;
+                    }
                 }
             }
         }

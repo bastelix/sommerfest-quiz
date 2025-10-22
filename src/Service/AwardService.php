@@ -65,7 +65,7 @@ class AwardService
             $attempt = (int)($row['attempt'] ?? 1);
             $key = $team . '|' . $catalog . '|' . $attempt;
             $summary = $attemptMetrics[$key] ?? null;
-            if ($summary !== null && $summary['questionCount'] > 0) {
+            if ($summary !== null) {
                 $finalPoints = (int) $summary['points'];
                 $effSum = (float) $summary['efficiencySum'];
                 $questionCount = (int) $summary['questionCount'];
@@ -151,7 +151,8 @@ class AwardService
                 if ($cmp !== 0) {
                     return $cmp;
                 }
-                return ($b['avgEfficiency'] ?? 0) <=> ($a['avgEfficiency'] ?? 0);
+
+                return $b['avgEfficiency'] <=> $a['avgEfficiency'];
             }
         );
         $pointsRanks = [];
