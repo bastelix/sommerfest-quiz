@@ -1,4 +1,5 @@
 /* global UIkit */
+import { applyLazyImage } from './lazy-images.js';
 let catalogCount = 0;
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(() => {
         const t = Date.now();
         const newPath = `${cleanPath}?t=${t}`;
-        img.src = withBase(newPath);
+        applyLazyImage(img, withBase(newPath), { forceLoad: true });
         if (link) {
           link.href = withBase(newPath);
           if (link.dataset && link.dataset.caption) {
@@ -123,9 +124,9 @@ document.addEventListener('DOMContentLoaded', () => {
             a.dataset.attrs = 'class: uk-inverse-light';
 
             const img = document.createElement('img');
-            img.src = withBase(r.photo);
             img.alt = 'Beweisfoto';
             img.className = 'proof-thumb';
+            applyLazyImage(img, withBase(r.photo));
 
             const btn = document.createElement('button');
             btn.className = 'uk-icon-button photo-rotate-btn';
