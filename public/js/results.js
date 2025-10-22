@@ -1,7 +1,14 @@
 /* global UIkit */
 import { applyLazyImage } from './lazy-images.js';
 import { ResultsDataService, computeRankings } from './results-data-service.js';
-import { formatTimestamp, formatPointsCell, insertSoftHyphens, escapeHtml } from './results-utils.js';
+import { formatTimestamp, formatPointsCell, formatEfficiencyPercent, insertSoftHyphens, escapeHtml } from './results-utils.js';
+
+const parseOptionalNumber = (value) => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const wrongBody = document.getElementById('wrongTableBody');
@@ -73,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 8;
+      td.colSpan = 10;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -81,12 +88,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     rows.forEach(r => {
       const tr = document.createElement('tr');
-      const pointsCell = formatPointsCell(r.points ?? r.correct ?? 0, r.max_points ?? 0);
+      const basePointsCell = formatPointsCell(r.points ?? r.correct ?? 0, r.max_points ?? 0);
+      const resolvedFinalPoints = (() => {
+        const direct = parseOptionalNumber(r.finalPoints ?? r.final_points);
+        if (direct !== null) return Math.max(0, Math.round(direct));
+        const legacy = parseOptionalNumber(r.points);
+        if (legacy !== null) return Math.max(0, Math.round(legacy));
+        const correct = parseOptionalNumber(r.correct);
+        return Math.max(0, Math.round(correct !== null ? correct : 0));
+      })();
+      const finalPointsCell = formatPointsCell(resolvedFinalPoints, r.max_points ?? 0);
+      const totalQuestions = parseOptionalNumber(r.total);
+      const correctAnswers = parseOptionalNumber(r.correct);
+      let efficiencyValue = parseOptionalNumber(r.averageEfficiency ?? r.avg_efficiency ?? r.efficiency);
+      if (efficiencyValue === null && totalQuestions !== null && totalQuestions > 0 && correctAnswers !== null) {
+        efficiencyValue = correctAnswers / totalQuestions;
+      }
+      const efficiencyCell = formatEfficiencyPercent(efficiencyValue);
       const cells = [
         r.attempt,
         r.catalogName || r.catalog,
         `${r.correct}/${r.total}`,
-        pointsCell,
+        basePointsCell,
+        finalPointsCell,
+        efficiencyCell,
         formatTimestamp(r.time),
         r.puzzleTime ? formatTimestamp(r.puzzleTime) : '',
         null
@@ -288,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 8;
+      td.colSpan = 10;
       td.textContent = 'Kein Event ausgewählt';
       tr.appendChild(td);
       tbody.appendChild(tr);
