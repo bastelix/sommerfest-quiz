@@ -93,24 +93,8 @@ class ImageUploadService
         if ($maxWidth !== null || $maxHeight !== null) {
             $image->scaleDown($maxWidth ?? 0, $maxHeight ?? 0);
         }
-        $dir = trim($dir, '/');
-        $targetDir = $this->dataDir . '/' . $dir;
-        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
-            throw new \RuntimeException('unable to create directory');
-        }
-        @chown($targetDir, 'www-data');
-        @chgrp($targetDir, 'www-data');
-        @chmod($targetDir, 0775);
-
-        if (preg_match('#^events/[^/]+/images$#', $dir) && basename($this->dataDir) === 'data') {
-            $publicDir = dirname($this->dataDir) . '/public/' . $dir;
-            if (!is_dir($publicDir) && !mkdir($publicDir, 0775, true) && !is_dir($publicDir)) {
-                throw new \RuntimeException('unable to create public directory');
-            }
-            @chown($publicDir, 'www-data');
-            @chgrp($publicDir, 'www-data');
-            @chmod($publicDir, 0775);
-        }
+        $dir = $this->normalizeDir($dir);
+        $targetDir = $this->prepareTargetDir($dir);
 
         $path = $targetDir . '/' . $filename;
         $format = strtolower($format ?? pathinfo($filename, PATHINFO_EXTENSION));
@@ -120,7 +104,7 @@ class ImageUploadService
             'webp' => $image->toWebp($quality)->save($path),
             default => $image->save($path, $quality),
         };
-        return '/' . $dir . '/' . $filename;
+        return $this->buildRelativePath($dir, $filename);
     }
 
     public function saveUploadedFile(
@@ -135,7 +119,79 @@ class ImageUploadService
     ): string {
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         $filename = $baseName . '.' . $extension;
+        if ($extension === 'svg') {
+            return $this->storeRawFile($file, $dir, $filename);
+        }
         $image = $this->readImage($file, $autoOrient);
         return $this->saveImage($image, $dir, $filename, $maxWidth, $maxHeight, $quality, $format ?? $extension);
+    }
+
+    private function storeRawFile(UploadedFileInterface $file, string $dir, string $filename): string {
+        $dir = $this->normalizeDir($dir);
+        $targetDir = $this->prepareTargetDir($dir);
+        $path = $targetDir . '/' . $filename;
+        if (is_file($path) && !@unlink($path)) {
+            throw new \RuntimeException('unable to replace file');
+        }
+
+        $stream = $file->getStream();
+        if ($stream->isSeekable()) {
+            $stream->rewind();
+        }
+        $handle = fopen($path, 'wb');
+        if ($handle === false) {
+            throw new \RuntimeException('failed to open target file');
+        }
+        while (!$stream->eof()) {
+            $chunk = $stream->read(8192);
+            if ($chunk === '') {
+                break;
+            }
+            fwrite($handle, $chunk);
+        }
+        fclose($handle);
+        @chown($path, 'www-data');
+        @chgrp($path, 'www-data');
+        @chmod($path, 0664);
+
+        return $this->buildRelativePath($dir, $filename);
+    }
+
+    private function normalizeDir(string $dir): string {
+        return trim($dir, '/');
+    }
+
+    private function prepareTargetDir(string $dir): string {
+        $targetDir = rtrim($this->dataDir, '/');
+        if ($dir !== '') {
+            $targetDir .= '/' . $dir;
+        }
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+            throw new \RuntimeException('unable to create directory');
+        }
+        @chown($targetDir, 'www-data');
+        @chgrp($targetDir, 'www-data');
+        @chmod($targetDir, 0775);
+
+        if ($dir !== '' && preg_match('#^events/[^/]+/images$#', $dir) && basename($this->dataDir) === 'data') {
+            $publicDir = dirname($this->dataDir) . '/public/' . $dir;
+            if (!is_dir($publicDir) && !mkdir($publicDir, 0775, true) && !is_dir($publicDir)) {
+                throw new \RuntimeException('unable to create public directory');
+            }
+            @chown($publicDir, 'www-data');
+            @chgrp($publicDir, 'www-data');
+            @chmod($publicDir, 0775);
+        }
+
+        return $targetDir;
+    }
+
+    private function buildRelativePath(string $dir, string $filename): string {
+        $dir = $this->normalizeDir($dir);
+        if ($dir === '') {
+            return '/' . $filename;
+        }
+
+        return '/' . $dir . '/' . $filename;
     }
 }

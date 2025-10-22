@@ -94,7 +94,7 @@ return [
     'menu_account' => 'Konto',
     'menu_admin' => 'Administration',
     'logout' => 'Abmelden',
-    'tip_logo_upload' => 'PNG-Datei als Logo für die Startseite hochladen.',
+    'tip_logo_upload' => 'PNG-, WebP- oder SVG-Datei als Logo für die Startseite hochladen.',
     'tip_page_title' => 'Text, der im Browser-Tab angezeigt wird.',
     'tip_background_color' => 'CSS-Farbwert für die Seite.',
     'tip_button_color' => 'CSS-Farbwert für alle Buttons.',
