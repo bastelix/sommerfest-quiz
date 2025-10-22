@@ -65,6 +65,7 @@ const basePath = window.basePath || '';
 const withBase = path => basePath + path;
 
 let nameSuggestion;
+let quizStartedAt = null;
 function getNameSuggestion(){
   if(!nameSuggestion){
     nameSuggestion = generateUserName();
@@ -206,6 +207,7 @@ async function promptTeamName(){
 }
 
 async function runQuiz(questions, skipIntro){
+  quizStartedAt = Math.floor(Date.now() / 1000);
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
@@ -696,6 +698,9 @@ async function runQuiz(questions, skipIntro){
         answers,
         event_uid: currentEventUid
       };
+      if(Number.isFinite(quizStartedAt)){
+        data.startedAt = quizStartedAt;
+      }
       if(cfg.collectPlayerUid){
         const uid = getStored(STORAGE_KEYS.PLAYER_UID);
         if(uid) data.player_uid = uid;

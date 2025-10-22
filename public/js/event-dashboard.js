@@ -1,5 +1,5 @@
 import { ResultsDataService, computeRankings } from './results-data-service.js';
-import { formatTimestamp, formatPointsCell, insertSoftHyphens } from './results-utils.js';
+import { formatTimestamp, formatPointsCell, insertSoftHyphens, formatDuration } from './results-utils.js';
 
 const config = window.dashboardConfig || {};
 const basePath = window.basePath || '';
@@ -97,7 +97,9 @@ function renderRankingsModule(rankings, moduleConfig) {
       if (item) {
         const label = document.createElement('div');
         label.className = 'uk-flex uk-flex-between';
-        label.innerHTML = `<span>${i + 1}. ${item.name}</span><span>${item.value}</span>`;
+        const durationValue = item && Number.isFinite(item.duration) ? formatDuration(item.duration) : null;
+        const valueText = durationValue || item.value;
+        label.innerHTML = `<span>${i + 1}. ${item.name}</span><span>${valueText}</span>`;
         li.appendChild(label);
       } else {
         li.textContent = '-';

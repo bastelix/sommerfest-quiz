@@ -96,13 +96,13 @@ class AwardServiceTest extends TestCase
     public function testComputeRankingsCalculatesTopTeams(): void {
         $svc = new AwardService();
         $results = [
-            ['name' => 'TeamA', 'catalog' => 'cat1', 'time' => 10, 'correct' => 5, 'puzzleTime' => 30, 'attempt' => 1],
-            ['name' => 'TeamA', 'catalog' => 'cat2', 'time' => 20, 'correct' => 4, 'attempt' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat1', 'time' => 12, 'correct' => 4, 'puzzleTime' => 35, 'attempt' => 1],
-            ['name' => 'TeamB', 'catalog' => 'cat2', 'time' => 22, 'correct' => 3, 'attempt' => 1],
-            ['name' => 'TeamC', 'catalog' => 'cat1', 'time' => 14, 'correct' => 3, 'puzzleTime' => 40, 'attempt' => 1],
-            ['name' => 'TeamC', 'catalog' => 'cat2', 'time' => 25, 'correct' => 2, 'attempt' => 1],
-            ['name' => 'TeamD', 'catalog' => 'cat1', 'time' => 11, 'correct' => 6, 'puzzleTime' => 50, 'attempt' => 1],
+            ['name' => 'TeamA', 'catalog' => 'cat1', 'time' => 10, 'duration_sec' => 310, 'correct' => 5, 'puzzleTime' => 30, 'attempt' => 1],
+            ['name' => 'TeamA', 'catalog' => 'cat2', 'time' => 21, 'duration_sec' => 390, 'correct' => 4, 'attempt' => 1],
+            ['name' => 'TeamB', 'catalog' => 'cat1', 'time' => 9, 'duration_sec' => 330, 'correct' => 4, 'puzzleTime' => 35, 'attempt' => 1],
+            ['name' => 'TeamB', 'catalog' => 'cat2', 'time' => 19, 'duration_sec' => 410, 'correct' => 3, 'attempt' => 1],
+            ['name' => 'TeamC', 'catalog' => 'cat1', 'time' => 14, 'duration_sec' => 360, 'correct' => 3, 'puzzleTime' => 40, 'attempt' => 1],
+            ['name' => 'TeamC', 'catalog' => 'cat2', 'time' => 25, 'duration_sec' => 440, 'correct' => 2, 'attempt' => 1],
+            ['name' => 'TeamD', 'catalog' => 'cat1', 'time' => 11, 'duration_sec' => 305, 'correct' => 6, 'puzzleTime' => 50, 'attempt' => 1],
         ];
         $questionResults = [
             ['name' => 'TeamA', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 80, 'efficiency' => 0.9],
@@ -150,10 +150,10 @@ class AwardServiceTest extends TestCase
     public function testPointsRankingUsesEfficiencyTieBreak(): void {
         $svc = new AwardService();
         $results = [
-            ['name' => 'Fast', 'catalog' => 'cat1', 'time' => 10, 'attempt' => 1],
-            ['name' => 'Fast', 'catalog' => 'cat2', 'time' => 20, 'attempt' => 1],
-            ['name' => 'Slow', 'catalog' => 'cat1', 'time' => 12, 'attempt' => 1],
-            ['name' => 'Slow', 'catalog' => 'cat2', 'time' => 22, 'attempt' => 1],
+            ['name' => 'Fast', 'catalog' => 'cat1', 'time' => 10, 'duration_sec' => 300, 'attempt' => 1],
+            ['name' => 'Fast', 'catalog' => 'cat2', 'time' => 20, 'duration_sec' => 320, 'attempt' => 1],
+            ['name' => 'Slow', 'catalog' => 'cat1', 'time' => 12, 'duration_sec' => 360, 'attempt' => 1],
+            ['name' => 'Slow', 'catalog' => 'cat2', 'time' => 22, 'duration_sec' => 380, 'attempt' => 1],
         ];
         $questionResults = [
             ['name' => 'Fast', 'catalog' => 'cat1', 'attempt' => 1, 'final_points' => 50, 'efficiency' => 0.9],

@@ -4,6 +4,25 @@ export function formatTimestamp(ts) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+export function formatDuration(seconds) {
+  if (seconds === null || seconds === undefined) {
+    return '–';
+  }
+  const numeric = Number(seconds);
+  if (!Number.isFinite(numeric) || Number.isNaN(numeric)) {
+    return '–';
+  }
+  const total = Math.max(0, Math.round(numeric));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const secs = total % 60;
+  const pad = (value) => value.toString().padStart(2, '0');
+  if (hours > 0) {
+    return `${hours}:${pad(minutes)}:${pad(secs)}`;
+  }
+  return `${minutes}:${pad(secs)}`;
+}
+
 export function formatPointsCell(points, maxPoints) {
   const pts = Number.isFinite(points) ? points : Number.parseInt(points, 10);
   const normalizedPts = Number.isFinite(pts) ? pts : 0;
