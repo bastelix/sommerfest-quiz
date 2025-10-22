@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\ConfigService;
+use App\Support\TokenCipher;
 use PDO;
 use Tests\TestCase;
 use Throwable;
@@ -154,5 +155,38 @@ class ConfigServiceTest extends TestCase
 
         $count = (int) $pdo->query('SELECT COUNT(*) FROM config')->fetchColumn();
         $this->assertSame(0, $count);
+    }
+
+    public function testVerifyDashboardTokenSupportsLegacyPlaintextValues(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                dashboard_share_token TEXT,
+                dashboard_sponsor_token TEXT
+            )
+            SQL
+        );
+        $publicToken = 'legacyPublicToken123456';
+        $sponsorToken = 'legacySponsorToken654321';
+        $pdo->exec(
+            "INSERT INTO config(event_uid, dashboard_share_token, dashboard_sponsor_token) " .
+            "VALUES('ev1', '" . $publicToken . "', '" . $sponsorToken . "')"
+        );
+
+        $service = new ConfigService($pdo, new TokenCipher('test-secret'));
+
+        $tokens = $service->getDashboardTokens('ev1');
+        $this->assertSame($publicToken, $tokens['public']);
+        $this->assertSame($sponsorToken, $tokens['sponsor']);
+
+        $config = $service->getConfigForEvent('ev1');
+        $this->assertSame($publicToken, $config['dashboardShareToken']);
+        $this->assertSame($sponsorToken, $config['dashboardSponsorToken']);
+
+        $this->assertSame('public', $service->verifyDashboardToken('ev1', $publicToken));
+        $this->assertSame('sponsor', $service->verifyDashboardToken('ev1', $sponsorToken));
     }
 }
