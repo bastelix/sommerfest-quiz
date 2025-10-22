@@ -20,15 +20,17 @@
   let currentSponsorToken = '';
   let currentEventSlug = '';
   const DEFAULT_MODULES = [
-    { id: 'header', enabled: true },
-    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
-    { id: 'results', enabled: true },
-    { id: 'wrongAnswers', enabled: false },
-    { id: 'infoBanner', enabled: false },
-    { id: 'qrCodes', enabled: false, options: { catalogs: [] } },
-    { id: 'media', enabled: false },
+    { id: 'header', enabled: true, layout: 'full' },
+    { id: 'rankings', enabled: true, layout: 'wide', options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
+    { id: 'results', enabled: true, layout: 'full' },
+    { id: 'wrongAnswers', enabled: false, layout: 'auto' },
+    { id: 'infoBanner', enabled: false, layout: 'auto' },
+    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [] } },
+    { id: 'media', enabled: false, layout: 'auto' },
   ];
   const METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
+  const LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
+  const DEFAULT_MODULE_MAP = new Map(DEFAULT_MODULES.map((module) => [module.id, module]));
   const QR_MODULE_ID = 'qrCodes';
   const qrModuleElement = modulesList?.querySelector('[data-module-id="' + QR_MODULE_ID + '"]') || null;
   const qrCatalogContainer = qrModuleElement?.querySelector('[data-module-catalogs]') || null;
@@ -344,6 +346,16 @@
       const toggle = item.querySelector('[data-module-toggle]');
       const enabled = toggle ? toggle.checked : true;
       const entry = { id, enabled };
+      const layoutField = item.querySelector('[data-module-layout]');
+      const defaultLayout = DEFAULT_MODULE_MAP.get(id)?.layout
+        || layoutField?.dataset.defaultLayout
+        || 'auto';
+      let layout = layoutField ? (layoutField.value || layoutField.dataset.defaultLayout || defaultLayout) : defaultLayout;
+      layout = String(layout || '').trim();
+      if (!LAYOUT_OPTIONS.includes(layout)) {
+        layout = defaultLayout;
+      }
+      entry.layout = layout;
       if (id === 'rankings') {
         const metrics = [];
         item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
@@ -392,6 +404,14 @@
       modulesList.appendChild(item);
       const toggle = item.querySelector('[data-module-toggle]');
       if (toggle) toggle.checked = !!module.enabled;
+      const defaultLayout = DEFAULT_MODULE_MAP.get(module.id)?.layout
+        || item.querySelector('[data-module-layout]')?.dataset.defaultLayout
+        || 'auto';
+      const layoutField = item.querySelector('[data-module-layout]');
+      const layoutValue = LAYOUT_OPTIONS.includes(module.layout) ? module.layout : defaultLayout;
+      if (layoutField) {
+        layoutField.value = layoutValue;
+      }
       if (module.id === 'rankings') {
         const metrics = Array.isArray(module.options?.metrics) && module.options.metrics.length
           ? module.options.metrics
@@ -408,6 +428,13 @@
         modulesList.appendChild(item);
         const toggle = item.querySelector('[data-module-toggle]');
         if (toggle) toggle.checked = !!module.enabled;
+        const defaultLayout = DEFAULT_MODULE_MAP.get(module.id)?.layout
+          || item.querySelector('[data-module-layout]')?.dataset.defaultLayout
+          || 'auto';
+        const layoutField = item.querySelector('[data-module-layout]');
+        if (layoutField) {
+          layoutField.value = defaultLayout;
+        }
         if (module.id === 'rankings') {
           item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
             metricEl.checked = METRIC_KEYS.includes(metricEl.value);
@@ -630,7 +657,7 @@
       reader.readAsDataURL(file);
     });
     modulesList?.addEventListener('change', (event) => {
-      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog]')) {
+      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout]')) {
         updateModulesInput(true);
       }
     });
