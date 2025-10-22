@@ -13,6 +13,16 @@ const infoText = config.infoText || '';
 const mediaItems = Array.isArray(config.mediaItems) ? config.mediaItems : [];
 const refreshInterval = Math.max(5, Number(config.refreshInterval) || 15);
 const eventIdentifier = config.slug || config.eventUid || '';
+const DASHBOARD_LAYOUT_OPTIONS = new Set(['auto', 'wide', 'full']);
+const MODULE_DEFAULT_LAYOUTS = {
+  header: 'full',
+  rankings: 'wide',
+  results: 'full',
+  wrongAnswers: 'auto',
+  infoBanner: 'auto',
+  qrCodes: 'auto',
+  media: 'auto',
+};
 
 const dataService = new ResultsDataService({
   basePath,
@@ -40,14 +50,30 @@ function updateStatusLabel() {
   statusLabel.textContent = `Zuletzt aktualisiert vor ${diffSeconds} s`;
 }
 
-function createModuleCard(title, content) {
-  const wrapper = document.createElement('div');
-  wrapper.className = 'uk-card uk-card-default uk-card-body uk-margin-large-bottom';
+function resolveModuleLayout(moduleConfig) {
+  if (!moduleConfig || !moduleConfig.id) {
+    return 'auto';
+  }
+  const fallback = MODULE_DEFAULT_LAYOUTS[moduleConfig.id] || 'auto';
+  const raw = typeof moduleConfig.layout === 'string' ? moduleConfig.layout.trim() : '';
+  if (raw && DASHBOARD_LAYOUT_OPTIONS.has(raw)) {
+    return raw;
+  }
+  return fallback;
+}
+
+function createModuleCard(title, content, layout = 'auto') {
+  const normalizedLayout = DASHBOARD_LAYOUT_OPTIONS.has(layout) ? layout : 'auto';
+  const wrapper = document.createElement('article');
+  wrapper.className = `dashboard-tile dashboard-tile--${normalizedLayout}`;
+  const card = document.createElement('div');
+  card.className = 'uk-card uk-card-default uk-card-body';
   const heading = document.createElement('h3');
   heading.className = 'uk-heading-bullet';
   heading.textContent = title;
-  wrapper.appendChild(heading);
-  wrapper.appendChild(content);
+  card.appendChild(heading);
+  card.appendChild(content);
+  wrapper.appendChild(card);
   return wrapper;
 }
 
@@ -142,7 +168,7 @@ function renderQrModule(moduleConfig, catalogList) {
     grid.appendChild(warning);
   });
 
-  return createModuleCard('Katalog-QR-Codes', grid);
+  return createModuleCard('Katalog-QR-Codes', grid, resolveModuleLayout(moduleConfig));
 }
 
 function renderRankingsModule(rankings, moduleConfig) {
@@ -211,10 +237,10 @@ function renderRankingsModule(rankings, moduleConfig) {
     col.appendChild(card);
     grid.appendChild(col);
   });
-  return createModuleCard('Live-Rankings', grid);
+  return createModuleCard('Live-Rankings', grid, resolveModuleLayout(moduleConfig));
 }
 
-function renderResultsTable(rows) {
+function renderResultsTable(rows, layout) {
   const table = document.createElement('table');
   table.className = 'uk-table uk-table-divider uk-table-small uk-table-striped';
   const thead = document.createElement('thead');
@@ -250,10 +276,10 @@ function renderResultsTable(rows) {
     tbody.appendChild(emptyRow);
   }
   table.appendChild(tbody);
-  return createModuleCard('Ergebnisliste', table);
+  return createModuleCard('Ergebnisliste', table, layout);
 }
 
-function renderWrongAnswersModule(rows) {
+function renderWrongAnswersModule(rows, layout) {
   const table = document.createElement('table');
   table.className = 'uk-table uk-table-divider uk-table-small';
   table.innerHTML = '<thead><tr><th>Name</th><th>Katalog</th><th>Frage</th></tr></thead>';
@@ -281,17 +307,17 @@ function renderWrongAnswersModule(rows) {
     tbody.appendChild(emptyRow);
   }
   table.appendChild(tbody);
-  return createModuleCard('Falsch beantwortete Fragen', table);
+  return createModuleCard('Falsch beantwortete Fragen', table, layout);
 }
 
-function renderInfoBannerModule() {
+function renderInfoBannerModule(layout) {
   const content = document.createElement('div');
   content.className = 'dashboard-info';
   content.innerHTML = infoText;
-  return createModuleCard('Hinweise', content);
+  return createModuleCard('Hinweise', content, layout);
 }
 
-function renderMediaModule() {
+function renderMediaModule(layout) {
   const container = document.createElement('div');
   container.className = 'dashboard-media-grid';
   mediaItems.forEach((item) => {
@@ -317,7 +343,7 @@ function renderMediaModule() {
     }
     container.appendChild(card);
   });
-  return createModuleCard('Highlights', container);
+  return createModuleCard('Highlights', container, layout);
 }
 
 function renderModules(rows, questionRows, rankings, catalogCount, catalogList) {
@@ -328,24 +354,25 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
   let hasModuleOutput = headerActive;
   activeModules.forEach((module) => {
     if (!module || !module.enabled) return;
+    const layout = resolveModuleLayout(module);
     if (module.id === 'rankings') {
       modulesRoot.appendChild(renderRankingsModule(rankings, module));
       hasModuleOutput = true;
     } else if (module.id === 'results') {
-      modulesRoot.appendChild(renderResultsTable(rows));
+      modulesRoot.appendChild(renderResultsTable(rows, layout));
       hasModuleOutput = true;
     } else if (module.id === 'wrongAnswers') {
       const wrongRows = questionRows.filter((row) => !row.correct);
-      modulesRoot.appendChild(renderWrongAnswersModule(wrongRows));
+      modulesRoot.appendChild(renderWrongAnswersModule(wrongRows, layout));
       hasModuleOutput = true;
     } else if (module.id === 'infoBanner' && infoText.trim() !== '') {
-      modulesRoot.appendChild(renderInfoBannerModule());
+      modulesRoot.appendChild(renderInfoBannerModule(layout));
       hasModuleOutput = true;
     } else if (module.id === 'qrCodes') {
       modulesRoot.appendChild(renderQrModule(module, Array.isArray(catalogList) ? catalogList : []));
       hasModuleOutput = true;
     } else if (module.id === 'media' && mediaItems.length > 0) {
-      modulesRoot.appendChild(renderMediaModule());
+      modulesRoot.appendChild(renderMediaModule(layout));
       hasModuleOutput = true;
     }
   });

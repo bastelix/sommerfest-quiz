@@ -983,15 +983,17 @@ document.addEventListener('DOMContentLoaded', function () {
     sponsor: document.querySelector('[data-share-link="sponsor"]')
   };
   const DASHBOARD_METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
+  const DASHBOARD_LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
   const DASHBOARD_DEFAULT_MODULES = [
-    { id: 'header', enabled: true },
-    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
-    { id: 'results', enabled: true },
-    { id: 'wrongAnswers', enabled: false },
-    { id: 'infoBanner', enabled: false },
-    { id: 'qrCodes', enabled: false, options: { catalogs: [] } },
-    { id: 'media', enabled: false }
+    { id: 'header', enabled: true, layout: 'full' },
+    { id: 'rankings', enabled: true, layout: 'wide', options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
+    { id: 'results', enabled: true, layout: 'full' },
+    { id: 'wrongAnswers', enabled: false, layout: 'auto' },
+    { id: 'infoBanner', enabled: false, layout: 'auto' },
+    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [] } },
+    { id: 'media', enabled: false, layout: 'auto' }
   ];
+  const DASHBOARD_DEFAULT_MODULE_MAP = new Map(DASHBOARD_DEFAULT_MODULES.map(module => [module.id, module]));
   const DASHBOARD_QR_MODULE_ID = 'qrCodes';
   const dashboardQrModule = dashboardModulesList?.querySelector('[data-module-id="' + DASHBOARD_QR_MODULE_ID + '"]') || null;
   const dashboardQrCatalogContainer = dashboardQrModule?.querySelector('[data-module-catalogs]') || null;
@@ -1432,6 +1434,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const toggle = item.querySelector('[data-module-toggle]');
       const enabled = toggle ? toggle.checked : true;
       const entry = { id, enabled };
+      const layoutField = item.querySelector('[data-module-layout]');
+      const defaultLayout = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.layout
+        || layoutField?.dataset.defaultLayout
+        || 'auto';
+      let layout = layoutField ? (layoutField.value || layoutField.dataset.defaultLayout || defaultLayout) : defaultLayout;
+      layout = String(layout || '').trim();
+      if (!DASHBOARD_LAYOUT_OPTIONS.includes(layout)) {
+        layout = defaultLayout;
+      }
+      entry.layout = layout;
       if (id === 'rankings') {
         const metrics = [];
         item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
@@ -1485,6 +1497,16 @@ document.addEventListener('DOMContentLoaded', function () {
       if (toggle) {
         toggle.checked = !!module.enabled;
       }
+      const defaultLayout = DASHBOARD_DEFAULT_MODULE_MAP.get(module.id)?.layout
+        || item.querySelector('[data-module-layout]')?.dataset.defaultLayout
+        || 'auto';
+      const layoutValue = DASHBOARD_LAYOUT_OPTIONS.includes(module.layout)
+        ? module.layout
+        : defaultLayout;
+      const layoutField = item.querySelector('[data-module-layout]');
+      if (layoutField) {
+        layoutField.value = layoutValue;
+      }
       if (module.id === 'rankings') {
         const metrics = Array.isArray(module.options?.metrics) && module.options.metrics.length
           ? module.options.metrics
@@ -1506,6 +1528,13 @@ document.addEventListener('DOMContentLoaded', function () {
       const toggle = item.querySelector('[data-module-toggle]');
       if (toggle) {
         toggle.checked = !!module.enabled;
+      }
+      const defaultLayout = DASHBOARD_DEFAULT_MODULE_MAP.get(module.id)?.layout
+        || item.querySelector('[data-module-layout]')?.dataset.defaultLayout
+        || 'auto';
+      const layoutField = item.querySelector('[data-module-layout]');
+      if (layoutField) {
+        layoutField.value = defaultLayout;
       }
       if (module.id === 'rankings') {
         item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
@@ -2778,7 +2807,7 @@ document.addEventListener('DOMContentLoaded', function () {
     el.addEventListener('input', queueCfgSave);
   });
   dashboardModulesList?.addEventListener('change', event => {
-    if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog]')) {
+    if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout]')) {
       updateDashboardModules(true);
     }
   });

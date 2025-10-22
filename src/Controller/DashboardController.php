@@ -19,6 +19,8 @@ class DashboardController
     private ConfigService $config;
     private EventService $events;
 
+    private const DASHBOARD_ALLOWED_LAYOUTS = ['auto', 'wide', 'full'];
+
     public function __construct(ConfigService $config, EventService $events)
     {
         $this->config = $config;
@@ -94,13 +96,18 @@ class DashboardController
             $modules = $value;
         }
         $defaults = [
-            ['id' => 'header', 'enabled' => true],
-            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => ['points', 'puzzle', 'catalog', 'accuracy']]],
-            ['id' => 'results', 'enabled' => true],
-            ['id' => 'wrongAnswers', 'enabled' => false],
-            ['id' => 'infoBanner', 'enabled' => false],
-            ['id' => 'qrCodes', 'enabled' => false, 'options' => ['catalogs' => []]],
-            ['id' => 'media', 'enabled' => false],
+            ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            [
+                'id' => 'rankings',
+                'enabled' => true,
+                'layout' => 'wide',
+                'options' => ['metrics' => ['points', 'puzzle', 'catalog', 'accuracy']],
+            ],
+            ['id' => 'results', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto'],
+            ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto'],
+            ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'auto', 'options' => ['catalogs' => []]],
+            ['id' => 'media', 'enabled' => false, 'layout' => 'auto'],
         ];
 
         if ($modules === []) {
@@ -123,7 +130,13 @@ class DashboardController
                 continue;
             }
             $base = $allowed[$id];
-            $entry = ['id' => $id, 'enabled' => !empty($module['enabled'])];
+            $baseLayout = isset($base['layout']) ? (string) $base['layout'] : 'auto';
+            $layout = isset($module['layout']) ? (string) $module['layout'] : $baseLayout;
+            if (!in_array($layout, self::DASHBOARD_ALLOWED_LAYOUTS, true)) {
+                $layout = $baseLayout;
+            }
+
+            $entry = ['id' => $id, 'enabled' => !empty($module['enabled']), 'layout' => $layout];
             if ($id === 'rankings') {
                 $metrics = [];
                 $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];

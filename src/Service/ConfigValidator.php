@@ -49,6 +49,8 @@ class ConfigValidator
 
     private const DASHBOARD_ALLOWED_METRICS = ['points', 'puzzle', 'catalog', 'accuracy'];
 
+    private const DASHBOARD_ALLOWED_LAYOUTS = ['auto', 'wide', 'full'];
+
     private const DASHBOARD_MIN_REFRESH = 5;
 
     private const DASHBOARD_MAX_REFRESH = 300;
@@ -229,13 +231,18 @@ class ConfigValidator
      */
     private function defaultDashboardModules(): array {
         return [
-            ['id' => 'header', 'enabled' => true],
-            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => self::DASHBOARD_ALLOWED_METRICS]],
-            ['id' => 'results', 'enabled' => true],
-            ['id' => 'wrongAnswers', 'enabled' => false],
-            ['id' => 'infoBanner', 'enabled' => false],
-            ['id' => 'qrCodes', 'enabled' => false, 'options' => ['catalogs' => []]],
-            ['id' => 'media', 'enabled' => false],
+            ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            [
+                'id' => 'rankings',
+                'enabled' => true,
+                'layout' => 'wide',
+                'options' => ['metrics' => self::DASHBOARD_ALLOWED_METRICS],
+            ],
+            ['id' => 'results', 'enabled' => true, 'layout' => 'full'],
+            ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto'],
+            ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto'],
+            ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'auto', 'options' => ['catalogs' => []]],
+            ['id' => 'media', 'enabled' => false, 'layout' => 'auto'],
         ];
     }
 
@@ -277,7 +284,13 @@ class ConfigValidator
             }
             $base = $defaults[$id];
             $enabled = filter_var($module['enabled'] ?? $base['enabled'], FILTER_VALIDATE_BOOL);
-            $entry = ['id' => $id, 'enabled' => (bool)$enabled];
+            $baseLayout = isset($base['layout']) ? (string)$base['layout'] : 'auto';
+            $layout = isset($module['layout']) ? (string)$module['layout'] : $baseLayout;
+            if (!in_array($layout, self::DASHBOARD_ALLOWED_LAYOUTS, true)) {
+                $layout = $baseLayout;
+            }
+
+            $entry = ['id' => $id, 'enabled' => (bool)$enabled, 'layout' => $layout];
             if ($id === 'rankings') {
                 $metrics = [];
                 $options = [];
