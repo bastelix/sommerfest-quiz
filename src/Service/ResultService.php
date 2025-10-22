@@ -355,7 +355,7 @@ class ResultService
             $clampedTimeLeft = $totalTime;
         }
 
-        $ratio = $totalTime > 0 ? $clampedTimeLeft / $totalTime : 1.0;
+        $ratio = $clampedTimeLeft / $totalTime;
         if ($ratio < 0.0) {
             $ratio = 0.0;
         } elseif ($ratio > 1.0) {

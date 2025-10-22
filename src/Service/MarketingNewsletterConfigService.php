@@ -129,8 +129,8 @@ class MarketingNewsletterConfigService
 
         $items = [];
         foreach ($entries as $entry) {
-            $label = isset($entry['label']) ? trim((string) $entry['label']) : '';
-            $url = isset($entry['url']) ? trim((string) $entry['url']) : '';
+            $label = trim((string) $entry['label']);
+            $url = trim((string) $entry['url']);
             if ($label === '' || $url === '') {
                 continue;
             }

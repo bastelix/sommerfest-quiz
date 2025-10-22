@@ -184,8 +184,16 @@ final class DomainIndexManager
 
     private function renderWikiMarkdown(string $domain, MarketingPageWikiArticle $article): string
     {
-        $lines = [];
         $title = trim($article->getTitle());
+        $excerpt = $article->getExcerpt();
+        $excerptText = $excerpt !== null ? trim($excerpt) : '';
+        $content = trim($article->getContentMarkdown());
+
+        if ($title === '' && $excerptText === '' && $content === '') {
+            return '';
+        }
+
+        $lines = [];
         if ($title !== '') {
             $lines[] = '# ' . $title;
         }
@@ -198,20 +206,14 @@ final class DomainIndexManager
         );
         $lines[] = $meta;
 
-        $excerpt = $article->getExcerpt();
-        if ($excerpt !== null && trim($excerpt) !== '') {
+        if ($excerptText !== '') {
             $lines[] = '';
-            $lines[] = trim($excerpt);
+            $lines[] = $excerptText;
         }
 
-        $content = trim($article->getContentMarkdown());
         if ($content !== '') {
             $lines[] = '';
             $lines[] = $content;
-        }
-
-        if ($lines === []) {
-            return '';
         }
 
         return implode("\n", $lines) . "\n";

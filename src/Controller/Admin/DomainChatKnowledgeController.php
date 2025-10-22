@@ -269,8 +269,9 @@ final class DomainChatKnowledgeController
         $selectedLookup = $selectedIds !== [] ? array_flip($selectedIds) : [];
 
         $entries = [];
+        /** @var MarketingPageWikiArticle $article */
         foreach ($this->wikiArticles->getArticlesForPage($page->getId()) as $article) {
-            if (!$article instanceof MarketingPageWikiArticle || !$article->isPublished()) {
+            if (!$article->isPublished()) {
                 continue;
             }
 
