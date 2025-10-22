@@ -1143,6 +1143,9 @@ async function runQuiz(questions, skipIntro){
       selected.length === sortedCorrect.length &&
       selected.every((v, i) => v === sortedCorrect[i]);
     results[idx] = correct;
+    if(idx !== null && idx !== undefined){
+      earnedPoints[idx] = correct ? (questionPoints[idx] ?? 0) : 0;
+    }
     renderFeedback(
       feedback,
       correct,
