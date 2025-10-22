@@ -234,33 +234,85 @@ document.addEventListener('DOMContentLoaded', () => {
     pagination.appendChild(nextLi);
   }
 
-  function computeRankings(rows) {
+  function computeRankings(rows, qrows) {
     const catalogs = new Set();
     const puzzleTimes = new Map();
     const catTimes = new Map();
     const scorePoints = new Map();
+    const attemptMetrics = new Map();
+
+    qrows.forEach(r => {
+      const team = r.name || '';
+      const catalog = r.catalog || '';
+      if (!team || !catalog) return;
+      const attempt = Number.isFinite(r.attempt) ? Number(r.attempt) : parseInt(r.attempt, 10) || 1;
+      const key = `${team}|${catalog}|${attempt}`;
+      const finalPoints = Number.isFinite(r.final_points)
+        ? Number(r.final_points)
+        : Number.isFinite(r.finalPoints)
+          ? Number(r.finalPoints)
+          : Number.isFinite(r.points) ? Number(r.points) : 0;
+      const efficiency = Number.isFinite(r.efficiency)
+        ? Number(r.efficiency)
+        : (r.correct ? 1 : 0);
+      const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
+      summary.points += Math.max(0, finalPoints || 0);
+      summary.effSum += Math.max(0, efficiency || 0);
+      summary.count += 1;
+      attemptMetrics.set(key, summary);
+    });
 
     rows.forEach(r => {
-      catalogs.add(r.catalog);
+      const team = r.name || '';
+      const catalog = r.catalog || '';
+      if (!team || !catalog) return;
+      catalogs.add(catalog);
 
       if (r.puzzleTime) {
-        const prev = puzzleTimes.get(r.name);
-        if (!prev || r.puzzleTime < prev) puzzleTimes.set(r.name, r.puzzleTime);
+        const prev = puzzleTimes.get(team);
+        const timeVal = Number(r.puzzleTime);
+        if (!prev || timeVal < prev) puzzleTimes.set(team, timeVal);
       }
 
-      let tMap = catTimes.get(r.name);
-      if (!tMap) { tMap = new Map(); catTimes.set(r.name, tMap); }
-      const prevTime = tMap.get(r.catalog);
-      if (prevTime === undefined || r.time < prevTime) {
-        tMap.set(r.catalog, r.time);
+      let tMap = catTimes.get(team);
+      if (!tMap) { tMap = new Map(); catTimes.set(team, tMap); }
+      const prevTime = tMap.get(catalog);
+      const playedTime = Number(r.time);
+      if (prevTime === undefined || playedTime < prevTime) {
+        tMap.set(catalog, playedTime);
       }
 
-      let sMap = scorePoints.get(r.name);
-      if (!sMap) { sMap = new Map(); scorePoints.set(r.name, sMap); }
-      const currentPoints = Number.isFinite(r.points) ? Number(r.points) : Number(r.correct) || 0;
-      const prevScore = sMap.get(r.catalog);
-      if (prevScore === undefined || currentPoints > prevScore) {
-        sMap.set(r.catalog, currentPoints);
+      const attempt = Number.isFinite(r.attempt) ? Number(r.attempt) : parseInt(r.attempt, 10) || 1;
+      const key = `${team}|${catalog}|${attempt}`;
+      const summary = attemptMetrics.get(key);
+      let finalPoints;
+      let effSum;
+      let questionCount;
+      if (summary && summary.count > 0) {
+        finalPoints = summary.points;
+        effSum = summary.effSum;
+        questionCount = summary.count;
+      } else {
+        const fallbackPoints = Number.isFinite(r.points) ? Number(r.points) : Number(r.correct) || 0;
+        finalPoints = fallbackPoints;
+        const totalQuestions = Number.isFinite(r.total) ? Number(r.total) : parseInt(r.total, 10) || 0;
+        questionCount = totalQuestions > 0 ? totalQuestions : 0;
+        const correctCount = Number.isFinite(r.correct) ? Number(r.correct) : parseInt(r.correct, 10) || 0;
+        const avgFallback = questionCount > 0 ? correctCount / questionCount : 0;
+        effSum = avgFallback * questionCount;
+      }
+      const average = questionCount > 0 ? effSum / questionCount : 0;
+
+      let sMap = scorePoints.get(team);
+      if (!sMap) { sMap = new Map(); scorePoints.set(team, sMap); }
+      const prev = sMap.get(catalog);
+      if (!prev || finalPoints > prev.points || (finalPoints === prev.points && average > prev.avg)) {
+        sMap.set(catalog, {
+          points: finalPoints,
+          effSum,
+          count: questionCount,
+          avg: average
+        });
       }
     });
 
@@ -289,10 +341,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const totalScores = [];
     scorePoints.forEach((map, name) => {
-      const total = Array.from(map.values()).reduce((sum, v) => sum + v, 0);
-      totalScores.push({ name, value: `${total} Punkte`, raw: total });
+      let total = 0;
+      let effSumTotal = 0;
+      let questionCountTotal = 0;
+      map.forEach(entry => {
+        total += entry.points;
+        effSumTotal += entry.effSum;
+        questionCountTotal += entry.count;
+      });
+      const avgEfficiency = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
+      const display = `${total} Punkte (Ø ${(avgEfficiency * 100).toFixed(0)}%)`;
+      totalScores.push({ name, value: display, raw: total, avg: avgEfficiency });
     });
-    totalScores.sort((a, b) => b.raw - a.raw);
+    totalScores.sort((a, b) => {
+      if (b.raw !== a.raw) return b.raw - a.raw;
+      return (b.avg ?? 0) - (a.avg ?? 0);
+    });
     const pointsList = totalScores.slice(0, 3);
 
     return { puzzleList, catalogList, pointsList };
@@ -464,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshLightboxes();
         updatePagination();
 
-        const rankings = computeRankings(rows);
+        const rankings = computeRankings(rows, qrows);
         renderRankings(rankings);
 
         qrows.forEach(r => {

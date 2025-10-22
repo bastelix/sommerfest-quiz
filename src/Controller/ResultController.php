@@ -307,7 +307,7 @@ class ResultController
         }
 
         $awardService = new AwardService();
-        $rankings = $awardService->computeRankings($allResults, $catalogCount);
+        $rankings = $awardService->computeRankings($allResults, $catalogCount, $questionResults);
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');

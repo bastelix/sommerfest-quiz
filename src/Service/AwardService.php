@@ -14,25 +14,71 @@ class AwardService
      *
      * @param list<array<string,mixed>> $results
      * @param int|null $catalogCount total number of catalogs if known
+     * @param list<array<string,mixed>> $questionResults
      * @return array{
      *     puzzle:list<array{team:string,place:int}>,
      *     catalog:list<array{team:string,place:int}>,
      *     points:list<array{team:string,place:int}>
      * }
      */
-    public function computeRankings(array $results, ?int $catalogCount = null): array {
+    public function computeRankings(array $results, ?int $catalogCount = null, array $questionResults = []): array {
         $catalogs = [];
         $puzzleTimes = [];
         $catalogTimes = [];
         $scores = [];
+        $attemptMetrics = [];
+
+        foreach ($questionResults as $row) {
+            $team = (string)($row['name'] ?? '');
+            $catalog = (string)($row['catalog'] ?? '');
+            if ($team === '' || $catalog === '') {
+                continue;
+            }
+            $attempt = (int)($row['attempt'] ?? 1);
+            $key = $team . '|' . $catalog . '|' . $attempt;
+            $finalPointsRaw = $row['final_points'] ?? $row['finalPoints'] ?? $row['points'] ?? 0;
+            $finalPoints = (int) $finalPointsRaw;
+            $efficiencyRaw = $row['efficiency'] ?? null;
+            $efficiency = $efficiencyRaw !== null ? (float) $efficiencyRaw : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
+            if (!isset($attemptMetrics[$key])) {
+                $attemptMetrics[$key] = [
+                    'points' => 0,
+                    'efficiencySum' => 0.0,
+                    'questionCount' => 0,
+                ];
+            }
+            $attemptMetrics[$key]['points'] += max(0, $finalPoints);
+            $attemptMetrics[$key]['efficiencySum'] += max(0.0, $efficiency);
+            $attemptMetrics[$key]['questionCount']++;
+        }
 
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
             $catalog = (string)($row['catalog'] ?? '');
+            if ($team === '' || $catalog === '') {
+                continue;
+            }
             $time = (int)($row['time'] ?? 0);
             $correct = (int)($row['correct'] ?? 0);
             $points = isset($row['points']) ? (int)$row['points'] : $correct;
             $puzzle = isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null;
+            $attempt = (int)($row['attempt'] ?? 1);
+            $key = $team . '|' . $catalog . '|' . $attempt;
+            $summary = $attemptMetrics[$key] ?? null;
+            if ($summary !== null && $summary['questionCount'] > 0) {
+                $finalPoints = (int) $summary['points'];
+                $effSum = (float) $summary['efficiencySum'];
+                $questionCount = (int) $summary['questionCount'];
+            } else {
+                $finalPoints = $points;
+                $questionCount = (int)($row['total'] ?? 0);
+                if ($questionCount < 0) {
+                    $questionCount = 0;
+                }
+                $avgFallback = $questionCount > 0 ? $correct / $questionCount : 0.0;
+                $effSum = $avgFallback * $questionCount;
+            }
+            $average = $questionCount > 0 ? $effSum / $questionCount : 0.0;
 
             $catalogs[$catalog] = true;
 
@@ -46,8 +92,18 @@ class AwardService
                 $catalogTimes[$team][$catalog] = $time;
             }
 
-            if (!isset($scores[$team][$catalog]) || $points > $scores[$team][$catalog]) {
-                $scores[$team][$catalog] = $points;
+            $existing = $scores[$team][$catalog] ?? null;
+            if (
+                $existing === null
+                || $finalPoints > $existing['points']
+                || ($finalPoints === $existing['points'] && $average > $existing['average'])
+            ) {
+                $scores[$team][$catalog] = [
+                    'points' => $finalPoints,
+                    'average' => $average,
+                    'efficiencySum' => $effSum,
+                    'questionCount' => $questionCount,
+                ];
             }
         }
 
@@ -77,10 +133,27 @@ class AwardService
 
         $scoreList = [];
         foreach ($scores as $team => $map) {
-            $total = array_sum($map);
-            $scoreList[] = ['team' => $team, 'score' => $total];
+            $total = 0;
+            $effSumTotal = 0.0;
+            $questionCountTotal = 0;
+            foreach ($map as $entry) {
+                $total += (int) $entry['points'];
+                $effSumTotal += (float) $entry['efficiencySum'];
+                $questionCountTotal += (int) $entry['questionCount'];
+            }
+            $avgEfficiency = $questionCountTotal > 0 ? $effSumTotal / $questionCountTotal : 0.0;
+            $scoreList[] = ['team' => $team, 'score' => $total, 'avgEfficiency' => $avgEfficiency];
         }
-        usort($scoreList, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort(
+            $scoreList,
+            static function (array $a, array $b): int {
+                $cmp = $b['score'] <=> $a['score'];
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
+                return ($b['avgEfficiency'] ?? 0) <=> ($a['avgEfficiency'] ?? 0);
+            }
+        );
         $pointsRanks = [];
         foreach (array_slice($scoreList, 0, 3) as $idx => $row) {
             $pointsRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
