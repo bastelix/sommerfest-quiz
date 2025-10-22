@@ -147,9 +147,7 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 
 @media (max-width: 640px) {
   .topbar .uk-navbar-right {
-    position: absolute;
-    right: 0;
-    top: 0;
+    margin-left: auto;
     justify-content: flex-end;
     padding-right: 0;
   }
