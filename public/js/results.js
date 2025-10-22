@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const params = new URLSearchParams(window.location.search);
-  const eventUid = params.get('event') || '';
-  const eventQuery = eventUid ? `?event=${encodeURIComponent(eventUid)}` : '';
+  let fallbackEventUid = params.get('event') || '';
+  let activeRequestId = 0;
 
   const PAGE_SIZE = 10;
   let resultsData = [];
@@ -416,18 +416,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  const buildEventQuery = uid => (uid ? `?event=${encodeURIComponent(uid)}` : '');
+  const getCurrentEventUid = () => {
+    const configUid = (window.quizConfig || {}).event_uid || '';
+    return configUid || fallbackEventUid;
+  };
+
   function load() {
-    const currentEventUid = (window.quizConfig || {}).event_uid || '';
+    const currentEventUid = getCurrentEventUid();
     if (!currentEventUid) {
       renderNoEvent();
       return;
     }
+    const requestId = ++activeRequestId;
+    const eventQuery = buildEventQuery(currentEventUid);
     Promise.all([
       fetchCatalogMap(),
       fetch(withBase('/results.json' + eventQuery)).then(r => r.json()),
       fetch(withBase('/question-results.json' + eventQuery)).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
+        if (requestId !== activeRequestId) {
+          return;
+        }
         rows.forEach(r => {
           if (!r.catalogName && catMap[r.catalog]) r.catalogName = catMap[r.catalog];
           if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
@@ -450,7 +461,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const wrongOnly = qrows.filter(r => !r.correct);
         renderWrongTable(wrongOnly);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        if (requestId === activeRequestId) {
+          console.error(err);
+        }
+      });
   }
 
   refreshBtn?.addEventListener('click', e => {
@@ -521,6 +536,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.body.addEventListener('click', window.lightboxRotateHandler, { capture: true });
   }
+
+  document.addEventListener('event:changed', e => {
+    const detail = e.detail || {};
+    fallbackEventUid = typeof detail.uid === 'string' ? detail.uid : fallbackEventUid;
+    catalogMap = null;
+    catalogCount = 0;
+    resultsData = [];
+    currentPage = 1;
+    load();
+  });
 
   load();
 });
