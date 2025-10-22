@@ -1,5 +1,19 @@
 export function formatTimestamp(ts) {
-  const d = new Date(ts * 1000);
+  if (ts === null || ts === undefined) {
+    return '–';
+  }
+  const numeric = Number(ts);
+  if (!Number.isFinite(numeric) || numeric <= 0) {
+    return '–';
+  }
+  const ms = numeric * 1000;
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return '–';
+  }
+  const d = new Date(ms);
+  if (Number.isNaN(d.getTime())) {
+    return '–';
+  }
   const pad = (n) => n.toString().padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
