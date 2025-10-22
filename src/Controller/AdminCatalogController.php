@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\CatalogService;
@@ -31,15 +32,21 @@ class AdminCatalogController
         $perPage = max(1, (int) ($params['perPage'] ?? 50));
         $order = (string) ($params['order'] ?? 'asc');
         $offset = ($page - 1) * $perPage;
-        $items = $this->service->fetchPagedCatalogs($offset, $perPage, $order);
-        $total = $this->service->countCatalogs();
+        try {
+            $items = $this->service->fetchPagedCatalogs($offset, $perPage, $order);
+            $total = $this->service->countCatalogs();
 
-        $payload = [
-            'items' => $items,
-            'total' => $total,
-            'page' => $page,
-            'perPage' => $perPage,
-        ];
+            $payload = [
+                'items' => $items,
+                'total' => $total,
+                'page' => $page,
+                'perPage' => $perPage,
+            ];
+        } catch (PDOException $exception) {
+            $payload = [
+                'useLegacy' => true,
+            ];
+        }
 
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
