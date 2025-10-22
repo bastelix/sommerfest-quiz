@@ -823,7 +823,11 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentEventUid = cfgParams.get('event') || '';
   const eventIndicators = document.querySelectorAll('[data-current-event-indicator]');
   const indicatorNodes = Array.from(eventIndicators);
+  const eventSelectNodes = indicatorNodes
+    .map(el => el.querySelector('[data-current-event-select]'))
+    .filter(el => el);
   let currentEventName = '';
+  let availableEvents = [];
   if (!currentEventUid) {
     const seededUid = indicatorNodes.map(el => el.dataset.currentEventUid || '').find(uid => uid);
     currentEventUid = seededUid || cfgInitial.event_uid || '';
@@ -833,10 +837,34 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (!currentEventName) {
     const seededName = indicatorNodes
-      .map(el => (el.querySelector('[data-current-event-name]')?.textContent || '').trim())
+      .map(el => {
+        const attrName = (el.dataset.currentEventName || '').trim();
+        if (attrName) return attrName;
+        const select = el.querySelector('[data-current-event-select]');
+        if (select && select.options && select.selectedIndex >= 0) {
+          const option = select.options[select.selectedIndex];
+          if (option && option.value) {
+            return (option.textContent || '').trim();
+          }
+        }
+        return '';
+      })
       .find(name => name);
     currentEventName = seededName || (cfgInitial.header || '');
   }
+
+  eventSelectNodes.forEach(select => {
+    select.addEventListener('change', () => {
+      const uid = select.value || '';
+      const option = select.options[select.selectedIndex] || null;
+      const name = option ? (option.textContent || '') : '';
+      if (uid === (currentEventUid || '')) {
+        renderCurrentEventIndicator(currentEventName, currentEventUid, availableEvents.length > 0);
+        return;
+      }
+      setCurrentEvent(uid, name);
+    });
+  });
   // Verweise auf die Formularfelder
   const cfgFields = {
     logoFile: document.getElementById('cfgLogoFile'),
@@ -3282,28 +3310,80 @@ document.addEventListener('DOMContentLoaded', function () {
   const langSelect = document.getElementById('langSelect');
   const eventButtons = document.querySelectorAll('[data-event-btn]');
 
-  function renderCurrentEventIndicator(name, uid, hasEvents = true) {
+  function populateEventSelectors(list) {
+    const normalized = Array.isArray(list)
+      ? list
+          .map(item => {
+            const rawUid = item?.uid ?? item?.id ?? '';
+            const uid = typeof rawUid === 'string' ? rawUid : (rawUid ? String(rawUid) : '');
+            const name = typeof item?.name === 'string' ? item.name.trim() : '';
+            return { uid, name };
+          })
+          .filter(ev => ev.uid !== '' && ev.name !== '' && !ev.name.startsWith('__draft__'))
+      : [];
+    availableEvents = normalized;
+    eventSelectNodes.forEach(select => {
+      const indicator = select.closest('[data-current-event-indicator]');
+      const placeholderText = indicator?.dataset.placeholder || indicator?.dataset.empty || '';
+      const previousValue = select.value;
+      select.innerHTML = '';
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = placeholderText;
+      select.appendChild(placeholder);
+      normalized.forEach(ev => {
+        const option = document.createElement('option');
+        option.value = ev.uid;
+        option.textContent = ev.name;
+        if (ev.uid === currentEventUid) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+      const hasCurrent = normalized.some(ev => ev.uid === currentEventUid);
+      if (hasCurrent) {
+        select.value = currentEventUid;
+      } else if (previousValue && normalized.some(ev => ev.uid === previousValue)) {
+        select.value = previousValue;
+      } else {
+        select.value = '';
+      }
+      select.disabled = normalized.length === 0;
+    });
+  }
+
+  function renderCurrentEventIndicator(name, uid, hasEvents = null) {
     const normalizedName = name || '';
     const normalizedUid = uid || '';
-    const hasUid = normalizedUid !== '';
+    const hasAnyEvents = typeof hasEvents === 'boolean' ? hasEvents : availableEvents.length > 0;
     eventIndicators.forEach(indicator => {
-      const info = indicator.querySelector('[data-current-event-info]');
       const empty = indicator.querySelector('[data-current-event-empty]');
-      const nameEl = indicator.querySelector('[data-current-event-name]');
-      if (nameEl) {
-        nameEl.textContent = normalizedName;
-      }
-      if (info) {
-        info.hidden = !hasUid;
+      const select = indicator.querySelector('[data-current-event-select]');
+      indicator.dataset.currentEventUid = normalizedUid;
+      indicator.dataset.currentEventName = normalizedName;
+      if (select) {
+        const options = Array.from(select.options || []);
+        const hasOption = options.some(opt => opt.value === normalizedUid && normalizedUid !== '');
+        if (hasOption) {
+          select.value = normalizedUid;
+        } else if (options.length) {
+          select.value = '';
+        }
+        const disable = !hasAnyEvents || availableEvents.length === 0;
+        select.disabled = disable;
       }
       if (empty) {
-        const message = hasEvents
-          ? (indicator.dataset.empty || '')
-          : (indicator.dataset.none || indicator.dataset.empty || '');
-        empty.textContent = message;
-        empty.hidden = hasUid;
+        if (!hasAnyEvents || availableEvents.length === 0) {
+          const message = indicator.dataset.none || indicator.dataset.empty || '';
+          empty.textContent = message;
+          empty.hidden = false;
+        } else if (!normalizedUid) {
+          empty.textContent = indicator.dataset.empty || '';
+          empty.hidden = false;
+        } else {
+          empty.hidden = true;
+        }
       }
-      indicator.dataset.currentEventUid = normalizedUid;
     });
   }
 
@@ -3320,6 +3400,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function syncCurrentEventState(list) {
+    populateEventSelectors(Array.isArray(list) ? list : []);
     const hasEvents = Array.isArray(list) && list.length > 0;
     if (!hasEvents) {
       currentEventUid = '';
@@ -3336,7 +3417,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (match) {
       currentEventName = match.name || currentEventName;
       updateActiveHeader(currentEventName);
-      renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+      renderCurrentEventIndicator(currentEventName, currentEventUid, availableEvents.length > 0);
       updateEventButtons(currentEventUid);
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     } else {
@@ -3345,7 +3426,7 @@ document.addEventListener('DOMContentLoaded', function () {
       cfgInitial.event_uid = '';
       window.quizConfig = {};
       updateActiveHeader('');
-      renderCurrentEventIndicator('', '', true);
+      renderCurrentEventIndicator('', '', availableEvents.length > 0);
       updateEventButtons('');
       eventDependentSections.forEach(sec => { sec.hidden = true; });
     }
@@ -3441,7 +3522,7 @@ document.addEventListener('DOMContentLoaded', function () {
         Object.assign(cfgInitial, cfg);
         window.quizConfig = cfg || {};
         updateActiveHeader(currentEventName);
-        renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+        renderCurrentEventIndicator(currentEventName, currentEventUid);
         updateEventButtons(currentEventUid);
         eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
         const url = new URL(window.location);
@@ -3449,6 +3530,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, '', url.toString());
         }
+        highlightCurrentEvent();
       })
       .catch(err => {
         console.error(err);
@@ -3456,7 +3538,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentEventUid = prevUid;
         currentEventName = prevName;
         updateActiveHeader(prevName);
-        renderCurrentEventIndicator(prevName, prevUid, true);
+        renderCurrentEventIndicator(prevName, prevUid);
         updateEventButtons(prevUid);
         eventDependentSections.forEach(sec => { sec.hidden = !prevUid; });
         const url = new URL(window.location);
@@ -3464,6 +3546,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, '', url.toString());
         }
+        highlightCurrentEvent();
       });
   }
 
@@ -3617,6 +3700,7 @@ document.addEventListener('DOMContentLoaded', function () {
       ? window.initialEvents.map(d => createEventItem(d))
       : [];
     const initialEmpty = initial.length === 0;
+    populateEventSelectors(initial);
     if (eventManager) {
       eventManager.render(initial);
       highlightCurrentEvent();
@@ -4905,7 +4989,8 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
     ]).then(([cfg, events, catalogs, teams]) => {
       Object.assign(cfgInitial, cfg);
-      const listHasEvents = Array.isArray(events) && events.length > 0;
+      populateEventSelectors(events);
+      const selectableHasEvents = availableEvents.length > 0;
       let ev = events.find(e => e.uid === currentEventUid) || null;
       if (!ev) {
         currentEventUid = '';
@@ -4917,7 +5002,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentEventName = ev.name || currentEventName;
       }
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
-      renderCurrentEventIndicator(currentEventName, currentEventUid, listHasEvents);
+      renderCurrentEventIndicator(currentEventName, currentEventUid, selectableHasEvents);
       updateEventButtons(currentEventUid);
       updateActiveHeader(currentEventName);
       highlightCurrentEvent();
@@ -5271,7 +5356,7 @@ document.addEventListener('DOMContentLoaded', function () {
     Object.assign(cfgInitial, config || {});
     window.quizConfig = config || {};
     updateActiveHeader(currentEventName);
-    renderCurrentEventIndicator(currentEventName, currentEventUid, true);
+    renderCurrentEventIndicator(currentEventName, currentEventUid, availableEvents.length > 0);
     updateEventButtons(currentEventUid);
     updateHeading(eventSettingsHeading, currentEventName);
     updateHeading(catalogsHeading, currentEventName);

@@ -1,17 +1,41 @@
 {% set currentUid = currentEventUid|default('') %}
 {% set currentName = currentEventName|default('') %}
+{% set eventsList = events|default([]) %}
+{% set selectId = 'eventControlSelect-' ~ random(1000000) %}
 <div
-  class="qr-event-indicator uk-alert uk-alert-primary uk-flex uk-flex-middle uk-flex-between uk-margin-small-bottom"
+  class="qr-event-indicator uk-alert uk-alert-primary uk-flex uk-flex-wrap uk-flex-middle uk-margin-small-bottom"
   data-current-event-indicator
   data-current-event-uid="{{ currentUid }}"
+  data-current-event-name="{{ currentName }}"
   data-empty="{{ t('text_event_required') }}"
   data-none="{{ t('text_no_events') }}"
+  data-placeholder="{{ t('label_event_select') }}"
 >
-  <div class="uk-flex uk-flex-middle uk-flex-wrap" data-current-event-info{% if currentUid is empty %} hidden{% endif %}>
-    <span class="uk-text-bold uk-margin-small-right">{{ t('label_event_current') }}:</span>
-    <span data-current-event-name>{{ currentName }}</span>
+  <div class="uk-flex uk-flex-middle uk-flex-wrap uk-width-1-1">
+    <label class="uk-text-bold uk-margin-small-right" for="{{ selectId }}">{{ t('label_event_select') }}</label>
+    <div class="uk-flex-1 uk-margin-small-top@s uk-margin-small-left@m">
+      <select
+        id="{{ selectId }}"
+        class="uk-select"
+        data-current-event-select
+        {% if eventsList is empty %}disabled{% endif %}
+      >
+        <option value="">{{ t('label_event_select') }}</option>
+        {% for event in eventsList %}
+          {% set optionUid = event.uid|default(event.id|default('')) %}
+          {% set optionName = event.name|default('')|trim %}
+          {% if optionUid and optionName %}
+            <option value="{{ optionUid }}"{% if optionUid == currentUid %} selected{% endif %}>{{ optionName }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </div>
   </div>
-  <div class="uk-text-meta" data-current-event-empty{% if currentUid %} hidden{% endif %}>
-    {{ t('text_event_required') }}
+  <div class="uk-text-meta uk-margin-small-top uk-width-1-1" data-current-event-empty{% if eventsList is not empty and currentUid %} hidden{% endif %}>
+    {% if eventsList is empty %}
+      {{ t('text_no_events') }}
+    {% else %}
+      {{ t('text_event_required') }}
+    {% endif %}
   </div>
 </div>
