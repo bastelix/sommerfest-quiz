@@ -3,6 +3,7 @@
   const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
   const withBase = (p) => basePath + p;
   let eventId = document.body?.dataset.eventId || currentScript?.dataset.eventId || window.eventId || '';
+  const currentEventSelects = new Set();
 
   const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
@@ -19,6 +20,91 @@
       delete headers['Content-Type'];
     }
     return fetch(withBase(path), { credentials: 'same-origin', cache: 'no-store', ...options, headers });
+  };
+
+  const syncCurrentEventSelect = (select, uid) => {
+    if (!select) return;
+    const value = uid || '';
+    const options = Array.from(select.options || []);
+    const hasOption = options.some((opt) => (opt.value || '') === value);
+    if (hasOption) {
+      select.value = value;
+    } else {
+      select.value = '';
+    }
+    select.dataset.currentEventValue = hasOption ? value : '';
+  };
+
+  const setCurrentEvent = (uid, name) => {
+    return csrfFetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_uid: uid })
+    })
+      .then((resp) => {
+        if (!resp.ok) {
+          return resp.text().then((text) => {
+            throw new Error(text || 'Fehler beim Wechseln des Events');
+          });
+        }
+        if (uid) {
+          return fetch(withBase(`/admin/event/${encodeURIComponent(uid)}`), {
+            credentials: 'same-origin',
+            cache: 'no-store',
+            headers: { Accept: 'application/json' }
+          }).then((res) => {
+            if (!res.ok) {
+              return res.text().then((text) => {
+                throw new Error(text || 'Fehler beim Laden des Events');
+              });
+            }
+            return res.json();
+          });
+        }
+        return { event: null, config: {} };
+      })
+      .then((detail) => {
+        const config = detail?.config || {};
+        document.dispatchEvent(
+          new CustomEvent('current-event-changed', { detail: { uid, name, config } })
+        );
+        return detail;
+      })
+      .catch((err) => {
+        if (err instanceof TypeError) {
+          throw new Error('Server unreachable');
+        }
+        throw err;
+      });
+  };
+
+  const initializeCurrentEventSelect = (select) => {
+    if (!select || currentEventSelects.has(select)) return;
+    currentEventSelects.add(select);
+    syncCurrentEventSelect(select, eventId);
+    select.addEventListener('change', () => {
+      const prevValue = select.dataset.currentEventValue || '';
+      const prevDisabled = select.disabled;
+      const uid = select.value || '';
+      if (uid === prevValue) {
+        return;
+      }
+      const option = select.options[select.selectedIndex] || null;
+      const name = uid ? ((option?.textContent || '').trim()) : '';
+      select.disabled = true;
+      setCurrentEvent(uid, name)
+        .then(() => {
+          syncCurrentEventSelect(select, uid);
+        })
+        .catch((err) => {
+          console.error(err);
+          UIkit?.notification({ message: err.message || 'Fehler beim Wechseln des Events', status: 'danger' });
+          syncCurrentEventSelect(select, prevValue);
+        })
+        .finally(() => {
+          select.disabled = prevDisabled;
+        });
+    });
   };
 
   function collectData() {
@@ -142,6 +228,9 @@
     eventId = uid;
     isDirty = false;
     clearForm();
+    currentEventSelects.forEach((select) => {
+      syncCurrentEventSelect(select, uid);
+    });
     if (eventSettingsHeading) {
       eventSettingsHeading.textContent = name
         ? `${name} – ${eventSettingsHeading.dataset.title}`
@@ -157,6 +246,9 @@
   });
 
   document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-current-event-select]').forEach((select) => {
+      initializeCurrentEventSelect(select);
+    });
     if (eventId) {
       loadConfig(eventId);
     } else {
