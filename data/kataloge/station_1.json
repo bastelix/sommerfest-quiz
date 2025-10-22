@@ -3,7 +3,8 @@
     "type": "mc",
     "prompt": "Womit kann man Daten auf einem USB-Stick speichern?",
     "options": ["Bilder", "Tintenpatronen", "Wasser"],
-    "answers": [0]
+    "answers": [0],
+    "countdown": 45
   },
   {
     "type": "assign",

@@ -130,6 +130,8 @@
   const puzzleWordEnabled = document.getElementById('puzzleWordEnabled');
   const puzzleWord = document.getElementById('puzzleWord');
   const puzzleFeedback = document.getElementById('puzzleFeedback');
+  const countdownEnabled = document.getElementById('countdownEnabled');
+  const countdownInput = document.getElementById('countdown');
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
@@ -140,6 +142,10 @@
       const enabled = puzzleWordEnabled.checked;
       puzzleWord.disabled = !enabled;
       puzzleFeedback.disabled = !enabled;
+    }
+    if (countdownEnabled && countdownInput) {
+      const enabledCountdown = countdownEnabled.checked;
+      countdownInput.disabled = !enabledCountdown;
     }
   }
 
@@ -255,6 +261,7 @@
       applyRules();
     }
     puzzleWordEnabled?.addEventListener('change', applyRules);
+    countdownEnabled?.addEventListener('change', applyRules);
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     document.querySelectorAll('input, textarea, select').forEach((el) => {
       el.addEventListener('input', markDirty);

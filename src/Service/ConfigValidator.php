@@ -29,6 +29,8 @@ class ConfigValidator
         'teamResults' => false,
         'photoUpload' => false,
         'collectPlayerUid' => false,
+        'countdownEnabled' => false,
+        'countdown' => 0,
         'puzzleWordEnabled' => false,
         'puzzleWord' => '',
         'puzzleFeedback' => '',
@@ -85,10 +87,29 @@ class ConfigValidator
                 'teamResults',
                 'photoUpload',
                 'collectPlayerUid',
+                'countdownEnabled',
                 'puzzleWordEnabled',
             ] as $key
         ) {
             $config[$key] = filter_var($data[$key] ?? self::DEFAULTS[$key], FILTER_VALIDATE_BOOL);
+        }
+
+        // countdown in seconds (non-negative integer)
+        $countdownRaw = $data['countdown'] ?? self::DEFAULTS['countdown'];
+        if ($countdownRaw === null || $countdownRaw === '') {
+            $config['countdown'] = 0;
+        } else {
+            $countdown = filter_var(
+                $countdownRaw,
+                FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 0]]
+            );
+            if ($countdown === false) {
+                $errors['countdown'] = 'Countdown must be a non-negative integer';
+                $config['countdown'] = 0;
+            } else {
+                $config['countdown'] = (int) $countdown;
+            }
         }
 
         // puzzleWord

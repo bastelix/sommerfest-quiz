@@ -329,7 +329,7 @@ class CatalogService
             return null;
         }
         $qStmt = $this->pdo->prepare(
-            'SELECT type,prompt,options,answers,terms,items,cards,' .
+            'SELECT type,prompt,options,answers,terms,items,cards,countdown,' .
             ' right_label AS "rightLabel",left_label AS "leftLabel" ' .
             'FROM questions WHERE catalog_uid=? ORDER BY sort_order'
         );
@@ -346,6 +346,13 @@ class CatalogService
             foreach (["rightLabel","leftLabel"] as $k) {
                 if ($row[$k] === null) {
                     unset($row[$k]);
+                }
+            }
+            if (array_key_exists('countdown', $row)) {
+                if ($row['countdown'] === null) {
+                    unset($row['countdown']);
+                } else {
+                    $row['countdown'] = (int) $row['countdown'];
                 }
             }
             if ($row['type'] === 'flip' && isset($row['answers'])) {
@@ -606,8 +613,8 @@ class CatalogService
         $del->execute([$cat['uid']]);
         $qStmt = $this->pdo->prepare(
             'INSERT INTO questions(' .
-            'catalog_uid,type,prompt,options,answers,terms,items,cards,right_label,left_label,sort_order)' .
-            ' VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+            'catalog_uid,type,prompt,options,answers,terms,items,cards,right_label,left_label,sort_order,countdown)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         foreach ($data as $i => $q) {
             $answers = null;
@@ -629,6 +636,9 @@ class CatalogService
                 $q['rightLabel'] ?? null,
                 $q['leftLabel'] ?? null,
                 $i + 1,
+                array_key_exists('countdown', $q)
+                    ? (is_numeric($q['countdown']) ? (int) $q['countdown'] : null)
+                    : null,
             ]);
         }
         $this->pdo->commit();

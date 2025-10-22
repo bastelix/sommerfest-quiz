@@ -209,6 +209,175 @@ async function runQuiz(questions, skipIntro){
     }
   }
 
+  const countdownFeatureEnabled = parseCountdownFlag(cfg.countdownEnabled);
+  const defaultCountdownRaw = normalizeCountdownValue(cfg.countdown);
+  const defaultCountdownSeconds = defaultCountdownRaw !== null && defaultCountdownRaw > 0
+    ? defaultCountdownRaw
+    : null;
+
+  const countdownState = {
+    intervalId: null,
+    autoAdvanceId: null,
+    container: null,
+    valueEl: null,
+    secondsRemaining: 0,
+    totalSeconds: 0,
+    questionEl: null,
+    scoreIndex: null,
+    expired: false,
+  };
+
+  function parseCountdownFlag(value){
+    if(typeof value === 'boolean') return value;
+    if(typeof value === 'number') return value > 0;
+    if(typeof value === 'string'){
+      const normalized = value.trim().toLowerCase();
+      if(normalized === '') return false;
+      return ['1','true','yes','on'].includes(normalized);
+    }
+    return false;
+  }
+
+  function normalizeCountdownValue(value){
+    if(value === null || value === undefined) return null;
+    if(typeof value === 'string'){
+      const trimmed = value.trim();
+      if(trimmed === '') return null;
+      value = trimmed;
+    }
+    const parsed = Number.parseInt(value, 10);
+    if(Number.isNaN(parsed) || parsed < 0) return null;
+    return parsed;
+  }
+
+  function stopCountdown(){
+    if(countdownState.intervalId !== null){
+      clearInterval(countdownState.intervalId);
+      countdownState.intervalId = null;
+    }
+    if(countdownState.autoAdvanceId !== null){
+      clearTimeout(countdownState.autoAdvanceId);
+      countdownState.autoAdvanceId = null;
+    }
+    countdownState.container = null;
+    countdownState.valueEl = null;
+    countdownState.secondsRemaining = 0;
+    countdownState.totalSeconds = 0;
+    countdownState.questionEl = null;
+    countdownState.scoreIndex = null;
+    countdownState.expired = false;
+  }
+
+  function getQuestionCountdownSeconds(question){
+    if(!countdownFeatureEnabled) return null;
+    const qValue = normalizeCountdownValue(question?.countdown);
+    if(qValue !== null){
+      return qValue > 0 ? qValue : null;
+    }
+    return defaultCountdownSeconds;
+  }
+
+  function startCountdown(questionEl, questionData, scoreIndex){
+    if(!countdownFeatureEnabled) return;
+    const seconds = getQuestionCountdownSeconds(questionData);
+    if(seconds === null || seconds <= 0){
+      delete questionEl.dataset.timedOut;
+      return;
+    }
+    stopCountdown();
+    let timerEl = questionEl.querySelector('.question-timer');
+    if(!timerEl){
+      timerEl = document.createElement('div');
+      timerEl.className = 'question-timer';
+      timerEl.setAttribute('role', 'timer');
+      const labelEl = document.createElement('span');
+      labelEl.className = 'question-timer__label';
+      labelEl.textContent = 'Zeitlimit:';
+      const valueEl = document.createElement('span');
+      valueEl.className = 'question-timer__value';
+      timerEl.appendChild(labelEl);
+      timerEl.appendChild(valueEl);
+      questionEl.insertBefore(timerEl, questionEl.firstChild);
+    }
+    const valueEl = timerEl.querySelector('.question-timer__value');
+    if(!valueEl){
+      return;
+    }
+    timerEl.classList.remove('question-timer--expired');
+    timerEl.dataset.initialSeconds = String(seconds);
+    valueEl.textContent = `${seconds}s`;
+    questionEl.classList.remove('question--timeout');
+    questionEl.dataset.timedOut = '0';
+    const feedbackEl = questionEl.querySelector('[data-role="feedback"]');
+    if(feedbackEl){
+      feedbackEl.classList.remove('question-feedback--timeout');
+    }
+    countdownState.container = timerEl;
+    countdownState.valueEl = valueEl;
+    countdownState.secondsRemaining = seconds;
+    countdownState.totalSeconds = seconds;
+    countdownState.questionEl = questionEl;
+    countdownState.scoreIndex = scoreIndex;
+    countdownState.expired = false;
+    countdownState.intervalId = window.setInterval(() => {
+      if(!countdownState.questionEl || countdownState.questionEl !== questionEl){
+        stopCountdown();
+        return;
+      }
+      countdownState.secondsRemaining -= 1;
+      if(countdownState.secondsRemaining <= 0){
+        handleCountdownExpired(questionEl, scoreIndex);
+      } else if(countdownState.valueEl){
+        countdownState.valueEl.textContent = `${countdownState.secondsRemaining}s`;
+      }
+    }, 1000);
+  }
+
+  function handleCountdownExpired(questionEl, scoreIndex){
+    if(countdownState.questionEl !== questionEl) return;
+    if(countdownState.expired) return;
+    countdownState.expired = true;
+    if(countdownState.intervalId !== null){
+      clearInterval(countdownState.intervalId);
+      countdownState.intervalId = null;
+    }
+    if(countdownState.autoAdvanceId !== null){
+      clearTimeout(countdownState.autoAdvanceId);
+      countdownState.autoAdvanceId = null;
+    }
+    countdownState.secondsRemaining = 0;
+    if(countdownState.valueEl){
+      countdownState.valueEl.textContent = '0s';
+    }
+    if(countdownState.container){
+      countdownState.container.classList.add('question-timer--expired');
+    }
+    if(scoreIndex !== null && results[scoreIndex] === true){
+      countdownState.autoAdvanceId = window.setTimeout(() => {
+        if(elements[current] === questionEl && current < totalQuestions + 1){
+          next();
+        }
+      }, 800);
+      return;
+    }
+    questionEl.dataset.timedOut = '1';
+    questionEl.classList.add('question--timeout');
+    const feedbackEl = questionEl.querySelector('[data-role="feedback"]');
+    if(feedbackEl){
+      feedbackEl.classList.remove('uk-text-success', 'uk-text-danger', 'question-feedback--timeout');
+      feedbackEl.textContent = '⏱️ Zeit abgelaufen! Die Frage zählt nicht.';
+      feedbackEl.classList.add('question-feedback--timeout');
+    }
+    if(scoreIndex !== null && results[scoreIndex] !== true){
+      results[scoreIndex] = false;
+    }
+    countdownState.autoAdvanceId = window.setTimeout(() => {
+      if(elements[current] === questionEl && current < totalQuestions + 1){
+        next();
+      }
+    }, 1500);
+  }
+
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
   const announcer = document.getElementById('question-announcer');
@@ -320,6 +489,7 @@ async function runQuiz(questions, skipIntro){
 
   // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
+    stopCountdown();
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
     if(i === 0){
       progress.classList.add('uk-hidden');
@@ -346,6 +516,12 @@ async function runQuiz(questions, skipIntro){
       if (announcer) announcer.textContent = `Frage ${questionCount} von ${questionCount}`;
       progress.classList.add('uk-hidden');
       updateSummary();
+    }
+    if(i > 0 && i <= totalQuestions){
+      const questionEl = elements[i];
+      const questionData = shuffled[i - 1];
+      const scoreIndex = questionData.type !== 'flip' ? scorableCounts[i - 1] : null;
+      startCountdown(questionEl, questionData, scoreIndex);
     }
   }
 
@@ -547,7 +723,8 @@ async function runQuiz(questions, skipIntro){
     });
     div.appendChild(ul);
     const feedback = document.createElement('div');
-    feedback.className = 'uk-margin-top';
+    feedback.className = 'uk-margin-top question-feedback';
+    feedback.dataset.role = 'feedback';
     feedback.setAttribute('role', 'alert');
     feedback.setAttribute('aria-live', 'polite');
     const footer = document.createElement('div');
@@ -594,6 +771,7 @@ async function runQuiz(questions, skipIntro){
   }
 
   function renderFeedback(container, isCorrect, message){
+    container.classList.remove('question-feedback--timeout');
     container.textContent = '';
     const div = document.createElement('div');
     div.setAttribute('uk-alert','');
@@ -608,6 +786,10 @@ async function runQuiz(questions, skipIntro){
 
   // Prüft die Reihenfolge der Sortierfrage
   function checkSort(ul, right, feedback, idx){
+    const container = ul.closest('.question');
+    if(container && container.dataset.timedOut === '1'){
+      return;
+    }
     const currentOrder = Array.from(ul.querySelectorAll('li')).map(li => li.textContent.trim());
     const correct = JSON.stringify(currentOrder) === JSON.stringify(right);
     results[idx] = correct;
@@ -677,7 +859,8 @@ async function runQuiz(questions, skipIntro){
     grid.appendChild(rightCol);
 
     const feedback = document.createElement('div');
-    feedback.className = 'uk-margin-top';
+    feedback.className = 'uk-margin-top question-feedback';
+    feedback.dataset.role = 'feedback';
     feedback.setAttribute('role', 'alert');
     feedback.setAttribute('aria-live', 'polite');
     const footer = document.createElement('div');
@@ -766,6 +949,9 @@ async function runQuiz(questions, skipIntro){
 
   // Überprüft, ob alle Begriffe korrekt zugeordnet wurden
   function checkAssign(div, feedback, idx){
+    if(div.dataset.timedOut === '1'){
+      return;
+    }
     let allCorrect = true;
     div.querySelectorAll('.dropzone').forEach(zone => {
       const parts = zone.textContent.split(' \u2013 ');
@@ -784,6 +970,9 @@ async function runQuiz(questions, skipIntro){
 
   // Setzt die Zuordnungsfrage auf den Ausgangszustand zurück
   function resetAssign(div, feedback){
+    if(div.dataset.timedOut === '1'){
+      return;
+    }
     const termList = div.querySelector('.terms');
     termList.textContent = '';
     div._initialLeftTerms.forEach(t => {
@@ -810,11 +999,15 @@ async function runQuiz(questions, skipIntro){
       delete zone.dataset.dropped;
     });
     feedback.textContent = '';
+    feedback.classList.remove('question-feedback--timeout');
     div._selectedTerm = null;
   }
 
   // Prüft die Auswahl bei einer Multiple-Choice-Frage
   function checkMc(div, correctIndices, feedback, idx){
+    if(div.dataset.timedOut === '1'){
+      return;
+    }
     const selected = Array.from(div.querySelectorAll('input[name="mc' + idx + '"]:checked'))
       .map(el => parseInt(el.value, 10))
       .sort((a, b) => a - b);
@@ -862,7 +1055,8 @@ async function runQuiz(questions, skipIntro){
     const feedback = document.createElement('div');
     feedback.setAttribute('role', 'alert');
     feedback.setAttribute('aria-live', 'polite');
-    feedback.className = 'uk-margin-top';
+    feedback.className = 'uk-margin-top question-feedback';
+    feedback.dataset.role = 'feedback';
 
     const footer = document.createElement('div');
     footer.className = 'uk-margin-top uk-flex uk-flex-between';
@@ -1007,6 +1201,7 @@ async function runQuiz(questions, skipIntro){
     function point(e){ return { x: e.clientX, y: e.clientY }; }
 
     function start(e){
+      if(div.dataset.timedOut === '1') return;
       if(!cards.length) return;
       const p = point(e);
       startX = p.x; startY = p.y;
@@ -1016,6 +1211,7 @@ async function runQuiz(questions, skipIntro){
     }
 
     function move(e){
+      if(div.dataset.timedOut === '1') return;
       if(!dragging) return;
       const p = point(e);
       offsetX = p.x - startX;
@@ -1033,6 +1229,7 @@ async function runQuiz(questions, skipIntro){
     }
 
     function end(){
+      if(div.dataset.timedOut === '1') return;
       if(!dragging) return;
       dragging = false;
       if(Math.abs(offsetX) > SWIPE_THRESHOLD){
@@ -1048,6 +1245,7 @@ async function runQuiz(questions, skipIntro){
     }
 
     function handleSwipe(dir, yOffset){
+      if(div.dataset.timedOut === '1') return;
       if(!cards.length) return;
       const cardEl = container.querySelector('.swipe-card:last-child');
       const card = cards[cards.length-1];
@@ -1074,10 +1272,17 @@ async function runQuiz(questions, skipIntro){
     }
 
     function manualSwipe(dir){
+      if(div.dataset.timedOut === '1') return;
       handleSwipe(dir, 0);
     }
 
     div.appendChild(controls);
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-top question-feedback';
+    feedback.dataset.role = 'feedback';
+    feedback.setAttribute('role', 'status');
+    feedback.setAttribute('aria-live', 'polite');
+    div.appendChild(feedback);
     render();
     return div;
   }
@@ -1102,15 +1307,19 @@ async function runQuiz(questions, skipIntro){
     styleButton(uploadBtn);
 
     const feedback = document.createElement('div');
-    feedback.className = 'uk-margin-small';
+    feedback.className = 'uk-margin-small question-feedback';
+    feedback.dataset.role = 'feedback';
     feedback.setAttribute('role','alert');
+    feedback.setAttribute('aria-live','polite');
 
     uploadBtn.addEventListener('click', () => {
+      if(div.dataset.timedOut === '1') return;
       const user = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
       showPhotoModal(user, '', path => {
         photoPath = path || '';
         feedback.textContent = 'Foto gespeichert';
-        feedback.className = 'uk-margin-small uk-text-success';
+        feedback.classList.remove('uk-text-danger', 'question-feedback--timeout');
+        feedback.classList.add('uk-text-success');
       }, !!q.consent);
     });
 
@@ -1120,9 +1329,11 @@ async function runQuiz(questions, skipIntro){
     styleButton(nextBtn);
 
     nextBtn.addEventListener('click', () => {
+      if(div.dataset.timedOut === '1') return;
       if(!photoPath){
         feedback.textContent = 'Bitte Foto aufnehmen';
-        feedback.className = 'uk-margin-small uk-text-danger';
+        feedback.classList.remove('uk-text-success', 'question-feedback--timeout');
+        feedback.classList.add('uk-text-danger');
         return;
       }
       answers[idx] = { text: text.value.trim(), photo: photoPath, consent: q.consent ? true : null };
@@ -1155,15 +1366,24 @@ async function runQuiz(questions, skipIntro){
     inner.appendChild(front);
     inner.appendChild(back);
     card.appendChild(inner);
-    const toggle = () => card.classList.toggle('flipped');
+    const toggle = () => {
+      if(div.dataset.timedOut === '1') return;
+      card.classList.toggle('flipped');
+    };
     card.addEventListener('click', toggle);
     card.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggle(); } });
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button uk-button-primary';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
-    nextBtn.addEventListener('click', () => { next(); });
+    nextBtn.addEventListener('click', () => { if(div.dataset.timedOut === '1') return; next(); });
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-small question-feedback';
+    feedback.dataset.role = 'feedback';
+    feedback.setAttribute('role','status');
+    feedback.setAttribute('aria-live','polite');
     div.appendChild(card);
+    div.appendChild(feedback);
     div.appendChild(nextBtn);
     return div;
   }

@@ -141,6 +141,47 @@ body.uk-padding {
   margin-top: 1em;
 }
 
+.question-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(30, 135, 240, 0.08);
+  color: var(--accent-color, #1e87f0);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.75rem;
+}
+
+.question-timer__label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.question-timer__value {
+  font-size: 1rem;
+}
+
+.question-timer--expired {
+  background: rgba(217, 44, 44, 0.12);
+  color: var(--danger-500, #d92c2c);
+}
+
+.question--timeout {
+  opacity: 0.82;
+}
+
+.question-feedback {
+  font-weight: 500;
+}
+
+.question-feedback--timeout {
+  color: var(--danger-500, #d92c2c);
+}
+
 #results-slideshow {
   position: relative;
   min-height: 2.5em;
