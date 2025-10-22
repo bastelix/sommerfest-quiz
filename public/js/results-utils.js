@@ -14,6 +14,23 @@ export function formatPointsCell(points, maxPoints) {
   return String(normalizedPts);
 }
 
+export function formatEfficiencyPercent(value) {
+  if (value === null || value === undefined) {
+    return '–';
+  }
+  if (typeof value === 'string' && value.trim() === '') {
+    return '–';
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return '–';
+  }
+  const clamped = Math.max(0, Math.min(numeric, 1));
+  const percent = Math.round(clamped * 1000) / 10;
+  const str = Number.isFinite(percent) ? percent.toString() : '0';
+  return `${str.replace('.', ',')} %`;
+}
+
 export function insertSoftHyphens(text) {
   return text ? text.replace(/\/-/g, '\u00AD') : '';
 }

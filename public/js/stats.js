@@ -16,6 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
     return String(normalizedPts);
   }
 
+  function parseOptionalNumber(value) {
+    if (value === null || value === undefined) return null;
+    if (typeof value === 'string' && value.trim() === '') return null;
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+  }
+
+  function formatEfficiencyValue(value) {
+    const numeric = parseOptionalNumber(value);
+    if (numeric === null) {
+      return '–';
+    }
+    const clamped = Math.max(0, Math.min(numeric, 1));
+    const percent = Math.round(clamped * 1000) / 10;
+    const str = Number.isFinite(percent) ? percent.toString() : '0';
+    return `${str.replace('.', ',')} %`;
+  }
+
   let data = [];
   let catalogMap = null;
 
@@ -88,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 8;
+      td.colSpan = 10;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -96,6 +114,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     rows.forEach(r => {
       const tr = document.createElement('tr');
+      const basePointsText = formatQuestionPoints(r.points ?? 0, r.questionPoints ?? r.question_points ?? 0);
+      const finalPointsRaw = r.finalPoints ?? r.final_points;
+      const finalPointsValue = parseOptionalNumber(finalPointsRaw) ?? parseOptionalNumber(r.points) ?? 0;
+      const normalizedFinal = Math.max(0, Math.round(finalPointsValue));
+      const finalPointsText = formatQuestionPoints(normalizedFinal, r.questionPoints ?? r.question_points ?? 0);
+      let efficiencyValue = parseOptionalNumber(r.efficiency);
+      if (efficiencyValue === null) {
+        const correctFlag = parseOptionalNumber(r.correct);
+        if (correctFlag !== null) {
+          efficiencyValue = correctFlag > 0 ? 1 : 0;
+        }
+      }
+      const efficiencyText = formatEfficiencyValue(efficiencyValue);
       const cells = [
         r.name,
         r.attempt,
@@ -103,9 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
         r.prompt || '',
         r.answer_text || '',
         r.correct ? '✓' : '✗',
-        formatQuestionPoints(r.points ?? 0, r.questionPoints ?? r.question_points ?? 0)
+        basePointsText,
+        finalPointsText,
+        efficiencyText
       ];
-      cells.forEach((c, idx) => {
+      cells.forEach(c => {
         const td = document.createElement('td');
         td.textContent = c;
         tr.appendChild(td);
@@ -140,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 8;
+      td.colSpan = 10;
       td.textContent = 'Kein Event ausgewählt';
       tr.appendChild(td);
       tbody.appendChild(tr);

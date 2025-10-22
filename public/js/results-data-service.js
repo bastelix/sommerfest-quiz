@@ -1,5 +1,12 @@
 import { formatTimestamp } from './results-utils.js';
 
+const parseNumeric = (value) => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string' && value.trim() === '') return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
+
 export class ResultsDataService {
   constructor(options = {}) {
     this.basePath = options.basePath || '';
@@ -112,20 +119,97 @@ export class ResultsDataService {
         return r.json();
       }),
     ]).then(([catalogMap, rows, questionRows]) => {
+      const attemptSummaries = new Map();
       if (Array.isArray(rows)) {
         rows.forEach((row) => {
-          if (catalogMap[row.catalog]) {
-            row.catalogName = catalogMap[row.catalog];
-            row.catalog = catalogMap[row.catalog];
+          const originalCatalog = row.catalog;
+          row.catalogKey = originalCatalog;
+          if (catalogMap[originalCatalog]) {
+            row.catalogName = catalogMap[originalCatalog];
+            row.catalog = catalogMap[originalCatalog];
           }
         });
         rows.sort((a, b) => b.time - a.time);
       }
       if (Array.isArray(questionRows)) {
         questionRows.forEach((row) => {
-          if (catalogMap[row.catalog]) {
-            row.catalogName = catalogMap[row.catalog];
-            row.catalog = catalogMap[row.catalog];
+          const originalCatalog = row.catalog;
+          row.catalogKey = originalCatalog;
+          if (catalogMap[originalCatalog]) {
+            row.catalogName = catalogMap[originalCatalog];
+            row.catalog = catalogMap[originalCatalog];
+          }
+          const team = row.name || '';
+          const catalog = (row.catalogKey ?? row.catalog) || '';
+          if (!team || !catalog) {
+            return;
+          }
+          const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
+          const key = `${team}|${catalog}|${attempt}`;
+          const finalPointsCandidate = row.final_points ?? row.finalPoints;
+          const finalPoints = parseNumeric(finalPointsCandidate) ?? parseNumeric(row.points) ?? 0;
+          const efficiencyCandidate = parseNumeric(row.efficiency);
+          const efficiency = efficiencyCandidate !== null
+            ? Math.max(0, Math.min(efficiencyCandidate, 1))
+            : ((parseNumeric(row.correct) ?? 0) > 0 ? 1 : 0);
+          const summary = attemptSummaries.get(key) || { points: 0, effSum: 0, count: 0 };
+          summary.points += Math.max(0, finalPoints);
+          summary.effSum += Math.max(0, efficiency);
+          summary.count += 1;
+          attemptSummaries.set(key, summary);
+        });
+      }
+      if (Array.isArray(rows)) {
+        rows.forEach((row) => {
+          const team = row.name || '';
+          const catalog = (row.catalogKey ?? row.catalog) || '';
+          if (!team || !catalog) {
+            row.averageEfficiency = null;
+            row.avg_efficiency = null;
+            return;
+          }
+          const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
+          const key = `${team}|${catalog}|${attempt}`;
+          const summary = attemptSummaries.get(key);
+          if (summary && summary.count > 0) {
+            const totalPoints = Math.max(0, Math.round(summary.points));
+            row.finalPoints = totalPoints;
+            row.final_points = totalPoints;
+            const avg = summary.effSum / summary.count;
+            const clamped = Math.max(0, Math.min(avg, 1));
+            row.averageEfficiency = clamped;
+            row.avg_efficiency = clamped;
+          } else {
+            const fallbackFinal = parseNumeric(row.final_points ?? row.finalPoints)
+              ?? parseNumeric(row.points)
+              ?? parseNumeric(row.correct)
+              ?? 0;
+            const safeFallback = Math.max(0, Math.round(fallbackFinal));
+            row.finalPoints = safeFallback;
+            row.final_points = safeFallback;
+            const totalQuestions = parseNumeric(row.total);
+            const correctAnswers = parseNumeric(row.correct);
+            if (totalQuestions !== null && totalQuestions > 0 && correctAnswers !== null) {
+              const ratio = correctAnswers / totalQuestions;
+              const clamped = Math.max(0, Math.min(ratio, 1));
+              row.averageEfficiency = clamped;
+              row.avg_efficiency = clamped;
+            } else {
+              row.averageEfficiency = null;
+              row.avg_efficiency = null;
+            }
+          }
+        });
+        rows.forEach((row) => {
+          if (Object.prototype.hasOwnProperty.call(row, 'catalogKey')) {
+            delete row.catalogKey;
+          }
+        });
+      }
+      if (Array.isArray(questionRows)) {
+        questionRows.forEach((row) => {
+          if (Object.prototype.hasOwnProperty.call(row, 'catalogKey')) {
+            delete row.catalogKey;
           }
         });
       }
