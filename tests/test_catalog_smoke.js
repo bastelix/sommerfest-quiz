@@ -13,6 +13,14 @@ class Element {
     };
     this.style = {};
     this.textContent = '';
+    this._innerHTML = '';
+  }
+  set innerHTML(value) {
+    this._innerHTML = String(value);
+    this.textContent = this._innerHTML.replace(/<[^>]*>/g, '') || '';
+  }
+  get innerHTML() {
+    return this._innerHTML;
   }
   appendChild(child) {
     this.children.push(child);
@@ -66,7 +74,7 @@ opt.dataset.file = 'file';
 opt.dataset.uid = 'uid';
 opt.dataset.sortOrder = '1';
 opt.dataset.desc = 'Desc';
-opt.dataset.comment = 'Comment';
+opt.dataset.comment = '&lt;strong&gt;Comment&lt;/strong&gt;';
 select.appendChild(opt);
 
 const elements = {
@@ -118,6 +126,43 @@ context.window.window = context.window; // self-reference
 context.global = context;
 
 context.window.startQuiz = () => {
+  const readStored = key => {
+    if (typeof window !== 'undefined' && typeof window.getStored === 'function') {
+      return window.getStored(key);
+    }
+    if (typeof getStored === 'function') {
+      return getStored(key);
+    }
+    if (typeof sessionStorage !== 'undefined' && sessionStorage && typeof sessionStorage.getItem === 'function') {
+      const direct = sessionStorage.getItem(key);
+      if (direct != null) {
+        return direct;
+      }
+      const scoped = sessionStorage.getItem(`${key}:`);
+      if (scoped != null) {
+        return scoped;
+      }
+    }
+    if (typeof localStorage !== 'undefined' && localStorage && typeof localStorage.getItem === 'function') {
+      const direct = localStorage.getItem(key);
+      if (direct != null) {
+        return direct;
+      }
+      const scoped = localStorage.getItem(`${key}:`);
+      if (scoped != null) {
+        return scoped;
+      }
+    }
+    return null;
+  };
+  const windowKeys = (typeof window !== 'undefined' && window.STORAGE_KEYS)
+    ? window.STORAGE_KEYS
+    : null;
+  const globalKeys = (typeof globalThis !== 'undefined' && globalThis.STORAGE_KEYS)
+    ? globalThis.STORAGE_KEYS
+    : (typeof STORAGE_KEYS !== 'undefined' ? STORAGE_KEYS : {});
+  const keys = windowKeys && Object.keys(windowKeys).length ? windowKeys : globalKeys;
+  const commentKey = keys.CATALOG_COMMENT || 'quizCatalogComment';
   const headerEl = document.getElementById('quiz-header');
   if (headerEl) {
     if (window.quizConfig.logoPath) {
@@ -134,7 +179,9 @@ context.window.startQuiz = () => {
     headerEl.appendChild(sub);
     const commentBlock = new Element('div');
     commentBlock.dataset.role = 'catalog-comment-block';
-    commentBlock.textContent = 'Comment';
+    const storedComment = readStored(commentKey);
+    const markup = storedComment || 'Comment';
+    commentBlock.innerHTML = markup;
     headerEl.appendChild(commentBlock);
   }
   const button = new Element('button');
@@ -142,11 +189,12 @@ context.window.startQuiz = () => {
 };
 
 (async () => {
+  vm.runInNewContext(fs.readFileSync('public/js/storage.js', 'utf8'), context);
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
   await new Promise(r => setTimeout(r, 0));
 
   const commentBlock = header.querySelector('div[data-role="catalog-comment-block"]');
-  if (!commentBlock || commentBlock.textContent !== 'Comment') {
+  if (!commentBlock || commentBlock.innerHTML !== '<strong>Comment</strong>') {
     throw new Error('comment not rendered');
   }
   const logo = header.children.find(c => c.tagName === 'IMG');
