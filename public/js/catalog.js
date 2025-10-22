@@ -41,6 +41,64 @@ if (typeof clearStored !== 'function') {
 
 const jsonHeaders = { Accept: 'application/json' };
 
+const htmlEntityMap = {
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&apos;': '\'',
+  '&nbsp;': '\u00a0'
+};
+
+function decodeHtmlEntities(value) {
+  if (!value) {
+    return '';
+  }
+
+  if (typeof document !== 'undefined' && typeof document.createElement === 'function') {
+    if (!decodeHtmlEntities._el) {
+      decodeHtmlEntities._el = document.createElement('textarea');
+    }
+    const el = decodeHtmlEntities._el;
+    if (el) {
+      try {
+        el.innerHTML = value;
+        if (typeof el.value === 'string' && el.value && el.value !== value) {
+          return el.value;
+        }
+        if (typeof el.textContent === 'string' && el.textContent && el.textContent !== value) {
+          return el.textContent;
+        }
+      } catch (e) {
+        /* empty */
+      }
+    }
+  }
+
+  if (value.indexOf('&') === -1) {
+    return value;
+  }
+
+  let decoded = value
+    .replace(/&#(\d+);/g, (_, num) => {
+      const code = parseInt(num, 10);
+      return Number.isNaN(code) ? _ : String.fromCharCode(code);
+    })
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => {
+      const code = parseInt(hex, 16);
+      return Number.isNaN(code) ? _ : String.fromCharCode(code);
+    });
+
+  decoded = decoded.replace(/&(amp|lt|gt|quot|apos|nbsp);/gi, entity => {
+    const lower = entity.toLowerCase();
+    return Object.prototype.hasOwnProperty.call(htmlEntityMap, lower)
+      ? htmlEntityMap[lower]
+      : entity;
+  });
+
+  return decoded;
+}
+
 async function buildSolvedSet(cfg){
   const solved = new Set();
   try{
@@ -329,7 +387,8 @@ async function handleSelection(opt, autostart = false) {
   // Metadaten speichern
   const name = opt.textContent || opt.dataset.name || '';
   const desc = opt.dataset.desc || '';
-  const comment = opt.dataset.comment || '';
+  const rawComment = opt.dataset.comment || '';
+  const comment = rawComment ? decodeHtmlEntities(rawComment) : '';
 
   setStored(STORAGE_KEYS.CATALOG_NAME, name);
   if (desc) {

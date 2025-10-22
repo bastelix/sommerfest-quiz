@@ -571,7 +571,7 @@ async function runQuiz(questions, skipIntro){
       if(comment){
         const cBlock = document.createElement('div');
         cBlock.dataset.role = 'catalog-comment-block';
-        cBlock.textContent = comment;
+        cBlock.innerHTML = comment;
         headerEl.appendChild(cBlock);
       }
       headerEl.classList.remove('uk-hidden');
