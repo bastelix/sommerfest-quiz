@@ -87,6 +87,8 @@ class ResultControllerTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -209,7 +211,7 @@ class ResultControllerTest extends TestCase
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
             'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, points INTEGER NOT NULL DEFAULT 0, ' .
             'total INTEGER NOT NULL, max_points INTEGER NOT NULL DEFAULT 0, ' .
-            'time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
+            'time INTEGER NOT NULL, started_at INTEGER, duration_sec INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
             ');'
         );
         $pdo->exec(

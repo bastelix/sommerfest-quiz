@@ -1,4 +1,4 @@
-import { formatTimestamp } from './results-utils.js';
+import { formatTimestamp, formatDuration } from './results-utils.js';
 
 const parseNumeric = (value) => {
   if (value === null || value === undefined) return null;
@@ -128,6 +128,20 @@ export class ResultsDataService {
             row.catalogName = catalogMap[originalCatalog];
             row.catalog = catalogMap[originalCatalog];
           }
+          const parsedTime = parseNumeric(row.time);
+          row.time = parsedTime !== null ? Math.trunc(parsedTime) : null;
+          const startedCandidate = row.startedAt ?? row.started_at;
+          const parsedStarted = parseNumeric(startedCandidate);
+          row.startedAt = parsedStarted !== null ? Math.trunc(parsedStarted) : null;
+          row.started_at = row.startedAt;
+          const durationCandidate = row.durationSec ?? row.duration_sec;
+          const parsedDuration = parseNumeric(durationCandidate);
+          if (parsedDuration !== null && parsedDuration >= 0) {
+            row.durationSec = Math.trunc(parsedDuration);
+          } else {
+            row.durationSec = null;
+          }
+          row.duration_sec = row.durationSec;
         });
         rows.sort((a, b) => b.time - a.time);
       }
@@ -226,7 +240,7 @@ export class ResultsDataService {
 export function computeRankings(rows, questionRows, catalogCount = 0) {
   const catalogs = new Set();
   const puzzleTimes = new Map();
-  const catTimes = new Map();
+  const catTiming = new Map();
   const scorePoints = new Map();
   const attemptMetrics = new Map();
 
@@ -257,21 +271,35 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     if (!team || !catalog) return;
     catalogs.add(catalog);
 
-    if (row.puzzleTime) {
+    const puzzleCandidate = parseNumeric(row.puzzleTime);
+    if (puzzleCandidate !== null) {
       const prev = puzzleTimes.get(team);
-      const timeVal = Number(row.puzzleTime);
-      if (!prev || timeVal < prev) puzzleTimes.set(team, timeVal);
+      if (!Number.isFinite(prev) || puzzleCandidate < prev) {
+        puzzleTimes.set(team, puzzleCandidate);
+      }
     }
 
-    let tMap = catTimes.get(team);
-    if (!tMap) {
-      tMap = new Map();
-      catTimes.set(team, tMap);
+    let timing = catTiming.get(team);
+    if (!timing) {
+      timing = { durations: new Map(), finishes: new Map() };
+      catTiming.set(team, timing);
     }
-    const prevTime = tMap.get(catalog);
-    const playedTime = Number(row.time);
-    if (prevTime === undefined || playedTime < prevTime) {
-      tMap.set(catalog, playedTime);
+
+    const durationCandidate = parseNumeric(row.durationSec ?? row.duration_sec);
+    if (durationCandidate !== null && durationCandidate >= 0) {
+      const safeDuration = Math.max(0, durationCandidate);
+      const prevDuration = timing.durations.get(catalog);
+      if (prevDuration === undefined || safeDuration < prevDuration) {
+        timing.durations.set(catalog, safeDuration);
+      }
+    }
+
+    const finishCandidate = parseNumeric(row.time);
+    if (finishCandidate !== null) {
+      const prevFinish = timing.finishes.get(catalog);
+      if (prevFinish === undefined || finishCandidate < prevFinish) {
+        timing.finishes.set(catalog, finishCandidate);
+      }
     }
 
     const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
@@ -320,21 +348,77 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
 
   const totalCats = catalogCount || catalogs.size;
   const finishers = [];
-  catTimes.forEach((map, name) => {
-    if (map.size === totalCats) {
-      let last = -Infinity;
-      map.forEach((t) => {
-        if (t > last) last = t;
-      });
-      finishers.push({ name, finished: last });
+  if (totalCats > 0) {
+    catTiming.forEach((info, name) => {
+      const { durations, finishes } = info;
+      let hasFullDuration = durations.size === totalCats;
+      let totalDuration = 0;
+      if (hasFullDuration) {
+        durations.forEach((value) => {
+          if (!Number.isFinite(value)) {
+            hasFullDuration = false;
+          } else {
+            totalDuration += value;
+          }
+        });
+      }
+      if (hasFullDuration) {
+        let latestFinish = null;
+        finishes.forEach((value) => {
+          if (!Number.isFinite(value)) return;
+          if (latestFinish === null || value > latestFinish) {
+            latestFinish = value;
+          }
+        });
+        finishers.push({ name, duration: totalDuration, finished: latestFinish });
+        return;
+      }
+      if (finishes.size === totalCats) {
+        let latest = null;
+        finishes.forEach((value) => {
+          if (!Number.isFinite(value)) return;
+          if (latest === null || value > latest) {
+            latest = value;
+          }
+        });
+        if (latest !== null) {
+          finishers.push({ name, duration: null, finished: latest });
+        }
+      }
+    });
+  }
+
+  finishers.sort((a, b) => {
+    const aHasDuration = Number.isFinite(a.duration);
+    const bHasDuration = Number.isFinite(b.duration);
+    if (aHasDuration && bHasDuration) {
+      if (a.duration !== b.duration) {
+        return a.duration - b.duration;
+      }
+      const aFinish = Number.isFinite(a.finished) ? a.finished : Infinity;
+      const bFinish = Number.isFinite(b.finished) ? b.finished : Infinity;
+      return aFinish - bFinish;
     }
+    if (aHasDuration) return -1;
+    if (bHasDuration) return 1;
+    const aFinish = Number.isFinite(a.finished) ? a.finished : Infinity;
+    const bFinish = Number.isFinite(b.finished) ? b.finished : Infinity;
+    return aFinish - bFinish;
   });
-  finishers.sort((a, b) => a.finished - b.finished);
-  const catalogList = finishers.slice(0, 3).map((item) => ({
-    name: item.name,
-    value: formatTimestamp(item.finished),
-    raw: item.finished,
-  }));
+
+  const catalogList = finishers.slice(0, 3).map((item) => {
+    const hasDuration = Number.isFinite(item.duration);
+    const display = hasDuration
+      ? formatDuration(item.duration)
+      : (Number.isFinite(item.finished) ? formatTimestamp(item.finished) : '–');
+    return {
+      name: item.name,
+      value: display,
+      raw: hasDuration ? item.duration : (item.finished ?? null),
+      duration: hasDuration ? item.duration : null,
+      finished: Number.isFinite(item.finished) ? item.finished : null,
+    };
+  });
 
   const totalScores = [];
   scorePoints.forEach((map, name) => {

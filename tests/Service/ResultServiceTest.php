@@ -26,6 +26,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -63,6 +65,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -85,6 +89,53 @@ class ResultServiceTest extends TestCase
         $this->assertSame(1, $other['attempt']);
     }
 
+    public function testAddPersistsStartAndDuration(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $service = new ResultService($pdo);
+
+        $entry = $service->add([
+            'name' => 'TeamX',
+            'catalog' => 'cat1',
+            'total' => 0,
+            'time' => 2000,
+            'startedAt' => 1950,
+        ]);
+
+        $stmt = $pdo->query('SELECT started_at, duration_sec, time FROM results');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame(1950, (int) $row['started_at']);
+        $this->assertSame(50, (int) $row['duration_sec']);
+        $this->assertSame(2000, (int) $row['time']);
+        $this->assertSame(1950, $entry['started_at']);
+        $this->assertSame(50, $entry['duration_sec']);
+    }
+
     public function testExistsChecksPlayerCatalogPair(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -100,6 +151,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -133,6 +186,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -171,6 +226,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -208,6 +265,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -244,6 +303,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -342,6 +403,8 @@ class ResultServiceTest extends TestCase
                 correct INTEGER NOT NULL,
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -399,6 +462,8 @@ class ResultServiceTest extends TestCase
                 correct INTEGER NOT NULL,
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -490,6 +555,8 @@ class ResultServiceTest extends TestCase
                 correct INTEGER NOT NULL,
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -622,6 +689,8 @@ class ResultServiceTest extends TestCase
             'total INTEGER NOT NULL,' .
             'max_points INTEGER NOT NULL DEFAULT 0,' .
             'time INTEGER NOT NULL,' .
+            'started_at INTEGER,' .
+            'duration_sec INTEGER,' .
             'puzzleTime INTEGER,' .
             'photo TEXT,' .
             'event_uid TEXT' .

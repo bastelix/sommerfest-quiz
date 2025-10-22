@@ -1,7 +1,7 @@
 /* global UIkit */
 import { applyLazyImage } from './lazy-images.js';
 import { ResultsDataService, computeRankings } from './results-data-service.js';
-import { formatTimestamp, formatPointsCell, formatEfficiencyPercent, insertSoftHyphens, escapeHtml } from './results-utils.js';
+import { formatTimestamp, formatPointsCell, formatEfficiencyPercent, insertSoftHyphens, escapeHtml, formatDuration } from './results-utils.js';
 
 const parseOptionalNumber = (value) => {
   if (value === null || value === undefined) return null;
@@ -289,7 +289,8 @@ document.addEventListener('DOMContentLoaded', () => {
             teamDiv.textContent = `${i + 1}. ${item.name}`;
 
             const timeDiv = document.createElement('div');
-            timeDiv.textContent = item.value;
+            const durationValue = item && Number.isFinite(item.duration) ? formatDuration(item.duration) : null;
+            timeDiv.textContent = durationValue || item.value;
 
             gridItem.appendChild(teamDiv);
           gridItem.appendChild(timeDiv);

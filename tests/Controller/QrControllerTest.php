@@ -525,6 +525,8 @@ class QrControllerTest extends TestCase
                 total INTEGER,
                 max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER,
+                started_at INTEGER,
+                duration_sec INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
                 event_uid TEXT
@@ -586,7 +588,7 @@ class QrControllerTest extends TestCase
             'CREATE TABLE results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, catalog TEXT, attempt INTEGER, correct INTEGER, ' .
             'points INTEGER NOT NULL DEFAULT 0, total INTEGER, max_points INTEGER NOT NULL DEFAULT 0, ' .
-            'time INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
+            'time INTEGER, started_at INTEGER, duration_sec INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
             ');'
         );
 

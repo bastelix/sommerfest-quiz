@@ -151,6 +151,52 @@ class ResultController
                     $result['feedback'] = $feedback;
                 }
             } else {
+                $finishedAt = time();
+                $startedRaw = $data['startedAt'] ?? $data['started_at'] ?? null;
+                $startedAt = null;
+                if ($startedRaw !== null && $startedRaw !== '') {
+                    if (is_int($startedRaw)) {
+                        $startedAt = $startedRaw;
+                    } elseif (is_numeric($startedRaw)) {
+                        $startedAt = (int) round((float) $startedRaw);
+                    } elseif (is_string($startedRaw) && is_numeric(trim($startedRaw))) {
+                        $startedAt = (int) round((float) trim($startedRaw));
+                    }
+                }
+                if ($startedAt !== null) {
+                    if ($startedAt > $finishedAt) {
+                        $startedAt = $finishedAt;
+                    } elseif ($startedAt < 0) {
+                        $startedAt = 0;
+                    }
+                }
+                $durationRaw = $data['durationSec'] ?? $data['duration_sec'] ?? null;
+                $durationSec = null;
+                if ($durationRaw !== null && $durationRaw !== '') {
+                    if (is_numeric($durationRaw)) {
+                        $durationSec = (int) round((float) $durationRaw);
+                        if ($durationSec < 0) {
+                            $durationSec = 0;
+                        }
+                    }
+                }
+                if ($startedAt !== null) {
+                    $durationSec = max(0, $finishedAt - $startedAt);
+                } elseif ($durationSec !== null) {
+                    $startedAt = $finishedAt - $durationSec;
+                    if ($startedAt < 0) {
+                        $startedAt = 0;
+                    }
+                }
+                $data['time'] = $finishedAt;
+                if ($startedAt !== null) {
+                    $data['started_at'] = $startedAt;
+                    $data['startedAt'] = $startedAt;
+                }
+                if ($durationSec !== null) {
+                    $data['duration_sec'] = $durationSec;
+                    $data['durationSec'] = $durationSec;
+                }
                 $this->service->add($data, $eventUid);
                 $result['success'] = true;
             }

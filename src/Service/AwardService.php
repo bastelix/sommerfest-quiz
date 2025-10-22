@@ -24,7 +24,8 @@ class AwardService
     public function computeRankings(array $results, ?int $catalogCount = null, array $questionResults = []): array {
         $catalogs = [];
         $puzzleTimes = [];
-        $catalogTimes = [];
+        $catalogDurations = [];
+        $catalogFinishTimes = [];
         $scores = [];
         $attemptMetrics = [];
 
@@ -64,6 +65,16 @@ class AwardService
             $puzzle = isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null;
             $attempt = (int)($row['attempt'] ?? 1);
             $key = $team . '|' . $catalog . '|' . $attempt;
+            $durationRaw = $row['duration_sec'] ?? $row['durationSec'] ?? null;
+            $duration = null;
+            if ($durationRaw !== null && $durationRaw !== '') {
+                if (is_numeric($durationRaw)) {
+                    $duration = (int) round((float) $durationRaw);
+                    if ($duration < 0) {
+                        $duration = 0;
+                    }
+                }
+            }
             $summary = $attemptMetrics[$key] ?? null;
             if ($summary !== null) {
                 $finalPoints = (int) $summary['points'];
@@ -93,8 +104,14 @@ class AwardService
                 }
             }
 
-            if (!isset($catalogTimes[$team][$catalog]) || $time < $catalogTimes[$team][$catalog]) {
-                $catalogTimes[$team][$catalog] = $time;
+            if ($duration !== null) {
+                if (!isset($catalogDurations[$team][$catalog]) || $duration < $catalogDurations[$team][$catalog]) {
+                    $catalogDurations[$team][$catalog] = $duration;
+                }
+            }
+
+            if (!isset($catalogFinishTimes[$team][$catalog]) || $time < $catalogFinishTimes[$team][$catalog]) {
+                $catalogFinishTimes[$team][$catalog] = $time;
             }
 
             $existing = $scores[$team][$catalog] ?? null;
@@ -125,15 +142,83 @@ class AwardService
         }
 
         $finishers = [];
-        foreach ($catalogTimes as $team => $map) {
-            if (count($map) === $totalCatalogs) {
-                $finishers[] = ['team' => $team, 'time' => max($map)];
+        $allTeams = array_unique(array_merge(array_keys($catalogDurations), array_keys($catalogFinishTimes)));
+        foreach ($allTeams as $teamName) {
+            $durationMap = $catalogDurations[$teamName] ?? [];
+            $finishMap = $catalogFinishTimes[$teamName] ?? [];
+            if ($totalCatalogs === 0) {
+                continue;
+            }
+
+            $hasDuration = count($durationMap) === $totalCatalogs;
+            $totalDuration = 0;
+            if ($hasDuration) {
+                foreach ($durationMap as $value) {
+                    if ($value === null) {
+                        $hasDuration = false;
+                        break;
+                    }
+                    $totalDuration += (int) $value;
+                }
+            }
+
+            if ($hasDuration) {
+                $latestFinish = null;
+                foreach ($finishMap as $finish) {
+                    if ($latestFinish === null || $finish > $latestFinish) {
+                        $latestFinish = $finish;
+                    }
+                }
+                $finishers[] = ['team' => $teamName, 'duration' => $totalDuration, 'finished' => $latestFinish];
+                continue;
+            }
+
+            if (count($finishMap) === $totalCatalogs) {
+                $latest = null;
+                foreach ($finishMap as $finish) {
+                    if ($latest === null || $finish > $latest) {
+                        $latest = $finish;
+                    }
+                }
+                if ($latest !== null) {
+                    $finishers[] = ['team' => $teamName, 'duration' => null, 'finished' => $latest];
+                }
             }
         }
-        usort($finishers, fn($a, $b) => $a['time'] <=> $b['time']);
+
+        usort(
+            $finishers,
+            static function (array $a, array $b): int {
+                $aHasDuration = $a['duration'] !== null;
+                $bHasDuration = $b['duration'] !== null;
+                if ($aHasDuration && $bHasDuration) {
+                    $cmp = $a['duration'] <=> $b['duration'];
+                    if ($cmp !== 0) {
+                        return $cmp;
+                    }
+
+                    $aFinish = $a['finished'] ?? PHP_INT_MAX;
+                    $bFinish = $b['finished'] ?? PHP_INT_MAX;
+                    return $aFinish <=> $bFinish;
+                }
+
+                if ($aHasDuration) {
+                    return -1;
+                }
+
+                if ($bHasDuration) {
+                    return 1;
+                }
+
+                $aFinish = $a['finished'] ?? PHP_INT_MAX;
+                $bFinish = $b['finished'] ?? PHP_INT_MAX;
+                return $aFinish <=> $bFinish;
+            }
+        );
+
         $catalogRanks = [];
         foreach (array_slice($finishers, 0, 3) as $idx => $row) {
-            $catalogRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+            $catalogRanks[] = ['team' => (string) $row['team'], 'place' => $idx + 1];
         }
 
         $scoreList = [];
