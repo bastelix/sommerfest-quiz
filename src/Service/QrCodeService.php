@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Common\Mode;
+use chillerlan\QRCode\Data\Byte;
 use chillerlan\QRCode\Data\QRMatrix;
 use chillerlan\QRCode\Output\QROutputInterface;
 use chillerlan\QRCode\QRCode;
@@ -181,11 +183,11 @@ class QrCodeService
      * @return array{mime:string,body:string}
      */
     private function renderQr(string $data, array $p): array {
-        $scale = max(1, (int)round($p['size'] / 41));
+        $moduleCount = $this->resolveModuleCount($data, $p['ecc']);
+        $scale = max(1, (int)round($p['size'] / max(1, $moduleCount + 4)));
         $marginModules = max(0, (int)round($p['margin'] / $scale));
 
         $options = [
-            'version' => 5,
             'eccLevel' => $p['ecc'],
             'addQuietzone' => true,
             'quietzoneSize' => $marginModules,
@@ -315,6 +317,38 @@ class QrCodeService
         $body = (string)ob_get_clean();
         imagedestroy($im);
         return ['mime' => 'image/png', 'body' => $body];
+    }
+
+    /**
+     * Determine the number of modules required for the given data with the requested ECC level.
+     */
+    private function resolveModuleCount(string $data, int $eccLevel): int {
+        $normalized = $data !== '' ? $data : '?';
+
+        $options = new QROptions([
+            'eccLevel' => $eccLevel,
+            'addQuietzone' => false,
+            'outputBase64' => false,
+        ]);
+
+        $qr = new QRCode($options);
+        $segmentAdded = false;
+
+        foreach (Mode::INTERFACES as $interface) {
+            if ($interface::validateString($normalized)) {
+                $qr->addSegment(new $interface($normalized));
+                $segmentAdded = true;
+                break;
+            }
+        }
+
+        if (!$segmentAdded) {
+            $qr->addSegment(new Byte($normalized));
+        }
+
+        $matrix = $qr->getQRMatrix();
+
+        return max(1, $matrix->getSize());
     }
 
     /**
