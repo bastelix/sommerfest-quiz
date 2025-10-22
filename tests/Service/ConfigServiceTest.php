@@ -56,6 +56,114 @@ class ConfigServiceTest extends TestCase
         $this->assertTrue($cfg['QRRemember']);
     }
 
+    public function testDashboardConfigRoundTripsThroughSnakeCaseColumns(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                dashboard_modules TEXT,
+                dashboard_refresh_interval INTEGER,
+                dashboard_share_enabled INTEGER,
+                dashboard_sponsor_enabled INTEGER,
+                dashboard_info_text TEXT,
+                dashboard_media_embed TEXT,
+                dashboard_visibility_start TEXT,
+                dashboard_visibility_end TEXT,
+                dashboard_share_token TEXT,
+                dashboard_sponsor_token TEXT,
+                colors TEXT
+            );
+            SQL
+        );
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec("INSERT INTO events(uid) VALUES('dash-event')");
+
+        $tokenCipher = new class extends TokenCipher {
+            public function __construct()
+            {
+            }
+
+            public function encrypt(?string $value): ?string
+            {
+                if ($value === null) {
+                    return null;
+                }
+                $trimmed = trim($value);
+                if ($trimmed === '') {
+                    return null;
+                }
+
+                return 'fixed-' . $trimmed;
+            }
+
+            public function decrypt(?string $payload): ?string
+            {
+                if ($payload === null) {
+                    return null;
+                }
+                $trimmed = trim($payload);
+                if ($trimmed === '') {
+                    return null;
+                }
+                if (strncmp($trimmed, 'fixed-', 6) === 0) {
+                    return substr($trimmed, 6);
+                }
+
+                return null;
+            }
+        };
+
+        $service = new ConfigService($pdo, $tokenCipher);
+        $modules = ['scores', 'media'];
+        $service->saveConfig([
+            'event_uid' => 'dash-event',
+            'dashboardModules' => $modules,
+            'dashboardRefreshInterval' => 45,
+            'dashboardShareEnabled' => true,
+            'dashboardSponsorEnabled' => false,
+            'dashboardInfoText' => 'Welcome back!',
+            'dashboardMediaEmbed' => '<iframe>media</iframe>',
+            'dashboardVisibilityStart' => '2025-07-01T10:00:00Z',
+            'dashboardVisibilityEnd' => '2025-07-01T12:00:00Z',
+            'colors' => ['primary' => '#001122'],
+        ]);
+
+        $stored = $pdo->query(
+            "SELECT dashboard_modules, dashboard_refresh_interval, dashboard_share_enabled, " .
+            "dashboard_sponsor_enabled, dashboard_visibility_start, dashboard_visibility_end " .
+            "FROM config WHERE event_uid = 'dash-event'"
+        )->fetch(PDO::FETCH_ASSOC);
+        $this->assertIsArray($stored);
+        $this->assertSame($modules, json_decode((string) $stored['dashboard_modules'], true));
+        $this->assertSame(45, (int) $stored['dashboard_refresh_interval']);
+        $this->assertSame(1, (int) $stored['dashboard_share_enabled']);
+        $this->assertSame(0, (int) $stored['dashboard_sponsor_enabled']);
+        $this->assertSame('2025-07-01T10:00:00Z', $stored['dashboard_visibility_start']);
+        $this->assertSame('2025-07-01T12:00:00Z', $stored['dashboard_visibility_end']);
+
+        $service->setDashboardToken('dash-event', 'public', 'public-token');
+        $service->setDashboardToken('dash-event', 'sponsor', 'sponsor-token');
+
+        $tokens = $service->getDashboardTokens('dash-event');
+        $this->assertSame('public-token', $tokens['public']);
+        $this->assertSame('sponsor-token', $tokens['sponsor']);
+
+        $config = $service->getConfigForEvent('dash-event');
+        $this->assertSame($modules, $config['dashboardModules']);
+        $this->assertSame(45, $config['dashboardRefreshInterval']);
+        $this->assertTrue($config['dashboardShareEnabled']);
+        $this->assertFalse($config['dashboardSponsorEnabled']);
+        $this->assertSame('Welcome back!', $config['dashboardInfoText']);
+        $this->assertSame('<iframe>media</iframe>', $config['dashboardMediaEmbed']);
+        $this->assertSame('2025-07-01T10:00:00Z', $config['dashboardVisibilityStart']);
+        $this->assertSame('2025-07-01T12:00:00Z', $config['dashboardVisibilityEnd']);
+        $this->assertSame('public-token', $config['dashboardShareToken']);
+        $this->assertSame('sponsor-token', $config['dashboardSponsorToken']);
+    }
+
     public function testGetConfigReturnsEmptyWithoutActiveEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
