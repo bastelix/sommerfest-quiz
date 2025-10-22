@@ -449,9 +449,11 @@ if (manager) {
         actionsCell.appendChild(menuWrapper);
         row.appendChild(actionsCell);
 
+        articlesTableBody.appendChild(row);
+
         if (window.UIkit) {
           if (typeof UIkit.update === 'function') {
-            UIkit.update(menuWrapper);
+            UIkit.update(menuWrapper, 'mutation');
           } else {
             if (typeof UIkit.icon === 'function') {
               UIkit.icon(menuToggle);
@@ -461,8 +463,6 @@ if (manager) {
             }
           }
         }
-
-        articlesTableBody.appendChild(row);
       });
     }
 
