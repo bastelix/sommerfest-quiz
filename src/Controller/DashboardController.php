@@ -95,7 +95,7 @@ class DashboardController
         }
         $defaults = [
             ['id' => 'header', 'enabled' => true],
-            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => ['points', 'puzzle', 'catalog']]],
+            ['id' => 'rankings', 'enabled' => true, 'options' => ['metrics' => ['points', 'puzzle', 'catalog', 'accuracy']]],
             ['id' => 'results', 'enabled' => true],
             ['id' => 'wrongAnswers', 'enabled' => false],
             ['id' => 'infoBanner', 'enabled' => false],
@@ -130,7 +130,10 @@ class DashboardController
                 if (isset($options['metrics']) && is_array($options['metrics'])) {
                     foreach ($options['metrics'] as $metric) {
                         $metricId = (string) $metric;
-                        if (in_array($metricId, ['points', 'puzzle', 'catalog'], true) && !in_array($metricId, $metrics, true)) {
+                        if (
+                            in_array($metricId, ['points', 'puzzle', 'catalog', 'accuracy'], true)
+                            && !in_array($metricId, $metrics, true)
+                        ) {
                             $metrics[] = $metricId;
                         }
                     }

@@ -982,10 +982,10 @@ document.addEventListener('DOMContentLoaded', function () {
     public: document.querySelector('[data-share-link="public"]'),
     sponsor: document.querySelector('[data-share-link="sponsor"]')
   };
-  const DASHBOARD_METRIC_KEYS = ['points', 'puzzle', 'catalog'];
+  const DASHBOARD_METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
   const DASHBOARD_DEFAULT_MODULES = [
     { id: 'header', enabled: true },
-    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog'] } },
+    { id: 'rankings', enabled: true, options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
     { id: 'results', enabled: true },
     { id: 'wrongAnswers', enabled: false },
     { id: 'infoBanner', enabled: false },
