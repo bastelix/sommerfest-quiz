@@ -2525,12 +2525,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const catalogPaginationEl = document.getElementById('catalogsPagination');
 
+  const commentPreviewScratch = document.createElement('div');
+  const COMMENT_PREVIEW_LIMIT = 140;
+
+  function extractCommentPreview(raw) {
+    if (!raw) {
+      return { preview: '', full: '' };
+    }
+    commentPreviewScratch.innerHTML = raw;
+    const text = (commentPreviewScratch.textContent || commentPreviewScratch.innerText || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    commentPreviewScratch.textContent = '';
+    if (!text) {
+      return { preview: '', full: '' };
+    }
+    if (text.length <= COMMENT_PREVIEW_LIMIT) {
+      return { preview: text, full: text };
+    }
+    const slice = text.slice(0, COMMENT_PREVIEW_LIMIT + 1);
+    const lastSpace = slice.lastIndexOf(' ');
+    const base = lastSpace > 0 ? slice.slice(0, lastSpace) : slice.slice(0, COMMENT_PREVIEW_LIMIT);
+    const preview = `${base.trimEnd()} …`;
+    return { preview, full: text };
+  }
+
+  function renderCatalogComment(item) {
+    const { preview, full } = extractCommentPreview(item?.comment);
+    if (!preview) {
+      return '';
+    }
+    const span = document.createElement('span');
+    span.textContent = preview;
+    if (full && full !== preview) {
+      span.title = full;
+    }
+    return span;
+  }
+
   const catalogColumns = [
     { key: 'slug', label: 'Slug', className: 'uk-table-shrink', editable: true },
     { key: 'name', label: 'Name', className: 'uk-table-expand', editable: true },
     { key: 'description', label: 'Beschreibung', className: 'uk-table-expand', editable: true },
     { key: 'raetsel_buchstabe', label: 'Rätsel-Buchstabe', className: 'uk-table-shrink', editable: true },
-    { key: 'comment', label: 'Kommentar', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' },
+    {
+      key: 'comment',
+      label: 'Kommentar',
+      className: 'uk-table-expand',
+      editable: true,
+      ariaDesc: 'Kommentar bearbeiten',
+      render: renderCatalogComment
+    },
     {
       className: 'uk-table-shrink',
       render: item => {
