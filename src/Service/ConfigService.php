@@ -420,7 +420,7 @@ class ConfigService
         $dataDir = dirname(__DIR__, 2) . '/data';
         $target = $this->getEventImagesDir($uid);
 
-        foreach (['png', 'webp'] as $ext) {
+        foreach (['png', 'webp', 'svg'] as $ext) {
             $oldLogo = $dataDir . '/logo-' . $uid . '.' . $ext;
             $newLogo = $target . '/logo.' . $ext;
             if (is_file($oldLogo) && !is_file($newLogo)) {

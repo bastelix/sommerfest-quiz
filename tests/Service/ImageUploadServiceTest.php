@@ -26,4 +26,38 @@ class ImageUploadServiceTest extends TestCase
         $this->assertLessThanOrEqual(ImageUploadService::MAX_PIXELS, $result->width() * $result->height());
         unlink($file);
     }
+
+    public function testSaveUploadedFileStoresSvg(): void {
+        $baseDir = sys_get_temp_dir() . '/image-upload-' . uniqid('', true);
+        $this->assertTrue(mkdir($baseDir));
+        $service = new ImageUploadService($baseDir);
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" /></svg>';
+
+        $resource = fopen('php://temp', 'rb+');
+        fwrite($resource, $svg);
+        rewind($resource);
+
+        $uploaded = new UploadedFile(
+            new Stream($resource),
+            'logo.svg',
+            'image/svg+xml',
+            strlen($svg),
+            UPLOAD_ERR_OK
+        );
+
+        $relative = $service->saveUploadedFile($uploaded, 'events/test', 'logo');
+        fclose($resource);
+
+        $this->assertSame('/events/test/logo.svg', $relative);
+        $target = $baseDir . '/events/test/logo.svg';
+        $this->assertFileExists($target);
+        $this->assertSame($svg, file_get_contents($target));
+
+        if (is_file($target)) {
+            @unlink($target);
+        }
+        @rmdir(dirname($target));
+        @rmdir(dirname(dirname($target)));
+        @rmdir($baseDir);
+    }
 }

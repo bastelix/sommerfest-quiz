@@ -73,8 +73,8 @@ class EventConfigController
                 $this->images->validate(
                     $file,
                     5 * 1024 * 1024,
-                    ['png', 'webp'],
-                    ['image/png', 'image/webp']
+                    ['png', 'webp', 'svg'],
+                    ['image/png', 'image/webp', 'image/svg+xml']
                 );
                 $data['logoPath'] = $this->images->saveUploadedFile(
                     $file,

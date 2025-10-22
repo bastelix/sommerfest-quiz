@@ -36,14 +36,22 @@ class Pdf extends Fpdi
         $headerHeight = max(25.0, $qrSize + 5.0);
 
         if (is_file($logoFile) && is_readable($logoFile)) {
-            if (str_ends_with(strtolower($logoFile), '.webp')) {
+            $ext = strtolower(pathinfo($logoFile, PATHINFO_EXTENSION));
+            if ($ext === 'webp') {
                 $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
                 $img = $manager->read($logoFile);
                 $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
                 $img->save($logoTemp, 80);
                 $logoFile = $logoTemp;
+                $ext = 'png';
+            } elseif ($ext === 'svg') {
+                $logoFile = '';
             }
-            $this->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
+
+            if ($logoFile !== '') {
+                $type = strtoupper(pathinfo($logoFile, PATHINFO_EXTENSION));
+                $this->Image($logoFile, 10, 10, $qrSize, $qrSize, $type);
+            }
         }
 
         $this->SetXY(10, 10);

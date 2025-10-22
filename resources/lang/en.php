@@ -94,7 +94,7 @@ return [
     'menu_account' => 'Account',
     'menu_admin' => 'Administration',
     'logout' => 'Logout',
-    'tip_logo_upload' => 'Upload PNG logo for start page.',
+    'tip_logo_upload' => 'Upload PNG, WebP or SVG logo for start page.',
     'tip_page_title' => 'Text displayed in the browser tab.',
     'tip_background_color' => 'CSS color for the page.',
     'tip_button_color' => 'CSS color for all buttons.',
