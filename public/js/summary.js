@@ -90,12 +90,168 @@ function formatTimeInfo(timeLeft, total){
   }
   return '–';
 }
+
+function computePlayerRankings(rows, questionRows, catalogCount, playerName){
+  if(!playerName) return null;
+  const safeRows = Array.isArray(rows) ? rows : [];
+  const safeQuestionRows = Array.isArray(questionRows) ? questionRows : [];
+
+  const attemptMetrics = new Map();
+  safeQuestionRows.forEach(row => {
+    if(!row) return;
+    const team = typeof row.name === 'string' ? row.name : '';
+    const catalogRaw = row.catalog ?? '';
+    const catalog = catalogRaw !== null && catalogRaw !== undefined ? String(catalogRaw) : '';
+    if(!team || !catalog) return;
+    const attempt = parseIntOr(row.attempt, 1);
+    const key = `${team}|${catalog}|${attempt}`;
+    const pointsVal = parseIntOr(row.final_points ?? row.finalPoints ?? row.points ?? row.correct, 0);
+    const efficiencyVal = parseOptionalFloat(row.efficiency);
+    const efficiency = efficiencyVal !== null ? Math.max(0, Math.min(efficiencyVal, 1)) : (parseIntOr(row.correct, 0) === 1 ? 1 : 0);
+    const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
+    summary.points += Math.max(0, pointsVal);
+    summary.effSum += efficiency;
+    summary.count += 1;
+    attemptMetrics.set(key, summary);
+  });
+
+  const puzzleTimes = new Map();
+  const catalogTimes = new Map();
+  const scorePoints = new Map();
+  const catalogs = new Set();
+
+  safeRows.forEach(row => {
+    if(!row) return;
+    const team = typeof row.name === 'string' ? row.name : '';
+    const catalogRaw = row.catalog ?? '';
+    const catalog = catalogRaw !== null && catalogRaw !== undefined ? String(catalogRaw) : '';
+    if(!team || !catalog) return;
+    catalogs.add(catalog);
+    const attempt = parseIntOr(row.attempt, 1);
+    const key = `${team}|${catalog}|${attempt}`;
+    const summary = attemptMetrics.get(key);
+    let finalPoints;
+    let effSum;
+    let questionCount;
+    if(summary && summary.count > 0){
+      finalPoints = summary.points;
+      effSum = summary.effSum;
+      questionCount = summary.count;
+    }else{
+      const fallbackPoints = parseIntOr(row.points ?? row.correct, 0);
+      finalPoints = Math.max(0, fallbackPoints);
+      const totalQuestions = Math.max(0, parseIntOr(row.total, 0));
+      questionCount = totalQuestions;
+      const correctCount = Math.max(0, parseIntOr(row.correct, 0));
+      const avgFallback = totalQuestions > 0 ? correctCount / totalQuestions : 0;
+      effSum = avgFallback * totalQuestions;
+    }
+    const average = questionCount > 0 ? effSum / questionCount : 0;
+
+    const puzzleTime = parseOptionalInt(row.puzzleTime);
+    if(puzzleTime !== null){
+      const prev = puzzleTimes.get(team);
+      if(prev === undefined || puzzleTime < prev){
+        puzzleTimes.set(team, puzzleTime);
+      }
+    }
+
+    const timeVal = parseOptionalInt(row.time);
+    if(timeVal !== null){
+      let map = catalogTimes.get(team);
+      if(!map){
+        map = new Map();
+        catalogTimes.set(team, map);
+      }
+      const prevTime = map.get(catalog);
+      if(prevTime === undefined || timeVal < prevTime){
+        map.set(catalog, timeVal);
+      }
+    }
+
+    let scoreMap = scorePoints.get(team);
+    if(!scoreMap){
+      scoreMap = new Map();
+      scorePoints.set(team, scoreMap);
+    }
+    const prevScore = scoreMap.get(catalog);
+    if(!prevScore || finalPoints > prevScore.points || (finalPoints === prevScore.points && average > prevScore.avg)){
+      scoreMap.set(catalog, {
+        points: finalPoints,
+        effSum,
+        count: questionCount,
+        avg: average
+      });
+    }
+  });
+
+  const totalCatalogs = catalogCount > 0 ? catalogCount : catalogs.size;
+
+  const puzzleList = Array.from(puzzleTimes.entries())
+    .map(([name, time]) => ({ name, time }))
+    .sort((a, b) => a.time - b.time);
+  const puzzleIndex = puzzleList.findIndex(entry => entry.name === playerName);
+  const puzzlePlace = puzzleIndex >= 0 ? puzzleIndex + 1 : null;
+  const puzzleValue = puzzleIndex >= 0 ? puzzleList[puzzleIndex].time : null;
+
+  const finisherList = [];
+  catalogTimes.forEach((map, name) => {
+    if(totalCatalogs > 0 && map.size === totalCatalogs){
+      let last = -Infinity;
+      map.forEach(val => {
+        if(typeof val === 'number' && Number.isFinite(val) && val > last){
+          last = val;
+        }
+      });
+      if(Number.isFinite(last)){
+        finisherList.push({ name, time: last });
+      }
+    }
+  });
+  finisherList.sort((a, b) => a.time - b.time);
+  const catalogIndex = finisherList.findIndex(entry => entry.name === playerName);
+  const catalogPlace = catalogIndex >= 0 ? catalogIndex + 1 : null;
+  const catalogValue = catalogIndex >= 0 ? finisherList[catalogIndex].time : null;
+
+  const scoreList = [];
+  scorePoints.forEach((map, name) => {
+    let total = 0;
+    let effSumTotal = 0;
+    let questionCountTotal = 0;
+    map.forEach(entry => {
+      total += Number.isFinite(entry.points) ? entry.points : 0;
+      effSumTotal += Number.isFinite(entry.effSum) ? entry.effSum : 0;
+      questionCountTotal += Number.isFinite(entry.count) ? entry.count : 0;
+    });
+    const avg = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
+    scoreList.push({ name, points: total, avg });
+  });
+  scoreList.sort((a, b) => {
+    if(b.points !== a.points){
+      return b.points - a.points;
+    }
+    return (b.avg ?? 0) - (a.avg ?? 0);
+  });
+  const pointsIndex = scoreList.findIndex(entry => entry.name === playerName);
+  const pointsPlace = pointsIndex >= 0 ? pointsIndex + 1 : null;
+  const pointsValue = pointsIndex >= 0 ? scoreList[pointsIndex].points : null;
+  const pointsAvg = pointsIndex >= 0 ? scoreList[pointsIndex].avg : null;
+
+  return {
+    puzzle: { place: puzzlePlace, total: puzzleList.length, value: puzzleValue },
+    catalog: { place: catalogPlace, total: finisherList.length, value: catalogValue },
+    points: { place: pointsPlace, total: scoreList.length, value: pointsValue, avg: pointsAvg }
+  };
+}
 document.addEventListener('DOMContentLoaded', () => {
-  const eventUid = (window.quizConfig || {}).event_uid || '';
+  const cfg = window.quizConfig || {};
+  const params = new URLSearchParams(window.location.search);
+  const urlEventUid = params.get('event') || params.get('event_uid') || '';
+  const configEventUid = cfg.event_uid || '';
+  const eventUid = urlEventUid || configEventUid;
   const eventQuery = eventUid ? `?event_uid=${encodeURIComponent(eventUid)}` : '';
   const resultsJsonPath = '/results.json' + eventQuery;
   const questionResultsPath = '/question-results.json' + eventQuery;
-  const cfg = window.quizConfig || {};
   const playerUidKey = STORAGE_KEYS.PLAYER_UID;
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
@@ -103,11 +259,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const finishBtn = document.getElementById('finish-session-btn');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
-  const resultsEnabled = !(window.quizConfig && window.quizConfig.teamResults === false);
+  const resultsEnabled = !(cfg && cfg.teamResults === false);
   if (resultsBtn && !resultsEnabled) {
     resultsBtn.remove();
   }
-  const photoEnabled = !(window.quizConfig && window.quizConfig.photoUpload === false);
+  const photoEnabled = !(cfg && cfg.photoUpload === false);
   if (photoBtn && !photoEnabled) {
     photoBtn.remove();
   }
@@ -138,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   let catalogMap = null;
+  let catalogCount = 0;
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
     const catalogQuery = eventUid ? `?event=${encodeURIComponent(eventUid)}` : '';
@@ -146,17 +303,21 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(list => {
         const map = {};
         if (Array.isArray(list)) {
+          catalogCount = list.length;
           list.forEach(c => {
             const entry = { name: c.name || '', slug: c.slug || '' };
             if (c.uid) map[c.uid] = entry;
             if (c.sort_order) map[c.sort_order] = entry;
             if (c.slug) map[c.slug] = entry;
           });
+        } else {
+          catalogCount = 0;
         }
         catalogMap = map;
         return map;
       })
       .catch(() => {
+        catalogCount = 0;
         catalogMap = {};
         return catalogMap;
       });
@@ -298,30 +459,38 @@ document.addEventListener('DOMContentLoaded', () => {
     ])
       .then(([catMap, rows, qrows]) => {
         const catalogLookup = (catMap && typeof catMap === 'object') ? catMap : {};
-        const filtered = Array.isArray(rows) ? rows.filter(row => row && row.name === user) : [];
+        const safeRows = Array.isArray(rows) ? rows : [];
+        const safeQuestions = Array.isArray(qrows) ? qrows : [];
+        const filtered = safeRows.filter(row => row && row.name === user);
         const summaryMap = new Map();
         filtered.forEach(r => {
           if(!r) return;
           const info = catalogLookup[r.catalog] || { name: r.catalog, slug: r.catalog };
-          const displayName = r.catalogName || info.name;
-          const pointsVal = parseIntOr(r.points, 0);
-          const maxPointsVal = parseIntOr(r.max_points ?? r.maxPoints, 0);
+          const baseName = info && info.name ? info.name : r.catalog;
+          const displayName = r.catalogName || baseName;
+          const finalPointsRaw = parseOptionalInt(r.final_points ?? r.finalPoints);
+          const basePointsRaw = parseOptionalInt(r.points);
+          const fallbackPoints = parseIntOr(r.correct, 0);
+          const resolvedPointsValue = finalPointsRaw !== null ? finalPointsRaw : (basePointsRaw !== null ? basePointsRaw : fallbackPoints);
+          const numericPoints = typeof resolvedPointsValue === 'number' && Number.isFinite(resolvedPointsValue) ? resolvedPointsValue : 0;
+          const maxPointsVal = parseOptionalInt(r.max_points ?? r.maxPoints);
+          const normalizedMaxPoints = typeof maxPointsVal === 'number' && Number.isFinite(maxPointsVal) ? maxPointsVal : 0;
           const correctVal = parseIntOr(r.correct, 0);
           const totalVal = parseIntOr(r.total, 0);
           const attemptVal = parseIntOr(r.attempt, 1);
-          const pointsText = formatPointsDisplay(pointsVal, maxPointsVal);
+          const pointsText = formatPointsDisplay(numericPoints, maxPointsVal);
           const correctText = `${correctVal}/${totalVal}`;
-          const summaryText = pointsText ? `${correctText} · ${pointsText}` : correctText;
           summaryMap.set(displayName, {
-            res: summaryText,
             slug: info.slug,
-            points: pointsVal,
-            maxPoints: maxPointsVal,
+            points: numericPoints,
+            maxPoints: normalizedMaxPoints,
             correct: correctVal,
             total: totalVal,
             attempt: attemptVal,
             catalogRef: r.catalog,
-            displayName: displayName
+            displayName,
+            pointsText,
+            correctText
           });
         });
 
@@ -341,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        const questionList = Array.isArray(qrows) ? qrows.filter(row => row && row.name === user) : [];
+        const questionList = safeQuestions.filter(row => row && row.name === user);
         const relevantQuestions = questionList.filter(row => {
           if(!row) return false;
           const catalogKeyRaw = row.catalog ?? '';
@@ -399,6 +568,76 @@ document.addEventListener('DOMContentLoaded', () => {
           contentWrap.appendChild(statsGrid);
         }
 
+        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, user);
+        if(rankingInfo && contentWrap){
+          const pointsRanking = rankingInfo.points || { place: null, total: 0 };
+          const catalogRanking = rankingInfo.catalog || { place: null, total: 0 };
+          const puzzleRanking = rankingInfo.puzzle || { place: null, total: 0 };
+          const hasRankingData = [pointsRanking, catalogRanking, puzzleRanking].some(info => info.total > 0);
+          if(hasRankingData){
+            const rankingHeading = document.createElement('h4');
+            rankingHeading.className = 'uk-heading-bullet uk-margin-top';
+            rankingHeading.textContent = 'Ranglisten';
+            const rankingGrid = document.createElement('div');
+            rankingGrid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s';
+            rankingGrid.setAttribute('uk-grid', 'margin: small');
+
+            const appendRankingCard = (title, info, valueText, emptyText) => {
+              const col = document.createElement('div');
+              const card = document.createElement('div');
+              card.className = 'uk-card qr-card uk-card-body uk-padding-small uk-text-center';
+              const headingEl = document.createElement('h5');
+              headingEl.className = 'uk-margin-remove';
+              headingEl.textContent = title;
+              const placeEl = document.createElement('div');
+              placeEl.className = 'uk-text-large uk-margin-small-top';
+              if(info.total > 0 && typeof info.place === 'number' && Number.isFinite(info.place)){
+                placeEl.textContent = `Platz ${info.place} von ${info.total}`;
+              }else if(info.total > 0){
+                placeEl.textContent = 'Noch nicht platziert';
+              }else{
+                placeEl.textContent = emptyText;
+              }
+              card.append(headingEl, placeEl);
+              if(valueText){
+                const meta = document.createElement('p');
+                meta.className = 'uk-text-meta uk-margin-small-top';
+                meta.textContent = valueText;
+                card.appendChild(meta);
+              }
+              col.appendChild(card);
+              rankingGrid.appendChild(col);
+            };
+
+            const pointsDetails = (() => {
+              const parts = [];
+              if(typeof pointsRanking.value === 'number' && Number.isFinite(pointsRanking.value)){
+                parts.push(`Punkte: ${pointsRanking.value}`);
+              }
+              if(typeof pointsRanking.avg === 'number' && Number.isFinite(pointsRanking.avg)){
+                parts.push(`Ø ${formatEfficiencyPercent(pointsRanking.avg)}`);
+              }
+              return parts.join(' · ');
+            })();
+
+            const catalogDetails = (typeof catalogRanking.value === 'number' && Number.isFinite(catalogRanking.value))
+              ? `Abschluss: ${formatTs(catalogRanking.value)}`
+              : '';
+            const puzzleDetails = (typeof puzzleRanking.value === 'number' && Number.isFinite(puzzleRanking.value))
+              ? `Zeit: ${formatTs(puzzleRanking.value)}`
+              : '';
+
+            appendRankingCard('Highscore', pointsRanking, pointsDetails, 'Noch keine Punktewertung');
+            appendRankingCard('Katalogmeister', catalogRanking, catalogDetails, 'Noch nicht alle Kataloge abgeschlossen');
+            appendRankingCard('Rätselwort', puzzleRanking, puzzleDetails, 'Noch kein Rätselwort gelöst');
+
+            if(rankingGrid.children.length){
+              contentWrap.appendChild(rankingHeading);
+              contentWrap.appendChild(rankingGrid);
+            }
+          }
+        }
+
         const catHeading = document.createElement('h4');
         catHeading.className = 'uk-heading-bullet uk-margin-top';
         catHeading.textContent = 'Katalogübersicht';
@@ -413,15 +652,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const th1 = document.createElement('th');
         th1.textContent = 'Katalog';
         const th2 = document.createElement('th');
-        th2.textContent = 'Ergebnis';
-        trh.append(th1, th2);
+        th2.textContent = 'Richtige Antworten';
+        const th3 = document.createElement('th');
+        th3.textContent = 'Punkte';
+        trh.append(th1, th2, th3);
         thead.appendChild(trh);
         table.appendChild(thead);
         const tb = document.createElement('tbody');
         if(summaryMap.size === 0){
           const tr = document.createElement('tr');
           const td = document.createElement('td');
-          td.colSpan = 2;
+          td.colSpan = 3;
           td.textContent = 'Keine Daten';
           tr.appendChild(td);
           tb.appendChild(tr);
@@ -441,9 +682,12 @@ document.addEventListener('DOMContentLoaded', () => {
             link.textContent = cat;
             td1.appendChild(link);
             const td2 = document.createElement('td');
-            td2.textContent = info.res;
+            td2.textContent = info.correctText || '–';
+            const td3 = document.createElement('td');
+            td3.textContent = info.pointsText || '–';
             tr.appendChild(td1);
             tr.appendChild(td2);
+            tr.appendChild(td3);
             tb.appendChild(tr);
           });
         }
@@ -797,6 +1041,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (resultsBtn) { resultsBtn.addEventListener('click', showResults); }
   if (puzzleBtn) { puzzleBtn.addEventListener('click', showPuzzle); }
   if (photoBtn && photoEnabled) { photoBtn.addEventListener('click', showPhotoModal); }
+
+  if (resultsEnabled) {
+    showResults();
+  }
 
   updatePuzzleInfo();
 });
