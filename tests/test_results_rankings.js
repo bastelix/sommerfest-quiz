@@ -2,18 +2,14 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 
-const code = fs.readFileSync('public/js/results.js', 'utf8');
-const fmtMatch = code.match(/function formatTime\(ts\)[\s\S]*?\n\s*\}/);
-const rankPattern =
-    'function computeRankings\\(rows\\) \\{' +
-    '[\\s\\S]*?return { puzzleList, catalogList, pointsList };\\n\\s*\\}';
-const rankMatch = code.match(new RegExp(rankPattern));
-if (!fmtMatch || !rankMatch) {
-    throw new Error('Functions not found');
+let code = fs.readFileSync('public/js/rankings-core.js', 'utf8');
+code = code.replace(/export\s+(?=function)/g, '');
+const context = { console };
+vm.runInNewContext(code, context);
+const computeRankings = context.computeRankings;
+if (typeof computeRankings !== 'function') {
+    throw new Error('computeRankings not found');
 }
-const context = { catalogCount: 3, console };
-context.formatTime = vm.runInNewContext('(' + fmtMatch[0] + ')', context);
-const computeRankings = vm.runInNewContext('(' + rankMatch[0] + ')', context);
 
 const rows = [
     { name: 'Team1', catalog: 'A', correct: 3, time: 10 }

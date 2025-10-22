@@ -41,6 +41,8 @@
           <li><a href="#">Spielregeln</a></li>
           <li><a href="#">Extras</a></li>
           <li><a href="#">Integrationen</a></li>
+          <li><a href="#">Dashboard</a></li>
+          <li><a href="#">Freigabe</a></li>
         </ul>
         <ul class="uk-switcher uk-margin">
           <li>
@@ -155,6 +157,60 @@
                 <div class="uk-text-meta">z.B. Google Analytics Tracking-ID.</div>
               </div>
             </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked" data-dashboard-form>
+              <div class="uk-margin">
+                <label>
+                  <input class="uk-checkbox" id="dashboardEnabled" name="dashboardEnabled" type="checkbox">
+                  Öffentliches Dashboard aktivieren
+                </label>
+                <div class="uk-text-meta">Erzeugt eine Live-Ansicht mit Rankings und Ergebnissen für Gäste ohne Login.</div>
+              </div>
+              <div class="uk-margin" data-dashboard-section>
+                <label class="uk-form-label" for="dashboardModules">Module</label>
+                <div id="dashboardModuleList" class="dashboard-module-list uk-margin-small"></div>
+                <input type="hidden" id="dashboardModules" name="dashboardModules">
+                <div class="uk-text-meta">Aktive Module lassen sich per Pfeil-Schaltflächen sortieren.</div>
+              </div>
+              <div class="uk-grid-small uk-child-width-1-2@m" uk-grid data-dashboard-section>
+                <div data-module-field-wrapper="rankings">
+                  <label class="uk-form-label" for="dashboardRankingLimit">Anzahl sichtbarer Plätze</label>
+                  <input class="uk-input" id="dashboardRankingLimit" name="dashboardRankingLimit" type="number" min="1" max="20" data-module-field="rankings">
+                  <div class="uk-text-meta">Bestimmt, wie viele Teams im Ranking und Scoreboard erscheinen.</div>
+                </div>
+                <div>
+                  <label class="uk-form-label" for="dashboardRefreshInterval">Aktualisierungsintervall (Sekunden)</label>
+                  <input class="uk-input" id="dashboardRefreshInterval" name="dashboardRefreshInterval" type="number" min="5" max="120">
+                  <div class="uk-text-meta">Empfohlen sind 15 Sekunden für einen Live-Charakter.</div>
+                </div>
+              </div>
+              <div class="uk-margin" data-dashboard-section data-module-field-wrapper="info">
+                <label class="uk-form-label" for="dashboardInfo">Infobanner</label>
+                <textarea class="uk-textarea" id="dashboardInfo" name="dashboardInfo" rows="4" data-module-field="info"></textarea>
+                <div class="uk-text-meta">Unterstützte Formatierung: &lt;p&gt;, &lt;br&gt;, &lt;strong&gt;, &lt;em&gt;.</div>
+              </div>
+              <div class="uk-margin" data-dashboard-section data-module-field-wrapper="media">
+                <label class="uk-form-label" for="dashboardMediaUrl">Medien- oder Livestream-URL</label>
+                <input class="uk-input" id="dashboardMediaUrl" name="dashboardMediaUrl" type="url" placeholder="https://" data-module-field="media">
+                <div class="uk-text-meta">YouTube-, Vimeo- oder andere Streams können eingebettet werden.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title uk-margin-remove">Öffentlicher Link</h3>
+              <p id="dashboardShareStatus" class="uk-text-meta uk-margin-small">Aktiviere das Dashboard, um einen Link zu teilen.</p>
+              <div class="uk-margin">
+                <input class="uk-input" id="dashboardShareLink" type="text" readonly placeholder="Noch kein Link erzeugt">
+              </div>
+              <div class="uk-button-group uk-margin-small-bottom">
+                <button class="uk-button uk-button-primary" type="button" id="dashboardLinkCopy" disabled>Link kopieren</button>
+                <button class="uk-button uk-button-default" type="button" id="dashboardTokenGenerate" disabled>Neuen Link erzeugen</button>
+                <button class="uk-button uk-button-danger" type="button" id="dashboardTokenRevoke" disabled>Link deaktivieren</button>
+              </div>
+              <p class="uk-text-meta">Der Link enthält ein geheimes Token und funktioniert ohne Login. Teile ihn nur mit Personen, die Zugriff erhalten sollen.</p>
+            </div>
           </li>
         </ul>
       </div>

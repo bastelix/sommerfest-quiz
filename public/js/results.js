@@ -1,6 +1,8 @@
 /* global UIkit */
 import { applyLazyImage } from './lazy-images.js';
+import { formatTimestamp, computeRankings } from './rankings-core.js';
 let catalogCount = 0;
+const formatTime = formatTimestamp;
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const wrongBody = document.getElementById('wrongTableBody');
@@ -16,12 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const PAGE_SIZE = 10;
   let resultsData = [];
   let currentPage = 1;
-
-  function formatTime(ts) {
-    const d = new Date(ts * 1000);
-    const pad = n => n.toString().padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
 
   function insertSoftHyphens(text) {
     return text ? text.replace(/\/-/g, '\u00AD') : '';
@@ -222,70 +218,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pagination.appendChild(nextLi);
   }
 
-  function computeRankings(rows) {
-    const catalogs = new Set();
-    const puzzleTimes = new Map();
-    const catTimes = new Map();
-    const scores = new Map();
-
-    rows.forEach(r => {
-      catalogs.add(r.catalog);
-
-      if (r.puzzleTime) {
-        const prev = puzzleTimes.get(r.name);
-        if (!prev || r.puzzleTime < prev) puzzleTimes.set(r.name, r.puzzleTime);
-      }
-
-      let tMap = catTimes.get(r.name);
-      if (!tMap) { tMap = new Map(); catTimes.set(r.name, tMap); }
-      const prevTime = tMap.get(r.catalog);
-      if (prevTime === undefined || r.time < prevTime) {
-        tMap.set(r.catalog, r.time);
-      }
-
-      let sMap = scores.get(r.name);
-      if (!sMap) { sMap = new Map(); scores.set(r.name, sMap); }
-      const prevScore = sMap.get(r.catalog);
-      if (prevScore === undefined || r.correct > prevScore) {
-        sMap.set(r.catalog, r.correct);
-      }
-    });
-
-    const puzzleArr = [];
-    puzzleTimes.forEach((time, name) => {
-      puzzleArr.push({ name, value: formatTime(time), raw: time });
-    });
-    puzzleArr.sort((a, b) => a.raw - b.raw);
-    const puzzleList = puzzleArr.slice(0, 3);
-
-    const totalCats = catalogCount || catalogs.size;
-    const finishers = [];
-    catTimes.forEach((map, name) => {
-      if (map.size === totalCats) {
-        let last = -Infinity;
-        map.forEach(t => { if (t > last) last = t; });
-        finishers.push({ name, finished: last });
-      }
-    });
-    finishers.sort((a, b) => a.finished - b.finished);
-    const catalogList = finishers.slice(0, 3).map(item => ({
-      name: item.name,
-      value: formatTime(item.finished),
-      raw: item.finished
-    }));
-
-    const totalScores = [];
-    scores.forEach((map, name) => {
-      const total = Array.from(map.values()).reduce((sum, v) => sum + v, 0);
-      totalScores.push({ name, value: total, raw: total });
-    });
-    totalScores.sort((a, b) => b.raw - a.raw);
-    const pointsList = totalScores.slice(0, 3);
-
-    return { puzzleList, catalogList, pointsList };
-  }
-
-
   function renderRankings(rankings) {
     if (!grid) return;
     grid.innerHTML = '';
@@ -451,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshLightboxes();
         updatePagination();
 
-        const rankings = computeRankings(rows);
+        const rankings = computeRankings(rows, catalogCount);
         renderRankings(rankings);
 
         qrows.forEach(r => {

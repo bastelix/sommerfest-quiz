@@ -1,0 +1,52 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ event.name }} · Live-Dashboard{% endblock %}
+
+{% block head %}
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="{{ basePath }}/css/dashboard.css">
+{% endblock %}
+
+{% block body_class %}dashboard-page uk-background-muted{% endblock %}
+
+{% block body %}
+  <section class="dashboard-hero">
+    <div class="uk-container">
+      <div class="dashboard-hero-content">
+        {% if config.logoPath %}
+          <img src="{{ basePath }}{{ config.logoPath }}" alt="Event Logo" class="dashboard-logo">
+        {% endif %}
+        <div>
+          <h1 class="dashboard-title">{{ event.name }}</h1>
+          <p class="dashboard-subtitle">Live-Dashboard</p>
+        </div>
+      </div>
+      <div id="dashboardStatus" class="dashboard-status">Lädt Daten …</div>
+    </div>
+  </section>
+  <section class="dashboard-content">
+    <div class="uk-container">
+      <div id="dashboardModules" class="dashboard-modules"></div>
+    </div>
+  </section>
+  <script id="dashboard-config" type="application/json">
+{{ {
+  slug: event.slug,
+  eventUid: event.uid,
+  eventName: event.name,
+  modules: modules,
+  refresh: refreshInterval,
+  rankingLimit: rankingLimit,
+  info: config.dashboardInfo|default(''),
+  mediaUrl: config.dashboardMediaUrl|default(''),
+  colors: config.colors|default({}),
+  logoPath: config.logoPath|default(null)
+}|json_encode(constant('JSON_PRETTY_PRINT') bitor constant('JSON_UNESCAPED_SLASHES') bitor constant('JSON_UNESCAPED_UNICODE'))|raw }}
+  </script>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/dashboard.js"></script>
+{% endblock %}

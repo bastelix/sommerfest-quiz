@@ -8,6 +8,7 @@ use App\Service\EventService;
 use App\Service\ConfigService;
 use App\Service\ImageUploadService;
 use App\Service\ConfigValidator;
+use JsonException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -98,5 +99,42 @@ class EventConfigController
         $content = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function generateDashboardToken(Request $request, Response $response, array $args): Response {
+        $uid = (string) ($args['id'] ?? '');
+        $event = $this->events->getByUid($uid);
+        if ($event === null) {
+            return $response->withStatus(404);
+        }
+        try {
+            $token = rtrim(strtr(base64_encode(random_bytes(24)), '+/', '-_'), '=');
+        } catch (\Exception $e) {
+            return $response->withStatus(500);
+        }
+        $this->config->saveConfig([
+            'event_uid' => $uid,
+            'dashboardShareToken' => $token,
+        ]);
+        try {
+            $json = json_encode(['token' => $token], JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            return $response->withStatus(500);
+        }
+        $response->getBody()->write($json);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function revokeDashboardToken(Request $request, Response $response, array $args): Response {
+        $uid = (string) ($args['id'] ?? '');
+        $event = $this->events->getByUid($uid);
+        if ($event === null) {
+            return $response->withStatus(404);
+        }
+        $this->config->saveConfig([
+            'event_uid' => $uid,
+            'dashboardShareToken' => null,
+        ]);
+        return $response->withStatus(204);
     }
 }

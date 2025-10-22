@@ -158,6 +158,29 @@ class CatalogService
     }
 
     /**
+     * Count catalogs for a specific event UID, falling back to global catalogs when necessary.
+     */
+    public function countCatalogsForEvent(string $eventUid): int {
+        $params = [];
+        $sql = 'SELECT COUNT(*) FROM catalogs';
+        if ($eventUid !== '') {
+            $sql .= ' WHERE event_uid=?';
+            $params[] = $eventUid;
+        } else {
+            $sql .= ' WHERE event_uid IS NULL';
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $count = (int) $stmt->fetchColumn();
+        if ($eventUid !== '' && $count === 0) {
+            $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE event_uid IS NULL');
+            $stmt->execute();
+            $count = (int) $stmt->fetchColumn();
+        }
+        return $count;
+    }
+
+    /**
      * Return the catalog slug for the given file name.
      */
     public function slugByFile(string $file): ?string {

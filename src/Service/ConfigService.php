@@ -43,6 +43,7 @@ class ConfigService
         'stickerPrintHeader',
         'stickerPrintSubheader',
         'stickerPrintCatalog',
+        'dashboardEnabled',
     ];
 
     /**
@@ -257,6 +258,13 @@ class ConfigService
             'stickerDescWidth',
             'stickerDescHeight',
             'stickerBgPath',
+            'dashboardEnabled',
+            'dashboardShareToken',
+            'dashboardModules',
+            'dashboardInfo',
+            'dashboardMediaUrl',
+            'dashboardRefreshInterval',
+            'dashboardRankingLimit',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
@@ -286,10 +294,15 @@ class ConfigService
             }
             $stmt = $this->pdo->prepare($sql);
             foreach ($filtered as $k => $v) {
-                if (is_bool($v)) {
+                if ($v === null) {
+                    $stmt->bindValue(':' . $k, null, PDO::PARAM_NULL);
+                } elseif (is_bool($v)) {
                     $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
                 } elseif ($k === 'colors') {
                     $stmt->bindValue(':' . $k, json_encode($v, JSON_THROW_ON_ERROR));
+                } elseif ($k === 'dashboardModules') {
+                    $value = is_array($v) ? json_encode($v, JSON_THROW_ON_ERROR) : (string) $v;
+                    $stmt->bindValue(':' . $k, $value);
                 } else {
                     $stmt->bindValue(':' . $k, $v);
                 }
@@ -521,6 +534,13 @@ class ConfigService
             'stickerDescWidth',
             'stickerDescHeight',
             'stickerBgPath',
+            'dashboardEnabled',
+            'dashboardShareToken',
+            'dashboardModules',
+            'dashboardInfo',
+            'dashboardMediaUrl',
+            'dashboardRefreshInterval',
+            'dashboardRankingLimit',
         ];
         $map = [];
         foreach ($keys as $k) {
@@ -541,6 +561,19 @@ class ConfigService
                     }
                 } else {
                     $normalized[$key] = is_array($v) ? $v : [];
+                }
+            } elseif ($key === 'dashboardModules') {
+                if (is_string($v) && $v !== '') {
+                    try {
+                        $decoded = json_decode($v, true, 512, JSON_THROW_ON_ERROR);
+                        $normalized[$key] = is_array($decoded) ? array_values($decoded) : ConfigValidator::DEFAULT_DASHBOARD_MODULES;
+                    } catch (JsonException $e) {
+                        $normalized[$key] = ConfigValidator::DEFAULT_DASHBOARD_MODULES;
+                    }
+                } elseif (is_array($v)) {
+                    $normalized[$key] = array_values($v);
+                } else {
+                    $normalized[$key] = ConfigValidator::DEFAULT_DASHBOARD_MODULES;
                 }
             } elseif (in_array($key, self::BOOL_KEYS, true)) {
                 $normalized[$key] = $v === null ? null : filter_var(
@@ -563,6 +596,12 @@ class ConfigService
             if ($colorCfg !== []) {
                 $normalized['colors'] = $colorCfg;
             }
+        }
+        if (isset($normalized['dashboardRefreshInterval'])) {
+            $normalized['dashboardRefreshInterval'] = (int) $normalized['dashboardRefreshInterval'];
+        }
+        if (isset($normalized['dashboardRankingLimit'])) {
+            $normalized['dashboardRankingLimit'] = (int) $normalized['dashboardRankingLimit'];
         }
         return $normalized;
     }

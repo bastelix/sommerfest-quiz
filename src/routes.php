@@ -17,6 +17,7 @@ use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
+use App\Controller\DashboardController;
 use App\Application\Seo\PageSeoConfigService;
 use App\Application\Middleware\HeadRequestMiddleware;
 use App\Application\Middleware\RoleAuthMiddleware;
@@ -324,6 +325,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 __DIR__ . '/../data/photos',
                 $eventService
             ))
+            ->withAttribute(
+                'dashboardController',
+                new DashboardController($configService, $eventService, $resultService, $catalogService)
+            )
             ->withAttribute('teamController', new TeamController($teamService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute(
@@ -1388,6 +1393,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('resultController')->getQuestions($request, $response);
     });
 
+    $app->get('/events/{slug}/dashboard', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('dashboardController')->view($request, $response, $args);
+    });
+
+    $app->get('/events/{slug}/dashboard/data', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('dashboardController')->data($request, $response, $args);
+    });
+
     $app->get('/results/download', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->download($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
@@ -1597,6 +1610,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->patch('/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+
+    $app->post('/admin/event/{id}/dashboard-token', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('eventConfigController')->generateDashboardToken($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER))->add(new CsrfMiddleware());
+
+    $app->delete('/admin/event/{id}/dashboard-token', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('eventConfigController')->revokeDashboardToken($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER))->add(new CsrfMiddleware());
 
     $app->post('/invite', function (Request $request, Response $response) {
         $pdo = $request->getAttribute('pdo');

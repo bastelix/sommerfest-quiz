@@ -40,3 +40,46 @@
   box-sizing: border-box;
   touch-action: none;
 }
+
+.dashboard-module-list {
+  border: 1px solid var(--qr-border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--qr-card);
+}
+
+.dashboard-module-row {
+  background: var(--qr-surface, rgba(255, 255, 255, 0.02));
+  border-radius: 6px;
+  padding: 8px 12px;
+  gap: 12px;
+}
+
+.dashboard-module-row + .dashboard-module-row {
+  margin-top: 8px;
+}
+
+.dashboard-module-row label {
+  font-weight: 600;
+}
+
+.dashboard-module-row input[type="checkbox"] {
+  margin-left: 12px;
+}
+
+.dashboard-module-row .uk-button-group {
+  display: flex;
+  gap: 4px;
+}
+
+[data-module-field-wrapper].module-disabled {
+  opacity: 0.55;
+}
+
+[data-module-field-wrapper].module-disabled .uk-text-meta {
+  color: var(--color-muted, #9ca3af);
+}
+
+[data-dashboard-section].uk-disabled {
+  opacity: 0.55;
+}

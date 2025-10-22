@@ -1,0 +1,151 @@
+.dashboard-hero {
+  background: linear-gradient(135deg, var(--primary-color, #1e87f0), var(--accent-color, #0f6ecd));
+  color: #fff;
+  padding: 3rem 0 2rem;
+}
+
+.dashboard-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.dashboard-logo {
+  max-height: 80px;
+  width: auto;
+}
+
+.dashboard-title {
+  font-size: 2.4rem;
+  margin: 0;
+}
+
+.dashboard-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+.dashboard-status {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+
+.dashboard-content {
+  padding: 2rem 0 4rem;
+}
+
+.dashboard-modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-module {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(15, 30, 60, 0.08);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.dashboard-module-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1rem;
+}
+
+.dashboard-module-title {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.dashboard-module-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.dashboard-rankings-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dashboard-ranking-card {
+  background: rgba(30, 135, 240, 0.08);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.dashboard-ranking-card h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: #0f2847;
+}
+
+.dashboard-ranking-card ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.dashboard-ranking-card li {
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+}
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid #e5e9f2;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.dashboard-table tbody tr:hover {
+  background-color: #f7f9fc;
+}
+
+.dashboard-info {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.dashboard-info p:last-child {
+  margin-bottom: 0;
+}
+
+.dashboard-media iframe {
+  width: 100%;
+  min-height: 220px;
+  border: none;
+  border-radius: 12px;
+}
+
+@media (max-width: 960px) {
+  .dashboard-hero {
+    padding: 2.5rem 0 1.5rem;
+  }
+  .dashboard-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .dashboard-title {
+    font-size: 2rem;
+  }
+}

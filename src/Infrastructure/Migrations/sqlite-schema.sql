@@ -78,6 +78,13 @@ CREATE TABLE IF NOT EXISTS config (
     stickerDescWidth REAL,
     stickerDescHeight REAL,
     stickerBgPath TEXT,
+    dashboardEnabled BOOLEAN,
+    dashboardShareToken TEXT,
+    dashboardModules TEXT,
+    dashboardInfo TEXT,
+    dashboardMediaUrl TEXT,
+    dashboardRefreshInterval INTEGER,
+    dashboardRankingLimit INTEGER,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 
