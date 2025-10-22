@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.addEventListener('current-event-changed', (e) => {
+  document.addEventListener('event:changed', (e) => {
     const uid = e.detail.uid || '';
     currentEventUid = uid;
     updateEventButtons(uid);

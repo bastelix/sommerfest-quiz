@@ -5,7 +5,11 @@ import { createCellEditor } from './edit-helpers.js';
 import {
   setCurrentEvent as switchEvent,
   switchPending,
-  lastSwitchFailed
+  lastSwitchFailed,
+  getSwitchEpoch,
+  registerCacheReset,
+  registerScopedAbortController,
+  isCurrentEpoch
 } from './event-switcher.js';
 import { applyLazyImage } from './lazy-images.js';
 
@@ -54,27 +58,52 @@ function showUpgradeModal() {
 }
 
 window.apiFetch = (path, options = {}) => {
+  const epoch = getSwitchEpoch();
+  const controller = new AbortController();
+  const cleanup = registerScopedAbortController(controller, epoch);
+
+  const externalSignal = options.signal;
+  if (typeof AbortSignal !== 'undefined' && externalSignal instanceof AbortSignal) {
+    if (externalSignal.aborted) {
+      controller.abort();
+    } else {
+      externalSignal.addEventListener('abort', () => controller.abort(), { once: true });
+    }
+  }
+
   const token = getCsrfToken();
   const headers = {
     ...(token ? { 'X-CSRF-Token': token } : {}),
     'X-Requested-With': 'fetch',
     ...(options.headers || {})
   };
+
   const opts = {
     credentials: 'same-origin',
     cache: 'no-store',
     ...options,
-    headers
+    headers,
+    signal: controller.signal
   };
-  return fetch(withBase(path), opts).then(res => {
-    if (res.status === 402) {
-      showUpgradeModal();
-      const err = new Error(window.transUpgradeText || 'upgrade-required');
-      err.code = 'upgrade-required';
-      throw err;
-    }
-    return res;
-  });
+
+  return fetch(withBase(path), opts)
+    .then(res => {
+      if (res.status === 402) {
+        showUpgradeModal();
+        const err = new Error(window.transUpgradeText || 'upgrade-required');
+        err.code = 'upgrade-required';
+        throw err;
+      }
+      if (!isCurrentEpoch(epoch) && !controller.signal.aborted) {
+        const abortErr = new Error('Request aborted due to event switch');
+        abortErr.name = 'AbortError';
+        throw abortErr;
+      }
+      return res;
+    })
+    .finally(() => {
+      cleanup();
+    });
 };
 window.notify = (msg, status = 'primary', timeout = 2000) => {
   if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -820,13 +849,48 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
+  const cloneConfigValue = (value, seen = new Map()) => {
+    if (typeof value !== 'object' || value === null) {
+      return value;
+    }
+    if (seen.has(value)) {
+      return seen.get(value);
+    }
+    if (Array.isArray(value)) {
+      const arr = [];
+      seen.set(value, arr);
+      value.forEach((item, idx) => {
+        arr[idx] = cloneConfigValue(item, seen);
+      });
+      return arr;
+    }
+    const obj = {};
+    seen.set(value, obj);
+    Object.keys(value).forEach(key => {
+      obj[key] = cloneConfigValue(value[key], seen);
+    });
+    return obj;
+  };
+  const cloneConfig = config => {
+    if (!config || typeof config !== 'object') {
+      return {};
+    }
+    if (typeof structuredClone === 'function') {
+      try {
+        return structuredClone(config);
+      } catch (err) {
+        /* empty */
+      }
+    }
+    return cloneConfigValue(config);
+  };
   function replaceInitialConfig(newConfig) {
-    const source = (newConfig && typeof newConfig === 'object') ? newConfig : {};
+    const source = cloneConfig(newConfig);
     Object.keys(cfgInitial).forEach(key => {
       delete cfgInitial[key];
     });
     Object.assign(cfgInitial, source);
-    return { ...cfgInitial };
+    return cloneConfig(cfgInitial);
   }
   const cfgParams = new URLSearchParams(window.location.search);
   let currentEventUid = cfgParams.get('event') || '';
@@ -2354,6 +2418,13 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
+
+  registerCacheReset(() => {
+    catalogs = [];
+    catalogFile = '';
+    initial = [];
+    catalogManager?.render([]);
+  });
 
   const parseBoolean = value => {
     if (typeof value === 'boolean') return value;
@@ -3956,6 +4027,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let teamManager;
   let teamEditor;
+
+  registerCacheReset(() => {
+    teamManager?.render([]);
+    if (teamRestrictTeams) {
+      teamRestrictTeams.checked = false;
+    }
+  });
   if (teamListEl) {
     const teamColumns = [
       { key: 'name', label: 'Name', className: 'team-name', editable: true },
@@ -5130,6 +5208,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let summaryRequestId = 0;
 
+  registerCacheReset(() => {
+    summaryRequestId += 1;
+  });
+
   function createSummaryPager(options) {
     const {
       container,
@@ -5823,8 +5905,12 @@ document.addEventListener('DOMContentLoaded', function () {
     el.textContent = name ? `${name} – ${el.dataset.title}` : el.dataset.title;
   }
 
-  document.addEventListener('current-event-changed', e => {
-    const { uid, name, config } = e.detail || {};
+  document.addEventListener('event:changed', e => {
+    const detail = e.detail || {};
+    const { uid, name, config, epoch } = detail;
+    if (typeof epoch === 'number' && !isCurrentEpoch(epoch)) {
+      return;
+    }
     currentEventUid = uid || '';
     currentEventName = currentEventUid ? (name || currentEventName) : '';
     const nextConfig = (config && typeof config === 'object') ? config : {};

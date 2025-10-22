@@ -3,6 +3,7 @@
   const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
   const withBase = (p) => basePath + p;
   let eventId = document.body?.dataset.eventId || currentScript?.dataset.eventId || window.eventId || '';
+  let switchEpoch = 0;
   const currentEventSelects = new Set();
 
   const getCsrfToken = () =>
@@ -65,9 +66,10 @@
       })
       .then((detail) => {
         const config = detail?.config || {};
-        document.dispatchEvent(
-          new CustomEvent('current-event-changed', { detail: { uid, name, config } })
-        );
+        const epoch = ++switchEpoch;
+        const detailPayload = { uid, name, config, epoch };
+        document.dispatchEvent(new CustomEvent('event:changed', { detail: detailPayload }));
+        document.dispatchEvent(new CustomEvent('current-event-changed', { detail: detailPayload }));
         return detail;
       })
       .catch((err) => {
@@ -229,7 +231,7 @@
     autosaveTimer = setTimeout(save, 800);
   }
 
-  document.addEventListener('current-event-changed', (e) => {
+  document.addEventListener('event:changed', (e) => {
     const { uid = '', name = '' } = e.detail || {};
     eventId = uid;
     clearTimeout(autosaveTimer);

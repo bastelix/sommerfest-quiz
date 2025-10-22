@@ -28,11 +28,11 @@ if (activeHelpTextIndex === -1) {
 }
 const summarySection = code.slice(summaryStart, activeHelpTextIndex);
 
-const listenerMatch = code.match(/document.addEventListener\('current-event-changed', e => {([\s\S]*?)\n\s*}\);/);
+const listenerMatch = code.match(/document.addEventListener\('event:changed', e => {([\s\S]*?)\n\s*}\);/);
 if (!listenerMatch) {
   throw new Error('event-change listener not found');
 }
-const listenerCode = "document.addEventListener('current-event-changed', e => {" + listenerMatch[1] + "\n  });";
+const listenerCode = "document.addEventListener('event:changed', e => {" + listenerMatch[1] + "\n  });";
 
 const combinedCode = `${binderCode}\n${qrSection}${summarySection}\n${listenerCode}`;
 
@@ -318,13 +318,27 @@ const ctx = {
       img.src = '';
     }
   },
-  replaceInitialConfig: config => config,
+  replaceSnapshots: [],
+  clonedConfigs: [],
+  replaceInitialConfig: config => {
+    const clone = JSON.parse(JSON.stringify(config || {}));
+    ctx.replaceSnapshots.push(config);
+    ctx.clonedConfigs.push(clone);
+    return clone;
+  },
   populateEventSelectors: list => {
     ctx.availableEvents = Array.isArray(list) ? list : [];
   },
-  renderCurrentEventIndicator: () => {},
-  updateEventButtons: () => {},
-  updateActiveHeader: () => {},
+  renderCalls: [],
+  renderCurrentEventIndicator: (...args) => {
+    ctx.renderCalls.push({ type: 'indicator', args });
+  },
+  updateEventButtons: (...args) => {
+    ctx.renderCalls.push({ type: 'buttons', args });
+  },
+  updateActiveHeader: (...args) => {
+    ctx.renderCalls.push({ type: 'header', args });
+  },
   highlightCurrentEvent: () => {},
   updateHeading: () => {},
   eventSettingsHeading: null,
@@ -335,6 +349,8 @@ const ctx = {
   loadCatalogs: () => {},
   loadTeamList: () => {},
   fetchCalls: [],
+  registerCacheReset: () => () => {},
+  isCurrentEpoch: () => true,
   URLSearchParams
 };
 
@@ -452,15 +468,35 @@ ctx.apiFetch = async url => {
   throw new Error(`unknown url ${url}`);
 };
 
-function dispatch(uid, name) {
+let testEpoch = 0;
+function dispatch(uid, name, config = {}) {
   ctx.fetchCalls = [];
-  ctx.document.dispatchEvent({ type: 'current-event-changed', detail: { uid, name, config: {} } });
+  testEpoch += 1;
+  ctx.document.dispatchEvent({
+    type: 'event:changed',
+    detail: { uid, name, config, epoch: testEpoch }
+  });
   return flushPromises(6);
 }
 
 (async () => {
-  await dispatch('ev1', 'Event One');
+  ctx.renderCalls = [];
+  ctx.replaceSnapshots = [];
+  const ev1Config = { header: 'Event One', nested: { value: 1 }, flags: ['alpha'] };
+  await dispatch('ev1', 'Event One', ev1Config);
   await flushPromises(6);
+  assert.ok(ctx.renderCalls.length >= 3);
+  assert.deepStrictEqual(ctx.renderCalls.slice(0, 3).map(c => c.type), ['header', 'indicator', 'buttons']);
+  assert.ok(ctx.replaceSnapshots.includes(ev1Config));
+  const firstIndex = ctx.replaceSnapshots.lastIndexOf(ev1Config);
+  assert.ok(firstIndex >= 0);
+  const firstClone = ctx.clonedConfigs[firstIndex];
+  assert.notStrictEqual(firstClone, ev1Config);
+  assert.notStrictEqual(firstClone.nested, ev1Config.nested);
+  ev1Config.nested.value = 99;
+  ev1Config.flags.push('beta');
+  assert.strictEqual(firstClone.nested.value, 1);
+  assert.deepStrictEqual(firstClone.flags, ['alpha']);
   assert.strictEqual(summaryEventName.textContent, 'Event One');
   assert.strictEqual(summaryEventDesc.textContent, 'First event');
   assert.strictEqual(summaryEventQr.hidden, false);
@@ -492,9 +528,21 @@ function dispatch(uid, name) {
   lastTeamBtn.click();
   assert(decodeURIComponent(window.openCalls[0]).includes('Team%20Green'));
 
-  await dispatch('ev2', 'Event Two');
+  ctx.renderCalls = [];
+  const ev2Config = { header: 'Event Two', nested: { value: 5 }, extra: { tags: ['prime'] } };
+  await dispatch('ev2', 'Event Two', ev2Config);
   await flushPromises(6);
   assert(ctx.fetchCalls.some(url => url.includes('/kataloge/catalogs.json')));
+  assert.ok(ctx.renderCalls.length >= 3);
+  assert.deepStrictEqual(ctx.renderCalls.slice(0, 3).map(c => c.type), ['header', 'indicator', 'buttons']);
+  assert.ok(ctx.replaceSnapshots.includes(ev2Config));
+  const secondIndex = ctx.replaceSnapshots.lastIndexOf(ev2Config);
+  assert.ok(secondIndex >= 0);
+  const secondClone = ctx.clonedConfigs[secondIndex];
+  assert.notStrictEqual(secondClone, ev2Config);
+  assert.notStrictEqual(secondClone.extra, ev2Config.extra);
+  assert.strictEqual(secondClone.header, 'Event Two');
+  assert.strictEqual(secondClone.nested.value, 5);
   assert.strictEqual(summaryEventName.textContent, 'Event Two');
   assert.strictEqual(summaryEventDesc.textContent, 'Second event');
   assert.strictEqual(summaryCatalogs.children.length, 2);
