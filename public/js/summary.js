@@ -7,6 +7,18 @@ function insertSoftHyphens(text){
 function safeUserName(name){
   return typeof name === 'string' && /^[\w\s.-]{1,100}$/.test(name) ? name : '';
 }
+
+function formatPointsDisplay(points, maxPoints){
+  const normalizedPoints = Number.isFinite(points) ? points : Number.parseInt(points, 10);
+  if(!Number.isFinite(normalizedPoints)){
+    return '';
+  }
+  const normalizedMax = Number.isFinite(maxPoints) ? maxPoints : Number.parseInt(maxPoints, 10);
+  if(Number.isFinite(normalizedMax) && normalizedMax > 0){
+    return `${normalizedPoints}/${normalizedMax}`;
+  }
+  return String(normalizedPoints);
+}
 document.addEventListener('DOMContentLoaded', () => {
   const eventUid = (window.quizConfig || {}).event_uid || '';
   const cfg = window.quizConfig || {};
@@ -191,7 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
         filtered.forEach(r => {
           const info = catMap[r.catalog] || { name: r.catalog, slug: r.catalog };
           const name = r.catalogName || info.name;
-          map.set(name, { res: `${r.correct}/${r.total}`, slug: info.slug });
+          const pointsText = formatPointsDisplay(r.points, r.max_points);
+          const correctText = `${r.correct}/${r.total}`;
+          const summaryText = pointsText ? `${correctText} · ${pointsText}` : correctText;
+          map.set(name, { res: summaryText, slug: info.slug });
         });
         const table = document.createElement('table');
         table.className = 'uk-table uk-table-divider';

@@ -23,6 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
+  function formatPointsCell(points, maxPoints) {
+    const pts = Number.isFinite(points) ? points : Number.parseInt(points, 10);
+    const normalizedPts = Number.isFinite(pts) ? pts : 0;
+    const max = Number.isFinite(maxPoints) ? maxPoints : Number.parseInt(maxPoints, 10);
+    if (Number.isFinite(max) && max > 0) {
+      return `${normalizedPts}/${max}`;
+    }
+    return String(normalizedPts);
+  }
+
   function insertSoftHyphens(text) {
     return text ? text.replace(/\/-/g, '\u00AD') : '';
   }
@@ -90,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 7;
+      td.colSpan = 8;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -98,10 +108,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     rows.forEach(r => {
       const tr = document.createElement('tr');
+      const pointsCell = formatPointsCell(r.points ?? r.correct ?? 0, r.max_points ?? 0);
       const cells = [
         r.attempt,
         r.catalogName || r.catalog,
         `${r.correct}/${r.total}`,
+        pointsCell,
         formatTime(r.time),
         r.puzzleTime ? formatTime(r.puzzleTime) : '',
         null
@@ -226,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const catalogs = new Set();
     const puzzleTimes = new Map();
     const catTimes = new Map();
-    const scores = new Map();
+    const scorePoints = new Map();
 
     rows.forEach(r => {
       catalogs.add(r.catalog);
@@ -243,11 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tMap.set(r.catalog, r.time);
       }
 
-      let sMap = scores.get(r.name);
-      if (!sMap) { sMap = new Map(); scores.set(r.name, sMap); }
+      let sMap = scorePoints.get(r.name);
+      if (!sMap) { sMap = new Map(); scorePoints.set(r.name, sMap); }
+      const currentPoints = Number.isFinite(r.points) ? Number(r.points) : Number(r.correct) || 0;
       const prevScore = sMap.get(r.catalog);
-      if (prevScore === undefined || r.correct > prevScore) {
-        sMap.set(r.catalog, r.correct);
+      if (prevScore === undefined || currentPoints > prevScore) {
+        sMap.set(r.catalog, currentPoints);
       }
     });
 
@@ -275,9 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
 
     const totalScores = [];
-    scores.forEach((map, name) => {
+    scorePoints.forEach((map, name) => {
       const total = Array.from(map.values()).reduce((sum, v) => sum + v, 0);
-      totalScores.push({ name, value: total, raw: total });
+      totalScores.push({ name, value: `${total} Punkte`, raw: total });
     });
     totalScores.sort((a, b) => b.raw - a.raw);
     const pointsList = totalScores.slice(0, 3);
@@ -397,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 7;
+      td.colSpan = 8;
       td.textContent = 'Kein Event ausgewählt';
       tr.appendChild(td);
       tbody.appendChild(tr);

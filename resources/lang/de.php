@@ -232,6 +232,7 @@ return [
     'column_catalog' => 'Katalog',
     'column_attempt' => 'Versuch',
     'column_correct' => 'Richtige',
+    'column_points' => 'Punkte',
     'column_time' => 'Zeit',
     'column_puzzle_solved' => 'Rätselwort gelöst',
     'column_proof_photo' => 'Beweisfoto',
