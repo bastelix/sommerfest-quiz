@@ -9,9 +9,11 @@ use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use App\Service\ImageUploadService;
 use App\Service\ConfigService;
+use App\Support\HttpCacheHelper;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Psr7\Stream;
 
 /**
  * Handles upload and retrieval of photo evidence.
@@ -139,8 +141,24 @@ class EvidenceController
             'webp' => 'image/webp',
             default => 'application/octet-stream'
         };
-        $response->getBody()->write((string)file_get_contents($path));
-        return $response->withHeader('Content-Type', $type);
+        $handle = fopen($path, 'rb');
+        if ($handle === false) {
+            return $response->withStatus(500);
+        }
+
+        $stream = new Stream($handle);
+        $response = $response->withBody($stream)->withHeader('Content-Type', $type);
+
+        $etag = '"' . hash_file('sha256', $path) . '"';
+        $lastModified = filemtime($path) ?: time();
+
+        return HttpCacheHelper::apply(
+            $request,
+            $response,
+            'public, max-age=31536000, immutable',
+            $etag,
+            $lastModified
+        );
     }
 
     /**

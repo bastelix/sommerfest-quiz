@@ -12,16 +12,41 @@ use App\Service\QrCodeService;
 use App\Service\ResultService;
 use App\Service\Pdf;
 use App\Service\UrlService;
+use App\Support\HttpCacheHelper;
 use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Throwable;
+use const JSON_UNESCAPED_SLASHES;
+use function array_flip;
+use function array_intersect_key;
+use function crc32;
+use function hash;
+use function is_array;
+use function is_bool;
+use function is_float;
+use function is_int;
+use function json_encode;
+use function ksort;
+use function sprintf;
 
 /**
  * Generates QR codes with various customization options.
  */
 class QrController
 {
+    private const QR_CACHE_CONTROL = 'public, max-age=31536000, immutable';
+    private const QR_CONFIG_KEYS = [
+        'qrColorTeam',
+        'qrColorCatalog',
+        'qrColorEvent',
+        'qrLabelLine1',
+        'qrLabelLine2',
+        'qrLogoPath',
+        'qrLogoWidth',
+        'qrLogoPunchout',
+    ];
+
     private ConfigService $config;
     private TeamService $teams;
     private EventService $events;
@@ -68,9 +93,17 @@ class QrController
             return $this->errorResponse($response);
         }
         $response->getBody()->write($out['body']);
-        return $response
+        $response = $response
             ->withHeader('Content-Type', $out['mime'])
             ->withStatus(200);
+
+        $context = [
+            'type' => 'catalog',
+            'params' => $request->getQueryParams(),
+            'config' => $this->filterQrConfig($cfg),
+        ];
+
+        return $this->applyQrCaching($request, $response, $context);
     }
 
     /**
@@ -86,9 +119,17 @@ class QrController
             return $this->errorResponse($response);
         }
         $response->getBody()->write($out['body']);
-        return $response
+        $response = $response
             ->withHeader('Content-Type', $out['mime'])
             ->withStatus(200);
+
+        $context = [
+            'type' => 'team',
+            'params' => $request->getQueryParams(),
+            'config' => $this->filterQrConfig($cfg),
+        ];
+
+        return $this->applyQrCaching($request, $response, $context);
     }
 
     /**
@@ -113,9 +154,17 @@ class QrController
             return $this->errorResponse($response);
         }
         $response->getBody()->write($out['body']);
-        return $response
+        $response = $response
             ->withHeader('Content-Type', $out['mime'])
             ->withStatus(200);
+
+        $context = [
+            'type' => 'event',
+            'params' => $params,
+            'config' => $this->filterQrConfig($cfg),
+        ];
+
+        return $this->applyQrCaching($request, $response, $context);
     }
 
     /**
@@ -149,9 +198,87 @@ class QrController
         $mime = $result['mime'];
         $extension = str_contains($mime, 'svg') ? 'svg' : 'png';
 
-        return $response
+        $response = $response
             ->withHeader('Content-Type', $mime)
             ->withHeader('Content-Disposition', 'inline; filename="qr.' . $extension . '"');
+
+        $context = [
+            'type' => 'image',
+            'text' => $text,
+            'format' => $format,
+            'options' => $options,
+        ];
+
+        return $this->applyQrCaching($request, $response, $context);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function applyQrCaching(Request $request, Response $response, array $context): Response
+    {
+        $hash = $this->createVersionHash($context);
+
+        return HttpCacheHelper::apply(
+            $request,
+            $response,
+            self::QR_CACHE_CONTROL,
+            '"' . $hash . '"',
+            $this->hashToTimestamp($hash)
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @return array<string, mixed>
+     */
+    private function filterQrConfig(array $config): array
+    {
+        return array_intersect_key($config, array_flip(self::QR_CONFIG_KEYS));
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function createVersionHash(array $context): string
+    {
+        $normalized = $this->normalizeForHash($context);
+        $json = json_encode($normalized, JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            $json = '';
+        }
+
+        return hash('sha256', $json);
+    }
+
+    private function hashToTimestamp(string $hash): int
+    {
+        $crc = crc32($hash);
+        $timestamp = (int) sprintf('%u', $crc);
+        if ($timestamp === 0) {
+            $timestamp = 1;
+        }
+
+        return $timestamp;
+    }
+
+    private function normalizeForHash(mixed $value): mixed
+    {
+        if (is_array($value)) {
+            $normalized = [];
+            ksort($value);
+            foreach ($value as $key => $item) {
+                $normalized[(string) $key] = $this->normalizeForHash($item);
+            }
+
+            return $normalized;
+        }
+
+        if (is_bool($value) || is_int($value) || is_float($value) || $value === null) {
+            return $value;
+        }
+
+        return (string) $value;
     }
 
     /**

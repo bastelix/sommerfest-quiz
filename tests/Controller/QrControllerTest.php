@@ -44,6 +44,9 @@ class QrControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
     }
 
     public function testQrImageFallbackWhenTextMissing(): void {
@@ -54,6 +57,9 @@ class QrControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
     }
 
     public function testQrImageSvgFormat(): void {
@@ -80,6 +86,9 @@ class QrControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
     }
 
     public function testCatalogQrDefaults(): void {
@@ -90,6 +99,9 @@ class QrControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
     }
 
     public function testEventQrDefaults(): void {
@@ -100,6 +112,9 @@ class QrControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
     }
 
     public function testTeamQrDefaults(): void {
@@ -110,6 +125,26 @@ class QrControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertMatchesRegularExpression('/^"[0-9a-f]{64}"$/', $response->getHeaderLine('ETag'));
+        $this->assertStringEndsWith('GMT', $response->getHeaderLine('Last-Modified'));
+    }
+
+    public function testTeamQrConditionalRequest(): void {
+        $app = $this->getAppInstance();
+        $initial = $app->handle($this->createRequest('GET', '/qr/team'));
+
+        $etag = $initial->getHeaderLine('ETag');
+        $this->assertNotSame('', $etag);
+
+        $response = $app->handle(
+            $this->createRequest('GET', '/qr/team')->withHeader('If-None-Match', $etag)
+        );
+
+        $this->assertSame(304, $response->getStatusCode());
+        $this->assertSame('', (string) $response->getBody());
+        $this->assertSame('public, max-age=31536000, immutable', $response->getHeaderLine('Cache-Control'));
+        $this->assertSame($etag, $response->getHeaderLine('ETag'));
     }
 
     public function testTeamQrSvgFormat(): void {

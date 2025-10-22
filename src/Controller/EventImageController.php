@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Support\HttpCacheHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Psr7\Stream;
 
 /**
  * Serves event-specific uploaded images.
@@ -37,8 +39,24 @@ class EventImageController
         if (!is_file($path)) {
             return $response->withStatus(404);
         }
+        $handle = fopen($path, 'rb');
+        if ($handle === false) {
+            return $response->withStatus(500);
+        }
+
         $mime = mime_content_type($path) ?: 'application/octet-stream';
-        $response->getBody()->write((string) file_get_contents($path));
-        return $response->withHeader('Content-Type', $mime);
+        $stream = new Stream($handle);
+        $response = $response->withBody($stream)->withHeader('Content-Type', $mime);
+
+        $etag = '"' . hash_file('sha256', $path) . '"';
+        $lastModified = filemtime($path) ?: time();
+
+        return HttpCacheHelper::apply(
+            $request,
+            $response,
+            'public, max-age=31536000, immutable',
+            $etag,
+            $lastModified
+        );
     }
 }
