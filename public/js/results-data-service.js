@@ -238,6 +238,16 @@ export class ResultsDataService {
 }
 
 export function computeRankings(rows, questionRows, catalogCount = 0) {
+  const formatEfficiency = (value) => {
+    if (value === null || value === undefined) return '–';
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return '–';
+    const clamped = Math.max(0, Math.min(numeric, 1));
+    const percent = Math.round(clamped * 1000) / 10;
+    const str = Number.isFinite(percent) ? percent.toString() : '0';
+    return `${str.replace('.', ',')} %`;
+  };
+
   const catalogs = new Set();
   const puzzleTimes = new Map();
   const catTiming = new Map();
@@ -421,6 +431,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   });
 
   const totalScores = [];
+  const accuracyScores = [];
   scorePoints.forEach((map, name) => {
     let total = 0;
     let effSumTotal = 0;
@@ -433,6 +444,15 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     const avgEfficiency = questionCountTotal > 0 ? effSumTotal / questionCountTotal : 0;
     const display = `${total} Punkte (Ø ${(avgEfficiency * 100).toFixed(0)}%)`;
     totalScores.push({ name, value: display, raw: total, avg: avgEfficiency });
+    if (questionCountTotal > 0) {
+      accuracyScores.push({
+        name,
+        raw: avgEfficiency,
+        questions: questionCountTotal,
+        score: total,
+        value: `Ø ${formatEfficiency(avgEfficiency)}`,
+      });
+    }
   });
   totalScores.sort((a, b) => {
     if (b.raw !== a.raw) return b.raw - a.raw;
@@ -440,5 +460,17 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   });
   const pointsList = totalScores.slice(0, 3);
 
-  return { puzzleList, catalogList, pointsList };
+  accuracyScores.sort((a, b) => {
+    if (b.raw !== a.raw) return b.raw - a.raw;
+    if (b.questions !== a.questions) return b.questions - a.questions;
+    if (b.score !== a.score) return b.score - a.score;
+    return a.name.localeCompare(b.name);
+  });
+  const accuracyList = accuracyScores.slice(0, 3).map((entry) => ({
+    name: entry.name,
+    value: entry.value,
+    raw: entry.raw,
+  }));
+
+  return { puzzleList, catalogList, pointsList, accuracyList };
 }

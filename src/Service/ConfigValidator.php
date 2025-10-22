@@ -47,7 +47,7 @@ class ConfigValidator
         'dashboardVisibilityEnd' => '',
     ];
 
-    private const DASHBOARD_ALLOWED_METRICS = ['points', 'puzzle', 'catalog'];
+    private const DASHBOARD_ALLOWED_METRICS = ['points', 'puzzle', 'catalog', 'accuracy'];
 
     private const DASHBOARD_MIN_REFRESH = 5;
 
