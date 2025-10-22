@@ -60,6 +60,24 @@ class ConfigService
     ];
 
     /**
+     * Mapping between camelCase configuration keys and their snake_case columns.
+     *
+     * @var array<string,string>
+     */
+    private const COLUMN_ALIASES = [
+        'dashboardModules' => 'dashboard_modules',
+        'dashboardRefreshInterval' => 'dashboard_refresh_interval',
+        'dashboardShareEnabled' => 'dashboard_share_enabled',
+        'dashboardSponsorEnabled' => 'dashboard_sponsor_enabled',
+        'dashboardInfoText' => 'dashboard_info_text',
+        'dashboardMediaEmbed' => 'dashboard_media_embed',
+        'dashboardVisibilityStart' => 'dashboard_visibility_start',
+        'dashboardVisibilityEnd' => 'dashboard_visibility_end',
+        'dashboardShareToken' => 'dashboard_share_token',
+        'dashboardSponsorToken' => 'dashboard_sponsor_token',
+    ];
+
+    /**
      * Inject PDO instance used for database operations.
      */
     public function __construct(PDO $pdo, ?TokenCipher $tokenCipher = null) {
@@ -382,14 +400,21 @@ class ConfigService
             'dashboardVisibilityEnd',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
-        $filtered = array_intersect_key($data, array_flip($keys));
-        $filtered = array_filter(
-            $filtered,
-            fn ($v, $k) => in_array(strtolower((string) $k), $existing, true),
-            ARRAY_FILTER_USE_BOTH
-        );
-        $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
-        $filtered['event_uid'] = $uid;
+        $allowed = array_flip($keys);
+        $filtered = [];
+        foreach ($data as $key => $value) {
+            if (!array_key_exists($key, $allowed)) {
+                continue;
+            }
+            $column = self::COLUMN_ALIASES[$key] ?? $key;
+            if (!in_array(strtolower((string) $column), $existing, true)) {
+                continue;
+            }
+            $filtered[$column] = ['key' => $key, 'value' => $value];
+        }
+
+        $uid = (string)($filtered['event_uid']['value'] ?? $this->getActiveEventUid());
+        $filtered['event_uid'] = ['key' => 'event_uid', 'value' => $uid];
 
         $this->pdo->beginTransaction();
         try {
@@ -408,18 +433,34 @@ class ConfigService
                 $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
             }
             $stmt = $this->pdo->prepare($sql);
-            foreach ($filtered as $k => $v) {
-                if (is_bool($v)) {
-                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-                } elseif (in_array($k, self::JSON_COLUMNS, true)) {
-                    if ($v === null) {
-                        $stmt->bindValue(':' . $k, null, PDO::PARAM_NULL);
-                    } else {
-                        $stmt->bindValue(':' . $k, json_encode($v, JSON_THROW_ON_ERROR));
-                    }
-                } else {
-                    $stmt->bindValue(':' . $k, $v);
+            foreach ($filtered as $column => $item) {
+                $value = $item['value'];
+                $sourceKey = $item['key'];
+                if (is_bool($value)) {
+                    $stmt->bindValue(':' . $column, $value, PDO::PARAM_BOOL);
+                    continue;
                 }
+                if (in_array($sourceKey, self::JSON_COLUMNS, true)) {
+                    if ($value === null) {
+                        $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue(':' . $column, json_encode($value, JSON_THROW_ON_ERROR));
+                    }
+                    continue;
+                }
+                if (in_array($sourceKey, self::BOOL_KEYS, true)) {
+                    if ($value === null) {
+                        $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
+                    } else {
+                        $stmt->bindValue(':' . $column, (bool) $value, PDO::PARAM_BOOL);
+                    }
+                    continue;
+                }
+                if ($value === null) {
+                    $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
+                    continue;
+                }
+                $stmt->bindValue(':' . $column, $value);
             }
             $stmt->execute();
             $this->pdo->commit();
@@ -668,6 +709,9 @@ class ConfigService
             if ($snake !== $lower) {
                 $map[$snake] = $k;
             }
+        }
+        foreach (self::COLUMN_ALIASES as $camel => $column) {
+            $map[strtolower($column)] = $camel;
         }
         $map['title'] = 'pageTitle';
         $map['loginrequired'] = 'QRUser';
