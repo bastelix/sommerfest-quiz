@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
 
+  function formatQuestionPoints(points, maxPoints) {
+    const pts = Number.isFinite(points) ? points : Number.parseInt(points, 10);
+    const normalizedPts = Number.isFinite(pts) ? pts : 0;
+    const max = Number.isFinite(maxPoints) ? maxPoints : Number.parseInt(maxPoints, 10);
+    if (Number.isFinite(max) && max > 0) {
+      return `${normalizedPts}/${max}`;
+    }
+    return String(normalizedPts);
+  }
+
   let data = [];
   let catalogMap = null;
 
@@ -78,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 7;
+      td.colSpan = 8;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -92,7 +102,8 @@ document.addEventListener('DOMContentLoaded', () => {
         r.catalogName || r.catalog,
         r.prompt || '',
         r.answer_text || '',
-        r.correct ? '✓' : '✗'
+        r.correct ? '✓' : '✗',
+        formatQuestionPoints(r.points ?? 0, r.questionPoints ?? r.question_points ?? 0)
       ];
       cells.forEach((c, idx) => {
         const td = document.createElement('td');
@@ -129,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 7;
+      td.colSpan = 8;
       td.textContent = 'Kein Event ausgewählt';
       tr.appendChild(td);
       tbody.appendChild(tr);

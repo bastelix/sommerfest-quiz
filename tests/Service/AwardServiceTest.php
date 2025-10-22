@@ -46,7 +46,7 @@ class AwardServiceTest extends TestCase
         $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
             . "• Rätselwort-Bestzeit (Platz 2): zweit schnellstes Lösen des Rätselworts\n"
             . "• Katalogmeister (Platz 1): Team, das alle Kataloge am schnellsten durchgespielt hat\n"
-            . "• Highscore-Champions (Platz 2): zweit bestes Team mit den meisten Lösungen aller Fragen";
+            . "• Highscore-Champions (Platz 2): zweit bestes Team mit den meisten Punkten";
         $this->assertSame($expected, $text);
     }
 
@@ -88,7 +88,7 @@ class AwardServiceTest extends TestCase
         $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
             . "• Rätselwort-Bestzeit (Platz 3): dritt schnellstes Lösen des Rätselworts\n"
             . "• Katalogmeister (Platz 1): Team, das alle Kataloge am schnellsten durchgespielt hat\n"
-            . "• Highscore-Champions (Platz 2): zweit bestes Team mit den meisten Lösungen aller Fragen";
+            . "• Highscore-Champions (Platz 2): zweit bestes Team mit den meisten Punkten";
         $text = $svc->buildText('Team', $rankings);
         $this->assertSame($expected, $text);
     }
@@ -156,7 +156,7 @@ class AwardServiceTest extends TestCase
                 [
                     'place' => 1,
                     'title' => 'Highscore-Champions',
-                    'desc' => 'Team mit den meisten Lösungen aller Fragen',
+                    'desc' => 'Team mit den meisten Punkten',
                 ],
             ],
             $awards

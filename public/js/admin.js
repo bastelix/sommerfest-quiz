@@ -2870,6 +2870,8 @@ document.addEventListener('DOMContentLoaded', function () {
     typeSelect.addEventListener('change', () => {
       renderFields();
       updateInfo();
+      updatePointsState();
+      updatePreview();
     });
     const prompt = document.createElement('textarea');
     prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
@@ -2908,6 +2910,83 @@ document.addEventListener('DOMContentLoaded', function () {
     countdownGroup.appendChild(countdownLabel);
     countdownGroup.appendChild(countdownInput);
     countdownGroup.appendChild(countdownMeta);
+    const pointsId = `points-${cardIndex}`;
+    const pointsGroup = document.createElement('div');
+    pointsGroup.className = 'uk-margin-small-bottom question-points-group';
+    const pointsLabel = document.createElement('label');
+    pointsLabel.className = 'uk-form-label';
+    pointsLabel.setAttribute('for', pointsId);
+    pointsLabel.textContent = 'Punkte (0–100)';
+    const pointsInput = document.createElement('input');
+    pointsInput.className = 'uk-input points-input';
+    pointsInput.type = 'number';
+    pointsInput.id = pointsId;
+    pointsInput.min = '0';
+    pointsInput.max = '100';
+    pointsInput.step = '1';
+    pointsInput.setAttribute('aria-label', 'Punkte pro Frage');
+    const existingPoints = parseQuestionPoints(q.points);
+    if (typeSelect.value === 'flip') {
+      pointsInput.value = existingPoints !== null ? String(existingPoints) : '0';
+    } else {
+      pointsInput.value = existingPoints !== null ? String(existingPoints) : '1';
+    }
+    const pointsMeta = document.createElement('div');
+    pointsMeta.className = 'uk-text-meta';
+    pointsGroup.appendChild(pointsLabel);
+    pointsGroup.appendChild(pointsInput);
+    pointsGroup.appendChild(pointsMeta);
+    let lastScorablePoints = existingPoints ?? 1;
+
+    function updatePointsState() {
+      const scorable = typeSelect.value !== 'flip';
+      if (!scorable) {
+        const parsed = parseQuestionPoints(pointsInput.value);
+        if (parsed !== null) {
+          lastScorablePoints = parsed;
+        }
+        pointsInput.value = '0';
+        pointsInput.disabled = true;
+        pointsMeta.textContent = 'Dieser Fragetyp vergibt keine Punkte.';
+      } else {
+        pointsInput.disabled = false;
+        const parsed = parseQuestionPoints(pointsInput.value);
+        const fallback = Number.isFinite(lastScorablePoints) ? lastScorablePoints : 1;
+        const value = parsed === null ? fallback : parsed;
+        const normalized = normalizeQuestionPoints(value, true);
+        pointsInput.value = String(normalized);
+        lastScorablePoints = normalized;
+        pointsMeta.textContent = 'Punkte pro Frage (0–100). Leer ergibt 1 Punkt.';
+      }
+    }
+
+    pointsInput.addEventListener('input', () => {
+      if (typeSelect.value !== 'flip') {
+        const parsed = parseQuestionPoints(pointsInput.value);
+        if (parsed !== null) {
+          const normalized = normalizeQuestionPoints(parsed, true);
+          if (String(normalized) !== pointsInput.value) {
+            pointsInput.value = String(normalized);
+          }
+          lastScorablePoints = normalized;
+        }
+      }
+      updatePreview();
+    });
+
+    pointsInput.addEventListener('blur', () => {
+      if (typeSelect.value === 'flip') {
+        return;
+      }
+      const parsed = parseQuestionPoints(pointsInput.value);
+      const fallback = Number.isFinite(lastScorablePoints) ? lastScorablePoints : 1;
+      const value = parsed === null ? fallback : parsed;
+      const normalized = normalizeQuestionPoints(value, true);
+      pointsInput.value = String(normalized);
+      lastScorablePoints = normalized;
+      updatePreview();
+    });
+
     const fields = document.createElement('div');
     fields.className = 'fields';
     const removeBtn = document.createElement('button');
@@ -3136,6 +3215,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     renderFields();
+    updatePointsState();
 
     // Vorschau-Bereich anlegen
     const preview = document.createElement('div');
@@ -3146,6 +3226,7 @@ document.addEventListener('DOMContentLoaded', function () {
     formCol.appendChild(typeInfo);
     formCol.appendChild(prompt);
     formCol.appendChild(countdownGroup);
+    formCol.appendChild(pointsGroup);
     formCol.appendChild(fields);
     formCol.appendChild(removeBtn);
 
@@ -3186,6 +3267,16 @@ document.addEventListener('DOMContentLoaded', function () {
           preview.appendChild(noTimer);
         }
       }
+      const scorable = typeSelect.value !== 'flip';
+      const pointsValue = getPointsValue(card, typeSelect.value);
+      const pointsInfo = document.createElement('div');
+      pointsInfo.className = 'uk-text-meta uk-margin-small-bottom';
+      if (scorable) {
+        pointsInfo.textContent = pointsValue === 1 ? '1 Punkt' : `${pointsValue} Punkte`;
+      } else {
+        pointsInfo.textContent = 'Keine Punktevergabe';
+      }
+      preview.appendChild(pointsInfo);
       const h = document.createElement('h4');
       h.textContent = insertSoftHyphens(prompt.value || 'Vorschau');
       preview.appendChild(h);
@@ -3381,6 +3472,57 @@ document.addEventListener('DOMContentLoaded', function () {
     return parseCountdownValue(input.value);
   }
 
+  function clampQuestionPoints(value) {
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+    if (value < 0) {
+      return 0;
+    }
+    if (value > 100) {
+      return 100;
+    }
+    return Math.round(value);
+  }
+
+  function parseQuestionPoints(raw) {
+    if (typeof raw === 'number' && Number.isFinite(raw)) {
+      return clampQuestionPoints(raw);
+    }
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (trimmed === '') {
+        return null;
+      }
+      const parsed = Number.parseInt(trimmed, 10);
+      if (Number.isNaN(parsed)) {
+        return null;
+      }
+      return clampQuestionPoints(parsed);
+    }
+    return null;
+  }
+
+  function normalizeQuestionPoints(raw, scorable) {
+    if (!scorable) {
+      return 0;
+    }
+    const parsed = parseQuestionPoints(raw);
+    if (parsed === null) {
+      return 1;
+    }
+    return parsed;
+  }
+
+  function getPointsValue(card, type) {
+    const scorable = type !== 'flip';
+    const input = card.querySelector('.points-input');
+    if (!input) {
+      return normalizeQuestionPoints(null, scorable);
+    }
+    return normalizeQuestionPoints(input.value, scorable);
+  }
+
   function collect() {
     return Array.from(container.querySelectorAll('.question-card')).map(card => {
       const type = card.querySelector('.type-select').value;
@@ -3392,6 +3534,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const obj = { type, prompt, items };
         const countdown = getCountdownValue(card);
         if (countdown !== null) obj.countdown = countdown;
+        obj.points = getPointsValue(card, type);
         return obj;
       } else if (type === 'assign') {
         const terms = Array.from(card.querySelectorAll('.term-row')).map(r => ({
@@ -3401,6 +3544,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const obj = { type, prompt, terms };
         const countdown = getCountdownValue(card);
         if (countdown !== null) obj.countdown = countdown;
+        obj.points = getPointsValue(card, type);
         return obj;
       } else if (type === 'swipe') {
         const cards = Array.from(card.querySelectorAll('.card-row')).map(r => ({
@@ -3414,18 +3558,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (leftLabel) obj.leftLabel = leftLabel;
         const countdown = getCountdownValue(card);
         if (countdown !== null) obj.countdown = countdown;
+        obj.points = getPointsValue(card, type);
         return obj;
       } else if (type === 'flip') {
         const answer = card.querySelector('.flip-answer').value.trim();
         const obj = { type, prompt, answer };
         const countdown = getCountdownValue(card);
         if (countdown !== null) obj.countdown = countdown;
+        obj.points = getPointsValue(card, type);
         return obj;
       } else if (type === 'photoText') {
         const consent = card.querySelector('.consent-box').checked;
         const obj = { type, prompt, consent };
         const countdown = getCountdownValue(card);
         if (countdown !== null) obj.countdown = countdown;
+        obj.points = getPointsValue(card, type);
         return obj;
       } else {
         const options = Array.from(card.querySelectorAll('.option-row .option'))
@@ -3438,6 +3585,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const obj = { type, prompt, options, answers };
         const countdown = getCountdownValue(card);
         if (countdown !== null) obj.countdown = countdown;
+        obj.points = getPointsValue(card, type);
         return obj;
       }
     });
@@ -3492,7 +3640,7 @@ document.addEventListener('DOMContentLoaded', function () {
   addBtn.addEventListener('click', function (e) {
     e.preventDefault();
     container.appendChild(
-      createCard({ type: 'mc', prompt: '', options: ['', ''], answers: [0] }, -1)
+      createCard({ type: 'mc', prompt: '', points: 1, options: ['', ''], answers: [0] }, -1)
     );
   });
 

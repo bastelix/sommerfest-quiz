@@ -517,7 +517,9 @@ class QrControllerTest extends TestCase
                 catalog TEXT NOT NULL,
                 attempt INTEGER,
                 correct INTEGER,
+                points INTEGER NOT NULL DEFAULT 0,
                 total INTEGER,
+                max_points INTEGER NOT NULL DEFAULT 0,
                 time INTEGER,
                 puzzleTime INTEGER,
                 photo TEXT,
@@ -579,7 +581,8 @@ class QrControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, catalog TEXT, attempt INTEGER, correct INTEGER, ' .
-            'total INTEGER, time INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
+            'points INTEGER NOT NULL DEFAULT 0, total INTEGER, max_points INTEGER NOT NULL DEFAULT 0, ' .
+            'time INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
             ');'
         );
 

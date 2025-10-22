@@ -84,6 +84,16 @@ function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
 }
 
+function normalizePoints(value, scorable = true){
+  if(!scorable) return 0;
+  if(value === undefined || value === null || value === '') return 1;
+  const parsed = Number.parseInt(value, 10);
+  if(Number.isNaN(parsed)) return 1;
+  if(parsed < 0) return 0;
+  if(parsed > 100) return 100;
+  return parsed;
+}
+
 function updateTeamNameButton(){
   const btn = document.getElementById('teamNameBtn');
   if(!btn) return;
@@ -370,6 +380,7 @@ async function runQuiz(questions, skipIntro){
     }
     if(scoreIndex !== null && results[scoreIndex] !== true){
       results[scoreIndex] = false;
+      earnedPoints[scoreIndex] = 0;
     }
     countdownState.autoAdvanceId = window.setTimeout(() => {
       if(elements[current] === questionEl && current < totalQuestions + 1){
@@ -398,10 +409,15 @@ async function runQuiz(questions, skipIntro){
   // Fragen mischen, damit die Reihenfolge bei jedem Aufruf variiert
   const shuffled = cfg.shuffleQuestions !== false ? shuffleArray(questions) : questions.slice();
   const scorableCounts = []; // Anzahl bewertbarer Fragen vor jeder Frage
+  const questionPoints = [];
   let scorableIdx = 0;
   const questionElements = shuffled.map(q => {
     scorableCounts.push(scorableIdx);
-    const idx = q.type !== 'flip' ? scorableIdx++ : null;
+    const isScorable = q.type !== 'flip';
+    const idx = isScorable ? scorableIdx++ : null;
+    if(idx !== null){
+      questionPoints[idx] = normalizePoints(q.points, true);
+    }
     return createQuestion(q, idx);
   });
   const questionCount = scorableIdx; // nur bewertbare Fragen
@@ -412,6 +428,7 @@ async function runQuiz(questions, skipIntro){
   const elements = [createStart(), ...questionElements];
   // Speichert true/false für jede beantwortete (wertbare) Frage
   const results = new Array(questionCount).fill(false);
+  const earnedPoints = new Array(questionCount).fill(0);
   const answers = new Array(questionCount).fill(null);
   const summaryEl = createSummary(); // Abschlussseite
   elements.push(summaryEl);
@@ -551,6 +568,8 @@ async function runQuiz(questions, skipIntro){
     if(summaryShown) return;
     summaryShown = true;
     const score = results.filter(r => r).length;
+    const pointsEarned = earnedPoints.reduce((sum, val) => sum + (Number.isFinite(val) ? val : 0), 0);
+    const maxPointsTotal = questionPoints.reduce((sum, val) => sum + (Number.isFinite(val) ? val : 0), 0);
     let user = getStored(STORAGE_KEYS.PLAYER_NAME);
     if(!user && !cfg.QRRestrict && !cfg.QRUser){
       if(cfg.randomNames){
@@ -559,7 +578,11 @@ async function runQuiz(questions, skipIntro){
       }
     }
     const p = summaryEl.querySelector('p');
-    if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
+    if(p){
+      const maxText = maxPointsTotal > 0 ? `${pointsEarned} von ${maxPointsTotal} Punkten` : `${score} von ${questionCount} richtigen Antworten`;
+      const extra = maxPointsTotal > 0 ? ` (${score} richtige Antworten)` : '';
+      p.textContent = `${user} hat ${maxText} erreicht${extra}.`;
+    }
     const heading = summaryEl.querySelector('h3');
     if(heading) heading.textContent = `🎉 Danke für die Teilnahme ${user}!`;
     const letter = cfg.puzzleWordEnabled ? getStored(STORAGE_KEYS.LETTER) : null;
@@ -577,7 +600,17 @@ async function runQuiz(questions, skipIntro){
     }
       const catalog = (getStored(STORAGE_KEYS.CATALOG) || 'unknown').toLowerCase();
       const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
-      const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers, event_uid: currentEventUid };
+      const data = {
+        name: user,
+        catalog,
+        correct: score,
+        total: questionCount,
+        points: pointsEarned,
+        maxPoints: maxPointsTotal,
+        wrong,
+        answers,
+        event_uid: currentEventUid
+      };
       if(cfg.collectPlayerUid){
         const uid = getStored(STORAGE_KEYS.PLAYER_UID);
         if(uid) data.player_uid = uid;
@@ -793,6 +826,9 @@ async function runQuiz(questions, skipIntro){
     const currentOrder = Array.from(ul.querySelectorAll('li')).map(li => li.textContent.trim());
     const correct = JSON.stringify(currentOrder) === JSON.stringify(right);
     results[idx] = correct;
+    if(idx !== null && idx !== undefined){
+      earnedPoints[idx] = correct ? (questionPoints[idx] ?? 0) : 0;
+    }
     renderFeedback(
       feedback,
       correct,
@@ -959,6 +995,9 @@ async function runQuiz(questions, skipIntro){
       if(zone.dataset.term !== dropped) allCorrect = false;
     });
     results[idx] = allCorrect;
+    if(idx !== null && idx !== undefined){
+      earnedPoints[idx] = allCorrect ? (questionPoints[idx] ?? 0) : 0;
+    }
     renderFeedback(
       feedback,
       allCorrect,
@@ -1265,7 +1304,11 @@ async function runQuiz(questions, skipIntro){
         label.textContent = '';
         render();
         if(!cards.length){
-          results[idx] = resultsLocal.every(r => r.correct);
+          const swipeCorrect = resultsLocal.every(r => r.correct);
+          results[idx] = swipeCorrect;
+          if(idx !== null && idx !== undefined){
+            earnedPoints[idx] = swipeCorrect ? (questionPoints[idx] ?? 0) : 0;
+          }
           next();
         }
       }, SWIPE_ANIM_MS);
@@ -1338,6 +1381,9 @@ async function runQuiz(questions, skipIntro){
       }
       answers[idx] = { text: text.value.trim(), photo: photoPath, consent: q.consent ? true : null };
       results[idx] = true;
+      if(idx !== null && idx !== undefined){
+        earnedPoints[idx] = questionPoints[idx] ?? 0;
+      }
       next();
     });
 

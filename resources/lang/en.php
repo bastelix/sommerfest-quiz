@@ -233,6 +233,7 @@ return [
     'column_catalog' => 'Catalog',
     'column_attempt' => 'Attempt',
     'column_correct' => 'Correct',
+    'column_points' => 'Points',
     'column_time' => 'Time',
     'column_puzzle_solved' => 'Puzzle solved',
     'column_proof_photo' => 'Proof photo',

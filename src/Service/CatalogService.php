@@ -24,6 +24,29 @@ class CatalogService
     /** @var bool|null detected presence of the design_path column */
     private ?bool $hasDesign = null;
 
+    private function normalizePoints(mixed $value, bool $scorable): int
+    {
+        if (!$scorable) {
+            return 0;
+        }
+        if (is_numeric($value)) {
+            $points = (int) $value;
+        } elseif (is_string($value) && $value !== '') {
+            $filtered = filter_var($value, FILTER_VALIDATE_INT);
+            $points = $filtered !== false ? (int) $filtered : 1;
+        } else {
+            $points = 1;
+        }
+
+        if ($points < 0) {
+            return 0;
+        }
+        if ($points > 100) {
+            return 100;
+        }
+        return $points;
+    }
+
     private function event(): string {
         return $this->eventUid !== '' ? $this->eventUid : $this->config->getActiveEventUid();
     }
@@ -329,13 +352,15 @@ class CatalogService
             return null;
         }
         $qStmt = $this->pdo->prepare(
-            'SELECT type,prompt,options,answers,terms,items,cards,countdown,' .
+            'SELECT type,prompt,points,options,answers,terms,items,cards,countdown,' .
             ' right_label AS "rightLabel",left_label AS "leftLabel" ' .
             'FROM questions WHERE catalog_uid=? ORDER BY sort_order'
         );
         $qStmt->execute([$cat['uid']]);
         $questions = [];
         while ($row = $qStmt->fetch(PDO::FETCH_ASSOC)) {
+            $scorable = ($row['type'] ?? '') !== 'flip';
+            $row['points'] = $this->normalizePoints($row['points'] ?? null, $scorable);
             foreach (["options","answers","terms","items","cards"] as $k) {
                 if ($row[$k] !== null) {
                     $row[$k] = json_decode((string)$row[$k], true);
@@ -613,8 +638,8 @@ class CatalogService
         $del->execute([$cat['uid']]);
         $qStmt = $this->pdo->prepare(
             'INSERT INTO questions(' .
-            'catalog_uid,type,prompt,options,answers,terms,items,cards,right_label,left_label,sort_order,countdown)' .
-            ' VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
+            'catalog_uid,type,prompt,points,options,answers,terms,items,cards,right_label,left_label,sort_order,countdown)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         foreach ($data as $i => $q) {
             $answers = null;
@@ -624,10 +649,14 @@ class CatalogService
                 $answers = json_encode($q['answers']);
             }
 
+            $type = (string)($q['type'] ?? '');
+            $points = $this->normalizePoints($q['points'] ?? null, $type !== 'flip');
+
             $qStmt->execute([
                 $cat['uid'],
-                $q['type'] ?? '',
+                $type,
                 $q['prompt'] ?? '',
+                $points,
                 isset($q['options']) ? json_encode($q['options']) : null,
                 $answers,
                 isset($q['terms']) ? json_encode($q['terms']) : null,

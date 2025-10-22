@@ -80,7 +80,7 @@ class ResultController
         $eventUid = (string)($params['event_uid'] ?? '');
         $data = $this->service->getAll($eventUid);
         $rows = array_map([$this, 'mapResultRow'], $data);
-        array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto']);
+        array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Punkte', 'Max Punkte', 'Zeit', 'Rätselwort', 'Beweisfoto']);
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
         $content = "\xEF\xBB\xBF" . $this->buildCsv($rows);
         $response->getBody()->write($content);
@@ -259,23 +259,33 @@ class ResultController
                 ->withHeader('Content-Type', 'text/plain; charset=UTF-8');
         }
 
-        $catalogMax = [];
-        $scores = [];
+        $catalogMaxQuestions = [];
+        $catalogMaxPoints = [];
+        $pointsByTeam = [];
+        $maxPointsByTeam = [];
         $photos = [];
-        $teamTotals = [];
+        $questionTotalsByTeam = [];
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
             $cat = (string)($row['catalog'] ?? '');
             $correct = (int)($row['correct'] ?? 0);
             $total = (int)($row['total'] ?? 0);
-            if (!isset($catalogMax[$cat]) || $total > $catalogMax[$cat]) {
-                $catalogMax[$cat] = $total;
+            $points = (int)($row['points'] ?? $correct);
+            $maxPoints = (int)($row['max_points'] ?? $total);
+            if (!isset($catalogMaxQuestions[$cat]) || $total > $catalogMaxQuestions[$cat]) {
+                $catalogMaxQuestions[$cat] = $total;
             }
-            if (!isset($scores[$team][$cat]) || $correct > $scores[$team][$cat]) {
-                $scores[$team][$cat] = $correct;
+            if (!isset($catalogMaxPoints[$cat]) || $maxPoints > $catalogMaxPoints[$cat]) {
+                $catalogMaxPoints[$cat] = $maxPoints;
             }
-            if (!isset($teamTotals[$team][$cat]) || $total > $teamTotals[$team][$cat]) {
-                $teamTotals[$team][$cat] = $total;
+            if (!isset($pointsByTeam[$team][$cat]) || $points > $pointsByTeam[$team][$cat]) {
+                $pointsByTeam[$team][$cat] = $points;
+            }
+            if (!isset($maxPointsByTeam[$team][$cat]) || $maxPoints > $maxPointsByTeam[$team][$cat]) {
+                $maxPointsByTeam[$team][$cat] = $maxPoints;
+            }
+            if (!isset($questionTotalsByTeam[$team][$cat]) || $total > $questionTotalsByTeam[$team][$cat]) {
+                $questionTotalsByTeam[$team][$cat] = $total;
             }
             if (!empty($row['photo'])) {
                 $photos[$team][] = (string)$row['photo'];
@@ -325,9 +335,9 @@ class ResultController
         $pdf = new Pdf($title, $subtitle, $logoPath);
 
         foreach ($teams as $team) {
-            $cats = $scores[$team] ?? [];
-            $points = array_sum($cats);
-            $answered = array_sum($teamTotals[$team] ?? []);
+            $pointsEarned = array_sum($pointsByTeam[$team] ?? []);
+            $maxPointsTeam = array_sum($maxPointsByTeam[$team] ?? []);
+            $answered = array_sum($questionTotalsByTeam[$team] ?? []);
 
             $pdf->AddPage();
 
@@ -338,8 +348,15 @@ class ResultController
             $pdf->SetFont('Arial', 'B', 24);
             $pdf->Cell($pdf->GetPageWidth() - 20, 10, $this->sanitizePdfText($team), 0, 2, 'C');
             $pdf->SetFont('Arial', '', 14);
-            $denom = $answered > 0 ? $answered : $maxPoints;
-            $text = sprintf('Punkte: %d von %d', $points, $denom);
+            $fallbackMax = array_sum($catalogMaxPoints);
+            $denom = $maxPointsTeam > 0 ? $maxPointsTeam : ($fallbackMax > 0 ? $fallbackMax : $answered);
+            if ($denom <= 0) {
+                $denom = $answered;
+            }
+            if ($denom <= 0) {
+                $denom = array_sum($catalogMaxQuestions);
+            }
+            $text = sprintf('Punkte: %d von %d', $pointsEarned, max($denom, 0));
             $pdf->SetTextColor(120, 120, 120);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
             $pdf->SetTextColor(0, 0, 0);
@@ -449,6 +466,8 @@ class ResultController
             (string)($r['catalogName'] ?? $r['catalog'] ?? ''),
             (int)($r['correct'] ?? 0),
             (int)($r['total'] ?? 0),
+            (int)($r['points'] ?? 0),
+            (int)($r['max_points'] ?? 0),
             date('Y-m-d H:i', (int)($r['time'] ?? 0)),
             isset($r['puzzleTime']) ? date('Y-m-d H:i', (int) $r['puzzleTime']) : '',
             (string)($r['photo'] ?? ''),
