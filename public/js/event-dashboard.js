@@ -12,6 +12,7 @@ const activeModules = Array.isArray(config.modules) ? config.modules : [];
 const infoText = config.infoText || '';
 const mediaItems = Array.isArray(config.mediaItems) ? config.mediaItems : [];
 const refreshInterval = Math.max(5, Number(config.refreshInterval) || 15);
+const eventIdentifier = config.slug || config.eventUid || '';
 
 const dataService = new ResultsDataService({
   basePath,
@@ -48,6 +49,100 @@ function createModuleCard(title, content) {
   wrapper.appendChild(heading);
   wrapper.appendChild(content);
   return wrapper;
+}
+
+function findCatalogByIdentifier(identifier, catalogList) {
+  const normalized = String(identifier ?? '').trim();
+  if (!normalized) {
+    return null;
+  }
+  return catalogList.find((catalog) => {
+    if (!catalog) return false;
+    const uid = catalog.uid ? String(catalog.uid) : '';
+    const slug = catalog.slug ? String(catalog.slug) : '';
+    const sortOrder = catalog.sortOrder ?? catalog.sort_order;
+    const sortValue = sortOrder !== undefined && sortOrder !== null ? String(sortOrder) : '';
+    return normalized === uid || normalized === slug || (sortValue !== '' && normalized === sortValue);
+  }) || null;
+}
+
+function buildCatalogStartUrl(catalog) {
+  if (!catalog) {
+    return null;
+  }
+  const slug = catalog.slug ? String(catalog.slug) : '';
+  const uid = catalog.uid ? String(catalog.uid) : '';
+  const sortOrder = catalog.sortOrder ?? catalog.sort_order;
+  const sortValue = sortOrder !== undefined && sortOrder !== null ? String(sortOrder) : '';
+  const identifier = slug || uid || sortValue;
+  if (!identifier) {
+    return null;
+  }
+  const startUrl = new URL(`${basePath || ''}/`, window.location.origin);
+  if (eventIdentifier) {
+    startUrl.searchParams.set('event', eventIdentifier);
+  }
+  startUrl.searchParams.set('katalog', identifier);
+  return startUrl.toString();
+}
+
+function renderQrModule(moduleConfig, catalogList) {
+  const selection = Array.isArray(moduleConfig.options?.catalogs)
+    ? moduleConfig.options.catalogs
+    : [];
+  const normalizedSelection = Array.from(new Set(selection.map((value) => String(value ?? '').trim()).filter((value) => value !== '')));
+  const grid = document.createElement('div');
+  grid.className = 'dashboard-qr-grid';
+  let renderedCount = 0;
+  const missing = [];
+
+  normalizedSelection.forEach((identifier) => {
+    const catalog = findCatalogByIdentifier(identifier, catalogList);
+    if (!catalog) {
+      missing.push(identifier);
+      return;
+    }
+    const startUrl = buildCatalogStartUrl(catalog);
+    if (!startUrl) {
+      missing.push(identifier);
+      return;
+    }
+    const qrUrl = new URL(`${basePath}/qr/catalog`, window.location.origin);
+    qrUrl.searchParams.set('t', startUrl);
+    const card = document.createElement('div');
+    card.className = 'dashboard-qr-card uk-card uk-card-default uk-card-body';
+    const title = document.createElement('h4');
+    title.className = 'uk-card-title';
+    title.textContent = catalog.name || catalog.slug || catalog.uid || 'Katalog';
+    card.appendChild(title);
+    const img = document.createElement('img');
+    img.src = qrUrl.toString();
+    img.alt = `QR-Code für ${title.textContent}`;
+    img.loading = 'lazy';
+    card.appendChild(img);
+    const link = document.createElement('p');
+    link.className = 'dashboard-qr-link uk-text-meta';
+    link.textContent = startUrl;
+    card.appendChild(link);
+    grid.appendChild(card);
+    renderedCount += 1;
+  });
+
+  if (renderedCount === 0 && normalizedSelection.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'uk-text-meta';
+    empty.textContent = 'Keine QR-Codes konfiguriert.';
+    grid.appendChild(empty);
+  }
+
+  missing.forEach((identifier) => {
+    const warning = document.createElement('div');
+    warning.className = 'dashboard-qr-missing uk-alert uk-alert-warning';
+    warning.textContent = `Katalog ${identifier} nicht gefunden.`;
+    grid.appendChild(warning);
+  });
+
+  return createModuleCard('Katalog-QR-Codes', grid);
 }
 
 function renderRankingsModule(rankings, moduleConfig) {
@@ -217,7 +312,7 @@ function renderMediaModule() {
   return createModuleCard('Highlights', container);
 }
 
-function renderModules(rows, questionRows, rankings, catalogCount) {
+function renderModules(rows, questionRows, rankings, catalogCount, catalogList) {
   if (!modulesRoot) return;
   modulesRoot.innerHTML = '';
   applyHeaderVisibility(activeModules);
@@ -238,6 +333,9 @@ function renderModules(rows, questionRows, rankings, catalogCount) {
     } else if (module.id === 'infoBanner' && infoText.trim() !== '') {
       modulesRoot.appendChild(renderInfoBannerModule());
       hasModuleOutput = true;
+    } else if (module.id === 'qrCodes') {
+      modulesRoot.appendChild(renderQrModule(module, Array.isArray(catalogList) ? catalogList : []));
+      hasModuleOutput = true;
     } else if (module.id === 'media' && mediaItems.length > 0) {
       modulesRoot.appendChild(renderMediaModule());
       hasModuleOutput = true;
@@ -255,7 +353,7 @@ function handleDataLoad(data) {
   lastUpdatedAt = Date.now();
   updateStatusLabel();
   const rankings = computeRankings(data.rows, data.questionRows, data.catalogCount);
-  renderModules(data.rows, data.questionRows, rankings, data.catalogCount);
+  renderModules(data.rows, data.questionRows, rankings, data.catalogCount, data.catalogList);
 }
 
 function fetchData() {

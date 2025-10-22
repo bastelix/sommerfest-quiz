@@ -15,6 +15,7 @@ export class ResultsDataService {
     this.variant = options.variant === 'sponsor' ? 'sponsor' : 'public';
     this.catalogMap = null;
     this.catalogCount = 0;
+    this.catalogList = [];
   }
 
   withBase(path) {
@@ -25,14 +26,21 @@ export class ResultsDataService {
     this.eventUid = uid || '';
     this.catalogMap = null;
     this.catalogCount = 0;
+    this.catalogList = [];
   }
 
   setShareToken(token) {
     this.shareToken = token || '';
+    this.catalogMap = null;
+    this.catalogCount = 0;
+    this.catalogList = [];
   }
 
   setVariant(variant) {
     this.variant = variant === 'sponsor' ? 'sponsor' : 'public';
+    this.catalogMap = null;
+    this.catalogCount = 0;
+    this.catalogList = [];
   }
 
   buildQuery() {
@@ -50,6 +58,9 @@ export class ResultsDataService {
 
   fetchCatalogMap() {
     if (this.catalogMap) {
+      if (!Array.isArray(this.catalogList)) {
+        this.catalogList = [];
+      }
       return Promise.resolve(this.catalogMap);
     }
     const params = new URLSearchParams();
@@ -71,25 +82,47 @@ export class ResultsDataService {
         }
         return r.json();
       })
-      .then((list) => {
+      .then((payload) => {
+        const list = Array.isArray(payload)
+          ? payload
+          : Array.isArray(payload?.items)
+            ? payload.items
+            : [];
         const map = {};
+        const normalized = [];
         if (Array.isArray(list)) {
           this.catalogCount = list.length;
           list.forEach((catalog) => {
-            const name = catalog.name || '';
-            if (catalog.uid) map[catalog.uid] = name;
-            if (catalog.sort_order) map[catalog.sort_order] = name;
-            if (catalog.slug) map[catalog.slug] = name;
+            const name = catalog?.name || '';
+            const uid = catalog?.uid ? String(catalog.uid) : '';
+            const slug = catalog?.slug ? String(catalog.slug) : '';
+            const sortRaw = catalog?.sortOrder ?? catalog?.sort_order;
+            const sortOrder = sortRaw !== undefined && sortRaw !== null && sortRaw !== ''
+              ? String(sortRaw)
+              : '';
+            const displayName = String(name || '').trim() || slug || sortOrder || uid;
+            if (uid) map[uid] = displayName;
+            if (sortOrder) map[sortOrder] = displayName;
+            if (slug) map[slug] = displayName;
+            normalized.push({
+              uid,
+              slug,
+              sortOrder,
+              sort_order: sortOrder,
+              name: displayName,
+            });
           });
         } else {
           this.catalogCount = 0;
         }
         this.catalogMap = map;
+        this.catalogList = normalized;
         return map;
       })
       .catch(() => {
         this.catalogMap = {};
         this.catalogCount = 0;
+        this.catalogList = [];
         return {};
       });
   }
@@ -101,6 +134,7 @@ export class ResultsDataService {
         questionRows: [],
         catalogCount: this.catalogCount,
         catalogMap: this.catalogMap || {},
+        catalogList: Array.isArray(this.catalogList) ? [...this.catalogList] : [],
       });
     }
     const query = this.buildQuery();
@@ -218,6 +252,7 @@ export class ResultsDataService {
         questionRows: Array.isArray(questionRows) ? questionRows : [],
         catalogCount: this.catalogCount || Object.keys(catalogMap).length,
         catalogMap,
+        catalogList: Array.isArray(this.catalogList) ? [...this.catalogList] : [],
       };
     });
   }
