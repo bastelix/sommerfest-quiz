@@ -6,9 +6,11 @@ namespace App\Controller;
 
 use App\Service\ConfigService;
 use App\Service\LogService;
+use App\Support\HttpCacheHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
+use Slim\Psr7\Stream;
 
 class GlobalMediaController
 {
@@ -29,10 +31,25 @@ class GlobalMediaController
             return $response->withStatus(404);
         }
 
-        $mime = mime_content_type($path) ?: 'application/octet-stream';
-        $response->getBody()->write((string) file_get_contents($path));
+        $handle = fopen($path, 'rb');
+        if ($handle === false) {
+            return $response->withStatus(500);
+        }
 
-        return $response->withHeader('Content-Type', $mime);
+        $mime = mime_content_type($path) ?: 'application/octet-stream';
+        $stream = new Stream($handle);
+        $response = $response->withBody($stream)->withHeader('Content-Type', $mime);
+
+        $etag = '"' . hash_file('sha256', $path) . '"';
+        $lastModified = filemtime($path) ?: time();
+
+        return HttpCacheHelper::apply(
+            $request,
+            $response,
+            'public, max-age=31536000, immutable',
+            $etag,
+            $lastModified
+        );
     }
 
     private function logMissingFile(string $file, string $path): void
