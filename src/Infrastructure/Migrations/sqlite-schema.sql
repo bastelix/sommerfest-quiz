@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS config (
     dashboard_share_token TEXT,
     dashboard_sponsor_token TEXT,
     dashboard_modules TEXT,
+    dashboard_theme TEXT,
     dashboard_refresh_interval INTEGER,
     dashboard_share_enabled BOOLEAN DEFAULT FALSE,
     dashboard_sponsor_enabled BOOLEAN DEFAULT FALSE,

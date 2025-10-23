@@ -66,6 +66,7 @@ class ConfigService
      */
     private const COLUMN_ALIASES = [
         'dashboardModules' => 'dashboard_modules',
+        'dashboardTheme' => 'dashboard_theme',
         'dashboardRefreshInterval' => 'dashboard_refresh_interval',
         'dashboardShareEnabled' => 'dashboard_share_enabled',
         'dashboardSponsorEnabled' => 'dashboard_sponsor_enabled',
@@ -317,6 +318,9 @@ class ConfigService
         if (isset($data['QRUser']) && !isset($data['loginRequired'])) {
             $data['loginRequired'] = $data['QRUser'];
         }
+        if (array_key_exists('dashboardTheme', $data)) {
+            $data['dashboardTheme'] = $this->normalizeDashboardTheme($data['dashboardTheme']);
+        }
         $norm = fn ($v) => (float) str_replace(',', '.', (string) $v);
         $stickerKeys = [
             'stickerDescTop',
@@ -391,6 +395,7 @@ class ConfigService
             'stickerDescHeight',
             'stickerBgPath',
             'dashboardModules',
+            'dashboardTheme',
             'dashboardRefreshInterval',
             'dashboardShareEnabled',
             'dashboardSponsorEnabled',
@@ -636,6 +641,24 @@ class ConfigService
      * @param array<string,mixed> $row
      * @return array<string,mixed>
      */
+    private function normalizeDashboardTheme($value): string
+    {
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if ($normalized === 'dark' || $normalized === 'light') {
+                return $normalized;
+            }
+        }
+
+        return 'light';
+    }
+
+    /**
+     * Normalize database column names to expected camelCase keys.
+     *
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
     private function normalizeKeys(array $row): array {
         $keys = [
             'displayErrorDetails',
@@ -691,6 +714,7 @@ class ConfigService
             'stickerDescHeight',
             'stickerBgPath',
             'dashboardModules',
+            'dashboardTheme',
             'dashboardRefreshInterval',
             'dashboardShareEnabled',
             'dashboardSponsorEnabled',
@@ -745,6 +769,8 @@ class ConfigService
                 $normalized[$key] = $v;
             }
         }
+        $normalized['dashboardTheme'] = $this->normalizeDashboardTheme($normalized['dashboardTheme'] ?? null);
+
         if (!isset($normalized['colors'])) {
             $colorCfg = [];
             if (isset($normalized['backgroundColor'])) {

@@ -167,6 +167,17 @@
                 </div>
                 <div class="uk-text-meta">Legt fest, wie oft das Dashboard neue Daten lädt.</div>
               </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="dashboardTheme">Dashboard-Design</label>
+                <div class="uk-form-controls">
+                  {% set eventTheme = config.dashboardTheme|default('light') %}
+                  <select class="uk-select" id="dashboardTheme" name="dashboardTheme">
+                    <option value="light" {% if eventTheme != 'dark' %}selected{% endif %}>Hell (Light)</option>
+                    <option value="dark" {% if eventTheme == 'dark' %}selected{% endif %}>Dunkel (Dark)</option>
+                  </select>
+                </div>
+                <div class="uk-text-meta">Steuert, ob das Live-Dashboard im hellen oder dunklen Modus startet.</div>
+              </div>
               <input type="hidden" id="dashboardModules" name="dashboardModules" value="">
               <div class="uk-margin">
                 <label class="uk-form-label">Module &amp; Reihenfolge</label>

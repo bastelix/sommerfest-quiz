@@ -61,6 +61,8 @@ class DashboardController
             return $response->withStatus(403);
         }
 
+        $cfg['dashboardTheme'] = $this->normalizeTheme($cfg['dashboardTheme'] ?? null);
+
         $modules = $this->extractModules($cfg['dashboardModules'] ?? []);
         $refresh = $this->sanitizeRefreshInterval((int) ($cfg['dashboardRefreshInterval'] ?? 15));
         $infoText = (string) ($cfg['dashboardInfoText'] ?? '');
@@ -81,6 +83,7 @@ class DashboardController
                 'shareToken' => $token,
                 'variant' => $matchedVariant,
                 'active' => $isActive,
+                'theme' => $cfg['dashboardTheme'],
                 'visibility' => [
                     'start' => $start?->format('c'),
                     'end' => $end?->format('c'),
@@ -219,6 +222,23 @@ class DashboardController
         }
 
         return $normalized;
+    }
+
+    /**
+     * Normalize the configured dashboard theme.
+     *
+     * @param mixed $value
+     */
+    private function normalizeTheme($value): string
+    {
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if ($normalized === 'dark' || $normalized === 'light') {
+                return $normalized;
+            }
+        }
+
+        return 'light';
     }
 
     /**
