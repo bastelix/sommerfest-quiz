@@ -329,7 +329,8 @@ class ResultService
         $maxPoints = 0;
         $expectedTime = 0;
         $questionTimeUsed = 0;
-        $limit = min(count($rows), $total);
+        $answerCount = is_array($answers) ? count($answers) : 0;
+        $limit = min(count($rows), max($total, $answerCount));
         for ($i = 0; $i < $limit; $i++) {
             $row = $rows[$i];
             $qid = (int)$row['id'];
@@ -344,12 +345,22 @@ class ResultService
                 $questionTime = 0;
             }
             $maxPoints += $questionPoints;
-            $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
-            $basePoints = $correct === 1 ? $questionPoints : 0;
-            $answerData = $answers[$i] ?? [];
-            if (!is_array($answerData)) {
-                $answerData = [];
+            $hasAnswerEntry = array_key_exists($i, $answers);
+            $rawAnswer = $hasAnswerEntry ? $answers[$i] : null;
+            $answerData = is_array($rawAnswer) ? $rawAnswer : [];
+            $isCorrectValue = null;
+            if (array_key_exists('isCorrect', $answerData)) {
+                $isCorrectValue = $this->normalizeOptionalBool($answerData['isCorrect']);
             }
+            if ($isCorrectValue === null && $hasAnswerEntry && $rawAnswer === null) {
+                $isCorrectValue = false;
+            }
+            if ($isCorrectValue === null) {
+                $isCorrectValue = !in_array($i + 1, $wrongIdx, true);
+            }
+            $isCorrect = (bool) $isCorrectValue;
+            $correct = $isCorrect ? 1 : 0;
+            $basePoints = $correct === 1 ? $questionPoints : 0;
             $rawTimeLeft = $answerData['timeLeftSec'] ?? $answerData['time_left_sec'] ?? null;
             $timeLeft = null;
             if ($rawTimeLeft !== null && $rawTimeLeft !== '') {
@@ -397,7 +408,7 @@ class ResultService
                 $timeLeft,
                 $finalPoints,
                 $efficiency,
-                $correct === 1,
+                $isCorrect ? 1 : 0,
                 self::SCORING_VERSION,
             ]);
         }
@@ -435,6 +446,42 @@ class ResultService
         $uid = $stmt->fetchColumn();
         if ($uid !== false && $uid !== null && $uid !== '') {
             return (string) $uid;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeOptionalBool($value): ?bool
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (int) round((float) $value) !== 0;
+        }
+
+        if (is_string($value)) {
+            $trimmed = strtolower(trim($value));
+            if ($trimmed === '') {
+                return null;
+            }
+            if (in_array($trimmed, ['true', 'yes', 'y', 'on', '1', 't'], true)) {
+                return true;
+            }
+            if (in_array($trimmed, ['false', 'no', 'n', 'off', '0', 'f'], true)) {
+                return false;
+            }
+            if (is_numeric($trimmed)) {
+                return (int) round((float) $trimmed) !== 0;
+            }
         }
 
         return null;

@@ -407,6 +407,105 @@ class ResultServiceTest extends TestCase
         $this->assertSame('1', (string)$rows[1]['scoring_version']);
     }
 
+    public function testAddQuestionResultsRespectsIsCorrectFlag(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                expected_duration_sec INTEGER,
+                duration_ratio REAL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
+                answer_text TEXT,
+                photo TEXT,
+                consent INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                points INTEGER,
+                options TEXT,
+                answers TEXT,
+                terms TEXT,
+                items TEXT,
+                countdown INTEGER,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT
+            );
+            SQL
+        );
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('cat-1',1,'cat1','c.json','C1')");
+        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown) VALUES('cat-1',1,'text','Q1',3,10)");
+
+        $service = new ResultService($pdo);
+        $service->add([
+            'name' => 'Tester',
+            'catalog' => 'cat1',
+            'correct' => 0,
+            'total' => 1,
+            'wrong' => [],
+            'answers' => [
+                [
+                    'isCorrect' => false,
+                    'timeLeftSec' => 0,
+                    'text' => 'Antwort',
+                ],
+            ],
+        ]);
+
+        $stmt = $pdo->query('SELECT correct, is_correct, time_left_sec FROM question_results ORDER BY id');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame('0', (string) $row['correct']);
+        $this->assertSame('0', (string) $row['is_correct']);
+        $this->assertSame(0, (int) $row['time_left_sec']);
+    }
+
     public function testAddStoresUppercaseSlugQuestionResults(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
