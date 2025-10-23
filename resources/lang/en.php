@@ -123,6 +123,8 @@ return [
     'text_dashboard_modules_hint' => 'Enabled modules appear on the public dashboard. Drag to change their order.',
     'label_dashboard_module_header' => 'Header',
     'text_dashboard_module_header_hint' => 'Shows event title, logo and countdown.',
+    'label_dashboard_module_points_leader' => 'Highscore focus',
+    'text_dashboard_module_points_leader_hint' => 'Highlights the leading team by points and shows the gap to the competition.',
     'label_dashboard_module_rankings' => 'Ranking tiles',
     'text_dashboard_module_rankings_hint' => 'Highlights key metrics from the ranking computation.',
     'label_dashboard_module_results' => 'Result list',

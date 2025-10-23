@@ -122,6 +122,8 @@ return [
     'text_dashboard_modules_hint' => 'Aktive Module erscheinen im öffentlichen Dashboard. Die Reihenfolge lässt sich per Drag & Drop anpassen.',
     'label_dashboard_module_header' => 'Header',
     'text_dashboard_module_header_hint' => 'Zeigt Eventtitel, Logo und Countdown.',
+    'label_dashboard_module_points_leader' => 'Highscore-Fokus',
+    'text_dashboard_module_points_leader_hint' => 'Hebt das führende Team nach Punkten hervor und zeigt den Vorsprung auf die Verfolger.',
     'label_dashboard_module_rankings' => 'Ranking-Kacheln',
     'text_dashboard_module_rankings_hint' => 'Hebt wichtige Kennzahlen der Rangliste hervor.',
     'label_dashboard_module_results' => 'Ergebnisliste',

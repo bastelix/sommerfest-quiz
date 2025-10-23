@@ -442,6 +442,26 @@
                         </select>
                       </div>
                     </li>
+                    <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="pointsLeader">
+                      <div class="uk-flex uk-flex-between uk-flex-middle">
+                        <div>
+                          <h4 class="uk-margin-remove">{{ t('label_dashboard_module_points_leader') }}</h4>
+                          <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_points_leader_hint') }}</p>
+                        </div>
+                        <div class="uk-flex uk-flex-middle">
+                          <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                          <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle checked> {{ t('label_dashboard_module_visible') }}</label>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small-top">
+                        <label class="uk-form-label" for="cfgDashboardLayoutPointsLeader">{{ t('label_dashboard_module_layout') }}</label>
+                        <select class="uk-select uk-form-small" id="cfgDashboardLayoutPointsLeader" data-module-layout data-default-layout="wide">
+                          <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                          <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                          <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                        </select>
+                      </div>
+                    </li>
                     <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankings">
                       <div class="uk-flex uk-flex-between uk-flex-middle">
                         <div>
