@@ -63,6 +63,21 @@ function parseOptionalFloat(value){
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+function toFiniteNumber(value){
+  if(typeof value === 'number' && Number.isFinite(value)){
+    return value;
+  }
+  if(value === null || value === undefined) return null;
+  if(typeof value === 'string'){
+    const trimmed = value.trim();
+    if(trimmed === '') return null;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
+}
+
 function isTruthyFlag(value){
   if(value === null || value === undefined) return false;
   if(typeof value === 'boolean') return value;
@@ -477,13 +492,13 @@ document.addEventListener('DOMContentLoaded', () => {
           const basePointsRaw = parseOptionalInt(r.points);
           const fallbackPoints = parseIntOr(r.correct, 0);
           const resolvedPointsValue = finalPointsRaw !== null ? finalPointsRaw : (basePointsRaw !== null ? basePointsRaw : fallbackPoints);
-          const numericPoints = typeof resolvedPointsValue === 'number' && Number.isFinite(resolvedPointsValue) ? resolvedPointsValue : 0;
+          const numericPoints = toFiniteNumber(resolvedPointsValue) ?? 0;
           const maxPointsVal = parseOptionalInt(r.max_points ?? r.maxPoints);
-          const normalizedMaxPoints = typeof maxPointsVal === 'number' && Number.isFinite(maxPointsVal) ? maxPointsVal : 0;
+          const normalizedMaxPoints = toFiniteNumber(maxPointsVal) ?? 0;
           const correctVal = parseIntOr(r.correct, 0);
           const totalVal = parseIntOr(r.total, 0);
           const attemptVal = parseIntOr(r.attempt, 1);
-          const pointsText = formatPointsDisplay(numericPoints, maxPointsVal);
+          const pointsText = formatPointsDisplay(numericPoints, normalizedMaxPoints);
           const correctText = `${correctVal}/${totalVal}`;
           summaryMap.set(displayName, {
             slug: info.slug,
@@ -542,12 +557,15 @@ document.addEventListener('DOMContentLoaded', () => {
           const aggregateKey = `${catalogKey}|${attemptVal}`;
           const finalPoints = parseIntOr(row.finalPoints ?? row.final_points ?? row.points, 0);
           const questionPoints = parseIntOr(row.questionPoints ?? row.points, 0);
-          const existing = questionAggregates.get(aggregateKey) || { points: 0, maxPoints: 0, count: 0 };
+          const existing = questionAggregates.get(aggregateKey) || { points: 0, maxPoints: 0, count: 0, hasNonZeroPoints: false };
           existing.points += finalPoints;
           if(questionPoints > 0){
             existing.maxPoints += questionPoints;
           }
           existing.count += 1;
+          if(finalPoints !== 0){
+            existing.hasNonZeroPoints = true;
+          }
           questionAggregates.set(aggregateKey, existing);
         });
 
@@ -556,9 +574,20 @@ document.addEventListener('DOMContentLoaded', () => {
           const key = `${String(entry.catalogRef)}|${entry.attempt}`;
           const aggregate = questionAggregates.get(key);
           if(aggregate && aggregate.count > 0){
-            entry.points = aggregate.points;
-            if(aggregate.maxPoints > 0){
-              entry.maxPoints = aggregate.maxPoints;
+            const aggregatedPoints = toFiniteNumber(aggregate.points);
+            const currentPoints = toFiniteNumber(entry.points) ?? 0;
+            if(aggregatedPoints !== null){
+              if(aggregatedPoints === 0 && currentPoints > 0 && !aggregate.hasNonZeroPoints){
+                entry.points = currentPoints;
+              }else{
+                entry.points = aggregatedPoints;
+              }
+            }else{
+              entry.points = currentPoints;
+            }
+            const aggregatedMaxPoints = toFiniteNumber(aggregate.maxPoints);
+            if(aggregatedMaxPoints !== null && aggregatedMaxPoints > entry.maxPoints){
+              entry.maxPoints = aggregatedMaxPoints;
             }
             const resolvedMax = entry.maxPoints;
             entry.pointsText = formatPointsDisplay(entry.points, resolvedMax);
@@ -566,10 +595,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const summaryValues = Array.from(summaryMap.values());
-        const totalPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.points) ? entry.points : 0), 0);
-        const totalMaxPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.maxPoints) ? entry.maxPoints : 0), 0);
-        const totalCorrect = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.correct) ? entry.correct : 0), 0);
-        const totalQuestions = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.total) ? entry.total : 0), 0);
+        const totalPoints = summaryValues.reduce((sum, entry) => {
+          const value = toFiniteNumber(entry.points);
+          return sum + (value !== null ? value : 0);
+        }, 0);
+        const totalMaxPoints = summaryValues.reduce((sum, entry) => {
+          const value = toFiniteNumber(entry.maxPoints);
+          return sum + (value !== null ? value : 0);
+        }, 0);
+        const totalCorrect = summaryValues.reduce((sum, entry) => {
+          const value = toFiniteNumber(entry.correct);
+          return sum + (value !== null ? value : 0);
+        }, 0);
+        const totalQuestions = summaryValues.reduce((sum, entry) => {
+          const value = toFiniteNumber(entry.total);
+          return sum + (value !== null ? value : 0);
+        }, 0);
 
         const createStatCard = (label, value, description = '') => {
           const col = document.createElement('div');
