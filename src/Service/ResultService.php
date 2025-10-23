@@ -240,7 +240,20 @@ class ResultService
             ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
-        $summary = $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers, $eventUid);
+        $summary = ['points' => 0, 'max' => 0, 'expectedTime' => 0, 'questionTimeUsed' => 0];
+        $catalogUid = $this->resolveCatalogUid($catalog, $eventUid);
+        if ($catalogUid !== null) {
+            $summary = $this->addQuestionResults(
+                $name,
+                $catalog,
+                $catalogUid,
+                $attempt,
+                $wrong,
+                $entry['total'],
+                $answers,
+                $eventUid
+            );
+        }
         $entry['points'] = $summary['points'];
         $entry['max_points'] = $summary['max'];
         $expectedDuration = $summary['expectedTime'] > 0 ? (int) round($summary['expectedTime']) : null;
@@ -285,6 +298,65 @@ class ResultService
         return $entry;
     }
 
+    private function resolveCatalogUid(string $catalog, string $eventUid = ''): ?string
+    {
+        if ($catalog === '') {
+            return null;
+        }
+
+        $catalogLower = function_exists('mb_strtolower')
+            ? mb_strtolower($catalog, 'UTF-8')
+            : strtolower($catalog);
+
+        $sql = <<<'SQL'
+            SELECT uid
+            FROM catalogs
+            WHERE (
+                uid = :catalog
+                OR CAST(sort_order AS TEXT) = :catalog
+                OR slug = :catalog
+                OR LOWER(uid) = :catalogLower
+                OR LOWER(slug) = :catalogLower
+            )
+        SQL;
+
+        if ($eventUid !== '') {
+            $sql .= ' AND (event_uid = :eventUid OR event_uid IS NULL)';
+        }
+
+        $sql .= ' ORDER BY ';
+        if ($eventUid !== '') {
+            $sql .= '(CASE WHEN event_uid = :eventUid THEN 0 ELSE 1 END), ';
+        }
+        $sql .= <<<'SQL'
+                CASE
+                    WHEN uid = :catalog THEN 0
+                    WHEN slug = :catalog THEN 1
+                    WHEN CAST(sort_order AS TEXT) = :catalog THEN 2
+                    WHEN LOWER(uid) = :catalogLower THEN 3
+                    WHEN LOWER(slug) = :catalogLower THEN 4
+                    ELSE 5
+                END
+            LIMIT 1
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $params = [
+            ':catalog' => $catalog,
+            ':catalogLower' => $catalogLower,
+        ];
+        if ($eventUid !== '') {
+            $params[':eventUid'] = $eventUid;
+        }
+        $stmt->execute($params);
+        $uid = $stmt->fetchColumn();
+        if ($uid === false || $uid === null) {
+            return null;
+        }
+
+        return (string) $uid;
+    }
+
     /**
      * Store individual question results.
      *
@@ -294,25 +366,23 @@ class ResultService
     private function addQuestionResults(
         string $name,
         string $catalog,
+        string $catalogUid,
         int $attempt,
         array $wrongIdx,
         int $total,
         array $answers = [],
         string $eventUid = ''
     ): array {
-        $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
-        $uidStmt->execute([$catalog, $catalog, $catalog]);
-        $uid = $uidStmt->fetchColumn();
-        if ($uid === false) {
-            return ['points' => 0, 'max' => 0];
+        if ($catalogUid === '') {
+            return ['points' => 0, 'max' => 0, 'expectedTime' => 0, 'questionTimeUsed' => 0];
         }
         $qStmt = $this->pdo->prepare(
             "SELECT id, points, countdown FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
         );
-        $qStmt->execute([$uid]);
+        $qStmt->execute([$catalogUid]);
         $rows = $qStmt->fetchAll(PDO::FETCH_ASSOC);
         if (!$rows) {
-            return ['points' => 0, 'max' => 0];
+            return ['points' => 0, 'max' => 0, 'expectedTime' => 0, 'questionTimeUsed' => 0];
         }
         $ins = $this->pdo->prepare(
             'INSERT INTO question_results(' .
