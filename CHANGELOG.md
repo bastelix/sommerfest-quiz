@@ -243,6 +243,7 @@
 - Redesign calhelp news section
 - Redesign calhelp news section
 - Add CalHelp section theming
+- Allow customizing live dashboard widget titles
 
 ### Fix
 
