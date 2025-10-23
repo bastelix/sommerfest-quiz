@@ -37,7 +37,7 @@ class ResultService
                 r.started_at AS "startedAt", r.duration_sec AS "durationSec",
                 r.expected_duration_sec AS "expectedDurationSec", r.duration_ratio AS "durationRatio",
                 r.puzzleTime AS "puzzleTime", r.photo,
-                c.name AS catalogName
+                c.name AS catalogName, c.uid AS "catalogUid"
             FROM results r
             LEFT JOIN catalogs c ON (
                 c.uid = r.catalog
@@ -78,6 +78,15 @@ class ResultService
                     : null;
                 $row['duration_ratio'] = $row['durationRatio'];
             }
+            $catalogUidRaw = $row['catalogUid'] ?? $row['catalog_uid'] ?? null;
+            if ($catalogUidRaw !== null && $catalogUidRaw !== '') {
+                $catalogUid = (string) $catalogUidRaw;
+                $row['catalogUid'] = $catalogUid;
+                $row['catalog_uid'] = $catalogUid;
+            } else {
+                $row['catalogUid'] = null;
+                $row['catalog_uid'] = null;
+            }
             $row['correct'] = isset($row['correct']) ? (int) $row['correct'] : 0;
             $row['points'] = isset($row['points']) ? (int) $row['points'] : 0;
             $row['total'] = isset($row['total']) ? (int) $row['total'] : 0;
@@ -109,7 +118,7 @@ class ResultService
                 qr.points, qr.time_left_sec, qr.final_points, qr.efficiency, qr.is_correct, qr.scoring_version,
                 qr.answer_text, qr.photo, qr.consent,
                 q.type, q.prompt, q.points AS question_points, q.countdown AS question_countdown, q.options, q.answers, q.terms, q.items,
-                c.name AS catalogName
+                c.name AS catalogName, q.catalog_uid AS "catalogUid"
             FROM question_results qr
             LEFT JOIN questions q ON q.id = qr.question_id
             LEFT JOIN catalogs c ON (
@@ -157,6 +166,15 @@ class ResultService
                     ? (int) $row['question_countdown']
                     : null;
                 unset($row['question_countdown']);
+            }
+            $catalogUidRaw = $row['catalogUid'] ?? $row['catalog_uid'] ?? null;
+            if ($catalogUidRaw !== null && $catalogUidRaw !== '') {
+                $catalogUid = (string) $catalogUidRaw;
+                $row['catalogUid'] = $catalogUid;
+                $row['catalog_uid'] = $catalogUid;
+            } else {
+                $row['catalogUid'] = null;
+                $row['catalog_uid'] = null;
             }
             foreach (["options", "answers", "terms", "items"] as $k) {
                 if (isset($row[$k])) {
