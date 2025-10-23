@@ -363,6 +363,7 @@ class ResultServiceTest extends TestCase
                 sort_order INTEGER,
                 type TEXT NOT NULL,
                 prompt TEXT NOT NULL,
+                points INTEGER,
                 options TEXT,
                 answers TEXT,
                 terms TEXT,
@@ -467,6 +468,7 @@ class ResultServiceTest extends TestCase
                 sort_order INTEGER,
                 type TEXT NOT NULL,
                 prompt TEXT NOT NULL,
+                points INTEGER,
                 options TEXT,
                 answers TEXT,
                 terms TEXT,
@@ -565,6 +567,7 @@ class ResultServiceTest extends TestCase
                 sort_order INTEGER,
                 type TEXT NOT NULL,
                 prompt TEXT NOT NULL,
+                points INTEGER,
                 options TEXT,
                 answers TEXT,
                 terms TEXT,
@@ -594,9 +597,10 @@ class ResultServiceTest extends TestCase
         $stmt = $pdo->query('SELECT expected_duration_sec, duration_ratio, duration_sec FROM results');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $this->assertSame(40, (int) $row['expected_duration_sec']);
-        $this->assertNull($row['duration_sec']);
+        $this->assertSame(30, (int) $row['duration_sec']);
         $this->assertEqualsWithDelta(0.75, (float) $row['duration_ratio'], 0.0001);
         $this->assertSame(40, $entry['expectedDurationSec']);
+        $this->assertSame(30, $entry['durationSec']);
         $this->assertEqualsWithDelta(0.75, (float) $entry['durationRatio'], 0.0001);
     }
 

@@ -252,6 +252,9 @@ class ResultService
         if ($consumed === null && $expectedDuration !== null) {
             $consumed = (int) round($questionTimeUsed);
         }
+        if ($consumed !== null) {
+            $entry['duration_sec'] = $consumed;
+        }
         $ratio = null;
         if ($expectedDuration !== null && $expectedDuration > 0 && $consumed !== null) {
             $ratio = $consumed / $expectedDuration;
