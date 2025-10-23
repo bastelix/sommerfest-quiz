@@ -256,9 +256,9 @@ class AdminController
 
         $baseUrl = UrlService::determineBaseUrl($request);
         $eventUrl = $uid !== '' ? $baseUrl . '/?event=' . rawurlencode($uid) : $baseUrl;
-        $resultsUrl = $baseUrl . '/results';
+        $resultsUrl = $baseUrl . '/summary';
         if ($uid !== '') {
-            $resultsUrl .= '?event_uid=' . rawurlencode($uid);
+            $resultsUrl .= '?event=' . rawurlencode($uid);
         }
 
         $pageTab = $this->resolvePageTab($params);
