@@ -1,7 +1,25 @@
 import { ResultsDataService, computeRankings } from './results-data-service.js';
 import { formatTimestamp, formatPointsCell, insertSoftHyphens, formatDuration } from './results-utils.js';
 
+function isTruthyFlag(value) {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    return normalized === '1' || normalized === 'true' || normalized === 'yes' || normalized === 'on';
+  }
+  return false;
+}
+
 const config = window.dashboardConfig || {};
+const puzzleWordEnabled = isTruthyFlag(config.puzzleWordEnabled);
 const basePath = window.basePath || '';
 const modulesRoot = document.querySelector('[data-dashboard-root]');
 const statusLabel = document.getElementById('dashboardStatusLabel');
@@ -296,6 +314,7 @@ function renderRankingsModule(rankings, moduleConfig) {
   const metrics = Array.isArray(moduleConfig.options?.metrics) && moduleConfig.options.metrics.length
     ? moduleConfig.options.metrics
     : ['puzzle', 'catalog', 'points', 'accuracy'];
+  const metricsToRender = metrics.filter((metric) => metric !== 'puzzle' || puzzleWordEnabled);
   const cardDefinitions = {
     puzzle: {
       title: 'Rätselwort-Bestzeit',
@@ -320,7 +339,14 @@ function renderRankingsModule(rankings, moduleConfig) {
   };
   const grid = document.createElement('div');
   grid.className = 'dashboard-rankings-grid';
-  metrics.forEach((metric) => {
+  if (metricsToRender.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'uk-text-meta';
+    empty.textContent = 'Keine Kennzahlen verfügbar.';
+    grid.appendChild(empty);
+    return createModuleCard('Live-Rankings', grid, resolveModuleLayout(moduleConfig));
+  }
+  metricsToRender.forEach((metric) => {
     const def = cardDefinitions[metric];
     if (!def) return;
     const col = document.createElement('div');

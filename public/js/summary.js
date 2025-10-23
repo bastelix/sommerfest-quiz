@@ -666,7 +666,12 @@ document.addEventListener('DOMContentLoaded', () => {
           const pointsRanking = rankingInfo.points || { place: null, total: 0 };
           const catalogRanking = rankingInfo.catalog || { place: null, total: 0 };
           const puzzleRanking = rankingInfo.puzzle || { place: null, total: 0 };
-          const hasRankingData = [pointsRanking, catalogRanking, puzzleRanking].some(info => info.total > 0);
+          const puzzleEnabled = isTruthyFlag(cfg.puzzleWordEnabled);
+          const rankingEntries = [pointsRanking, catalogRanking];
+          if(puzzleEnabled){
+            rankingEntries.push(puzzleRanking);
+          }
+          const hasRankingData = rankingEntries.some(info => info.total > 0);
           if(hasRankingData){
             const rankingHeading = document.createElement('h4');
             rankingHeading.className = 'uk-heading-bullet uk-margin-top';
@@ -722,7 +727,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             appendRankingCard('Highscore', pointsRanking, pointsDetails, 'Noch keine Punktewertung');
             appendRankingCard('Katalogmeister', catalogRanking, catalogDetails, 'Noch nicht alle Kataloge abgeschlossen');
-            appendRankingCard('Rätselwort', puzzleRanking, puzzleDetails, 'Noch kein Rätselwort gelöst');
+            if(puzzleEnabled){
+              appendRankingCard('Rätselwort', puzzleRanking, puzzleDetails, 'Noch kein Rätselwort gelöst');
+            }
 
             if(rankingGrid.children.length){
               contentWrap.appendChild(rankingHeading);
