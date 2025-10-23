@@ -319,8 +319,7 @@ function renderRankingsModule(rankings, moduleConfig) {
     },
   };
   const grid = document.createElement('div');
-  grid.className = 'dashboard-rankings-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m';
-  grid.setAttribute('uk-grid', '');
+  grid.className = 'dashboard-rankings-grid';
   metrics.forEach((metric) => {
     const def = cardDefinitions[metric];
     if (!def) return;
@@ -353,6 +352,12 @@ function renderRankingsModule(rankings, moduleConfig) {
     col.appendChild(card);
     grid.appendChild(col);
   });
+  if (!grid.hasChildNodes()) {
+    const emptyState = document.createElement('p');
+    emptyState.className = 'uk-text-meta';
+    emptyState.textContent = 'Keine Rankings ausgewählt.';
+    grid.appendChild(emptyState);
+  }
   return createModuleCard('Live-Rankings', grid, resolveModuleLayout(moduleConfig));
 }
 
