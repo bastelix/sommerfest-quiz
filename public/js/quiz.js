@@ -571,9 +571,23 @@ async function runQuiz(questions, skipIntro){
   }
 
   // Fragen mischen, damit die Reihenfolge bei jedem Aufruf variiert
+  const originalIndexMap = typeof WeakMap === 'function' ? new WeakMap() : new Map();
+  if (Array.isArray(questions)) {
+    let baseIndex = 0;
+    questions.forEach(question => {
+      if (question && typeof question === 'object' && question.type !== 'flip') {
+        baseIndex += 1;
+        try {
+          originalIndexMap.set(question, baseIndex);
+        } catch (e) { /* empty */ }
+      }
+    });
+  }
+
   const shuffled = cfg.shuffleQuestions !== false ? shuffleArray(questions) : questions.slice();
   const scorableCounts = []; // Anzahl bewertbarer Fragen vor jeder Frage
   const questionPoints = [];
+  const scorableIndexMap = [];
   let scorableIdx = 0;
   const questionElements = shuffled.map(q => {
     scorableCounts.push(scorableIdx);
@@ -581,6 +595,8 @@ async function runQuiz(questions, skipIntro){
     const idx = isScorable ? scorableIdx++ : null;
     if(idx !== null){
       questionPoints[idx] = normalizePoints(q.points, true);
+      const mappedIndex = originalIndexMap.get(q);
+      scorableIndexMap[idx] = Number.isFinite(mappedIndex) ? mappedIndex : (idx + 1);
     }
     return createQuestion(q, idx);
   });
@@ -764,7 +780,23 @@ async function runQuiz(questions, skipIntro){
     }
     const rawCatalog = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
     const normalizedCatalog = String(rawCatalog).toLowerCase();
-    const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
+    const wrong = [];
+    results.forEach((value, idx) => {
+      if (value) {
+        return;
+      }
+      const mapped = scorableIndexMap[idx];
+      const normalized = Number.isFinite(mapped) ? mapped : (idx + 1);
+      wrong.push(normalized);
+    });
+    const normalizedAnswers = new Array(questionCount).fill(null);
+    for (let i = 0; i < questionCount; i += 1) {
+      const mapped = scorableIndexMap[i];
+      const targetIndex = Number.isFinite(mapped) ? mapped - 1 : i;
+      if (targetIndex >= 0 && targetIndex < questionCount) {
+        normalizedAnswers[targetIndex] = answers[i] ?? null;
+      }
+    }
     const data = {
       name: user,
       catalog: rawCatalog,
@@ -773,7 +805,7 @@ async function runQuiz(questions, skipIntro){
       points: pointsEarned,
       maxPoints: maxPointsTotal,
       wrong,
-      answers,
+      answers: normalizedAnswers,
       event_uid: currentEventUid
     };
     if(Number.isFinite(quizStartedAt)){
