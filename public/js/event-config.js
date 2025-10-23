@@ -21,13 +21,18 @@
   let currentEventSlug = '';
   const DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
-    { id: 'pointsLeader', enabled: true, layout: 'wide' },
-    { id: 'rankings', enabled: true, layout: 'wide', options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
+    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen' } },
+    {
+      id: 'rankings',
+      enabled: true,
+      layout: 'wide',
+      options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'], title: 'Live-Rankings' },
+    },
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, sort: 'time', title: 'Ergebnisliste' } },
-    { id: 'wrongAnswers', enabled: false, layout: 'auto' },
-    { id: 'infoBanner', enabled: false, layout: 'auto' },
-    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [] } },
-    { id: 'media', enabled: false, layout: 'auto' },
+    { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
+    { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
+    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
+    { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } },
   ];
   const METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
   const LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
@@ -69,6 +74,34 @@
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
     }
+  };
+  const applyModuleTitleField = (item, moduleId, options = {}) => {
+    if (!item) {
+      return;
+    }
+    const field = item.querySelector('[data-module-title]');
+    if (!field) {
+      return;
+    }
+    const defaults = DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
+    const fallback = typeof defaults.title === 'string' && defaults.title.trim() !== ''
+      ? defaults.title
+      : (field.placeholder || '');
+    const raw = typeof options?.title === 'string' ? options.title.trim() : '';
+    field.value = raw !== '' ? options.title : fallback;
+  };
+  const readModuleTitle = (item, moduleId) => {
+    const field = item.querySelector('[data-module-title]');
+    if (!field) {
+      return null;
+    }
+    const defaults = DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
+    const fallback = typeof defaults.title === 'string' ? defaults.title : '';
+    const placeholder = typeof field.placeholder === 'string' ? field.placeholder : '';
+    const base = fallback.trim() !== '' ? fallback : placeholder.trim();
+    const raw = typeof field.value === 'string' ? field.value.trim() : '';
+    const resolved = raw !== '' ? raw : base;
+    return resolved !== '' ? resolved : null;
   };
   const QR_MODULE_ID = 'qrCodes';
   const qrModuleElement = modulesList?.querySelector('[data-module-id="' + QR_MODULE_ID + '"]') || null;
@@ -441,6 +474,13 @@
         });
         entry.options = { catalogs };
       }
+      const titleValue = readModuleTitle(item, id);
+      if (titleValue !== null) {
+        if (!entry.options) {
+          entry.options = {};
+        }
+        entry.options.title = titleValue;
+      }
       modules.push(entry);
     });
     return modules;
@@ -478,6 +518,7 @@
       } else if (module.id === 'results') {
         applyResultsOptionFields(item, module.options || {});
       }
+      applyModuleTitleField(item, module.id, module.options || {});
     });
     DEFAULT_MODULES.forEach((module) => {
       if (!configured.some((entry) => entry.id === module.id)) {
@@ -500,6 +541,7 @@
         } else if (module.id === 'results') {
           applyResultsOptionFields(item, module.options || {});
         }
+        applyModuleTitleField(item, module.id, module.options || {});
       }
     });
     const qrSelection = getQrModuleSelection(configured);
@@ -717,12 +759,12 @@
       reader.readAsDataURL(file);
     });
     modulesList?.addEventListener('change', (event) => {
-      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option]')) {
+      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);
       }
     });
     modulesList?.addEventListener('input', (event) => {
-      if (event.target.matches('[data-module-results-option]')) {
+      if (event.target.matches('[data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);
       }
     });
