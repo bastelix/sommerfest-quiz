@@ -34,6 +34,36 @@
     body.dashboard-page .uk-heading-bullet {
       color: rgba(15, 23, 42, 0.92);
     }
+    .dashboard-header {
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .dashboard-header > :first-child {
+      flex: 1 1 320px;
+      min-width: 0;
+    }
+    .dashboard-status {
+      align-items: center;
+      gap: 0.5rem;
+      flex: 0 0 auto;
+    }
+    #dashboardStatusLabel {
+      color: rgba(15, 23, 42, 0.72);
+      font-weight: 500;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+    .dashboard-status .uk-button {
+      border-color: rgba(15, 23, 42, 0.2);
+      color: rgba(15, 23, 42, 0.9);
+      background: #ffffff;
+      font-weight: 600;
+    }
+    .dashboard-status .uk-button:hover,
+    .dashboard-status .uk-button:focus-visible {
+      border-color: var(--dashboard-accent);
+      color: var(--dashboard-accent);
+    }
     .dashboard-modules .uk-card {
       border-top: 3px solid var(--dashboard-accent);
       background: var(--dashboard-card-light);
@@ -41,10 +71,6 @@
       border-right-color: rgba(15, 23, 42, 0.1);
       border-bottom-color: rgba(15, 23, 42, 0.1);
       box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
-    }
-    .dashboard-status {
-      align-items: center;
-      gap: 0.5rem;
     }
     .dashboard-info {
       border-left: 4px solid var(--dashboard-accent);
@@ -93,12 +119,16 @@
     body[data-theme='dark'] .dashboard-qr-missing {
       color: rgba(255, 255, 255, 0.72);
     }
+    body[data-theme='dark'] #dashboardStatusLabel {
+      color: rgba(255, 255, 255, 0.72);
+    }
     body[data-theme='dark'] .dashboard-page .uk-heading-bullet {
       color: rgba(255, 255, 255, 0.88);
     }
     body[data-theme='dark'] .dashboard-status .uk-button {
       border-color: rgba(255, 255, 255, 0.25);
       color: var(--color-text);
+      background: transparent;
     }
     body[data-theme='dark'] .dashboard-status .uk-button:hover,
     body[data-theme='dark'] .dashboard-status .uk-button:focus-visible {
@@ -114,6 +144,20 @@
     body[data-theme='dark'] .dashboard-page .uk-heading-bullet::before {
       background: rgba(255, 255, 255, 0.4);
     }
+    @media (max-width: 640px) {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+      }
+      .dashboard-status {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .dashboard-status #dashboardRefreshBtn {
+        flex: 0 0 auto;
+      }
+    }
   </style>
 {% endblock %}
 
@@ -123,7 +167,7 @@
 
 {% block body %}
   <div class="uk-container uk-container-large uk-padding-small">
-    <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-medium-top" data-dashboard-header>
+    <div class="dashboard-header uk-flex uk-flex-between uk-flex-middle uk-margin-medium-top" data-dashboard-header>
       <div>
         <h1 class="uk-heading-bullet uk-margin-remove">{{ event.name }}</h1>
         {% if dashboard.visibility.start or dashboard.visibility.end %}
@@ -134,7 +178,7 @@
           </div>
         {% endif %}
       </div>
-      <div class="dashboard-status uk-flex">
+      <div class="dashboard-status uk-flex uk-flex-middle">
         <span id="dashboardStatusLabel" class="uk-text-meta"></span>
         <button class="uk-button uk-button-default" id="dashboardRefreshBtn" type="button">Aktualisieren</button>
       </div>
