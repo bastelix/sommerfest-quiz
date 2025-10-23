@@ -1141,6 +1141,7 @@ class ResultServiceTest extends TestCase
         $rows = $service->getAll();
         $this->assertCount(1, $rows);
         $this->assertSame('Catalog 1', $rows[0]['catalogName']);
+        $this->assertSame('u1', $rows[0]['catalogUid']);
     }
 
     public function testGetQuestionResultsAssociatesCatalogNameWithEvent(): void {
@@ -1220,6 +1221,7 @@ class ResultServiceTest extends TestCase
         $this->assertCount(2, $rows);
         $this->assertSame('Catalog 1', $rows[0]['catalogName']);
         $this->assertSame('Catalog 2', $rows[1]['catalogName']);
+        $this->assertSame('u1', $rows[0]['catalogUid']);
     }
 
     public function testQueriesReturnEmptyWithoutActiveEvent(): void {

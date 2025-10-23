@@ -29,12 +29,12 @@ class AwardService
 
         foreach ($questionResults as $row) {
             $team = (string)($row['name'] ?? '');
-            $catalog = (string)($row['catalog'] ?? '');
-            if ($team === '' || $catalog === '') {
+            $catalogKey = $this->normalizeCatalogKey($row);
+            if ($team === '' || $catalogKey === '') {
                 continue;
             }
             $attempt = (int)($row['attempt'] ?? 1);
-            $key = $team . '|' . $catalog . '|' . $attempt;
+            $key = $team . '|' . $catalogKey . '|' . $attempt;
             $finalPointsRaw = $row['final_points'] ?? $row['finalPoints'] ?? $row['points'] ?? 0;
             $finalPoints = (int) $finalPointsRaw;
             $efficiencyRaw = $row['efficiency'] ?? null;
@@ -80,8 +80,8 @@ class AwardService
 
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
-            $catalog = (string)($row['catalog'] ?? '');
-            if ($team === '' || $catalog === '') {
+            $catalogKey = $this->normalizeCatalogKey($row);
+            if ($team === '' || $catalogKey === '') {
                 continue;
             }
             $time = (int)($row['time'] ?? 0);
@@ -89,7 +89,7 @@ class AwardService
             $points = isset($row['points']) ? (int)$row['points'] : $correct;
             $puzzle = isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null;
             $attempt = (int)($row['attempt'] ?? 1);
-            $key = $team . '|' . $catalog . '|' . $attempt;
+            $key = $team . '|' . $catalogKey . '|' . $attempt;
             $durationRaw = $row['duration_sec'] ?? $row['durationSec'] ?? null;
             $duration = null;
             if ($durationRaw !== null && $durationRaw !== '') {
@@ -152,7 +152,7 @@ class AwardService
                 }
             }
 
-            $existing = $scores[$team][$catalog] ?? null;
+            $existing = $scores[$team][$catalogKey] ?? null;
             $shouldReplace = false;
             if ($existing === null) {
                 $shouldReplace = true;
@@ -194,7 +194,7 @@ class AwardService
             }
 
             if ($shouldReplace) {
-                $scores[$team][$catalog] = [
+                $scores[$team][$catalogKey] = [
                     'points' => $finalPoints,
                     'average' => $average,
                     'efficiencySum' => $effSum,
@@ -367,6 +367,38 @@ class AwardService
             'points' => $pointsRanks,
             'accuracy' => $accuracyRanks,
         ];
+    }
+
+    private function normalizeCatalogKey(array $row): string
+    {
+        $candidates = [
+            $row['catalogUid'] ?? null,
+            $row['catalog_uid'] ?? null,
+            $row['catalogRef'] ?? null,
+            $row['catalogKey'] ?? null,
+            $row['catalog_slug'] ?? null,
+            $row['catalog'] ?? null,
+        ];
+
+        foreach ($candidates as $value) {
+            if ($value === null) {
+                continue;
+            }
+
+            if (is_string($value)) {
+                $trimmed = trim($value);
+                if ($trimmed !== '') {
+                    return $trimmed;
+                }
+                continue;
+            }
+
+            if (is_int($value) || is_float($value)) {
+                return (string) $value;
+            }
+        }
+
+        return '';
     }
 
     /**

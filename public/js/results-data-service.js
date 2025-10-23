@@ -7,6 +7,20 @@ const parseNumeric = (value) => {
   return Number.isFinite(num) ? num : null;
 };
 
+const normalizeCatalogValue = (value) => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? String(value) : '';
+  }
+  if (typeof value === 'boolean') {
+    return value ? '1' : '0';
+  }
+  return String(value).trim();
+};
+
 export class ResultsDataService {
   constructor(options = {}) {
     this.basePath = options.basePath || '';
@@ -16,31 +30,33 @@ export class ResultsDataService {
     this.catalogMap = null;
     this.catalogCount = 0;
     this.catalogList = [];
+    this.catalogAliasMap = {};
   }
 
   withBase(path) {
     return `${this.basePath}${path}`;
   }
 
-  setEventUid(uid) {
-    this.eventUid = uid || '';
+  resetCatalogCache() {
     this.catalogMap = null;
     this.catalogCount = 0;
     this.catalogList = [];
+    this.catalogAliasMap = {};
+  }
+
+  setEventUid(uid) {
+    this.eventUid = uid || '';
+    this.resetCatalogCache();
   }
 
   setShareToken(token) {
     this.shareToken = token || '';
-    this.catalogMap = null;
-    this.catalogCount = 0;
-    this.catalogList = [];
+    this.resetCatalogCache();
   }
 
   setVariant(variant) {
     this.variant = variant === 'sponsor' ? 'sponsor' : 'public';
-    this.catalogMap = null;
-    this.catalogCount = 0;
-    this.catalogList = [];
+    this.resetCatalogCache();
   }
 
   buildQuery() {
@@ -54,6 +70,37 @@ export class ResultsDataService {
     }
     const query = params.toString();
     return query ? `?${query}` : '';
+  }
+
+  resolveCatalogRef(row, originalCatalog) {
+    const directCandidates = [
+      row?.catalogRef,
+      row?.catalogUid,
+      row?.catalog_uid,
+      row?.catalogUID,
+    ];
+    for (const value of directCandidates) {
+      const normalized = normalizeCatalogValue(value);
+      if (normalized) {
+        return normalized;
+      }
+    }
+
+    const alias = normalizeCatalogValue(originalCatalog);
+    if (!alias) {
+      return '';
+    }
+
+    const aliasMap = this.catalogAliasMap || {};
+    const info = aliasMap[alias] || aliasMap[alias.toLowerCase()];
+    if (info && info.uid) {
+      const canonical = normalizeCatalogValue(info.uid);
+      if (canonical) {
+        return canonical;
+      }
+    }
+
+    return alias;
   }
 
   fetchCatalogMap() {
@@ -90,6 +137,13 @@ export class ResultsDataService {
             : [];
         const map = {};
         const normalized = [];
+        const aliasMap = {};
+        const registerAlias = (alias, info) => {
+          const normalizedAlias = normalizeCatalogValue(alias);
+          if (!normalizedAlias) return;
+          aliasMap[normalizedAlias] = info;
+          aliasMap[normalizedAlias.toLowerCase()] = info;
+        };
         if (Array.isArray(list)) {
           this.catalogCount = list.length;
           list.forEach((catalog) => {
@@ -104,6 +158,15 @@ export class ResultsDataService {
             if (uid) map[uid] = displayName;
             if (sortOrder) map[sortOrder] = displayName;
             if (slug) map[slug] = displayName;
+            const info = {
+              uid,
+              slug,
+              sortOrder,
+              name: displayName,
+            };
+            registerAlias(uid, info);
+            registerAlias(sortOrder, info);
+            registerAlias(slug, info);
             normalized.push({
               uid,
               slug,
@@ -117,12 +180,14 @@ export class ResultsDataService {
         }
         this.catalogMap = map;
         this.catalogList = normalized;
+        this.catalogAliasMap = aliasMap;
         return map;
       })
       .catch(() => {
         this.catalogMap = {};
         this.catalogCount = 0;
         this.catalogList = [];
+        this.catalogAliasMap = {};
         return {};
       });
   }
@@ -158,9 +223,30 @@ export class ResultsDataService {
         rows.forEach((row) => {
           const originalCatalog = row.catalog;
           row.catalogKey = originalCatalog;
-          if (catalogMap[originalCatalog]) {
-            row.catalogName = catalogMap[originalCatalog];
-            row.catalog = catalogMap[originalCatalog];
+          const resolvedRef = this.resolveCatalogRef(row, originalCatalog);
+          row.catalogRef = resolvedRef || normalizeCatalogValue(originalCatalog) || '';
+          const aliasKey = normalizeCatalogValue(originalCatalog);
+          const aliasInfo = aliasKey
+            ? (this.catalogAliasMap?.[aliasKey] || this.catalogAliasMap?.[aliasKey.toLowerCase()])
+            : null;
+          const catalogName = row.catalogName
+            || catalogMap[originalCatalog]
+            || aliasInfo?.name
+            || row.catalog;
+          if (catalogName) {
+            row.catalogName = catalogName;
+            row.catalog = catalogName;
+          }
+          const canonicalUid = normalizeCatalogValue(row.catalogUid ?? row.catalog_uid);
+          if (canonicalUid) {
+            row.catalogUid = canonicalUid;
+            row.catalog_uid = canonicalUid;
+          } else if (row.catalogRef) {
+            row.catalogUid = row.catalogRef;
+            row.catalog_uid = row.catalogRef;
+          } else {
+            row.catalogUid = null;
+            row.catalog_uid = null;
           }
           const parsedTime = parseNumeric(row.time);
           row.time = parsedTime !== null ? Math.trunc(parsedTime) : null;
@@ -177,18 +263,43 @@ export class ResultsDataService {
           }
           row.duration_sec = row.durationSec;
         });
-        rows.sort((a, b) => b.time - a.time);
+        rows.sort((a, b) => {
+          const timeA = parseNumeric(a.time) ?? 0;
+          const timeB = parseNumeric(b.time) ?? 0;
+          return timeB - timeA;
+        });
       }
       if (Array.isArray(questionRows)) {
         questionRows.forEach((row) => {
           const originalCatalog = row.catalog;
           row.catalogKey = originalCatalog;
-          if (catalogMap[originalCatalog]) {
-            row.catalogName = catalogMap[originalCatalog];
-            row.catalog = catalogMap[originalCatalog];
+          const resolvedRef = this.resolveCatalogRef(row, originalCatalog);
+          row.catalogRef = resolvedRef || normalizeCatalogValue(originalCatalog) || '';
+          const aliasKey = normalizeCatalogValue(originalCatalog);
+          const aliasInfo = aliasKey
+            ? (this.catalogAliasMap?.[aliasKey] || this.catalogAliasMap?.[aliasKey.toLowerCase()])
+            : null;
+          const catalogName = row.catalogName
+            || catalogMap[originalCatalog]
+            || aliasInfo?.name
+            || row.catalog;
+          if (catalogName) {
+            row.catalogName = catalogName;
+            row.catalog = catalogName;
+          }
+          const canonicalUid = normalizeCatalogValue(row.catalogUid ?? row.catalog_uid);
+          if (canonicalUid) {
+            row.catalogUid = canonicalUid;
+            row.catalog_uid = canonicalUid;
+          } else if (row.catalogRef) {
+            row.catalogUid = row.catalogRef;
+            row.catalog_uid = row.catalogRef;
+          } else {
+            row.catalogUid = null;
+            row.catalog_uid = null;
           }
           const team = row.name || '';
-          const catalog = (row.catalogKey ?? row.catalog) || '';
+          const catalog = normalizeCatalogValue(row.catalogRef || row.catalogKey || row.catalog);
           if (!team || !catalog) {
             return;
           }
@@ -210,14 +321,14 @@ export class ResultsDataService {
       if (Array.isArray(rows)) {
         rows.forEach((row) => {
           const team = row.name || '';
-          const catalog = (row.catalogKey ?? row.catalog) || '';
-          if (!team || !catalog) {
+          const catalogKey = normalizeCatalogValue(row.catalogRef || row.catalogKey || row.catalog);
+          if (!team || !catalogKey) {
             row.averageEfficiency = null;
             row.avg_efficiency = null;
             return;
           }
           const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
-          const key = `${team}|${catalog}|${attempt}`;
+          const key = `${team}|${catalogKey}|${attempt}`;
           const summary = attemptSummaries.get(key);
           if (summary && summary.count > 0) {
             const totalPoints = Math.round(summary.points);
@@ -273,6 +384,23 @@ export class ResultsDataService {
 }
 
 export function computeRankings(rows, questionRows, catalogCount = 0) {
+  const resolveEntryCatalogKey = (entry) => {
+    const candidates = [
+      entry.catalogRef,
+      entry.catalogUid,
+      entry.catalog_uid,
+      entry.catalogKey,
+      entry.catalog,
+    ];
+    for (const value of candidates) {
+      const normalized = normalizeCatalogValue(value);
+      if (normalized) {
+        return normalized;
+      }
+    }
+    return '';
+  };
+
   const formatEfficiency = (value) => {
     if (value === null || value === undefined) return '–';
     const numeric = Number(value);
@@ -313,10 +441,10 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
 
   questionRows.forEach((entry) => {
     const team = entry.name || '';
-    const catalog = entry.catalog || '';
-    if (!team || !catalog) return;
+    const catalogKey = resolveEntryCatalogKey(entry);
+    if (!team || !catalogKey) return;
     const attempt = Number.isFinite(entry.attempt) ? Number(entry.attempt) : parseInt(entry.attempt, 10) || 1;
-    const key = `${team}|${catalog}|${attempt}`;
+    const key = `${team}|${catalogKey}|${attempt}`;
     const finalPoints = Number.isFinite(entry.final_points)
       ? Number(entry.final_points)
       : Number.isFinite(entry.finalPoints)
@@ -338,8 +466,8 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
 
   rows.forEach((row) => {
     const team = row.name || '';
-    const catalog = row.catalog || '';
-    if (!team || !catalog) return;
+    const catalogKey = resolveEntryCatalogKey(row);
+    if (!team || !catalogKey) return;
     const puzzleCandidate = parseNumeric(row.puzzleTime);
     if (puzzleCandidate !== null) {
       const prev = puzzleTimes.get(team);
@@ -357,7 +485,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     const finish = Number.isFinite(finishCandidate) ? Math.round(finishCandidate) : null;
 
     const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
-    const key = `${team}|${catalog}|${attempt}`;
+    const key = `${team}|${catalogKey}|${attempt}`;
     const summary = attemptMetrics.get(key);
     let finalPoints;
     let effSum;
@@ -385,7 +513,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       sMap = new Map();
       scorePoints.set(team, sMap);
     }
-    const prev = sMap.get(catalog);
+    const prev = sMap.get(catalogKey);
     const safeDuration = Number.isFinite(duration) ? duration : null;
     const safeFinish = Number.isFinite(finish) ? finish : null;
     let shouldReplace = false;
@@ -432,7 +560,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     }
 
     if (shouldReplace) {
-      sMap.set(catalog, {
+      sMap.set(catalogKey, {
         points: finalPoints,
         effSum,
         count: questionCount,

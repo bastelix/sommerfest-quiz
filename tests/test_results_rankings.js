@@ -91,6 +91,19 @@ assert.strictEqual(binaryRankings.catalogList[0].solved, 3);
 assert.strictEqual(binaryRankings.catalogList[1].name, 'Binary');
 assert.strictEqual(binaryRankings.catalogList[1].solved, 2);
 
+const repeatedCatalogRows = [
+    { name: 'Repeat', catalog: 'Alpha', catalogRef: 'uid-1', correct: 3, total: 5, points: 30, time: 15 },
+    { name: 'Repeat', catalog: 'Alpha Copy', catalogRef: 'uid-1', correct: 2, total: 5, points: 20, time: 25 }
+];
+
+const repeatedRankings = computeRankings(repeatedCatalogRows, [], 1);
+assert.strictEqual(repeatedRankings.pointsList.length, 1);
+assert.strictEqual(repeatedRankings.pointsList[0].name, 'Repeat');
+assert.strictEqual(repeatedRankings.pointsList[0].raw, 30);
+assert.strictEqual(repeatedRankings.catalogList.length, 1);
+assert.strictEqual(repeatedRankings.catalogList[0].name, 'Repeat');
+assert.strictEqual(repeatedRankings.catalogList[0].points, 30);
+
 const zeroCorrectRows = [
     { name: 'Zero', catalog: 'Main', correct: '0', total: '3', time: 12 }
 ];
