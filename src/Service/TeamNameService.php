@@ -11,6 +11,7 @@ use InvalidArgumentException;
 use PDO;
 use PDOException;
 use RuntimeException;
+use Throwable;
 
 /**
  * Central allocator for curated team names with reservation support.
@@ -52,7 +53,15 @@ class TeamNameService
     /**
      * Reserve a name for the given event.
      *
-     * @return array{name: string, token: string, expires_at: string, lexicon_version: int, total: int, remaining: int, fallback: bool}
+     * @return array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }
      */
     public function reserve(string $eventId): array
     {
@@ -63,7 +72,16 @@ class TeamNameService
         $this->releaseExpiredReservations($eventId);
 
         $names = $this->getOrderedNames();
-        foreach ($names as $name) {
+        $totalNames = count($names);
+        if ($totalNames === 0) {
+            return $this->reserveFallback($eventId);
+        }
+
+        $startIndex = $this->randomStartIndex($totalNames);
+
+        for ($offset = 0; $offset < $totalNames; $offset++) {
+            $index = ($startIndex + $offset) % $totalNames;
+            $name = $names[$index];
             $token = bin2hex(random_bytes(16));
             try {
                 $stmt = $this->pdo->prepare(
@@ -97,7 +115,8 @@ class TeamNameService
         $this->releaseExpiredReservations($eventId);
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, name, fallback, assigned_at FROM team_names WHERE event_id = ? AND reservation_token = ? AND released_at IS NULL'
+            'SELECT id, name, fallback, assigned_at FROM team_names '
+            . 'WHERE event_id = ? AND reservation_token = ? AND released_at IS NULL'
         );
         $stmt->execute([$eventId, $token]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -128,7 +147,8 @@ class TeamNameService
         }
 
         $stmt = $this->pdo->prepare(
-            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP WHERE event_id = ? AND reservation_token = ? AND released_at IS NULL'
+            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP '
+            . 'WHERE event_id = ? AND reservation_token = ? AND released_at IS NULL'
         );
         $stmt->execute([$eventId, $token]);
         return $stmt->rowCount() > 0;
@@ -140,7 +160,8 @@ class TeamNameService
             return;
         }
         $stmt = $this->pdo->prepare(
-            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP WHERE event_id = ? AND name = ? AND released_at IS NULL'
+            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP '
+            . 'WHERE event_id = ? AND name = ? AND released_at IS NULL'
         );
         $stmt->execute([$eventId, $name]);
     }
@@ -151,7 +172,8 @@ class TeamNameService
         $name = 'Gast-' . strtoupper(substr($token, 0, 5));
         try {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, fallback) VALUES (?,?,?,?,TRUE)'
+                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token, fallback) '
+                . 'VALUES (?,?,?,?,TRUE)'
             );
             $stmt->execute([$eventId, $name, $this->lexiconVersion, $token]);
         } catch (PDOException $exception) {
@@ -167,7 +189,15 @@ class TeamNameService
     }
 
     /**
-     * @return array{name: string, token: string, expires_at: string, lexicon_version: int, total: int, remaining: int, fallback: bool}
+     * @return array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }
      */
     private function formatReservationResponse(string $eventId, string $name, string $token, bool $fallback): array
     {
@@ -196,7 +226,8 @@ class TeamNameService
     {
         $threshold = $this->now()->sub(new DateInterval('PT' . $this->reservationTtlSeconds . 'S'));
         $stmt = $this->pdo->prepare(
-            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP WHERE event_id = ? AND released_at IS NULL AND assigned_at IS NULL AND reserved_at <= ?'
+            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP '
+            . 'WHERE event_id = ? AND released_at IS NULL AND assigned_at IS NULL AND reserved_at <= ?'
         );
         $stmt->execute([$eventId, $threshold->format('Y-m-d H:i:sP')]);
     }
@@ -249,9 +280,23 @@ class TeamNameService
         return new DateTimeImmutable('now', new DateTimeZone('UTC'));
     }
 
+    protected function randomStartIndex(int $total): int
+    {
+        if ($total <= 1) {
+            return 0;
+        }
+
+        try {
+            return random_int(0, $total - 1);
+        } catch (Throwable $exception) {
+            return 0;
+        }
+    }
+
     private function isUniqueViolation(PDOException $exception): bool
     {
-        return $exception->getCode() === '23505';
+        $code = $exception->getCode();
+        return $code === '23505' || $code === '23000';
     }
 
     private function normalize(string $value): string
