@@ -149,6 +149,7 @@ return [
     'label_dashboard_metric_points' => 'Points',
     'label_dashboard_metric_puzzle' => 'Puzzle word',
     'label_dashboard_metric_catalog' => 'Catalog masters',
+    'label_dashboard_metric_accuracy' => 'Accuracy leaders',
     'label_dashboard_info_text' => 'Info banner content',
     'text_dashboard_info_hint' => 'Supports simple HTML like &lt;p&gt;, &lt;br&gt;, &lt;strong&gt;.',
     'label_dashboard_media_embed' => 'Media links (one per line)',

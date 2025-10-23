@@ -148,6 +148,7 @@ return [
     'label_dashboard_metric_points' => 'Punkte',
     'label_dashboard_metric_puzzle' => 'Rätselwort',
     'label_dashboard_metric_catalog' => 'Katalogmeister',
+    'label_dashboard_metric_accuracy' => 'Trefferquote',
     'label_dashboard_info_text' => 'Infobanner-Inhalt',
     'text_dashboard_info_hint' => 'Unterstützt einfache HTML-Auszeichnungen wie &lt;p&gt;, &lt;br&gt;, &lt;strong&gt;.',
     'label_dashboard_media_embed' => 'Medien-Links (eine pro Zeile)',
