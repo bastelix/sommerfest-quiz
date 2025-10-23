@@ -90,4 +90,18 @@ assert.strictEqual(binaryRankings.catalogList[0].name, 'Perfect');
 assert.strictEqual(binaryRankings.catalogList[0].solved, 3);
 assert.strictEqual(binaryRankings.catalogList[1].name, 'Binary');
 assert.strictEqual(binaryRankings.catalogList[1].solved, 2);
+
+const zeroCorrectRows = [
+    { name: 'Zero', catalog: 'Main', correct: '0', total: '3', time: 12 }
+];
+const zeroCorrectQuestions = [
+    { name: 'Zero', catalog: 'Main', attempt: 1, correct: '0', final_points: '0' }
+];
+
+const zeroCorrectRankings = computeRankings(zeroCorrectRows, zeroCorrectQuestions, 1);
+assert.strictEqual(zeroCorrectRankings.catalogList.length, 1);
+assert.strictEqual(zeroCorrectRankings.catalogList[0].name, 'Zero');
+assert.strictEqual(zeroCorrectRankings.catalogList[0].solved, 0);
+assert.strictEqual(zeroCorrectRankings.pointsList[0].raw, 0);
+assert.strictEqual(zeroCorrectRankings.accuracyList[0].raw, 0);
 console.log('ok');
