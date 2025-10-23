@@ -127,13 +127,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       const efficiencyText = formatEfficiencyValue(efficiencyValue);
+      const correctNumeric = parseOptionalNumber(r.correct);
+      const isCorrect = typeof r.isCorrect === 'boolean'
+        ? r.isCorrect
+        : (correctNumeric !== null ? correctNumeric > 0 : false);
       const cells = [
         r.name,
         r.attempt,
         r.catalogName || r.catalog,
         r.prompt || '',
         r.answer_text || '',
-        r.correct ? '✓' : '✗',
+        isCorrect ? '✓' : '✗',
         basePointsText,
         finalPointsText,
         efficiencyText

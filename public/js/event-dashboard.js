@@ -638,7 +638,7 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
       modulesRoot.appendChild(renderResultsModule(rows, module, layout));
       hasModuleOutput = true;
     } else if (module.id === 'wrongAnswers') {
-      const wrongRows = questionRows.filter((row) => !row.correct);
+      const wrongRows = questionRows.filter((row) => !parseBooleanFlag(row?.isCorrect ?? row?.correct));
       modulesRoot.appendChild(renderWrongAnswersModule(wrongRows, layout));
       hasModuleOutput = true;
     } else if (module.id === 'infoBanner' && infoText.trim() !== '') {

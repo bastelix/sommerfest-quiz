@@ -322,9 +322,11 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       : Number.isFinite(entry.finalPoints)
         ? Number(entry.finalPoints)
         : Number.isFinite(entry.points) ? Number(entry.points) : 0;
+    const rawCorrectFlag = entry.is_correct ?? entry.isCorrect ?? entry.correct ?? entry.isCorrectAnswer;
+    const normalizedCorrect = parseSolvedValue(rawCorrectFlag) > 0 ? 1 : 0;
     const efficiency = Number.isFinite(entry.efficiency)
       ? Number(entry.efficiency)
-      : (entry.correct ? 1 : 0);
+      : normalizedCorrect;
     const summary = attemptMetrics.get(key) || { points: 0, effSum: 0, count: 0 };
     summary.points += Number.isFinite(finalPoints) ? finalPoints : 0;
     summary.effSum += Math.max(0, Math.min(efficiency, 1));

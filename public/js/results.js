@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
           catalogCount,
         });
 
-        const wrongOnly = questionRows.filter(r => !r.correct);
+        const wrongOnly = questionRows.filter((row) => !parseBooleanFlag(row.isCorrect ?? row.correct));
         renderWrongTable(wrongOnly);
       })
       .catch(err => {
