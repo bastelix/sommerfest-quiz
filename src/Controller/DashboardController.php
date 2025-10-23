@@ -104,12 +104,20 @@ class DashboardController
         }
         $defaults = [
             ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
-            ['id' => 'pointsLeader', 'enabled' => true, 'layout' => 'wide'],
+            [
+                'id' => 'pointsLeader',
+                'enabled' => true,
+                'layout' => 'wide',
+                'options' => ['title' => 'Platzierungen'],
+            ],
             [
                 'id' => 'rankings',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => ['metrics' => ['points', 'puzzle', 'catalog', 'accuracy']],
+                'options' => [
+                    'metrics' => ['points', 'puzzle', 'catalog', 'accuracy'],
+                    'title' => 'Live-Rankings',
+                ],
             ],
             [
                 'id' => 'results',
@@ -117,10 +125,30 @@ class DashboardController
                 'layout' => 'full',
                 'options' => ['limit' => null, 'sort' => 'time', 'title' => 'Ergebnisliste'],
             ],
-            ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto'],
-            ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto'],
-            ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'auto', 'options' => ['catalogs' => []]],
-            ['id' => 'media', 'enabled' => false, 'layout' => 'auto'],
+            [
+                'id' => 'wrongAnswers',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Falsch beantwortete Fragen'],
+            ],
+            [
+                'id' => 'infoBanner',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Hinweise'],
+            ],
+            [
+                'id' => 'qrCodes',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['catalogs' => [], 'title' => 'Katalog-QR-Codes'],
+            ],
+            [
+                'id' => 'media',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Highlights'],
+            ],
         ];
 
         if ($modules === []) {
@@ -149,10 +177,12 @@ class DashboardController
                 $layout = $baseLayout;
             }
 
+            $baseOptions = isset($base['options']) && is_array($base['options']) ? $base['options'] : [];
+            $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
+
             $entry = ['id' => $id, 'enabled' => !empty($module['enabled']), 'layout' => $layout];
             if ($id === 'rankings') {
                 $metrics = [];
-                $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
                 if (isset($options['metrics']) && is_array($options['metrics'])) {
                     foreach ($options['metrics'] as $metric) {
                         $metricId = (string) $metric;
@@ -165,12 +195,12 @@ class DashboardController
                     }
                 }
                 if ($metrics === []) {
-                    $metrics = $base['options']['metrics'];
+                    $metrics = $baseOptions['metrics'] ?? ['points', 'puzzle', 'catalog', 'accuracy'];
                 }
-                $entry['options'] = ['metrics' => $metrics];
+                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Live-Rankings';
+                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
+                $entry['options'] = ['metrics' => $metrics, 'title' => $title];
             } elseif ($id === 'results') {
-                $baseOptions = isset($base['options']) && is_array($base['options']) ? $base['options'] : [];
-                $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
                 $limit = $this->normalizeResultsLimit($options['limit'] ?? null);
                 if ($limit === null) {
                     $limit = $this->normalizeResultsLimit($baseOptions['limit'] ?? null);
@@ -182,10 +212,8 @@ class DashboardController
                         $sort = 'time';
                     }
                 }
-                $title = isset($options['title']) ? trim((string) $options['title']) : '';
-                if ($title === '') {
-                    $title = isset($baseOptions['title']) ? trim((string) $baseOptions['title']) : 'Ergebnisliste';
-                }
+                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Ergebnisliste';
+                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = [
                     'limit' => $limit,
                     'sort' => $sort,
@@ -193,7 +221,6 @@ class DashboardController
                 ];
             } elseif ($id === 'qrCodes') {
                 $catalogs = [];
-                $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
                 $rawCatalogs = $options['catalogs'] ?? [];
                 if (is_array($rawCatalogs)) {
                     foreach ($rawCatalogs as $catalogId) {
@@ -206,9 +233,15 @@ class DashboardController
                 } elseif (is_string($rawCatalogs) && $rawCatalogs !== '') {
                     $catalogs[] = $rawCatalogs;
                 }
-                $entry['options'] = ['catalogs' => $catalogs];
-            } elseif (isset($module['options']) && is_array($module['options']) && $module['options'] !== []) {
-                $entry['options'] = $module['options'];
+                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Katalog-QR-Codes';
+                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
+                $entry['options'] = ['catalogs' => $catalogs, 'title' => $title];
+            } elseif (in_array($id, ['pointsLeader', 'wrongAnswers', 'infoBanner', 'media'], true)) {
+                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : '';
+                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
+                $entry['options'] = ['title' => $title];
+            } elseif ($options !== []) {
+                $entry['options'] = $options;
             }
             $entry['enabled'] = (bool) $entry['enabled'];
             $normalized[] = $entry;
@@ -222,6 +255,21 @@ class DashboardController
         }
 
         return $normalized;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeModuleTitle($value, string $fallback): string
+    {
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed !== '') {
+                return $trimmed;
+            }
+        }
+
+        return $fallback;
     }
 
     /**

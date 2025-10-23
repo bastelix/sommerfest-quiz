@@ -989,13 +989,18 @@ document.addEventListener('DOMContentLoaded', function () {
   const DASHBOARD_RESULTS_MAX_LIMIT = 50;
   const DASHBOARD_DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
-    { id: 'pointsLeader', enabled: true, layout: 'wide' },
-    { id: 'rankings', enabled: true, layout: 'wide', options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
+    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen' } },
+    {
+      id: 'rankings',
+      enabled: true,
+      layout: 'wide',
+      options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'], title: 'Live-Rankings' },
+    },
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, sort: 'time', title: 'Ergebnisliste' } },
-    { id: 'wrongAnswers', enabled: false, layout: 'auto' },
-    { id: 'infoBanner', enabled: false, layout: 'auto' },
-    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [] } },
-    { id: 'media', enabled: false, layout: 'auto' }
+    { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
+    { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
+    { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
+    { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } }
   ];
   const DASHBOARD_DEFAULT_MODULE_MAP = new Map(DASHBOARD_DEFAULT_MODULES.map(module => [module.id, module]));
   const normalizeDashboardResultsLimit = (value) => {
@@ -1035,6 +1040,34 @@ document.addEventListener('DOMContentLoaded', function () {
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
     }
+  }
+  function applyDashboardModuleTitle(item, moduleId, options = {}) {
+    if (!item) {
+      return;
+    }
+    const field = item.querySelector('[data-module-title]');
+    if (!field) {
+      return;
+    }
+    const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
+    const fallback = typeof defaults.title === 'string' && defaults.title.trim() !== ''
+      ? defaults.title
+      : (field.placeholder || '');
+    const raw = typeof options?.title === 'string' ? options.title.trim() : '';
+    field.value = raw !== '' ? options.title : fallback;
+  }
+  function readDashboardModuleTitle(item, moduleId) {
+    const field = item.querySelector('[data-module-title]');
+    if (!field) {
+      return null;
+    }
+    const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
+    const fallback = typeof defaults.title === 'string' ? defaults.title : '';
+    const placeholder = typeof field.placeholder === 'string' ? field.placeholder : '';
+    const base = fallback.trim() !== '' ? fallback : placeholder.trim();
+    const raw = typeof field.value === 'string' ? field.value.trim() : '';
+    const resolved = raw !== '' ? raw : base;
+    return resolved !== '' ? resolved : null;
   }
   const DASHBOARD_QR_MODULE_ID = 'qrCodes';
   const dashboardQrModule = dashboardModulesList?.querySelector('[data-module-id="' + DASHBOARD_QR_MODULE_ID + '"]') || null;
@@ -1532,6 +1565,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         entry.options = { catalogs };
       }
+      const titleValue = readDashboardModuleTitle(item, id);
+      if (titleValue !== null) {
+        if (!entry.options) {
+          entry.options = {};
+        }
+        entry.options.title = titleValue;
+      }
       modules.push(entry);
     });
     return modules;
@@ -1576,6 +1616,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (module.id === 'results') {
         applyDashboardResultsOptions(item, module.options || {});
       }
+      applyDashboardModuleTitle(item, module.id, module.options || {});
     });
     DASHBOARD_DEFAULT_MODULES.forEach(module => {
       if (configured.some(entry => entry.id === module.id)) {
@@ -1604,6 +1645,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (module.id === 'results') {
         applyDashboardResultsOptions(item, module.options || {});
       }
+      applyDashboardModuleTitle(item, module.id, module.options || {});
     });
     updateDashboardModules(false);
     loadDashboardQrCatalogOptions(getDashboardQrSelection(configured));
@@ -2880,12 +2922,12 @@ document.addEventListener('DOMContentLoaded', function () {
     el.addEventListener('input', queueCfgSave);
   });
   dashboardModulesList?.addEventListener('change', event => {
-    if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option]')) {
+    if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
       updateDashboardModules(true);
     }
   });
   dashboardModulesList?.addEventListener('input', event => {
-    if (event.target.matches('[data-module-results-option]')) {
+    if (event.target.matches('[data-module-results-option], [data-module-title]')) {
       updateDashboardModules(true);
     }
   });
