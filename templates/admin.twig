@@ -1330,7 +1330,7 @@
             <td class="qr-cell">{{ r.points ?? r.correct ?? 0 }}/{{ r.max_points ?? 0 }}</td>
             <td class="qr-cell">&ndash;</td>
             <td class="qr-cell">{{ r.time | date('Y-m-d H:i') }}</td>
-            <td class="qr-cell">{% if r.puzzleTime is defined and r.puzzleTime is not null and r.puzzleTime|int > 0 %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% else %}&ndash;{% endif %}</td>
+            <td class="qr-cell">{% if r.puzzleTime is defined and r.puzzleTime is not null and r.puzzleTime > 0 %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% else %}&ndash;{% endif %}</td>
             <td class="qr-cell">{% if r.photo is defined and r.photo %}<span class="photo-wrapper"><a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light"><img src="{{ basePath ~ r.photo }}" alt="Beweisfoto" class="proof-thumb"></a></span>{% endif %}</td>
           </tr>
           {% else %}
