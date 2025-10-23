@@ -776,7 +776,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->clear($request, $response);
     })->add(new CsrfMiddleware());
     $app->post('/session/catalog', CatalogSessionController::class)->add(new CsrfMiddleware());
-    $app->post('/session/player', PlayerSessionController::class)->add(new CsrfMiddleware());
+    $app->map(['POST', 'DELETE'], '/session/player', PlayerSessionController::class)
+        ->add(new CsrfMiddleware());
     $app->get('/onboarding/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);

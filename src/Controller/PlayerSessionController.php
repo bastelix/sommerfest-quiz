@@ -16,6 +16,12 @@ class PlayerSessionController
      * Handle the incoming request.
      */
     public function __invoke(Request $request, Response $response): Response {
+        if ($request->getMethod() === 'DELETE') {
+            unset($_SESSION['player_name']);
+
+            return $response->withStatus(204);
+        }
+
         $data = json_decode((string) $request->getBody(), true);
         $name = is_array($data) ? ($data['name'] ?? '') : '';
         if (!is_string($name) || trim($name) === '') {
