@@ -10,9 +10,34 @@
   <style>
     :root {
       --dashboard-accent: {{ config.buttonColor|default('#1e87f0') }};
+      --dashboard-background-light: #eef2f7;
+      --dashboard-card-light: #ffffff;
+      --dashboard-background-dark: #050910;
+      --dashboard-card-dark: #172132;
+      --dashboard-border-dark: rgba(148, 163, 184, 0.24);
+    }
+    body.dashboard-page {
+      background: var(--dashboard-background-light);
+    }
+    body.dashboard-page .wrapper,
+    body.dashboard-page .content,
+    body.dashboard-page .site-footer {
+      background: transparent;
+    }
+    body.dashboard-page .site-footer {
+      color: rgba(31, 41, 55, 0.88);
+      border-top: 1px solid rgba(15, 23, 42, 0.1);
+    }
+    body.dashboard-page .site-footer a {
+      color: inherit;
     }
     .dashboard-modules .uk-card {
       border-top: 3px solid var(--dashboard-accent);
+      background: var(--dashboard-card-light);
+      border-left-color: rgba(15, 23, 42, 0.1);
+      border-right-color: rgba(15, 23, 42, 0.1);
+      border-bottom-color: rgba(15, 23, 42, 0.1);
+      box-shadow: 0 14px 36px rgba(15, 23, 42, 0.12);
     }
     .dashboard-status {
       align-items: center;
@@ -45,7 +70,18 @@
       font-size: 0.875rem;
     }
     body[data-theme='dark'] .dashboard-page {
-      background-color: var(--color-bg);
+      background: var(--dashboard-background-dark);
+    }
+    body[data-theme='dark'] .dashboard-modules .uk-card {
+      background: var(--dashboard-card-dark);
+      border-left-color: var(--dashboard-border-dark);
+      border-right-color: var(--dashboard-border-dark);
+      border-bottom-color: var(--dashboard-border-dark);
+      box-shadow: 0 20px 48px rgba(2, 6, 23, 0.6);
+    }
+    body[data-theme='dark'].dashboard-page .site-footer {
+      color: rgba(255, 255, 255, 0.72);
+      border-top-color: var(--dashboard-border-dark);
     }
     body[data-theme='dark'] .dashboard-status,
     body[data-theme='dark'] .dashboard-leader__label,
@@ -68,9 +104,6 @@
     }
     body[data-theme='dark'] .dashboard-leader__summary {
       border-left-color: var(--dashboard-accent);
-    }
-    body[data-theme='dark'] .dashboard-modules .uk-card {
-      border-color: rgba(255, 255, 255, 0.12);
     }
     body[data-theme='dark'] .dashboard-page .uk-heading-bullet::before {
       background: rgba(255, 255, 255, 0.4);
