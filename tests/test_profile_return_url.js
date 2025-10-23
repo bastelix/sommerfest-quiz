@@ -52,13 +52,14 @@ const ctx2 = {
   returnUrl: encodedReturn,
   location: { href: '', search: '' },
   postSession: () => Promise.resolve(),
+  deleteSession: () => Promise.resolve(),
   alert: () => {},
   console,
   document: {
     getElementById(id) {
       if (id === 'playerName') return ctx2.nameInput;
       if (id === 'save-name') return { addEventListener: (ev, fn) => { ctx2.saveHandler = fn; } };
-      if (id === 'delete-name') return { addEventListener: () => {} };
+      if (id === 'delete-name') return { addEventListener: (ev, fn) => { ctx2.deleteHandler = fn; } };
       return null;
     },
     addEventListener(ev, fn) {
@@ -72,6 +73,7 @@ vm.runInNewContext(storageCode, ctx2);
 vm.runInNewContext(profileCode, ctx2);
 ctx2.nameInput.value = 'Alice';
 (async () => {
+  await new Promise(r => setTimeout(r, 0));
   await ctx2.saveHandler?.({ preventDefault() {} });
   assert.strictEqual(ctx2.location.href, decodeURIComponent(encodedReturn));
   console.log('ok');

@@ -1,4 +1,4 @@
-/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit, TeamNameClient */
+/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit, TeamNameClient, deleteSession */
 // Profile page logic for handling player names
 
 let nameInput;
@@ -115,10 +115,20 @@ async function saveName(e) {
 async function deleteName(e) {
   e?.preventDefault();
   releaseReservation();
+  try {
+    await deleteSession('player');
+  } catch (error) {
+    notify('Fehler beim Löschen', 'danger');
+    return;
+  }
   clearStored('quizUser');
   clearStored(STORAGE_KEYS.PLAYER_NAME);
   clearStored(STORAGE_KEYS.PLAYER_UID);
-  nameInput.value = await requestNameSuggestion();
+  nameInput.value = '';
+  if (typeof nameInput.focus === 'function') {
+    nameInput.focus();
+  }
+  notify('Name gelöscht', 'success');
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

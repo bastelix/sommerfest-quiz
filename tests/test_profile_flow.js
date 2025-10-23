@@ -69,13 +69,14 @@ const ctx2 = {
   returnUrl: '/quiz',
   location: { href: '', search: '' },
   postSession: () => Promise.resolve(),
+  deleteSession: () => Promise.resolve(),
   alert: () => {},
   console,
   document: {
     getElementById(id) {
       if (id === 'playerName') return ctx2.nameInput;
       if (id === 'save-name') return { addEventListener: (ev, fn) => { ctx2.saveHandler = fn; } };
-      if (id === 'delete-name') return { addEventListener: () => {} };
+      if (id === 'delete-name') return { addEventListener: (ev, fn) => { ctx2.deleteHandler = fn; } };
       return null;
     },
     addEventListener(ev, fn) {
@@ -87,12 +88,11 @@ ctx2.fetch = (url, opts) => { ctx2.fetchCalls.push({ url, opts }); return Promis
 ctx2.window.location = ctx2.location;
 vm.runInNewContext(storageCode, ctx2);
 vm.runInNewContext(profileCode, ctx2);
-ctx2.nameInput.value = 'Alice';
 
 (async () => {
-  ctx2.saveHandler?.({ preventDefault() {} });
-  assert.strictEqual(ctx2.location.href, '');
-  await Promise.resolve();
+  await new Promise(r => setTimeout(r, 0));
+  ctx2.nameInput.value = 'Alice';
+  await ctx2.saveHandler?.({ preventDefault() {} });
   assert.strictEqual(ctx2.localStorage.getItem('quizUser'), 'Alice');
   assert.strictEqual(ctx2.getStored(ctx2.STORAGE_KEYS.PLAYER_NAME), 'Alice');
   assert.strictEqual(ctx2.localStorage.getItem('qr_player_uid:'), 'uid-123');
@@ -115,6 +115,126 @@ ctx2.nameInput.value = 'Alice';
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 
+const storageObj2c = {
+  data: {},
+  getItem(k) { return this.data[k] ?? null; },
+  setItem(k, v) { this.data[k] = String(v); },
+  removeItem(k) { delete this.data[k]; }
+};
+const ctx2c = {
+  URLSearchParams,
+  window: { quizConfig: { event_uid: 'ev-delete' } },
+  nameInput: { value: '' },
+  localStorage: storageObj2c,
+  sessionStorage: storageObj2c,
+  fetchCalls: [],
+  self: { crypto: { randomUUID: () => 'uid-del' } },
+  returnUrl: '',
+  location: { href: '', search: '' },
+  postSession: () => Promise.resolve(),
+  deleteCalls: 0,
+  deleteSession: () => { ctx2c.deleteCalls += 1; return Promise.resolve(); },
+  alert: () => {},
+  console,
+  UIkit: { notification: opts => { ctx2c.notifications.push(opts); } },
+  notifications: [],
+  document: {
+    getElementById(id) {
+      if (id === 'playerName') return ctx2c.nameInput;
+      if (id === 'save-name') return { addEventListener: () => {} };
+      if (id === 'delete-name') return { addEventListener: (ev, fn) => { ctx2c.deleteHandler = fn; } };
+      return null;
+    },
+    addEventListener(ev, fn) {
+      if (ev === 'DOMContentLoaded') fn();
+    }
+  }
+};
+ctx2c.fetch = () => Promise.resolve();
+ctx2c.window.location = ctx2c.location;
+ctx2c.Math = Object.create(Math);
+ctx2c.Math.random = () => 0.12345;
+vm.runInNewContext(storageCode, ctx2c);
+ctx2c.setStored(ctx2c.STORAGE_KEYS.PLAYER_NAME, 'Alice');
+ctx2c.setStored(ctx2c.STORAGE_KEYS.PLAYER_UID, 'uid-del');
+vm.runInNewContext(profileCode, ctx2c);
+(async () => {
+  await new Promise(r => setTimeout(r, 0));
+  assert.strictEqual(ctx2c.nameInput.value, 'Alice');
+  assert.strictEqual(ctx2c.getStored(ctx2c.STORAGE_KEYS.PLAYER_NAME), 'Alice');
+  await ctx2c.deleteHandler?.({ preventDefault() {} });
+  assert.strictEqual(ctx2c.deleteCalls, 1);
+  assert.strictEqual(ctx2c.getStored(ctx2c.STORAGE_KEYS.PLAYER_NAME), null);
+  assert.strictEqual(ctx2c.getStored(ctx2c.STORAGE_KEYS.PLAYER_UID), null);
+  assert.strictEqual(ctx2c.localStorage.getItem('quizUser'), null);
+  assert.strictEqual(ctx2c.nameInput.value, '');
+  assert.strictEqual(ctx2c.notifications.length, 1);
+  assert.strictEqual(ctx2c.notifications[0].message, 'Name gelöscht');
+  assert.strictEqual(ctx2c.notifications[0].status, 'success');
+  console.log('ok');
+})().catch(err => { console.error(err); process.exit(1); });
+
+const storageObj2d = {
+  data: {},
+  getItem(k) { return this.data[k] ?? null; },
+  setItem(k, v) { this.data[k] = String(v); },
+  removeItem(k) { delete this.data[k]; }
+};
+const ctx2d = {
+  URLSearchParams,
+  window: { quizConfig: { event_uid: 'ev-delete' } },
+  nameInput: { value: '' },
+  localStorage: storageObj2d,
+  sessionStorage: storageObj2d,
+  fetchCalls: [],
+  self: { crypto: { randomUUID: () => 'uid-del' } },
+  returnUrl: '',
+  location: { href: '', search: '' },
+  postSession: () => Promise.resolve(),
+  deleteCalls: 0,
+  deleteSession: () => {
+    ctx2d.deleteCalls += 1;
+    return Promise.reject(new Error('delete failed'));
+  },
+  alert: () => {},
+  console,
+  UIkit: { notification: opts => { ctx2d.notifications.push(opts); } },
+  notifications: [],
+  document: {
+    getElementById(id) {
+      if (id === 'playerName') return ctx2d.nameInput;
+      if (id === 'save-name') return { addEventListener: () => {} };
+      if (id === 'delete-name') return { addEventListener: (ev, fn) => { ctx2d.deleteHandler = fn; } };
+      return null;
+    },
+    addEventListener(ev, fn) {
+      if (ev === 'DOMContentLoaded') fn();
+    }
+  }
+};
+ctx2d.fetch = () => Promise.resolve();
+ctx2d.window.location = ctx2d.location;
+ctx2d.Math = Object.create(Math);
+ctx2d.Math.random = () => 0.6789;
+vm.runInNewContext(storageCode, ctx2d);
+ctx2d.setStored(ctx2d.STORAGE_KEYS.PLAYER_NAME, 'Alice');
+ctx2d.setStored(ctx2d.STORAGE_KEYS.PLAYER_UID, 'uid-del');
+vm.runInNewContext(profileCode, ctx2d);
+(async () => {
+  await new Promise(r => setTimeout(r, 0));
+  assert.strictEqual(ctx2d.nameInput.value, 'Alice');
+  assert.strictEqual(ctx2d.getStored(ctx2d.STORAGE_KEYS.PLAYER_NAME), 'Alice');
+  await ctx2d.deleteHandler?.({ preventDefault() {} });
+  assert.strictEqual(ctx2d.deleteCalls, 1);
+  assert.strictEqual(ctx2d.getStored(ctx2d.STORAGE_KEYS.PLAYER_NAME), 'Alice');
+  assert.strictEqual(ctx2d.getStored(ctx2d.STORAGE_KEYS.PLAYER_UID), 'uid-del');
+  assert.strictEqual(ctx2d.nameInput.value, 'Alice');
+  assert.strictEqual(ctx2d.notifications.length, 1);
+  assert.strictEqual(ctx2d.notifications[0].message, 'Fehler beim Löschen');
+  assert.strictEqual(ctx2d.notifications[0].status, 'danger');
+  console.log('ok');
+})().catch(err => { console.error(err); process.exit(1); });
+
 // Test no redirect on failed save
 const storageObj2b = {
   data: {},
@@ -133,6 +253,7 @@ const ctx2b = {
   returnUrl: '/quiz',
   location: { href: '', search: '' },
   postSession: () => Promise.reject(new Error('fail')),
+  deleteSession: () => Promise.resolve(),
 
   alert: () => {},
   console,
@@ -140,7 +261,7 @@ const ctx2b = {
     getElementById(id) {
       if (id === 'playerName') return ctx2b.nameInput;
       if (id === 'save-name') return { addEventListener: (ev, fn) => { ctx2b.saveHandler = fn; } };
-      if (id === 'delete-name') return { addEventListener: () => {} };
+      if (id === 'delete-name') return { addEventListener: (ev, fn) => { ctx2b.deleteHandler = fn; } };
       return null;
     },
     addEventListener(ev, fn) {
@@ -152,10 +273,10 @@ ctx2b.fetch = (url, opts) => { ctx2b.fetchCalls.push({ url, opts }); return Prom
 ctx2b.window.location = ctx2b.location;
 vm.runInNewContext(storageCode, ctx2b);
 vm.runInNewContext(profileCode, ctx2b);
-ctx2b.nameInput.value = 'Alice';
 (async () => {
-  ctx2b.saveHandler?.({ preventDefault() {} });
-  await Promise.resolve();
+  await new Promise(r => setTimeout(r, 0));
+  ctx2b.nameInput.value = 'Alice';
+  await ctx2b.saveHandler?.({ preventDefault() {} });
   assert.strictEqual(ctx2b.location.href, '');
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
@@ -182,13 +303,14 @@ const ctx3 = {
   returnUrl: '/quiz',
   location: { href: '', search: '?uid=uid-123' },
   postSession: () => Promise.resolve(),
+  deleteSession: () => Promise.resolve(),
   alert: () => {},
   console,
   document: {
     getElementById(id) {
       if (id === 'playerName') return ctx3.nameInput;
       if (id === 'save-name') return { addEventListener: () => {} };
-      if (id === 'delete-name') return { addEventListener: () => {} };
+      if (id === 'delete-name') return { addEventListener: (ev, fn) => { ctx3.deleteHandler = fn; } };
       return null;
     },
     addEventListener(ev, fn) {
