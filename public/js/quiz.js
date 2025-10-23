@@ -1,4 +1,4 @@
-/* global UIkit, Html5Qrcode, generatePlayerName, STORAGE_KEYS, setStored, getStored, clearStored */
+/* global UIkit, Html5Qrcode, TeamNameClient, STORAGE_KEYS, setStored, getStored, clearStored */
 // Hauptskript des Quizzes. Dieses File erzeugt dynamisch alle Fragen,
 // wertet Antworten aus und speichert das Ergebnis im Browser.
 // Der Code wird ausgeführt, sobald das DOM geladen ist.
@@ -36,13 +36,75 @@ const currentEventUid = (() => {
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
 
-let nameSuggestion;
+let nameReservation = null;
+let lastSuggestionFallback = false;
 let quizStartedAt = null;
-function getNameSuggestion(){
-  if(!nameSuggestion){
-    nameSuggestion = typeof generatePlayerName === 'function' ? generatePlayerName() : 'Gast';
+
+const fallbackSuggestion = () => `Gast-${Math.random().toString(36).slice(2, 7)}`;
+
+async function getNameSuggestion(){
+  const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+  if (client && typeof client.reserve === 'function') {
+    try {
+      const reservation = await client.reserve({ eventUid: currentEventUid });
+      nameReservation = reservation || null;
+      if (reservation && typeof reservation.name === 'string' && reservation.name) {
+        lastSuggestionFallback = Boolean(reservation.fallback);
+        return reservation.name;
+      }
+    } catch (error) {
+      console.error('Team name reservation failed', error);
+    }
   }
-  return nameSuggestion;
+  lastSuggestionFallback = true;
+  nameReservation = null;
+  return fallbackSuggestion();
+}
+
+function getLastSuggestionWasFallback(){
+  return lastSuggestionFallback;
+}
+
+function releaseNameReservation(){
+  if (nameReservation) {
+    const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+    if (client && typeof client.release === 'function') {
+      client.release({ reservation: nameReservation }).catch(() => {});
+    }
+  }
+  nameReservation = null;
+  lastSuggestionFallback = false;
+}
+
+async function confirmNameReservationIfMatching(name){
+  if (!nameReservation) {
+    return false;
+  }
+  const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+  if (!client || typeof client.confirm !== 'function') {
+    return false;
+  }
+  const normalizedInput = (name || '').trim().toLowerCase();
+  const reserved = (nameReservation.name || '').toString().trim().toLowerCase();
+  if (!normalizedInput || normalizedInput !== reserved) {
+    return false;
+  }
+  try {
+    const confirmed = await client.confirm((name || '').trim(), { reservation: nameReservation });
+    if (confirmed) {
+      nameReservation = null;
+      lastSuggestionFallback = false;
+      return true;
+    }
+  } catch (error) {
+    console.error('Team name confirmation failed', error);
+  }
+  if (typeof client.release === 'function') {
+    client.release({ reservation: nameReservation }).catch(() => {});
+  }
+  nameReservation = null;
+  lastSuggestionFallback = false;
+  return false;
 }
 
 function formatPuzzleTime(ts){
@@ -75,20 +137,20 @@ function updateTeamNameButton(){
 }
 
 async function promptTeamName(){
-  return new Promise(resolve => {
-    const existing = getStored('quizUser');
-    const modal = document.createElement('div');
-    modal.setAttribute('uk-modal', '');
-    modal.setAttribute('aria-modal', 'true');
-    const dialog = document.createElement('div');
-    dialog.className = 'uk-modal-dialog uk-modal-body';
-    modal.appendChild(dialog);
-    const title = document.createElement('h3');
-    title.className = 'uk-modal-title uk-text-center';
-    dialog.appendChild(title);
-
-    if(existing){
+  const existing = getStored('quizUser');
+  if(existing){
+    releaseNameReservation();
+    return new Promise(resolve => {
+      const modal = document.createElement('div');
+      modal.setAttribute('uk-modal', '');
+      modal.setAttribute('aria-modal', 'true');
+      const dialog = document.createElement('div');
+      dialog.className = 'uk-modal-dialog uk-modal-body';
+      modal.appendChild(dialog);
+      const title = document.createElement('h3');
+      title.className = 'uk-modal-title uk-text-center';
       title.textContent = `Ah - dich kenne ich. Du bist ${existing}. Willkommen zurück. Möchtest du fortfahren oder den Teamnamen zurücksetzen?`;
+      dialog.appendChild(title);
       const btn = document.createElement('button');
       btn.id = 'team-name-submit';
       btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -117,19 +179,32 @@ async function promptTeamName(){
         try{
           await postSession('player', { name: null });
         }catch(e){ /* empty */ }
+        releaseNameReservation();
         ui.hide();
         UIkit.util.on(modal, 'hidden', () => { promptTeamName().then(resolve); });
       });
       ui.show();
-      return;
-    }
+    });
+  }
 
-    const suggestion = getNameSuggestion();
+  const suggestion = await getNameSuggestion();
+  const suggestionIsFallback = getLastSuggestionWasFallback();
+
+  return new Promise(resolve => {
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    modal.appendChild(dialog);
+    const title = document.createElement('h3');
+    title.className = 'uk-modal-title uk-text-center';
     title.textContent = 'Teamname eingeben';
     const sugg = document.createElement('span');
     sugg.className = 'uk-text-muted';
-    sugg.textContent = ` (Vorschlag: ${suggestion})`;
+    sugg.textContent = suggestionIsFallback ? ` (Vorschlag: ${suggestion} – Zufallsname)` : ` (Vorschlag: ${suggestion})`;
     title.appendChild(sugg);
+    dialog.appendChild(title);
     const input = document.createElement('input');
     input.id = 'team-name-input';
     input.className = 'uk-input';
@@ -142,25 +217,48 @@ async function promptTeamName(){
     btn.textContent = 'Weiter';
     dialog.appendChild(input);
     dialog.appendChild(btn);
+    let saved = false;
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
-      if(name){
-        setStored('quizUser', name);
-        setStored(STORAGE_KEYS.PLAYER_NAME, name);
-        try {
-          await postSession('player', { name });
-          ui.hide();
-        } catch (e) {
+      if(!name){
+        return;
+      }
+      const usingSuggestion = nameReservation && typeof nameReservation.name === 'string'
+        && name.toLowerCase() === nameReservation.name.toLowerCase();
+      if(usingSuggestion){
+        const confirmed = await confirmNameReservationIfMatching(name);
+        if(!confirmed){
           if(typeof UIkit !== 'undefined' && UIkit.notification){
             UIkit.notification({
-              message: 'Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.',
+              message: 'Reservierter Teamname konnte nicht bestätigt werden. Bitte erneut versuchen.',
               status: 'danger',
               pos: 'top-center',
               timeout: 3000
             });
-          } else {
-            alert('Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.');
+          }else{
+            alert('Reservierter Teamname konnte nicht bestätigt werden. Bitte erneut versuchen.');
           }
+          return;
+        }
+      }else{
+        releaseNameReservation();
+      }
+      setStored('quizUser', name);
+      setStored(STORAGE_KEYS.PLAYER_NAME, name);
+      try {
+        await postSession('player', { name });
+        saved = true;
+        ui.hide();
+      } catch (e) {
+        if(typeof UIkit !== 'undefined' && UIkit.notification){
+          UIkit.notification({
+            message: 'Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.',
+            status: 'danger',
+            pos: 'top-center',
+            timeout: 3000
+          });
+        } else {
+          alert('Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.');
         }
       }
     });
@@ -173,7 +271,14 @@ async function promptTeamName(){
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
-    UIkit.util.on(modal, 'hidden', () => { modal.remove(); updateTeamNameButton(); resolve(); });
+    UIkit.util.on(modal, 'hidden', () => {
+      modal.remove();
+      if(!saved){
+        releaseNameReservation();
+      }
+      updateTeamNameButton();
+      resolve();
+    });
     ui.show();
   });
 }
@@ -1583,21 +1688,22 @@ async function runQuiz(questions, skipIntro){
       const flipBtn = modal.querySelector('#qr-reader-flip');
       const stopBtn = modal.querySelector('#qr-reader-stop');
       flipBtn.disabled = true;
-      function showManualInput(){
+      async function showManualInput(){
         const container = document.getElementById('qr-reader');
         container.textContent = '';
-        const suggestion = getNameSuggestion();
+        const suggestion = await getNameSuggestion();
         const hint = document.createElement('div');
         hint.className = 'uk-text-center uk-margin-small-bottom';
-        hint.textContent = `Vorschlag: ${suggestion}`;
+        hint.textContent = getLastSuggestionWasFallback()
+          ? `Vorschlag: ${suggestion} (Zufall)`
+          : `Vorschlag: ${suggestion}`;
         container.appendChild(hint);
         const input = document.createElement('input');
         input.id = 'manual-team-name';
         input.className = 'uk-input';
         input.type = 'text';
-        const placeholderName = suggestion || (typeof generatePlayerName === 'function' ? generatePlayerName() : '');
-        input.placeholder = placeholderName || 'Teamname eingeben';
-        input.value = placeholderName || '';
+        input.placeholder = suggestion || 'Teamname eingeben';
+        input.value = suggestion || '';
         const submit = document.createElement('button');
         submit.id = 'manual-team-submit';
         submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -1605,16 +1711,37 @@ async function runQuiz(questions, skipIntro){
         container.appendChild(input);
         container.appendChild(submit);
         flipBtn.classList.add('uk-hidden');
-        const handleSubmit = () => {
+        const handleSubmit = async () => {
           const name = (input.value || input.placeholder || '').trim();
           if(name){
+            const usingSuggestion = nameReservation && typeof nameReservation.name === 'string'
+              && name.toLowerCase() === nameReservation.name.toLowerCase();
+            if(usingSuggestion){
+              const confirmed = await confirmNameReservationIfMatching(name);
+              if(!confirmed){
+                if(typeof UIkit !== 'undefined' && UIkit.notification){
+                  UIkit.notification({
+                    message: 'Reservierter Teamname konnte nicht bestätigt werden. Bitte erneut versuchen.',
+                    status: 'danger',
+                    pos: 'top-center',
+                    timeout: 3000
+                  });
+                }else{
+                  alert('Reservierter Teamname konnte nicht bestätigt werden. Bitte erneut versuchen.');
+                }
+                return;
+              }
+            }else{
+              releaseNameReservation();
+            }
+            setStored('quizUser', name);
             setStored(STORAGE_KEYS.PLAYER_NAME, name);
             stopScanner();
             UIkit.modal(modal).hide();
             next();
           }
         };
-        submit.addEventListener('click', handleSubmit);
+        submit.addEventListener('click', () => { handleSubmit(); });
         input.addEventListener('keydown', (ev) => {
           if(ev.key === 'Enter'){
             ev.preventDefault();

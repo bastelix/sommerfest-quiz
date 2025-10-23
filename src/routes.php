@@ -25,6 +25,7 @@ use App\Service\ConfigValidator;
 use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
+use App\Service\TeamNameService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
 use App\Service\SummaryPhotoService;
@@ -64,6 +65,7 @@ use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
+use App\Controller\TeamNameController;
 use App\Controller\PasswordController;
 use App\Controller\PasswordResetController;
 use App\Controller\UserController;
@@ -260,6 +262,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
         $resultService = new ResultService($pdo);
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
+        $teamNameService = new TeamNameService(
+            $pdo,
+            __DIR__ . '/../resources/team-names/lexicon.json'
+        );
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
         $plan = $tenantService->getPlanBySubdomain($sub);
@@ -327,6 +333,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $eventService
             ))
             ->withAttribute('teamController', new TeamController($teamService, $configService))
+            ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute(
                 'eventConfigController',
@@ -1437,6 +1444,24 @@ return function (\Slim\App $app, TranslationService $translator) {
             (string) ($data['player_uid'] ?? '')
         );
         return $response->withStatus(204);
+    });
+
+    $app->post('/api/team-names', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+        return $controller->reserve($request, $response);
+    });
+
+    $app->post('/api/team-names/{token}/confirm', function (Request $request, Response $response, array $args) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+        return $controller->confirm($request, $response, $args);
+    });
+
+    $app->delete('/api/team-names/{token}', function (Request $request, Response $response, array $args) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+        return $controller->release($request, $response, $args);
     });
 
     $app->delete('/results', function (Request $request, Response $response) {
