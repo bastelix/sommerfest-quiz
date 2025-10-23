@@ -1326,13 +1326,15 @@
             <td class="qr-cell">{{ r.attempt }}</td>
             <td class="qr-cell">{{ r.catalogName ?? r.catalog }}</td>
             <td class="qr-cell">{{ r.correct }}/{{ r.total }}</td>
-            <td class="qr-cell">{{ r.points ?? 0 }}/{{ r.max_points ?? 0 }}</td>
+            <td class="qr-cell">{{ r.points ?? r.correct ?? 0 }}/{{ r.max_points ?? 0 }}</td>
+            <td class="qr-cell">{{ r.points ?? r.correct ?? 0 }}/{{ r.max_points ?? 0 }}</td>
+            <td class="qr-cell">&ndash;</td>
             <td class="qr-cell">{{ r.time | date('Y-m-d H:i') }}</td>
-            <td class="qr-cell">{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
+            <td class="qr-cell">{% if r.puzzleTime is defined and r.puzzleTime %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% else %}&ndash;{% endif %}</td>
             <td class="qr-cell">{% if r.photo is defined and r.photo %}<span class="photo-wrapper"><a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light"><img src="{{ basePath ~ r.photo }}" alt="Beweisfoto" class="proof-thumb"></a></span>{% endif %}</td>
           </tr>
           {% else %}
-          <tr><td colspan="7">{{ t('text_no_data') }}</td></tr>
+          <tr><td colspan="10">{{ t('text_no_data') }}</td></tr>
           {% endfor %}
         {% endset %}
         <div uk-lightbox="nav: thumbnav; slidenav: false">
@@ -1345,6 +1347,8 @@
                   <th>{{ t('column_catalog') }}</th>
                   <th>{{ t('column_correct') }}</th>
                   <th>{{ t('column_points') }}</th>
+                  <th>{{ t('column_final_points') }}</th>
+                  <th>{{ t('column_avg_efficiency') }}</th>
                   <th>{{ t('column_time') }}</th>
                   <th>{{ t('column_puzzle_solved') }}</th>
                   <th>{{ t('column_proof_photo') }}</th>
