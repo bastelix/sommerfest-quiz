@@ -494,15 +494,9 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         });
 
-        const summaryValues = Array.from(summaryMap.values());
-        const totalPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.points) ? entry.points : 0), 0);
-        const totalMaxPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.maxPoints) ? entry.maxPoints : 0), 0);
-        const totalCorrect = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.correct) ? entry.correct : 0), 0);
-        const totalQuestions = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.total) ? entry.total : 0), 0);
-
         const attemptByCatalog = new Map();
         const displayNameByCatalog = new Map();
-        summaryValues.forEach(entry => {
+        summaryMap.forEach(entry => {
           if(entry.catalogRef){
             const key = String(entry.catalogRef);
             attemptByCatalog.set(key, entry.attempt);
@@ -533,6 +527,44 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
         const averageEfficiency = efficiencyCount > 0 ? efficiencySum / efficiencyCount : null;
+
+        const questionAggregates = new Map();
+        relevantQuestions.forEach(row => {
+          const catalogKeyRaw = row.catalog ?? '';
+          const catalogKey = catalogKeyRaw !== null && catalogKeyRaw !== undefined ? String(catalogKeyRaw) : '';
+          if(!catalogKey) return;
+          const attemptVal = parseIntOr(row.attempt, 1);
+          const aggregateKey = `${catalogKey}|${attemptVal}`;
+          const finalPoints = parseIntOr(row.finalPoints ?? row.final_points ?? row.points, 0);
+          const questionPoints = parseIntOr(row.questionPoints ?? row.points, 0);
+          const existing = questionAggregates.get(aggregateKey) || { points: 0, maxPoints: 0, count: 0 };
+          existing.points += finalPoints;
+          if(questionPoints > 0){
+            existing.maxPoints += questionPoints;
+          }
+          existing.count += 1;
+          questionAggregates.set(aggregateKey, existing);
+        });
+
+        summaryMap.forEach(entry => {
+          if(!entry.catalogRef) return;
+          const key = `${String(entry.catalogRef)}|${entry.attempt}`;
+          const aggregate = questionAggregates.get(key);
+          if(aggregate && aggregate.count > 0){
+            entry.points = aggregate.points;
+            if(aggregate.maxPoints > 0){
+              entry.maxPoints = aggregate.maxPoints;
+            }
+            const resolvedMax = entry.maxPoints;
+            entry.pointsText = formatPointsDisplay(entry.points, resolvedMax);
+          }
+        });
+
+        const summaryValues = Array.from(summaryMap.values());
+        const totalPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.points) ? entry.points : 0), 0);
+        const totalMaxPoints = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.maxPoints) ? entry.maxPoints : 0), 0);
+        const totalCorrect = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.correct) ? entry.correct : 0), 0);
+        const totalQuestions = summaryValues.reduce((sum, entry) => sum + (Number.isFinite(entry.total) ? entry.total : 0), 0);
 
         const createStatCard = (label, value, description = '') => {
           const col = document.createElement('div');
