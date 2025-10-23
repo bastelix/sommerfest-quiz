@@ -659,11 +659,11 @@ Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunk
 - `GET /results/download` – erzeugt eine CSV-Datei mit allen Resultaten.
 - `GET /question-results.json` – listet falsch beantwortete Fragen.
 
-Die Ergebnisübersicht zeigt drei Ranglisten. Der Titel „Katalogmeister" basiert
-auf dem Zeitpunkt, an dem ein Team seinen letzten noch offenen Fragenkatalog
-abgeschlossen hat. Wer hier die früheste Zeit erreicht, führt die Liste an.
-Um überhaupt in dieser Liste zu erscheinen, müssen alle Kataloge aus
-`data/kataloge/catalogs.json` vollständig gelöst sein.
+Die Ergebnisübersicht zeigt drei Ranglisten. Der Titel „Ranking-Champions"
+ordnet Teams nach der Anzahl gelöster Fragen. Bei Gleichstand entscheiden
+zunächst die erreichten Punkte und anschließend die kleinste insgesamt
+benötigte Spielzeit. Dadurch erscheinen Teams auch dann in der Liste, wenn
+nicht alle Fragenkataloge vollständig gelöst wurden.
 
 ### Statistik
 Im Statistik-Tab lassen sich alle gegebenen Antworten detailliert auswerten. Die Tabelle zeigt Name, Versuch, Katalog,

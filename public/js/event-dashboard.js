@@ -303,9 +303,9 @@ function renderRankingsModule(rankings, moduleConfig) {
       tooltip: 'Top 3 Teams mit der schnellsten Rätselwort-Lösung',
     },
     catalog: {
-      title: 'Katalogmeister',
+      title: 'Ranking-Champions',
       list: safeRankings.catalogList,
-      tooltip: 'Top 3 Teams, die alle Kataloge am schnellsten abgeschlossen haben',
+      tooltip: 'Top 3 Teams nach gelösten Fragen (Tie-Breaker: Punkte, Gesamtzeit)',
     },
     points: {
       title: 'Highscore-Champions',
@@ -339,9 +339,20 @@ function renderRankingsModule(rankings, moduleConfig) {
       if (item) {
         const label = document.createElement('div');
         label.className = 'uk-flex uk-flex-between';
+        const extras = [];
+        if (Number.isFinite(item.solved)) {
+          extras.push(`${item.solved} gelöst`);
+        }
+        if (Number.isFinite(item.points)) {
+          extras.push(`${item.points} Punkte`);
+        }
+        const leftText = extras.length
+          ? `${i + 1}. ${item.name} – ${extras.join(' • ')}`
+          : `${i + 1}. ${item.name}`;
         const durationValue = item && Number.isFinite(item.duration) ? formatDuration(item.duration) : null;
-        const valueText = durationValue || item.value;
-        label.innerHTML = `<span>${i + 1}. ${item.name}</span><span>${valueText}</span>`;
+        const finishedValue = item && Number.isFinite(item.finished) ? formatTimestamp(item.finished) : null;
+        const valueText = durationValue || finishedValue || item.value || '–';
+        label.innerHTML = `<span>${leftText}</span><span>${valueText}</span>`;
         li.appendChild(label);
       } else {
         li.textContent = '-';
