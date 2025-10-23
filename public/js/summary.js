@@ -8,8 +8,19 @@ function safeUserName(name){
   if(typeof name !== 'string') return '';
   const trimmed = name.trim();
   if(trimmed === '') return '';
-  const sanitized = trimmed.replace(/[\u0000-\u001F<>]/g, '').slice(0, 100);
-  return sanitized;
+  const base = trimmed.replace(/[\u0000-\u001F<>]/g, '');
+  if(base === '') return '';
+  const normalized = typeof base.normalize === 'function' ? base.normalize('NFKC') : base;
+  let unicodeSafe = normalized;
+  try{
+    unicodeSafe = normalized.replace(/[^\p{L}\p{N}\p{M}\p{Zs}\p{P}]/gu, '');
+  }catch(e){
+    unicodeSafe = normalized;
+  }
+  const trimmedUnicode = unicodeSafe.trim();
+  const limitedUnicode = trimmedUnicode.slice(0, 100);
+  const fallback = normalized.trim().slice(0, 100);
+  return limitedUnicode || fallback;
 }
 
 function formatPointsDisplay(points, maxPoints){
@@ -287,8 +298,12 @@ document.addEventListener('DOMContentLoaded', () => {
     photoBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
-  const playerName = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
-  const user = safeUserName(playerName) || playerName || 'Unbekannt';
+  const storedNameValue = getStored(STORAGE_KEYS.PLAYER_NAME);
+  const playerName = typeof storedNameValue === 'string' ? storedNameValue : '';
+  const trimmedPlayerName = playerName.trim();
+  const sanitizedPlayerName = safeUserName(playerName);
+  const playerNameLookup = trimmedPlayerName || sanitizedPlayerName;
+  const user = sanitizedPlayerName || trimmedPlayerName || 'Unbekannt';
   const countdownEnabled = isTruthyFlag(cfg.countdownEnabled ?? cfg.countdown_enabled);
   const defaultCountdown = parseIntOr(cfg.countdown ?? cfg.defaultCountdown ?? 0, 0);
 
@@ -481,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const catalogLookup = (catMap && typeof catMap === 'object') ? catMap : {};
         const safeRows = Array.isArray(rows) ? rows : [];
         const safeQuestions = Array.isArray(qrows) ? qrows : [];
-        const filtered = safeRows.filter(row => row && row.name === playerName);
+        const filtered = safeRows.filter(row => row && row.name === playerNameLookup);
         const summaryMap = new Map();
         filtered.forEach(r => {
           if(!r) return;
@@ -524,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        const questionList = safeQuestions.filter(row => row && row.name === playerName);
+        const questionList = safeQuestions.filter(row => row && row.name === playerNameLookup);
         const relevantQuestions = questionList.filter(row => {
           if(!row) return false;
           const catalogKeyRaw = row.catalog ?? '';
@@ -646,7 +661,7 @@ document.addEventListener('DOMContentLoaded', () => {
           contentWrap.appendChild(statsGrid);
         }
 
-        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, playerName);
+        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, playerNameLookup);
         if(rankingInfo && contentWrap){
           const pointsRanking = rankingInfo.points || { place: null, total: 0 };
           const catalogRanking = rankingInfo.catalog || { place: null, total: 0 };
