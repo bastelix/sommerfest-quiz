@@ -514,6 +514,127 @@ class ResultServiceTest extends TestCase
         $this->assertSame(7, (int) $stored['max_points']);
     }
 
+    public function testAddStoresQuestionResultsWithMismatchedSlugCase(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                expected_duration_sec INTEGER,
+                duration_ratio REAL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
+                answer_text TEXT,
+                photo TEXT,
+                consent INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE catalogs(
+                uid TEXT PRIMARY KEY,
+                sort_order INTEGER,
+                slug TEXT,
+                file TEXT,
+                name TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                points INTEGER,
+                options TEXT,
+                answers TEXT,
+                terms TEXT,
+                items TEXT,
+                countdown INTEGER,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT
+            );
+            SQL
+        );
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('mixed-1',1,'main-slug','c.json','Main');");
+        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown) VALUES('mixed-1',1,'text','Q1',5,30);");
+        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points,countdown) VALUES('mixed-1',2,'text','Q2',7,20);");
+
+        $service = new ResultService($pdo);
+        $entry = $service->add([
+            'name' => 'Team Mixed',
+            'catalog' => 'MAIN-SLUG',
+            'correct' => 2,
+            'total' => 2,
+            'wrong' => [],
+            'answers' => [
+                ['timeLeftSec' => 12],
+                ['timeLeftSec' => 4],
+            ],
+        ]);
+
+        $rows = $pdo->query('SELECT catalog, question_id, time_left_sec, final_points FROM question_results ORDER BY id')
+            ->fetchAll(PDO::FETCH_ASSOC);
+        $this->assertCount(2, $rows);
+        $this->assertSame('MAIN-SLUG', $rows[0]['catalog']);
+        $this->assertSame('MAIN-SLUG', $rows[1]['catalog']);
+        $this->assertSame(12, (int) $rows[0]['time_left_sec']);
+        $this->assertSame(4, (int) $rows[1]['time_left_sec']);
+        $this->assertSame(2, (int) $rows[0]['final_points']);
+        $this->assertSame(1, (int) $rows[1]['final_points']);
+
+        $this->assertSame(3, $entry['points']);
+        $this->assertSame(12, $entry['max_points']);
+        $this->assertSame(50, $entry['expectedDurationSec']);
+        $this->assertSame(34, $entry['durationSec']);
+        $this->assertEqualsWithDelta(0.68, $entry['durationRatio'], 0.0001);
+
+        $stored = $pdo->query('SELECT points, max_points, expected_duration_sec, duration_sec, duration_ratio FROM results')
+            ->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame(3, (int) $stored['points']);
+        $this->assertSame(12, (int) $stored['max_points']);
+        $this->assertSame(50, (int) $stored['expected_duration_sec']);
+        $this->assertSame(34, (int) $stored['duration_sec']);
+        $this->assertEqualsWithDelta(0.68, (float) $stored['duration_ratio'], 0.0001);
+    }
+
     public function testAddComputesExpectedDurationRatioFromAttemptDuration(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -1083,5 +1204,47 @@ class ResultServiceTest extends TestCase
 
         $this->assertSame([], $service->getAll());
         $this->assertSame([], $service->getQuestionResults());
+    }
+
+    public function testGetAllHidesPuzzleTimeWhenMissing(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE results(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,' .
+            'name TEXT NOT NULL,' .
+            'catalog TEXT NOT NULL,' .
+            'attempt INTEGER NOT NULL,' .
+            'correct INTEGER NOT NULL,' .
+            'points INTEGER NOT NULL DEFAULT 0,' .
+            'total INTEGER NOT NULL,' .
+            'max_points INTEGER NOT NULL DEFAULT 0,' .
+            'time INTEGER NOT NULL,' .
+            'started_at INTEGER,' .
+            'duration_sec INTEGER,' .
+            'expected_duration_sec INTEGER,' .
+            'duration_ratio REAL,' .
+            'puzzleTime INTEGER,' .
+            'photo TEXT,' .
+            'event_uid TEXT' .
+            ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,points,total,max_points,time,puzzleTime) " .
+            "VALUES('Team','slug',1,0,0,0,0,1700000000,0)"
+        );
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('slug',1,'slug','c.json','Slug');");
+
+        $service = new ResultService($pdo);
+        $rows = $service->getAll();
+
+        $this->assertCount(1, $rows);
+        $this->assertArrayHasKey('puzzleTime', $rows[0]);
+        $this->assertNull($rows[0]['puzzleTime']);
     }
 }
