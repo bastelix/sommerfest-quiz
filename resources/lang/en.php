@@ -56,6 +56,8 @@ return [
     'heading_teams' => 'Teams/People',
     'heading_team_edit' => 'Edit team',
     'heading_results' => 'Results',
+    'label_results_frontend_link' => 'Frontend results link',
+    'action_results_open_frontend' => 'Open frontend results',
     'heading_statistics' => 'Statistics',
     'heading_pages' => 'Pages',
     'heading_landing_news' => 'Landing page news',

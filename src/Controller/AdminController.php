@@ -256,6 +256,10 @@ class AdminController
 
         $baseUrl = UrlService::determineBaseUrl($request);
         $eventUrl = $uid !== '' ? $baseUrl . '/?event=' . rawurlencode($uid) : $baseUrl;
+        $resultsUrl = $baseUrl . '/results';
+        if ($uid !== '') {
+            $resultsUrl .= '?event_uid=' . rawurlencode($uid);
+        }
 
         $pageTab = $this->resolvePageTab($params);
         $landingNewsStatus = $this->normalizeLandingNewsStatus($params);
@@ -299,6 +303,7 @@ class AdminController
               'roles' => Roles::ALL,
               'baseUrl' => $baseUrl,
               'eventUrl' => $eventUrl,
+              'resultsUrl' => $resultsUrl,
               'main_domain' => $mainDomain,
               'event' => $event,
               'role' => $role,

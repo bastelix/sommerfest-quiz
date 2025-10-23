@@ -59,6 +59,8 @@ return [
     'heading_news_edit' => 'News-Eintrag bearbeiten',
     'heading_team_edit' => 'Team bearbeiten',
     'heading_results' => 'Ergebnisse',
+    'label_results_frontend_link' => 'Frontend-Ergebnislink',
+    'action_results_open_frontend' => 'Frontend-Ergebnisse öffnen',
     'heading_statistics' => 'Statistik',
     'heading_pages' => 'Seiten',
     'heading_management' => 'Administration',
