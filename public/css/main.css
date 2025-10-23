@@ -1212,8 +1212,17 @@ body.admin-page {
 }
 
 
+
+.dashboard-rankings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
 .dashboard-rankings-grid__column {
   display: flex;
+  min-width: 0;
 }
 
 .dashboard-rankings-card {
