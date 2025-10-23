@@ -263,8 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const puzzleEnabled = (puzzleOption === null || puzzleOption === undefined)
       ? hasPuzzleEntries
       : Boolean(puzzleOption);
-    const catalogRaw = Number(options.catalogCount);
-    const catalogCount = Number.isFinite(catalogRaw) ? catalogRaw : 0;
     const cards = [];
     if (puzzleEnabled) {
       cards.push({
@@ -273,11 +271,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tooltip: 'Top 3 Teams/Spieler, die das Rätselwort am schnellsten gelöst haben'
       });
     }
-    if (catalogCount > 1) {
+    const hasCatalogRankings = Array.isArray(rankings.catalogList) && rankings.catalogList.length > 0;
+    if (hasCatalogRankings) {
       cards.push({
-        title: 'Katalogmeister',
+        title: 'Ranking-Champions',
         list: rankings.catalogList || [],
-        tooltip: 'Top 3 Teams/Spieler, die alle Fragenkataloge am schnellsten bearbeitet haben'
+        tooltip: 'Top 3 Teams nach gelösten Fragen (Tie-Breaker: Punkte, Gesamtzeit)'
       });
     }
     cards.push({
@@ -312,20 +311,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const item = card.list[i];
         if (item) {
           const gridItem = document.createElement('div');
-            gridItem.className = 'uk-grid-small';
-            gridItem.setAttribute('uk-grid', '');
+          gridItem.className = 'uk-grid-small';
+          gridItem.setAttribute('uk-grid', '');
 
-            const teamDiv = document.createElement('div');
-            teamDiv.className = 'uk-width-expand ranking-team';
-            teamDiv.setAttribute('uk-leader', '');
-            teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
-            teamDiv.textContent = `${i + 1}. ${item.name}`;
+          const teamDiv = document.createElement('div');
+          teamDiv.className = 'uk-width-expand ranking-team';
+          teamDiv.setAttribute('uk-leader', '');
+          teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
+          const extras = [];
+          if (Number.isFinite(item.solved)) {
+            extras.push(`${item.solved} gelöst`);
+          }
+          if (Number.isFinite(item.points)) {
+            extras.push(`${item.points} Punkte`);
+          }
+          const extraText = extras.length ? ` – ${extras.join(' • ')}` : '';
+          teamDiv.textContent = `${i + 1}. ${item.name}${extraText}`;
 
-            const timeDiv = document.createElement('div');
-            const durationValue = item && Number.isFinite(item.duration) ? formatDuration(item.duration) : null;
-            timeDiv.textContent = durationValue || item.value;
+          const timeDiv = document.createElement('div');
+          const durationValue = item && Number.isFinite(item.duration) ? formatDuration(item.duration) : null;
+          const finishedValue = item && Number.isFinite(item.finished) ? formatTimestamp(item.finished) : null;
+          const valueText = durationValue || finishedValue || item.value || '–';
+          timeDiv.textContent = valueText;
 
-            gridItem.appendChild(teamDiv);
+          gridItem.appendChild(teamDiv);
           gridItem.appendChild(timeDiv);
           li.appendChild(gridItem);
         } else {

@@ -283,9 +283,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     return `${str.replace('.', ',')} %`;
   };
 
-  const catalogs = new Set();
   const puzzleTimes = new Map();
-  const catTiming = new Map();
   const scorePoints = new Map();
   const attemptMetrics = new Map();
 
@@ -314,8 +312,6 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     const team = row.name || '';
     const catalog = row.catalog || '';
     if (!team || !catalog) return;
-    catalogs.add(catalog);
-
     const puzzleCandidate = parseNumeric(row.puzzleTime);
     if (puzzleCandidate !== null) {
       const prev = puzzleTimes.get(team);
@@ -324,27 +320,20 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       }
     }
 
-    let timing = catTiming.get(team);
-    if (!timing) {
-      timing = { durations: new Map(), finishes: new Map() };
-      catTiming.set(team, timing);
-    }
-
     const durationCandidate = parseNumeric(row.durationSec ?? row.duration_sec);
-    if (durationCandidate !== null && durationCandidate >= 0) {
-      const safeDuration = Math.max(0, durationCandidate);
-      const prevDuration = timing.durations.get(catalog);
-      if (prevDuration === undefined || safeDuration < prevDuration) {
-        timing.durations.set(catalog, safeDuration);
-      }
-    }
+    const duration = (durationCandidate !== null && durationCandidate >= 0)
+      ? Math.round(Math.max(0, durationCandidate))
+      : null;
 
     const finishCandidate = parseNumeric(row.time);
-    if (finishCandidate !== null) {
-      const prevFinish = timing.finishes.get(catalog);
-      if (prevFinish === undefined || finishCandidate < prevFinish) {
-        timing.finishes.set(catalog, finishCandidate);
-      }
+    const finish = Number.isFinite(finishCandidate) ? Math.round(finishCandidate) : null;
+
+    const solvedCandidate = parseNumeric(row.correct);
+    let solved = 0;
+    if (solvedCandidate !== null) {
+      solved = Math.max(0, Math.round(solvedCandidate));
+    } else if (row.correct === true) {
+      solved = 1;
     }
 
     const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
@@ -374,12 +363,60 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       scorePoints.set(team, sMap);
     }
     const prev = sMap.get(catalog);
-    if (!prev || finalPoints > prev.points || (finalPoints === prev.points && average > prev.avg)) {
+    const safeDuration = Number.isFinite(duration) ? duration : null;
+    const safeFinish = Number.isFinite(finish) ? finish : null;
+    let shouldReplace = false;
+    if (!prev) {
+      shouldReplace = true;
+    } else {
+      const prevSolved = Number.isFinite(prev.solved) ? prev.solved : 0;
+      const prevPoints = Number.isFinite(prev.points) ? prev.points : 0;
+      const prevDuration = Number.isFinite(prev.duration) ? prev.duration : null;
+      const prevAvg = Number.isFinite(prev.avg) ? prev.avg : 0;
+      const prevFinish = Number.isFinite(prev.finish) ? prev.finish : Infinity;
+
+      if (solved > prevSolved) {
+        shouldReplace = true;
+      } else if (solved === prevSolved) {
+        if (finalPoints > prevPoints) {
+          shouldReplace = true;
+        } else if (finalPoints === prevPoints) {
+          let durationCmp = 0;
+          const hasDuration = safeDuration !== null;
+          const prevHasDuration = prevDuration !== null;
+          if (hasDuration && prevHasDuration) {
+            durationCmp = safeDuration - prevDuration;
+          } else if (hasDuration) {
+            durationCmp = -1;
+          } else if (prevHasDuration) {
+            durationCmp = 1;
+          }
+
+          if (durationCmp < 0) {
+            shouldReplace = true;
+          } else if (durationCmp === 0) {
+            if (average > prevAvg) {
+              shouldReplace = true;
+            } else if (average === prevAvg) {
+              const finishValue = safeFinish ?? Infinity;
+              if (finishValue < prevFinish) {
+                shouldReplace = true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if (shouldReplace) {
       sMap.set(catalog, {
         points: finalPoints,
         effSum,
         count: questionCount,
         avg: average,
+        solved,
+        duration: safeDuration,
+        finish: safeFinish,
       });
     }
   });
@@ -391,79 +428,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   puzzleArr.sort((a, b) => a.raw - b.raw);
   const puzzleList = puzzleArr.slice(0, 3);
 
-  const totalCats = catalogCount || catalogs.size;
-  const finishers = [];
-  if (totalCats > 0) {
-    catTiming.forEach((info, name) => {
-      const { durations, finishes } = info;
-      let hasFullDuration = durations.size === totalCats;
-      let totalDuration = 0;
-      if (hasFullDuration) {
-        durations.forEach((value) => {
-          if (!Number.isFinite(value)) {
-            hasFullDuration = false;
-          } else {
-            totalDuration += value;
-          }
-        });
-      }
-      if (hasFullDuration) {
-        let latestFinish = null;
-        finishes.forEach((value) => {
-          if (!Number.isFinite(value)) return;
-          if (latestFinish === null || value > latestFinish) {
-            latestFinish = value;
-          }
-        });
-        finishers.push({ name, duration: totalDuration, finished: latestFinish });
-        return;
-      }
-      if (finishes.size === totalCats) {
-        let latest = null;
-        finishes.forEach((value) => {
-          if (!Number.isFinite(value)) return;
-          if (latest === null || value > latest) {
-            latest = value;
-          }
-        });
-        if (latest !== null) {
-          finishers.push({ name, duration: null, finished: latest });
-        }
-      }
-    });
-  }
-
-  finishers.sort((a, b) => {
-    const aHasDuration = Number.isFinite(a.duration);
-    const bHasDuration = Number.isFinite(b.duration);
-    if (aHasDuration && bHasDuration) {
-      if (a.duration !== b.duration) {
-        return a.duration - b.duration;
-      }
-      const aFinish = Number.isFinite(a.finished) ? a.finished : Infinity;
-      const bFinish = Number.isFinite(b.finished) ? b.finished : Infinity;
-      return aFinish - bFinish;
-    }
-    if (aHasDuration) return -1;
-    if (bHasDuration) return 1;
-    const aFinish = Number.isFinite(a.finished) ? a.finished : Infinity;
-    const bFinish = Number.isFinite(b.finished) ? b.finished : Infinity;
-    return aFinish - bFinish;
-  });
-
-  const catalogList = finishers.slice(0, 3).map((item) => {
-    const hasDuration = Number.isFinite(item.duration);
-    const display = hasDuration
-      ? formatDuration(item.duration)
-      : (Number.isFinite(item.finished) ? formatTimestamp(item.finished) : '–');
-    return {
-      name: item.name,
-      value: display,
-      raw: hasDuration ? item.duration : (item.finished ?? null),
-      duration: hasDuration ? item.duration : null,
-      finished: Number.isFinite(item.finished) ? item.finished : null,
-    };
-  });
+  const rankingCandidates = [];
 
   const totalScores = [];
   const accuracyScores = [];
@@ -471,10 +436,24 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     let total = 0;
     let effSumTotal = 0;
     let questionCountTotal = 0;
+    let solvedTotal = 0;
+    let durationTotal = 0;
+    let durationCount = 0;
+    let latestFinish = null;
     map.forEach((entry) => {
-      total += entry.points;
-      effSumTotal += entry.effSum;
-      questionCountTotal += entry.count;
+      total += Number.isFinite(entry.points) ? entry.points : 0;
+      effSumTotal += Number.isFinite(entry.effSum) ? entry.effSum : 0;
+      questionCountTotal += Number.isFinite(entry.count) ? entry.count : 0;
+      solvedTotal += Number.isFinite(entry.solved) ? entry.solved : 0;
+      if (Number.isFinite(entry.duration)) {
+        durationTotal += entry.duration;
+        durationCount += 1;
+      }
+      if (Number.isFinite(entry.finish)) {
+        if (latestFinish === null || entry.finish > latestFinish) {
+          latestFinish = entry.finish;
+        }
+      }
     });
     const avgEfficiency = questionCountTotal > 0
       ? Math.max(0, Math.min(effSumTotal / questionCountTotal, 1))
@@ -490,7 +469,50 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
         value: `Ø ${formatEfficiency(avgEfficiency)}`,
       });
     }
+    rankingCandidates.push({
+      name,
+      solved: solvedTotal,
+      points: total,
+      duration: durationCount > 0 ? durationTotal : null,
+      finish: latestFinish,
+    });
   });
+
+  rankingCandidates.sort((a, b) => {
+    if ((b.solved ?? 0) !== (a.solved ?? 0)) {
+      return (b.solved ?? 0) - (a.solved ?? 0);
+    }
+    if ((b.points ?? 0) !== (a.points ?? 0)) {
+      return (b.points ?? 0) - (a.points ?? 0);
+    }
+    const aHasDuration = Number.isFinite(a.duration);
+    const bHasDuration = Number.isFinite(b.duration);
+    if (aHasDuration && bHasDuration) {
+      if (a.duration !== b.duration) {
+        return a.duration - b.duration;
+      }
+    } else if (aHasDuration) {
+      return -1;
+    } else if (bHasDuration) {
+      return 1;
+    }
+    const aFinish = Number.isFinite(a.finish) ? a.finish : Infinity;
+    const bFinish = Number.isFinite(b.finish) ? b.finish : Infinity;
+    if (aFinish !== bFinish) {
+      return aFinish - bFinish;
+    }
+    return a.name.localeCompare(b.name);
+  });
+
+  const catalogList = rankingCandidates.slice(0, 3).map((item) => ({
+    name: item.name,
+    value: `${item.solved} gelöst – ${item.points} Punkte`,
+    raw: item.solved,
+    solved: item.solved,
+    points: item.points,
+    duration: Number.isFinite(item.duration) ? item.duration : null,
+    finished: Number.isFinite(item.finish) ? item.finish : null,
+  }));
   totalScores.sort((a, b) => {
     if (b.raw !== a.raw) return b.raw - a.raw;
     return (b.avg ?? 0) - (a.avg ?? 0);

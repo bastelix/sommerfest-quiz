@@ -18,7 +18,9 @@ const rows = [
     { name: 'Team1', catalog: 'A', correct: 3, total: 5, time: 10 }
 ];
 let r = computeRankings(rows, [], 3);
-assert.strictEqual(r.catalogList.length, 0);
+assert.strictEqual(r.catalogList.length, 1);
+assert.strictEqual(r.catalogList[0].name, 'Team1');
+assert.strictEqual(r.catalogList[0].value, '3 gelöst – 3 Punkte');
 assert.strictEqual(r.accuracyList.length, 1);
 assert.strictEqual(r.accuracyList[0].name, 'Team1');
 assert.strictEqual(r.accuracyList[0].value, 'Ø 60 %');
@@ -29,7 +31,22 @@ rows.push({ name: 'Team1', catalog: 'C', correct: 1, total: 3, time: 30 });
 r = computeRankings(rows, [], 3);
 assert.strictEqual(r.catalogList.length, 1);
 assert.strictEqual(r.catalogList[0].name, 'Team1');
+assert.strictEqual(r.catalogList[0].value, '6 gelöst – 6 Punkte');
 assert.strictEqual(r.accuracyList[0].value, 'Ø 50 %');
+
+const tiePointsRows = [
+    { name: 'Delta', catalog: 'Main', correct: 3, total: 5, points: 60, time: 15, durationSec: 90 },
+    { name: 'Epsilon', catalog: 'Main', correct: 3, total: 5, points: 50, time: 20, durationSec: 80 }
+];
+const tiePointsRankings = computeRankings(tiePointsRows, [], 1);
+assert.strictEqual(tiePointsRankings.catalogList[0].name, 'Delta');
+
+const tieDurationRows = [
+    { name: 'Eta', catalog: 'Main', correct: 2, total: 5, points: 40, time: 25, durationSec: 200 },
+    { name: 'Theta', catalog: 'Main', correct: 2, total: 5, points: 40, time: 30, durationSec: 150 }
+];
+const tieDurationRankings = computeRankings(tieDurationRows, [], 1);
+assert.strictEqual(tieDurationRankings.catalogList[0].name, 'Theta');
 
 const penaltyRows = [
     { name: 'Penalty', catalog: 'Main', correct: 1, total: 2, time: 5, attempt: 1 },
