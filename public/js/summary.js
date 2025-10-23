@@ -5,7 +5,11 @@ function insertSoftHyphens(text){
 }
 
 function safeUserName(name){
-  return typeof name === 'string' && /^[\w\s.-]{1,100}$/.test(name) ? name : '';
+  if(typeof name !== 'string') return '';
+  const trimmed = name.trim();
+  if(trimmed === '') return '';
+  const sanitized = trimmed.replace(/[\u0000-\u001F<>]/g, '').slice(0, 100);
+  return sanitized;
 }
 
 function formatPointsDisplay(points, maxPoints){
@@ -268,7 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
     photoBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
-  const user = safeUserName(getStored(STORAGE_KEYS.PLAYER_NAME) || '');
+  const playerName = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
+  const user = safeUserName(playerName) || playerName || 'Unbekannt';
   const countdownEnabled = isTruthyFlag(cfg.countdownEnabled ?? cfg.countdown_enabled);
   const defaultCountdown = parseIntOr(cfg.countdown ?? cfg.defaultCountdown ?? 0, 0);
 
@@ -461,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const catalogLookup = (catMap && typeof catMap === 'object') ? catMap : {};
         const safeRows = Array.isArray(rows) ? rows : [];
         const safeQuestions = Array.isArray(qrows) ? qrows : [];
-        const filtered = safeRows.filter(row => row && row.name === user);
+        const filtered = safeRows.filter(row => row && row.name === playerName);
         const summaryMap = new Map();
         filtered.forEach(r => {
           if(!r) return;
@@ -504,7 +509,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        const questionList = safeQuestions.filter(row => row && row.name === user);
+        const questionList = safeQuestions.filter(row => row && row.name === playerName);
         const relevantQuestions = questionList.filter(row => {
           if(!row) return false;
           const catalogKeyRaw = row.catalog ?? '';
@@ -600,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
           contentWrap.appendChild(statsGrid);
         }
 
-        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, user);
+        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, playerName);
         if(rankingInfo && contentWrap){
           const pointsRanking = rankingInfo.points || { place: null, total: 0 };
           const catalogRanking = rankingInfo.catalog || { place: null, total: 0 };
@@ -1012,13 +1017,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!file || (requireConsent && consent && !consent.checked)) return;
       const fd = new FormData();
       fd.append('photo', file);
-        fd.append('name', user);
-        fd.append('catalog', 'summary');
-        fd.append('team', user);
-        if(cfg.collectPlayerUid){
-          const uid = getStored(playerUidKey);
-          if(uid) fd.append('player_uid', uid);
-        }
+      const uploadName = playerName || user;
+      fd.append('name', uploadName);
+      fd.append('catalog', 'summary');
+      fd.append('team', uploadName);
+      if(cfg.collectPlayerUid){
+        const uid = getStored(playerUidKey);
+        if(uid) fd.append('player_uid', uid);
+      }
 
       const originalText = btn.textContent;
       btn.disabled = true;
