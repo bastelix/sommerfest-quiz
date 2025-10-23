@@ -258,6 +258,26 @@
                         <option value="full">Volle Breite</option>
                       </select>
                     </div>
+                    <div class="uk-margin-small-top" data-module-options>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardResultsLimit">Anzahl der Einträge</label>
+                        <input class="uk-input uk-form-small" type="number" min="0" max="50" id="dashboardResultsLimit" data-module-results-option="limit" placeholder="0">
+                        <div class="uk-text-meta">Leer oder 0 zeigt alle Ergebnisse.</div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardResultsSort">Sortierung</label>
+                        <select class="uk-select uk-form-small" id="dashboardResultsSort" data-module-results-option="sort">
+                          <option value="time">Neueste zuerst</option>
+                          <option value="points">Nach Punkten</option>
+                          <option value="name">Alphabetisch (Name)</option>
+                        </select>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardResultsTitle">Überschrift</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardResultsTitle" data-module-results-option="title" placeholder="Ergebnisliste">
+                        <div class="uk-text-meta">Text für die Überschrift der Ergebnisliste.</div>
+                      </div>
+                    </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="wrongAnswers">
                     <div class="uk-flex uk-flex-between uk-flex-middle">

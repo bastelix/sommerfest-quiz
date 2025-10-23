@@ -508,6 +508,26 @@
                           <option value="full">{{ t('option_dashboard_layout_full') }}</option>
                         </select>
                       </div>
+                      <div class="uk-margin-small-top" data-module-options>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardResultsLimit">{{ t('label_dashboard_results_limit') }}</label>
+                          <input class="uk-input uk-form-small" type="number" min="0" max="50" id="cfgDashboardResultsLimit" data-module-results-option="limit" placeholder="0">
+                          <div class="uk-text-meta">{{ t('text_dashboard_results_limit_hint') }}</div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardResultsSort">{{ t('label_dashboard_results_sort') }}</label>
+                          <select class="uk-select uk-form-small" id="cfgDashboardResultsSort" data-module-results-option="sort">
+                            <option value="time">{{ t('option_dashboard_results_sort_time') }}</option>
+                            <option value="points">{{ t('option_dashboard_results_sort_points') }}</option>
+                            <option value="name">{{ t('option_dashboard_results_sort_name') }}</option>
+                          </select>
+                        </div>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardResultsTitle">{{ t('label_dashboard_results_title') }}</label>
+                          <input class="uk-input uk-form-small" type="text" id="cfgDashboardResultsTitle" data-module-results-option="title" placeholder="{{ t('label_dashboard_module_results') }}">
+                          <div class="uk-text-meta">{{ t('text_dashboard_results_title_hint') }}</div>
+                        </div>
+                      </div>
                     </li>
                     <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="wrongAnswers">
                       <div class="uk-flex uk-flex-between uk-flex-middle">
