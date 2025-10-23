@@ -319,14 +319,15 @@ function renderRankingsModule(rankings, moduleConfig) {
     },
   };
   const grid = document.createElement('div');
-  grid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m';
+  grid.className = 'dashboard-rankings-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m';
   grid.setAttribute('uk-grid', '');
   metrics.forEach((metric) => {
     const def = cardDefinitions[metric];
     if (!def) return;
     const col = document.createElement('div');
+    col.className = 'dashboard-rankings-grid__column';
     const card = document.createElement('div');
-    card.className = 'uk-card uk-card-default uk-card-body';
+    card.className = 'dashboard-rankings-card uk-card uk-card-default uk-card-body';
     const title = document.createElement('h4');
     title.className = 'uk-card-title';
     title.textContent = def.title;
