@@ -35,6 +35,7 @@ class ResultService
         $sql = <<<'SQL'
             SELECT r.name, r.catalog, r.attempt, r.correct, r.points, r.total, r.max_points, r.time,
                 r.started_at AS "startedAt", r.duration_sec AS "durationSec",
+                r.expected_duration_sec AS "expectedDurationSec", r.duration_ratio AS "durationRatio",
                 r.puzzleTime AS "puzzleTime", r.photo,
                 c.name AS catalogName
             FROM results r
@@ -64,6 +65,18 @@ class ResultService
             if (array_key_exists('durationSec', $row)) {
                 $row['durationSec'] = $row['durationSec'] !== null ? (int) $row['durationSec'] : null;
                 $row['duration_sec'] = $row['durationSec'];
+            }
+            if (array_key_exists('expectedDurationSec', $row)) {
+                $row['expectedDurationSec'] = $row['expectedDurationSec'] !== null
+                    ? (int) $row['expectedDurationSec']
+                    : null;
+                $row['expected_duration_sec'] = $row['expectedDurationSec'];
+            }
+            if (array_key_exists('durationRatio', $row)) {
+                $row['durationRatio'] = $row['durationRatio'] !== null
+                    ? (float) $row['durationRatio']
+                    : null;
+                $row['duration_ratio'] = $row['durationRatio'];
             }
             $row['correct'] = isset($row['correct']) ? (int) $row['correct'] : 0;
             $row['points'] = isset($row['points']) ? (int) $row['points'] : 0;
@@ -217,16 +230,34 @@ class ResultService
             'duration_sec' => $timing['durationSec'],
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
             'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
+            'expected_duration_sec' => null,
+            'duration_ratio' => null,
         ];
         $stmt = $this->pdo->prepare(
             'INSERT INTO results(' .
-            'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid,started_at,duration_sec' .
-            ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+            'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid,started_at,duration_sec,' .
+            'expected_duration_sec,duration_ratio' .
+            ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
         $summary = $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers, $eventUid);
         $entry['points'] = $summary['points'];
         $entry['max_points'] = $summary['max'];
+        $expectedDuration = $summary['expectedTime'] > 0 ? (int) round($summary['expectedTime']) : null;
+        $questionTimeUsed = $summary['questionTimeUsed'];
+        if ($expectedDuration !== null && $expectedDuration < 0) {
+            $expectedDuration = null;
+        }
+        $consumed = $entry['duration_sec'];
+        if ($consumed === null && $expectedDuration !== null) {
+            $consumed = (int) round($questionTimeUsed);
+        }
+        $ratio = null;
+        if ($expectedDuration !== null && $expectedDuration > 0 && $consumed !== null) {
+            $ratio = $consumed / $expectedDuration;
+        }
+        $entry['expected_duration_sec'] = $expectedDuration;
+        $entry['duration_ratio'] = $ratio;
         $stmt->execute([
             $entry['name'],
             $entry['catalog'],
@@ -241,9 +272,13 @@ class ResultService
             $eventUid !== '' ? $eventUid : null,
             $entry['started_at'],
             $entry['duration_sec'],
+            $entry['expected_duration_sec'],
+            $entry['duration_ratio'],
         ]);
         $entry['startedAt'] = $entry['started_at'];
         $entry['durationSec'] = $entry['duration_sec'];
+        $entry['expectedDurationSec'] = $entry['expected_duration_sec'];
+        $entry['durationRatio'] = $entry['duration_ratio'];
         return $entry;
     }
 
@@ -251,7 +286,7 @@ class ResultService
      * Store individual question results.
      *
      * @param list<int> $wrongIdx
-     * @return array{points:int,max:int}
+     * @return array{points:int,max:int,expectedTime:int,questionTimeUsed:int}
      */
     private function addQuestionResults(
         string $name,
@@ -284,6 +319,8 @@ class ResultService
         );
         $finalAwarded = 0;
         $maxPoints = 0;
+        $expectedTime = 0;
+        $questionTimeUsed = 0;
         $limit = min(count($rows), $total);
         for ($i = 0; $i < $limit; $i++) {
             $row = $rows[$i];
@@ -317,6 +354,14 @@ class ResultService
             if ($questionTime > 0) {
                 $timeLeft = $timeLeft === null ? 0 : $timeLeft;
                 $timeLeft = max(0, min($timeLeft, $questionTime));
+                $expectedTime += $questionTime;
+                $used = $questionTime - $timeLeft;
+                if ($used < 0) {
+                    $used = 0;
+                } elseif ($used > $questionTime) {
+                    $used = $questionTime;
+                }
+                $questionTimeUsed += $used;
             } else {
                 $timeLeft = null;
             }
@@ -348,7 +393,12 @@ class ResultService
                 self::SCORING_VERSION,
             ]);
         }
-        return ['points' => $finalAwarded, 'max' => $maxPoints];
+        return [
+            'points' => $finalAwarded,
+            'max' => $maxPoints,
+            'expectedTime' => $expectedTime,
+            'questionTimeUsed' => $questionTimeUsed,
+        ];
     }
 
     /**
@@ -547,19 +597,33 @@ class ResultService
             $del->execute([$eventUid]);
             $stmt = $this->pdo->prepare(
                 'INSERT INTO results(' .
-                'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid,started_at,duration_sec' .
-                ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid,started_at,duration_sec,' .
+                'expected_duration_sec,duration_ratio' .
+                ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM results');
             $stmt = $this->pdo->prepare(
                 'INSERT INTO results(' .
-                'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid,started_at,duration_sec' .
-                ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
+                'name,catalog,attempt,correct,points,total,max_points,time,puzzleTime,photo,event_uid,started_at,duration_sec,' .
+                'expected_duration_sec,duration_ratio' .
+                ') VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             );
         }
         foreach ($results as $row) {
             $timing = $this->normalizeAttemptTiming($row);
+            $expectedRaw = $row['expected_duration_sec'] ?? $row['expectedDurationSec'] ?? null;
+            $expectedDuration = $this->normalizeOptionalInt($expectedRaw);
+            if ($expectedDuration !== null && $expectedDuration < 0) {
+                $expectedDuration = null;
+            }
+            $ratioRaw = $row['duration_ratio'] ?? $row['durationRatio'] ?? null;
+            $ratio = null;
+            if ($ratioRaw !== null && $ratioRaw !== '') {
+                if (is_numeric($ratioRaw)) {
+                    $ratio = (float) $ratioRaw;
+                }
+            }
             $params = [
                 (string)($row['name'] ?? ''),
                 (string)($row['catalog'] ?? ''),
@@ -574,6 +638,8 @@ class ResultService
                 $eventUid !== '' ? $eventUid : (isset($row['event_uid']) ? (string)$row['event_uid'] : null),
                 $timing['startedAt'],
                 $timing['durationSec'],
+                $expectedDuration,
+                $ratio,
             ];
             $stmt->execute($params);
         }

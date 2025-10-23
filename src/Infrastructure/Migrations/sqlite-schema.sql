@@ -149,8 +149,12 @@ CREATE TABLE IF NOT EXISTS results (
     total INTEGER NOT NULL,
     max_points INTEGER NOT NULL DEFAULT 0,
     time INTEGER NOT NULL,
+    started_at INTEGER,
+    duration_sec INTEGER,
     puzzleTime INTEGER,
     photo TEXT,
+    expected_duration_sec INTEGER,
+    duration_ratio REAL,
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
