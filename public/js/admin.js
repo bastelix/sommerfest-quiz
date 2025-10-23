@@ -969,6 +969,7 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
     registrationEnabled: document.getElementById('cfgRegistrationEnabled'),
     dashboardRefreshInterval: document.getElementById('cfgDashboardRefreshInterval'),
+    dashboardTheme: document.getElementById('cfgDashboardTheme'),
     dashboardInfoText: document.getElementById('cfgDashboardInfoText'),
     dashboardMediaEmbed: document.getElementById('cfgDashboardMediaEmbed'),
     dashboardShareEnabled: document.getElementById('cfgDashboardShareEnabled'),
@@ -1712,6 +1713,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const clamped = Math.min(Math.max(parsedRefresh, 5), 300);
         cfgFields.dashboardRefreshInterval.value = String(clamped);
       }
+    }
+    if (cfgFields.dashboardTheme) {
+      const normalizedTheme = typeof data.dashboardTheme === 'string'
+        ? data.dashboardTheme.trim().toLowerCase()
+        : '';
+      cfgFields.dashboardTheme.value = normalizedTheme === 'dark' ? 'dark' : 'light';
     }
     if (cfgFields.dashboardInfoText) {
       cfgFields.dashboardInfoText.value = data.dashboardInfoText || '';
@@ -2801,6 +2808,10 @@ document.addEventListener('DOMContentLoaded', function () {
         data.dashboardRefreshInterval = String(clamped);
         cfgFields.dashboardRefreshInterval.value = String(clamped);
       }
+    }
+    if (cfgFields.dashboardTheme) {
+      const selectedTheme = (cfgFields.dashboardTheme.value || '').toLowerCase();
+      data.dashboardTheme = selectedTheme === 'dark' ? 'dark' : 'light';
     }
     if (dashboardModulesList) {
       data.dashboardModules = readDashboardModules();

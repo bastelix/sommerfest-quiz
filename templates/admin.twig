@@ -417,6 +417,17 @@
                     </div>
                     <div class="uk-text-meta">{{ t('text_dashboard_refresh_hint') }}</div>
                   </div>
+                  <div class="uk-margin">
+                    <label class="uk-form-label" for="cfgDashboardTheme">{{ t('label_dashboard_theme') }}</label>
+                    <div class="uk-form-controls">
+                      {% set cfgTheme = config.dashboardTheme|default('light') %}
+                      <select class="uk-select" id="cfgDashboardTheme" name="dashboardTheme">
+                        <option value="light" {% if cfgTheme != 'dark' %}selected{% endif %}>{{ t('option_theme_light') }}</option>
+                        <option value="dark" {% if cfgTheme == 'dark' %}selected{% endif %}>{{ t('option_theme_dark') }}</option>
+                      </select>
+                    </div>
+                    <div class="uk-text-meta">{{ t('tip_dashboard_theme') }}</div>
+                  </div>
                   <input type="hidden" id="cfgDashboardModules" value="">
                   <div class="uk-margin">
                     <div class="uk-form-label">{{ t('label_dashboard_modules') }}</div>

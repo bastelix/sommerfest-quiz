@@ -14,6 +14,12 @@ const mediaItems = Array.isArray(config.mediaItems) ? config.mediaItems : [];
 const refreshInterval = Math.max(5, Number(config.refreshInterval) || 15);
 const eventIdentifier = config.slug || config.eventUid || '';
 const DASHBOARD_LAYOUT_OPTIONS = new Set(['auto', 'wide', 'full']);
+
+const dashboardTheme = typeof config.theme === 'string' ? config.theme.trim().toLowerCase() : '';
+if (dashboardTheme === 'dark' || dashboardTheme === 'light') {
+  document.body?.setAttribute('data-theme', dashboardTheme);
+}
+
 const MODULE_DEFAULT_LAYOUTS = {
   header: 'full',
   pointsLeader: 'wide',

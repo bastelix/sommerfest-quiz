@@ -1,5 +1,7 @@
 {% extends 'layout.twig' %}
 
+{% set dashboardTheme = dashboard.theme|default(config.dashboardTheme|default('light')) %}
+
 {% block title %}{{ event.name }} · Live-Dashboard{% endblock %}
 
 {% block head %}
@@ -42,10 +44,43 @@
     .dashboard-qr-missing {
       font-size: 0.875rem;
     }
+    body[data-theme='dark'] .dashboard-page {
+      background-color: var(--color-bg);
+    }
+    body[data-theme='dark'] .dashboard-status,
+    body[data-theme='dark'] .dashboard-leader__label,
+    body[data-theme='dark'] .dashboard-leader__meta,
+    body[data-theme='dark'] .dashboard-qr-link,
+    body[data-theme='dark'] .dashboard-qr-missing {
+      color: rgba(255, 255, 255, 0.72);
+    }
+    body[data-theme='dark'] .dashboard-status .uk-button {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: var(--color-text);
+    }
+    body[data-theme='dark'] .dashboard-status .uk-button:hover,
+    body[data-theme='dark'] .dashboard-status .uk-button:focus-visible {
+      border-color: var(--dashboard-accent);
+      color: var(--dashboard-accent);
+    }
+    body[data-theme='dark'] .dashboard-leader__label {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    body[data-theme='dark'] .dashboard-leader__summary {
+      border-left-color: var(--dashboard-accent);
+    }
+    body[data-theme='dark'] .dashboard-modules .uk-card {
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    body[data-theme='dark'] .dashboard-page .uk-heading-bullet::before {
+      background: rgba(255, 255, 255, 0.4);
+    }
   </style>
 {% endblock %}
 
-{% block body_class %}uk-background-muted{% endblock %}
+{% block body_theme %}{{ dashboardTheme == 'dark' ? 'dark' : 'light' }}{% endblock %}
+
+{% block body_class %}dashboard-page{% if dashboardTheme != 'dark' %} uk-background-muted{% endif %}{% endblock %}
 
 {% block body %}
   <div class="uk-container uk-container-large uk-padding-small">
@@ -85,7 +120,8 @@
       variant: dashboard.variant,
       puzzleWordEnabled: config.puzzleWordEnabled,
       active: dashboard.active,
-      visibility: dashboard.visibility
+      visibility: dashboard.visibility,
+      theme: dashboard.theme
     }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
   </script>
   <script type="module" src="{{ basePath }}/js/event-dashboard.js"></script>

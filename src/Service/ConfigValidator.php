@@ -38,6 +38,7 @@ class ConfigValidator
         'puzzleWord' => '',
         'puzzleFeedback' => '',
         'dashboardModules' => [],
+        'dashboardTheme' => 'light',
         'dashboardRefreshInterval' => 15,
         'dashboardShareEnabled' => false,
         'dashboardSponsorEnabled' => false,
@@ -149,6 +150,14 @@ class ConfigValidator
         $config['puzzleFeedback'] = trim((string)($data['puzzleFeedback'] ?? self::DEFAULTS['puzzleFeedback']));
 
         $config['dashboardModules'] = $this->normalizeDashboardModules($data['dashboardModules'] ?? self::DEFAULTS['dashboardModules']);
+
+        $dashboardThemeRaw = (string)($data['dashboardTheme'] ?? self::DEFAULTS['dashboardTheme']);
+        $normalizedDashboardTheme = strtolower(trim($dashboardThemeRaw));
+        if (!in_array($normalizedDashboardTheme, ['light', 'dark'], true)) {
+            $errors['dashboardTheme'] = 'Ungültiger Dashboard-Modus. Bitte "light" oder "dark" wählen.';
+            $normalizedDashboardTheme = self::DEFAULTS['dashboardTheme'];
+        }
+        $config['dashboardTheme'] = $normalizedDashboardTheme;
 
         $refreshRaw = $data['dashboardRefreshInterval'] ?? self::DEFAULTS['dashboardRefreshInterval'];
         $refresh = filter_var(

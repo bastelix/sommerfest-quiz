@@ -64,6 +64,7 @@ class ConfigServiceTest extends TestCase
             CREATE TABLE config(
                 event_uid TEXT PRIMARY KEY,
                 dashboard_modules TEXT,
+                dashboard_theme TEXT,
                 dashboard_refresh_interval INTEGER,
                 dashboard_share_enabled INTEGER,
                 dashboard_sponsor_enabled INTEGER,
@@ -133,6 +134,7 @@ class ConfigServiceTest extends TestCase
         $service->saveConfig([
             'event_uid' => 'dash-event',
             'dashboardModules' => $modules,
+            'dashboardTheme' => 'dark',
             'dashboardRefreshInterval' => 45,
             'dashboardShareEnabled' => true,
             'dashboardSponsorEnabled' => false,
@@ -144,12 +146,13 @@ class ConfigServiceTest extends TestCase
         ]);
 
         $stored = $pdo->query(
-            "SELECT dashboard_modules, dashboard_refresh_interval, dashboard_share_enabled, " .
+            "SELECT dashboard_modules, dashboard_theme, dashboard_refresh_interval, dashboard_share_enabled, " .
             "dashboard_sponsor_enabled, dashboard_visibility_start, dashboard_visibility_end " .
             "FROM config WHERE event_uid = 'dash-event'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($stored);
         $this->assertSame($modules, json_decode((string) $stored['dashboard_modules'], true));
+        $this->assertSame('dark', $stored['dashboard_theme']);
         $this->assertSame(45, (int) $stored['dashboard_refresh_interval']);
         $this->assertSame(1, (int) $stored['dashboard_share_enabled']);
         $this->assertSame(0, (int) $stored['dashboard_sponsor_enabled']);
@@ -165,6 +168,7 @@ class ConfigServiceTest extends TestCase
 
         $config = $service->getConfigForEvent('dash-event');
         $this->assertSame($modules, $config['dashboardModules']);
+        $this->assertSame('dark', $config['dashboardTheme']);
         $this->assertSame(45, $config['dashboardRefreshInterval']);
         $this->assertTrue($config['dashboardShareEnabled']);
         $this->assertFalse($config['dashboardSponsorEnabled']);
