@@ -1,7 +1,9 @@
 /* global UIkit */
 import { applyLazyImage } from './lazy-images.js';
 import { ResultsDataService, computeRankings } from './results-data-service.js';
-import { formatTimestamp, formatPointsCell, formatEfficiencyPercent, insertSoftHyphens, escapeHtml, formatDuration } from './results-utils.js';
+import { formatTimestamp, formatPointsCell, insertSoftHyphens, escapeHtml, formatDuration } from './results-utils.js';
+
+const TABLE_COLUMN_COUNT = 9;
 
 const parseOptionalNumber = (value) => {
   if (value === null || value === undefined) return null;
@@ -9,6 +11,35 @@ const parseOptionalNumber = (value) => {
   const num = Number(value);
   return Number.isFinite(num) ? num : null;
 };
+
+const parseBooleanFlag = (value) => {
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === '' || normalized === '0' || normalized === 'false' || normalized === 'off' || normalized === 'no') {
+      return false;
+    }
+    return true;
+  }
+  if (typeof value === 'number') {
+    return value > 0;
+  }
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  return Boolean(value);
+};
+
+const getPuzzleWordEnabled = () => {
+  const cfg = window.quizConfig || {};
+  if (Object.prototype.hasOwnProperty.call(cfg, 'puzzleWordEnabled')) {
+    return parseBooleanFlag(cfg.puzzleWordEnabled);
+  }
+  if (Object.prototype.hasOwnProperty.call(cfg, 'puzzle_word_enabled')) {
+    return parseBooleanFlag(cfg.puzzle_word_enabled);
+  }
+  return null;
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const wrongBody = document.getElementById('wrongTableBody');
@@ -80,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 10;
+      td.colSpan = TABLE_COLUMN_COUNT;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -98,20 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.max(0, Math.round(correct !== null ? correct : 0));
       })();
       const finalPointsCell = formatPointsCell(resolvedFinalPoints, r.max_points ?? 0);
-      const totalQuestions = parseOptionalNumber(r.total);
-      const correctAnswers = parseOptionalNumber(r.correct);
-      let efficiencyValue = parseOptionalNumber(r.averageEfficiency ?? r.avg_efficiency ?? r.efficiency);
-      if (efficiencyValue === null && totalQuestions !== null && totalQuestions > 0 && correctAnswers !== null) {
-        efficiencyValue = correctAnswers / totalQuestions;
-      }
-      const efficiencyCell = formatEfficiencyPercent(efficiencyValue);
       const cells = [
         r.attempt,
         r.catalogName || r.catalog,
         `${r.correct}/${r.total}`,
         basePointsCell,
         finalPointsCell,
-        efficiencyCell,
         formatTimestamp(r.time),
         formatTimestamp(r.puzzleTime),
         null
@@ -232,31 +255,36 @@ document.addEventListener('DOMContentLoaded', () => {
     pagination.appendChild(nextLi);
   }
 
-  function renderRankings(rankings) {
+  function renderRankings(rankings, options = {}) {
     if (!grid) return;
     grid.innerHTML = '';
-    const cards = [
-      {
-        title: 'Rätselwort-Bestzeit',
+    const hasPuzzleEntries = Array.isArray(rankings.puzzleList) && rankings.puzzleList.length > 0;
+    const puzzleOption = options.puzzleWordEnabled;
+    const puzzleEnabled = (puzzleOption === null || puzzleOption === undefined)
+      ? hasPuzzleEntries
+      : Boolean(puzzleOption);
+    const catalogRaw = Number(options.catalogCount);
+    const catalogCount = Number.isFinite(catalogRaw) ? catalogRaw : 0;
+    const cards = [];
+    if (puzzleEnabled) {
+      cards.push({
+        title: 'Rätselmeister',
         list: rankings.puzzleList || [],
-        tooltip: 'Top 3 Platzierungen für das schnellste Lösen des Rätselworts'
-      },
-      {
+        tooltip: 'Top 3 Teams/Spieler, die das Rätselwort am schnellsten gelöst haben'
+      });
+    }
+    if (catalogCount > 1) {
+      cards.push({
         title: 'Katalogmeister',
         list: rankings.catalogList || [],
         tooltip: 'Top 3 Teams/Spieler, die alle Fragenkataloge am schnellsten bearbeitet haben'
-      },
-      {
-        title: 'Highscore-Champions',
-        list: rankings.pointsList || [],
-        tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten'
-      },
-      {
-        title: 'Trefferquote-Champions',
-        list: rankings.accuracyList || [],
-        tooltip: 'Top 3 Teams/Spieler mit der höchsten durchschnittlichen Effizienz'
-      },
-    ];
+      });
+    }
+    cards.push({
+      title: 'Highscore-Champions',
+      list: rankings.pointsList || [],
+      tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten'
+    });
     const MAX_ITEMS = 3;
     cards.forEach(card => {
       const col = document.createElement('div');
@@ -319,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 10;
+      td.colSpan = TABLE_COLUMN_COUNT;
       td.textContent = 'Kein Event ausgewählt';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -364,7 +392,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePagination();
 
         const rankings = computeRankings(rows, questionRows, catalogCount);
-        renderRankings(rankings);
+        renderRankings(rankings, {
+          puzzleWordEnabled: getPuzzleWordEnabled(),
+          catalogCount,
+        });
 
         const wrongOnly = questionRows.filter(r => !r.correct);
         renderWrongTable(wrongOnly);
