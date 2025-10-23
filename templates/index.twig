@@ -83,6 +83,7 @@
   <script id="catalogs-data" type="application/json">{{ catalogs|json_encode|raw }}</script>
   <script src="{{ basePath }}/js/storage.js"></script>
   <script src="{{ basePath }}/js/session.js"></script>
+  <script src="{{ basePath }}/js/name-generator.js" defer></script>
   <script>
     function enforceProfile() {
       const cfg = window.quizConfig || {};
