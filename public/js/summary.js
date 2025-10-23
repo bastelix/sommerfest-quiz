@@ -23,6 +23,58 @@ function safeUserName(name){
   return limitedUnicode || fallback;
 }
 
+function createPlayerNameMatcher(name){
+  const variants = new Set();
+  let primary = '';
+
+  const addVariant = value => {
+    if(typeof value !== 'string') return;
+    const trimmed = value.trim();
+    if(!trimmed) return;
+    const normalized = typeof trimmed.normalize === 'function' ? trimmed.normalize('NFKC') : trimmed;
+    [trimmed, normalized].forEach(variant => {
+      if(typeof variant !== 'string' || variant === '') return;
+      if(!variants.has(variant)){
+        variants.add(variant);
+        if(!primary) primary = variant;
+      }
+    });
+  };
+
+  addVariant(name);
+  addVariant(safeUserName(name));
+
+  const matches = candidate => {
+    if(typeof candidate !== 'string') return false;
+    const trimmedCandidate = candidate.trim();
+    if(trimmedCandidate && variants.has(trimmedCandidate)){
+      return true;
+    }
+    const normalizedCandidate = typeof trimmedCandidate.normalize === 'function'
+      ? trimmedCandidate.normalize('NFKC')
+      : trimmedCandidate;
+    if(normalizedCandidate && variants.has(normalizedCandidate)){
+      return true;
+    }
+    const sanitizedCandidate = safeUserName(candidate);
+    if(!sanitizedCandidate) return false;
+    const sanitizedTrimmed = sanitizedCandidate.trim();
+    if(sanitizedTrimmed && variants.has(sanitizedTrimmed)){
+      return true;
+    }
+    const sanitizedNormalized = typeof sanitizedTrimmed.normalize === 'function'
+      ? sanitizedTrimmed.normalize('NFKC')
+      : sanitizedTrimmed;
+    return Boolean(sanitizedNormalized && variants.has(sanitizedNormalized));
+  };
+
+  return {
+    primary,
+    hasMatch: variants.size > 0,
+    matches
+  };
+}
+
 function formatPointsDisplay(points, maxPoints){
   const normalizedPoints = Number.isFinite(points) ? points : Number.parseInt(points, 10);
   if(!Number.isFinite(normalizedPoints)){
@@ -121,8 +173,13 @@ function formatTimeInfo(timeLeft, total){
   return '–';
 }
 
-function computePlayerRankings(rows, questionRows, catalogCount, playerName){
-  if(!playerName) return null;
+function computePlayerRankings(rows, questionRows, catalogCount, matcher){
+  const nameMatcher = matcher && typeof matcher.matches === 'function'
+    ? matcher
+    : createPlayerNameMatcher(typeof matcher === 'string' ? matcher : '');
+  if(!nameMatcher.hasMatch){
+    return null;
+  }
   const safeRows = Array.isArray(rows) ? rows : [];
   const safeQuestionRows = Array.isArray(questionRows) ? questionRows : [];
 
@@ -220,7 +277,7 @@ function computePlayerRankings(rows, questionRows, catalogCount, playerName){
   const puzzleList = Array.from(puzzleTimes.entries())
     .map(([name, time]) => ({ name, time }))
     .sort((a, b) => a.time - b.time);
-  const puzzleIndex = puzzleList.findIndex(entry => entry.name === playerName);
+  const puzzleIndex = puzzleList.findIndex(entry => nameMatcher.matches(entry.name));
   const puzzlePlace = puzzleIndex >= 0 ? puzzleIndex + 1 : null;
   const puzzleValue = puzzleIndex >= 0 ? puzzleList[puzzleIndex].time : null;
 
@@ -239,7 +296,7 @@ function computePlayerRankings(rows, questionRows, catalogCount, playerName){
     }
   });
   finisherList.sort((a, b) => a.time - b.time);
-  const catalogIndex = finisherList.findIndex(entry => entry.name === playerName);
+  const catalogIndex = finisherList.findIndex(entry => nameMatcher.matches(entry.name));
   const catalogPlace = catalogIndex >= 0 ? catalogIndex + 1 : null;
   const catalogValue = catalogIndex >= 0 ? finisherList[catalogIndex].time : null;
 
@@ -262,7 +319,7 @@ function computePlayerRankings(rows, questionRows, catalogCount, playerName){
     }
     return (b.avg ?? 0) - (a.avg ?? 0);
   });
-  const pointsIndex = scoreList.findIndex(entry => entry.name === playerName);
+  const pointsIndex = scoreList.findIndex(entry => nameMatcher.matches(entry.name));
   const pointsPlace = pointsIndex >= 0 ? pointsIndex + 1 : null;
   const pointsValue = pointsIndex >= 0 ? scoreList[pointsIndex].points : null;
   const pointsAvg = pointsIndex >= 0 ? scoreList[pointsIndex].avg : null;
@@ -302,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const playerName = typeof storedNameValue === 'string' ? storedNameValue : '';
   const trimmedPlayerName = playerName.trim();
   const sanitizedPlayerName = safeUserName(playerName);
-  const playerNameLookup = trimmedPlayerName || sanitizedPlayerName;
+  const playerNameMatcher = createPlayerNameMatcher(playerName);
   const user = sanitizedPlayerName || trimmedPlayerName || 'Unbekannt';
   const countdownEnabled = isTruthyFlag(cfg.countdownEnabled ?? cfg.countdown_enabled);
   const defaultCountdown = parseIntOr(cfg.countdown ?? cfg.defaultCountdown ?? 0, 0);
@@ -364,13 +421,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  async function fetchPuzzleTimeFromResults(name){
+  async function fetchPuzzleTimeFromResults(nameOrMatcher){
+    const matcher = nameOrMatcher && typeof nameOrMatcher.matches === 'function'
+      ? nameOrMatcher
+      : createPlayerNameMatcher(nameOrMatcher);
+    if(!matcher.hasMatch){
+      return null;
+    }
     try{
       const list = await fetch(withBase(resultsJsonPath)).then(r => r.json());
       if(Array.isArray(list)){
         for(let i=list.length-1; i>=0; i--){
           const e = list[i];
-          if(e.name === name && e.puzzleTime){
+          if(e && matcher.matches(e.name) && e.puzzleTime){
             return parseInt(e.puzzleTime, 10);
           }
         }
@@ -387,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!solved){
       const name = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
       if(name){
-        const t = await fetchPuzzleTimeFromResults(name);
+        const t = await fetchPuzzleTimeFromResults(createPlayerNameMatcher(name));
         if(t){
           solved = true;
           ts = t;
@@ -496,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const catalogLookup = (catMap && typeof catMap === 'object') ? catMap : {};
         const safeRows = Array.isArray(rows) ? rows : [];
         const safeQuestions = Array.isArray(qrows) ? qrows : [];
-        const filtered = safeRows.filter(row => row && row.name === playerNameLookup);
+        const filtered = safeRows.filter(row => row && playerNameMatcher.matches(row.name));
         const summaryMap = new Map();
         filtered.forEach(r => {
           if(!r) return;
@@ -539,7 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        const questionList = safeQuestions.filter(row => row && row.name === playerNameLookup);
+        const questionList = safeQuestions.filter(row => row && playerNameMatcher.matches(row.name));
         const relevantQuestions = questionList.filter(row => {
           if(!row) return false;
           const catalogKeyRaw = row.catalog ?? '';
@@ -661,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
           contentWrap.appendChild(statsGrid);
         }
 
-        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, playerNameLookup);
+        const rankingInfo = computePlayerRankings(safeRows, safeQuestions, catalogCount, playerNameMatcher);
         if(rankingInfo && contentWrap){
           const pointsRanking = rankingInfo.points || { place: null, total: 0 };
           const catalogRanking = rankingInfo.catalog || { place: null, total: 0 };
