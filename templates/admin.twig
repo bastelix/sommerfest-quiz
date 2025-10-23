@@ -1009,16 +1009,32 @@
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
             {% if event.uid %}
-              <img
-                id="summaryEventQr"
-                class="qr-img"
-                data-endpoint="/qr/event"
-                data-target="{{ eventUrl }}"
-                src="{{ basePath }}/qr/event?event={{ event.uid }}&t={{ eventUrl|url_encode }}&size=150&margin=40"
-                width="150"
-                height="150"
-                alt="QR"
-              >
+              <div class="summary-event-links uk-flex uk-flex-middle uk-flex-center uk-flex-column uk-flex-row@s">
+                <div class="uk-margin-small-right@s uk-margin-small-bottom">
+                  <img
+                    id="summaryEventQr"
+                    class="qr-img"
+                    data-endpoint="/qr/event"
+                    data-target="{{ eventUrl }}"
+                    src="{{ basePath }}/qr/event?event={{ event.uid }}&t={{ eventUrl|url_encode }}&size=150&margin=40"
+                    width="150"
+                    height="150"
+                    alt="QR"
+                  >
+                </div>
+                <div class="uk-text-left@s uk-width-expand@s">
+                  <div class="uk-text-meta uk-margin-small-bottom">{{ t('label_results_frontend_link') }}</div>
+                  <code class="uk-display-block uk-text-break uk-background-muted uk-padding-small summary-results-code">{{ resultsUrl }}</code>
+                  <a
+                    class="uk-button uk-button-default uk-button-small uk-margin-small-top"
+                    href="{{ resultsUrl }}"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {{ t('action_results_open_frontend') }}
+                  </a>
+                </div>
+              </div>
             {% endif %}
           </div>
         </div>
