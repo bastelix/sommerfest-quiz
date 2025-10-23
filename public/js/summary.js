@@ -347,12 +347,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const resultsEnabled = !(cfg && cfg.teamResults === false);
+  const puzzleEnabled = isTruthyFlag(cfg.puzzleWordEnabled ?? cfg.puzzle_word_enabled);
   if (resultsBtn && !resultsEnabled) {
     resultsBtn.remove();
   }
   const photoEnabled = !(cfg && cfg.photoUpload === false);
   if (photoBtn && !photoEnabled) {
     photoBtn.remove();
+  }
+  if (puzzleBtn && !puzzleEnabled) {
+    puzzleBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
   const storedNameValue = getStored(STORAGE_KEYS.PLAYER_NAME);
@@ -728,8 +732,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if(rankingInfo && contentWrap){
           const pointsRanking = rankingInfo.points || { place: null, total: 0 };
           const catalogRanking = rankingInfo.catalog || { place: null, total: 0 };
-          const puzzleRanking = rankingInfo.puzzle || { place: null, total: 0 };
-          const hasRankingData = [pointsRanking, catalogRanking, puzzleRanking].some(info => info.total > 0);
+          const puzzleRanking = puzzleEnabled ? (rankingInfo.puzzle || { place: null, total: 0 }) : { place: null, total: 0 };
+          const rankingSources = [pointsRanking, catalogRanking];
+          if(puzzleEnabled){
+            rankingSources.push(puzzleRanking);
+          }
+          const hasRankingData = rankingSources.some(info => info.total > 0);
           if(hasRankingData){
             const rankingHeading = document.createElement('h4');
             rankingHeading.className = 'uk-heading-bullet uk-margin-top';
@@ -779,7 +787,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const catalogDetails = (typeof catalogRanking.value === 'number' && Number.isFinite(catalogRanking.value))
               ? `Abschluss: ${formatTs(catalogRanking.value)}`
               : '';
-            const puzzleDetails = (typeof puzzleRanking.value === 'number' && Number.isFinite(puzzleRanking.value))
+            const puzzleDetails = (
+              puzzleEnabled
+              && typeof puzzleRanking.value === 'number'
+              && Number.isFinite(puzzleRanking.value)
+            )
               ? `Zeit: ${formatTs(puzzleRanking.value)}`
               : '';
 
@@ -788,7 +800,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if(hasMultipleCatalogs){
               appendRankingCard('Katalogmeister', catalogRanking, catalogDetails, 'Noch nicht alle Kataloge abgeschlossen');
             }
-            appendRankingCard('Rätselwort', puzzleRanking, puzzleDetails, 'Noch kein Rätselwort gelöst');
+            if(puzzleEnabled){
+              appendRankingCard('Rätselwort', puzzleRanking, puzzleDetails, 'Noch kein Rätselwort gelöst');
+            }
 
             if(rankingGrid.children.length){
               contentWrap.appendChild(rankingHeading);
@@ -1199,12 +1213,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (resultsBtn) { resultsBtn.addEventListener('click', showResults); }
-  if (puzzleBtn) { puzzleBtn.addEventListener('click', showPuzzle); }
+  if (puzzleBtn && puzzleEnabled) { puzzleBtn.addEventListener('click', showPuzzle); }
   if (photoBtn && photoEnabled) { photoBtn.addEventListener('click', showPhotoModal); }
 
   if (resultsEnabled) {
     showResults();
   }
 
-  updatePuzzleInfo();
+  if(puzzleEnabled){
+    updatePuzzleInfo();
+  }
 });
