@@ -26,7 +26,7 @@ if (!/getElementById\('teamNameBtn'\)/.test(appCode)) {
         getStored() { return this.quizUser; },
         setStored(k, v) { this.quizUser = v; },
         promptTeamName: async() => { initCtx.promptCalled = true; initCtx.setStored('quizUser', 'Team A'); },
-        generateUserName: () => { initCtx.randomCalled = true; return 'R'; }
+        generatePlayerName: () => { initCtx.randomCalled = true; return 'R'; }
     };
     await vm.runInNewContext('(async () => {' + initMatch[0] + '})()', initCtx);
     assert(initCtx.promptCalled);
@@ -42,7 +42,7 @@ if (!/getElementById\('teamNameBtn'\)/.test(appCode)) {
         getStored: () => null,
         setStored: () => {},
         promptTeamName: async() => { ctx.promptCalled = true; },
-        generateUserName: () => { ctx.randomCalled = true; return 'R'; },
+        generatePlayerName: () => { ctx.randomCalled = true; return 'R'; },
         next: () => { ctx.nextCalled = true; },
         alert: () => {}
     };

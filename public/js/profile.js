@@ -1,4 +1,4 @@
-/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit */
+/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit, generatePlayerName */
 // Profile page logic for handling player names
 
 let nameInput;
@@ -11,21 +11,6 @@ const notify = (msg, status = 'primary') => {
     alert(msg);
   }
 };
-
-function generateRandomName() {
-  const adjectives = [
-    'Flinker', 'Lustiger', 'Mutiger', 'Schneller', 'Starker',
-    'Schlauer', 'Kreativer', 'Tapferer', 'Fröhlicher', 'Geschickter'
-  ];
-  const animals = [
-    'Fuchs', 'Panda', 'Tiger', 'Bär', 'Adler',
-    'Löwe', 'Delfin', 'Eule', 'Wal', 'Drache'
-  ];
-  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const animal = animals[Math.floor(Math.random() * animals.length)];
-  const number = Math.floor(Math.random() * 100);
-  return `${adj}${animal}${number}`;
-}
 
 function saveName(e) {
   e?.preventDefault();
@@ -57,7 +42,7 @@ function deleteName(e) {
   e?.preventDefault();
   clearStored(STORAGE_KEYS.PLAYER_NAME);
   clearStored(STORAGE_KEYS.PLAYER_UID);
-  nameInput.value = generateRandomName();
+  nameInput.value = typeof generatePlayerName === 'function' ? generatePlayerName() : '';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -70,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setStored(STORAGE_KEYS.PLAYER_UID, uidParam);
   }
   const storedName = getStored(STORAGE_KEYS.PLAYER_NAME);
-  nameInput.value = storedName || generateRandomName();
+  nameInput.value = storedName || (typeof generatePlayerName === 'function' ? generatePlayerName() : '');
   if (!storedName && uidParam && cfg.collectPlayerUid) {
     fetch(`/api/players?event_uid=${encodeURIComponent(currentEventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
       .then(r => r.ok ? r.json() : null)
