@@ -21,6 +21,10 @@ class DashboardController
 
     private const DASHBOARD_ALLOWED_LAYOUTS = ['auto', 'wide', 'full'];
 
+    private const DASHBOARD_RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
+
+    private const DASHBOARD_RESULTS_MAX_LIMIT = 50;
+
     public function __construct(ConfigService $config, EventService $events)
     {
         $this->config = $config;
@@ -104,7 +108,12 @@ class DashboardController
                 'layout' => 'wide',
                 'options' => ['metrics' => ['points', 'puzzle', 'catalog', 'accuracy']],
             ],
-            ['id' => 'results', 'enabled' => true, 'layout' => 'full'],
+            [
+                'id' => 'results',
+                'enabled' => true,
+                'layout' => 'full',
+                'options' => ['limit' => null, 'sort' => 'time', 'title' => 'Ergebnisliste'],
+            ],
             ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto'],
             ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto'],
             ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'auto', 'options' => ['catalogs' => []]],
@@ -156,6 +165,29 @@ class DashboardController
                     $metrics = $base['options']['metrics'];
                 }
                 $entry['options'] = ['metrics' => $metrics];
+            } elseif ($id === 'results') {
+                $baseOptions = isset($base['options']) && is_array($base['options']) ? $base['options'] : [];
+                $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
+                $limit = $this->normalizeResultsLimit($options['limit'] ?? null);
+                if ($limit === null) {
+                    $limit = $this->normalizeResultsLimit($baseOptions['limit'] ?? null);
+                }
+                $sort = isset($options['sort']) ? (string) $options['sort'] : '';
+                if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
+                    $sort = isset($baseOptions['sort']) ? (string) $baseOptions['sort'] : 'time';
+                    if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
+                        $sort = 'time';
+                    }
+                }
+                $title = isset($options['title']) ? trim((string) $options['title']) : '';
+                if ($title === '') {
+                    $title = isset($baseOptions['title']) ? trim((string) $baseOptions['title']) : 'Ergebnisliste';
+                }
+                $entry['options'] = [
+                    'limit' => $limit,
+                    'sort' => $sort,
+                    'title' => $title,
+                ];
             } elseif ($id === 'qrCodes') {
                 $catalogs = [];
                 $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
@@ -187,6 +219,40 @@ class DashboardController
         }
 
         return $normalized;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeResultsLimit($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '0') {
+                return null;
+            }
+            if (!is_numeric($trimmed)) {
+                return null;
+            }
+            $value = $trimmed;
+        }
+        if (is_int($value)) {
+            $limit = $value;
+        } elseif (is_numeric($value)) {
+            $limit = (int) $value;
+        } else {
+            return null;
+        }
+        if ($limit <= 0) {
+            return null;
+        }
+        if ($limit > self::DASHBOARD_RESULTS_MAX_LIMIT) {
+            $limit = self::DASHBOARD_RESULTS_MAX_LIMIT;
+        }
+        return $limit;
     }
 
     private function sanitizeRefreshInterval(int $interval): int

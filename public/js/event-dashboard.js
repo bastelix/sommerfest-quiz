@@ -24,6 +24,9 @@ const MODULE_DEFAULT_LAYOUTS = {
   qrCodes: 'auto',
   media: 'auto',
 };
+const RESULTS_DEFAULT_OPTIONS = { limit: null, sort: 'time', title: 'Ergebnisliste' };
+const RESULTS_SORT_OPTIONS = new Set(['time', 'points', 'name']);
+const RESULTS_LIMIT_MAX = 50;
 
 function parseBooleanFlag(value) {
   if (value === null || value === undefined) {
@@ -108,6 +111,39 @@ function formatPercentage(value) {
   const percent = Math.round(clamped * 1000) / 10;
   const localized = percent.toString().replace('.', ',');
   return `${localized} %`;
+}
+
+function parseResultNumber(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (trimmed === '') {
+      return null;
+    }
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function resolveResultsOptions(moduleConfig) {
+  const options = moduleConfig?.options ?? {};
+  const defaults = RESULTS_DEFAULT_OPTIONS;
+  const limitCandidate = options.limit ?? defaults.limit;
+  let limit = null;
+  if (limitCandidate !== null && limitCandidate !== undefined) {
+    const parsedLimit = parseResultNumber(limitCandidate);
+    if (parsedLimit !== null && parsedLimit > 0) {
+      limit = Math.min(Math.floor(parsedLimit), RESULTS_LIMIT_MAX);
+    }
+  }
+  const rawSort = typeof options.sort === 'string' ? options.sort.trim() : '';
+  const sort = RESULTS_SORT_OPTIONS.has(rawSort) ? rawSort : defaults.sort;
+  const rawTitle = typeof options.title === 'string' ? options.title.trim() : '';
+  const title = rawTitle !== '' ? rawTitle : defaults.title;
+  return { limit, sort, title };
 }
 
 function renderPointsLeaderModule(rankings, moduleConfig) {
@@ -418,22 +454,87 @@ function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
   return createModuleCard('Live-Rankings', grid, resolveModuleLayout(moduleConfig));
 }
 
-function renderResultsTable(rows, layout) {
+function renderResultsModule(rows, moduleConfig, layoutOverride = null) {
+  const layout = typeof layoutOverride === 'string' && layoutOverride.trim() !== ''
+    ? layoutOverride
+    : resolveModuleLayout(moduleConfig);
+  const options = resolveResultsOptions(moduleConfig);
+  const sortedRows = Array.isArray(rows) ? [...rows] : [];
+  const resolveTimeValue = (row) => {
+    const timeValue = parseResultNumber(row?.time);
+    if (timeValue !== null) {
+      return timeValue;
+    }
+    const startedValue = parseResultNumber(row?.startedAt ?? row?.started_at);
+    return startedValue !== null ? startedValue : 0;
+  };
+  const resolvePointsValue = (row) => {
+    const candidates = [
+      row?.points,
+      row?.correct,
+      row?.final_points,
+      row?.finalPoints,
+    ];
+    for (let i = 0; i < candidates.length; i += 1) {
+      const parsed = parseResultNumber(candidates[i]);
+      if (parsed !== null) {
+        return parsed;
+      }
+    }
+    return 0;
+  };
+  const compareByName = (a, b) => {
+    const nameA = typeof a?.name === 'string' ? a.name : '';
+    const nameB = typeof b?.name === 'string' ? b.name : '';
+    return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+  };
+
+  if (options.sort === 'points') {
+    sortedRows.sort((a, b) => {
+      const diff = resolvePointsValue(b) - resolvePointsValue(a);
+      if (diff !== 0) {
+        return diff;
+      }
+      const timeDiff = resolveTimeValue(b) - resolveTimeValue(a);
+      if (timeDiff !== 0) {
+        return timeDiff;
+      }
+      return compareByName(a, b);
+    });
+  } else if (options.sort === 'name') {
+    sortedRows.sort((a, b) => {
+      const nameDiff = compareByName(a, b);
+      if (nameDiff !== 0) {
+        return nameDiff;
+      }
+      return resolveTimeValue(b) - resolveTimeValue(a);
+    });
+  } else {
+    sortedRows.sort((a, b) => {
+      const timeDiff = resolveTimeValue(b) - resolveTimeValue(a);
+      if (timeDiff !== 0) {
+        return timeDiff;
+      }
+      return compareByName(a, b);
+    });
+  }
+
+  const limitedRows = options.limit ? sortedRows.slice(0, options.limit) : sortedRows;
   const table = document.createElement('table');
   table.className = 'uk-table uk-table-divider uk-table-small uk-table-striped';
   const thead = document.createElement('thead');
   thead.innerHTML = '<tr><th>Name</th><th>Punkte</th><th>Zeit</th></tr>';
   table.appendChild(thead);
   const tbody = document.createElement('tbody');
-  if (Array.isArray(rows) && rows.length > 0) {
-    rows.forEach((row) => {
+  if (limitedRows.length > 0) {
+    limitedRows.forEach((row) => {
       const tr = document.createElement('tr');
       const nameCell = document.createElement('td');
-      nameCell.textContent = row.name;
+      nameCell.textContent = row?.name ?? '';
       const pointsCell = document.createElement('td');
-      pointsCell.textContent = formatPointsCell(row.points ?? row.correct ?? 0, row.max_points ?? 0);
+      pointsCell.textContent = formatPointsCell(row?.points ?? row?.correct ?? 0, row?.max_points ?? 0);
       const timeCell = document.createElement('td');
-      timeCell.textContent = formatTimestamp(row.time);
+      timeCell.textContent = formatTimestamp(row?.time);
       [nameCell, pointsCell, timeCell].forEach((cell) => {
         tr.appendChild(cell);
       });
@@ -448,7 +549,7 @@ function renderResultsTable(rows, layout) {
     tbody.appendChild(emptyRow);
   }
   table.appendChild(tbody);
-  return createModuleCard('Ergebnisliste', table, layout);
+  return createModuleCard(options.title, table, layout);
 }
 
 function renderWrongAnswersModule(rows, layout) {
@@ -534,7 +635,7 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
       modulesRoot.appendChild(renderRankingsModule(rankings, module, catalogCount));
       hasModuleOutput = true;
     } else if (module.id === 'results') {
-      modulesRoot.appendChild(renderResultsTable(rows, layout));
+      modulesRoot.appendChild(renderResultsModule(rows, module, layout));
       hasModuleOutput = true;
     } else if (module.id === 'wrongAnswers') {
       const wrongRows = questionRows.filter((row) => !row.correct);

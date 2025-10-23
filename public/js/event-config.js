@@ -23,7 +23,7 @@
     { id: 'header', enabled: true, layout: 'full' },
     { id: 'pointsLeader', enabled: true, layout: 'wide' },
     { id: 'rankings', enabled: true, layout: 'wide', options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'] } },
-    { id: 'results', enabled: true, layout: 'full' },
+    { id: 'results', enabled: true, layout: 'full', options: { limit: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto' },
     { id: 'infoBanner', enabled: false, layout: 'auto' },
     { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [] } },
@@ -31,7 +31,45 @@
   ];
   const METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
   const LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
+  const RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
+  const RESULTS_MAX_LIMIT = 50;
   const DEFAULT_MODULE_MAP = new Map(DEFAULT_MODULES.map((module) => [module.id, module]));
+  const normalizeResultsLimit = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (normalized === '' || normalized === '0') {
+      return null;
+    }
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return null;
+    }
+    return Math.min(parsed, RESULTS_MAX_LIMIT);
+  };
+
+  const applyResultsOptionFields = (item, options = {}) => {
+    if (!item) return;
+    const defaults = DEFAULT_MODULE_MAP.get('results')?.options || {};
+    const limitField = item.querySelector('[data-module-results-option="limit"]');
+    if (limitField) {
+      const limitValue = normalizeResultsLimit(options?.limit);
+      limitField.value = limitValue === null ? '' : String(limitValue);
+    }
+    const sortField = item.querySelector('[data-module-results-option="sort"]');
+    if (sortField) {
+      const fallbackSort = defaults.sort || 'time';
+      const rawSort = typeof options?.sort === 'string' ? options.sort.trim() : '';
+      sortField.value = RESULTS_SORT_OPTIONS.includes(rawSort) ? rawSort : fallbackSort;
+    }
+    const titleField = item.querySelector('[data-module-results-option="title"]');
+    if (titleField) {
+      const fallbackTitle = defaults.title || 'Ergebnisliste';
+      const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
+      titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
+    }
+  };
   const QR_MODULE_ID = 'qrCodes';
   const qrModuleElement = modulesList?.querySelector('[data-module-id="' + QR_MODULE_ID + '"]') || null;
   const qrCatalogContainer = qrModuleElement?.querySelector('[data-module-catalogs]') || null;
@@ -368,6 +406,23 @@
           }
         });
         entry.options = { metrics: metrics.length ? metrics : METRIC_KEYS };
+      } else if (id === 'results') {
+        const defaults = DEFAULT_MODULE_MAP.get(id)?.options || {};
+        const limitField = item.querySelector('[data-module-results-option="limit"]');
+        const sortField = item.querySelector('[data-module-results-option="sort"]');
+        const titleField = item.querySelector('[data-module-results-option="title"]');
+        const limitValue = limitField
+          ? normalizeResultsLimit(limitField.value)
+          : normalizeResultsLimit(defaults.limit);
+        const rawSort = sortField ? String(sortField.value || '').trim() : '';
+        const sortValue = RESULTS_SORT_OPTIONS.includes(rawSort)
+          ? rawSort
+          : (defaults.sort || 'time');
+        let titleValue = titleField ? titleField.value.trim() : '';
+        if (titleValue === '') {
+          titleValue = defaults.title || 'Ergebnisliste';
+        }
+        entry.options = { limit: limitValue, sort: sortValue, title: titleValue };
       } else if (id === QR_MODULE_ID) {
         const catalogs = [];
         item.querySelectorAll('[data-module-catalog]').forEach((catalogEl) => {
@@ -420,6 +475,8 @@
         item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
           metricEl.checked = metrics.includes(metricEl.value);
         });
+      } else if (module.id === 'results') {
+        applyResultsOptionFields(item, module.options || {});
       }
     });
     DEFAULT_MODULES.forEach((module) => {
@@ -440,6 +497,8 @@
           item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
             metricEl.checked = METRIC_KEYS.includes(metricEl.value);
           });
+        } else if (module.id === 'results') {
+          applyResultsOptionFields(item, module.options || {});
         }
       }
     });
@@ -658,7 +717,12 @@
       reader.readAsDataURL(file);
     });
     modulesList?.addEventListener('change', (event) => {
-      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout]')) {
+      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option]')) {
+        updateModulesInput(true);
+      }
+    });
+    modulesList?.addEventListener('input', (event) => {
+      if (event.target.matches('[data-module-results-option]')) {
         updateModulesInput(true);
       }
     });
