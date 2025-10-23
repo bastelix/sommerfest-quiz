@@ -25,6 +25,28 @@ const MODULE_DEFAULT_LAYOUTS = {
   media: 'auto',
 };
 
+function parseBooleanFlag(value) {
+  if (value === null || value === undefined) {
+    return false;
+  }
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return value !== 0;
+  }
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === '') {
+      return false;
+    }
+    return ['1', 'true', 'yes', 'on'].includes(normalized);
+  }
+  return false;
+}
+
+const puzzleWordEnabled = parseBooleanFlag(config.puzzleWordEnabled ?? config.puzzle_word_enabled);
+
 const dataService = new ResultsDataService({
   basePath,
   eventUid: config.eventUid || '',
@@ -288,8 +310,9 @@ function renderQrModule(moduleConfig, catalogList) {
 
 function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
   const hasMultipleCatalogs = Number.isFinite(catalogCount) ? catalogCount > 1 : false;
+  const puzzleActive = puzzleWordEnabled;
   const safeRankings = {
-    puzzleList: (rankings && rankings.puzzleList) || [],
+    puzzleList: puzzleActive && rankings ? rankings.puzzleList || [] : [],
     catalogList: (rankings && rankings.catalogList) || [],
     pointsList: (rankings && rankings.pointsList) || [],
     accuracyList: (rankings && rankings.accuracyList) || [],
@@ -297,13 +320,16 @@ function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
   const metrics = Array.isArray(moduleConfig.options?.metrics) && moduleConfig.options.metrics.length
     ? moduleConfig.options.metrics
     : ['puzzle', 'catalog', 'points', 'accuracy'];
-  const normalizedMetrics = metrics.filter((metric) => metric !== 'catalog' || hasMultipleCatalogs);
+  const normalizedMetrics = metrics.filter((metric) => {
+    if (metric === 'catalog') {
+      return hasMultipleCatalogs;
+    }
+    if (metric === 'puzzle') {
+      return puzzleActive;
+    }
+    return true;
+  });
   const cardDefinitions = {
-    puzzle: {
-      title: 'Rätselwort-Bestzeit',
-      list: safeRankings.puzzleList,
-      tooltip: 'Top 3 Teams mit der schnellsten Rätselwort-Lösung',
-    },
     points: {
       title: 'Highscore-Champions',
       list: safeRankings.pointsList,
@@ -315,6 +341,13 @@ function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
       tooltip: 'Top 3 Teams mit der höchsten durchschnittlichen Effizienz',
     },
   };
+  if (puzzleActive) {
+    cardDefinitions.puzzle = {
+      title: 'Rätselwort-Bestzeit',
+      list: safeRankings.puzzleList,
+      tooltip: 'Top 3 Teams mit der schnellsten Rätselwort-Lösung',
+    };
+  }
   if (hasMultipleCatalogs) {
     cardDefinitions.catalog = {
       title: 'Ranking-Champions',
@@ -370,7 +403,16 @@ function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
   if (!grid.hasChildNodes()) {
     const emptyState = document.createElement('p');
     emptyState.className = 'uk-text-meta';
-    emptyState.textContent = 'Keine Rankings ausgewählt.';
+    if (
+      normalizedMetrics.length === 0
+      && metrics.includes('puzzle')
+      && !puzzleActive
+      && metrics.every((metric) => metric === 'puzzle' || (metric === 'catalog' && !hasMultipleCatalogs))
+    ) {
+      emptyState.textContent = 'Rätselwort-Rankings sind deaktiviert.';
+    } else {
+      emptyState.textContent = 'Keine Rankings ausgewählt.';
+    }
     grid.appendChild(emptyState);
   }
   return createModuleCard('Live-Rankings', grid, resolveModuleLayout(moduleConfig));
