@@ -5,7 +5,17 @@ function insertSoftHyphens(text){
 }
 
 function safeUserName(name){
-  return typeof name === 'string' && /^[\w\s.-]{1,100}$/.test(name) ? name : '';
+  if(typeof name !== 'string') return '';
+  const trimmed = name.trim();
+  if(trimmed === '') return '';
+  const normalized = trimmed.normalize('NFC');
+  const limited = normalized.slice(0, 100);
+  const asciiPattern = /^[\w\s.-]{1,100}$/;
+  const unicodePattern = /^[\p{L}\p{M}\p{N}\s._-]{1,100}$/u;
+  if(unicodePattern.test(limited) || asciiPattern.test(limited)){
+    return limited;
+  }
+  return limited;
 }
 
 function formatPointsDisplay(points, maxPoints){
@@ -268,7 +278,10 @@ document.addEventListener('DOMContentLoaded', () => {
     photoBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
-  const user = safeUserName(getStored(STORAGE_KEYS.PLAYER_NAME) || '');
+  const storedPlayerNameValue = getStored(STORAGE_KEYS.PLAYER_NAME);
+  const rawUserName = typeof storedPlayerNameValue === 'string' ? storedPlayerNameValue : '';
+  const trimmedUserName = rawUserName.trim().slice(0, 100);
+  const user = safeUserName(rawUserName) || trimmedUserName;
   const countdownEnabled = isTruthyFlag(cfg.countdownEnabled ?? cfg.countdown_enabled);
   const defaultCountdown = parseIntOr(cfg.countdown ?? cfg.defaultCountdown ?? 0, 0);
 
