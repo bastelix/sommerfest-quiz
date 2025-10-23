@@ -359,7 +359,7 @@ function renderResultsTable(rows, layout) {
   const table = document.createElement('table');
   table.className = 'uk-table uk-table-divider uk-table-small uk-table-striped';
   const thead = document.createElement('thead');
-  thead.innerHTML = '<tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Punkte</th><th>Zeit</th><th>Rätselwort</th></tr>';
+  thead.innerHTML = '<tr><th>Name</th><th>Punkte</th><th>Zeit</th></tr>';
   table.appendChild(thead);
   const tbody = document.createElement('tbody');
   if (Array.isArray(rows) && rows.length > 0) {
@@ -367,17 +367,11 @@ function renderResultsTable(rows, layout) {
       const tr = document.createElement('tr');
       const nameCell = document.createElement('td');
       nameCell.textContent = row.name;
-      const attemptCell = document.createElement('td');
-      attemptCell.textContent = row.attempt;
-      const catalogCell = document.createElement('td');
-      catalogCell.textContent = row.catalogName || row.catalog;
       const pointsCell = document.createElement('td');
       pointsCell.textContent = formatPointsCell(row.points ?? row.correct ?? 0, row.max_points ?? 0);
       const timeCell = document.createElement('td');
       timeCell.textContent = formatTimestamp(row.time);
-      const puzzleCell = document.createElement('td');
-      puzzleCell.textContent = formatTimestamp(row.puzzleTime);
-      [nameCell, attemptCell, catalogCell, pointsCell, timeCell, puzzleCell].forEach((cell) => {
+      [nameCell, pointsCell, timeCell].forEach((cell) => {
         tr.appendChild(cell);
       });
       tbody.appendChild(tr);
@@ -385,7 +379,7 @@ function renderResultsTable(rows, layout) {
   } else {
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
-    emptyCell.colSpan = 6;
+    emptyCell.colSpan = 3;
     emptyCell.textContent = 'Noch keine Ergebnisse verfügbar';
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
