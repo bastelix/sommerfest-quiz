@@ -38,7 +38,8 @@ class TeamService
     /**
      * Retrieve the ordered list of teams.
      */
-    public function getAll(): array {
+    public function getAll(): array
+    {
         $uid = $this->config->getActiveEventUid();
         if ($uid === '') {
             return [];
@@ -46,7 +47,47 @@ class TeamService
         $sql = 'SELECT name FROM teams WHERE event_uid=? ORDER BY sort_order';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$uid]);
-        return array_map(fn($r) => $r['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+        return array_map(static fn(array $row): string => (string) $row['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * Retrieve the ordered list of teams for the given event UID.
+     *
+     * @return list<string>
+     */
+    public function getAllForEvent(string $eventUid): array
+    {
+        if ($eventUid === '') {
+            return $this->getAll();
+        }
+
+        $sql = 'SELECT name FROM teams WHERE event_uid=? ORDER BY sort_order';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$eventUid]);
+
+        return array_map(static fn(array $row): string => (string) $row['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /**
+     * Look up the owning event for the provided team name.
+     */
+    public function getEventUidByName(string $teamName): ?string
+    {
+        $normalized = trim($teamName);
+        if ($normalized === '') {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT event_uid FROM teams WHERE name = ? LIMIT 1');
+        $stmt->execute([$normalized]);
+        $eventUid = $stmt->fetchColumn();
+
+        if ($eventUid === false || $eventUid === null) {
+            return null;
+        }
+
+        $eventUid = (string) $eventUid;
+        return $eventUid !== '' ? $eventUid : null;
     }
 
     /**

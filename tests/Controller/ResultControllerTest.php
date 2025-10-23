@@ -329,4 +329,127 @@ class ResultControllerTest extends TestCase
         $this->assertStringContainsString('Second', $pdf2);
         $this->assertNotEquals($pdf1, $pdf2);
     }
+
+    public function testTeamPdfUsesTeamSpecificEvent(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                startTheme TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                randomNames INTEGER DEFAULT 1,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'description TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
+        );
+        $pdo->exec(
+            "INSERT INTO events(uid,slug,name,description) VALUES('1','one','First','A'),('2','two','Second','B')"
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, description TEXT,' .
+            ' raetsel_buchstabe TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                expected_duration_sec INTEGER,
+                duration_ratio REAL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,points,total,max_points,time,event_uid) " .
+            "VALUES('Team2','cat',1,4,7,10,10,0,'2')"
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
+                answer_text TEXT,
+                photo TEXT,
+                consent BOOLEAN,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE teams(' .
+            'sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'Team2','2','2')");
+
+        $config = new \App\Service\ConfigService($pdo);
+        $config->setActiveEventUid('1');
+        $results = new \App\Service\ResultService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $config);
+        $catalogs = new \App\Service\CatalogService($pdo, $config);
+        $events = new \App\Service\EventService($pdo);
+        $controller = new \App\Controller\ResultController($results, $config, $teams, $catalogs, sys_get_temp_dir(), $events);
+
+        $request = $this->createRequest('GET', '/results.pdf?team=Team2');
+        $response = $controller->pdf($request, new \Slim\Psr7\Response());
+
+        $this->assertSame(200, $response->getStatusCode());
+        $pdf = (string) $response->getBody();
+        $this->assertStringContainsString('Second', $pdf);
+        $this->assertStringContainsString('Team2', $pdf);
+        $this->assertStringNotContainsString('First', $pdf);
+    }
 }
