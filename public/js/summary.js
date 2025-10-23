@@ -720,8 +720,11 @@ document.addEventListener('DOMContentLoaded', () => {
               ? `Zeit: ${formatTs(puzzleRanking.value)}`
               : '';
 
+            const hasMultipleCatalogs = Number.isFinite(catalogCount) ? catalogCount > 1 : false;
             appendRankingCard('Highscore', pointsRanking, pointsDetails, 'Noch keine Punktewertung');
-            appendRankingCard('Katalogmeister', catalogRanking, catalogDetails, 'Noch nicht alle Kataloge abgeschlossen');
+            if(hasMultipleCatalogs){
+              appendRankingCard('Katalogmeister', catalogRanking, catalogDetails, 'Noch nicht alle Kataloge abgeschlossen');
+            }
             appendRankingCard('Rätselwort', puzzleRanking, puzzleDetails, 'Noch kein Rätselwort gelöst');
 
             if(rankingGrid.children.length){

@@ -286,7 +286,8 @@ function renderQrModule(moduleConfig, catalogList) {
   return createModuleCard('Katalog-QR-Codes', grid, resolveModuleLayout(moduleConfig));
 }
 
-function renderRankingsModule(rankings, moduleConfig) {
+function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
+  const hasMultipleCatalogs = Number.isFinite(catalogCount) ? catalogCount > 1 : false;
   const safeRankings = {
     puzzleList: (rankings && rankings.puzzleList) || [],
     catalogList: (rankings && rankings.catalogList) || [],
@@ -296,16 +297,12 @@ function renderRankingsModule(rankings, moduleConfig) {
   const metrics = Array.isArray(moduleConfig.options?.metrics) && moduleConfig.options.metrics.length
     ? moduleConfig.options.metrics
     : ['puzzle', 'catalog', 'points', 'accuracy'];
+  const normalizedMetrics = metrics.filter((metric) => metric !== 'catalog' || hasMultipleCatalogs);
   const cardDefinitions = {
     puzzle: {
       title: 'Rätselwort-Bestzeit',
       list: safeRankings.puzzleList,
       tooltip: 'Top 3 Teams mit der schnellsten Rätselwort-Lösung',
-    },
-    catalog: {
-      title: 'Ranking-Champions',
-      list: safeRankings.catalogList,
-      tooltip: 'Top 3 Teams nach gelösten Fragen (Tie-Breaker: Punkte, Gesamtzeit)',
     },
     points: {
       title: 'Highscore-Champions',
@@ -318,9 +315,16 @@ function renderRankingsModule(rankings, moduleConfig) {
       tooltip: 'Top 3 Teams mit der höchsten durchschnittlichen Effizienz',
     },
   };
+  if (hasMultipleCatalogs) {
+    cardDefinitions.catalog = {
+      title: 'Ranking-Champions',
+      list: safeRankings.catalogList,
+      tooltip: 'Top 3 Teams nach gelösten Fragen (Tie-Breaker: Punkte, Gesamtzeit)',
+    };
+  }
   const grid = document.createElement('div');
   grid.className = 'dashboard-rankings-grid';
-  metrics.forEach((metric) => {
+  normalizedMetrics.forEach((metric) => {
     const def = cardDefinitions[metric];
     if (!def) return;
     const col = document.createElement('div');
@@ -485,7 +489,7 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
       modulesRoot.appendChild(renderPointsLeaderModule(rankings, module));
       hasModuleOutput = true;
     } else if (module.id === 'rankings') {
-      modulesRoot.appendChild(renderRankingsModule(rankings, module));
+      modulesRoot.appendChild(renderRankingsModule(rankings, module, catalogCount));
       hasModuleOutput = true;
     } else if (module.id === 'results') {
       modulesRoot.appendChild(renderResultsTable(rows, layout));
