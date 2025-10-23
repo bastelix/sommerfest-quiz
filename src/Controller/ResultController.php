@@ -277,13 +277,21 @@ class ResultController
     /**
      * Render a PDF summary for all teams.
      */
-    public function pdf(Request $request, Response $response): Response {
+    public function pdf(Request $request, Response $response): Response
+    {
         $params = $request->getQueryParams();
+        $teamFilter = (string) ($params['team'] ?? $request->getAttribute('team') ?? '');
+        $teamEventUid = $teamFilter !== '' ? $this->teams->getEventUidByName($teamFilter) : null;
+
         $eventUid = (string)($params['event_uid'] ?? '');
+        if ($eventUid === '' && $teamEventUid !== null) {
+            $eventUid = $teamEventUid;
+        }
+
         $results = $this->service->getAll($eventUid);
         $questionResults = $this->service->getQuestionResults($eventUid);
         $allResults = $results;
-        $teams = $this->teams->getAll();
+        $teams = $this->teams->getAllForEvent($eventUid);
 
         if ($teams === []) {
             $names = array_merge(
@@ -297,8 +305,6 @@ class ResultController
             $teams = array_values(array_unique($names));
         }
 
-        $params = $request->getQueryParams();
-        $teamFilter = (string) ($params['team'] ?? $request->getAttribute('team') ?? '');
         if ($teamFilter !== '') {
             $results = array_values(array_filter(
                 $results,
@@ -312,6 +318,9 @@ class ResultController
                 $teams,
                 static fn ($t) => $t === $teamFilter
             ));
+            if ($teams === [] && ($results !== [] || $questionResults !== [])) {
+                $teams = [$teamFilter];
+            }
         }
 
         if ($teams === []) {
@@ -369,8 +378,10 @@ class ResultController
         $awardService = new AwardService();
         $rankings = $awardService->computeRankings($allResults, $catalogCount, $questionResults);
 
-        $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
+        if ($uid === '' && $teamEventUid !== null) {
+            $uid = $teamEventUid;
+        }
         if ($uid === '') {
             $event = $this->events->getFirst();
             if ($event === null) {
