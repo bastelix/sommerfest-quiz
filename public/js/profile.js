@@ -1,8 +1,9 @@
-/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit, generatePlayerName */
+/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit, TeamNameClient */
 // Profile page logic for handling player names
 
 let nameInput;
 let currentEventUid;
+let activeReservation = null;
 
 const notify = (msg, status = 'primary') => {
   if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -12,40 +13,115 @@ const notify = (msg, status = 'primary') => {
   }
 };
 
-function saveName(e) {
+const fallbackSuggestion = () => `Gast-${Math.random().toString(36).slice(2, 7)}`;
+
+function getTeamNameClient(){
+  return typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+}
+
+async function requestNameSuggestion(){
+  const client = getTeamNameClient();
+  if (client && typeof client.reserve === 'function') {
+    try {
+      const reservation = await client.reserve({ eventUid: currentEventUid });
+      activeReservation = reservation || null;
+      if (reservation && typeof reservation.name === 'string' && reservation.name) {
+        return reservation.name;
+      }
+    } catch (error) {
+      console.error('Team name reservation failed', error);
+    }
+  }
+  activeReservation = null;
+  return fallbackSuggestion();
+}
+
+function releaseReservation(){
+  if (activeReservation) {
+    const client = getTeamNameClient();
+    if (client && typeof client.release === 'function') {
+      client.release({ reservation: activeReservation }).catch(() => {});
+    }
+  }
+  activeReservation = null;
+}
+
+async function confirmReservationIfMatching(name){
+  if (!activeReservation) {
+    return false;
+  }
+  const client = getTeamNameClient();
+  if (!client || typeof client.confirm !== 'function') {
+    return false;
+  }
+  const normalizedInput = (name || '').trim().toLowerCase();
+  const reserved = (activeReservation.name || '').toString().trim().toLowerCase();
+  if (!normalizedInput || normalizedInput !== reserved) {
+    return false;
+  }
+  try {
+    const confirmed = await client.confirm((name || '').trim(), { reservation: activeReservation });
+    if (confirmed) {
+      activeReservation = null;
+      return true;
+    }
+  } catch (error) {
+    console.error('Team name confirmation failed', error);
+  }
+  releaseReservation();
+  return false;
+}
+
+async function saveName(e) {
   e?.preventDefault();
   const name = nameInput.value.trim();
-  if (name) {
-    setStored(STORAGE_KEYS.PLAYER_NAME, name);
-  } else {
+  if (!name) {
+    clearStored('quizUser');
     clearStored(STORAGE_KEYS.PLAYER_NAME);
+    releaseReservation();
+    notify('Bitte gib einen Teamnamen ein.', 'warning');
+    return;
   }
+
+  const usingSuggestion = await confirmReservationIfMatching(name);
+  if (!usingSuggestion && activeReservation) {
+    releaseReservation();
+  }
+
+  setStored('quizUser', name);
+  setStored(STORAGE_KEYS.PLAYER_NAME, name);
+
   let uid = getStored(STORAGE_KEYS.PLAYER_UID);
   if (!uid) {
     uid = self.crypto?.randomUUID ? self.crypto.randomUUID() : Math.random().toString(36).slice(2);
     setStored(STORAGE_KEYS.PLAYER_UID, uid);
   }
+
   fetch('/api/players', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ event_uid: currentEventUid, player_name: name, player_uid: uid })
   }).catch(() => {});
-  postSession('player', { name })
-    .then(() => {
-      notify('Name gespeichert', 'success');
-      if (returnUrl) window.location.href = decodeURIComponent(returnUrl);
-    })
-    .catch(() => notify('Fehler beim Speichern', 'danger'));
+
+  try {
+    await postSession('player', { name });
+    notify('Name gespeichert', 'success');
+    if (returnUrl) window.location.href = decodeURIComponent(returnUrl);
+  } catch (error) {
+    notify('Fehler beim Speichern', 'danger');
+  }
 }
 
-function deleteName(e) {
+async function deleteName(e) {
   e?.preventDefault();
+  releaseReservation();
+  clearStored('quizUser');
   clearStored(STORAGE_KEYS.PLAYER_NAME);
   clearStored(STORAGE_KEYS.PLAYER_UID);
-  nameInput.value = typeof generatePlayerName === 'function' ? generatePlayerName() : '';
+  nameInput.value = await requestNameSuggestion();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   nameInput = document.getElementById('playerName');
   const cfg = window.quizConfig || {};
   currentEventUid = cfg.event_uid || '';
@@ -55,7 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setStored(STORAGE_KEYS.PLAYER_UID, uidParam);
   }
   const storedName = getStored(STORAGE_KEYS.PLAYER_NAME);
-  nameInput.value = storedName || (typeof generatePlayerName === 'function' ? generatePlayerName() : '');
+  if (storedName) {
+    nameInput.value = storedName;
+  } else {
+    nameInput.value = await requestNameSuggestion();
+  }
   if (!storedName && uidParam && cfg.collectPlayerUid) {
     fetch(`/api/players?event_uid=${encodeURIComponent(currentEventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
       .then(r => r.ok ? r.json() : null)

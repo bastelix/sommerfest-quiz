@@ -1,17 +1,24 @@
 const fs = require('fs');
 const code = fs.readFileSync('public/js/quiz.js', 'utf8');
 
-if (!/let nameSuggestion;/.test(code)) {
-  throw new Error('nameSuggestion variable missing');
+if (!/async function getNameSuggestion\(\)[\s\S]*client\.reserve\(\{\s*eventUid: currentEventUid\s*\}\)/.test(code)) {
+  throw new Error('TeamNameClient reserve missing');
 }
-if (!/function getNameSuggestion\(\)\{[\s\S]*?generatePlayerName/.test(code)) {
-  throw new Error('getNameSuggestion function missing');
+
+if (!/function releaseNameReservation\(\)[\s\S]*TeamNameClient/.test(code)) {
+  throw new Error('releaseNameReservation missing TeamNameClient usage');
 }
-if (!/const suggestion = getNameSuggestion\(\);\s*title.textContent = 'Teamname eingeben';[\s\S]*?input.value = suggestion;/.test(code)) {
-  throw new Error('promptTeamName suggestion handling missing');
+
+if (!/async function confirmNameReservationIfMatching\(name\)[\s\S]*client\.confirm/.test(code)) {
+  throw new Error('confirmNameReservationIfMatching missing confirm call');
 }
-if (!/function showManualInput\(\)[\s\S]*?const suggestion = getNameSuggestion\(\);[\s\S]*?const placeholderName = suggestion \|\| \(typeof generatePlayerName === 'function' \? generatePlayerName\(\) : ''\);[\s\S]*?input.placeholder = placeholderName \|\| 'Teamname eingeben';[\s\S]*?input.value = placeholderName \|\| '';/.test(code)) {
-  throw new Error('showManualInput suggestion handling missing');
+
+if (!/async function showManualInput\(\)[\s\S]*await getNameSuggestion\(\)/.test(code)) {
+  throw new Error('showManualInput does not await getNameSuggestion');
+}
+
+if (!/await confirmNameReservationIfMatching\(name\)/.test(code)) {
+  throw new Error('manual submit does not confirm reservation');
 }
 
 console.log('ok');
