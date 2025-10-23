@@ -82,6 +82,13 @@ class ResultService
             $row['points'] = isset($row['points']) ? (int) $row['points'] : 0;
             $row['total'] = isset($row['total']) ? (int) $row['total'] : 0;
             $row['max_points'] = isset($row['max_points']) ? (int) $row['max_points'] : 0;
+            if (array_key_exists('puzzleTime', $row)) {
+                if ($row['puzzleTime'] === null || $row['puzzleTime'] === '' || (int) $row['puzzleTime'] <= 0) {
+                    $row['puzzleTime'] = null;
+                } else {
+                    $row['puzzleTime'] = (int) $row['puzzleTime'];
+                }
+            }
             foreach (["options","answers","terms","items"] as $k) {
                 if (isset($row[$k])) {
                     $row[$k] = json_decode((string)$row[$k], true);
@@ -300,10 +307,8 @@ class ResultService
         array $answers = [],
         string $eventUid = ''
     ): array {
-        $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
-        $uidStmt->execute([$catalog, $catalog, $catalog]);
-        $uid = $uidStmt->fetchColumn();
-        if ($uid === false) {
+        $uid = $this->resolveCatalogUid($catalog);
+        if ($uid === null) {
             return ['points' => 0, 'max' => 0];
         }
         $qStmt = $this->pdo->prepare(
@@ -402,6 +407,37 @@ class ResultService
             'expectedTime' => $expectedTime,
             'questionTimeUsed' => $questionTimeUsed,
         ];
+    }
+
+    /**
+     * Resolve the canonical catalog UID for the provided identifier.
+     */
+    private function resolveCatalogUid(string $catalog): ?string
+    {
+        $normalized = trim($catalog);
+        if ($normalized === '') {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=? LIMIT 1'
+        );
+        $stmt->execute([$normalized, $normalized, $normalized]);
+        $uid = $stmt->fetchColumn();
+        if ($uid !== false && $uid !== null && $uid !== '') {
+            return (string) $uid;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT uid FROM catalogs WHERE LOWER(uid)=LOWER(?) OR LOWER(slug)=LOWER(?) LIMIT 1'
+        );
+        $stmt->execute([$normalized, $normalized]);
+        $uid = $stmt->fetchColumn();
+        if ($uid !== false && $uid !== null && $uid !== '') {
+            return (string) $uid;
+        }
+
+        return null;
     }
 
     /**
