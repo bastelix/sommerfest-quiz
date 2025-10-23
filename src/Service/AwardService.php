@@ -39,6 +39,26 @@ class AwardService
             $finalPoints = (int) $finalPointsRaw;
             $efficiencyRaw = $row['efficiency'] ?? null;
             $efficiency = $efficiencyRaw !== null ? (float) $efficiencyRaw : ((int)($row['correct'] ?? 0) === 1 ? 1.0 : 0.0);
+            $correctRaw = $row['is_correct'] ?? $row['isCorrect'] ?? $row['correct'] ?? 0;
+            $correctValue = 0;
+            if (is_bool($correctRaw)) {
+                $correctValue = $correctRaw ? 1 : 0;
+            } elseif (is_numeric($correctRaw)) {
+                $parsed = (int) round((float) $correctRaw);
+                if ($parsed > 0) {
+                    $correctValue = $parsed;
+                }
+            } elseif (is_string($correctRaw)) {
+                $normalized = strtolower(trim($correctRaw));
+                if ($normalized === 'true' || $normalized === 'yes' || $normalized === 'y') {
+                    $correctValue = 1;
+                } elseif (is_numeric($normalized)) {
+                    $parsed = (int) round((float) $normalized);
+                    if ($parsed > 0) {
+                        $correctValue = $parsed;
+                    }
+                }
+            }
             if ($efficiency < 0.0) {
                 $efficiency = 0.0;
             } elseif ($efficiency > 1.0) {
@@ -49,11 +69,13 @@ class AwardService
                     'points' => 0,
                     'efficiencySum' => 0.0,
                     'questionCount' => 0,
+                    'correctCount' => 0,
                 ];
             }
             $attemptMetrics[$key]['points'] += $finalPoints;
             $attemptMetrics[$key]['efficiencySum'] += $efficiency;
             $attemptMetrics[$key]['questionCount']++;
+            $attemptMetrics[$key]['correctCount'] += $correctValue;
         }
 
         foreach ($results as $row) {
@@ -83,6 +105,7 @@ class AwardService
                 $finalPoints = (int) $summary['points'];
                 $effSum = (float) $summary['efficiencySum'];
                 $questionCount = max(0, (int) $summary['questionCount']);
+                $solved = (int) $summary['correctCount'];
             } else {
                 $finalPoints = $points;
                 $questionCount = (int)($row['total'] ?? 0);
@@ -115,16 +138,18 @@ class AwardService
                 }
             }
 
-            $solvedRaw = $row['correct'] ?? 0;
-            if (is_numeric($solvedRaw)) {
-                $solved = (int) round((float) $solvedRaw);
-            } elseif (is_bool($solvedRaw)) {
-                $solved = $solvedRaw ? 1 : 0;
-            } else {
-                $solved = 0;
-            }
-            if ($solved < 0) {
-                $solved = 0;
+            if ($summary === null) {
+                $solvedRaw = $row['correct'] ?? 0;
+                if (is_numeric($solvedRaw)) {
+                    $solved = (int) round((float) $solvedRaw);
+                } elseif (is_bool($solvedRaw)) {
+                    $solved = $solvedRaw ? 1 : 0;
+                } else {
+                    $solved = 0;
+                }
+                if ($solved < 0) {
+                    $solved = 0;
+                }
             }
 
             $existing = $scores[$team][$catalog] ?? null;

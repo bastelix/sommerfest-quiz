@@ -283,6 +283,30 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     return `${str.replace('.', ',')} %`;
   };
 
+  const parseSolvedValue = (value) => {
+    if (typeof value === 'boolean') {
+      return value ? 1 : 0;
+    }
+    if (typeof value === 'number') {
+      if (!Number.isFinite(value)) return 0;
+      const rounded = Math.round(value);
+      return rounded > 0 ? rounded : 0;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim().toLowerCase();
+      if (trimmed === '') return 0;
+      if (trimmed === 'true' || trimmed === 'yes' || trimmed === 'y') {
+        return 1;
+      }
+      const numeric = Number(trimmed);
+      if (Number.isFinite(numeric)) {
+        const rounded = Math.round(numeric);
+        return rounded > 0 ? rounded : 0;
+      }
+    }
+    return 0;
+  };
+
   const puzzleTimes = new Map();
   const scorePoints = new Map();
   const attemptMetrics = new Map();
@@ -305,6 +329,8 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     summary.points += Number.isFinite(finalPoints) ? finalPoints : 0;
     summary.effSum += Math.max(0, Math.min(efficiency, 1));
     summary.count += 1;
+    const correctFlag = entry.is_correct ?? entry.isCorrect ?? entry.correct ?? entry.isCorrectAnswer;
+    summary.correct = (summary.correct || 0) + parseSolvedValue(correctFlag);
     attemptMetrics.set(key, summary);
   });
 
@@ -328,32 +354,27 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     const finishCandidate = parseNumeric(row.time);
     const finish = Number.isFinite(finishCandidate) ? Math.round(finishCandidate) : null;
 
-    const solvedCandidate = parseNumeric(row.correct);
-    let solved = 0;
-    if (solvedCandidate !== null) {
-      solved = Math.max(0, Math.round(solvedCandidate));
-    } else if (row.correct === true) {
-      solved = 1;
-    }
-
     const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
     const key = `${team}|${catalog}|${attempt}`;
     const summary = attemptMetrics.get(key);
     let finalPoints;
     let effSum;
     let questionCount;
+    let solved = 0;
     if (summary && summary.count > 0) {
       finalPoints = summary.points;
       effSum = summary.effSum;
       questionCount = summary.count;
+      solved = Number.isFinite(summary.correct) ? Math.max(0, Math.round(summary.correct)) : 0;
     } else {
       const fallbackPoints = Number.isFinite(row.points) ? Number(row.points) : Number(row.correct) || 0;
       finalPoints = fallbackPoints;
       const totalQuestions = Number.isFinite(row.total) ? Number(row.total) : parseInt(row.total, 10) || 0;
       questionCount = totalQuestions > 0 ? totalQuestions : 0;
-      const correctCount = Number.isFinite(row.correct) ? Number(row.correct) : parseInt(row.correct, 10) || 0;
+      const correctCount = parseSolvedValue(row.correct);
       const avgFallback = questionCount > 0 ? Math.max(0, Math.min(correctCount / questionCount, 1)) : 0;
       effSum = avgFallback * questionCount;
+      solved = Math.max(0, Math.round(correctCount));
     }
     const average = questionCount > 0 ? Math.max(0, Math.min(effSum / questionCount, 1)) : 0;
 

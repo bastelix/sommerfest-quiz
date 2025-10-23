@@ -53,10 +53,10 @@ const penaltyRows = [
     { name: 'Neutral', catalog: 'Main', correct: 2, total: 2, time: 4, attempt: 1 }
 ];
 const penaltyQuestions = [
-    { name: 'Penalty', catalog: 'Main', attempt: 1, final_points: 50, efficiency: 0.7 },
-    { name: 'Penalty', catalog: 'Main', attempt: 1, final_points: -100, efficiency: -0.3 },
-    { name: 'Neutral', catalog: 'Main', attempt: 1, final_points: 40, efficiency: 0.8 },
-    { name: 'Neutral', catalog: 'Main', attempt: 1, final_points: 30, efficiency: 1.2 }
+    { name: 'Penalty', catalog: 'Main', attempt: 1, final_points: 50, efficiency: 0.7, correct: 1 },
+    { name: 'Penalty', catalog: 'Main', attempt: 1, final_points: -100, efficiency: -0.3, correct: 0 },
+    { name: 'Neutral', catalog: 'Main', attempt: 1, final_points: 40, efficiency: 0.8, correct: 1 },
+    { name: 'Neutral', catalog: 'Main', attempt: 1, final_points: 30, efficiency: 1.2, correct: 1 }
 ];
 
 const penaltyRankings = computeRankings(penaltyRows, penaltyQuestions, 1);
@@ -70,4 +70,24 @@ assert.strictEqual(penaltyRankings.accuracyList[0].name, 'Neutral');
 assert.ok(penaltyRankings.accuracyList[0].raw <= 1 && penaltyRankings.accuracyList[0].raw >= 0);
 assert.strictEqual(penaltyRankings.accuracyList[1].name, 'Penalty');
 assert.ok(penaltyRankings.accuracyList[1].raw <= 1 && penaltyRankings.accuracyList[1].raw >= 0);
+
+const binaryRows = [
+    { name: 'Binary', catalog: 'Main', correct: 0, total: 3, time: 6, durationSec: 120, attempt: 1 },
+    { name: 'Perfect', catalog: 'Main', correct: 1, total: 3, time: 8, durationSec: 90, attempt: 1 }
+];
+const binaryQuestions = [
+    { name: 'Binary', catalog: 'Main', attempt: 1, final_points: 10, efficiency: 0.9, correct: 1 },
+    { name: 'Binary', catalog: 'Main', attempt: 1, final_points: 10, efficiency: 0.9, correct: 1 },
+    { name: 'Binary', catalog: 'Main', attempt: 1, final_points: 0, efficiency: 0, correct: 0 },
+    { name: 'Perfect', catalog: 'Main', attempt: 1, final_points: 10, efficiency: 1, correct: 1 },
+    { name: 'Perfect', catalog: 'Main', attempt: 1, final_points: 10, efficiency: 1, correct: 1 },
+    { name: 'Perfect', catalog: 'Main', attempt: 1, final_points: 10, efficiency: 1, correct: 1 }
+];
+
+const binaryRankings = computeRankings(binaryRows, binaryQuestions, 1);
+assert.strictEqual(binaryRankings.catalogList.length, 2);
+assert.strictEqual(binaryRankings.catalogList[0].name, 'Perfect');
+assert.strictEqual(binaryRankings.catalogList[0].solved, 3);
+assert.strictEqual(binaryRankings.catalogList[1].name, 'Binary');
+assert.strictEqual(binaryRankings.catalogList[1].solved, 2);
 console.log('ok');
