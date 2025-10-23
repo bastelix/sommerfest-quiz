@@ -725,9 +725,7 @@ body.admin-page {
 .admin-page .topbar .uk-navbar-right {
   order: 2;
   z-index: 1;
-  align-self: flex-start;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
+  align-self: stretch;
 }
 
 .admin-page .topbar .uk-navbar-center {
