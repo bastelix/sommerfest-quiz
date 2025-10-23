@@ -8,7 +8,7 @@ if(!headerMatch){
   throw new Error('Event UID bootstrap block not found');
 }
 
-const submissionMatch = quizCode.match(/const catalog =[\s\S]*?summaryEl.appendChild\(link\);\n\s+}\n\s+}/);
+const submissionMatch = quizCode.match(/const rawCatalog =[\s\S]*?summaryEl.appendChild\(link\);\n\s+}\n\s+}/);
 if(!submissionMatch){
   throw new Error('Result submission block not found');
 }
@@ -31,7 +31,7 @@ const resolvedUid = vm.runInNewContext('currentEventUid', context);
 assert.strictEqual(resolvedUid, 'evt-42');
 
 const store = {
-  CATALOG: 'Main',
+  CATALOG: 'MainSlug',
   QUIZ_SOLVED: '[]',
   PLAYER_UID: 'player-1',
   PUZZLE_SOLVED: 'false',
@@ -108,7 +108,11 @@ vm.runInNewContext(submissionMatch[0], context);
 assert(context.fetchArgs, 'fetch not called');
 assert.strictEqual(context.fetchArgs.url, '/results');
 const payload = JSON.parse(context.fetchArgs.options.body);
+assert.strictEqual(payload.catalog, 'MainSlug');
+assert.strictEqual(payload.points, 5);
+assert.strictEqual(payload.maxPoints, 5);
 assert.strictEqual(payload.event_uid, 'evt-42');
 assert.strictEqual(context.summaryEl.appended.length, 1);
 assert.strictEqual(context.summaryEl.appended[0]._href, '/summary?event=evt-42');
+assert.deepStrictEqual(JSON.parse(store.QUIZ_SOLVED), ['mainslug']);
 console.log('ok');

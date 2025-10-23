@@ -713,27 +713,28 @@ async function runQuiz(questions, skipIntro){
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
-      const catalog = (getStored(STORAGE_KEYS.CATALOG) || 'unknown').toLowerCase();
-      const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
-      const data = {
-        name: user,
-        catalog,
-        correct: score,
-        total: questionCount,
-        points: pointsEarned,
-        maxPoints: maxPointsTotal,
-        wrong,
-        answers,
-        event_uid: currentEventUid
-      };
-      if(Number.isFinite(quizStartedAt)){
-        data.startedAt = quizStartedAt;
-      }
-      if(cfg.collectPlayerUid){
-        const uid = getStored(STORAGE_KEYS.PLAYER_UID);
-        if(uid) data.player_uid = uid;
-      }
-      const puzzleSolved = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
+    const rawCatalog = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
+    const normalizedCatalog = String(rawCatalog).toLowerCase();
+    const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
+    const data = {
+      name: user,
+      catalog: rawCatalog,
+      correct: score,
+      total: questionCount,
+      points: pointsEarned,
+      maxPoints: maxPointsTotal,
+      wrong,
+      answers,
+      event_uid: currentEventUid
+    };
+    if(Number.isFinite(quizStartedAt)){
+      data.startedAt = quizStartedAt;
+    }
+    if(cfg.collectPlayerUid){
+      const uid = getStored(STORAGE_KEYS.PLAYER_UID);
+      if(uid) data.player_uid = uid;
+    }
+    const puzzleSolved = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
     const puzzleTs = getStored(STORAGE_KEYS.PUZZLE_TIME);
     if(puzzleSolved && puzzleTs){
       data.puzzleTime = parseInt(puzzleTs, 10) || Math.floor(Date.now()/1000);
@@ -745,8 +746,8 @@ async function runQuiz(questions, skipIntro){
     }).catch(()=>{});
     const solved = JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
       .map(s => String(s).toLowerCase());
-    if(solved.indexOf(catalog) === -1){
-      solved.push(catalog);
+    if(solved.indexOf(normalizedCatalog) === -1){
+      solved.push(normalizedCatalog);
       setStored(STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(solved));
     }
 
@@ -773,7 +774,7 @@ async function runQuiz(questions, skipIntro){
     }
 
     if(cfg.puzzleWordEnabled){
-      const attemptKey = 'puzzleAttempt-' + catalog;
+      const attemptKey = 'puzzleAttempt-' + normalizedCatalog;
       const puzzleSolved = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
       const puzzleInfo = summaryEl.querySelector('#puzzle-info');
       if(puzzleSolved && puzzleInfo){
