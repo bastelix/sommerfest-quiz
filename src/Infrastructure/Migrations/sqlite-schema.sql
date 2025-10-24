@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS players (
     event_uid TEXT NOT NULL,
     player_name TEXT NOT NULL,
     player_uid TEXT NOT NULL,
+    contact_email TEXT NULL,
+    consent_granted_at TEXT NULL,
     PRIMARY KEY (event_uid, player_uid)
 );
 
