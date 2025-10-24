@@ -2,6 +2,7 @@
 
 {% set dashboardTheme = dashboard.theme|default(config.dashboardTheme|default('light')) %}
 {% set dashboardFixedHeight = config.dashboardFixedHeight|default('')|trim %}
+{% set hasDashboardFixedHeight = dashboardFixedHeight != '' %}
 
 {% block title %}{{ event.name }} · Live-Dashboard{% endblock %}
 
@@ -104,19 +105,43 @@
       margin-left: auto;
       margin-right: auto;
     }
-    #dashboardModules[data-fixed-height] {
-      display: flex;
-      flex-wrap: wrap;
-      align-content: flex-start;
-      gap: 16px;
+    {% if hasDashboardFixedHeight %}
+    body.dashboard-page.dashboard-fixed {
+      --dashboard-fixed-height: {{ dashboardFixedHeight|e('css') }};
       height: var(--dashboard-fixed-height);
-      max-height: 100vh;
+      max-height: var(--dashboard-fixed-height);
+      overflow: hidden;
+    }
+    body.dashboard-page.dashboard-fixed .wrapper {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-height: 100%;
+      min-height: 0;
+    }
+    body.dashboard-page.dashboard-fixed .content {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+    body.dashboard-page.dashboard-fixed .dashboard-container {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      max-height: 100%;
+      min-height: 0;
+    }
+    body.dashboard-page.dashboard-fixed .dashboard-modules {
+      flex: 1 1 auto;
+      min-height: 0;
       overflow-y: auto;
     }
-    #dashboardModules[data-fixed-height] > * {
-      flex: 1 1 320px;
-      min-width: 0;
+    body.dashboard-page.dashboard-fixed .site-footer {
+      flex: 0 0 auto;
     }
+    {% endif %}
     body[data-theme='dark'] .dashboard-page {
       background: var(--dashboard-background-dark);
     }
@@ -219,10 +244,10 @@
 
 {% block body_theme %}{{ dashboardTheme == 'dark' ? 'dark' : 'light' }}{% endblock %}
 
-{% block body_class %}dashboard-page{% if dashboardTheme != 'dark' %} uk-background-muted{% endif %}{% endblock %}
+{% block body_class %}dashboard-page{% if dashboardTheme != 'dark' %} uk-background-muted{% endif %}{% if hasDashboardFixedHeight %} dashboard-fixed{% endif %}{% endblock %}
 
 {% block body %}
-  <div class="uk-container uk-container-large uk-padding-small">
+  <div class="dashboard-container uk-container uk-container-large uk-padding-small">
     <div class="dashboard-header uk-flex uk-flex-between uk-flex-middle uk-margin-medium-top" data-dashboard-header>
       <div>
         <h1 class="uk-heading-bullet uk-margin-remove">{{ event.name }}</h1>
@@ -246,10 +271,6 @@
       id="dashboardModules"
       class="dashboard-modules dashboard-grid uk-margin-large-top"
       data-dashboard-root
-      {% if dashboardFixedHeight != '' %}
-        data-fixed-height="{{ dashboardFixedHeight|e('html_attr') }}"
-        style="--dashboard-fixed-height: {{ dashboardFixedHeight|e('html_attr') }};"
-      {% endif %}
     ></div>
   </div>
 {% endblock %}
@@ -269,7 +290,7 @@
       active: dashboard.active,
       visibility: dashboard.visibility,
       theme: dashboard.theme,
-      fixedHeight: config.dashboardFixedHeight
+      fixedHeight: dashboardFixedHeight
     }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
   </script>
   <script type="module" src="{{ basePath }}/js/event-dashboard.js"></script>
