@@ -952,6 +952,131 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
 .qr-landing .qr-proof { display:flex; align-items:center; gap:16px; }
 .qr-landing .qr-proof img { height:28px; }
 
+.qr-landing .live-dashboard {
+  position: relative;
+}
+
+.qr-landing .live-dashboard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top left, color-mix(in oklab, var(--qr-landing-primary) 25%, transparent) 0%, transparent 65%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.qr-landing .live-dashboard .uk-container {
+  position: relative;
+  z-index: 1;
+}
+
+.qr-landing .live-dashboard__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: var(--qr-card);
+  border: 1px solid var(--qr-card-border);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
+  border-radius: 16px;
+}
+
+.qr-landing .live-dashboard__stats {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--qr-card-border);
+  border-radius: 12px;
+  background: var(--qr-bg-soft);
+}
+
+.qr-landing .live-dashboard__stats li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--qr-card-border) 70%, transparent);
+}
+
+.qr-landing .live-dashboard__stats li:last-child {
+  border-bottom: none;
+}
+
+.qr-landing .live-dashboard__stat-label {
+  color: var(--qr-muted);
+}
+
+.qr-landing .live-dashboard__stat-value {
+  font-weight: 600;
+  color: var(--qr-landing-primary);
+}
+
+.qr-landing .live-dashboard__teams {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qr-landing .live-dashboard__team {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--qr-card) 85%, transparent);
+  border: 1px solid color-mix(in oklab, var(--qr-card-border) 60%, transparent);
+}
+
+.qr-landing .live-dashboard__team--highlight {
+  border-color: color-mix(in oklab, var(--qr-landing-primary) 40%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--qr-landing-primary) 25%, transparent);
+}
+
+.qr-landing .live-dashboard__team-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--qr-landing-primary);
+  color: var(--qr-landing-text);
+  font-weight: 700;
+}
+
+.qr-landing .live-dashboard__team-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qr-landing .live-dashboard__team-name {
+  font-weight: 600;
+  color: var(--qr-text);
+}
+
+.qr-landing .live-dashboard__team-score {
+  font-size: 0.9rem;
+  color: var(--qr-muted);
+}
+
+.qr-landing .live-dashboard__badge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: color-mix(in oklab, var(--qr-landing-primary) 20%, transparent);
+  color: var(--qr-landing-primary);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+@media (max-width: 959px) {
+  .qr-landing .live-dashboard__card {
+    margin-top: 32px;
+  }
+}
+
 .provenexpert-rating {
   display: inline-flex;
   align-items: center;
