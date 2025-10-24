@@ -28,6 +28,11 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small">
+    {% set eventUid = event.uid|default('') %}
+    {% set rankingLink = basePath ~ '/ranking' %}
+    {% if eventUid %}
+      {% set rankingLink = rankingLink ~ '?event=' ~ eventUid %}
+    {% endif %}
     <div class="uk-flex uk-flex-column uk-flex-row@s uk-flex-between uk-flex-middle">
       <div>
         <h2 class="uk-heading-bullet uk-margin-small-bottom">Dein Ranking</h2>
@@ -37,6 +42,18 @@
       <div class="uk-flex uk-flex-middle uk-margin-top uk-margin-remove-top@s">
         <button id="rankingChangeNameBtn" class="uk-button uk-button-default uk-margin-small-right">Name bearbeiten</button>
         <button id="rankingRefreshBtn" class="uk-button uk-button-primary">Aktualisieren</button>
+      </div>
+    </div>
+    <div class="uk-card uk-card-default uk-card-body uk-margin-large-top ranking-share-card">
+      <div class="uk-grid-small uk-flex-middle" uk-grid>
+        <div class="uk-width-auto">
+          <img class="ranking-share-card__qr" src="{{ basePath }}/qr.png?t={{ rankingLink|url_encode }}" alt="QR-Code zum Ranking" width="180" height="180" loading="lazy">
+        </div>
+        <div class="uk-width-expand">
+          <h3 class="uk-card-title uk-margin-remove">Ranking auf dem Smartphone öffnen</h3>
+          <p class="uk-margin-small-top">Scanne den QR-Code oder öffne den Link, um dein persönliches Ranking unterwegs zu prüfen.</p>
+          <p class="uk-text-meta uk-margin-small-top">{{ rankingLink }}</p>
+        </div>
       </div>
     </div>
     <div id="rankingStatus" class="uk-alert uk-alert-primary uk-margin-top" hidden></div>

@@ -28,6 +28,7 @@ const MODULE_DEFAULT_LAYOUTS = {
   wrongAnswers: 'auto',
   infoBanner: 'auto',
   qrCodes: 'auto',
+  rankingQr: 'auto',
   media: 'auto',
 };
 const RESULTS_DEFAULT_OPTIONS = { limit: null, sort: 'time', title: 'Ergebnisliste' };
@@ -304,6 +305,14 @@ function buildCatalogStartUrl(catalog) {
   return startUrl.toString();
 }
 
+function buildRankingUrl() {
+  const url = new URL(`${basePath || ''}/ranking`, window.location.origin);
+  if (config.eventUid) {
+    url.searchParams.set('event', config.eventUid);
+  }
+  return url.toString();
+}
+
 function renderQrModule(moduleConfig, catalogList) {
   const selection = Array.isArray(moduleConfig.options?.catalogs)
     ? moduleConfig.options.catalogs
@@ -361,6 +370,46 @@ function renderQrModule(moduleConfig, catalogList) {
   });
 
   return createModuleCard(resolveModuleTitle(moduleConfig, 'Katalog-QR-Codes'), grid, resolveModuleLayout(moduleConfig));
+}
+
+function renderRankingQrModule(moduleConfig) {
+  const rankingUrl = buildRankingUrl();
+  const container = document.createElement('div');
+  container.className = 'dashboard-ranking-qr';
+
+  if (!rankingUrl) {
+    const warning = document.createElement('p');
+    warning.className = 'uk-text-meta';
+    warning.textContent = 'Ranking-Link ist aktuell nicht verfügbar.';
+    container.appendChild(warning);
+    return createModuleCard(resolveModuleTitle(moduleConfig, 'Ranking-QR'), container, resolveModuleLayout(moduleConfig));
+  }
+
+  const card = document.createElement('div');
+  card.className = 'dashboard-qr-card uk-card uk-card-default uk-card-body';
+
+  const qrUrl = new URL(`${basePath}/qr.png`, window.location.origin);
+  qrUrl.searchParams.set('t', rankingUrl);
+
+  const img = document.createElement('img');
+  img.src = qrUrl.toString();
+  img.alt = 'QR-Code zum persönlichen Ranking';
+  img.loading = 'lazy';
+  card.appendChild(img);
+
+  const hint = document.createElement('p');
+  hint.className = 'uk-margin-small-top';
+  hint.textContent = 'QR-Code scannen, um das persönliche Ranking auf dem eigenen Gerät zu öffnen.';
+  card.appendChild(hint);
+
+  const link = document.createElement('p');
+  link.className = 'dashboard-qr-link uk-text-meta';
+  link.textContent = rankingUrl;
+  card.appendChild(link);
+
+  container.appendChild(card);
+
+  return createModuleCard(resolveModuleTitle(moduleConfig, 'Ranking-QR'), container, resolveModuleLayout(moduleConfig));
 }
 
 function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
@@ -665,6 +714,9 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
       hasModuleOutput = true;
     } else if (module.id === 'qrCodes') {
       modulesRoot.appendChild(renderQrModule(module, Array.isArray(catalogList) ? catalogList : []));
+      hasModuleOutput = true;
+    } else if (module.id === 'rankingQr') {
+      modulesRoot.appendChild(renderRankingQrModule(module));
       hasModuleOutput = true;
     } else if (module.id === 'media' && mediaItems.length > 0) {
       modulesRoot.appendChild(renderMediaModule(module, layout));

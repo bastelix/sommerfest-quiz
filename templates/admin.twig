@@ -606,6 +606,33 @@
                         </div>
                       </div>
                     </li>
+                    <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankingQr">
+                      <div class="uk-flex uk-flex-between uk-flex-middle">
+                        <div>
+                          <h4 class="uk-margin-remove">{{ t('label_dashboard_module_ranking_qr') }}</h4>
+                            <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_ranking_qr_hint') }}</p>
+                          </div>
+                        <div class="uk-flex uk-flex-middle">
+                          <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                          <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_dashboard_module_visible') }}</label>
+                        </div>
+                      </div>
+                      <div class="uk-margin-small-top">
+                        <label class="uk-form-label" for="cfgDashboardLayoutRankingQr">{{ t('label_dashboard_module_layout') }}</label>
+                        <select class="uk-select uk-form-small" id="cfgDashboardLayoutRankingQr" data-module-layout data-default-layout="auto">
+                          <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                          <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                          <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                        </select>
+                      </div>
+                      <div class="uk-margin-small-top" data-module-options>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardRankingQrTitle">{{ t('label_dashboard_module_title') }}</label>
+                          <input class="uk-input uk-form-small" type="text" id="cfgDashboardRankingQrTitle" data-module-title placeholder="{{ t('label_dashboard_module_ranking_qr') }}">
+                          <div class="uk-text-meta">{{ t('text_dashboard_ranking_qr_title_hint') }}</div>
+                        </div>
+                      </div>
+                    </li>
                     <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="qrCodes" data-missing-label="{{ t('text_dashboard_module_qr_missing') }}">
                       <div class="uk-flex uk-flex-between uk-flex-middle">
                         <div>
