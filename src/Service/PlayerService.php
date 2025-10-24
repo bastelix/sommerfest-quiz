@@ -215,16 +215,56 @@ class PlayerService
             return;
         }
 
-        $params = [$newName, $oldName, $eventUid];
+        $this->updateStoredNames('results', $eventUid, $oldCanonical, $newName);
+        $this->updateStoredNames('question_results', $eventUid, $oldCanonical, $newName);
+    }
 
-        $resultStmt = $this->pdo->prepare(
-            'UPDATE results SET name = ? WHERE name = ? AND (event_uid = ? OR event_uid IS NULL)'
-        );
-        $resultStmt->execute($params);
+    private function updateStoredNames(string $table, string $eventUid, string $oldCanonical, string $newName): void {
+        $query = sprintf('SELECT DISTINCT name, event_uid FROM %s', $table);
+        $params = [];
+        if ($eventUid !== '') {
+            $query .= ' WHERE event_uid = ? OR event_uid IS NULL';
+            $params[] = $eventUid;
+        } else {
+            $query .= ' WHERE event_uid IS NULL';
+        }
 
-        $questionStmt = $this->pdo->prepare(
-            'UPDATE question_results SET name = ? WHERE name = ? AND (event_uid = ? OR event_uid IS NULL)'
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($rows === false || $rows === []) {
+            return;
+        }
+
+        $updateWithEvent = null;
+        if ($eventUid !== '') {
+            $updateWithEvent = $this->pdo->prepare(
+                sprintf('UPDATE %s SET name = ? WHERE name = ? AND event_uid = ?', $table)
+            );
+        }
+        $updateWithoutEvent = $this->pdo->prepare(
+            sprintf('UPDATE %s SET name = ? WHERE name = ? AND event_uid IS NULL', $table)
         );
-        $questionStmt->execute($params);
+
+        foreach ($rows as $row) {
+            $storedName = isset($row['name']) ? (string) $row['name'] : '';
+            if ($storedName === '') {
+                continue;
+            }
+
+            if ($this->canonicalizeName($storedName) !== $oldCanonical) {
+                continue;
+            }
+
+            $storedEventUid = $row['event_uid'] !== null ? (string) $row['event_uid'] : null;
+            if ($storedEventUid === null || $storedEventUid === '') {
+                $updateWithoutEvent->execute([$newName, $storedName]);
+                continue;
+            }
+
+            if ($updateWithEvent !== null) {
+                $updateWithEvent->execute([$newName, $storedName, $storedEventUid]);
+            }
+        }
     }
 }
