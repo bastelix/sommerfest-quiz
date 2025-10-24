@@ -31,6 +31,7 @@ export class ResultsDataService {
     this.catalogCount = 0;
     this.catalogList = [];
     this.catalogAliasMap = {};
+    this.playerEmail = options.playerEmail ? String(options.playerEmail) : '';
   }
 
   withBase(path) {
@@ -59,6 +60,14 @@ export class ResultsDataService {
     this.resetCatalogCache();
   }
 
+  setPlayerEmail(email) {
+    if (typeof email !== 'string') {
+      this.playerEmail = '';
+      return;
+    }
+    this.playerEmail = email.trim();
+  }
+
   buildQuery() {
     const params = new URLSearchParams();
     if (this.eventUid) {
@@ -67,6 +76,9 @@ export class ResultsDataService {
     if (this.shareToken) {
       params.set('share_token', this.shareToken);
       params.set('variant', this.variant);
+    }
+    if (this.playerEmail) {
+      params.set('player_email', this.playerEmail);
     }
     const query = params.toString();
     return query ? `?${query}` : '';

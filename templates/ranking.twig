@@ -33,6 +33,23 @@
         <h2 class="uk-heading-bullet uk-margin-small-bottom">Dein Ranking</h2>
         <p class="uk-text-lead uk-margin-remove-top">Spielername: <span id="rankingPlayerName" class="player-name-highlight">–</span></p>
         <p id="rankingNameHint" class="uk-text-meta uk-margin-small-top"></p>
+        <form id="rankingContactForm" class="uk-form-stacked uk-margin-medium-top" novalidate>
+          <div class="uk-margin-small">
+            <label class="uk-form-label" for="rankingEmail">E-Mail-Adresse (optional)</label>
+            <div class="uk-form-controls">
+              <input id="rankingEmail" name="rankingEmail" class="uk-input" type="email" inputmode="email" autocomplete="email" placeholder="z. B. alex@example.de" aria-describedby="rankingEmailHelp rankingFormMessage">
+            </div>
+            <p id="rankingEmailHelp" class="uk-text-meta uk-margin-small-top">Wir nutzen deine Adresse ausschließlich für Rückfragen zu deinem Sommerfest-Ranking.</p>
+          </div>
+          <div class="uk-margin-small">
+            <div class="uk-form-controls uk-flex uk-flex-middle">
+              <input id="rankingConsent" name="rankingConsent" class="uk-checkbox" type="checkbox">
+              <label class="uk-margin-small-left" for="rankingConsent">Ich bin damit einverstanden, dass mich das Sommerfest-Team per E-Mail zu Ergebnissen und möglichen Gewinnen informiert.</label>
+            </div>
+          </div>
+          <p id="rankingFormMessage" class="uk-margin-small-top uk-text-meta" role="status" aria-live="polite" hidden></p>
+          <button type="submit" class="uk-button uk-button-secondary uk-margin-small-top">Angaben speichern</button>
+        </form>
       </div>
       <div class="uk-flex uk-flex-middle uk-margin-top uk-margin-remove-top@s">
         <button id="rankingChangeNameBtn" class="uk-button uk-button-default uk-margin-small-right">Name bearbeiten</button>
