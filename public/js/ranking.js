@@ -781,25 +781,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (changeNameBtn) {
     changeNameBtn.addEventListener('click', async () => {
-      const newName = window.prompt('Wie lautet dein Name für das Ranking?', currentName || '');
+      const previousName = typeof currentName === 'string' ? currentName : '';
+      const newName = window.prompt('Wie lautet dein Name für das Ranking?', previousName);
       if (newName === null) {
         return;
       }
 
       const sanitizedName = safeUserName(newName) || (typeof newName === 'string' ? newName.trim() : '');
-      currentName = sanitizedName;
+      const previousSanitized = safeUserName(previousName) || previousName.trim();
 
-      setStoredName(sanitizedName);
-      if (typeof setStored === 'function') {
-        try {
-          setStored('quizUser', sanitizedName);
-        } catch (error) {
-          console.error('Failed to persist quizUser name', error);
-        }
+      if (!sanitizedName) {
+        window.alert('Bitte gib einen gültigen Namen ein.');
+        return;
       }
 
-      updateNameDisplay();
+      if (sanitizedName === previousSanitized) {
+        currentName = sanitizedName;
+        setStoredName(sanitizedName);
+        if (typeof setStored === 'function') {
+          try {
+            setStored('quizUser', sanitizedName);
+          } catch (error) {
+            console.error('Failed to persist quizUser name', error);
+          }
+        }
+        updateNameDisplay();
+        refresh();
+        return;
+      }
 
+      let serverAccepted = true;
       if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
         const rawUid = getStored(STORAGE_KEYS.PLAYER_UID);
         const playerUid = typeof rawUid === 'string' ? rawUid.trim() : '';
@@ -815,14 +826,46 @@ document.addEventListener('DOMContentLoaded', () => {
               }),
             });
             if (!response.ok) {
-              throw new Error(`Request failed with status ${response.status}`);
+              if (response.status === 409) {
+                window.alert('Dieser Name wird bereits verwendet. Bitte wähle einen anderen Namen.');
+              } else {
+                window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
+              }
+              serverAccepted = false;
             }
           } catch (error) {
             console.error('Failed to update player name for ranking', error);
+            window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
+            serverAccepted = false;
           }
         }
       }
 
+      if (!serverAccepted) {
+        currentName = previousSanitized;
+        setStoredName(previousSanitized);
+        if (typeof setStored === 'function') {
+          try {
+            setStored('quizUser', previousSanitized);
+          } catch (error) {
+            console.error('Failed to persist quizUser name', error);
+          }
+        }
+        updateNameDisplay();
+        refresh();
+        return;
+      }
+
+      currentName = sanitizedName;
+      setStoredName(sanitizedName);
+      if (typeof setStored === 'function') {
+        try {
+          setStored('quizUser', sanitizedName);
+        } catch (error) {
+          console.error('Failed to persist quizUser name', error);
+        }
+      }
+      updateNameDisplay();
       refresh();
     });
   }
