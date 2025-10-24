@@ -269,11 +269,15 @@ class AwardService
         }
         usort(
             $catalogCandidates,
-              static function (array $a, array $b): int {
-                  $cmp = $b['solved'] <=> $a['solved'];
-                  if ($cmp !== 0) {
-                      return $cmp;
-                  }
+            /**
+             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int|null} $a
+             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int|null} $b
+             */
+            static function (array $a, array $b): int {
+                $cmp = $b['solved'] <=> $a['solved'];
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
 
                   $cmp = $b['points'] <=> $a['points'];
                   if ($cmp !== 0) {
@@ -295,14 +299,20 @@ class AwardService
                     return 1;
                 }
 
-                  $aFinish = $a['latestFinish'];
-                  $bFinish = $b['latestFinish'];
-                  $aFinishValue = $aFinish ?? PHP_INT_MAX;
-                  $bFinishValue = $bFinish ?? PHP_INT_MAX;
-                  $cmp = $aFinishValue <=> $bFinishValue;
-                  if ($cmp !== 0) {
-                      return $cmp;
-                  }
+                $aFinish = $a['latestFinish'];
+                $bFinish = $b['latestFinish'];
+                $aFinishValue = $aFinish;
+                if ($aFinish === null) {
+                    $aFinishValue = PHP_INT_MAX;
+                }
+                $bFinishValue = $bFinish;
+                if ($bFinish === null) {
+                    $bFinishValue = PHP_INT_MAX;
+                }
+                $cmp = $aFinishValue <=> $bFinishValue;
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
 
                   return $a['team'] <=> $b['team'];
               }

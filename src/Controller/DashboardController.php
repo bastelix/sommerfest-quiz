@@ -183,14 +183,10 @@ class DashboardController
                 $layout = $baseLayout;
             }
 
-            $baseOptions = $base['options'] ?? [];
-            if (!is_array($baseOptions)) {
-                $baseOptions = [];
-            }
-            $options = $module['options'] ?? [];
-            if (!is_array($options)) {
-                $options = [];
-            }
+            $baseOptionsRaw = $base['options'] ?? null;
+            $baseOptions = is_array($baseOptionsRaw) ? $baseOptionsRaw : [];
+            $optionsRaw = $module['options'] ?? null;
+            $options = is_array($optionsRaw) ? $optionsRaw : [];
 
             $entry = ['id' => $id, 'enabled' => !empty($module['enabled']), 'layout' => $layout];
             if ($id === 'rankings') {
@@ -217,14 +213,9 @@ class DashboardController
                 if ($limit === null) {
                     $limit = $this->normalizeResultsLimit($baseOptions['limit'] ?? null);
                 }
-                $sort = isset($options['sort']) ? (string) $options['sort'] : '';
-                if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
-                    $fallbackSort = $baseOptions['sort'] ?? 'time';
-                    if (!is_string($fallbackSort) || !in_array($fallbackSort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
-                        $fallbackSort = 'time';
-                    }
-                    $sort = $fallbackSort;
-                }
+                $fallbackSortRaw = $baseOptions['sort'] ?? null;
+                $fallbackSort = is_string($fallbackSortRaw) ? $fallbackSortRaw : null;
+                $sort = $this->normalizeResultsSort($options['sort'] ?? null, $fallbackSort);
                 $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Ergebnisliste';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = [
@@ -334,6 +325,27 @@ class DashboardController
             $limit = self::DASHBOARD_RESULTS_MAX_LIMIT;
         }
         return $limit;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeResultsSort($value, ?string $fallback): string
+    {
+        if (is_string($value) && in_array($value, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
+            return $value;
+        }
+
+        if ($fallback !== null && $fallback !== '') {
+            if ($fallback === self::DASHBOARD_RESULTS_SORT_OPTIONS[0]) {
+                return $fallback;
+            }
+            if (in_array($fallback, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
+                return $fallback;
+            }
+        }
+
+        return self::DASHBOARD_RESULTS_SORT_OPTIONS[0];
     }
 
     private function sanitizeRefreshInterval(int $interval): int
