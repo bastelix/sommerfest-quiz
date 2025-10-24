@@ -86,6 +86,15 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 .config-menu #configMenuToggle.git-btn{
   border-radius:0 0 6px 6px;
 }
+
+.admin-page .topbar .config-menu{
+  align-self:stretch;
+  display:flex;
+}
+
+.admin-page .topbar .config-menu #configMenuToggle.git-btn{
+  height:100%;
+}
 .git-btn:hover{
   background:var(--topbar-btn-bg-hover);
   border-color:var(--topbar-btn-border-hover);
