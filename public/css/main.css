@@ -1243,3 +1243,132 @@ body.admin-page {
   margin: 0;
 }
 
+.player-name-highlight {
+  font-weight: 600;
+  color: var(--primary-color, #1e87f0);
+}
+
+.player-ranking-card {
+  position: relative;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(30, 135, 240, 0.08), rgba(30, 135, 240, 0.02));
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.player-ranking-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 32px rgba(15, 23, 42, 0.16);
+}
+
+.player-ranking-card--highlight {
+  background: linear-gradient(135deg, rgba(255, 214, 0, 0.18), rgba(255, 248, 192, 0.35));
+  border: 1px solid rgba(255, 214, 0, 0.35);
+}
+
+.player-ranking-card__icon {
+  align-self: flex-end;
+  color: var(--primary-color, #1e87f0);
+}
+
+.player-ranking-card--highlight .player-ranking-card__icon {
+  color: #ffb400;
+}
+
+.player-ranking-card__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.player-ranking-card__place {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin: 0;
+  color: #111827;
+}
+
+.player-ranking-card__meta {
+  margin: 0;
+  color: #4b5563;
+}
+
+[data-theme='dark'] .player-ranking-card {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .player-ranking-card__place {
+  color: #e5e7eb;
+}
+
+[data-theme='dark'] .player-ranking-card__meta {
+  color: #9ca3af;
+}
+
+.player-toplist-card {
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+[data-theme='dark'] .player-toplist-card {
+  background: #111827;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.player-toplist-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.player-toplist-card__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-toplist-card__item {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+}
+
+.player-toplist-card__item.is-active {
+  background: rgba(30, 135, 240, 0.12);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .player-toplist-card__item.is-active {
+  background: rgba(37, 99, 235, 0.35);
+}
+
+.player-toplist-card__rank {
+  font-weight: 700;
+  color: var(--primary-color, #1e87f0);
+}
+
+.player-toplist-card__value {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+[data-theme='dark'] .player-toplist-card__value {
+  color: #d1d5db;
+}
+

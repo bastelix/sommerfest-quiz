@@ -76,6 +76,7 @@ use App\Controller\LogoController;
 use App\Controller\QrLogoController;
 use App\Controller\CatalogDesignController;
 use App\Controller\SummaryController;
+use App\Controller\RankingController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
@@ -155,6 +156,7 @@ require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
+require_once __DIR__ . '/Controller/RankingController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/EventController.php';
@@ -404,6 +406,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
+            ->withAttribute('rankingController', new RankingController($configService, $eventService))
             ->withAttribute('mailProviderController', new MailProviderController(
                 $mailProviderRepository,
                 $settingsService,
@@ -1958,6 +1961,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/photo/{team}/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('team', $args['team'])->withAttribute('file', $args['file']);
         return $request->getAttribute('evidenceController')->get($req, $response);
+    });
+    $app->get('/ranking', function (Request $request, Response $response) {
+        return $request->getAttribute('rankingController')($request, $response);
     });
     $app->get('/summary', function (Request $request, Response $response) {
         return $request->getAttribute('summaryController')($request, $response);
