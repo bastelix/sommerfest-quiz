@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use PDO;
 use App\Domain\Roles;
+use App\Support\UsernameBlockedException;
+use App\Support\UsernameGuard;
+use PDO;
 
 /**
  * Service for user and role management.
@@ -14,8 +16,11 @@ class UserService
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo) {
+    private UsernameGuard $usernameGuard;
+
+    public function __construct(PDO $pdo, ?UsernameGuard $usernameGuard = null) {
         $this->pdo = $pdo;
+        $this->usernameGuard = $usernameGuard ?? UsernameGuard::fromConfigFile();
     }
 
     /**
@@ -60,6 +65,8 @@ class UserService
 
     /**
      * Create a new user with the given role.
+     *
+     * @throws UsernameBlockedException
      */
     public function create(
         string $username,
@@ -68,6 +75,7 @@ class UserService
         string $role = Roles::CATALOG_EDITOR,
         bool $active = true
     ): void {
+        $this->usernameGuard->assertAllowed($username);
         if (!in_array($role, Roles::ALL, true)) {
             $role = Roles::CATALOG_EDITOR;
         }
@@ -139,8 +147,17 @@ class UserService
      *     active?:bool,
      *     position?:int
      * }> $users
+     *
+     * @throws UsernameBlockedException
      */
     public function saveAll(array $users): void {
+        foreach ($users as $candidate) {
+            if (!isset($candidate['username'])) {
+                continue;
+            }
+            $this->usernameGuard->assertAllowed((string) $candidate['username']);
+        }
+
         $this->pdo->beginTransaction();
         $existing = [];
         foreach ($this->pdo->query('SELECT id FROM users') as $row) {
@@ -156,7 +173,8 @@ class UserService
 
         foreach ($users as $pos => $u) {
             $id = isset($u['id']) ? (int) $u['id'] : 0;
-            $username = strtolower((string) $u['username']);
+            $rawUsername = (string) $u['username'];
+            $username = strtolower($rawUsername);
             $role = (string) $u['role'];
             $email = isset($u['email']) ? (string) $u['email'] : null;
             if (!in_array($role, Roles::ALL, true)) {
