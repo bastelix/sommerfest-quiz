@@ -327,7 +327,7 @@ class ResultService
     ): array {
         $uid = $this->resolveCatalogUid($catalog);
         if ($uid === null) {
-            return ['points' => 0, 'max' => 0];
+            return ['points' => 0, 'max' => 0, 'expectedTime' => 0, 'questionTimeUsed' => 0];
         }
         $qStmt = $this->pdo->prepare(
             "SELECT id, points, countdown FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
@@ -335,7 +335,7 @@ class ResultService
         $qStmt->execute([$uid]);
         $rows = $qStmt->fetchAll(PDO::FETCH_ASSOC);
         if (!$rows) {
-            return ['points' => 0, 'max' => 0];
+            return ['points' => 0, 'max' => 0, 'expectedTime' => 0, 'questionTimeUsed' => 0];
         }
         $ins = $this->pdo->prepare(
             'INSERT INTO question_results(' .
@@ -347,7 +347,7 @@ class ResultService
         $maxPoints = 0;
         $expectedTime = 0;
         $questionTimeUsed = 0;
-        $answerCount = is_array($answers) ? count($answers) : 0;
+        $answerCount = count($answers);
         $limit = min(count($rows), max($total, $answerCount));
         for ($i = 0; $i < $limit; $i++) {
             $row = $rows[$i];
@@ -579,7 +579,7 @@ class ResultService
         return [
             'time' => $finishedAt,
             'startedAt' => $startedAt,
-            'durationSec' => $durationSec !== null && $durationSec >= 0 ? $durationSec : null,
+            'durationSec' => $durationSec,
         ];
     }
 
