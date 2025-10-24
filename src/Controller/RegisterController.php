@@ -68,7 +68,7 @@ class RegisterController
             );
         }
 
-        $guard = UsernameGuard::fromConfigFile();
+        $guard = UsernameGuard::fromConfigFile(null, $pdo);
 
         try {
             $guard->assertAllowed($user);

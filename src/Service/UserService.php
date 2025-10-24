@@ -20,7 +20,7 @@ class UserService
 
     public function __construct(PDO $pdo, ?UsernameGuard $usernameGuard = null) {
         $this->pdo = $pdo;
-        $this->usernameGuard = $usernameGuard ?? UsernameGuard::fromConfigFile();
+        $this->usernameGuard = $usernameGuard ?? UsernameGuard::fromConfigFile(null, $pdo);
     }
 
     /**
