@@ -780,14 +780,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (changeNameBtn) {
-    changeNameBtn.addEventListener('click', () => {
+    changeNameBtn.addEventListener('click', async () => {
       const newName = window.prompt('Wie lautet dein Name für das Ranking?', currentName || '');
       if (newName === null) {
         return;
       }
-      currentName = newName;
-      setStoredName(newName);
+
+      const sanitizedName = safeUserName(newName) || (typeof newName === 'string' ? newName.trim() : '');
+      currentName = sanitizedName;
+
+      setStoredName(sanitizedName);
+      if (typeof setStored === 'function') {
+        try {
+          setStored('quizUser', sanitizedName);
+        } catch (error) {
+          console.error('Failed to persist quizUser name', error);
+        }
+      }
+
       updateNameDisplay();
+
+      if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
+        const rawUid = getStored(STORAGE_KEYS.PLAYER_UID);
+        const playerUid = typeof rawUid === 'string' ? rawUid.trim() : '';
+        if (playerUid && eventUid) {
+          try {
+            const response = await fetch('/api/players', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                event_uid: eventUid,
+                player_name: sanitizedName,
+                player_uid: playerUid,
+              }),
+            });
+            if (!response.ok) {
+              throw new Error(`Request failed with status ${response.status}`);
+            }
+          } catch (error) {
+            console.error('Failed to update player name for ranking', error);
+          }
+        }
+      }
+
       refresh();
     });
   }
