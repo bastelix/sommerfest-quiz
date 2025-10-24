@@ -1,3 +1,8 @@
+INSERT INTO pages (slug, title, content)
+VALUES (
+    'landing',
+    'Landing',
+    $LANDING$
 <!-- Social Proof -->
 <section id="social-proof" class="uk-section">
   <div class="uk-container">
@@ -689,3 +694,10 @@
   </div>
 </div>
 
+
+$LANDING$
+)
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    content = EXCLUDED.content,
+    updated_at = CURRENT_TIMESTAMP;
