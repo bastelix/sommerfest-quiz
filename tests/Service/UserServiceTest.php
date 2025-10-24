@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Service;
 
-use App\Service\UserService;
 use App\Domain\Roles;
+use App\Service\UserService;
+use App\Support\UsernameBlockedException;
 use Tests\TestCase;
 
 class UserServiceTest extends TestCase
@@ -33,5 +34,23 @@ class UserServiceTest extends TestCase
         $users = $svc->getAll();
         $this->assertSame(['carol', 'alice', 'bob'], array_column($users, 'username'));
         $this->assertSame([0, 1, 2], array_column($users, 'position'));
+    }
+
+    public function testCreateRejectsBlockedUsername(): void {
+        $pdo = $this->createDatabase();
+        $svc = new UserService($pdo);
+
+        $this->expectException(UsernameBlockedException::class);
+        $svc->create('Admin', 'secret123', 'admin@example.com', Roles::ADMIN);
+    }
+
+    public function testSaveAllRejectsBlockedUsernames(): void {
+        $pdo = $this->createDatabase();
+        $svc = new UserService($pdo);
+
+        $this->expectException(UsernameBlockedException::class);
+        $svc->saveAll([
+            ['username' => 'support', 'role' => Roles::ADMIN],
+        ]);
     }
 }
