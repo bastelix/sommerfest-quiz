@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Exception\PlayerNameConflictException;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
@@ -31,35 +32,58 @@ class PlayerService
         ?DateTimeImmutable $consentGrantedAt = null,
         bool $updateContact = false
     ): void {
-        if ($eventUid === '' || $playerName === '' || $playerUid === '') {
+        $normalizedName = $this->normalizeName($playerName);
+        if ($eventUid === '' || $playerUid === '' || $normalizedName === '') {
             return;
         }
 
-        if ($updateContact) {
-            $stmt = $this->pdo->prepare(
-                'INSERT INTO players(event_uid, player_name, player_uid, contact_email, consent_granted_at)
-                VALUES(?,?,?,?,?)
-                ON CONFLICT (event_uid, player_uid) DO UPDATE SET
-                    player_name = EXCLUDED.player_name,
-                    contact_email = EXCLUDED.contact_email,
-                    consent_granted_at = EXCLUDED.consent_granted_at'
-            );
-            $stmt->execute([
-                $eventUid,
-                $playerName,
-                $playerUid,
-                $contactEmail,
-                $consentGrantedAt?->format(DateTimeInterface::ATOM),
-            ]);
+        $existingName = $this->findName($eventUid, $playerUid);
+        $previousCanonical = $existingName !== null ? $this->canonicalizeName($existingName) : '';
+        $nextCanonical = $this->canonicalizeName($normalizedName);
 
-            return;
+        if ($previousCanonical === '' || $previousCanonical !== $nextCanonical) {
+            if ($this->isNameTaken($eventUid, $normalizedName, $playerUid)) {
+                throw new PlayerNameConflictException('Player name already in use.');
+            }
         }
 
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO players(event_uid, player_name, player_uid) VALUES(?,?,?)
-            ON CONFLICT (event_uid, player_uid) DO UPDATE SET player_name = EXCLUDED.player_name'
-        );
-        $stmt->execute([$eventUid, $playerName, $playerUid]);
+        $this->pdo->beginTransaction();
+
+        try {
+            if ($updateContact) {
+                $stmt = $this->pdo->prepare(
+                    'INSERT INTO players(event_uid, player_name, player_uid, contact_email, consent_granted_at)'
+                    . ' VALUES(?,?,?,?,?)'
+                    . ' ON CONFLICT (event_uid, player_uid) DO UPDATE SET'
+                    . '     player_name = EXCLUDED.player_name,'
+                    . '     contact_email = EXCLUDED.contact_email,'
+                    . '     consent_granted_at = EXCLUDED.consent_granted_at'
+                );
+                $stmt->execute([
+                    $eventUid,
+                    $normalizedName,
+                    $playerUid,
+                    $contactEmail,
+                    $consentGrantedAt?->format(DateTimeInterface::ATOM),
+                ]);
+            } else {
+                $stmt = $this->pdo->prepare(
+                    'INSERT INTO players(event_uid, player_name, player_uid) VALUES(?,?,?)'
+                    . ' ON CONFLICT (event_uid, player_uid) DO UPDATE SET player_name = EXCLUDED.player_name'
+                );
+                $stmt->execute([$eventUid, $normalizedName, $playerUid]);
+            }
+
+            if ($existingName !== null && $previousCanonical !== '' && $previousCanonical !== $nextCanonical) {
+                $this->renameResults($eventUid, $existingName, $normalizedName);
+            }
+
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+
+            throw $exception;
+        }
     }
 
     /**
@@ -105,5 +129,102 @@ class PlayerService
         $player = $this->find($eventUid, $playerUid);
 
         return $player['player_name'] ?? null;
+    }
+
+    private function normalizeName(string $name): string {
+        $trimmed = trim($name);
+        if ($trimmed === '') {
+            return '';
+        }
+
+        $fallback = mb_substr($trimmed, 0, 100, 'UTF-8');
+
+        $sanitized = preg_replace('/[\x00-\x1F<>]/u', '', $trimmed);
+        if ($sanitized === null) {
+            $sanitized = $trimmed;
+        }
+
+        if (class_exists(\Normalizer::class)) {
+            $normalized = \Normalizer::normalize($sanitized, \Normalizer::FORM_KC);
+            if ($normalized !== false) {
+                $sanitized = $normalized;
+            }
+        }
+
+        $filtered = preg_replace('/[^\p{L}\p{N}\p{M}\p{Zs}\p{P}]/u', '', $sanitized);
+        if ($filtered !== null && $filtered !== '') {
+            $sanitized = $filtered;
+        }
+
+        $sanitized = trim($sanitized);
+        if ($sanitized === '') {
+            return $fallback;
+        }
+
+        if (mb_strlen($sanitized, 'UTF-8') > 100) {
+            return mb_substr($sanitized, 0, 100, 'UTF-8');
+        }
+
+        return $sanitized;
+    }
+
+    private function canonicalizeName(string $name): string {
+        $normalized = $this->normalizeName($name);
+        if ($normalized === '') {
+            return '';
+        }
+
+        return mb_strtolower($normalized, 'UTF-8');
+    }
+
+    private function isNameTaken(string $eventUid, string $playerName, string $excludeUid): bool {
+        $stmt = $this->pdo->prepare(
+            'SELECT player_uid FROM players WHERE event_uid = ? AND LOWER(player_name) = LOWER(?) LIMIT 1'
+        );
+        $stmt->execute([$eventUid, $playerName]);
+        $existing = $stmt->fetchColumn();
+        if ($existing !== false && (string) $existing !== $excludeUid) {
+            return true;
+        }
+
+        $resultStmt = $this->pdo->prepare(
+            'SELECT 1 FROM results WHERE event_uid = ? AND LOWER(name) = LOWER(?) LIMIT 1'
+        );
+        $resultStmt->execute([$eventUid, $playerName]);
+        if ($resultStmt->fetchColumn() !== false) {
+            return true;
+        }
+
+        $questionStmt = $this->pdo->prepare(
+            'SELECT 1 FROM question_results WHERE event_uid = ? AND LOWER(name) = LOWER(?) LIMIT 1'
+        );
+        $questionStmt->execute([$eventUid, $playerName]);
+
+        return $questionStmt->fetchColumn() !== false;
+    }
+
+    private function renameResults(string $eventUid, string $oldName, string $newName): void {
+        if ($oldName === '' || $newName === '') {
+            return;
+        }
+
+        $oldCanonical = $this->canonicalizeName($oldName);
+        $newCanonical = $this->canonicalizeName($newName);
+
+        if ($oldCanonical === '' || $oldCanonical === $newCanonical) {
+            return;
+        }
+
+        $params = [$newName, $oldName, $eventUid];
+
+        $resultStmt = $this->pdo->prepare(
+            'UPDATE results SET name = ? WHERE name = ? AND (event_uid = ? OR event_uid IS NULL)'
+        );
+        $resultStmt->execute($params);
+
+        $questionStmt = $this->pdo->prepare(
+            'UPDATE question_results SET name = ? WHERE name = ? AND (event_uid = ? OR event_uid IS NULL)'
+        );
+        $questionStmt->execute($params);
     }
 }

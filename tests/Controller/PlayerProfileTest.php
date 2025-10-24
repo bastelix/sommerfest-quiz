@@ -118,4 +118,76 @@ class PlayerProfileTest extends TestCase
         )?->fetchColumn();
         $this->assertFalse($record);
     }
+
+    public function testApiPlayersRejectsDuplicateNames(): void {
+        $pdo = $this->getDatabase();
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name) VALUES('ev4','ev4','Test')"
+        );
+        $pdo->exec(
+            "INSERT INTO players(event_uid, player_name, player_uid) VALUES('ev4','Existing','uid-existing')"
+        );
+
+        $app = $this->getAppInstance();
+
+        $request = $this->createRequest('POST', '/api/players');
+        $request = $request->withParsedBody([
+            'event_uid' => 'ev4',
+            'player_name' => 'Existing',
+            'player_uid' => 'uid2',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(409, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['error' => 'name_taken']),
+            (string) $response->getBody()
+        );
+    }
+
+    public function testApiPlayersRenamesExistingResults(): void {
+        $pdo = $this->getDatabase();
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name) VALUES('ev5','ev5','Test')"
+        );
+        $pdo->prepare(
+            "INSERT INTO players(event_uid, player_name, player_uid) VALUES(?,?,?)"
+        )->execute(['ev5', 'Old Name', 'uid5']);
+        $pdo->prepare(
+            "INSERT INTO results(name, catalog, attempt, correct, points, total, max_points, time, event_uid)"
+            . " VALUES(?,?,?,?,?,?,?,?,?)"
+        )->execute(['Old Name', 'cat-1', 1, 3, 3, 5, 5, 1700000000, 'ev5']);
+        $pdo->prepare(
+            "INSERT INTO question_results(name, catalog, question_id, attempt, correct, points, event_uid, final_points, efficiency, is_correct, scoring_version)"
+            . " VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+        )->execute(['Old Name', 'cat-1', 10, 1, 1, 3, 'ev5', 3, 1.0, 1, 1]);
+
+        $app = $this->getAppInstance();
+
+        $request = $this->createRequest('POST', '/api/players');
+        $request = $request->withParsedBody([
+            'event_uid' => 'ev5',
+            'player_name' => '  New Name  ',
+            'player_uid' => 'uid5',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(204, $response->getStatusCode());
+
+        $storedName = $pdo->query(
+            "SELECT player_name FROM players WHERE event_uid='ev5' AND player_uid='uid5'"
+        )?->fetchColumn();
+        $this->assertSame('New Name', $storedName);
+
+        $resultName = $pdo->query(
+            "SELECT name FROM results WHERE event_uid='ev5'"
+        )?->fetchColumn();
+        $this->assertSame('New Name', $resultName);
+
+        $questionName = $pdo->query(
+            "SELECT name FROM question_results WHERE event_uid='ev5'"
+        )?->fetchColumn();
+        $this->assertSame('New Name', $questionName);
+    }
 }

@@ -29,6 +29,7 @@ use App\Service\TeamNameService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
 use App\Service\SummaryPhotoService;
+use App\Exception\PlayerNameConflictException;
 use App\Service\PlayerService;
 use App\Service\UserService;
 use App\Service\TenantService;
@@ -1507,14 +1508,23 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         /** @var PlayerService $playerService */
         $playerService = $request->getAttribute('playerService');
-        $playerService->save(
-            $eventUid,
-            $playerName,
-            $playerUid,
-            $contactEmail,
-            $consentGrantedAt,
-            $hasEmail || $hasConsent
-        );
+
+        try {
+            $playerService->save(
+                $eventUid,
+                $playerName,
+                $playerUid,
+                $contactEmail,
+                $consentGrantedAt,
+                $hasEmail || $hasConsent
+            );
+        } catch (PlayerNameConflictException $exception) {
+            $response->getBody()->write((string) json_encode(['error' => 'name_taken']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(409);
+        }
 
         return $response->withStatus(204);
     });
