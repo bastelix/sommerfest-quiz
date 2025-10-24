@@ -152,6 +152,27 @@ function isTruthyFlag(value){
   return false;
 }
 
+function isTruthyQueryParam(params, key){
+  if(!params || typeof params.get !== 'function' || !params.has(key)){
+    return false;
+  }
+  const raw = params.get(key);
+  if(raw === null){
+    return true;
+  }
+  if(typeof raw !== 'string'){
+    return Boolean(raw);
+  }
+  const normalized = raw.trim().toLowerCase();
+  if(normalized === ''){
+    return true;
+  }
+  if(['0', 'false', 'no', 'off'].includes(normalized)){
+    return false;
+  }
+  return true;
+}
+
 function formatEfficiencyPercent(value){
   if(!Number.isFinite(value)) return '';
   const percent = Math.round(value * 1000) / 10;
@@ -346,7 +367,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const finishBtn = document.getElementById('finish-session-btn');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
-  const resultsEnabled = !(cfg && cfg.teamResults === false);
+  const forcedResultsFromWindow = typeof window.forceResults === 'string'
+    ? window.forceResults === 'true'
+    : Boolean(window.forceResults);
+  const forcedResultsFromQuery = (
+    isTruthyQueryParam(params, 'results')
+    || isTruthyQueryParam(params, 'showResults')
+    || isTruthyQueryParam(params, 'forceResults')
+  );
+  const shouldForceResults = forcedResultsFromWindow || forcedResultsFromQuery;
+  const resultsEnabled = shouldForceResults || !(cfg && cfg.teamResults === false);
   const puzzleEnabled = isTruthyFlag(cfg.puzzleWordEnabled ?? cfg.puzzle_word_enabled);
   if (resultsBtn && !resultsEnabled) {
     resultsBtn.remove();

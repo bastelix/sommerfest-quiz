@@ -14,4 +14,13 @@ class SummaryControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
     }
+
+    public function testSummaryPageForceResultsParameter(): void {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/summary?results=1');
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('window.forceResults = true;', $body);
+    }
 }
