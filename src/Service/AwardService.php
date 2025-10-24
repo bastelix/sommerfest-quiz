@@ -101,6 +101,7 @@ class AwardService
                 }
             }
             $summary = $attemptMetrics[$key] ?? null;
+            $solved = 0;
             if ($summary !== null) {
                 $finalPoints = (int) $summary['points'];
                 $effSum = (float) $summary['efficiencySum'];
@@ -157,11 +158,11 @@ class AwardService
             if ($existing === null) {
                 $shouldReplace = true;
             } else {
-                $existingSolved = (int) ($existing['solved'] ?? 0);
-                $existingPoints = (int) ($existing['points'] ?? 0);
-                $existingDuration = $existing['duration'] ?? null;
-                $existingAverage = (float) ($existing['average'] ?? 0.0);
-                $existingFinish = $existing['finish'] ?? PHP_INT_MAX;
+                $existingSolved = (int) $existing['solved'];
+                $existingPoints = (int) $existing['points'];
+                $existingDuration = $existing['duration'];
+                $existingAverage = (float) $existing['average'];
+                $existingFinish = (int) $existing['finish'];
 
                 if ($solved > $existingSolved) {
                     $shouldReplace = true;
@@ -232,17 +233,15 @@ class AwardService
                 $total += (int) $entry['points'];
                 $effSumTotal += (float) $entry['efficiencySum'];
                 $questionCountTotal += (int) $entry['questionCount'];
-                $totalSolved += (int) ($entry['solved'] ?? 0);
-                $durationValue = $entry['duration'] ?? null;
+                $totalSolved += (int) $entry['solved'];
+                $durationValue = $entry['duration'];
                 if ($durationValue !== null) {
                     $totalDuration += (int) $durationValue;
                     $durationEntries++;
                 }
-                $finishValue = $entry['finish'] ?? null;
-                if ($finishValue !== null) {
-                    if ($latestFinish === null || $finishValue > $latestFinish) {
-                        $latestFinish = (int) $finishValue;
-                    }
+                $finishValue = (int) $entry['finish'];
+                if ($latestFinish === null || $finishValue > $latestFinish) {
+                    $latestFinish = $finishValue;
                 }
             }
             $avgEfficiency = $questionCountTotal === 0 ? 0.0 : $effSumTotal / $questionCountTotal;
@@ -270,22 +269,22 @@ class AwardService
         }
         usort(
             $catalogCandidates,
-            static function (array $a, array $b): int {
-                $cmp = ($b['solved'] ?? 0) <=> ($a['solved'] ?? 0);
-                if ($cmp !== 0) {
-                    return $cmp;
-                }
+              static function (array $a, array $b): int {
+                  $cmp = $b['solved'] <=> $a['solved'];
+                  if ($cmp !== 0) {
+                      return $cmp;
+                  }
 
-                $cmp = ($b['points'] ?? 0) <=> ($a['points'] ?? 0);
-                if ($cmp !== 0) {
-                    return $cmp;
-                }
+                  $cmp = $b['points'] <=> $a['points'];
+                  if ($cmp !== 0) {
+                      return $cmp;
+                  }
 
-                $aDuration = $a['duration'];
-                $bDuration = $b['duration'];
-                $aHasDuration = $aDuration !== null;
-                $bHasDuration = $bDuration !== null;
-                if ($aHasDuration && $bHasDuration) {
+                  $aDuration = $a['duration'];
+                  $bDuration = $b['duration'];
+                  $aHasDuration = $aDuration !== null;
+                  $bHasDuration = $bDuration !== null;
+                  if ($aHasDuration && $bHasDuration) {
                     $cmp = $aDuration <=> $bDuration;
                     if ($cmp !== 0) {
                         return $cmp;
@@ -296,26 +295,28 @@ class AwardService
                     return 1;
                 }
 
-                $aFinish = $a['latestFinish'] ?? PHP_INT_MAX;
-                $bFinish = $b['latestFinish'] ?? PHP_INT_MAX;
-                $cmp = $aFinish <=> $bFinish;
-                if ($cmp !== 0) {
-                    return $cmp;
-                }
+                  $aFinish = $a['latestFinish'];
+                  $bFinish = $b['latestFinish'];
+                  $aFinishValue = $aFinish ?? PHP_INT_MAX;
+                  $bFinishValue = $bFinish ?? PHP_INT_MAX;
+                  $cmp = $aFinishValue <=> $bFinishValue;
+                  if ($cmp !== 0) {
+                      return $cmp;
+                  }
 
-                return ($a['team'] ?? '') <=> ($b['team'] ?? '');
-            }
-        );
+                  return $a['team'] <=> $b['team'];
+              }
+          );
 
         $catalogRanks = [];
         foreach (array_slice($catalogCandidates, 0, 3) as $idx => $row) {
             $catalogRanks[] = [
                 'team' => (string) $row['team'],
                 'place' => $idx + 1,
-                'solved' => (int) ($row['solved'] ?? 0),
-                'points' => (int) ($row['points'] ?? 0),
+                'solved' => (int) $row['solved'],
+                'points' => (int) $row['points'],
                 'duration' => $row['duration'] !== null ? (int) $row['duration'] : null,
-                'finished' => $row['latestFinish'] ?? null,
+                'finished' => $row['latestFinish'],
             ];
         }
 
@@ -332,7 +333,7 @@ class AwardService
         );
         $pointsRanks = [];
         foreach (array_slice($scoreList, 0, 3) as $idx => $row) {
-            $pointsRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+            $pointsRanks[] = ['team' => (string) $row['team'], 'place' => $idx + 1];
         }
 
         usort(

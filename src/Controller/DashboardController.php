@@ -177,14 +177,20 @@ class DashboardController
                 continue;
             }
             $base = $allowed[$id];
-            $baseLayout = isset($base['layout']) ? (string) $base['layout'] : 'auto';
+            $baseLayout = (string) $base['layout'];
             $layout = isset($module['layout']) ? (string) $module['layout'] : $baseLayout;
             if (!in_array($layout, self::DASHBOARD_ALLOWED_LAYOUTS, true)) {
                 $layout = $baseLayout;
             }
 
-            $baseOptions = isset($base['options']) && is_array($base['options']) ? $base['options'] : [];
-            $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
+            $baseOptions = $base['options'] ?? [];
+            if (!is_array($baseOptions)) {
+                $baseOptions = [];
+            }
+            $options = $module['options'] ?? [];
+            if (!is_array($options)) {
+                $options = [];
+            }
 
             $entry = ['id' => $id, 'enabled' => !empty($module['enabled']), 'layout' => $layout];
             if ($id === 'rankings') {
@@ -213,10 +219,11 @@ class DashboardController
                 }
                 $sort = isset($options['sort']) ? (string) $options['sort'] : '';
                 if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
-                    $sort = isset($baseOptions['sort']) ? (string) $baseOptions['sort'] : 'time';
-                    if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
-                        $sort = 'time';
+                    $fallbackSort = $baseOptions['sort'] ?? 'time';
+                    if (!is_string($fallbackSort) || !in_array($fallbackSort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
+                        $fallbackSort = 'time';
                     }
+                    $sort = $fallbackSort;
                 }
                 $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Ergebnisliste';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);

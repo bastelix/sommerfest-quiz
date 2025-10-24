@@ -185,7 +185,7 @@ class ConfigValidator
                 : '';
             if ($trimmed !== '') {
                 $errors['dashboardFixedHeight'] = 'Ungültige Höhe. Bitte px, vh oder rem verwenden.';
-            } elseif (!is_string($heightRaw) && !is_numeric($heightRaw) && $heightRaw !== null) {
+            } elseif ($heightRaw !== null && !is_string($heightRaw) && !is_numeric($heightRaw)) {
                 $errors['dashboardFixedHeight'] = 'Ungültige Höhe. Bitte px, vh oder rem verwenden.';
             }
         } else {
@@ -293,13 +293,16 @@ class ConfigValidator
             return null;
         }
 
-        $unit = $matches['unit'] !== '' ? $matches['unit'] : 'px';
+        $unit = $matches['unit'] ?? '';
+        if ($unit === '') {
+            $unit = 'px';
+        }
 
         return $amount . $unit;
     }
 
     /**
-     * @return array<int,array{id:string,enabled:bool,options?:array<string,mixed>}>
+     * @return array<int,array{id:string,enabled:bool,layout:string,options?:array<string,mixed>}>
      */
     private function defaultDashboardModules(): array {
         return [
@@ -329,7 +332,7 @@ class ConfigValidator
      * Normalize the dashboard modules configuration.
      *
      * @param mixed $value
-     * @return array<int,array{id:string,enabled:bool,options?:array<string,mixed>}>
+     * @return array<int,array{id:string,enabled:bool,layout:string,options?:array<string,mixed>}>
      */
     private function normalizeDashboardModules($value): array {
         $modules = [];
@@ -363,14 +366,20 @@ class ConfigValidator
             }
             $base = $defaults[$id];
             $enabled = filter_var($module['enabled'] ?? $base['enabled'], FILTER_VALIDATE_BOOL);
-            $baseLayout = isset($base['layout']) ? (string)$base['layout'] : 'auto';
+            $baseLayout = (string) $base['layout'];
             $layout = isset($module['layout']) ? (string)$module['layout'] : $baseLayout;
             if (!in_array($layout, self::DASHBOARD_ALLOWED_LAYOUTS, true)) {
                 $layout = $baseLayout;
             }
 
-            $baseOptions = isset($base['options']) && is_array($base['options']) ? $base['options'] : [];
-            $options = isset($module['options']) && is_array($module['options']) ? $module['options'] : [];
+            $baseOptions = $base['options'] ?? [];
+            if (!is_array($baseOptions)) {
+                $baseOptions = [];
+            }
+            $options = $module['options'] ?? [];
+            if (!is_array($options)) {
+                $options = [];
+            }
 
             $entry = ['id' => $id, 'enabled' => (bool)$enabled, 'layout' => $layout];
             if ($id === 'rankings') {
@@ -396,10 +405,11 @@ class ConfigValidator
                 }
                 $sort = isset($options['sort']) ? (string)$options['sort'] : '';
                 if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
-                    $sort = isset($baseOptions['sort']) ? (string)$baseOptions['sort'] : 'time';
-                    if (!in_array($sort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
-                        $sort = 'time';
+                    $fallbackSort = $baseOptions['sort'] ?? 'time';
+                    if (!is_string($fallbackSort) || !in_array($fallbackSort, self::DASHBOARD_RESULTS_SORT_OPTIONS, true)) {
+                        $fallbackSort = 'time';
                     }
+                    $sort = $fallbackSort;
                 }
                 $fallbackTitle = isset($baseOptions['title']) ? (string)$baseOptions['title'] : 'Ergebnisliste';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);

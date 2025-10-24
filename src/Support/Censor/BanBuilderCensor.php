@@ -37,7 +37,7 @@ final class BanBuilderCensor implements UsernameCensor
             throw new \RuntimeException('snipe/banbuilder is not installed.');
         }
 
-        /** @var object $instance */
+        /** @var \Snipe\BanBuilder\CensorWords $instance */
         $instance = new \Snipe\BanBuilder\CensorWords();
 
         return new self($instance);
@@ -62,7 +62,7 @@ final class BanBuilderCensor implements UsernameCensor
             return ['matched' => []];
         }
 
-        $matches = $result['matched'] ?? [];
+        $matches = $result['matched'];
 
         if (!is_array($matches)) {
             $matches = [];
