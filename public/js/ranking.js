@@ -404,6 +404,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const configEventUid = cfg.event_uid || '';
   const eventUid = urlEventUid || configEventUid;
 
+  if (!window.quizConfig) {
+    window.quizConfig = cfg;
+  }
+  if (eventUid && cfg.event_uid !== eventUid) {
+    cfg.event_uid = eventUid;
+    window.quizConfig.event_uid = eventUid;
+  }
+
   const basePath = window.basePath || '';
   const dataService = new ResultsDataService({ basePath, eventUid });
 
@@ -787,6 +795,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const sanitizedName = safeUserName(newName) || (typeof newName === 'string' ? newName.trim() : '');
+      if (!sanitizedName) {
+        window.alert('Bitte gib einen gültigen Namen ein, um im Ranking zu erscheinen.');
+        return;
+      }
       currentName = sanitizedName;
 
       setStoredName(sanitizedName);
