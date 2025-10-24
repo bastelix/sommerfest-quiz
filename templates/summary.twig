@@ -24,9 +24,10 @@
       </div>
     {% endblock %}
   {% endembed %}
+  {% set showTeamResults = forceResults or config.teamResults is not defined or config.teamResults %}
   <div class="uk-container uk-container-small uk-text-center">
     <h2 class="uk-heading-bullet uk-margin-small-top">Herzlichen Glückwunsch, es wurden alle Kataloge gelöst!</h2>
-    {% if config.teamResults is not defined or config.teamResults %}
+    {% if showTeamResults %}
     <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisübersicht anzeigen</button>
     {% endif %}
     <button id="finish-session-btn" class="uk-button uk-button-default uk-margin-top">Beenden</button>
@@ -44,6 +45,7 @@
   <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
+    window.forceResults = {{ forceResults ? 'true' : 'false' }};
   </script>
   <script src="{{ basePath }}/js/storage.js"></script>
   <script src="{{ basePath }}/js/summary.js"></script>

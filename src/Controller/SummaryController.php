@@ -33,6 +33,7 @@ class SummaryController
         $view = Twig::fromRequest($request);
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
+        $forceResults = $this->shouldForceResults($params);
         if ($uid !== '') {
             $cfg = $this->config->getConfigForEvent($uid);
             $event = $this->events->getByUid($uid) ?? $this->events->getFirst();
@@ -54,6 +55,46 @@ class SummaryController
         return $view->render($response, 'summary.twig', [
             'config' => $cfg,
             'event' => $event,
+            'forceResults' => $forceResults,
         ]);
+    }
+
+    /**
+     * Determine if the request explicitly forces the results view.
+     *
+     * @param array<string, mixed> $params
+     */
+    private function shouldForceResults(array $params): bool
+    {
+        $keys = ['results', 'showResults', 'forceResults'];
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $params)) {
+                continue;
+            }
+
+            $value = $params[$key];
+            if (is_bool($value)) {
+                if ($value) {
+                    return true;
+                }
+                continue;
+            }
+
+            if ($value === null) {
+                return true;
+            }
+
+            $normalized = strtolower(trim((string) $value));
+            if ($normalized === '') {
+                return true;
+            }
+            if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
+                continue;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
