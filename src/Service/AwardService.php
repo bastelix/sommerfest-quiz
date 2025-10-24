@@ -299,16 +299,8 @@ class AwardService
                     return 1;
                 }
 
-                $aFinish = $a['latestFinish'];
-                $bFinish = $b['latestFinish'];
-                $aFinishValue = $aFinish;
-                if ($aFinish === null) {
-                    $aFinishValue = PHP_INT_MAX;
-                }
-                $bFinishValue = $bFinish;
-                if ($bFinish === null) {
-                    $bFinishValue = PHP_INT_MAX;
-                }
+                $aFinishValue = $a['latestFinish'] ?? PHP_INT_MAX;
+                $bFinishValue = $b['latestFinish'] ?? PHP_INT_MAX;
                 $cmp = $aFinishValue <=> $bFinishValue;
                 if ($cmp !== 0) {
                     return $cmp;
