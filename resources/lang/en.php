@@ -121,6 +121,8 @@ return [
     'tip_puzzle_word' => 'Displays letters for the puzzle word and saves the full term.',
     'label_dashboard_refresh_interval' => 'Refresh interval (seconds)',
     'text_dashboard_refresh_hint' => 'Controls how often the dashboard fetches new data.',
+    'label_dashboard_fixed_height' => 'Dashboard height (optional)',
+    'text_dashboard_fixed_height_hint' => 'Accepts values such as 1080px, 95vh or 80rem.',
     'label_dashboard_theme' => 'Dashboard theme',
     'tip_dashboard_theme' => 'Switches the live dashboard between light and dark mode.',
     'label_dashboard_modules' => 'Modules & order',

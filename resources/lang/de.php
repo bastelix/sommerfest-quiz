@@ -120,6 +120,8 @@ return [
     'tip_puzzle_word' => 'Zeigt Buchstaben für das Rätselwort und speichert das Wort.',
     'label_dashboard_refresh_interval' => 'Aktualisierungsintervall (Sekunden)',
     'text_dashboard_refresh_hint' => 'Legt fest, wie oft das Dashboard neue Daten lädt.',
+    'label_dashboard_fixed_height' => 'Dashboard-Höhe (optional)',
+    'text_dashboard_fixed_height_hint' => 'Akzeptiert Werte wie 1080px, 95vh oder 80rem.',
     'label_dashboard_theme' => 'Dashboard-Design',
     'tip_dashboard_theme' => 'Wechselt das Live-Dashboard zwischen hellem und dunklem Modus.',
     'label_dashboard_modules' => 'Module & Reihenfolge',

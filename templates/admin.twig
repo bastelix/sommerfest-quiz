@@ -418,6 +418,13 @@
                     <div class="uk-text-meta">{{ t('text_dashboard_refresh_hint') }}</div>
                   </div>
                   <div class="uk-margin">
+                    <label class="uk-form-label" for="dashboardFixedHeight">{{ t('label_dashboard_fixed_height') }}</label>
+                    <div class="uk-form-controls">
+                      <input class="uk-input" type="text" id="dashboardFixedHeight" name="dashboardFixedHeight" value="{{ config.dashboardFixedHeight|default('') }}">
+                    </div>
+                    <div class="uk-text-meta">{{ t('text_dashboard_fixed_height_hint') }}</div>
+                  </div>
+                  <div class="uk-margin">
                     <label class="uk-form-label" for="cfgDashboardTheme">{{ t('label_dashboard_theme') }}</label>
                     <div class="uk-form-controls">
                       {% set cfgTheme = config.dashboardTheme|default('light') %}
