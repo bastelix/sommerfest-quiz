@@ -31,6 +31,7 @@
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
     { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
+    { id: 'rankingQr', enabled: false, layout: 'auto', options: { title: 'Ranking-QR' } },
     { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
     { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } },
   ];

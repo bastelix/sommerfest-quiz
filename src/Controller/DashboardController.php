@@ -138,6 +138,12 @@ class DashboardController
                 'options' => ['title' => 'Hinweise'],
             ],
             [
+                'id' => 'rankingQr',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Ranking-QR'],
+            ],
+            [
                 'id' => 'qrCodes',
                 'enabled' => false,
                 'layout' => 'auto',
@@ -236,7 +242,7 @@ class DashboardController
                 $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Katalog-QR-Codes';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = ['catalogs' => $catalogs, 'title' => $title];
-            } elseif (in_array($id, ['pointsLeader', 'wrongAnswers', 'infoBanner', 'media'], true)) {
+            } elseif (in_array($id, ['pointsLeader', 'wrongAnswers', 'infoBanner', 'rankingQr', 'media'], true)) {
                 $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : '';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = ['title' => $title];
