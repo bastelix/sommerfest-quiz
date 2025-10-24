@@ -20,6 +20,21 @@ const safeUserName = (name) => {
   return limitedUnicode || fallback;
 };
 
+const normalizeEmail = (value) => {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  if (trimmed === '') return '';
+  return trimmed;
+};
+
+const isValidEmail = (value) => {
+  if (typeof value !== 'string') return false;
+  const trimmed = value.trim();
+  if (trimmed === '') return false;
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailPattern.test(trimmed);
+};
+
 const createPlayerNameMatcher = (name) => {
   const variants = new Set();
   let primary = '';
@@ -402,6 +417,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const nameHint = document.getElementById('rankingNameHint');
   const refreshBtn = document.getElementById('rankingRefreshBtn');
   const changeNameBtn = document.getElementById('rankingChangeNameBtn');
+  const contactForm = document.getElementById('rankingContactForm');
+  const emailInput = document.getElementById('rankingEmail');
+  const consentCheckbox = document.getElementById('rankingConsent');
+  const formMessage = document.getElementById('rankingFormMessage');
+
+  const clearStoredValue = (key) => {
+    if (typeof clearStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      clearStored(key);
+    }
+  };
 
   const getStoredName = () => {
     if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
@@ -419,7 +444,85 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const getStoredEmail = () => {
+    if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      const storedValue = getStored(STORAGE_KEYS.PLAYER_EMAIL);
+      if (typeof storedValue === 'string') {
+        return normalizeEmail(storedValue);
+      }
+    }
+    return '';
+  };
+
+  const setStoredEmail = (value) => {
+    if (typeof setStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      setStored(STORAGE_KEYS.PLAYER_EMAIL, value);
+    }
+  };
+
+  const clearStoredEmail = () => {
+    clearStoredValue(STORAGE_KEYS.PLAYER_EMAIL);
+  };
+
+  const getStoredConsent = () => {
+    if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      const storedValue = getStored(STORAGE_KEYS.PLAYER_EMAIL_CONSENT);
+      if (typeof storedValue === 'string') {
+        const normalized = storedValue.trim().toLowerCase();
+        return normalized === '1' || normalized === 'true' || normalized === 'yes';
+      }
+    }
+    return false;
+  };
+
+  const setStoredConsent = (value) => {
+    if (typeof setStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      setStored(STORAGE_KEYS.PLAYER_EMAIL_CONSENT, value ? '1' : '0');
+    }
+  };
+
+  const clearStoredConsent = () => {
+    clearStoredValue(STORAGE_KEYS.PLAYER_EMAIL_CONSENT);
+  };
+
+  const setFormMessage = (text, variant = 'info') => {
+    if (!formMessage) return;
+    formMessage.textContent = text;
+    formMessage.hidden = !text;
+    formMessage.classList.remove('uk-text-danger', 'uk-text-success', 'uk-text-meta');
+    if (!text) {
+      formMessage.classList.add('uk-text-meta');
+      return;
+    }
+    if (variant === 'error') {
+      formMessage.classList.add('uk-text-danger');
+    } else if (variant === 'success') {
+      formMessage.classList.add('uk-text-success');
+    } else {
+      formMessage.classList.add('uk-text-meta');
+    }
+  };
+
+  const resetFormMessage = () => {
+    setFormMessage('', 'info');
+  };
+
   let currentName = getStoredName();
+  let currentEmail = getStoredEmail();
+  let hasEmailConsent = getStoredConsent();
+
+  if (!hasEmailConsent) {
+    currentEmail = '';
+  }
+
+  const updateContactForm = () => {
+    if (emailInput) {
+      emailInput.value = currentEmail || '';
+    }
+    if (consentCheckbox) {
+      consentCheckbox.checked = Boolean(hasEmailConsent && currentEmail);
+    }
+  };
 
   const updateNameDisplay = () => {
     const safeName = safeUserName(currentName) || currentName.trim();
@@ -436,6 +539,15 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   updateNameDisplay();
+  updateContactForm();
+
+  if (emailInput) {
+    emailInput.addEventListener('input', resetFormMessage);
+  }
+
+  if (consentCheckbox) {
+    consentCheckbox.addEventListener('change', resetFormMessage);
+  }
 
   const clearStatus = () => {
     if (statusEl) {
@@ -646,8 +758,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showWarning('Bitte gib einen Spielernamen ein, um dein Ranking zu laden.');
       return;
     }
+    const emailForSync = hasEmailConsent && currentEmail ? currentEmail : '';
     showStatus('Aktualisiere Ranking …');
     dataService.setEventUid(eventUid);
+    dataService.setPlayerEmail(emailForSync);
     dataService.load()
       .then((payload) => {
         clearStatus();
@@ -674,6 +788,66 @@ document.addEventListener('DOMContentLoaded', () => {
       currentName = newName;
       setStoredName(newName);
       updateNameDisplay();
+      refresh();
+    });
+  }
+
+  if (contactForm) {
+    contactForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!emailInput || !consentCheckbox) {
+        return;
+      }
+      resetFormMessage();
+      const rawEmail = typeof emailInput.value === 'string' ? emailInput.value : '';
+      const trimmedEmail = rawEmail.trim();
+      const consentGiven = Boolean(consentCheckbox.checked);
+
+      if (trimmedEmail === '' && consentGiven) {
+        setFormMessage('Bitte gib eine E-Mail-Adresse an, wenn du der Kontaktaufnahme zustimmst.', 'error');
+        return;
+      }
+
+      if (trimmedEmail !== '' && !isValidEmail(trimmedEmail)) {
+        setFormMessage('Bitte gib eine gültige E-Mail-Adresse im Format name@example.de an.', 'error');
+        return;
+      }
+
+      if (trimmedEmail !== '' && !consentGiven) {
+        setFormMessage('Bitte bestätige die Einwilligung, damit wir deine E-Mail-Adresse speichern dürfen.', 'error');
+        return;
+      }
+
+      if (trimmedEmail === '') {
+        const hadData = Boolean(currentEmail || hasEmailConsent);
+        currentEmail = '';
+        hasEmailConsent = false;
+        clearStoredEmail();
+        clearStoredConsent();
+        updateContactForm();
+        if (hadData) {
+          setFormMessage('Wir haben deine Kontaktdaten entfernt.', 'success');
+          refresh();
+        } else {
+          setFormMessage('Es sind keine Kontaktdaten gespeichert.', 'info');
+        }
+        return;
+      }
+
+      const confirmationText = 'Möchtest du deine E-Mail-Adresse speichern, damit wir dich bei Neuigkeiten zum Ranking informieren können?';
+      const confirmed = window.confirm(confirmationText);
+      if (!confirmed) {
+        setFormMessage('Die Speicherung wurde abgebrochen.', 'info');
+        return;
+      }
+
+      const normalizedEmail = normalizeEmail(trimmedEmail);
+      currentEmail = normalizedEmail;
+      hasEmailConsent = true;
+      setStoredEmail(normalizedEmail);
+      setStoredConsent(true);
+      updateContactForm();
+      setFormMessage('Deine Kontaktdaten wurden gespeichert.', 'success');
       refresh();
     });
   }

@@ -2,6 +2,8 @@
   const STORAGE_KEYS = {
     PLAYER_NAME: 'quizUser',
     PLAYER_UID: 'qr_player_uid',
+    PLAYER_EMAIL: 'qr_player_email',
+    PLAYER_EMAIL_CONSENT: 'qr_player_email_consent',
     CATALOG: 'quizCatalog',
     CATALOG_NAME: 'quizCatalogName',
     CATALOG_DESC: 'quizCatalogDesc',
@@ -33,7 +35,9 @@
     STORAGE_KEYS.LETTER,
     STORAGE_KEYS.PUZZLE_SOLVED,
     STORAGE_KEYS.PUZZLE_TIME,
-    STORAGE_KEYS.QUIZ_SOLVED
+    STORAGE_KEYS.QUIZ_SOLVED,
+    STORAGE_KEYS.PLAYER_EMAIL,
+    STORAGE_KEYS.PLAYER_EMAIL_CONSENT
   ]);
 
   function mapKey(key){
@@ -115,7 +119,9 @@
    * - darkMode                   – Aktiviertes Dunkelmodus-Flag
    * - barrierFree                – Barrierefrei-Flag
    * - qr-theme                   – Letztes Theme
-  * - qr-contrast                – Letzter Kontrastmodus
+   * - qr-contrast                – Letzter Kontrastmodus
+   * - qr_player_email            – Spieler-E-Mail (eventbezogen)
+   * - qr_player_email_consent    – Zustimmung zur Kontaktaufnahme (eventbezogen)
   * - tenantColumns              – Sichtbare Mandantenspalten (JSON)
   * - calserverCookieChoices     – Präferenzen für externe Inhalte auf der calServer-Seite (JSON)
   */
