@@ -8,6 +8,7 @@ use App\Domain\Roles;
 use App\Support\UsernameBlockedException;
 use App\Support\UsernameGuard;
 use PDO;
+use PDOException;
 
 /**
  * Service for user and role management.
@@ -140,15 +141,16 @@ class UserService
      *
      * @param list<array{
      *     id?:int,
-     *     username:string,
+     *     username?:string,
      *     email?:?string,
-     *     role:string,
+     *     role?:string,
      *     password?:string,
      *     active?:bool,
      *     position?:int
      * }> $users
      *
      * @throws UsernameBlockedException
+     * @throws PDOException
      */
     public function saveAll(array $users): void {
         foreach ($users as $candidate) {
@@ -172,10 +174,13 @@ class UserService
         $delete = $this->pdo->prepare('DELETE FROM users WHERE id=?');
 
         foreach ($users as $pos => $u) {
+            if (!isset($u['username'])) {
+                continue;
+            }
             $id = isset($u['id']) ? (int) $u['id'] : 0;
             $rawUsername = (string) $u['username'];
             $username = strtolower($rawUsername);
-            $role = (string) $u['role'];
+            $role = isset($u['role']) ? (string) $u['role'] : Roles::CATALOG_EDITOR;
             $email = isset($u['email']) ? (string) $u['email'] : null;
             if (!in_array($role, Roles::ALL, true)) {
                 $role = Roles::CATALOG_EDITOR;

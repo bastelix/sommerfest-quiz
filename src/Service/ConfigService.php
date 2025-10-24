@@ -638,10 +638,9 @@ class ConfigService
     }
 
     /**
-     * Normalize database column names to expected camelCase keys.
+     * Normalize the configured dashboard theme value.
      *
-     * @param array<string,mixed> $row
-     * @return array<string,mixed>
+     * @param mixed $value
      */
     private function normalizeDashboardTheme($value): string
     {

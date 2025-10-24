@@ -55,13 +55,14 @@ final class UsernameGuard
     private bool $databaseLoaded = false;
 
     /**
-     * @param array{usernames?:array<int,string>,patterns?:array<int,string>} $config
+     * @param array{usernames?:mixed,patterns?:mixed} $config
      */
     public function __construct(array $config, ?UsernameCensor $censor = null, ?PDO $pdo = null)
     {
         $usernames = $config['usernames'] ?? [];
         $patterns = $config['patterns'] ?? [];
 
+        $usernameList = is_array($usernames) ? $usernames : [];
         $this->blockedUsernames = array_values(array_filter(array_map(
             static function ($value): ?string {
                 if (!is_string($value)) {
@@ -75,9 +76,10 @@ final class UsernameGuard
 
                 return mb_strtolower($value);
             },
-            is_array($usernames) ? $usernames : []
+            $usernameList
         )));
 
+        $patternList = is_array($patterns) ? $patterns : [];
         $this->blockedPatterns = array_values(array_filter(array_map(
             static function ($value): ?string {
                 if (!is_string($value)) {
@@ -87,7 +89,7 @@ final class UsernameGuard
                 $value = trim($value);
                 return $value === '' ? null : $value;
             },
-            is_array($patterns) ? $patterns : []
+            $patternList
         )));
 
         $this->pdo = $pdo;
@@ -115,7 +117,7 @@ final class UsernameGuard
     {
         $path = $path ?? dirname(__DIR__, 2) . '/config/blocked_usernames.php';
         $config = [];
-        if (is_string($path) && is_file($path)) {
+        if (is_file($path)) {
             $loaded = require $path;
             if (is_array($loaded)) {
                 $config = $loaded;
@@ -147,7 +149,7 @@ final class UsernameGuard
         }
 
         $result = $this->censor->censorString($normalized);
-        if (($result['matched'] ?? []) !== []) {
+        if ($result['matched'] !== []) {
             throw UsernameBlockedException::forPatternMatch($username);
         }
     }
