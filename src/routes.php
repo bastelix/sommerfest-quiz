@@ -81,6 +81,7 @@ use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
 use App\Controller\EventConfigController;
+use DateTimeImmutable;
 use App\Controller\DashboardController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
@@ -1425,28 +1426,96 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->get('/api/players', function (Request $request, Response $response) {
         $params = $request->getQueryParams();
+        $eventUid = trim((string) ($params['event_uid'] ?? ''));
+        $playerUid = trim((string) ($params['player_uid'] ?? ''));
+
         /** @var PlayerService $playerService */
         $playerService = $request->getAttribute('playerService');
-        $name = $playerService->findName(
-            (string) ($params['event_uid'] ?? ''),
-            (string) ($params['player_uid'] ?? '')
-        );
-        if ($name === null) {
+        $player = $playerService->find($eventUid, $playerUid);
+        if ($player === null) {
             return $response->withStatus(404);
         }
-        $response->getBody()->write(json_encode(['player_name' => $name]));
+
+        $payload = ['player_name' => $player['player_name']];
+        if ($player['contact_email'] !== null) {
+            $payload['contact_email'] = $player['contact_email'];
+        }
+        if ($player['consent_granted_at'] !== null) {
+            $payload['consent_granted_at'] = $player['consent_granted_at'];
+        }
+
+        $response->getBody()->write((string) json_encode($payload));
+
         return $response->withHeader('Content-Type', 'application/json');
     });
 
     $app->post('/api/players', function (Request $request, Response $response) {
         $data = (array) $request->getParsedBody();
+        $eventUid = trim((string) ($data['event_uid'] ?? ''));
+        $playerName = trim((string) ($data['player_name'] ?? ''));
+        $playerUid = trim((string) ($data['player_uid'] ?? ''));
+        $hasEmail = array_key_exists('contact_email', $data);
+        $hasConsent = array_key_exists('consent_granted_at', $data);
+        $contactEmail = null;
+        $consentGrantedAt = null;
+
+        if ($hasEmail) {
+            $rawEmail = $data['contact_email'];
+            if (is_string($rawEmail)) {
+                $rawEmail = trim($rawEmail);
+            }
+
+            if ($rawEmail === '' || $rawEmail === null) {
+                $contactEmail = null;
+            } elseif (!is_string($rawEmail)) {
+                return $response->withStatus(400);
+            } else {
+                $sanitizedEmail = mb_strtolower($rawEmail);
+                if (filter_var($sanitizedEmail, FILTER_VALIDATE_EMAIL) === false) {
+                    return $response->withStatus(400);
+                }
+                $contactEmail = $sanitizedEmail;
+            }
+        }
+
+        if ($hasConsent) {
+            $rawConsent = $data['consent_granted_at'];
+            if (is_string($rawConsent)) {
+                $rawConsent = trim($rawConsent);
+            }
+
+            if ($rawConsent === '' || $rawConsent === null) {
+                $consentGrantedAt = null;
+            } elseif (!is_string($rawConsent)) {
+                return $response->withStatus(400);
+            } else {
+                try {
+                    $consentGrantedAt = new DateTimeImmutable($rawConsent);
+                } catch (\Exception $exception) {
+                    return $response->withStatus(400);
+                }
+            }
+        }
+
+        if ($contactEmail !== null && $consentGrantedAt === null) {
+            return $response->withStatus(400);
+        }
+
+        if ($consentGrantedAt !== null && !$hasEmail) {
+            return $response->withStatus(400);
+        }
+
         /** @var PlayerService $playerService */
         $playerService = $request->getAttribute('playerService');
         $playerService->save(
-            (string) ($data['event_uid'] ?? ''),
-            (string) ($data['player_name'] ?? ''),
-            (string) ($data['player_uid'] ?? '')
+            $eventUid,
+            $playerName,
+            $playerUid,
+            $contactEmail,
+            $consentGrantedAt,
+            $hasEmail || $hasConsent
         );
+
         return $response->withStatus(204);
     });
 
