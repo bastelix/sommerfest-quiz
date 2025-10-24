@@ -1248,6 +1248,11 @@ body.admin-page {
   color: var(--primary-color, #1e87f0);
 }
 
+.ranking-consent-checkbox {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 .player-ranking-card {
   position: relative;
   border-radius: 18px;
