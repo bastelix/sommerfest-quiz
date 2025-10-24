@@ -66,6 +66,7 @@ class ConfigServiceTest extends TestCase
                 dashboard_modules TEXT,
                 dashboard_theme TEXT,
                 dashboard_refresh_interval INTEGER,
+                dashboard_fixed_height TEXT,
                 dashboard_share_enabled INTEGER,
                 dashboard_sponsor_enabled INTEGER,
                 dashboard_info_text TEXT,
@@ -136,6 +137,7 @@ class ConfigServiceTest extends TestCase
             'dashboardModules' => $modules,
             'dashboardTheme' => 'dark',
             'dashboardRefreshInterval' => 45,
+            'dashboardFixedHeight' => '1080px',
             'dashboardShareEnabled' => true,
             'dashboardSponsorEnabled' => false,
             'dashboardInfoText' => 'Welcome back!',
@@ -146,14 +148,15 @@ class ConfigServiceTest extends TestCase
         ]);
 
         $stored = $pdo->query(
-            "SELECT dashboard_modules, dashboard_theme, dashboard_refresh_interval, dashboard_share_enabled, " .
-            "dashboard_sponsor_enabled, dashboard_visibility_start, dashboard_visibility_end " .
+            "SELECT dashboard_modules, dashboard_theme, dashboard_refresh_interval, dashboard_fixed_height, " .
+            "dashboard_share_enabled, dashboard_sponsor_enabled, dashboard_visibility_start, dashboard_visibility_end " .
             "FROM config WHERE event_uid = 'dash-event'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($stored);
         $this->assertSame($modules, json_decode((string) $stored['dashboard_modules'], true));
         $this->assertSame('dark', $stored['dashboard_theme']);
         $this->assertSame(45, (int) $stored['dashboard_refresh_interval']);
+        $this->assertSame('1080px', $stored['dashboard_fixed_height']);
         $this->assertSame(1, (int) $stored['dashboard_share_enabled']);
         $this->assertSame(0, (int) $stored['dashboard_sponsor_enabled']);
         $this->assertSame('2025-07-01T10:00:00Z', $stored['dashboard_visibility_start']);
@@ -170,6 +173,7 @@ class ConfigServiceTest extends TestCase
         $this->assertSame($modules, $config['dashboardModules']);
         $this->assertSame('dark', $config['dashboardTheme']);
         $this->assertSame(45, $config['dashboardRefreshInterval']);
+        $this->assertSame('1080px', $config['dashboardFixedHeight']);
         $this->assertTrue($config['dashboardShareEnabled']);
         $this->assertFalse($config['dashboardSponsorEnabled']);
         $this->assertSame('Welcome back!', $config['dashboardInfoText']);

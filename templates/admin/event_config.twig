@@ -168,6 +168,13 @@
                 <div class="uk-text-meta">Legt fest, wie oft das Dashboard neue Daten lädt.</div>
               </div>
               <div class="uk-margin">
+                <label class="uk-form-label" for="dashboardFixedHeight">Dashboard-Höhe (optional)</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="dashboardFixedHeight" name="dashboardFixedHeight" type="text" value="{{ config.dashboardFixedHeight|default('') }}">
+                </div>
+                <div class="uk-text-meta">Akzeptiert Werte wie 1080px, 95vh oder 80rem.</div>
+              </div>
+              <div class="uk-margin">
                 <label class="uk-form-label" for="dashboardTheme">Dashboard-Design</label>
                 <div class="uk-form-controls">
                   {% set eventTheme = config.dashboardTheme|default('light') %}

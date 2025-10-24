@@ -969,6 +969,7 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
     registrationEnabled: document.getElementById('cfgRegistrationEnabled'),
     dashboardRefreshInterval: document.getElementById('cfgDashboardRefreshInterval'),
+    dashboardFixedHeight: document.getElementById('dashboardFixedHeight'),
     dashboardTheme: document.getElementById('cfgDashboardTheme'),
     dashboardInfoText: document.getElementById('cfgDashboardInfoText'),
     dashboardMediaEmbed: document.getElementById('cfgDashboardMediaEmbed'),
@@ -1755,6 +1756,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const clamped = Math.min(Math.max(parsedRefresh, 5), 300);
         cfgFields.dashboardRefreshInterval.value = String(clamped);
       }
+    }
+    if (cfgFields.dashboardFixedHeight) {
+      const rawHeight = typeof data.dashboardFixedHeight === 'string'
+        ? data.dashboardFixedHeight
+        : '';
+      cfgFields.dashboardFixedHeight.value = rawHeight;
     }
     if (cfgFields.dashboardTheme) {
       const normalizedTheme = typeof data.dashboardTheme === 'string'
@@ -2850,6 +2857,13 @@ document.addEventListener('DOMContentLoaded', function () {
         data.dashboardRefreshInterval = String(clamped);
         cfgFields.dashboardRefreshInterval.value = String(clamped);
       }
+    }
+    if (cfgFields.dashboardFixedHeight) {
+      const rawHeight = typeof cfgFields.dashboardFixedHeight.value === 'string'
+        ? cfgFields.dashboardFixedHeight.value.trim()
+        : '';
+      data.dashboardFixedHeight = rawHeight;
+      cfgFields.dashboardFixedHeight.value = rawHeight;
     }
     if (cfgFields.dashboardTheme) {
       const selectedTheme = (cfgFields.dashboardTheme.value || '').toLowerCase();

@@ -40,6 +40,7 @@ class ConfigValidator
         'dashboardModules' => [],
         'dashboardTheme' => 'light',
         'dashboardRefreshInterval' => 15,
+        'dashboardFixedHeight' => '',
         'dashboardShareEnabled' => false,
         'dashboardSponsorEnabled' => false,
         'dashboardInfoText' => '',
@@ -175,6 +176,22 @@ class ConfigValidator
         }
         $config['dashboardRefreshInterval'] = (int) $refresh;
 
+        $heightRaw = $data['dashboardFixedHeight'] ?? self::DEFAULTS['dashboardFixedHeight'];
+        $heightNormalized = $this->normalizeDashboardFixedHeight($heightRaw);
+        if ($heightNormalized === null) {
+            $config['dashboardFixedHeight'] = '';
+            $trimmed = is_string($heightRaw) || is_numeric($heightRaw)
+                ? trim((string) $heightRaw)
+                : '';
+            if ($trimmed !== '') {
+                $errors['dashboardFixedHeight'] = 'Ungültige Höhe. Bitte px, vh oder rem verwenden.';
+            } elseif (!is_string($heightRaw) && !is_numeric($heightRaw) && $heightRaw !== null) {
+                $errors['dashboardFixedHeight'] = 'Ungültige Höhe. Bitte px, vh oder rem verwenden.';
+            }
+        } else {
+            $config['dashboardFixedHeight'] = $heightNormalized;
+        }
+
         foreach (['dashboardShareEnabled', 'dashboardSponsorEnabled'] as $flag) {
             $config[$flag] = filter_var($data[$flag] ?? self::DEFAULTS[$flag], FILTER_VALIDATE_BOOL);
         }
@@ -237,6 +254,48 @@ class ConfigValidator
         }
 
         return ['config' => $config, 'errors' => $errors];
+    }
+
+    /**
+     * Normalize a dashboard fixed height value.
+     */
+    private function normalizeDashboardFixedHeight(mixed $value): ?string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (is_numeric($value)) {
+            $raw = (string) $value;
+        } elseif (is_string($value)) {
+            $raw = trim($value);
+        } else {
+            return null;
+        }
+
+        if ($raw === '') {
+            return '';
+        }
+
+        $normalized = strtolower(str_replace(' ', '', $raw));
+        $normalized = str_replace(',', '.', $normalized);
+
+        if (preg_match('/^(?<amount>\d+(?:\.\d+)?)(?<unit>px|vh|vw|rem)?$/', $normalized, $matches) !== 1) {
+            return null;
+        }
+
+        $amount = $matches['amount'];
+        if (str_contains($amount, '.')) {
+            $amount = rtrim(rtrim($amount, '0'), '.');
+        }
+
+        if ($amount === '') {
+            return null;
+        }
+
+        $unit = $matches['unit'] !== '' ? $matches['unit'] : 'px';
+
+        return $amount . $unit;
     }
 
     /**
