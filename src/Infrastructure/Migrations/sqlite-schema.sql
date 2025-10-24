@@ -258,6 +258,20 @@ CREATE TABLE IF NOT EXISTS users (
     position INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS username_blocklist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    term TEXT NOT NULL,
+    category TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT username_blocklist_category_check CHECK (
+        category IN ('NSFW', '§86a/NS-Bezug', 'Beleidigung/Slur', 'Allgemein')
+    )
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_username_blocklist_term_category
+    ON username_blocklist(term, category);
+CREATE INDEX IF NOT EXISTS idx_username_blocklist_category
+    ON username_blocklist(category);
+
 -- User sessions
 CREATE TABLE IF NOT EXISTS user_sessions (
     user_id INTEGER NOT NULL,

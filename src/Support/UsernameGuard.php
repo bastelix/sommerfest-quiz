@@ -4,22 +4,37 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use PDO;
+use PDOException;
+use Snipe\BanBuilder\CensorWords;
 use function array_filter;
+use function array_fill;
 use function array_map;
+use function array_merge;
+use function array_unique;
 use function array_values;
+use function implode;
 use function dirname;
 use function is_array;
+use function is_file;
 use function is_string;
 use function mb_strtolower;
 use function preg_match;
+use function sprintf;
 use function trim;
-use function is_file;
 
 /**
  * Validates usernames against a configurable blocklist.
  */
 final class UsernameGuard
 {
+    private const DATABASE_CATEGORIES = [
+        'NSFW',
+        '§86a/NS-Bezug',
+        'Beleidigung/Slur',
+        'Allgemein',
+    ];
+
     /**
      * @var list<string>
      */
@@ -30,10 +45,16 @@ final class UsernameGuard
      */
     private array $blockedPatterns;
 
+    private CensorWords $banBuilder;
+
+    private ?PDO $pdo;
+
+    private bool $databaseLoaded = false;
+
     /**
      * @param array{usernames?:array<int,string>,patterns?:array<int,string>} $config
      */
-    public function __construct(array $config)
+    public function __construct(array $config, ?CensorWords $banBuilder = null, ?PDO $pdo = null)
     {
         $usernames = $config['usernames'] ?? [];
         $patterns = $config['patterns'] ?? [];
@@ -65,9 +86,15 @@ final class UsernameGuard
             },
             is_array($patterns) ? $patterns : []
         )));
+
+        $this->pdo = $pdo;
+        $this->banBuilder = $banBuilder ?? new CensorWords();
+        if ($this->blockedUsernames !== []) {
+            $this->banBuilder->addFromArray($this->blockedUsernames);
+        }
     }
 
-    public static function fromConfigFile(?string $path = null): self
+    public static function fromConfigFile(?string $path = null, ?PDO $pdo = null): self
     {
         $path = $path ?? dirname(__DIR__, 2) . '/config/blocked_usernames.php';
         $config = [];
@@ -78,7 +105,7 @@ final class UsernameGuard
             }
         }
 
-        return new self($config);
+        return new self($config, null, $pdo);
     }
 
     public function assertAllowed(string $username): void
@@ -87,6 +114,8 @@ final class UsernameGuard
         if ($normalized === '') {
             return;
         }
+
+        $this->loadDatabaseEntries();
 
         foreach ($this->blockedUsernames as $blocked) {
             if ($normalized === $blocked) {
@@ -99,5 +128,49 @@ final class UsernameGuard
                 throw UsernameBlockedException::forPatternMatch($username);
             }
         }
+
+        $result = $this->banBuilder->censorString($normalized);
+        if (($result['matched'] ?? []) !== []) {
+            throw UsernameBlockedException::forPatternMatch($username);
+        }
+    }
+
+    private function loadDatabaseEntries(): void
+    {
+        if ($this->databaseLoaded || $this->pdo === null) {
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count(self::DATABASE_CATEGORIES), '?'));
+        $sql = sprintf('SELECT term FROM username_blocklist WHERE category IN (%s)', $placeholders);
+
+        $stmt = $this->pdo->prepare($sql);
+        if ($stmt === false) {
+            $this->databaseLoaded = true;
+            return;
+        }
+
+        try {
+            $stmt->execute(self::DATABASE_CATEGORIES);
+        } catch (PDOException) {
+            $this->databaseLoaded = true;
+            return;
+        }
+
+        $terms = [];
+        while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
+            $term = mb_strtolower(trim((string) ($row['term'] ?? '')));
+            if ($term === '') {
+                continue;
+            }
+            $terms[] = $term;
+        }
+
+        if ($terms !== []) {
+            $this->blockedUsernames = array_values(array_unique(array_merge($this->blockedUsernames, $terms)));
+            $this->banBuilder->addFromArray($terms);
+        }
+
+        $this->databaseLoaded = true;
     }
 }

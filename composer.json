@@ -17,7 +17,8 @@
         "stripe/stripe-php": "^18.0",
         "monolog/monolog": "^3",
         "symfony/process": "^7.3",
-        "chillerlan/php-qrcode": "^5.0"
+        "chillerlan/php-qrcode": "^5.0",
+        "snipe/banbuilder": "^2.3"
     },
     "autoload": {
         "psr-4": {
