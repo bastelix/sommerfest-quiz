@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Support\Censor\BanBuilderCensor;
+use App\Support\Censor\SimpleCensor;
+use App\Support\Censor\UsernameCensor;
 use PDO;
 use PDOException;
-use Snipe\BanBuilder\CensorWords;
+use Throwable;
 use function array_filter;
 use function array_fill;
 use function array_map;
@@ -45,7 +48,7 @@ final class UsernameGuard
      */
     private array $blockedPatterns;
 
-    private CensorWords $banBuilder;
+    private UsernameCensor $censor;
 
     private ?PDO $pdo;
 
@@ -54,7 +57,7 @@ final class UsernameGuard
     /**
      * @param array{usernames?:array<int,string>,patterns?:array<int,string>} $config
      */
-    public function __construct(array $config, ?CensorWords $banBuilder = null, ?PDO $pdo = null)
+    public function __construct(array $config, ?UsernameCensor $censor = null, ?PDO $pdo = null)
     {
         $usernames = $config['usernames'] ?? [];
         $patterns = $config['patterns'] ?? [];
@@ -88,9 +91,23 @@ final class UsernameGuard
         )));
 
         $this->pdo = $pdo;
-        $this->banBuilder = $banBuilder ?? new CensorWords();
+
+        if ($censor === null) {
+            if (BanBuilderCensor::isSupported()) {
+                try {
+                    $censor = BanBuilderCensor::create();
+                } catch (Throwable) {
+                    $censor = new SimpleCensor();
+                }
+            } else {
+                $censor = new SimpleCensor();
+            }
+        }
+
+        $this->censor = $censor;
+
         if ($this->blockedUsernames !== []) {
-            $this->banBuilder->addFromArray($this->blockedUsernames);
+            $this->censor->addFromArray($this->blockedUsernames);
         }
     }
 
@@ -129,7 +146,7 @@ final class UsernameGuard
             }
         }
 
-        $result = $this->banBuilder->censorString($normalized);
+        $result = $this->censor->censorString($normalized);
         if (($result['matched'] ?? []) !== []) {
             throw UsernameBlockedException::forPatternMatch($username);
         }
@@ -168,7 +185,7 @@ final class UsernameGuard
 
         if ($terms !== []) {
             $this->blockedUsernames = array_values(array_unique(array_merge($this->blockedUsernames, $terms)));
-            $this->banBuilder->addFromArray($terms);
+            $this->censor->addFromArray($terms);
         }
 
         $this->databaseLoaded = true;
