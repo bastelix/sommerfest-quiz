@@ -151,6 +151,8 @@ return [
     'label_dashboard_module_layout' => 'Layout',
     'label_dashboard_results_limit' => 'Anzahl der Einträge',
     'text_dashboard_results_limit_hint' => 'Leer oder 0 zeigt alle Ergebnisse.',
+    'label_dashboard_results_page_size' => 'Einträge pro Seite',
+    'text_dashboard_results_page_hint' => 'Leer oder 0 deaktiviert den automatischen Umbruch.',
     'label_dashboard_results_sort' => 'Sortierung',
     'option_dashboard_results_sort_time' => 'Neueste zuerst',
     'option_dashboard_results_sort_points' => 'Nach Punkten',

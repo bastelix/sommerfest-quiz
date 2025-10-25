@@ -152,6 +152,8 @@ return [
     'label_dashboard_module_layout' => 'Layout',
     'label_dashboard_results_limit' => 'Number of entries',
     'text_dashboard_results_limit_hint' => 'Leave blank or set to 0 to show all results.',
+    'label_dashboard_results_page_size' => 'Entries per page',
+    'text_dashboard_results_page_hint' => 'Leave blank or 0 to disable paging.',
     'label_dashboard_results_sort' => 'Sorting',
     'option_dashboard_results_sort_time' => 'Newest first',
     'option_dashboard_results_sort_points' => 'By points',

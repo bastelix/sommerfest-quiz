@@ -31,7 +31,7 @@ const MODULE_DEFAULT_LAYOUTS = {
   rankingQr: 'auto',
   media: 'auto',
 };
-const RESULTS_DEFAULT_OPTIONS = { limit: null, sort: 'time', title: 'Ergebnisliste' };
+const RESULTS_DEFAULT_OPTIONS = { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' };
 const RESULTS_SORT_OPTIONS = new Set(['time', 'points', 'name']);
 const RESULTS_LIMIT_MAX = 50;
 
@@ -66,6 +66,7 @@ const dataService = new ResultsDataService({
 
 let lastUpdatedAt = null;
 let pollingTimer = null;
+let resultsPagerTimer = null;
 
 function applyHeaderVisibility(modules) {
   if (!headerContainer) return;
@@ -81,6 +82,13 @@ function updateStatusLabel() {
   }
   const diffSeconds = Math.max(0, Math.round((Date.now() - lastUpdatedAt) / 1000));
   statusLabel.textContent = `Zuletzt aktualisiert vor ${diffSeconds} s`;
+}
+
+function clearResultsPagerTimer() {
+  if (resultsPagerTimer) {
+    clearInterval(resultsPagerTimer);
+    resultsPagerTimer = null;
+  }
 }
 
 function resolveModuleLayout(moduleConfig) {
@@ -146,11 +154,25 @@ function resolveResultsOptions(moduleConfig) {
       limit = Math.min(Math.floor(parsedLimit), RESULTS_LIMIT_MAX);
     }
   }
+  const pageSizeCandidate = options.pageSize ?? defaults.pageSize;
+  let pageSize = null;
+  if (limit !== null) {
+    const parsedPageSize = parseResultNumber(pageSizeCandidate);
+    if (parsedPageSize !== null) {
+      const normalizedPageSize = Math.floor(parsedPageSize);
+      if (normalizedPageSize > 0 && normalizedPageSize <= limit) {
+        pageSize = normalizedPageSize;
+      }
+    }
+    if (pageSize === null) {
+      pageSize = limit;
+    }
+  }
   const rawSort = typeof options.sort === 'string' ? options.sort.trim() : '';
   const sort = RESULTS_SORT_OPTIONS.has(rawSort) ? rawSort : defaults.sort;
   const rawTitle = typeof options.title === 'string' ? options.title.trim() : '';
   const title = rawTitle !== '' ? rawTitle : defaults.title;
-  return { limit, sort, title };
+  return { limit, pageSize, sort, title };
 }
 
 function resolveModuleTitle(moduleConfig, fallback) {
@@ -523,6 +545,7 @@ function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
 }
 
 function renderResultsModule(rows, moduleConfig, layoutOverride = null) {
+  clearResultsPagerTimer();
   const layout = typeof layoutOverride === 'string' && layoutOverride.trim() !== ''
     ? layoutOverride
     : resolveModuleLayout(moduleConfig);
@@ -593,31 +616,121 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null) {
   const thead = document.createElement('thead');
   thead.innerHTML = '<tr><th>Name</th><th>Punkte</th><th>Zeit</th></tr>';
   table.appendChild(thead);
-  const tbody = document.createElement('tbody');
-  if (limitedRows.length > 0) {
-    limitedRows.forEach((row) => {
-      const tr = document.createElement('tr');
-      const nameCell = document.createElement('td');
-      nameCell.textContent = row?.name ?? '';
-      const pointsCell = document.createElement('td');
-      pointsCell.textContent = formatPointsCell(row?.points ?? row?.correct ?? 0, row?.max_points ?? 0);
-      const timeCell = document.createElement('td');
-      timeCell.textContent = formatTimestamp(row?.time);
-      [nameCell, pointsCell, timeCell].forEach((cell) => {
-        tr.appendChild(cell);
-      });
-      tbody.appendChild(tr);
+
+  const pageBodies = [];
+  const pagerButtons = [];
+  let currentPage = 0;
+
+  const goToPage = (index) => {
+    if (!Number.isInteger(index) || index < 0 || index >= pageBodies.length) {
+      return;
+    }
+    pageBodies.forEach((tbodyEl, idx) => {
+      // eslint-disable-next-line no-param-reassign
+      tbodyEl.hidden = idx !== index;
     });
+    pagerButtons.forEach((button, idx) => {
+      if (idx === index) {
+        button.classList.add('uk-button-primary');
+        button.classList.remove('uk-button-default');
+        button.setAttribute('aria-current', 'true');
+      } else {
+        button.classList.add('uk-button-default');
+        button.classList.remove('uk-button-primary');
+        button.removeAttribute('aria-current');
+      }
+    });
+    currentPage = index;
+  };
+
+  const effectivePageSize = options.pageSize && options.pageSize > 0
+    ? options.pageSize
+    : limitedRows.length || 1;
+  if (limitedRows.length > 0) {
+    const pageCount = Math.max(1, Math.ceil(limitedRows.length / effectivePageSize));
+    for (let i = 0; i < pageCount; i += 1) {
+      const tbody = document.createElement('tbody');
+      tbody.dataset.page = String(i);
+      tbody.hidden = true;
+      const start = i * effectivePageSize;
+      const pageRows = limitedRows.slice(start, start + effectivePageSize);
+      pageRows.forEach((row) => {
+        const tr = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.textContent = row?.name ?? '';
+        const pointsCell = document.createElement('td');
+        pointsCell.textContent = formatPointsCell(row?.points ?? row?.correct ?? 0, row?.max_points ?? 0);
+        const timeCell = document.createElement('td');
+        timeCell.textContent = formatTimestamp(row?.time);
+        tr.appendChild(nameCell);
+        tr.appendChild(pointsCell);
+        tr.appendChild(timeCell);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      pageBodies.push(tbody);
+    }
   } else {
+    const tbody = document.createElement('tbody');
+    tbody.dataset.page = '0';
+    tbody.hidden = true;
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
     emptyCell.colSpan = 3;
     emptyCell.textContent = 'Noch keine Ergebnisse verfügbar';
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
+    table.appendChild(tbody);
+    pageBodies.push(tbody);
   }
-  table.appendChild(tbody);
-  return createModuleCard(options.title, table, layout);
+
+  if (pageBodies.length > 0) {
+    goToPage(0);
+  }
+
+  let pager = null;
+  if (pageBodies.length > 1) {
+    pager = document.createElement('div');
+    pager.className = 'dashboard-results__pager uk-margin-small-top uk-flex uk-flex-center uk-flex-middle uk-flex-wrap';
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = 'uk-button-group';
+    pager.appendChild(buttonGroup);
+
+    const restartAutoAdvance = () => {
+      clearResultsPagerTimer();
+      resultsPagerTimer = setInterval(() => {
+        const nextPage = (currentPage + 1) % pageBodies.length;
+        goToPage(nextPage);
+      }, 10000);
+    };
+
+    pageBodies.forEach((_, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'uk-button uk-button-default uk-button-small';
+      button.textContent = String(index + 1);
+      button.setAttribute('aria-label', `Seite ${index + 1}`);
+      button.addEventListener('click', () => {
+        goToPage(index);
+        restartAutoAdvance();
+      });
+      buttonGroup.appendChild(button);
+      pagerButtons.push(button);
+    });
+
+    goToPage(currentPage);
+    restartAutoAdvance();
+  } else {
+    clearResultsPagerTimer();
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.appendChild(table);
+  if (pager) {
+    wrapper.appendChild(pager);
+  }
+
+  return createModuleCard(options.title, wrapper, layout);
 }
 
 function renderWrongAnswersModule(rows, moduleConfig, layout) {
@@ -689,6 +802,7 @@ function renderMediaModule(moduleConfig, layout) {
 
 function renderModules(rows, questionRows, rankings, catalogCount, catalogList) {
   if (!modulesRoot) return;
+  clearResultsPagerTimer();
   modulesRoot.innerHTML = '';
   applyHeaderVisibility(activeModules);
   const headerActive = activeModules.some((module) => module && module.id === 'header' && module.enabled);

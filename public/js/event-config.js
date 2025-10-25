@@ -28,7 +28,7 @@
       layout: 'wide',
       options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'], title: 'Live-Rankings' },
     },
-    { id: 'results', enabled: true, layout: 'full', options: { limit: null, sort: 'time', title: 'Ergebnisliste' } },
+    { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
     { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
     { id: 'rankingQr', enabled: false, layout: 'auto', options: { title: 'Ranking-QR' } },
@@ -55,13 +55,51 @@
     return Math.min(parsed, RESULTS_MAX_LIMIT);
   };
 
+  const normalizeResultsPageSize = (value, limit) => {
+    const normalizedLimit = typeof limit === 'number' && Number.isFinite(limit) && limit > 0
+      ? Math.floor(limit)
+      : null;
+    if (normalizedLimit === null) {
+      return null;
+    }
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (normalized === '' || normalized === '0') {
+      return null;
+    }
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return null;
+    }
+    if (parsed > normalizedLimit) {
+      return null;
+    }
+    return parsed;
+  };
+
   const applyResultsOptionFields = (item, options = {}) => {
     if (!item) return;
     const defaults = DEFAULT_MODULE_MAP.get('results')?.options || {};
     const limitField = item.querySelector('[data-module-results-option="limit"]');
+    const limitValue = normalizeResultsLimit(
+      options && Object.prototype.hasOwnProperty.call(options, 'limit')
+        ? options.limit
+        : defaults.limit
+    );
     if (limitField) {
-      const limitValue = normalizeResultsLimit(options?.limit);
       limitField.value = limitValue === null ? '' : String(limitValue);
+    }
+    const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
+    if (pageSizeField) {
+      const pageSizeValue = normalizeResultsPageSize(
+        options && Object.prototype.hasOwnProperty.call(options, 'pageSize')
+          ? options.pageSize
+          : defaults.pageSize,
+        limitValue
+      );
+      pageSizeField.value = pageSizeValue === null ? '' : String(pageSizeValue);
     }
     const sortField = item.querySelector('[data-module-results-option="sort"]');
     if (sortField) {
@@ -74,6 +112,33 @@
       const fallbackTitle = defaults.title || 'Ergebnisliste';
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
+    }
+    syncResultsPageSizeState(item);
+  };
+
+  const syncResultsPageSizeState = (item) => {
+    if (!item) return;
+    const limitField = item.querySelector('[data-module-results-option="limit"]');
+    const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
+    if (!pageSizeField) return;
+    const limitValue = normalizeResultsLimit(limitField?.value);
+    const shouldDisable = limitValue === null;
+    pageSizeField.disabled = shouldDisable;
+    if (shouldDisable) {
+      if (pageSizeField.value !== '') {
+        pageSizeField.value = '';
+      }
+      return;
+    }
+    const rawValue = typeof pageSizeField.value === 'string' ? pageSizeField.value.trim() : '';
+    if (rawValue === '') {
+      return;
+    }
+    const normalized = normalizeResultsPageSize(rawValue, limitValue);
+    if (normalized === null) {
+      pageSizeField.value = String(limitValue);
+    } else if (String(normalized) !== rawValue) {
+      pageSizeField.value = String(normalized);
     }
   };
   const applyModuleTitleField = (item, moduleId, options = {}) => {
@@ -443,11 +508,18 @@
       } else if (id === 'results') {
         const defaults = DEFAULT_MODULE_MAP.get(id)?.options || {};
         const limitField = item.querySelector('[data-module-results-option="limit"]');
+        const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
         const sortField = item.querySelector('[data-module-results-option="sort"]');
         const titleField = item.querySelector('[data-module-results-option="title"]');
         const limitValue = limitField
           ? normalizeResultsLimit(limitField.value)
           : normalizeResultsLimit(defaults.limit);
+        let pageSizeValue = pageSizeField && !pageSizeField.disabled
+          ? normalizeResultsPageSize(pageSizeField.value, limitValue)
+          : null;
+        if (pageSizeValue === null) {
+          pageSizeValue = normalizeResultsPageSize(defaults.pageSize, limitValue);
+        }
         const rawSort = sortField ? String(sortField.value || '').trim() : '';
         const sortValue = RESULTS_SORT_OPTIONS.includes(rawSort)
           ? rawSort
@@ -456,7 +528,7 @@
         if (titleValue === '') {
           titleValue = defaults.title || 'Ergebnisliste';
         }
-        entry.options = { limit: limitValue, sort: sortValue, title: titleValue };
+        entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
       } else if (id === QR_MODULE_ID) {
         const catalogs = [];
         item.querySelectorAll('[data-module-catalog]').forEach((catalogEl) => {
@@ -760,11 +832,19 @@
       reader.readAsDataURL(file);
     });
     modulesList?.addEventListener('change', (event) => {
+      if (event.target.matches('[data-module-results-option="limit"]')) {
+        const moduleItem = event.target.closest('[data-module-id="results"]');
+        syncResultsPageSizeState(moduleItem);
+      }
       if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);
       }
     });
     modulesList?.addEventListener('input', (event) => {
+      if (event.target.matches('[data-module-results-option="limit"]')) {
+        const moduleItem = event.target.closest('[data-module-id="results"]');
+        syncResultsPageSizeState(moduleItem);
+      }
       if (event.target.matches('[data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);
       }
