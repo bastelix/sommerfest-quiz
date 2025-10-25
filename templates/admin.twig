@@ -214,7 +214,7 @@
           class="uk-heading-bullet"
           data-title="{{ t('heading_event_settings') }}"
         >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('heading_event_settings') }}</h2>
-        <hr class="uk-divider-small admin-divider-line uk-margin-remove-top">
+        <hr class="admin-divider-line uk-margin-remove-top">
         {% include 'admin/components/event_controls.twig' with {
           currentEventUid: config.event_uid|default(''),
           currentEventName: eventName
@@ -299,12 +299,12 @@
               </div>
             </div>
             <div class="uk-width-1-1">
+              <hr class="admin-divider-line">
               <h3 class="uk-heading-bullet">{{ t('heading_game_options') }}</h3>
-              <hr class="uk-divider-small admin-divider-line">
             </div>
               <div class="uk-width-1-1">
+                <hr class="admin-divider-line admin-divider-line--subsection">
                 <h4 class="uk-heading-bullet">{{ t('heading_login') }}</h4>
-                <hr class="uk-divider-small admin-divider-line admin-divider-line--subsection">
               </div>
               <div>
                 <div class="uk-margin">
@@ -378,8 +378,8 @@
                 </fieldset>
               </div>
               <div class="uk-width-1-1">
+                <hr class="admin-divider-line admin-divider-line--subsection">
                 <h4 class="uk-heading-bullet">{{ t('heading_access') }}</h4>
-                <hr class="uk-divider-small admin-divider-line admin-divider-line--subsection">
               </div>
               <div>
                 <div class="uk-margin">
@@ -389,8 +389,8 @@
                 </div>
               </div>
               <div class="uk-width-1-1">
+                <hr class="admin-divider-line admin-divider-line--subsection">
                 <h4 class="uk-heading-bullet">{{ t('heading_gameplay') }}</h4>
-                <hr class="uk-divider-small admin-divider-line admin-divider-line--subsection">
               </div>
               <div>
                 <div class="uk-margin">
@@ -421,8 +421,8 @@
                 </div>
               </div>
               <div class="uk-width-1-1">
+                <hr class="admin-divider-line admin-divider-line--subsection">
                 <h4 class="uk-heading-bullet">{{ t('heading_extras') }}</h4>
-                <hr class="uk-divider-small admin-divider-line admin-divider-line--subsection">
               </div>
               <div>
                 <div class="uk-margin">
@@ -469,8 +469,8 @@
                 </div>
               </div>
               <div class="uk-width-1-1">
+                <hr class="admin-divider-line">
                 <h3 class="uk-heading-bullet">{{ t('heading_dashboard') }}</h3>
-                <hr class="uk-divider-small admin-divider-line">
               </div>
               <div class="uk-width-1-1">
                 <div class="uk-card uk-card-default uk-card-body">
