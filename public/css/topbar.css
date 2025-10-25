@@ -88,12 +88,19 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 }
 
 .admin-page .topbar .config-menu{
-  align-self:stretch;
+  align-self:center;
   display:flex;
+  padding-top:0;
+  padding-bottom:0;
 }
 
 .admin-page .topbar .config-menu #configMenuToggle.git-btn{
-  height:100%;
+  width:48px;
+  height:48px;
+  min-width:48px;
+  min-height:48px;
+  line-height:1;
+  padding:0;
 }
 .git-btn:hover{
   background:var(--topbar-btn-bg-hover);
