@@ -74,7 +74,7 @@ class PlayerService
                 $stmt->execute([$eventUid, $normalizedName, $playerUid]);
             }
 
-            if ($existingName !== null && $previousCanonical !== '' && $previousCanonical !== $nextCanonical) {
+            if ($existingName !== null && $existingName !== $normalizedName) {
                 $this->renameResults($eventUid, $existingName, $normalizedName);
             }
 
@@ -211,7 +211,7 @@ class PlayerService
         $oldCanonical = $this->canonicalizeName($oldName);
         $newCanonical = $this->canonicalizeName($newName);
 
-        if ($oldCanonical === '' || $oldCanonical === $newCanonical) {
+        if ($oldCanonical === '' || $newCanonical === '') {
             return;
         }
 
