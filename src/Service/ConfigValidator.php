@@ -30,6 +30,8 @@ class ConfigValidator
         'randomNameDomains' => [],
         'randomNameTones' => [],
         'randomNameBuffer' => 0,
+        'randomNameLocale' => '',
+        'randomNameStrategy' => 'ai',
         'shuffleQuestions' => true,
         'competitionMode' => false,
         'teamResults' => false,
@@ -102,7 +104,11 @@ class ConfigValidator
 
     public const RANDOM_NAME_BUFFER_MIN = 0;
 
-    public const RANDOM_NAME_BUFFER_MAX = 50;
+    public const RANDOM_NAME_BUFFER_MAX = 9999;
+
+    public const RANDOM_NAME_STRATEGIES = ['ai', 'lexicon'];
+
+    public const RANDOM_NAME_STRATEGY_DEFAULT = 'ai';
 
     /**
      * Validate incoming configuration data.
@@ -213,6 +219,19 @@ class ConfigValidator
             $data['randomNameBuffer']
                 ?? $data['random_name_buffer']
                 ?? self::DEFAULTS['randomNameBuffer'],
+            $errors
+        );
+
+        $config['randomNameLocale'] = $this->normalizeRandomNameLocale(
+            $data['randomNameLocale']
+                ?? $data['random_name_locale']
+                ?? self::DEFAULTS['randomNameLocale']
+        );
+
+        $config['randomNameStrategy'] = $this->normalizeRandomNameStrategy(
+            $data['randomNameStrategy']
+                ?? $data['random_name_strategy']
+                ?? self::DEFAULTS['randomNameStrategy'],
             $errors
         );
 
@@ -414,6 +433,49 @@ class ConfigValidator
         }
 
         return (int) $buffer;
+    }
+
+    /**
+     * @param mixed $raw
+     */
+    private function normalizeRandomNameLocale($raw): string
+    {
+        if ($raw === null) {
+            return '';
+        }
+
+        if (is_string($raw) || is_numeric($raw)) {
+            return trim((string) $raw);
+        }
+
+        return '';
+    }
+
+    /**
+     * @param mixed                $raw
+     * @param array<string,string> $errors
+     */
+    private function normalizeRandomNameStrategy($raw, array &$errors): string
+    {
+        if (!is_string($raw) && !is_numeric($raw)) {
+            return self::RANDOM_NAME_STRATEGY_DEFAULT;
+        }
+
+        $candidate = strtolower(trim((string) $raw));
+        if ($candidate === '') {
+            return self::RANDOM_NAME_STRATEGY_DEFAULT;
+        }
+
+        if (!in_array($candidate, self::RANDOM_NAME_STRATEGIES, true)) {
+            $errors['randomNameStrategy'] = sprintf(
+                'Strategy must be one of: %s',
+                implode(', ', self::RANDOM_NAME_STRATEGIES)
+            );
+
+            return self::RANDOM_NAME_STRATEGY_DEFAULT;
+        }
+
+        return $candidate;
     }
 
     /**

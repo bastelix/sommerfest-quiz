@@ -34,6 +34,8 @@ class TeamNameService
 {
     private const AI_MAX_ATTEMPTS = 3;
     private const DEFAULT_LOCALE = 'de';
+    private const RANDOM_NAME_STRATEGY_AI = 'ai';
+    private const RANDOM_NAME_STRATEGY_LEXICON = 'lexicon';
 
     private PDO $pdo;
 
@@ -131,33 +133,55 @@ class TeamNameService
         ?string $locale = null
     ): array
     {
-        if ($eventId === '') {
-            throw new InvalidArgumentException('eventId must not be empty');
-        }
+        return $this->reserveWithBuffer(
+            $eventId,
+            $domains,
+            $tones,
+            $randomNameBuffer,
+            $locale,
+            self::RANDOM_NAME_STRATEGY_AI
+        );
+    }
 
-        $this->releaseExpiredReservations($eventId);
+    /**
+     * Reserve a name for the given event with explicit buffer and strategy handling.
+     *
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     * @param int $randomNameBuffer
+     * @param string|null $locale
+     * @param string|null $strategy
+     *
+     * @return array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }
+     */
+    public function reserveWithBuffer(
+        string $eventId,
+        array $domains = [],
+        array $tones = [],
+        int $randomNameBuffer = 0,
+        ?string $locale = null,
+        ?string $strategy = null
+    ): array
+    {
+        $reservations = $this->reserveInternal(
+            $eventId,
+            1,
+            $domains,
+            $tones,
+            $randomNameBuffer,
+            $locale,
+            $strategy
+        );
 
-        $aiCandidates = $this->consumeAiSuggestions($eventId, 1, $domains, $tones, $randomNameBuffer, $locale);
-        $selection = $this->getNameSelection($domains, $tones);
-        $names = $selection['names'];
-        $totalCombinations = $selection['total'];
-        $orderedNames = [];
-        if ($names !== []) {
-            $totalNames = count($names);
-            $startIndex = $this->randomStartIndex($totalNames);
-            $orderedNames = array_merge(
-                array_slice($names, $startIndex),
-                array_slice($names, 0, $startIndex)
-            );
-        }
-
-        $candidates = array_merge($aiCandidates, $orderedNames);
-        $reservations = $this->reserveCandidates($eventId, $candidates, 1, $totalCombinations);
-        if ($reservations !== []) {
-            return $reservations[0];
-        }
-
-        return $this->reserveFallback($eventId, $totalCombinations);
+        return $reservations[0];
     }
 
     /**
@@ -187,15 +211,104 @@ class TeamNameService
         ?string $locale = null
     ): array
     {
+        return $this->reserveBatchWithBuffer(
+            $eventId,
+            $count,
+            $domains,
+            $tones,
+            $randomNameBuffer,
+            $locale,
+            self::RANDOM_NAME_STRATEGY_AI
+        );
+    }
+
+    /**
+     * Reserve multiple names for the given event with explicit buffer and strategy handling.
+     *
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     * @param int $randomNameBuffer
+     * @param string|null $locale
+     * @param string|null $strategy
+     *
+     * @return array<int, array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }>
+     */
+    public function reserveBatchWithBuffer(
+        string $eventId,
+        int $count,
+        array $domains = [],
+        array $tones = [],
+        int $randomNameBuffer = 0,
+        ?string $locale = null,
+        ?string $strategy = null
+    ): array
+    {
+        return $this->reserveInternal(
+            $eventId,
+            $count,
+            $domains,
+            $tones,
+            $randomNameBuffer,
+            $locale,
+            $strategy
+        );
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     * @param string|null        $locale
+     * @param string|null        $strategy
+     *
+     * @return array<int, array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }>
+     */
+    private function reserveInternal(
+        string $eventId,
+        int $count,
+        array $domains,
+        array $tones,
+        int $randomNameBuffer,
+        ?string $locale,
+        ?string $strategy
+    ): array
+    {
         if ($eventId === '') {
             throw new InvalidArgumentException('eventId must not be empty');
         }
 
-        $count = max(1, min($count, 10));
+        $normalizedCount = max(1, min($count, 10));
+        $normalizedStrategy = $this->normalizeStrategy($strategy);
 
         $this->releaseExpiredReservations($eventId);
 
-        $aiCandidates = $this->consumeAiSuggestions($eventId, $count, $domains, $tones, $randomNameBuffer, $locale);
+        $aiCandidates = [];
+        if ($this->shouldUseAi($normalizedStrategy)) {
+            $aiCandidates = $this->consumeAiSuggestions(
+                $eventId,
+                $normalizedCount,
+                $domains,
+                $tones,
+                $randomNameBuffer,
+                $locale
+            );
+        }
+
         $selection = $this->getNameSelection($domains, $tones);
         $names = $selection['names'];
         $totalCombinations = $selection['total'];
@@ -211,7 +324,12 @@ class TeamNameService
         }
 
         $candidates = array_merge($aiCandidates, $orderedNames);
-        $reservations = $this->reserveCandidates($eventId, $candidates, $count, $totalCombinations);
+        $reservations = $this->reserveCandidates(
+            $eventId,
+            $candidates,
+            $normalizedCount,
+            $totalCombinations
+        );
 
         if ($reservations === []) {
             return [$this->reserveFallback($eventId, $totalCombinations)];
@@ -396,6 +514,29 @@ class TeamNameService
     private function canUseAi(): bool
     {
         return $this->aiEnabled && $this->aiClient !== null;
+    }
+
+    private function shouldUseAi(string $strategy): bool
+    {
+        if (!$this->canUseAi()) {
+            return false;
+        }
+
+        return $strategy === self::RANDOM_NAME_STRATEGY_AI;
+    }
+
+    private function normalizeStrategy(?string $strategy): string
+    {
+        if ($strategy === null) {
+            return self::RANDOM_NAME_STRATEGY_AI;
+        }
+
+        $candidate = strtolower(trim($strategy));
+        if ($candidate === self::RANDOM_NAME_STRATEGY_AI || $candidate === self::RANDOM_NAME_STRATEGY_LEXICON) {
+            return $candidate;
+        }
+
+        return self::RANDOM_NAME_STRATEGY_AI;
     }
 
     /**

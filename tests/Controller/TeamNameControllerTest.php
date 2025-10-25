@@ -28,8 +28,8 @@ final class TeamNameControllerTest extends TestCase
             ->willReturn([]);
 
         $service->expects(self::once())
-            ->method('reserveBatch')
-            ->with('ev-batch', 3, [], [], 0, null)
+            ->method('reserveBatchWithBuffer')
+            ->with('ev-batch', 3, [], [], 0, null, 'ai')
             ->willReturn([
                 [
                     'name' => 'Alpha Nebel',
@@ -77,13 +77,15 @@ final class TeamNameControllerTest extends TestCase
             ->willReturn([
                 'randomNameDomains' => ['nature', 'science'],
                 'randomNameTones' => ['playful'],
+                'randomNameLocale' => 'de-DE',
+                'randomNameStrategy' => 'lexicon',
             ]);
         $config->expects(self::never())
             ->method('getConfig');
 
         $service->expects(self::once())
-            ->method('reserveBatch')
-            ->with('ev-filters', 10, ['nature', 'science'], ['playful'], 0, null)
+            ->method('reserveBatchWithBuffer')
+            ->with('ev-filters', 10, ['nature', 'science'], ['playful'], 0, 'de-DE', 'lexicon')
             ->willReturn([
                 [
                     'name' => 'Nebelwelle',
