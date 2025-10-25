@@ -83,7 +83,6 @@ use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
 use App\Controller\EventConfigController;
-use DateTimeImmutable;
 use App\Controller\DashboardController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
