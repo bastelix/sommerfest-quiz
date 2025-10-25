@@ -1,4 +1,15 @@
 /* Styles specific to admin event configuration page */
+.admin-divider-line {
+  border: 0;
+  border-top: 1px solid var(--qr-border);
+  margin: 8px 0 24px;
+}
+
+.admin-divider-line--subsection {
+  margin-top: 4px;
+  margin-bottom: 16px;
+}
+
 .event-config-sidebar .uk-card + .uk-card {
   margin-top: 20px;
 }
