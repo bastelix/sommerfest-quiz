@@ -242,7 +242,7 @@ class AwardService
                     $totalDuration += (int) $durationValue;
                     $durationEntries++;
                 }
-                $finishRaw = $entry['finish'] ?? null;
+                $finishRaw = $entry['finish'];
                 $preparedFinish = TimestampHelper::normalize($finishRaw);
                 if ($preparedFinish !== null && ($latestFinishValue === null || $preparedFinish > $latestFinishValue)) {
                     $latestFinishValue = $preparedFinish;
