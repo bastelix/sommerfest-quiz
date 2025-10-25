@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
-use PDOException;
 use App\Service\ConfigService;
 use App\Service\TenantService;
 
@@ -158,6 +157,23 @@ class TeamService
                 $teamUid = bin2hex(random_bytes(16));
                 $stmt->execute([$teamUid, $i + 1, $name]);
             }
+        }
+        $this->pdo->commit();
+    }
+
+    /**
+     * Remove all teams for the active event (or globally when no event is selected).
+     */
+    public function deleteAll(): void
+    {
+        $uid = $this->config->getActiveEventUid();
+
+        $this->pdo->beginTransaction();
+        if ($uid !== '') {
+            $stmt = $this->pdo->prepare('DELETE FROM teams WHERE event_uid=?');
+            $stmt->execute([$uid]);
+        } else {
+            $this->pdo->exec('DELETE FROM teams');
         }
         $this->pdo->commit();
     }

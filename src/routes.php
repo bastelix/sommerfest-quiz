@@ -339,7 +339,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 __DIR__ . '/../data/photos',
                 $eventService
             ))
-            ->withAttribute('teamController', new TeamController($teamService, $configService))
+            ->withAttribute('teamController', new TeamController($teamService, $configService, $resultService))
             ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute(
@@ -1886,6 +1886,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
     $app->post('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
+    $app->delete('/teams.json', function (Request $request, Response $response) {
+        return $request->getAttribute('teamController')->delete($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
     $app->get('/users.json', function (Request $request, Response $response) {
         return $request->getAttribute('userController')->get($request, $response);
