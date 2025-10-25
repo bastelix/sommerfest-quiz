@@ -126,6 +126,7 @@ class ConfigServiceTest extends TestCase
             CREATE TABLE config(
                 event_uid TEXT PRIMARY KEY,
                 dashboard_modules TEXT,
+                dashboard_sponsor_modules TEXT,
                 dashboard_theme TEXT,
                 dashboard_refresh_interval INTEGER,
                 dashboard_fixed_height TEXT,
@@ -200,9 +201,22 @@ class ConfigServiceTest extends TestCase
                 'layout' => 'full',
             ],
         ];
+        $sponsorModules = [
+            [
+                'id' => 'rankings',
+                'enabled' => false,
+                'layout' => 'wide',
+            ],
+            [
+                'id' => 'media',
+                'enabled' => true,
+                'layout' => 'auto',
+            ],
+        ];
         $service->saveConfig([
             'event_uid' => 'dash-event',
             'dashboardModules' => $modules,
+            'dashboardSponsorModules' => $sponsorModules,
             'dashboardTheme' => 'dark',
             'dashboardRefreshInterval' => 45,
             'dashboardFixedHeight' => '1080px',
@@ -216,12 +230,13 @@ class ConfigServiceTest extends TestCase
         ]);
 
         $stored = $pdo->query(
-            "SELECT dashboard_modules, dashboard_theme, dashboard_refresh_interval, dashboard_fixed_height, " .
+            "SELECT dashboard_modules, dashboard_sponsor_modules, dashboard_theme, dashboard_refresh_interval, dashboard_fixed_height, " .
             "dashboard_share_enabled, dashboard_sponsor_enabled, dashboard_visibility_start, dashboard_visibility_end " .
             "FROM config WHERE event_uid = 'dash-event'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($stored);
         $this->assertSame($modules, json_decode((string) $stored['dashboard_modules'], true));
+        $this->assertSame($sponsorModules, json_decode((string) $stored['dashboard_sponsor_modules'], true));
         $this->assertSame('dark', $stored['dashboard_theme']);
         $this->assertSame(45, (int) $stored['dashboard_refresh_interval']);
         $this->assertSame('1080px', $stored['dashboard_fixed_height']);
@@ -239,6 +254,8 @@ class ConfigServiceTest extends TestCase
 
         $config = $service->getConfigForEvent('dash-event');
         $this->assertSame($modules, $config['dashboardModules']);
+        $this->assertSame($sponsorModules, $config['dashboardSponsorModules']);
+        $this->assertFalse($config['dashboardSponsorModulesInherited']);
         $this->assertSame('dark', $config['dashboardTheme']);
         $this->assertSame(45, $config['dashboardRefreshInterval']);
         $this->assertSame('1080px', $config['dashboardFixedHeight']);
@@ -250,6 +267,58 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('2025-07-01T12:00:00Z', $config['dashboardVisibilityEnd']);
         $this->assertSame('public-token', $config['dashboardShareToken']);
         $this->assertSame('sponsor-token', $config['dashboardSponsorToken']);
+    }
+
+    public function testDashboardSponsorModulesFallbackUsesPublicConfiguration(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                dashboard_modules TEXT,
+                dashboard_sponsor_modules TEXT,
+                dashboard_theme TEXT,
+                dashboard_refresh_interval INTEGER,
+                dashboard_share_enabled INTEGER,
+                dashboard_sponsor_enabled INTEGER
+            );
+            SQL
+        );
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec("INSERT INTO events(uid) VALUES('fallback-event')");
+
+        $service = new ConfigService($pdo);
+        $modules = [
+            ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
+            [
+                'id' => 'rankings',
+                'enabled' => true,
+                'layout' => 'wide',
+                'options' => ['limit' => 5, 'pageSize' => null, 'sort' => 'time'],
+            ],
+        ];
+
+        $service->saveConfig([
+            'event_uid' => 'fallback-event',
+            'dashboardModules' => $modules,
+            'dashboardShareEnabled' => true,
+            'dashboardSponsorEnabled' => true,
+        ]);
+
+        $config = $service->getConfigForEvent('fallback-event');
+        $this->assertSame($modules, $config['dashboardModules']);
+        $this->assertSame($modules, $config['dashboardSponsorModules']);
+        $this->assertTrue($config['dashboardSponsorModulesInherited']);
+
+        $json = $service->getJsonForEvent('fallback-event');
+        $this->assertNotNull($json);
+        $decoded = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertIsArray($decoded);
+        $this->assertSame($modules, $decoded['dashboardModules']);
+        $this->assertSame($modules, $decoded['dashboardSponsorModules']);
+        $this->assertTrue($decoded['dashboardSponsorModulesInherited']);
     }
 
     public function testGetConfigReturnsEmptyWithoutActiveEvent(): void {

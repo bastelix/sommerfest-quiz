@@ -41,6 +41,7 @@ class ConfigValidator
         'puzzleWord' => '',
         'puzzleFeedback' => '',
         'dashboardModules' => [],
+        'dashboardSponsorModules' => null,
         'dashboardTheme' => 'light',
         'dashboardRefreshInterval' => 15,
         'dashboardFixedHeight' => '',
@@ -221,6 +222,15 @@ class ConfigValidator
         $config['puzzleFeedback'] = trim((string)($data['puzzleFeedback'] ?? self::DEFAULTS['puzzleFeedback']));
 
         $config['dashboardModules'] = $this->normalizeDashboardModules($data['dashboardModules'] ?? self::DEFAULTS['dashboardModules']);
+
+        $sponsorModulesRaw = $data['dashboardSponsorModules'] ?? self::DEFAULTS['dashboardSponsorModules'];
+        if ($sponsorModulesRaw === null) {
+            $config['dashboardSponsorModules'] = null;
+        } elseif (is_string($sponsorModulesRaw) && trim($sponsorModulesRaw) === '') {
+            $config['dashboardSponsorModules'] = null;
+        } else {
+            $config['dashboardSponsorModules'] = $this->normalizeDashboardModules($sponsorModulesRaw);
+        }
 
         $dashboardThemeRaw = (string)($data['dashboardTheme'] ?? self::DEFAULTS['dashboardTheme']);
         $normalizedDashboardTheme = strtolower(trim($dashboardThemeRaw));

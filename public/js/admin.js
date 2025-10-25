@@ -1069,7 +1069,20 @@ document.addEventListener('DOMContentLoaded', function () {
     randomNameOptionsFieldset.classList.toggle('uk-disabled', !enabled);
   };
   const dashboardModulesList = document.querySelector('[data-dashboard-modules]');
-  const dashboardModulesInput = document.getElementById('cfgDashboardModules');
+  const dashboardModuleInputs = {
+    public: document.getElementById('cfgDashboardModules'),
+    sponsor: document.getElementById('cfgDashboardSponsorModules')
+  };
+  const dashboardVariantSwitch = document.querySelector('[data-dashboard-variant-switch]');
+  const dashboardVariantButtons = dashboardVariantSwitch
+    ? Array.from(dashboardVariantSwitch.querySelectorAll('[data-dashboard-variant]'))
+    : [];
+  let activeDashboardVariant = 'public';
+  const dashboardModulesState = {
+    public: [],
+    sponsor: []
+  };
+  let dashboardSponsorModulesInherited = false;
   const dashboardShareInputs = {
     public: document.querySelector('[data-share-link="public"]'),
     sponsor: document.querySelector('[data-share-link="sponsor"]')
@@ -1856,7 +1869,58 @@ document.addEventListener('DOMContentLoaded', function () {
     return modules;
   }
 
-  function applyDashboardModules(modules) {
+  function cloneDashboardModules(modules) {
+    if (!Array.isArray(modules)) {
+      return [];
+    }
+    return modules.map(entry => {
+      if (!entry || typeof entry !== 'object') {
+        return {};
+      }
+      const clone = { ...entry };
+      if (entry.options && typeof entry.options === 'object') {
+        clone.options = { ...entry.options };
+      }
+      return clone;
+    });
+  }
+
+  function getVariantModulesForRender(variant) {
+    if (variant === 'sponsor' && dashboardSponsorModulesInherited) {
+      return cloneDashboardModules(dashboardModulesState.public);
+    }
+    const state = dashboardModulesState[variant];
+    return cloneDashboardModules(Array.isArray(state) ? state : []);
+  }
+
+  function storeDashboardModules(variant, modules, mark = false, options = {}) {
+    const input = dashboardModuleInputs[variant];
+    if (variant === 'sponsor' && options.inherited) {
+      dashboardModulesState.sponsor = null;
+      dashboardSponsorModulesInherited = true;
+      if (input) {
+        input.value = '';
+      }
+    } else {
+      const normalized = cloneDashboardModules(Array.isArray(modules) ? modules : []);
+      dashboardModulesState[variant] = normalized;
+      if (variant === 'sponsor') {
+        dashboardSponsorModulesInherited = false;
+      }
+      if (input) {
+        try {
+          input.value = JSON.stringify(normalized);
+        } catch (err) {
+          input.value = '[]';
+        }
+      }
+    }
+    if (mark) {
+      queueCfgSave();
+    }
+  }
+
+  function renderDashboardModulesList(modules) {
     if (!dashboardModulesList) {
       return;
     }
@@ -1919,21 +1983,61 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
-    updateDashboardModules(false);
-    loadDashboardQrCatalogOptions(getDashboardQrSelection(configured));
+  }
+
+  function applyDashboardModules(modules, variant = activeDashboardVariant, options = {}) {
+    if (variant === 'sponsor' && options.inherited) {
+      storeDashboardModules('sponsor', null, false, { inherited: true });
+    } else {
+      storeDashboardModules(variant, modules, false);
+    }
+    if (variant === activeDashboardVariant) {
+      const renderModules = getVariantModulesForRender(variant);
+      renderDashboardModulesList(renderModules);
+      loadDashboardQrCatalogOptions(getDashboardQrSelection(renderModules));
+    }
   }
 
   function updateDashboardModules(mark = false) {
-    if (dashboardModulesInput) {
-      try {
-        dashboardModulesInput.value = JSON.stringify(readDashboardModules());
-      } catch (err) {
-        dashboardModulesInput.value = '[]';
+    if (!dashboardModulesList) {
+      if (mark) {
+        queueCfgSave();
       }
+      return;
     }
-    if (mark) {
-      queueCfgSave();
+    const modules = readDashboardModules();
+    storeDashboardModules(activeDashboardVariant, modules, mark);
+  }
+
+  function updateDashboardVariantButtons() {
+    if (dashboardVariantButtons.length === 0) {
+      return;
     }
+    dashboardVariantButtons.forEach(btn => {
+      const target = btn.dataset.dashboardVariant === 'sponsor' ? 'sponsor' : 'public';
+      const isActive = target === activeDashboardVariant;
+      btn.classList.toggle('uk-active', isActive);
+      btn.classList.toggle('uk-button-primary', isActive);
+    });
+  }
+
+  function setActiveDashboardVariant(nextVariant) {
+    const normalized = nextVariant === 'sponsor' ? 'sponsor' : 'public';
+    if (!dashboardModulesList) {
+      activeDashboardVariant = normalized;
+      updateDashboardVariantButtons();
+      return;
+    }
+    if (normalized === activeDashboardVariant) {
+      updateDashboardVariantButtons();
+      return;
+    }
+    storeDashboardModules(activeDashboardVariant, readDashboardModules());
+    activeDashboardVariant = normalized;
+    updateDashboardVariantButtons();
+    const renderModules = getVariantModulesForRender(activeDashboardVariant);
+    renderDashboardModulesList(renderModules);
+    loadDashboardQrCatalogOptions(getDashboardQrSelection(renderModules));
   }
 
   function buildDashboardShareLink(variant) {
@@ -2085,7 +2189,18 @@ document.addEventListener('DOMContentLoaded', function () {
       cfgFields.dashboardVisibilityEnd.value = data.dashboardVisibilityEnd || '';
     }
     if (dashboardModulesList) {
-      applyDashboardModules(data.dashboardModules || []);
+      activeDashboardVariant = 'public';
+      updateDashboardVariantButtons();
+      const publicModules = Array.isArray(data.dashboardModules) ? data.dashboardModules : [];
+      applyDashboardModules(publicModules, 'public');
+      const sponsorModulesRaw = data.dashboardSponsorModules;
+      const sponsorInherited = data.dashboardSponsorModulesInherited === true
+        || !Array.isArray(sponsorModulesRaw);
+      if (sponsorInherited) {
+        applyDashboardModules([], 'sponsor', { inherited: true });
+      } else {
+        applyDashboardModules(sponsorModulesRaw, 'sponsor');
+      }
     }
     dashboardPublicToken = data.dashboardShareToken || '';
     dashboardSponsorToken = data.dashboardSponsorToken || '';
@@ -3193,7 +3308,12 @@ document.addEventListener('DOMContentLoaded', function () {
       data.dashboardTheme = selectedTheme === 'dark' ? 'dark' : 'light';
     }
     if (dashboardModulesList) {
-      data.dashboardModules = readDashboardModules();
+      storeDashboardModules(activeDashboardVariant, readDashboardModules());
+      data.dashboardModules = cloneDashboardModules(dashboardModulesState.public);
+      data.dashboardSponsorModules = dashboardSponsorModulesInherited
+        ? null
+        : cloneDashboardModules(dashboardModulesState.sponsor || []);
+      data.dashboardSponsorModulesInherited = dashboardSponsorModulesInherited;
     }
     if (cfgFields.dashboardInfoText) {
       data.dashboardInfoText = cfgFields.dashboardInfoText.value || '';
@@ -3296,6 +3416,17 @@ document.addEventListener('DOMContentLoaded', function () {
   dashboardModulesList?.addEventListener('moved', () => {
     updateDashboardModules(true);
   });
+  if (dashboardVariantSwitch) {
+    dashboardVariantSwitch.addEventListener('click', event => {
+      const toggle = event.target.closest('[data-dashboard-variant]');
+      if (!toggle) {
+        return;
+      }
+      event.preventDefault();
+      const variant = toggle.dataset.dashboardVariant === 'sponsor' ? 'sponsor' : 'public';
+      setActiveDashboardVariant(variant);
+    });
+  }
   document.querySelectorAll('[data-copy-link]').forEach(btn => {
     btn.addEventListener('click', () => {
       const variant = btn.dataset.copyLink === 'sponsor' ? 'sponsor' : 'public';
