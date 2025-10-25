@@ -19,6 +19,9 @@
   let currentShareToken = '';
   let currentSponsorToken = '';
   let currentEventSlug = '';
+  const RESULTS_DEFAULT_PAGE_INTERVAL = 10;
+  const RESULTS_PAGE_INTERVAL_MIN = 1;
+  const RESULTS_PAGE_INTERVAL_MAX = 300;
   const DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
     { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen', limit: 5 } },
@@ -29,12 +32,24 @@
       options: {
         limit: null,
         pageSize: 10,
+        pageInterval: RESULTS_DEFAULT_PAGE_INTERVAL,
         sort: 'time',
         title: 'Live-Rankings',
         showPlacement: false,
       },
     },
-    { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: 10, sort: 'time', title: 'Ergebnisliste' } },
+    {
+      id: 'results',
+      enabled: true,
+      layout: 'full',
+      options: {
+        limit: null,
+        pageSize: 10,
+        pageInterval: RESULTS_DEFAULT_PAGE_INTERVAL,
+        sort: 'time',
+        title: 'Ergebnisliste'
+      }
+    },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
     { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
     { id: 'rankingQr', enabled: false, layout: 'auto', options: { title: 'Ranking-QR' } },
@@ -129,6 +144,21 @@
     return resolved;
   };
 
+  const normalizeResultsPageInterval = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (normalized === '' || normalized === '0') {
+      return null;
+    }
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed < RESULTS_PAGE_INTERVAL_MIN) {
+      return null;
+    }
+    return Math.min(parsed, RESULTS_PAGE_INTERVAL_MAX);
+  };
+
   const normalizePointsLeaderLimit = (value) => {
     if (value === null || value === undefined) {
       return null;
@@ -168,6 +198,18 @@
         limitValue
       );
       pageSizeField.value = pageSizeValue === null ? '' : String(pageSizeValue);
+    }
+    const pageIntervalField = item.querySelector('[data-module-results-option="pageInterval"]');
+    if (pageIntervalField) {
+      const fallbackInterval = normalizeResultsPageInterval(defaults.pageInterval)
+        ?? RESULTS_DEFAULT_PAGE_INTERVAL;
+      const intervalValue = normalizeResultsPageInterval(
+        options && Object.prototype.hasOwnProperty.call(options, 'pageInterval')
+          ? options.pageInterval
+          : defaults.pageInterval
+      );
+      const resolvedInterval = intervalValue ?? fallbackInterval;
+      pageIntervalField.value = resolvedInterval === null ? '' : String(resolvedInterval);
     }
     const sortField = item.querySelector('[data-module-results-option="sort"]');
     if (sortField) {
@@ -588,6 +630,7 @@
         const defaults = DEFAULT_MODULE_MAP.get(id)?.options || {};
         const limitField = item.querySelector('[data-module-results-option="limit"]');
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
+        const pageIntervalField = item.querySelector('[data-module-results-option="pageInterval"]');
         const sortField = item.querySelector('[data-module-results-option="sort"]');
         const titleField = item.querySelector('[data-module-results-option="title"]');
         const limitValue = limitField
@@ -598,6 +641,14 @@
           : null;
         if (pageSizeValue === null) {
           pageSizeValue = normalizeResultsPageSize(defaults.pageSize, limitValue);
+        }
+        const defaultInterval = normalizeResultsPageInterval(defaults.pageInterval)
+          ?? RESULTS_DEFAULT_PAGE_INTERVAL;
+        let pageIntervalValue = pageIntervalField
+          ? normalizeResultsPageInterval(pageIntervalField.value)
+          : null;
+        if (pageIntervalValue === null) {
+          pageIntervalValue = defaultInterval;
         }
         const rawSort = sortField ? String(sortField.value || '').trim() : '';
         const sortValue = RESULTS_SORT_OPTIONS.includes(rawSort)
@@ -617,6 +668,7 @@
         entry.options = {
           limit: limitValue,
           pageSize: pageSizeValue,
+          pageInterval: pageIntervalValue,
           sort: sortValue,
           title: titleValue,
           ...(id === 'rankings' ? { showPlacement: placementValue } : {}),
