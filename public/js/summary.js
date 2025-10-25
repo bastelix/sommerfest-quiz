@@ -420,9 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         STORAGE_KEYS.LETTER,
         STORAGE_KEYS.PUZZLE_SOLVED,
         STORAGE_KEYS.PUZZLE_TIME,
-        STORAGE_KEYS.QUIZ_SOLVED,
-        STORAGE_KEYS.PLAYER_NAME,
-        STORAGE_KEYS.PLAYER_UID
+        STORAGE_KEYS.QUIZ_SOLVED
       ].forEach(key => clearStored(key));
       const query = params.toString();
       const target = `/ranking${query ? `?${query}` : ''}`;
