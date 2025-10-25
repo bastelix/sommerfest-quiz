@@ -1,5 +1,5 @@
 import { ResultsDataService, computeRankings } from './results-data-service.js';
-import { formatTimestamp, formatPointsCell, insertSoftHyphens, formatDuration } from './results-utils.js';
+import { formatTimestamp, formatPointsCell, insertSoftHyphens } from './results-utils.js';
 
 const config = window.dashboardConfig || {};
 const basePath = window.basePath || '';
@@ -54,8 +54,6 @@ function parseBooleanFlag(value) {
   }
   return false;
 }
-
-const puzzleWordEnabled = parseBooleanFlag(config.puzzleWordEnabled ?? config.puzzle_word_enabled);
 
 const dataService = new ResultsDataService({
   basePath,
@@ -143,9 +141,9 @@ function parseResultNumber(value) {
   return null;
 }
 
-function resolveResultsOptions(moduleConfig) {
+function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
   const options = moduleConfig?.options ?? {};
-  const defaults = RESULTS_DEFAULT_OPTIONS;
+  const defaults = { ...RESULTS_DEFAULT_OPTIONS, ...overrideDefaults };
   const limitCandidate = options.limit ?? defaults.limit;
   let limit = null;
   if (limitCandidate !== null && limitCandidate !== undefined) {
@@ -434,122 +432,12 @@ function renderRankingQrModule(moduleConfig) {
   return createModuleCard(resolveModuleTitle(moduleConfig, 'Ranking-QR'), container, resolveModuleLayout(moduleConfig));
 }
 
-function renderRankingsModule(rankings, moduleConfig, catalogCount = 0) {
-  const hasMultipleCatalogs = Number.isFinite(catalogCount) ? catalogCount > 1 : false;
-  const puzzleActive = puzzleWordEnabled;
-  const safeRankings = {
-    puzzleList: puzzleActive && rankings ? rankings.puzzleList || [] : [],
-    catalogList: (rankings && rankings.catalogList) || [],
-    pointsList: (rankings && rankings.pointsList) || [],
-    accuracyList: (rankings && rankings.accuracyList) || [],
-  };
-  const metrics = Array.isArray(moduleConfig.options?.metrics) && moduleConfig.options.metrics.length
-    ? moduleConfig.options.metrics
-    : ['puzzle', 'catalog', 'points', 'accuracy'];
-  const normalizedMetrics = metrics.filter((metric) => {
-    if (metric === 'catalog') {
-      return hasMultipleCatalogs;
-    }
-    if (metric === 'puzzle') {
-      return puzzleActive;
-    }
-    return true;
-  });
-  const cardDefinitions = {
-    points: {
-      title: 'Highscore-Champions',
-      list: safeRankings.pointsList,
-      tooltip: 'Top 3 Teams mit den meisten Punkten',
-    },
-    accuracy: {
-      title: 'Trefferquote-Champions',
-      list: safeRankings.accuracyList,
-      tooltip: 'Top 3 Teams mit der höchsten durchschnittlichen Effizienz',
-    },
-  };
-  if (puzzleActive) {
-    cardDefinitions.puzzle = {
-      title: 'Rätselwort-Bestzeit',
-      list: safeRankings.puzzleList,
-      tooltip: 'Top 3 Teams mit der schnellsten Rätselwort-Lösung',
-    };
-  }
-  if (hasMultipleCatalogs) {
-    cardDefinitions.catalog = {
-      title: 'Ranking-Champions',
-      list: safeRankings.catalogList,
-      tooltip: 'Top 3 Teams nach gelösten Fragen (Tie-Breaker: Punkte, Gesamtzeit)',
-    };
-  }
-  const grid = document.createElement('div');
-  grid.className = 'dashboard-rankings-grid';
-  normalizedMetrics.forEach((metric) => {
-    const def = cardDefinitions[metric];
-    if (!def) return;
-    const col = document.createElement('div');
-    col.className = 'dashboard-rankings-grid__column';
-    const card = document.createElement('div');
-    card.className = 'dashboard-rankings-card uk-card uk-card-default uk-card-body';
-    const title = document.createElement('h4');
-    title.className = 'uk-card-title';
-    title.textContent = def.title;
-    card.appendChild(title);
-    const list = document.createElement('ol');
-    list.className = 'uk-list uk-list-striped';
-    for (let i = 0; i < 3; i += 1) {
-      const li = document.createElement('li');
-      const item = def.list[i];
-      if (item) {
-        const label = document.createElement('div');
-        label.className = 'uk-flex uk-flex-between';
-        const extras = [];
-        if (Number.isFinite(item.solved)) {
-          extras.push(`${item.solved} gelöst`);
-        }
-        if (Number.isFinite(item.points)) {
-          extras.push(`${item.points} Punkte`);
-        }
-        const leftText = extras.length
-          ? `${i + 1}. ${item.name} – ${extras.join(' • ')}`
-          : `${i + 1}. ${item.name}`;
-        const durationValue = item && Number.isFinite(item.duration) ? formatDuration(item.duration) : null;
-        const finishedValue = item && Number.isFinite(item.finished) ? formatTimestamp(item.finished) : null;
-        const valueText = durationValue || finishedValue || item.value || '–';
-        label.innerHTML = `<span>${leftText}</span><span>${valueText}</span>`;
-        li.appendChild(label);
-      } else {
-        li.textContent = '-';
-      }
-      list.appendChild(li);
-    }
-    card.appendChild(list);
-    col.appendChild(card);
-    grid.appendChild(col);
-  });
-  if (!grid.hasChildNodes()) {
-    const emptyState = document.createElement('p');
-    emptyState.className = 'uk-text-meta';
-    if (
-      normalizedMetrics.length === 0
-      && metrics.includes('puzzle')
-      && !puzzleActive
-      && metrics.every((metric) => metric === 'puzzle' || (metric === 'catalog' && !hasMultipleCatalogs))
-    ) {
-      emptyState.textContent = 'Rätselwort-Rankings sind deaktiviert.';
-    } else {
-      emptyState.textContent = 'Keine Rankings ausgewählt.';
-    }
-    grid.appendChild(emptyState);
-  }
-  return createModuleCard(resolveModuleTitle(moduleConfig, 'Live-Rankings'), grid, resolveModuleLayout(moduleConfig));
-}
-
-function renderResultsModule(rows, moduleConfig, layoutOverride = null) {
+function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaultsOverride = {}) {
   clearResultsPagerTimer();
   const layout = typeof layoutOverride === 'string' && layoutOverride.trim() !== ''
     ? layoutOverride
     : resolveModuleLayout(moduleConfig);
-  const options = resolveResultsOptions(moduleConfig);
+  const options = resolveResultsOptions(moduleConfig, defaultsOverride);
   const sortedRows = Array.isArray(rows) ? [...rows] : [];
   const resolveTimeValue = (row) => {
     const timeValue = parseResultNumber(row?.time);
@@ -800,7 +688,7 @@ function renderMediaModule(moduleConfig, layout) {
   return createModuleCard(resolveModuleTitle(moduleConfig, 'Highlights'), container, layout);
 }
 
-function renderModules(rows, questionRows, rankings, catalogCount, catalogList) {
+function renderModules(rows, questionRows, rankings, catalogList) {
   if (!modulesRoot) return;
   clearResultsPagerTimer();
   modulesRoot.innerHTML = '';
@@ -814,7 +702,7 @@ function renderModules(rows, questionRows, rankings, catalogCount, catalogList) 
       modulesRoot.appendChild(renderPointsLeaderModule(rankings, module));
       hasModuleOutput = true;
     } else if (module.id === 'rankings') {
-      modulesRoot.appendChild(renderRankingsModule(rankings, module, catalogCount));
+      modulesRoot.appendChild(renderResultsModule(rows, module, layout, { title: 'Live-Rankings' }));
       hasModuleOutput = true;
     } else if (module.id === 'results') {
       modulesRoot.appendChild(renderResultsModule(rows, module, layout));
@@ -853,7 +741,7 @@ function handleDataLoad(data) {
   lastUpdatedAt = Date.now();
   updateStatusLabel();
   const rankings = computeRankings(data.rows, data.questionRows, data.catalogCount);
-  renderModules(data.rows, data.questionRows, rankings, data.catalogCount, data.catalogList);
+  renderModules(data.rows, data.questionRows, rankings, data.catalogList);
 }
 
 function fetchData() {

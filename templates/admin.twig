@@ -491,8 +491,8 @@
                       <div class="uk-flex uk-flex-between uk-flex-middle">
                         <div>
                           <h4 class="uk-margin-remove">{{ t('label_dashboard_module_rankings') }}</h4>
-                            <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_rankings_hint') }}</p>
-                          </div>
+                          <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_rankings_hint') }}</p>
+                        </div>
                         <div class="uk-flex uk-flex-middle">
                           <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
                           <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle checked> {{ t('label_dashboard_module_visible') }}</label>
@@ -508,17 +508,30 @@
                       </div>
                       <div class="uk-margin-small-top" data-module-options>
                         <div class="uk-margin-small">
-                          <label class="uk-form-label" for="cfgDashboardRankingsTitle">{{ t('label_dashboard_module_title') }}</label>
-                          <input class="uk-input uk-form-small" type="text" id="cfgDashboardRankingsTitle" data-module-title placeholder="{{ t('label_dashboard_module_rankings') }}">
+                          <label class="uk-form-label" for="cfgDashboardRankingsLimit">{{ t('label_dashboard_results_limit') }}</label>
+                          <input class="uk-input uk-form-small" type="number" min="0" max="50" id="cfgDashboardRankingsLimit" data-module-results-option="limit" placeholder="0">
+                          <div class="uk-text-meta">{{ t('text_dashboard_results_limit_hint') }}</div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardRankingsPageSize">{{ t('label_dashboard_results_page_size') }}</label>
+                          <input class="uk-input uk-form-small" type="number" min="0" id="cfgDashboardRankingsPageSize" data-module-results-option="pageSize" placeholder="0">
+                          <div class="uk-text-meta">{{ t('text_dashboard_results_page_hint') }}</div>
+                        </div>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardRankingsSort">{{ t('label_dashboard_results_sort') }}</label>
+                          <select class="uk-select uk-form-small" id="cfgDashboardRankingsSort" data-module-results-option="sort">
+                            <option value="time">{{ t('option_dashboard_results_sort_time') }}</option>
+                            <option value="points">{{ t('option_dashboard_results_sort_points') }}</option>
+                            <option value="name">{{ t('option_dashboard_results_sort_name') }}</option>
+                          </select>
+                        </div>
+                        <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardRankingsTitle">{{ t('label_dashboard_results_title') }}</label>
+                          <input class="uk-input uk-form-small" type="text" id="cfgDashboardRankingsTitle" data-module-results-option="title" placeholder="{{ t('label_dashboard_module_rankings') }}">
                           <div class="uk-text-meta">{{ t('text_dashboard_rankings_title_hint') }}</div>
                         </div>
-                        <div class="uk-text-meta">{{ t('label_dashboard_metrics') }}</div>
-                        <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="points" data-module-metric checked> {{ t('label_dashboard_metric_points') }}</label>
-                        <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="puzzle" data-module-metric checked> {{ t('label_dashboard_metric_puzzle') }}</label>
-                        <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="catalog" data-module-metric checked> {{ t('label_dashboard_metric_catalog') }}</label>
-                        <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="accuracy" data-module-metric checked> {{ t('label_dashboard_metric_accuracy') }}</label>
-                        </div>
-                      </li>
+                      </div>
+                    </li>
                       <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="results">
                         <div class="uk-flex uk-flex-between uk-flex-middle">
                           <div>

@@ -114,10 +114,7 @@ class DashboardController
                 'id' => 'rankings',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => [
-                    'metrics' => ['points', 'puzzle', 'catalog', 'accuracy'],
-                    'title' => 'Live-Rankings',
-                ],
+                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Live-Rankings'],
             ],
             [
                 'id' => 'results',
@@ -189,26 +186,7 @@ class DashboardController
             $options = is_array($optionsRaw) ? $optionsRaw : [];
 
             $entry = ['id' => $id, 'enabled' => !empty($module['enabled']), 'layout' => $layout];
-            if ($id === 'rankings') {
-                $metrics = [];
-                if (isset($options['metrics']) && is_array($options['metrics'])) {
-                    foreach ($options['metrics'] as $metric) {
-                        $metricId = (string) $metric;
-                        if (
-                            in_array($metricId, ['points', 'puzzle', 'catalog', 'accuracy'], true)
-                            && !in_array($metricId, $metrics, true)
-                        ) {
-                            $metrics[] = $metricId;
-                        }
-                    }
-                }
-                if ($metrics === []) {
-                    $metrics = $baseOptions['metrics'] ?? ['points', 'puzzle', 'catalog', 'accuracy'];
-                }
-                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Live-Rankings';
-                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
-                $entry['options'] = ['metrics' => $metrics, 'title' => $title];
-            } elseif ($id === 'results') {
+            if ($id === 'rankings' || $id === 'results') {
                 $limit = $this->normalizeResultsLimit($options['limit'] ?? null);
                 if ($limit === null) {
                     $limit = $this->normalizeResultsLimit($baseOptions['limit'] ?? null);
@@ -220,7 +198,9 @@ class DashboardController
                 $fallbackSortRaw = $baseOptions['sort'] ?? null;
                 $fallbackSort = is_string($fallbackSortRaw) ? $fallbackSortRaw : null;
                 $sort = $this->normalizeResultsSort($options['sort'] ?? null, $fallbackSort);
-                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Ergebnisliste';
+                $fallbackTitle = isset($baseOptions['title'])
+                    ? (string) $baseOptions['title']
+                    : ($id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = [
                     'limit' => $limit,

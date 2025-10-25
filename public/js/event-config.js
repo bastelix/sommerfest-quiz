@@ -26,7 +26,7 @@
       id: 'rankings',
       enabled: true,
       layout: 'wide',
-      options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'], title: 'Live-Rankings' },
+      options: { limit: null, pageSize: null, sort: 'time', title: 'Live-Rankings' },
     },
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
@@ -35,7 +35,6 @@
     { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
     { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } },
   ];
-  const METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
   const LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
   const RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
   const RESULTS_MAX_LIMIT = 50;
@@ -79,9 +78,9 @@
     return parsed;
   };
 
-  const applyResultsOptionFields = (item, options = {}) => {
+  const applyResultsOptionFields = (item, moduleId, options = {}) => {
     if (!item) return;
-    const defaults = DEFAULT_MODULE_MAP.get('results')?.options || {};
+    const defaults = DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
     const limitField = item.querySelector('[data-module-results-option="limit"]');
     const limitValue = normalizeResultsLimit(
       options && Object.prototype.hasOwnProperty.call(options, 'limit')
@@ -109,7 +108,7 @@
     }
     const titleField = item.querySelector('[data-module-results-option="title"]');
     if (titleField) {
-      const fallbackTitle = defaults.title || 'Ergebnisliste';
+      const fallbackTitle = defaults.title || (moduleId === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
     }
@@ -494,18 +493,7 @@
         layout = defaultLayout;
       }
       entry.layout = layout;
-      if (id === 'rankings') {
-        const metrics = [];
-        item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
-          if (metricEl.checked) {
-            const value = metricEl.value || '';
-            if (value && !metrics.includes(value)) {
-              metrics.push(value);
-            }
-          }
-        });
-        entry.options = { metrics: metrics.length ? metrics : METRIC_KEYS };
-      } else if (id === 'results') {
+      if (id === 'rankings' || id === 'results') {
         const defaults = DEFAULT_MODULE_MAP.get(id)?.options || {};
         const limitField = item.querySelector('[data-module-results-option="limit"]');
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
@@ -526,7 +514,7 @@
           : (defaults.sort || 'time');
         let titleValue = titleField ? titleField.value.trim() : '';
         if (titleValue === '') {
-          titleValue = defaults.title || 'Ergebnisliste';
+          titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
         }
         entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
       } else if (id === QR_MODULE_ID) {
@@ -581,15 +569,8 @@
       if (layoutField) {
         layoutField.value = layoutValue;
       }
-      if (module.id === 'rankings') {
-        const metrics = Array.isArray(module.options?.metrics) && module.options.metrics.length
-          ? module.options.metrics
-          : METRIC_KEYS;
-        item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
-          metricEl.checked = metrics.includes(metricEl.value);
-        });
-      } else if (module.id === 'results') {
-        applyResultsOptionFields(item, module.options || {});
+      if (module.id === 'rankings' || module.id === 'results') {
+        applyResultsOptionFields(item, module.id, module.options || {});
       }
       applyModuleTitleField(item, module.id, module.options || {});
     });
@@ -607,12 +588,8 @@
         if (layoutField) {
           layoutField.value = defaultLayout;
         }
-        if (module.id === 'rankings') {
-          item.querySelectorAll('[data-module-metric]').forEach((metricEl) => {
-            metricEl.checked = METRIC_KEYS.includes(metricEl.value);
-          });
-        } else if (module.id === 'results') {
-          applyResultsOptionFields(item, module.options || {});
+        if (module.id === 'rankings' || module.id === 'results') {
+          applyResultsOptionFields(item, module.id, module.options || {});
         }
         applyModuleTitleField(item, module.id, module.options || {});
       }
@@ -833,16 +810,16 @@
     });
     modulesList?.addEventListener('change', (event) => {
       if (event.target.matches('[data-module-results-option="limit"]')) {
-        const moduleItem = event.target.closest('[data-module-id="results"]');
+        const moduleItem = event.target.closest('[data-module-id]');
         syncResultsPageSizeState(moduleItem);
       }
-      if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
+      if (event.target.matches('[data-module-toggle], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);
       }
     });
     modulesList?.addEventListener('input', (event) => {
       if (event.target.matches('[data-module-results-option="limit"]')) {
-        const moduleItem = event.target.closest('[data-module-id="results"]');
+        const moduleItem = event.target.closest('[data-module-id]');
         syncResultsPageSizeState(moduleItem);
       }
       if (event.target.matches('[data-module-results-option], [data-module-title]')) {
