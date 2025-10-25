@@ -79,7 +79,7 @@ class PlayerContactController
             $mailer->sendDoubleOptIn($optIn['email'], $link, [
                 'subject' => 'Bitte bestätige deine E-Mail-Adresse',
                 'player_name' => $optIn['player_name'],
-                'event_name' => (string) ($event['name'] ?? ''),
+                'event_name' => $event['name'],
                 'headline' => 'Bitte bestätige deine E-Mail-Adresse',
                 'action_label' => 'E-Mail bestätigen',
             ]);
@@ -99,7 +99,7 @@ class PlayerContactController
         }
 
         $result = $this->optIns->confirm($token, $this->clientIp($request));
-        $status = $result['status'] ?? 'invalid';
+        $status = $result['status'];
 
         if ($status !== 'success') {
             $code = match ($status) {

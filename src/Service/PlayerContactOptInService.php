@@ -213,7 +213,7 @@ class PlayerContactOptInService
             return false;
         }
 
-        $playerName = (string) ($player['player_name'] ?? '');
+        $playerName = (string) $player['player_name'];
         if ($playerName === '') {
             return false;
         }
