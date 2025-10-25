@@ -2,10 +2,6 @@
 
 ## [unreleased]
 
-### Added
-
-- Document random name filters and the batch reservation API for operations teams
-
 ### Build
 
 - Tag image as sommerfest-quiz
@@ -37,10 +33,6 @@
 - Handle network errors in event switcher
 - Add migration for sticker text toggles
 - Normalize spacing before EOF docblocks
-
-### Tests
-
-- Extend configuration coverage for random name filters and add team name batch endpoint assertions
 
 ### Ci
 
