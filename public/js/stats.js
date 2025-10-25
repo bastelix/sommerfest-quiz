@@ -3,8 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('statsTableBody');
   const filter = document.getElementById('statsFilter');
   const refreshBtn = document.getElementById('statsRefreshBtn');
+  const pagination = document.getElementById('statsPagination');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
+  const PAGE_SIZE = 25;
+  const TABLE_COLUMN_COUNT = 10;
 
   function formatQuestionPoints(points, maxPoints) {
     const pts = Number.isFinite(points) ? points : Number.parseInt(points, 10);
@@ -36,6 +39,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let data = [];
   let catalogMap = null;
+  let filteredData = [];
+  let currentPage = 1;
+
+  function sanitizePageNumber(num, totalPages) {
+    let n = Number.parseInt(num, 10);
+    if (Number.isNaN(n) || n < 1) {
+      n = 1;
+    }
+    if (Number.isFinite(totalPages) && totalPages >= 1 && n > totalPages) {
+      n = totalPages;
+    }
+    return n;
+  }
 
   function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
@@ -106,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 10;
+      td.colSpan = TABLE_COLUMN_COUNT;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -177,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 10;
+      td.colSpan = TABLE_COLUMN_COUNT;
       td.textContent = 'Kein Event ausgewählt';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -185,6 +201,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (filter) {
       filter.innerHTML = '<option value="">Alle</option>';
     }
+    filteredData = [];
+    currentPage = 1;
+    updatePagination();
   }
 
   function updateFilterOptions() {
@@ -199,10 +218,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function updatePagination() {
+    if (!pagination) return;
+    const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+    pagination.innerHTML = '';
+    pagination.classList.toggle('uk-hidden', totalPages <= 1);
+    if (totalPages <= 1) {
+      return;
+    }
+
+    currentPage = sanitizePageNumber(currentPage, totalPages);
+
+    const appendItem = (label, page, { disabled = false, active = false } = {}) => {
+      const li = document.createElement('li');
+      if (disabled) li.classList.add('uk-disabled');
+      if (active) li.classList.add('uk-active');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.dataset.page = String(page);
+      a.textContent = label;
+      li.appendChild(a);
+      pagination.appendChild(li);
+    };
+
+    const prevPage = currentPage > 1 ? currentPage - 1 : 1;
+    appendItem('«', prevPage, { disabled: currentPage === 1 });
+
+    for (let i = 1; i <= totalPages; i += 1) {
+      appendItem(String(i), i, { active: currentPage === i });
+    }
+
+    const nextPage = currentPage < totalPages ? currentPage + 1 : totalPages;
+    appendItem('»', nextPage, { disabled: currentPage === totalPages });
+  }
+
+  function renderCurrentPage() {
+    const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+    currentPage = sanitizePageNumber(currentPage, totalPages);
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageRows = filteredData.slice(start, start + PAGE_SIZE);
+    renderTable(pageRows);
+  }
+
   function applyFilter() {
     const name = filter && filter.value ? filter.value : '';
-    const rows = name ? data.filter(r => r.name === name) : data;
-    renderTable(rows);
+    filteredData = name ? data.filter(r => r.name === name) : data.slice();
+    currentPage = 1;
+    updatePagination();
+    renderCurrentPage();
   }
 
   function load() {
@@ -228,6 +291,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   filter?.addEventListener('change', applyFilter);
+  pagination?.addEventListener('click', e => {
+    const target = e.target.closest('a[data-page]');
+    if (!target) return;
+    e.preventDefault();
+    const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+    if (totalPages <= 0) return;
+    const requested = sanitizePageNumber(target.dataset.page, totalPages);
+    if (requested === currentPage) return;
+    currentPage = requested;
+    renderCurrentPage();
+    updatePagination();
+  });
   refreshBtn?.addEventListener('click', e => {
     e.preventDefault();
     load();
