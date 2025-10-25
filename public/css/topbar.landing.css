@@ -18,6 +18,9 @@ body.qr-landing[data-theme="dark"]{
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
 }
+.qr-landing .qr-topbar{
+  padding-top: env(safe-area-inset-top);
+}
 body.qr-landing.high-contrast{
   --topbar-text: #0a0a0a;
   --topbar-drop-bg: #ffffff;
