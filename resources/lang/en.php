@@ -158,6 +158,8 @@ return [
     'option_dashboard_results_sort_time' => 'Newest first',
     'option_dashboard_results_sort_points' => 'By points',
     'option_dashboard_results_sort_name' => 'Alphabetical (name)',
+    'label_dashboard_results_show_placement' => 'Show placement column',
+    'text_dashboard_results_show_placement_hint' => 'Adds a placement column before the participant name.',
     'label_dashboard_results_title' => 'Heading',
     'label_dashboard_module_title' => 'Heading',
     'text_dashboard_results_title_hint' => 'Text shown above the results list.',
