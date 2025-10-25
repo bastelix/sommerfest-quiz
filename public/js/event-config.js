@@ -48,6 +48,50 @@
   const POINTS_LEADER_MAX_LIMIT = 10;
   const POINTS_LEADER_DEFAULT_LIMIT = 5;
   const DEFAULT_MODULE_MAP = new Map(DEFAULT_MODULES.map((module) => [module.id, module]));
+  const parseBooleanOption = (candidate) => {
+    if (candidate === null || candidate === undefined) {
+      return null;
+    }
+    if (typeof candidate === 'boolean') {
+      return candidate;
+    }
+    if (typeof candidate === 'number') {
+      if (!Number.isFinite(candidate)) {
+        return null;
+      }
+      if (candidate === 0) {
+        return false;
+      }
+      if (candidate === 1) {
+        return true;
+      }
+      return candidate > 0;
+    }
+    if (typeof candidate === 'string') {
+      const normalized = candidate.trim().toLowerCase();
+      if (normalized === '') {
+        return null;
+      }
+      if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+        return true;
+      }
+      if (['0', 'false', 'no', 'off'].includes(normalized)) {
+        return false;
+      }
+    }
+    return null;
+  };
+  const resolveBooleanOption = (value, fallback = false) => {
+    const parsed = parseBooleanOption(value);
+    if (parsed !== null) {
+      return parsed;
+    }
+    const fallbackParsed = parseBooleanOption(fallback);
+    if (fallbackParsed !== null) {
+      return fallbackParsed;
+    }
+    return Boolean(fallback);
+  };
   const normalizeResultsLimit = (value) => {
     if (value === null || value === undefined) {
       return null;
