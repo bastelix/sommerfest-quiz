@@ -118,7 +118,13 @@ class DashboardController
                 'id' => 'rankings',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Live-Rankings'],
+                'options' => [
+                    'limit' => null,
+                    'pageSize' => null,
+                    'sort' => 'time',
+                    'title' => 'Live-Rankings',
+                    'showPlacement' => false,
+                ],
             ],
             [
                 'id' => 'results',

@@ -159,6 +159,8 @@ return [
     'option_dashboard_results_sort_time' => 'Neueste zuerst',
     'option_dashboard_results_sort_points' => 'Nach Punkten',
     'option_dashboard_results_sort_name' => 'Alphabetisch (Name)',
+    'label_dashboard_results_show_placement' => 'Platzierung anzeigen',
+    'text_dashboard_results_show_placement_hint' => 'Fügt eine Spalte mit den Platzierungen vor dem Namen ein.',
     'label_dashboard_results_title' => 'Überschrift',
     'label_dashboard_module_title' => 'Überschrift',
     'text_dashboard_results_title_hint' => 'Text für die Überschrift der Ergebnisliste.',

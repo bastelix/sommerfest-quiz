@@ -315,7 +315,13 @@ class ConfigValidator
                 'id' => 'rankings',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Live-Rankings'],
+                'options' => [
+                    'limit' => null,
+                    'pageSize' => null,
+                    'sort' => 'time',
+                    'title' => 'Live-Rankings',
+                    'showPlacement' => false,
+                ],
             ],
             [
                 'id' => 'results',
@@ -397,12 +403,33 @@ class ConfigValidator
                     ? (string)$baseOptions['title']
                     : ($id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
-                $entry['options'] = [
+                $placementFallbackRaw = $baseOptions['showPlacement'] ?? false;
+                $placementFallback = filter_var(
+                    $placementFallbackRaw,
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                );
+                if ($placementFallback === null) {
+                    $placementFallback = false;
+                }
+                $placementValue = filter_var(
+                    $options['showPlacement'] ?? $placementFallback,
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                );
+                if ($placementValue === null) {
+                    $placementValue = false;
+                }
+                $optionsData = [
                     'limit' => $limit,
                     'pageSize' => $pageSize,
                     'sort' => $sort,
                     'title' => $title,
                 ];
+                if ($id === 'rankings') {
+                    $optionsData['showPlacement'] = $placementValue;
+                }
+                $entry['options'] = $optionsData;
             } elseif ($id === 'qrCodes') {
                 $catalogs = [];
                 $rawCatalogs = $options['catalogs'] ?? [];

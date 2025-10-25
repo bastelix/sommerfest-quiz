@@ -33,7 +33,13 @@ const MODULE_DEFAULT_LAYOUTS = {
   rankingQr: 'auto',
   media: 'auto',
 };
-const RESULTS_DEFAULT_OPTIONS = { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' };
+const RESULTS_DEFAULT_OPTIONS = {
+  limit: null,
+  pageSize: null,
+  sort: 'time',
+  title: 'Ergebnisliste',
+  showPlacement: false,
+};
 const RESULTS_SORT_OPTIONS = new Set(['time', 'points', 'name']);
 const RESULTS_LIMIT_MAX = 50;
 const POINTS_LEADER_DEFAULT_OPTIONS = { title: 'Platzierungen', limit: 5 };
@@ -174,7 +180,18 @@ function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
   const sort = RESULTS_SORT_OPTIONS.has(rawSort) ? rawSort : defaults.sort;
   const rawTitle = typeof options.title === 'string' ? options.title.trim() : '';
   const title = rawTitle !== '' ? rawTitle : defaults.title;
-  return { limit, pageSize, sort, title };
+  const showPlacement = parseBooleanFlag(
+    Object.prototype.hasOwnProperty.call(options, 'showPlacement')
+      ? options.showPlacement
+      : defaults.showPlacement
+  );
+  return {
+    limit,
+    pageSize,
+    sort,
+    title,
+    showPlacement,
+  };
 }
 
 function resolveModuleTitle(moduleConfig, fallback) {
@@ -524,8 +541,24 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
   const limitedRows = options.limit ? sortedRows.slice(0, options.limit) : sortedRows;
   const table = document.createElement('table');
   table.className = 'uk-table uk-table-divider uk-table-small uk-table-striped';
+  const includePlacement = options.showPlacement === true;
   const thead = document.createElement('thead');
-  thead.innerHTML = '<tr><th>Name</th><th>Punkte</th><th>Zeit</th></tr>';
+  const headerRow = document.createElement('tr');
+  if (includePlacement) {
+    const placementHeader = document.createElement('th');
+    placementHeader.textContent = 'Platz';
+    headerRow.appendChild(placementHeader);
+  }
+  const nameHeader = document.createElement('th');
+  nameHeader.textContent = 'Name';
+  headerRow.appendChild(nameHeader);
+  const pointsHeader = document.createElement('th');
+  pointsHeader.textContent = 'Punkte';
+  headerRow.appendChild(pointsHeader);
+  const timeHeader = document.createElement('th');
+  timeHeader.textContent = 'Zeit';
+  headerRow.appendChild(timeHeader);
+  thead.appendChild(headerRow);
   table.appendChild(thead);
 
   const pageBodies = [];
@@ -558,6 +591,7 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
   const effectivePageSize = options.pageSize && options.pageSize > 0
     ? options.pageSize
     : limitedRows.length || 1;
+  const columnCount = includePlacement ? 4 : 3;
   if (limitedRows.length > 0) {
     const pageCount = Math.max(1, Math.ceil(limitedRows.length / effectivePageSize));
     for (let i = 0; i < pageCount; i += 1) {
@@ -566,8 +600,13 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
       tbody.hidden = true;
       const start = i * effectivePageSize;
       const pageRows = limitedRows.slice(start, start + effectivePageSize);
-      pageRows.forEach((row) => {
+      pageRows.forEach((row, rowIndex) => {
         const tr = document.createElement('tr');
+        if (includePlacement) {
+          const placementCell = document.createElement('td');
+          placementCell.textContent = String(start + rowIndex + 1);
+          tr.appendChild(placementCell);
+        }
         const nameCell = document.createElement('td');
         nameCell.textContent = row?.name ?? '';
         const pointsCell = document.createElement('td');
@@ -588,7 +627,7 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
     tbody.hidden = true;
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
-    emptyCell.colSpan = 3;
+    emptyCell.colSpan = columnCount;
     emptyCell.textContent = 'Noch keine Ergebnisse verfügbar';
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);

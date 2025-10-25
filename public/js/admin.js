@@ -997,7 +997,13 @@ document.addEventListener('DOMContentLoaded', function () {
       id: 'rankings',
       enabled: true,
       layout: 'wide',
-      options: { limit: null, pageSize: null, sort: 'time', title: 'Live-Rankings' },
+      options: {
+        limit: null,
+        pageSize: null,
+        sort: 'time',
+        title: 'Live-Rankings',
+        showPlacement: false,
+      },
     },
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
@@ -1098,6 +1104,14 @@ document.addEventListener('DOMContentLoaded', function () {
       const fallbackTitle = defaults.title || (moduleId === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
+    }
+    const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
+    if (placementField) {
+      const fallbackPlacement = resolveBooleanOption(defaults.showPlacement, false);
+      const rawPlacement = Object.prototype.hasOwnProperty.call(options || {}, 'showPlacement')
+        ? options.showPlacement
+        : defaults.showPlacement;
+      placementField.checked = resolveBooleanOption(rawPlacement, fallbackPlacement);
     }
     syncDashboardResultsPageSizeState(item);
   }
@@ -1632,6 +1646,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
         const sortField = item.querySelector('[data-module-results-option="sort"]');
         const titleField = item.querySelector('[data-module-results-option="title"]');
+        const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
         const limitValue = limitField
           ? normalizeDashboardResultsLimit(limitField.value)
           : normalizeDashboardResultsLimit(defaults.limit);
