@@ -3645,7 +3645,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loadCatalogs();
 
-  catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
+  if (catSelect) {
+    catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
+  }
 
   function deleteCatalogById(id) {
     const list = catalogManager.getData();
