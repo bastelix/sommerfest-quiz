@@ -28,13 +28,13 @@
       layout: 'wide',
       options: {
         limit: null,
-        pageSize: null,
+        pageSize: 10,
         sort: 'time',
         title: 'Live-Rankings',
         showPlacement: false,
       },
     },
-    { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' } },
+    { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: 10, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
     { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
     { id: 'rankingQr', enabled: false, layout: 'auto', options: { title: 'Ranking-QR' } },
@@ -108,12 +108,6 @@
   };
 
   const normalizeResultsPageSize = (value, limit) => {
-    const normalizedLimit = typeof limit === 'number' && Number.isFinite(limit) && limit > 0
-      ? Math.floor(limit)
-      : null;
-    if (normalizedLimit === null) {
-      return null;
-    }
     if (value === null || value === undefined) {
       return null;
     }
@@ -125,10 +119,14 @@
     if (Number.isNaN(parsed) || parsed <= 0) {
       return null;
     }
-    if (parsed > normalizedLimit) {
-      return null;
+    let resolved = Math.min(parsed, RESULTS_MAX_LIMIT);
+    const normalizedLimit = typeof limit === 'number' && Number.isFinite(limit) && limit > 0
+      ? Math.floor(limit)
+      : null;
+    if (normalizedLimit !== null && resolved > normalizedLimit) {
+      resolved = normalizedLimit;
     }
-    return parsed;
+    return resolved;
   };
 
   const normalizePointsLeaderLimit = (value) => {
@@ -216,22 +214,19 @@
     const limitField = item.querySelector('[data-module-results-option="limit"]');
     const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
     if (!pageSizeField) return;
+    pageSizeField.disabled = false;
     const limitValue = normalizeResultsLimit(limitField?.value);
-    const shouldDisable = limitValue === null;
-    pageSizeField.disabled = shouldDisable;
-    if (shouldDisable) {
-      if (pageSizeField.value !== '') {
-        pageSizeField.value = '';
-      }
-      return;
-    }
     const rawValue = typeof pageSizeField.value === 'string' ? pageSizeField.value.trim() : '';
     if (rawValue === '') {
       return;
     }
     const normalized = normalizeResultsPageSize(rawValue, limitValue);
     if (normalized === null) {
-      pageSizeField.value = String(limitValue);
+      if (limitValue !== null) {
+        pageSizeField.value = String(limitValue);
+      } else {
+        pageSizeField.value = '';
+      }
     } else if (String(normalized) !== rawValue) {
       pageSizeField.value = String(normalized);
     }
@@ -598,7 +593,7 @@
         const limitValue = limitField
           ? normalizeResultsLimit(limitField.value)
           : normalizeResultsLimit(defaults.limit);
-        let pageSizeValue = pageSizeField && !pageSizeField.disabled
+        let pageSizeValue = pageSizeField
           ? normalizeResultsPageSize(pageSizeField.value, limitValue)
           : null;
         if (pageSizeValue === null) {

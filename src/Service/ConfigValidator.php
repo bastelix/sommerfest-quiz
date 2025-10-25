@@ -468,7 +468,7 @@ class ConfigValidator
                 'layout' => 'wide',
                 'options' => [
                     'limit' => null,
-                    'pageSize' => null,
+                    'pageSize' => 10,
                     'sort' => 'time',
                     'title' => 'Live-Rankings',
                     'showPlacement' => false,
@@ -478,7 +478,7 @@ class ConfigValidator
                 'id' => 'results',
                 'enabled' => true,
                 'layout' => 'full',
-                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Ergebnisliste'],
+                'options' => ['limit' => null, 'pageSize' => 10, 'sort' => 'time', 'title' => 'Ergebnisliste'],
             ],
             ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Falsch beantwortete Fragen']],
             ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Hinweise']],
@@ -688,10 +688,6 @@ class ConfigValidator
      */
     private function normalizeResultsPageSize($value, ?int $limit): ?int
     {
-        if ($limit === null || $limit <= 0) {
-            return null;
-        }
-
         if ($value === null) {
             return null;
         }
@@ -712,8 +708,16 @@ class ConfigValidator
         } else {
             return null;
         }
-        if ($pageSize <= 0 || $pageSize > $limit) {
+        if ($pageSize <= 0) {
             return null;
+        }
+
+        if ($pageSize > self::DASHBOARD_RESULTS_MAX_LIMIT) {
+            $pageSize = self::DASHBOARD_RESULTS_MAX_LIMIT;
+        }
+
+        if ($limit !== null && $limit > 0 && $pageSize > $limit) {
+            $pageSize = $limit;
         }
 
         return $pageSize;
