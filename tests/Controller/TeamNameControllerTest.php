@@ -29,7 +29,7 @@ final class TeamNameControllerTest extends TestCase
 
         $service->expects(self::once())
             ->method('reserveBatch')
-            ->with('ev-batch', 3, [], [])
+            ->with('ev-batch', 3, [], [], 0, null)
             ->willReturn([
                 [
                     'name' => 'Alpha Nebel',
@@ -83,7 +83,7 @@ final class TeamNameControllerTest extends TestCase
 
         $service->expects(self::once())
             ->method('reserveBatch')
-            ->with('ev-filters', 10, ['nature', 'science'], ['playful'])
+            ->with('ev-filters', 10, ['nature', 'science'], ['playful'], 0, null)
             ->willReturn([
                 [
                     'name' => 'Nebelwelle',

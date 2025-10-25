@@ -25,6 +25,7 @@ use App\Service\ConfigValidator;
 use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
+use App\Service\TeamNameAiClient;
 use App\Service\TeamNameService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
@@ -49,6 +50,7 @@ use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\RagChat\DomainDocumentStorage;
+use App\Service\RagChat\HttpChatResponder;
 use App\Service\RagChat\DomainIndexManager;
 use App\Service\RagChat\DomainWikiSelectionService;
 use App\Service\RagChat\RagChatService;
@@ -267,9 +269,44 @@ return function (\Slim\App $app, TranslationService $translator) {
         $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
         $resultService = new ResultService($pdo);
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
+
+        $teamNameAiClient = null;
+        $teamNameAiEnabled = filter_var(
+            (string) (getenv('TEAM_NAME_AI_ENABLED') ?: '0'),
+            FILTER_VALIDATE_BOOLEAN
+        );
+        $teamNameAiLocaleEnv = getenv('TEAM_NAME_AI_LOCALE');
+        $teamNameAiModelEnv = getenv('TEAM_NAME_AI_MODEL');
+
+        if ($teamNameAiEnabled) {
+            $endpointEnv = getenv('TEAM_NAME_AI_ENDPOINT');
+            $tokenEnv = getenv('TEAM_NAME_AI_TOKEN');
+            $timeoutEnv = getenv('TEAM_NAME_AI_TIMEOUT');
+
+            try {
+                $teamNameAiResponder = new HttpChatResponder(
+                    $endpointEnv !== false ? $endpointEnv : null,
+                    null,
+                    $tokenEnv !== false ? $tokenEnv : null,
+                    $timeoutEnv !== false && is_numeric($timeoutEnv) ? (float) $timeoutEnv : null
+                );
+                $teamNameAiClient = new TeamNameAiClient(
+                    $teamNameAiResponder,
+                    $teamNameAiModelEnv !== false ? $teamNameAiModelEnv : null
+                );
+            } catch (\RuntimeException $exception) {
+                $teamNameAiClient = null;
+                $teamNameAiEnabled = false;
+            }
+        }
+
         $teamNameService = new TeamNameService(
             $pdo,
-            __DIR__ . '/../resources/team-names/lexicon.json'
+            __DIR__ . '/../resources/team-names/lexicon.json',
+            600,
+            $teamNameAiClient,
+            $teamNameAiEnabled,
+            $teamNameAiLocaleEnv !== false ? $teamNameAiLocaleEnv : null
         );
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
