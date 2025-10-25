@@ -232,7 +232,7 @@ class PlayerService
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if ($rows === false || $rows === []) {
+        if ($rows === []) {
             return;
         }
 
