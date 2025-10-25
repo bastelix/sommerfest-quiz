@@ -131,6 +131,8 @@ return [
     'text_dashboard_module_header_hint' => 'Shows event title, logo and countdown.',
     'label_dashboard_module_points_leader' => 'Highscore focus',
     'text_dashboard_module_points_leader_hint' => 'Highlights the leading team by points and shows the gap to the competition.',
+    'label_dashboard_points_leader_limit' => 'Visible placements',
+    'text_dashboard_points_leader_limit_hint' => 'Controls how many teams appear in the list (1–10).',
     'label_dashboard_module_rankings' => 'Live results list',
     'text_dashboard_module_rankings_hint' => 'Second results table with its own limit and sorting.',
     'label_dashboard_module_results' => 'Result list',

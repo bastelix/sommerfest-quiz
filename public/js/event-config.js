@@ -21,7 +21,7 @@
   let currentEventSlug = '';
   const DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
-    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen' } },
+    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen', limit: 5 } },
     {
       id: 'rankings',
       enabled: true,
@@ -38,6 +38,9 @@
   const LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
   const RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
   const RESULTS_MAX_LIMIT = 50;
+  const POINTS_LEADER_MIN_LIMIT = 1;
+  const POINTS_LEADER_MAX_LIMIT = 10;
+  const POINTS_LEADER_DEFAULT_LIMIT = 5;
   const DEFAULT_MODULE_MAP = new Map(DEFAULT_MODULES.map((module) => [module.id, module]));
   const normalizeResultsLimit = (value) => {
     if (value === null || value === undefined) {
@@ -78,6 +81,24 @@
     return parsed;
   };
 
+  const normalizePointsLeaderLimit = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (normalized === '') {
+      return null;
+    }
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed < POINTS_LEADER_MIN_LIMIT) {
+      return null;
+    }
+    if (parsed > POINTS_LEADER_MAX_LIMIT) {
+      return POINTS_LEADER_MAX_LIMIT;
+    }
+    return parsed;
+  };
+
   const applyResultsOptionFields = (item, moduleId, options = {}) => {
     if (!item) return;
     const defaults = DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
@@ -113,6 +134,23 @@
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
     }
     syncResultsPageSizeState(item);
+  };
+
+  const applyPointsLeaderOptionFields = (item, options = {}) => {
+    if (!item) {
+      return;
+    }
+    const field = item.querySelector('[data-module-points-leader-limit]');
+    if (!field) {
+      return;
+    }
+    const defaults = DEFAULT_MODULE_MAP.get('pointsLeader')?.options || {};
+    const fallback = normalizePointsLeaderLimit(
+      options && Object.prototype.hasOwnProperty.call(options, 'limit')
+        ? options.limit
+        : defaults.limit
+    ) ?? normalizePointsLeaderLimit(defaults.limit) ?? POINTS_LEADER_DEFAULT_LIMIT;
+    field.value = String(fallback);
   };
 
   const syncResultsPageSizeState = (item) => {
@@ -517,6 +555,15 @@
           titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
         }
         entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
+      } else if (id === 'pointsLeader') {
+        const defaults = DEFAULT_MODULE_MAP.get(id)?.options || {};
+        const limitField = item.querySelector('[data-module-points-leader-limit]');
+        const fallbackLimit = normalizePointsLeaderLimit(defaults.limit) ?? POINTS_LEADER_DEFAULT_LIMIT;
+        const limitValue = limitField
+          ? normalizePointsLeaderLimit(limitField.value)
+          : null;
+        const resolvedLimit = limitValue ?? fallbackLimit;
+        entry.options = { limit: resolvedLimit };
       } else if (id === QR_MODULE_ID) {
         const catalogs = [];
         item.querySelectorAll('[data-module-catalog]').forEach((catalogEl) => {
@@ -571,6 +618,8 @@
       }
       if (module.id === 'rankings' || module.id === 'results') {
         applyResultsOptionFields(item, module.id, module.options || {});
+      } else if (module.id === 'pointsLeader') {
+        applyPointsLeaderOptionFields(item, module.options || {});
       }
       applyModuleTitleField(item, module.id, module.options || {});
     });
@@ -590,6 +639,8 @@
         }
         if (module.id === 'rankings' || module.id === 'results') {
           applyResultsOptionFields(item, module.id, module.options || {});
+        } else if (module.id === 'pointsLeader') {
+          applyPointsLeaderOptionFields(item, module.options || {});
         }
         applyModuleTitleField(item, module.id, module.options || {});
       }
@@ -813,6 +864,10 @@
         const moduleItem = event.target.closest('[data-module-id]');
         syncResultsPageSizeState(moduleItem);
       }
+      if (event.target.matches('[data-module-points-leader-limit]')) {
+        updateModulesInput(true);
+        return;
+      }
       if (event.target.matches('[data-module-toggle], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);
       }
@@ -821,6 +876,10 @@
       if (event.target.matches('[data-module-results-option="limit"]')) {
         const moduleItem = event.target.closest('[data-module-id]');
         syncResultsPageSizeState(moduleItem);
+      }
+      if (event.target.matches('[data-module-points-leader-limit]')) {
+        updateModulesInput(true);
+        return;
       }
       if (event.target.matches('[data-module-results-option], [data-module-title]')) {
         updateModulesInput(true);

@@ -25,6 +25,10 @@ class DashboardController
 
     private const DASHBOARD_RESULTS_MAX_LIMIT = 50;
 
+    private const DASHBOARD_POINTS_LEADER_MIN_LIMIT = 1;
+
+    private const DASHBOARD_POINTS_LEADER_MAX_LIMIT = 10;
+
     public function __construct(ConfigService $config, EventService $events)
     {
         $this->config = $config;
@@ -108,7 +112,7 @@ class DashboardController
                 'id' => 'pointsLeader',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => ['title' => 'Platzierungen'],
+                'options' => ['title' => 'Platzierungen', 'limit' => 5],
             ],
             [
                 'id' => 'rankings',
@@ -225,7 +229,19 @@ class DashboardController
                 $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Katalog-QR-Codes';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = ['catalogs' => $catalogs, 'title' => $title];
-            } elseif (in_array($id, ['pointsLeader', 'wrongAnswers', 'infoBanner', 'rankingQr', 'media'], true)) {
+            } elseif ($id === 'pointsLeader') {
+                $fallbackLimit = $this->normalizePointsLeaderLimit($baseOptions['limit'] ?? null);
+                if ($fallbackLimit === null) {
+                    $fallbackLimit = 5;
+                }
+                $limit = $this->normalizePointsLeaderLimit($options['limit'] ?? null);
+                if ($limit === null) {
+                    $limit = $fallbackLimit;
+                }
+                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : '';
+                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
+                $entry['options'] = ['title' => $title, 'limit' => $limit];
+            } elseif (in_array($id, ['wrongAnswers', 'infoBanner', 'rankingQr', 'media'], true)) {
                 $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : '';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = ['title' => $title];
@@ -347,6 +363,41 @@ class DashboardController
         }
 
         return $pageSize;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizePointsLeaderLimit($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return null;
+            }
+            if (!is_numeric($trimmed)) {
+                return null;
+            }
+            $value = $trimmed;
+        }
+        if (is_int($value)) {
+            $limit = $value;
+        } elseif (is_numeric($value)) {
+            $limit = (int) $value;
+        } else {
+            return null;
+        }
+        if ($limit < self::DASHBOARD_POINTS_LEADER_MIN_LIMIT) {
+            return null;
+        }
+        if ($limit > self::DASHBOARD_POINTS_LEADER_MAX_LIMIT) {
+            $limit = self::DASHBOARD_POINTS_LEADER_MAX_LIMIT;
+        }
+
+        return $limit;
     }
 
     /**
