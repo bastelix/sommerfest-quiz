@@ -623,6 +623,81 @@ document.addEventListener('DOMContentLoaded', () => {
     consentCheckbox.addEventListener('change', resetFormMessage);
   }
 
+  const shouldSyncFromServer = () => {
+    if (!eventUid || !urlPlayerUid) {
+      return false;
+    }
+    const sanitizedName = safeUserName(currentName) || (typeof currentName === 'string' ? currentName.trim() : '');
+    if (!sanitizedName) {
+      return true;
+    }
+    if (hasEmailConsent && !currentEmail) {
+      return true;
+    }
+    return false;
+  };
+
+  const syncPlayerFromServer = async () => {
+    if (!shouldSyncFromServer()) {
+      return false;
+    }
+
+    const query = new URLSearchParams({
+      event_uid: eventUid,
+      player_uid: urlPlayerUid,
+    });
+
+    try {
+      const response = await fetch(`/api/players?${query.toString()}`);
+      if (!response.ok) {
+        return false;
+      }
+      const payload = await response.json();
+      let updated = false;
+
+      if (payload && typeof payload.player_name === 'string') {
+        const sanitized = safeUserName(payload.player_name) || payload.player_name.trim();
+        if (sanitized) {
+          const previous = safeUserName(currentName) || (typeof currentName === 'string' ? currentName.trim() : '');
+          if (sanitized !== previous) {
+            currentName = sanitized;
+            setStoredName(sanitized);
+            if (typeof setStored === 'function') {
+              try {
+                setStored('quizUser', sanitized);
+              } catch (error) {
+                console.error('Failed to persist quizUser name', error);
+              }
+            }
+            updateNameDisplay();
+            updated = true;
+          }
+        }
+      }
+
+      if (payload && typeof payload.contact_email === 'string') {
+        const normalizedEmail = normalizeEmail(payload.contact_email);
+        const consentGranted = Boolean(payload.consent_granted_at);
+        if (normalizedEmail && consentGranted) {
+          const previousEmail = normalizeEmail(currentEmail);
+          if (normalizedEmail !== previousEmail || !hasEmailConsent) {
+            currentEmail = normalizedEmail;
+            hasEmailConsent = true;
+            setStoredEmail(normalizedEmail);
+            setStoredConsent(true);
+            updateContactForm();
+            updated = true;
+          }
+        }
+      }
+
+      return updated;
+    } catch (error) {
+      console.error('Failed to load player profile for ranking', error);
+      return false;
+    }
+  };
+
   const clearStatus = () => {
     if (statusEl) {
       statusEl.hidden = true;
@@ -1006,5 +1081,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  refresh();
+  const initialSync = syncPlayerFromServer();
+  if (initialSync && typeof initialSync.then === 'function') {
+    initialSync.finally(() => {
+      refresh();
+    });
+  } else {
+    refresh();
+  }
 });
