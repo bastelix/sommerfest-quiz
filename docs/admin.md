@@ -25,6 +25,10 @@ Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/ad
   * **Subdomains** – `/admin/tenants` (nur Administratoren)
 Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf wiederherstellen. Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
+## Dashboard-Konfiguration
+
+Der Abschnitt **Event-Konfiguration → Dashboard** bündelt alle Einstellungen für die öffentliche Ergebnisanzeige. Für die Module „Live-Rankings“ und „Ergebnisliste“ lassen sich die sichtbare Menge (`Anzahl der Einträge`) sowie der automatische Seitenumbruch (`Einträge pro Seite`) steuern. Zusätzlich legt das Feld **Automatischer Seitenwechsel (Sekunden)** fest, in welchem Intervall die Anzeige zwischen den Seiten wechselt. Ohne Eingabe bleibt der Standard von 10 Sekunden aktiv – so können Administrator:innen bei großen Gruppen das Tempo jederzeit an das Publikum anpassen.
+
 Weitere Funktionen wie der QR-Code-Login mit Namensspeicherung oder der Wettkampfmodus lassen sich über die Event-Konfiguration in der Datenbank aktivieren.
 
 ## Domänen-Konfiguration

@@ -1080,6 +1080,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const DASHBOARD_POINTS_LEADER_MIN_LIMIT = 1;
   const DASHBOARD_POINTS_LEADER_MAX_LIMIT = 10;
   const DASHBOARD_POINTS_LEADER_DEFAULT_LIMIT = 5;
+  const DASHBOARD_RESULTS_DEFAULT_INTERVAL = 10;
+  const DASHBOARD_RESULTS_PAGE_INTERVAL_MIN = 1;
+  const DASHBOARD_RESULTS_PAGE_INTERVAL_MAX = 300;
   const DASHBOARD_DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
     { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen', limit: 5 } },
@@ -1090,12 +1093,24 @@ document.addEventListener('DOMContentLoaded', function () {
       options: {
         limit: null,
         pageSize: 10,
+        pageInterval: DASHBOARD_RESULTS_DEFAULT_INTERVAL,
         sort: 'time',
         title: 'Live-Rankings',
         showPlacement: false,
       },
     },
-    { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: 10, sort: 'time', title: 'Ergebnisliste' } },
+    {
+      id: 'results',
+      enabled: true,
+      layout: 'full',
+      options: {
+        limit: null,
+        pageSize: 10,
+        pageInterval: DASHBOARD_RESULTS_DEFAULT_INTERVAL,
+        sort: 'time',
+        title: 'Ergebnisliste'
+      }
+    },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
     { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
     { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
@@ -1139,6 +1154,21 @@ document.addEventListener('DOMContentLoaded', function () {
     return resolved;
   };
 
+  const normalizeDashboardResultsPageInterval = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (normalized === '' || normalized === '0') {
+      return null;
+    }
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed < DASHBOARD_RESULTS_PAGE_INTERVAL_MIN) {
+      return null;
+    }
+    return Math.min(parsed, DASHBOARD_RESULTS_PAGE_INTERVAL_MAX);
+  };
+
   const normalizeDashboardPointsLeaderLimit = (value) => {
     if (value === null || value === undefined) {
       return null;
@@ -1180,6 +1210,18 @@ document.addEventListener('DOMContentLoaded', function () {
         limitValue
       );
       pageSizeField.value = pageSizeValue === null ? '' : String(pageSizeValue);
+    }
+    const pageIntervalField = item.querySelector('[data-module-results-option="pageInterval"]');
+    if (pageIntervalField) {
+      const fallbackInterval = normalizeDashboardResultsPageInterval(defaults.pageInterval)
+        ?? DASHBOARD_RESULTS_DEFAULT_INTERVAL;
+      const intervalValue = normalizeDashboardResultsPageInterval(
+        options && Object.prototype.hasOwnProperty.call(options, 'pageInterval')
+          ? options.pageInterval
+          : defaults.pageInterval
+      );
+      const resolvedInterval = intervalValue ?? fallbackInterval;
+      pageIntervalField.value = resolvedInterval === null ? '' : String(resolvedInterval);
     }
     const sortField = item.querySelector('[data-module-results-option="sort"]');
     if (sortField) {
@@ -1729,6 +1771,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.options || {};
         const limitField = item.querySelector('[data-module-results-option="limit"]');
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
+        const pageIntervalField = item.querySelector('[data-module-results-option="pageInterval"]');
         const sortField = item.querySelector('[data-module-results-option="sort"]');
         const titleField = item.querySelector('[data-module-results-option="title"]');
         const limitValue = limitField
@@ -1739,6 +1782,14 @@ document.addEventListener('DOMContentLoaded', function () {
           : null;
         if (pageSizeValue === null) {
           pageSizeValue = normalizeDashboardResultsPageSize(defaults.pageSize, limitValue);
+        }
+        const defaultInterval = normalizeDashboardResultsPageInterval(defaults.pageInterval)
+          ?? DASHBOARD_RESULTS_DEFAULT_INTERVAL;
+        let pageIntervalValue = pageIntervalField
+          ? normalizeDashboardResultsPageInterval(pageIntervalField.value)
+          : null;
+        if (pageIntervalValue === null) {
+          pageIntervalValue = defaultInterval;
         }
         const rawSort = sortField ? String(sortField.value || '').trim() : '';
         const sortValue = DASHBOARD_RESULTS_SORT_OPTIONS.includes(rawSort)
@@ -1758,6 +1809,7 @@ document.addEventListener('DOMContentLoaded', function () {
         entry.options = {
           limit: limitValue,
           pageSize: pageSizeValue,
+          pageInterval: pageIntervalValue,
           sort: sortValue,
           title: titleValue,
           ...(id === 'rankings' ? { showPlacement: placementValue } : {}),

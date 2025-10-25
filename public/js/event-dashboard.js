@@ -34,9 +34,13 @@ const MODULE_DEFAULT_LAYOUTS = {
   rankingQr: 'auto',
   media: 'auto',
 };
+const RESULTS_DEFAULT_PAGE_INTERVAL = 10;
+const RESULTS_PAGE_INTERVAL_MIN = 1;
+const RESULTS_PAGE_INTERVAL_MAX = 300;
 const RESULTS_DEFAULT_OPTIONS = {
   limit: null,
   pageSize: 10,
+  pageInterval: RESULTS_DEFAULT_PAGE_INTERVAL,
   sort: 'time',
   title: 'Ergebnisliste',
   showPlacement: false,
@@ -184,6 +188,18 @@ function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
   if (effectivePageSize !== null && effectivePageSize <= 0) {
     effectivePageSize = null;
   }
+  const intervalCandidate = options.pageInterval ?? defaults.pageInterval;
+  let pageInterval = null;
+  const parsedInterval = parseResultNumber(intervalCandidate);
+  if (parsedInterval !== null) {
+    const normalizedInterval = Math.floor(parsedInterval);
+    if (normalizedInterval >= RESULTS_PAGE_INTERVAL_MIN) {
+      pageInterval = Math.min(normalizedInterval, RESULTS_PAGE_INTERVAL_MAX);
+    }
+  }
+  if (pageInterval === null || !Number.isFinite(pageInterval)) {
+    pageInterval = defaults.pageInterval ?? RESULTS_DEFAULT_PAGE_INTERVAL;
+  }
   const rawSort = typeof options.sort === 'string' ? options.sort.trim() : '';
   const sort = RESULTS_SORT_OPTIONS.has(rawSort) ? rawSort : defaults.sort;
   const rawTitle = typeof options.title === 'string' ? options.title.trim() : '';
@@ -197,6 +213,7 @@ function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
     limit,
     pageSize,
     effectivePageSize,
+    pageInterval,
     sort,
     title,
     showPlacement,
@@ -673,10 +690,11 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
 
     const restartAutoAdvance = () => {
       clearResultsPagerTimer();
+      const intervalMs = Math.max(RESULTS_PAGE_INTERVAL_MIN, options.pageInterval || RESULTS_DEFAULT_PAGE_INTERVAL) * 1000;
       resultsPagerTimer = setInterval(() => {
         const nextPage = (currentPage + 1) % pageBodies.length;
         goToPage(nextPage);
-      }, 10000);
+      }, intervalMs);
     };
 
     pageBodies.forEach((_, index) => {

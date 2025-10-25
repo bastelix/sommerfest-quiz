@@ -322,6 +322,11 @@
                         <div class="uk-text-meta">Leer oder 0 deaktiviert den automatischen Umbruch.</div>
                       </div>
                       <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardResultsPageInterval">Automatischer Seitenwechsel (Sekunden)</label>
+                        <input class="uk-input uk-form-small" type="number" min="1" max="300" id="dashboardResultsPageInterval" data-module-results-option="pageInterval" placeholder="10">
+                        <div class="uk-text-meta">Bestimmt das Tempo der automatischen Seitenwechsel. Ohne Eingabe gilt der Standardwert von 10&nbsp;Sekunden.</div>
+                      </div>
+                      <div class="uk-margin-small">
                         <label class="uk-form-label" for="dashboardResultsSort">Sortierung</label>
                         <select class="uk-select uk-form-small" id="dashboardResultsSort" data-module-results-option="sort">
                           <option value="time">Neueste zuerst</option>

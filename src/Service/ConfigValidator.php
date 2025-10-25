@@ -63,6 +63,12 @@ class ConfigValidator
 
     private const DASHBOARD_POINTS_LEADER_MAX_LIMIT = 10;
 
+    private const DASHBOARD_RESULTS_DEFAULT_INTERVAL = 10;
+
+    private const DASHBOARD_RESULTS_MIN_INTERVAL = 1;
+
+    private const DASHBOARD_RESULTS_MAX_INTERVAL = 300;
+
     private const DASHBOARD_MIN_REFRESH = 5;
 
     private const DASHBOARD_MAX_REFRESH = 300;
@@ -469,6 +475,7 @@ class ConfigValidator
                 'options' => [
                     'limit' => null,
                     'pageSize' => 10,
+                    'pageInterval' => self::DASHBOARD_RESULTS_DEFAULT_INTERVAL,
                     'sort' => 'time',
                     'title' => 'Live-Rankings',
                     'showPlacement' => false,
@@ -478,7 +485,13 @@ class ConfigValidator
                 'id' => 'results',
                 'enabled' => true,
                 'layout' => 'full',
-                'options' => ['limit' => null, 'pageSize' => 10, 'sort' => 'time', 'title' => 'Ergebnisliste'],
+                'options' => [
+                    'limit' => null,
+                    'pageSize' => 10,
+                    'pageInterval' => self::DASHBOARD_RESULTS_DEFAULT_INTERVAL,
+                    'sort' => 'time',
+                    'title' => 'Ergebnisliste',
+                ],
             ],
             ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Falsch beantwortete Fragen']],
             ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Hinweise']],
@@ -547,6 +560,13 @@ class ConfigValidator
                 if ($pageSize === null) {
                     $pageSize = $this->normalizeResultsPageSize($baseOptions['pageSize'] ?? null, $limit);
                 }
+                $pageInterval = $this->normalizeResultsPageInterval($options['pageInterval'] ?? null);
+                if ($pageInterval === null) {
+                    $pageInterval = $this->normalizeResultsPageInterval($baseOptions['pageInterval'] ?? null);
+                }
+                if ($pageInterval === null) {
+                    $pageInterval = self::DASHBOARD_RESULTS_DEFAULT_INTERVAL;
+                }
                 $fallbackSortRaw = $baseOptions['sort'] ?? null;
                 $fallbackSort = is_string($fallbackSortRaw) ? $fallbackSortRaw : null;
                 $sort = $this->normalizeResultsSort($options['sort'] ?? null, $fallbackSort);
@@ -576,6 +596,7 @@ class ConfigValidator
                 $optionsData = [
                     'limit' => $limit,
                     'pageSize' => $pageSize,
+                    'pageInterval' => $pageInterval,
                     'sort' => $sort,
                     'title' => $title,
                 ];
@@ -721,6 +742,41 @@ class ConfigValidator
         }
 
         return $pageSize;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeResultsPageInterval($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '0') {
+                return null;
+            }
+            if (!is_numeric($trimmed)) {
+                return null;
+            }
+            $value = $trimmed;
+        }
+        if (is_int($value)) {
+            $interval = $value;
+        } elseif (is_numeric($value)) {
+            $interval = (int) $value;
+        } else {
+            return null;
+        }
+        if ($interval < self::DASHBOARD_RESULTS_MIN_INTERVAL) {
+            return null;
+        }
+        if ($interval > self::DASHBOARD_RESULTS_MAX_INTERVAL) {
+            $interval = self::DASHBOARD_RESULTS_MAX_INTERVAL;
+        }
+
+        return $interval;
     }
 
     /**
