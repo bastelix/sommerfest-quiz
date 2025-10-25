@@ -16,6 +16,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class TeamNameController
 {
+    private const MAX_BATCH_SIZE = 10;
+
     private TeamNameService $service;
     private ConfigService $config;
 
@@ -49,6 +51,44 @@ class TeamNameController
 
         $payload = $reservation;
         $payload['event_id'] = $eventId;
+        $response->getBody()->write(json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function reserveBatch(Request $request, Response $response): Response
+    {
+        $query = $request->getQueryParams();
+        $eventId = $this->resolveEventId($query);
+        if ($eventId === '') {
+            return $response->withStatus(400);
+        }
+
+        $config = $this->config->getConfigForEvent($eventId);
+        if ($config === []) {
+            $config = $this->config->getConfig();
+        }
+
+        $domains = is_array($config['randomNameDomains'] ?? null) ? $config['randomNameDomains'] : [];
+        $tones = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
+
+        $countParam = $query['count'] ?? null;
+        $count = is_numeric($countParam) ? (int) $countParam : 0;
+        if ($count <= 0) {
+            $count = 1;
+        }
+        $count = min($count, self::MAX_BATCH_SIZE);
+
+        try {
+            $reservations = $this->service->reserveBatch($eventId, $count, $domains, $tones);
+        } catch (InvalidArgumentException | PDOException $exception) {
+            return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+        }
+
+        $payload = [
+            'event_id' => $eventId,
+            'reservations' => $reservations,
+        ];
+
         $response->getBody()->write(json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     }

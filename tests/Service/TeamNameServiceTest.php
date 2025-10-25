@@ -125,6 +125,63 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testReserveBatchReturnsMultipleUniqueNames(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Alpha', 'Beta'], ['Lion', 'Tiger']);
+
+        try {
+            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+                protected function randomStartIndex(int $total): int
+                {
+                    return 0;
+                }
+            };
+
+            $reservations = $service->reserveBatch('event-batch', 3);
+            self::assertCount(3, $reservations);
+            $names = array_column($reservations, 'name');
+            self::assertSame($names, array_values(array_unique($names)));
+            self::assertFalse($reservations[0]['fallback']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveBatchUsesFiltersAndFallsBackWhenExhausted(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(
+            [
+                'default' => ['Neutral'],
+                'playful' => ['Spritzig'],
+            ],
+            [
+                'default' => ['Standard'],
+                'nature' => ['Eiche', 'Fluss'],
+            ]
+        );
+
+        try {
+            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+                protected function randomStartIndex(int $total): int
+                {
+                    return 0;
+                }
+            };
+
+            $batch = $service->reserveBatch('event-filter', 5, ['nature'], ['playful']);
+            self::assertCount(2, $batch);
+            self::assertSame(['Spritzig Eiche', 'Spritzig Fluss'], array_column($batch, 'name'));
+
+            $fallbackBatch = $service->reserveBatch('event-filter', 2, ['nature'], ['playful']);
+            self::assertCount(1, $fallbackBatch);
+            self::assertTrue($fallbackBatch[0]['fallback']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     private function createInMemoryDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');

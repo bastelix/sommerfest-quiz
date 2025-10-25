@@ -1587,6 +1587,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->delete($request, $response);
     });
 
+    $app->get('/api/team-names/batch', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+        return $controller->reserveBatch($request, $response);
+    });
+
     $app->post('/api/team-names', function (Request $request, Response $response) {
         /** @var TeamNameController $controller */
         $controller = $request->getAttribute('teamNameController');

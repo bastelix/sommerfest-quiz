@@ -2,6 +2,11 @@
   const root = typeof window !== 'undefined' ? window : globalThis;
   const basePath = root.basePath || '';
   const DEFAULT_TTL = 600;
+  const MAX_BATCH_SIZE = 10;
+  const PREFETCH_TARGET = 5;
+
+  /** @type {Array<{name: string, token: string, eventUid: string, expiresAt: number, fallback: boolean, total: number, remaining: number, lexiconVersion: number}>} */
+  const nameQueue = [];
 
   /** @type {{name: string, token: string, eventUid: string, expiresAt: number, fallback: boolean, total: number, remaining: number, lexiconVersion: number}|null} */
   let activeReservation = null;
@@ -88,8 +93,88 @@
     return reservation.expiresAt > Date.now() + 1000;
   }
 
-  async function requestReservation(options){
-    const eventUid = resolveEventUid(options?.eventUid);
+  function normalizeReservationPayload(payload, fallbackEventUid){
+    if (!payload || typeof payload !== 'object') {
+      return null;
+    }
+    const name = typeof payload.name === 'string' ? payload.name : '';
+    const token = typeof payload.token === 'string' ? payload.token : '';
+    if (!name || !token) {
+      return null;
+    }
+    const expiresAt = parseExpiry(payload.expires_at);
+    const total = toNumber(payload.total);
+    const remaining = toNumber(payload.remaining);
+    const lexVersion = toInt(payload.lexicon_version);
+    const eventUid = typeof payload.event_id === 'string' && payload.event_id ? payload.event_id : fallbackEventUid;
+    return {
+      name,
+      token,
+      eventUid: typeof eventUid === 'string' ? eventUid : '',
+      expiresAt,
+      fallback: Boolean(payload.fallback),
+      total,
+      remaining,
+      lexiconVersion: lexVersion ?? 1
+    };
+  }
+
+  function takeFromQueue(eventUid){
+    if (!Array.isArray(nameQueue) || nameQueue.length === 0) {
+      return null;
+    }
+    let remaining = nameQueue.length;
+    while (remaining > 0) {
+      remaining -= 1;
+      const candidate = nameQueue.shift();
+      if (!candidate) {
+        continue;
+      }
+      if (eventUid && candidate.eventUid && candidate.eventUid !== eventUid) {
+        if (hasValidReservation(candidate)) {
+          nameQueue.push(candidate);
+        }
+        continue;
+      }
+      if (!hasValidReservation(candidate, eventUid)) {
+        continue;
+      }
+      return candidate;
+    }
+    return null;
+  }
+
+  async function fetchBatch(eventUid, desiredCount){
+    const target = Math.max(1, Math.min(typeof desiredCount === 'number' && Number.isFinite(desiredCount) ? Math.trunc(desiredCount) : PREFETCH_TARGET, MAX_BATCH_SIZE));
+    const params = new URLSearchParams();
+    params.set('count', String(target));
+    if (eventUid) {
+      params.set('event_uid', eventUid);
+    }
+    const response = await fetch(`${basePath}/api/team-names/batch?${params.toString()}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: buildHeaders()
+    });
+    if (!response.ok) {
+      throw new Error('team-name-batch-failed');
+    }
+    const payload = await response.json();
+    const fallbackEventUid = typeof payload?.event_id === 'string' && payload.event_id ? payload.event_id : eventUid;
+    const items = Array.isArray(payload?.reservations) ? payload.reservations : [];
+    let added = 0;
+    for (const item of items) {
+      const normalized = normalizeReservationPayload(item, fallbackEventUid);
+      if (normalized && hasValidReservation(normalized)) {
+        nameQueue.push(normalized);
+        added += 1;
+      }
+    }
+    return added;
+  }
+
+  async function requestSingleReservation(options){
+    const eventUid = options?.eventUid;
     const response = await fetch(`${basePath}/api/team-names`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -100,21 +185,37 @@
       throw new Error('team-name-reservation-failed');
     }
     const payload = await response.json();
-    const expiresAt = parseExpiry(payload.expires_at);
-    const total = toNumber(payload.total);
-    const remaining = toNumber(payload.remaining);
-    const lexVersion = toInt(payload.lexicon_version);
-    activeReservation = {
-      name: typeof payload.name === 'string' ? payload.name : '',
-      token: typeof payload.token === 'string' ? payload.token : '',
-      eventUid: typeof payload.event_id === 'string' && payload.event_id ? payload.event_id : eventUid,
-      expiresAt,
-      fallback: Boolean(payload.fallback),
-      total,
-      remaining,
-      lexiconVersion: lexVersion ?? 1
-    };
-    return activeReservation;
+    const reservation = normalizeReservationPayload(payload, eventUid);
+    if (!reservation) {
+      throw new Error('team-name-reservation-invalid');
+    }
+    activeReservation = reservation;
+    return reservation;
+  }
+
+  async function requestReservation(options){
+    const eventUid = resolveEventUid(options?.eventUid);
+
+    const cached = takeFromQueue(eventUid);
+    if (cached) {
+      activeReservation = cached;
+      return cached;
+    }
+
+    try {
+      const added = await fetchBatch(eventUid, PREFETCH_TARGET);
+      if (added > 0) {
+        const queued = takeFromQueue(eventUid);
+        if (queued) {
+          activeReservation = queued;
+          return queued;
+        }
+      }
+    } catch (error) {
+      // Ignore batch failures and fall back to single reservations.
+    }
+
+    return requestSingleReservation({ eventUid });
   }
 
   async function ensureReservation(options){
