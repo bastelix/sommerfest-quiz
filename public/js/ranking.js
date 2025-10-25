@@ -403,6 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const urlEventUid = params.get('event') || params.get('event_uid') || '';
   const configEventUid = cfg.event_uid || '';
   const eventUid = urlEventUid || configEventUid;
+  const urlPlayerUid = params.get('uid') || params.get('player_uid') || '';
 
   const basePath = window.basePath || '';
   const dataService = new ResultsDataService({ basePath, eventUid });
@@ -484,6 +485,79 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearStoredConsent = () => {
     clearStoredValue(STORAGE_KEYS.PLAYER_EMAIL_CONSENT);
   };
+
+  let memoizedPlayerUid = '';
+
+  const getStoredPlayerUid = () => {
+    if (memoizedPlayerUid) {
+      return memoizedPlayerUid;
+    }
+    if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      const storedValue = getStored(STORAGE_KEYS.PLAYER_UID);
+      if (typeof storedValue === 'string') {
+        const trimmed = storedValue.trim();
+        if (trimmed !== '') {
+          memoizedPlayerUid = trimmed;
+          return memoizedPlayerUid;
+        }
+      }
+    }
+    return '';
+  };
+
+  const setStoredPlayerUid = (value) => {
+    if (typeof value !== 'string') {
+      return;
+    }
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return;
+    }
+    memoizedPlayerUid = trimmed;
+    if (typeof setStored === 'function' && typeof STORAGE_KEYS === 'object') {
+      setStored(STORAGE_KEYS.PLAYER_UID, trimmed);
+    }
+  };
+
+  const generatePlayerUid = () => {
+    let cryptoSource = null;
+    if (typeof self !== 'undefined' && self && typeof self.crypto !== 'undefined') {
+      cryptoSource = self.crypto;
+    } else if (typeof globalThis !== 'undefined' && globalThis && typeof globalThis.crypto !== 'undefined') {
+      cryptoSource = globalThis.crypto;
+    }
+    if (cryptoSource && typeof cryptoSource.randomUUID === 'function') {
+      try {
+        const uid = cryptoSource.randomUUID();
+        if (typeof uid === 'string' && uid) {
+          return uid;
+        }
+      } catch (error) {
+        console.error('Failed to generate UUID via crypto.randomUUID', error);
+      }
+    }
+    return `player-${Math.random().toString(36).slice(2, 11)}`;
+  };
+
+  const ensurePlayerUid = () => {
+    const existing = getStoredPlayerUid();
+    if (existing) {
+      return existing;
+    }
+    if (urlPlayerUid) {
+      setStoredPlayerUid(urlPlayerUid);
+      return urlPlayerUid;
+    }
+    const generated = generatePlayerUid();
+    setStoredPlayerUid(generated);
+    return generated;
+  };
+
+  if (urlPlayerUid) {
+    setStoredPlayerUid(urlPlayerUid);
+  } else {
+    memoizedPlayerUid = getStoredPlayerUid();
+  }
 
   const setFormMessage = (text, variant = 'info') => {
     if (!formMessage) return;
@@ -796,6 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (sanitizedName === previousSanitized) {
+        ensurePlayerUid();
         currentName = sanitizedName;
         setStoredName(sanitizedName);
         if (typeof setStored === 'function') {
@@ -811,33 +886,34 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       let serverAccepted = true;
-      if (typeof getStored === 'function' && typeof STORAGE_KEYS === 'object') {
-        const rawUid = getStored(STORAGE_KEYS.PLAYER_UID);
-        const playerUid = typeof rawUid === 'string' ? rawUid.trim() : '';
-        if (playerUid && eventUid) {
-          try {
-            const response = await fetch('/api/players', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                event_uid: eventUid,
-                player_name: sanitizedName,
-                player_uid: playerUid,
-              }),
-            });
-            if (!response.ok) {
-              if (response.status === 409) {
-                window.alert('Dieser Name wird bereits verwendet. Bitte wähle einen anderen Namen.');
-              } else {
-                window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
-              }
-              serverAccepted = false;
+      const playerUid = ensurePlayerUid();
+      if (!eventUid) {
+        console.warn('Missing event UID – cannot sync player name with server.');
+      }
+
+      if (eventUid && playerUid) {
+        try {
+          const response = await fetch('/api/players', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event_uid: eventUid,
+              player_name: sanitizedName,
+              player_uid: playerUid,
+            }),
+          });
+          if (!response.ok) {
+            if (response.status === 409) {
+              window.alert('Dieser Name wird bereits verwendet. Bitte wähle einen anderen Namen.');
+            } else {
+              window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
             }
-          } catch (error) {
-            console.error('Failed to update player name for ranking', error);
-            window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
             serverAccepted = false;
           }
+        } catch (error) {
+          console.error('Failed to update player name for ranking', error);
+          window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
+          serverAccepted = false;
         }
       }
 
