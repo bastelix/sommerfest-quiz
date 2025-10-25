@@ -1249,8 +1249,12 @@ body.admin-page {
 }
 
 .ranking-consent-checkbox {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  flex: 0 0 2rem;
+  background-size: 1.2rem;
 }
 
 .player-ranking-card {
