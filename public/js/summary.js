@@ -400,9 +400,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (finishBtn) {
     finishBtn.addEventListener('click', () => {
+      const params = new URLSearchParams();
+      const storedPlayerUid = typeof getStored === 'function' && typeof STORAGE_KEYS === 'object'
+        ? getStored(playerUidKey)
+        : '';
+      if (eventUid) {
+        params.set('event_uid', eventUid);
+      }
+      if (storedPlayerUid) {
+        params.set('player_uid', storedPlayerUid);
+      }
       [
-        STORAGE_KEYS.PLAYER_NAME,
-        STORAGE_KEYS.PLAYER_UID,
         STORAGE_KEYS.CATALOG,
         STORAGE_KEYS.CATALOG_NAME,
         STORAGE_KEYS.CATALOG_DESC,
@@ -414,7 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
         STORAGE_KEYS.PUZZLE_TIME,
         STORAGE_KEYS.QUIZ_SOLVED
       ].forEach(key => clearStored(key));
-      const target = eventUid ? `/?event=${encodeURIComponent(eventUid)}` : '/';
+      const query = params.toString();
+      const target = `/ranking${query ? `?${query}` : ''}`;
       window.location.href = withBase(target);
     });
   }
