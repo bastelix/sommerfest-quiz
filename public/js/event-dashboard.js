@@ -15,6 +15,7 @@ const infoText = config.infoText || '';
 const mediaItems = Array.isArray(config.mediaItems) ? config.mediaItems : [];
 const refreshInterval = Math.max(5, Number(config.refreshInterval) || 15);
 const eventIdentifier = config.slug || config.eventUid || '';
+const competitionMode = Boolean(config.competitionMode);
 const DASHBOARD_LAYOUT_OPTIONS = new Set(['auto', 'wide', 'full']);
 
 const dashboardTheme = typeof config.theme === 'string' ? config.theme.trim().toLowerCase() : '';
@@ -468,7 +469,7 @@ function renderRankingQrModule(moduleConfig) {
   return createModuleCard(resolveModuleTitle(moduleConfig, 'Ranking-QR'), container, resolveModuleLayout(moduleConfig));
 }
 
-function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaultsOverride = {}) {
+function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaultsOverride = {}, renderFlags = {}) {
   const moduleId = typeof moduleConfig?.id === 'string' && moduleConfig.id.trim() !== ''
     ? moduleConfig.id
     : 'results';
@@ -478,6 +479,7 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
     ? layoutOverride
     : resolveModuleLayout(moduleConfig);
   const options = resolveResultsOptions(moduleConfig, defaultsOverride);
+  const showAttemptSuffix = renderFlags && renderFlags.showAttemptSuffix === true;
   const sortedRows = Array.isArray(rows) ? [...rows] : [];
   const resolveTimeValue = (row) => {
     const timeValue = parseResultNumber(row?.time);
@@ -608,7 +610,20 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
           tr.appendChild(placementCell);
         }
         const nameCell = document.createElement('td');
-        nameCell.textContent = row?.name ?? '';
+        const attemptCandidate = parseResultNumber(row?.attempt);
+        const attemptNumber = attemptCandidate !== null && attemptCandidate > 0
+          ? Math.max(1, Math.floor(attemptCandidate))
+          : 1;
+        const rawName = row?.name ?? '';
+        const baseName = typeof rawName === 'string'
+          ? rawName
+          : rawName === null || rawName === undefined
+            ? ''
+            : String(rawName);
+        const shouldShowAttempt = showAttemptSuffix && baseName !== '' && attemptNumber > 1;
+        nameCell.textContent = shouldShowAttempt
+          ? `${baseName} (Versuch ${attemptNumber})`
+          : baseName;
         const pointsCell = document.createElement('td');
         pointsCell.textContent = formatPointsCell(row?.points ?? row?.correct ?? 0, row?.max_points ?? 0);
         const timeCell = document.createElement('td');
@@ -766,7 +781,9 @@ function renderModules(rows, questionRows, rankings, catalogList) {
       modulesRoot.appendChild(renderPointsLeaderModule(rankings, module));
       hasModuleOutput = true;
     } else if (module.id === 'rankings') {
-      modulesRoot.appendChild(renderResultsModule(rows, module, layout, { title: 'Live-Rankings' }));
+      modulesRoot.appendChild(
+        renderResultsModule(rows, module, layout, { title: 'Live-Rankings' }, { showAttemptSuffix: !competitionMode })
+      );
       hasModuleOutput = true;
     } else if (module.id === 'results') {
       modulesRoot.appendChild(renderResultsModule(rows, module, layout));

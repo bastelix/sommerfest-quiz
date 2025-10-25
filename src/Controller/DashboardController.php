@@ -86,6 +86,7 @@ class DashboardController
                 'mediaItems' => $mediaLines,
                 'shareToken' => $token,
                 'variant' => $matchedVariant,
+                'competitionMode' => !empty($cfg['competitionMode']),
                 'active' => $isActive,
                 'theme' => $cfg['dashboardTheme'],
                 'visibility' => [
