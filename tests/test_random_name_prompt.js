@@ -5,6 +5,14 @@ if (!/setStored\('quizUser', name\);\s*setStored\(STORAGE_KEYS\.PLAYER_NAME, nam
     throw new Error('Team name not stored under both keys');
 }
 
+if (!/setStored\(STORAGE_KEYS\.PLAYER_UID, uid\);/.test(quizCode)) {
+    throw new Error('Player UID not persisted when saving name');
+}
+
+if (!/fetch\(['"]\/api\/players['"]/.test(quizCode)) {
+    throw new Error('Player name changes are not synced with the server');
+}
+
 if (!/if\(!getStored\('quizUser'\) && !cfg\.QRRestrict && !cfg\.QRUser\)\{\s*if\(cfg\.randomNames\)\{\s*await promptTeamName\(\);/s.test(quizCode)) {
     throw new Error('Initial random name prompt missing');
 }

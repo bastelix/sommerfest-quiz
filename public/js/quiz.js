@@ -245,6 +245,30 @@ async function promptTeamName(){
       }
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
+      let uid = getStored(STORAGE_KEYS.PLAYER_UID);
+      if(!uid){
+        let cryptoSource = null;
+        if(typeof self !== 'undefined' && self && self.crypto){
+          cryptoSource = self.crypto;
+        }else if(typeof globalThis !== 'undefined' && globalThis && globalThis.crypto){
+          cryptoSource = globalThis.crypto;
+        }
+        if(cryptoSource && typeof cryptoSource.randomUUID === 'function'){
+          uid = cryptoSource.randomUUID();
+        }else{
+          uid = Math.random().toString(36).slice(2);
+        }
+        setStored(STORAGE_KEYS.PLAYER_UID, uid);
+      }
+      fetch('/api/players', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_uid: currentEventUid,
+          player_name: name,
+          player_uid: uid
+        })
+      }).catch(() => {});
       try {
         await postSession('player', { name });
         saved = true;
