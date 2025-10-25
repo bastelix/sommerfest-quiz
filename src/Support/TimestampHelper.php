@@ -14,6 +14,7 @@ final class TimestampHelper
      * Normalize a timestamp-like value to a positive integer.
      *
      * @param int|float|string|null $value
+     * @phpstan-param mixed $value
      */
     public static function normalize($value): ?int
     {
@@ -35,26 +36,26 @@ final class TimestampHelper
             return $timestamp > 0 ? $timestamp : null;
         }
 
-        if (!is_string($value)) {
-            return null;
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '0') {
+                return null;
+            }
+
+            if (!is_numeric($trimmed)) {
+                return null;
+            }
+
+            $numericValue = (float) $trimmed;
+            if (!is_finite($numericValue) || $numericValue <= 0.0) {
+                return null;
+            }
+
+            $timestamp = (int) round($numericValue);
+
+            return $timestamp > 0 ? $timestamp : null;
         }
 
-        $trimmed = trim($value);
-        if ($trimmed === '' || $trimmed === '0') {
-            return null;
-        }
-
-        if (!is_numeric($trimmed)) {
-            return null;
-        }
-
-        $numericValue = (float) $trimmed;
-        if (!is_finite($numericValue) || $numericValue <= 0.0) {
-            return null;
-        }
-
-        $timestamp = (int) round($numericValue);
-
-        return $timestamp > 0 ? $timestamp : null;
+        return null;
     }
 }
