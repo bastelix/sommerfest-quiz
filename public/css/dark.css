@@ -162,7 +162,6 @@ body .tab-card {
 body .topbar {
   background-color: #1e1e1e;
   border-color: #444;
-  padding-top: env(safe-area-inset-top);
 }
 
 body .git-btn,
@@ -517,7 +516,6 @@ body[data-theme="dark"] .tab-card {
 body[data-theme="dark"] .topbar {
   background-color: #1e1e1e;
   border-color: #444;
-  padding-top: env(safe-area-inset-top);
 }
 body[data-theme="dark"] .modern-info-card {
   border-color: #444;
