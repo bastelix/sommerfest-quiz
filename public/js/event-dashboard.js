@@ -8,6 +8,8 @@ const statusLabel = document.getElementById('dashboardStatusLabel');
 const refreshBtn = document.getElementById('dashboardRefreshBtn');
 const headerContainer = document.querySelector('[data-dashboard-header]');
 
+const moduleState = new Map();
+
 const activeModules = Array.isArray(config.modules) ? config.modules : [];
 const infoText = config.infoText || '';
 const mediaItems = Array.isArray(config.mediaItems) ? config.mediaItems : [];
@@ -433,6 +435,10 @@ function renderRankingQrModule(moduleConfig) {
 }
 
 function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaultsOverride = {}) {
+  const moduleId = typeof moduleConfig?.id === 'string' && moduleConfig.id.trim() !== ''
+    ? moduleConfig.id
+    : 'results';
+  const storedPageIndex = Number.isInteger(moduleState.get(moduleId)) ? moduleState.get(moduleId) : 0;
   clearResultsPagerTimer();
   const layout = typeof layoutOverride === 'string' && layoutOverride.trim() !== ''
     ? layoutOverride
@@ -529,6 +535,7 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
       }
     });
     currentPage = index;
+    moduleState.set(moduleId, currentPage);
   };
 
   const effectivePageSize = options.pageSize && options.pageSize > 0
@@ -573,7 +580,8 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
   }
 
   if (pageBodies.length > 0) {
-    goToPage(0);
+    const initialPage = Math.min(Math.max(storedPageIndex, 0), pageBodies.length - 1);
+    goToPage(initialPage);
   }
 
   let pager = null;
