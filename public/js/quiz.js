@@ -136,7 +136,106 @@ function updateTeamNameButton(){
   btn.textContent = name || btn.getAttribute('data-placeholder') || 'Teamnamen eingeben';
 }
 
+function promptTeamNameChange(existingName){
+  const currentName = typeof existingName === 'string' ? existingName : getStored('quizUser') || '';
+  releaseNameReservation();
+  return new Promise(resolve => {
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    modal.appendChild(dialog);
+    const title = document.createElement('h3');
+    title.className = 'uk-modal-title uk-text-center';
+    title.textContent = 'Teamname ändern';
+    dialog.appendChild(title);
+    const input = document.createElement('input');
+    input.id = 'team-name-input';
+    input.className = 'uk-input';
+    input.type = 'text';
+    input.placeholder = 'Teamname';
+    input.value = currentName;
+    const btn = document.createElement('button');
+    btn.id = 'team-name-submit';
+    btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    btn.textContent = 'Weiter';
+    dialog.appendChild(input);
+    dialog.appendChild(btn);
+    let saved = false;
+    btn.addEventListener('click', async () => {
+      const name = (input.value || '').trim();
+      if(!name){
+        return;
+      }
+      releaseNameReservation();
+      setStored('quizUser', name);
+      setStored(STORAGE_KEYS.PLAYER_NAME, name);
+      let uid = getStored(STORAGE_KEYS.PLAYER_UID);
+      if(!uid){
+        let cryptoSource = null;
+        if(typeof self !== 'undefined' && self && self.crypto){
+          cryptoSource = self.crypto;
+        }else if(typeof globalThis !== 'undefined' && globalThis && globalThis.crypto){
+          cryptoSource = globalThis.crypto;
+        }
+        if(cryptoSource && typeof cryptoSource.randomUUID === 'function'){
+          uid = cryptoSource.randomUUID();
+        }else{
+          uid = Math.random().toString(36).slice(2);
+        }
+        setStored(STORAGE_KEYS.PLAYER_UID, uid);
+      }
+      fetch('/api/players', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_uid: currentEventUid,
+          player_name: name,
+          player_uid: uid
+        })
+      }).catch(() => {});
+      try{
+        await postSession('player', { name });
+        saved = true;
+        ui.hide();
+      }catch(e){
+        if(typeof UIkit !== 'undefined' && UIkit.notification){
+          UIkit.notification({
+            message: 'Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.',
+            status: 'danger',
+            pos: 'top-center',
+            timeout: 3000
+          });
+        }else{
+          alert('Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.');
+        }
+      }
+    });
+    input.addEventListener('keydown', ev => {
+      if(ev.key === 'Enter'){
+        ev.preventDefault();
+        btn.click();
+      }
+    });
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
+    UIkit.util.on(modal, 'shown', () => {
+      if(typeof input.focus === 'function') input.focus();
+      if(typeof input.select === 'function') input.select();
+    });
+    UIkit.util.on(modal, 'hidden', () => {
+      modal.remove();
+      updateTeamNameButton();
+      resolve();
+    });
+    ui.show();
+  });
+}
+
 async function promptTeamName(){
+  const cfg = window.quizConfig || {};
+  const competitionMode = Boolean(cfg.competitionMode);
   const existing = getStored('quizUser');
   if(existing){
     releaseNameReservation();
@@ -149,7 +248,8 @@ async function promptTeamName(){
       modal.appendChild(dialog);
       const title = document.createElement('h3');
       title.className = 'uk-modal-title uk-text-center';
-      title.textContent = `Ah - dich kenne ich. Du bist ${existing}. Willkommen zurück. Möchtest du fortfahren oder den Teamnamen zurücksetzen?`;
+      const actionLabel = competitionMode ? 'den Namen ändern' : 'den Teamnamen zurücksetzen';
+      title.textContent = `Ah - dich kenne ich. Du bist ${existing}. Willkommen zurück. Möchtest du fortfahren oder ${actionLabel}?`;
       dialog.appendChild(title);
       const btn = document.createElement('button');
       btn.id = 'team-name-submit';
@@ -158,30 +258,38 @@ async function promptTeamName(){
       const resetBtn = document.createElement('button');
       resetBtn.id = 'team-name-reset';
       resetBtn.className = 'uk-button uk-button-danger uk-width-1-1 uk-margin-top';
-      resetBtn.textContent = 'Teamnamen zurücksetzen';
+      resetBtn.textContent = competitionMode ? 'Name ändern' : 'Teamnamen zurücksetzen';
       dialog.appendChild(btn);
       dialog.appendChild(resetBtn);
       document.body.appendChild(modal);
       const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
       let reopened = false;
+      let reopenAction = null;
       UIkit.util.on(modal, 'hidden', () => {
         modal.remove();
         updateTeamNameButton();
-        if(!reopened){
+        if(reopened && typeof reopenAction === 'function'){
+          Promise.resolve(reopenAction()).then(resolve);
+        }else if(!reopened){
           resolve();
         }
       });
       btn.addEventListener('click', () => { ui.hide(); });
       resetBtn.addEventListener('click', async () => {
         reopened = true;
+        if(competitionMode){
+          reopenAction = () => promptTeamNameChange(existing);
+          ui.hide();
+          return;
+        }
         clearStored('quizUser');
         clearStored(STORAGE_KEYS.PLAYER_UID);
         try{
           await postSession('player', { name: null });
         }catch(e){ /* empty */ }
         releaseNameReservation();
+        reopenAction = () => promptTeamName();
         ui.hide();
-        UIkit.util.on(modal, 'hidden', () => { promptTeamName().then(resolve); });
       });
       ui.show();
     });
