@@ -575,13 +575,12 @@ class ResultController
                 return '';
             }
             $timestamp = $value;
-        } elseif (is_float($value)) {
+        } else {
+            // only float values remain here due to the earlier checks
             if ($value <= 0.0) {
                 return '';
             }
             $timestamp = (int) round($value);
-        } else {
-            return '';
         }
 
         if ($timestamp <= 0) {
