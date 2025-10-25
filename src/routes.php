@@ -41,6 +41,7 @@ use App\Service\PageService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
+use App\Service\PlayerContactOptInService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Service\EmailConfirmationService;
@@ -106,6 +107,7 @@ use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
 use App\Controller\OnboardingSessionController;
 use App\Controller\CatalogSessionController;
+use App\Controller\PlayerContactController;
 use App\Controller\PlayerSessionController;
 use App\Controller\StripeCheckoutController;
 use App\Controller\StripeSessionController;
@@ -288,6 +290,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $auditLogger = new AuditLogger($pdo);
         $sessionService = new SessionService($pdo);
         $playerService = new PlayerService($pdo);
+        $playerContactOptInService = new PlayerContactOptInService($pdo, $playerService);
         $imageUploadService = new ImageUploadService();
         $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
         $pageService = new PageService($pdo);
@@ -409,6 +412,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
             ->withAttribute('rankingController', new RankingController($configService, $eventService))
+            ->withAttribute('playerContactController', new PlayerContactController($playerContactOptInService, $eventService))
+            ->withAttribute('mailProviderManager', $mailProviderManager)
             ->withAttribute('mailProviderController', new MailProviderController(
                 $mailProviderRepository,
                 $settingsService,
@@ -1533,6 +1538,36 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         return $response->withStatus(204);
+    });
+
+    $app->post('/api/player-contact', function (Request $request, Response $response) {
+        /** @var PlayerContactController|null $controller */
+        $controller = $request->getAttribute('playerContactController');
+        if (!$controller instanceof PlayerContactController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->request($request, $response);
+    });
+
+    $app->post('/api/player-contact/confirm', function (Request $request, Response $response) {
+        /** @var PlayerContactController|null $controller */
+        $controller = $request->getAttribute('playerContactController');
+        if (!$controller instanceof PlayerContactController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->confirm($request, $response);
+    });
+
+    $app->delete('/api/player-contact', function (Request $request, Response $response) {
+        /** @var PlayerContactController|null $controller */
+        $controller = $request->getAttribute('playerContactController');
+        if (!$controller instanceof PlayerContactController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->delete($request, $response);
     });
 
     $app->post('/api/team-names', function (Request $request, Response $response) {

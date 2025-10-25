@@ -404,6 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const configEventUid = cfg.event_uid || '';
   const eventUid = urlEventUid || configEventUid;
   const urlPlayerUid = params.get('uid') || params.get('player_uid') || '';
+  const contactToken = params.get('contact_token') || '';
 
   const basePath = window.basePath || '';
   const dataService = new ResultsDataService({ basePath, eventUid });
@@ -581,9 +582,34 @@ document.addEventListener('DOMContentLoaded', () => {
     setFormMessage('', 'info');
   };
 
+  const sendJson = async (endpoint, payload, method = 'POST') => {
+    const options = {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    };
+
+    return fetch(endpoint, options);
+  };
+
+  const removeQueryParameter = (key) => {
+    try {
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has(key)) {
+        return;
+      }
+      url.searchParams.delete(key);
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      window.history.replaceState({}, document.title, next);
+    } catch (error) {
+      console.error('Failed to clean query parameter', error);
+    }
+  };
+
   let currentName = getStoredName();
   let currentEmail = getStoredEmail();
   let hasEmailConsent = getStoredConsent();
+  let pendingEmail = '';
 
   if (!hasEmailConsent) {
     currentEmail = '';
@@ -591,10 +617,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateContactForm = () => {
     if (emailInput) {
-      emailInput.value = currentEmail || '';
+      const displayEmail = pendingEmail || currentEmail || '';
+      emailInput.value = displayEmail;
+      emailInput.classList.toggle('uk-form-success', Boolean(hasEmailConsent && currentEmail));
     }
     if (consentCheckbox) {
       consentCheckbox.checked = Boolean(hasEmailConsent && currentEmail);
+      consentCheckbox.disabled = Boolean(pendingEmail);
     }
   };
 
@@ -922,6 +951,63 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   };
 
+  const confirmContactOptIn = async (token) => {
+    if (!token) {
+      return;
+    }
+
+    setFormMessage('Wir bestätigen gerade deine E-Mail-Adresse …', 'info');
+
+    try {
+      const response = await sendJson('/api/player-contact/confirm', { token });
+      if (response.ok) {
+        const payload = await response.json();
+        const normalizedEmail = normalizeEmail(payload.contact_email);
+        if (normalizedEmail) {
+          currentEmail = normalizedEmail;
+          pendingEmail = '';
+          hasEmailConsent = true;
+          setStoredEmail(normalizedEmail);
+          setStoredConsent(true);
+          updateContactForm();
+        }
+        if (payload && typeof payload.player_name === 'string') {
+          const sanitized = safeUserName(payload.player_name) || payload.player_name.trim();
+          if (sanitized && sanitized !== (safeUserName(currentName) || currentName.trim())) {
+            currentName = sanitized;
+            setStoredName(sanitized);
+            updateNameDisplay();
+          }
+        }
+        setFormMessage('Danke! Deine E-Mail-Adresse wurde bestätigt.', 'success');
+        refresh();
+      } else if (response.status === 410) {
+        pendingEmail = '';
+        updateContactForm();
+        setFormMessage('Der Bestätigungslink ist abgelaufen. Bitte fordere eine neue E-Mail an.', 'error');
+      } else if (response.status === 404) {
+        pendingEmail = '';
+        updateContactForm();
+        setFormMessage('Der Bestätigungslink konnte nicht gefunden werden. Bitte fordere eine neue E-Mail an.', 'error');
+      } else if (response.status === 409) {
+        pendingEmail = '';
+        updateContactForm();
+        setFormMessage('Diese E-Mail-Adresse wurde bereits bestätigt.', 'info');
+      } else {
+        pendingEmail = '';
+        updateContactForm();
+        setFormMessage('Die Bestätigung konnte nicht abgeschlossen werden. Bitte fordere eine neue E-Mail an.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to confirm player contact', error);
+      pendingEmail = '';
+      updateContactForm();
+      setFormMessage('Die Bestätigung konnte nicht abgeschlossen werden. Bitte versuche es später erneut.', 'error');
+    } finally {
+      removeQueryParameter('contact_token');
+    }
+  };
+
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       refresh();
@@ -1022,12 +1108,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (contactForm) {
-    contactForm.addEventListener('submit', (event) => {
+    contactForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!emailInput || !consentCheckbox) {
         return;
       }
+
       resetFormMessage();
+
+      if (!eventUid) {
+        setFormMessage('Die Veranstaltung konnte nicht ermittelt werden. Bitte lade die Seite neu.', 'error');
+        return;
+      }
+
       const rawEmail = typeof emailInput.value === 'string' ? emailInput.value : '';
       const trimmedEmail = rawEmail.trim();
       const consentGiven = Boolean(consentCheckbox.checked);
@@ -1047,38 +1140,95 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      const playerUid = ensurePlayerUid();
+      if (!playerUid) {
+        setFormMessage('Dein Spieler-Profil konnte nicht angelegt werden. Bitte versuche es erneut.', 'error');
+        return;
+      }
+
       if (trimmedEmail === '') {
-        const hadData = Boolean(currentEmail || hasEmailConsent);
-        currentEmail = '';
-        hasEmailConsent = false;
-        clearStoredEmail();
-        clearStoredConsent();
-        updateContactForm();
-        if (hadData) {
-          setFormMessage('Wir haben deine Kontaktdaten entfernt.', 'success');
-          refresh();
-        } else {
-          setFormMessage('Es sind keine Kontaktdaten gespeichert.', 'info');
+        const hadData = Boolean(currentEmail || hasEmailConsent || pendingEmail);
+        pendingEmail = '';
+        try {
+          const response = await sendJson('/api/player-contact', {
+            event_uid: eventUid,
+            player_uid: playerUid,
+          }, 'DELETE');
+
+          if (response.status === 204) {
+            currentEmail = '';
+            hasEmailConsent = false;
+            clearStoredEmail();
+            clearStoredConsent();
+            updateContactForm();
+            setFormMessage(hadData ? 'Wir haben deine Kontaktdaten entfernt.' : 'Es sind keine Kontaktdaten gespeichert.', hadData ? 'success' : 'info');
+            refresh();
+          } else if (response.status === 404) {
+            currentEmail = '';
+            hasEmailConsent = false;
+            clearStoredEmail();
+            clearStoredConsent();
+            updateContactForm();
+            setFormMessage('Es sind keine Kontaktdaten gespeichert.', 'info');
+          } else {
+            setFormMessage('Die Kontaktdaten konnten nicht entfernt werden. Bitte versuche es später erneut.', 'error');
+          }
+        } catch (error) {
+          console.error('Failed to remove player contact', error);
+          setFormMessage('Die Kontaktdaten konnten nicht entfernt werden. Bitte versuche es später erneut.', 'error');
         }
         return;
       }
 
-      const confirmationText = 'Möchtest du deine E-Mail-Adresse speichern, damit wir dich bei Neuigkeiten zum Ranking informieren können?';
-      const confirmed = window.confirm(confirmationText);
-      if (!confirmed) {
-        setFormMessage('Die Speicherung wurde abgebrochen.', 'info');
+      const normalizedEmail = normalizeEmail(trimmedEmail);
+      if (!normalizedEmail) {
+        setFormMessage('Bitte gib eine gültige E-Mail-Adresse im Format name@example.de an.', 'error');
         return;
       }
 
-      const normalizedEmail = normalizeEmail(trimmedEmail);
-      currentEmail = normalizedEmail;
-      hasEmailConsent = true;
-      setStoredEmail(normalizedEmail);
-      setStoredConsent(true);
+      pendingEmail = normalizedEmail;
+      hasEmailConsent = false;
       updateContactForm();
-      setFormMessage('Deine Kontaktdaten wurden gespeichert.', 'success');
-      refresh();
+      setFormMessage('Fast geschafft! Wir haben dir eine Bestätigungs-E-Mail geschickt. Bitte bestätige sie innerhalb von 24 Stunden.', 'info');
+
+      try {
+        const response = await sendJson('/api/player-contact', {
+          event_uid: eventUid,
+          player_uid: playerUid,
+          player_name: currentName,
+          contact_email: normalizedEmail,
+        });
+
+        if (response.status === 204) {
+          setFormMessage('Wir haben dir eine Bestätigungs-E-Mail geschickt. Schau bitte auch im Spam-Ordner nach.', 'success');
+        } else if (response.status === 404) {
+          pendingEmail = '';
+          updateContactForm();
+          setFormMessage('Die Veranstaltung wurde nicht gefunden. Bitte lade die Seite neu.', 'error');
+        } else if (response.status === 503) {
+          pendingEmail = '';
+          updateContactForm();
+          setFormMessage('Aktuell können keine Bestätigungs-E-Mails versendet werden. Bitte versuche es später erneut.', 'error');
+        } else if (response.status === 400) {
+          pendingEmail = '';
+          updateContactForm();
+          setFormMessage('Die E-Mail-Adresse konnte nicht verarbeitet werden. Bitte überprüfe deine Eingabe.', 'error');
+        } else {
+          pendingEmail = '';
+          updateContactForm();
+          setFormMessage('Es gab ein Problem beim Versand der Bestätigungs-E-Mail. Bitte versuche es später erneut.', 'error');
+        }
+      } catch (error) {
+        console.error('Failed to request player contact confirmation', error);
+        pendingEmail = '';
+        updateContactForm();
+        setFormMessage('Es gab ein Problem beim Versand der Bestätigungs-E-Mail. Bitte versuche es später erneut.', 'error');
+      }
     });
+  }
+
+  if (contactToken) {
+    confirmContactOptIn(contactToken);
   }
 
   const initialSync = syncPlayerFromServer();
