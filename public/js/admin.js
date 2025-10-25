@@ -1646,7 +1646,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
         const sortField = item.querySelector('[data-module-results-option="sort"]');
         const titleField = item.querySelector('[data-module-results-option="title"]');
-        const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
         const limitValue = limitField
           ? normalizeDashboardResultsLimit(limitField.value)
           : normalizeDashboardResultsLimit(defaults.limit);
@@ -1664,7 +1663,20 @@ document.addEventListener('DOMContentLoaded', function () {
         if (titleValue === '') {
           titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
         }
-        entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
+        const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
+        let placementValue = false;
+        if (placementField) {
+          placementValue = placementField.checked;
+        } else if (Object.prototype.hasOwnProperty.call(defaults, 'showPlacement')) {
+          placementValue = defaults.showPlacement === true;
+        }
+        entry.options = {
+          limit: limitValue,
+          pageSize: pageSizeValue,
+          sort: sortValue,
+          title: titleValue,
+          ...(id === 'rankings' ? { showPlacement: placementValue } : {}),
+        };
       } else if (id === 'pointsLeader') {
         const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.options || {};
         const limitField = item.querySelector('[data-module-points-leader-limit]');
