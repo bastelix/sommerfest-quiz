@@ -994,7 +994,13 @@ document.addEventListener('DOMContentLoaded', function () {
       id: 'rankings',
       enabled: true,
       layout: 'wide',
-      options: { limit: null, pageSize: null, sort: 'time', title: 'Live-Rankings' },
+      options: {
+        limit: null,
+        pageSize: null,
+        sort: 'time',
+        title: 'Live-Rankings',
+        showPlacement: false,
+      },
     },
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
@@ -1042,6 +1048,26 @@ document.addEventListener('DOMContentLoaded', function () {
     return parsed;
   };
 
+  function resolveBooleanOption(value, fallback = false) {
+    if (value === null || value === undefined) {
+      return fallback;
+    }
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    if (typeof value === 'number') {
+      return value !== 0;
+    }
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === '') {
+        return fallback;
+      }
+      return ['1', 'true', 'yes', 'on'].includes(normalized);
+    }
+    return fallback;
+  }
+
   function applyDashboardResultsOptions(item, moduleId, options = {}) {
     if (!item) {
       return;
@@ -1077,6 +1103,14 @@ document.addEventListener('DOMContentLoaded', function () {
       const fallbackTitle = defaults.title || (moduleId === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
+    }
+    const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
+    if (placementField) {
+      const fallbackPlacement = resolveBooleanOption(defaults.showPlacement, false);
+      const rawPlacement = Object.prototype.hasOwnProperty.call(options || {}, 'showPlacement')
+        ? options.showPlacement
+        : defaults.showPlacement;
+      placementField.checked = resolveBooleanOption(rawPlacement, fallbackPlacement);
     }
     syncDashboardResultsPageSizeState(item);
   }
@@ -1594,6 +1628,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
         const sortField = item.querySelector('[data-module-results-option="sort"]');
         const titleField = item.querySelector('[data-module-results-option="title"]');
+        const placementField = item.querySelector('[data-module-results-option="showPlacement"]');
         const limitValue = limitField
           ? normalizeDashboardResultsLimit(limitField.value)
           : normalizeDashboardResultsLimit(defaults.limit);
@@ -1611,7 +1646,18 @@ document.addEventListener('DOMContentLoaded', function () {
         if (titleValue === '') {
           titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
         }
-        entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
+        const showPlacementValue = placementField
+          ? placementField.checked
+          : resolveBooleanOption(defaults.showPlacement, false);
+        entry.options = {
+          limit: limitValue,
+          pageSize: pageSizeValue,
+          sort: sortValue,
+          title: titleValue,
+        };
+        if (placementField || Object.prototype.hasOwnProperty.call(defaults, 'showPlacement')) {
+          entry.options.showPlacement = showPlacementValue;
+        }
       } else if (id === DASHBOARD_QR_MODULE_ID) {
         const catalogs = [];
         item.querySelectorAll('[data-module-catalog]').forEach(catalogEl => {
