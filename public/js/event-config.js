@@ -793,6 +793,7 @@
         currentSponsorToken = config?.dashboardSponsorToken || '';
         if (modulesList) {
           applyModules(modulesConfig);
+          updateModulesInput(false);
         }
         loadDashboardCatalogOptions(getQrModuleSelection(modulesConfig));
         updateShareInputs();
