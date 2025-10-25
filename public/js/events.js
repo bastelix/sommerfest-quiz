@@ -34,19 +34,11 @@ const notify = (msg, status = 'primary') => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.copy-link').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const link = btn.dataset.link;
-      if (navigator.clipboard?.writeText) {
-        navigator.clipboard
-          .writeText(link)
-          .then(() => notify('Link kopiert', 'success'))
-          .catch(() => notify('Kopieren fehlgeschlagen', 'danger'));
-      } else {
-        notify('Zwischenablage nicht verfügbar', 'warning');
-      }
-    });
-  });
+  const eventsTable = document.getElementById('eventsTable');
+  const eventsBody = document.getElementById('eventsTableBody');
+  const eventsFallback = document.getElementById('eventsTableFallback');
+  const eventsLoadMore = document.getElementById('eventsLoadMore');
+  const eventsDataScript = document.getElementById('events-data');
 
   const catalogsWrap = document.getElementById('catalogsTableWrap');
   const catalogsBody = document.getElementById('catalogsTableBody');
@@ -55,66 +47,261 @@ document.addEventListener('DOMContentLoaded', () => {
   const playedLabel = catalogsTable?.dataset.playedLabel || 'Played';
   const missingLabel = catalogsTable?.dataset.missingLabel || 'Open';
 
-  document.querySelectorAll('.event-start').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const uid = btn.dataset.uid;
-      const solved = new Set();
-      if (typeof getStored === 'function' && STORAGE_KEYS.QUIZ_SOLVED) {
-        const prevUid = (window.quizConfig || {}).event_uid;
-        if (!window.quizConfig) window.quizConfig = {};
-        window.quizConfig.event_uid = uid;
-        try {
-          JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]').forEach((s) =>
-            solved.add(String(s).toLowerCase())
+  const copyLabel = eventsTable?.dataset.copyLabel || 'Link kopieren';
+  const copySuccess = eventsTable?.dataset.copySuccess || 'Link kopiert';
+  const copyError = eventsTable?.dataset.copyError || 'Kopieren fehlgeschlagen';
+  const copyWarning = eventsTable?.dataset.copyWarning || 'Zwischenablage nicht verfügbar';
+  const parsedChunkSize = Number.parseInt(eventsTable?.dataset.chunkSize || '', 10);
+  const chunkSize = Number.isNaN(parsedChunkSize) ? 25 : Math.max(1, parsedChunkSize);
+
+  const handleCopy = (link) => {
+    if (!link) return;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(link)
+        .then(() => notify(copySuccess, 'success'))
+        .catch(() => notify(copyError, 'danger'));
+    } else {
+      notify(copyWarning, 'warning');
+    }
+  };
+
+  const attachCopyHandler = (button) => {
+    if (!button) return;
+    const link = button.dataset.link || '';
+    button.addEventListener('click', () => handleCopy(link));
+  };
+
+  const readSolvedCatalogs = (uid) => {
+    const solved = new Set();
+    if (typeof getStored === 'function' && STORAGE_KEYS.QUIZ_SOLVED) {
+      const prevUid = (window.quizConfig || {}).event_uid;
+      if (!window.quizConfig) window.quizConfig = {};
+      window.quizConfig.event_uid = uid;
+      try {
+        const stored = getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]';
+        JSON.parse(stored).forEach((s) => solved.add(String(s).toLowerCase()));
+      } catch (e) {
+        /* ignore malformed storage */
+      }
+      if (prevUid) {
+        window.quizConfig.event_uid = prevUid;
+      } else if (window.quizConfig) {
+        delete window.quizConfig.event_uid;
+      }
+    }
+    return solved;
+  };
+
+  const renderCatalogs = (uid, list, solved) => {
+    if (!catalogsBody || !Array.isArray(list)) return;
+    catalogsBody.innerHTML = '';
+    list.forEach((cat) => {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.textContent = cat.name || cat.slug || '';
+      const tdStatus = document.createElement('td');
+      const key = (cat.slug || cat.uid || '').toString().toLowerCase();
+      tdStatus.textContent = solved.has(key) ? playedLabel : missingLabel;
+      const tdAction = document.createElement('td');
+      tdAction.className = 'uk-table-shrink';
+      const startBtn = document.createElement('button');
+      startBtn.type = 'button';
+      startBtn.className = 'uk-button uk-button-primary';
+      startBtn.textContent = startLabel;
+      startBtn.addEventListener('click', () => {
+        const slug = cat.slug || cat.uid || '';
+        if (slug) {
+          window.open(
+            withBase(`/?event=${encodeURIComponent(uid)}&katalog=${encodeURIComponent(slug)}`),
+            '_blank'
           );
-        } catch (e) {
-          /* empty */
         }
-        if (prevUid) {
-          window.quizConfig.event_uid = prevUid;
-        } else {
-          delete window.quizConfig.event_uid;
+      });
+      tdAction.appendChild(startBtn);
+      tr.appendChild(tdName);
+      tr.appendChild(tdStatus);
+      tr.appendChild(tdAction);
+      catalogsBody.appendChild(tr);
+    });
+  };
+
+  const handleEventStart = (uid) => {
+    if (!uid) return;
+    const solved = readSolvedCatalogs(uid);
+    csrfFetch(`/kataloge/catalogs.json?event=${encodeURIComponent(uid)}`, {
+      headers: { Accept: 'application/json' }
+    })
+      .then((r) => r.json())
+      .then((list) => {
+        renderCatalogs(uid, list, solved);
+        if (catalogsWrap) catalogsWrap.hidden = false;
+      })
+      .catch(() => {
+        if (catalogsWrap) catalogsWrap.hidden = true;
+      });
+  };
+
+  const attachStartHandler = (button) => {
+    if (!button) return;
+    const uid = button.dataset.uid || '';
+    button.addEventListener('click', () => handleEventStart(uid));
+  };
+
+  const createEventRow = (event) => {
+    const uid = event?.uid || '';
+    if (!uid) return null;
+    const tr = document.createElement('tr');
+    const tdName = document.createElement('td');
+    const nameLink = document.createElement('a');
+    nameLink.href = withBase(`/?event=${encodeURIComponent(uid)}`);
+    nameLink.className = 'uk-link-heading';
+    nameLink.textContent = event.name || uid;
+    tdName.appendChild(nameLink);
+
+    const tdDescription = document.createElement('td');
+    tdDescription.textContent = event.description || '';
+
+    const tdAction = document.createElement('td');
+    tdAction.className = 'uk-text-nowrap';
+
+    const startBtn = document.createElement('button');
+    startBtn.type = 'button';
+    startBtn.className = 'uk-button uk-button-primary event-action event-start';
+    startBtn.dataset.uid = uid;
+    startBtn.textContent = startLabel;
+    attachStartHandler(startBtn);
+
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'uk-button uk-button-default event-action copy-link';
+    copyBtn.dataset.link = withBase(`/?event=${encodeURIComponent(uid)}`);
+    copyBtn.textContent = copyLabel;
+    attachCopyHandler(copyBtn);
+
+    tdAction.appendChild(startBtn);
+    tdAction.appendChild(copyBtn);
+    tr.appendChild(tdName);
+    tr.appendChild(tdDescription);
+    tr.appendChild(tdAction);
+    return tr;
+  };
+
+  const parseEventsData = () => {
+    if (!eventsDataScript) {
+      return [];
+    }
+    try {
+      const raw = eventsDataScript.textContent || eventsDataScript.innerText || '[]';
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      return [];
+    }
+  };
+
+  let lazyRenderingActive = false;
+
+  const initLazyRendering = (eventList) => {
+    if (!eventsBody || eventList.length === 0) {
+      return;
+    }
+    lazyRenderingActive = true;
+    if (eventsFallback) {
+      eventsFallback.remove();
+    }
+    eventsBody.innerHTML = '';
+
+    let nextIndex = 0;
+    let isRendering = false;
+    let observer;
+    let scrollListener;
+
+    const finalizeIfDone = () => {
+      if (nextIndex >= eventList.length) {
+        if (observer) {
+          observer.disconnect();
+        }
+        if (scrollListener) {
+          window.removeEventListener('scroll', scrollListener);
+          window.removeEventListener('resize', scrollListener);
+          scrollListener = undefined;
+        }
+        if (eventsLoadMore) {
+          eventsLoadMore.hidden = true;
         }
       }
-      csrfFetch(`/kataloge/catalogs.json?event=${encodeURIComponent(uid)}`, {
-        headers: { Accept: 'application/json' }
-      })
-        .then((r) => r.json())
-        .then((list) => {
-          if (!catalogsBody || !Array.isArray(list)) return;
-          catalogsBody.innerHTML = '';
-          list.forEach((cat) => {
-            const tr = document.createElement('tr');
-            const tdName = document.createElement('td');
-            tdName.textContent = cat.name || cat.slug || '';
-            const tdStatus = document.createElement('td');
-            const key = (cat.slug || cat.uid || '').toString().toLowerCase();
-            tdStatus.textContent = solved.has(key) ? playedLabel : missingLabel;
-            const tdAction = document.createElement('td');
-            tdAction.className = 'uk-table-shrink';
-            const startBtn = document.createElement('button');
-            startBtn.type = 'button';
-            startBtn.className = 'uk-button uk-button-primary';
-            startBtn.textContent = startLabel;
-            startBtn.addEventListener('click', () => {
-              const slug = cat.slug || cat.uid || '';
-              if (slug) {
-                window.open(withBase(`/?event=${encodeURIComponent(uid)}&katalog=${encodeURIComponent(slug)}`), '_blank');
-              }
-            });
-            tdAction.appendChild(startBtn);
-            tr.appendChild(tdName);
-            tr.appendChild(tdStatus);
-            tr.appendChild(tdAction);
-            catalogsBody.appendChild(tr);
-          });
-          if (catalogsWrap) catalogsWrap.hidden = false;
-        })
-        .catch(() => {
-          if (catalogsWrap) catalogsWrap.hidden = true;
+    };
+
+    const appendChunk = () => {
+      if (isRendering || nextIndex >= eventList.length) {
+        return;
+      }
+      isRendering = true;
+      const fragment = document.createDocumentFragment();
+      const end = Math.min(nextIndex + chunkSize, eventList.length);
+      for (let i = nextIndex; i < end; i += 1) {
+        const row = createEventRow(eventList[i]);
+        if (row) {
+          fragment.appendChild(row);
+        }
+      }
+      eventsBody.appendChild(fragment);
+      nextIndex = end;
+      isRendering = false;
+      if (nextIndex >= eventList.length && eventsLoadMore) {
+        eventsLoadMore.hidden = true;
+      }
+    };
+
+    const maybeLoadMoreIfInView = () => {
+      if (!eventsLoadMore || eventsLoadMore.hidden) {
+        finalizeIfDone();
+        return;
+      }
+      const rect = eventsLoadMore.getBoundingClientRect();
+      if (rect.top <= window.innerHeight + 48) {
+        appendChunk();
+        finalizeIfDone();
+      }
+    };
+
+    appendChunk();
+    if (eventsLoadMore && nextIndex < eventList.length) {
+      eventsLoadMore.hidden = false;
+      if ('IntersectionObserver' in window) {
+        observer = new IntersectionObserver((entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            appendChunk();
+            finalizeIfDone();
+          }
         });
-    });
-  });
+        observer.observe(eventsLoadMore);
+      } else {
+        scrollListener = () => {
+          maybeLoadMoreIfInView();
+        };
+        window.addEventListener('scroll', scrollListener, { passive: true });
+        window.addEventListener('resize', scrollListener);
+      }
+      maybeLoadMoreIfInView();
+    } else if (eventsLoadMore) {
+      eventsLoadMore.hidden = true;
+    }
+  };
+
+  const eventsData = parseEventsData();
+  if (eventsData.length > 0) {
+    initLazyRendering(eventsData);
+  }
+
+  if (!lazyRenderingActive) {
+    if (eventsFallback) {
+      eventsFallback.hidden = false;
+    }
+    document.querySelectorAll('.copy-link').forEach((btn) => attachCopyHandler(btn));
+    document.querySelectorAll('.event-start').forEach((btn) => attachStartHandler(btn));
+  }
 
   const selectWrap = document.getElementById('eventSelectWrap');
   const eventSelect = document.getElementById('eventSelect');

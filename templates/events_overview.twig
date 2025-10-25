@@ -18,22 +18,15 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-large">
-    {% set rows %}
-      {% for ev in events %}
-        <tr>
-          <td>
-            <a href="{{ basePath }}/?event={{ ev.uid }}" class="uk-link-heading">{{ ev.name }}</a>
-          </td>
-          <td>{{ ev.description }}</td>
-          <td class="uk-text-nowrap">
-            <button type="button" class="uk-button uk-button-primary event-action event-start" data-uid="{{ ev.uid }}">{{ t('button_start') }}</button>
-            <button type="button" class="uk-button uk-button-default event-action copy-link" data-link="{{ basePath }}/?event={{ ev.uid }}">Link kopieren</button>
-          </td>
-        </tr>
-      {% endfor %}
-    {% endset %}
     <div class="uk-overflow-auto">
-      <table id="eventsTable" class="uk-table uk-table-divider uk-table-small uk-table-hover">
+      <table id="eventsTable"
+             class="uk-table uk-table-divider uk-table-small uk-table-hover"
+             data-start-label="{{ t('button_start') }}"
+             data-copy-label="Link kopieren"
+             data-copy-success="Link kopiert"
+             data-copy-error="Kopieren fehlgeschlagen"
+             data-copy-warning="Zwischenablage nicht verfügbar"
+             data-chunk-size="25">
         <thead>
           <tr>
             <th>{{ t('column_name') }}</th>
@@ -41,8 +34,25 @@
             <th class="uk-table-shrink">{{ t('column_actions') }}</th>
           </tr>
         </thead>
-        <tbody id="eventsTableBody">{{ rows|raw }}</tbody>
+        <tbody id="eventsTableBody"></tbody>
+        <tbody id="eventsTableFallback">
+          {% for ev in events %}
+            <tr>
+              <td>
+                <a href="{{ basePath }}/?event={{ ev.uid }}" class="uk-link-heading">{{ ev.name }}</a>
+              </td>
+              <td>{{ ev.description }}</td>
+              <td class="uk-text-nowrap">
+                <button type="button" class="uk-button uk-button-primary event-action event-start" data-uid="{{ ev.uid }}">{{ t('button_start') }}</button>
+                <button type="button" class="uk-button uk-button-default event-action copy-link" data-link="{{ basePath }}/?event={{ ev.uid }}">Link kopieren</button>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
       </table>
+    </div>
+    <div id="eventsLoadMore" class="uk-flex uk-flex-center uk-margin-top" hidden>
+      <div uk-spinner></div>
     </div>
     <div id="catalogsTableWrap" class="uk-overflow-auto uk-margin-top" hidden>
       <h3 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h3>
@@ -61,6 +71,7 @@
       </table>
     </div>
   </div>
+  <script id="events-data" type="application/json">{{ events|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT')) }}</script>
 {% endblock %}
 
 {% block scripts %}
