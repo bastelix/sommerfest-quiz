@@ -68,6 +68,31 @@ class PlayerProfileTest extends TestCase
         );
     }
 
+    public function testApiPlayersFallsBackToActiveEventWhenMissing(): void {
+        $pdo = $this->getDatabase();
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name) VALUES('ev-missing','ev-missing','Test Missing')"
+        );
+        $pdo->exec('DELETE FROM active_event');
+        $pdo->exec("INSERT INTO active_event(event_uid) VALUES('ev-missing')");
+
+        $app = $this->getAppInstance();
+
+        $request = $this->createRequest('POST', '/api/players');
+        $request = $request->withParsedBody([
+            'player_name' => 'Dana',
+            'player_uid' => 'uid-missing',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(204, $response->getStatusCode());
+
+        $stored = $pdo->query(
+            "SELECT player_name FROM players WHERE event_uid='ev-missing' AND player_uid='uid-missing'"
+        )?->fetchColumn();
+        $this->assertSame('Dana', $stored);
+    }
+
     public function testApiPlayersRejectsEmailWithoutConsent(): void {
         $pdo = $this->getDatabase();
         $pdo->exec(

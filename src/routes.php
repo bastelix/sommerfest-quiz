@@ -1439,6 +1439,15 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/api/players', function (Request $request, Response $response) {
         $params = $request->getQueryParams();
         $eventUid = trim((string) ($params['event_uid'] ?? ''));
+        if ($eventUid === '' && isset($_SESSION['event_uid'])) {
+            $eventUid = trim((string) $_SESSION['event_uid']);
+        }
+        if ($eventUid === '') {
+            $config = $request->getAttribute('configService');
+            if ($config instanceof ConfigService) {
+                $eventUid = $config->getActiveEventUid();
+            }
+        }
         $playerUid = trim((string) ($params['player_uid'] ?? ''));
 
         /** @var PlayerService $playerService */
@@ -1464,6 +1473,15 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/api/players', function (Request $request, Response $response) {
         $data = (array) $request->getParsedBody();
         $eventUid = trim((string) ($data['event_uid'] ?? ''));
+        if ($eventUid === '' && isset($_SESSION['event_uid'])) {
+            $eventUid = trim((string) $_SESSION['event_uid']);
+        }
+        if ($eventUid === '') {
+            $config = $request->getAttribute('configService');
+            if ($config instanceof ConfigService) {
+                $eventUid = $config->getActiveEventUid();
+            }
+        }
         $playerName = trim((string) ($data['player_name'] ?? ''));
         $playerUid = trim((string) ($data['player_uid'] ?? ''));
         $hasEmail = array_key_exists('contact_email', $data);
