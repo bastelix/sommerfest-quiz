@@ -114,7 +114,13 @@ class DashboardController
                 'id' => 'rankings',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Live-Rankings'],
+                'options' => [
+                    'limit' => null,
+                    'pageSize' => null,
+                    'sort' => 'time',
+                    'title' => 'Live-Rankings',
+                    'showPlacement' => false,
+                ],
             ],
             [
                 'id' => 'results',
@@ -208,6 +214,26 @@ class DashboardController
                     'sort' => $sort,
                     'title' => $title,
                 ];
+                if ($id === 'rankings') {
+                    $placementFallbackRaw = $baseOptions['showPlacement'] ?? false;
+                    $placementFallback = filter_var(
+                        $placementFallbackRaw,
+                        FILTER_VALIDATE_BOOL,
+                        FILTER_NULL_ON_FAILURE
+                    );
+                    if ($placementFallback === null) {
+                        $placementFallback = false;
+                    }
+                    $placementValue = filter_var(
+                        $options['showPlacement'] ?? $placementFallback,
+                        FILTER_VALIDATE_BOOL,
+                        FILTER_NULL_ON_FAILURE
+                    );
+                    if ($placementValue === null) {
+                        $placementValue = false;
+                    }
+                    $entry['options']['showPlacement'] = $placementValue;
+                }
             } elseif ($id === 'qrCodes') {
                 $catalogs = [];
                 $rawCatalogs = $options['catalogs'] ?? [];
