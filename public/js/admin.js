@@ -987,9 +987,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const DASHBOARD_LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
   const DASHBOARD_RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
   const DASHBOARD_RESULTS_MAX_LIMIT = 50;
+  const DASHBOARD_POINTS_LEADER_MIN_LIMIT = 1;
+  const DASHBOARD_POINTS_LEADER_MAX_LIMIT = 10;
+  const DASHBOARD_POINTS_LEADER_DEFAULT_LIMIT = 5;
   const DASHBOARD_DEFAULT_MODULES = [
     { id: 'header', enabled: true, layout: 'full' },
-    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen' } },
+    { id: 'pointsLeader', enabled: true, layout: 'wide', options: { title: 'Platzierungen', limit: 5 } },
     {
       id: 'rankings',
       enabled: true,
@@ -1048,25 +1051,23 @@ document.addEventListener('DOMContentLoaded', function () {
     return parsed;
   };
 
-  function resolveBooleanOption(value, fallback = false) {
+  const normalizeDashboardPointsLeaderLimit = (value) => {
     if (value === null || value === undefined) {
-      return fallback;
+      return null;
     }
-    if (typeof value === 'boolean') {
-      return value;
+    const normalized = String(value).trim();
+    if (normalized === '') {
+      return null;
     }
-    if (typeof value === 'number') {
-      return value !== 0;
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed < DASHBOARD_POINTS_LEADER_MIN_LIMIT) {
+      return null;
     }
-    if (typeof value === 'string') {
-      const normalized = value.trim().toLowerCase();
-      if (normalized === '') {
-        return fallback;
-      }
-      return ['1', 'true', 'yes', 'on'].includes(normalized);
+    if (parsed > DASHBOARD_POINTS_LEADER_MAX_LIMIT) {
+      return DASHBOARD_POINTS_LEADER_MAX_LIMIT;
     }
-    return fallback;
-  }
+    return parsed;
+  };
 
   function applyDashboardResultsOptions(item, moduleId, options = {}) {
     if (!item) {
@@ -1113,6 +1114,23 @@ document.addEventListener('DOMContentLoaded', function () {
       placementField.checked = resolveBooleanOption(rawPlacement, fallbackPlacement);
     }
     syncDashboardResultsPageSizeState(item);
+  }
+
+  function applyDashboardPointsLeaderOptions(item, options = {}) {
+    if (!item) {
+      return;
+    }
+    const field = item.querySelector('[data-module-points-leader-limit]');
+    if (!field) {
+      return;
+    }
+    const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get('pointsLeader')?.options || {};
+    const fallback = normalizeDashboardPointsLeaderLimit(
+      options && Object.prototype.hasOwnProperty.call(options, 'limit')
+        ? options.limit
+        : defaults.limit
+    ) ?? normalizeDashboardPointsLeaderLimit(defaults.limit) ?? DASHBOARD_POINTS_LEADER_DEFAULT_LIMIT;
+    field.value = String(fallback);
   }
 
   function syncDashboardResultsPageSizeState(item) {
@@ -1646,18 +1664,17 @@ document.addEventListener('DOMContentLoaded', function () {
         if (titleValue === '') {
           titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
         }
-        const showPlacementValue = placementField
-          ? placementField.checked
-          : resolveBooleanOption(defaults.showPlacement, false);
-        entry.options = {
-          limit: limitValue,
-          pageSize: pageSizeValue,
-          sort: sortValue,
-          title: titleValue,
-        };
-        if (placementField || Object.prototype.hasOwnProperty.call(defaults, 'showPlacement')) {
-          entry.options.showPlacement = showPlacementValue;
-        }
+        entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
+      } else if (id === 'pointsLeader') {
+        const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.options || {};
+        const limitField = item.querySelector('[data-module-points-leader-limit]');
+        const fallbackLimit = normalizeDashboardPointsLeaderLimit(defaults.limit)
+          ?? DASHBOARD_POINTS_LEADER_DEFAULT_LIMIT;
+        const limitValue = limitField
+          ? normalizeDashboardPointsLeaderLimit(limitField.value)
+          : null;
+        const resolvedLimit = limitValue ?? fallbackLimit;
+        entry.options = { limit: resolvedLimit };
       } else if (id === DASHBOARD_QR_MODULE_ID) {
         const catalogs = [];
         item.querySelectorAll('[data-module-catalog]').forEach(catalogEl => {
@@ -1719,6 +1736,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (module.id === 'rankings' || module.id === 'results') {
         applyDashboardResultsOptions(item, module.id, module.options || {});
+      } else if (module.id === 'pointsLeader') {
+        applyDashboardPointsLeaderOptions(item, module.options || {});
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
@@ -1744,6 +1763,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (module.id === 'rankings' || module.id === 'results') {
         applyDashboardResultsOptions(item, module.id, module.options || {});
+      } else if (module.id === 'pointsLeader') {
+        applyDashboardPointsLeaderOptions(item, module.options || {});
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
@@ -3039,6 +3060,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const moduleItem = event.target.closest('[data-module-id]');
       syncDashboardResultsPageSizeState(moduleItem);
     }
+    if (event.target.matches('[data-module-points-leader-limit]')) {
+      updateDashboardModules(true);
+      return;
+    }
     if (event.target.matches('[data-module-toggle], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
       updateDashboardModules(true);
     }
@@ -3047,6 +3072,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (event.target.matches('[data-module-results-option="limit"]')) {
       const moduleItem = event.target.closest('[data-module-id]');
       syncDashboardResultsPageSizeState(moduleItem);
+    }
+    if (event.target.matches('[data-module-points-leader-limit]')) {
+      updateDashboardModules(true);
+      return;
     }
     if (event.target.matches('[data-module-results-option], [data-module-title]')) {
       updateDashboardModules(true);

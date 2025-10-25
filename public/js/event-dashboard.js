@@ -42,6 +42,8 @@ const RESULTS_DEFAULT_OPTIONS = {
 };
 const RESULTS_SORT_OPTIONS = new Set(['time', 'points', 'name']);
 const RESULTS_LIMIT_MAX = 50;
+const POINTS_LEADER_DEFAULT_OPTIONS = { title: 'Platzierungen', limit: 5 };
+const POINTS_LEADER_LIMIT_MAX = 10;
 
 function parseBooleanFlag(value) {
   if (value === null || value === undefined) {
@@ -204,11 +206,25 @@ function resolveModuleTitle(moduleConfig, fallback) {
   return safeFallback;
 }
 
+function resolvePointsLeaderOptions(moduleConfig) {
+  const defaults = POINTS_LEADER_DEFAULT_OPTIONS;
+  const options = moduleConfig?.options ?? {};
+  const limitCandidate = options.limit ?? defaults.limit;
+  let limit = defaults.limit;
+  const parsedLimit = parseResultNumber(limitCandidate);
+  if (parsedLimit !== null && parsedLimit > 0) {
+    const normalized = Math.max(1, Math.floor(parsedLimit));
+    limit = Math.min(normalized, POINTS_LEADER_LIMIT_MAX);
+  }
+  const title = resolveModuleTitle(moduleConfig, defaults.title);
+  return { limit, title };
+}
+
 function renderPointsLeaderModule(rankings, moduleConfig) {
   const container = document.createElement('div');
   container.className = 'dashboard-leader';
   const list = Array.isArray(rankings?.pointsList) ? rankings.pointsList : [];
-  const title = resolveModuleTitle(moduleConfig, 'Platzierungen');
+  const { title, limit } = resolvePointsLeaderOptions(moduleConfig);
   if (list.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'uk-text-meta';
@@ -267,7 +283,8 @@ function renderPointsLeaderModule(rankings, moduleConfig) {
   listElement.className = 'dashboard-leader__list uk-list uk-list-striped';
 
   const leaderPointsRaw = Number.isFinite(leader?.raw) ? leader.raw : null;
-  list.slice(0, 5).forEach((entry, index) => {
+  const visibleEntries = Math.max(1, Number.isFinite(limit) ? limit : POINTS_LEADER_DEFAULT_OPTIONS.limit);
+  list.slice(0, visibleEntries).forEach((entry, index) => {
     const item = document.createElement('li');
 
     const row = document.createElement('div');

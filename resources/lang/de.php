@@ -130,6 +130,8 @@ return [
     'text_dashboard_module_header_hint' => 'Zeigt Eventtitel, Logo und Countdown.',
     'label_dashboard_module_points_leader' => 'Highscore-Fokus',
     'text_dashboard_module_points_leader_hint' => 'Hebt das führende Team nach Punkten hervor und zeigt den Vorsprung auf die Verfolger.',
+    'label_dashboard_points_leader_limit' => 'Anzahl Platzierungen',
+    'text_dashboard_points_leader_limit_hint' => 'Steuert, wie viele Teams in der Liste erscheinen (1–10).',
     'label_dashboard_module_rankings' => 'Live-Ergebnisliste',
     'text_dashboard_module_rankings_hint' => 'Zweite Ergebnisliste mit eigener Begrenzung und Sortierung.',
     'label_dashboard_module_results' => 'Ergebnisliste',

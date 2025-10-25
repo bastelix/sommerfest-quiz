@@ -481,6 +481,11 @@
                       </div>
                       <div class="uk-margin-small-top" data-module-options>
                         <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardPointsLeaderLimit">{{ t('label_dashboard_points_leader_limit') }}</label>
+                          <input class="uk-input uk-form-small" type="number" min="1" max="10" id="cfgDashboardPointsLeaderLimit" data-module-points-leader-limit placeholder="5">
+                          <div class="uk-text-meta">{{ t('text_dashboard_points_leader_limit_hint') }}</div>
+                        </div>
+                        <div class="uk-margin-small">
                           <label class="uk-form-label" for="cfgDashboardPointsLeaderTitle">{{ t('label_dashboard_module_title') }}</label>
                           <input class="uk-input uk-form-small" type="text" id="cfgDashboardPointsLeaderTitle" data-module-title placeholder="{{ t('label_dashboard_module_points_leader') }}">
                           <div class="uk-text-meta">{{ t('text_dashboard_points_leader_title_hint') }}</div>
