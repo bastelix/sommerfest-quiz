@@ -27,6 +27,9 @@ class ConfigValidator
         'QRUser' => false,
         'QRRestrict' => false,
         'randomNames' => false,
+        'randomNameDomains' => [],
+        'randomNameTones' => [],
+        'randomNameBuffer' => 0,
         'shuffleQuestions' => true,
         'competitionMode' => false,
         'teamResults' => false,
@@ -63,6 +66,27 @@ class ConfigValidator
     private const DASHBOARD_MIN_REFRESH = 5;
 
     private const DASHBOARD_MAX_REFRESH = 300;
+
+    public const RANDOM_NAME_DOMAIN_OPTIONS = [
+        'nature',
+        'science',
+        'culture',
+        'sports',
+        'fantasy',
+        'geography',
+    ];
+
+    public const RANDOM_NAME_TONE_OPTIONS = [
+        'playful',
+        'bold',
+        'elegant',
+        'serious',
+        'quirky',
+    ];
+
+    public const RANDOM_NAME_BUFFER_MIN = 0;
+
+    public const RANDOM_NAME_BUFFER_MAX = 50;
 
     /**
      * Validate incoming configuration data.
@@ -148,6 +172,25 @@ class ConfigValidator
                 $config['countdown'] = (int) $countdown;
             }
         }
+
+        $config['randomNameDomains'] = $this->filterRandomNameOptions(
+            $data['randomNameDomains'] ?? self::DEFAULTS['randomNameDomains'],
+            self::RANDOM_NAME_DOMAIN_OPTIONS,
+            $errors,
+            'randomNameDomains'
+        );
+
+        $config['randomNameTones'] = $this->filterRandomNameOptions(
+            $data['randomNameTones'] ?? self::DEFAULTS['randomNameTones'],
+            self::RANDOM_NAME_TONE_OPTIONS,
+            $errors,
+            'randomNameTones'
+        );
+
+        $config['randomNameBuffer'] = $this->normalizeRandomNameBuffer(
+            $data['randomNameBuffer'] ?? self::DEFAULTS['randomNameBuffer'],
+            $errors
+        );
 
         // puzzleWord
         $config['puzzleWord'] = trim((string)($data['puzzleWord'] ?? self::DEFAULTS['puzzleWord']));
@@ -257,6 +300,73 @@ class ConfigValidator
         }
 
         return ['config' => $config, 'errors' => $errors];
+    }
+
+    /**
+     * @param mixed                $raw
+     * @param list<string>         $allowed
+     * @param array<string,string> $errors
+     * @return list<string>
+     */
+    private function filterRandomNameOptions($raw, array $allowed, array &$errors, string $errorKey): array
+    {
+        if (!is_array($raw)) {
+            return [];
+        }
+
+        $unique = [];
+        foreach ($raw as $value) {
+            if (!is_string($value) && !is_int($value)) {
+                $errors[$errorKey] = 'Invalid option provided';
+                continue;
+            }
+            $normalized = strtolower(trim((string) $value));
+            if ($normalized === '') {
+                continue;
+            }
+            if (!in_array($normalized, $allowed, true)) {
+                $errors[$errorKey] = 'Invalid option provided';
+                continue;
+            }
+            if (!in_array($normalized, $unique, true)) {
+                $unique[] = $normalized;
+            }
+        }
+
+        return $unique;
+    }
+
+    /**
+     * @param mixed                $raw
+     * @param array<string,string> $errors
+     */
+    private function normalizeRandomNameBuffer($raw, array &$errors): int
+    {
+        if ($raw === null || $raw === '') {
+            return self::DEFAULTS['randomNameBuffer'];
+        }
+
+        $buffer = filter_var(
+            $raw,
+            FILTER_VALIDATE_INT,
+            [
+                'options' => [
+                    'min_range' => self::RANDOM_NAME_BUFFER_MIN,
+                    'max_range' => self::RANDOM_NAME_BUFFER_MAX,
+                ],
+            ]
+        );
+
+        if ($buffer === false) {
+            $errors['randomNameBuffer'] = sprintf(
+                'Buffer must be between %d and %d',
+                self::RANDOM_NAME_BUFFER_MIN,
+                self::RANDOM_NAME_BUFFER_MAX
+            );
+            return self::DEFAULTS['randomNameBuffer'];
+        }
+
+        return (int) $buffer;
     }
 
     /**

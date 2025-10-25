@@ -57,6 +57,8 @@ class ConfigService
     private const JSON_COLUMNS = [
         'colors',
         'dashboardModules',
+        'randomNameDomains',
+        'randomNameTones',
     ];
 
     /**
@@ -77,6 +79,9 @@ class ConfigService
         'dashboardVisibilityEnd' => 'dashboard_visibility_end',
         'dashboardShareToken' => 'dashboard_share_token',
         'dashboardSponsorToken' => 'dashboard_sponsor_token',
+        'randomNameDomains' => 'random_name_domains',
+        'randomNameTones' => 'random_name_tones',
+        'randomNameBuffer' => 'random_name_buffer',
     ];
 
     /**
@@ -350,6 +355,9 @@ class ConfigService
             'CheckAnswerButton',
             'QRRestrict',
             'randomNames',
+            'randomNameDomains',
+            'randomNameTones',
+            'randomNameBuffer',
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
@@ -674,6 +682,9 @@ class ConfigService
             'CheckAnswerButton',
             'QRRestrict',
             'randomNames',
+            'randomNameDomains',
+            'randomNameTones',
+            'randomNameBuffer',
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
@@ -767,11 +778,23 @@ class ConfigService
                 $normalized[$key] = $this->resolveDashboardToken(is_string($v) ? $v : null);
             } elseif ($key === 'dashboardRefreshInterval') {
                 $normalized[$key] = $v !== null ? (int) $v : null;
+            } elseif ($key === 'randomNameBuffer') {
+                $normalized[$key] = $v !== null ? (int) $v : 0;
             } else {
                 $normalized[$key] = $v;
             }
         }
         $normalized['dashboardTheme'] = $this->normalizeDashboardTheme($normalized['dashboardTheme'] ?? null);
+
+        if (!isset($normalized['randomNameDomains']) || !is_array($normalized['randomNameDomains'])) {
+            $normalized['randomNameDomains'] = [];
+        }
+        if (!isset($normalized['randomNameTones']) || !is_array($normalized['randomNameTones'])) {
+            $normalized['randomNameTones'] = [];
+        }
+        if (!isset($normalized['randomNameBuffer']) || !is_int($normalized['randomNameBuffer'])) {
+            $normalized['randomNameBuffer'] = 0;
+        }
 
         if (!isset($normalized['colors'])) {
             $colorCfg = [];
