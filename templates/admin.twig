@@ -1101,8 +1101,33 @@
           </table>
         </div>
         {{ qr_rowcards('teamsCards') }}
-        <div class="uk-margin">
-          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left" aria-label="{{ t('tip_team_add') }}"></button>
+        <div class="uk-margin uk-flex uk-flex-middle uk-flex-wrap">
+          <button
+            id="teamAddBtn"
+            class="uk-icon-button uk-button-primary fab"
+            uk-icon="plus"
+            uk-tooltip="title: {{ t('tip_team_add') }}; pos: left"
+            aria-label="{{ t('tip_team_add') }}"
+            type="button"
+          ></button>
+          <button
+            id="teamDeleteAllBtn"
+            class="uk-button uk-button-danger uk-margin-small-left"
+            type="button"
+          >
+            <span uk-icon="trash" aria-hidden="true"></span>
+            <span class="uk-margin-small-left">{{ t('action_delete_all_teams') }}</span>
+          </button>
+        </div>
+        <div id="teamDeleteAllModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h3 class="uk-modal-title">{{ t('heading_delete_all_teams') }}</h3>
+            <p>{{ t('text_delete_all_teams_warning') }}</p>
+            <div class="uk-text-right">
+              <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+              <button id="teamDeleteAllConfirm" class="uk-button uk-button-danger" type="button">{{ t('action_delete') }}</button>
+            </div>
+          </div>
         </div>
       </div>
     </li>
@@ -2644,6 +2669,9 @@
     window.transSummaryNoCatalogs = '{{ t('text_no_catalogs')|e('js') }}';
     window.transSummaryNoTeams = '{{ t('text_no_data')|e('js') }}';
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
+    window.transTeamDeleteAllEmpty = '{{ t('message_team_delete_all_empty')|e('js') }}';
+    window.transTeamDeleteAllSuccess = '{{ t('message_team_delete_all_success')|e('js') }}';
+    window.transTeamDeleteAllError = '{{ t('message_team_delete_all_error')|e('js') }}';
     window.transActions = '{{ t('column_actions') }}';
     window.transDelete = '{{ t('action_delete') }}';
     window.transDeletePageConfirm = '{{ t('confirm_delete_page')|e('js') }}';

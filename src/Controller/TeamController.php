@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\TeamService;
 use App\Service\ConfigService;
+use App\Service\ResultService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -16,13 +17,15 @@ class TeamController
 {
     private TeamService $service;
     private ConfigService $config;
+    private ResultService $results;
 
     /**
      * Inject team service dependency.
      */
-    public function __construct(TeamService $service, ConfigService $config) {
+    public function __construct(TeamService $service, ConfigService $config, ResultService $results) {
         $this->service = $service;
         $this->config = $config;
+        $this->results = $results;
     }
 
     private function setEventFromRequest(Request $request): void {
@@ -83,6 +86,19 @@ class TeamController
             return $response->withStatus(400);
         }
         $this->service->saveAll($data);
+        return $response->withStatus(204);
+    }
+
+    /**
+     * Delete all teams and associated results for the active event.
+     */
+    public function delete(Request $request, Response $response): Response
+    {
+        $this->setEventFromRequest($request);
+        $this->service->deleteAll();
+        $uid = (string) $this->config->getActiveEventUid();
+        $this->results->clear($uid);
+
         return $response->withStatus(204);
     }
 }

@@ -5076,6 +5076,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamListEl = document.getElementById('teamsList');
   const teamCardsEl = document.getElementById('teamsCards');
   const teamAddBtn = document.getElementById('teamAddBtn');
+  const teamDeleteAllBtn = document.getElementById('teamDeleteAllBtn');
+  const teamDeleteAllConfirmBtn = document.getElementById('teamDeleteAllConfirm');
+  const teamDeleteAllModal = window.UIkit ? UIkit.modal('#teamDeleteAllModal') : null;
   const teamRestrictTeams = document.getElementById('teamRestrict');
 
   if (!document.getElementById('teamEditModal')) {
@@ -5216,6 +5219,49 @@ document.addEventListener('DOMContentLoaded', function () {
     saveTeamList(list);
   }
 
+  function deleteAllTeams() {
+    if (!teamManager) {
+      return;
+    }
+    const items = teamManager.getData();
+    if (!items.length) {
+      notify(window.transTeamDeleteAllEmpty || 'No teams available', 'warning');
+      return;
+    }
+
+    teamManager.setColumnLoading('name', true);
+    apiFetch('/teams.json', { method: 'DELETE' })
+      .then(r => {
+        if (!r.ok) {
+          throw new Error(r.statusText || `HTTP ${r.status}`);
+        }
+        teamManager.render([]);
+        if (teamRestrictTeams) {
+          teamRestrictTeams.checked = false;
+        }
+        if (typeof cfgInitial === 'object' && cfgInitial !== null) {
+          cfgInitial.QRRestrict = false;
+        }
+        notify(
+          window.transTeamDeleteAllSuccess || 'All teams and results have been deleted',
+          'success'
+        );
+      })
+      .catch(err => {
+        console.error(err);
+        const fallback = window.transTeamDeleteAllError || 'Unable to delete teams';
+        if (err instanceof TypeError) {
+          notify(fallback, 'danger');
+          return;
+        }
+        const message = err.message && err.message.trim() ? err.message : fallback;
+        notify(message, 'danger');
+      })
+      .finally(() => {
+        teamManager.setColumnLoading('name', false);
+      });
+  }
+
   function removeTeam(id) {
     const list = teamManager.getData();
     const idx = list.findIndex(t => t.id === id);
@@ -5249,6 +5295,28 @@ document.addEventListener('DOMContentLoaded', function () {
   if (teamListEl) {
     loadTeamList();
   }
+
+  teamDeleteAllBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    if (!teamManager) {
+      return;
+    }
+    if (teamManager.getData().length === 0) {
+      notify(window.transTeamDeleteAllEmpty || 'No teams available', 'warning');
+      return;
+    }
+    if (teamDeleteAllModal) {
+      teamDeleteAllModal.show();
+    } else {
+      deleteAllTeams();
+    }
+  });
+
+  teamDeleteAllConfirmBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    teamDeleteAllModal?.hide();
+    deleteAllTeams();
+  });
 
   teamAddBtn?.addEventListener('click', e => {
     e.preventDefault();
