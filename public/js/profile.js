@@ -88,28 +88,63 @@ async function saveName(e) {
     releaseReservation();
   }
 
-  setStored('quizUser', name);
-  setStored(STORAGE_KEYS.PLAYER_NAME, name);
-
   let uid = getStored(STORAGE_KEYS.PLAYER_UID);
   if (!uid) {
     uid = self.crypto?.randomUUID ? self.crypto.randomUUID() : Math.random().toString(36).slice(2);
     setStored(STORAGE_KEYS.PLAYER_UID, uid);
   }
 
-  fetch('/api/players', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ event_uid: currentEventUid, player_name: name, player_uid: uid })
-  }).catch(() => {});
+  let playerSaved = false;
+  try {
+    const response = await fetch('/api/players', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_uid: currentEventUid, player_name: name, player_uid: uid })
+    });
+
+    if (!response.ok) {
+      if (response.status === 409) {
+        let errorCode = '';
+        try {
+          const payload = await response.json();
+          if (payload && typeof payload.error === 'string') {
+            errorCode = payload.error;
+          }
+        } catch (parseError) {
+          // ignore JSON parse failures for conflict responses
+        }
+
+        if (errorCode === 'name_taken') {
+          notify('Dieser Name ist bereits vergeben.', 'warning');
+        } else {
+          notify('Fehler beim Speichern', 'danger');
+        }
+      } else {
+        notify('Fehler beim Speichern', 'danger');
+      }
+      return;
+    }
+
+    playerSaved = true;
+  } catch (error) {
+    notify('Fehler beim Speichern', 'danger');
+    return;
+  }
 
   try {
     await postSession('player', { name });
-    notify('Name gespeichert', 'success');
-    if (returnUrl) window.location.href = decodeURIComponent(returnUrl);
   } catch (error) {
+    if (playerSaved) {
+      console.error('Failed to persist player name in session after saving to API', error);
+    }
     notify('Fehler beim Speichern', 'danger');
+    return;
   }
+
+  setStored('quizUser', name);
+  setStored(STORAGE_KEYS.PLAYER_NAME, name);
+  notify('Name gespeichert', 'success');
+  if (returnUrl) window.location.href = decodeURIComponent(returnUrl);
 }
 
 async function deleteName(e) {
