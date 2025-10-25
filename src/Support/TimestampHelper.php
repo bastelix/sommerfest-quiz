@@ -14,8 +14,10 @@ final class TimestampHelper
      * Normalize a timestamp-like value to a positive integer.
      *
      * @param mixed $value
+     *
+     * @return int|null
      */
-    public static function normalize($value): ?int
+    public static function normalize(mixed $value): ?int
     {
         if ($value === null) {
             return null;

@@ -319,8 +319,8 @@ class AwardService
                     return 1;
                 }
 
-                $aFinishValue = $a['latestFinishValue'] ?? null;
-                $bFinishValue = $b['latestFinishValue'] ?? null;
+                $aFinishValue = $a['latestFinishValue'];
+                $bFinishValue = $b['latestFinishValue'];
                 if ($aFinishValue === null) {
                     $aFinishValue = PHP_INT_MAX;
                 }
