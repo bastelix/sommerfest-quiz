@@ -212,12 +212,33 @@ class DashboardController
                     ? (string) $baseOptions['title']
                     : ($id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
+                $placementFallbackRaw = $baseOptions['showPlacement'] ?? false;
+                $placementFallback = filter_var(
+                    $placementFallbackRaw,
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                );
+                if ($placementFallback === null) {
+                    $placementFallback = false;
+                }
+                $placementValue = filter_var(
+                    $options['showPlacement'] ?? $placementFallback,
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                );
+                if ($placementValue === null) {
+                    $placementValue = false;
+                }
+
                 $entry['options'] = [
                     'limit' => $limit,
                     'pageSize' => $pageSize,
                     'sort' => $sort,
                     'title' => $title,
                 ];
+                if ($id === 'rankings') {
+                    $entry['options']['showPlacement'] = $placementValue;
+                }
             } elseif ($id === 'qrCodes') {
                 $catalogs = [];
                 $rawCatalogs = $options['catalogs'] ?? [];
