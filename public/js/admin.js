@@ -984,7 +984,6 @@ document.addEventListener('DOMContentLoaded', function () {
     public: document.querySelector('[data-share-link="public"]'),
     sponsor: document.querySelector('[data-share-link="sponsor"]')
   };
-  const DASHBOARD_METRIC_KEYS = ['points', 'puzzle', 'catalog', 'accuracy'];
   const DASHBOARD_LAYOUT_OPTIONS = ['auto', 'wide', 'full'];
   const DASHBOARD_RESULTS_SORT_OPTIONS = ['time', 'points', 'name'];
   const DASHBOARD_RESULTS_MAX_LIMIT = 50;
@@ -995,7 +994,7 @@ document.addEventListener('DOMContentLoaded', function () {
       id: 'rankings',
       enabled: true,
       layout: 'wide',
-      options: { metrics: ['points', 'puzzle', 'catalog', 'accuracy'], title: 'Live-Rankings' },
+      options: { limit: null, pageSize: null, sort: 'time', title: 'Live-Rankings' },
     },
     { id: 'results', enabled: true, layout: 'full', options: { limit: null, pageSize: null, sort: 'time', title: 'Ergebnisliste' } },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
@@ -1043,11 +1042,11 @@ document.addEventListener('DOMContentLoaded', function () {
     return parsed;
   };
 
-  function applyDashboardResultsOptions(item, options = {}) {
+  function applyDashboardResultsOptions(item, moduleId, options = {}) {
     if (!item) {
       return;
     }
-    const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get('results')?.options || {};
+    const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(moduleId)?.options || {};
     const limitField = item.querySelector('[data-module-results-option="limit"]');
     const limitValue = normalizeDashboardResultsLimit(
       options && Object.prototype.hasOwnProperty.call(options, 'limit')
@@ -1075,7 +1074,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const titleField = item.querySelector('[data-module-results-option="title"]');
     if (titleField) {
-      const fallbackTitle = defaults.title || 'Ergebnisliste';
+      const fallbackTitle = defaults.title || (moduleId === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
       const rawTitle = typeof options?.title === 'string' ? options.title.trim() : '';
       titleField.value = rawTitle !== '' ? rawTitle : fallbackTitle;
     }
@@ -1589,18 +1588,7 @@ document.addEventListener('DOMContentLoaded', function () {
         layout = defaultLayout;
       }
       entry.layout = layout;
-      if (id === 'rankings') {
-        const metrics = [];
-        item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
-          if (metricEl.checked) {
-            const value = metricEl.value || '';
-            if (value && !metrics.includes(value) && DASHBOARD_METRIC_KEYS.includes(value)) {
-              metrics.push(value);
-            }
-          }
-        });
-        entry.options = { metrics: metrics.length ? metrics : DASHBOARD_METRIC_KEYS };
-      } else if (id === 'results') {
+      if (id === 'rankings' || id === 'results') {
         const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.options || {};
         const limitField = item.querySelector('[data-module-results-option="limit"]');
         const pageSizeField = item.querySelector('[data-module-results-option="pageSize"]');
@@ -1621,7 +1609,7 @@ document.addEventListener('DOMContentLoaded', function () {
           : (defaults.sort || 'time');
         let titleValue = titleField ? titleField.value.trim() : '';
         if (titleValue === '') {
-          titleValue = defaults.title || 'Ergebnisliste';
+          titleValue = defaults.title || (id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
         }
         entry.options = { limit: limitValue, pageSize: pageSizeValue, sort: sortValue, title: titleValue };
       } else if (id === DASHBOARD_QR_MODULE_ID) {
@@ -1683,15 +1671,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (layoutField) {
         layoutField.value = layoutValue;
       }
-      if (module.id === 'rankings') {
-        const metrics = Array.isArray(module.options?.metrics) && module.options.metrics.length
-          ? module.options.metrics
-          : DASHBOARD_METRIC_KEYS;
-        item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
-          metricEl.checked = metrics.includes(metricEl.value);
-        });
-      } else if (module.id === 'results') {
-        applyDashboardResultsOptions(item, module.options || {});
+      if (module.id === 'rankings' || module.id === 'results') {
+        applyDashboardResultsOptions(item, module.id, module.options || {});
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
@@ -1715,12 +1696,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (layoutField) {
         layoutField.value = defaultLayout;
       }
-      if (module.id === 'rankings') {
-        item.querySelectorAll('[data-module-metric]').forEach(metricEl => {
-          metricEl.checked = DASHBOARD_METRIC_KEYS.includes(metricEl.value);
-        });
-      } else if (module.id === 'results') {
-        applyDashboardResultsOptions(item, module.options || {});
+      if (module.id === 'rankings' || module.id === 'results') {
+        applyDashboardResultsOptions(item, module.id, module.options || {});
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
@@ -3013,16 +2990,16 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   dashboardModulesList?.addEventListener('change', event => {
     if (event.target.matches('[data-module-results-option="limit"]')) {
-      const moduleItem = event.target.closest('[data-module-id="results"]');
+      const moduleItem = event.target.closest('[data-module-id]');
       syncDashboardResultsPageSizeState(moduleItem);
     }
-    if (event.target.matches('[data-module-toggle], [data-module-metric], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
+    if (event.target.matches('[data-module-toggle], [data-module-catalog], [data-module-layout], [data-module-results-option], [data-module-title]')) {
       updateDashboardModules(true);
     }
   });
   dashboardModulesList?.addEventListener('input', event => {
     if (event.target.matches('[data-module-results-option="limit"]')) {
-      const moduleItem = event.target.closest('[data-module-id="results"]');
+      const moduleItem = event.target.closest('[data-module-id]');
       syncDashboardResultsPageSizeState(moduleItem);
     }
     if (event.target.matches('[data-module-results-option], [data-module-title]')) {

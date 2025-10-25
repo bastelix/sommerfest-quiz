@@ -240,8 +240,8 @@
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankings">
                     <div class="uk-flex uk-flex-between uk-flex-middle">
                       <div>
-                        <h4 class="uk-margin-remove">Ranking-Kacheln</h4>
-                        <p class="uk-text-meta uk-margin-remove-top">Top-Kennzahlen aus computeRankings ("Ranking-Champions" nach gelösten Fragen, Punkten & Gesamtdauer).</p>
+                        <h4 class="uk-margin-remove">Live-Ergebnisliste</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">Zweite Ergebnisliste mit eigener Begrenzung und Sortierung.</p>
                       </div>
                       <div class="uk-flex uk-flex-middle">
                         <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
@@ -258,15 +258,28 @@
                     </div>
                     <div class="uk-margin-small-top" data-module-options>
                       <div class="uk-margin-small">
-                        <label class="uk-form-label" for="dashboardRankingsTitle">Überschrift</label>
-                        <input class="uk-input uk-form-small" type="text" id="dashboardRankingsTitle" data-module-title placeholder="Ranking-Kacheln">
-                        <div class="uk-text-meta">Text für die Überschrift der Ranking-Kacheln.</div>
+                        <label class="uk-form-label" for="dashboardRankingsLimit">Anzahl der Einträge</label>
+                        <input class="uk-input uk-form-small" type="number" min="0" max="50" id="dashboardRankingsLimit" data-module-results-option="limit" placeholder="0">
+                        <div class="uk-text-meta">Leer oder 0 zeigt alle Ergebnisse.</div>
                       </div>
-                      <div class="uk-text-meta">Kennzahlen</div>
-                      <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="points" data-module-metric> Punkte</label>
-                      <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="puzzle" data-module-metric> Rätselwort</label>
-                      <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="catalog" data-module-metric> Ranking-Champions</label>
-                      <label class="uk-margin-small-right"><input class="uk-checkbox" type="checkbox" value="accuracy" data-module-metric> Trefferquote</label>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardRankingsPageSize">Einträge pro Seite</label>
+                        <input class="uk-input uk-form-small" type="number" min="0" id="dashboardRankingsPageSize" data-module-results-option="pageSize" placeholder="0">
+                        <div class="uk-text-meta">Leer oder 0 deaktiviert den automatischen Umbruch.</div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardRankingsSort">Sortierung</label>
+                        <select class="uk-select uk-form-small" id="dashboardRankingsSort" data-module-results-option="sort">
+                          <option value="time">Neueste zuerst</option>
+                          <option value="points">Nach Punkten</option>
+                          <option value="name">Alphabetisch (Name)</option>
+                        </select>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardRankingsTitle">Überschrift</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardRankingsTitle" data-module-results-option="title" placeholder="Live-Rankings">
+                        <div class="uk-text-meta">Text für die Überschrift der Live-Ergebnisliste.</div>
+                      </div>
                     </div>
                   </li>
                   <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="results">

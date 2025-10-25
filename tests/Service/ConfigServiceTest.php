@@ -124,7 +124,7 @@ class ConfigServiceTest extends TestCase
                 'id' => 'rankings',
                 'enabled' => true,
                 'layout' => 'wide',
-                'options' => ['metrics' => ['points', 'accuracy']],
+                'options' => ['limit' => 10, 'pageSize' => 5, 'sort' => 'points', 'title' => 'Live-Rankings'],
             ],
             [
                 'id' => 'infoBanner',
