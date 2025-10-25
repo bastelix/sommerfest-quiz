@@ -190,4 +190,19 @@ class PlayerProfileTest extends TestCase
         )?->fetchColumn();
         $this->assertSame('New Name', $questionName);
     }
+
+    public function testProfilePageIncludesEventUidWhenConfigEmpty(): void {
+        $pdo = $this->getDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('ev6','ev6','Test Event')");
+        $pdo->exec('DELETE FROM active_event');
+        $pdo->exec("INSERT INTO active_event(event_uid) VALUES('ev6')");
+
+        $app = $this->getAppInstance();
+
+        $response = $app->handle($this->createRequest('GET', '/profile'));
+        $this->assertSame(200, $response->getStatusCode());
+        $html = (string) $response->getBody();
+
+        $this->assertStringContainsString('"event_uid":"ev6"', $html);
+    }
 }
