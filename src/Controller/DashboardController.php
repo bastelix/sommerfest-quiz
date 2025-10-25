@@ -123,7 +123,7 @@ class DashboardController
                 'id' => 'results',
                 'enabled' => true,
                 'layout' => 'full',
-                'options' => ['limit' => null, 'sort' => 'time', 'title' => 'Ergebnisliste'],
+                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Ergebnisliste'],
             ],
             [
                 'id' => 'wrongAnswers',
@@ -213,6 +213,10 @@ class DashboardController
                 if ($limit === null) {
                     $limit = $this->normalizeResultsLimit($baseOptions['limit'] ?? null);
                 }
+                $pageSize = $this->normalizeResultsPageSize($options['pageSize'] ?? null, $limit);
+                if ($pageSize === null) {
+                    $pageSize = $this->normalizeResultsPageSize($baseOptions['pageSize'] ?? null, $limit);
+                }
                 $fallbackSortRaw = $baseOptions['sort'] ?? null;
                 $fallbackSort = is_string($fallbackSortRaw) ? $fallbackSortRaw : null;
                 $sort = $this->normalizeResultsSort($options['sort'] ?? null, $fallbackSort);
@@ -220,6 +224,7 @@ class DashboardController
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = [
                     'limit' => $limit,
+                    'pageSize' => $pageSize,
                     'sort' => $sort,
                     'title' => $title,
                 ];
@@ -325,6 +330,43 @@ class DashboardController
             $limit = self::DASHBOARD_RESULTS_MAX_LIMIT;
         }
         return $limit;
+    }
+
+    /**
+     * @param mixed    $value
+     * @param int|null $limit
+     */
+    private function normalizeResultsPageSize($value, ?int $limit): ?int
+    {
+        if ($limit === null || $limit <= 0) {
+            return null;
+        }
+
+        if ($value === null) {
+            return null;
+        }
+        if (is_string($value)) {
+            $trimmed = trim($value);
+            if ($trimmed === '' || $trimmed === '0') {
+                return null;
+            }
+            if (!is_numeric($trimmed)) {
+                return null;
+            }
+            $value = $trimmed;
+        }
+        if (is_int($value)) {
+            $pageSize = $value;
+        } elseif (is_numeric($value)) {
+            $pageSize = (int) $value;
+        } else {
+            return null;
+        }
+        if ($pageSize <= 0 || $pageSize > $limit) {
+            return null;
+        }
+
+        return $pageSize;
     }
 
     /**

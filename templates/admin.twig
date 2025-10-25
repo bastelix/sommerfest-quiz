@@ -545,6 +545,11 @@
                           <div class="uk-text-meta">{{ t('text_dashboard_results_limit_hint') }}</div>
                         </div>
                         <div class="uk-margin-small">
+                          <label class="uk-form-label" for="cfgDashboardResultsPageSize">{{ t('label_dashboard_results_page_size') }}</label>
+                          <input class="uk-input uk-form-small" type="number" min="0" id="cfgDashboardResultsPageSize" data-module-results-option="pageSize" placeholder="0">
+                          <div class="uk-text-meta">{{ t('text_dashboard_results_page_hint') }}</div>
+                        </div>
+                        <div class="uk-margin-small">
                           <label class="uk-form-label" for="cfgDashboardResultsSort">{{ t('label_dashboard_results_sort') }}</label>
                           <select class="uk-select uk-form-small" id="cfgDashboardResultsSort" data-module-results-option="sort">
                             <option value="time">{{ t('option_dashboard_results_sort_time') }}</option>
