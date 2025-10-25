@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Support\TimestampHelper;
+
 /**
  * Calculate rankings from result data and build congratulation texts.
  */
@@ -229,6 +231,7 @@ class AwardService
             $totalDuration = 0;
             $durationEntries = 0;
             $latestFinish = null;
+            $latestFinishValue = null;
             foreach ($map as $entry) {
                 $total += (int) $entry['points'];
                 $effSumTotal += (float) $entry['efficiencySum'];
@@ -239,9 +242,11 @@ class AwardService
                     $totalDuration += (int) $durationValue;
                     $durationEntries++;
                 }
-                $finishValue = (int) $entry['finish'];
-                if ($latestFinish === null || $finishValue > $latestFinish) {
-                    $latestFinish = $finishValue;
+                $finishRaw = $entry['finish'] ?? null;
+                $preparedFinish = TimestampHelper::normalize($finishRaw);
+                if ($preparedFinish !== null && ($latestFinishValue === null || $preparedFinish > $latestFinishValue)) {
+                    $latestFinishValue = $preparedFinish;
+                    $latestFinish = $finishRaw;
                 }
             }
             $avgEfficiency = $questionCountTotal === 0 ? 0.0 : $effSumTotal / $questionCountTotal;
@@ -265,13 +270,28 @@ class AwardService
                 'points' => $total,
                 'duration' => $durationEntries > 0 ? $totalDuration : null,
                 'latestFinish' => $latestFinish,
+                'latestFinishValue' => $latestFinishValue,
             ];
         }
         usort(
             $catalogCandidates,
             /**
-             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int|null} $a
-             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int|null} $b
+             * @param array{
+             *     team:mixed,
+             *     solved:int,
+             *     points:int,
+             *     duration:int|null,
+             *     latestFinish:mixed,
+             *     latestFinishValue:int|null
+             * } $a
+             * @param array{
+             *     team:mixed,
+             *     solved:int,
+             *     points:int,
+             *     duration:int|null,
+             *     latestFinish:mixed,
+             *     latestFinishValue:int|null
+             * } $b
              */
             static function (array $a, array $b): int {
                 $cmp = $b['solved'] <=> $a['solved'];
@@ -299,8 +319,14 @@ class AwardService
                     return 1;
                 }
 
-                $aFinishValue = $a['latestFinish'] ?? PHP_INT_MAX;
-                $bFinishValue = $b['latestFinish'] ?? PHP_INT_MAX;
+                $aFinishValue = $a['latestFinishValue'] ?? null;
+                $bFinishValue = $b['latestFinishValue'] ?? null;
+                if ($aFinishValue === null) {
+                    $aFinishValue = PHP_INT_MAX;
+                }
+                if ($bFinishValue === null) {
+                    $bFinishValue = PHP_INT_MAX;
+                }
                 $cmp = $aFinishValue <=> $bFinishValue;
                 if ($cmp !== 0) {
                     return $cmp;
