@@ -69,6 +69,62 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testReserveUsesDomainAndToneFilters(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(
+            [
+                'default' => ['Neutral'],
+                'playful' => ['Spritzig'],
+            ],
+            [
+                'default' => ['Standard'],
+                'nature' => ['Eiche', 'Fluss'],
+            ]
+        );
+
+        try {
+            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+                protected function randomStartIndex(int $total): int
+                {
+                    return 0;
+                }
+            };
+
+            $first = $service->reserve('event-99', ['nature'], ['playful']);
+            self::assertSame('Spritzig Eiche', $first['name']);
+            self::assertSame(2, $first['total']);
+
+            $second = $service->reserve('event-99', ['nature'], ['playful']);
+            self::assertSame('Spritzig Fluss', $second['name']);
+            self::assertSame(2, $second['total']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveFallsBackToDefaultWhenFiltersUnknown(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Alpha'], ['Lion']);
+
+        try {
+            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+                protected function randomStartIndex(int $total): int
+                {
+                    return 0;
+                }
+            };
+
+            $reservation = $service->reserve('event-77', ['unknown'], ['imaginary']);
+            self::assertSame('Alpha Lion', $reservation['name']);
+            self::assertSame(1, $reservation['total']);
+            self::assertFalse($reservation['fallback']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     private function createInMemoryDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');
@@ -104,9 +160,9 @@ final class TeamNameServiceTest extends TestCase
         }
 
         $payload = [
-            'version' => 1,
-            'adjectives' => $adjectives,
-            'nouns' => $nouns,
+            'version' => 2,
+            'adjectives' => $this->normalizeSection($adjectives),
+            'nouns' => $this->normalizeSection($nouns),
         ];
 
         $bytesWritten = file_put_contents($path, json_encode($payload, JSON_THROW_ON_ERROR));
@@ -115,5 +171,20 @@ final class TeamNameServiceTest extends TestCase
         }
 
         return $path;
+    }
+
+    /**
+     * @param array<int|string, mixed> $section
+     * @return array<int|string, mixed>
+     */
+    private function normalizeSection(array $section): array
+    {
+        if ($section === []) {
+            return ['default' => []];
+        }
+
+        $isAssoc = array_keys($section) !== range(0, count($section) - 1);
+
+        return $isAssoc ? $section : ['default' => $section];
     }
 }
