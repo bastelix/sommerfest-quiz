@@ -32,6 +32,8 @@ class ConfigServiceTest extends TestCase
                 random_name_domains TEXT DEFAULT '[]',
                 random_name_tones TEXT DEFAULT '[]',
                 random_name_buffer INTEGER DEFAULT 0,
+                random_name_locale TEXT,
+                random_name_strategy TEXT,
                 competitionMode INTEGER,
                 teamResults INTEGER,
                 photoUpload INTEGER,
@@ -57,6 +59,9 @@ class ConfigServiceTest extends TestCase
         $this->assertSame([], $jsonPayload['randomNameDomains']);
         $this->assertSame([], $jsonPayload['randomNameTones']);
         $this->assertSame(0, $jsonPayload['randomNameBuffer']);
+        $this->assertArrayHasKey('randomNameLocale', $jsonPayload);
+        $this->assertNull($jsonPayload['randomNameLocale']);
+        $this->assertSame('ai', $jsonPayload['randomNameStrategy']);
 
         $cfg = $service->getConfig();
         $this->assertSame('Demo', $cfg['pageTitle']);
@@ -65,6 +70,9 @@ class ConfigServiceTest extends TestCase
         $this->assertSame([], $cfg['randomNameDomains']);
         $this->assertSame([], $cfg['randomNameTones']);
         $this->assertSame(0, $cfg['randomNameBuffer']);
+        $this->assertArrayHasKey('randomNameLocale', $cfg);
+        $this->assertNull($cfg['randomNameLocale']);
+        $this->assertSame('ai', $cfg['randomNameStrategy']);
     }
 
     public function testSaveConfigPersistsRandomNameFilters(): void {
@@ -87,6 +95,8 @@ class ConfigServiceTest extends TestCase
                 random_name_domains TEXT DEFAULT '[]',
                 random_name_tones TEXT DEFAULT '[]',
                 random_name_buffer INTEGER DEFAULT 0,
+                random_name_locale TEXT,
+                random_name_strategy TEXT,
                 event_uid TEXT PRIMARY KEY
             );
             SQL
@@ -102,20 +112,26 @@ class ConfigServiceTest extends TestCase
             'randomNameDomains' => ['Nature', 'Science'],
             'randomNameTones' => ['Playful', 'Bold'],
             'randomNameBuffer' => 7,
+            'randomNameLocale' => 'de-DE',
+            'randomNameStrategy' => 'lexicon',
         ]);
 
         $row = $pdo->query(
-            "SELECT random_name_domains, random_name_tones, random_name_buffer FROM config WHERE event_uid = 'ev-random'"
+            "SELECT random_name_domains, random_name_tones, random_name_buffer, random_name_locale, random_name_strategy FROM config WHERE event_uid = 'ev-random'"
         )->fetch(PDO::FETCH_ASSOC);
         $this->assertIsArray($row);
         $this->assertSame(['nature', 'science'], json_decode((string) $row['random_name_domains'], true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(['playful', 'bold'], json_decode((string) $row['random_name_tones'], true, 512, JSON_THROW_ON_ERROR));
         $this->assertSame(7, (int) $row['random_name_buffer']);
+        $this->assertSame('de-DE', $row['random_name_locale']);
+        $this->assertSame('lexicon', strtolower((string) $row['random_name_strategy']));
 
         $config = $service->getConfig();
         $this->assertSame(['nature', 'science'], $config['randomNameDomains']);
         $this->assertSame(['playful', 'bold'], $config['randomNameTones']);
         $this->assertSame(7, $config['randomNameBuffer']);
+        $this->assertSame('de-DE', $config['randomNameLocale']);
+        $this->assertSame('lexicon', $config['randomNameStrategy']);
     }
 
     public function testDashboardConfigRoundTripsThroughSnakeCaseColumns(): void {

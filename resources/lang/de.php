@@ -115,7 +115,7 @@ return [
     'tip_random_name_tones' => 'Mischt Adjektive und Substantive passend zu den gewählten Tonalitäten.',
     'text_random_name_tones_hint' => 'Mehrere Tonalitäten lassen sich kombinieren.',
     'label_random_name_buffer' => 'Reservierungspuffer',
-    'tip_random_name_buffer' => 'Hält zusätzliche Vorschläge bereit (0–50).',
+    'tip_random_name_buffer' => 'Hält zusätzliche Vorschläge bereit (0–9999).',
     'text_random_name_buffer_hint' => 'Nicht genutzte Namen werden nach Ablauf der Reservierung automatisch freigegeben.',
     'option_random_name_domain_nature' => 'Natur & Outdoor',
     'option_random_name_domain_science' => 'Wissenschaft & Technik',

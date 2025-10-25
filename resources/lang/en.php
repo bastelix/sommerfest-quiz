@@ -116,7 +116,7 @@ return [
     'tip_random_name_tones' => 'Combine adjectives and nouns that match the selected tonalities.',
     'text_random_name_tones_hint' => 'Multiple tonalities can be active at the same time.',
     'label_random_name_buffer' => 'Reservation buffer',
-    'tip_random_name_buffer' => 'Keeps a reserve of additional suggestions ready (0–50).',
+    'tip_random_name_buffer' => 'Keeps a reserve of additional suggestions ready (0–9999).',
     'text_random_name_buffer_hint' => 'Unused names are released automatically once their reservation expires.',
     'option_random_name_domain_nature' => 'Nature & outdoors',
     'option_random_name_domain_science' => 'Science & technology',

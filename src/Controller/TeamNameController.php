@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Service\ConfigValidator;
 use App\Service\TeamNameService;
 use InvalidArgumentException;
 use PDOException;
@@ -44,9 +45,17 @@ class TeamNameController
         $tones = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
         $buffer = $this->resolveRandomNameBuffer($config);
         $locale = $this->resolveRandomNameLocale($config);
+        $strategy = $this->resolveRandomNameStrategy($config);
 
         try {
-            $reservation = $this->service->reserve($eventId, $domains, $tones, $buffer, $locale);
+            $reservation = $this->service->reserveWithBuffer(
+                $eventId,
+                $domains,
+                $tones,
+                $buffer,
+                $locale,
+                $strategy
+            );
         } catch (InvalidArgumentException | PDOException $exception) {
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
@@ -74,6 +83,7 @@ class TeamNameController
         $tones = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
         $buffer = $this->resolveRandomNameBuffer($config);
         $locale = $this->resolveRandomNameLocale($config);
+        $strategy = $this->resolveRandomNameStrategy($config);
 
         $countParam = $query['count'] ?? null;
         $count = is_numeric($countParam) ? (int) $countParam : 0;
@@ -83,7 +93,15 @@ class TeamNameController
         $count = min($count, self::MAX_BATCH_SIZE);
 
         try {
-            $reservations = $this->service->reserveBatch($eventId, $count, $domains, $tones, $buffer, $locale);
+            $reservations = $this->service->reserveBatchWithBuffer(
+                $eventId,
+                $count,
+                $domains,
+                $tones,
+                $buffer,
+                $locale,
+                $strategy
+            );
         } catch (InvalidArgumentException | PDOException $exception) {
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
@@ -164,10 +182,17 @@ class TeamNameController
         $value = $config['randomNameBuffer'] ?? null;
         if (is_numeric($value)) {
             $buffer = (int) $value;
-            return $buffer < 0 ? 0 : $buffer;
+            if ($buffer < ConfigValidator::RANDOM_NAME_BUFFER_MIN) {
+                return ConfigValidator::RANDOM_NAME_BUFFER_MIN;
+            }
+            if ($buffer > ConfigValidator::RANDOM_NAME_BUFFER_MAX) {
+                return ConfigValidator::RANDOM_NAME_BUFFER_MAX;
+            }
+
+            return $buffer;
         }
 
-        return 0;
+        return ConfigValidator::RANDOM_NAME_BUFFER_MIN;
     }
 
     /**
@@ -186,6 +211,22 @@ class TeamNameController
 
         $locale = trim((string) $candidate);
         return $locale === '' ? null : $locale;
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    private function resolveRandomNameStrategy(array $config): string
+    {
+        $value = $config['randomNameStrategy'] ?? null;
+        if (is_string($value) || is_numeric($value)) {
+            $candidate = strtolower(trim((string) $value));
+            if (in_array($candidate, ConfigValidator::RANDOM_NAME_STRATEGIES, true)) {
+                return $candidate;
+            }
+        }
+
+        return ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT;
     }
 
     /**

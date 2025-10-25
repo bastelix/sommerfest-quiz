@@ -82,6 +82,8 @@ class ConfigService
         'randomNameDomains' => 'random_name_domains',
         'randomNameTones' => 'random_name_tones',
         'randomNameBuffer' => 'random_name_buffer',
+        'randomNameLocale' => 'random_name_locale',
+        'randomNameStrategy' => 'random_name_strategy',
     ];
 
     /**
@@ -358,6 +360,8 @@ class ConfigService
             'randomNameDomains',
             'randomNameTones',
             'randomNameBuffer',
+            'randomNameLocale',
+            'randomNameStrategy',
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
@@ -725,6 +729,45 @@ class ConfigService
     }
 
     /**
+     * @param mixed $value
+     */
+    private function normalizeRandomNameLocaleValue($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (!is_string($value) && !is_numeric($value)) {
+            return null;
+        }
+
+        $locale = trim((string) $value);
+
+        return $locale === '' ? null : $locale;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeRandomNameStrategyValue($value): string
+    {
+        if (!is_string($value) && !is_numeric($value)) {
+            return ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT;
+        }
+
+        $candidate = strtolower(trim((string) $value));
+        if ($candidate === '') {
+            return ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT;
+        }
+
+        if (!in_array($candidate, ConfigValidator::RANDOM_NAME_STRATEGIES, true)) {
+            return ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT;
+        }
+
+        return $candidate;
+    }
+
+    /**
      * Normalize database column names to expected camelCase keys.
      *
      * @param array<string,mixed> $row
@@ -747,6 +790,8 @@ class ConfigService
             'randomNameDomains',
             'randomNameTones',
             'randomNameBuffer',
+            'randomNameLocale',
+            'randomNameStrategy',
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
@@ -858,6 +903,12 @@ class ConfigService
         );
         $normalized['randomNameBuffer'] = $this->normalizeRandomNameBufferValue(
             $normalized['randomNameBuffer'] ?? null
+        );
+        $normalized['randomNameLocale'] = $this->normalizeRandomNameLocaleValue(
+            $normalized['randomNameLocale'] ?? null
+        );
+        $normalized['randomNameStrategy'] = $this->normalizeRandomNameStrategyValue(
+            $normalized['randomNameStrategy'] ?? null
         );
 
         if (!isset($normalized['colors'])) {
