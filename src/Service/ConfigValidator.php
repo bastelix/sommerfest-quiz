@@ -403,23 +403,25 @@ class ConfigValidator
                     ? (string)$baseOptions['title']
                     : ($id === 'rankings' ? 'Live-Rankings' : 'Ergebnisliste');
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
-                $placementFallbackRaw = $baseOptions['showPlacement'] ?? false;
-                $placementFallback = filter_var(
-                    $placementFallbackRaw,
-                    FILTER_VALIDATE_BOOL,
-                    FILTER_NULL_ON_FAILURE
-                );
-                if ($placementFallback === null) {
-                    $placementFallback = false;
+                $placementFallbackRaw = $baseOptions['showPlacement'] ?? null;
+                if (!is_bool($placementFallbackRaw)) {
+                    $placementFallbackRaw = filter_var(
+                        $placementFallbackRaw,
+                        FILTER_VALIDATE_BOOL,
+                        FILTER_NULL_ON_FAILURE
+                    );
                 }
-                $placementValue = filter_var(
-                    $options['showPlacement'] ?? $placementFallback,
-                    FILTER_VALIDATE_BOOL,
-                    FILTER_NULL_ON_FAILURE
-                );
-                if ($placementValue === null) {
-                    $placementValue = false;
+                $placementFallback = is_bool($placementFallbackRaw) ? $placementFallbackRaw : false;
+
+                $placementValueRaw = $options['showPlacement'] ?? $placementFallback;
+                if (!is_bool($placementValueRaw)) {
+                    $placementValueRaw = filter_var(
+                        $placementValueRaw,
+                        FILTER_VALIDATE_BOOL,
+                        FILTER_NULL_ON_FAILURE
+                    );
                 }
+                $placementValue = is_bool($placementValueRaw) ? $placementValueRaw : false;
                 $optionsData = [
                     'limit' => $limit,
                     'pageSize' => $pageSize,
