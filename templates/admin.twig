@@ -318,8 +318,8 @@
                 </div>
               </div>
               <div class="uk-width-1-1">
-                {% set randomNameDomains = constant('App\\Service\\ConfigValidator::RANDOM_NAME_DOMAIN_OPTIONS') %}
-                {% set randomNameTones = constant('App\\Service\\ConfigValidator::RANDOM_NAME_TONE_OPTIONS') %}
+                {% set randomNameDomains = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS') %}
+                {% set randomNameTones = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_TONES') %}
                 {% set randomNameDomainValues = config.randomNameDomains|default([]) %}
                 {% set randomNameToneValues = config.randomNameTones|default([]) %}
                 <fieldset class="uk-fieldset uk-margin-small-top" data-random-name-options {% if not config.randomNames %}disabled{% endif %}>
