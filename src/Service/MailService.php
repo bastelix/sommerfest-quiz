@@ -103,17 +103,29 @@ class MailService
     /**
      * Send double opt-in email with confirmation link.
      */
-    public function sendDoubleOptIn(string $to, string $link): void
+    /**
+     * Send double opt-in email with confirmation link.
+     *
+     * @param array<string,mixed> $context Additional template values (subject, headline, etc.)
+     */
+    public function sendDoubleOptIn(string $to, string $link, array $context = []): void
     {
-        $html = $this->twig->render('emails/double_optin.twig', [
-            'link'     => $link,
+        $subject = isset($context['subject'])
+            ? trim((string) $context['subject'])
+            : 'E-Mail bestätigen';
+
+        $templateContext = $context + [
+            'link' => $link,
             'base_url' => $this->baseUrlFromLink($link),
-        ]);
+            'subject' => $subject,
+        ];
+
+        $html = $this->twig->render('emails/double_optin.twig', $templateContext);
 
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('E-Mail bestätigen')
+            ->subject($subject)
             ->html($html);
 
         $this->providerManager->sendMail($email);
