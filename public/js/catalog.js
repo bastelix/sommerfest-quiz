@@ -109,7 +109,14 @@ async function buildSolvedSet(cfg){
   }catch(e){ /* empty */ }
   if(cfg?.competitionMode){
     try{
-      const url = (typeof withBase === 'function') ? withBase('/results.json') : '/results.json';
+      let path = '/results.json';
+      if(cfg && typeof cfg.event_uid !== 'undefined'){
+        const uid = String(cfg.event_uid || '').trim();
+        if(uid){
+          path = `/results.json?event_uid=${encodeURIComponent(uid)}`;
+        }
+      }
+      const url = (typeof withBase === 'function') ? withBase(path) : path;
       const res = await fetch(url, { headers: (typeof jsonHeaders !== 'undefined') ? jsonHeaders : { Accept: 'application/json' } });
       if(res.ok){
         const list = await res.json();
