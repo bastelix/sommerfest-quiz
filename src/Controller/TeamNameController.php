@@ -33,8 +33,16 @@ class TeamNameController
             return $response->withStatus(400);
         }
 
+        $config = $this->config->getConfigForEvent($eventId);
+        if ($config === []) {
+            $config = $this->config->getConfig();
+        }
+
+        $domains = is_array($config['randomNameDomains'] ?? null) ? $config['randomNameDomains'] : [];
+        $tones = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
+
         try {
-            $reservation = $this->service->reserve($eventId);
+            $reservation = $this->service->reserve($eventId, $domains, $tones);
         } catch (InvalidArgumentException | PDOException $exception) {
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
