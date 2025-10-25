@@ -29,6 +29,9 @@ class ConfigServiceTest extends TestCase
                 CheckAnswerButton TEXT,
                 QRRestrict INTEGER,
                 randomNames INTEGER DEFAULT 1,
+                random_name_domains TEXT DEFAULT '[]',
+                random_name_tones TEXT DEFAULT '[]',
+                random_name_buffer INTEGER DEFAULT 0,
                 competitionMode INTEGER,
                 teamResults INTEGER,
                 photoUpload INTEGER,
@@ -50,10 +53,69 @@ class ConfigServiceTest extends TestCase
         $service->saveConfig($data);
         $json = $service->getJson();
         $this->assertNotNull($json);
+        $jsonPayload = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame([], $jsonPayload['randomNameDomains']);
+        $this->assertSame([], $jsonPayload['randomNameTones']);
+        $this->assertSame(0, $jsonPayload['randomNameBuffer']);
+
         $cfg = $service->getConfig();
         $this->assertSame('Demo', $cfg['pageTitle']);
         $this->assertFalse($cfg['QRUser']);
         $this->assertTrue($cfg['QRRemember']);
+        $this->assertSame([], $cfg['randomNameDomains']);
+        $this->assertSame([], $cfg['randomNameTones']);
+        $this->assertSame(0, $cfg['randomNameBuffer']);
+    }
+
+    public function testSaveConfigPersistsRandomNameFilters(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                loginRequired INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                title TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                startTheme TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                randomNames INTEGER DEFAULT 1,
+                random_name_domains TEXT DEFAULT '[]',
+                random_name_tones TEXT DEFAULT '[]',
+                random_name_buffer INTEGER DEFAULT 0,
+                event_uid TEXT PRIMARY KEY
+            );
+            SQL
+        );
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec("INSERT INTO events(uid) VALUES('ev-random')");
+
+        $service = new ConfigService($pdo);
+        $service->saveConfig([
+            'event_uid' => 'ev-random',
+            'randomNames' => true,
+            'randomNameDomains' => ['Nature', 'Science'],
+            'randomNameTones' => ['Playful', 'Bold'],
+            'randomNameBuffer' => 7,
+        ]);
+
+        $row = $pdo->query(
+            "SELECT random_name_domains, random_name_tones, random_name_buffer FROM config WHERE event_uid = 'ev-random'"
+        )->fetch(PDO::FETCH_ASSOC);
+        $this->assertIsArray($row);
+        $this->assertSame(['nature', 'science'], json_decode((string) $row['random_name_domains'], true, 512, JSON_THROW_ON_ERROR));
+        $this->assertSame(['playful', 'bold'], json_decode((string) $row['random_name_tones'], true, 512, JSON_THROW_ON_ERROR));
+        $this->assertSame(7, (int) $row['random_name_buffer']);
+
+        $config = $service->getConfig();
+        $this->assertSame(['nature', 'science'], $config['randomNameDomains']);
+        $this->assertSame(['playful', 'bold'], $config['randomNameTones']);
+        $this->assertSame(7, $config['randomNameBuffer']);
     }
 
     public function testDashboardConfigRoundTripsThroughSnakeCaseColumns(): void {
