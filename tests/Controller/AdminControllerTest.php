@@ -43,6 +43,27 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
+    private function applySqliteSchema(PDO $pdo): void {
+        $schemaPath = __DIR__ . '/../../src/Infrastructure/Migrations/sqlite-schema.sql';
+        $schema = file_get_contents($schemaPath);
+        if ($schema === false) {
+            throw new \RuntimeException('Unable to load SQLite schema.');
+        }
+
+        preg_match_all('/(CREATE TABLE[\s\S]*?\);)/', $schema, $tableMatches);
+        foreach ($tableMatches[1] as $statement) {
+            $pdo->exec($statement);
+        }
+
+        preg_match_all('/(CREATE (?:UNIQUE )?INDEX[\s\S]*?;)/', $schema, $indexMatches);
+        foreach ($indexMatches[1] as $statement) {
+            $pdo->exec($statement);
+        }
+
+        $pdo->exec("INSERT OR IGNORE INTO settings(key, value) VALUES('home_page', 'help')");
+        $pdo->exec("INSERT OR IGNORE INTO settings(key, value) VALUES('registration_enabled', '0')");
+    }
+
     public function testAdminPageAfterLogin(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
@@ -121,11 +142,16 @@ class AdminControllerTest extends TestCase
     public function testEventsEmbeddedOnPage(): void {
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);
-        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->applySqliteSchema($pdo);
         $pdo->exec(
             "INSERT INTO events(uid, slug, name, start_date, end_date, description, published, sort_order) " .
             "VALUES('e1','test','Test Event','2025-01-01 00:00:00','2025-01-01 01:00:00','',1,0)"
         );
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+        Migrator::setHook(static fn (PDO $pdoConnection, string $dir) => false);
+
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -136,6 +162,42 @@ class AdminControllerTest extends TestCase
         $this->assertStringContainsString('Test Event', $body);
         session_destroy();
         unlink($db);
+        Migrator::setHook(null);
+        putenv('DASHBOARD_TOKEN_SECRET');
+        unset($_ENV['DASHBOARD_TOKEN_SECRET']);
+    }
+
+    public function testEventsEmbeddedOnPageWithLegacySchema(): void {
+        $db = $this->setupDb();
+        $pdo = new PDO('sqlite:' . $db);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->applySqliteSchema($pdo);
+        $pdo->exec('ALTER TABLE events DROP COLUMN sort_order');
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, start_date, end_date, description, published) " .
+            "VALUES('legacy1','legacy-event','Legacy Event','2025-02-01 00:00:00','2025-02-01 01:00:00','',1)"
+        );
+
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+
+        Migrator::setHook(static fn (PDO $pdoConnection, string $dir) => false);
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/events');
+        $response = $app->handle($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('Legacy Event', $body);
+
+        session_destroy();
+        unlink($db);
+        Migrator::setHook(null);
+        putenv('DASHBOARD_TOKEN_SECRET');
+        unset($_ENV['DASHBOARD_TOKEN_SECRET']);
     }
 
     public function testActiveEventRetainedWithoutQueryParam(): void {
