@@ -131,7 +131,13 @@ class DashboardController
                 'id' => 'results',
                 'enabled' => true,
                 'layout' => 'full',
-                'options' => ['limit' => null, 'pageSize' => null, 'sort' => 'time', 'title' => 'Ergebnisliste'],
+                'options' => [
+                    'limit' => null,
+                    'pageSize' => null,
+                    'sort' => 'time',
+                    'title' => 'Ergebnisliste',
+                    'showPlacement' => false,
+                ],
             ],
             [
                 'id' => 'wrongAnswers',
@@ -239,7 +245,7 @@ class DashboardController
                     'sort' => $sort,
                     'title' => $title,
                 ];
-                if ($id === 'rankings') {
+                if (array_key_exists('showPlacement', $baseOptions)) {
                     $entry['options']['showPlacement'] = $placementValue;
                 }
             } elseif ($id === 'qrCodes') {
