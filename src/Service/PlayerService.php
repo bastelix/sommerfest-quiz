@@ -231,6 +231,7 @@ class PlayerService
 
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($params);
+        /** @var list<array{name:mixed, event_uid:mixed}> $rows */
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         if ($rows === []) {
             return;

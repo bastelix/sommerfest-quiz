@@ -11,13 +11,14 @@ use App\Service\TeamService;
 use App\Service\EventService;
 use App\Service\AwardService;
 use App\Infrastructure\Database;
-use FPDF;
 use App\Service\Pdf;
+use App\Support\TimestampHelper;
+use FPDF;
 use Intervention\Image\ImageManager;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
-use PDO;
 
 /**
  * Provides CRUD endpoints for quiz results and exposes a results page.
@@ -557,33 +558,9 @@ class ResultController
      */
     private function formatTimestamp($value): string
     {
-        if ($value === null) {
-            return '';
-        }
+        $timestamp = TimestampHelper::normalize($value);
 
-        if (is_string($value)) {
-            $trimmed = trim($value);
-            if ($trimmed === '' || $trimmed === '0') {
-                return '';
-            }
-            if (!is_numeric($trimmed)) {
-                return '';
-            }
-            $timestamp = (int) round((float) $trimmed);
-        } elseif (is_int($value)) {
-            if ($value <= 0) {
-                return '';
-            }
-            $timestamp = $value;
-        } else {
-            // only float values remain here due to the earlier checks
-            if ($value <= 0.0) {
-                return '';
-            }
-            $timestamp = (int) round($value);
-        }
-
-        if ($timestamp <= 0) {
+        if ($timestamp === null) {
             return '';
         }
 
