@@ -2571,39 +2571,39 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script>
-    window.quizConfig = {{ config|json_encode|raw }};
-    window.quizSettings = {{ settings|json_encode|raw }};
+    window.quizConfig = {{ config|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.quizSettings = {{ settings|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.ragChatSecretPlaceholder = '{{ ragChatSecretPlaceholder|e('js') }}';
     window.transRagChatSaved = '{{ t('message_rag_chat_saved')|e('js') }}';
     window.transRagChatSaveError = '{{ t('message_rag_chat_save_error')|e('js') }}';
     window.transRagChatTokenSaved = '{{ t('text_rag_chat_token_saved')|e('js') }}';
     window.transRagChatTokenMissing = '{{ t('text_rag_chat_token_missing')|e('js') }}';
     window.ragChatTokenPlaceholder = '{{ t('placeholder_rag_chat_token')|e('js') }}';
-    window.roles = {{ roles|json_encode|raw }};
+    window.roles = {{ roles|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
-    window.tenantSyncState = {{ tenant_sync|default(null)|json_encode|raw }};
+    window.tenantSyncState = {{ tenant_sync|default(null)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.transTenantSyncOk = '{{ 'Aktuell'|e('js') }}';
     window.transTenantSyncStale = '{{ 'Sync nötig'|e('js') }}';
     window.transTenantSyncCooling = '{{ 'Wartezeit'|e('js') }}';
     window.transTenantSyncLastRun = '{{ 'Letzter Sync'|e('js') }}';
     window.transTenantSyncThrottled = '{{ 'Sync läuft bereits – bitte später erneut versuchen'|e('js') }}';
     window.transTenantSyncSuccess = '{{ 'Mandanten eingelesen'|e('js') }}';
-    window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode|raw }};
-    window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode|raw }};
-    window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode|raw }};
-    window.marketingNewsletterStyles = {{ marketingNewsletterStyles|default([])|json_encode|raw }};
+    window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.marketingNewsletterStyles = {{ marketingNewsletterStyles|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterStyleLabels = {{ {
       'primary': t('label_marketing_newsletter_style_primary'),
       'secondary': t('label_marketing_newsletter_style_secondary'),
       'link': t('label_marketing_newsletter_style_link')
-    }|json_encode|raw }};
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.domainStartPageTypeLabels = {{ {
       'main': t('label_domain_type_main'),
       'marketing': t('label_domain_type_marketing'),
       'custom': t('label_domain_type_custom')
-    }|json_encode|raw }};
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.transDomainStartPageSaved = '{{ t('notify_domain_start_page_saved')|e('js') }}';
     window.transDomainStartPageError = '{{ t('notify_domain_start_page_error')|e('js') }}';
     window.transDomainStartPageInvalidEmail = '{{ t('notify_domain_start_page_invalid_email')|e('js') }}';
@@ -2625,8 +2625,8 @@
     window.transMarketingNewsletterInvalidSlug = '{{ t('error_marketing_newsletter_invalid_slug')|e('js') }}';
     window.transMarketingNewsletterRemove = '{{ t('button_marketing_newsletter_remove_entry')|e('js') }}';
     window.transMarketingNewsletterEmpty = '{{ t('text_marketing_newsletter_empty')|e('js') }}';
-    window.domainChatDomains = {{ domain_chat_domains|default([])|json_encode|raw }};
-    window.domainChatPages = {{ domain_chat_pages|default([])|json_encode|raw }};
+    window.domainChatDomains = {{ domain_chat_domains|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.domainChatPages = {{ domain_chat_pages|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.domainChatTranslations = {{ {
       'loading': t('text_domain_chat_loading'),
       'empty': t('text_domain_chat_empty'),
@@ -2643,9 +2643,9 @@
       'wikiError': t('notify_domain_chat_wiki_error'),
       'wikiUnavailable': t('text_domain_chat_wiki_unavailable'),
       'wikiEmpty': t('text_domain_chat_wiki_empty')
-    }|json_encode|raw }};
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.domainChatMaxSize = {{ constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') }};
-    window.pagesContent = {{ page_contents|json_encode|raw }};
+    window.pagesContent = {{ page_contents|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';
     window.transUpgradeAction = '{{ t('action_upgrade') }}';
@@ -2681,7 +2681,7 @@
     window.transMarketingPagesEmpty = '{{ t('text_no_marketing_pages')|e('js') }}';
     window.transUsernameRequired = '{{ t('text_username_required') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
-    window.initialEvents = {{ events|json_encode|raw }};
+    window.initialEvents = {{ events|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.initialEventSlug = '{{ event.slug|default('') }}';
     window.transWikiSettingsSaved = 'Wiki-Einstellungen gespeichert';
     window.transWikiSettingsError = 'Einstellungen konnten nicht gespeichert werden.';
