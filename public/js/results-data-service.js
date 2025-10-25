@@ -21,6 +21,70 @@ const normalizeCatalogValue = (value) => {
   return String(value).trim();
 };
 
+const BLANK_NAME_KEY = '__blank__';
+
+const formatDisplayName = (value) => {
+  if (value === null || value === undefined) {
+    return '';
+  }
+  const str = String(value);
+  const trimmed = str.trim();
+  return trimmed;
+};
+
+const getNameKey = (value) => {
+  if (value === null || value === undefined) {
+    return BLANK_NAME_KEY;
+  }
+  const str = String(value);
+  const trimmed = str.trim();
+  if (trimmed === '') {
+    return BLANK_NAME_KEY;
+  }
+  let normalized = trimmed;
+  try {
+    normalized = normalized.normalize('NFKC');
+  } catch (error) {
+    // ignore unsupported normalization
+  }
+  return normalized.toLowerCase();
+};
+
+const dedupeByName = (list) => {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set();
+  const result = [];
+  for (const item of list) {
+    if (!item) continue;
+    const key = getNameKey(item.name);
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    result.push({ ...item, name: formatDisplayName(item.name) });
+  }
+  return result;
+};
+
+const takeTopUnique = (list, limit) => {
+  if (!Array.isArray(list) || limit <= 0) return [];
+  const seen = new Set();
+  const result = [];
+  for (const item of list) {
+    if (!item) continue;
+    const key = getNameKey(item.name);
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    result.push({ ...item, name: formatDisplayName(item.name) });
+    if (result.length >= limit) {
+      break;
+    }
+  }
+  return result;
+};
+
 export class ResultsDataService {
   constructor(options = {}) {
     this.basePath = options.basePath || '';
@@ -452,11 +516,13 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   const attemptMetrics = new Map();
 
   questionRows.forEach((entry) => {
-    const team = entry.name || '';
+    const team = entry?.name ?? '';
+    const teamKey = getNameKey(team);
+    const displayName = formatDisplayName(team);
     const catalogKey = resolveEntryCatalogKey(entry);
-    if (!team || !catalogKey) return;
+    if (!catalogKey) return;
     const attempt = Number.isFinite(entry.attempt) ? Number(entry.attempt) : parseInt(entry.attempt, 10) || 1;
-    const key = `${team}|${catalogKey}|${attempt}`;
+    const key = `${teamKey}|${catalogKey}|${attempt}`;
     const finalPoints = Number.isFinite(entry.final_points)
       ? Number(entry.final_points)
       : Number.isFinite(entry.finalPoints)
@@ -477,14 +543,18 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   });
 
   rows.forEach((row) => {
-    const team = row.name || '';
+    const team = row?.name ?? '';
+    const teamKey = getNameKey(team);
+    const displayName = formatDisplayName(team);
     const catalogKey = resolveEntryCatalogKey(row);
-    if (!team || !catalogKey) return;
+    if (!catalogKey) return;
     const puzzleCandidate = parseNumeric(row.puzzleTime);
     if (puzzleCandidate !== null) {
-      const prev = puzzleTimes.get(team);
-      if (!Number.isFinite(prev) || puzzleCandidate < prev) {
-        puzzleTimes.set(team, puzzleCandidate);
+      const prev = puzzleTimes.get(teamKey);
+      if (!prev || !Number.isFinite(prev.time) || puzzleCandidate < prev.time) {
+        puzzleTimes.set(teamKey, { name: displayName, time: puzzleCandidate });
+      } else if (displayName && !prev.name) {
+        prev.name = displayName;
       }
     }
 
@@ -497,7 +567,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     const finish = Number.isFinite(finishCandidate) ? Math.round(finishCandidate) : null;
 
     const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
-    const key = `${team}|${catalogKey}|${attempt}`;
+    const key = `${teamKey}|${catalogKey}|${attempt}`;
     const summary = attemptMetrics.get(key);
     let finalPoints;
     let effSum;
@@ -520,11 +590,14 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     }
     const average = questionCount > 0 ? Math.max(0, Math.min(effSum / questionCount, 1)) : 0;
 
-    let sMap = scorePoints.get(team);
-    if (!sMap) {
-      sMap = new Map();
-      scorePoints.set(team, sMap);
+    let teamInfo = scorePoints.get(teamKey);
+    if (!teamInfo) {
+      teamInfo = { name: displayName, catalogs: new Map() };
+      scorePoints.set(teamKey, teamInfo);
+    } else if (displayName && !teamInfo.name) {
+      teamInfo.name = displayName;
     }
+    const sMap = teamInfo.catalogs;
     const prev = sMap.get(catalogKey);
     const safeDuration = Number.isFinite(duration) ? duration : null;
     const safeFinish = Number.isFinite(finish) ? finish : null;
@@ -582,20 +655,27 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
         finish: safeFinish,
       });
     }
+
   });
 
   const puzzleArr = [];
-  puzzleTimes.forEach((time, name) => {
+  puzzleTimes.forEach((info) => {
+    if (!info) return;
+    const name = formatDisplayName(info.name);
+    const time = info.time;
     puzzleArr.push({ name, value: formatTimestamp(time), raw: time });
   });
   puzzleArr.sort((a, b) => a.raw - b.raw);
-  const puzzleList = puzzleArr.slice(0, 3);
+  const puzzleList = takeTopUnique(puzzleArr, 3);
 
   const rankingCandidates = [];
 
   const totalScores = [];
   const accuracyScores = [];
-  scorePoints.forEach((map, name) => {
+  scorePoints.forEach((teamInfo) => {
+    if (!teamInfo) return;
+    const name = formatDisplayName(teamInfo.name);
+    const map = teamInfo.catalogs || new Map();
     let total = 0;
     let effSumTotal = 0;
     let questionCountTotal = 0;
@@ -667,8 +747,9 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     return a.name.localeCompare(b.name);
   });
 
-  const catalogList = rankingCandidates.slice(0, 3).map((item) => ({
-    name: item.name,
+  const catalogTop = takeTopUnique(rankingCandidates, 3);
+  const catalogList = catalogTop.map((item) => ({
+    name: formatDisplayName(item.name),
     value: `${item.solved} gelöst – ${item.points} Punkte`,
     raw: item.solved,
     solved: item.solved,
@@ -680,7 +761,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     if (b.raw !== a.raw) return b.raw - a.raw;
     return (b.avg ?? 0) - (a.avg ?? 0);
   });
-  const pointsList = totalScores.slice(0);
+  const pointsList = dedupeByName(totalScores);
 
   accuracyScores.sort((a, b) => {
     if (b.raw !== a.raw) return b.raw - a.raw;
@@ -688,8 +769,9 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     if (b.score !== a.score) return b.score - a.score;
     return a.name.localeCompare(b.name);
   });
-  const accuracyList = accuracyScores.slice(0, 3).map((entry) => ({
-    name: entry.name,
+  const accuracyTop = takeTopUnique(accuracyScores, 3);
+  const accuracyList = accuracyTop.map((entry) => ({
+    name: formatDisplayName(entry.name),
     value: entry.value,
     raw: entry.raw,
   }));

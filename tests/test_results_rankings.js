@@ -130,4 +130,16 @@ const extendedPointsRankings = computeRankings(extendedPointsRows, [], 1);
 assert.strictEqual(extendedPointsRankings.pointsList.length, 5);
 const pointsNames = extendedPointsRankings.pointsList.map(entry => entry.name);
 assert.strictEqual(pointsNames.join(','), 'Alpha,Bravo,Charlie,Delta,Echo');
+
+const repeatedNamesRows = [
+    { name: 'Replay', catalog: 'Main', correct: 1, total: 2, points: 30, time: 12 },
+    { name: 'Replay ', catalog: 'Main', correct: 2, total: 2, points: 40, time: 9 },
+    { name: 'Other', catalog: 'Main', correct: 1, total: 2, points: 20, time: 15 }
+];
+
+const repeatedNamesRankings = computeRankings(repeatedNamesRows, [], 1);
+assert.strictEqual(repeatedNamesRankings.pointsList.length, 2);
+assert.strictEqual(repeatedNamesRankings.pointsList.map(entry => entry.name).join(','), 'Replay,Other');
+assert.strictEqual(repeatedNamesRankings.catalogList.length, 2);
+assert.strictEqual(repeatedNamesRankings.catalogList[0].name, 'Replay');
 console.log('ok');
