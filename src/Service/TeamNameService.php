@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Service\TeamNameAiClient;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeZone;
@@ -13,11 +14,27 @@ use PDOException;
 use RuntimeException;
 use Throwable;
 
+use function array_merge;
+use function array_slice;
+use function array_splice;
+use function count;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_object;
+use function max;
+use function min;
+use function sha1;
+use function trim;
+
 /**
  * Central allocator for curated team names with reservation support.
  */
 class TeamNameService
 {
+    private const AI_MAX_ATTEMPTS = 3;
+    private const DEFAULT_LOCALE = 'de';
+
     private PDO $pdo;
 
     /**
@@ -45,10 +62,33 @@ class TeamNameService
      */
     private array $nameCache = [];
 
-    public function __construct(PDO $pdo, string $lexiconPath, int $reservationTtlSeconds = 600)
-    {
+    private ?TeamNameAiClient $aiClient;
+
+    private bool $aiEnabled;
+
+    private string $defaultLocale;
+
+    /**
+     * Cached AI generated names keyed by event and filter combination.
+     *
+     * @var array<string, array<int, string>>
+     */
+    private array $aiNameCache = [];
+
+    public function __construct(
+        PDO $pdo,
+        string $lexiconPath,
+        int $reservationTtlSeconds = 600,
+        ?TeamNameAiClient $aiClient = null,
+        bool $enableAi = true,
+        ?string $defaultLocale = null
+    ) {
         $this->pdo = $pdo;
         $this->reservationTtlSeconds = max(60, $reservationTtlSeconds);
+        $this->aiClient = $aiClient;
+        $this->aiEnabled = $enableAi && $aiClient !== null;
+        $locale = trim((string) ($defaultLocale ?? ''));
+        $this->defaultLocale = $locale === '' ? self::DEFAULT_LOCALE : $locale;
         $this->loadLexicon($lexiconPath);
     }
 
@@ -68,6 +108,11 @@ class TeamNameService
     /**
      * Reserve a name for the given event.
      *
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     * @param int $randomNameBuffer
+     * @param string|null $locale
+     *
      * @return array{
      *     name: string,
      *     token: string,
@@ -78,11 +123,13 @@ class TeamNameService
      *     fallback: bool
      * }
      */
-    /**
-     * @param array<int, string> $domains
-     * @param array<int, string> $tones
-     */
-    public function reserve(string $eventId, array $domains = [], array $tones = []): array
+    public function reserve(
+        string $eventId,
+        array $domains = [],
+        array $tones = [],
+        int $randomNameBuffer = 0,
+        ?string $locale = null
+    ): array
     {
         if ($eventId === '') {
             throw new InvalidArgumentException('eventId must not be empty');
@@ -90,33 +137,24 @@ class TeamNameService
 
         $this->releaseExpiredReservations($eventId);
 
+        $aiCandidates = $this->consumeAiSuggestions($eventId, 1, $domains, $tones, $randomNameBuffer, $locale);
         $selection = $this->getNameSelection($domains, $tones);
         $names = $selection['names'];
-        $totalNames = count($names);
         $totalCombinations = $selection['total'];
-        if ($totalNames === 0) {
-            return $this->reserveFallback($eventId, $totalCombinations);
+        $orderedNames = [];
+        if ($names !== []) {
+            $totalNames = count($names);
+            $startIndex = $this->randomStartIndex($totalNames);
+            $orderedNames = array_merge(
+                array_slice($names, $startIndex),
+                array_slice($names, 0, $startIndex)
+            );
         }
 
-        $startIndex = $this->randomStartIndex($totalNames);
-
-        for ($offset = 0; $offset < $totalNames; $offset++) {
-            $index = ($startIndex + $offset) % $totalNames;
-            $name = $names[$index];
-            $token = bin2hex(random_bytes(16));
-            try {
-                $stmt = $this->pdo->prepare(
-                    'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)'
-                );
-                $stmt->execute([$eventId, $name, $this->lexiconVersion, $token]);
-
-                return $this->formatReservationResponse($eventId, $name, $token, false, $totalCombinations);
-            } catch (PDOException $exception) {
-                if ($this->isUniqueViolation($exception)) {
-                    continue;
-                }
-                throw $exception;
-            }
+        $candidates = array_merge($aiCandidates, $orderedNames);
+        $reservations = $this->reserveCandidates($eventId, $candidates, 1, $totalCombinations);
+        if ($reservations !== []) {
+            return $reservations[0];
         }
 
         return $this->reserveFallback($eventId, $totalCombinations);
@@ -127,6 +165,8 @@ class TeamNameService
      *
      * @param array<int, string> $domains
      * @param array<int, string> $tones
+     * @param int $randomNameBuffer
+     * @param string|null $locale
      *
      * @return array<int, array{
      *     name: string,
@@ -138,7 +178,14 @@ class TeamNameService
      *     fallback: bool
      * }>
      */
-    public function reserveBatch(string $eventId, int $count, array $domains = [], array $tones = []): array
+    public function reserveBatch(
+        string $eventId,
+        int $count,
+        array $domains = [],
+        array $tones = [],
+        int $randomNameBuffer = 0,
+        ?string $locale = null
+    ): array
     {
         if ($eventId === '') {
             throw new InvalidArgumentException('eventId must not be empty');
@@ -148,29 +195,66 @@ class TeamNameService
 
         $this->releaseExpiredReservations($eventId);
 
+        $aiCandidates = $this->consumeAiSuggestions($eventId, $count, $domains, $tones, $randomNameBuffer, $locale);
         $selection = $this->getNameSelection($domains, $tones);
         $names = $selection['names'];
         $totalCombinations = $selection['total'];
 
-        if ($names === []) {
+        $orderedNames = [];
+        if ($names !== []) {
+            $totalNames = count($names);
+            $startIndex = $this->randomStartIndex($totalNames);
+            $orderedNames = array_merge(
+                array_slice($names, $startIndex),
+                array_slice($names, 0, $startIndex)
+            );
+        }
+
+        $candidates = array_merge($aiCandidates, $orderedNames);
+        $reservations = $this->reserveCandidates($eventId, $candidates, $count, $totalCombinations);
+
+        if ($reservations === []) {
             return [$this->reserveFallback($eventId, $totalCombinations)];
         }
 
-        $totalNames = count($names);
-        $startIndex = $this->randomStartIndex($totalNames);
-        $orderedNames = array_merge(array_slice($names, $startIndex), array_slice($names, 0, $startIndex));
+        return $reservations;
+    }
+
+    /**
+     * @param array<int, string> $candidates
+     *
+     * @return array<int, array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }>
+     */
+    private function reserveCandidates(string $eventId, array $candidates, int $limit, int $totalCombinations): array
+    {
+        if ($candidates === []) {
+            return [];
+        }
 
         $reservations = [];
+        $useTransaction = $limit > 1;
 
-        $this->pdo->beginTransaction();
+        if ($useTransaction) {
+            $this->pdo->beginTransaction();
+        }
+
+        $stmt = null;
 
         try {
             $stmt = $this->pdo->prepare(
                 'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)'
             );
 
-            foreach ($orderedNames as $name) {
-                if (count($reservations) >= $count) {
+            foreach ($candidates as $name) {
+                if (count($reservations) >= $limit) {
                     break;
                 }
 
@@ -186,26 +270,203 @@ class TeamNameService
 
                     throw $exception;
                 } finally {
-                    $stmt->closeCursor();
+                    if ($stmt !== null) {
+                        $stmt->closeCursor();
+                    }
                 }
             }
 
-            if ($this->pdo->inTransaction()) {
+            if ($useTransaction && $this->pdo->inTransaction()) {
                 $this->pdo->commit();
             }
         } catch (Throwable $exception) {
-            if ($this->pdo->inTransaction()) {
+            if ($useTransaction && $this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
 
             throw $exception;
         }
 
-        if ($reservations === []) {
-            return [$this->reserveFallback($eventId, $totalCombinations)];
+        return $reservations;
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     *
+     * @return array<int, string>
+     */
+    private function consumeAiSuggestions(
+        string $eventId,
+        int $count,
+        array $domains,
+        array $tones,
+        int $randomNameBuffer,
+        ?string $locale
+    ): array {
+        if (!$this->canUseAi()) {
+            return [];
         }
 
-        return $reservations;
+        $count = max(0, $count);
+        $buffer = max(0, $randomNameBuffer);
+        if ($count === 0 && $buffer === 0) {
+            return [];
+        }
+
+        $normalizedDomains = $this->normalizeFilterValues($domains);
+        $normalizedTones = $this->normalizeFilterValues($tones);
+        $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones);
+        $promptDomains = $this->preparePromptValues($domains);
+        $promptTones = $this->preparePromptValues($tones);
+        $resolvedLocale = $this->resolveLocale($locale);
+
+        $targetSize = max(1, max($count, $buffer));
+        $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
+
+        $available = $this->aiNameCache[$cacheKey] ?? [];
+        if ($available === []) {
+            return [];
+        }
+
+        $selection = array_splice($this->aiNameCache[$cacheKey], 0, min($count, count($available)));
+
+        if ($buffer > 0) {
+            $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $buffer);
+        }
+
+        return $selection;
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     */
+    private function fillAiCache(
+        string $cacheKey,
+        string $eventId,
+        array $domains,
+        array $tones,
+        string $locale,
+        int $targetSize
+    ): void {
+        if (!$this->canUseAi() || $targetSize <= 0) {
+            return;
+        }
+
+        if (!isset($this->aiNameCache[$cacheKey])) {
+            $this->aiNameCache[$cacheKey] = [];
+        }
+
+        $attempts = 0;
+        while (count($this->aiNameCache[$cacheKey]) < $targetSize && $attempts < self::AI_MAX_ATTEMPTS) {
+            $needed = $targetSize - count($this->aiNameCache[$cacheKey]);
+            $batch = $this->aiClient->fetchSuggestions($needed, $domains, $tones, $locale);
+            if ($batch === []) {
+                break;
+            }
+
+            $added = false;
+            foreach ($batch as $candidate) {
+                $normalizedName = $this->normalize($candidate);
+                if ($normalizedName === '') {
+                    continue;
+                }
+                if ($this->isNameAlreadyInCache($cacheKey, $normalizedName)) {
+                    continue;
+                }
+                if ($this->isNameAlreadyActive($eventId, $candidate)) {
+                    continue;
+                }
+                $this->aiNameCache[$cacheKey][] = $candidate;
+                $added = true;
+                if (count($this->aiNameCache[$cacheKey]) >= $targetSize) {
+                    break;
+                }
+            }
+
+            if (!$added) {
+                break;
+            }
+
+            $attempts++;
+        }
+    }
+
+    private function canUseAi(): bool
+    {
+        return $this->aiEnabled && $this->aiClient !== null;
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     */
+    private function buildAiCacheKey(string $eventId, array $domains, array $tones): string
+    {
+        return sha1($this->normalize($eventId) . '#' . implode('|', $domains) . '#' . implode('|', $tones));
+    }
+
+    /**
+     * @param array<int, string> $values
+     *
+     * @return array<int, string>
+     */
+    private function preparePromptValues(array $values): array
+    {
+        $prepared = [];
+        foreach ($values as $value) {
+            if (is_array($value) || is_object($value)) {
+                continue;
+            }
+            $candidate = trim((string) $value);
+            if ($candidate === '') {
+                continue;
+            }
+            if (!in_array($candidate, $prepared, true)) {
+                $prepared[] = $candidate;
+            }
+        }
+
+        return $prepared;
+    }
+
+    private function resolveLocale(?string $locale): string
+    {
+        $locale = $locale !== null ? trim($locale) : '';
+        if ($locale === '') {
+            return $this->defaultLocale;
+        }
+
+        return $locale;
+    }
+
+    private function isNameAlreadyInCache(string $cacheKey, string $normalizedName): bool
+    {
+        if (!isset($this->aiNameCache[$cacheKey])) {
+            return false;
+        }
+
+        foreach ($this->aiNameCache[$cacheKey] as $existing) {
+            if ($this->normalize($existing) === $normalizedName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function isNameAlreadyActive(string $eventId, string $name): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT 1 FROM team_names WHERE event_id = ? AND LOWER(name) = LOWER(?) '
+            . 'AND released_at IS NULL LIMIT 1'
+        );
+        $stmt->execute([$eventId, $name]);
+        $result = $stmt->fetchColumn();
+        $stmt->closeCursor();
+
+        return $result !== false;
     }
 
     /**

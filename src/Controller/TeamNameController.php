@@ -42,9 +42,11 @@ class TeamNameController
 
         $domains = is_array($config['randomNameDomains'] ?? null) ? $config['randomNameDomains'] : [];
         $tones = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
+        $buffer = $this->resolveRandomNameBuffer($config);
+        $locale = $this->resolveRandomNameLocale($config);
 
         try {
-            $reservation = $this->service->reserve($eventId, $domains, $tones);
+            $reservation = $this->service->reserve($eventId, $domains, $tones, $buffer, $locale);
         } catch (InvalidArgumentException | PDOException $exception) {
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
@@ -70,6 +72,8 @@ class TeamNameController
 
         $domains = is_array($config['randomNameDomains'] ?? null) ? $config['randomNameDomains'] : [];
         $tones = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
+        $buffer = $this->resolveRandomNameBuffer($config);
+        $locale = $this->resolveRandomNameLocale($config);
 
         $countParam = $query['count'] ?? null;
         $count = is_numeric($countParam) ? (int) $countParam : 0;
@@ -79,7 +83,7 @@ class TeamNameController
         $count = min($count, self::MAX_BATCH_SIZE);
 
         try {
-            $reservations = $this->service->reserveBatch($eventId, $count, $domains, $tones);
+            $reservations = $this->service->reserveBatch($eventId, $count, $domains, $tones, $buffer, $locale);
         } catch (InvalidArgumentException | PDOException $exception) {
             return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
         }
@@ -150,6 +154,38 @@ class TeamNameController
         }
         $config = $this->config->getConfig();
         return (string) ($config['event_uid'] ?? '');
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    private function resolveRandomNameBuffer(array $config): int
+    {
+        $value = $config['randomNameBuffer'] ?? null;
+        if (is_numeric($value)) {
+            $buffer = (int) $value;
+            return $buffer < 0 ? 0 : $buffer;
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param array<mixed> $config
+     */
+    private function resolveRandomNameLocale(array $config): ?string
+    {
+        $candidate = $config['randomNameLocale']
+            ?? $config['locale']
+            ?? $config['language']
+            ?? null;
+
+        if ($candidate === null) {
+            return null;
+        }
+
+        $locale = trim((string) $candidate);
+        return $locale === '' ? null : $locale;
     }
 
     /**
