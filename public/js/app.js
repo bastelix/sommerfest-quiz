@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
   const configMenuToggle = document.getElementById('configMenuToggle');
   const configMenu = document.getElementById('menuDrop');
+  const languageMenuToggle = document.getElementById('languageMenuToggle');
+  const languageDrop = document.getElementById('languageDrop');
+  const languageButtons = document.querySelectorAll('.lang-option');
   const sidebarToggle = document.getElementById('sidebarToggle');
   const adminSidebar = document.getElementById('adminSidebar');
   const sidebarHasItems = adminSidebar && adminSidebar.querySelector('li');
@@ -241,12 +244,38 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  if (languageButtons.length) {
+    languageButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const lang = button.dataset.lang;
+        const url = new URL(window.location.href);
+        if (lang) {
+          url.searchParams.set('lang', lang);
+        } else {
+          url.searchParams.delete('lang');
+        }
+        try { UIkit.dropdown('#languageDrop').hide(); } catch (e) {}
+        try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
+        window.location.href = url.toString();
+      });
+    });
+  }
+
   if (configMenuToggle && configMenu) {
     UIkit.util.on(configMenu, 'show', () => {
       configMenuToggle.setAttribute('aria-expanded', 'true');
     });
     UIkit.util.on(configMenu, 'hide', () => {
       configMenuToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  if (languageMenuToggle && languageDrop) {
+    UIkit.util.on(languageDrop, 'show', () => {
+      languageMenuToggle.setAttribute('aria-expanded', 'true');
+    });
+    UIkit.util.on(languageDrop, 'hide', () => {
+      languageMenuToggle.setAttribute('aria-expanded', 'false');
     });
   }
 
