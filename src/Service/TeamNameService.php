@@ -393,7 +393,7 @@ class TeamNameService
     }
 
     /**
-     * @param array<int, string> $filters
+     * @param array<int, mixed> $filters
      *
      * @return array<int, string>
      */
@@ -446,7 +446,7 @@ class TeamNameService
     }
 
     /**
-     * @param array<string, array<int, string>> $categories
+     * @param array<string, array<int, string>|mixed> $categories
      *
      * @return array<int, string>
      */
@@ -468,7 +468,7 @@ class TeamNameService
     }
 
     /**
-     * @param array<string, array<int, string>> $categories
+     * @param array<string, array<int, string>|mixed> $categories
      *
      * @return array<int, string>
      */
