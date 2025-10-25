@@ -70,6 +70,38 @@ const resolveBooleanOption = (value, fallback = false) => {
   return Boolean(fallback);
 };
 
+const formUtils = {
+  toArray(list) {
+    if (Array.isArray(list)) {
+      return list;
+    }
+    if (!list) {
+      return [];
+    }
+    if (typeof list[Symbol.iterator] === 'function') {
+      return Array.from(list);
+    }
+    return [];
+  },
+  checkBoxes(list, selectedValues = []) {
+    const normalized = new Set(
+      (Array.isArray(selectedValues) ? selectedValues : [])
+        .map(value => String(value))
+    );
+    formUtils.toArray(list).forEach(input => {
+      if (!input || typeof input.checked === 'undefined') {
+        return;
+      }
+      input.checked = normalized.has(String(input.value));
+    });
+  },
+  readChecked(list) {
+    return formUtils.toArray(list)
+      .filter(input => input && input.checked)
+      .map(input => String(input.value));
+  }
+};
+
 function isAllowed(url, allowedPaths = []) {
   try {
     const parsed = new URL(url, window.location.origin);
@@ -1003,6 +1035,9 @@ document.addEventListener('DOMContentLoaded', function () {
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
     randomNames: document.getElementById('cfgRandomNames'),
+    randomNameDomains: Array.from(document.querySelectorAll('input[name="random_name_domains[]"]')),
+    randomNameTones: Array.from(document.querySelectorAll('input[name="random_name_tones[]"]')),
+    randomNameBuffer: document.getElementById('cfgRandomNameBuffer'),
     shuffleQuestions: document.getElementById('cfgShuffleQuestions'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
@@ -1023,6 +1058,15 @@ document.addEventListener('DOMContentLoaded', function () {
     dashboardSponsorEnabled: document.getElementById('cfgDashboardSponsorEnabled'),
     dashboardVisibilityStart: document.getElementById('cfgDashboardVisibilityStart'),
     dashboardVisibilityEnd: document.getElementById('cfgDashboardVisibilityEnd')
+  };
+  const randomNameOptionsFieldset = document.querySelector('[data-random-name-options]');
+  const syncRandomNameOptionsState = () => {
+    if (!randomNameOptionsFieldset) {
+      return;
+    }
+    const enabled = !!cfgFields.randomNames && !!cfgFields.randomNames.checked;
+    randomNameOptionsFieldset.disabled = !enabled;
+    randomNameOptionsFieldset.classList.toggle('uk-disabled', !enabled);
   };
   const dashboardModulesList = document.querySelector('[data-dashboard-modules]');
   const dashboardModulesInput = document.getElementById('cfgDashboardModules');
@@ -1883,6 +1927,26 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.randomNames) {
       cfgFields.randomNames.checked = data.randomNames !== false;
     }
+    if (Array.isArray(cfgFields.randomNameDomains)) {
+      const domains = Array.isArray(data.randomNameDomains) ? data.randomNameDomains : [];
+      formUtils.checkBoxes(cfgFields.randomNameDomains, domains);
+    }
+    if (Array.isArray(cfgFields.randomNameTones)) {
+      const tones = Array.isArray(data.randomNameTones) ? data.randomNameTones : [];
+      formUtils.checkBoxes(cfgFields.randomNameTones, tones);
+    }
+    if (cfgFields.randomNameBuffer) {
+      const rawBuffer = data.randomNameBuffer ?? '';
+      if (rawBuffer === null || rawBuffer === undefined || rawBuffer === '') {
+        cfgFields.randomNameBuffer.value = '';
+      } else {
+        const parsedBuffer = Number.parseInt(rawBuffer, 10);
+        cfgFields.randomNameBuffer.value = Number.isNaN(parsedBuffer)
+          ? ''
+          : String(parsedBuffer);
+      }
+    }
+    syncRandomNameOptionsState();
     if (cfgFields.shuffleQuestions) {
       cfgFields.shuffleQuestions.checked = data.shuffleQuestions !== false;
     }
@@ -2989,6 +3053,38 @@ document.addEventListener('DOMContentLoaded', function () {
       data.startTheme = selectedTheme === 'dark' ? 'dark' : 'light';
     }
     if (cfgFields.randomNames) data.randomNames = cfgFields.randomNames.checked;
+    if (Array.isArray(cfgFields.randomNameDomains)) {
+      data.randomNameDomains = formUtils.readChecked(cfgFields.randomNameDomains);
+    }
+    if (Array.isArray(cfgFields.randomNameTones)) {
+      data.randomNameTones = formUtils.readChecked(cfgFields.randomNameTones);
+    }
+    if (cfgFields.randomNameBuffer) {
+      const rawBuffer = cfgFields.randomNameBuffer.value;
+      const trimmedBuffer = rawBuffer == null ? '' : String(rawBuffer).trim();
+      if (trimmedBuffer === '') {
+        data.randomNameBuffer = '';
+        cfgFields.randomNameBuffer.value = '';
+      } else {
+        const parsedBuffer = Number.parseInt(trimmedBuffer, 10);
+        if (Number.isNaN(parsedBuffer)) {
+          data.randomNameBuffer = '';
+          cfgFields.randomNameBuffer.value = '';
+        } else {
+          const min = Number.parseInt(cfgFields.randomNameBuffer.min, 10);
+          const max = Number.parseInt(cfgFields.randomNameBuffer.max, 10);
+          let normalized = parsedBuffer;
+          if (!Number.isNaN(min)) {
+            normalized = Math.max(normalized, min);
+          }
+          if (!Number.isNaN(max)) {
+            normalized = Math.min(normalized, max);
+          }
+          data.randomNameBuffer = String(normalized);
+          cfgFields.randomNameBuffer.value = String(normalized);
+        }
+      }
+    }
     if (cfgFields.shuffleQuestions) data.shuffleQuestions = cfgFields.shuffleQuestions.checked;
     if (cfgFields.teamRestrict) data.QRRestrict = cfgFields.teamRestrict.checked ? '1' : '0';
     if (cfgFields.competitionMode) data.competitionMode = cfgFields.competitionMode.checked;
@@ -3109,10 +3205,19 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   Object.entries(cfgFields).forEach(([key, el]) => {
-    if (!el || ['logoFile', 'logoPreview', 'registrationEnabled', 'puzzleEnabled'].includes(key)) return;
-    el.addEventListener('change', queueCfgSave);
-    el.addEventListener('input', queueCfgSave);
+    if (!el || ['logoFile', 'logoPreview', 'registrationEnabled', 'puzzleEnabled'].includes(key)) {
+      return;
+    }
+    const targets = Array.isArray(el) ? el : [el];
+    targets.forEach(target => {
+      if (!target || typeof target.addEventListener !== 'function') {
+        return;
+      }
+      target.addEventListener('change', queueCfgSave);
+      target.addEventListener('input', queueCfgSave);
+    });
   });
+  cfgFields.randomNames?.addEventListener('change', syncRandomNameOptionsState);
   dashboardModulesList?.addEventListener('change', event => {
     if (event.target.matches('[data-module-results-option="limit"]')) {
       const moduleItem = event.target.closest('[data-module-id]');

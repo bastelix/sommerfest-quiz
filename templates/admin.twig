@@ -318,6 +318,63 @@
                 </div>
               </div>
               <div class="uk-width-1-1">
+                {% set randomNameDomains = constant('App\\Service\\ConfigValidator::RANDOM_NAME_DOMAIN_OPTIONS') %}
+                {% set randomNameTones = constant('App\\Service\\ConfigValidator::RANDOM_NAME_TONE_OPTIONS') %}
+                {% set randomNameDomainValues = config.randomNameDomains|default([]) %}
+                {% set randomNameToneValues = config.randomNameTones|default([]) %}
+                <fieldset class="uk-fieldset uk-margin-small-top" data-random-name-options {% if not config.randomNames %}disabled{% endif %}>
+                  <legend class="uk-legend uk-text-small uk-text-bold">{{ t('legend_random_name_preferences') }}</legend>
+                  <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                    <div>
+                      <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
+                        <span class="uk-form-label">{{ t('label_random_name_domains') }}</span>
+                        <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_domains') }}; pos: right" aria-label="{{ t('tip_random_name_domains') }}" tabindex="0"></span>
+                      </div>
+                      <div class="uk-grid-small uk-child-width-1-2@s uk-margin-small-top" uk-grid>
+                        {% for domain in randomNameDomains %}
+                          {% set domainId = 'cfgRandomNameDomain-' ~ domain|replace({'_':'-'}) %}
+                          <div>
+                            <label class="uk-display-block" for="{{ domainId }}">
+                              <input class="uk-checkbox" type="checkbox" id="{{ domainId }}" name="random_name_domains[]" value="{{ domain }}" {% if domain in randomNameDomainValues %}checked{% endif %}>
+                              {{ t('option_random_name_domain_' ~ domain) }}
+                            </label>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_domains_hint') }}</p>
+                    </div>
+                    <div>
+                      <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
+                        <span class="uk-form-label">{{ t('label_random_name_tones') }}</span>
+                        <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_tones') }}; pos: right" aria-label="{{ t('tip_random_name_tones') }}" tabindex="0"></span>
+                      </div>
+                      <div class="uk-grid-small uk-child-width-1-2@s uk-margin-small-top" uk-grid>
+                        {% for tone in randomNameTones %}
+                          {% set toneId = 'cfgRandomNameTone-' ~ tone|replace({'_':'-'}) %}
+                          <div>
+                            <label class="uk-display-block" for="{{ toneId }}">
+                              <input class="uk-checkbox" type="checkbox" id="{{ toneId }}" name="random_name_tones[]" value="{{ tone }}" {% if tone in randomNameToneValues %}checked{% endif %}>
+                              {{ t('option_random_name_tone_' ~ tone) }}
+                            </label>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_tones_hint') }}</p>
+                    </div>
+                  </div>
+                  <div class="uk-margin-top">
+                    <label class="uk-form-label" for="cfgRandomNameBuffer">
+                      {{ t('label_random_name_buffer') }}
+                      <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_buffer') }}; pos: right" aria-label="{{ t('tip_random_name_buffer') }}" tabindex="0"></span>
+                    </label>
+                    <div class="uk-form-controls">
+                      <input class="uk-input" type="number" id="cfgRandomNameBuffer" name="random_name_buffer" min="{{ constant('App\\Service\\ConfigValidator::RANDOM_NAME_BUFFER_MIN') }}" max="{{ constant('App\\Service\\ConfigValidator::RANDOM_NAME_BUFFER_MAX') }}" step="1" value="{{ config.randomNameBuffer|default(0) }}">
+                    </div>
+                    <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_buffer_hint') }}</p>
+                  </div>
+                </fieldset>
+              </div>
+              <div class="uk-width-1-1">
                 <h4 class="uk-heading-bullet">{{ t('heading_access') }}</h4>
               </div>
               <div>
