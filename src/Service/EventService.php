@@ -45,14 +45,22 @@ class EventService
      * }>
      */
     public function getAll(): array {
-        $sql = 'SELECT uid,slug,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
+        $primarySql = 'SELECT uid,slug,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
+        $legacySql = 'SELECT uid,slug,name,start_date,end_date,description,published FROM events ORDER BY name';
         $rows = [];
 
         try {
-            $stmt = $this->pdo->query($sql);
+            $stmt = $this->pdo->query($primarySql);
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $exception) {
             error_log('Failed to load events from database: ' . $exception->getMessage());
+
+            try {
+                $stmt = $this->pdo->query($legacySql);
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $legacyException) {
+                error_log('Legacy event query failed: ' . $legacyException->getMessage());
+            }
         }
 
         if ($rows === []) {
