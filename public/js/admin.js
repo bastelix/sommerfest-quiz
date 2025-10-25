@@ -1108,7 +1108,8 @@ document.addEventListener('DOMContentLoaded', function () {
         pageSize: 10,
         pageInterval: DASHBOARD_RESULTS_DEFAULT_INTERVAL,
         sort: 'time',
-        title: 'Ergebnisliste'
+        title: 'Ergebnisliste',
+        showPlacement: false,
       }
     },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
@@ -1806,13 +1807,14 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (Object.prototype.hasOwnProperty.call(defaults, 'showPlacement')) {
           placementValue = defaults.showPlacement === true;
         }
+        const supportsPlacement = Object.prototype.hasOwnProperty.call(defaults, 'showPlacement');
         entry.options = {
           limit: limitValue,
           pageSize: pageSizeValue,
           pageInterval: pageIntervalValue,
           sort: sortValue,
           title: titleValue,
-          ...(id === 'rankings' ? { showPlacement: placementValue } : {}),
+          ...(supportsPlacement ? { showPlacement: placementValue } : {}),
         };
       } else if (id === 'pointsLeader') {
         const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.options || {};

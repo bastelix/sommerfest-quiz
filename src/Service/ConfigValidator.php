@@ -491,6 +491,7 @@ class ConfigValidator
                     'pageInterval' => self::DASHBOARD_RESULTS_DEFAULT_INTERVAL,
                     'sort' => 'time',
                     'title' => 'Ergebnisliste',
+                    'showPlacement' => false,
                 ],
             ],
             ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Falsch beantwortete Fragen']],
@@ -600,7 +601,7 @@ class ConfigValidator
                     'sort' => $sort,
                     'title' => $title,
                 ];
-                if ($id === 'rankings') {
+                if (array_key_exists('showPlacement', $baseOptions)) {
                     $optionsData['showPlacement'] = $placementValue;
                 }
                 $entry['options'] = $optionsData;

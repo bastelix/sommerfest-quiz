@@ -47,7 +47,8 @@
         pageSize: 10,
         pageInterval: RESULTS_DEFAULT_PAGE_INTERVAL,
         sort: 'time',
-        title: 'Ergebnisliste'
+        title: 'Ergebnisliste',
+        showPlacement: false,
       }
     },
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
@@ -665,13 +666,14 @@
         } else if (Object.prototype.hasOwnProperty.call(defaults, 'showPlacement')) {
           placementValue = defaults.showPlacement === true;
         }
+        const supportsPlacement = Object.prototype.hasOwnProperty.call(defaults, 'showPlacement');
         entry.options = {
           limit: limitValue,
           pageSize: pageSizeValue,
           pageInterval: pageIntervalValue,
           sort: sortValue,
           title: titleValue,
-          ...(id === 'rankings' ? { showPlacement: placementValue } : {}),
+          ...(supportsPlacement ? { showPlacement: placementValue } : {}),
         };
       } else if (id === 'pointsLeader') {
         const defaults = DEFAULT_MODULE_MAP.get(id)?.options || {};
