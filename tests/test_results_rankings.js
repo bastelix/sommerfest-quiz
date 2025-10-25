@@ -117,4 +117,17 @@ assert.strictEqual(zeroCorrectRankings.catalogList[0].name, 'Zero');
 assert.strictEqual(zeroCorrectRankings.catalogList[0].solved, 0);
 assert.strictEqual(zeroCorrectRankings.pointsList[0].raw, 0);
 assert.strictEqual(zeroCorrectRankings.accuracyList[0].raw, 0);
+
+const extendedPointsRows = [
+    { name: 'Alpha', catalog: 'Main', correct: 5, total: 5, points: 120, time: 12 },
+    { name: 'Bravo', catalog: 'Main', correct: 4, total: 5, points: 95, time: 15 },
+    { name: 'Charlie', catalog: 'Main', correct: 3, total: 5, points: 80, time: 18 },
+    { name: 'Delta', catalog: 'Main', correct: 2, total: 5, points: 65, time: 21 },
+    { name: 'Echo', catalog: 'Main', correct: 1, total: 5, points: 40, time: 24 }
+];
+
+const extendedPointsRankings = computeRankings(extendedPointsRows, [], 1);
+assert.strictEqual(extendedPointsRankings.pointsList.length, 5);
+const pointsNames = extendedPointsRankings.pointsList.map(entry => entry.name);
+assert.strictEqual(pointsNames.join(','), 'Alpha,Bravo,Charlie,Delta,Echo');
 console.log('ok');

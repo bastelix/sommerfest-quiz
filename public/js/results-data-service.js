@@ -680,7 +680,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     if (b.raw !== a.raw) return b.raw - a.raw;
     return (b.avg ?? 0) - (a.avg ?? 0);
   });
-  const pointsList = totalScores.slice(0, 3);
+  const pointsList = totalScores.slice(0);
 
   accuracyScores.sort((a, b) => {
     if (b.raw !== a.raw) return b.raw - a.raw;
