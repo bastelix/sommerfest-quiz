@@ -36,7 +36,7 @@ const MODULE_DEFAULT_LAYOUTS = {
 };
 const RESULTS_DEFAULT_OPTIONS = {
   limit: null,
-  pageSize: null,
+  pageSize: 10,
   sort: 'time',
   title: 'Ergebnisliste',
   showPlacement: false,
@@ -165,17 +165,24 @@ function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
   }
   const pageSizeCandidate = options.pageSize ?? defaults.pageSize;
   let pageSize = null;
-  if (limit !== null) {
-    const parsedPageSize = parseResultNumber(pageSizeCandidate);
-    if (parsedPageSize !== null) {
-      const normalizedPageSize = Math.floor(parsedPageSize);
-      if (normalizedPageSize > 0 && normalizedPageSize <= limit) {
-        pageSize = normalizedPageSize;
-      }
+  const parsedPageSize = parseResultNumber(pageSizeCandidate);
+  if (parsedPageSize !== null) {
+    const normalizedPageSize = Math.floor(parsedPageSize);
+    if (normalizedPageSize > 0) {
+      pageSize = Math.min(normalizedPageSize, RESULTS_LIMIT_MAX);
     }
-    if (pageSize === null) {
-      pageSize = limit;
+  }
+  let effectivePageSize = null;
+  if (pageSize !== null) {
+    effectivePageSize = pageSize;
+    if (limit !== null) {
+      effectivePageSize = Math.min(effectivePageSize, limit);
     }
+  } else if (limit !== null) {
+    effectivePageSize = limit;
+  }
+  if (effectivePageSize !== null && effectivePageSize <= 0) {
+    effectivePageSize = null;
   }
   const rawSort = typeof options.sort === 'string' ? options.sort.trim() : '';
   const sort = RESULTS_SORT_OPTIONS.has(rawSort) ? rawSort : defaults.sort;
@@ -189,6 +196,7 @@ function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
   return {
     limit,
     pageSize,
+    effectivePageSize,
     sort,
     title,
     showPlacement,
@@ -590,8 +598,8 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
     moduleState.set(moduleId, currentPage);
   };
 
-  const effectivePageSize = options.pageSize && options.pageSize > 0
-    ? options.pageSize
+  const effectivePageSize = options.effectivePageSize && options.effectivePageSize > 0
+    ? options.effectivePageSize
     : limitedRows.length || 1;
   const columnCount = includePlacement ? 4 : 3;
   if (limitedRows.length > 0) {
