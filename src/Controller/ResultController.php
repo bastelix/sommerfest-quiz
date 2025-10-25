@@ -570,18 +570,12 @@ class ResultController
                 return '';
             }
             $timestamp = (int) round((float) $trimmed);
-        } elseif (is_int($value)) {
-            if ($value <= 0) {
-                return '';
-            }
-            $timestamp = $value;
-        } elseif (is_float($value)) {
-            if ($value <= 0.0) {
-                return '';
-            }
-            $timestamp = (int) round($value);
         } else {
-            return '';
+            $numericTimestamp = $this->normalizeNumericTimestamp($value);
+            if ($numericTimestamp === null) {
+                return '';
+            }
+            $timestamp = $numericTimestamp;
         }
 
         if ($timestamp <= 0) {
@@ -589,6 +583,15 @@ class ResultController
         }
 
         return date('Y-m-d H:i', $timestamp);
+    }
+
+    private function normalizeNumericTimestamp(int|float $value): ?int
+    {
+        if ($value <= 0) {
+            return null;
+        }
+
+        return (int) round((float) $value);
     }
 
     /**

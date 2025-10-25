@@ -264,14 +264,15 @@ class AwardService
                 'solved' => $totalSolved,
                 'points' => $total,
                 'duration' => $durationEntries > 0 ? $totalDuration : null,
-                'latestFinish' => $latestFinish,
+                'latestFinish' => $this->normalizeLatestFinishForSort($latestFinish),
+                'finished' => $latestFinish,
             ];
         }
         usort(
             $catalogCandidates,
             /**
-             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int|null} $a
-             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int|null} $b
+             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int, finished:int|null} $a
+             * @param array{team:mixed, solved:int, points:int, duration:int|null, latestFinish:int, finished:int|null} $b
              */
             static function (array $a, array $b): int {
                 $cmp = $b['solved'] <=> $a['solved'];
@@ -299,9 +300,7 @@ class AwardService
                     return 1;
                 }
 
-                $aFinishValue = $a['latestFinish'] ?? PHP_INT_MAX;
-                $bFinishValue = $b['latestFinish'] ?? PHP_INT_MAX;
-                $cmp = $aFinishValue <=> $bFinishValue;
+                $cmp = $a['latestFinish'] <=> $b['latestFinish'];
                 if ($cmp !== 0) {
                     return $cmp;
                 }
@@ -318,7 +317,7 @@ class AwardService
                 'solved' => (int) $row['solved'],
                 'points' => (int) $row['points'],
                 'duration' => $row['duration'] !== null ? (int) $row['duration'] : null,
-                'finished' => $row['latestFinish'],
+                'finished' => $row['finished'],
             ];
         }
 
@@ -370,6 +369,11 @@ class AwardService
             'points' => $pointsRanks,
             'accuracy' => $accuracyRanks,
         ];
+    }
+
+    private function normalizeLatestFinishForSort(?int $latestFinish): int
+    {
+        return $latestFinish ?? PHP_INT_MAX;
     }
 
     private function normalizeCatalogKey(array $row): string
