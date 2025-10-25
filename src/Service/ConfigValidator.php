@@ -67,7 +67,7 @@ class ConfigValidator
 
     private const DASHBOARD_MAX_REFRESH = 300;
 
-    public const RANDOM_NAME_DOMAIN_OPTIONS = [
+    public const RANDOM_NAME_ALLOWED_DOMAINS = [
         'nature',
         'science',
         'culture',
@@ -76,13 +76,23 @@ class ConfigValidator
         'geography',
     ];
 
-    public const RANDOM_NAME_TONE_OPTIONS = [
+    public const RANDOM_NAME_ALLOWED_TONES = [
         'playful',
         'bold',
         'elegant',
         'serious',
         'quirky',
     ];
+
+    /**
+     * @deprecated Use {@see RANDOM_NAME_ALLOWED_DOMAINS} instead.
+     */
+    public const RANDOM_NAME_DOMAIN_OPTIONS = self::RANDOM_NAME_ALLOWED_DOMAINS;
+
+    /**
+     * @deprecated Use {@see RANDOM_NAME_ALLOWED_TONES} instead.
+     */
+    public const RANDOM_NAME_TONE_OPTIONS = self::RANDOM_NAME_ALLOWED_TONES;
 
     public const RANDOM_NAME_BUFFER_MIN = 0;
 
@@ -173,22 +183,30 @@ class ConfigValidator
             }
         }
 
+        $domainsRaw = $data['randomNameDomains']
+            ?? $data['random_name_domains']
+            ?? self::DEFAULTS['randomNameDomains'];
         $config['randomNameDomains'] = $this->filterRandomNameOptions(
-            $data['randomNameDomains'] ?? self::DEFAULTS['randomNameDomains'],
-            self::RANDOM_NAME_DOMAIN_OPTIONS,
+            $domainsRaw,
+            self::RANDOM_NAME_ALLOWED_DOMAINS,
             $errors,
             'randomNameDomains'
         );
 
+        $tonesRaw = $data['randomNameTones']
+            ?? $data['random_name_tones']
+            ?? self::DEFAULTS['randomNameTones'];
         $config['randomNameTones'] = $this->filterRandomNameOptions(
-            $data['randomNameTones'] ?? self::DEFAULTS['randomNameTones'],
-            self::RANDOM_NAME_TONE_OPTIONS,
+            $tonesRaw,
+            self::RANDOM_NAME_ALLOWED_TONES,
             $errors,
             'randomNameTones'
         );
 
         $config['randomNameBuffer'] = $this->normalizeRandomNameBuffer(
-            $data['randomNameBuffer'] ?? self::DEFAULTS['randomNameBuffer'],
+            $data['randomNameBuffer']
+                ?? $data['random_name_buffer']
+                ?? self::DEFAULTS['randomNameBuffer'],
             $errors
         );
 
@@ -310,6 +328,25 @@ class ConfigValidator
      */
     private function filterRandomNameOptions($raw, array $allowed, array &$errors, string $errorKey): array
     {
+        if (is_string($raw)) {
+            $trimmed = trim($raw);
+            if ($trimmed === '') {
+                return [];
+            }
+            if ($trimmed[0] === '[') {
+                try {
+                    $decoded = json_decode($trimmed, true, 512, JSON_THROW_ON_ERROR);
+                    $raw = is_array($decoded) ? $decoded : [];
+                } catch (JsonException) {
+                    $raw = preg_split('/[;,\r\n]+/', $trimmed) ?: [];
+                }
+            } else {
+                $raw = preg_split('/[;,\r\n]+/', $trimmed) ?: [];
+            }
+        } elseif (is_iterable($raw) && !is_array($raw)) {
+            $raw = iterator_to_array($raw, false);
+        }
+
         if (!is_array($raw)) {
             return [];
         }
@@ -342,6 +379,10 @@ class ConfigValidator
      */
     private function normalizeRandomNameBuffer($raw, array &$errors): int
     {
+        if (is_string($raw)) {
+            $raw = trim($raw);
+        }
+
         if ($raw === null || $raw === '') {
             return self::DEFAULTS['randomNameBuffer'];
         }

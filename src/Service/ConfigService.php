@@ -663,6 +663,68 @@ class ConfigService
     }
 
     /**
+     * @param mixed        $value
+     * @param list<string> $allowed
+     *
+     * @return list<string>
+     */
+    private function normalizeRandomNameList($value, array $allowed): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($value as $entry) {
+            if (!is_string($entry) && !is_int($entry)) {
+                continue;
+            }
+            $candidate = strtolower(trim((string) $entry));
+            if ($candidate === '') {
+                continue;
+            }
+            if (!in_array($candidate, $allowed, true)) {
+                continue;
+            }
+            if (!in_array($candidate, $normalized, true)) {
+                $normalized[] = $candidate;
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * Normalize stored random name buffer values to stay within the expected range.
+     *
+     * @param mixed $value
+     */
+    private function normalizeRandomNameBufferValue($value): int
+    {
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+
+        if ($value === null || $value === '') {
+            return ConfigValidator::RANDOM_NAME_BUFFER_MIN;
+        }
+
+        if (!is_numeric($value)) {
+            return ConfigValidator::RANDOM_NAME_BUFFER_MIN;
+        }
+
+        $buffer = (int) $value;
+        if ($buffer < ConfigValidator::RANDOM_NAME_BUFFER_MIN) {
+            return ConfigValidator::RANDOM_NAME_BUFFER_MIN;
+        }
+        if ($buffer > ConfigValidator::RANDOM_NAME_BUFFER_MAX) {
+            return ConfigValidator::RANDOM_NAME_BUFFER_MAX;
+        }
+
+        return $buffer;
+    }
+
+    /**
      * Normalize database column names to expected camelCase keys.
      *
      * @param array<string,mixed> $row
@@ -786,15 +848,17 @@ class ConfigService
         }
         $normalized['dashboardTheme'] = $this->normalizeDashboardTheme($normalized['dashboardTheme'] ?? null);
 
-        if (!isset($normalized['randomNameDomains']) || !is_array($normalized['randomNameDomains'])) {
-            $normalized['randomNameDomains'] = [];
-        }
-        if (!isset($normalized['randomNameTones']) || !is_array($normalized['randomNameTones'])) {
-            $normalized['randomNameTones'] = [];
-        }
-        if (!isset($normalized['randomNameBuffer']) || !is_int($normalized['randomNameBuffer'])) {
-            $normalized['randomNameBuffer'] = 0;
-        }
+        $normalized['randomNameDomains'] = $this->normalizeRandomNameList(
+            $normalized['randomNameDomains'] ?? [],
+            ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS
+        );
+        $normalized['randomNameTones'] = $this->normalizeRandomNameList(
+            $normalized['randomNameTones'] ?? [],
+            ConfigValidator::RANDOM_NAME_ALLOWED_TONES
+        );
+        $normalized['randomNameBuffer'] = $this->normalizeRandomNameBufferValue(
+            $normalized['randomNameBuffer'] ?? null
+        );
 
         if (!isset($normalized['colors'])) {
             $colorCfg = [];
