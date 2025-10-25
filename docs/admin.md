@@ -51,6 +51,32 @@ Ist `MAIN_DOMAIN=quiz.example` gesetzt, die Anwendung wird aber über `quiz.loca
 
 Der gesetzte Admin-Flag dient nur dazu, eine Vorauswahl für das Backend zu liefern. Die Anwendung im Browser orientiert sich ausschließlich am URL-basierten Event und ignoriert den in `active_event` gespeicherten Wert.
 
+## Teamnamen-Reservierungen
+
+Der integrierte Teamnamen-Pool liefert auf Wunsch automatisch passende Vorschläge. Drei Konfigurationsfelder steuern die Filterung:
+
+* `randomNameDomains` – JSON-Liste der gewünschten Themencluster (`nature`, `science`, `culture`, `sports`, `fantasy`, `geography`).
+* `randomNameTones` – JSON-Liste der Tonalitäten (`playful`, `bold`, `elegant`, `serious`, `quirky`).
+* `randomNameBuffer` – Zahl zwischen 0 und 50. Gibt an, wie viele zusätzliche Namen pro Event vorab reserviert bleiben, damit die Auslastung im Dashboard sichtbar bleibt.
+
+Bleiben die Listen leer, zieht der Dienst sämtliche verfügbaren Adjektiv- und Substantiv-Kombinationen heran. Die Werte werden im Admin-Frontend automatisch validiert und als Kleinbuchstaben gespeichert. Betriebsteams können die Felder bei Bedarf direkt in der `config`-Tabelle pflegen; `ConfigService` serialisiert die Listen als JSON (`random_name_domains` / `random_name_tones`) und normalisiert die Eingaben.
+
+Für automatisierte Setups steht neben `POST /api/team-names` jetzt `GET /api/team-names/batch` bereit. Die Anfrage akzeptiert `event_uid` (oder `event_id`) sowie `count` (maximal 10). Die Antwort enthält `event_id` und eine Liste `reservations`. Jedes Element folgt der Struktur:
+
+```json
+{
+  "name": "Beispiel Team",
+  "token": "<16 Byte hex>",
+  "expires_at": "2025-01-01T12:00:00+00:00",
+  "lexicon_version": 2,
+  "total": 480,
+  "remaining": 475,
+  "fallback": false
+}
+```
+
+Die Felder `total` und `remaining` berücksichtigen automatisch den eingestellten Filter. Fällt kein passender Name mehr ab, liefert der Service einen Eintrag mit `fallback: true` sowie einem generischen `Gast-XXXXX`-Namen. Tokens bleiben 10 Minuten gültig, bevor sie automatisch freigegeben werden.
+
 ## Statische Seiten bearbeiten
 
 Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum`, `datenschutz` und `faq` anpassen. Über das Untermenü wird die gewünschte Seite ausgewählt und im **Trumbowyg**-Editor bearbeitet. Zusätzlich stehen eigene UIkit-Blöcke zur Verfügung, etwa ein Hero-Abschnitt oder eine Card. Mit **Speichern** werden die Änderungen im Ordner `content/` abgelegt. Die Schaltfläche *Vorschau* zeigt den aktuellen Stand direkt im Modal an. Alternativ kann der Editor weiterhin über `/admin/pages/{slug}` aufgerufen werden.
