@@ -11,6 +11,7 @@ use App\Support\TimestampHelper;
  */
 class AwardService
 {
+    private const BLANK_TEAM_KEY = '__blank__';
     /**
      * Compute top 3 rankings for puzzle time, catalog completion and points.
      *
@@ -215,8 +216,22 @@ class AwardService
         }
         usort($puzzleList, fn($a, $b) => $a['time'] <=> $b['time']);
         $puzzleRanks = [];
-        foreach (array_slice($puzzleList, 0, 3) as $idx => $row) {
-            $puzzleRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+        $seenPuzzleTeams = [];
+        foreach ($puzzleList as $row) {
+            $teamName = (string) $row['team'];
+            $key = $this->normalizeTeamKey($teamName);
+            $key = $key === '' ? self::BLANK_TEAM_KEY : $key;
+            if (isset($seenPuzzleTeams[$key])) {
+                continue;
+            }
+            $seenPuzzleTeams[$key] = true;
+            $puzzleRanks[] = [
+                'team' => $this->sanitizeTeamDisplay($teamName),
+                'place' => count($puzzleRanks) + 1,
+            ];
+            if (count($puzzleRanks) >= 3) {
+                break;
+            }
         }
 
         $catalogCandidates = [];
@@ -224,6 +239,7 @@ class AwardService
         $scoreList = [];
         $accuracyCandidates = [];
         foreach ($scores as $team => $map) {
+            $displayTeam = $this->sanitizeTeamDisplay((string) $team);
             $total = 0;
             $effSumTotal = 0.0;
             $questionCountTotal = 0;
@@ -255,17 +271,17 @@ class AwardService
             } elseif ($avgEfficiency > 1.0) {
                 $avgEfficiency = 1.0;
             }
-            $scoreList[] = ['team' => $team, 'score' => $total, 'avgEfficiency' => $avgEfficiency];
+            $scoreList[] = ['team' => $displayTeam, 'score' => $total, 'avgEfficiency' => $avgEfficiency];
             if ($questionCountTotal > 0) {
                 $accuracyCandidates[] = [
-                    'team' => $team,
+                    'team' => $displayTeam,
                     'avgEfficiency' => $avgEfficiency,
                     'questionCount' => $questionCountTotal,
                     'score' => $total,
                 ];
             }
             $catalogCandidates[] = [
-                'team' => $team,
+                'team' => $displayTeam,
                 'solved' => $totalSolved,
                 'points' => $total,
                 'duration' => $durationEntries > 0 ? $totalDuration : null,
@@ -337,15 +353,26 @@ class AwardService
           );
 
         $catalogRanks = [];
-        foreach (array_slice($catalogCandidates, 0, 3) as $idx => $row) {
+        $seenCatalogTeams = [];
+        foreach ($catalogCandidates as $row) {
+            $teamName = (string) $row['team'];
+            $key = $this->normalizeTeamKey($teamName);
+            $key = $key === '' ? self::BLANK_TEAM_KEY : $key;
+            if (isset($seenCatalogTeams[$key])) {
+                continue;
+            }
+            $seenCatalogTeams[$key] = true;
             $catalogRanks[] = [
-                'team' => (string) $row['team'],
-                'place' => $idx + 1,
+                'team' => $this->sanitizeTeamDisplay($teamName),
+                'place' => count($catalogRanks) + 1,
                 'solved' => (int) $row['solved'],
                 'points' => (int) $row['points'],
                 'duration' => $row['duration'] !== null ? (int) $row['duration'] : null,
                 'finished' => $row['latestFinish'],
             ];
+            if (count($catalogRanks) >= 3) {
+                break;
+            }
         }
 
         usort(
@@ -360,8 +387,22 @@ class AwardService
             }
         );
         $pointsRanks = [];
-        foreach (array_slice($scoreList, 0, 3) as $idx => $row) {
-            $pointsRanks[] = ['team' => (string) $row['team'], 'place' => $idx + 1];
+        $seenPointTeams = [];
+        foreach ($scoreList as $row) {
+            $teamName = (string) $row['team'];
+            $key = $this->normalizeTeamKey($teamName);
+            $key = $key === '' ? self::BLANK_TEAM_KEY : $key;
+            if (isset($seenPointTeams[$key])) {
+                continue;
+            }
+            $seenPointTeams[$key] = true;
+            $pointsRanks[] = [
+                'team' => $this->sanitizeTeamDisplay($teamName),
+                'place' => count($pointsRanks) + 1,
+            ];
+            if (count($pointsRanks) >= 3) {
+                break;
+            }
         }
 
         usort(
@@ -386,8 +427,22 @@ class AwardService
             }
         );
         $accuracyRanks = [];
-        foreach (array_slice($accuracyCandidates, 0, 3) as $idx => $row) {
-            $accuracyRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+        $seenAccuracyTeams = [];
+        foreach ($accuracyCandidates as $row) {
+            $teamName = (string) $row['team'];
+            $key = $this->normalizeTeamKey($teamName);
+            $key = $key === '' ? self::BLANK_TEAM_KEY : $key;
+            if (isset($seenAccuracyTeams[$key])) {
+                continue;
+            }
+            $seenAccuracyTeams[$key] = true;
+            $accuracyRanks[] = [
+                'team' => $this->sanitizeTeamDisplay($teamName),
+                'place' => count($accuracyRanks) + 1,
+            ];
+            if (count($accuracyRanks) >= 3) {
+                break;
+            }
         }
 
         return [
@@ -396,6 +451,27 @@ class AwardService
             'points' => $pointsRanks,
             'accuracy' => $accuracyRanks,
         ];
+    }
+
+    private function normalizeTeamKey(string $team): string
+    {
+        $trimmed = trim($team);
+        if ($trimmed === '') {
+            return '';
+        }
+
+        if (function_exists('mb_strtolower')) {
+            $lower = mb_strtolower($trimmed, 'UTF-8');
+        } else {
+            $lower = strtolower($trimmed);
+        }
+
+        return (string) preg_replace('/\s+/u', ' ', $lower);
+    }
+
+    private function sanitizeTeamDisplay(string $team): string
+    {
+        return trim($team);
     }
 
     private function normalizeCatalogKey(array $row): string
