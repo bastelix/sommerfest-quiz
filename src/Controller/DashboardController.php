@@ -67,7 +67,12 @@ class DashboardController
 
         $cfg['dashboardTheme'] = $this->normalizeTheme($cfg['dashboardTheme'] ?? null);
 
-        $modules = $this->extractModules($cfg['dashboardModules'] ?? []);
+        $moduleKey = $matchedVariant === 'sponsor' ? 'dashboardSponsorModules' : 'dashboardModules';
+        $moduleConfig = $cfg[$moduleKey] ?? [];
+        if ($matchedVariant === 'sponsor' && (!is_array($moduleConfig) || $moduleConfig === [])) {
+            $moduleConfig = $cfg['dashboardModules'] ?? [];
+        }
+        $modules = $this->extractModules($moduleConfig);
         $refresh = $this->sanitizeRefreshInterval((int) ($cfg['dashboardRefreshInterval'] ?? 15));
         $infoText = (string) ($cfg['dashboardInfoText'] ?? '');
         $mediaLines = $this->extractMediaItems($cfg['dashboardMediaEmbed'] ?? '');

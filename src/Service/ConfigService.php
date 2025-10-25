@@ -57,6 +57,7 @@ class ConfigService
     private const JSON_COLUMNS = [
         'colors',
         'dashboardModules',
+        'dashboardSponsorModules',
         'randomNameDomains',
         'randomNameTones',
     ];
@@ -68,6 +69,7 @@ class ConfigService
      */
     private const COLUMN_ALIASES = [
         'dashboardModules' => 'dashboard_modules',
+        'dashboardSponsorModules' => 'dashboard_sponsor_modules',
         'dashboardTheme' => 'dashboard_theme',
         'dashboardRefreshInterval' => 'dashboard_refresh_interval',
         'dashboardFixedHeight' => 'dashboard_fixed_height',
@@ -117,7 +119,7 @@ class ConfigService
         if ($row === null) {
             return null;
         }
-        $row = $this->normalizeKeys($row);
+        $row = $this->applyDashboardModuleFallback($this->normalizeKeys($row));
         try {
             return json_encode($row, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
@@ -135,7 +137,7 @@ class ConfigService
         if ($row === null) {
             return null;
         }
-        $row = $this->normalizeKeys($row);
+        $row = $this->applyDashboardModuleFallback($this->normalizeKeys($row));
         try {
             return json_encode($row, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
@@ -157,7 +159,7 @@ class ConfigService
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $row !== false && $row !== null
-            ? $this->normalizeKeys($row)
+            ? $this->applyDashboardModuleFallback($this->normalizeKeys($row))
             : [];
     }
 
@@ -169,7 +171,7 @@ class ConfigService
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
         if ($row !== null) {
-            return $this->normalizeKeys($row);
+            return $this->applyDashboardModuleFallback($this->normalizeKeys($row));
         }
         return [];
     }
@@ -408,6 +410,7 @@ class ConfigService
             'stickerDescHeight',
             'stickerBgPath',
             'dashboardModules',
+            'dashboardSponsorModules',
             'dashboardTheme',
             'dashboardRefreshInterval',
             'dashboardFixedHeight',
@@ -833,6 +836,7 @@ class ConfigService
             'stickerDescHeight',
             'stickerBgPath',
             'dashboardModules',
+            'dashboardSponsorModules',
             'dashboardTheme',
             'dashboardRefreshInterval',
             'dashboardFixedHeight',
@@ -924,5 +928,28 @@ class ConfigService
             }
         }
         return $normalized;
+    }
+
+    /**
+     * Ensure sponsor dashboard modules fall back to the public configuration when empty.
+     *
+     * @param array<string,mixed> $config
+     * @return array<string,mixed>
+     */
+    private function applyDashboardModuleFallback(array $config): array
+    {
+        $publicModules = $config['dashboardModules'] ?? [];
+        if (!is_array($publicModules)) {
+            $publicModules = [];
+        }
+
+        $sponsorModules = $config['dashboardSponsorModules'] ?? null;
+        $isSponsorEmpty = !is_array($sponsorModules) || $sponsorModules === [];
+        $config['dashboardSponsorModulesInherited'] = $isSponsorEmpty;
+        if ($isSponsorEmpty) {
+            $config['dashboardSponsorModules'] = $publicModules;
+        }
+
+        return $config;
     }
 }
