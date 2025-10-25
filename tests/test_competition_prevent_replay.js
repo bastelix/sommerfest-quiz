@@ -40,6 +40,7 @@ const document = {
 let warnings = 0;
 const UIkit = { notification: () => { warnings++; } };
 let started = 0;
+let requestedUrl;
 
 const window = {
   document,
@@ -55,7 +56,10 @@ const context = {
   document,
   sessionStorage,
   localStorage,
-  fetch: async () => ({ ok: true, json: async () => [] }),
+  fetch: async url => {
+    requestedUrl = url;
+    return { ok: true, json: async () => [] };
+  },
   UIkit,
   console,
   URLSearchParams,
@@ -70,5 +74,6 @@ context.global = context;
   await context.init();
   assert.strictEqual(warnings, 1);
   assert.strictEqual(started, 0);
+  assert.strictEqual(requestedUrl, '/results.json?event_uid=event1');
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
