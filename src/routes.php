@@ -527,6 +527,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         $params = $request->getQueryParams();
         $return = (string)($params['return'] ?? '');
         $eventUid = (string)($config['event_uid'] ?? '');
+        if ($eventUid === '') {
+            $eventUid = $configService->getActiveEventUid();
+            if ($eventUid !== '') {
+                $config['event_uid'] = $eventUid;
+            }
+        }
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
 
