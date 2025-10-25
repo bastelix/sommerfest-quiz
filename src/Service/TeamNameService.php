@@ -123,6 +123,92 @@ class TeamNameService
     }
 
     /**
+     * Reserve multiple names for the given event in a single transaction.
+     *
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     *
+     * @return array<int, array{
+     *     name: string,
+     *     token: string,
+     *     expires_at: string,
+     *     lexicon_version: int,
+     *     total: int,
+     *     remaining: int,
+     *     fallback: bool
+     * }>
+     */
+    public function reserveBatch(string $eventId, int $count, array $domains = [], array $tones = []): array
+    {
+        if ($eventId === '') {
+            throw new InvalidArgumentException('eventId must not be empty');
+        }
+
+        $count = max(1, min($count, 10));
+
+        $this->releaseExpiredReservations($eventId);
+
+        $selection = $this->getNameSelection($domains, $tones);
+        $names = $selection['names'];
+        $totalCombinations = $selection['total'];
+
+        if ($names === []) {
+            return [$this->reserveFallback($eventId, $totalCombinations)];
+        }
+
+        $totalNames = count($names);
+        $startIndex = $this->randomStartIndex($totalNames);
+        $orderedNames = array_merge(array_slice($names, $startIndex), array_slice($names, 0, $startIndex));
+
+        $reservations = [];
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO team_names (event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)'
+            );
+
+            foreach ($orderedNames as $name) {
+                if (count($reservations) >= $count) {
+                    break;
+                }
+
+                $token = bin2hex(random_bytes(16));
+
+                try {
+                    $stmt->execute([$eventId, $name, $this->lexiconVersion, $token]);
+                    $reservations[] = $this->formatReservationResponse($eventId, $name, $token, false, $totalCombinations);
+                } catch (PDOException $exception) {
+                    if ($this->isUniqueViolation($exception)) {
+                        continue;
+                    }
+
+                    throw $exception;
+                } finally {
+                    $stmt->closeCursor();
+                }
+            }
+
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+        } catch (Throwable $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $exception;
+        }
+
+        if ($reservations === []) {
+            return [$this->reserveFallback($eventId, $totalCombinations)];
+        }
+
+        return $reservations;
+    }
+
+    /**
      * Confirm usage of a reserved name.
      *
      * @return array{name: string, fallback: bool}|null
