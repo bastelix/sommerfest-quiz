@@ -11,8 +11,11 @@ use function array_filter;
 use function array_key_exists;
 use function array_map;
 use function array_slice;
+use function array_unique;
+use function array_values;
 use function count;
 use function explode;
+use function implode;
 use function is_array;
 use function json_decode;
 use function mb_strtolower;
@@ -73,8 +76,10 @@ class TeamNameAiClient
             ['role' => 'user', 'content' => $this->buildUserPrompt($count, $domains, $tones, $locale)],
         ];
 
+        $context = $this->buildContextPayload($count, $domains, $tones, $locale);
+
         try {
-            $response = $this->chatResponder->respond($messages, []);
+            $response = $this->chatResponder->respond($messages, $context);
         } catch (RuntimeException $exception) {
             return [];
         }
@@ -86,6 +91,48 @@ class TeamNameAiClient
         }
 
         return array_slice($suggestions, 0, $count);
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     *
+     * @return list<array{id:string,text:string,score:float,metadata:array<string,mixed>}>|
+     *     list<array<string,mixed>>
+     */
+    private function buildContextPayload(int $count, array $domains, array $tones, string $locale): array
+    {
+        $locale = trim($locale) ?: 'de';
+        $normalizedDomains = $this->normaliseContextValues($domains);
+        $normalizedTones = $this->normaliseContextValues($tones);
+
+        $summaryParts = [
+            sprintf('Team name request: %d suggestions for locale "%s".', $count, $locale),
+        ];
+
+        if ($normalizedDomains === []) {
+            $summaryParts[] = 'Domains: (unspecified).';
+        } else {
+            $summaryParts[] = 'Domains: ' . implode(', ', $normalizedDomains) . '.';
+        }
+
+        if ($normalizedTones === []) {
+            $summaryParts[] = 'Tones: (unspecified).';
+        } else {
+            $summaryParts[] = 'Tones: ' . implode(', ', $normalizedTones) . '.';
+        }
+
+        return [[
+            'id' => 'team-name-request',
+            'text' => trim(implode(' ', $summaryParts)),
+            'score' => 1.0,
+            'metadata' => [
+                'count' => $count,
+                'locale' => $locale,
+                'domains' => $normalizedDomains,
+                'tones' => $normalizedTones,
+            ],
+        ]];
     }
 
     /**
@@ -259,6 +306,22 @@ class TeamNameAiClient
 
         $last = array_pop($values);
         return implode(', ', $values) . ' und ' . $last;
+    }
+
+    /**
+     * @param array<int, string> $values
+     *
+     * @return list<string>
+     */
+    private function normaliseContextValues(array $values): array
+    {
+        $values = array_map(static fn ($value): string => trim((string) $value), $values);
+        $values = array_filter($values, static fn (string $value): bool => $value !== '');
+
+        /** @var list<string> $values */
+        $values = array_values(array_unique($values));
+
+        return $values;
     }
 
     private function normaliseName(string $candidate): string
