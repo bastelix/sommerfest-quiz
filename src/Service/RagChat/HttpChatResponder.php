@@ -22,7 +22,8 @@ use function trim;
  */
 class HttpChatResponder implements ChatResponderInterface
 {
-    private const DEFAULT_TIMEOUT = 30.0;
+    private const DEFAULT_TIMEOUT = 12.0;
+    private const MIN_TIMEOUT = 1.0;
 
     private ClientInterface $httpClient;
 
@@ -44,11 +45,14 @@ class HttpChatResponder implements ChatResponderInterface
         }
 
         $this->apiToken = $apiToken ?? ($this->envOrNull('RAG_CHAT_SERVICE_TOKEN'));
-        $this->timeout = $timeout ?? self::DEFAULT_TIMEOUT;
-        $this->httpClient = $httpClient ?? new Client([
+        $this->timeout = $this->resolveTimeout($timeout);
+
+        $clientOptions = [
             'timeout' => $this->timeout,
             'http_errors' => false,
-        ]);
+        ];
+
+        $this->httpClient = $httpClient ?? new Client($clientOptions);
     }
 
     /**
@@ -88,6 +92,32 @@ class HttpChatResponder implements ChatResponderInterface
         }
 
         return trim($answer);
+    }
+
+    private function resolveTimeout(?float $override): float
+    {
+        if ($override !== null) {
+            return $this->clampTimeout($override);
+        }
+
+        $configured = $this->envOrNull('RAG_CHAT_SERVICE_TIMEOUT');
+        if ($configured !== null) {
+            $parsed = (float) $configured;
+            if ($parsed > 0.0) {
+                return $this->clampTimeout($parsed);
+            }
+        }
+
+        return self::DEFAULT_TIMEOUT;
+    }
+
+    private function clampTimeout(float $timeout): float
+    {
+        if ($timeout < self::MIN_TIMEOUT) {
+            return self::MIN_TIMEOUT;
+        }
+
+        return $timeout;
     }
 
     /**
