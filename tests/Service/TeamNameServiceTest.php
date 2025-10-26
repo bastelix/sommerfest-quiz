@@ -231,7 +231,11 @@ final class TeamNameServiceTest extends TestCase
                 self::assertSame([], $call['domains']);
                 self::assertSame([], $call['tones']);
                 self::assertSame('de', $call['locale']);
+                self::assertArrayHasKey('existing_names', $call);
             }
+            self::assertSame([], $calls[0]['existing_names']);
+            self::assertContains('AI Alpha', $calls[1]['existing_names']);
+            self::assertContains('AI Alpha', $calls[2]['existing_names']);
         } finally {
             @unlink($lexiconPath);
         }
@@ -262,6 +266,8 @@ final class TeamNameServiceTest extends TestCase
             self::assertCount(2, $calls);
             self::assertSame('de', $calls[0]['locale']);
             self::assertSame('fr', $calls[1]['locale']);
+            self::assertSame([], $calls[0]['existing_names']);
+            self::assertContains('AI Deutsch', $calls[1]['existing_names']);
         } finally {
             @unlink($lexiconPath);
         }
@@ -291,6 +297,7 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame(2, $calls[0]['count']);
             self::assertSame(['nature'], $calls[0]['domains']);
             self::assertSame(['playful'], $calls[0]['tones']);
+            self::assertSame([], $calls[0]['existing_names']);
         } finally {
             @unlink($lexiconPath);
         }
@@ -317,6 +324,7 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame(['science'], $calls[0]['domains']);
             self::assertSame(['serious'], $calls[0]['tones']);
             self::assertSame('en-US', $calls[0]['locale']);
+            self::assertSame([], $calls[0]['existing_names']);
 
             $preview = $service->previewAiSuggestions('event-warm', ['science'], ['serious'], 'en-US', 3);
             self::assertSame(['AI One', 'AI Two', 'AI Three'], $preview);
@@ -346,6 +354,7 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame(0, $reservation['total']);
             self::assertSame(0, $reservation['remaining']);
             self::assertCount(1, $aiClient->getCalls());
+            self::assertSame(['Taken Crew'], $aiClient->getCalls()[0]['existing_names']);
             self::assertSame(1, preg_match('/^Gast-[A-Z0-9]{5}$/', $reservation['name']));
         } finally {
             @unlink($lexiconPath);
@@ -379,6 +388,10 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame(['playful'], $calls[0]['tones']);
             self::assertSame('fr', $calls[0]['locale']);
             self::assertSame(2, $calls[1]['count']);
+            self::assertSame([], $calls[0]['existing_names']);
+            self::assertContains('AI One', $calls[1]['existing_names']);
+            self::assertContains('AI Two', $calls[1]['existing_names']);
+            self::assertContains('AI Three', $calls[1]['existing_names']);
         } finally {
             @unlink($lexiconPath);
         }

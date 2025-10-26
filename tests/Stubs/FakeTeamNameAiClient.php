@@ -8,7 +8,9 @@ use App\Service\RagChat\HttpChatResponder;
 use App\Service\TeamNameAiClient;
 
 use const JSON_THROW_ON_ERROR;
+use function array_keys;
 use function array_shift;
+use function array_values;
 use function count;
 use function json_encode;
 use function max;
@@ -26,7 +28,7 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
     private array $batches;
 
     /**
-     * @var list<array{count:int,domains:array<int,string>,tones:array<int,string>,locale:string}>
+     * @var list<array{count:int,domains:array<int,string>,tones:array<int,string>,locale:string,existing_names:array<int,string>}>
      */
     private array $calls = [];
 
@@ -54,17 +56,27 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
     /**
      * @param array<int, string> $domains
      * @param array<int, string> $tones
+     * @param array<int, string> $existingNames
      *
      * @return list<string>
      */
-    public function fetchSuggestions(int $count, array $domains, array $tones, string $locale): array
+    public function fetchSuggestions(int $count, array $domains, array $tones, string $locale, array $existingNames): array
     {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
+        $blocked = [];
+        foreach ($existingNames as $name) {
+            $candidate = trim((string) $name);
+            if ($candidate === '') {
+                continue;
+            }
+            $blocked[$candidate] = true;
+        }
         $this->calls[] = [
             'count' => $count,
             'domains' => $domains,
             'tones' => $tones,
             'locale' => $locale,
+            'existing_names' => array_values($blocked === [] ? [] : array_keys($blocked)),
         ];
 
         if ($this->batches === []) {
@@ -81,6 +93,9 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
         foreach ($batch as $candidate) {
             $normalized = trim($candidate);
             if ($normalized === '') {
+                continue;
+            }
+            if (isset($blocked[$normalized])) {
                 continue;
             }
             if (isset($seen[$normalized])) {
@@ -105,7 +120,7 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
     }
 
     /**
-     * @return list<array{count:int,domains:array<int,string>,tones:array<int,string>,locale:string}>
+     * @return list<array{count:int,domains:array<int,string>,tones:array<int,string>,locale:string,existing_names:array<int,string>}>
      */
     public function getCalls(): array
     {
