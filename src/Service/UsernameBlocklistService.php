@@ -11,7 +11,6 @@ use PDOException;
 use RuntimeException;
 use InvalidArgumentException;
 use function array_map;
-use function is_array;
 use function mb_strlen;
 use function mb_strtolower;
 use function trim;
@@ -43,10 +42,7 @@ class UsernameBlocklistService
         );
         $stmt->execute([self::ADMIN_CATEGORY]);
 
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if (!is_array($rows)) {
-            return [];
-        }
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         return array_map(fn (array $row): array => $this->hydrateRow($row), $rows);
     }
