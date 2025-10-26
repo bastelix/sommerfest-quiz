@@ -69,7 +69,9 @@ Der integrierte Teamnamen-Pool liefert auf Wunsch automatisch passende Vorschlä
 
 Bleiben die Listen leer, zieht der Dienst sämtliche verfügbaren Adjektiv- und Substantiv-Kombinationen heran. Die Werte werden im Admin-Frontend automatisch validiert und als Kleinbuchstaben gespeichert. Betriebsteams können die Felder bei Bedarf direkt in der `config`-Tabelle pflegen; `ConfigService` serialisiert die Listen als JSON (`random_name_domains` / `random_name_tones`) und normalisiert die Eingaben.
 
-Der KI-Modus puffert bei jeder Reservierung die angegebene Anzahl zusätzlicher Vorschläge und speichert sie in der Tabelle `team_names`. Ein Batch-Request liefert maximal zehn neue Namen, weitere Reservierungen greifen anschließend auf den Cache zurück. Monitoring-Systeme sollten deshalb die Größe der Tabelle und den Anteil an Fallback-Namen beobachten. Ein dauerhaft hoher Fallback-Anteil deutet auf einen fehlerhaften Endpoint (`TEAM_NAME_AI_ENDPOINT`) oder auf leere KI-Antworten hin.
+Der KI-Client nutzt dieselben Einstellungen wie der Marketing-Chatbot (`RAG_CHAT_SERVICE_URL`, `RAG_CHAT_SERVICE_TOKEN`, `RAG_CHAT_SERVICE_MODEL`). Separate `TEAM_NAME_AI_*` Variablen sind nicht erforderlich.
+
+Der KI-Modus puffert bei jeder Reservierung die angegebene Anzahl zusätzlicher Vorschläge und speichert sie in der Tabelle `team_names`. Ein Batch-Request liefert maximal zehn neue Namen, weitere Reservierungen greifen anschließend auf den Cache zurück. Monitoring-Systeme sollten deshalb die Größe der Tabelle und den Anteil an Fallback-Namen beobachten. Ein dauerhaft hoher Fallback-Anteil deutet auf einen fehlerhaften Endpoint (`RAG_CHAT_SERVICE_URL`) oder auf leere KI-Antworten hin.
 
 Für automatisierte Setups steht neben `POST /api/team-names` jetzt `GET /api/team-names/batch` bereit. Die Anfrage akzeptiert `event_uid` (oder `event_id`) sowie `count` (maximal 10). Die Antwort enthält `event_id` und eine Liste `reservations`. Jedes Element folgt der Struktur:
 

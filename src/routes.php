@@ -275,34 +275,20 @@ return function (\Slim\App $app, TranslationService $translator) {
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
 
         $teamNameAiClient = null;
-        $teamNameAiEnabled = filter_var(
-            (string) (getenv('TEAM_NAME_AI_ENABLED') ?: '0'),
-            FILTER_VALIDATE_BOOLEAN
-        );
-        $teamNameAiLocaleEnv = getenv('TEAM_NAME_AI_LOCALE');
-        $teamNameAiModelEnv = getenv('TEAM_NAME_AI_MODEL');
+        $teamNameAiEnabled = true;
+        $teamNameAiModelEnv = getenv('RAG_CHAT_SERVICE_MODEL');
 
-        if ($teamNameAiEnabled) {
-            $endpointEnv = getenv('TEAM_NAME_AI_ENDPOINT');
-            $tokenEnv = getenv('TEAM_NAME_AI_TOKEN');
-            $timeoutEnv = getenv('TEAM_NAME_AI_TIMEOUT');
-
-            try {
-                $teamNameAiResponder = new HttpChatResponder(
-                    $endpointEnv !== false ? $endpointEnv : null,
-                    null,
-                    $tokenEnv !== false ? $tokenEnv : null,
-                    $timeoutEnv !== false && is_numeric($timeoutEnv) ? (float) $timeoutEnv : null
-                );
-                $teamNameAiClient = new TeamNameAiClient(
-                    $teamNameAiResponder,
-                    $teamNameAiModelEnv !== false ? $teamNameAiModelEnv : null
-                );
-            } catch (\RuntimeException $exception) {
-                $teamNameAiClient = null;
-                $teamNameAiEnabled = false;
-            }
+        try {
+            $teamNameAiResponder = new HttpChatResponder();
+            $teamNameAiClient = new TeamNameAiClient(
+                $teamNameAiResponder,
+                $teamNameAiModelEnv !== false ? $teamNameAiModelEnv : null
+            );
+        } catch (\RuntimeException $exception) {
+            $teamNameAiClient = null;
+            $teamNameAiEnabled = false;
         }
+        $teamNameAiEnabled = $teamNameAiClient !== null && $teamNameAiEnabled;
 
         $teamNameService = new TeamNameService(
             $pdo,
@@ -310,7 +296,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             600,
             $teamNameAiClient,
             $teamNameAiEnabled,
-            $teamNameAiLocaleEnv !== false ? $teamNameAiLocaleEnv : null
+            null
         );
         $configService->setTeamNameService($teamNameService);
         $consentService = new PhotoConsentService($pdo, $configService);

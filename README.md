@@ -202,23 +202,20 @@ vendor/bin/phpunit
 ### KI-gestützte Teamnamen und RAG-Endpoint
 
 Der Dienst für Teamnamen kann optional KI-Vorschläge abrufen. Dafür muss der Chat-Endpunkt des RAG-Backends
-konfiguriert sein. Die folgenden Umgebungsvariablen steuern die Integration:
+konfiguriert sein. Der Teamnamen-Service verwendet dieselben Umgebungsvariablen wie der Marketing-Chatbot – separate
+`TEAM_NAME_AI_*` Einstellungen sind nicht mehr erforderlich:
 
 | Variable | Beschreibung |
 |----------|--------------|
-| `TEAM_NAME_AI_ENABLED` | `true` aktiviert KI-Vorschläge für zufällige Teamnamen. Ohne diesen Schalter arbeitet der Service ausschließlich mit dem kuratierten Lexikon. |
-| `TEAM_NAME_AI_ENDPOINT` | HTTP-Endpoint für Chat-Completions (z. B. der bereits für den RAG-Chatbot genutzte `/v1/chat/completions`-Pfad). |
-| `TEAM_NAME_AI_TOKEN` | Optionaler API-Token für den Aufruf des Endpoints. |
-| `TEAM_NAME_AI_MODEL` | Bevorzugtes Modell, das in der System-Prompt vermerkt wird. |
-| `TEAM_NAME_AI_TIMEOUT` | Timeout in Sekunden für den HTTP-Aufruf (Standard: 30 s). |
-| `TEAM_NAME_AI_LOCALE` | Fallback-Locale, wenn in der Event-Konfiguration keine explizite Locale angegeben ist. |
+| `RAG_CHAT_SERVICE_URL` | HTTP-Endpoint für Chat-Completions (z. B. der bereits für den RAG-Chatbot genutzte `/v1/chat/completions`-Pfad). |
+| `RAG_CHAT_SERVICE_TOKEN` | Optionaler API-Token für den Aufruf des Endpoints. |
+| `RAG_CHAT_SERVICE_MODEL` | Bevorzugtes Modell, das in der System-Prompt vermerkt wird. |
 
-Die Anwendung nutzt denselben RAG-Service wie der Admin-Chatbot. Wird der Endpoint angepasst, sollte auch
-`RAG_CHAT_SERVICE_URL` auf denselben Host zeigen, damit beide Features konsistent arbeiten. Ein Pufferwert in der
+Ein Pufferwert in der
 Event-Konfiguration (`randomNameBuffer`) bestimmt, wie viele zusätzliche Vorschläge pro Event vorreserviert bleiben
 und liegt zwischen 0 und 99 999. Über `randomNameStrategy` wird festgelegt, ob der KI-Modus (`ai`, Standard) oder
 das reine Lexikon (`lexicon`) verwendet wird. `randomNameLocale` überschreibt das Locale pro Event und ergänzt damit
-den globalen Wert.
+den globalen Standard (`de`).
 
 Admins können KI-Vorschläge direkt in der Event-Konfiguration testen: Sobald der KI-Modus aktiv ist, blendet der
 Random-Name-Abschnitt eine Vorschau-Schaltfläche ein. Diese ruft `/api/team-names/preview` auf und zeigt eine Liste der
