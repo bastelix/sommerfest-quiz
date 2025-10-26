@@ -142,6 +142,46 @@ final class TeamNameAiClientTest extends TestCase
         }
     }
 
+    public function testFetchSuggestionsHandlesJsonCodeFence(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return "```json\n[\"Kreativ-Kojoten\",\n \"Sommer-Sirenen\"]\n```";
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(2, [], [], 'de');
+
+        self::assertSame(['Kreativ-Kojoten', 'Sommer-Sirenen'], $result);
+    }
+
+    public function testFetchSuggestionsParsesNumberedFallbackList(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return "1. Fun Füchse\n2) `Turbo Trolle`\n3)  Pixel-Pandas";
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(3, [], [], 'de');
+
+        self::assertSame(['Fun Füchse', 'Turbo Trolle', 'Pixel-Pandas'], $result);
+    }
+
     private const STOP_WORDS = [
         'der',
         'die',
