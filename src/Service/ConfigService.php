@@ -19,6 +19,7 @@ class ConfigService
     private PDO $pdo;
     private ?string $activeEvent = null;
     private TokenCipher $tokenCipher;
+    private ?TeamNameService $teamNameService = null;
 
     /**
      * List of configuration keys that should be treated as booleans.
@@ -99,6 +100,10 @@ class ConfigService
             'event_uid TEXT PRIMARY KEY' .
             ')'
         );
+    }
+
+    public function setTeamNameService(TeamNameService $teamNameService): void {
+        $this->teamNameService = $teamNameService;
     }
 
     /**
@@ -438,6 +443,12 @@ class ConfigService
         $uid = (string)($filtered['event_uid']['value'] ?? $this->getActiveEventUid());
         $filtered['event_uid'] = ['key' => 'event_uid', 'value' => $uid];
 
+        $randomNameBefore = null;
+        $randomNameAfter = null;
+        if ($this->teamNameService !== null) {
+            $randomNameBefore = $this->snapshotRandomNameSettings($this->getConfigForEvent($uid));
+        }
+
         $this->pdo->beginTransaction();
         try {
             $check = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid=?');
@@ -482,13 +493,34 @@ class ConfigService
                     $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
                     continue;
                 }
-                $stmt->bindValue(':' . $column, $value);
+            $stmt->bindValue(':' . $column, $value);
+        }
+        $stmt->execute();
+        $this->pdo->commit();
+    } catch (Throwable $e) {
+        $this->pdo->rollBack();
+        throw $e;
+    }
+
+        if ($randomNameBefore !== null) {
+            $candidateValues = [];
+            foreach ($filtered as $item) {
+                $candidateValues[$item['key']] = $item['value'];
             }
-            $stmt->execute();
-            $this->pdo->commit();
-        } catch (Throwable $e) {
-            $this->pdo->rollBack();
-            throw $e;
+
+            $randomNameAfter = $this->mergeRandomNameSettings($randomNameBefore, $candidateValues);
+            if ($this->randomNameFiltersChanged($randomNameBefore, $randomNameAfter)) {
+                $this->teamNameService?->resetEventNamePreferences($uid);
+                $buffer = $randomNameAfter['buffer'] ?? 0;
+                $locale = $randomNameAfter['locale'] ?? '';
+                $this->teamNameService?->warmUpAiSuggestions(
+                    $uid,
+                    $randomNameAfter['domains'] ?? [],
+                    $randomNameAfter['tones'] ?? [],
+                    $locale !== '' ? $locale : null,
+                    max(5, (int) $buffer)
+                );
+            }
         }
 
         $this->setActiveEventUid($uid);
@@ -768,6 +800,92 @@ class ConfigService
         }
 
         return $candidate;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     *
+     * @return array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string}
+     */
+    private function snapshotRandomNameSettings(array $config): array
+    {
+        $domains = $this->normalizeRandomNameList(
+            is_array($config['randomNameDomains'] ?? null) ? $config['randomNameDomains'] : [],
+            ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS
+        );
+        $tones = $this->normalizeRandomNameList(
+            is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [],
+            ConfigValidator::RANDOM_NAME_ALLOWED_TONES
+        );
+
+        $bufferRaw = $config['randomNameBuffer'] ?? 0;
+        $buffer = is_numeric($bufferRaw) ? (int) $bufferRaw : 0;
+
+        $localeRaw = $config['randomNameLocale'] ?? '';
+        $locale = is_string($localeRaw) || is_numeric($localeRaw)
+            ? trim((string) $localeRaw)
+            : '';
+
+        return [
+            'domains' => $domains,
+            'tones' => $tones,
+            'buffer' => $buffer,
+            'locale' => $locale,
+        ];
+    }
+
+    /**
+     * @param array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string} $base
+     * @param array<string, mixed> $updates
+     *
+     * @return array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string}
+     */
+    private function mergeRandomNameSettings(array $base, array $updates): array
+    {
+        $merged = $base;
+
+        if (array_key_exists('randomNameDomains', $updates)) {
+            $domains = $updates['randomNameDomains'];
+            $merged['domains'] = $this->normalizeRandomNameList(
+                is_array($domains) ? $domains : [],
+                ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS
+            );
+        }
+
+        if (array_key_exists('randomNameTones', $updates)) {
+            $tones = $updates['randomNameTones'];
+            $merged['tones'] = $this->normalizeRandomNameList(
+                is_array($tones) ? $tones : [],
+                ConfigValidator::RANDOM_NAME_ALLOWED_TONES
+            );
+        }
+
+        if (array_key_exists('randomNameBuffer', $updates)) {
+            $bufferValue = $updates['randomNameBuffer'];
+            if (is_string($bufferValue)) {
+                $bufferValue = trim($bufferValue);
+            }
+            $merged['buffer'] = is_numeric($bufferValue) ? (int) $bufferValue : 0;
+        }
+
+        if (array_key_exists('randomNameLocale', $updates)) {
+            $localeValue = $updates['randomNameLocale'];
+            $merged['locale'] =
+                (is_string($localeValue) || is_numeric($localeValue))
+                    ? trim((string) $localeValue)
+                    : '';
+        }
+
+        return $merged;
+    }
+
+    /**
+     * @param array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string} $before
+     * @param array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string} $after
+     */
+    private function randomNameFiltersChanged(array $before, array $after): bool
+    {
+        return $before['domains'] !== $after['domains'] || $before['tones'] !== $after['tones'];
     }
 
     /**

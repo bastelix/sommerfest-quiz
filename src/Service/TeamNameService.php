@@ -80,6 +80,13 @@ class TeamNameService
      */
     private array $aiNameCache = [];
 
+    /**
+     * Index of AI cache keys grouped by event identifier.
+     *
+     * @var array<string, array<int, string>>
+     */
+    private array $aiCacheIndex = [];
+
     private ?DateTimeImmutable $aiLastAttemptAt = null;
 
     private ?DateTimeImmutable $aiLastSuccessAt = null;
@@ -466,6 +473,87 @@ class TeamNameService
     }
 
     /**
+     * Request AI generated suggestions without reserving them.
+     *
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     *
+     * @return array<int, string>
+     */
+    public function previewAiSuggestions(
+        string $eventId,
+        array $domains = [],
+        array $tones = [],
+        ?string $locale = null,
+        int $count = 5
+    ): array {
+        if (!$this->canUseAi() || $eventId === '') {
+            return [];
+        }
+
+        $normalizedDomains = $this->normalizeFilterValues($domains);
+        $normalizedTones = $this->normalizeFilterValues($tones);
+        $resolvedLocale = $this->resolveLocale($locale);
+        $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones, $resolvedLocale);
+        $promptDomains = $this->preparePromptValues($domains);
+        $promptTones = $this->preparePromptValues($tones);
+
+        $targetSize = max(1, min(20, $count));
+        $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
+
+        $available = $this->aiNameCache[$cacheKey] ?? [];
+        if ($available === []) {
+            return [];
+        }
+
+        return array_slice($available, 0, min($targetSize, count($available)));
+    }
+
+    /**
+     * Warm up the AI cache for the given event and filters.
+     *
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     */
+    public function warmUpAiSuggestions(
+        string $eventId,
+        array $domains = [],
+        array $tones = [],
+        ?string $locale = null,
+        int $count = 5
+    ): void {
+        if (!$this->canUseAi() || $eventId === '') {
+            return;
+        }
+
+        $normalizedDomains = $this->normalizeFilterValues($domains);
+        $normalizedTones = $this->normalizeFilterValues($tones);
+        $resolvedLocale = $this->resolveLocale($locale);
+        $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones, $resolvedLocale);
+        $promptDomains = $this->preparePromptValues($domains);
+        $promptTones = $this->preparePromptValues($tones);
+
+        $targetSize = max(1, min(50, $count));
+        $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
+    }
+
+    public function resetEventNamePreferences(string $eventId): void
+    {
+        if ($eventId === '') {
+            return;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE team_names SET released_at = CURRENT_TIMESTAMP '
+            . 'WHERE event_id = ? AND released_at IS NULL AND assigned_at IS NULL'
+        );
+        $stmt->execute([$eventId]);
+        $stmt->closeCursor();
+
+        $this->forgetAiCacheForEvent($eventId);
+    }
+
+    /**
      * @param array<int, string> $domains
      * @param array<int, string> $tones
      */
@@ -483,6 +571,14 @@ class TeamNameService
 
         if (!isset($this->aiNameCache[$cacheKey])) {
             $this->aiNameCache[$cacheKey] = [];
+        }
+
+        if (!isset($this->aiCacheIndex[$eventId])) {
+            $this->aiCacheIndex[$eventId] = [];
+        }
+
+        if (!in_array($cacheKey, $this->aiCacheIndex[$eventId], true)) {
+            $this->aiCacheIndex[$eventId][] = $cacheKey;
         }
 
         $attempts = 0;
@@ -1223,5 +1319,18 @@ class TeamNameService
     private function normalize(string $value): string
     {
         return mb_strtolower(trim($value));
+    }
+
+    private function forgetAiCacheForEvent(string $eventId): void
+    {
+        if ($eventId === '' || !isset($this->aiCacheIndex[$eventId])) {
+            return;
+        }
+
+        foreach ($this->aiCacheIndex[$eventId] as $cacheKey) {
+            unset($this->aiNameCache[$cacheKey]);
+        }
+
+        unset($this->aiCacheIndex[$eventId]);
     }
 }

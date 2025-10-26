@@ -20,6 +20,8 @@ use function is_array;
 use function is_numeric;
 use function is_string;
 use function json_encode;
+use function max;
+use function min;
 use function strtolower;
 use function trim;
 
@@ -162,6 +164,54 @@ class TeamNameController
             'domains' => $domains,
             'tones' => $tones,
             'ai' => $diagnostics,
+        ];
+
+        $response->getBody()->write(json_encode($payload));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function preview(Request $request, Response $response): Response
+    {
+        $data = $this->parseBody($request);
+        $eventId = $this->resolveEventId($data);
+        if ($eventId === '') {
+            return $response->withStatus(400);
+        }
+
+        $domains = is_array($data['domains'] ?? null)
+            ? $this->normalizeStringList($data['domains'])
+            : [];
+        $tones = is_array($data['tones'] ?? null)
+            ? $this->normalizeStringList($data['tones'])
+            : [];
+
+        $localeValue = $data['locale'] ?? null;
+        $locale = null;
+        if (is_string($localeValue) || is_numeric($localeValue)) {
+            $candidate = trim((string) $localeValue);
+            if ($candidate !== '') {
+                $locale = $candidate;
+            }
+        }
+
+        $count = $data['count'] ?? null;
+        if (!is_numeric($count)) {
+            $count = 5;
+        }
+        $count = max(1, min((int) $count, 20));
+
+        $suggestions = $this->service->previewAiSuggestions($eventId, $domains, $tones, $locale, $count);
+
+        $payload = [
+            'event_id' => $eventId,
+            'filters' => [
+                'domains' => $domains,
+                'tones' => $tones,
+                'locale' => $locale,
+                'count' => $count,
+            ],
+            'suggestions' => $suggestions,
         ];
 
         $response->getBody()->write(json_encode($payload));

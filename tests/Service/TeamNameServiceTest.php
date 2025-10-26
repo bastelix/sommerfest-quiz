@@ -267,6 +267,65 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testPreviewAiSuggestionsDoesNotConsumeCachedNames(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Aurora', 'AI Borealis'],
+                ['AI Cascade'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $preview = $service->previewAiSuggestions('event-preview', ['nature'], ['playful'], 'de-DE', 2);
+            self::assertSame(['AI Aurora', 'AI Borealis'], $preview);
+
+            $reservation = $service->reserveWithBuffer('event-preview', ['nature'], ['playful'], 0, 'de-DE', 'ai');
+            self::assertSame('AI Aurora', $reservation['name']);
+
+            $calls = $aiClient->getCalls();
+            self::assertCount(1, $calls);
+            self::assertSame(2, $calls[0]['count']);
+            self::assertSame(['nature'], $calls[0]['domains']);
+            self::assertSame(['playful'], $calls[0]['tones']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testWarmUpAiSuggestionsPrefillsCache(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI One', 'AI Two', 'AI Three', 'AI Four'],
+                ['AI Five'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $service->warmUpAiSuggestions('event-warm', ['science'], ['serious'], 'en-US', 4);
+
+            $calls = $aiClient->getCalls();
+            self::assertCount(1, $calls);
+            self::assertSame(4, $calls[0]['count']);
+            self::assertSame(['science'], $calls[0]['domains']);
+            self::assertSame(['serious'], $calls[0]['tones']);
+            self::assertSame('en-US', $calls[0]['locale']);
+
+            $preview = $service->previewAiSuggestions('event-warm', ['science'], ['serious'], 'en-US', 3);
+            self::assertSame(['AI One', 'AI Two', 'AI Three'], $preview);
+            self::assertCount(1, $aiClient->getCalls());
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     public function testReserveWithAiFallsBackWhenSuggestionsExhausted(): void
     {
         $pdo = $this->createInMemoryDatabase();
@@ -404,6 +463,44 @@ final class TeamNameServiceTest extends TestCase
             self::assertNotNull($afterFailure['last_attempt_at']);
             self::assertSame('Fake AI client returned no results.', $afterFailure['last_error']);
             self::assertSame('Fake AI client returned no results.', $afterFailure['client_last_error']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testResetEventNamePreferencesClearsActiveReservationsAndCache(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Reset', 'AI Spare'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $service->previewAiSuggestions('event-reset', [], [], 'de-DE', 2);
+
+            $insert = $pdo->prepare(
+                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, fallback) VALUES (?,?,?,?,0)'
+            );
+            $insert->execute(['event-reset', 'AI Reset', 2, 'tok-reset']);
+
+            $service->resetEventNamePreferences('event-reset');
+
+            $releasedAt = $pdo->query('SELECT released_at FROM team_names WHERE event_id = "event-reset"')
+                ->fetchColumn();
+            self::assertNotFalse($releasedAt);
+            self::assertNotNull($releasedAt);
+
+            $cacheProperty = new ReflectionProperty(TeamNameService::class, 'aiNameCache');
+            $cacheProperty->setAccessible(true);
+            self::assertSame([], $cacheProperty->getValue($service));
+
+            $indexProperty = new ReflectionProperty(TeamNameService::class, 'aiCacheIndex');
+            $indexProperty->setAccessible(true);
+            self::assertSame([], $indexProperty->getValue($service));
         } finally {
             @unlink($lexiconPath);
         }

@@ -220,6 +220,12 @@ und liegt zwischen 0 und 99 999. Über `randomNameStrategy` wird festgelegt, o
 das reine Lexikon (`lexicon`) verwendet wird. `randomNameLocale` überschreibt das Locale pro Event und ergänzt damit
 den globalen Wert.
 
+Admins können KI-Vorschläge direkt in der Event-Konfiguration testen: Sobald der KI-Modus aktiv ist, blendet der
+Random-Name-Abschnitt eine Vorschau-Schaltfläche ein. Diese ruft `/api/team-names/preview` auf und zeigt eine Liste der
+ersten Treffer an, ohne Reservierungen zu verbrauchen. Werden Domains oder Tonalitäten angepasst, leert die Anwendung
+automatisch bestehende Reservierungen und baut den KI-Puffer für das Event neu auf, damit die nächsten Spieler sofort
+zur aktualisierten Auswahl passen.
+
 Zur Laufzeit protokolliert die Anwendung Fehlversuche beim Reservieren im `team_names`-Table. Für das Monitoring
 empfiehlt es sich, die Auslastung dieser Tabelle sowie den Anteil an Fallback-Namen zu beobachten, um Probleme mit
 dem KI-Endpunkt frühzeitig zu erkennen.

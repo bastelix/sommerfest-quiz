@@ -432,6 +432,29 @@
                     </div>
                     <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_buffer_hint') }}</p>
                   </div>
+                  <div
+                    class="uk-margin-top"
+                    data-random-name-preview
+                    data-preview-hint="{{ t('text_random_name_preview_hint') }}"
+                    data-preview-empty="{{ t('text_random_name_preview_empty') }}"
+                    data-preview-loading="{{ t('text_random_name_preview_loading') }}"
+                    data-preview-error="{{ t('text_random_name_preview_error') }}"
+                    data-preview-none="{{ t('text_random_name_preview_none') }}"
+                    data-preview-requires-event="{{ t('text_random_name_preview_requires_event') }}"
+                  >
+                    <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                      <div>
+                        <button class="uk-button uk-button-default" type="button" id="cfgRandomNamePreviewButton">
+                          {{ t('button_random_name_preview_fetch') }}
+                        </button>
+                      </div>
+                      <div class="uk-text-meta" data-random-name-preview-status>{{ t('text_random_name_preview_hint') }}</div>
+                      <div>
+                        <span class="uk-margin-small-left" uk-spinner="ratio: 0.6" hidden data-random-name-preview-spinner></span>
+                      </div>
+                    </div>
+                    <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-preview-list hidden></ul>
+                  </div>
                 </fieldset>
               </div>
               <div class="uk-width-1-1">

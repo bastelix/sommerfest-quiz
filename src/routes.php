@@ -308,6 +308,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             $teamNameAiEnabled,
             $teamNameAiLocaleEnv !== false ? $teamNameAiLocaleEnv : null
         );
+        $configService->setTeamNameService($teamNameService);
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
         $plan = $tenantService->getPlanBySubdomain($sub);
@@ -1636,6 +1637,13 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller->status($request, $response);
     });
+
+    $app->post('/api/team-names/preview', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+
+        return $controller->preview($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
 
     $app->get('/api/team-names/history', function (Request $request, Response $response) {
         /** @var TeamNameController $controller */
