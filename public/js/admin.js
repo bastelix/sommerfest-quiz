@@ -1040,6 +1040,7 @@ document.addEventListener('DOMContentLoaded', function () {
     randomNameDomains: Array.from(document.querySelectorAll('input[name="random_name_domains[]"]')),
     randomNameTones: Array.from(document.querySelectorAll('input[name="random_name_tones[]"]')),
     randomNameBuffer: document.getElementById('cfgRandomNameBuffer'),
+    randomNamePreviewButton: document.getElementById('cfgRandomNamePreviewButton'),
     shuffleQuestions: document.getElementById('cfgShuffleQuestions'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
@@ -1073,6 +1074,187 @@ document.addEventListener('DOMContentLoaded', function () {
       disabled: randomNameHintsContainer.dataset.hintDisabled || ''
     }
     : null;
+  const randomNamePreviewContainer = document.querySelector('[data-random-name-preview]');
+  const randomNamePreviewList = randomNamePreviewContainer
+    ? randomNamePreviewContainer.querySelector('[data-random-name-preview-list]')
+    : null;
+  const randomNamePreviewStatus = randomNamePreviewContainer
+    ? randomNamePreviewContainer.querySelector('[data-random-name-preview-status]')
+    : null;
+  const randomNamePreviewSpinner = randomNamePreviewContainer
+    ? randomNamePreviewContainer.querySelector('[data-random-name-preview-spinner]')
+    : null;
+  const randomNamePreviewMessages = randomNamePreviewContainer
+    ? {
+      hint: randomNamePreviewContainer.dataset.previewHint || '',
+      empty: randomNamePreviewContainer.dataset.previewEmpty || '',
+      loading: randomNamePreviewContainer.dataset.previewLoading || '',
+      error: randomNamePreviewContainer.dataset.previewError || '',
+      none: randomNamePreviewContainer.dataset.previewNone || '',
+      requiresEvent: randomNamePreviewContainer.dataset.previewRequiresEvent || ''
+    }
+    : null;
+  let randomNamePreviewContext = { eventUid: '', fingerprint: '' };
+
+  const toggleRandomNamePreviewSpinner = (visible) => {
+    if (randomNamePreviewSpinner) {
+      randomNamePreviewSpinner.hidden = !visible;
+    }
+  };
+
+  const clearRandomNamePreviewList = () => {
+    if (randomNamePreviewList) {
+      randomNamePreviewList.innerHTML = '';
+      randomNamePreviewList.hidden = true;
+    }
+  };
+
+  const setRandomNamePreviewStatus = (messageKey) => {
+    if (!randomNamePreviewStatus || !randomNamePreviewMessages) {
+      return;
+    }
+    const message = randomNamePreviewMessages[messageKey] || '';
+    randomNamePreviewStatus.textContent = message;
+    randomNamePreviewStatus.hidden = message === '';
+  };
+
+  const resetRandomNamePreview = (messageKey = 'hint') => {
+    clearRandomNamePreviewList();
+    toggleRandomNamePreviewSpinner(false);
+    setRandomNamePreviewStatus(messageKey);
+    randomNamePreviewContext = { eventUid: '', fingerprint: '' };
+  };
+
+  const computeRandomNamePreviewFingerprint = () => {
+    const domains = Array.isArray(cfgFields.randomNameDomains)
+      ? formUtils.readChecked(cfgFields.randomNameDomains).slice().sort()
+      : [];
+    const tones = Array.isArray(cfgFields.randomNameTones)
+      ? formUtils.readChecked(cfgFields.randomNameTones).slice().sort()
+      : [];
+    const localeRaw = typeof cfgFields.randomNameLocale?.value === 'string'
+      ? cfgFields.randomNameLocale.value.trim().toLowerCase()
+      : '';
+    return JSON.stringify({ domains, tones, locale: localeRaw });
+  };
+
+  const updateRandomNamePreviewState = (randomNamesEnabled, aiSelected) => {
+    if (!randomNamePreviewContainer || !randomNamePreviewMessages) {
+      return;
+    }
+
+    const shouldShow = randomNamesEnabled && aiSelected;
+    randomNamePreviewContainer.hidden = !shouldShow;
+
+    if (cfgFields.randomNamePreviewButton) {
+      cfgFields.randomNamePreviewButton.disabled = !shouldShow || !currentEventUid;
+    }
+
+    if (!shouldShow) {
+      resetRandomNamePreview('hint');
+      return;
+    }
+
+    if (!currentEventUid) {
+      resetRandomNamePreview('requiresEvent');
+      return;
+    }
+
+    const fingerprint = computeRandomNamePreviewFingerprint();
+    if (
+      randomNamePreviewContext.eventUid !== currentEventUid ||
+      randomNamePreviewContext.fingerprint !== fingerprint
+    ) {
+      setRandomNamePreviewStatus('hint');
+      clearRandomNamePreviewList();
+      toggleRandomNamePreviewSpinner(false);
+      randomNamePreviewContext = { eventUid: '', fingerprint: '' };
+    }
+  };
+
+  const invalidateRandomNamePreview = () => {
+    if (!randomNamePreviewContainer || !randomNamePreviewMessages) {
+      return;
+    }
+    resetRandomNamePreview(currentEventUid ? 'hint' : 'requiresEvent');
+  };
+
+  const requestRandomNamePreview = async () => {
+    if (!cfgFields.randomNamePreviewButton || !randomNamePreviewContainer || !randomNamePreviewMessages) {
+      return;
+    }
+
+    if (!currentEventUid) {
+      resetRandomNamePreview('requiresEvent');
+      return;
+    }
+
+    const domains = Array.isArray(cfgFields.randomNameDomains)
+      ? formUtils.readChecked(cfgFields.randomNameDomains)
+      : [];
+    const tones = Array.isArray(cfgFields.randomNameTones)
+      ? formUtils.readChecked(cfgFields.randomNameTones)
+      : [];
+    const localeRaw = typeof cfgFields.randomNameLocale?.value === 'string'
+      ? cfgFields.randomNameLocale.value.trim()
+      : '';
+    const locale = localeRaw === '' ? null : localeRaw;
+
+    const fingerprint = computeRandomNamePreviewFingerprint();
+
+    toggleRandomNamePreviewSpinner(true);
+    clearRandomNamePreviewList();
+    setRandomNamePreviewStatus('loading');
+
+    const payload = {
+      event_id: currentEventUid,
+      count: 6,
+      domains,
+      tones
+    };
+    if (locale) {
+      payload.locale = locale;
+    }
+
+    cfgFields.randomNamePreviewButton.disabled = true;
+
+    try {
+      const response = await apiFetch('/api/team-names/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
+      randomNamePreviewContext = { eventUid: currentEventUid, fingerprint };
+
+      if (suggestions.length && randomNamePreviewList) {
+        randomNamePreviewList.innerHTML = '';
+        suggestions.forEach(name => {
+          const item = document.createElement('li');
+          item.textContent = String(name);
+          randomNamePreviewList.appendChild(item);
+        });
+        randomNamePreviewList.hidden = false;
+        if (randomNamePreviewStatus) {
+          randomNamePreviewStatus.hidden = true;
+        }
+      } else {
+        clearRandomNamePreviewList();
+        setRandomNamePreviewStatus('none');
+      }
+    } catch (error) {
+      randomNamePreviewContext = { eventUid: '', fingerprint: '' };
+      setRandomNamePreviewStatus('error');
+    } finally {
+      toggleRandomNamePreviewSpinner(false);
+      const randomNamesEnabled = !!cfgFields.randomNames && !!cfgFields.randomNames.checked;
+      const strategy = typeof cfgFields.randomNameStrategy?.value === 'string'
+        ? cfgFields.randomNameStrategy.value.toLowerCase()
+        : '';
+      cfgFields.randomNamePreviewButton.disabled = !randomNamesEnabled || strategy !== 'ai' || !currentEventUid;
+    }
+  };
   const syncRandomNameOptionsState = () => {
     if (!randomNameOptionsFieldset && !randomNameHintsContainer) {
       return;
@@ -1095,6 +1277,7 @@ document.addEventListener('DOMContentLoaded', function () {
       randomNameHintText.textContent = message;
       randomNameHintsContainer.hidden = message === '';
     }
+    updateRandomNamePreviewState(randomNamesEnabled, aiSelected);
   };
   const dashboardModulesList = document.querySelector('[data-dashboard-modules]');
   const dashboardModuleInputs = {
@@ -3450,8 +3633,35 @@ document.addEventListener('DOMContentLoaded', function () {
       target.addEventListener('input', queueCfgSave);
     });
   });
-  cfgFields.randomNames?.addEventListener('change', syncRandomNameOptionsState);
-  cfgFields.randomNameStrategy?.addEventListener('change', syncRandomNameOptionsState);
+  cfgFields.randomNames?.addEventListener('change', () => {
+    syncRandomNameOptionsState();
+    invalidateRandomNamePreview();
+  });
+  cfgFields.randomNameStrategy?.addEventListener('change', () => {
+    syncRandomNameOptionsState();
+    invalidateRandomNamePreview();
+  });
+  if (Array.isArray(cfgFields.randomNameDomains)) {
+    cfgFields.randomNameDomains.forEach(input => {
+      if (input && typeof input.addEventListener === 'function') {
+        input.addEventListener('change', () => invalidateRandomNamePreview());
+      }
+    });
+  }
+  if (Array.isArray(cfgFields.randomNameTones)) {
+    cfgFields.randomNameTones.forEach(input => {
+      if (input && typeof input.addEventListener === 'function') {
+        input.addEventListener('change', () => invalidateRandomNamePreview());
+      }
+    });
+  }
+  if (cfgFields.randomNameLocale) {
+    cfgFields.randomNameLocale.addEventListener('input', () => invalidateRandomNamePreview());
+    cfgFields.randomNameLocale.addEventListener('change', () => invalidateRandomNamePreview());
+  }
+  cfgFields.randomNamePreviewButton?.addEventListener('click', () => {
+    requestRandomNamePreview();
+  });
   dashboardModulesList?.addEventListener('change', event => {
     if (event.target.matches('[data-module-results-option="limit"]')) {
       const moduleItem = event.target.closest('[data-module-id]');
@@ -5218,6 +5428,8 @@ document.addEventListener('DOMContentLoaded', function () {
           window.history.replaceState(null, '', url.toString());
         }
         highlightCurrentEvent();
+        syncRandomNameOptionsState();
+        invalidateRandomNamePreview();
       })
       .catch(err => {
         console.error(err);

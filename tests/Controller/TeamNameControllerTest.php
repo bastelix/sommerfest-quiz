@@ -339,6 +339,57 @@ final class TeamNameControllerTest extends TestCase
         self::assertFalse($payload['ai']['active_for_event']);
     }
 
+    public function testPreviewReturnsSuggestionsFromService(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $service->expects(self::once())
+            ->method('previewAiSuggestions')
+            ->with('ev-preview', ['nature', 'science'], ['playful'], 'de-DE', 6)
+            ->willReturn(['Solar Echo', 'Quantum Owls']);
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names/preview');
+        $request->getBody()->write(json_encode([
+            'event_id' => 'ev-preview',
+            'domains' => ['nature', 'science'],
+            'tones' => ['playful'],
+            'locale' => 'de-DE',
+            'count' => 6,
+        ], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $response = $controller->preview($request, new Response());
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('ev-preview', $payload['event_id']);
+        self::assertSame(['nature', 'science'], $payload['filters']['domains']);
+        self::assertSame(['playful'], $payload['filters']['tones']);
+        self::assertSame('de-DE', $payload['filters']['locale']);
+        self::assertSame(6, $payload['filters']['count']);
+        self::assertSame(['Solar Echo', 'Quantum Owls'], $payload['suggestions']);
+    }
+
+    public function testPreviewReturnsBadRequestWithoutEvent(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $service->expects(self::never())->method('previewAiSuggestions');
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names/preview');
+        $request->getBody()->write(json_encode(['domains' => ['nature']], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $response = $controller->preview($request, new Response());
+
+        self::assertSame(400, $response->getStatusCode());
+    }
+
     public function testHistoryReturnsEntriesFromService(): void
     {
         $service = $this->createMock(TeamNameService::class);
