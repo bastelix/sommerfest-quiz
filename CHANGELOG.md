@@ -56,7 +56,6 @@
 - Clarify quiz start comment
 - Note management role redirect
 - Refresh contribution and coding guides
-- Document AI team name setup, RAG endpoint sharing, and monitoring guidance
 
 ### Feat
 
@@ -385,7 +384,6 @@
 - Ensure summary updates after event switch
 - Generate sticker background during test
 - Use new sticker background route
-- Add AI caching, fallback, and controller validation tests for team names
 
 ## [0.2.0] - 2025-08-18
 
