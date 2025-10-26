@@ -240,8 +240,10 @@ class AdminControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertSame(200, $response->getStatusCode());
         $body = (string) $response->getBody();
-        $this->assertStringContainsString('data-focus="dashboard"', $body);
-        $this->assertStringContainsString('id="dashboardConfigHeading"', $body);
+        $this->assertStringContainsString('id="eventDashboardHeading"', $body);
+        $this->assertStringContainsString('id="eventDashboardForm"', $body);
+        $this->assertStringContainsString('<li class="uk-active"><a href="/admin/event/dashboard"', $body);
+        $this->assertStringNotContainsString('data-focus="dashboard"', $body);
         session_destroy();
         unlink($db);
     }
