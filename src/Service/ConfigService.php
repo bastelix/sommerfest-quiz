@@ -510,14 +510,17 @@ class ConfigService
 
             $randomNameAfter = $this->mergeRandomNameSettings($randomNameBefore, $candidateValues);
             if ($this->randomNameFiltersChanged($randomNameBefore, $randomNameAfter)) {
-                $this->teamNameService?->resetEventNamePreferences($uid);
-                $buffer = $randomNameAfter['buffer'] ?? 0;
-                $locale = $randomNameAfter['locale'] ?? '';
-                $this->teamNameService?->warmUpAiSuggestions(
+                $this->teamNameService->resetEventNamePreferences($uid);
+                $buffer = $randomNameAfter['buffer'];
+                $locale = $randomNameAfter['locale'];
+                if ($locale === '') {
+                    $locale = null;
+                }
+                $this->teamNameService->warmUpAiSuggestions(
                     $uid,
-                    $randomNameAfter['domains'] ?? [],
-                    $randomNameAfter['tones'] ?? [],
-                    $locale !== '' ? $locale : null,
+                    $randomNameAfter['domains'],
+                    $randomNameAfter['tones'],
+                    $locale,
                     max(5, (int) $buffer)
                 );
             }
