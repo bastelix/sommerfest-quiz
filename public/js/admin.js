@@ -1094,6 +1094,25 @@ document.addEventListener('DOMContentLoaded', function () {
       requiresEvent: randomNamePreviewContainer.dataset.previewRequiresEvent || ''
     }
     : null;
+  const randomNameCacheContainer = document.querySelector('[data-random-name-cache]');
+  const randomNameCacheList = randomNameCacheContainer
+    ? randomNameCacheContainer.querySelector('[data-random-name-cache-list]')
+    : null;
+  const randomNameCacheStatus = randomNameCacheContainer
+    ? randomNameCacheContainer.querySelector('[data-random-name-cache-status]')
+    : null;
+  const randomNameCacheMessages = randomNameCacheContainer
+    ? {
+      empty: randomNameCacheContainer.dataset.cacheEmpty || '',
+      total: randomNameCacheContainer.dataset.cacheTotal || '',
+      labelDomains: randomNameCacheContainer.dataset.cacheLabelDomains || '',
+      labelTones: randomNameCacheContainer.dataset.cacheLabelTones || '',
+      labelLocale: randomNameCacheContainer.dataset.cacheLabelLocale || '',
+      none: randomNameCacheContainer.dataset.cacheNone || '',
+      entryCount: randomNameCacheContainer.dataset.cacheEntryCount || '',
+      entryEmpty: randomNameCacheContainer.dataset.cacheEntryEmpty || ''
+    }
+    : null;
   let randomNamePreviewContext = { eventUid: '', fingerprint: '' };
 
   const toggleRandomNamePreviewSpinner = (visible) => {
@@ -1107,6 +1126,172 @@ document.addEventListener('DOMContentLoaded', function () {
       randomNamePreviewList.innerHTML = '';
       randomNamePreviewList.hidden = true;
     }
+  };
+
+  const clearRandomNameCacheList = () => {
+    if (randomNameCacheList) {
+      randomNameCacheList.innerHTML = '';
+      randomNameCacheList.hidden = true;
+    }
+  };
+
+  const formatRandomNameCacheEntryCount = (count) => {
+    if (!randomNameCacheMessages) {
+      return String(count);
+    }
+    const template = randomNameCacheMessages.entryCount || '';
+    if (template.includes('{count}')) {
+      return template.replace('{count}', String(count));
+    }
+    return template === '' ? String(count) : template;
+  };
+
+  const formatRandomNameCacheFilters = (filters) => {
+    if (!randomNameCacheMessages) {
+      return '';
+    }
+    const domains = Array.isArray(filters?.domains)
+      ? filters.domains.map(value => String(value).trim()).filter(value => value !== '')
+      : [];
+    const tones = Array.isArray(filters?.tones)
+      ? filters.tones.map(value => String(value).trim()).filter(value => value !== '')
+      : [];
+    const parts = [];
+
+    if (domains.length) {
+      const label = randomNameCacheMessages.labelDomains || '';
+      parts.push(label ? `${label}: ${domains.join(', ')}` : domains.join(', '));
+    }
+
+    if (tones.length) {
+      const label = randomNameCacheMessages.labelTones || '';
+      parts.push(label ? `${label}: ${tones.join(', ')}` : tones.join(', '));
+    }
+
+    if (!parts.length) {
+      return randomNameCacheMessages.none || '';
+    }
+
+    return parts.join(' • ');
+  };
+
+  const formatRandomNameCacheLocale = (locale) => {
+    if (!randomNameCacheMessages) {
+      return String(locale || '');
+    }
+    const label = randomNameCacheMessages.labelLocale || '';
+    const value = typeof locale === 'string' && locale.trim() !== ''
+      ? locale
+      : (randomNameCacheMessages.none || '');
+    return label ? `${label}: ${value}` : value;
+  };
+
+  const resetRandomNameCache = () => {
+    clearRandomNameCacheList();
+    if (randomNameCacheStatus && randomNameCacheMessages) {
+      const message = randomNameCacheMessages.empty || '';
+      randomNameCacheStatus.textContent = message;
+      randomNameCacheStatus.hidden = message === '';
+    }
+  };
+
+  const updateRandomNameCacheVisibility = (visible) => {
+    if (!randomNameCacheContainer) {
+      return;
+    }
+    randomNameCacheContainer.hidden = !visible;
+    if (!visible) {
+      resetRandomNameCache();
+    }
+  };
+
+  const renderRandomNameCache = (cache) => {
+    if (!randomNameCacheMessages || !randomNameCacheContainer) {
+      return;
+    }
+
+    const entries = Array.isArray(cache?.entries) ? cache.entries : [];
+    const totalCount = Number.isFinite(Number(cache?.total)) ? Number(cache.total) : 0;
+
+    if (randomNameCacheStatus) {
+      if (totalCount > 0) {
+        let message = randomNameCacheMessages.total || '';
+        if (message.includes('{count}')) {
+          message = message.replace('{count}', String(totalCount));
+        }
+        randomNameCacheStatus.textContent = message || '';
+        randomNameCacheStatus.hidden = message === '';
+      } else {
+        const message = randomNameCacheMessages.empty || '';
+        randomNameCacheStatus.textContent = message;
+        randomNameCacheStatus.hidden = message === '';
+      }
+    }
+
+    clearRandomNameCacheList();
+    if (!randomNameCacheList) {
+      return;
+    }
+
+    if (!entries.length) {
+      randomNameCacheList.hidden = true;
+      return;
+    }
+
+    entries.forEach(entry => {
+      const listItem = document.createElement('li');
+      listItem.className = 'random-name-cache-entry';
+
+      const header = document.createElement('div');
+      header.className = 'uk-flex uk-flex-between uk-flex-middle';
+
+      const filtersLabel = document.createElement('div');
+      filtersLabel.className = 'uk-text-small';
+      filtersLabel.textContent = formatRandomNameCacheFilters(entry?.filters || {});
+      header.appendChild(filtersLabel);
+
+      const countLabel = document.createElement('div');
+      countLabel.className = 'uk-text-meta';
+      const available = Number.isFinite(Number(entry?.available))
+        ? Number(entry.available)
+        : (Array.isArray(entry?.names) ? entry.names.length : 0);
+      countLabel.textContent = formatRandomNameCacheEntryCount(available);
+      header.appendChild(countLabel);
+
+      listItem.appendChild(header);
+
+      const localeText = formatRandomNameCacheLocale(entry?.filters?.locale || '');
+      if (localeText) {
+        const localeRow = document.createElement('div');
+        localeRow.className = 'uk-text-meta uk-margin-small-top';
+        localeRow.textContent = localeText;
+        listItem.appendChild(localeRow);
+      }
+
+      const names = Array.isArray(entry?.names)
+        ? entry.names.map(value => String(value))
+        : [];
+
+      if (names.length) {
+        const namesList = document.createElement('ul');
+        namesList.className = 'uk-list uk-list-collapse uk-margin-small-top';
+        names.forEach(name => {
+          const nameItem = document.createElement('li');
+          nameItem.textContent = name;
+          namesList.appendChild(nameItem);
+        });
+        listItem.appendChild(namesList);
+      } else if (randomNameCacheMessages.entryEmpty) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'uk-text-meta uk-margin-small-top';
+        emptyMessage.textContent = randomNameCacheMessages.entryEmpty;
+        listItem.appendChild(emptyMessage);
+      }
+
+      randomNameCacheList.appendChild(listItem);
+    });
+
+    randomNameCacheList.hidden = false;
   };
 
   const setRandomNamePreviewStatus = (messageKey) => {
@@ -1123,6 +1308,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleRandomNamePreviewSpinner(false);
     setRandomNamePreviewStatus(messageKey);
     randomNamePreviewContext = { eventUid: '', fingerprint: '' };
+    resetRandomNameCache();
   };
 
   const computeRandomNamePreviewFingerprint = () => {
@@ -1145,6 +1331,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const shouldShow = randomNamesEnabled && aiSelected;
     randomNamePreviewContainer.hidden = !shouldShow;
+    updateRandomNameCacheVisibility(shouldShow && !!currentEventUid);
 
     if (cfgFields.randomNamePreviewButton) {
       cfgFields.randomNamePreviewButton.disabled = !shouldShow || !currentEventUid;
@@ -1177,6 +1364,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     resetRandomNamePreview(currentEventUid ? 'hint' : 'requiresEvent');
+    updateRandomNameCacheVisibility(!!currentEventUid && !!randomNameCacheContainer && !randomNamePreviewContainer.hidden);
   };
 
   const requestRandomNamePreview = async () => {
@@ -1205,6 +1393,7 @@ document.addEventListener('DOMContentLoaded', function () {
     toggleRandomNamePreviewSpinner(true);
     clearRandomNamePreviewList();
     setRandomNamePreviewStatus('loading');
+    resetRandomNameCache();
 
     const payload = {
       event_id: currentEventUid,
@@ -1226,6 +1415,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       const data = await response.json();
       const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
+      renderRandomNameCache(data?.cache);
       randomNamePreviewContext = { eventUid: currentEventUid, fingerprint };
 
       if (suggestions.length && randomNamePreviewList) {
@@ -1246,6 +1436,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (error) {
       randomNamePreviewContext = { eventUid: '', fingerprint: '' };
       setRandomNamePreviewStatus('error');
+      resetRandomNameCache();
     } finally {
       toggleRandomNamePreviewSpinner(false);
       const randomNamesEnabled = !!cfgFields.randomNames && !!cfgFields.randomNames.checked;

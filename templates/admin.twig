@@ -463,6 +463,25 @@
                       </div>
                     </div>
                     <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-preview-list hidden></ul>
+                    <div
+                      class="uk-margin-small-top"
+                      data-random-name-cache
+                      data-cache-empty="{{ t('text_random_name_cache_empty') }}"
+                      data-cache-total="{{ t('text_random_name_cache_total') }}"
+                      data-cache-label-domains="{{ t('label_random_name_domains') }}"
+                      data-cache-label-tones="{{ t('label_random_name_tones') }}"
+                      data-cache-label-locale="{{ t('label_random_name_cache_locale') }}"
+                      data-cache-none="{{ t('text_random_name_cache_no_filters') }}"
+                      data-cache-entry-count="{{ t('text_random_name_cache_entry_count') }}"
+                      data-cache-entry-empty="{{ t('text_random_name_cache_entry_empty') }}"
+                      hidden
+                    >
+                      <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                        <div class="uk-text-bold">{{ t('heading_random_name_cache') }}</div>
+                        <div class="uk-text-meta" data-random-name-cache-status>{{ t('text_random_name_cache_empty') }}</div>
+                      </div>
+                      <ul class="uk-list uk-list-divider uk-margin-small-top" data-random-name-cache-list hidden></ul>
+                    </div>
                   </div>
                 </fieldset>
               </div>

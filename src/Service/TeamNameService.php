@@ -18,6 +18,7 @@ use Throwable;
 use function array_merge;
 use function array_slice;
 use function array_splice;
+use function array_values;
 use function count;
 use function implode;
 use function in_array;
@@ -89,6 +90,13 @@ class TeamNameService
      * @var array<string, array<int, string>>
      */
     private array $aiCacheIndex = [];
+
+    /**
+     * Metadata for cached AI suggestions keyed by cache identifier.
+     *
+     * @var array<string, array{domains: array<int, string>, tones: array<int, string>, locale: string}>
+     */
+    private array $aiCacheMetadata = [];
 
     private ?DateTimeImmutable $aiLastAttemptAt = null;
 
@@ -584,6 +592,12 @@ class TeamNameService
             $this->aiCacheIndex[$eventId][] = $cacheKey;
         }
 
+        $this->aiCacheMetadata[$cacheKey] = [
+            'domains' => array_values($domains),
+            'tones' => array_values($tones),
+            'locale' => $locale,
+        ];
+
         $attempts = 0;
         while (count($this->aiNameCache[$cacheKey]) < $targetSize && $attempts < self::AI_MAX_ATTEMPTS) {
             $needed = $targetSize - count($this->aiNameCache[$cacheKey]);
@@ -655,6 +669,53 @@ class TeamNameService
         }
 
         return $diagnostics;
+    }
+
+    public function getAiCacheState(string $eventId): array
+    {
+        $state = [
+            'total' => 0,
+            'entries' => [],
+        ];
+
+        if ($eventId === '' || !$this->canUseAi()) {
+            return $state;
+        }
+
+        if (!isset($this->aiCacheIndex[$eventId])) {
+            return $state;
+        }
+
+        $entries = [];
+        $total = 0;
+
+        foreach ($this->aiCacheIndex[$eventId] as $cacheKey) {
+            $names = $this->aiNameCache[$cacheKey] ?? [];
+            $meta = $this->aiCacheMetadata[$cacheKey] ?? [
+                'domains' => [],
+                'tones' => [],
+                'locale' => $this->defaultLocale,
+            ];
+
+            $count = count($names);
+            $entries[] = [
+                'cache_key' => $cacheKey,
+                'available' => $count,
+                'names' => array_values($names),
+                'filters' => [
+                    'domains' => $meta['domains'],
+                    'tones' => $meta['tones'],
+                    'locale' => $meta['locale'],
+                ],
+            ];
+
+            $total += $count;
+        }
+
+        $state['entries'] = $entries;
+        $state['total'] = $total;
+
+        return $state;
     }
 
     private function canUseAi(): bool
@@ -1332,6 +1393,7 @@ class TeamNameService
 
         foreach ($this->aiCacheIndex[$eventId] as $cacheKey) {
             unset($this->aiNameCache[$cacheKey]);
+            unset($this->aiCacheMetadata[$cacheKey]);
         }
 
         unset($this->aiCacheIndex[$eventId]);
