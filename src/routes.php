@@ -1643,6 +1643,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->reserve($request, $response);
     });
 
+    $app->delete('/api/team-names/by-name', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+        return $controller->releaseByName($request, $response);
+    });
+
     $app->post('/api/team-names/{token}/confirm', function (Request $request, Response $response, array $args) {
         /** @var TeamNameController $controller */
         $controller = $request->getAttribute('teamNameController');
@@ -1653,12 +1659,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var TeamNameController $controller */
         $controller = $request->getAttribute('teamNameController');
         return $controller->release($request, $response, $args);
-    });
-
-    $app->delete('/api/team-names/by-name', function (Request $request, Response $response) {
-        /** @var TeamNameController $controller */
-        $controller = $request->getAttribute('teamNameController');
-        return $controller->releaseByName($request, $response);
     });
 
     $app->delete('/results', function (Request $request, Response $response) {
