@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\PlayerService;
+use App\Support\UsernameBlockedException;
+use App\Support\UsernameGuard;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
@@ -59,5 +61,30 @@ class PlayerServiceTest extends TestCase
         self::assertSame('Alice', $playerName);
         self::assertSame('Alice', $resultName);
         self::assertSame('Alice', $questionResultName);
+    }
+
+    public function testSaveRejectsBlockedNames(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE players('
+            . 'event_uid TEXT NOT NULL,'
+            . 'player_uid TEXT NOT NULL,'
+            . 'player_name TEXT NOT NULL,'
+            . 'contact_email TEXT NULL,'
+            . 'consent_granted_at TEXT NULL,'
+            . 'PRIMARY KEY (event_uid, player_uid)'
+            . ');'
+        );
+        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT, name TEXT NOT NULL);');
+        $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT, name TEXT NOT NULL);');
+
+        $guard = new UsernameGuard(['usernames' => ['verboten']]);
+        $service = new PlayerService($pdo, $guard);
+
+        $this->expectException(UsernameBlockedException::class);
+
+        $service->save('event-1', 'Verboten', 'player-1');
     }
 }

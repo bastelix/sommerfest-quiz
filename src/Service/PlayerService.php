@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Exception\PlayerNameConflictException;
+use App\Support\UsernameBlockedException;
+use App\Support\UsernameGuard;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
@@ -17,12 +19,17 @@ class PlayerService
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo) {
+    private ?UsernameGuard $usernameGuard;
+
+    public function __construct(PDO $pdo, ?UsernameGuard $usernameGuard = null) {
         $this->pdo = $pdo;
+        $this->usernameGuard = $usernameGuard;
     }
 
     /**
      * Store a player's data in the database.
+     *
+     * @throws UsernameBlockedException
      */
     public function save(
         string $eventUid,
@@ -35,6 +42,10 @@ class PlayerService
         $normalizedName = $this->normalizeName($playerName);
         if ($eventUid === '' || $playerUid === '' || $normalizedName === '') {
             return;
+        }
+
+        if ($this->usernameGuard !== null) {
+            $this->usernameGuard->assertAllowed($normalizedName);
         }
 
         $existingName = $this->findName($eventUid, $playerUid);
