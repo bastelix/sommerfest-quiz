@@ -15,6 +15,96 @@ class ResultControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
     }
 
+    public function testQuestionResultsEndpointWithoutQuestionColumns(): void {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE question_results('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'name TEXT NOT NULL,'
+            . 'catalog TEXT NOT NULL,'
+            . 'question_id INTEGER NOT NULL,'
+            . 'attempt INTEGER NOT NULL,'
+            . 'correct INTEGER NOT NULL,'
+            . 'points INTEGER NOT NULL DEFAULT 0,'
+            . 'time_left_sec INTEGER,'
+            . 'final_points INTEGER NOT NULL DEFAULT 0,'
+            . 'efficiency REAL NOT NULL DEFAULT 0,'
+            . 'is_correct INTEGER,'
+            . 'scoring_version INTEGER NOT NULL DEFAULT 1,'
+            . 'answer_text TEXT,'
+            . 'photo TEXT,'
+            . 'consent BOOLEAN,'
+            . 'event_uid TEXT'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE questions('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'catalog_uid TEXT NOT NULL,'
+            . 'sort_order INTEGER,'
+            . 'type TEXT NOT NULL,'
+            . 'prompt TEXT NOT NULL,'
+            . 'options TEXT,'
+            . 'answers TEXT,'
+            . 'terms TEXT,'
+            . 'items TEXT'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs('
+            . 'uid TEXT PRIMARY KEY,'
+            . 'sort_order INTEGER,'
+            . 'slug TEXT,'
+            . 'file TEXT,'
+            . 'name TEXT,'
+            . 'description TEXT,'
+            . 'raetsel_buchstabe TEXT,'
+            . 'event_uid TEXT'
+            . ')'
+        );
+
+        $pdo->exec("INSERT INTO catalogs(uid,name) VALUES('cat-1','Demo Catalog')");
+        $pdo->exec(
+            "INSERT INTO questions(catalog_uid,sort_order,type,prompt,options,answers,terms,items) "
+            . "VALUES('cat-1',1,'choice','Prompt','[]','[]','[]','[]')"
+        );
+        $questionId = (int) $pdo->lastInsertId();
+        $pdo->exec(
+            "INSERT INTO question_results("
+            . "name,catalog,question_id,attempt,correct,points,final_points,efficiency) "
+            . "VALUES('Team Demo','cat-1',$questionId,1,1,2,2,0.5)"
+        );
+
+        $config = new \App\Service\ConfigService($pdo);
+        $service = new \App\Service\ResultService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $config);
+        $catalogs = new \App\Service\CatalogService($pdo, $config);
+        $events = new \App\Service\EventService($pdo, $config);
+        $controller = new \App\Controller\ResultController(
+            $service,
+            $config,
+            $teams,
+            $catalogs,
+            sys_get_temp_dir(),
+            $events
+        );
+
+        $request = $this->createRequest('GET', '/question-results.json');
+        $response = $controller->getQuestions($request, new \Slim\Psr7\Response());
+
+        $this->assertSame(200, $response->getStatusCode());
+        $payload = (string) $response->getBody();
+        $data = json_decode($payload, true);
+        $this->assertIsArray($data);
+        $this->assertNotEmpty($data);
+        $first = $data[0];
+        $this->assertArrayHasKey('questionPoints', $first);
+        $this->assertSame(0, $first['questionPoints']);
+        $this->assertArrayHasKey('questionCountdown', $first);
+        $this->assertNull($first['questionCountdown']);
+    }
+
     public function testDownloadOmitsEpochForZeroTime(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
