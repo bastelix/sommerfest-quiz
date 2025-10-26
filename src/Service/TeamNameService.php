@@ -619,7 +619,7 @@ class TeamNameService
                 if ($this->isNameAlreadyInCache($cacheKey, $normalizedName)) {
                     continue;
                 }
-                if ($this->isNameAlreadyActive($eventId, $candidate)) {
+                if ($this->isNameAlreadyUsed($eventId, $candidate)) {
                     continue;
                 }
                 $this->aiNameCache[$cacheKey][] = $candidate;
@@ -783,9 +783,9 @@ class TeamNameService
     private function gatherExistingAiNames(string $cacheKey, string $eventId): array
     {
         $cached = $this->aiNameCache[$cacheKey] ?? [];
-        $active = $this->fetchActiveNames($eventId);
+        $known = $this->fetchKnownNames($eventId);
 
-        $combined = array_merge($cached, $active);
+        $combined = array_merge($cached, $known);
 
         $unique = [];
         foreach ($combined as $name) {
@@ -802,15 +802,17 @@ class TeamNameService
     }
 
     /**
+     * Retrieve all team names that were ever reserved for the event.
+     *
      * @return list<string>
      */
-    private function fetchActiveNames(string $eventId): array
+    private function fetchKnownNames(string $eventId): array
     {
         if ($eventId === '') {
             return [];
         }
 
-        $stmt = $this->pdo->prepare('SELECT name FROM team_names WHERE event_id = ? AND released_at IS NULL');
+        $stmt = $this->pdo->prepare('SELECT name FROM team_names WHERE event_id = ?');
         $stmt->execute([$eventId]);
 
         $names = [];
@@ -878,11 +880,13 @@ class TeamNameService
         return false;
     }
 
-    private function isNameAlreadyActive(string $eventId, string $name): bool
+    /**
+     * Check if a name has already been reserved for the event regardless of its current status.
+     */
+    private function isNameAlreadyUsed(string $eventId, string $name): bool
     {
         $stmt = $this->pdo->prepare(
-            'SELECT 1 FROM team_names WHERE event_id = ? AND LOWER(name) = LOWER(?) '
-            . 'AND released_at IS NULL LIMIT 1'
+            'SELECT 1 FROM team_names WHERE event_id = ? AND LOWER(name) = LOWER(?) LIMIT 1'
         );
         $stmt->execute([$eventId, $name]);
         $result = $stmt->fetchColumn();
