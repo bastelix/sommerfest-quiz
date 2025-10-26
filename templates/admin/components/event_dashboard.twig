@@ -1,0 +1,379 @@
+{% set eventName = event.name|default('') %}
+<div class="uk-container uk-container-large">
+  <h2
+    id="eventDashboardHeading"
+    class="uk-heading-bullet"
+    data-title="{{ t('tab_event_dashboard') }}"
+  >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('tab_event_dashboard') }}</h2>
+  <hr class="admin-divider-line uk-margin-remove-top">
+  {% include 'admin/components/event_controls.twig' with {
+    currentEventUid: config.event_uid|default(''),
+    currentEventName: eventName
+  } %}
+  <p class="uk-text-meta uk-margin-small">{{ 'Änderungen werden automatisch gespeichert.' }}</p>
+  <form
+    id="eventDashboardForm"
+    class="uk-form-stacked"
+    method="post"
+    action="/config.json"
+    data-config-form
+  >
+    <div class="uk-child-width-1-1 uk-grid-small" uk-grid>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgDashboardRefreshInterval">{{ t('label_dashboard_refresh_interval') }}</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="number" min="5" max="300" id="cfgDashboardRefreshInterval" name="dashboardRefreshInterval" value="{{ config.dashboardRefreshInterval|default(15) }}">
+            </div>
+            <div class="uk-text-meta">{{ t('text_dashboard_refresh_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="dashboardFixedHeight">{{ t('label_dashboard_fixed_height') }}</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="text" id="dashboardFixedHeight" name="dashboardFixedHeight" value="{{ config.dashboardFixedHeight|default('') }}">
+            </div>
+            <div class="uk-text-meta">{{ t('text_dashboard_fixed_height_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgDashboardTheme">{{ t('label_dashboard_theme') }}</label>
+            <div class="uk-form-controls">
+              {% set cfgTheme = config.dashboardTheme|default('light') %}
+              <select class="uk-select" id="cfgDashboardTheme" name="dashboardTheme">
+                <option value="light" {% if cfgTheme != 'dark' %}selected{% endif %}>{{ t('option_theme_light') }}</option>
+                <option value="dark" {% if cfgTheme == 'dark' %}selected{% endif %}>{{ t('option_theme_dark') }}</option>
+              </select>
+            </div>
+            <div class="uk-text-meta">{{ t('tip_dashboard_theme') }}</div>
+          </div>
+          <input type="hidden" id="cfgDashboardModules" name="dashboardModules" value="">
+          <input type="hidden" id="cfgDashboardSponsorModules" name="dashboardSponsorModules" value="">
+          <div class="uk-margin-small-top">
+            <div class="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-bottom" data-dashboard-variant-switch>
+              <span class="uk-text-small uk-margin-small-right">{{ t('label_dashboard_variant') }}:</span>
+              <div class="uk-button-group">
+                <button class="uk-button uk-button-default uk-button-small uk-active" type="button" data-dashboard-variant="public">{{ t('option_dashboard_variant_public') }}</button>
+                <button class="uk-button uk-button-default uk-button-small" type="button" data-dashboard-variant="sponsor">{{ t('option_dashboard_variant_sponsor') }}</button>
+              </div>
+            </div>
+            <div class="uk-text-meta">{{ t('text_dashboard_variant_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <div class="uk-form-label">{{ t('label_dashboard_modules') }}</div>
+            <div class="uk-text-meta">{{ t('text_dashboard_modules_hint') }}</div>
+            <ul class="uk-list uk-list-divider uk-margin-small-top" data-dashboard-modules uk-sortable="handle: .module-handle">
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="header">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_header') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_header_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle checked> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutHeader">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutHeader" data-module-layout data-default-layout="full">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="pointsLeader">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_points_leader') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_points_leader_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle checked> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutPointsLeader">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutPointsLeader" data-module-layout data-default-layout="wide">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardPointsLeaderLimit">{{ t('label_dashboard_points_leader_limit') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="1" max="10" id="cfgDashboardPointsLeaderLimit" data-module-points-leader-limit placeholder="5">
+                    <div class="uk-text-meta">{{ t('text_dashboard_points_leader_limit_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardPointsLeaderTitle">{{ t('label_dashboard_module_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardPointsLeaderTitle" data-module-title placeholder="{{ t('label_dashboard_module_points_leader') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_points_leader_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankings">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_rankings') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_rankings_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle checked> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutRankings">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutRankings" data-module-layout data-default-layout="wide">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardRankingsLimit">{{ t('label_dashboard_results_limit') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="0" max="50" id="cfgDashboardRankingsLimit" data-module-results-option="limit" placeholder="0">
+                    <div class="uk-text-meta">{{ t('text_dashboard_results_limit_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardRankingsPageSize">{{ t('label_dashboard_results_page_size') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="0" id="cfgDashboardRankingsPageSize" data-module-results-option="pageSize" placeholder="0">
+                    <div class="uk-text-meta">{{ t('text_dashboard_results_page_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardRankingsSort">{{ t('label_dashboard_results_sort') }}</label>
+                    <select class="uk-select uk-form-small" id="cfgDashboardRankingsSort" data-module-results-option="sort">
+                      <option value="time">{{ t('option_dashboard_results_sort_time') }}</option>
+                      <option value="points">{{ t('option_dashboard_results_sort_points') }}</option>
+                      <option value="name">{{ t('option_dashboard_results_sort_name') }}</option>
+                    </select>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="cfgDashboardRankingsShowPlacement" data-module-results-option="showPlacement"> {{ t('label_dashboard_results_show_placement') }}</label>
+                    <div class="uk-text-meta">{{ t('text_dashboard_results_show_placement_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardRankingsTitle">{{ t('label_dashboard_results_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardRankingsTitle" data-module-results-option="title" placeholder="{{ t('label_dashboard_module_rankings') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_rankings_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="results">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_results') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_results_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle checked> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutResults">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutResults" data-module-layout data-default-layout="full">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardResultsLimit">{{ t('label_dashboard_results_limit') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="0" max="50" id="cfgDashboardResultsLimit" data-module-results-option="limit" placeholder="0">
+                    <div class="uk-text-meta">{{ t('text_dashboard_results_limit_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardResultsPageSize">{{ t('label_dashboard_results_page_size') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="0" id="cfgDashboardResultsPageSize" data-module-results-option="pageSize" placeholder="0">
+                    <div class="uk-text-meta">{{ t('text_dashboard_results_page_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardResultsSort">{{ t('label_dashboard_results_sort') }}</label>
+                    <select class="uk-select uk-form-small" id="cfgDashboardResultsSort" data-module-results-option="sort">
+                      <option value="time">{{ t('option_dashboard_results_sort_time') }}</option>
+                      <option value="points">{{ t('option_dashboard_results_sort_points') }}</option>
+                      <option value="name">{{ t('option_dashboard_results_sort_name') }}</option>
+                    </select>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardResultsTitle">{{ t('label_dashboard_results_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardResultsTitle" data-module-results-option="title" placeholder="{{ t('label_dashboard_module_results') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_results_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="info">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_info') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_info_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutInfo">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutInfo" data-module-layout data-default-layout="auto">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardInfoTitle">{{ t('label_dashboard_module_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardInfoTitle" data-module-title placeholder="{{ t('label_dashboard_module_info') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_info_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="rankingQr">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_ranking_qr') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_ranking_qr_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutRankingQr">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutRankingQr" data-module-layout data-default-layout="auto">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardRankingQrTitle">{{ t('label_dashboard_module_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardRankingQrTitle" data-module-title placeholder="{{ t('label_dashboard_module_ranking_qr') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_ranking_qr_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="qrCodes" data-missing-label="{{ t('text_dashboard_module_qr_missing') }}">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_qr') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_qr_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutQr">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutQr" data-module-layout data-default-layout="auto">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardQrTitle">{{ t('label_dashboard_module_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardQrTitle" data-module-title placeholder="{{ t('label_dashboard_module_qr') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_qr_title_hint') }}</div>
+                  </div>
+                  <div class="uk-text-meta">{{ t('label_dashboard_qr_catalogs') }}</div>
+                  <div class="uk-grid-small uk-child-width-1-2@m" uk-grid data-module-catalogs></div>
+                  <div class="uk-text-meta uk-margin-small-top" data-module-catalogs-empty>{{ t('text_dashboard_module_qr_empty') }}</div>
+                </div>
+              </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="media">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_media') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_media_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutMedia">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutMedia" data-module-layout data-default-layout="auto">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardMediaTitle">{{ t('label_dashboard_module_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardMediaTitle" data-module-title placeholder="{{ t('label_dashboard_module_media') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_media_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgDashboardInfoText">{{ t('label_dashboard_info_text') }}</label>
+            <textarea class="uk-textarea" id="cfgDashboardInfoText" name="dashboardInfoText" rows="3">{{ config.dashboardInfoText|default('') }}</textarea>
+            <div class="uk-text-meta">{{ t('text_dashboard_info_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgDashboardMediaEmbed">{{ t('label_dashboard_media_embed') }}</label>
+            <textarea class="uk-textarea" id="cfgDashboardMediaEmbed" name="dashboardMediaEmbed" rows="3">{{ config.dashboardMediaEmbed|default('') }}</textarea>
+            <div class="uk-text-meta">{{ t('text_dashboard_media_hint') }}</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body">
+          <h4 class="uk-card-title uk-margin-remove">{{ t('heading_dashboard_sharing') }}</h4>
+          <div class="uk-margin uk-margin-small-top">
+            <label><input class="uk-checkbox" type="checkbox" id="cfgDashboardShareEnabled" name="dashboardShareEnabled" value="1" {% if config.dashboardShareEnabled %}checked{% endif %}> {{ t('label_dashboard_share_enabled') }}</label>
+            <div class="uk-text-meta">{{ t('text_dashboard_share_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgDashboardPublicLink">{{ t('label_dashboard_public_link') }}</label>
+            <div class="uk-flex uk-flex-middle">
+              <input class="uk-input uk-flex-1" id="cfgDashboardPublicLink" type="text" readonly data-share-link="public">
+              <button class="uk-button uk-button-default uk-margin-small-left" type="button" data-copy-link="public">{{ t('button_media_copy_url') }}</button>
+              <button class="uk-button uk-button-secondary uk-margin-small-left" type="button" data-rotate-token="public">{{ t('action_dashboard_rotate_token') }}</button>
+            </div>
+            <div class="uk-text-meta">{{ t('text_dashboard_link_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <label><input class="uk-checkbox" type="checkbox" id="cfgDashboardSponsorEnabled" name="dashboardSponsorEnabled" value="1" {% if config.dashboardSponsorEnabled %}checked{% endif %}> {{ t('label_dashboard_sponsor_enabled') }}</label>
+            <div class="uk-text-meta">{{ t('text_dashboard_sponsor_hint') }}</div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgDashboardSponsorLink">{{ t('label_dashboard_sponsor_link') }}</label>
+            <div class="uk-flex uk-flex-middle">
+              <input class="uk-input uk-flex-1" id="cfgDashboardSponsorLink" type="text" readonly data-share-link="sponsor">
+              <button class="uk-button uk-button-default uk-margin-small-left" type="button" data-copy-link="sponsor">{{ t('button_media_copy_url') }}</button>
+              <button class="uk-button uk-button-secondary uk-margin-small-left" type="button" data-rotate-token="sponsor">{{ t('action_dashboard_rotate_token') }}</button>
+            </div>
+          </div>
+          <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label" for="cfgDashboardVisibilityStart">{{ t('label_dashboard_visibility_start') }}</label>
+              <input class="uk-input" type="datetime-local" id="cfgDashboardVisibilityStart" name="dashboardVisibilityStart" value="{{ config.dashboardVisibilityStart|default('') }}">
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label" for="cfgDashboardVisibilityEnd">{{ t('label_dashboard_visibility_end') }}</label>
+              <input class="uk-input" type="datetime-local" id="cfgDashboardVisibilityEnd" name="dashboardVisibilityEnd" value="{{ config.dashboardVisibilityEnd|default('') }}">
+            </div>
+          </div>
+          <div class="uk-text-meta uk-margin-small-top">{{ t('text_dashboard_visibility_hint') }}</div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

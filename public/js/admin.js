@@ -3609,7 +3609,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }).catch(() => notify('Fehler beim Speichern', 'danger'));
   }
 
-  document.getElementById('configForm')?.addEventListener('submit', e => e.preventDefault());
+  document.querySelectorAll('[data-config-form]').forEach(form => {
+    form.addEventListener('submit', event => event.preventDefault());
+  });
 
   if (cfgFields.puzzleEnabled) {
     cfgFields.puzzleEnabled.addEventListener('change', () => {

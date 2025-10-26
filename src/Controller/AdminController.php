@@ -89,18 +89,12 @@ class AdminController
         $context = \Slim\Routing\RouteContext::fromRequest($request);
         $route   = $context->getRoute();
         $section = 'dashboard';
-        $eventConfigFocus = '';
         if ($route !== null) {
             $pattern = $route->getPattern();
             $section = ltrim(substr($pattern, strlen('/admin')), '/');
             if ($section === '') {
                 $section = 'dashboard';
             }
-        }
-
-        if ($section === 'event/dashboard') {
-            $eventConfigFocus = 'dashboard';
-            $section = 'event/settings';
         }
 
         $results   = [];
@@ -336,7 +330,6 @@ class AdminController
               'stripe_configured' => StripeService::isConfigured()['ok'],
               'stripe_sandbox' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN),
               'currentPath' => $request->getUri()->getPath(),
-              'eventConfigFocus' => $eventConfigFocus,
               'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,
               'version' => $version,
