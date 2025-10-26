@@ -61,7 +61,7 @@ Der integrierte Teamnamen-Pool liefert auf Wunsch automatisch passende Vorschlä
 
 * `randomNameDomains` – JSON-Liste der gewünschten Themencluster (`nature`, `science`, `culture`, `sports`, `fantasy`, `geography`).
 * `randomNameTones` – JSON-Liste der Tonalitäten (`playful`, `bold`, `elegant`, `serious`, `quirky`).
-* `randomNameBuffer` – Zahl zwischen 0 und 9999. Gibt an, wie viele zusätzliche Namen pro Event vorab reserviert bleiben, damit die Auslastung im Dashboard sichtbar bleibt.
+* `randomNameBuffer` – Zahl zwischen 0 und 99999. Gibt an, wie viele zusätzliche Namen pro Event vorab reserviert bleiben, damit die Auslastung im Dashboard sichtbar bleibt.
 
 Bleiben die Listen leer, zieht der Dienst sämtliche verfügbaren Adjektiv- und Substantiv-Kombinationen heran. Die Werte werden im Admin-Frontend automatisch validiert und als Kleinbuchstaben gespeichert. Betriebsteams können die Felder bei Bedarf direkt in der `config`-Tabelle pflegen; `ConfigService` serialisiert die Listen als JSON (`random_name_domains` / `random_name_tones`) und normalisiert die Eingaben.
 

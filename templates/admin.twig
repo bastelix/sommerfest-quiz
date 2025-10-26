@@ -325,7 +325,64 @@
                 {% set randomNameTones = constant('App\\Service\\ConfigValidator::RANDOM_NAME_ALLOWED_TONES') %}
                 {% set randomNameDomainValues = config.randomNameDomains|default([]) %}
                 {% set randomNameToneValues = config.randomNameTones|default([]) %}
-                <fieldset class="uk-fieldset uk-margin-small-top" data-random-name-options {% if not config.randomNames %}disabled{% endif %}>
+                {% set randomNameStrategies = constant('App\\Service\\ConfigValidator::RANDOM_NAME_STRATEGIES') %}
+                {% set randomNameStrategyDefault = constant('App\\Service\\ConfigValidator::RANDOM_NAME_STRATEGY_DEFAULT') %}
+                {% set randomNameStrategyValue = config.randomNameStrategy|default(randomNameStrategyDefault)|lower %}
+                {% if randomNameStrategyValue not in randomNameStrategies %}
+                  {% set randomNameStrategyValue = randomNameStrategyDefault %}
+                {% endif %}
+                {% set randomNameLocaleValue = config.randomNameLocale|default('') %}
+                {% set randomNameHintKey = 'disabled' %}
+                {% if config.randomNames %}
+                  {% if randomNameStrategyValue == 'lexicon' %}
+                    {% set randomNameHintKey = 'lexicon' %}
+                  {% else %}
+                    {% set randomNameHintKey = 'ai' %}
+                  {% endif %}
+                {% endif %}
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="cfgRandomNameStrategy">
+                    {{ t('label_random_name_strategy') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_strategy') }}; pos: right" aria-label="{{ t('tip_random_name_strategy') }}" tabindex="0"></span>
+                  </label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="cfgRandomNameStrategy" name="random_name_strategy">
+                      <option value="ai" {% if randomNameStrategyValue == 'ai' %}selected{% endif %}>{{ t('option_random_name_strategy_ai') }}</option>
+                      <option value="lexicon" {% if randomNameStrategyValue == 'lexicon' %}selected{% endif %}>{{ t('option_random_name_strategy_lexicon') }}</option>
+                    </select>
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_strategy_hint') }}</p>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="cfgRandomNameLocale">
+                    {{ t('label_random_name_locale') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_name_locale') }}; pos: right" aria-label="{{ t('tip_random_name_locale') }}" tabindex="0"></span>
+                  </label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" type="text" id="cfgRandomNameLocale" name="random_name_locale" value="{{ randomNameLocaleValue }}" placeholder="{{ t('placeholder_random_name_locale') }}">
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_locale_hint') }}</p>
+                </div>
+                <div
+                  class="uk-alert-primary uk-alert-small uk-margin-small"
+                  uk-alert
+                  data-random-name-hints
+                  data-hint-ai="{{ t('text_random_name_hint_ai') }}"
+                  data-hint-lexicon="{{ t('text_random_name_hint_lexicon') }}"
+                  data-hint-disabled="{{ t('text_random_name_hint_disabled') }}"
+                >
+                  <p class="uk-margin-remove" data-random-name-hint-text>
+                    {% if randomNameHintKey == 'ai' %}
+                      {{ t('text_random_name_hint_ai') }}
+                    {% elseif randomNameHintKey == 'lexicon' %}
+                      {{ t('text_random_name_hint_lexicon') }}
+                    {% else %}
+                      {{ t('text_random_name_hint_disabled') }}
+                    {% endif %}
+                  </p>
+                </div>
+                {% set randomNameOptionsDisabled = (not config.randomNames) or (randomNameStrategyValue != 'ai') %}
+                <fieldset class="uk-fieldset uk-margin-small-top{% if randomNameOptionsDisabled %} uk-disabled{% endif %}" data-random-name-options {% if randomNameOptionsDisabled %}disabled{% endif %}>
                   <legend class="uk-legend uk-text-small uk-text-bold">{{ t('legend_random_name_preferences') }}</legend>
                   <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
                     <div>

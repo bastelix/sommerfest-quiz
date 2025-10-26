@@ -105,7 +105,7 @@ class ConfigValidator
 
     public const RANDOM_NAME_BUFFER_MIN = 0;
 
-    public const RANDOM_NAME_BUFFER_MAX = 9999;
+    public const RANDOM_NAME_BUFFER_MAX = 99999;
 
     public const RANDOM_NAME_STRATEGIES = ['ai', 'lexicon'];
 
