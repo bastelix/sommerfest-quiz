@@ -210,6 +210,7 @@ konfiguriert sein. Der Teamnamen-Service verwendet dieselben Umgebungsvariablen 
 | `RAG_CHAT_SERVICE_URL` | HTTP-Endpoint für Chat-Completions (z. B. der bereits für den RAG-Chatbot genutzte `/v1/chat/completions`-Pfad). |
 | `RAG_CHAT_SERVICE_TOKEN` | Optionaler API-Token für den Aufruf des Endpoints. |
 | `RAG_CHAT_SERVICE_MODEL` | Bevorzugtes Modell, das in der System-Prompt vermerkt wird. |
+| `RAG_CHAT_SERVICE_TIMEOUT` | Maximale Wartezeit in Sekunden pro Chat-Anfrage, Standard sind 12 s. |
 
 Ein Pufferwert in der
 Event-Konfiguration (`randomNameBuffer`) bestimmt, wie viele zusätzliche Vorschläge pro Event vorreserviert bleiben

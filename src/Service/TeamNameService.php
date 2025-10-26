@@ -35,7 +35,10 @@ use const DATE_ATOM;
  */
 class TeamNameService
 {
-    private const AI_MAX_ATTEMPTS = 3;
+    /**
+     * Limit AI fetch retries to keep individual requests fast enough for the proxy timeout.
+     */
+    private const AI_MAX_ATTEMPTS = 2;
     private const DEFAULT_LOCALE = 'de';
     private const RANDOM_NAME_STRATEGY_AI = 'ai';
     private const RANDOM_NAME_STRATEGY_LEXICON = 'lexicon';
