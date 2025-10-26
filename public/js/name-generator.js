@@ -266,15 +266,15 @@
     if (!reservation || !reservation.token) {
       return false;
     }
+    if (reservation === activeReservation) {
+      activeReservation = null;
+    }
     await fetch(`${basePath}/api/team-names/${encodeURIComponent(reservation.token)}`, {
       method: 'DELETE',
       credentials: 'same-origin',
       headers: buildHeaders(),
       body: JSON.stringify({ event_uid: reservation.eventUid })
     }).catch(() => {});
-    if (reservation === activeReservation) {
-      activeReservation = null;
-    }
     return true;
   }
 
