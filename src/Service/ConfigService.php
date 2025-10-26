@@ -805,7 +805,13 @@ class ConfigService
     /**
      * @param array<string, mixed> $config
      *
-     * @return array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string}
+     * @return array{
+     *     domains: array<int, string>,
+     *     tones: array<int, string>,
+     *     buffer: int,
+     *     locale: string|null,
+     *     strategy: string
+     * }
      */
     private function snapshotRandomNameSettings(array $config): array
     {
@@ -818,27 +824,36 @@ class ConfigService
             ConfigValidator::RANDOM_NAME_ALLOWED_TONES
         );
 
-        $bufferRaw = $config['randomNameBuffer'] ?? 0;
-        $buffer = is_numeric($bufferRaw) ? (int) $bufferRaw : 0;
+        $buffer = $this->normalizeRandomNameBufferValue($config['randomNameBuffer'] ?? null);
 
-        $localeRaw = $config['randomNameLocale'] ?? '';
-        $locale = is_string($localeRaw) || is_numeric($localeRaw)
-            ? trim((string) $localeRaw)
-            : '';
+        $locale = $this->normalizeRandomNameLocaleValue($config['randomNameLocale'] ?? null);
 
         return [
             'domains' => $domains,
             'tones' => $tones,
             'buffer' => $buffer,
             'locale' => $locale,
+            'strategy' => $this->normalizeRandomNameStrategyValue($config['randomNameStrategy'] ?? null),
         ];
     }
 
     /**
-     * @param array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string} $base
+     * @param array{
+     *     domains: array<int, string>,
+     *     tones: array<int, string>,
+     *     buffer: int,
+     *     locale: string|null,
+     *     strategy: string
+     * } $base
      * @param array<string, mixed> $updates
      *
-     * @return array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string}
+     * @return array{
+     *     domains: array<int, string>,
+     *     tones: array<int, string>,
+     *     buffer: int,
+     *     locale: string|null,
+     *     strategy: string
+     * }
      */
     private function mergeRandomNameSettings(array $base, array $updates): array
     {
@@ -861,31 +876,43 @@ class ConfigService
         }
 
         if (array_key_exists('randomNameBuffer', $updates)) {
-            $bufferValue = $updates['randomNameBuffer'];
-            if (is_string($bufferValue)) {
-                $bufferValue = trim($bufferValue);
-            }
-            $merged['buffer'] = is_numeric($bufferValue) ? (int) $bufferValue : 0;
+            $merged['buffer'] = $this->normalizeRandomNameBufferValue($updates['randomNameBuffer']);
         }
 
         if (array_key_exists('randomNameLocale', $updates)) {
-            $localeValue = $updates['randomNameLocale'];
-            $merged['locale'] =
-                (is_string($localeValue) || is_numeric($localeValue))
-                    ? trim((string) $localeValue)
-                    : '';
+            $merged['locale'] = $this->normalizeRandomNameLocaleValue($updates['randomNameLocale']);
+        }
+
+        if (array_key_exists('randomNameStrategy', $updates)) {
+            $merged['strategy'] = $this->normalizeRandomNameStrategyValue($updates['randomNameStrategy']);
         }
 
         return $merged;
     }
 
     /**
-     * @param array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string} $before
-     * @param array{domains: array<int, string>, tones: array<int, string>, buffer: int, locale: string} $after
+     * @param array{
+     *     domains: array<int, string>,
+     *     tones: array<int, string>,
+     *     buffer: int,
+     *     locale: string|null,
+     *     strategy: string
+     * } $before
+     * @param array{
+     *     domains: array<int, string>,
+     *     tones: array<int, string>,
+     *     buffer: int,
+     *     locale: string|null,
+     *     strategy: string
+     * } $after
      */
     private function randomNameFiltersChanged(array $before, array $after): bool
     {
-        return $before['domains'] !== $after['domains'] || $before['tones'] !== $after['tones'];
+        return $before['domains'] !== $after['domains']
+            || $before['tones'] !== $after['tones']
+            || $before['buffer'] !== $after['buffer']
+            || $before['locale'] !== $after['locale']
+            || $before['strategy'] !== $after['strategy'];
     }
 
     /**
