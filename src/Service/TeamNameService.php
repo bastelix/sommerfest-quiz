@@ -608,7 +608,7 @@ class TeamNameService
     }
 
     /**
-     * @param array<int, string> $values
+     * @param array<int, mixed> $values Non-scalar entries are skipped.
      *
      * @return array<int, string>
      */
