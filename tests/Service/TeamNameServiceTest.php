@@ -342,6 +342,41 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testGetAiDiagnosticsReportsLastStatus(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Nimbus'],
+                [],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $initial = $service->getAiDiagnostics();
+            self::assertTrue($initial['enabled']);
+            self::assertFalse($initial['available']);
+            self::assertNull($initial['last_attempt_at']);
+
+            $service->reserveWithBuffer('event-diag', [], [], 0, null, 'ai');
+            $afterSuccess = $service->getAiDiagnostics();
+            self::assertTrue($afterSuccess['available']);
+            self::assertNotNull($afterSuccess['last_success_at']);
+            self::assertNull($afterSuccess['last_error']);
+
+            $service->reserveWithBuffer('event-diag', [], [], 0, null, 'ai');
+            $afterFailure = $service->getAiDiagnostics();
+            self::assertFalse($afterFailure['available']);
+            self::assertNotNull($afterFailure['last_attempt_at']);
+            self::assertSame('Fake AI client returned no results.', $afterFailure['last_error']);
+            self::assertSame('Fake AI client returned no results.', $afterFailure['client_last_error']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     private function createInMemoryDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');

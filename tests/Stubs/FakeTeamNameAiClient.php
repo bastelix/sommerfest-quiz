@@ -11,6 +11,8 @@ use const JSON_THROW_ON_ERROR;
 use function array_shift;
 use function count;
 use function json_encode;
+use function max;
+use function min;
 use function trim;
 
 /**
@@ -57,6 +59,7 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
      */
     public function fetchSuggestions(int $count, array $domains, array $tones, string $locale): array
     {
+        $count = max(1, min(self::MAX_FETCH_COUNT, $count));
         $this->calls[] = [
             'count' => $count,
             'domains' => $domains,
@@ -65,6 +68,8 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
         ];
 
         if ($this->batches === []) {
+            $this->recordFailure('Fake AI client has no configured batches.');
+
             return [];
         }
 
@@ -88,6 +93,12 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
             if (count($result) >= $count) {
                 break;
             }
+        }
+
+        if ($result === []) {
+            $this->recordFailure('Fake AI client returned no results.');
+        } else {
+            $this->recordSuccess();
         }
 
         return $result;

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Service\RagChat\HttpChatResponder;
+use DateTimeImmutable;
+use DateTimeZone;
 use RuntimeException;
 
 use function array_filter;
@@ -18,7 +20,9 @@ use function explode;
 use function implode;
 use function is_array;
 use function json_decode;
+use function max;
 use function mb_strtolower;
+use function min;
 use function preg_match;
 use function preg_replace;
 use function preg_split;
@@ -31,7 +35,7 @@ use function trim;
  */
 class TeamNameAiClient
 {
-    private const MAX_FETCH_COUNT = 25;
+    protected const MAX_FETCH_COUNT = 25;
 
     private const BLOCKED_SUBSTRINGS = [
         'fuck',
@@ -54,6 +58,12 @@ class TeamNameAiClient
     private HttpChatResponder $chatResponder;
 
     private ?string $model;
+
+    private ?DateTimeImmutable $lastResponseAt = null;
+
+    private ?DateTimeImmutable $lastSuccessAt = null;
+
+    private ?string $lastError = null;
 
     public function __construct(HttpChatResponder $chatResponder, ?string $model = null)
     {
@@ -81,16 +91,37 @@ class TeamNameAiClient
         try {
             $response = $this->chatResponder->respond($messages, $context);
         } catch (RuntimeException $exception) {
+            $this->recordFailure($exception->getMessage());
+
             return [];
         }
 
         $suggestions = $this->parseResponse($response, $count);
-
         if ($suggestions === []) {
+            $error = $this->lastError ?? 'AI responder returned no usable suggestions.';
+            $this->recordFailure($error);
+
             return [];
         }
 
+        $this->recordSuccess();
+
         return array_slice($suggestions, 0, $count);
+    }
+
+    public function getLastResponseAt(): ?DateTimeImmutable
+    {
+        return $this->lastResponseAt;
+    }
+
+    public function getLastSuccessAt(): ?DateTimeImmutable
+    {
+        return $this->lastSuccessAt;
+    }
+
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
     }
 
     /**
@@ -187,6 +218,8 @@ class TeamNameAiClient
     {
         $response = trim($response);
         if ($response === '') {
+            $this->lastError = 'AI response was empty.';
+
             return [];
         }
 
@@ -195,16 +228,28 @@ class TeamNameAiClient
             if (array_key_exists('names', $decoded) && is_array($decoded['names'])) {
                 /** @var array<int|string, mixed> $candidates */
                 $candidates = $decoded['names'];
-                return $this->filterCandidates($candidates, $requested);
+
+                return $this->finalizeCandidates($candidates, $requested);
             }
 
             if ($this->isSequentialArray($decoded)) {
                 /** @var array<int|string, mixed> $decoded */
-                return $this->filterCandidates($decoded, $requested);
+                return $this->finalizeCandidates($decoded, $requested);
             }
+
+            $this->lastError = 'JSON response missing expected "names" array.';
+
+            return [];
         }
 
-        return $this->filterCandidates($this->parseFallbackText($response), $requested);
+        $fallback = $this->parseFallbackText($response);
+        if ($fallback === []) {
+            $this->lastError = 'Unable to parse AI response.';
+
+            return [];
+        }
+
+        return $this->finalizeCandidates($fallback, $requested);
     }
 
     /**
@@ -344,5 +389,41 @@ class TeamNameAiClient
     private function isSequentialArray(array $array): bool
     {
         return array_keys($array) === range(0, count($array) - 1);
+    }
+
+    /**
+     * @param array<int|string, mixed> $candidates
+     * @return list<string>
+     */
+    private function finalizeCandidates(array $candidates, int $requested): array
+    {
+        $filtered = $this->filterCandidates($candidates, $requested);
+        if ($filtered === []) {
+            $this->lastError = 'AI response did not include usable suggestions.';
+        } else {
+            $this->lastError = null;
+        }
+
+        return $filtered;
+    }
+
+    protected function recordSuccess(?DateTimeImmutable $timestamp = null): void
+    {
+        $time = $timestamp ?? $this->currentTime();
+        $this->lastResponseAt = $time;
+        $this->lastSuccessAt = $time;
+        $this->lastError = null;
+    }
+
+    protected function recordFailure(string $message, ?DateTimeImmutable $timestamp = null): void
+    {
+        $time = $timestamp ?? $this->currentTime();
+        $this->lastResponseAt = $time;
+        $this->lastError = trim($message) === '' ? 'AI responder returned an unknown error.' : $message;
+    }
+
+    protected function currentTime(): DateTimeImmutable
+    {
+        return new DateTimeImmutable('now', new DateTimeZone('UTC'));
     }
 }

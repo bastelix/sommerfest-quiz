@@ -12,6 +12,17 @@ use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+use function array_filter;
+use function array_map;
+use function array_unique;
+use function array_values;
+use function is_array;
+use function is_numeric;
+use function is_string;
+use function json_encode;
+use function strtolower;
+use function trim;
+
 /**
  * HTTP endpoints for reserving and confirming curated team names.
  */
@@ -112,6 +123,47 @@ class TeamNameController
         ];
 
         $response->getBody()->write(json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function status(Request $request, Response $response): Response
+    {
+        $query = $request->getQueryParams();
+        $eventId = $this->resolveEventId($query);
+
+        $config = $eventId !== ''
+            ? $this->config->getConfigForEvent($eventId)
+            : [];
+
+        if ($config === []) {
+            $config = $this->config->getConfig();
+        }
+
+        $domainsRaw = is_array($config['randomNameDomains'] ?? null) ? $config['randomNameDomains'] : [];
+        $tonesRaw = is_array($config['randomNameTones'] ?? null) ? $config['randomNameTones'] : [];
+        $domains = $this->normalizeStringList($domainsRaw);
+        $tones = $this->normalizeStringList($tonesRaw);
+        $buffer = $this->resolveRandomNameBuffer($config);
+        $locale = $this->resolveRandomNameLocale($config);
+        $strategy = $this->resolveRandomNameStrategy($config);
+
+        $diagnostics = $this->service->getAiDiagnostics();
+        $required = $strategy === 'ai';
+        $diagnostics['required_for_event'] = $required;
+        $diagnostics['active_for_event'] = $required && !empty($diagnostics['available']);
+
+        $payload = [
+            'event_id' => $eventId,
+            'strategy' => $strategy,
+            'buffer' => $buffer,
+            'locale' => $locale,
+            'domains' => $domains,
+            'tones' => $tones,
+            'ai' => $diagnostics,
+        ];
+
+        $response->getBody()->write(json_encode($payload));
+
         return $response->withHeader('Content-Type', 'application/json');
     }
 
@@ -240,5 +292,31 @@ class TeamNameController
         }
         $decoded = json_decode($raw, true);
         return is_array($decoded) ? $decoded : [];
+    }
+
+    /**
+     * @param array<int|string, mixed> $values
+     * @return array<int, string>
+     */
+    private function normalizeStringList(array $values): array
+    {
+        if ($values === []) {
+            return [];
+        }
+
+        $values = array_map(static function ($value): string {
+            if (is_string($value) || is_numeric($value)) {
+                return trim((string) $value);
+            }
+
+            return '';
+        }, $values);
+
+        $values = array_filter($values, static fn (string $value): bool => $value !== '');
+
+        /** @var array<int, string> $unique */
+        $unique = array_values(array_unique($values));
+
+        return $unique;
     }
 }
