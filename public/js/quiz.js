@@ -66,14 +66,16 @@ function getLastSuggestionWasFallback(){
 }
 
 function releaseNameReservation(){
-  if (nameReservation) {
-    const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
-    if (client && typeof client.release === 'function') {
-      client.release({ reservation: nameReservation }).catch(() => {});
-    }
-  }
+  const reservation = nameReservation;
   nameReservation = null;
   lastSuggestionFallback = false;
+  if (reservation) {
+    const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+    if (client && typeof client.release === 'function') {
+      return client.release({ reservation }).catch(() => {});
+    }
+  }
+  return Promise.resolve();
 }
 
 async function releaseConfirmedTeamName(name){
@@ -156,7 +158,7 @@ function updateTeamNameButton(){
 async function promptTeamNameChange(existingName){
   const currentName = typeof existingName === 'string' ? existingName : getStored('quizUser') || '';
   const normalizedExisting = typeof currentName === 'string' ? currentName.trim() : '';
-  releaseNameReservation();
+  await releaseNameReservation();
   const suggestion = await getNameSuggestion();
   const suggestionIsFallback = getLastSuggestionWasFallback();
   return new Promise(resolve => {
@@ -210,7 +212,7 @@ async function promptTeamNameChange(existingName){
           return;
         }
       }else{
-        releaseNameReservation();
+        await releaseNameReservation();
       }
       if (normalizedExisting && name.toLowerCase() !== normalizedExisting.toLowerCase()) {
         await releaseConfirmedTeamName(normalizedExisting);
@@ -287,7 +289,7 @@ async function promptTeamName(){
   const competitionMode = Boolean(cfg.competitionMode);
   const existing = getStored('quizUser');
   if(existing){
-    releaseNameReservation();
+    await releaseNameReservation();
     return new Promise(resolve => {
       const modal = document.createElement('div');
       modal.setAttribute('uk-modal', '');
@@ -337,7 +339,7 @@ async function promptTeamName(){
         try{
           await postSession('player', { name: null });
         }catch(e){ /* empty */ }
-        releaseNameReservation();
+        await releaseNameReservation();
         reopenAction = () => promptTeamName();
         ui.hide();
       });
@@ -399,7 +401,7 @@ async function promptTeamName(){
           return;
         }
       }else{
-        releaseNameReservation();
+        await releaseNameReservation();
       }
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
@@ -1946,7 +1948,7 @@ async function runQuiz(questions, skipIntro){
                 return;
               }
             }else{
-              releaseNameReservation();
+              await releaseNameReservation();
             }
             setStored('quizUser', name);
             setStored(STORAGE_KEYS.PLAYER_NAME, name);
