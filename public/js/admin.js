@@ -1035,6 +1035,8 @@ document.addEventListener('DOMContentLoaded', function () {
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
     randomNames: document.getElementById('cfgRandomNames'),
+    randomNameStrategy: document.getElementById('cfgRandomNameStrategy'),
+    randomNameLocale: document.getElementById('cfgRandomNameLocale'),
     randomNameDomains: Array.from(document.querySelectorAll('input[name="random_name_domains[]"]')),
     randomNameTones: Array.from(document.querySelectorAll('input[name="random_name_tones[]"]')),
     randomNameBuffer: document.getElementById('cfgRandomNameBuffer'),
@@ -1060,13 +1062,39 @@ document.addEventListener('DOMContentLoaded', function () {
     dashboardVisibilityEnd: document.getElementById('cfgDashboardVisibilityEnd')
   };
   const randomNameOptionsFieldset = document.querySelector('[data-random-name-options]');
+  const randomNameHintsContainer = document.querySelector('[data-random-name-hints]');
+  const randomNameHintText = randomNameHintsContainer
+    ? randomNameHintsContainer.querySelector('[data-random-name-hint-text]')
+    : null;
+  const randomNameHintMessages = randomNameHintsContainer
+    ? {
+      ai: randomNameHintsContainer.dataset.hintAi || '',
+      lexicon: randomNameHintsContainer.dataset.hintLexicon || '',
+      disabled: randomNameHintsContainer.dataset.hintDisabled || ''
+    }
+    : null;
   const syncRandomNameOptionsState = () => {
-    if (!randomNameOptionsFieldset) {
+    if (!randomNameOptionsFieldset && !randomNameHintsContainer) {
       return;
     }
-    const enabled = !!cfgFields.randomNames && !!cfgFields.randomNames.checked;
-    randomNameOptionsFieldset.disabled = !enabled;
-    randomNameOptionsFieldset.classList.toggle('uk-disabled', !enabled);
+    const randomNamesEnabled = !!cfgFields.randomNames && !!cfgFields.randomNames.checked;
+    const strategyRaw = cfgFields.randomNameStrategy?.value;
+    const strategy = typeof strategyRaw === 'string' ? strategyRaw.toLowerCase() : '';
+    const aiSelected = strategy === 'ai';
+    const fieldsetEnabled = randomNamesEnabled && aiSelected;
+    if (randomNameOptionsFieldset) {
+      randomNameOptionsFieldset.disabled = !fieldsetEnabled;
+      randomNameOptionsFieldset.classList.toggle('uk-disabled', !fieldsetEnabled);
+    }
+    if (randomNameHintsContainer && randomNameHintText && randomNameHintMessages) {
+      let hintKey = 'disabled';
+      if (randomNamesEnabled) {
+        hintKey = aiSelected ? 'ai' : 'lexicon';
+      }
+      const message = randomNameHintMessages[hintKey] || '';
+      randomNameHintText.textContent = message;
+      randomNameHintsContainer.hidden = message === '';
+    }
   };
   const dashboardModulesList = document.querySelector('[data-dashboard-modules]');
   const dashboardModuleInputs = {
@@ -2079,6 +2107,27 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.qrUser.checked = !!data.QRUser;
     if (cfgFields.randomNames) {
       cfgFields.randomNames.checked = data.randomNames !== false;
+    }
+    if (cfgFields.randomNameStrategy) {
+      const rawStrategy = data.randomNameStrategy ?? data.random_name_strategy ?? '';
+      const normalizedStrategy = typeof rawStrategy === 'string' || typeof rawStrategy === 'number'
+        ? String(rawStrategy).trim().toLowerCase()
+        : '';
+      cfgFields.randomNameStrategy.value = ['ai', 'lexicon'].includes(normalizedStrategy)
+        ? normalizedStrategy
+        : 'ai';
+    }
+    if (cfgFields.randomNameLocale) {
+      const rawLocale = data.randomNameLocale ?? data.random_name_locale ?? '';
+      if (rawLocale === null || rawLocale === undefined) {
+        cfgFields.randomNameLocale.value = '';
+      } else if (typeof rawLocale === 'string') {
+        cfgFields.randomNameLocale.value = rawLocale.trim();
+      } else if (typeof rawLocale === 'number') {
+        cfgFields.randomNameLocale.value = String(rawLocale);
+      } else {
+        cfgFields.randomNameLocale.value = '';
+      }
     }
     if (Array.isArray(cfgFields.randomNameDomains)) {
       const domains = Array.isArray(data.randomNameDomains) ? data.randomNameDomains : [];
@@ -3217,6 +3266,21 @@ document.addEventListener('DOMContentLoaded', function () {
       data.startTheme = selectedTheme === 'dark' ? 'dark' : 'light';
     }
     if (cfgFields.randomNames) data.randomNames = cfgFields.randomNames.checked;
+    if (cfgFields.randomNameStrategy) {
+      const rawStrategy = cfgFields.randomNameStrategy.value;
+      const normalizedStrategy = typeof rawStrategy === 'string'
+        ? rawStrategy.trim().toLowerCase()
+        : '';
+      data.randomNameStrategy = ['ai', 'lexicon'].includes(normalizedStrategy)
+        ? normalizedStrategy
+        : '';
+    }
+    if (cfgFields.randomNameLocale) {
+      const rawLocale = typeof cfgFields.randomNameLocale.value === 'string'
+        ? cfgFields.randomNameLocale.value.trim()
+        : '';
+      data.randomNameLocale = rawLocale;
+    }
     if (Array.isArray(cfgFields.randomNameDomains)) {
       data.randomNameDomains = formUtils.readChecked(cfgFields.randomNameDomains);
     }
@@ -3387,6 +3451,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
   cfgFields.randomNames?.addEventListener('change', syncRandomNameOptionsState);
+  cfgFields.randomNameStrategy?.addEventListener('change', syncRandomNameOptionsState);
   dashboardModulesList?.addEventListener('change', event => {
     if (event.target.matches('[data-module-results-option="limit"]')) {
       const moduleItem = event.target.closest('[data-module-id]');
