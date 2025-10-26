@@ -41,6 +41,9 @@
     var input =
       modalElement.querySelector('[data-marketing-chat-input]')
       || modalElement.querySelector('[data-calserver-chat-input]');
+    var honeypot =
+      modalElement.querySelector('[data-marketing-chat-honeypot]')
+      || modalElement.querySelector('[data-calserver-chat-honeypot]');
     if (!messagesContainer || !form || !input) {
       return;
     }
@@ -214,6 +217,9 @@
     function resetForm() {
       input.disabled = false;
       input.value = '';
+      if (honeypot) {
+        honeypot.value = '';
+      }
       if (submitButton) {
         submitButton.disabled = false;
       }
@@ -238,6 +244,10 @@
         return;
       }
       var value = input.value.trim();
+      if (honeypot && honeypot.value.trim() !== '') {
+        resetForm();
+        return;
+      }
       if (!value) {
         setStatus((config.texts && config.texts.errorValidation) || '', true);
         input.focus();
@@ -252,7 +262,11 @@
       }
       setStatus((config.texts && config.texts.loading) || '', false);
 
-      var body = JSON.stringify({ question: value });
+      var payload = { question: value };
+      if (honeypot) {
+        payload.company = honeypot.value;
+      }
+      var body = JSON.stringify(payload);
       var headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -275,6 +289,9 @@
         credentials: 'same-origin'
       })
         .then(function (response) {
+          if (response.status === 204) {
+            return { blocked: true };
+          }
           if (!response.ok) {
             handleError(response.status);
             throw new Error('Request failed with status ' + response.status);
@@ -282,6 +299,11 @@
           return response.json();
         })
         .then(function (payload) {
+          if (payload && payload.blocked) {
+            setStatus('', false);
+            resetForm();
+            return;
+          }
           setStatus('', false);
           var context = payload && Array.isArray(payload.context) ? payload.context : [];
           appendTurn(payload.question || value, payload.answer || '', context);

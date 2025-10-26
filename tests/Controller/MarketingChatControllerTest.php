@@ -74,6 +74,30 @@ final class MarketingChatControllerTest extends TestCase
         $this->assertSame('legacy.example.com', $service->lastDomain);
         $this->assertSame('de', $service->lastLocale);
     }
+
+    public function testHoneypotReturnsNoContent(): void
+    {
+        $service = new FakeRagChatService();
+        $controller = new MarketingChatController('calserver', $service);
+
+        $request = $this->createRequest(
+            'POST',
+            '/calserver/chat',
+            [
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+            ]
+        );
+        $request->getBody()->write(json_encode(['question' => 'Legacy?', 'company' => 'Acme Inc.'], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $responseFactory = new ResponseFactory();
+        $result = $controller($request, $responseFactory->createResponse());
+
+        $this->assertSame(204, $result->getStatusCode());
+        $this->assertSame('', (string) $result->getBody());
+        $this->assertNull($service->lastQuestion);
+    }
 }
 
 final class FakeRagChatService implements RagChatServiceInterface

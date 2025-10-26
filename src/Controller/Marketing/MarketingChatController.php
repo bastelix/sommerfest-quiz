@@ -42,6 +42,12 @@ final class MarketingChatController
                 ->withHeader('Content-Type', 'application/json');
         }
 
+        if ($payload['blocked']) {
+            $this->logHoneypot($request);
+
+            return $response->withStatus(204);
+        }
+
         $locale = (string) ($request->getAttribute('lang') ?? 'de');
 
         $domain = $this->resolveDomain($request);
@@ -72,7 +78,7 @@ final class MarketingChatController
     }
 
     /**
-     * @return array{question:string}
+     * @return array{question:string, blocked:bool}
      */
     private function decodeRequest(Request $request): array
     {
@@ -93,12 +99,17 @@ final class MarketingChatController
             throw new RuntimeException('Missing payload.');
         }
 
+        $honeypot = trim((string) ($data['company'] ?? ''));
+        if ($honeypot !== '') {
+            return ['question' => '', 'blocked' => true];
+        }
+
         $question = trim((string) ($data['question'] ?? ''));
         if ($question === '') {
             throw new RuntimeException('Question missing.');
         }
 
-        return ['question' => $question];
+        return ['question' => $question, 'blocked' => false];
     }
 
     /**
@@ -161,5 +172,32 @@ final class MarketingChatController
         }
 
         return null;
+    }
+
+    private function logHoneypot(Request $request): void
+    {
+        $serverParams = $request->getServerParams();
+        $ip = (string) ($serverParams['REMOTE_ADDR'] ?? 'unknown');
+        $key = 'marketing_chat_honeypot:' . $ip;
+        $shouldLog = true;
+
+        if (
+            function_exists('apcu_fetch') &&
+            function_exists('apcu_store') &&
+            function_exists('apcu_exists') &&
+            (!function_exists('apcu_enabled') || apcu_enabled())
+        ) {
+            $count = 0;
+            if (apcu_exists($key)) {
+                $count = (int) apcu_fetch($key);
+            }
+            $shouldLog = $count < 5;
+            apcu_store($key, $count + 1, 300);
+        }
+
+        if ($shouldLog) {
+            $ua = (string) ($serverParams['HTTP_USER_AGENT'] ?? 'unknown');
+            error_log(sprintf('Marketing chat honeypot triggered (ip=%s, ua=%s)', $ip, $ua));
+        }
     }
 }
