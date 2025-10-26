@@ -192,6 +192,16 @@
         <p class="marketing-chat__status" data-marketing-chat-status aria-live="assertive"></p>
         <form class="marketing-chat__form" data-marketing-chat-form>
           <label class="uk-form-label" for="marketing-chat-question">{{ t('marketing_chat_question_label') }}</label>
+          <div class="marketing-chat__honeypot" aria-hidden="true">
+            <label for="marketing-chat-company">Company</label>
+            <input type="text"
+                   id="marketing-chat-company"
+                   name="company"
+                   class="uk-input"
+                   autocomplete="off"
+                   tabindex="-1"
+                   data-marketing-chat-honeypot>
+          </div>
           <textarea class="uk-textarea"
                     id="marketing-chat-question"
                     name="question"
