@@ -1,0 +1,136 @@
+{% extends 'layout.twig' %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_username_blocklist') }}</h2>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div
+        class="uk-section uk-section-small"
+        data-username-blocklist
+        data-create-url="{{ basePath }}/admin/username-blocklist"
+        data-empty-message="{{ t('text_username_blocklist_empty') }}"
+        data-error-default="{{ t('error_username_blocklist_unknown') }}"
+        data-remove-label="{{ t('action_username_blocklist_remove') }}"
+        data-csrf="{{ csrfToken }}"
+      >
+        <div class="uk-container">
+          <p class="uk-text-meta">{{ t('text_username_blocklist_intro') }}</p>
+          <form class="uk-form-stacked uk-margin" data-username-blocklist-form>
+            <div class="uk-grid-small" uk-grid>
+              <div class="uk-width-expand@s">
+                <label class="uk-form-label" for="usernameBlocklistTerm">{{ t('label_username_blocklist_term') }}</label>
+                <div class="uk-form-controls">
+                  <input
+                    class="uk-input"
+                    type="text"
+                    id="usernameBlocklistTerm"
+                    name="term"
+                    minlength="3"
+                    required
+                    placeholder="{{ t('placeholder_username_blocklist_term') }}"
+                  >
+                </div>
+                <p class="uk-text-meta uk-margin-small-top">{{ t('text_username_blocklist_hint') }}</p>
+              </div>
+              <div class="uk-width-auto@s uk-flex uk-flex-bottom">
+                <button type="submit" class="uk-button uk-button-primary" data-username-blocklist-submit>
+                  <span uk-icon="icon: plus"></span>
+                  <span class="uk-visible@s uk-margin-small-left">{{ t('action_username_blocklist_add') }}</span>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <div class="uk-alert" hidden data-username-blocklist-feedback></div>
+
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
+              <thead>
+                <tr>
+                  <th>{{ t('column_username_blocklist_term') }}</th>
+                  <th class="uk-table-shrink">{{ t('column_username_blocklist_created') }}</th>
+                  <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody data-username-blocklist-table data-empty="{{ t('text_username_blocklist_empty') }}">
+                {% if entries is empty %}
+                  <tr data-empty-row>
+                    <td colspan="3" class="uk-text-meta">{{ t('text_username_blocklist_empty') }}</td>
+                  </tr>
+                {% else %}
+                  {% for entry in entries %}
+                    <tr data-entry-id="{{ entry.id }}">
+                      <td class="uk-table-expand">
+                        <span class="uk-text-bold" data-term>{{ entry.term }}</span>
+                      </td>
+                      <td class="uk-text-meta" data-created="{{ entry.created_at }}">{{ entry.created_at_display }}</td>
+                      <td class="uk-table-shrink uk-text-right">
+                        <button
+                          type="button"
+                          class="uk-button uk-button-text uk-text-danger"
+                          data-username-blocklist-delete
+                          data-delete-url="{{ basePath }}/admin/username-blocklist/{{ entry.id }}"
+                          data-term="{{ entry.term }}"
+                          aria-label="{{ t('action_username_blocklist_remove') }} {{ entry.term }}"
+                        >
+                          <span uk-icon="icon: trash"></span>
+                          <span class="uk-visible@s uk-margin-small-left">{{ t('action_username_blocklist_remove') }}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script type="module" src="{{ basePath }}/js/username-blocklist.js"></script>
+{% endblock %}
