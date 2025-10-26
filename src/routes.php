@@ -288,7 +288,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             $teamNameAiClient = null;
             $teamNameAiEnabled = false;
         }
-        $teamNameAiEnabled = $teamNameAiClient !== null && $teamNameAiEnabled;
+
+        if ($teamNameAiClient === null) {
+            $teamNameAiEnabled = false;
+        }
 
         $teamNameService = new TeamNameService(
             $pdo,
