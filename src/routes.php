@@ -2031,7 +2031,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->show($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->patch('/admin/event/{id}', function (Request $request, Response $response, array $args) {
+    $app->map(['PATCH', 'POST'], '/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
     $app->post('/admin/event/{id}/dashboard-token', function (Request $request, Response $response, array $args) {
