@@ -12,6 +12,7 @@ use RuntimeException;
 use function array_filter;
 use function array_key_exists;
 use function array_map;
+use function array_pop;
 use function array_shift;
 use function array_slice;
 use function array_unique;
@@ -32,6 +33,8 @@ use function preg_replace;
 use function preg_split;
 use function sprintf;
 use function str_contains;
+use function strlen;
+use function substr;
 use function trim;
 use function usort;
 
@@ -273,6 +276,27 @@ class TeamNameAiClient
             return '';
         }
 
+        if (preg_match('/```[^\n]*\n?([\s\S]*?)```/u', $payload, $matches) === 1) {
+            $payload = (string) $matches[1];
+        } elseif (preg_match('/^```/u', $payload) === 1) {
+            $lines = preg_split('/\R/', $payload) ?: [];
+            if ($lines !== []) {
+                $rawFirstLine = (string) array_shift($lines);
+                $firstLine = trim($rawFirstLine);
+                if (preg_match('/^```(?:\s*[a-z0-9_-]+)?$/i', $firstLine) === 1) {
+                    while ($lines !== [] && trim((string) end($lines)) === '') {
+                        array_pop($lines);
+                    }
+                    if ($lines !== [] && trim((string) end($lines)) === '```') {
+                        array_pop($lines);
+                    }
+                } else {
+                    array_unshift($lines, $rawFirstLine);
+                }
+                $payload = implode("\n", $lines);
+            }
+        }
+
         if (preg_match('/^```/u', $payload) === 1) {
             $lines = preg_split('/\R/', $payload) ?: [];
             if ($lines !== []) {
@@ -292,10 +316,92 @@ class TeamNameAiClient
             }
         }
 
+        $extracted = $this->extractFirstJsonSegment($payload);
+        if ($extracted !== null) {
+            $payload = $extracted;
+        }
+
         $payload = trim($payload);
         $payload = preg_replace('/^json\s*[:=]\s*/i', '', $payload, 1) ?? $payload;
 
         return trim($payload);
+    }
+
+    private function extractFirstJsonSegment(string $text): ?string
+    {
+        $length = strlen($text);
+        $start = null;
+        $stack = [];
+        $inString = false;
+        $escape = false;
+
+        for ($index = 0; $index < $length; $index++) {
+            $char = $text[$index];
+
+            if ($start === null) {
+                if ($char === '{' || $char === '[') {
+                    $start = $index;
+                    $stack[] = $char;
+                }
+
+                continue;
+            }
+
+            if ($inString) {
+                if ($escape) {
+                    $escape = false;
+
+                    continue;
+                }
+
+                if ($char === '\\') {
+                    $escape = true;
+
+                    continue;
+                }
+
+                if ($char === '"') {
+                    $inString = false;
+                }
+
+                continue;
+            }
+
+            if ($char === '"') {
+                $inString = true;
+
+                continue;
+            }
+
+            if ($char === '{' || $char === '[') {
+                $stack[] = $char;
+
+                continue;
+            }
+
+            if ($char !== '}' && $char !== ']') {
+                continue;
+            }
+
+            if ($stack === []) {
+                return null;
+            }
+
+            $opening = array_pop($stack);
+            if (($opening === '{' && $char !== '}') || ($opening === '[' && $char !== ']')) {
+                return null;
+            }
+
+            if ($stack !== []) {
+                continue;
+            }
+
+            $segment = substr($text, $start, $index - $start + 1);
+
+            return $segment === false ? null : $segment;
+        }
+
+        return null;
     }
 
     /**
