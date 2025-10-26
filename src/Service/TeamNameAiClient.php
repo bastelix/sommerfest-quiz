@@ -489,6 +489,23 @@ class TeamNameAiClient
         return implode(', ', self::BLOCKED_SUBSTRINGS);
     }
 
+    private const STOP_WORDS = [
+        'der',
+        'die',
+        'das',
+        'den',
+        'dem',
+        'des',
+        'ein',
+        'eine',
+        'einer',
+        'einem',
+        'einen',
+        'eines',
+        'the',
+        'team',
+    ];
+
     private function extractPrimaryToken(string $name): string
     {
         $normalized = mb_strtolower($name);
@@ -499,10 +516,25 @@ class TeamNameAiClient
         }
 
         $parts = preg_split('/[\s\-]+/u', $normalized) ?: [];
+        $fallback = null;
+
         foreach ($parts as $part) {
-            if ($part !== '') {
-                return mb_substr($part, 0, 3);
+            if ($part === '') {
+                continue;
             }
+
+            if (in_array($part, self::STOP_WORDS, true)) {
+                if ($fallback === null) {
+                    $fallback = $part;
+                }
+                continue;
+            }
+
+            return mb_substr($part, 0, 3);
+        }
+
+        if ($fallback !== null) {
+            return mb_substr($fallback, 0, 3);
         }
 
         return '#';
