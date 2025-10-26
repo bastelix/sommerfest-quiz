@@ -23,6 +23,9 @@ const transDashboardCopyFailed = window.transDashboardCopyFailed || 'Kopieren fe
 const transDashboardTokenRotated = window.transDashboardTokenRotated || 'Neues Token erstellt';
 const transDashboardTokenRotateError = window.transDashboardTokenRotateError || 'Token konnte nicht erneuert werden';
 const transDashboardNoEvent = window.transDashboardNoEvent || 'Kein Event ausgewählt';
+const transPreviewPasswordStatusActive = window.transPreviewPasswordStatusActive || 'Preview password is enabled.';
+const transPreviewPasswordStatusMissing = window.transPreviewPasswordStatusMissing || 'No preview password configured yet.';
+const transPreviewPasswordStatusPendingRemoval = window.transPreviewPasswordStatusPendingRemoval || 'Preview password will be removed after saving.';
 
 const parseBooleanOption = (candidate) => {
   if (candidate === null || candidate === undefined) {
@@ -1045,6 +1048,9 @@ document.addEventListener('DOMContentLoaded', function () {
     photoUpload: document.getElementById('cfgPhotoUpload'),
     countdownEnabled: document.getElementById('cfgCountdownEnabled'),
     countdown: document.getElementById('cfgCountdown'),
+    previewPassword: document.getElementById('cfgPreviewPassword'),
+    previewPasswordStatus: document.querySelector('[data-preview-password-status]'),
+    previewPasswordClear: document.getElementById('cfgPreviewPasswordClear'),
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
@@ -1060,6 +1066,39 @@ document.addEventListener('DOMContentLoaded', function () {
     dashboardVisibilityEnd: document.getElementById('cfgDashboardVisibilityEnd')
   };
   const randomNameOptionsFieldset = document.querySelector('[data-random-name-options]');
+  let previewPasswordEnabled = cfgInitial.previewPasswordEnabled === true;
+  let previewPasswordRemove = false;
+
+  function renderPreviewPasswordStatus(nextEnabled) {
+    if (typeof nextEnabled === 'boolean') {
+      previewPasswordEnabled = nextEnabled;
+    }
+    const statusNode = cfgFields.previewPasswordStatus;
+    if (statusNode) {
+      if (previewPasswordRemove) {
+        statusNode.textContent = transPreviewPasswordStatusPendingRemoval;
+        statusNode.classList.remove('uk-text-success');
+        statusNode.classList.add('uk-text-warning');
+      } else if (previewPasswordEnabled) {
+        statusNode.textContent = transPreviewPasswordStatusActive;
+        statusNode.classList.add('uk-text-success');
+        statusNode.classList.remove('uk-text-warning');
+      } else {
+        statusNode.textContent = transPreviewPasswordStatusMissing;
+        statusNode.classList.remove('uk-text-success');
+        statusNode.classList.remove('uk-text-warning');
+      }
+    }
+    if (cfgFields.previewPasswordClear) {
+      cfgFields.previewPasswordClear.disabled = !previewPasswordEnabled && !previewPasswordRemove;
+    }
+  }
+
+  function setPreviewPasswordRemoval(active) {
+    previewPasswordRemove = !!active;
+    renderPreviewPasswordStatus();
+  }
+
   const syncRandomNameOptionsState = () => {
     if (!randomNameOptionsFieldset) {
       return;
@@ -2209,6 +2248,12 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePuzzleFeedbackUI();
     inviteText = data.inviteText || '';
     updateInviteTextUI();
+    previewPasswordEnabled = data.previewPasswordEnabled === true;
+    previewPasswordRemove = false;
+    if (cfgFields.previewPassword) {
+      cfgFields.previewPassword.value = '';
+    }
+    renderPreviewPasswordStatus(previewPasswordEnabled);
     if (cfgFields.puzzleWrap) {
       cfgFields.puzzleWrap.style.display = cfgFields.puzzleEnabled.checked ? '' : 'none';
     }
@@ -3280,6 +3325,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     }
+    if (cfgFields.previewPassword) {
+      const rawPreviewPassword = cfgFields.previewPassword.value;
+      const trimmedPreviewPassword = rawPreviewPassword == null ? '' : String(rawPreviewPassword).trim();
+      if (trimmedPreviewPassword !== '') {
+        data.previewPassword = trimmedPreviewPassword;
+        previewPasswordRemove = false;
+      }
+    }
+    if (previewPasswordRemove && !data.previewPassword) {
+      data.previewPasswordRemove = true;
+    }
     if (cfgFields.puzzleEnabled) {
       data.puzzleWordEnabled = cfgFields.puzzleEnabled.checked;
       data.puzzleWord = cfgFields.puzzleWord?.value || '';
@@ -3354,7 +3410,21 @@ document.addEventListener('DOMContentLoaded', function () {
       body: JSON.stringify(data)
     }).then(r => {
       if (r.ok) {
-        Object.assign(cfgInitial, data);
+        if (Object.prototype.hasOwnProperty.call(data, 'previewPassword')) {
+          previewPasswordEnabled = true;
+          previewPasswordRemove = false;
+        } else if (data.previewPasswordRemove) {
+          previewPasswordEnabled = false;
+          previewPasswordRemove = false;
+        }
+        const initialUpdate = { ...data, previewPasswordEnabled };
+        delete initialUpdate.previewPassword;
+        delete initialUpdate.previewPasswordRemove;
+        Object.assign(cfgInitial, initialUpdate);
+        if (cfgFields.previewPassword) {
+          cfgFields.previewPassword.value = '';
+        }
+        renderPreviewPasswordStatus();
         notify('Einstellung gespeichert', 'success');
       } else {
         notify('Fehler beim Speichern', 'danger');
@@ -3374,7 +3444,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   Object.entries(cfgFields).forEach(([key, el]) => {
-    if (!el || ['logoFile', 'logoPreview', 'registrationEnabled', 'puzzleEnabled'].includes(key)) {
+    if (!el || ['logoFile', 'logoPreview', 'registrationEnabled', 'puzzleEnabled', 'previewPassword', 'previewPasswordClear', 'previewPasswordStatus'].includes(key)) {
       return;
     }
     const targets = Array.isArray(el) ? el : [el];
@@ -3387,6 +3457,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
   cfgFields.randomNames?.addEventListener('change', syncRandomNameOptionsState);
+  if (cfgFields.previewPassword) {
+    cfgFields.previewPassword.addEventListener('input', () => {
+      previewPasswordRemove = false;
+      renderPreviewPasswordStatus();
+    });
+    cfgFields.previewPassword.addEventListener('change', () => {
+      previewPasswordRemove = false;
+      renderPreviewPasswordStatus();
+      queueCfgSave();
+    });
+    cfgFields.previewPassword.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        previewPasswordRemove = false;
+        renderPreviewPasswordStatus();
+        queueCfgSave();
+      }
+    });
+  }
+  cfgFields.previewPasswordClear?.addEventListener('click', () => {
+    setPreviewPasswordRemoval(true);
+    if (cfgFields.previewPassword) {
+      cfgFields.previewPassword.value = '';
+    }
+    queueCfgSave();
+  });
   dashboardModulesList?.addEventListener('change', event => {
     if (event.target.matches('[data-module-results-option="limit"]')) {
       const moduleItem = event.target.closest('[data-module-id]');

@@ -83,6 +83,7 @@ use App\Controller\SummaryController;
 use App\Controller\RankingController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
+use App\Controller\EventPreviewController;
 use App\Controller\EventListController;
 use App\Controller\EventConfigController;
 use App\Controller\DashboardController;
@@ -378,6 +379,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('teamController', new TeamController($teamService, $configService, $resultService))
             ->withAttribute('teamNameController', new TeamNameController($teamNameService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
+            ->withAttribute('eventPreviewController', new EventPreviewController($configService, $eventService))
             ->withAttribute(
                 'eventConfigController',
                 new EventConfigController($eventService, $configService, $imageUploadService)
@@ -1659,6 +1661,16 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/events/{uid}/config.json', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('configController')->getByEvent($request, $response, $args);
     });
+
+    $app->post('/events/{uid}/preview-unlock', function (Request $request, Response $response, array $args) {
+        /** @var EventPreviewController|null $controller */
+        $controller = $request->getAttribute('eventPreviewController');
+        if (!$controller instanceof EventPreviewController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->unlock($request, $response, $args);
+    })->add(new CsrfMiddleware());
 
     $app->post('/config.json', function (Request $request, Response $response) {
         return $request->getAttribute('configController')->post($request, $response);

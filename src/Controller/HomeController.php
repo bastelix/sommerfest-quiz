@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use DateTimeImmutable;
+use DateTimeZone;
+use IntlDateFormatter;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
@@ -113,8 +116,50 @@ class HomeController
                 }
             }
         }
+        if (!empty($cfg['inviteText'])) {
+            $cfg['inviteText'] = ConfigService::sanitizeHtml((string) $cfg['inviteText']);
+        }
+
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
+        }
+
+        $eventUidForPreview = $uid !== '' ? $uid : (string) ($event['uid'] ?? '');
+        $hasPreviewBypass = $eventUidForPreview !== ''
+            && !empty($_SESSION['event_preview'][$eventUidForPreview]);
+
+        if ($event !== null && !$hasPreviewBypass) {
+            $startAt = $this->parseEventDate($event['start_date'] ?? null);
+            $endAt = $this->parseEventDate($event['end_date'] ?? null);
+            $timezone = $startAt?->getTimezone()
+                ?? $endAt?->getTimezone()
+                ?? new DateTimeZone(date_default_timezone_get());
+            $now = new DateTimeImmutable('now', $timezone);
+            $status = $this->resolveEventStatus($startAt, $endAt, $now);
+
+            if ($status !== null) {
+                $locale = (string) ($request->getAttribute('lang') ?? 'de');
+                $startFormatted = $this->formatEventDate($startAt, $locale);
+                $endFormatted = $this->formatEventDate($endAt, $locale);
+                $previewError = $_SESSION['event_preview_error'] ?? null;
+                if ($previewError !== null) {
+                    unset($_SESSION['event_preview_error']);
+                }
+
+                return $view->render($response, 'event_unavailable.twig', [
+                    'config' => $cfg,
+                    'event' => $event,
+                    'status' => $status,
+                    'startsAt' => $startAt,
+                    'endsAt' => $endAt,
+                    'startFormatted' => $startFormatted,
+                    'endFormatted' => $endFormatted,
+                    'previewPasswordEnabled' => $cfg['previewPasswordEnabled'] ?? false,
+                    'previewError' => $previewError,
+                    'eventUid' => $eventUidForPreview,
+                    'csrf_token' => $_SESSION['csrf_token'] ?? '',
+                ]);
+            }
         }
 
         $catalogService = new CatalogService($pdo, $cfgSvc, null, '', $uid);
@@ -169,5 +214,61 @@ class HomeController
             'csrf_token' => $_SESSION['csrf_token'] ?? '',
             'player_name' => $_SESSION['player_name'] ?? '',
         ]);
+    }
+
+    private function parseEventDate(?string $value): ?DateTimeImmutable
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        $timezone = new DateTimeZone(date_default_timezone_get());
+        $parsed = DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $trimmed, $timezone);
+        if ($parsed instanceof DateTimeImmutable) {
+            return $parsed;
+        }
+
+        try {
+            return new DateTimeImmutable($trimmed, $timezone);
+        } catch (\Exception) {
+            return null;
+        }
+    }
+
+    private function formatEventDate(?DateTimeImmutable $date, string $locale): ?string
+    {
+        if ($date === null) {
+            return null;
+        }
+
+        if (class_exists(IntlDateFormatter::class)) {
+            $formatter = new IntlDateFormatter($locale, IntlDateFormatter::LONG, IntlDateFormatter::SHORT);
+            if ($formatter !== false) {
+                $formatted = $formatter->format($date);
+                if ($formatted !== false) {
+                    return $formatted;
+                }
+            }
+        }
+
+        return $date->format('Y-m-d H:i');
+    }
+
+    private function resolveEventStatus(?DateTimeImmutable $startAt, ?DateTimeImmutable $endAt, DateTimeImmutable $now): ?string
+    {
+        if ($startAt instanceof DateTimeImmutable && $now < $startAt) {
+            return 'upcoming';
+        }
+
+        if ($endAt instanceof DateTimeImmutable && $now > $endAt) {
+            return 'finished';
+        }
+
+        return null;
     }
 }

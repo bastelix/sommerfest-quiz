@@ -388,6 +388,25 @@
                   </label>
                 </div>
               </div>
+              <div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="cfgPreviewPassword">{{ t('admin_preview_password_label') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('admin_preview_password_hint') }}; pos: right" aria-label="{{ t('admin_preview_password_hint') }}" tabindex="0"></span>
+                  </label>
+                  <div class="uk-form-controls">
+                    <div class="uk-grid-small uk-child-width-expand@m uk-flex-middle" uk-grid>
+                      <div>
+                        <input class="uk-input" type="password" id="cfgPreviewPassword" placeholder="{{ t('admin_preview_password_placeholder') }}" autocomplete="new-password">
+                      </div>
+                      <div class="uk-width-auto">
+                        <button id="cfgPreviewPasswordClear" class="uk-button uk-button-default" type="button" {% if not config.previewPasswordEnabled %}disabled{% endif %}>{{ t('admin_preview_password_remove') }}</button>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">{{ t('admin_preview_password_hint') }}</p>
+                  <p class="uk-text-meta uk-margin-remove" data-preview-password-status>{{ config.previewPasswordEnabled ? t('admin_preview_password_status_active') : t('admin_preview_password_status_missing') }}</p>
+                </div>
+              </div>
               <div class="uk-width-1-1">
                 <hr class="admin-divider-line admin-divider-line--subsection">
                 <h4 class="uk-heading-bullet">{{ t('heading_gameplay') }}</h4>
@@ -2725,6 +2744,9 @@
     window.transDashboardTokenRotated = '{{ t('notify_dashboard_token_rotated')|e('js') }}';
     window.transDashboardTokenRotateError = '{{ t('error_dashboard_token_rotate')|e('js') }}';
     window.transDashboardNoEvent = '{{ t('error_dashboard_no_event')|e('js') }}';
+    window.transPreviewPasswordStatusActive = '{{ t('admin_preview_password_status_active')|e('js') }}';
+    window.transPreviewPasswordStatusMissing = '{{ t('admin_preview_password_status_missing')|e('js') }}';
+    window.transPreviewPasswordStatusPendingRemoval = '{{ t('admin_preview_password_status_pending_removal')|e('js') }}';
     window.transSummaryLoadingCatalogs = '{{ t('text_summary_loading_catalogs')|e('js') }}';
     window.transSummaryLoadingTeams = '{{ t('text_summary_loading_teams')|e('js') }}';
     window.transSummaryLoadingEvent = '{{ t('text_summary_loading_event')|e('js') }}';

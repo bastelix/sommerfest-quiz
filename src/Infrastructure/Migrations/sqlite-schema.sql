@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS config (
     countdownEnabled BOOLEAN,
     countdown INTEGER,
     inviteText TEXT,
+    preview_password_hash TEXT,
     qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT,
     qrLabelLine1 TEXT,

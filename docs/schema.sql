@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWord TEXT,
     puzzleFeedback TEXT,
     inviteText TEXT,
+    preview_password_hash TEXT,
     qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT,
     CONSTRAINT fk_config_event FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE

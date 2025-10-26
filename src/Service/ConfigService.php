@@ -177,6 +177,22 @@ class ConfigService
     }
 
     /**
+     * Return the stored preview password hash for the given event UID.
+     */
+    public function getPreviewPasswordHash(string $uid): ?string {
+        $stmt = $this->pdo->prepare('SELECT preview_password_hash FROM config WHERE event_uid = ? LIMIT 1');
+        $stmt->execute([$uid]);
+        $hash = $stmt->fetchColumn();
+        if ($hash === false || $hash === null) {
+            return null;
+        }
+
+        $trimmed = trim((string) $hash);
+
+        return $trimmed === '' ? null : $trimmed;
+    }
+
+    /**
      * Create a new random dashboard token consisting of URL-safe characters.
      */
     public function generateDashboardToken(): string {
@@ -346,6 +362,28 @@ class ConfigService
                 $data[$k] = $norm($data[$k]);
             }
         }
+
+        $previewPassword = null;
+        if (array_key_exists('previewPassword', $data)) {
+            $rawPreview = $data['previewPassword'];
+            unset($data['previewPassword']);
+            if (is_string($rawPreview) || is_numeric($rawPreview)) {
+                $trimmed = trim((string) $rawPreview);
+                if ($trimmed !== '') {
+                    $previewPassword = $trimmed;
+                }
+            }
+        }
+
+        $previewPasswordRemove = false;
+        if (array_key_exists('previewPasswordRemove', $data)) {
+            $previewPasswordRemove = filter_var($data['previewPasswordRemove'], FILTER_VALIDATE_BOOLEAN);
+            unset($data['previewPasswordRemove']);
+        }
+
+        if ($previewPassword !== null) {
+            $previewPasswordRemove = false;
+        }
         $keys = [
             'displayErrorDetails',
             'title',
@@ -374,6 +412,7 @@ class ConfigService
             'collectPlayerUid',
             'countdownEnabled',
             'inviteText',
+            'previewPasswordEnabled',
             'whitelist',
             'countdown',
             'webhookUrl',
@@ -437,6 +476,17 @@ class ConfigService
 
         $uid = (string)($filtered['event_uid']['value'] ?? $this->getActiveEventUid());
         $filtered['event_uid'] = ['key' => 'event_uid', 'value' => $uid];
+
+        if (in_array('preview_password_hash', $existing, true)) {
+            if ($previewPasswordRemove) {
+                $filtered['preview_password_hash'] = ['key' => 'preview_password_hash', 'value' => null];
+            } elseif ($previewPassword !== null) {
+                $filtered['preview_password_hash'] = [
+                    'key' => 'preview_password_hash',
+                    'value' => password_hash($previewPassword, PASSWORD_DEFAULT),
+                ];
+            }
+        }
 
         $this->pdo->beginTransaction();
         try {
@@ -804,6 +854,7 @@ class ConfigService
             'puzzleFeedback',
             'countdownEnabled',
             'inviteText',
+            'previewPasswordEnabled',
             'whitelist',
             'countdown',
             'webhookUrl',
@@ -865,7 +916,14 @@ class ConfigService
         $map['loginrequired'] = 'QRUser';
         $normalized = [];
         foreach ($row as $k => $v) {
-            $key = $map[strtolower($k)] ?? $k;
+            $lower = strtolower((string) $k);
+            if ($lower === 'preview_password_hash') {
+                $normalized['previewPasswordEnabled'] = is_string($v)
+                    ? trim($v) !== ''
+                    : ($v !== null);
+                continue;
+            }
+            $key = $map[$lower] ?? $k;
             if (in_array($key, self::JSON_COLUMNS, true)) {
                 if (is_string($v) && $v !== '') {
                     try {
@@ -896,6 +954,12 @@ class ConfigService
             }
         }
         $normalized['dashboardTheme'] = $this->normalizeDashboardTheme($normalized['dashboardTheme'] ?? null);
+
+        if (!array_key_exists('previewPasswordEnabled', $normalized)) {
+            $normalized['previewPasswordEnabled'] = false;
+        } else {
+            $normalized['previewPasswordEnabled'] = (bool) $normalized['previewPasswordEnabled'];
+        }
 
         $normalized['randomNameDomains'] = $this->normalizeRandomNameList(
             $normalized['randomNameDomains'] ?? [],

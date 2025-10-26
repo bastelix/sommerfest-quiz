@@ -41,6 +41,7 @@ class ConfigServiceTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                preview_password_hash TEXT,
                 event_uid TEXT
             );
             SQL
@@ -75,6 +76,47 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('ai', $cfg['randomNameStrategy']);
     }
 
+    public function testPreviewPasswordRoundTrip(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                preview_password_hash TEXT
+            );
+            SQL
+        );
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec("INSERT INTO events(uid) VALUES('ev-preview')");
+
+        $service = new ConfigService($pdo);
+        $service->saveConfig([
+            'event_uid' => 'ev-preview',
+            'previewPassword' => 'SuperSecret42'
+        ]);
+
+        $hash = $pdo->query('SELECT preview_password_hash FROM config WHERE event_uid = "ev-preview"')->fetchColumn();
+        $this->assertIsString($hash);
+        $this->assertNotSame('', $hash);
+        $this->assertTrue(password_verify('SuperSecret42', (string) $hash));
+
+        $config = $service->getConfigForEvent('ev-preview');
+        $this->assertTrue($config['previewPasswordEnabled']);
+
+        $service->saveConfig([
+            'event_uid' => 'ev-preview',
+            'previewPasswordRemove' => true
+        ]);
+
+        $hashAfterRemoval = $pdo->query('SELECT preview_password_hash FROM config WHERE event_uid = "ev-preview"')->fetchColumn();
+        $this->assertNull($hashAfterRemoval);
+
+        $configAfterRemoval = $service->getConfigForEvent('ev-preview');
+        $this->assertFalse($configAfterRemoval['previewPasswordEnabled']);
+    }
+
     public function testSaveConfigPersistsRandomNameFilters(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -97,6 +139,7 @@ class ConfigServiceTest extends TestCase
                 random_name_buffer INTEGER DEFAULT 0,
                 random_name_locale TEXT,
                 random_name_strategy TEXT,
+                preview_password_hash TEXT,
                 event_uid TEXT PRIMARY KEY
             );
             SQL

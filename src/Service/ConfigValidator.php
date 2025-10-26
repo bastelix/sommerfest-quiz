@@ -352,6 +352,48 @@ class ConfigValidator
             $errors['dashboardVisibilityEnd'] = 'Endzeit muss nach der Startzeit liegen.';
         }
 
+        $previewRaw = $data['previewPassword'] ?? ($data['preview_password'] ?? null);
+        $previewPassword = null;
+        if (is_string($previewRaw) || is_numeric($previewRaw)) {
+            $previewPassword = trim((string) $previewRaw);
+            if ($previewPassword === '') {
+                $previewPassword = null;
+            } else {
+                $length = strlen($previewPassword);
+                if ($length < 8) {
+                    $errors['previewPassword'] = 'Vorschau-Passwort muss mindestens 8 Zeichen lang sein.';
+                    $previewPassword = null;
+                } elseif ($length > 128) {
+                    $errors['previewPassword'] = 'Vorschau-Passwort darf höchstens 128 Zeichen enthalten.';
+                    $previewPassword = null;
+                }
+            }
+        } elseif ($previewRaw !== null) {
+            $errors['previewPassword'] = 'Ungültiges Vorschau-Passwort.';
+        }
+
+        if ($previewPassword !== null) {
+            $config['previewPassword'] = $previewPassword;
+        }
+
+        $removeRaw = $data['previewPasswordRemove'] ?? ($data['preview_password_remove'] ?? null);
+        $removeFlag = false;
+        if ($removeRaw !== null) {
+            if (is_string($removeRaw)) {
+                $removeFlag = filter_var($removeRaw, FILTER_VALIDATE_BOOLEAN);
+            } else {
+                $removeFlag = (bool) $removeRaw;
+            }
+        }
+
+        if ($previewPassword !== null) {
+            $removeFlag = false;
+        }
+
+        if ($removeFlag) {
+            $config['previewPasswordRemove'] = true;
+        }
+
         return ['config' => $config, 'errors' => $errors];
     }
 
