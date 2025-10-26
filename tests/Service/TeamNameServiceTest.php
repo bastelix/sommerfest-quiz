@@ -514,6 +514,40 @@ final class TeamNameServiceTest extends TestCase
             $indexProperty = new ReflectionProperty(TeamNameService::class, 'aiCacheIndex');
             $indexProperty->setAccessible(true);
             self::assertSame([], $indexProperty->getValue($service));
+
+            $metadataProperty = new ReflectionProperty(TeamNameService::class, 'aiCacheMetadata');
+            $metadataProperty->setAccessible(true);
+            self::assertSame([], $metadataProperty->getValue($service));
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testGetAiCacheStateReturnsMetadataAndNames(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['Cached Alpha', 'Cached Beta'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $service->previewAiSuggestions('event-cache', ['science'], ['quirky'], 'de-DE', 2);
+
+            $state = $service->getAiCacheState('event-cache');
+
+            self::assertCount(1, $state['entries']);
+            self::assertSame(2, $state['total']);
+
+            $entry = $state['entries'][0];
+            self::assertSame(2, $entry['available']);
+            self::assertSame(['science'], $entry['filters']['domains']);
+            self::assertSame(['quirky'], $entry['filters']['tones']);
+            self::assertSame('de-DE', $entry['filters']['locale']);
+            self::assertSame(['Cached Alpha', 'Cached Beta'], $entry['names']);
         } finally {
             @unlink($lexiconPath);
         }

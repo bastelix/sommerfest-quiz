@@ -349,6 +349,24 @@ final class TeamNameControllerTest extends TestCase
             ->method('previewAiSuggestions')
             ->with('ev-preview', ['nature', 'science'], ['playful'], 'de-DE', 6)
             ->willReturn(['Solar Echo', 'Quantum Owls']);
+        $service->expects(self::once())
+            ->method('getAiCacheState')
+            ->with('ev-preview')
+            ->willReturn([
+                'total' => 2,
+                'entries' => [
+                    [
+                        'cache_key' => 'cache-hash',
+                        'available' => 2,
+                        'names' => ['Solar Echo', 'Quantum Owls'],
+                        'filters' => [
+                            'domains' => ['nature', 'science'],
+                            'tones' => ['playful'],
+                            'locale' => 'de-DE',
+                        ],
+                    ],
+                ],
+            ]);
 
         $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names/preview');
         $request->getBody()->write(json_encode([
@@ -371,6 +389,9 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame('de-DE', $payload['filters']['locale']);
         self::assertSame(6, $payload['filters']['count']);
         self::assertSame(['Solar Echo', 'Quantum Owls'], $payload['suggestions']);
+        self::assertSame(2, $payload['cache']['total']);
+        self::assertCount(1, $payload['cache']['entries']);
+        self::assertSame(['Solar Echo', 'Quantum Owls'], $payload['cache']['entries'][0]['names']);
     }
 
     public function testPreviewReturnsBadRequestWithoutEvent(): void
@@ -380,6 +401,7 @@ final class TeamNameControllerTest extends TestCase
         $controller = new TeamNameController($service, $config);
 
         $service->expects(self::never())->method('previewAiSuggestions');
+        $service->expects(self::never())->method('getAiCacheState');
 
         $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names/preview');
         $request->getBody()->write(json_encode(['domains' => ['nature']], JSON_THROW_ON_ERROR));

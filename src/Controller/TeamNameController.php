@@ -202,6 +202,7 @@ class TeamNameController
         $count = max(1, min((int) $count, 20));
 
         $suggestions = $this->service->previewAiSuggestions($eventId, $domains, $tones, $locale, $count);
+        $cache = $this->service->getAiCacheState($eventId);
 
         $payload = [
             'event_id' => $eventId,
@@ -212,6 +213,7 @@ class TeamNameController
                 'count' => $count,
             ],
             'suggestions' => $suggestions,
+            'cache' => $cache,
         ];
 
         $response->getBody()->write(json_encode($payload));
