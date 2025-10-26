@@ -16,6 +16,7 @@ use function array_shift;
 use function array_slice;
 use function array_unique;
 use function array_values;
+use function array_unshift;
 use function count;
 use function explode;
 use function implode;
@@ -234,7 +235,8 @@ class TeamNameAiClient
             return [];
         }
 
-        $decoded = json_decode($response, true);
+        $jsonPayload = $this->prepareJsonPayload($response);
+        $decoded = json_decode($jsonPayload, true);
         if (is_array($decoded)) {
             if (array_key_exists('names', $decoded) && is_array($decoded['names'])) {
                 /** @var array<int|string, mixed> $candidates */
@@ -253,7 +255,8 @@ class TeamNameAiClient
             return [];
         }
 
-        $fallback = $this->parseFallbackText($response);
+        $fallbackSource = $jsonPayload !== '' ? $jsonPayload : $response;
+        $fallback = $this->parseFallbackText($fallbackSource);
         if ($fallback === []) {
             $this->lastError = 'Unable to parse AI response.';
 
@@ -261,6 +264,38 @@ class TeamNameAiClient
         }
 
         return $this->finalizeCandidates($fallback, $requested);
+    }
+
+    private function prepareJsonPayload(string $response): string
+    {
+        $payload = trim($response);
+        if ($payload === '') {
+            return '';
+        }
+
+        if (preg_match('/^```/u', $payload) === 1) {
+            $lines = preg_split('/\R/', $payload) ?: [];
+            if ($lines !== []) {
+                $rawFirstLine = (string) array_shift($lines);
+                $firstLine = trim($rawFirstLine);
+                if (preg_match('/^```(?:\s*[a-z0-9_-]+)?$/i', $firstLine) === 1) {
+                    while ($lines !== [] && trim((string) end($lines)) === '') {
+                        array_pop($lines);
+                    }
+                    if ($lines !== [] && trim((string) end($lines)) === '```') {
+                        array_pop($lines);
+                    }
+                } else {
+                    array_unshift($lines, $rawFirstLine);
+                }
+                $payload = implode("\n", $lines);
+            }
+        }
+
+        $payload = trim($payload);
+        $payload = preg_replace('/^json\s*[:=]\s*/i', '', $payload, 1) ?? $payload;
+
+        return trim($payload);
     }
 
     /**
@@ -309,7 +344,7 @@ class TeamNameAiClient
 
         $candidates = [];
         foreach ($lines as $line) {
-            $line = trim($line, " \t\-•*\"'“”‚‘\x{00A0}");
+            $line = trim($line, " \t\-•*`\"'“”‚‘\x{00A0}");
             if ($line === '') {
                 continue;
             }
@@ -317,6 +352,10 @@ class TeamNameAiClient
                 $segments = explode(':', $line, 2);
                 $line = trim($segments[1]);
             }
+            $line = preg_replace('/^\(?\d+[\s\.\)\]\-]*\s*/u', '', $line) ?? $line;
+            $line = preg_replace('/^\d+\s+/u', '', $line) ?? $line;
+            $line = str_replace('`', '', $line);
+            $line = trim($line, " \t\-•*\"'“”‚‘\x{00A0}");
             if ($line === '') {
                 continue;
             }
