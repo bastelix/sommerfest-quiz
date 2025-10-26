@@ -1637,6 +1637,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->status($request, $response);
     });
 
+    $app->get('/api/team-names/history', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+
+        return $controller->history($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+
     $app->post('/api/team-names', function (Request $request, Response $response) {
         /** @var TeamNameController $controller */
         $controller = $request->getAttribute('teamNameController');

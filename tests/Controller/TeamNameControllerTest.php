@@ -338,4 +338,58 @@ final class TeamNameControllerTest extends TestCase
         self::assertTrue($payload['ai']['required_for_event']);
         self::assertFalse($payload['ai']['active_for_event']);
     }
+
+    public function testHistoryReturnsEntriesFromService(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $service->expects(self::once())
+            ->method('listNamesForEvent')
+            ->with('ev-history', 120)
+            ->willReturn([
+                [
+                    'id' => 5,
+                    'name' => 'Team Freigegeben',
+                    'status' => 'released',
+                    'fallback' => false,
+                    'reservation_token' => 'tok-1',
+                    'reserved_at' => '2024-05-01T10:00:00+00:00',
+                    'assigned_at' => '2024-05-01T10:10:00+00:00',
+                    'released_at' => '2024-05-01T10:20:00+00:00',
+                ],
+            ]);
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', '/api/team-names/history')
+            ->withQueryParams(['event_uid' => 'ev-history', 'limit' => '120']);
+
+        $response = $controller->history($request, new Response());
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('ev-history', $payload['event_id']);
+        self::assertSame(120, $payload['limit']);
+        self::assertCount(1, $payload['entries']);
+        self::assertSame('Team Freigegeben', $payload['entries'][0]['name']);
+        self::assertSame('released', $payload['entries'][0]['status']);
+    }
+
+    public function testHistoryReturnsBadRequestWithoutEvent(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $service->expects(self::never())->method('listNamesForEvent');
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', '/api/team-names/history');
+
+        $response = $controller->history($request, new Response());
+
+        self::assertSame(400, $response->getStatusCode());
+    }
 }

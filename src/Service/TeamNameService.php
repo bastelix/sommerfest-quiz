@@ -735,6 +735,67 @@ class TeamNameService
         $stmt->execute([$eventId, $name]);
     }
 
+    /**
+     * Retrieve the reservation history for an event.
+     *
+     * @return array<int, array{
+     *     id: int,
+     *     name: string,
+     *     status: string,
+     *     fallback: bool,
+     *     reservation_token: string,
+     *     reserved_at: ?string,
+     *     assigned_at: ?string,
+     *     released_at: ?string
+     * }>
+     */
+    public function listNamesForEvent(string $eventId, ?int $limit = null): array
+    {
+        if ($eventId === '') {
+            throw new InvalidArgumentException('eventId is required');
+        }
+
+        $limitValue = null;
+        if ($limit !== null && $limit > 0) {
+            $limitValue = (int) $limit;
+        }
+
+        $this->releaseExpiredReservations($eventId);
+
+        $sql =
+            'SELECT id, name, reservation_token, fallback, reserved_at, assigned_at, released_at, '
+            . "CASE WHEN released_at IS NOT NULL THEN 'released' "
+            . "WHEN assigned_at IS NOT NULL THEN 'assigned' ELSE 'reserved' END AS status "
+            . 'FROM team_names WHERE event_id = ? ORDER BY reserved_at DESC, id DESC';
+
+        if ($limitValue !== null) {
+            $sql .= ' LIMIT ' . $limitValue;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$eventId]);
+
+        /** @var array<int, array<string, mixed>> $rows */
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+
+        $history = [];
+        foreach ($rows as $row) {
+            $history[] = [
+                'id' => (int) ($row['id'] ?? 0),
+                'name' => (string) ($row['name'] ?? ''),
+                'status' => (string) ($row['status'] ?? 'reserved'),
+                'fallback' => ((int) ($row['fallback'] ?? 0)) === 1,
+                'reservation_token' => (string) ($row['reservation_token'] ?? ''),
+                'reserved_at' => $this->normalizeTimestamp($row['reserved_at'] ?? null),
+                'assigned_at' => $this->normalizeTimestamp($row['assigned_at'] ?? null),
+                'released_at' => $this->normalizeTimestamp($row['released_at'] ?? null),
+            ];
+        }
+
+        return $history;
+    }
+
     private function reserveFallback(string $eventId, int $totalCombinations): array
     {
         $token = bin2hex(random_bytes(16));
@@ -805,6 +866,33 @@ class TeamNameService
             . 'WHERE event_id = ? AND released_at IS NULL AND assigned_at IS NULL AND reserved_at <= ?'
         );
         $stmt->execute([$eventId, $threshold->format('Y-m-d H:i:sP')]);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeTimestamp($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (!is_string($value)) {
+            $value = (string) $value;
+        }
+
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        try {
+            $date = new DateTimeImmutable($trimmed);
+        } catch (Throwable $exception) {
+            return $trimmed;
+        }
+
+        return $date->format(DATE_ATOM);
     }
 
     /**

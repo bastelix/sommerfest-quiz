@@ -29,6 +29,8 @@ use function trim;
 class TeamNameController
 {
     private const MAX_BATCH_SIZE = 10;
+    private const DEFAULT_HISTORY_LIMIT = 100;
+    private const MAX_HISTORY_LIMIT = 500;
 
     private TeamNameService $service;
     private ConfigService $config;
@@ -160,6 +162,35 @@ class TeamNameController
             'domains' => $domains,
             'tones' => $tones,
             'ai' => $diagnostics,
+        ];
+
+        $response->getBody()->write(json_encode($payload));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function history(Request $request, Response $response): Response
+    {
+        $query = $request->getQueryParams();
+        $eventId = $this->resolveEventId($query);
+        if ($eventId === '') {
+            return $response->withStatus(400);
+        }
+
+        $limit = $this->resolveHistoryLimit($query['limit'] ?? null);
+
+        try {
+            $entries = $this->service->listNamesForEvent($eventId, $limit);
+        } catch (InvalidArgumentException $exception) {
+            return $response->withStatus(400);
+        } catch (PDOException $exception) {
+            return $response->withStatus(500);
+        }
+
+        $payload = [
+            'event_id' => $eventId,
+            'entries' => $entries,
+            'limit' => $limit,
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -332,5 +363,30 @@ class TeamNameController
         $unique = array_values(array_unique($values));
 
         return $unique;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function resolveHistoryLimit($value): int
+    {
+        if ($value === null) {
+            return self::DEFAULT_HISTORY_LIMIT;
+        }
+
+        if (is_numeric($value)) {
+            $limit = (int) $value;
+            if ($limit <= 0) {
+                return self::DEFAULT_HISTORY_LIMIT;
+            }
+
+            if ($limit > self::MAX_HISTORY_LIMIT) {
+                return self::MAX_HISTORY_LIMIT;
+            }
+
+            return $limit;
+        }
+
+        return self::DEFAULT_HISTORY_LIMIT;
     }
 }
