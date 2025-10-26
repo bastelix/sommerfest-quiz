@@ -60,6 +60,12 @@ class HomeController
             }
             if ($event === null) {
                 $event = $eventSvc->getFirst();
+                if ($event !== null) {
+                    $cfg = $cfgSvc->getConfigForEvent($event['uid']) ?: [];
+                }
+            }
+            if ($event !== null && (!isset($cfg['event_uid']) || (string) $cfg['event_uid'] === '')) {
+                $cfg['event_uid'] = (string) $event['uid'];
             }
             $home = $settingsSvc->get('home_page', 'help');
             $domainStartPage = $request->getAttribute('domainStartPage');
