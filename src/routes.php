@@ -1655,6 +1655,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->release($request, $response, $args);
     });
 
+    $app->delete('/api/team-names/by-name', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+        return $controller->releaseByName($request, $response);
+    });
+
     $app->delete('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->delete($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));

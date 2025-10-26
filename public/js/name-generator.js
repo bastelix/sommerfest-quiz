@@ -278,6 +278,26 @@
     return true;
   }
 
+  async function releaseReservationByName(options){
+    const name = typeof options?.name === 'string' ? options.name.trim() : '';
+    if (!name) {
+      return false;
+    }
+    const eventUid = resolveEventUid(options?.eventUid);
+    const payload = eventUid ? { event_uid: eventUid, name } : { name };
+    try {
+      const response = await fetch(`${basePath}/api/team-names/by-name`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: buildHeaders(),
+        body: JSON.stringify(payload)
+      });
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  }
+
   function getActiveReservation(){
     return activeReservation;
   }
@@ -288,6 +308,7 @@
     getSuggestion,
     confirm: confirmReservation,
     release: releaseReservation,
+    releaseByName: releaseReservationByName,
     getActiveReservation
   };
 })();

@@ -213,6 +213,20 @@ class TeamNameController
         return $response->withStatus(204);
     }
 
+    public function releaseByName(Request $request, Response $response): Response
+    {
+        $data = $this->parseBody($request);
+        $eventId = $this->resolveEventId($data);
+        $name = trim((string) ($data['name'] ?? ''));
+        if ($eventId === '' || $name === '') {
+            return $response->withStatus(400);
+        }
+
+        $this->service->releaseByName($eventId, $name);
+
+        return $response->withStatus(204);
+    }
+
     /**
      * @param array<mixed> $data
      */
