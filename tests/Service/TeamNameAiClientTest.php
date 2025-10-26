@@ -142,6 +142,23 @@ final class TeamNameAiClientTest extends TestCase
         }
     }
 
+    private const STOP_WORDS = [
+        'der',
+        'die',
+        'das',
+        'den',
+        'dem',
+        'des',
+        'ein',
+        'eine',
+        'einer',
+        'einem',
+        'einen',
+        'eines',
+        'the',
+        'team',
+    ];
+
     private static function normalizePrefix(string $name): ?string
     {
         $normalized = trim(mb_strtolower(preg_replace('/[^\p{L}\s\-]/u', '', $name) ?? ''));
@@ -151,9 +168,11 @@ final class TeamNameAiClientTest extends TestCase
 
         $parts = preg_split('/[\s\-]+/u', $normalized) ?: [];
         foreach ($parts as $part) {
-            if ($part !== '') {
-                return mb_substr($part, 0, 3);
+            if ($part === '' || in_array($part, self::STOP_WORDS, true)) {
+                continue;
             }
+
+            return mb_substr($part, 0, 3);
         }
 
         return null;
