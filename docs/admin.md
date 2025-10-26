@@ -2,28 +2,29 @@
 
 Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/admin`) nach einem erfolgreichen Login. Alle Management-Rollen (z. B. `event-manager`, `team-manager`) werden nach dem Login automatisch zum Admin-Dashboard weitergeleitet. Die Navigation ist in folgende Kategorien gegliedert:
 
-* **Event**
-  * **Startseite** – `/admin/dashboard`
+* **Startseite** – `/admin/dashboard`
+* **Event-Management**
   * **Events** – `/admin/events`
   * **Event-Dashboards** – `/admin/event/dashboard`
   * **Event-Konfiguration** – `/admin/event/settings`
   * **Übersicht** – `/admin/summary`
-* **Inhalte**
-  * **Kataloge** – `/admin/catalogs`
+  * **Kataloge** – `/admin/catalogs` (Administrator:innen & Katalog-Editor:innen)
   * **Fragen bearbeiten** – `/admin/questions`
-  * **KI-Chatbot** – `/admin/rag-chat` (Administrator:innen & Katalog-Editor:innen) – verwaltet die Verbindung zum KI-Backend und liefert Zugriff auf die KI-Dokumentation je Domain.
-  * **Seiten** – `/admin/pages` (nur Administratoren)
-* **Teams**
   * **Teams/Personen** – `/admin/teams`
-* **Auswertung**
   * **Ergebnisse** – `/admin/results`
   * **Statistik** – `/admin/statistics`
+* **Inhalte**
+  * **Medien** – `/admin/media` (Administrator:innen & Katalog-Editor:innen)
+  * **KI-Chatbot** – `/admin/rag-chat` (Administrator:innen & Katalog-Editor:innen) – verwaltet die Verbindung zum KI-Backend und liefert Zugriff auf die KI-Dokumentation je Domain.
+  * **Seiten** – `/admin/pages` (nur Administrator:innen)
 * **Konto**
   * **Profil** – `/admin/profile`
   * **Abo** – `/admin/subscription`
 * **Administration**
-  * **Administration** – `/admin/management` (nur Administratoren)
-  * **Subdomains** – `/admin/tenants` (nur Administratoren)
+  * **Administration** – `/admin/management` (nur Administrator:innen)
+  * **Logs** – `/admin/logs` (nur Administrator:innen)
+  * **Mail-Provider** – `/admin/mail-providers` (nur Administrator:innen)
+  * **Subdomains** – `/admin/tenants` (nur Administrator:innen, nur auf der Hauptdomain sichtbar)
 Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf wiederherstellen. Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 ## Dashboard-Konfiguration
