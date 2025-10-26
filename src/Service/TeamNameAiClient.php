@@ -12,15 +12,18 @@ use RuntimeException;
 use function array_filter;
 use function array_key_exists;
 use function array_map;
+use function array_shift;
 use function array_slice;
 use function array_unique;
 use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function in_array;
 use function is_array;
 use function json_decode;
 use function max;
+use function mb_substr;
 use function mb_strtolower;
 use function min;
 use function preg_match;
@@ -29,6 +32,7 @@ use function preg_split;
 use function sprintf;
 use function str_contains;
 use function trim;
+use function usort;
 
 /**
  * Generates AI-backed team name suggestions.
@@ -169,29 +173,37 @@ class TeamNameAiClient
      * @param array<int, string> $domains
      * @param array<int, string> $tones
      */
+    private const PROMPT_NAME_MAX_LENGTH = 30;
+
     private function buildUserPrompt(int $count, array $domains, array $tones, string $locale): string
     {
         $domainText = $this->formatHintList($domains);
         $toneText = $this->formatHintList($tones);
+        $theme = $this->buildThemeText($domainText, $toneText);
+        $blacklist = $this->formatBlacklistTerms();
 
-        $parts = [
-            sprintf('Generate %d unique, family-friendly team names for a trivia competition.', $count),
-            'Keep each suggestion short (max. three words) and avoid numbers or special characters.',
-            'Only answer with valid names.',
+        $lines = [
+            sprintf('Erfinde %d einzigartige, familienfreundliche Spielernamen zum Thema %s', $count, $theme),
+            'Stil: humorvoll, cleveres Wortspiel, kurze Alliteration ok.',
+            'Sprache: Deutsch.',
+            sprintf('Vermeide reale Personen/Marken, politische/sexuelle Inhalte, Gewalt, Beleidigungen und alles aus dieser Blacklist: %s.', $blacklist),
+            'Formate: nur JSON-Array aus Strings, keine Erklärungen.',
+            sprintf('Länge pro Name: max. %d Zeichen.', self::PROMPT_NAME_MAX_LENGTH),
         ];
 
         if ($domainText !== '') {
-            $parts[] = sprintf('Prefer themes related to: %s.', $domainText);
+            $lines[] = sprintf('Optional: Beziehe folgende Sportarten/Begriffe ein: %s.', $domainText);
         }
 
-        if ($toneText !== '') {
-            $parts[] = sprintf('Match the tone or mood: %s.', $toneText);
+        if ($locale !== '') {
+            $lines[] = sprintf('Nutze ausschließlich die Sprache "%s".', $locale);
         }
 
-        $parts[] = sprintf('Write the answer in locale "%s".', $locale);
-        $parts[] = 'Respond as a JSON array of strings named "names" (example: {"names": ["Name 1", "Name 2"]}).';
+        $lines[] = 'Keine Duplikate, keine Zahlenkolonnen.';
+        $lines[] = 'Beispiele für den gewünschten Ton (nicht wiederverwenden):';
+        $lines[] = '["Dribbel-Dachs","Volley-Viech","Sprint-Sultan","Tor-Tornado","Kreidekreisläufer"]';
 
-        return implode(' ', $parts);
+        return implode("\n", $lines);
     }
 
     private function buildSystemPrompt(string $locale): string
@@ -397,6 +409,9 @@ class TeamNameAiClient
     private function finalizeCandidates(array $candidates, int $requested): array
     {
         $filtered = $this->filterCandidates($candidates, $requested);
+        if ($filtered !== []) {
+            $filtered = $this->mixCandidates($filtered);
+        }
         if ($filtered === []) {
             $this->lastError = 'AI response did not include usable suggestions.';
         } else {
@@ -404,6 +419,120 @@ class TeamNameAiClient
         }
 
         return $filtered;
+    }
+
+    /**
+     * @param list<string> $names
+     *
+     * @return list<string>
+     */
+    private function mixCandidates(array $names): array
+    {
+        if (count($names) <= 2) {
+            return $names;
+        }
+
+        $buckets = [];
+        foreach ($names as $name) {
+            $token = $this->extractPrimaryToken($name);
+            $buckets[$token][] = $name;
+        }
+
+        $result = [];
+        $lastToken = null;
+        $total = count($names);
+
+        while (count($result) < $total && $buckets !== []) {
+            $token = $this->selectNextToken($buckets, $lastToken);
+            if ($token === null) {
+                break;
+            }
+
+            $result[] = array_shift($buckets[$token]);
+            if ($buckets[$token] === []) {
+                unset($buckets[$token]);
+            }
+
+            $lastToken = $token;
+        }
+
+        if (count($result) < $total) {
+            foreach ($names as $name) {
+                if (!in_array($name, $result, true)) {
+                    $result[] = $name;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    private function buildThemeText(string $domainText, string $toneText): string
+    {
+        if ($domainText !== '' && $toneText !== '') {
+            return $domainText . ' (Stimmung: ' . $toneText . ')';
+        }
+
+        if ($domainText !== '') {
+            return $domainText;
+        }
+
+        if ($toneText !== '') {
+            return 'Stimmung ' . $toneText;
+        }
+
+        return 'Sommerfest-Quiz';
+    }
+
+    private function formatBlacklistTerms(): string
+    {
+        return implode(', ', self::BLOCKED_SUBSTRINGS);
+    }
+
+    private function extractPrimaryToken(string $name): string
+    {
+        $normalized = mb_strtolower($name);
+        $normalized = preg_replace('/[^\p{L}\s\-]/u', '', $normalized) ?? '';
+        $normalized = trim($normalized);
+        if ($normalized === '') {
+            return '#';
+        }
+
+        $parts = preg_split('/[\s\-]+/u', $normalized) ?: [];
+        foreach ($parts as $part) {
+            if ($part !== '') {
+                return mb_substr($part, 0, 3);
+            }
+        }
+
+        return '#';
+    }
+
+    /**
+     * @param array<string, list<string>> $buckets
+     */
+    private function selectNextToken(array $buckets, ?string $excludeToken): ?string
+    {
+        $candidates = [];
+        foreach ($buckets as $token => $names) {
+            $candidates[] = ['token' => $token, 'count' => count($names)];
+        }
+
+        usort($candidates, static function (array $left, array $right): int {
+            if ($left['count'] === $right['count']) {
+                return $left['token'] <=> $right['token'];
+            }
+
+            return $right['count'] <=> $left['count'];
+        });
+
+        foreach ($candidates as $candidate) {
+            if ($excludeToken === null || $candidate['token'] !== $excludeToken) {
+                return $candidate['token'];
+            }
+        }
+
+        return $candidates[0]['token'] ?? null;
     }
 
     protected function recordSuccess(?DateTimeImmutable $timestamp = null): void
