@@ -83,16 +83,18 @@ class TeamNameAiClient
     /**
      * @param array<int, string> $domains
      * @param array<int, string> $tones
+     * @param array<int, string> $existingNames
      *
      * @return list<string>
      */
-    public function fetchSuggestions(int $count, array $domains, array $tones, string $locale): array
+    public function fetchSuggestions(int $count, array $domains, array $tones, string $locale, array $existingNames): array
     {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
         $locale = trim($locale) ?: 'de';
+        $existingNames = $this->prepareExistingNames($existingNames);
         $messages = [
             ['role' => 'system', 'content' => $this->buildSystemPrompt($locale)],
-            ['role' => 'user', 'content' => $this->buildUserPrompt($count, $domains, $tones, $locale)],
+            ['role' => 'user', 'content' => $this->buildUserPrompt($count, $domains, $tones, $locale, $existingNames)],
         ];
 
         $context = $this->buildContextPayload($count, $domains, $tones, $locale);
@@ -180,7 +182,7 @@ class TeamNameAiClient
      */
     private const PROMPT_NAME_MAX_LENGTH = 30;
 
-    private function buildUserPrompt(int $count, array $domains, array $tones, string $locale): string
+    private function buildUserPrompt(int $count, array $domains, array $tones, string $locale, array $existingNames): string
     {
         $domainText = $this->formatHintList($domains);
         $toneText = $this->formatHintList($tones);
@@ -204,9 +206,51 @@ class TeamNameAiClient
             $lines[] = sprintf('Nutze ausschließlich die Sprache "%s".', $locale);
         }
 
+        if ($existingNames !== []) {
+            $lines[] = 'Bereits vorhandene oder verwendete Namen (nicht wiederverwenden):';
+            $lines[] = $this->formatExistingNames($existingNames);
+            $lines[] = sprintf('Liefere genau %d komplett neue Namen, die keinen der oben genannten Namen wiederholen.', $count);
+        } else {
+            $lines[] = sprintf('Liefere genau %d komplett neue Namen, alle voneinander verschieden.', $count);
+        }
+
         $lines[] = 'Keine Duplikate, keine Zahlenkolonnen.';
         $lines[] = 'Beispiele für den gewünschten Ton (nicht wiederverwenden):';
         $lines[] = '["Dribbel-Dachs","Volley-Viech","Sprint-Sultan","Tor-Tornado","Kreidekreisläufer"]';
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * @param array<int, string> $existingNames
+     *
+     * @return list<string>
+     */
+    private function prepareExistingNames(array $existingNames): array
+    {
+        $prepared = [];
+        foreach ($existingNames as $name) {
+            $candidate = trim((string) $name);
+            if ($candidate === '') {
+                continue;
+            }
+            if (!in_array($candidate, $prepared, true)) {
+                $prepared[] = $candidate;
+            }
+        }
+
+        return $prepared;
+    }
+
+    /**
+     * @param list<string> $existingNames
+     */
+    private function formatExistingNames(array $existingNames): string
+    {
+        $lines = [];
+        foreach ($existingNames as $index => $name) {
+            $lines[] = sprintf('%d. %s', $index + 1, $name);
+        }
 
         return implode("\n", $lines);
     }

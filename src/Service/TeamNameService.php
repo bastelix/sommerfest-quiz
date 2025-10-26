@@ -585,9 +585,11 @@ class TeamNameService
         }
 
         $attempts = 0;
+        $existingNamesForPrompt = $this->gatherExistingAiNames($cacheKey, $eventId);
+
         while (count($this->aiNameCache[$cacheKey]) < $targetSize && $attempts < self::AI_MAX_ATTEMPTS) {
             $needed = $targetSize - count($this->aiNameCache[$cacheKey]);
-            $batch = $this->aiClient->fetchSuggestions($needed, $domains, $tones, $locale);
+            $batch = $this->aiClient->fetchSuggestions($needed, $domains, $tones, $locale, $existingNamesForPrompt);
             $this->aiLastAttemptAt = $this->aiClient->getLastResponseAt() ?? $this->currentUtcTime();
             if ($batch === []) {
                 $this->aiLastError = $this->aiClient->getLastError() ?? 'AI service returned no suggestions.';
@@ -607,6 +609,9 @@ class TeamNameService
                     continue;
                 }
                 $this->aiNameCache[$cacheKey][] = $candidate;
+                if (!in_array($candidate, $existingNamesForPrompt, true)) {
+                    $existingNamesForPrompt[] = $candidate;
+                }
                 $added = true;
                 if (count($this->aiNameCache[$cacheKey]) >= $targetSize) {
                     break;
@@ -709,6 +714,58 @@ class TeamNameService
         $normalizedLocale = $this->normalize($locale);
 
         return sha1($normalizedEventId . '#' . implode('|', $domains) . '#' . implode('|', $tones) . '#' . $normalizedLocale);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function gatherExistingAiNames(string $cacheKey, string $eventId): array
+    {
+        $cached = $this->aiNameCache[$cacheKey] ?? [];
+        $active = $this->fetchActiveNames($eventId);
+
+        $combined = array_merge($cached, $active);
+
+        $unique = [];
+        foreach ($combined as $name) {
+            $candidate = trim((string) $name);
+            if ($candidate === '') {
+                continue;
+            }
+            if (!in_array($candidate, $unique, true)) {
+                $unique[] = $candidate;
+            }
+        }
+
+        return $unique;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fetchActiveNames(string $eventId): array
+    {
+        if ($eventId === '') {
+            return [];
+        }
+
+        $stmt = $this->pdo->prepare('SELECT name FROM team_names WHERE event_id = ? AND released_at IS NULL');
+        $stmt->execute([$eventId]);
+
+        $names = [];
+        while (($name = $stmt->fetch(PDO::FETCH_COLUMN)) !== false) {
+            $candidate = trim((string) $name);
+            if ($candidate === '') {
+                continue;
+            }
+            if (!in_array($candidate, $names, true)) {
+                $names[] = $candidate;
+            }
+        }
+
+        $stmt->closeCursor();
+
+        return $names;
     }
 
     /**

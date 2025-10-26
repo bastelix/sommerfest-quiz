@@ -47,7 +47,8 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(2, [' nature ', 'science'], ['Playful ', ''], 'fr');
+        $existing = [' Zimtzwerge ', 'Berg Bären', ''];
+        $result = $client->fetchSuggestions(2, [' nature ', 'science'], ['Playful ', ''], 'fr', $existing);
 
         self::assertSame(['AI Lumi', 'AI Nova'], $result);
 
@@ -61,6 +62,11 @@ final class TeamNameAiClientTest extends TestCase
         self::assertStringContainsString('Formate: nur JSON-Array aus Strings, keine Erklärungen.', $userPrompt);
         self::assertStringContainsString('Optional: Beziehe folgende Sportarten/Begriffe ein: nature und science.', $userPrompt);
         self::assertStringContainsString('Nutze ausschließlich die Sprache "fr".', $userPrompt);
+        self::assertStringContainsString('Bereits vorhandene oder verwendete Namen (nicht wiederverwenden):', $userPrompt);
+        self::assertStringContainsString('1. Zimtzwerge', $userPrompt);
+        self::assertStringContainsString('2. Berg Bären', $userPrompt);
+        self::assertStringContainsString('Liefere genau 2 komplett neue Namen, die keinen der oben genannten Namen wiederholen.', $userPrompt);
+        self::assertStringContainsString('Keine Duplikate, keine Zahlenkolonnen.', $userPrompt);
         self::assertStringContainsString('Beispiele für den gewünschten Ton (nicht wiederverwenden):', $userPrompt);
 
         $context = $responder->capturedContext;
@@ -94,7 +100,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(3, [], [], 'de');
+        $result = $client->fetchSuggestions(3, [], [], 'de', []);
 
         self::assertSame([], $result);
         self::assertNotNull($client->getLastResponseAt());
@@ -132,7 +138,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(5, [], [], 'de');
+        $result = $client->fetchSuggestions(5, [], [], 'de', []);
 
         self::assertCount(5, $result);
         for ($index = 1; $index < count($result); $index++) {
@@ -157,7 +163,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(2, [], [], 'de');
+        $result = $client->fetchSuggestions(2, [], [], 'de', []);
 
         self::assertSame(['Kreativ-Kojoten', 'Sommer-Sirenen'], $result);
     }
@@ -177,7 +183,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(2, [], [], 'de');
+        $result = $client->fetchSuggestions(2, [], [], 'de', []);
 
         self::assertSame(['Sommer-Sprinter', 'Fest-Falken'], $result);
     }
@@ -197,7 +203,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(2, [], [], 'de');
+        $result = $client->fetchSuggestions(2, [], [], 'de', []);
 
         self::assertSame(['Kreativ-Koalas', 'Quiz-Quallen'], $result);
     }
@@ -217,7 +223,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(3, [], [], 'de');
+        $result = $client->fetchSuggestions(3, [], [], 'de', []);
 
         self::assertSame(['Fun Füchse', 'Pixel-Pandas', 'Turbo Trolle'], $result);
     }
@@ -237,7 +243,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $client = new TeamNameAiClient($responder);
 
-        $result = $client->fetchSuggestions(3, [], [], 'de');
+        $result = $client->fetchSuggestions(3, [], [], 'de', []);
 
         self::assertSame(['Fest-Falken', 'Quiz-Quallen', 'Sonnen-Sprinter'], $result);
     }
