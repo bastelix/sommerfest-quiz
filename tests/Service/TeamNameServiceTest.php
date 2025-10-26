@@ -7,6 +7,8 @@ namespace Tests\Service;
 use App\Service\RagChat\HttpChatResponder;
 use App\Service\TeamNameAiClient;
 use App\Service\TeamNameService;
+use DateTimeImmutable;
+use DateTimeZone;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
@@ -372,6 +374,73 @@ final class TeamNameServiceTest extends TestCase
             self::assertNotNull($afterFailure['last_attempt_at']);
             self::assertSame('Fake AI client returned no results.', $afterFailure['last_error']);
             self::assertSame('Fake AI client returned no results.', $afterFailure['client_last_error']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testListNamesForEventReturnsHistoryWithStatuses(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Alpha'], ['Beta']);
+
+        try {
+            $service = new TeamNameService($pdo, $lexiconPath, 300, null, false, null);
+
+            $insert = $pdo->prepare(
+                'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, reserved_at, assigned_at, released_at, fallback) '
+                . 'VALUES (?,?,?,?,?,?,?,?)'
+            );
+            $utc = new DateTimeZone('UTC');
+            $now = new DateTimeImmutable('now', $utc);
+            $insert->execute([
+                'ev-history',
+                'Team Reserviert',
+                1,
+                'tok-reserved',
+                $now->modify('-2 minutes')->format(DATE_ATOM),
+                null,
+                null,
+                0,
+            ]);
+            $insert->execute([
+                'ev-history',
+                'Team Zugewiesen',
+                1,
+                'tok-assigned',
+                $now->modify('-1 minute')->format(DATE_ATOM),
+                $now->modify('-30 seconds')->format(DATE_ATOM),
+                null,
+                0,
+            ]);
+            $insert->execute([
+                'ev-history',
+                'Team Freigegeben',
+                1,
+                'tok-released',
+                $now->format(DATE_ATOM),
+                $now->modify('+30 seconds')->format(DATE_ATOM),
+                $now->modify('+2 minutes')->format(DATE_ATOM),
+                1,
+            ]);
+
+            $history = $service->listNamesForEvent('ev-history');
+            self::assertCount(3, $history);
+            self::assertSame('Team Freigegeben', $history[0]['name']);
+            self::assertSame('released', $history[0]['status']);
+            self::assertSame('Team Zugewiesen', $history[1]['name']);
+            self::assertSame('assigned', $history[1]['status']);
+            self::assertSame('Team Reserviert', $history[2]['name']);
+            self::assertSame('reserved', $history[2]['status']);
+            self::assertNotNull($history[2]['reserved_at']);
+            self::assertNull($history[2]['assigned_at']);
+            self::assertNotNull($history[0]['released_at']);
+            self::assertTrue($history[0]['fallback']);
+
+            $limited = $service->listNamesForEvent('ev-history', 2);
+            self::assertCount(2, $limited);
+            self::assertSame('Team Freigegeben', $limited[0]['name']);
+            self::assertSame('Team Zugewiesen', $limited[1]['name']);
         } finally {
             @unlink($lexiconPath);
         }

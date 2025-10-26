@@ -19,6 +19,271 @@
   let currentShareToken = '';
   let currentSponsorToken = '';
   let currentEventSlug = '';
+  const teamNameHistorySection = document.querySelector('[data-team-name-history]');
+  const teamNameHistoryTableBody = teamNameHistorySection?.querySelector('[data-team-name-history-body]') || null;
+  const teamNameHistoryLimitSelect = teamNameHistorySection?.querySelector('[data-team-name-history-limit]') || null;
+  const teamNameHistoryEmpty = teamNameHistorySection?.querySelector('[data-team-name-history-empty]') || null;
+  const teamNameHistoryError = teamNameHistorySection?.querySelector('[data-team-name-history-error]') || null;
+  const teamNameHistoryLoading = teamNameHistorySection?.querySelector('[data-team-name-history-loading]') || null;
+  const teamNameHistoryEmptyDefault = teamNameHistoryEmpty?.textContent || '';
+  const TEAM_NAME_HISTORY_STATUS_LABELS = {
+    reserved: 'Reserviert',
+    assigned: 'Zugewiesen',
+    released: 'Freigegeben'
+  };
+  let teamNameHistoryFormatter;
+  let teamNameHistoryEntries = [];
+  let teamNameHistoryEpoch = 0;
+  let teamNameHistorySort = { key: 'reserved_at', direction: 'desc' };
+  const formatTeamNameHistoryStatus = (status) => {
+    if (!status) {
+      return '—';
+    }
+    return TEAM_NAME_HISTORY_STATUS_LABELS[status] || status;
+  };
+  const formatTeamNameHistoryDate = (value) => {
+    if (!value) {
+      return '—';
+    }
+    const timestamp = Date.parse(value);
+    if (Number.isNaN(timestamp)) {
+      return value;
+    }
+    if (!teamNameHistoryFormatter) {
+      teamNameHistoryFormatter = new Intl.DateTimeFormat('de-DE', {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      });
+    }
+    return teamNameHistoryFormatter.format(new Date(timestamp));
+  };
+  const setTeamNameHistoryLoading = (loading) => {
+    if (!teamNameHistoryLoading) return;
+    teamNameHistoryLoading.hidden = !loading;
+  };
+  const resetTeamNameHistory = (message = teamNameHistoryEmptyDefault) => {
+    if (!teamNameHistorySection) return;
+    teamNameHistoryEntries = [];
+    if (teamNameHistoryTableBody) {
+      teamNameHistoryTableBody.innerHTML = '';
+    }
+    if (teamNameHistoryError) {
+      teamNameHistoryError.hidden = true;
+    }
+    if (teamNameHistoryEmpty) {
+      teamNameHistoryEmpty.textContent = message;
+      teamNameHistoryEmpty.hidden = false;
+    }
+    setTeamNameHistoryLoading(false);
+    updateTeamNameHistorySortIndicators();
+  };
+  const parseTeamNameHistoryLimit = () => {
+    if (!teamNameHistoryLimitSelect) {
+      return null;
+    }
+    const parsed = Number.parseInt(teamNameHistoryLimitSelect.value || '', 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return null;
+    }
+    return parsed;
+  };
+  const parseTeamNameHistoryTimestamp = (value) => {
+    if (!value) {
+      return null;
+    }
+    const timestamp = Date.parse(value);
+    if (Number.isNaN(timestamp)) {
+      return null;
+    }
+    return timestamp;
+  };
+  const compareTeamNameHistoryEntries = (a, b) => {
+    const { key, direction } = teamNameHistorySort;
+    const order = direction === 'asc' ? 1 : -1;
+    if (key === 'name' || key === 'status') {
+      const aValue = (a?.[key] ?? '').toString();
+      const bValue = (b?.[key] ?? '').toString();
+      const result = aValue.localeCompare(bValue, 'de', { sensitivity: 'base' });
+      return result * order;
+    }
+    const aValue = parseTeamNameHistoryTimestamp(a?.[key]);
+    const bValue = parseTeamNameHistoryTimestamp(b?.[key]);
+    if (aValue === null && bValue === null) {
+      return 0;
+    }
+    if (aValue === null) {
+      return 1;
+    }
+    if (bValue === null) {
+      return -1;
+    }
+    if (aValue === bValue) {
+      return 0;
+    }
+    return aValue < bValue ? -order : order;
+  };
+  function updateTeamNameHistorySortIndicators() {
+    if (!teamNameHistorySection) {
+      return;
+    }
+    teamNameHistorySection.querySelectorAll('[data-sort-key]').forEach((header) => {
+      const key = header.dataset.sortKey || '';
+      if (!key) {
+        return;
+      }
+      if (key === teamNameHistorySort.key) {
+        header.dataset.sortDirection = teamNameHistorySort.direction;
+        header.setAttribute('aria-sort', teamNameHistorySort.direction === 'asc' ? 'ascending' : 'descending');
+      } else {
+        header.dataset.sortDirection = '';
+        header.setAttribute('aria-sort', 'none');
+      }
+    });
+  }
+  function renderTeamNameHistory() {
+    if (!teamNameHistorySection || !teamNameHistoryTableBody) {
+      return;
+    }
+    teamNameHistoryTableBody.innerHTML = '';
+    if (teamNameHistoryEntries.length === 0) {
+      if (teamNameHistoryEmpty) {
+        teamNameHistoryEmpty.textContent = teamNameHistoryEmptyDefault;
+        teamNameHistoryEmpty.hidden = false;
+      }
+      updateTeamNameHistorySortIndicators();
+      return;
+    }
+    if (teamNameHistoryEmpty) {
+      teamNameHistoryEmpty.textContent = teamNameHistoryEmptyDefault;
+      teamNameHistoryEmpty.hidden = true;
+    }
+    teamNameHistoryEntries
+      .slice()
+      .sort(compareTeamNameHistoryEntries)
+      .forEach((entry) => {
+        const row = document.createElement('tr');
+        const nameCell = document.createElement('td');
+        nameCell.textContent = entry?.name || '—';
+        row.appendChild(nameCell);
+        const statusCell = document.createElement('td');
+        statusCell.textContent = formatTeamNameHistoryStatus(entry?.status);
+        row.appendChild(statusCell);
+        const reservedCell = document.createElement('td');
+        reservedCell.textContent = formatTeamNameHistoryDate(entry?.reserved_at);
+        row.appendChild(reservedCell);
+        const assignedCell = document.createElement('td');
+        assignedCell.textContent = formatTeamNameHistoryDate(entry?.assigned_at);
+        row.appendChild(assignedCell);
+        const releasedCell = document.createElement('td');
+        releasedCell.textContent = formatTeamNameHistoryDate(entry?.released_at);
+        row.appendChild(releasedCell);
+        teamNameHistoryTableBody.appendChild(row);
+      });
+    updateTeamNameHistorySortIndicators();
+  }
+  function refreshTeamNameHistory() {
+    if (!teamNameHistorySection) {
+      return;
+    }
+    if (!eventId) {
+      resetTeamNameHistory('Kein Event ausgewählt.');
+      return;
+    }
+    const params = new URLSearchParams({ event_uid: eventId });
+    const limit = parseTeamNameHistoryLimit();
+    if (limit) {
+      params.set('limit', String(limit));
+    }
+    const currentEpoch = ++teamNameHistoryEpoch;
+    if (teamNameHistoryError) {
+      teamNameHistoryError.hidden = true;
+    }
+    if (teamNameHistoryEmpty) {
+      teamNameHistoryEmpty.textContent = teamNameHistoryEmptyDefault;
+    }
+    setTeamNameHistoryLoading(true);
+    fetch(withBase(`/api/team-names/history?${params.toString()}`), {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: { Accept: 'application/json' }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('history-load-failed');
+        }
+        return response.json();
+      })
+      .then((payload) => {
+        if (currentEpoch !== teamNameHistoryEpoch) {
+          return;
+        }
+        const entries = Array.isArray(payload?.entries) ? payload.entries : [];
+        teamNameHistoryEntries = entries;
+        renderTeamNameHistory();
+      })
+      .catch(() => {
+        if (currentEpoch !== teamNameHistoryEpoch) {
+          return;
+        }
+        teamNameHistoryEntries = [];
+        if (teamNameHistoryTableBody) {
+          teamNameHistoryTableBody.innerHTML = '';
+        }
+        if (teamNameHistoryError) {
+          teamNameHistoryError.hidden = false;
+        }
+        if (teamNameHistoryEmpty) {
+          teamNameHistoryEmpty.hidden = true;
+        }
+        updateTeamNameHistorySortIndicators();
+      })
+      .finally(() => {
+        if (currentEpoch === teamNameHistoryEpoch) {
+          setTeamNameHistoryLoading(false);
+        }
+      });
+  }
+  function handleTeamNameHistorySort(key) {
+    if (!key) {
+      return;
+    }
+    if (teamNameHistorySort.key === key) {
+      teamNameHistorySort = {
+        key,
+        direction: teamNameHistorySort.direction === 'asc' ? 'desc' : 'asc'
+      };
+    } else {
+      teamNameHistorySort = {
+        key,
+        direction: key === 'name' ? 'asc' : 'desc'
+      };
+    }
+    renderTeamNameHistory();
+  }
+  function setupTeamNameHistory() {
+    if (!teamNameHistorySection) {
+      return;
+    }
+    updateTeamNameHistorySortIndicators();
+    teamNameHistorySection.querySelectorAll('[data-sort-key]').forEach((header) => {
+      if (!header.hasAttribute('tabindex')) {
+        header.setAttribute('tabindex', '0');
+      }
+      header.setAttribute('role', 'button');
+      header.addEventListener('click', () => {
+        handleTeamNameHistorySort(header.dataset.sortKey || '');
+      });
+      header.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleTeamNameHistorySort(header.dataset.sortKey || '');
+        }
+      });
+    });
+    teamNameHistoryLimitSelect?.addEventListener('change', () => {
+      refreshTeamNameHistory();
+    });
+  }
   const RESULTS_DEFAULT_PAGE_INTERVAL = 10;
   const RESULTS_PAGE_INTERVAL_MIN = 1;
   const RESULTS_PAGE_INTERVAL_MAX = 300;
@@ -848,6 +1113,7 @@
     }
     updateShareInputs();
     applyRules();
+    resetTeamNameHistory();
   }
 
   function loadConfig(uid) {
@@ -945,12 +1211,14 @@
     } else {
       applyRules();
     }
+    refreshTeamNameHistory();
   });
 
   document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-current-event-select]').forEach((select) => {
       initializeCurrentEventSelect(select);
     });
+    setupTeamNameHistory();
     if (eventId) {
       loadConfig(eventId);
     } else {
@@ -960,6 +1228,7 @@
       }
       updateShareInputs();
     }
+    refreshTeamNameHistory();
     puzzleWordEnabled?.addEventListener('change', applyRules);
     countdownEnabled?.addEventListener('change', applyRules);
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
