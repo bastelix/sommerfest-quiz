@@ -25,4 +25,12 @@ if (!/await confirmNameReservationIfMatching\(name\)/.test(code)) {
   throw new Error('manual submit does not confirm reservation');
 }
 
+if (!/async function promptTeamNameChange\([\s\S]*await getNameSuggestion\(\)/.test(code)) {
+  throw new Error('Team name change does not request a fresh suggestion');
+}
+
+if (!/promptTeamNameChange[\s\S]*await confirmNameReservationIfMatching\(name\)/.test(code)) {
+  throw new Error('Team name change does not confirm reserved suggestion');
+}
+
 console.log('ok');
