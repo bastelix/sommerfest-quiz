@@ -69,16 +69,16 @@ final class TeamNameServiceTest extends TestCase
             };
 
             $first = $service->reserve('event-42');
-            self::assertSame('Beta Lion', $first['name']);
+            self::assertSame('BetaLion', $first['name']);
 
             $second = $service->reserve('event-42');
-            self::assertSame('Alpha Lion', $second['name']);
+            self::assertSame('AlphaLion', $second['name']);
 
             $third = $service->reserve('event-42');
-            self::assertSame('Alpha Tiger', $third['name']);
+            self::assertSame('AlphaTiger', $third['name']);
 
             $fourth = $service->reserve('event-42');
-            self::assertSame('Beta Tiger', $fourth['name']);
+            self::assertSame('BetaTiger', $fourth['name']);
         } finally {
             @unlink($lexiconPath);
         }
@@ -107,11 +107,11 @@ final class TeamNameServiceTest extends TestCase
             };
 
             $first = $service->reserve('event-99', ['nature'], ['playful']);
-            self::assertSame('Spritzig Eiche', $first['name']);
+            self::assertSame('SpritzigEiche', $first['name']);
             self::assertSame(2, $first['total']);
 
             $second = $service->reserve('event-99', ['nature'], ['playful']);
-            self::assertSame('Spritzig Fluss', $second['name']);
+            self::assertSame('SpritzigFluss', $second['name']);
             self::assertSame(2, $second['total']);
         } finally {
             @unlink($lexiconPath);
@@ -132,7 +132,7 @@ final class TeamNameServiceTest extends TestCase
             };
 
             $reservation = $service->reserve('event-77', ['unknown'], ['imaginary']);
-            self::assertSame('Alpha Lion', $reservation['name']);
+            self::assertSame('AlphaLion', $reservation['name']);
             self::assertSame(1, $reservation['total']);
             self::assertFalse($reservation['fallback']);
         } finally {
@@ -187,7 +187,7 @@ final class TeamNameServiceTest extends TestCase
 
             $batch = $service->reserveBatch('event-filter', 5, ['nature'], ['playful']);
             self::assertCount(2, $batch);
-            self::assertSame(['Spritzig Eiche', 'Spritzig Fluss'], array_column($batch, 'name'));
+            self::assertSame(['SpritzigEiche', 'SpritzigFluss'], array_column($batch, 'name'));
 
             $fallbackBatch = $service->reserveBatch('event-filter', 2, ['nature'], ['playful']);
             self::assertCount(1, $fallbackBatch);

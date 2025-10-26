@@ -40,7 +40,7 @@ final class TeamNameControllerTest extends TestCase
             ->method('reserveWithBuffer')
             ->with('ev-lex', ['nature', 'science'], ['playful'], 5, 'fr-CA', 'lexicon')
             ->willReturn([
-                'name' => 'Beta Licht',
+                'name' => 'BetaLicht',
                 'token' => 'tok-lex',
                 'expires_at' => '2025-02-01T12:00:00Z',
                 'lexicon_version' => 3,
@@ -58,7 +58,7 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         self::assertSame('ev-lex', $payload['event_id']);
-        self::assertSame('Beta Licht', $payload['name']);
+        self::assertSame('BetaLicht', $payload['name']);
         self::assertSame('tok-lex', $payload['token']);
         self::assertFalse($payload['fallback']);
     }
@@ -179,7 +179,7 @@ final class TeamNameControllerTest extends TestCase
             ->with('ev-batch', 3, [], [], 0, null, 'ai')
             ->willReturn([
                 [
-                    'name' => 'Alpha Nebel',
+                    'name' => 'AlphaNebel',
                     'token' => 'tok-1',
                     'expires_at' => '2025-01-01T12:00:00Z',
                     'lexicon_version' => 2,
@@ -188,7 +188,7 @@ final class TeamNameControllerTest extends TestCase
                     'fallback' => false,
                 ],
                 [
-                    'name' => 'Beta Licht',
+                    'name' => 'BetaLicht',
                     'token' => 'tok-2',
                     'expires_at' => '2025-01-01T12:00:00Z',
                     'lexicon_version' => 2,
@@ -208,7 +208,7 @@ final class TeamNameControllerTest extends TestCase
         $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         self::assertSame('ev-batch', $payload['event_id']);
         self::assertCount(2, $payload['reservations']);
-        self::assertSame('Alpha Nebel', $payload['reservations'][0]['name']);
+        self::assertSame('AlphaNebel', $payload['reservations'][0]['name']);
         self::assertSame(118, $payload['reservations'][0]['remaining']);
     }
 
