@@ -162,6 +162,26 @@ final class TeamNameAiClientTest extends TestCase
         self::assertSame(['Kreativ-Kojoten', 'Sommer-Sirenen'], $result);
     }
 
+    public function testFetchSuggestionsHandlesProseBeforeJsonCodeFence(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return "Hier sind ein paar Vorschläge:\n```json\n[\"Sommer-Sprinter\",\n \"Fest-Falken\"]\n```";
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(2, [], [], 'de');
+
+        self::assertSame(['Sommer-Sprinter', 'Fest-Falken'], $result);
+    }
+
     public function testFetchSuggestionsParsesNumberedFallbackList(): void
     {
         $responder = new class () extends HttpChatResponder {
