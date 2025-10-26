@@ -7,7 +7,15 @@ namespace Tests\Service;
 use App\Service\TeamNameService;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use RuntimeException;
+use Tests\Stubs\FakeTeamNameAiClient;
+
+use function array_column;
+use function array_values;
+use function preg_match;
+
+require_once __DIR__ . '/../Stubs/FakeTeamNameAiClient.php';
 
 final class TeamNameServiceTest extends TestCase
 {
@@ -177,6 +185,104 @@ final class TeamNameServiceTest extends TestCase
             $fallbackBatch = $service->reserveBatch('event-filter', 2, ['nature'], ['playful']);
             self::assertCount(1, $fallbackBatch);
             self::assertTrue($fallbackBatch[0]['fallback']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveWithAiCachesSuggestions(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Alpha', 'AI Beta', 'AI Gamma'],
+                ['AI Delta', 'AI Echo'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $first = $service->reserveWithBuffer('event-ai', [], [], 2, null, 'ai');
+            self::assertSame('AI Alpha', $first['name']);
+            self::assertFalse($first['fallback']);
+
+            $cacheProperty = new ReflectionProperty(TeamNameService::class, 'aiNameCache');
+            $cacheProperty->setAccessible(true);
+            /** @var array<string, array<int, string>> $cache */
+            $cache = $cacheProperty->getValue($service);
+            self::assertNotEmpty($cache);
+
+            $second = $service->reserveWithBuffer('event-ai', [], [], 2, null, 'ai');
+            self::assertSame('AI Beta', $second['name']);
+
+            $calls = $aiClient->getCalls();
+            self::assertCount(3, $calls);
+            foreach ($calls as $call) {
+                self::assertGreaterThanOrEqual(1, $call['count']);
+                self::assertLessThanOrEqual(2, $call['count']);
+                self::assertSame([], $call['domains']);
+                self::assertSame([], $call['tones']);
+                self::assertSame('de', $call['locale']);
+            }
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveWithAiFallsBackWhenSuggestionsExhausted(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['default' => []], ['default' => []]);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['Taken Crew'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $stmt = $pdo->prepare('INSERT INTO team_names(event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)');
+            $stmt->execute(['event-fallback', 'Taken Crew', 2, 'existing-token']);
+
+            $reservation = $service->reserveWithBuffer('event-fallback', [], [], 0, null, 'ai');
+            self::assertTrue($reservation['fallback']);
+            self::assertSame(0, $reservation['total']);
+            self::assertSame(0, $reservation['remaining']);
+            self::assertCount(1, $aiClient->getCalls());
+            self::assertSame(1, preg_match('/^Gast-[A-Z0-9]{5}$/', $reservation['name']));
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveBatchWithAiUsesProvidedFilters(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI One', 'AI Two', 'AI Three'],
+                ['AI Four', 'AI Five'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $batch = $service->reserveBatchWithBuffer('event-batch-ai', 3, ['nature'], ['playful'], 2, 'fr', 'ai');
+            self::assertCount(3, $batch);
+            self::assertSame(['AI One', 'AI Two', 'AI Three'], array_column($batch, 'name'));
+            foreach ($batch as $reservation) {
+                self::assertFalse($reservation['fallback']);
+            }
+
+            $calls = $aiClient->getCalls();
+            self::assertCount(2, $calls);
+            self::assertSame(3, $calls[0]['count']);
+            self::assertSame(['nature'], $calls[0]['domains']);
+            self::assertSame(['playful'], $calls[0]['tones']);
+            self::assertSame('fr', $calls[0]['locale']);
+            self::assertSame(2, $calls[1]['count']);
         } finally {
             @unlink($lexiconPath);
         }

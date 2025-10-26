@@ -26,7 +26,7 @@ use function trim;
 /**
  * Generates AI-backed team name suggestions.
  */
-final class TeamNameAiClient
+class TeamNameAiClient
 {
     private const MAX_FETCH_COUNT = 25;
 

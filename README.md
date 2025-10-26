@@ -199,6 +199,31 @@ Tests starten mit:
 vendor/bin/phpunit
 ```
 
+### KI-gestützte Teamnamen und RAG-Endpoint
+
+Der Dienst für Teamnamen kann optional KI-Vorschläge abrufen. Dafür muss der Chat-Endpunkt des RAG-Backends
+konfiguriert sein. Die folgenden Umgebungsvariablen steuern die Integration:
+
+| Variable | Beschreibung |
+|----------|--------------|
+| `TEAM_NAME_AI_ENABLED` | `true` aktiviert KI-Vorschläge für zufällige Teamnamen. Ohne diesen Schalter arbeitet der Service ausschließlich mit dem kuratierten Lexikon. |
+| `TEAM_NAME_AI_ENDPOINT` | HTTP-Endpoint für Chat-Completions (z. B. der bereits für den RAG-Chatbot genutzte `/v1/chat/completions`-Pfad). |
+| `TEAM_NAME_AI_TOKEN` | Optionaler API-Token für den Aufruf des Endpoints. |
+| `TEAM_NAME_AI_MODEL` | Bevorzugtes Modell, das in der System-Prompt vermerkt wird. |
+| `TEAM_NAME_AI_TIMEOUT` | Timeout in Sekunden für den HTTP-Aufruf (Standard: 30 s). |
+| `TEAM_NAME_AI_LOCALE` | Fallback-Locale, wenn in der Event-Konfiguration keine explizite Locale angegeben ist. |
+
+Die Anwendung nutzt denselben RAG-Service wie der Admin-Chatbot. Wird der Endpoint angepasst, sollte auch
+`RAG_CHAT_SERVICE_URL` auf denselben Host zeigen, damit beide Features konsistent arbeiten. Ein Pufferwert in der
+Event-Konfiguration (`randomNameBuffer`) bestimmt, wie viele zusätzliche Vorschläge pro Event vorreserviert bleiben
+und liegt zwischen 0 und 99 999. Über `randomNameStrategy` wird festgelegt, ob der KI-Modus (`ai`, Standard) oder
+das reine Lexikon (`lexicon`) verwendet wird. `randomNameLocale` überschreibt das Locale pro Event und ergänzt damit
+den globalen Wert.
+
+Zur Laufzeit protokolliert die Anwendung Fehlversuche beim Reservieren im `team_names`-Table. Für das Monitoring
+empfiehlt es sich, die Auslastung dieser Tabelle sowie den Anteil an Fallback-Namen zu beobachten, um Probleme mit
+dem KI-Endpunkt frühzeitig zu erkennen.
+
 ## Docker Compose
 
 Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Der integrierte PHP-Webserver hört auf Port `8080`, der im Docker-Image freigegeben ist. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook. Dieser Container enthält nun das Docker-CLI, um den Proxy direkt neu laden zu können. Alternativ kann jede beliebige URL über die Variable `NGINX_RELOADER_URL` hinterlegt werden. Wird dieser Webhook genutzt, sollte `NGINX_RELOAD` auf `0` stehen, damit keine Docker-Befehle ausgeführt werden. Das dafür notwendige Token wird über die Datei `.env` als `NGINX_RELOAD_TOKEN` definiert und sowohl an die Anwendung als auch an den Reloader-Container weitergereicht. Die mitgelieferte Beispielkonfiguration ist bereits entsprechend vorbereitet und nutzt standardmäßig `http://nginx-reloader:8080/reload` bei deaktiviertem `NGINX_RELOAD`.

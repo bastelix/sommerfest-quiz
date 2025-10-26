@@ -62,8 +62,12 @@ Der integrierte Teamnamen-Pool liefert auf Wunsch automatisch passende Vorschlä
 * `randomNameDomains` – JSON-Liste der gewünschten Themencluster (`nature`, `science`, `culture`, `sports`, `fantasy`, `geography`).
 * `randomNameTones` – JSON-Liste der Tonalitäten (`playful`, `bold`, `elegant`, `serious`, `quirky`).
 * `randomNameBuffer` – Zahl zwischen 0 und 99999. Gibt an, wie viele zusätzliche Namen pro Event vorab reserviert bleiben, damit die Auslastung im Dashboard sichtbar bleibt.
+* `randomNameLocale` – Optionales Locale (z. B. `de-DE`), mit dem die KI-Antworten priorisiert werden. Bleibt das Feld leer, nutzt der Service die globale Voreinstellung.
+* `randomNameStrategy` – Steuert die Quelle für Zufallsnamen. `ai` (Standard) nutzt den KI-Client, `lexicon` liefert ausschließlich Einträge aus dem gepflegten Wortschatz.
 
 Bleiben die Listen leer, zieht der Dienst sämtliche verfügbaren Adjektiv- und Substantiv-Kombinationen heran. Die Werte werden im Admin-Frontend automatisch validiert und als Kleinbuchstaben gespeichert. Betriebsteams können die Felder bei Bedarf direkt in der `config`-Tabelle pflegen; `ConfigService` serialisiert die Listen als JSON (`random_name_domains` / `random_name_tones`) und normalisiert die Eingaben.
+
+Der KI-Modus puffert bei jeder Reservierung die angegebene Anzahl zusätzlicher Vorschläge und speichert sie in der Tabelle `team_names`. Ein Batch-Request liefert maximal zehn neue Namen, weitere Reservierungen greifen anschließend auf den Cache zurück. Monitoring-Systeme sollten deshalb die Größe der Tabelle und den Anteil an Fallback-Namen beobachten. Ein dauerhaft hoher Fallback-Anteil deutet auf einen fehlerhaften Endpoint (`TEAM_NAME_AI_ENDPOINT`) oder auf leere KI-Antworten hin.
 
 Für automatisierte Setups steht neben `POST /api/team-names` jetzt `GET /api/team-names/batch` bereit. Die Anfrage akzeptiert `event_uid` (oder `event_id`) sowie `count` (maximal 10). Die Antwort enthält `event_id` und eine Liste `reservations`. Jedes Element folgt der Struktur:
 

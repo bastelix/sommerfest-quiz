@@ -7,12 +7,159 @@ namespace Tests\Controller;
 use App\Controller\TeamNameController;
 use App\Service\ConfigService;
 use App\Service\TeamNameService;
+use InvalidArgumentException;
+use PDOException;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
 
+use const JSON_THROW_ON_ERROR;
+use function json_encode;
+
 final class TeamNameControllerTest extends TestCase
 {
+    public function testReserveAppliesConfiguredBufferAndStrategy(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $config->expects(self::once())
+            ->method('getConfigForEvent')
+            ->with('ev-lex')
+            ->willReturn([
+                'randomNameDomains' => ['nature', 'science'],
+                'randomNameTones' => ['playful'],
+                'randomNameBuffer' => 5,
+                'randomNameLocale' => 'fr-CA',
+                'randomNameStrategy' => 'lexicon',
+            ]);
+        $config->expects(self::never())->method('getConfig');
+
+        $service->expects(self::once())
+            ->method('reserveWithBuffer')
+            ->with('ev-lex', ['nature', 'science'], ['playful'], 5, 'fr-CA', 'lexicon')
+            ->willReturn([
+                'name' => 'Beta Licht',
+                'token' => 'tok-lex',
+                'expires_at' => '2025-02-01T12:00:00Z',
+                'lexicon_version' => 3,
+                'total' => 42,
+                'remaining' => 41,
+                'fallback' => false,
+            ]);
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names');
+        $request->getBody()->write(json_encode(['event_uid' => 'ev-lex'], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $response = $controller->reserve($request, new Response());
+
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('ev-lex', $payload['event_id']);
+        self::assertSame('Beta Licht', $payload['name']);
+        self::assertSame('tok-lex', $payload['token']);
+        self::assertFalse($payload['fallback']);
+    }
+
+    public function testReserveUsesGlobalFallbackWhenEventConfigEmpty(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $config->expects(self::once())
+            ->method('getConfigForEvent')
+            ->with('ev-empty')
+            ->willReturn([]);
+        $config->expects(self::once())
+            ->method('getConfig')
+            ->willReturn([
+                'randomNameDomains' => ['science', ''],
+                'randomNameTones' => ['bold', null],
+                'randomNameBuffer' => '-4',
+                'randomNameLocale' => '  es-MX ',
+                'randomNameStrategy' => 'unknown',
+            ]);
+
+        $service->expects(self::once())
+            ->method('reserveWithBuffer')
+            ->with('ev-empty', ['science', ''], ['bold', null], 0, 'es-MX', 'ai')
+            ->willReturn([
+                'name' => 'Photonenfreunde',
+                'token' => 'tok-empty',
+                'expires_at' => '2025-02-01T12:00:00Z',
+                'lexicon_version' => 3,
+                'total' => 12,
+                'remaining' => 10,
+                'fallback' => false,
+            ]);
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names');
+        $request->getBody()->write(json_encode(['event_id' => 'ev-empty'], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $response = $controller->reserve($request, new Response());
+
+        self::assertSame(200, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('tok-empty', $payload['token']);
+        self::assertSame('ev-empty', $payload['event_id']);
+        self::assertSame('Photonenfreunde', $payload['name']);
+    }
+
+    public function testReserveReturnsBadRequestWhenEventIdMissing(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $config->expects(self::never())
+            ->method('getConfigForEvent');
+        $config->expects(self::once())
+            ->method('getConfig')
+            ->willReturn([]);
+        $service->expects(self::never())->method('reserveWithBuffer');
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names');
+        $request->getBody()->write(json_encode([], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $response = $controller->reserve($request, new Response());
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('', (string) $response->getBody());
+    }
+
+    public function testReserveReturnsBadRequestWhenServiceThrows(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $config->expects(self::once())
+            ->method('getConfigForEvent')
+            ->with('ev-error')
+            ->willReturn([]);
+        $config->expects(self::once())
+            ->method('getConfig')
+            ->willReturn([]);
+
+        $service->expects(self::once())
+            ->method('reserveWithBuffer')
+            ->willThrowException(new InvalidArgumentException('invalid'));
+
+        $request = (new ServerRequestFactory())->createServerRequest('POST', '/api/team-names');
+        $request->getBody()->write(json_encode(['event_uid' => 'ev-error'], JSON_THROW_ON_ERROR));
+        $request->getBody()->rewind();
+
+        $response = $controller->reserve($request, new Response());
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+    }
+
     public function testReserveBatchReturnsJsonPayload(): void
     {
         $service = $this->createMock(TeamNameService::class);
@@ -111,5 +258,33 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame('Nebelwelle', $payload['reservations'][0]['name']);
         self::assertSame(2, $payload['reservations'][0]['lexicon_version']);
         self::assertSame(75, $payload['reservations'][0]['remaining']);
+    }
+
+    public function testReserveBatchReturnsBadRequestWhenServiceThrows(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $config->expects(self::once())
+            ->method('getConfigForEvent')
+            ->with('ev-bad-batch')
+            ->willReturn([]);
+        $config->expects(self::once())
+            ->method('getConfig')
+            ->willReturn([]);
+
+        $service->expects(self::once())
+            ->method('reserveBatchWithBuffer')
+            ->willThrowException(new PDOException('failure'));
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', '/api/team-names/batch')
+            ->withQueryParams(['event_uid' => 'ev-bad-batch', 'count' => '5']);
+
+        $response = $controller->reserveBatch($request, new Response());
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
 }
