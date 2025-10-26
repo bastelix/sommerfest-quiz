@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\ConfigService;
+use App\Service\TeamNameService;
 use App\Support\TokenCipher;
 use PDO;
 use Tests\TestCase;
@@ -132,6 +133,52 @@ class ConfigServiceTest extends TestCase
         $this->assertSame(7, $config['randomNameBuffer']);
         $this->assertSame('de-DE', $config['randomNameLocale']);
         $this->assertSame('lexicon', $config['randomNameStrategy']);
+    }
+
+    public function testChangingRandomNameStrategyTriggersWarmUp(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                random_name_domains TEXT DEFAULT '[]',
+                random_name_tones TEXT DEFAULT '[]',
+                random_name_buffer INTEGER DEFAULT 0,
+                random_name_locale TEXT,
+                random_name_strategy TEXT
+            );
+            SQL
+        );
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY REFERENCES events(uid))');
+        $pdo->exec("INSERT INTO events(uid) VALUES('ev-ai')");
+
+        $service = new ConfigService($pdo);
+        $service->saveConfig([
+            'event_uid' => 'ev-ai',
+            'randomNameStrategy' => 'lexicon',
+            'randomNameBuffer' => 3,
+            'randomNameLocale' => 'de-DE',
+        ]);
+
+        $teamNameService = $this->createMock(TeamNameService::class);
+        $teamNameService->expects($this->once())
+            ->method('resetEventNamePreferences')
+            ->with('ev-ai');
+        $teamNameService->expects($this->once())
+            ->method('warmUpAiSuggestions')
+            ->with('ev-ai', [], [], 'de-DE', 5);
+
+        $service->setTeamNameService($teamNameService);
+        $service->saveConfig([
+            'event_uid' => 'ev-ai',
+            'randomNameStrategy' => 'ai',
+            'randomNameBuffer' => 3,
+            'randomNameLocale' => 'de-DE',
+        ]);
     }
 
     public function testDashboardConfigRoundTripsThroughSnakeCaseColumns(): void {
