@@ -56,6 +56,7 @@
 - Clarify quiz start comment
 - Note management role redirect
 - Refresh contribution and coding guides
+- Explain team name ai preview
 
 ### Feat
 
