@@ -14,6 +14,13 @@ class ResultService
 {
     private PDO $pdo;
 
+    /**
+     * Cached list of question table columns.
+     *
+     * @var list<string>|null
+     */
+    private ?array $questionColumns = null;
+
     private const TIME_SCORE_ALPHA = 1.0;
 
     private const TIME_SCORE_FLOOR = 0.0;
@@ -113,11 +120,30 @@ class ResultService
      * Retrieve per-question results including prompts.
      */
     public function getQuestionResults(string $eventUid = ''): array {
-        $sql = <<<'SQL'
+        $hasQuestionPointsColumn = $this->hasQuestionPointsColumn();
+        $hasQuestionCountdownColumn = $this->hasQuestionCountdownColumn();
+
+        $questionColumns = [
+            'q.type',
+            'q.prompt',
+        ];
+        if ($hasQuestionPointsColumn) {
+            $questionColumns[] = 'q.points AS question_points';
+        }
+        if ($hasQuestionCountdownColumn) {
+            $questionColumns[] = 'q.countdown AS question_countdown';
+        }
+        $questionColumns = array_merge(
+            $questionColumns,
+            ['q.options', 'q.answers', 'q.terms', 'q.items']
+        );
+        $questionSelect = implode(",\n                ", $questionColumns);
+
+        $sql = <<<SQL
             SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
                 qr.points, qr.time_left_sec, qr.final_points, qr.efficiency, qr.is_correct, qr.scoring_version,
                 qr.answer_text, qr.photo, qr.consent,
-                q.type, q.prompt, q.points AS question_points, q.countdown AS question_countdown, q.options, q.answers, q.terms, q.items,
+                {$questionSelect},
                 c.name AS catalogName, q.catalog_uid AS "catalogUid"
             FROM question_results qr
             LEFT JOIN questions q ON q.id = qr.question_id
@@ -157,15 +183,21 @@ class ResultService
                 $row['scoringVersion'] = (int) $row['scoring_version'];
                 unset($row['scoring_version']);
             }
-            if (isset($row['question_points'])) {
-                $row['questionPoints'] = (int) $row['question_points'];
+            if ($hasQuestionPointsColumn && array_key_exists('question_points', $row)) {
+                $row['questionPoints'] = $row['question_points'] !== null
+                    ? (int) $row['question_points']
+                    : 0;
                 unset($row['question_points']);
+            } elseif (!$hasQuestionPointsColumn) {
+                $row['questionPoints'] = 0;
             }
-            if (array_key_exists('question_countdown', $row)) {
+            if ($hasQuestionCountdownColumn && array_key_exists('question_countdown', $row)) {
                 $row['questionCountdown'] = $row['question_countdown'] !== null
                     ? (int) $row['question_countdown']
                     : null;
                 unset($row['question_countdown']);
+            } elseif (!$hasQuestionCountdownColumn) {
+                $row['questionCountdown'] = null;
             }
             $catalogUidRaw = $row['catalogUid'] ?? $row['catalog_uid'] ?? null;
             if ($catalogUidRaw !== null && $catalogUidRaw !== '') {
@@ -185,6 +217,66 @@ class ResultService
             }
         }
         return $rows;
+    }
+
+    /**
+     * Determine whether the questions table exposes the requested column.
+     */
+    private function hasQuestionColumn(string $column): bool {
+        return in_array($column, $this->getQuestionColumns(), true);
+    }
+
+    /**
+     * Check if the questions table provides a points column.
+     */
+    private function hasQuestionPointsColumn(): bool {
+        return $this->hasQuestionColumn('points');
+    }
+
+    /**
+     * Check if the questions table provides a countdown column.
+     */
+    private function hasQuestionCountdownColumn(): bool {
+        return $this->hasQuestionColumn('countdown');
+    }
+
+    /**
+     * Retrieve the known columns of the questions table.
+     *
+     * @return list<string>
+     */
+    private function getQuestionColumns(): array {
+        if ($this->questionColumns !== null) {
+            return $this->questionColumns;
+        }
+
+        $columns = [];
+        try {
+            $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+            if ($driver === 'sqlite') {
+                $stmt = $this->pdo->query('PRAGMA table_info(questions)');
+                $rows = $stmt !== false ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
+                $columns = array_map(
+                    static fn(array $row): string => (string) ($row['name'] ?? ''),
+                    $rows
+                );
+            } else {
+                $stmt = $this->pdo->query(
+                    "SELECT column_name FROM information_schema.columns " .
+                    "WHERE table_schema = current_schema() AND table_name = 'questions'"
+                );
+                $values = $stmt !== false ? $stmt->fetchAll(PDO::FETCH_COLUMN) : [];
+                $columns = array_map(static fn($value): string => (string) $value, $values ?: []);
+            }
+        } catch (PDOException $exception) {
+            error_log('Failed to inspect questions table: ' . $exception->getMessage());
+            $columns = [];
+        }
+
+        $columns = array_values(array_filter($columns, static fn(string $name): bool => $name !== ''));
+        $this->questionColumns = $columns;
+
+        return $this->questionColumns;
     }
 
     /**
