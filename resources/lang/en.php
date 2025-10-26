@@ -695,6 +695,7 @@ return [
     'text_no_catalogs' => 'No catalogs',
     'action_summary_load_more_catalogs' => 'Load more catalogs',
     'action_summary_load_more_teams' => 'Load more teams',
+    'action_summary_generate_team_qr' => 'Show team QR codes',
     'text_summary_loading_catalogs' => 'Loading catalogs…',
     'text_summary_loading_teams' => 'Loading teams…',
     'text_summary_loading_event' => 'Loading event details…',

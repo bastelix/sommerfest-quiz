@@ -1468,7 +1468,13 @@
               {% else %}
                 {% set link = baseUrl ? baseUrl ~ '/?t=' ~ t : '?t=' ~ t %}
               {% endif %}
-              <img class="qr-img" data-endpoint="/qr/team" data-target="{{ link }}" src="{{ basePath }}/qr/team?t={{ link|url_encode }}&size=150&margin=40" alt="Team QR">
+              <img
+                class="qr-img"
+                data-endpoint="/qr/team"
+                data-target="{{ link }}"
+                src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+                alt="Team QR"
+              >
             </div>
           </div>
           {% else %}
@@ -1498,6 +1504,7 @@
             <div class="uk-flex uk-flex-wrap uk-flex-right@m">
               <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-small-right" uk-tooltip="title: {{ t('tip_invitations_open') }}; pos: right" data-event-btn disabled>{{ t('action_open_invitations') }}</button>
               <button id="summaryPrintBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-small-right" uk-tooltip="title: {{ t('tip_summary_print') }}; pos: right">{{ t('action_print_summary') }}</button>
+              <button id="summaryTeamQrLoadBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-small-right" type="button" disabled>{{ t('action_summary_generate_team_qr') }}</button>
               <button id="summaryDesignAllBtn" class="uk-button uk-button-default uk-margin-small-bottom" type="button">{{ t('action_design_qrcodes') }}</button>
             </div>
           </div>

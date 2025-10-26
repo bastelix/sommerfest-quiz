@@ -693,6 +693,7 @@ return [
     'text_no_catalogs' => 'Keine Kataloge',
     'action_summary_load_more_catalogs' => 'Weitere Kataloge laden',
     'action_summary_load_more_teams' => 'Weitere Teams laden',
+    'action_summary_generate_team_qr' => 'Team-QR-Codes laden',
     'text_summary_loading_catalogs' => 'Kataloge werden geladen …',
     'text_summary_loading_teams' => 'Teams werden geladen …',
     'text_summary_loading_event' => 'Veranstaltung wird geladen …',
