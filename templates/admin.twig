@@ -76,8 +76,14 @@
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
       <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
       {% set activeRoute = currentPath|split('/admin/')|last %}
+      {% set eventConfigFocus = eventConfigFocus|default('') %}
       {% if activeRoute == '' %}
         {% set activeRoute = 'dashboard' %}
+      {% elseif activeRoute == 'event/dashboard' %}
+        {% set activeRoute = 'event/settings' %}
+        {% if eventConfigFocus == '' %}
+          {% set eventConfigFocus = 'dashboard' %}
+        {% endif %}
       {% endif %}
       <ul id="adminSwitcher" class="uk-switcher uk-margin">
       <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
@@ -220,7 +226,13 @@
           currentEventName: eventName
         } %}
         <p class="uk-text-meta uk-margin-small">{{ 'Änderungen werden automatisch gespeichert.' }}</p>
-        <form id="configForm" class="uk-form-stacked" method="post" action="/config.json">
+        <form
+          id="configForm"
+          class="uk-form-stacked"
+          method="post"
+          action="/config.json"
+          data-focus="{{ eventConfigFocus }}"
+        >
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
             <div>
               <div class="uk-margin">
@@ -527,7 +539,7 @@
               </div>
               <div class="uk-width-1-1">
                 <hr class="admin-divider-line">
-                <h3 class="uk-heading-bullet">{{ t('heading_dashboard') }}</h3>
+                <h3 id="dashboardConfigHeading" class="uk-heading-bullet">{{ t('heading_dashboard') }}</h3>
               </div>
               <div class="uk-width-1-1">
                 <div class="uk-card uk-card-default uk-card-body">
@@ -913,6 +925,26 @@
               </div>
           </div>
         </form>
+
+        {% if eventConfigFocus == 'dashboard' %}
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              var configForm = document.getElementById('configForm');
+              if (configForm && configForm.dataset.focus !== 'dashboard') {
+                return;
+              }
+
+              var heading = document.getElementById('dashboardConfigHeading');
+              if (!heading || typeof heading.scrollIntoView !== 'function') {
+                return;
+              }
+
+              window.requestAnimationFrame(function () {
+                heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              });
+            });
+          </script>
+        {% endif %}
 
         <div id="puzzleFeedbackModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">

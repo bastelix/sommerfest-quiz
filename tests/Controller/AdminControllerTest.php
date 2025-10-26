@@ -223,6 +223,29 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testEventDashboardRouteHighlightsDashboardPanel(): void {
+        $db = $this->setupDb();
+        $pdo = new PDO('sqlite:' . $db);
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, start_date, end_date, description, published, sort_order) " .
+            "VALUES('ev1','ev-1','Event 1','2025-01-01 00:00:00','2025-01-01 01:00:00','',1,0)"
+        );
+        $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
+        $pdo->exec("INSERT INTO active_event(event_uid) VALUES('ev1')");
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/event/dashboard');
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('data-focus="dashboard"', $body);
+        $this->assertStringContainsString('id="dashboardConfigHeading"', $body);
+        session_destroy();
+        unlink($db);
+    }
+
     public function testRagChatSettingsRenderedInAdmin(): void {
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);

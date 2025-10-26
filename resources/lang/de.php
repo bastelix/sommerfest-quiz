@@ -21,6 +21,7 @@ return [
     'admin_title' => 'Quiz Verwaltung',
     'tab_dashboard' => 'Startseite',
     'tab_events' => 'Veranstaltungen',
+    'tab_event_dashboard' => 'Event-Dashboards konfigurieren',
     'tab_event_settings' => 'Event-Konfiguration',
     'tab_catalogs' => 'Fragenkataloge',
     'tab_questions' => 'Fragen bearbeiten',

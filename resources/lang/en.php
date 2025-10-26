@@ -21,6 +21,7 @@ return [
     'admin_title' => 'Quiz Admin',
     'tab_dashboard' => 'Dashboard',
     'tab_events' => 'Events',
+    'tab_event_dashboard' => 'Configure event dashboards',
     'tab_event_settings' => 'Event settings',
     'tab_catalogs' => 'Catalogs',
     'tab_questions' => 'Edit questions',

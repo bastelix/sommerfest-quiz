@@ -7323,7 +7323,13 @@ document.addEventListener('DOMContentLoaded', function () {
       button.addEventListener('click', () => {
         if (!helpSidebar || !helpContent) return;
         let text = activeHelpText();
-        if (!text && window.location.pathname.endsWith('/admin/event/settings')) {
+        if (
+          !text
+          && (
+            window.location.pathname.endsWith('/admin/event/settings')
+            || window.location.pathname.endsWith('/admin/event/dashboard')
+          )
+        ) {
           text = window.transEventSettingsHelp || '';
         }
         helpContent.innerHTML = text;

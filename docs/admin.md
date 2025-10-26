@@ -5,6 +5,7 @@ Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/ad
 * **Event**
   * **Startseite** – `/admin/dashboard`
   * **Events** – `/admin/events`
+  * **Event-Dashboards** – `/admin/event/dashboard`
   * **Event-Konfiguration** – `/admin/event/settings`
   * **Übersicht** – `/admin/summary`
 * **Inhalte**
