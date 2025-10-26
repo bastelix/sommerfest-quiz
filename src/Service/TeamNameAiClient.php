@@ -128,8 +128,7 @@ class TeamNameAiClient
      * @param array<int, string> $domains
      * @param array<int, string> $tones
      *
-     * @return list<array{id:string,text:string,score:float,metadata:array<string,mixed>}>|
-     *     list<array<string,mixed>>
+     * @return list<array{id:string,text:string,score:float,metadata:array<string,mixed>}>|list<array<string,mixed>>
      */
     private function buildContextPayload(int $count, array $domains, array $tones, string $locale): array
     {
