@@ -1168,8 +1168,9 @@
   function save() {
     if (!eventId) return;
     const body = collectData();
+    const method = (typeof FormData !== 'undefined' && body instanceof FormData) ? 'POST' : 'PATCH';
     csrfFetch(`/admin/event/${eventId}`, {
-      method: 'PATCH',
+      method,
       body
     })
       .catch(() => {})

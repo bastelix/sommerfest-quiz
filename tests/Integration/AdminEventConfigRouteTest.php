@@ -2,18 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Controller;
+namespace Tests\Integration;
 
-use App\Controller\EventConfigController;
-use App\Service\ConfigService;
-use App\Service\EventService;
-use App\Service\ImageUploadService;
+use App\Domain\Roles;
 use App\Infrastructure\Migrations\Migrator;
-use Slim\Psr7\Response;
+use App\Service\EventService;
+use Psr\Http\Message\ResponseInterface;
 use Tests\TestCase;
 use PDO;
 
-class EventConfigControllerTest extends TestCase
+final class AdminEventConfigRouteTest extends TestCase
 {
     protected function setUp(): void
     {
@@ -21,6 +19,8 @@ class EventConfigControllerTest extends TestCase
 
         putenv('DASHBOARD_TOKEN_SECRET=test-secret');
         $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+        putenv('DISPLAY_ERROR_DETAILS=1');
+        $_ENV['DISPLAY_ERROR_DETAILS'] = '1';
 
         Migrator::setHook(static function (PDO $pdo): bool {
             if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
@@ -80,37 +80,48 @@ class EventConfigControllerTest extends TestCase
         parent::tearDown();
     }
 
-    public function testUpdateInvalidData(): void {
+    public function testPostRequestUpdatesEventConfiguration(): void
+    {
         $pdo = $this->createDatabase();
+        $this->setDatabase($pdo);
+
         $eventService = new EventService($pdo);
-        $eventService->saveAll([['uid' => 'ev1', 'name' => 'Test']]);
-        $imageService = new ImageUploadService(sys_get_temp_dir());
-        $controller = new EventConfigController($eventService, new ConfigService($pdo), $imageService);
+        $eventService->saveAll([[
+            'uid' => 'ev1',
+            'name' => 'Test Event',
+            'slug' => 'test-event',
+        ]]);
 
-        $request = $this->createRequest('PUT', '/events/ev1/config.json');
-        $request = $request->withParsedBody(['backgroundColor' => 'blue']);
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $_SESSION['user'] = ['role' => Roles::ADMIN];
 
-        $response = $controller->update($request, new Response(), ['id' => 'ev1']);
+        $app = $this->getAppInstance();
 
-        $this->assertEquals(400, $response->getStatusCode());
-        $this->assertStringContainsString('errors', (string) $response->getBody());
+        $request = $this->createRequest('POST', '/admin/event/ev1', [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+        ]);
+        $request->getBody()->write('pageTitle=Demo+Event');
+        $request->getBody()->rewind();
+
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode(), (string) $response->getBody());
+        $payload = $this->decodeJson($response);
+        $this->assertSame('Demo Event', $payload['config']['pageTitle'] ?? null);
     }
 
-    public function testUpdateValidData(): void {
-        $pdo = $this->createDatabase();
-        $eventService = new EventService($pdo);
-        $eventService->saveAll([['uid' => 'ev1', 'name' => 'Test']]);
-        $configService = new ConfigService($pdo);
-        $imageService = new ImageUploadService(sys_get_temp_dir());
-        $controller = new EventConfigController($eventService, $configService, $imageService);
+    /**
+     * @return array<string, mixed>
+     */
+    private function decodeJson(ResponseInterface $response): array
+    {
+        $body = (string) $response->getBody();
+        $data = json_decode($body, true);
+        $this->assertIsArray($data, 'Response did not contain valid JSON: ' . $body);
 
-        $request = $this->createRequest('PUT', '/events/ev1/config.json');
-        $request = $request->withParsedBody(['pageTitle' => 'Demo']);
-
-        $response = $controller->update($request, new Response(), ['id' => 'ev1']);
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $payload = json_decode((string) $response->getBody(), true);
-        $this->assertSame('ev1', $payload['event']['uid'] ?? null);
+        return $data;
     }
 }
