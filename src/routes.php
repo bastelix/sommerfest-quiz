@@ -53,6 +53,7 @@ use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\HttpChatResponder;
+use App\Service\RagChat\OpenAiChatResponder;
 use App\Service\RagChat\DomainIndexManager;
 use App\Service\RagChat\DomainWikiSelectionService;
 use App\Service\RagChat\RagChatService;
@@ -279,10 +280,170 @@ return function (\Slim\App $app, TranslationService $translator) {
         $teamNameAiModelEnv = getenv('RAG_CHAT_SERVICE_MODEL');
 
         try {
-            $teamNameAiResponder = new HttpChatResponder();
+            $endpointEnv = getenv('RAG_CHAT_SERVICE_URL');
+            $endpoint = $endpointEnv !== false ? trim((string) $endpointEnv) : '';
+            if ($endpoint === '') {
+                throw new \RuntimeException('Chat service URL is not configured.');
+            }
+
+            $tokenEnv = getenv('RAG_CHAT_SERVICE_TOKEN');
+            $token = $tokenEnv !== false ? trim((string) $tokenEnv) : null;
+            $token = $token === '' ? null : $token;
+
+            $driverEnv = getenv('RAG_CHAT_SERVICE_DRIVER');
+            $forceOpenAiEnv = getenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
+            $modelEnv = $teamNameAiModelEnv !== false ? trim((string) $teamNameAiModelEnv) : null;
+
+            $isTruthy = static function (?string $value): bool {
+                if ($value === null) {
+                    return false;
+                }
+
+                $normalised = strtolower(trim($value));
+
+                return $normalised !== '' && in_array($normalised, ['1', 'true', 'yes', 'on'], true);
+            };
+
+            $shouldUseOpenAi = false;
+            if ($driverEnv !== false) {
+                $normalisedDriver = strtolower(trim((string) $driverEnv));
+                if ($normalisedDriver === 'openai') {
+                    $shouldUseOpenAi = true;
+                } elseif ($normalisedDriver !== '') {
+                    $shouldUseOpenAi = false;
+                }
+            }
+
+            if (!$shouldUseOpenAi) {
+                $parts = parse_url($endpoint);
+                if (is_array($parts)) {
+                    $host = $parts['host'] ?? null;
+                    if (is_string($host) && $host === 'api.openai.com') {
+                        $shouldUseOpenAi = true;
+                    }
+
+                    if (!$shouldUseOpenAi) {
+                        $pathValue = $parts['path'] ?? null;
+                        $path = is_string($pathValue) ? rtrim($pathValue, '/') : '';
+                        if ($path === '/v1' || $path === '/v1/models' || str_ends_with($path, '/v1/chat/completions')) {
+                            $shouldUseOpenAi = true;
+                        }
+                    }
+                }
+            }
+
+            if (!$shouldUseOpenAi && $isTruthy($forceOpenAiEnv !== false ? (string) $forceOpenAiEnv : null)) {
+                $shouldUseOpenAi = true;
+            }
+
+            if ($shouldUseOpenAi) {
+                $normalizeOpenAiEndpoint = static function (string $value): string {
+                    $trimmed = trim($value);
+                    if ($trimmed === '') {
+                        return $value;
+                    }
+
+                    $parts = parse_url($trimmed);
+                    if ($parts === false) {
+                        return $value;
+                    }
+
+                    $scheme = $parts['scheme'] ?? null;
+                    $host = $parts['host'] ?? null;
+                    if (!is_string($scheme) || $scheme === '' || !is_string($host) || $host === '') {
+                        return $value;
+                    }
+
+                    $pathValue = $parts['path'] ?? null;
+                    $path = is_string($pathValue) ? $pathValue : '';
+                    $normalisePath = static function (string $path): string {
+                        $normalised = rtrim($path, '/');
+                        if ($normalised === '' || $normalised === '/v1' || $normalised === '/v1/models') {
+                            return '/v1/chat/completions';
+                        }
+
+                        if (str_ends_with($normalised, '/v1/chat/completions')) {
+                            return $normalised;
+                        }
+
+                        return $path === '' ? '/v1/chat/completions' : $path;
+                    };
+
+                    $rebuilt = $scheme . '://';
+
+                    $userInfo = '';
+                    $user = $parts['user'] ?? null;
+                    if (is_string($user) && $user !== '') {
+                        $userInfo = $user;
+                        $pass = $parts['pass'] ?? null;
+                        if (is_string($pass)) {
+                            $userInfo .= ':' . $pass;
+                        }
+                        $userInfo .= '@';
+                    }
+
+                    $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+                    $rebuilt .= $userInfo . $host . $port . $normalisePath($path);
+
+                    $query = $parts['query'] ?? null;
+                    if (is_string($query) && $query !== '') {
+                        $rebuilt .= '?' . $query;
+                    }
+
+                    $fragment = $parts['fragment'] ?? null;
+                    if (is_string($fragment) && $fragment !== '') {
+                        $rebuilt .= '#' . $fragment;
+                    }
+
+                    return $rebuilt;
+                };
+
+                $options = [];
+                $temperatureEnv = getenv('RAG_CHAT_SERVICE_TEMPERATURE');
+                $temperature = $temperatureEnv !== false ? trim((string) $temperatureEnv) : '';
+                if ($temperature !== '' && is_numeric($temperature)) {
+                    $options['temperature'] = (float) $temperature;
+                }
+
+                $topPEnv = getenv('RAG_CHAT_SERVICE_TOP_P');
+                $topP = $topPEnv !== false ? trim((string) $topPEnv) : '';
+                if ($topP !== '' && is_numeric($topP)) {
+                    $options['top_p'] = (float) $topP;
+                }
+
+                $presenceEnv = getenv('RAG_CHAT_SERVICE_PRESENCE_PENALTY');
+                $presence = $presenceEnv !== false ? trim((string) $presenceEnv) : '';
+                if ($presence !== '' && is_numeric($presence)) {
+                    $options['presence_penalty'] = (float) $presence;
+                }
+
+                $frequencyEnv = getenv('RAG_CHAT_SERVICE_FREQUENCY_PENALTY');
+                $frequency = $frequencyEnv !== false ? trim((string) $frequencyEnv) : '';
+                if ($frequency !== '' && is_numeric($frequency)) {
+                    $options['frequency_penalty'] = (float) $frequency;
+                }
+
+                $maxTokensEnv = getenv('RAG_CHAT_SERVICE_MAX_TOKENS');
+                $maxTokens = $maxTokensEnv !== false ? trim((string) $maxTokensEnv) : '';
+                if ($maxTokens !== '' && is_numeric($maxTokens)) {
+                    $options['max_tokens'] = (int) $maxTokens;
+                }
+
+                $teamNameAiResponder = new OpenAiChatResponder(
+                    $normalizeOpenAiEndpoint($endpoint),
+                    null,
+                    $token,
+                    null,
+                    $modelEnv,
+                    $options === [] ? null : $options
+                );
+            } else {
+                $teamNameAiResponder = new HttpChatResponder($endpoint, null, $token);
+            }
+
             $teamNameAiClient = new TeamNameAiClient(
                 $teamNameAiResponder,
-                $teamNameAiModelEnv !== false ? $teamNameAiModelEnv : null
+                $modelEnv
             );
         } catch (\RuntimeException $exception) {
             $teamNameAiClient = null;
