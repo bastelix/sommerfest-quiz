@@ -11,6 +11,7 @@ use DateTimeZone;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use PDOStatement;
 use RuntimeException;
 use Throwable;
 
@@ -395,7 +396,7 @@ class TeamNameService
 
                     throw $exception;
                 } finally {
-                    if ($stmt !== null) {
+                    if ($stmt instanceof PDOStatement) {
                         $stmt->closeCursor();
                     }
                 }
