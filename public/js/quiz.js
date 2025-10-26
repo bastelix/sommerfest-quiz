@@ -76,6 +76,23 @@ function releaseNameReservation(){
   lastSuggestionFallback = false;
 }
 
+async function releaseConfirmedTeamName(name){
+  const candidate = typeof name === 'string' ? name.trim() : '';
+  if (!candidate) {
+    return false;
+  }
+  const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+  if (!client || typeof client.releaseByName !== 'function') {
+    return false;
+  }
+  try {
+    return await client.releaseByName({ eventUid: currentEventUid, name: candidate });
+  } catch (error) {
+    console.error('Team name release failed', error);
+    return false;
+  }
+}
+
 async function confirmNameReservationIfMatching(name){
   if (!nameReservation) {
     return false;
@@ -138,6 +155,7 @@ function updateTeamNameButton(){
 
 function promptTeamNameChange(existingName){
   const currentName = typeof existingName === 'string' ? existingName : getStored('quizUser') || '';
+  const normalizedExisting = typeof currentName === 'string' ? currentName.trim() : '';
   releaseNameReservation();
   return new Promise(resolve => {
     const modal = document.createElement('div');
@@ -167,6 +185,9 @@ function promptTeamNameChange(existingName){
       const name = (input.value || '').trim();
       if(!name){
         return;
+      }
+      if (normalizedExisting && name.toLowerCase() !== normalizedExisting.toLowerCase()) {
+        await releaseConfirmedTeamName(normalizedExisting);
       }
       releaseNameReservation();
       setStored('quizUser', name);
@@ -282,6 +303,7 @@ async function promptTeamName(){
           ui.hide();
           return;
         }
+        await releaseConfirmedTeamName(existing);
         clearStored('quizUser');
         clearStored(STORAGE_KEYS.PLAYER_UID);
         try{

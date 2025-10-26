@@ -13,6 +13,10 @@ if (!/async function confirmNameReservationIfMatching\(name\)[\s\S]*client\.conf
   throw new Error('confirmNameReservationIfMatching missing confirm call');
 }
 
+if (!/releaseConfirmedTeamName\([\s\S]*client\.releaseByName/.test(code)) {
+  throw new Error('Confirmed team name release via TeamNameClient missing');
+}
+
 if (!/async function showManualInput\(\)[\s\S]*await getNameSuggestion\(\)/.test(code)) {
   throw new Error('showManualInput does not await getNameSuggestion');
 }
