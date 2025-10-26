@@ -6749,6 +6749,74 @@ document.addEventListener('DOMContentLoaded', function () {
     applyLazyImage(img, null);
   }
 
+  const summaryTeamQrLoadBtn = document.getElementById('summaryTeamQrLoadBtn');
+  const summaryTeamQrQueue = [];
+  let summaryTeamQrTriggered = false;
+
+  function resetSummaryTeamQrQueue() {
+    summaryTeamQrQueue.length = 0;
+    summaryTeamQrTriggered = false;
+    if (summaryTeamQrLoadBtn) {
+      summaryTeamQrLoadBtn.setAttribute('disabled', 'disabled');
+    }
+  }
+
+  function enqueueSummaryTeamQr(img, endpoint, target, params) {
+    if (!img) {
+      return;
+    }
+    if (summaryTeamQrTriggered) {
+      setQrImage(img, endpoint, target, params);
+      return;
+    }
+    if (summaryTeamQrLoadBtn) {
+      summaryTeamQrLoadBtn.removeAttribute('disabled');
+    }
+    img.classList.add('qr-img');
+    img.dataset.endpoint = endpoint;
+    img.dataset.target = target;
+    img.dataset.qrParams = params.toString();
+    if (img.dataset) {
+      delete img.dataset.src;
+      delete img.dataset.lazyLoaded;
+    }
+    if (typeof img.removeAttribute === 'function') {
+      img.removeAttribute('src');
+    } else {
+      img.src = '';
+    }
+    summaryTeamQrQueue.push(img);
+  }
+
+  function flushSummaryTeamQrQueue() {
+    if (summaryTeamQrTriggered) {
+      return;
+    }
+    summaryTeamQrTriggered = true;
+    const queue = summaryTeamQrQueue.splice(0, summaryTeamQrQueue.length);
+    queue.forEach(img => {
+      if (!img) {
+        return;
+      }
+      const endpoint = img.dataset.endpoint || '/qr/team';
+      const target = img.dataset.target || '';
+      const paramStr = img.dataset.qrParams || '';
+      const params = paramStr ? new URLSearchParams(paramStr) : new URLSearchParams();
+      if (!params.has('t') && target) {
+        params.set('t', target);
+      }
+      setQrImage(img, endpoint, target, params);
+    });
+    if (summaryTeamQrLoadBtn) {
+      summaryTeamQrLoadBtn.setAttribute('disabled', 'disabled');
+    }
+  }
+
+  summaryTeamQrLoadBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    flushSummaryTeamQrQueue();
+  });
+
   let summaryRequestId = 0;
 
   registerCacheReset(() => {
@@ -6962,6 +7030,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
 
+    resetSummaryTeamQrQueue();
+
     const requestId = ++summaryRequestId;
     const isActive = () => requestId === summaryRequestId;
 
@@ -7134,7 +7204,7 @@ document.addEventListener('DOMContentLoaded', function () {
           img.alt = 'QR';
           img.width = 96;
           img.height = 96;
-          setQrImage(img, '/qr/team', link, params);
+          enqueueSummaryTeamQr(img, '/qr/team', link, params);
           const designBtn = document.createElement('button');
           designBtn.className = 'uk-icon-button uk-position-top-left';
           designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
