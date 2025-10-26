@@ -32,6 +32,8 @@ use App\Service\EventService;
 use App\Service\SummaryPhotoService;
 use App\Exception\PlayerNameConflictException;
 use App\Service\PlayerService;
+use App\Support\UsernameBlockedException;
+use App\Support\UsernameGuard;
 use App\Service\UserService;
 use App\Service\TenantService;
 use App\Service\NginxService;
@@ -326,7 +328,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $emailConfirmService = new EmailConfirmationService($pdo);
         $auditLogger = new AuditLogger($pdo);
         $sessionService = new SessionService($pdo);
-        $playerService = new PlayerService($pdo);
+        $usernameGuard = UsernameGuard::fromConfigFile(null, $pdo);
+        $playerService = new PlayerService($pdo, $usernameGuard);
         $playerContactOptInService = new PlayerContactOptInService($pdo, $playerService);
         $imageUploadService = new ImageUploadService();
         $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
@@ -1585,6 +1588,12 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $consentGrantedAt,
                 $hasEmail || $hasConsent
             );
+        } catch (UsernameBlockedException $exception) {
+            $response->getBody()->write((string) json_encode(['error' => 'name_blocked']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
         } catch (PlayerNameConflictException $exception) {
             $response->getBody()->write((string) json_encode(['error' => 'name_taken']));
 

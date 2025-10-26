@@ -103,7 +103,7 @@ async function saveName(e) {
     });
 
     if (!response.ok) {
-      if (response.status === 409) {
+      if (response.status === 409 || response.status === 422) {
         let errorCode = '';
         try {
           const payload = await response.json();
@@ -116,6 +116,8 @@ async function saveName(e) {
 
         if (errorCode === 'name_taken') {
           notify('Dieser Name ist bereits vergeben.', 'warning');
+        } else if (errorCode === 'name_blocked') {
+          notify('Dieser Name ist nicht erlaubt.', 'warning');
         } else {
           notify('Fehler beim Speichern', 'danger');
         }
