@@ -442,10 +442,10 @@ class TeamNameService
 
         $normalizedDomains = $this->normalizeFilterValues($domains);
         $normalizedTones = $this->normalizeFilterValues($tones);
-        $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones);
+        $resolvedLocale = $this->resolveLocale($locale);
+        $cacheKey = $this->buildAiCacheKey($eventId, $normalizedDomains, $normalizedTones, $resolvedLocale);
         $promptDomains = $this->preparePromptValues($domains);
         $promptTones = $this->preparePromptValues($tones);
-        $resolvedLocale = $this->resolveLocale($locale);
 
         $targetSize = max(1, max($count, $buffer));
         $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
@@ -603,9 +603,12 @@ class TeamNameService
      * @param array<int, string> $domains
      * @param array<int, string> $tones
      */
-    private function buildAiCacheKey(string $eventId, array $domains, array $tones): string
+    private function buildAiCacheKey(string $eventId, array $domains, array $tones, string $locale): string
     {
-        return sha1($this->normalize($eventId) . '#' . implode('|', $domains) . '#' . implode('|', $tones));
+        $normalizedEventId = $this->normalize($eventId);
+        $normalizedLocale = $this->normalize($locale);
+
+        return sha1($normalizedEventId . '#' . implode('|', $domains) . '#' . implode('|', $tones) . '#' . $normalizedLocale);
     }
 
     /**

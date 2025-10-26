@@ -237,6 +237,36 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testReserveWithAiSeparatesCacheByLocale(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Deutsch', 'AI Zweit'],
+                ['AI Français', 'AI Deux'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $german = $service->reserveWithBuffer('event-locale', [], [], 0, 'de', 'ai');
+            self::assertSame('AI Deutsch', $german['name']);
+            self::assertFalse($german['fallback']);
+
+            $french = $service->reserveWithBuffer('event-locale', [], [], 0, 'fr', 'ai');
+            self::assertSame('AI Français', $french['name']);
+            self::assertFalse($french['fallback']);
+
+            $calls = $aiClient->getCalls();
+            self::assertCount(2, $calls);
+            self::assertSame('de', $calls[0]['locale']);
+            self::assertSame('fr', $calls[1]['locale']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     public function testReserveWithAiFallsBackWhenSuggestionsExhausted(): void
     {
         $pdo = $this->createInMemoryDatabase();
