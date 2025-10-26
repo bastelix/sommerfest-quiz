@@ -153,10 +153,12 @@ function updateTeamNameButton(){
   btn.textContent = name || btn.getAttribute('data-placeholder') || 'Teamnamen eingeben';
 }
 
-function promptTeamNameChange(existingName){
+async function promptTeamNameChange(existingName){
   const currentName = typeof existingName === 'string' ? existingName : getStored('quizUser') || '';
   const normalizedExisting = typeof currentName === 'string' ? currentName.trim() : '';
   releaseNameReservation();
+  const suggestion = await getNameSuggestion();
+  const suggestionIsFallback = getLastSuggestionWasFallback();
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
@@ -167,13 +169,17 @@ function promptTeamNameChange(existingName){
     const title = document.createElement('h3');
     title.className = 'uk-modal-title uk-text-center';
     title.textContent = 'Teamname ändern';
+    const sugg = document.createElement('span');
+    sugg.className = 'uk-text-muted';
+    sugg.textContent = suggestionIsFallback ? ` (Vorschlag: ${suggestion} – Zufallsname)` : ` (Vorschlag: ${suggestion})`;
+    title.appendChild(sugg);
     dialog.appendChild(title);
     const input = document.createElement('input');
     input.id = 'team-name-input';
     input.className = 'uk-input';
     input.type = 'text';
     input.placeholder = 'Teamname';
-    input.value = currentName;
+    input.value = suggestion || currentName;
     const btn = document.createElement('button');
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -186,10 +192,29 @@ function promptTeamNameChange(existingName){
       if(!name){
         return;
       }
+      const usingSuggestion = nameReservation && typeof nameReservation.name === 'string'
+        && name.toLowerCase() === nameReservation.name.toLowerCase();
+      if(usingSuggestion){
+        const confirmed = await confirmNameReservationIfMatching(name);
+        if(!confirmed){
+          if(typeof UIkit !== 'undefined' && UIkit.notification){
+            UIkit.notification({
+              message: 'Reservierter Teamname konnte nicht bestätigt werden. Bitte erneut versuchen.',
+              status: 'danger',
+              pos: 'top-center',
+              timeout: 3000
+            });
+          }else{
+            alert('Reservierter Teamname konnte nicht bestätigt werden. Bitte erneut versuchen.');
+          }
+          return;
+        }
+      }else{
+        releaseNameReservation();
+      }
       if (normalizedExisting && name.toLowerCase() !== normalizedExisting.toLowerCase()) {
         await releaseConfirmedTeamName(normalizedExisting);
       }
-      releaseNameReservation();
       setStored('quizUser', name);
       setStored(STORAGE_KEYS.PLAYER_NAME, name);
       let uid = getStored(STORAGE_KEYS.PLAYER_UID);
@@ -246,6 +271,9 @@ function promptTeamNameChange(existingName){
       if(typeof input.select === 'function') input.select();
     });
     UIkit.util.on(modal, 'hidden', () => {
+      if(!saved){
+        releaseNameReservation();
+      }
       modal.remove();
       updateTeamNameButton();
       resolve();
