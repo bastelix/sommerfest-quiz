@@ -62,6 +62,7 @@ use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
+use App\Service\UsernameBlocklistService;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
 use App\Support\DomainNameHelper;
@@ -94,6 +95,7 @@ use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\MailProviderController;
+use App\Controller\Admin\UsernameBlocklistController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
@@ -459,6 +461,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $settingsService,
                 $mailProviderManager,
                 $domainStartPageService
+            ))
+            ->withAttribute('usernameBlocklistController', new UsernameBlocklistController(
+                new UsernameBlocklistService($pdo),
+                $translator
             ))
             ->withAttribute('catalogStickerController', new CatalogStickerController(
                 $configService,
@@ -1807,6 +1813,33 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         return $controller->testConnection($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/username-blocklist', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('usernameBlocklistController');
+        if (!$controller instanceof UsernameBlocklistController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->post('/admin/username-blocklist', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('usernameBlocklistController');
+        if (!$controller instanceof UsernameBlocklistController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->store($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->delete('/admin/username-blocklist/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = $request->getAttribute('usernameBlocklistController');
+        if (!$controller instanceof UsernameBlocklistController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->get('/catalog/questions/{file}', function (Request $request, Response $response, array $args) {

@@ -36,6 +36,7 @@ final class UsernameGuard
         '§86a/NS-Bezug',
         'Beleidigung/Slur',
         'Allgemein',
+        'Admin',
     ];
 
     /**

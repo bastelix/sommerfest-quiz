@@ -269,7 +269,7 @@ CREATE TABLE IF NOT EXISTS username_blocklist (
     category TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT username_blocklist_category_check CHECK (
-        category IN ('NSFW', '§86a/NS-Bezug', 'Beleidigung/Slur', 'Allgemein')
+        category IN ('NSFW', '§86a/NS-Bezug', 'Beleidigung/Slur', 'Allgemein', 'Admin')
     )
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_username_blocklist_term_category
