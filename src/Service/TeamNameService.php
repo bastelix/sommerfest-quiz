@@ -26,6 +26,7 @@ use function max;
 use function min;
 use function sha1;
 use function trim;
+use const DATE_ATOM;
 
 /**
  * Central allocator for curated team names with reservation support.
@@ -76,6 +77,12 @@ class TeamNameService
      * @var array<string, array<int, string>>
      */
     private array $aiNameCache = [];
+
+    private ?DateTimeImmutable $aiLastAttemptAt = null;
+
+    private ?DateTimeImmutable $aiLastSuccessAt = null;
+
+    private ?string $aiLastError = null;
 
     public function __construct(
         PDO $pdo,
@@ -480,7 +487,9 @@ class TeamNameService
         while (count($this->aiNameCache[$cacheKey]) < $targetSize && $attempts < self::AI_MAX_ATTEMPTS) {
             $needed = $targetSize - count($this->aiNameCache[$cacheKey]);
             $batch = $this->aiClient->fetchSuggestions($needed, $domains, $tones, $locale);
+            $this->aiLastAttemptAt = $this->aiClient->getLastResponseAt() ?? $this->currentUtcTime();
             if ($batch === []) {
+                $this->aiLastError = $this->aiClient->getLastError() ?? 'AI service returned no suggestions.';
                 break;
             }
 
@@ -504,11 +513,47 @@ class TeamNameService
             }
 
             if (!$added) {
+                $this->aiLastError = 'AI suggestions are already in use for this event.';
                 break;
             }
 
+            $this->aiLastSuccessAt = $this->aiClient->getLastSuccessAt() ?? $this->aiLastAttemptAt;
+            $this->aiLastError = null;
             $attempts++;
         }
+    }
+
+    public function getAiDiagnostics(): array
+    {
+        $diagnostics = [
+            'enabled' => $this->aiEnabled,
+            'available' => false,
+            'last_attempt_at' => null,
+            'last_success_at' => null,
+            'last_error' => null,
+            'client_last_error' => null,
+            'last_response_at' => null,
+        ];
+
+        if (!$this->aiEnabled || $this->aiClient === null) {
+            return $diagnostics;
+        }
+
+        $lastResponse = $this->aiClient->getLastResponseAt();
+        $lastSuccess = $this->aiClient->getLastSuccessAt();
+        $diagnostics['last_response_at'] = $this->formatAiTimestamp($lastResponse);
+        $diagnostics['last_attempt_at'] = $this->formatAiTimestamp($this->aiLastAttemptAt ?? $lastResponse);
+        $diagnostics['last_success_at'] = $this->formatAiTimestamp($this->aiLastSuccessAt ?? $lastSuccess);
+        $diagnostics['client_last_error'] = $this->aiClient->getLastError();
+        $diagnostics['last_error'] = $this->aiLastError;
+
+        if ($this->aiLastSuccessAt !== null && $this->aiLastAttemptAt !== null) {
+            $diagnostics['available'] = $this->aiLastSuccessAt >= $this->aiLastAttemptAt;
+        } elseif ($lastSuccess !== null && ($lastResponse === null || $lastSuccess >= $lastResponse)) {
+            $diagnostics['available'] = true;
+        }
+
+        return $diagnostics;
     }
 
     private function canUseAi(): bool
@@ -523,6 +568,20 @@ class TeamNameService
         }
 
         return $strategy === self::RANDOM_NAME_STRATEGY_AI;
+    }
+
+    private function formatAiTimestamp(?DateTimeImmutable $timestamp): ?string
+    {
+        if ($timestamp === null) {
+            return null;
+        }
+
+        return $timestamp->setTimezone(new DateTimeZone('UTC'))->format(DATE_ATOM);
+    }
+
+    private function currentUtcTime(): DateTimeImmutable
+    {
+        return new DateTimeImmutable('now', new DateTimeZone('UTC'));
     }
 
     private function normalizeStrategy(?string $strategy): string

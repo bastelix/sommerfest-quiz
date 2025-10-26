@@ -1630,6 +1630,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->reserveBatch($request, $response);
     });
 
+    $app->get('/api/team-names/status', function (Request $request, Response $response) {
+        /** @var TeamNameController $controller */
+        $controller = $request->getAttribute('teamNameController');
+
+        return $controller->status($request, $response);
+    });
+
     $app->post('/api/team-names', function (Request $request, Response $response) {
         /** @var TeamNameController $controller */
         $controller = $request->getAttribute('teamNameController');

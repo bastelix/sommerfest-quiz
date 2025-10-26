@@ -7,6 +7,7 @@ namespace Tests\Service;
 use App\Service\RagChat\HttpChatResponder;
 use App\Service\TeamNameAiClient;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 use const JSON_THROW_ON_ERROR;
 use function json_encode;
@@ -60,5 +61,28 @@ final class TeamNameAiClientTest extends TestCase
         self::assertSame('fr', $metadata['locale']);
         self::assertSame(['nature', 'science'], $metadata['domains']);
         self::assertSame(['Playful'], $metadata['tones']);
+    }
+
+    public function testFetchSuggestionsRecordsErrorState(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                throw new RuntimeException('Gateway timeout');
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(3, [], [], 'de');
+
+        self::assertSame([], $result);
+        self::assertNotNull($client->getLastResponseAt());
+        self::assertNull($client->getLastSuccessAt());
+        self::assertSame('Gateway timeout', $client->getLastError());
     }
 }

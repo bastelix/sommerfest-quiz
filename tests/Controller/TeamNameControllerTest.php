@@ -287,4 +287,55 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame(400, $response->getStatusCode());
         self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
     }
+
+    public function testStatusReportsDiagnostics(): void
+    {
+        $service = $this->createMock(TeamNameService::class);
+        $config = $this->createMock(ConfigService::class);
+        $controller = new TeamNameController($service, $config);
+
+        $config->expects(self::once())
+            ->method('getConfigForEvent')
+            ->with('ev-status')
+            ->willReturn([
+                'randomNameDomains' => [' sport ', 'kultur', ''],
+                'randomNameTones' => ['lustig', 'seriös'],
+                'randomNameBuffer' => 150,
+                'randomNameLocale' => 'de-DE',
+                'randomNameStrategy' => 'ai',
+            ]);
+        $config->expects(self::never())
+            ->method('getConfig');
+
+        $service->expects(self::once())
+            ->method('getAiDiagnostics')
+            ->willReturn([
+                'enabled' => true,
+                'available' => false,
+                'last_attempt_at' => '2024-05-01T10:00:00Z',
+                'last_success_at' => '2024-05-01T09:50:00Z',
+                'last_error' => 'Timeout contacting AI service.',
+                'client_last_error' => 'Timeout contacting AI service.',
+                'last_response_at' => '2024-05-01T10:00:00Z',
+            ]);
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', '/api/team-names/status')
+            ->withQueryParams(['event_uid' => 'ev-status']);
+
+        $response = $controller->status($request, new Response());
+
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('ev-status', $payload['event_id']);
+        self::assertSame('ai', $payload['strategy']);
+        self::assertSame(150, $payload['buffer']);
+        self::assertSame('de-DE', $payload['locale']);
+        self::assertSame(['sport', 'kultur'], $payload['domains']);
+        self::assertSame(['lustig', 'seriös'], $payload['tones']);
+        self::assertSame('Timeout contacting AI service.', $payload['ai']['last_error']);
+        self::assertTrue($payload['ai']['required_for_event']);
+        self::assertFalse($payload['ai']['active_for_event']);
+    }
 }
