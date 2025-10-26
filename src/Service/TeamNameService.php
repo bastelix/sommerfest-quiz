@@ -25,6 +25,7 @@ use function is_array;
 use function is_object;
 use function max;
 use function min;
+use function preg_replace;
 use function sha1;
 use function trim;
 use const DATE_ATOM;
@@ -924,7 +925,7 @@ class TeamNameService
         if ($adjectives !== [] && $nouns !== []) {
             foreach ($adjectives as $adj) {
                 foreach ($nouns as $noun) {
-                    $names[] = trim($adj . ' ' . $noun);
+                    $names[] = $this->composeCompoundName($adj, $noun);
                 }
             }
             $total = count($adjectives) * count($nouns);
@@ -940,6 +941,37 @@ class TeamNameService
         $this->nameCache[$cacheKey] = $selection;
 
         return $selection;
+    }
+
+    private function composeCompoundName(string $adjective, string $noun): string
+    {
+        $left = $this->collapseWhitespace($adjective);
+        $right = $this->collapseWhitespace($noun);
+
+        if ($left === '') {
+            return $right;
+        }
+
+        if ($right === '') {
+            return $left;
+        }
+
+        return $left . $right;
+    }
+
+    private function collapseWhitespace(string $value): string
+    {
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return '';
+        }
+
+        $collapsed = preg_replace('/\s+/u', '', $trimmed);
+        if ($collapsed === null) {
+            return $trimmed;
+        }
+
+        return $collapsed;
     }
 
     /**
