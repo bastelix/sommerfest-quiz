@@ -12,6 +12,7 @@ use RuntimeException;
 use function array_filter;
 use function array_key_exists;
 use function array_map;
+use function array_merge;
 use function array_pop;
 use function array_shift;
 use function array_slice;
@@ -241,25 +242,46 @@ class TeamNameAiClient
         $jsonPayload = $this->prepareJsonPayload($response);
         $decoded = json_decode($jsonPayload, true);
         if (is_array($decoded)) {
+            $primaryCandidates = null;
+
             if (array_key_exists('names', $decoded) && is_array($decoded['names'])) {
                 /** @var array<int|string, mixed> $candidates */
-                $candidates = $decoded['names'];
-
-                return $this->finalizeCandidates($candidates, $requested);
-            }
-
-            if ($this->isSequentialArray($decoded)) {
+                $primaryCandidates = $decoded['names'];
+            } elseif ($this->isSequentialArray($decoded)) {
                 /** @var array<int|string, mixed> $decoded */
-                return $this->finalizeCandidates($decoded, $requested);
+                $primaryCandidates = $decoded;
             }
 
-            $this->lastError = 'JSON response missing expected "names" array.';
+            if ($primaryCandidates === null) {
+                $this->lastError = 'JSON response missing expected "names" array.';
 
-            return [];
+                return [];
+            }
+
+            $result = $this->finalizeCandidates($primaryCandidates, $requested);
+            if (count($result) >= $requested) {
+                return array_slice($result, 0, $requested);
+            }
+
+            $fallback = $this->parseFallbackText($response);
+            if ($fallback === [] && $jsonPayload !== '') {
+                $fallback = $this->parseFallbackText($jsonPayload);
+            }
+
+            if ($fallback !== []) {
+                /** @var array<int|string, mixed> $primaryCandidates */
+                $combined = array_merge($primaryCandidates, $fallback);
+
+                return $this->finalizeCandidates($combined, $requested);
+            }
+
+            return $result;
         }
 
-        $fallbackSource = $jsonPayload !== '' ? $jsonPayload : $response;
-        $fallback = $this->parseFallbackText($fallbackSource);
+        $fallback = $this->parseFallbackText($response);
+        if ($fallback === [] && $jsonPayload !== '') {
+            $fallback = $this->parseFallbackText($jsonPayload);
+        }
         if ($fallback === []) {
             $this->lastError = 'Unable to parse AI response.';
 
@@ -276,45 +298,7 @@ class TeamNameAiClient
             return '';
         }
 
-        if (preg_match('/```[^\n]*\n?([\s\S]*?)```/u', $payload, $matches) === 1) {
-            $payload = (string) $matches[1];
-        } elseif (preg_match('/^```/u', $payload) === 1) {
-            $lines = preg_split('/\R/', $payload) ?: [];
-            if ($lines !== []) {
-                $rawFirstLine = (string) array_shift($lines);
-                $firstLine = trim($rawFirstLine);
-                if (preg_match('/^```(?:\s*[a-z0-9_-]+)?$/i', $firstLine) === 1) {
-                    while ($lines !== [] && trim((string) end($lines)) === '') {
-                        array_pop($lines);
-                    }
-                    if ($lines !== [] && trim((string) end($lines)) === '```') {
-                        array_pop($lines);
-                    }
-                } else {
-                    array_unshift($lines, $rawFirstLine);
-                }
-                $payload = implode("\n", $lines);
-            }
-        }
-
-        if (preg_match('/^```/u', $payload) === 1) {
-            $lines = preg_split('/\R/', $payload) ?: [];
-            if ($lines !== []) {
-                $rawFirstLine = (string) array_shift($lines);
-                $firstLine = trim($rawFirstLine);
-                if (preg_match('/^```(?:\s*[a-z0-9_-]+)?$/i', $firstLine) === 1) {
-                    while ($lines !== [] && trim((string) end($lines)) === '') {
-                        array_pop($lines);
-                    }
-                    if ($lines !== [] && trim((string) end($lines)) === '```') {
-                        array_pop($lines);
-                    }
-                } else {
-                    array_unshift($lines, $rawFirstLine);
-                }
-                $payload = implode("\n", $lines);
-            }
-        }
+        $payload = $this->stripCodeFence($payload);
 
         $extracted = $this->extractFirstJsonSegment($payload);
         if ($extracted !== null) {
@@ -443,6 +427,13 @@ class TeamNameAiClient
      */
     private function parseFallbackText(string $response): array
     {
+        $response = trim($response);
+        if ($response === '') {
+            return [];
+        }
+
+        $response = $this->stripCodeFence($response);
+
         $lines = preg_split('/\r?\n/', $response) ?: [];
         if ($lines === []) {
             return [];
@@ -465,10 +456,91 @@ class TeamNameAiClient
             if ($line === '') {
                 continue;
             }
+            $jsonSegment = $this->extractFirstJsonSegment($line);
+            if ($jsonSegment !== null) {
+                $decoded = json_decode($jsonSegment, true);
+                if (is_array($decoded) && $this->appendFallbackDecoded($decoded, $candidates)) {
+                    continue;
+                }
+            }
             $candidates[] = $line;
         }
 
         return $candidates;
+    }
+
+    /**
+     * @param array<int|string, mixed> $decoded
+     * @param array<int, string>        $candidates
+     */
+    private function appendFallbackDecoded(array $decoded, array &$candidates): bool
+    {
+        if (array_key_exists('names', $decoded) && is_array($decoded['names'])) {
+            $appended = false;
+            foreach ($decoded['names'] as $value) {
+                if (!is_string($value)) {
+                    continue;
+                }
+                $candidates[] = $value;
+                $appended = true;
+            }
+
+            return $appended;
+        }
+
+        if ($this->isSequentialArray($decoded)) {
+            $appended = false;
+            foreach ($decoded as $value) {
+                if (!is_string($value)) {
+                    continue;
+                }
+                $candidates[] = $value;
+                $appended = true;
+            }
+
+            return $appended;
+        }
+
+        return false;
+    }
+
+    private function stripCodeFence(string $text): string
+    {
+        $text = trim($text);
+        if ($text === '') {
+            return '';
+        }
+
+        if (preg_match('/```[^\n]*\n?([\s\S]*?)```/u', $text, $matches) === 1) {
+            return trim((string) $matches[1]);
+        }
+
+        if (preg_match('/^```/u', $text) === 1) {
+            $lines = preg_split('/\R/', $text) ?: [];
+            if ($lines === []) {
+                return '';
+            }
+
+            $rawFirstLine = (string) array_shift($lines);
+            $firstLine = trim($rawFirstLine);
+            if (preg_match('/^```(?:\s*[a-z0-9_-]+)?$/i', $firstLine) !== 1) {
+                array_unshift($lines, $rawFirstLine);
+
+                return trim(implode("\n", $lines));
+            }
+
+            while ($lines !== [] && trim((string) end($lines)) === '') {
+                array_pop($lines);
+            }
+
+            if ($lines !== [] && trim((string) end($lines)) === '```') {
+                array_pop($lines);
+            }
+
+            return trim(implode("\n", $lines));
+        }
+
+        return $text;
     }
 
     private function containsBlockedContent(string $lower): bool

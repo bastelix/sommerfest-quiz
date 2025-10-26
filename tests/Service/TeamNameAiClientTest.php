@@ -182,6 +182,26 @@ final class TeamNameAiClientTest extends TestCase
         self::assertSame(['Sommer-Sprinter', 'Fest-Falken'], $result);
     }
 
+    public function testFetchSuggestionsHandlesProseBeforeInlineJson(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return 'Hier sind Vorschläge: ["Kreativ-Koalas","Quiz-Quallen"]';
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(2, [], [], 'de');
+
+        self::assertSame(['Kreativ-Koalas', 'Quiz-Quallen'], $result);
+    }
+
     public function testFetchSuggestionsParsesNumberedFallbackList(): void
     {
         $responder = new class () extends HttpChatResponder {
@@ -199,7 +219,27 @@ final class TeamNameAiClientTest extends TestCase
 
         $result = $client->fetchSuggestions(3, [], [], 'de');
 
-        self::assertSame(['Fun Füchse', 'Turbo Trolle', 'Pixel-Pandas'], $result);
+        self::assertSame(['Fun Füchse', 'Pixel-Pandas', 'Turbo Trolle'], $result);
+    }
+
+    public function testFetchSuggestionsParsesInlineJsonArrayFromFallbackList(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return "- Sonnen-Sprinter\n- Vorschläge: [\"Fest-Falken\", \"Quiz-Quallen\"]";
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(3, [], [], 'de');
+
+        self::assertSame(['Fest-Falken', 'Quiz-Quallen', 'Sonnen-Sprinter'], $result);
     }
 
     private const STOP_WORDS = [
