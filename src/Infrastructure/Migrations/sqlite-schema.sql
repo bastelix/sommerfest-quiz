@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS config (
     random_name_domains TEXT NOT NULL DEFAULT '[]',
     random_name_tones TEXT NOT NULL DEFAULT '[]',
     random_name_buffer INTEGER DEFAULT 0,
+    random_name_locale TEXT,
+    random_name_strategy TEXT DEFAULT 'ai',
     competitionMode BOOLEAN,
     teamResults BOOLEAN,
     photoUpload BOOLEAN,
