@@ -29,6 +29,7 @@ class PlayerService
     /**
      * Store a player's data in the database.
      *
+     * @throws PlayerNameConflictException
      * @throws UsernameBlockedException
      */
     public function save(
