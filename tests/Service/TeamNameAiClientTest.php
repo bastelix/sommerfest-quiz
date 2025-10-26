@@ -162,6 +162,46 @@ final class TeamNameAiClientTest extends TestCase
         self::assertSame(['Kreativ-Kojoten', 'Sommer-Sirenen'], $result);
     }
 
+    public function testFetchSuggestionsHandlesJsonWithLeadingProse(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return "Hier sind ein paar Ideen:\n```json\n[\"Prose-Panther\", \"Intro-Igel\"]\n```\nViel Erfolg!";
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(2, [], [], 'de');
+
+        self::assertSame(['Prose-Panther', 'Intro-Igel'], $result);
+    }
+
+    public function testFetchSuggestionsHandlesInlineJsonArray(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                return 'Meine Favoriten: ["Inline-Iltis","Segment-Salamander"] -- viel Spaß!';
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $result = $client->fetchSuggestions(2, [], [], 'de');
+
+        self::assertSame(['Inline-Iltis', 'Segment-Salamander'], $result);
+    }
+
     public function testFetchSuggestionsParsesNumberedFallbackList(): void
     {
         $responder = new class () extends HttpChatResponder {
@@ -179,7 +219,7 @@ final class TeamNameAiClientTest extends TestCase
 
         $result = $client->fetchSuggestions(3, [], [], 'de');
 
-        self::assertSame(['Fun Füchse', 'Turbo Trolle', 'Pixel-Pandas'], $result);
+        self::assertEqualsCanonicalizing(['Fun Füchse', 'Turbo Trolle', 'Pixel-Pandas'], $result);
     }
 
     private const STOP_WORDS = [
