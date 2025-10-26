@@ -121,4 +121,4 @@ die passenden Responder und Payloads auswählt, stehen folgende Optionen zur Ver
 
 Weitere Parameter wie `RAG_CHAT_SERVICE_MODEL`, `RAG_CHAT_SERVICE_TOKEN` oder Temperatur-Settings werden unverändert verwendet.
 Beispiele für die vollständige Konfiguration finden sich in `sample.env`.
-Der KI-gestützte Teamnamen-Service greift auf denselben Endpoint zu. Setzen Sie daher `TEAM_NAME_AI_ENDPOINT` und – falls nötig – `TEAM_NAME_AI_TOKEN` auf identische Werte. So lassen sich Throttling-Limits und Monitoring zentral überwachen.
+Der KI-gestützte Teamnamen-Service greift auf denselben Endpoint zu. Setzen Sie daher `TEAM_NAME_AI_ENDPOINT` und – falls nötig – `TEAM_NAME_AI_TOKEN` auf identische Werte. So lassen sich Throttling-Limits und Monitoring zentral überwachen. Seit dem Kontext-Update liefert der Client außerdem immer einen synthetischen Kontext-Eintrag mit. Er fasst die angefragte Anzahl, das Locale sowie optionale Domain- und Ton-Filter zusammen. So können RAG-Backends mit Pflicht-Kontext den Request korrekt verarbeiten, selbst wenn keine Dokumente aus der Wissensbasis angehängt werden.

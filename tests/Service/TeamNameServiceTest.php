@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Service;
 
+use App\Service\RagChat\HttpChatResponder;
+use App\Service\TeamNameAiClient;
 use App\Service\TeamNameService;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +15,10 @@ use Tests\Stubs\FakeTeamNameAiClient;
 
 use function array_column;
 use function array_values;
+use function json_encode;
 use function preg_match;
+
+use const JSON_THROW_ON_ERROR;
 
 require_once __DIR__ . '/../Stubs/FakeTeamNameAiClient.php';
 
@@ -283,6 +288,55 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame(['playful'], $calls[0]['tones']);
             self::assertSame('fr', $calls[0]['locale']);
             self::assertSame(2, $calls[1]['count']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveWithAiPassesContextThroughResponder(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $responder = new class () extends HttpChatResponder {
+                /**
+                 * @var list<array<string, mixed>>
+                 */
+                public array $capturedContext = [];
+
+                public function __construct()
+                {
+                }
+
+                public function respond(array $messages, array $context): string
+                {
+                    $this->capturedContext = $context;
+
+                    return json_encode(['names' => ['Solar Echo', 'Neon Pulse']], JSON_THROW_ON_ERROR);
+                }
+            };
+
+            $aiClient = new TeamNameAiClient($responder);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+
+            $reservation = $service->reserveWithBuffer('event-ai-context', ['nature'], ['playful'], 0, 'fr', 'ai');
+
+            self::assertSame('Solar Echo', $reservation['name']);
+            self::assertFalse($reservation['fallback']);
+
+            $context = $responder->capturedContext;
+            self::assertNotEmpty($context);
+            $summary = $context[0]['text'] ?? '';
+            self::assertStringContainsString('Team name request: 1 suggestions for locale "fr".', (string) $summary);
+            self::assertStringContainsString('Domains: nature.', (string) $summary);
+            self::assertStringContainsString('Tones: playful.', (string) $summary);
+
+            $metadata = $context[0]['metadata'] ?? [];
+            self::assertSame(1, $metadata['count']);
+            self::assertSame('fr', $metadata['locale']);
+            self::assertSame(['nature'], $metadata['domains']);
+            self::assertSame(['playful'], $metadata['tones']);
         } finally {
             @unlink($lexiconPath);
         }
