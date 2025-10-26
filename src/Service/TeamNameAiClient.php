@@ -245,7 +245,7 @@ class TeamNameAiClient
             $primaryCandidates = null;
 
             if (array_key_exists('names', $decoded) && is_array($decoded['names'])) {
-                /** @var array<int|string, mixed> $candidates */
+                /** @var array<int|string, mixed> $primaryCandidates */
                 $primaryCandidates = $decoded['names'];
             } elseif ($this->isSequentialArray($decoded)) {
                 /** @var array<int|string, mixed> $decoded */
@@ -382,7 +382,7 @@ class TeamNameAiClient
 
             $segment = substr($text, $start, $index - $start + 1);
 
-            return $segment === false ? null : $segment;
+            return $segment;
         }
 
         return null;
