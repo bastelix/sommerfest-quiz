@@ -1411,9 +1411,18 @@
         <div class="uk-flex uk-flex-middle uk-flex-column uk-flex-row@s uk-flex-between@s">
           <h2 class="uk-heading-bullet">{{ t('heading_statistics') }}</h2>
           <div class="uk-flex uk-flex-middle uk-margin-small-top uk-margin-remove-top@s">
-            <select id="statsFilter" class="uk-select uk-width-small uk-margin-right">
-              <option value="">Alle</option>
-            </select>
+            <div class="uk-margin-right">
+              <input
+                id="statsFilter"
+                class="uk-input uk-form-width-medium"
+                type="search"
+                placeholder="{{ t('placeholder_statistics_search') }}"
+                aria-label="{{ t('placeholder_statistics_search') }}"
+                list="statsFilterList"
+                autocomplete="off"
+              >
+              <datalist id="statsFilterList"></datalist>
+            </div>
             <button id="statsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="{{ t('action_refresh') }}" aria-label="{{ t('action_refresh') }}"></button>
           </div>
         </div>
