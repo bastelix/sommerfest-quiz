@@ -22,6 +22,7 @@ use RuntimeException;
 use Tests\Stubs\FakeTeamNameAiClient;
 
 use function array_column;
+use function array_filter;
 use function array_values;
 use function array_unique;
 use function in_array;
@@ -629,6 +630,34 @@ final class TeamNameServiceTest extends TestCase
             self::assertNotNull($afterFailure['last_attempt_at']);
             self::assertSame('Fake AI client returned no results.', $afterFailure['last_error']);
             self::assertSame('Fake AI client returned no results.', $afterFailure['client_last_error']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testWarmUpAiSuggestionsWithLogDoesNotDuplicateErrorEntries(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                [],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+
+            $result = $service->warmUpAiSuggestionsWithLog('event-log', [], [], 'de-DE', 6);
+
+            $entries = $result['log']['entries'];
+            $errorEntries = array_filter(
+                $entries,
+                static fn (array $entry): bool => ($entry['code'] ?? null) === 'error'
+            );
+
+            self::assertSame('failed', $result['log']['status']);
+            self::assertSame('Fake AI client returned no results.', $result['log']['error']);
+            self::assertCount(1, $errorEntries, 'Error log entries should not be duplicated when requests fail.');
         } finally {
             @unlink($lexiconPath);
         }
