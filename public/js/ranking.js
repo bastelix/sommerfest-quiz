@@ -315,13 +315,29 @@ const formatUpdatedAt = (date) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
-const createCard = ({ title, icon, placeText, metaText, highlight = false }) => {
+const createCard = ({ title, icon, placeText, metaText, highlight = false, label = '', headingId = '' }) => {
   const col = document.createElement('div');
   const card = document.createElement('div');
   card.className = 'uk-card uk-card-default uk-card-body player-ranking-card';
   if (highlight) {
     card.classList.add('player-ranking-card--highlight');
   }
+
+  const heading = document.createElement('h3');
+  heading.className = 'player-ranking-card__title';
+  if (headingId) {
+    heading.id = headingId;
+  }
+  heading.textContent = title;
+  card.appendChild(heading);
+
+  if (label) {
+    const labelEl = document.createElement('p');
+    labelEl.className = 'player-ranking-card__label';
+    labelEl.textContent = label;
+    card.appendChild(labelEl);
+  }
+
   const iconWrap = document.createElement('div');
   iconWrap.className = 'player-ranking-card__icon';
   if (icon) {
@@ -329,13 +345,12 @@ const createCard = ({ title, icon, placeText, metaText, highlight = false }) => 
     span.setAttribute('uk-icon', `icon: ${icon}; ratio: 1.6`);
     iconWrap.appendChild(span);
   }
-  const heading = document.createElement('h3');
-  heading.className = 'player-ranking-card__title';
-  heading.textContent = title;
+  card.appendChild(iconWrap);
+
   const place = document.createElement('p');
   place.className = 'player-ranking-card__place';
   place.textContent = placeText;
-  card.append(iconWrap, heading, place);
+  card.appendChild(place);
   if (metaText) {
     const meta = document.createElement('p');
     meta.className = 'player-ranking-card__meta';
@@ -409,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const basePath = window.basePath || '';
   const dataService = new ResultsDataService({ basePath, eventUid });
 
-  const nameEl = document.getElementById('rankingPlayerName');
+  let nameEl = document.getElementById('rankingPlayerName');
   const statusEl = document.getElementById('rankingStatus');
   const warningEl = document.getElementById('rankingWarning');
   const highlightsContainer = document.getElementById('rankingHighlights');
@@ -630,7 +645,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const updateNameDisplay = () => {
     const safeName = safeUserName(currentName) || currentName.trim();
+    if (!nameEl || !nameEl.isConnected) {
+      nameEl = document.getElementById('rankingPlayerName');
+    }
     if (nameEl) {
+      nameEl.classList.add('player-name-highlight');
       nameEl.textContent = safeName || 'Unbekannt';
     }
     if (nameHint) {
@@ -791,6 +810,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasMultipleCatalogs = Number.isFinite(payload.catalogCount) ? payload.catalogCount > 1 : false;
 
     const cards = [];
+    const displayName = storedName || 'Unbekannt';
 
     const formatPlace = (info, fallback) => {
       if (!info) return fallback;
@@ -809,12 +829,20 @@ document.addEventListener('DOMContentLoaded', () => {
       pointsMetaParts.push(`Ø ${formatEfficiencyPercent(rankingInfo.points.avg)}`);
     }
     const highscoreCard = createCard({
-      title: 'Highscore',
+      title: displayName,
       icon: 'trophy',
+      label: 'Highscore',
+      headingId: 'rankingPlayerName',
       placeText: formatPlace(rankingInfo.points, 'Noch keine Punktewertung'),
       metaText: pointsMetaParts.join(' · '),
       highlight: rankingInfo.points.place === 1,
     });
+
+    const highscoreHeading = highscoreCard.querySelector('.player-ranking-card__title');
+    if (highscoreHeading) {
+      highscoreHeading.classList.add('player-name-highlight');
+      nameEl = highscoreHeading;
+    }
 
     if (hasMultipleCatalogs) {
       cards.push(createCard({
@@ -845,6 +873,8 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       cardsContainer.appendChild(highscoreCard);
     }
+
+    updateNameDisplay();
 
     cards.forEach((card) => cardsContainer.appendChild(card));
 

@@ -1252,8 +1252,23 @@ body.admin-page {
 }
 
 .player-ranking-card__icon {
-  align-self: flex-end;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   color: var(--primary-color, #1e87f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.player-ranking-card__label {
+  margin: 0.35rem 0 0;
+  padding-right: 2.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
 }
 
 .player-ranking-card--highlight .player-ranking-card__icon {
@@ -1263,7 +1278,7 @@ body.admin-page {
 .player-ranking-card__title {
   font-size: 1.15rem;
   font-weight: 700;
-  margin: 0;
+  margin: 0 2.5rem 0 0;
 }
 
 .player-ranking-card__place {
@@ -1281,6 +1296,10 @@ body.admin-page {
 [data-theme='dark'] .player-ranking-card {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.15));
   box-shadow: 0 14px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .player-ranking-card__label {
+  color: #d1d5db;
 }
 
 [data-theme='dark'] .player-ranking-card__place {
