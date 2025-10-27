@@ -46,6 +46,8 @@ class TeamNameAiClient
 {
     protected const MAX_FETCH_COUNT = 25;
 
+    public const EXISTING_NAMES_LIMIT = 100;
+
     private const BLOCKED_SUBSTRINGS = [
         'fuck',
         'shit',
@@ -237,6 +239,10 @@ class TeamNameAiClient
             if (!in_array($candidate, $prepared, true)) {
                 $prepared[] = $candidate;
             }
+        }
+
+        if (count($prepared) > self::EXISTING_NAMES_LIMIT) {
+            $prepared = array_slice($prepared, 0, self::EXISTING_NAMES_LIMIT);
         }
 
         return $prepared;

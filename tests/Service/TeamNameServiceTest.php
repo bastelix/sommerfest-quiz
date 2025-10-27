@@ -18,8 +18,11 @@ use Tests\Stubs\FakeTeamNameAiClient;
 
 use function array_column;
 use function array_values;
+use function array_unique;
+use function in_array;
 use function json_encode;
 use function preg_match;
+use function sprintf;
 
 use const JSON_THROW_ON_ERROR;
 
@@ -260,8 +263,11 @@ final class TeamNameServiceTest extends TestCase
                 self::assertArrayHasKey('existing_names', $call);
             }
             self::assertSame([], $calls[0]['existing_names']);
-            self::assertContains('AI Alpha', $calls[1]['existing_names']);
-            self::assertContains('AI Alpha', $calls[2]['existing_names']);
+            self::assertTrue(
+                in_array('AI Alpha', $calls[1]['existing_names'], true)
+                || in_array('AI Alpha', $calls[2]['existing_names'], true),
+                'AI Alpha should be tracked as a blocked name in subsequent AI calls.'
+            );
         } finally {
             @unlink($lexiconPath);
         }
@@ -324,6 +330,39 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame(['nature'], $calls[0]['domains']);
             self::assertSame(['playful'], $calls[0]['tones']);
             self::assertSame([], $calls[0]['existing_names']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testPreviewAiSuggestionsCapsExistingNames(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Sonnenstrahl', 'AI Mondlicht'],
+            ]);
+
+            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+
+            $stmt = $pdo->prepare('INSERT INTO team_names(event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)');
+            $total = TeamNameAiClient::EXISTING_NAMES_LIMIT + 30;
+            for ($index = 1; $index <= $total; $index++) {
+                $stmt->execute(['event-history', sprintf('History %03d', $index), 2, 'token-' . $index]);
+            }
+
+            $preview = $service->previewAiSuggestions('event-history', [], [], 'de', 2);
+            self::assertSame(['AI Sonnenstrahl', 'AI Mondlicht'], $preview);
+
+            $calls = $aiClient->getCalls();
+            self::assertCount(1, $calls);
+            $existing = $calls[0]['existing_names'];
+            self::assertCount(TeamNameAiClient::EXISTING_NAMES_LIMIT, $existing);
+            self::assertSame('History 001', $existing[0]);
+            self::assertSame('History 100', $existing[TeamNameAiClient::EXISTING_NAMES_LIMIT - 1]);
+            self::assertFalse(in_array('History 101', $existing, true));
         } finally {
             @unlink($lexiconPath);
         }
@@ -415,9 +454,14 @@ final class TeamNameServiceTest extends TestCase
             self::assertSame('fr', $calls[0]['locale']);
             self::assertSame(2, $calls[1]['count']);
             self::assertSame([], $calls[0]['existing_names']);
-            self::assertContains('AI One', $calls[1]['existing_names']);
-            self::assertContains('AI Two', $calls[1]['existing_names']);
-            self::assertContains('AI Three', $calls[1]['existing_names']);
+            self::assertSame(
+                $calls[1]['existing_names'],
+                array_values(array_unique($calls[1]['existing_names']))
+            );
+            self::assertLessThanOrEqual(
+                TeamNameAiClient::EXISTING_NAMES_LIMIT,
+                count($calls[1]['existing_names'])
+            );
         } finally {
             @unlink($lexiconPath);
         }
