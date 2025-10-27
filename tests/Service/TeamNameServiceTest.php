@@ -20,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use RuntimeException;
 use Tests\Stubs\FakeTeamNameAiClient;
+use Tests\Stubs\FakeTeamNameWarmupDispatcher;
 
 use function array_column;
 use function array_filter;
@@ -33,6 +34,7 @@ use function sprintf;
 use const JSON_THROW_ON_ERROR;
 
 require_once __DIR__ . '/../Stubs/FakeTeamNameAiClient.php';
+require_once __DIR__ . '/../Stubs/FakeTeamNameWarmupDispatcher.php';
 
 final class TeamNameServiceTest extends TestCase
 {
@@ -492,8 +494,18 @@ final class TeamNameServiceTest extends TestCase
             $aiClient = new FakeTeamNameAiClient([
                 ['Taken Crew'],
             ]);
+            $dispatcher = new FakeTeamNameWarmupDispatcher();
 
-            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+                $dispatcher
+            );
 
             $stmt = $pdo->prepare('INSERT INTO team_names(event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)');
             $stmt->execute(['event-fallback', 'Taken Crew', 2, 'existing-token']);
@@ -502,9 +514,56 @@ final class TeamNameServiceTest extends TestCase
             self::assertTrue($reservation['fallback']);
             self::assertSame(0, $reservation['total']);
             self::assertSame(0, $reservation['remaining']);
-            self::assertCount(1, $aiClient->getCalls());
-            self::assertSame(['Taken Crew'], $aiClient->getCalls()[0]['existing_names']);
+            self::assertSame([], $aiClient->getCalls());
+
+            $warmupCalls = $dispatcher->getCalls();
+            self::assertCount(1, $warmupCalls);
+            self::assertSame('event-fallback', $warmupCalls[0]['eventId']);
+            self::assertSame([], $warmupCalls[0]['domains']);
+            self::assertSame([], $warmupCalls[0]['tones']);
+            self::assertSame(10, $warmupCalls[0]['count']);
             self::assertSame(1, preg_match('/^Gast-[A-Z0-9]{5}$/', $reservation['name']));
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testReserveWithAiUsesPersistedCacheAndSchedulesWarmupWhenLow(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Alpha'], ['Rocket']);
+
+        try {
+            $aiClient = new FakeTeamNameAiClient([
+                ['AI Orbit', 'AI Galaxy', 'AI Comet', 'AI Nova', 'AI Pulse'],
+            ]);
+            $dispatcher = new FakeTeamNameWarmupDispatcher();
+
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                $aiClient,
+                true,
+                null,
+                $dispatcher
+            );
+
+            $service->warmUpAiSuggestions('event-low', [], [], null, 5);
+            self::assertCount(1, $aiClient->getCalls());
+
+            $reservation = $service->reserveWithBuffer('event-low', [], [], 0, null, 'ai');
+            self::assertSame('AI Orbit', $reservation['name']);
+            self::assertFalse($reservation['fallback']);
+
+            $callsAfterReserve = $aiClient->getCalls();
+            self::assertCount(1, $callsAfterReserve);
+
+            $warmupCalls = $dispatcher->getCalls();
+            self::assertCount(1, $warmupCalls);
+            self::assertSame('event-low', $warmupCalls[0]['eventId']);
+            self::assertSame(10, $warmupCalls[0]['count']);
         } finally {
             @unlink($lexiconPath);
         }

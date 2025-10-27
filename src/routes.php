@@ -458,6 +458,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         $teamNameAiCacheRepository = new TeamNameAiCacheRepository($pdo);
+        $teamNameWarmupDispatcher = new TeamNameWarmupDispatcher($schema);
 
         $teamNameService = new TeamNameService(
             $pdo,
@@ -466,10 +467,11 @@ return function (\Slim\App $app, TranslationService $translator) {
             600,
             $teamNameAiClient,
             $teamNameAiEnabled,
-            null
+            null,
+            $teamNameWarmupDispatcher
         );
         $configService->setTeamNameService($teamNameService);
-        $configService->setTeamNameWarmupDispatcher(new TeamNameWarmupDispatcher($schema));
+        $configService->setTeamNameWarmupDispatcher($teamNameWarmupDispatcher);
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
         $plan = $tenantService->getPlanBySubdomain($sub);
