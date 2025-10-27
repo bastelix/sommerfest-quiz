@@ -8,6 +8,11 @@ use App\Repository\TeamNameAiCacheRepository;
 use App\Service\RagChat\HttpChatResponder;
 use App\Service\TeamNameAiClient;
 use App\Service\TeamNameService;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Response;
 use DateTimeImmutable;
 use DateTimeZone;
 use PDO;
@@ -268,6 +273,84 @@ final class TeamNameServiceTest extends TestCase
                 || in_array('AI Alpha', $calls[2]['existing_names'], true),
                 'AI Alpha should be tracked as a blocked name in subsequent AI calls.'
             );
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
+    public function testAiResponderCachesSegmentedPayload(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $payload = [
+                'choices' => [
+                    [
+                        'message' => [
+                            'content' => [
+                                [
+                                    'type' => 'output_text',
+                                    'text' => '{"names":["AI Stern","',
+                                ],
+                                [
+                                    'type' => 'output_text',
+                                    'output' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => 'AI Funk',
+                                        ],
+                                        [
+                                            'type' => 'metadata',
+                                            'value' => '"]}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+
+            $history = [];
+            $mock = new MockHandler([
+                new Response(200, [], json_encode($payload, JSON_THROW_ON_ERROR)),
+            ]);
+            $stack = HandlerStack::create($mock);
+            $stack->push(Middleware::history($history));
+
+            $client = new Client(['handler' => $stack]);
+            $responder = new HttpChatResponder('https://rag.example/api/chat', $client, null);
+            $aiClient = new TeamNameAiClient($responder);
+
+            $service = new TeamNameService($pdo, $lexiconPath, new TeamNameAiCacheRepository($pdo), 120, $aiClient, true, null);
+
+            $preview = $service->previewAiSuggestions('event-ai-segmented', [], [], 'de', 2);
+            self::assertSame(['AI Stern', 'AI Funk'], $preview);
+
+            $cacheProperty = new ReflectionProperty(TeamNameService::class, 'aiNameCache');
+            $cacheProperty->setAccessible(true);
+            /** @var array<string, array<int, string>> $cache */
+            $cache = $cacheProperty->getValue($service);
+            $flattened = [];
+            foreach ($cache as $entries) {
+                foreach ($entries as $name) {
+                    $flattened[] = $name;
+                }
+            }
+
+            self::assertContains('AI Stern', $flattened);
+            self::assertContains('AI Funk', $flattened);
+
+            $first = $service->reserveWithBuffer('event-ai-segmented', [], [], 0, 'de', 'ai');
+            self::assertSame('AI Stern', $first['name']);
+            self::assertFalse($first['fallback']);
+
+            $second = $service->reserveWithBuffer('event-ai-segmented', [], [], 0, 'de', 'ai');
+            self::assertSame('AI Funk', $second['name']);
+            self::assertFalse($second['fallback']);
+
+            self::assertCount(1, $history);
         } finally {
             @unlink($lexiconPath);
         }

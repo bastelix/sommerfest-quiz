@@ -135,6 +135,58 @@ final class OpenAiChatResponderTest extends TestCase
         self::assertStringNotContainsString('Basierend auf der Wissensbasis', $response->getAnswer());
     }
 
+    public function testResponderCombinesMultipartMessageContent(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'choices' => [
+                    [
+                        'message' => [
+                            'content' => [
+                                [
+                                    'type' => 'output_text',
+                                    'text' => '{"names":["AI Stern","',
+                                ],
+                                [
+                                    'type' => 'output_text',
+                                    'output' => [
+                                        [
+                                            'type' => 'text',
+                                            'text' => 'AI Funk',
+                                        ],
+                                        [
+                                            'type' => 'metadata',
+                                            'value' => '"]}',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ])),
+        ]);
+
+        $client = new Client(['handler' => HandlerStack::create($mock)]);
+
+        $responder = new OpenAiChatResponder(
+            'https://api.openai.com/v1/chat/completions',
+            $client,
+            'test-token'
+        );
+
+        $messages = [
+            ['role' => 'user', 'content' => 'Kombiniere die Antwort.'],
+        ];
+        $context = [
+            ['id' => 'chunk-1', 'text' => 'stub context', 'score' => 0.5, 'metadata' => []],
+        ];
+
+        $answer = $responder->respond($messages, $context);
+
+        self::assertSame('{"names":["AI Stern","AI Funk"]}', $answer);
+    }
+
     public function testServiceDetectsOpenAiResponderForProxyEndpoint(): void
     {
         putenv('RAG_CHAT_SERVICE_URL=https://openai-proxy.example/v1/chat/completions');
