@@ -333,13 +333,22 @@ const createCard = ({
   }
   const header = document.createElement('div');
   header.className = 'player-ranking-card__header';
+  const headingGroup = document.createElement('div');
+  headingGroup.className = 'player-ranking-card__heading-group';
   const heading = document.createElement('h3');
   heading.className = 'player-ranking-card__title';
   if (headingId) {
     heading.id = headingId;
   }
   heading.textContent = title;
-  header.appendChild(heading);
+  if (icon) {
+    const iconWrap = document.createElement('span');
+    iconWrap.className = 'player-ranking-card__icon';
+    iconWrap.setAttribute('uk-icon', `icon: ${icon}; ratio: 1.4`);
+    headingGroup.appendChild(iconWrap);
+  }
+  headingGroup.appendChild(heading);
+  header.appendChild(headingGroup);
   if (actions) {
     const isFragment = typeof DocumentFragment !== 'undefined' && actions instanceof DocumentFragment;
     if (actions instanceof HTMLElement) {
@@ -354,14 +363,6 @@ const createCard = ({
     }
   }
   card.appendChild(header);
-  if (icon) {
-    const iconWrap = document.createElement('div');
-    iconWrap.className = 'player-ranking-card__icon';
-    const span = document.createElement('span');
-    span.setAttribute('uk-icon', `icon: ${icon}; ratio: 1.6`);
-    iconWrap.appendChild(span);
-    card.appendChild(iconWrap);
-  }
   if (label) {
     const labelEl = document.createElement('p');
     labelEl.className = 'player-ranking-card__label';
