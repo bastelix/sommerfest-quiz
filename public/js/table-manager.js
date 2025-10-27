@@ -9,6 +9,8 @@ export default class TableManager {
     this.onReorder = onReorder;
     this.thead = this.tbody?.closest('table')?.querySelector('thead');
     this.data = [];
+    this.filteredData = [];
+    this.filterFn = null;
     if (this.sortable) {
       this.#initSortable();
     }
@@ -34,23 +36,54 @@ export default class TableManager {
   }
 
   #handleReorder() {
+    if (this.filterFn) {
+      this.render();
+      if (typeof this.onReorder === 'function') {
+        this.onReorder();
+      }
+      return;
+    }
     const ids = Array.from(this.tbody.children).map(r => r.dataset.id);
     const dataMap = new Map(this.data.map(d => [String(d.id), d]));
-    this.data = ids.map(id => dataMap.get(String(id))).filter(Boolean);
+    const ordered = ids.map(id => dataMap.get(String(id))).filter(Boolean);
+    if (ordered.length) {
+      if (ordered.length === this.data.length) {
+        this.data = ordered;
+      } else {
+        const seen = new Set(ids.map(String));
+        const rest = this.data.filter(item => !seen.has(String(item.id)));
+        this.data = ordered.concat(rest);
+      }
+    }
     if (typeof this.onReorder === 'function') {
       this.onReorder();
     }
   }
 
-  render(data = []) {
-    this.data = Array.isArray(data) ? data : [];
+  render(data = null) {
+    if (Array.isArray(data)) {
+      this.data = data;
+    } else if (data !== null) {
+      this.data = [];
+    }
+    const source = Array.isArray(this.data) ? this.data : [];
+    let filtered = source;
+    if (typeof this.filterFn === 'function') {
+      try {
+        filtered = source.filter((item, index) => this.filterFn(item, index, source));
+      } catch (err) {
+        console.error('TableManager filter failed', err);
+        filtered = source;
+      }
+    }
+    this.filteredData = filtered;
     if (this.tbody) {
       this.tbody.innerHTML = '';
     }
     if (this.mobileCards?.container) {
       this.mobileCards.container.innerHTML = '';
     }
-    this.data.forEach(item => this.addRow(item));
+    this.filteredData.forEach(item => this.addRow(item));
     if (this.pagination) {
       this.#updatePagination();
     }
@@ -321,6 +354,22 @@ export default class TableManager {
 
   getData() {
     return this.data;
+  }
+
+  setFilter(filterFn = null) {
+    if (filterFn !== null && typeof filterFn !== 'function') {
+      console.error('TableManager.setFilter expects a function or null');
+      return;
+    }
+    this.filterFn = filterFn;
+    if (this.pagination) {
+      this.pagination.page = 1;
+    }
+    this.render();
+  }
+
+  getViewData() {
+    return this.filteredData;
   }
 }
 

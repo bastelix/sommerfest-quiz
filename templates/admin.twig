@@ -918,6 +918,19 @@
           currentEventUid: config.event_uid|default(''),
           currentEventName: event.name|default('')
         } %}
+        <form id="teamSearchForm" class="uk-form uk-margin-medium-bottom" role="search">
+          <label class="uk-form-label" for="teamSearch">{{ t('label_team_search') }}</label>
+          <div class="uk-form-controls">
+            <input
+              id="teamSearch"
+              class="uk-input"
+              type="search"
+              placeholder="{{ t('placeholder_team_search') }}"
+              autocomplete="off"
+              aria-controls="teamsList"
+            >
+          </div>
+        </form>
         {% from 'components/table.twig' import qr_rowcards %}
         <div class="uk-overflow-auto uk-visible@m">
           <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">

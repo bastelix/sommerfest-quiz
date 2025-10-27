@@ -368,6 +368,8 @@ return [
     'tip_question_reset' => 'Änderungen am Fragenkatalog verwerfen',
     'tip_question_save' => 'Fragenkatalog speichern',
     'tip_team_add' => 'Neues Team oder Person hinzufügen',
+    'label_team_search' => 'Teams oder Personen durchsuchen',
+    'placeholder_team_search' => 'Name filtern …',
     'tip_team_save' => 'Änderungen an Teams oder Personen speichern',
     'tip_team_pdf' => 'PDF für dieses Team öffnen',
     'tip_invitations_open' => 'Alle Einladungen öffnen',
