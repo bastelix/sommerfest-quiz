@@ -1094,6 +1094,27 @@ document.addEventListener('DOMContentLoaded', function () {
       requiresEvent: randomNamePreviewContainer.dataset.previewRequiresEvent || ''
     }
     : null;
+  const randomNameLogMessages = randomNamePreviewContainer
+    ? {
+      target: randomNamePreviewContainer.dataset.logTarget || '',
+      attempt: randomNamePreviewContainer.dataset.logAttempt || '',
+      received: randomNamePreviewContainer.dataset.logReceived || '',
+      accepted: randomNamePreviewContainer.dataset.logAccepted || '',
+      skippedDuplicateCache: randomNamePreviewContainer.dataset.logSkippedDuplicateCache || '',
+      skippedDuplicateEvent: randomNamePreviewContainer.dataset.logSkippedDuplicateEvent || '',
+      skippedInvalid: randomNamePreviewContainer.dataset.logSkippedInvalid || '',
+      error: randomNamePreviewContainer.dataset.logError || '',
+      persisted: randomNamePreviewContainer.dataset.logPersisted || '',
+      statusCompleted: randomNamePreviewContainer.dataset.logStatusCompleted || '',
+      statusPartial: randomNamePreviewContainer.dataset.logStatusPartial || '',
+      statusFailed: randomNamePreviewContainer.dataset.logStatusFailed || '',
+      statusUnchanged: randomNamePreviewContainer.dataset.logStatusUnchanged || '',
+      statusSkipped: randomNamePreviewContainer.dataset.logStatusSkipped || '',
+      statusDisabled: randomNamePreviewContainer.dataset.logStatusDisabled || '',
+      statusMissingEvent: randomNamePreviewContainer.dataset.logStatusMissingEvent || '',
+      namesPlaceholder: randomNamePreviewContainer.dataset.logNamesPlaceholder || ''
+    }
+    : null;
   const randomNameInventoryContainer = document.querySelector('[data-random-name-inventory]');
   const randomNameInventoryFields = randomNameInventoryContainer
     ? {
@@ -1143,6 +1164,143 @@ document.addEventListener('DOMContentLoaded', function () {
     if (randomNamePreviewList) {
       randomNamePreviewList.innerHTML = '';
       randomNamePreviewList.hidden = true;
+    }
+  };
+
+  const formatTemplate = (template, values) => {
+    if (typeof template !== 'string' || template === '') {
+      return '';
+    }
+
+    const replacements = values && typeof values === 'object' ? values : {};
+    return Object.keys(replacements).reduce((result, key) => {
+      const value = replacements[key];
+      const safeValue = value === undefined || value === null ? '' : String(value);
+      return result.replace(new RegExp(`\\{${key}\\}`, 'g'), safeValue);
+    }, template);
+  };
+
+  const formatRandomNameLogEntry = (entry) => {
+    if (!randomNameLogMessages || !entry || typeof entry !== 'object') {
+      return { message: '', level: 'info' };
+    }
+
+    const { code = '', level = 'info' } = entry;
+    const context = typeof entry.context === 'object' && entry.context !== null
+      ? entry.context
+      : {};
+
+    const count = Number.isFinite(Number(context.count)) ? Number(context.count) : 0;
+    const attempt = Number.isFinite(Number(context.attempt)) ? Number(context.attempt) : null;
+    const names = Array.isArray(context.names)
+      ? context.names.map(value => String(value)).filter(value => value !== '')
+      : [];
+    const namesText = names.length
+      ? names.join(', ')
+      : (randomNameLogMessages.namesPlaceholder || '');
+    const messageText = typeof context.message === 'string' ? context.message : '';
+
+    const replacements = {
+      count: String(count),
+      attempt: attempt === null ? '' : String(attempt),
+      names: namesText,
+      message: messageText
+    };
+
+    let template = '';
+    switch (code) {
+      case 'target':
+        template = randomNameLogMessages.target;
+        break;
+      case 'attempt':
+        template = randomNameLogMessages.attempt;
+        break;
+      case 'received':
+        template = randomNameLogMessages.received;
+        break;
+      case 'accepted':
+        template = randomNameLogMessages.accepted;
+        break;
+      case 'skipped': {
+        const reason = typeof context.reason === 'string' ? context.reason : 'invalid';
+        if (reason === 'duplicate_cache') {
+          template = randomNameLogMessages.skippedDuplicateCache;
+        } else if (reason === 'duplicate_event') {
+          template = randomNameLogMessages.skippedDuplicateEvent;
+        } else {
+          template = randomNameLogMessages.skippedInvalid;
+        }
+        break;
+      }
+      case 'persisted':
+        template = randomNameLogMessages.persisted;
+        break;
+      case 'error':
+        template = randomNameLogMessages.error;
+        break;
+      case 'status': {
+        const status = typeof context.status === 'string' ? context.status : '';
+        if (status === 'completed') {
+          template = randomNameLogMessages.statusCompleted;
+        } else if (status === 'partial') {
+          template = randomNameLogMessages.statusPartial;
+        } else if (status === 'failed') {
+          template = randomNameLogMessages.statusFailed;
+        } else if (status === 'skipped') {
+          template = randomNameLogMessages.statusSkipped;
+        } else if (status === 'disabled') {
+          template = randomNameLogMessages.statusDisabled;
+        } else if (status === 'missing-event') {
+          template = randomNameLogMessages.statusMissingEvent;
+        } else {
+          template = randomNameLogMessages.statusUnchanged;
+        }
+        break;
+      }
+      default:
+        template = '';
+    }
+
+    if (!template && messageText) {
+      return { message: messageText, level }; // fallback to raw message
+    }
+
+    return {
+      message: formatTemplate(template, replacements),
+      level
+    };
+  };
+
+  const renderRandomNameLog = (log) => {
+    if (!randomNamePreviewList) {
+      return;
+    }
+
+    const entries = Array.isArray(log?.entries) ? log.entries : [];
+    clearRandomNamePreviewList();
+
+    if (!entries.length) {
+      return;
+    }
+
+    entries.forEach(entry => {
+      const { message, level } = formatRandomNameLogEntry(entry);
+      if (!message) {
+        return;
+      }
+
+      const item = document.createElement('li');
+      item.className = 'random-name-log-entry';
+      item.textContent = message;
+      if (typeof level === 'string' && level !== '') {
+        item.dataset.logLevel = level;
+      }
+      randomNamePreviewList.appendChild(item);
+    });
+
+    randomNamePreviewList.hidden = false;
+    if (randomNamePreviewStatus) {
+      randomNamePreviewStatus.hidden = true;
     }
   };
 
@@ -1530,7 +1688,11 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const requestRandomNamePreview = async () => {
-    if (!cfgFields.randomNamePreviewButton || !randomNamePreviewContainer || !randomNamePreviewMessages) {
+    if (
+      !cfgFields.randomNamePreviewButton
+      || !randomNamePreviewContainer
+      || !randomNamePreviewMessages
+    ) {
       return;
     }
 
@@ -1575,24 +1737,16 @@ document.addEventListener('DOMContentLoaded', function () {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (!response.ok) {
+        throw new Error('random-name-cache-fill-failed');
+      }
       const data = await response.json();
-      const suggestions = Array.isArray(data?.suggestions) ? data.suggestions : [];
       renderRandomNameCache(data?.cache);
+      renderRandomNameLog(data?.log);
       randomNamePreviewContext = { eventUid: currentEventUid, fingerprint };
 
-      if (suggestions.length && randomNamePreviewList) {
-        randomNamePreviewList.innerHTML = '';
-        suggestions.forEach(name => {
-          const item = document.createElement('li');
-          item.textContent = String(name);
-          randomNamePreviewList.appendChild(item);
-        });
-        randomNamePreviewList.hidden = false;
-        if (randomNamePreviewStatus) {
-          randomNamePreviewStatus.hidden = true;
-        }
-      } else {
-        clearRandomNamePreviewList();
+      const hasLogEntries = Array.isArray(data?.log?.entries) && data.log.entries.length > 0;
+      if (!hasLogEntries) {
         setRandomNamePreviewStatus('none');
       }
     } catch (error) {
