@@ -33,4 +33,12 @@ if (!/promptTeamNameChange[\s\S]*await confirmNameReservationIfMatching\(name\)/
   throw new Error('Team name change does not confirm reserved suggestion');
 }
 
+if (!/team-name-apply-suggestion/.test(code)) {
+  throw new Error('Team name change is missing the suggestion apply action');
+}
+
+if (!/suggestionApplied && nameReservation/.test(code)) {
+  throw new Error('Team name change no longer guards confirmation by explicit adoption');
+}
+
 console.log('ok');
