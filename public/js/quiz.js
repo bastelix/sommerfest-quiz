@@ -39,6 +39,47 @@ const withBase = path => basePath + path;
 let nameReservation = null;
 let lastSuggestionFallback = false;
 let quizStartedAt = null;
+let activeSuggestionReservation = null;
+let activeSuggestionFallback = false;
+
+function rememberActiveSuggestionReservation(reservation){
+  if(reservation){
+    activeSuggestionReservation = reservation;
+    activeSuggestionFallback = lastSuggestionFallback;
+  }else{
+    activeSuggestionReservation = null;
+    activeSuggestionFallback = lastSuggestionFallback;
+  }
+}
+
+function clearActiveSuggestionReservation(){
+  activeSuggestionReservation = null;
+  activeSuggestionFallback = false;
+}
+
+function restoreActiveSuggestionReservation(skippedReservation){
+  if(activeSuggestionReservation && activeSuggestionReservation !== skippedReservation){
+    nameReservation = activeSuggestionReservation;
+    lastSuggestionFallback = activeSuggestionFallback;
+  }else if(!activeSuggestionReservation){
+    nameReservation = null;
+    lastSuggestionFallback = activeSuggestionFallback;
+  }else{
+    nameReservation = null;
+    lastSuggestionFallback = false;
+  }
+}
+
+function releaseSpecificReservation(reservation){
+  if(!reservation){
+    return Promise.resolve();
+  }
+  const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
+  if(client && typeof client.release === 'function'){
+    return client.release({ reservation }).catch(() => {});
+  }
+  return Promise.resolve();
+}
 
 const fallbackSuggestion = () => `Gast-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -69,13 +110,8 @@ function releaseNameReservation(){
   const reservation = nameReservation;
   nameReservation = null;
   lastSuggestionFallback = false;
-  if (reservation) {
-    const client = typeof TeamNameClient === 'object' && TeamNameClient ? TeamNameClient : null;
-    if (client && typeof client.release === 'function') {
-      return client.release({ reservation }).catch(() => {});
-    }
-  }
-  return Promise.resolve();
+  clearActiveSuggestionReservation();
+  return releaseSpecificReservation(reservation);
 }
 
 async function releaseConfirmedTeamName(name){
@@ -113,6 +149,7 @@ async function confirmNameReservationIfMatching(name){
     if (confirmed) {
       nameReservation = null;
       lastSuggestionFallback = false;
+      clearActiveSuggestionReservation();
       return true;
     }
   } catch (error) {
@@ -123,6 +160,7 @@ async function confirmNameReservationIfMatching(name){
   }
   nameReservation = null;
   lastSuggestionFallback = false;
+  clearActiveSuggestionReservation();
   return false;
 }
 
@@ -203,6 +241,7 @@ async function promptTeamNameChange(existingName){
     let suggestionApplied = false;
     let saved = false;
     let modalClosed = false;
+    let modalClosing = false;
     let normalizedSuggestion = '';
     let normalizedSuggestionLower = '';
     let suggestionRequestId = 0;
@@ -242,18 +281,25 @@ async function promptTeamNameChange(existingName){
       try{
         suggestion = await getNameSuggestion();
       }catch(e){
-        if(modalClosed || requestId !== suggestionRequestId){
+        if(modalClosed || modalClosing || requestId !== suggestionRequestId){
+          const pendingReservation = nameReservation;
+          releaseSpecificReservation(pendingReservation).catch(() => {});
+          restoreActiveSuggestionReservation(pendingReservation);
           return;
         }
         handleSuggestionError();
         return;
       }
-      if(modalClosed || requestId !== suggestionRequestId){
+      const pendingReservation = nameReservation;
+      if(modalClosed || modalClosing || requestId !== suggestionRequestId){
+        releaseSpecificReservation(pendingReservation).catch(() => {});
+        restoreActiveSuggestionReservation(pendingReservation);
         return;
       }
       const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
       normalizedSuggestion = normalized;
       normalizedSuggestionLower = normalized.toLowerCase();
+      rememberActiveSuggestionReservation(pendingReservation);
       if(normalized){
         sugg.textContent = getLastSuggestionWasFallback()
           ? ` (Vorschlag: ${normalized} – Zufallsname)`
@@ -383,8 +429,13 @@ async function promptTeamNameChange(existingName){
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
     UIkit.util.on(modal, 'shown', () => {
+      modalClosing = false;
+      modalClosed = false;
       if(typeof input.focus === 'function') input.focus();
       if(typeof input.select === 'function') input.select();
+    });
+    UIkit.util.on(modal, 'hide', () => {
+      modalClosing = true;
     });
     UIkit.util.on(modal, 'hidden', () => {
       modalClosed = true;
@@ -2052,12 +2103,14 @@ async function runQuiz(questions, skipIntro){
       flipBtn.disabled = true;
       let manualInputRenderId = 0;
       let manualInputClosed = false;
+      let manualInputClosing = false;
       async function showManualInput(){
         const container = document.getElementById('qr-reader');
         if(!container){
           return;
         }
         manualInputClosed = false;
+        manualInputClosing = false;
         const renderId = ++manualInputRenderId;
         container.textContent = '';
         const hint = document.createElement('div');
@@ -2081,9 +2134,17 @@ async function runQuiz(questions, skipIntro){
         input.addEventListener('input', () => {
           userInteracted = true;
         });
+        try{
+          await releaseNameReservation();
+        }catch(e){
+          /* empty */
+        }
         const suggestionPromise = getNameSuggestion();
         suggestionPromise.then(suggestion => {
-          if(manualInputClosed || renderId !== manualInputRenderId || !container.isConnected){
+          const pendingReservation = nameReservation;
+          if(manualInputClosed || manualInputClosing || renderId !== manualInputRenderId || !container.isConnected){
+            releaseSpecificReservation(pendingReservation).catch(() => {});
+            restoreActiveSuggestionReservation(pendingReservation);
             return;
           }
           const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
@@ -2094,8 +2155,12 @@ async function runQuiz(questions, skipIntro){
           if(!userInteracted){
             input.value = normalized || '';
           }
+          rememberActiveSuggestionReservation(pendingReservation);
         }).catch(() => {
-          if(manualInputClosed || renderId !== manualInputRenderId || !container.isConnected){
+          const pendingReservation = nameReservation;
+          if(manualInputClosed || manualInputClosing || renderId !== manualInputRenderId || !container.isConnected){
+            releaseSpecificReservation(pendingReservation).catch(() => {});
+            restoreActiveSuggestionReservation(pendingReservation);
             return;
           }
           hint.textContent = 'Vorschlag konnte nicht geladen werden.';
@@ -2172,12 +2237,17 @@ async function runQuiz(questions, skipIntro){
         stopBtn.focus();
         modal.addEventListener('keydown', trapFocus);
         manualInputClosed = false;
+        manualInputClosing = false;
+      });
+      UIkit.util.on(modal, 'hide', () => {
+        manualInputClosing = true;
       });
       UIkit.util.on(modal, 'hidden', () => {
         stopScanner();
         modal.removeEventListener('keydown', trapFocus);
         manualInputClosed = true;
         manualInputRenderId += 1;
+        releaseNameReservation();
         if(opener){
           opener.focus();
         }
