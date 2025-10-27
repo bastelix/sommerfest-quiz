@@ -50,18 +50,50 @@ const getNameKey = (value) => {
   return normalized.toLowerCase();
 };
 
+const normalizePlayerUid = (value) => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  const trimmed = value.trim();
+  return trimmed === '' ? '' : trimmed;
+};
+
+const getEntryIdentity = (entry) => {
+  const rawUid = entry && typeof entry === 'object'
+    ? (entry.player_uid ?? entry.playerUid ?? '')
+    : '';
+  const playerUid = normalizePlayerUid(rawUid);
+  const normalizedUid = playerUid ? playerUid.toLowerCase() : '';
+  const nameValue = entry && typeof entry === 'object' ? entry.name : entry;
+  const displayName = formatDisplayName(nameValue);
+  const nameKey = getNameKey(nameValue);
+  const key = normalizedUid ? `uid:${normalizedUid}` : `name:${nameKey}`;
+  return {
+    key,
+    playerUid,
+    normalizedUid,
+    displayName,
+    nameKey,
+  };
+};
+
 const dedupeByName = (list) => {
   if (!Array.isArray(list)) return [];
   const seen = new Set();
   const result = [];
   for (const item of list) {
     if (!item) continue;
-    const key = getNameKey(item.name);
-    if (seen.has(key)) {
+    const identity = getEntryIdentity(item);
+    if (seen.has(identity.key)) {
       continue;
     }
-    seen.add(key);
-    result.push({ ...item, name: formatDisplayName(item.name) });
+    seen.add(identity.key);
+    const normalizedItem = { ...item, name: identity.displayName };
+    if (identity.playerUid) {
+      normalizedItem.player_uid = identity.playerUid;
+      normalizedItem.playerUid = identity.playerUid;
+    }
+    result.push(normalizedItem);
   }
   return result;
 };
@@ -72,12 +104,17 @@ const takeTopUnique = (list, limit) => {
   const result = [];
   for (const item of list) {
     if (!item) continue;
-    const key = getNameKey(item.name);
-    if (seen.has(key)) {
+    const identity = getEntryIdentity(item);
+    if (seen.has(identity.key)) {
       continue;
     }
-    seen.add(key);
-    result.push({ ...item, name: formatDisplayName(item.name) });
+    seen.add(identity.key);
+    const normalizedItem = { ...item, name: identity.displayName };
+    if (identity.playerUid) {
+      normalizedItem.player_uid = identity.playerUid;
+      normalizedItem.playerUid = identity.playerUid;
+    }
+    result.push(normalizedItem);
     if (result.length >= limit) {
       break;
     }
@@ -338,6 +375,15 @@ export class ResultsDataService {
             row.durationSec = null;
           }
           row.duration_sec = row.durationSec;
+          const identity = getEntryIdentity(row);
+          if (identity.playerUid) {
+            row.player_uid = identity.playerUid;
+            row.playerUid = identity.playerUid;
+          } else if (typeof row.player_uid === 'string') {
+            const normalizedUid = normalizePlayerUid(row.player_uid);
+            row.player_uid = normalizedUid;
+            row.playerUid = normalizedUid;
+          }
         });
         rows.sort((a, b) => {
           const timeA = parseNumeric(a.time) ?? 0;
@@ -374,13 +420,16 @@ export class ResultsDataService {
             row.catalogUid = null;
             row.catalog_uid = null;
           }
-          const team = row.name || '';
+          const identity = getEntryIdentity(row);
           const catalog = normalizeCatalogValue(row.catalogRef || row.catalogKey || row.catalog);
-          if (!team || !catalog) {
+          if (!catalog) {
+            return;
+          }
+          if (!identity.playerUid && identity.nameKey === BLANK_NAME_KEY) {
             return;
           }
           const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
-          const key = `${team}|${catalog}|${attempt}`;
+          const key = `${identity.key}|${catalog}|${attempt}`;
           const finalPointsCandidate = row.final_points ?? row.finalPoints;
           const finalPoints = parseNumeric(finalPointsCandidate) ?? parseNumeric(row.points) ?? 0;
           const efficiencyCandidate = parseNumeric(row.efficiency);
@@ -392,6 +441,14 @@ export class ResultsDataService {
           summary.effSum += Math.max(0, Math.min(efficiency, 1));
           summary.count += 1;
           attemptSummaries.set(key, summary);
+          if (identity.playerUid) {
+            row.player_uid = identity.playerUid;
+            row.playerUid = identity.playerUid;
+          } else if (typeof row.player_uid === 'string') {
+            const normalizedUid = normalizePlayerUid(row.player_uid);
+            row.player_uid = normalizedUid;
+            row.playerUid = normalizedUid;
+          }
         });
       }
       if (Array.isArray(rows)) {
@@ -477,6 +534,15 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     return '';
   };
 
+  const toOptionalInt = typeof parseOptionalInt === 'function'
+    ? parseOptionalInt
+    : (value) => {
+      if (value === null || value === undefined) return null;
+      if (typeof value === 'string' && value.trim() === '') return null;
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? Math.trunc(numeric) : null;
+    };
+
   const formatEfficiency = (value) => {
     if (value === null || value === undefined) return '–';
     const numeric = Number(value);
@@ -514,15 +580,17 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   const puzzleTimes = new Map();
   const scorePoints = new Map();
   const attemptMetrics = new Map();
+  const catalogTimes = new Map();
 
   questionRows.forEach((entry) => {
-    const team = entry?.name ?? '';
-    const teamKey = getNameKey(team);
-    const displayName = formatDisplayName(team);
+    const identity = getEntryIdentity(entry);
     const catalogKey = resolveEntryCatalogKey(entry);
     if (!catalogKey) return;
+    if (!identity.playerUid && identity.nameKey === BLANK_NAME_KEY) {
+      return;
+    }
     const attempt = Number.isFinite(entry.attempt) ? Number(entry.attempt) : parseInt(entry.attempt, 10) || 1;
-    const key = `${teamKey}|${catalogKey}|${attempt}`;
+    const key = `${identity.key}|${catalogKey}|${attempt}`;
     const finalPoints = Number.isFinite(entry.final_points)
       ? Number(entry.final_points)
       : Number.isFinite(entry.finalPoints)
@@ -543,18 +611,29 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
   });
 
   rows.forEach((row) => {
-    const team = row?.name ?? '';
-    const teamKey = getNameKey(team);
-    const displayName = formatDisplayName(team);
+    const identity = getEntryIdentity(row);
+    const displayName = identity.displayName;
     const catalogKey = resolveEntryCatalogKey(row);
     if (!catalogKey) return;
+    if (!identity.playerUid && identity.nameKey === BLANK_NAME_KEY) {
+      return;
+    }
     const puzzleCandidate = parseNumeric(row.puzzleTime);
     if (puzzleCandidate !== null) {
-      const prev = puzzleTimes.get(teamKey);
+      const prev = puzzleTimes.get(identity.key);
       if (!prev || !Number.isFinite(prev.time) || puzzleCandidate < prev.time) {
-        puzzleTimes.set(teamKey, { name: displayName, time: puzzleCandidate });
-      } else if (displayName && !prev.name) {
-        prev.name = displayName;
+        puzzleTimes.set(identity.key, {
+          name: displayName,
+          time: puzzleCandidate,
+          playerUid: identity.playerUid,
+        });
+      } else {
+        if (displayName && !prev.name) {
+          prev.name = displayName;
+        }
+        if (!prev.playerUid && identity.playerUid) {
+          prev.playerUid = identity.playerUid;
+        }
       }
     }
 
@@ -567,7 +646,7 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     const finish = Number.isFinite(finishCandidate) ? Math.round(finishCandidate) : null;
 
     const attempt = Number.isFinite(row.attempt) ? Number(row.attempt) : parseInt(row.attempt, 10) || 1;
-    const key = `${teamKey}|${catalogKey}|${attempt}`;
+    const key = `${identity.key}|${catalogKey}|${attempt}`;
     const summary = attemptMetrics.get(key);
     let finalPoints;
     let effSum;
@@ -590,12 +669,17 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     }
     const average = questionCount > 0 ? Math.max(0, Math.min(effSum / questionCount, 1)) : 0;
 
-    let teamInfo = scorePoints.get(teamKey);
+    let teamInfo = scorePoints.get(identity.key);
     if (!teamInfo) {
-      teamInfo = { name: displayName, catalogs: new Map() };
-      scorePoints.set(teamKey, teamInfo);
-    } else if (displayName && !teamInfo.name) {
-      teamInfo.name = displayName;
+      teamInfo = { name: displayName, playerUid: identity.playerUid, catalogs: new Map() };
+      scorePoints.set(identity.key, teamInfo);
+    } else {
+      if (displayName && !teamInfo.name) {
+        teamInfo.name = displayName;
+      }
+      if (!teamInfo.playerUid && identity.playerUid) {
+        teamInfo.playerUid = identity.playerUid;
+      }
     }
     const sMap = teamInfo.catalogs;
     const prev = sMap.get(catalogKey);
@@ -656,6 +740,25 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       });
     }
 
+    const timeVal = toOptionalInt(row.time);
+    if (timeVal !== null) {
+      let timeInfo = catalogTimes.get(identity.key);
+      if (!timeInfo) {
+        timeInfo = { name: displayName, playerUid: identity.playerUid, catalogs: new Map() };
+        catalogTimes.set(identity.key, timeInfo);
+      } else {
+        if (displayName && !timeInfo.name) {
+          timeInfo.name = displayName;
+        }
+        if (!timeInfo.playerUid && identity.playerUid) {
+          timeInfo.playerUid = identity.playerUid;
+        }
+      }
+      const prevTime = timeInfo.catalogs.get(catalogKey);
+      if (prevTime === undefined || timeVal < prevTime) {
+        timeInfo.catalogs.set(catalogKey, timeVal);
+      }
+    }
   });
 
   const puzzleArr = [];
@@ -663,7 +766,14 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     if (!info) return;
     const name = formatDisplayName(info.name);
     const time = info.time;
-    puzzleArr.push({ name, value: formatTimestamp(time), raw: time });
+    puzzleArr.push({
+      name,
+      value: Number.isFinite(time) ? formatTimestamp(time) : '',
+      raw: time,
+      time,
+      playerUid: info.playerUid || '',
+      player_uid: info.playerUid || '',
+    });
   });
   puzzleArr.sort((a, b) => a.raw - b.raw);
   const puzzleList = takeTopUnique(puzzleArr, 3);
@@ -702,7 +812,15 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       ? Math.max(0, Math.min(effSumTotal / questionCountTotal, 1))
       : 0;
     const display = `${total} Punkte (Ø ${(avgEfficiency * 100).toFixed(0)}%)`;
-    totalScores.push({ name, value: display, raw: total, avg: avgEfficiency });
+    const playerUid = teamInfo.playerUid || '';
+    totalScores.push({
+      name,
+      value: display,
+      raw: total,
+      avg: avgEfficiency,
+      playerUid,
+      player_uid: playerUid,
+    });
     if (questionCountTotal > 0) {
       accuracyScores.push({
         name,
@@ -710,6 +828,8 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
         questions: questionCountTotal,
         score: total,
         value: `Ø ${formatEfficiency(avgEfficiency)}`,
+        playerUid,
+        player_uid: playerUid,
       });
     }
     rankingCandidates.push({
@@ -718,8 +838,37 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
       points: total,
       duration: durationCount > 0 ? durationTotal : null,
       finish: latestFinish,
+      playerUid,
+      player_uid: playerUid,
     });
   });
+
+  const finisherList = [];
+  catalogTimes.forEach((info) => {
+    if (!info) return;
+    const map = info.catalogs || new Map();
+    if (map.size === 0) {
+      return;
+    }
+    if (catalogCount > 0 && map.size !== catalogCount) {
+      return;
+    }
+    let last = -Infinity;
+    map.forEach((val) => {
+      if (typeof val === 'number' && Number.isFinite(val) && val > last) {
+        last = val;
+      }
+    });
+    if (Number.isFinite(last)) {
+      finisherList.push({
+        name: formatDisplayName(info.name),
+        time: last,
+        playerUid: info.playerUid || '',
+        player_uid: info.playerUid || '',
+      });
+    }
+  });
+  finisherList.sort((a, b) => a.time - b.time);
 
   rankingCandidates.sort((a, b) => {
     if ((b.solved ?? 0) !== (a.solved ?? 0)) {
@@ -756,6 +905,8 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     points: item.points,
     duration: Number.isFinite(item.duration) ? item.duration : null,
     finished: Number.isFinite(item.finish) ? item.finish : null,
+    playerUid: item.playerUid || '',
+    player_uid: item.playerUid || '',
   }));
   totalScores.sort((a, b) => {
     if (b.raw !== a.raw) return b.raw - a.raw;
@@ -774,6 +925,8 @@ export function computeRankings(rows, questionRows, catalogCount = 0) {
     name: formatDisplayName(entry.name),
     value: entry.value,
     raw: entry.raw,
+    playerUid: entry.playerUid || '',
+    player_uid: entry.playerUid || '',
   }));
 
   return { puzzleList, catalogList, pointsList, accuracyList };
