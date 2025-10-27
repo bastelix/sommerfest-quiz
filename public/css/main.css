@@ -1251,36 +1251,44 @@ body.admin-page {
   border: 1px solid rgba(255, 214, 0, 0.35);
 }
 
+.player-ranking-card__heading-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .player-ranking-card__icon {
-  position: absolute;
-  top: 1.1rem;
-  right: 1.1rem;
   color: var(--primary-color, #1e87f0);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 .player-ranking-card__label {
-  margin: 0.3rem 0 0;
+  margin: 0.15rem 0 0;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #6b7280;
-  padding-right: 3.5rem;
 }
 
 .player-ranking-card__header {
   display: flex;
-  flex-wrap: wrap;
   align-items: flex-start;
-  gap: 0.5rem 0.75rem;
+  justify-content: space-between;
+  gap: 0.75rem;
   width: 100%;
 }
 
-.player-ranking-card__header .player-ranking-card__title {
-  flex: 1 1 12rem;
+.player-ranking-card__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
   min-width: 0;
 }
 
@@ -1288,23 +1296,12 @@ body.admin-page {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  align-items: flex-start;
-  width: 100%;
-}
-
-.player-ranking-card__header > .player-ranking-card__actions {
-  margin-left: auto;
-  width: auto;
   align-items: flex-end;
-  text-align: right;
-}
-
-.player-ranking-card__header > .player-ranking-card__actions .uk-button {
-  align-self: flex-end;
 }
 
 .player-ranking-card__actions .uk-text-meta {
   margin: 0;
+  text-align: right;
 }
 
 @media (max-width: 640px) {
@@ -1313,16 +1310,13 @@ body.admin-page {
     align-items: stretch;
   }
 
-  .player-ranking-card__header > .player-ranking-card__actions {
-    margin-left: 0;
+  .player-ranking-card__actions {
     width: 100%;
     align-items: stretch;
-    text-align: left;
   }
 
-  .player-ranking-card__header > .player-ranking-card__actions .uk-button {
+  .player-ranking-card__actions .uk-button {
     width: 100%;
-    align-self: stretch;
   }
 }
 
@@ -1330,6 +1324,7 @@ body.admin-page {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  align-items: flex-start;
   margin-top: 1.5rem;
 }
 
@@ -1345,12 +1340,6 @@ body.admin-page {
   color: #ffb400;
 }
 
-.player-ranking-card__title {
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin: 0;
-  padding-right: 3.5rem;
-}
 
 .player-ranking-card__place {
   font-size: 1.4rem;
