@@ -22,6 +22,10 @@ Die ausführliche Anleitung findest du auf GitHub Pages: <https://bastelix.githu
 
 Änderungen an der Dokumentation werden automatisch über GitHub Pages veröffentlicht, sobald sie auf den `main`-Branch gepusht werden.
 
+#### Asynchrones Warm-up der Teamnamen
+
+Beim Import von Konfigurationen – beispielsweise während eines Deployments – löst `ConfigService::saveConfig()` nun keinen direkten Aufruf von `TeamNameService::warmUpAiSuggestions()` mehr aus. Stattdessen plant der `TeamNameWarmupDispatcher` einen Hintergrundprozess ein, der nach dem Senden der HTTP-Antwort ausgeführt wird. Über `App\runBackgroundProcess()` wird das Skript `scripts/team_name_warmup.php` mit Event-ID, Filterlisten, Locale und gewünschter Puffergröße gestartet. Das Skript erzeugt die benötigten Services, berücksichtigt das Schema über die Umgebungsvariable `APP_TENANT_SCHEMA` und füllt den AI-Cache ohne die Request-Laufzeit zu verlängern. Das Verhalten stellt sicher, dass neue Filtereinstellungen beim Deployment automatisch vorbereitet werden, ohne den Administrations-Workflow zu blockieren.
+
 Das **QuizRace** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
 
 ## Disclaimer / Hinweis

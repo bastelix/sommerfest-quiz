@@ -28,6 +28,7 @@ use App\Service\TeamService;
 use App\Service\TeamNameAiClient;
 use App\Repository\TeamNameAiCacheRepository;
 use App\Service\TeamNameService;
+use App\Service\TeamNameWarmupDispatcher;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
 use App\Service\SummaryPhotoService;
@@ -468,6 +469,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             null
         );
         $configService->setTeamNameService($teamNameService);
+        $configService->setTeamNameWarmupDispatcher(new TeamNameWarmupDispatcher($schema));
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
         $plan = $tenantService->getPlanBySubdomain($sub);

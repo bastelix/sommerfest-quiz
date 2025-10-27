@@ -20,6 +20,7 @@ class ConfigService
     private ?string $activeEvent = null;
     private TokenCipher $tokenCipher;
     private ?TeamNameService $teamNameService = null;
+    private ?TeamNameWarmupDispatcher $teamNameWarmupDispatcher = null;
 
     /**
      * List of configuration keys that should be treated as booleans.
@@ -104,6 +105,11 @@ class ConfigService
 
     public function setTeamNameService(TeamNameService $teamNameService): void {
         $this->teamNameService = $teamNameService;
+    }
+
+    public function setTeamNameWarmupDispatcher(TeamNameWarmupDispatcher $dispatcher): void
+    {
+        $this->teamNameWarmupDispatcher = $dispatcher;
     }
 
     /**
@@ -474,6 +480,17 @@ class ConfigService
                     continue;
                 }
                 if (in_array($sourceKey, self::JSON_COLUMNS, true)) {
+                    if ($sourceKey === 'randomNameDomains') {
+                        $value = $this->normalizeRandomNameList(
+                            is_array($value) ? $value : [],
+                            ConfigValidator::RANDOM_NAME_ALLOWED_DOMAINS
+                        );
+                    } elseif ($sourceKey === 'randomNameTones') {
+                        $value = $this->normalizeRandomNameList(
+                            is_array($value) ? $value : [],
+                            ConfigValidator::RANDOM_NAME_ALLOWED_TONES
+                        );
+                    }
                     if ($value === null) {
                         $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
                     } else {
@@ -516,13 +533,25 @@ class ConfigService
                 if ($locale === '') {
                     $locale = null;
                 }
-                $this->teamNameService->warmUpAiSuggestions(
-                    $uid,
-                    $randomNameAfter['domains'],
-                    $randomNameAfter['tones'],
-                    $locale,
-                    max(5, (int) $buffer)
-                );
+                $count = max(5, (int) $buffer);
+                $dispatcher = $this->teamNameWarmupDispatcher;
+                if ($dispatcher !== null) {
+                    $dispatcher->dispatchWarmup(
+                        $uid,
+                        $randomNameAfter['domains'],
+                        $randomNameAfter['tones'],
+                        $locale,
+                        $count
+                    );
+                } else {
+                    $this->teamNameService->warmUpAiSuggestions(
+                        $uid,
+                        $randomNameAfter['domains'],
+                        $randomNameAfter['tones'],
+                        $locale,
+                        $count
+                    );
+                }
             }
         }
 

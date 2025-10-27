@@ -6,6 +6,7 @@ namespace Tests\Service;
 
 use App\Service\ConfigService;
 use App\Service\TeamNameService;
+use App\Service\TeamNameWarmupDispatcher;
 use App\Support\TokenCipher;
 use PDO;
 use Tests\TestCase;
@@ -13,6 +14,20 @@ use Throwable;
 
 class ConfigServiceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+    }
+
+    protected function tearDown(): void
+    {
+        putenv('DASHBOARD_TOKEN_SECRET');
+        unset($_ENV['DASHBOARD_TOKEN_SECRET']);
+        parent::tearDown();
+    }
+
     public function testReadWriteConfig(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -135,7 +150,7 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('lexicon', $config['randomNameStrategy']);
     }
 
-    public function testChangingRandomNameStrategyTriggersWarmUp(): void
+    public function testChangingRandomNameStrategySchedulesWarmUp(): void
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -168,11 +183,16 @@ class ConfigServiceTest extends TestCase
         $teamNameService->expects($this->once())
             ->method('resetEventNamePreferences')
             ->with('ev-ai');
-        $teamNameService->expects($this->once())
-            ->method('warmUpAiSuggestions')
+        $teamNameService->expects($this->never())
+            ->method('warmUpAiSuggestions');
+
+        $dispatcher = $this->createMock(TeamNameWarmupDispatcher::class);
+        $dispatcher->expects($this->once())
+            ->method('dispatchWarmup')
             ->with('ev-ai', [], [], 'de-DE', 5);
 
         $service->setTeamNameService($teamNameService);
+        $service->setTeamNameWarmupDispatcher($dispatcher);
         $service->saveConfig([
             'event_uid' => 'ev-ai',
             'randomNameStrategy' => 'ai',
@@ -475,8 +495,11 @@ class ConfigServiceTest extends TestCase
     }
 
     public function testSetActiveEventUidDoesNotInsertConfigForEmptyEvent(): void {
-        $pdo = $this->createDatabase();
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY)');
         $service = new ConfigService($pdo);
 
         $service->setActiveEventUid('');
