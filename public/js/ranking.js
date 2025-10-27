@@ -344,6 +344,7 @@ const createCard = ({
     const isFragment = typeof DocumentFragment !== 'undefined' && actions instanceof DocumentFragment;
     if (actions instanceof HTMLElement) {
       actions.classList.add('player-ranking-card__actions');
+      actions.hidden = false;
       header.appendChild(actions);
     } else if (isFragment) {
       const wrapper = document.createElement('div');
@@ -453,13 +454,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const updatedEl = document.getElementById('rankingUpdatedAt');
   const topLists = document.getElementById('rankingTopLists');
   const nameActions = document.getElementById('rankingNameActions');
-  const nameHint = document.getElementById('rankingNameHint');
+  const nameModalEl = document.getElementById('rankingNameModal');
+  const nameForm = document.getElementById('rankingNameForm');
+  const nameInput = document.getElementById('rankingNameInput');
   const refreshBtn = document.getElementById('rankingRefreshBtn');
   const changeNameBtn = document.getElementById('rankingChangeNameBtn');
   const contactForm = document.getElementById('rankingContactForm');
   const emailInput = document.getElementById('rankingEmail');
   const consentCheckbox = document.getElementById('rankingConsent');
   const formMessage = document.getElementById('rankingFormMessage');
+
+  let nameModalInstance = null;
+
+  const getNameModal = () => {
+    if (!nameModalEl) {
+      return null;
+    }
+    if (nameModalInstance) {
+      return nameModalInstance;
+    }
+    if (typeof UIkit === 'undefined' || typeof UIkit.modal !== 'function') {
+      return null;
+    }
+    nameModalInstance = UIkit.modal(nameModalEl);
+    return nameModalInstance;
+  };
+
+  const focusNameInput = () => {
+    if (!nameInput) {
+      return;
+    }
+    requestAnimationFrame(() => {
+      nameInput.focus();
+      nameInput.select();
+    });
+  };
+
+  if (nameModalEl && nameInput) {
+    nameModalEl.addEventListener('shown', () => {
+      focusNameInput();
+    });
+  }
 
   const clearStoredValue = (key) => {
     if (typeof clearStored === 'function' && typeof STORAGE_KEYS === 'object') {
@@ -652,6 +687,19 @@ document.addEventListener('DOMContentLoaded', () => {
     currentEmail = '';
   }
 
+  const persistNameLocally = (value) => {
+    const normalized = typeof value === 'string' ? value : '';
+    currentName = normalized;
+    setStoredName(normalized);
+    if (typeof setStored === 'function') {
+      try {
+        setStored('quizUser', normalized);
+      } catch (error) {
+        console.error('Failed to persist quizUser name', error);
+      }
+    }
+  };
+
   const updateContactForm = () => {
     if (emailInput) {
       const displayEmail = pendingEmail || currentEmail || '';
@@ -665,20 +713,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const updateNameDisplay = () => {
-    const safeName = safeUserName(currentName) || currentName.trim();
+    const rawName = typeof currentName === 'string' ? currentName : '';
+    const safeName = safeUserName(rawName) || rawName.trim();
     if (!nameEl || !nameEl.isConnected) {
       nameEl = document.getElementById('rankingPlayerName');
     }
     if (nameEl) {
       nameEl.classList.add('player-name-highlight');
       nameEl.textContent = safeName || 'Unbekannt';
-    }
-    if (nameHint) {
-      if (safeName) {
-        nameHint.textContent = 'Der Name stammt aus deinem letzten Quizdurchlauf. Du kannst ihn jederzeit anpassen.';
-      } else {
-        nameHint.textContent = 'Wir konnten keinen gespeicherten Namen finden. Bitte gib deinen Namen ein, um dein Ranking zu sehen.';
-      }
     }
   };
 
@@ -730,15 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sanitized) {
           const previous = safeUserName(currentName) || (typeof currentName === 'string' ? currentName.trim() : '');
           if (sanitized !== previous) {
-            currentName = sanitized;
-            setStoredName(sanitized);
-            if (typeof setStored === 'function') {
-              try {
-                setStored('quizUser', sanitized);
-              } catch (error) {
-                console.error('Failed to persist quizUser name', error);
-              }
-            }
+            persistNameLocally(sanitized);
             updateNameDisplay();
             updated = true;
           }
@@ -799,6 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     nameActions.classList.remove('player-ranking-card__actions');
+    nameActions.hidden = true;
     cardsContainer.insertAdjacentElement('afterend', nameActions);
   };
 
@@ -1068,8 +1103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (payload && typeof payload.player_name === 'string') {
           const sanitized = safeUserName(payload.player_name) || payload.player_name.trim();
           if (sanitized && sanitized !== (safeUserName(currentName) || currentName.trim())) {
-            currentName = sanitized;
-            setStoredName(sanitized);
+            persistNameLocally(sanitized);
             updateNameDisplay();
           }
         }
@@ -1102,6 +1136,69 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const processNameChange = async (rawValue) => {
+    const previousName = typeof currentName === 'string' ? currentName : '';
+    const sanitizedName = safeUserName(rawValue) || (typeof rawValue === 'string' ? rawValue.trim() : '');
+    const previousSanitized = safeUserName(previousName) || previousName.trim();
+
+    if (!sanitizedName) {
+      window.alert('Bitte gib einen gültigen Namen ein.');
+      return false;
+    }
+
+    if (sanitizedName === previousSanitized) {
+      ensurePlayerUid();
+      persistNameLocally(sanitizedName);
+      updateNameDisplay();
+      refresh();
+      return true;
+    }
+
+    let serverAccepted = true;
+    const playerUid = ensurePlayerUid();
+    if (!eventUid) {
+      console.warn('Missing event UID – cannot sync player name with server.');
+    }
+
+    if (eventUid && playerUid) {
+      try {
+        const response = await fetch('/api/players', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_uid: eventUid,
+            player_name: sanitizedName,
+            player_uid: playerUid,
+          }),
+        });
+        if (!response.ok) {
+          if (response.status === 409) {
+            window.alert('Dieser Name wird bereits verwendet. Bitte wähle einen anderen Namen.');
+          } else {
+            window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
+          }
+          serverAccepted = false;
+        }
+      } catch (error) {
+        console.error('Failed to update player name for ranking', error);
+        window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
+        serverAccepted = false;
+      }
+    }
+
+    if (!serverAccepted) {
+      persistNameLocally(previousSanitized);
+      updateNameDisplay();
+      refresh();
+      return false;
+    }
+
+    persistNameLocally(sanitizedName);
+    updateNameDisplay();
+    refresh();
+    return true;
+  };
+
   if (refreshBtn) {
     refreshBtn.addEventListener('click', () => {
       refresh();
@@ -1109,95 +1206,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (changeNameBtn) {
-    changeNameBtn.addEventListener('click', async () => {
-      const previousName = typeof currentName === 'string' ? currentName : '';
-      const newName = window.prompt('Wie lautet dein Name für das Ranking?', previousName);
-      if (newName === null) {
+    changeNameBtn.addEventListener('click', () => {
+      const modal = getNameModal();
+      const safeCurrentName = safeUserName(currentName) || (typeof currentName === 'string' ? currentName.trim() : '');
+      if (modal && nameInput) {
+        nameInput.value = safeCurrentName;
+        modal.show();
+        focusNameInput();
         return;
       }
 
-      const sanitizedName = safeUserName(newName) || (typeof newName === 'string' ? newName.trim() : '');
-      const previousSanitized = safeUserName(previousName) || previousName.trim();
-
-      if (!sanitizedName) {
-        window.alert('Bitte gib einen gültigen Namen ein.');
+      const fallbackName = window.prompt('Wie lautet dein Name für das Ranking?', safeCurrentName);
+      if (fallbackName === null) {
         return;
       }
+      processNameChange(fallbackName);
+    });
+  }
 
-      if (sanitizedName === previousSanitized) {
-        ensurePlayerUid();
-        currentName = sanitizedName;
-        setStoredName(sanitizedName);
-        if (typeof setStored === 'function') {
-          try {
-            setStored('quizUser', sanitizedName);
-          } catch (error) {
-            console.error('Failed to persist quizUser name', error);
-          }
-        }
-        updateNameDisplay();
-        refresh();
-        return;
-      }
-
-      let serverAccepted = true;
-      const playerUid = ensurePlayerUid();
-      if (!eventUid) {
-        console.warn('Missing event UID – cannot sync player name with server.');
-      }
-
-      if (eventUid && playerUid) {
-        try {
-          const response = await fetch('/api/players', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              event_uid: eventUid,
-              player_name: sanitizedName,
-              player_uid: playerUid,
-            }),
-          });
-          if (!response.ok) {
-            if (response.status === 409) {
-              window.alert('Dieser Name wird bereits verwendet. Bitte wähle einen anderen Namen.');
-            } else {
-              window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
-            }
-            serverAccepted = false;
-          }
-        } catch (error) {
-          console.error('Failed to update player name for ranking', error);
-          window.alert('Der Name konnte nicht gespeichert werden. Bitte versuche es später erneut.');
-          serverAccepted = false;
+  if (nameForm && nameInput) {
+    nameForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const success = await processNameChange(nameInput.value);
+      if (success) {
+        const modal = getNameModal();
+        if (modal) {
+          modal.hide();
         }
       }
-
-      if (!serverAccepted) {
-        currentName = previousSanitized;
-        setStoredName(previousSanitized);
-        if (typeof setStored === 'function') {
-          try {
-            setStored('quizUser', previousSanitized);
-          } catch (error) {
-            console.error('Failed to persist quizUser name', error);
-          }
-        }
-        updateNameDisplay();
-        refresh();
-        return;
-      }
-
-      currentName = sanitizedName;
-      setStoredName(sanitizedName);
-      if (typeof setStored === 'function') {
-        try {
-          setStored('quizUser', sanitizedName);
-        } catch (error) {
-          console.error('Failed to persist quizUser name', error);
-        }
-      }
-      updateNameDisplay();
-      refresh();
     });
   }
 
