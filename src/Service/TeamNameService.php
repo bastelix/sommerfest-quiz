@@ -16,6 +16,7 @@ use PDOStatement;
 use RuntimeException;
 use Throwable;
 
+use function array_map;
 use function array_merge;
 use function array_slice;
 use function array_splice;
@@ -113,6 +114,13 @@ class TeamNameService
     private ?DateTimeImmutable $aiLastSuccessAt = null;
 
     private ?string $aiLastError = null;
+
+    /**
+     * Structured log of the last AI cache operation.
+     *
+     * @var array{context:string|null,meta:array<string,mixed>,entries:list<array{code:string,level:string,context:array<string,mixed>}>,status:string,error:?string}|null
+     */
+    private ?array $aiLastLog = null;
 
     public function __construct(
         PDO $pdo,
@@ -567,6 +575,51 @@ class TeamNameService
         $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
     }
 
+    public function warmUpAiSuggestionsWithLog(
+        string $eventId,
+        array $domains = [],
+        array $tones = [],
+        ?string $locale = null,
+        int $count = 5
+    ): array {
+        $this->startAiLog('warmup', [
+            'event_id' => $eventId,
+            'domains' => array_values($domains),
+            'tones' => array_values($tones),
+            'locale' => $locale,
+            'count' => $count,
+        ]);
+
+        if ($eventId === '') {
+            $this->finalizeAiLog('missing-event');
+
+            return [
+                'cache' => ['total' => 0, 'entries' => []],
+                'log' => $this->getAiLastLog(),
+            ];
+        }
+
+        if (!$this->canUseAi()) {
+            $this->finalizeAiLog('disabled');
+
+            return [
+                'cache' => $this->getAiCacheState($eventId),
+                'log' => $this->getAiLastLog(),
+            ];
+        }
+
+        $this->warmUpAiSuggestions($eventId, $domains, $tones, $locale, $count);
+
+        if (($this->aiLastLog['status'] ?? 'pending') === 'pending') {
+            $this->finalizeAiLog('unchanged', ['count' => 0]);
+        }
+
+        return [
+            'cache' => $this->getAiCacheState($eventId),
+            'log' => $this->getAiLastLog(),
+        ];
+    }
+
     public function resetEventNamePreferences(string $eventId): void
     {
         if ($eventId === '') {
@@ -599,6 +652,11 @@ class TeamNameService
             return;
         }
 
+        $logging = $this->aiLastLog !== null;
+        if ($logging && empty($this->aiLastLog['entries'])) {
+            $this->appendAiLog('target', 'info', ['count' => $targetSize]);
+        }
+
         if (!isset($this->aiNameCache[$cacheKey])) {
             $this->aiNameCache[$cacheKey] = [];
         }
@@ -617,51 +675,136 @@ class TeamNameService
             'locale' => $locale,
         ];
 
+        if (count($this->aiNameCache[$cacheKey]) >= $targetSize) {
+            if ($logging) {
+                $this->finalizeAiLog('skipped', ['count' => count($this->aiNameCache[$cacheKey])]);
+            }
+
+            return;
+        }
+
         $attempts = 0;
         $existingNamesForPrompt = $this->gatherExistingAiNames($cacheKey, $eventId);
         $persistedNames = [];
         $this->aiCacheLoadedEvents[$eventId] = true;
 
         while (count($this->aiNameCache[$cacheKey]) < $targetSize && $attempts < self::AI_MAX_ATTEMPTS) {
+            $attempts++;
             $needed = $targetSize - count($this->aiNameCache[$cacheKey]);
+            if ($logging) {
+                $this->appendAiLog('attempt', 'info', [
+                    'attempt' => $attempts,
+                    'count' => $needed,
+                ]);
+            }
+
             $batch = $this->aiClient->fetchSuggestions($needed, $domains, $tones, $locale, $existingNamesForPrompt);
             $this->aiLastAttemptAt = $this->aiClient->getLastResponseAt() ?? $this->currentUtcTime();
+
+            if ($logging) {
+                $this->appendAiLog(
+                    'received',
+                    $batch === [] ? 'warning' : 'info',
+                    [
+                        'attempt' => $attempts,
+                        'count' => count($batch),
+                    ]
+                );
+            }
+
             if ($batch === []) {
                 $this->aiLastError = $this->aiClient->getLastError() ?? 'AI service returned no suggestions.';
+                if ($logging) {
+                    $this->appendAiLog('error', 'error', [
+                        'attempt' => $attempts,
+                        'message' => $this->aiLastError,
+                    ]);
+                }
                 break;
             }
 
             $added = false;
+            $accepted = [];
+            $skippedCache = [];
+            $skippedEvent = [];
+            $skippedInvalid = [];
+
             foreach ($batch as $candidate) {
                 $normalizedName = $this->normalize($candidate);
                 if ($normalizedName === '') {
+                    $skippedInvalid[] = $candidate;
                     continue;
                 }
                 if ($this->isNameAlreadyInCache($cacheKey, $normalizedName)) {
+                    $skippedCache[] = $candidate;
                     continue;
                 }
                 if ($this->isNameAlreadyUsed($eventId, $candidate)) {
+                    $skippedEvent[] = $candidate;
                     continue;
                 }
+
                 $this->aiNameCache[$cacheKey][] = $candidate;
                 $persistedNames[] = $candidate;
+                $accepted[] = $candidate;
+
                 if (!in_array($candidate, $existingNamesForPrompt, true)) {
                     $existingNamesForPrompt[] = $candidate;
                 }
+
                 $added = true;
                 if (count($this->aiNameCache[$cacheKey]) >= $targetSize) {
                     break;
                 }
             }
 
+            if ($logging) {
+                if ($accepted !== []) {
+                    $this->appendAiLog('accepted', 'success', [
+                        'attempt' => $attempts,
+                        'count' => count($accepted),
+                        'names' => array_map(static fn ($name): string => (string) $name, $accepted),
+                    ]);
+                }
+                if ($skippedCache !== []) {
+                    $this->appendAiLog('skipped', 'warning', [
+                        'attempt' => $attempts,
+                        'count' => count($skippedCache),
+                        'names' => array_map(static fn ($name): string => (string) $name, $skippedCache),
+                        'reason' => 'duplicate_cache',
+                    ]);
+                }
+                if ($skippedEvent !== []) {
+                    $this->appendAiLog('skipped', 'warning', [
+                        'attempt' => $attempts,
+                        'count' => count($skippedEvent),
+                        'names' => array_map(static fn ($name): string => (string) $name, $skippedEvent),
+                        'reason' => 'duplicate_event',
+                    ]);
+                }
+                if ($skippedInvalid !== []) {
+                    $this->appendAiLog('skipped', 'warning', [
+                        'attempt' => $attempts,
+                        'count' => count($skippedInvalid),
+                        'names' => array_map(static fn ($name): string => (string) $name, $skippedInvalid),
+                        'reason' => 'invalid',
+                    ]);
+                }
+            }
+
             if (!$added) {
                 $this->aiLastError = 'AI suggestions are already in use for this event.';
+                if ($logging) {
+                    $this->appendAiLog('error', 'warning', [
+                        'attempt' => $attempts,
+                        'message' => $this->aiLastError,
+                    ]);
+                }
                 break;
             }
 
             $this->aiLastSuccessAt = $this->aiClient->getLastSuccessAt() ?? $this->aiLastAttemptAt;
             $this->aiLastError = null;
-            $attempts++;
         }
 
         if ($persistedNames !== []) {
@@ -671,7 +814,93 @@ class TeamNameService
                 $persistedNames,
                 $this->aiCacheMetadata[$cacheKey]
             );
+
+            if ($logging) {
+                $this->appendAiLog('persisted', 'success', [
+                    'count' => count($persistedNames),
+                    'names' => array_map(static fn ($name): string => (string) $name, $persistedNames),
+                ]);
+                $status = count($this->aiNameCache[$cacheKey]) >= $targetSize ? 'completed' : 'partial';
+                $this->finalizeAiLog($status, ['count' => count($persistedNames)]);
+            }
+
+            return;
         }
+
+        if ($logging) {
+            if ($this->aiLastError !== null) {
+                $this->appendAiLog('error', 'error', ['message' => $this->aiLastError]);
+                $this->finalizeAiLog('failed', ['message' => $this->aiLastError]);
+            } else {
+                $this->finalizeAiLog('unchanged', ['count' => 0]);
+            }
+        }
+    }
+
+    private function startAiLog(string $context, array $meta = []): void
+    {
+        $this->aiLastLog = [
+            'context' => $context,
+            'meta' => $meta,
+            'entries' => [],
+            'status' => 'pending',
+            'error' => null,
+        ];
+    }
+
+    private function appendAiLog(string $code, string $level = 'info', array $context = []): void
+    {
+        if ($this->aiLastLog === null) {
+            return;
+        }
+
+        $this->aiLastLog['entries'][] = [
+            'code' => $code,
+            'level' => $level,
+            'context' => $context,
+        ];
+    }
+
+    private function finalizeAiLog(string $status, array $context = []): void
+    {
+        if ($this->aiLastLog === null) {
+            return;
+        }
+
+        if (($this->aiLastLog['status'] ?? 'pending') !== 'pending') {
+            return;
+        }
+
+        $this->aiLastLog['status'] = $status;
+        if ($status === 'failed') {
+            $this->aiLastLog['error'] = $context['message'] ?? $this->aiLastError;
+        } else {
+            $this->aiLastLog['error'] = null;
+        }
+
+        $level = 'info';
+        if ($status === 'failed') {
+            $level = 'error';
+        } elseif ($status === 'completed' || $status === 'partial') {
+            $level = 'success';
+        }
+
+        $this->appendAiLog('status', $level, array_merge(['status' => $status], $context));
+    }
+
+    public function getAiLastLog(): array
+    {
+        if ($this->aiLastLog === null) {
+            return [
+                'context' => null,
+                'meta' => [],
+                'entries' => [],
+                'status' => 'idle',
+                'error' => null,
+            ];
+        }
+
+        return $this->aiLastLog;
     }
 
     public function getAiDiagnostics(): array

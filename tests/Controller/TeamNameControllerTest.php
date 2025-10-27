@@ -358,32 +358,40 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame(380, $payload['lexicon']['available']);
     }
 
-    public function testPreviewReturnsSuggestionsFromService(): void
+    public function testPreviewFillsCacheAndReturnsLog(): void
     {
         $service = $this->createMock(TeamNameService::class);
         $config = $this->createMock(ConfigService::class);
         $controller = new TeamNameController($service, $config);
 
         $service->expects(self::once())
-            ->method('previewAiSuggestions')
+            ->method('warmUpAiSuggestionsWithLog')
             ->with('ev-preview', ['nature', 'science'], ['playful'], 'de-DE', 6)
-            ->willReturn(['Solar Echo', 'Quantum Owls']);
-        $service->expects(self::once())
-            ->method('getAiCacheState')
-            ->with('ev-preview')
             ->willReturn([
-                'total' => 2,
-                'entries' => [
-                    [
-                        'cache_key' => 'cache-hash',
-                        'available' => 2,
-                        'names' => ['Solar Echo', 'Quantum Owls'],
-                        'filters' => [
-                            'domains' => ['nature', 'science'],
-                            'tones' => ['playful'],
-                            'locale' => 'de-DE',
+                'cache' => [
+                    'total' => 2,
+                    'entries' => [
+                        [
+                            'cache_key' => 'cache-hash',
+                            'available' => 2,
+                            'names' => ['Solar Echo', 'Quantum Owls'],
+                            'filters' => [
+                                'domains' => ['nature', 'science'],
+                                'tones' => ['playful'],
+                                'locale' => 'de-DE',
+                            ],
                         ],
                     ],
+                ],
+                'log' => [
+                    'context' => 'warmup',
+                    'meta' => [],
+                    'entries' => [
+                        ['code' => 'target', 'level' => 'info', 'context' => ['count' => 6]],
+                        ['code' => 'status', 'level' => 'success', 'context' => ['status' => 'completed', 'count' => 2]],
+                    ],
+                    'status' => 'completed',
+                    'error' => null,
                 ],
             ]);
 
@@ -407,10 +415,13 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame(['playful'], $payload['filters']['tones']);
         self::assertSame('de-DE', $payload['filters']['locale']);
         self::assertSame(6, $payload['filters']['count']);
-        self::assertSame(['Solar Echo', 'Quantum Owls'], $payload['suggestions']);
         self::assertSame(2, $payload['cache']['total']);
         self::assertCount(1, $payload['cache']['entries']);
         self::assertSame(['Solar Echo', 'Quantum Owls'], $payload['cache']['entries'][0]['names']);
+        self::assertArrayHasKey('log', $payload);
+        self::assertSame('completed', $payload['log']['status']);
+        self::assertCount(2, $payload['log']['entries']);
+        self::assertArrayNotHasKey('suggestions', $payload);
     }
 
     public function testPreviewReturnsBadRequestWithoutEvent(): void

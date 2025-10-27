@@ -206,8 +206,9 @@ class TeamNameController
         }
         $count = max(1, min((int) $count, 20));
 
-        $suggestions = $this->service->previewAiSuggestions($eventId, $domains, $tones, $locale, $count);
-        $cache = $this->service->getAiCacheState($eventId);
+        $report = $this->service->warmUpAiSuggestionsWithLog($eventId, $domains, $tones, $locale, $count);
+        $cache = is_array($report['cache'] ?? null) ? $report['cache'] : $this->service->getAiCacheState($eventId);
+        $log = is_array($report['log'] ?? null) ? $report['log'] : $this->service->getAiLastLog();
 
         $payload = [
             'event_id' => $eventId,
@@ -217,8 +218,8 @@ class TeamNameController
                 'locale' => $locale,
                 'count' => $count,
             ],
-            'suggestions' => $suggestions,
             'cache' => $cache,
+            'log' => $log,
         ];
 
         $response->getBody()->write(json_encode($payload));
