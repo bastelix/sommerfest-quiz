@@ -476,6 +476,7 @@ return [
     'label_event_current' => 'Aktuelles Event',
     'label_event_select' => 'Veranstaltung wählen',
     'placeholder_event_search' => 'Suchen',
+    'placeholder_statistics_search' => 'Antworten durchsuchen',
     'label_catalogs' => 'Kataloge',
     'label_questions' => 'Fragen',
     'label_media_scope' => 'Bereich',

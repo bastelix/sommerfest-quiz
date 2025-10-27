@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('statsTableBody');
   const filter = document.getElementById('statsFilter');
+  const filterSuggestions = document.getElementById('statsFilterList');
   const refreshBtn = document.getElementById('statsRefreshBtn');
   const pagination = document.getElementById('statsPagination');
   const basePath = window.basePath || '';
@@ -199,22 +200,28 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.appendChild(tr);
     }
     if (filter) {
-      filter.innerHTML = '<option value="">Alle</option>';
+      filter.value = '';
+    }
+    if (filterSuggestions) {
+      filterSuggestions.innerHTML = '';
     }
     filteredData = [];
     currentPage = 1;
     updatePagination();
   }
 
-  function updateFilterOptions() {
-    if (!filter) return;
-    const names = Array.from(new Set(data.map(r => r.name))).sort();
-    filter.innerHTML = '<option value="">Alle</option>';
+  function updateFilterSuggestions() {
+    if (!filterSuggestions) return;
+    const names = Array.from(new Set(
+      data
+        .map(r => (typeof r.name === 'string' ? r.name.trim() : (r.name ? String(r.name) : '')))
+        .filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    filterSuggestions.innerHTML = '';
     names.forEach(n => {
       const opt = document.createElement('option');
       opt.value = n;
-      opt.textContent = n;
-      filter.appendChild(opt);
+      filterSuggestions.appendChild(opt);
     });
   }
 
@@ -261,8 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function applyFilter() {
-    const name = filter && filter.value ? filter.value : '';
-    filteredData = name ? data.filter(r => r.name === name) : data.slice();
+    const query = filter && filter.value ? filter.value.trim().toLowerCase() : '';
+    if (!query) {
+      filteredData = data.slice();
+    } else {
+      filteredData = data.filter(r => {
+        if (!r || r.name === undefined || r.name === null) return false;
+        const value = typeof r.name === 'string' ? r.name : String(r.name);
+        return value.toLowerCase().includes(query);
+      });
+    }
     currentPage = 1;
     updatePagination();
     renderCurrentPage();
@@ -275,6 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderNoEvent();
       return;
     }
+    const previousQuery = filter ? filter.value : '';
     Promise.all([
       fetchCatalogMap(),
       fetch(withBase('/question-results.json')).then(r => r.json())
@@ -284,13 +300,16 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!r.catalogName && catMap[r.catalog]) r.catalogName = catMap[r.catalog];
         });
         data = rows;
-        updateFilterOptions();
+        updateFilterSuggestions();
+        if (filter) {
+          filter.value = previousQuery;
+        }
         applyFilter();
       })
       .catch(err => console.error(err));
   }
 
-  filter?.addEventListener('change', applyFilter);
+  filter?.addEventListener('input', applyFilter);
   pagination?.addEventListener('click', e => {
     const target = e.target.closest('a[data-page]');
     if (!target) return;
