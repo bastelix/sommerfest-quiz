@@ -117,19 +117,19 @@ class TeamNameService
     public function __construct(
         PDO $pdo,
         string $lexiconPath,
+        TeamNameAiCacheRepository $aiCacheRepository,
         int $reservationTtlSeconds = 600,
         ?TeamNameAiClient $aiClient = null,
         bool $enableAi = true,
-        ?string $defaultLocale = null,
-        TeamNameAiCacheRepository $aiCacheRepository
+        ?string $defaultLocale = null
     ) {
         $this->pdo = $pdo;
+        $this->aiCacheRepository = $aiCacheRepository;
         $this->reservationTtlSeconds = max(60, $reservationTtlSeconds);
         $this->aiClient = $aiClient;
         $this->aiEnabled = $enableAi && $aiClient !== null;
         $locale = trim((string) ($defaultLocale ?? ''));
         $this->defaultLocale = $locale === '' ? self::DEFAULT_LOCALE : $locale;
-        $this->aiCacheRepository = $aiCacheRepository;
         $this->loadLexicon($lexiconPath);
     }
 

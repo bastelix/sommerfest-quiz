@@ -461,11 +461,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $teamNameService = new TeamNameService(
             $pdo,
             __DIR__ . '/../resources/team-names/lexicon.json',
+            $teamNameAiCacheRepository,
             600,
             $teamNameAiClient,
             $teamNameAiEnabled,
-            null,
-            $teamNameAiCacheRepository
+            null
         );
         $configService->setTeamNameService($teamNameService);
         $consentService = new PhotoConsentService($pdo, $configService);
