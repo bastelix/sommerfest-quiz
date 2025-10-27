@@ -85,6 +85,14 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 }
 .config-menu #configMenuToggle.git-btn{
   border-radius:0 0 6px 6px;
+  border:none;
+  background:transparent;
+}
+.config-menu #configMenuToggle.git-btn:hover,
+.config-menu #configMenuToggle.git-btn:focus,
+.config-menu #configMenuToggle.git-btn:active{
+  border:none;
+  background:transparent;
 }
 
 .admin-page .topbar .config-menu{
