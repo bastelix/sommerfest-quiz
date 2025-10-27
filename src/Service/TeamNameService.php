@@ -829,7 +829,9 @@ class TeamNameService
 
         if ($logging) {
             if ($this->aiLastError !== null) {
-                $this->appendAiLog('error', 'error', ['message' => $this->aiLastError]);
+                if (!$this->hasAiLogEntry('error')) {
+                    $this->appendAiLog('error', 'error', ['message' => $this->aiLastError]);
+                }
                 $this->finalizeAiLog('failed', ['message' => $this->aiLastError]);
             } else {
                 $this->finalizeAiLog('unchanged', ['count' => 0]);
@@ -901,6 +903,21 @@ class TeamNameService
         }
 
         return $this->aiLastLog;
+    }
+
+    private function hasAiLogEntry(string $code): bool
+    {
+        if ($this->aiLastLog === null) {
+            return false;
+        }
+
+        foreach ($this->aiLastLog['entries'] as $entry) {
+            if (($entry['code'] ?? null) === $code) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getAiDiagnostics(): array
