@@ -32,6 +32,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -73,6 +74,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -91,6 +93,98 @@ class ResultServiceTest extends TestCase
 
         $other = $service->add(['name' => 'TeamA', 'catalog' => 'cat2']);
         $this->assertSame(1, $other['attempt']);
+    }
+
+    public function testAddPersistsPlayerUidInResultsAndQuestionResults(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                expected_duration_sec INTEGER,
+                duration_ratio REAL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                player_uid TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
+                answer_text TEXT,
+                photo TEXT,
+                consent INTEGER,
+                player_uid TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                points INTEGER,
+                countdown INTEGER
+            );
+            SQL
+        );
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('cat-1',1,'cat1','catalog.json','Catalog')");
+        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt,points) VALUES('cat-1',1,'text','Q1',2)");
+
+        $service = new ResultService($pdo);
+        $entry = $service->add([
+            'name' => 'Team Player',
+            'catalog' => 'cat1',
+            'correct' => 1,
+            'total' => 1,
+            'wrong' => [],
+            'answers' => [[]],
+            'player_uid' => '  player-42  ',
+        ]);
+
+        $this->assertSame('player-42', $entry['player_uid']);
+        $this->assertSame('player-42', $entry['playerUid']);
+
+        $resultUid = $pdo->query('SELECT player_uid FROM results')->fetchColumn();
+        $this->assertSame('player-42', $resultUid);
+
+        $questionUid = $pdo->query('SELECT player_uid FROM question_results')->fetchColumn();
+        $this->assertSame('player-42', $questionUid);
     }
 
     public function testAddPersistsStartAndDuration(): void {
@@ -114,6 +208,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -163,6 +258,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -200,6 +296,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -242,6 +339,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -283,6 +381,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -323,6 +422,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -351,6 +451,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -428,6 +529,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -456,6 +558,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -527,6 +630,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -549,6 +653,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -634,6 +739,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -656,6 +762,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -755,6 +862,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -783,6 +891,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -854,6 +963,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -882,6 +992,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -950,6 +1061,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -978,6 +1090,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -1011,6 +1124,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -1068,6 +1182,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -1106,6 +1221,7 @@ class ResultServiceTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -1165,6 +1281,7 @@ class ResultServiceTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent INTEGER,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL

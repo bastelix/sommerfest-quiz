@@ -153,6 +153,15 @@ class ResultController
                 }
             } else {
                 $finishedAt = time();
+                if (array_key_exists('player_uid', $data) || array_key_exists('playerUid', $data)) {
+                    $rawPlayerUid = $data['player_uid'] ?? $data['playerUid'] ?? null;
+                    if ($rawPlayerUid === null) {
+                        $data['player_uid'] = null;
+                    } else {
+                        $data['player_uid'] = trim((string) $rawPlayerUid);
+                    }
+                    unset($data['playerUid']);
+                }
                 $startedRaw = $data['startedAt'] ?? $data['started_at'] ?? null;
                 $startedAt = null;
                 if ($startedRaw !== null && $startedRaw !== '') {

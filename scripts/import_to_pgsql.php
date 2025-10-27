@@ -136,12 +136,22 @@ if (is_readable($resultsFile)) {
     $results = json_decode(file_get_contents($resultsFile), true) ?? [];
     $withId = isset($results[0]['id']);
     $sql = $withId
-        ? 'INSERT INTO results(id,name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid)' .
-            ' VALUES(?,?,?,?,?,?,?,?,?,?)'
-        : 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid)' .
-            ' VALUES(?,?,?,?,?,?,?,?,?)';
+        ? 'INSERT INTO results(id,name,catalog,attempt,correct,total,time,puzzleTime,photo,player_uid,event_uid)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+        : 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,player_uid,event_uid)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?,?)';
     $stmt = $pdo->prepare($sql);
     foreach ($results as $r) {
+        $playerUid = null;
+        if (array_key_exists('player_uid', $r) || array_key_exists('playerUid', $r)) {
+            $raw = $r['player_uid'] ?? $r['playerUid'];
+            if ($raw !== null) {
+                $trimmed = trim((string) $raw);
+                if ($trimmed !== '') {
+                    $playerUid = $trimmed;
+                }
+            }
+        }
         $params = [
             $r['name'] ?? '',
             $r['catalog'] ?? '',
@@ -151,6 +161,7 @@ if (is_readable($resultsFile)) {
             $r['time'] ?? time(),
             $r['puzzleTime'] ?? null,
             $r['photo'] ?? null,
+            $playerUid,
             $activeUid,
         ];
         if ($withId) {
