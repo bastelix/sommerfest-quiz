@@ -36,9 +36,40 @@
     <div id="rankingWarning" class="uk-alert uk-alert-warning uk-margin-top" hidden></div>
     <div id="rankingHighlights" class="player-ranking-highlights uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-margin-top" uk-grid></div>
     <div id="rankingCards" class="player-ranking-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s uk-margin-top" uk-grid></div>
-    <div id="rankingNameActions" class="player-ranking-name-actions" aria-live="polite">
-      <button id="rankingChangeNameBtn" class="uk-button uk-button-default uk-margin-remove-top">Name bearbeiten</button>
-      <p id="rankingNameHint" class="uk-text-meta uk-margin-small-top"></p>
+    <div id="rankingNameActions" class="player-ranking-name-actions" aria-live="polite" hidden>
+      <button
+        id="rankingChangeNameBtn"
+        class="uk-icon-button"
+        type="button"
+        uk-icon="icon: file-edit"
+        title="Name bearbeiten"
+        aria-label="Name bearbeiten"
+      ></button>
+    </div>
+    <div id="rankingNameModal" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Name bearbeiten</h2>
+        <form id="rankingNameForm" class="uk-form-stacked" novalidate>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="rankingNameInput">Dein Name</label>
+            <div class="uk-form-controls">
+              <input
+                id="rankingNameInput"
+                name="rankingName"
+                class="uk-input"
+                type="text"
+                maxlength="100"
+                autocomplete="name"
+                required
+              >
+            </div>
+          </div>
+          <div class="uk-flex uk-flex-right uk-margin-top">
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+            <button class="uk-button uk-button-primary uk-margin-small-left" type="submit">Ändern</button>
+          </div>
+        </form>
+      </div>
     </div>
     <div id="rankingEmpty" class="uk-alert uk-alert-warning uk-margin-top" hidden>
       <p class="uk-margin-remove">Noch keine Ergebnisse gefunden. Spiele ein Quiz oder aktualisiere später erneut.</p>
