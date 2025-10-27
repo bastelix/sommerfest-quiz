@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\TeamNameAiCacheRepository;
 use App\Service\TeamNameAiClient;
 use DateInterval;
 use DateTimeImmutable;
@@ -77,6 +78,15 @@ class TeamNameService
 
     private string $defaultLocale;
 
+    private TeamNameAiCacheRepository $aiCacheRepository;
+
+    /**
+     * Tracks events whose AI caches were hydrated from persistent storage.
+     *
+     * @var array<string, bool>
+     */
+    private array $aiCacheLoadedEvents = [];
+
     /**
      * Cached AI generated names keyed by event and filter combination.
      *
@@ -110,7 +120,8 @@ class TeamNameService
         int $reservationTtlSeconds = 600,
         ?TeamNameAiClient $aiClient = null,
         bool $enableAi = true,
-        ?string $defaultLocale = null
+        ?string $defaultLocale = null,
+        TeamNameAiCacheRepository $aiCacheRepository
     ) {
         $this->pdo = $pdo;
         $this->reservationTtlSeconds = max(60, $reservationTtlSeconds);
@@ -118,6 +129,7 @@ class TeamNameService
         $this->aiEnabled = $enableAi && $aiClient !== null;
         $locale = trim((string) ($defaultLocale ?? ''));
         $this->defaultLocale = $locale === '' ? self::DEFAULT_LOCALE : $locale;
+        $this->aiCacheRepository = $aiCacheRepository;
         $this->loadLexicon($lexiconPath);
     }
 
@@ -467,6 +479,7 @@ class TeamNameService
         $promptTones = $this->preparePromptValues($tones);
 
         $targetSize = max(1, max($count, $buffer));
+        $this->loadAiCacheForEvent($eventId);
         $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
 
         $available = $this->aiNameCache[$cacheKey] ?? [];
@@ -475,6 +488,10 @@ class TeamNameService
         }
 
         $selection = array_splice($this->aiNameCache[$cacheKey], 0, min($count, count($available)));
+
+        if ($selection !== []) {
+            $this->aiCacheRepository->deleteNames($eventId, $cacheKey, $selection);
+        }
 
         if ($buffer > 0) {
             $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $buffer);
@@ -510,6 +527,7 @@ class TeamNameService
         $promptTones = $this->preparePromptValues($tones);
 
         $targetSize = max(1, min(20, $count));
+        $this->loadAiCacheForEvent($eventId);
         $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
 
         $available = $this->aiNameCache[$cacheKey] ?? [];
@@ -545,6 +563,7 @@ class TeamNameService
         $promptTones = $this->preparePromptValues($tones);
 
         $targetSize = max(1, min(50, $count));
+        $this->loadAiCacheForEvent($eventId);
         $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
     }
 
@@ -600,6 +619,8 @@ class TeamNameService
 
         $attempts = 0;
         $existingNamesForPrompt = $this->gatherExistingAiNames($cacheKey, $eventId);
+        $persistedNames = [];
+        $this->aiCacheLoadedEvents[$eventId] = true;
 
         while (count($this->aiNameCache[$cacheKey]) < $targetSize && $attempts < self::AI_MAX_ATTEMPTS) {
             $needed = $targetSize - count($this->aiNameCache[$cacheKey]);
@@ -623,6 +644,7 @@ class TeamNameService
                     continue;
                 }
                 $this->aiNameCache[$cacheKey][] = $candidate;
+                $persistedNames[] = $candidate;
                 if (!in_array($candidate, $existingNamesForPrompt, true)) {
                     $existingNamesForPrompt[] = $candidate;
                 }
@@ -640,6 +662,15 @@ class TeamNameService
             $this->aiLastSuccessAt = $this->aiClient->getLastSuccessAt() ?? $this->aiLastAttemptAt;
             $this->aiLastError = null;
             $attempts++;
+        }
+
+        if ($persistedNames !== []) {
+            $this->aiCacheRepository->persistNames(
+                $eventId,
+                $cacheKey,
+                $persistedNames,
+                $this->aiCacheMetadata[$cacheKey]
+            );
         }
     }
 
@@ -686,6 +717,8 @@ class TeamNameService
         if ($eventId === '' || !$this->canUseAi()) {
             return $state;
         }
+
+        $this->loadAiCacheForEvent($eventId);
 
         if (!isset($this->aiCacheIndex[$eventId])) {
             return $state;
@@ -1446,17 +1479,51 @@ class TeamNameService
         return mb_strtolower(trim($value));
     }
 
-    private function forgetAiCacheForEvent(string $eventId): void
+    private function loadAiCacheForEvent(string $eventId): void
     {
-        if ($eventId === '' || !isset($this->aiCacheIndex[$eventId])) {
+        if ($eventId === '' || isset($this->aiCacheLoadedEvents[$eventId]) || !$this->canUseAi()) {
             return;
         }
 
-        foreach ($this->aiCacheIndex[$eventId] as $cacheKey) {
-            unset($this->aiNameCache[$cacheKey]);
-            unset($this->aiCacheMetadata[$cacheKey]);
+        $entries = $this->aiCacheRepository->loadForEvent($eventId);
+        $this->aiCacheIndex[$eventId] = [];
+
+        foreach ($entries as $cacheKey => $entry) {
+            $names = array_values($entry['names']);
+            $metadata = $entry['metadata'];
+
+            $this->aiNameCache[$cacheKey] = $names;
+            $this->aiCacheMetadata[$cacheKey] = [
+                'domains' => $metadata['domains'],
+                'tones' => $metadata['tones'],
+                'locale' => $metadata['locale'] !== '' ? $metadata['locale'] : $this->defaultLocale,
+            ];
+
+            if (!in_array($cacheKey, $this->aiCacheIndex[$eventId], true)) {
+                $this->aiCacheIndex[$eventId][] = $cacheKey;
+            }
         }
 
-        unset($this->aiCacheIndex[$eventId]);
+        $this->aiCacheLoadedEvents[$eventId] = true;
+    }
+
+    private function forgetAiCacheForEvent(string $eventId): void
+    {
+        if ($eventId === '') {
+            return;
+        }
+
+        $this->aiCacheRepository->deleteEvent($eventId);
+
+        if (isset($this->aiCacheIndex[$eventId])) {
+            foreach ($this->aiCacheIndex[$eventId] as $cacheKey) {
+                unset($this->aiNameCache[$cacheKey]);
+                unset($this->aiCacheMetadata[$cacheKey]);
+            }
+
+            unset($this->aiCacheIndex[$eventId]);
+        }
+
+        unset($this->aiCacheLoadedEvents[$eventId]);
     }
 }

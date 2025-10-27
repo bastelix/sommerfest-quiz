@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Service;
 
+use App\Repository\TeamNameAiCacheRepository;
 use App\Service\RagChat\HttpChatResponder;
 use App\Service\TeamNameAiClient;
 use App\Service\TeamNameService;
@@ -32,17 +33,18 @@ final class TeamNameServiceTest extends TestCase
         $lexiconPath = $this->createLexicon(['Alpha', 'Beta'], ['Lion', 'Tiger']);
 
         try {
-            $service = new class ($pdo, $lexiconPath, [2, 0, 0, 0]) extends TeamNameService {
+            $repository = new TeamNameAiCacheRepository($pdo);
+            $service = new class ($pdo, $lexiconPath, [2, 0, 0, 0], $repository) extends TeamNameService {
                 /** @var array<int, int> */
                 private array $offsets;
 
                 /**
                  * @param array<int, int> $offsets
                  */
-                public function __construct(PDO $pdo, string $lexiconPath, array $offsets)
+                public function __construct(PDO $pdo, string $lexiconPath, array $offsets, TeamNameAiCacheRepository $repository)
                 {
                     $this->offsets = $offsets;
-                    parent::__construct($pdo, $lexiconPath, 120);
+                    parent::__construct($pdo, $lexiconPath, 120, null, true, null, $repository);
                 }
 
                 protected function randomStartIndex(int $total): int
@@ -99,7 +101,13 @@ final class TeamNameServiceTest extends TestCase
         );
 
         try {
-            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+            $repository = new TeamNameAiCacheRepository($pdo);
+            $service = new class ($pdo, $lexiconPath, $repository) extends TeamNameService {
+                public function __construct(PDO $pdo, string $lexiconPath, TeamNameAiCacheRepository $repository)
+                {
+                    parent::__construct($pdo, $lexiconPath, 120, null, true, null, $repository);
+                }
+
                 protected function randomStartIndex(int $total): int
                 {
                     return 0;
@@ -124,7 +132,13 @@ final class TeamNameServiceTest extends TestCase
         $lexiconPath = $this->createLexicon(['Alpha'], ['Lion']);
 
         try {
-            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+            $repository = new TeamNameAiCacheRepository($pdo);
+            $service = new class ($pdo, $lexiconPath, $repository) extends TeamNameService {
+                public function __construct(PDO $pdo, string $lexiconPath, TeamNameAiCacheRepository $repository)
+                {
+                    parent::__construct($pdo, $lexiconPath, 120, null, true, null, $repository);
+                }
+
                 protected function randomStartIndex(int $total): int
                 {
                     return 0;
@@ -146,7 +160,13 @@ final class TeamNameServiceTest extends TestCase
         $lexiconPath = $this->createLexicon(['Alpha', 'Beta'], ['Lion', 'Tiger']);
 
         try {
-            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+            $repository = new TeamNameAiCacheRepository($pdo);
+            $service = new class ($pdo, $lexiconPath, $repository) extends TeamNameService {
+                public function __construct(PDO $pdo, string $lexiconPath, TeamNameAiCacheRepository $repository)
+                {
+                    parent::__construct($pdo, $lexiconPath, 120, null, true, null, $repository);
+                }
+
                 protected function randomStartIndex(int $total): int
                 {
                     return 0;
@@ -178,7 +198,13 @@ final class TeamNameServiceTest extends TestCase
         );
 
         try {
-            $service = new class ($pdo, $lexiconPath) extends TeamNameService {
+            $repository = new TeamNameAiCacheRepository($pdo);
+            $service = new class ($pdo, $lexiconPath, $repository) extends TeamNameService {
+                public function __construct(PDO $pdo, string $lexiconPath, TeamNameAiCacheRepository $repository)
+                {
+                    parent::__construct($pdo, $lexiconPath, 120, null, true, null, $repository);
+                }
+
                 protected function randomStartIndex(int $total): int
                 {
                     return 0;
@@ -208,7 +234,7 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Delta', 'AI Echo'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $first = $service->reserveWithBuffer('event-ai', [], [], 2, null, 'ai');
             self::assertSame('AI Alpha', $first['name']);
@@ -252,7 +278,7 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Français', 'AI Deux'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $german = $service->reserveWithBuffer('event-locale', [], [], 0, 'de', 'ai');
             self::assertSame('AI Deutsch', $german['name']);
@@ -284,7 +310,7 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Cascade'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $preview = $service->previewAiSuggestions('event-preview', ['nature'], ['playful'], 'de-DE', 2);
             self::assertSame(['AI Aurora', 'AI Borealis'], $preview);
@@ -314,7 +340,7 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Five'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $service->warmUpAiSuggestions('event-warm', ['science'], ['serious'], 'en-US', 4);
 
@@ -344,7 +370,7 @@ final class TeamNameServiceTest extends TestCase
                 ['Taken Crew'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $stmt = $pdo->prepare('INSERT INTO team_names(event_id, name, lexicon_version, reservation_token) VALUES (?,?,?,?)');
             $stmt->execute(['event-fallback', 'Taken Crew', 2, 'existing-token']);
@@ -372,7 +398,7 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Four', 'AI Five'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $batch = $service->reserveBatchWithBuffer('event-batch-ai', 3, ['nature'], ['playful'], 2, 'fr', 'ai');
             self::assertCount(3, $batch);
@@ -422,7 +448,7 @@ final class TeamNameServiceTest extends TestCase
             };
 
             $aiClient = new TeamNameAiClient($responder);
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $reservation = $service->reserveWithBuffer('event-ai-context', ['nature'], ['playful'], 0, 'fr', 'ai');
 
@@ -457,7 +483,7 @@ final class TeamNameServiceTest extends TestCase
                 [],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $initial = $service->getAiDiagnostics();
             self::assertTrue($initial['enabled']);
@@ -491,7 +517,7 @@ final class TeamNameServiceTest extends TestCase
                 ['AI Reset', 'AI Spare'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $service->previewAiSuggestions('event-reset', [], [], 'de-DE', 2);
 
@@ -533,7 +559,7 @@ final class TeamNameServiceTest extends TestCase
                 ['Cached Alpha', 'Cached Beta'],
             ]);
 
-            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 120, $aiClient, true, null, new TeamNameAiCacheRepository($pdo));
 
             $service->previewAiSuggestions('event-cache', ['science'], ['quirky'], 'de-DE', 2);
 
@@ -553,13 +579,60 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testPersistentAiCacheRestoredAcrossServiceInstances(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Local'], ['Backup']);
+
+        try {
+            $firstClient = new FakeTeamNameAiClient([
+                ['Persistent Alpha', 'Persistent Beta'],
+            ]);
+
+            $firstService = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                120,
+                $firstClient,
+                true,
+                null,
+                new TeamNameAiCacheRepository($pdo)
+            );
+
+            $preview = $firstService->previewAiSuggestions('event-persist', [], [], 'de-DE', 2);
+            self::assertSame(['Persistent Alpha', 'Persistent Beta'], $preview);
+            self::assertCount(1, $firstClient->getCalls());
+
+            $secondClient = new FakeTeamNameAiClient([]);
+            $secondService = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                120,
+                $secondClient,
+                true,
+                null,
+                new TeamNameAiCacheRepository($pdo)
+            );
+
+            $restoredPreview = $secondService->previewAiSuggestions('event-persist', [], [], 'de-DE', 2);
+            self::assertSame(['Persistent Alpha', 'Persistent Beta'], $restoredPreview);
+            self::assertSame([], $secondClient->getCalls());
+
+            $state = $secondService->getAiCacheState('event-persist');
+            self::assertSame(2, $state['total']);
+            self::assertSame(['Persistent Alpha', 'Persistent Beta'], $state['entries'][0]['names']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     public function testListNamesForEventReturnsHistoryWithStatuses(): void
     {
         $pdo = $this->createInMemoryDatabase();
         $lexiconPath = $this->createLexicon(['Alpha'], ['Beta']);
 
         try {
-            $service = new TeamNameService($pdo, $lexiconPath, 300, null, false, null);
+            $service = new TeamNameService($pdo, $lexiconPath, 300, null, false, null, new TeamNameAiCacheRepository($pdo));
 
             $insert = $pdo->prepare(
                 'INSERT INTO team_names(event_id, name, lexicon_version, reservation_token, reserved_at, assigned_at, released_at, fallback) '
@@ -639,6 +712,20 @@ final class TeamNameServiceTest extends TestCase
         );
         $pdo->exec('CREATE UNIQUE INDEX ux_team_names_active ON team_names(event_id, name)');
         $pdo->exec('CREATE UNIQUE INDEX ux_team_names_token ON team_names(reservation_token)');
+
+        $pdo->exec(
+            'CREATE TABLE team_name_ai_cache (' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, ' .
+            'event_id TEXT NOT NULL, ' .
+            'cache_key TEXT NOT NULL, ' .
+            'name TEXT NOT NULL, ' .
+            'filters TEXT NOT NULL DEFAULT "{}", ' .
+            'created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, ' .
+            'updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP' .
+            ')'
+        );
+        $pdo->exec('CREATE UNIQUE INDEX ux_team_name_ai_cache_event_key_name ON team_name_ai_cache(event_id, cache_key, name)');
+        $pdo->exec('CREATE INDEX ix_team_name_ai_cache_event ON team_name_ai_cache(event_id)');
 
         return $pdo;
     }
