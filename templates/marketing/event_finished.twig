@@ -1,0 +1,54 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ event.name }} – Vielen Dank fürs Mitmachen{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}marketing-page marketing-event-finished uk-background-muted{% endblock %}
+
+{% block head %}
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <meta name="page-name" content="Event finished marketing">
+{% endblock %}
+
+{% block body %}
+  <section class="uk-section uk-section-large uk-text-center">
+    <div class="uk-container uk-container-small">
+      {{ block('marketing_event_title') }}
+      {{ block('marketing_event_schedule') }}
+      {{ block('marketing_event_teaser') }}
+      {{ block('marketing_event_followup') }}
+    </div>
+  </section>
+{% endblock %}
+
+{% block marketing_event_title %}
+  <span class="qr-badge pill pill--soft">Event abgeschlossen</span>
+  <h1 class="uk-heading-medium uk-margin-small-top">{{ event.name }}</h1>
+{% endblock %}
+
+{% block marketing_event_schedule %}
+  <p class="uk-text-lead">Das Event ist beendet{% if end %} – Finale war am {{ end|date('d.m.Y \u\m H:i \U\h\r') }}{% endif %}.</p>
+  {% if start %}
+    <p class="uk-text-muted">Startzeit: {{ start|date('d.m.Y \u\m H:i \U\h\r') }}</p>
+  {% endif %}
+{% endblock %}
+
+{% block marketing_event_teaser %}
+  {% if event.description %}
+    <p class="uk-margin-large-top uk-text-large">{{ event.description }}</p>
+  {% else %}
+    <p class="uk-margin-large-top uk-text-large">Wir hoffen, dass QuizRace für Begeisterung gesorgt hat. Für das nächste Team-Event stehen wir gerne bereit.</p>
+  {% endif %}
+{% endblock %}
+
+{% block marketing_event_followup %}
+  <div class="uk-margin-large-top">
+    <h2 class="uk-heading-bullet">So geht es weiter</h2>
+    <ul class="uk-list uk-list-large uk-text-left">
+      <li><strong>Feedback teilen:</strong> Schreibe uns unter <a href="mailto:team@quizrace.app">team@quizrace.app</a>.</li>
+      <li><strong>Nächstes Event planen:</strong> Buche eine Beratung über unser <a href="{{ basePath }}/calhelp#contact-us">Kontaktformular</a>.</li>
+      <li><strong>Immer informiert bleiben:</strong> Abonniere den <a href="{{ basePath }}/newsletter">QuizRace Newsletter</a>.</li>
+    </ul>
+  </div>
+{% endblock %}

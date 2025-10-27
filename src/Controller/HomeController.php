@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
@@ -121,6 +122,50 @@ class HomeController
         }
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
+        }
+
+        if ($event !== null) {
+            $now = new DateTimeImmutable('now');
+            $eventStart = null;
+            $eventEnd = null;
+
+            $rawStart = $event['start_date'] ?? null;
+            if (is_string($rawStart) && $rawStart !== '') {
+                try {
+                    $eventStart = new DateTimeImmutable($rawStart);
+                } catch (\Exception $exception) {
+                    $eventStart = null;
+                }
+            }
+
+            $rawEnd = $event['end_date'] ?? null;
+            if (is_string($rawEnd) && $rawEnd !== '') {
+                try {
+                    $eventEnd = new DateTimeImmutable($rawEnd);
+                } catch (\Exception $exception) {
+                    $eventEnd = null;
+                }
+            }
+
+            if ($eventStart instanceof DateTimeImmutable && $now < $eventStart) {
+                return $view->render($response, 'marketing/event_upcoming.twig', [
+                    'config' => $cfg,
+                    'event' => $event,
+                    'start' => $eventStart,
+                    'end' => $eventEnd,
+                    'now' => $now,
+                ]);
+            }
+
+            if ($eventEnd instanceof DateTimeImmutable && $now > $eventEnd) {
+                return $view->render($response, 'marketing/event_finished.twig', [
+                    'config' => $cfg,
+                    'event' => $event,
+                    'start' => $eventStart,
+                    'end' => $eventEnd,
+                    'now' => $now,
+                ]);
+            }
         }
 
         $catalogService = new CatalogService($pdo, $cfgSvc, null, '', $uid);
