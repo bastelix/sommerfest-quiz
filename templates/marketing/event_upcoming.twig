@@ -1,0 +1,93 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ event.name }} – Bald geht's los{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}marketing-page marketing-event-upcoming uk-background-muted{% endblock %}
+
+{% block head %}
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <meta name="page-name" content="Event upcoming marketing">
+{% endblock %}
+
+{% block body %}
+  <section class="uk-section uk-section-large uk-text-center">
+    <div class="uk-container uk-container-small">
+      {{ block('marketing_event_title') }}
+      {{ block('marketing_event_schedule') }}
+      <div class="uk-margin-large-top">
+        {% if start %}
+          <div id="event-countdown"
+               class="uk-heading-medium uk-text-bold"
+               data-start="{{ start|date('c') }}"></div>
+        {% endif %}
+        {{ block('marketing_event_cta') }}
+      </div>
+      {{ block('marketing_event_teaser') }}
+    </div>
+  </section>
+{% endblock %}
+
+{% block marketing_event_title %}
+  <span class="qr-badge pill pill--soft">Bald verfügbar</span>
+  <h1 class="uk-heading-medium uk-margin-small-top">{{ event.name }}</h1>
+{% endblock %}
+
+{% block marketing_event_schedule %}
+  {% if start %}
+    <p class="uk-text-lead uk-margin-small">Unser Event startet am <strong>{{ start|date('d.m.Y \u\m H:i \U\h\r') }}</strong>.</p>
+  {% endif %}
+  {% if end %}
+    <p class="uk-text-muted">Geplantes Ende: {{ end|date('d.m.Y \u\m H:i \U\h\r') }}</p>
+  {% endif %}
+{% endblock %}
+
+{% block marketing_event_cta %}
+  <div class="uk-margin-medium-top">
+    <a class="uk-button uk-button-primary uk-margin-small-right" href="{{ basePath }}/kontakt">Jetzt informieren</a>
+    <a class="uk-button uk-button-default" href="{{ basePath }}/newsletter">Erinnerung erhalten</a>
+  </div>
+{% endblock %}
+
+{% block marketing_event_teaser %}
+  {% if event.description %}
+    <p class="uk-margin-large-top uk-text-large">{{ event.description }}</p>
+  {% else %}
+    <p class="uk-margin-large-top uk-text-large">Bereite dein Team auf ein Quiz voller Energie, Rätsel und Live-Spannung vor.</p>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {% if start %}
+    <script>
+      (function countdown() {
+        const el = document.getElementById('event-countdown');
+        if (!el) {
+          return;
+        }
+        const target = new Date(el.dataset.start);
+        if (Number.isNaN(target.getTime())) {
+          el.removeAttribute('data-start');
+          return;
+        }
+        function update() {
+          const now = new Date();
+          const diff = target.getTime() - now.getTime();
+          if (diff <= 0) {
+            el.textContent = 'Es geht gleich los!';
+            return;
+          }
+          const totalSeconds = Math.floor(diff / 1000);
+          const days = Math.floor(totalSeconds / 86400);
+          const hours = Math.floor((totalSeconds % 86400) / 3600);
+          const minutes = Math.floor((totalSeconds % 3600) / 60);
+          const seconds = totalSeconds % 60;
+          el.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+        update();
+        setInterval(update, 1000);
+      })();
+    </script>
+  {% endif %}
+{% endblock %}

@@ -234,6 +234,58 @@ class HomeControllerTest extends TestCase
         }
     }
 
+    public function testUpcomingEventShowsMarketingPage(): void {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+
+        $start = (new \DateTimeImmutable('+1 day'))->format('Y-m-d\\TH:i');
+        $end = (new \DateTimeImmutable('+2 days'))->format('Y-m-d\\TH:i');
+        $pdo->exec(
+            "INSERT INTO events(uid,slug,name,start_date,end_date) " .
+            "VALUES('future','event-future','Zukünftiges Event','$start','$end')"
+        );
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/')->withQueryParams(['event' => 'event-future']);
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = (string) $response->getBody();
+            $this->assertStringContainsString('Unser Event startet am', $body);
+            $this->assertStringContainsString('Jetzt informieren', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
+    public function testFinishedEventShowsMarketingPage(): void {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+
+        $start = (new \DateTimeImmutable('-2 days'))->format('Y-m-d\\TH:i');
+        $end = (new \DateTimeImmutable('-1 day'))->format('Y-m-d\\TH:i');
+        $pdo->exec(
+            "INSERT INTO events(uid,slug,name,start_date,end_date) " .
+            "VALUES('past','event-past','Vergangenes Event','$start','$end')"
+        );
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/')->withQueryParams(['event' => 'event-past']);
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = (string) $response->getBody();
+            $this->assertStringContainsString('Das Event ist beendet', $body);
+            $this->assertStringContainsString('team@quizrace.app', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testCalserverMaintenanceDomainStartPage(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
