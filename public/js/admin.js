@@ -1388,6 +1388,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const entries = Array.isArray(cache?.entries) ? cache.entries : [];
     const totalCount = Number.isFinite(Number(cache?.total)) ? Number(cache.total) : 0;
+    const hasEntries = entries.length > 0;
+
+    updateRandomNameCacheVisibility(hasEntries);
+
+    if (!hasEntries) {
+      return;
+    }
 
     if (randomNameCacheStatus) {
       if (totalCount > 0) {
@@ -1406,11 +1413,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     clearRandomNameCacheList();
     if (!randomNameCacheList) {
-      return;
-    }
-
-    if (!entries.length) {
-      randomNameCacheList.hidden = true;
       return;
     }
 
