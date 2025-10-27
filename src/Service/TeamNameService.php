@@ -492,7 +492,8 @@ class TeamNameService
         $promptTones = $this->preparePromptValues($tones);
 
         $targetSize = max(1, max($count, $buffer));
-        $warmupTarget = max(self::AI_LOW_WATERMARK, $buffer);
+        $minimumAvailable = $buffer > 0 ? $buffer : self::AI_LOW_WATERMARK;
+        $warmupTarget = max(1, $minimumAvailable);
         $scheduledWarmup = false;
 
         $this->loadAiCacheForEvent($eventId);
@@ -513,7 +514,7 @@ class TeamNameService
                 return [];
             }
         } elseif ($this->teamNameWarmupDispatcher !== null) {
-            if (count($available) < self::AI_LOW_WATERMARK) {
+            if (count($available) < $minimumAvailable) {
                 if ($this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
                     $scheduledWarmup = true;
                 }
@@ -545,7 +546,7 @@ class TeamNameService
         if (
             $this->teamNameWarmupDispatcher !== null
             && !$scheduledWarmup
-            && count($this->aiNameCache[$cacheKey] ?? []) < self::AI_LOW_WATERMARK
+            && count($this->aiNameCache[$cacheKey] ?? []) < $minimumAvailable
         ) {
             $this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget);
         }
