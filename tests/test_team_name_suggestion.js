@@ -17,16 +17,16 @@ if (!/releaseConfirmedTeamName\([\s\S]*client\.releaseByName/.test(code)) {
   throw new Error('Confirmed team name release via TeamNameClient missing');
 }
 
-if (!/async function showManualInput\(\)[\s\S]*await getNameSuggestion\(\)/.test(code)) {
-  throw new Error('showManualInput does not await getNameSuggestion');
+if (!/async function showManualInput\([\s\S]*getNameSuggestion\(\)[\s\S]*\.then/.test(code)) {
+  throw new Error('showManualInput no longer updates suggestion asynchronously');
 }
 
 if (!/await confirmNameReservationIfMatching\(name\)/.test(code)) {
   throw new Error('manual submit does not confirm reservation');
 }
 
-if (!/async function promptTeamNameChange\([\s\S]*await getNameSuggestion\(\)/.test(code)) {
-  throw new Error('Team name change does not request a fresh suggestion');
+if (!/async function promptTeamNameChange\([\s\S]*getNameSuggestion\(\)[\s\S]*\.then/.test(code)) {
+  throw new Error('Team name change does not process suggestion asynchronously');
 }
 
 if (!/promptTeamNameChange[\s\S]*await confirmNameReservationIfMatching\(name\)/.test(code)) {
