@@ -161,6 +161,8 @@ async function promptTeamNameChange(existingName){
   await releaseNameReservation();
   const suggestion = await getNameSuggestion();
   const suggestionIsFallback = getLastSuggestionWasFallback();
+  const normalizedSuggestion = typeof suggestion === 'string' ? suggestion.trim() : '';
+  const normalizedSuggestionLower = normalizedSuggestion.toLowerCase();
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
@@ -180,21 +182,48 @@ async function promptTeamNameChange(existingName){
     input.id = 'team-name-input';
     input.className = 'uk-input';
     input.type = 'text';
-    input.placeholder = 'Teamname';
-    input.value = suggestion || currentName;
+    input.placeholder = normalizedSuggestion || 'Teamname';
+    input.value = normalizedExisting || currentName || '';
+    const applySuggestionBtn = document.createElement('button');
+    applySuggestionBtn.id = 'team-name-apply-suggestion';
+    applySuggestionBtn.type = 'button';
+    applySuggestionBtn.className = 'uk-button uk-button-default uk-width-1-1 uk-margin-top';
+    applySuggestionBtn.textContent = 'Vorschlag übernehmen';
+    applySuggestionBtn.disabled = !normalizedSuggestion;
     const btn = document.createElement('button');
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
     btn.textContent = 'Weiter';
     dialog.appendChild(input);
+    dialog.appendChild(applySuggestionBtn);
     dialog.appendChild(btn);
+    let suggestionApplied = false;
     let saved = false;
+    applySuggestionBtn.addEventListener('click', () => {
+      if(!normalizedSuggestion){
+        return;
+      }
+      input.value = normalizedSuggestion;
+      suggestionApplied = true;
+      if(typeof input.focus === 'function'){
+        input.focus();
+      }
+      if(typeof input.select === 'function'){
+        input.select();
+      }
+    });
+    input.addEventListener('input', () => {
+      const candidate = (input.value || '').trim().toLowerCase();
+      if(candidate !== normalizedSuggestionLower){
+        suggestionApplied = false;
+      }
+    });
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
       if(!name){
         return;
       }
-      const usingSuggestion = nameReservation && typeof nameReservation.name === 'string'
+      const usingSuggestion = suggestionApplied && nameReservation && typeof nameReservation.name === 'string'
         && name.toLowerCase() === nameReservation.name.toLowerCase();
       if(usingSuggestion){
         const confirmed = await confirmNameReservationIfMatching(name);
