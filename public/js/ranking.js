@@ -322,30 +322,31 @@ const createCard = ({ title, icon, placeText, metaText, highlight = false, label
   if (highlight) {
     card.classList.add('player-ranking-card--highlight');
   }
-  const iconWrap = document.createElement('div');
-  iconWrap.className = 'player-ranking-card__icon';
-  if (icon) {
-    const span = document.createElement('span');
-    span.setAttribute('uk-icon', `icon: ${icon}; ratio: 1.6`);
-    iconWrap.appendChild(span);
-  }
-  card.appendChild(iconWrap);
-  if (label) {
-    const labelEl = document.createElement('p');
-    labelEl.className = 'player-ranking-card__label';
-    labelEl.textContent = label;
-    card.appendChild(labelEl);
-  }
   const heading = document.createElement('h3');
   heading.className = 'player-ranking-card__title';
   if (headingId) {
     heading.id = headingId;
   }
   heading.textContent = title;
+  card.appendChild(heading);
+  if (icon) {
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'player-ranking-card__icon';
+    const span = document.createElement('span');
+    span.setAttribute('uk-icon', `icon: ${icon}; ratio: 1.6`);
+    iconWrap.appendChild(span);
+    card.appendChild(iconWrap);
+  }
+  if (label) {
+    const labelEl = document.createElement('p');
+    labelEl.className = 'player-ranking-card__label';
+    labelEl.textContent = label;
+    card.appendChild(labelEl);
+  }
   const place = document.createElement('p');
   place.className = 'player-ranking-card__place';
   place.textContent = placeText;
-  card.append(heading, place);
+  card.appendChild(place);
   if (metaText) {
     const meta = document.createElement('p');
     meta.className = 'player-ranking-card__meta';
