@@ -369,6 +369,8 @@ return [
     'tip_question_reset' => 'Discard changes to catalog',
     'tip_question_save' => 'Save question catalog',
     'tip_team_add' => 'Add new team or person',
+    'label_team_search' => 'Search teams or people',
+    'placeholder_team_search' => 'Filter by name…',
     'tip_team_save' => 'Save teams or people',
     'tip_team_pdf' => 'Open team PDF',
     'tip_invitations_open' => 'Open all invitations',

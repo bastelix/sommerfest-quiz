@@ -6222,6 +6222,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // --------- Teams/Personen ---------
+  const teamSearchInput = document.getElementById('teamSearch');
+  const teamSearchForm = document.getElementById('teamSearchForm') || teamSearchInput?.form || null;
   const teamListEl = document.getElementById('teamsList');
   const teamCardsEl = document.getElementById('teamsCards');
   const teamAddBtn = document.getElementById('teamAddBtn');
@@ -6253,6 +6255,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamDeleteConfirmBtn = document.getElementById('teamDeleteConfirm');
   const teamDeleteCancelBtn = document.getElementById('teamDeleteCancel');
   const teamDeleteModal = teamDeleteModalEl && window.UIkit ? UIkit.modal(teamDeleteModalEl) : null;
+
+  teamSearchForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    applyTeamFilter();
+  });
+
+  teamSearchInput?.addEventListener('input', () => {
+    applyTeamFilter();
+  });
 
   teamDeleteModalEl?.addEventListener('hidden', () => {
     teamDeletePendingId = null;
@@ -6389,6 +6400,9 @@ document.addEventListener('DOMContentLoaded', function () {
       onSave: list => saveTeamList(list)
     });
     teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
+    if (teamSearchInput?.value?.trim()) {
+      applyTeamFilter();
+    }
   }
 
   function saveTeamList(list = teamManager?.getData() || [], show = false, retries = 1) {
@@ -6415,6 +6429,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function reorderTeams(list) {
     saveTeamList(list);
+  }
+
+  function normalizeTeamSearchValue(value = '') {
+    if (typeof value !== 'string') {
+      return '';
+    }
+    let normalized = value.trim().toLocaleLowerCase();
+    if (!normalized) {
+      return '';
+    }
+    if (typeof normalized.normalize === 'function') {
+      normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+    return normalized;
+  }
+
+  function applyTeamFilter() {
+    if (!teamManager) {
+      return;
+    }
+    const term = normalizeTeamSearchValue(teamSearchInput?.value || '');
+    if (!term) {
+      teamManager.setFilter(null);
+      return;
+    }
+    teamManager.setFilter(item => normalizeTeamSearchValue(item?.name || '').includes(term));
   }
 
   function formatTeamDeleteMessage(name) {
