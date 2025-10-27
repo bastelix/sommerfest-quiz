@@ -207,6 +207,7 @@ async function promptTeamNameChange(existingName){
     btn.textContent = 'Weiter';
     dialog.appendChild(input);
     dialog.appendChild(btn);
+    let modalClosed = false;
     const requestSuggestionUpdate = async () => {
       if (refreshBtn.disabled) {
         return;
@@ -217,6 +218,10 @@ async function promptTeamNameChange(existingName){
         const previousSuggestion = lastSuggestedValue;
         await releaseNameReservation();
         const nextSuggestion = await getNameSuggestion();
+        if (modalClosed) {
+          await releaseNameReservation();
+          return;
+        }
         suggestion = nextSuggestion;
         suggestionIsFallback = getLastSuggestionWasFallback();
         lastSuggestedValue = typeof nextSuggestion === 'string' ? nextSuggestion : '';
@@ -327,6 +332,7 @@ async function promptTeamNameChange(existingName){
       if(typeof input.select === 'function') input.select();
     });
     UIkit.util.on(modal, 'hidden', () => {
+      modalClosed = true;
       if(!saved){
         releaseNameReservation();
       }
