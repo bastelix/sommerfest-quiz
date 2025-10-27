@@ -25,8 +25,8 @@ if (!/await confirmNameReservationIfMatching\(name\)/.test(code)) {
   throw new Error('manual submit does not confirm reservation');
 }
 
-if (!/async function promptTeamNameChange\([\s\S]*getNameSuggestion\(\)[\s\S]*\.then/.test(code)) {
-  throw new Error('Team name change does not process suggestion asynchronously');
+if (!/async function promptTeamNameChange\([\s\S]*async function loadSuggestion\([\s\S]*await getNameSuggestion\(\)/.test(code)) {
+  throw new Error('Team name change does not await suggestion retrieval');
 }
 
 if (!/promptTeamNameChange[\s\S]*await confirmNameReservationIfMatching\(name\)/.test(code)) {
@@ -37,8 +37,16 @@ if (!/team-name-apply-suggestion/.test(code)) {
   throw new Error('Team name change is missing the suggestion apply action');
 }
 
+if (!/team-name-refresh-suggestion/.test(code)) {
+  throw new Error('Team name change is missing the refresh action');
+}
+
 if (!/suggestionApplied && nameReservation/.test(code)) {
   throw new Error('Team name change no longer guards confirmation by explicit adoption');
+}
+
+if (!/previousInputValue === previousSuggestionValue/.test(code)) {
+  throw new Error('Team name change no longer protects manual entries');
 }
 
 console.log('ok');

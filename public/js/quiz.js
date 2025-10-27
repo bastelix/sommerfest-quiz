@@ -186,18 +186,26 @@ async function promptTeamNameChange(existingName){
     applySuggestionBtn.className = 'uk-button uk-button-default uk-width-1-1 uk-margin-top';
     applySuggestionBtn.textContent = 'Vorschlag übernehmen';
     applySuggestionBtn.disabled = true;
+    const refreshSuggestionBtn = document.createElement('button');
+    refreshSuggestionBtn.id = 'team-name-refresh-suggestion';
+    refreshSuggestionBtn.type = 'button';
+    refreshSuggestionBtn.className = 'uk-button uk-button-default uk-width-1-1 uk-margin-top';
+    refreshSuggestionBtn.textContent = 'Neuen Vorschlag laden';
+    refreshSuggestionBtn.disabled = true;
     const btn = document.createElement('button');
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
     btn.textContent = 'Weiter';
     dialog.appendChild(input);
     dialog.appendChild(applySuggestionBtn);
+    dialog.appendChild(refreshSuggestionBtn);
     dialog.appendChild(btn);
     let suggestionApplied = false;
     let saved = false;
     let modalClosed = false;
     let normalizedSuggestion = '';
     let normalizedSuggestionLower = '';
+    let suggestionRequestId = 0;
     applySuggestionBtn.addEventListener('click', () => {
       if(!normalizedSuggestion){
         return;
@@ -217,9 +225,30 @@ async function promptTeamNameChange(existingName){
         suggestionApplied = false;
       }
     });
-    const suggestionPromise = getNameSuggestion();
-    suggestionPromise.then(suggestion => {
-      if(modalClosed){
+    async function loadSuggestion(autoApplyForMatchingInput){
+      const requestId = ++suggestionRequestId;
+      const previousSuggestionValue = normalizedSuggestion;
+      const previousInputValue = (input.value || '').trim();
+      refreshSuggestionBtn.disabled = true;
+      applySuggestionBtn.disabled = true;
+      input.placeholder = 'Teamname wird geladen …';
+      sugg.textContent = ' (Vorschlag wird geladen …)';
+      try{
+        await releaseNameReservation();
+      }catch(e){
+        /* empty */
+      }
+      let suggestion;
+      try{
+        suggestion = await getNameSuggestion();
+      }catch(e){
+        if(modalClosed || requestId !== suggestionRequestId){
+          return;
+        }
+        handleSuggestionError();
+        return;
+      }
+      if(modalClosed || requestId !== suggestionRequestId){
         return;
       }
       const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
@@ -233,20 +262,46 @@ async function promptTeamNameChange(existingName){
         sugg.textContent = ' (Kein Vorschlag verfügbar)';
       }
       input.placeholder = normalized || 'Teamname';
+      if(autoApplyForMatchingInput && previousSuggestionValue && previousInputValue === previousSuggestionValue && normalized){
+        input.value = normalized;
+        suggestionApplied = true;
+        if(typeof input.focus === 'function'){
+          input.focus();
+        }
+        if(typeof input.select === 'function'){
+          input.select();
+        }
+      }else{
+        const currentLower = (input.value || '').trim().toLowerCase();
+        if(!normalizedSuggestionLower || currentLower !== normalizedSuggestionLower){
+          suggestionApplied = false;
+        }
+      }
       applySuggestionBtn.disabled = !normalized;
-      if(!normalizedSuggestionLower || (input.value || '').trim().toLowerCase() !== normalizedSuggestionLower){
-        suggestionApplied = false;
-      }
-    }).catch(() => {
-      if(modalClosed){
-        return;
-      }
+      refreshSuggestionBtn.disabled = false;
+    }
+    function handleSuggestionError(){
       normalizedSuggestion = '';
       normalizedSuggestionLower = '';
       sugg.textContent = ' (Vorschlag konnte nicht geladen werden)';
       input.placeholder = 'Teamname';
       applySuggestionBtn.disabled = true;
+      refreshSuggestionBtn.disabled = false;
       suggestionApplied = false;
+    }
+    loadSuggestion(false).catch(() => {
+      if(modalClosed){
+        return;
+      }
+      handleSuggestionError();
+    });
+    refreshSuggestionBtn.addEventListener('click', () => {
+      loadSuggestion(true).catch(() => {
+        if(modalClosed){
+          return;
+        }
+        handleSuggestionError();
+      });
     });
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
