@@ -43,6 +43,7 @@ class TeamNameService
      */
     private const AI_MAX_ATTEMPTS = 2;
     private const DEFAULT_LOCALE = 'de';
+    private const AI_LOW_WATERMARK = 10;
     private const RANDOM_NAME_STRATEGY_AI = 'ai';
     private const RANDOM_NAME_STRATEGY_LEXICON = 'lexicon';
 
@@ -80,6 +81,8 @@ class TeamNameService
     private string $defaultLocale;
 
     private TeamNameAiCacheRepository $aiCacheRepository;
+
+    private ?TeamNameWarmupDispatcher $teamNameWarmupDispatcher;
 
     /**
      * Tracks events whose AI caches were hydrated from persistent storage.
@@ -129,7 +132,8 @@ class TeamNameService
         int $reservationTtlSeconds = 600,
         ?TeamNameAiClient $aiClient = null,
         bool $enableAi = true,
-        ?string $defaultLocale = null
+        ?string $defaultLocale = null,
+        ?TeamNameWarmupDispatcher $teamNameWarmupDispatcher = null
     ) {
         $this->pdo = $pdo;
         $this->aiCacheRepository = $aiCacheRepository;
@@ -138,6 +142,7 @@ class TeamNameService
         $this->aiEnabled = $enableAi && $aiClient !== null;
         $locale = trim((string) ($defaultLocale ?? ''));
         $this->defaultLocale = $locale === '' ? self::DEFAULT_LOCALE : $locale;
+        $this->teamNameWarmupDispatcher = $teamNameWarmupDispatcher;
         $this->loadLexicon($lexiconPath);
     }
 
@@ -487,12 +492,38 @@ class TeamNameService
         $promptTones = $this->preparePromptValues($tones);
 
         $targetSize = max(1, max($count, $buffer));
+        $warmupTarget = max(self::AI_LOW_WATERMARK, $buffer);
+        $scheduledWarmup = false;
+
         $this->loadAiCacheForEvent($eventId);
-        $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
 
         $available = $this->aiNameCache[$cacheKey] ?? [];
         if ($available === []) {
-            return [];
+            if ($this->teamNameWarmupDispatcher !== null) {
+                if ($this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
+                    $scheduledWarmup = true;
+                }
+
+                return [];
+            }
+
+            $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
+            $available = $this->aiNameCache[$cacheKey] ?? [];
+            if ($available === []) {
+                return [];
+            }
+        } elseif ($this->teamNameWarmupDispatcher !== null) {
+            if (count($available) < self::AI_LOW_WATERMARK) {
+                if ($this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
+                    $scheduledWarmup = true;
+                }
+            }
+        } elseif (count($available) < $targetSize) {
+            $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $targetSize);
+            $available = $this->aiNameCache[$cacheKey] ?? [];
+            if ($available === []) {
+                return [];
+            }
         }
 
         $selection = array_splice($this->aiNameCache[$cacheKey], 0, min($count, count($available)));
@@ -502,10 +533,47 @@ class TeamNameService
         }
 
         if ($buffer > 0) {
-            $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $buffer);
+            if ($this->teamNameWarmupDispatcher !== null) {
+                if (!$scheduledWarmup && $this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget)) {
+                    $scheduledWarmup = true;
+                }
+            } else {
+                $this->fillAiCache($cacheKey, $eventId, $promptDomains, $promptTones, $resolvedLocale, $buffer);
+            }
+        }
+
+        if (
+            $this->teamNameWarmupDispatcher !== null
+            && !$scheduledWarmup
+            && count($this->aiNameCache[$cacheKey] ?? []) < self::AI_LOW_WATERMARK
+        ) {
+            $this->dispatchAiWarmup($eventId, $promptDomains, $promptTones, $locale, $resolvedLocale, $warmupTarget);
         }
 
         return $selection;
+    }
+
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     */
+    private function dispatchAiWarmup(
+        string $eventId,
+        array $domains,
+        array $tones,
+        ?string $originalLocale,
+        string $resolvedLocale,
+        int $count
+    ): bool {
+        if ($this->teamNameWarmupDispatcher === null || $eventId === '' || $count <= 0) {
+            return false;
+        }
+
+        $locale = $originalLocale !== null && trim($originalLocale) !== '' ? $originalLocale : $resolvedLocale;
+
+        $this->teamNameWarmupDispatcher->dispatchWarmup($eventId, $domains, $tones, $locale, $count);
+
+        return true;
     }
 
     /**

@@ -67,6 +67,7 @@ try {
         600,
         $teamNameAiClient,
         $teamNameAiEnabled,
+        null,
         null
     );
 
