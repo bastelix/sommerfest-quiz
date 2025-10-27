@@ -412,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const nameEl = document.getElementById('rankingPlayerName');
   const statusEl = document.getElementById('rankingStatus');
   const warningEl = document.getElementById('rankingWarning');
+  const highlightsContainer = document.getElementById('rankingHighlights');
   const cardsContainer = document.getElementById('rankingCards');
   const emptyEl = document.getElementById('rankingEmpty');
   const updatedEl = document.getElementById('rankingUpdatedAt');
@@ -752,6 +753,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const renderRanking = (payload) => {
     if (!cardsContainer || !topLists) return;
+    if (highlightsContainer) {
+      highlightsContainer.innerHTML = '';
+    }
     cardsContainer.innerHTML = '';
     topLists.innerHTML = '';
     if (emptyEl) emptyEl.hidden = true;
@@ -804,13 +808,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (Number.isFinite(rankingInfo.points.avg)) {
       pointsMetaParts.push(`Ø ${formatEfficiencyPercent(rankingInfo.points.avg)}`);
     }
-    cards.push(createCard({
+    const highscoreCard = createCard({
       title: 'Highscore',
       icon: 'trophy',
       placeText: formatPlace(rankingInfo.points, 'Noch keine Punktewertung'),
       metaText: pointsMetaParts.join(' · '),
       highlight: rankingInfo.points.place === 1,
-    }));
+    });
 
     if (hasMultipleCatalogs) {
       cards.push(createCard({
@@ -836,9 +840,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }));
     }
 
+    if (highlightsContainer) {
+      highlightsContainer.appendChild(highscoreCard);
+    } else {
+      cardsContainer.appendChild(highscoreCard);
+    }
+
     cards.forEach((card) => cardsContainer.appendChild(card));
 
-    if (cardsContainer.children.length === 0 && emptyEl) {
+    if (
+      cardsContainer.children.length === 0 &&
+      (!highlightsContainer || highlightsContainer.children.length === 0) &&
+      emptyEl
+    ) {
       emptyEl.hidden = false;
     }
 
@@ -846,27 +860,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const topCatalog = (rankingInfo.lists.catalog || []).slice(0, 5);
     const topPuzzle = (rankingInfo.lists.puzzle || []).slice(0, 5);
 
-    const listsToRender = [
-      {
-        title: 'Top Punkte',
-        icon: 'trophy',
-        items: topPoints.map((entry) => ({
-          name: entry.name,
-          value: entry.points,
-          avg: entry.avg,
-        })),
-        formatter: (entry) => {
-          const parts = [];
-          if (Number.isFinite(entry.value)) {
-            parts.push(`${entry.value} Punkte`);
-          }
-          if (Number.isFinite(entry.avg)) {
-            parts.push(`Ø ${formatEfficiencyPercent(entry.avg)}`);
-          }
-          return parts.join(' · ');
-        },
+    const topPointsConfig = {
+      title: 'Top Punkte',
+      icon: 'trophy',
+      items: topPoints.map((entry) => ({
+        name: entry.name,
+        value: entry.points,
+        avg: entry.avg,
+      })),
+      formatter: (entry) => {
+        const parts = [];
+        if (Number.isFinite(entry.value)) {
+          parts.push(`${entry.value} Punkte`);
+        }
+        if (Number.isFinite(entry.avg)) {
+          parts.push(`Ø ${formatEfficiencyPercent(entry.avg)}`);
+        }
+        return parts.join(' · ');
       },
-    ];
+    };
+
+    const listsToRender = [];
 
     if (hasMultipleCatalogs) {
       listsToRender.push({
@@ -886,7 +900,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    listsToRender.forEach((config) => {
+    const appendTopList = (config, target) => {
+      if (!target) {
+        return;
+      }
       const normalizedItems = (config.items || []).map((item) => ({
         name: item.name,
         time: item.time,
@@ -908,7 +925,17 @@ document.addEventListener('DOMContentLoaded', () => {
           return '';
         },
       });
-      topLists.appendChild(listNode);
+      target.appendChild(listNode);
+    };
+
+    if (highlightsContainer) {
+      appendTopList(topPointsConfig, highlightsContainer);
+    } else {
+      appendTopList(topPointsConfig, topLists);
+    }
+
+    listsToRender.forEach((config) => {
+      appendTopList(config, topLists);
     });
 
     if (updatedEl) {
@@ -923,6 +950,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!sanitizedName) {
       if (cardsContainer) {
         cardsContainer.innerHTML = '';
+      }
+      if (highlightsContainer) {
+        highlightsContainer.innerHTML = '';
       }
       if (topLists) {
         topLists.innerHTML = '';
