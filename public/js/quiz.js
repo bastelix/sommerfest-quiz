@@ -220,6 +220,7 @@ async function promptTeamNameChange(existingName){
     const suggestionPromise = getNameSuggestion();
     suggestionPromise.then(suggestion => {
       if(modalClosed){
+        releaseNameReservation();
         return;
       }
       const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
@@ -239,6 +240,7 @@ async function promptTeamNameChange(existingName){
       }
     }).catch(() => {
       if(modalClosed){
+        releaseNameReservation();
         return;
       }
       normalizedSuggestion = '';
@@ -330,6 +332,9 @@ async function promptTeamNameChange(existingName){
     UIkit.util.on(modal, 'shown', () => {
       if(typeof input.focus === 'function') input.focus();
       if(typeof input.select === 'function') input.select();
+    });
+    UIkit.util.on(modal, 'hide', () => {
+      modalClosed = true;
     });
     UIkit.util.on(modal, 'hidden', () => {
       modalClosed = true;
@@ -444,6 +449,7 @@ async function promptTeamName(){
     const suggestionPromise = getNameSuggestion();
     suggestionPromise.then(suggestion => {
       if(modalClosed){
+        releaseNameReservation();
         return;
       }
       const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
@@ -460,6 +466,7 @@ async function promptTeamName(){
       }
     }).catch(() => {
       if(modalClosed){
+        releaseNameReservation();
         return;
       }
       sugg.textContent = ' (Vorschlag konnte nicht geladen werden)';
@@ -545,6 +552,9 @@ async function promptTeamName(){
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
+    UIkit.util.on(modal, 'hide', () => {
+      modalClosed = true;
+    });
     UIkit.util.on(modal, 'hidden', () => {
       modalClosed = true;
       modal.remove();
@@ -2029,6 +2039,7 @@ async function runQuiz(questions, skipIntro){
         const suggestionPromise = getNameSuggestion();
         suggestionPromise.then(suggestion => {
           if(manualInputClosed || renderId !== manualInputRenderId || !container.isConnected){
+            releaseNameReservation();
             return;
           }
           const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
@@ -2041,6 +2052,7 @@ async function runQuiz(questions, skipIntro){
           }
         }).catch(() => {
           if(manualInputClosed || renderId !== manualInputRenderId || !container.isConnected){
+            releaseNameReservation();
             return;
           }
           hint.textContent = 'Vorschlag konnte nicht geladen werden.';
