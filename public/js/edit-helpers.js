@@ -6,6 +6,8 @@ export function createCellEditor(manager, {
   getTitle = () => '',
   getType = () => 'text',
   validate = () => true,
+  getList = () => manager.getData(),
+  setList = list => manager.render(list),
   onSave = () => {}
 } = {}) {
   const modalEl = document.querySelector(modalSelector);
@@ -48,11 +50,11 @@ export function createCellEditor(manager, {
   saveBtn.addEventListener('click', () => {
     const val = input.value.trim();
     if (!validate(val, currentKey, input)) return;
-    const list = manager.getData();
+    const list = getList();
     const item = list.find(it => it.id === currentId);
     if (item && currentKey) {
       item[currentKey] = val;
-      manager.render(list);
+      setList(list);
       onSave(list, item, currentKey);
     }
     modal.hide();
@@ -62,7 +64,8 @@ export function createCellEditor(manager, {
     open(cell) {
       currentId = cell?.dataset.id || null;
       currentKey = cell?.dataset.key || null;
-      const item = manager.getData().find(it => it.id === currentId) || {};
+      const list = getList();
+      const item = list.find(it => it.id === currentId) || {};
       input.type = getType(currentKey, item);
       input.value = item[currentKey] || '';
       if (titleEl) {

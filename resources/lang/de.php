@@ -61,6 +61,8 @@ return [
     'heading_news_edit' => 'News-Eintrag bearbeiten',
     'heading_team_edit' => 'Team bearbeiten',
     'heading_delete_all_teams' => 'Alle Teams löschen',
+    'label_team_search' => 'Teams oder Personen suchen',
+    'placeholder_team_search' => 'Team oder Person suchen',
     'heading_results' => 'Ergebnisse',
     'label_results_frontend_link' => 'Frontend-Ergebnislink',
     'action_results_open_frontend' => 'Frontend-Ergebnisse öffnen',

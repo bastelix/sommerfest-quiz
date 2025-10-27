@@ -58,6 +58,8 @@ return [
     'heading_teams' => 'Teams/People',
     'heading_team_edit' => 'Edit team',
     'heading_delete_all_teams' => 'Delete all teams',
+    'label_team_search' => 'Search teams or people',
+    'placeholder_team_search' => 'Search team or person',
     'heading_results' => 'Results',
     'label_results_frontend_link' => 'Frontend results link',
     'action_results_open_frontend' => 'Open frontend results',

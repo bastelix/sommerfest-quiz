@@ -6229,6 +6229,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamDeleteAllConfirmBtn = document.getElementById('teamDeleteAllConfirm');
   const teamDeleteAllModal = window.UIkit ? UIkit.modal('#teamDeleteAllModal') : null;
   const teamRestrictTeams = document.getElementById('teamRestrict');
+  const teamSearchInput = document.getElementById('teamSearchInput');
 
   if (!document.getElementById('teamEditModal')) {
     const modal = document.createElement('div');
@@ -6256,9 +6257,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
   let teamManager;
   let teamEditor;
+  let teamData = [];
+
+  function renderTeamView({ resetPage = false, targetPage = null } = {}) {
+    if (!teamManager) {
+      return;
+    }
+    const query = (teamSearchInput?.value || '').trim().toLowerCase();
+    const filtered = query === ''
+      ? teamData
+      : teamData.filter(team => (team.name || '').toLowerCase().includes(query));
+
+    if (teamManager.pagination) {
+      const totalItems = filtered.length;
+      const maxPage = Math.max(1, Math.ceil((totalItems || 1) / TEAMS_PER_PAGE));
+      if (targetPage !== null) {
+        const clamped = Math.min(Math.max(1, targetPage), maxPage);
+        teamManager.pagination.page = clamped;
+      } else if (resetPage) {
+        teamManager.pagination.page = 1;
+      } else if (teamManager.pagination.page > maxPage) {
+        teamManager.pagination.page = maxPage;
+      }
+    }
+
+    teamManager.render(filtered);
+    teamManager.data = teamData;
+  }
+
+  function handleTeamReorder() {
+    if (!teamManager) {
+      return;
+    }
+    if ((teamSearchInput?.value || '').trim() !== '') {
+      renderTeamView({ resetPage: false });
+      return;
+    }
+
+    const rows = teamListEl ? Array.from(teamListEl.children) : [];
+    const cards = teamCardsEl ? Array.from(teamCardsEl.children) : [];
+    const elements = rows.length >= cards.length ? rows : cards;
+    const map = new Map(teamData.map(item => [String(item.id), item]));
+    const ordered = elements
+      .map(el => map.get(String(el.dataset?.id || el.getAttribute?.('data-id'))))
+      .filter(Boolean);
+    if (ordered.length === teamData.length) {
+      teamData = ordered;
+      renderTeamView({ resetPage: false });
+      saveTeamList(teamData);
+    }
+  }
 
   registerCacheReset(() => {
-    teamManager?.render([]);
+    teamData = [];
+    if (teamSearchInput) {
+      teamSearchInput.value = '';
+    }
+    if (teamManager) {
+      renderTeamView({ resetPage: true });
+    }
     if (teamRestrictTeams) {
       teamRestrictTeams.checked = false;
     }
@@ -6321,7 +6378,7 @@ document.addEventListener('DOMContentLoaded', function () {
         teamEditError.hidden = true;
         teamEditor.open(cell);
       },
-      onReorder: () => reorderTeams(teamManager.getData())
+      onReorder: () => handleTeamReorder()
     });
     teamEditor = createCellEditor(teamManager, {
       modalSelector: '#teamEditModal',
@@ -6337,13 +6394,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return true;
       },
-      onSave: list => saveTeamList(list)
+      getList: () => teamData,
+      setList: list => {
+        teamData = list;
+        renderTeamView({ resetPage: false });
+      },
+      onSave: () => saveTeamList(teamData)
     });
     teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
+    teamSearchInput?.addEventListener('input', () => {
+      renderTeamView({ resetPage: true });
+    });
   }
 
-  function saveTeamList(list = teamManager?.getData() || [], show = false, retries = 1) {
-    const names = list.map(t => t.name);
+  function saveTeamList(list = teamData, show = false, retries = 1) {
+    const source = Array.isArray(list) ? list : teamData;
+    const names = source.map(t => t.name);
     apiFetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -6357,23 +6423,18 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error(err);
         if (retries > 0) {
           notify('Fehler beim Speichern, versuche es erneut …', 'warning');
-          setTimeout(() => saveTeamList(list, show, retries - 1), 1000);
+          setTimeout(() => saveTeamList(source, show, retries - 1), 1000);
         } else {
           notify('Fehler beim Speichern', 'danger');
         }
       });
   }
 
-  function reorderTeams(list) {
-    saveTeamList(list);
-  }
-
   function deleteAllTeams() {
     if (!teamManager) {
       return;
     }
-    const items = teamManager.getData();
-    if (!items.length) {
+    if (!teamData.length) {
       notify(window.transTeamDeleteAllEmpty || 'No teams available', 'warning');
       return;
     }
@@ -6384,7 +6445,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!r.ok) {
           throw new Error(r.statusText || `HTTP ${r.status}`);
         }
-        teamManager.render([]);
+        teamData = [];
+        renderTeamView({ resetPage: true });
         if (teamRestrictTeams) {
           teamRestrictTeams.checked = false;
         }
@@ -6412,12 +6474,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function removeTeam(id) {
-    const list = teamManager.getData();
-    const idx = list.findIndex(t => t.id === id);
+    const idx = teamData.findIndex(t => t.id === id);
     if (idx !== -1) {
-      list.splice(idx, 1);
-      teamManager.render(list);
-      saveTeamList(list);
+      teamData.splice(idx, 1);
+      renderTeamView({ resetPage: false });
+      saveTeamList(teamData);
     }
   }
 
@@ -6431,8 +6492,8 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch('/teams.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
-        const list = data.map(n => ({ id: crypto.randomUUID(), name: n }));
-        teamManager.render(list);
+        teamData = data.map(n => ({ id: crypto.randomUUID(), name: n }));
+        renderTeamView({ resetPage: true });
       })
       .catch(() => {})
       .finally(() => teamManager.setColumnLoading('name', false));
@@ -6450,7 +6511,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!teamManager) {
       return;
     }
-    if (teamManager.getData().length === 0) {
+    if (teamData.length === 0) {
       notify(window.transTeamDeleteAllEmpty || 'No teams available', 'warning');
       return;
     }
@@ -6472,12 +6533,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!teamManager) return;
     const id = crypto.randomUUID();
     const team = { id, name: '' };
-    const list = teamManager.getData();
-    list.push(team);
-    if (teamManager.pagination) {
-      teamManager.pagination.page = Math.max(1, Math.ceil(list.length / TEAMS_PER_PAGE));
+    teamData.push(team);
+    if (teamSearchInput && teamSearchInput.value.trim() !== '') {
+      teamSearchInput.value = '';
     }
-    teamManager.render(list);
+    const targetPage = teamManager.pagination
+      ? Math.max(1, Math.ceil(teamData.length / TEAMS_PER_PAGE))
+      : null;
+    renderTeamView({ targetPage });
     const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
     if (cell) {
       teamEditError.hidden = true;
