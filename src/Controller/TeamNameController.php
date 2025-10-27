@@ -152,9 +152,13 @@ class TeamNameController
         $strategy = $this->resolveRandomNameStrategy($config);
 
         $diagnostics = $this->service->getAiDiagnostics();
+        $cache = $this->service->getAiCacheState($eventId);
         $required = $strategy === 'ai';
         $diagnostics['required_for_event'] = $required;
         $diagnostics['active_for_event'] = $required && !empty($diagnostics['available']);
+        $diagnostics['cache'] = $cache;
+
+        $lexicon = $this->service->getLexiconInventory($eventId, $domains, $tones);
 
         $payload = [
             'event_id' => $eventId,
@@ -164,6 +168,7 @@ class TeamNameController
             'domains' => $domains,
             'tones' => $tones,
             'ai' => $diagnostics,
+            'lexicon' => $lexicon,
         ];
 
         $response->getBody()->write(json_encode($payload));

@@ -756,6 +756,36 @@ class TeamNameService
         return $state;
     }
 
+    /**
+     * @param array<int, string> $domains
+     * @param array<int, string> $tones
+     *
+     * @return array{total: int, reserved: int, available: int}
+     */
+    public function getLexiconInventory(string $eventId, array $domains = [], array $tones = []): array
+    {
+        if ($eventId === '') {
+            return [
+                'total' => 0,
+                'reserved' => 0,
+                'available' => 0,
+            ];
+        }
+
+        $this->releaseExpiredReservations($eventId);
+
+        $selection = $this->getNameSelection($domains, $tones);
+        $total = max(0, (int) ($selection['total'] ?? 0));
+        $reserved = max(0, $this->countActiveAssignments($eventId));
+        $available = max(0, $total - $reserved);
+
+        return [
+            'total' => $total,
+            'reserved' => $reserved,
+            'available' => $available,
+        ];
+    }
+
     private function canUseAi(): bool
     {
         return $this->aiEnabled && $this->aiClient !== null;

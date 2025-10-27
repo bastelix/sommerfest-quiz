@@ -706,6 +706,35 @@ final class TeamNameServiceTest extends TestCase
         }
     }
 
+    public function testGetLexiconInventoryReturnsRemainingCounts(): void
+    {
+        $pdo = $this->createInMemoryDatabase();
+        $lexiconPath = $this->createLexicon(['Alpha', 'Beta'], ['Lion', 'Tiger']);
+
+        try {
+            $service = new TeamNameService(
+                $pdo,
+                $lexiconPath,
+                new TeamNameAiCacheRepository($pdo),
+                120,
+                null,
+                true,
+                null
+            );
+
+            $service->reserve('event-stock');
+            $service->reserve('event-stock');
+
+            $inventory = $service->getLexiconInventory('event-stock');
+
+            self::assertSame(4, $inventory['total']);
+            self::assertSame(2, $inventory['reserved']);
+            self::assertSame(2, $inventory['available']);
+        } finally {
+            @unlink($lexiconPath);
+        }
+    }
+
     public function testPersistentAiCacheRestoredAcrossServiceInstances(): void
     {
         $pdo = $this->createInMemoryDatabase();
