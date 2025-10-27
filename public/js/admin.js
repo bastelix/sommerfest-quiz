@@ -1532,6 +1532,8 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
+    renderRandomNameCache(payload?.ai?.cache || null);
+
     const cacheTotalRaw = payload?.ai?.cache?.total;
     const cacheTotal = Number.isFinite(Number(cacheTotalRaw)) ? Number(cacheTotalRaw) : 0;
     const aiMessage = cacheTotal > 0
