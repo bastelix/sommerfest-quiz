@@ -159,8 +159,9 @@ async function promptTeamNameChange(existingName){
   const currentName = typeof existingName === 'string' ? existingName : getStored('quizUser') || '';
   const normalizedExisting = typeof currentName === 'string' ? currentName.trim() : '';
   await releaseNameReservation();
-  const suggestion = await getNameSuggestion();
-  const suggestionIsFallback = getLastSuggestionWasFallback();
+  let suggestion = await getNameSuggestion();
+  let suggestionIsFallback = getLastSuggestionWasFallback();
+  let lastSuggestedValue = typeof suggestion === 'string' ? suggestion : '';
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
@@ -173,9 +174,27 @@ async function promptTeamNameChange(existingName){
     title.textContent = 'Teamname ändern';
     const sugg = document.createElement('span');
     sugg.className = 'uk-text-muted';
-    sugg.textContent = suggestionIsFallback ? ` (Vorschlag: ${suggestion} – Zufallsname)` : ` (Vorschlag: ${suggestion})`;
+    const setSuggestionLabel = () => {
+      const value = typeof suggestion === 'string' ? suggestion : '';
+      if (!value) {
+        sugg.textContent = '';
+        return;
+      }
+      sugg.textContent = suggestionIsFallback
+        ? ` (Vorschlag: ${value} – Zufallsname)`
+        : ` (Vorschlag: ${value})`;
+    };
+    setSuggestionLabel();
     title.appendChild(sugg);
     dialog.appendChild(title);
+    const refreshWrapper = document.createElement('div');
+    refreshWrapper.className = 'uk-text-right uk-margin-small-bottom';
+    const refreshBtn = document.createElement('button');
+    refreshBtn.type = 'button';
+    refreshBtn.className = 'uk-button uk-button-default uk-button-small';
+    refreshBtn.textContent = 'Aktualisieren';
+    refreshWrapper.appendChild(refreshBtn);
+    dialog.appendChild(refreshWrapper);
     const input = document.createElement('input');
     input.id = 'team-name-input';
     input.className = 'uk-input';
@@ -188,6 +207,41 @@ async function promptTeamNameChange(existingName){
     btn.textContent = 'Weiter';
     dialog.appendChild(input);
     dialog.appendChild(btn);
+    const requestSuggestionUpdate = async () => {
+      if (refreshBtn.disabled) {
+        return;
+      }
+      refreshBtn.disabled = true;
+      refreshBtn.setAttribute('aria-busy', 'true');
+      try {
+        const previousSuggestion = lastSuggestedValue;
+        await releaseNameReservation();
+        const nextSuggestion = await getNameSuggestion();
+        suggestion = nextSuggestion;
+        suggestionIsFallback = getLastSuggestionWasFallback();
+        lastSuggestedValue = typeof nextSuggestion === 'string' ? nextSuggestion : '';
+        setSuggestionLabel();
+        const normalizedPrevious = (previousSuggestion || '').toString().trim().toLowerCase();
+        const normalizedInput = (input.value || '').toString().trim().toLowerCase();
+        if (!normalizedInput || normalizedInput === normalizedPrevious) {
+          input.value = nextSuggestion || '';
+          if (typeof input.focus === 'function') {
+            input.focus();
+          }
+          if (typeof input.select === 'function') {
+            input.select();
+          }
+        }
+      } catch (error) {
+        console.error('Refreshing team name suggestion failed', error);
+      } finally {
+        refreshBtn.disabled = false;
+        refreshBtn.removeAttribute('aria-busy');
+      }
+    };
+    refreshBtn.addEventListener('click', () => {
+      requestSuggestionUpdate();
+    });
     let saved = false;
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
