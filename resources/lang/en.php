@@ -482,6 +482,7 @@ return [
     'label_event_current' => 'Current event',
     'label_event_select' => 'Select event',
     'placeholder_event_search' => 'Search',
+    'placeholder_results_search' => 'Search results',
     'placeholder_statistics_search' => 'Search answers',
     'label_catalogs' => 'Catalogs',
     'label_questions' => 'Questions',

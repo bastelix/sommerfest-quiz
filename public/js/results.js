@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('resultsRefreshBtn');
   const grid = document.getElementById('rankingGrid');
   const pagination = document.getElementById('resultsPagination');
+  const filterInput = document.getElementById('resultsFilter');
+  const filterSuggestions = document.getElementById('resultsFilterList');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const params = new URLSearchParams(window.location.search);
@@ -55,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const PAGE_SIZE = 10;
   let resultsData = [];
+  let filteredResults = [];
   let currentPage = 1;
 
   function sanitizePageNumber(num, total) {
@@ -169,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
               e.preventDefault();
               rotatePhoto(r.photo, img, a);
             });
+            btn.dataset.rotateListenerAttached = '1';
 
             a.appendChild(img);
             wrap.appendChild(a);
@@ -180,6 +184,26 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
+    });
+  }
+
+  function updateFilterSuggestions() {
+    if (!filterSuggestions) return;
+    const names = Array.from(new Set(
+      resultsData
+        .map(r => {
+          if (!r) return '';
+          if (typeof r.name === 'string') return r.name.trim();
+          if (r.name !== undefined && r.name !== null) return String(r.name).trim();
+          return '';
+        })
+        .filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    filterSuggestions.innerHTML = '';
+    names.forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      filterSuggestions.appendChild(option);
     });
   }
 
@@ -211,19 +235,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function renderPage(page) {
-    const total = Math.ceil(resultsData.length / PAGE_SIZE) || 1;
-    page = sanitizePageNumber(page, total);
-    const start = (page - 1) * PAGE_SIZE;
-    const slice = resultsData.slice(start, start + PAGE_SIZE);
+    const total = Math.ceil(filteredResults.length / PAGE_SIZE);
+    const safeTotal = total > 0 ? total : 0;
+    const nextPage = sanitizePageNumber(page, safeTotal);
+    const start = (nextPage - 1) * PAGE_SIZE;
+    const slice = filteredResults.slice(start, start + PAGE_SIZE);
     renderTable(slice);
-    currentPage = page;
+    currentPage = nextPage;
+    initRotateButtons();
+    refreshLightboxes();
   }
 
   function updatePagination() {
     if (!pagination) return;
-    const total = Math.ceil(resultsData.length / PAGE_SIZE);
-    if (total <= 1) { pagination.textContent = ''; return; }
-    pagination.textContent = '';
+    const total = Math.ceil(filteredResults.length / PAGE_SIZE);
+    pagination.innerHTML = '';
+    pagination.classList.toggle('uk-hidden', total <= 1);
+    if (total <= 1) {
+      currentPage = sanitizePageNumber(1, total);
+      return;
+    }
     currentPage = sanitizePageNumber(currentPage, total);
     const prevLi = document.createElement('li');
     if (currentPage === 1) prevLi.classList.add('uk-disabled');
@@ -253,6 +284,24 @@ document.addEventListener('DOMContentLoaded', () => {
     nextA.textContent = '»';
     nextLi.appendChild(nextA);
     pagination.appendChild(nextLi);
+  }
+
+  function applyFilter() {
+    const query = filterInput && filterInput.value
+      ? filterInput.value.trim().toLowerCase()
+      : '';
+    if (!query) {
+      filteredResults = resultsData.slice();
+    } else {
+      filteredResults = resultsData.filter(row => {
+        if (!row || row.name === undefined || row.name === null) return false;
+        const value = typeof row.name === 'string' ? row.name : String(row.name);
+        return value.toLowerCase().includes(query);
+      });
+    }
+    currentPage = 1;
+    updatePagination();
+    renderPage(currentPage);
   }
 
   function renderRankings(rankings, options = {}) {
@@ -370,9 +419,16 @@ document.addEventListener('DOMContentLoaded', () => {
       tr.appendChild(td);
       wrongBody.appendChild(tr);
     }
-    if (pagination) {
-      pagination.textContent = '';
+    if (filterInput) {
+      filterInput.value = '';
     }
+    if (filterSuggestions) {
+      filterSuggestions.innerHTML = '';
+    }
+    resultsData = [];
+    filteredResults = [];
+    currentPage = 1;
+    updatePagination();
   }
 
   const getCurrentEventUid = () => {
@@ -386,6 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderNoEvent();
       return;
     }
+    const previousQuery = filterInput ? filterInput.value : '';
     const requestId = ++activeRequestId;
     dataService.setEventUid(currentEventUid);
     dataService.load()
@@ -394,11 +451,11 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         resultsData = rows;
-        currentPage = 1;
-        renderPage(currentPage);
-        initRotateButtons();
-        refreshLightboxes();
-        updatePagination();
+        updateFilterSuggestions();
+        if (filterInput) {
+          filterInput.value = previousQuery;
+        }
+        applyFilter();
 
         const rankings = computeRankings(rows, questionRows, catalogCount);
         renderRankings(rankings, {
@@ -416,6 +473,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+  filterInput?.addEventListener('input', () => {
+    applyFilter();
+  });
+
   refreshBtn?.addEventListener('click', e => {
     e.preventDefault();
     load();
@@ -423,20 +484,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   pagination?.addEventListener('click', e => {
     const target = e.target;
-    if (target instanceof HTMLElement && target.dataset.page) {
-      e.preventDefault();
-      const page = parseInt(target.dataset.page, 10);
-      if (!Number.isNaN(page)) {
-        renderPage(page);
-        initRotateButtons();
-        refreshLightboxes();
-        updatePagination();
-      }
-    }
+    if (!(target instanceof Element)) return;
+    const link = target.closest('a[data-page]');
+    if (!link) return;
+    e.preventDefault();
+    const totalPages = Math.ceil(filteredResults.length / PAGE_SIZE);
+    if (totalPages <= 0) return;
+    const requested = sanitizePageNumber(link.dataset.page, totalPages);
+    if (requested === currentPage) return;
+    renderPage(requested);
+    updatePagination();
   });
 
   function initRotateButtons() {
     document.querySelectorAll('.photo-rotate-btn').forEach(btn => {
+      if (btn.dataset.rotateListenerAttached === '1') {
+        return;
+      }
       const wrap = btn.closest('.photo-wrapper');
       const img = wrap ? wrap.querySelector('img') : null;
       const link = wrap ? wrap.querySelector('a') : null;
@@ -446,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         rotatePhoto(path, img, link);
       });
+      btn.dataset.rotateListenerAttached = '1';
     });
   }
 
@@ -490,6 +555,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fallbackEventUid = typeof detail.uid === 'string' ? detail.uid : fallbackEventUid;
     dataService.setEventUid(fallbackEventUid);
     resultsData = [];
+    filteredResults = [];
     currentPage = 1;
     load();
   });
