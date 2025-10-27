@@ -66,6 +66,7 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\UsernameBlocklistService;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
+use App\Infrastructure\Migrations\MigrationRuntime;
 use App\Support\DomainNameHelper;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
@@ -242,7 +243,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         $base = Database::connectFromEnv();
-        Migrator::migrate($base, __DIR__ . '/../migrations');
+        MigrationRuntime::ensureUpToDate($base, __DIR__ . '/../migrations', 'base');
 
         $host = $request->getUri()->getHost();
         $domainType = $request->getAttribute('domainType');
@@ -253,7 +254,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $schema = $schema === false || $schema === 'main' ? 'public' : (string) $schema;
 
         $pdo = Database::connectWithSchema($schema);
-        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
 
         $nginxService = new NginxService();
         $tenantService = new TenantService($base, null, $nginxService);
@@ -1426,7 +1427,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $email = (string) $tenant['imprint_email'];
         $pdo = Database::connectWithSchema($sub);
-        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $sub);
         $userService = new UserService($pdo);
         $auditLogger = new AuditLogger($pdo);
         $admin = $userService->getByUsername('admin');
@@ -2123,7 +2124,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $email = (string) $tenant['imprint_email'];
         $pdo = Database::connectWithSchema($sub);
-        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $sub);
         $userService = new UserService($pdo);
         $auditLogger = new AuditLogger($pdo);
         $admin = $userService->getByUsername('admin');
@@ -2211,7 +2212,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $email = (string) $data['email'];
         $pdo = Database::connectWithSchema($schema);
-        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
         $userService = new UserService($pdo);
         $auditLogger = new AuditLogger($pdo);
         $admin = $userService->getByUsername('admin');

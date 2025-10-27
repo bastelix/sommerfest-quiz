@@ -18,6 +18,7 @@ use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\ProxyMiddleware;
 use App\Application\Middleware\UrlMiddleware;
 use App\Infrastructure\Migrations\Migrator;
+use App\Infrastructure\Migrations\MigrationRuntime;
 use PDO;
 
 class TestCase extends PHPUnit_TestCase
@@ -183,6 +184,13 @@ class TestCase extends PHPUnit_TestCase
         if (array_key_exists('TURNSTILE_SECRET_KEY', $_ENV)) {
             unset($_ENV['TURNSTILE_SECRET_KEY']);
         }
+        if (getenv('RUN_MIGRATIONS_ON_REQUEST') !== false) {
+            putenv('RUN_MIGRATIONS_ON_REQUEST');
+        }
+        if (array_key_exists('RUN_MIGRATIONS_ON_REQUEST', $_ENV)) {
+            unset($_ENV['RUN_MIGRATIONS_ON_REQUEST']);
+        }
+        MigrationRuntime::reset();
         $this->pdo = null;
         parent::tearDown();
     }
