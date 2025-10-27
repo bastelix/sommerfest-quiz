@@ -12,6 +12,7 @@ use function array_keys;
 use function array_shift;
 use function array_values;
 use function count;
+use function in_array;
 use function json_encode;
 use function max;
 use function min;
@@ -63,12 +64,21 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
     public function fetchSuggestions(int $count, array $domains, array $tones, string $locale, array $existingNames): array
     {
         $count = max(1, min(self::MAX_FETCH_COUNT, $count));
-        $blocked = [];
+        $normalizedExisting = [];
         foreach ($existingNames as $name) {
             $candidate = trim((string) $name);
             if ($candidate === '') {
                 continue;
             }
+            if (!in_array($candidate, $normalizedExisting, true)) {
+                $normalizedExisting[] = $candidate;
+            }
+            if (count($normalizedExisting) >= self::EXISTING_NAMES_LIMIT) {
+                break;
+            }
+        }
+        $blocked = [];
+        foreach ($normalizedExisting as $candidate) {
             $blocked[$candidate] = true;
         }
         $this->calls[] = [
@@ -76,7 +86,7 @@ final class FakeTeamNameAiClient extends TeamNameAiClient
             'domains' => $domains,
             'tones' => $tones,
             'locale' => $locale,
-            'existing_names' => array_values($blocked === [] ? [] : array_keys($blocked)),
+            'existing_names' => $normalizedExisting,
         ];
 
         if ($this->batches === []) {

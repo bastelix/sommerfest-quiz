@@ -13,6 +13,7 @@ use const JSON_THROW_ON_ERROR;
 use function json_encode;
 use function mb_strtolower;
 use function mb_substr;
+use function preg_match_all;
 use function preg_replace;
 use function preg_split;
 use function trim;
@@ -83,6 +84,54 @@ final class TeamNameAiClientTest extends TestCase
         self::assertSame('fr', $metadata['locale']);
         self::assertSame(['nature', 'science'], $metadata['domains']);
         self::assertSame(['Playful'], $metadata['tones']);
+    }
+
+    public function testFetchSuggestionsCapsExistingNamesInPrompt(): void
+    {
+        $responder = new class () extends HttpChatResponder {
+            /**
+             * @var list<array{role:string,content:string}>
+             */
+            public array $capturedMessages = [];
+
+            public function __construct()
+            {
+            }
+
+            public function respond(array $messages, array $context): string
+            {
+                $this->capturedMessages = $messages;
+
+                return json_encode(['names' => ['Neue Idee']], JSON_THROW_ON_ERROR);
+            }
+        };
+
+        $client = new TeamNameAiClient($responder);
+
+        $existing = [];
+        $total = TeamNameAiClient::EXISTING_NAMES_LIMIT + 25;
+        for ($index = 1; $index <= $total; $index++) {
+            $existing[] = sprintf('Team %03d', $index);
+        }
+
+        $result = $client->fetchSuggestions(1, [], [], 'de', $existing);
+
+        self::assertSame(['Neue Idee'], $result);
+
+        $messages = $responder->capturedMessages;
+        self::assertCount(2, $messages);
+
+        $prompt = $messages[1]['content'] ?? '';
+        self::assertStringContainsString('Bereits vorhandene oder verwendete Namen (nicht wiederverwenden):', $prompt);
+        self::assertStringContainsString('1. Team 001', $prompt);
+        self::assertStringContainsString('100. Team 100', $prompt);
+        self::assertStringNotContainsString('Team 101', $prompt);
+
+        $matches = [];
+        self::assertSame(
+            TeamNameAiClient::EXISTING_NAMES_LIMIT,
+            preg_match_all('/Team\s\d{3}/', $prompt, $matches)
+        );
     }
 
     public function testFetchSuggestionsRecordsErrorState(): void
