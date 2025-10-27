@@ -26,6 +26,7 @@ use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\TeamNameAiClient;
+use App\Repository\TeamNameAiCacheRepository;
 use App\Service\TeamNameService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
@@ -454,13 +455,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $teamNameAiEnabled = false;
         }
 
+        $teamNameAiCacheRepository = new TeamNameAiCacheRepository($pdo);
+
         $teamNameService = new TeamNameService(
             $pdo,
             __DIR__ . '/../resources/team-names/lexicon.json',
             600,
             $teamNameAiClient,
             $teamNameAiEnabled,
-            null
+            null,
+            $teamNameAiCacheRepository
         );
         $configService->setTeamNameService($teamNameService);
         $consentService = new PhotoConsentService($pdo, $configService);
