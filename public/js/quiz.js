@@ -159,10 +159,6 @@ async function promptTeamNameChange(existingName){
   const currentName = typeof existingName === 'string' ? existingName : getStored('quizUser') || '';
   const normalizedExisting = typeof currentName === 'string' ? currentName.trim() : '';
   await releaseNameReservation();
-  const suggestion = await getNameSuggestion();
-  const suggestionIsFallback = getLastSuggestionWasFallback();
-  const normalizedSuggestion = typeof suggestion === 'string' ? suggestion.trim() : '';
-  const normalizedSuggestionLower = normalizedSuggestion.toLowerCase();
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
@@ -175,21 +171,21 @@ async function promptTeamNameChange(existingName){
     title.textContent = 'Teamname ändern';
     const sugg = document.createElement('span');
     sugg.className = 'uk-text-muted';
-    sugg.textContent = suggestionIsFallback ? ` (Vorschlag: ${suggestion} – Zufallsname)` : ` (Vorschlag: ${suggestion})`;
+    sugg.textContent = ' (Vorschlag wird geladen …)';
     title.appendChild(sugg);
     dialog.appendChild(title);
     const input = document.createElement('input');
     input.id = 'team-name-input';
     input.className = 'uk-input';
     input.type = 'text';
-    input.placeholder = normalizedSuggestion || 'Teamname';
+    input.placeholder = 'Teamname wird geladen …';
     input.value = normalizedExisting || currentName || '';
     const applySuggestionBtn = document.createElement('button');
     applySuggestionBtn.id = 'team-name-apply-suggestion';
     applySuggestionBtn.type = 'button';
     applySuggestionBtn.className = 'uk-button uk-button-default uk-width-1-1 uk-margin-top';
     applySuggestionBtn.textContent = 'Vorschlag übernehmen';
-    applySuggestionBtn.disabled = !normalizedSuggestion;
+    applySuggestionBtn.disabled = true;
     const btn = document.createElement('button');
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -199,6 +195,9 @@ async function promptTeamNameChange(existingName){
     dialog.appendChild(btn);
     let suggestionApplied = false;
     let saved = false;
+    let modalClosed = false;
+    let normalizedSuggestion = '';
+    let normalizedSuggestionLower = '';
     applySuggestionBtn.addEventListener('click', () => {
       if(!normalizedSuggestion){
         return;
@@ -214,9 +213,40 @@ async function promptTeamNameChange(existingName){
     });
     input.addEventListener('input', () => {
       const candidate = (input.value || '').trim().toLowerCase();
-      if(candidate !== normalizedSuggestionLower){
+      if(!normalizedSuggestionLower || candidate !== normalizedSuggestionLower){
         suggestionApplied = false;
       }
+    });
+    const suggestionPromise = getNameSuggestion();
+    suggestionPromise.then(suggestion => {
+      if(modalClosed){
+        return;
+      }
+      const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
+      normalizedSuggestion = normalized;
+      normalizedSuggestionLower = normalized.toLowerCase();
+      if(normalized){
+        sugg.textContent = getLastSuggestionWasFallback()
+          ? ` (Vorschlag: ${normalized} – Zufallsname)`
+          : ` (Vorschlag: ${normalized})`;
+      }else{
+        sugg.textContent = ' (Kein Vorschlag verfügbar)';
+      }
+      input.placeholder = normalized || 'Teamname';
+      applySuggestionBtn.disabled = !normalized;
+      if(!normalizedSuggestionLower || (input.value || '').trim().toLowerCase() !== normalizedSuggestionLower){
+        suggestionApplied = false;
+      }
+    }).catch(() => {
+      if(modalClosed){
+        return;
+      }
+      normalizedSuggestion = '';
+      normalizedSuggestionLower = '';
+      sugg.textContent = ' (Vorschlag konnte nicht geladen werden)';
+      input.placeholder = 'Teamname';
+      applySuggestionBtn.disabled = true;
+      suggestionApplied = false;
     });
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
@@ -302,6 +332,7 @@ async function promptTeamNameChange(existingName){
       if(typeof input.select === 'function') input.select();
     });
     UIkit.util.on(modal, 'hidden', () => {
+      modalClosed = true;
       if(!saved){
         releaseNameReservation();
       }
@@ -376,9 +407,7 @@ async function promptTeamName(){
     });
   }
 
-  const suggestion = await getNameSuggestion();
-  const suggestionIsFallback = getLastSuggestionWasFallback();
-
+  await releaseNameReservation();
   return new Promise(resolve => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
@@ -391,15 +420,17 @@ async function promptTeamName(){
     title.textContent = 'Teamname eingeben';
     const sugg = document.createElement('span');
     sugg.className = 'uk-text-muted';
-    sugg.textContent = suggestionIsFallback ? ` (Vorschlag: ${suggestion} – Zufallsname)` : ` (Vorschlag: ${suggestion})`;
+    sugg.textContent = ' (Vorschlag wird geladen …)';
     title.appendChild(sugg);
     dialog.appendChild(title);
     const input = document.createElement('input');
     input.id = 'team-name-input';
     input.className = 'uk-input';
     input.type = 'text';
-    input.placeholder = 'Teamname';
-    input.value = suggestion;
+    input.placeholder = 'Teamname wird geladen …';
+    input.value = '';
+    let modalClosed = false;
+    let userInteracted = false;
     const btn = document.createElement('button');
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -407,6 +438,36 @@ async function promptTeamName(){
     dialog.appendChild(input);
     dialog.appendChild(btn);
     let saved = false;
+    input.addEventListener('input', () => {
+      userInteracted = true;
+    });
+    const suggestionPromise = getNameSuggestion();
+    suggestionPromise.then(suggestion => {
+      if(modalClosed){
+        return;
+      }
+      const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
+      if(normalized){
+        sugg.textContent = getLastSuggestionWasFallback()
+          ? ` (Vorschlag: ${normalized} – Zufallsname)`
+          : ` (Vorschlag: ${normalized})`;
+      }else{
+        sugg.textContent = ' (Kein Vorschlag verfügbar)';
+      }
+      input.placeholder = normalized || 'Teamname';
+      if(!userInteracted){
+        input.value = normalized || '';
+      }
+    }).catch(() => {
+      if(modalClosed){
+        return;
+      }
+      sugg.textContent = ' (Vorschlag konnte nicht geladen werden)';
+      input.placeholder = 'Teamname';
+      if(!userInteracted){
+        input.value = '';
+      }
+    });
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
       if(!name){
@@ -485,6 +546,7 @@ async function promptTeamName(){
     const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
     UIkit.util.on(modal, 'hidden', () => {
+      modalClosed = true;
       modal.remove();
       if(!saved){
         releaseNameReservation();
@@ -1933,22 +1995,27 @@ async function runQuiz(questions, skipIntro){
       const flipBtn = modal.querySelector('#qr-reader-flip');
       const stopBtn = modal.querySelector('#qr-reader-stop');
       flipBtn.disabled = true;
+      let manualInputRenderId = 0;
+      let manualInputClosed = false;
       async function showManualInput(){
         const container = document.getElementById('qr-reader');
+        if(!container){
+          return;
+        }
+        manualInputClosed = false;
+        const renderId = ++manualInputRenderId;
         container.textContent = '';
-        const suggestion = await getNameSuggestion();
         const hint = document.createElement('div');
         hint.className = 'uk-text-center uk-margin-small-bottom';
-        hint.textContent = getLastSuggestionWasFallback()
-          ? `Vorschlag: ${suggestion} (Zufall)`
-          : `Vorschlag: ${suggestion}`;
+        hint.textContent = 'Vorschlag wird geladen …';
         container.appendChild(hint);
         const input = document.createElement('input');
         input.id = 'manual-team-name';
         input.className = 'uk-input';
         input.type = 'text';
-        input.placeholder = suggestion || 'Teamname eingeben';
-        input.value = suggestion || '';
+        input.placeholder = 'Teamname wird geladen …';
+        input.value = '';
+        let userInteracted = false;
         const submit = document.createElement('button');
         submit.id = 'manual-team-submit';
         submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -1956,6 +2023,32 @@ async function runQuiz(questions, skipIntro){
         container.appendChild(input);
         container.appendChild(submit);
         flipBtn.classList.add('uk-hidden');
+        input.addEventListener('input', () => {
+          userInteracted = true;
+        });
+        const suggestionPromise = getNameSuggestion();
+        suggestionPromise.then(suggestion => {
+          if(manualInputClosed || renderId !== manualInputRenderId || !container.isConnected){
+            return;
+          }
+          const normalized = typeof suggestion === 'string' ? suggestion.trim() : '';
+          hint.textContent = normalized
+            ? (getLastSuggestionWasFallback() ? `Vorschlag: ${normalized} (Zufall)` : `Vorschlag: ${normalized}`)
+            : 'Kein Vorschlag verfügbar.';
+          input.placeholder = normalized || 'Teamname eingeben';
+          if(!userInteracted){
+            input.value = normalized || '';
+          }
+        }).catch(() => {
+          if(manualInputClosed || renderId !== manualInputRenderId || !container.isConnected){
+            return;
+          }
+          hint.textContent = 'Vorschlag konnte nicht geladen werden.';
+          input.placeholder = 'Teamname eingeben';
+          if(!userInteracted){
+            input.value = '';
+          }
+        });
         const handleSubmit = async () => {
           const name = (input.value || input.placeholder || '').trim();
           if(name){
@@ -2023,10 +2116,13 @@ async function runQuiz(questions, skipIntro){
       UIkit.util.on(modal, 'shown', () => {
         stopBtn.focus();
         modal.addEventListener('keydown', trapFocus);
+        manualInputClosed = false;
       });
       UIkit.util.on(modal, 'hidden', () => {
         stopScanner();
         modal.removeEventListener('keydown', trapFocus);
+        manualInputClosed = true;
+        manualInputRenderId += 1;
         if(opener){
           opener.focus();
         }
