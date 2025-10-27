@@ -105,6 +105,160 @@ class ResultControllerTest extends TestCase
         $this->assertNull($first['questionCountdown']);
     }
 
+    public function testPostTrimsPlayerUidBeforeSaving(): void {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                collectPlayerUid INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE events(
+                uid TEXT PRIMARY KEY,
+                slug TEXT UNIQUE NOT NULL,
+                name TEXT,
+                start_date TEXT,
+                end_date TEXT,
+                description TEXT,
+                sort_order INTEGER DEFAULT 0
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE catalogs(
+                uid TEXT PRIMARY KEY,
+                sort_order INTEGER,
+                slug TEXT,
+                file TEXT,
+                name TEXT,
+                description TEXT,
+                raetsel_buchstabe TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                points INTEGER,
+                countdown INTEGER
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                total INTEGER NOT NULL,
+                max_points INTEGER NOT NULL DEFAULT 0,
+                time INTEGER NOT NULL,
+                started_at INTEGER,
+                duration_sec INTEGER,
+                expected_duration_sec INTEGER,
+                duration_ratio REAL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                player_uid TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                points INTEGER NOT NULL DEFAULT 0,
+                time_left_sec INTEGER,
+                final_points INTEGER NOT NULL DEFAULT 0,
+                efficiency REAL NOT NULL DEFAULT 0,
+                is_correct INTEGER,
+                scoring_version INTEGER NOT NULL DEFAULT 1,
+                answer_text TEXT,
+                photo TEXT,
+                consent INTEGER,
+                player_uid TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE teams('
+            . 'uid TEXT PRIMARY KEY,'
+            . 'event_uid TEXT,'
+            . 'sort_order INTEGER,'
+            . 'name TEXT NOT NULL'
+            . ');'
+        );
+
+        $pdo->exec("INSERT INTO config(event_uid, collectPlayerUid) VALUES('ev-1', 1)");
+        $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('ev-1', 'ev-1', 'Event 1')");
+        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, event_uid) VALUES('cat-1', 1, 'cat1', 'file.json', 'Catalog', 'ev-1')");
+        $pdo->exec("INSERT INTO questions(catalog_uid, sort_order, type, prompt, points) VALUES('cat-1', 1, 'text', 'Prompt', 1)");
+
+        $config = new \App\Service\ConfigService($pdo);
+        $config->setActiveEventUid('ev-1');
+        $resultService = new \App\Service\ResultService($pdo);
+        $teamService = new \App\Service\TeamService($pdo, $config);
+        $catalogService = new \App\Service\CatalogService($pdo, $config);
+        $eventService = new \App\Service\EventService($pdo, $config);
+        $controller = new \App\Controller\ResultController(
+            $resultService,
+            $config,
+            $teamService,
+            $catalogService,
+            sys_get_temp_dir(),
+            $eventService
+        );
+
+        $payload = [
+            'name' => 'Player Team',
+            'catalog' => 'cat1',
+            'correct' => 1,
+            'total' => 1,
+            'answers' => [[]],
+            'player_uid' => '  uid-77  ',
+        ];
+
+        $request = $this->createRequest('POST', '/results', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $request->getBody()->write((string) json_encode($payload));
+        $request->getBody()->rewind();
+        $request = $request->withQueryParams(['event_uid' => 'ev-1']);
+
+        $response = $controller->post($request, new \Slim\Psr7\Response());
+
+        $this->assertSame(200, $response->getStatusCode());
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($data);
+        $this->assertTrue($data['success']);
+
+        $storedResultUid = $pdo->query('SELECT player_uid FROM results')->fetchColumn();
+        $this->assertSame('uid-77', $storedResultUid);
+        $storedQuestionUid = $pdo->query('SELECT player_uid FROM question_results')->fetchColumn();
+        $this->assertSame('uid-77', $storedQuestionUid);
+    }
+
     public function testDownloadOmitsEpochForZeroTime(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -126,6 +280,7 @@ class ResultControllerTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -256,6 +411,7 @@ class ResultControllerTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -279,6 +435,7 @@ class ResultControllerTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent BOOLEAN,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -377,7 +534,7 @@ class ResultControllerTest extends TestCase
             'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, points INTEGER NOT NULL DEFAULT 0, ' .
             'total INTEGER NOT NULL, max_points INTEGER NOT NULL DEFAULT 0, ' .
             'time INTEGER NOT NULL, started_at INTEGER, duration_sec INTEGER, expected_duration_sec INTEGER, duration_ratio REAL, ' .
-            'puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
+            'puzzleTime INTEGER, photo TEXT, player_uid TEXT, event_uid TEXT' .
             ');'
         );
         $pdo->exec(
@@ -389,7 +546,7 @@ class ResultControllerTest extends TestCase
             'question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, ' .
             'points INTEGER NOT NULL DEFAULT 0, time_left_sec INTEGER, final_points INTEGER NOT NULL DEFAULT 0, ' .
             'efficiency REAL NOT NULL DEFAULT 0, is_correct INTEGER, scoring_version INTEGER NOT NULL DEFAULT 1, ' .
-            'answer_text TEXT, photo TEXT, consent BOOLEAN, event_uid TEXT' .
+            'answer_text TEXT, photo TEXT, consent BOOLEAN, player_uid TEXT, event_uid TEXT' .
             ');'
         );
         $pdo->exec(
@@ -488,6 +645,7 @@ class ResultControllerTest extends TestCase
                 duration_ratio REAL,
                 puzzleTime INTEGER,
                 photo TEXT,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL
@@ -514,6 +672,7 @@ class ResultControllerTest extends TestCase
                 answer_text TEXT,
                 photo TEXT,
                 consent BOOLEAN,
+                player_uid TEXT,
                 event_uid TEXT
             );
             SQL

@@ -162,6 +162,7 @@ CREATE TABLE IF NOT EXISTS results (
     duration_sec INTEGER,
     puzzleTime INTEGER,
     photo TEXT,
+    player_uid TEXT,
     expected_duration_sec INTEGER,
     duration_ratio REAL,
     event_uid TEXT,
@@ -169,6 +170,7 @@ CREATE TABLE IF NOT EXISTS results (
 );
 CREATE INDEX IF NOT EXISTS idx_results_catalog ON results(catalog);
 CREATE INDEX IF NOT EXISTS idx_results_name ON results(name);
+CREATE INDEX IF NOT EXISTS idx_results_event_player_uid ON results(event_uid, player_uid);
 
 -- Question results
 CREATE TABLE IF NOT EXISTS question_results (
@@ -187,12 +189,14 @@ CREATE TABLE IF NOT EXISTS question_results (
     answer_text TEXT,
     photo TEXT,
     consent BOOLEAN,
+    player_uid TEXT,
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_qresults_catalog ON question_results(catalog);
 CREATE INDEX IF NOT EXISTS idx_qresults_name ON question_results(name);
 CREATE INDEX IF NOT EXISTS idx_qresults_question ON question_results(question_id);
+CREATE INDEX IF NOT EXISTS idx_qresults_event_player_uid ON question_results(event_uid, player_uid);
 
 -- Catalogs
 CREATE TABLE IF NOT EXISTS catalogs (
