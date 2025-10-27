@@ -9,6 +9,7 @@ use Slim\Psr7\Response;
 use Slim\Views\Twig;
 use App\Controller\AdminController;
 use App\Infrastructure\Migrations\Migrator;
+use App\Infrastructure\Migrations\MigrationRuntime;
 use PDO;
 use Tests\TestCase;
 
@@ -468,5 +469,65 @@ class AdminControllerTest extends TestCase
         unset($_ENV['STRIPE_PRICE_STANDARD']);
         putenv('STRIPE_PRICE_PROFESSIONAL');
         unset($_ENV['STRIPE_PRICE_PROFESSIONAL']);
+    }
+
+    public function testAdminRoutesSkipMigrationsByDefault(): void {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        MigrationRuntime::reset();
+        $calls = 0;
+        Migrator::setHook(static function () use (&$calls): bool {
+            $calls++;
+            return true;
+        });
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+
+        try {
+            $response = $app->handle($this->createRequest('GET', '/admin/dashboard'));
+            $this->assertSame(200, $response->getStatusCode());
+            $this->assertSame(0, $calls);
+        } finally {
+            Migrator::setHook(null);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_destroy();
+            }
+            unlink($db);
+        }
+    }
+
+    public function testAdminRoutesRunMigrationsOnceWhenEnabled(): void {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        putenv('RUN_MIGRATIONS_ON_REQUEST=1');
+        $_ENV['RUN_MIGRATIONS_ON_REQUEST'] = '1';
+        MigrationRuntime::reset();
+        $calls = 0;
+        Migrator::setHook(static function () use (&$calls): bool {
+            $calls++;
+            return true;
+        });
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+
+        try {
+            $first = $app->handle($this->createRequest('GET', '/admin/dashboard'));
+            $this->assertSame(200, $first->getStatusCode());
+            $this->assertSame(2, $calls);
+
+            $second = $app->handle($this->createRequest('GET', '/admin/dashboard'));
+            $this->assertSame(200, $second->getStatusCode());
+            $this->assertSame(2, $calls);
+        } finally {
+            Migrator::setHook(null);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_destroy();
+            }
+            putenv('RUN_MIGRATIONS_ON_REQUEST');
+            unset($_ENV['RUN_MIGRATIONS_ON_REQUEST']);
+            unlink($db);
+        }
     }
 }

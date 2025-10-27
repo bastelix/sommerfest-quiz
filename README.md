@@ -150,6 +150,9 @@ php -v
    ```bash
    php scripts/run_migrations.php
    ```
+   > Hinweis: Der Webserver führt Migrationen nicht mehr bei jedem Request aus.
+   > Setze bei Bedarf `RUN_MIGRATIONS_ON_REQUEST=true`, um das Verhalten
+   > temporär für lokale Tests zu aktivieren.
 5. Anschließend einmalig die vorhandenen JSON-Daten importieren:
    ```bash
   php scripts/import_to_pgsql.php
