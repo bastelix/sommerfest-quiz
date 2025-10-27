@@ -1057,8 +1057,9 @@ class ConfigService
                     $normalized[$key] = [];
                 }
             } elseif (in_array($key, self::BOOL_KEYS, true)) {
-                $normalized[$key] = $v === null ? null : filter_var(
-                    $v,
+                $coerced = $this->coerceDatabaseBoolean($v);
+                $normalized[$key] = $coerced === null ? null : filter_var(
+                    $coerced,
                     FILTER_VALIDATE_BOOL,
                     FILTER_NULL_ON_FAILURE
                 );
@@ -1105,6 +1106,48 @@ class ConfigService
             }
         }
         return $normalized;
+    }
+
+    /**
+     * Normalize driver-specific boolean representations to native booleans when possible.
+     */
+    private function coerceDatabaseBoolean(mixed $value): mixed
+    {
+        if ($value === null || is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            if ($value === 1) {
+                return true;
+            }
+
+            if ($value === 0) {
+                return false;
+            }
+
+            return $value;
+        }
+
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if ($normalized === '') {
+                return $value;
+            }
+
+            $truthy = ['t', 'true', '1', 'yes', 'on', 'y'];
+            $falsy = ['f', 'false', '0', 'no', 'off', 'n'];
+
+            if (in_array($normalized, $truthy, true)) {
+                return true;
+            }
+
+            if (in_array($normalized, $falsy, true)) {
+                return false;
+            }
+        }
+
+        return $value;
     }
 
     /**

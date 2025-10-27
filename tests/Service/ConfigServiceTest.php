@@ -540,4 +540,30 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('public', $service->verifyDashboardToken('ev1', $publicToken));
         $this->assertSame('sponsor', $service->verifyDashboardToken('ev1', $sponsorToken));
     }
+
+    public function testBooleanNormalizationCoercesDatabaseFlags(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT PRIMARY KEY,
+                dashboard_share_enabled TEXT,
+                dashboard_sponsor_enabled TEXT
+            )
+            SQL
+        );
+
+        $pdo->exec(
+            "INSERT INTO config(event_uid, dashboard_share_enabled, dashboard_sponsor_enabled) " .
+            "VALUES('ev-share', 't', 'f')"
+        );
+
+        $service = new ConfigService($pdo, $this->createMock(TokenCipher::class));
+        $config = $service->getConfigForEvent('ev-share');
+
+        $this->assertTrue($config['dashboardShareEnabled']);
+        $this->assertFalse($config['dashboardSponsorEnabled']);
+    }
 }
