@@ -11,7 +11,9 @@ use RuntimeException;
 
 use function array_key_exists;
 use function getenv;
+use function implode;
 use function is_array;
+use function is_int;
 use function is_string;
 use function json_decode;
 use function sprintf;
@@ -183,8 +185,8 @@ class HttpChatResponder implements ChatResponderInterface
 
         if (array_key_exists('message', $payload) && is_array($payload['message'])) {
             $message = $payload['message'];
-            $content = $message['content'] ?? null;
-            if (is_string($content) && trim($content) !== '') {
+            $content = $this->normaliseMessageContent($message['content'] ?? null);
+            if ($content !== null) {
                 return $content;
             }
         }
@@ -196,8 +198,8 @@ class HttpChatResponder implements ChatResponderInterface
                 }
                 $message = $choice['message'] ?? null;
                 if (is_array($message)) {
-                    $content = $message['content'] ?? null;
-                    if (is_string($content) && trim($content) !== '') {
+                    $content = $this->normaliseMessageContent($message['content'] ?? null);
+                    if ($content !== null) {
                         return $content;
                     }
                 }
@@ -208,7 +210,83 @@ class HttpChatResponder implements ChatResponderInterface
             }
         }
 
+        if (array_key_exists('output', $payload)) {
+            $content = $this->normaliseMessageContent($payload['output']);
+            if ($content !== null) {
+                return $content;
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * @param mixed $content
+     */
+    private function normaliseMessageContent($content): ?string
+    {
+        if (is_string($content) && trim($content) !== '') {
+            return $content;
+        }
+
+        if (!is_array($content)) {
+            return null;
+        }
+
+        $segments = $this->collectTextSegments($content);
+        if ($segments === []) {
+            return null;
+        }
+
+        $combined = implode('', $segments);
+        return trim($combined) === '' ? null : $combined;
+    }
+
+    /**
+     * @param mixed $node
+     * @return list<string>
+     */
+    private function collectTextSegments($node): array
+    {
+        if (is_string($node)) {
+            return [$node];
+        }
+
+        if (!is_array($node)) {
+            return [];
+        }
+
+        $segments = [];
+
+        foreach (['text', 'value'] as $key) {
+            if (isset($node[$key]) && is_string($node[$key])) {
+                $segments[] = $node[$key];
+            }
+        }
+
+        foreach (['content', 'output'] as $nestedKey) {
+            if (array_key_exists($nestedKey, $node)) {
+                $nestedSegments = $this->collectTextSegments($node[$nestedKey]);
+                if ($nestedSegments !== []) {
+                    foreach ($nestedSegments as $segment) {
+                        $segments[] = $segment;
+                    }
+                }
+            }
+        }
+
+        foreach ($node as $key => $value) {
+            if (is_int($key)) {
+                $nestedSegments = $this->collectTextSegments($value);
+                if ($nestedSegments !== []) {
+                    foreach ($nestedSegments as $segment) {
+                        $segments[] = $segment;
+                    }
+                }
+            }
+        }
+
+        return $segments;
     }
 
     protected function envOrNull(string $key): ?string
