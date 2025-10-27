@@ -1094,6 +1094,24 @@ document.addEventListener('DOMContentLoaded', function () {
       requiresEvent: randomNamePreviewContainer.dataset.previewRequiresEvent || ''
     }
     : null;
+  const randomNameInventoryContainer = document.querySelector('[data-random-name-inventory]');
+  const randomNameInventoryFields = randomNameInventoryContainer
+    ? {
+      ai: randomNameInventoryContainer.querySelector('[data-random-name-inventory-ai]'),
+      lexicon: randomNameInventoryContainer.querySelector('[data-random-name-inventory-lexicon]')
+    }
+    : null;
+  const randomNameInventoryMessages = randomNameInventoryContainer
+    ? {
+      loading: randomNameInventoryContainer.dataset.inventoryLoading || '',
+      error: randomNameInventoryContainer.dataset.inventoryError || '',
+      aiTotal: randomNameInventoryContainer.dataset.inventoryAiTotal || '',
+      aiEmpty: randomNameInventoryContainer.dataset.inventoryAiEmpty || '',
+      lexicon: randomNameInventoryContainer.dataset.inventoryLexicon || '',
+      lexiconEmpty: randomNameInventoryContainer.dataset.inventoryLexiconEmpty || ''
+    }
+    : null;
+  let randomNameInventoryRequestId = 0;
   const randomNameCacheContainer = document.querySelector('[data-random-name-cache]');
   const randomNameCacheList = randomNameCacheContainer
     ? randomNameCacheContainer.querySelector('[data-random-name-cache-list]')
@@ -1294,6 +1312,150 @@ document.addEventListener('DOMContentLoaded', function () {
     randomNameCacheList.hidden = false;
   };
 
+  const setRandomNameInventoryMessage = (target, message) => {
+    if (!target) {
+      return;
+    }
+
+    const normalized = message || '';
+    target.textContent = normalized;
+    target.hidden = normalized === '';
+  };
+
+  const formatRandomNameInventoryMessage = (template, values) => {
+    if (typeof template !== 'string' || template === '') {
+      return '';
+    }
+
+    return template.replace(/\{(\w+)\}/g, (match, key) => {
+      if (!Object.prototype.hasOwnProperty.call(values, key)) {
+        return match;
+      }
+
+      const raw = values[key];
+      if (raw === undefined || raw === null) {
+        return '';
+      }
+
+      return String(raw);
+    });
+  };
+
+  const showRandomNameInventory = (visible) => {
+    if (!randomNameInventoryContainer) {
+      return;
+    }
+
+    randomNameInventoryContainer.hidden = !visible;
+  };
+
+  const renderRandomNameInventoryLoading = () => {
+    if (!randomNameInventoryMessages || !randomNameInventoryFields) {
+      return;
+    }
+
+    const message = randomNameInventoryMessages.loading || '';
+    setRandomNameInventoryMessage(randomNameInventoryFields.ai, message);
+    setRandomNameInventoryMessage(randomNameInventoryFields.lexicon, message);
+  };
+
+  const renderRandomNameInventoryError = () => {
+    if (!randomNameInventoryMessages || !randomNameInventoryFields) {
+      return;
+    }
+
+    const message = randomNameInventoryMessages.error || '';
+    setRandomNameInventoryMessage(randomNameInventoryFields.ai, message);
+    setRandomNameInventoryMessage(randomNameInventoryFields.lexicon, message);
+  };
+
+  const renderRandomNameInventoryData = (payload) => {
+    if (!randomNameInventoryMessages || !randomNameInventoryFields) {
+      return;
+    }
+
+    const cacheTotalRaw = payload?.ai?.cache?.total;
+    const cacheTotal = Number.isFinite(Number(cacheTotalRaw)) ? Number(cacheTotalRaw) : 0;
+    const aiMessage = cacheTotal > 0
+      ? formatRandomNameInventoryMessage(randomNameInventoryMessages.aiTotal, { count: cacheTotal })
+      : (randomNameInventoryMessages.aiEmpty || '');
+    setRandomNameInventoryMessage(randomNameInventoryFields.ai, aiMessage);
+
+    const lexicon = payload?.lexicon || {};
+    const totalRaw = Number.isFinite(Number(lexicon.total)) ? Number(lexicon.total) : 0;
+    const total = Math.max(0, Math.trunc(totalRaw));
+
+    if (total <= 0) {
+      setRandomNameInventoryMessage(
+        randomNameInventoryFields.lexicon,
+        randomNameInventoryMessages.lexiconEmpty || ''
+      );
+      return;
+    }
+
+    const availableRaw = Number.isFinite(Number(lexicon.available)) ? Number(lexicon.available) : null;
+    const reservedRaw = Number.isFinite(Number(lexicon.reserved)) ? Number(lexicon.reserved) : null;
+    const available = availableRaw !== null ? Math.max(0, Math.trunc(availableRaw)) : null;
+    const reserved = reservedRaw !== null ? Math.max(0, Math.trunc(reservedRaw)) : null;
+    const resolvedAvailable = available !== null
+      ? available
+      : (reserved !== null ? Math.max(0, total - reserved) : Math.max(0, total));
+    const resolvedReserved = reserved !== null
+      ? reserved
+      : Math.max(0, total - resolvedAvailable);
+
+    const message = formatRandomNameInventoryMessage(randomNameInventoryMessages.lexicon, {
+      total,
+      available: resolvedAvailable,
+      reserved: resolvedReserved,
+    });
+
+    setRandomNameInventoryMessage(randomNameInventoryFields.lexicon, message);
+  };
+
+  const refreshRandomNameInventory = async () => {
+    if (!randomNameInventoryContainer || !randomNameInventoryMessages) {
+      return;
+    }
+
+    const eventUid = currentEventUid;
+    if (!eventUid) {
+      randomNameInventoryRequestId += 1;
+      showRandomNameInventory(false);
+      return;
+    }
+
+    showRandomNameInventory(true);
+    renderRandomNameInventoryLoading();
+
+    const requestId = ++randomNameInventoryRequestId;
+    const params = new URLSearchParams();
+    params.set('event_uid', eventUid);
+
+    try {
+      const response = await apiFetch(`/api/team-names/status?${params.toString()}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('random-name-inventory-status-failed');
+      }
+
+      const payload = await response.json();
+      if (requestId !== randomNameInventoryRequestId) {
+        return;
+      }
+
+      renderRandomNameInventoryData(payload);
+    } catch (error) {
+      if (requestId !== randomNameInventoryRequestId) {
+        return;
+      }
+
+      renderRandomNameInventoryError();
+    }
+  };
+
   const setRandomNamePreviewStatus = (messageKey) => {
     if (!randomNamePreviewStatus || !randomNamePreviewMessages) {
       return;
@@ -1444,6 +1606,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ? cfgFields.randomNameStrategy.value.toLowerCase()
         : '';
       cfgFields.randomNamePreviewButton.disabled = !randomNamesEnabled || strategy !== 'ai' || !currentEventUid;
+      refreshRandomNameInventory();
     }
   };
   const syncRandomNameOptionsState = () => {
@@ -2523,6 +2686,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     syncRandomNameOptionsState();
+    refreshRandomNameInventory();
     if (cfgFields.shuffleQuestions) {
       cfgFields.shuffleQuestions.checked = data.shuffleQuestions !== false;
     }

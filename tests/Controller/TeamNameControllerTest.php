@@ -318,6 +318,21 @@ final class TeamNameControllerTest extends TestCase
                 'client_last_error' => 'Timeout contacting AI service.',
                 'last_response_at' => '2024-05-01T10:00:00Z',
             ]);
+        $service->expects(self::once())
+            ->method('getAiCacheState')
+            ->with('ev-status')
+            ->willReturn([
+                'total' => 7,
+                'entries' => [],
+            ]);
+        $service->expects(self::once())
+            ->method('getLexiconInventory')
+            ->with('ev-status', ['sport', 'kultur'], ['lustig', 'seriös'])
+            ->willReturn([
+                'total' => 500,
+                'reserved' => 120,
+                'available' => 380,
+            ]);
 
         $request = (new ServerRequestFactory())
             ->createServerRequest('GET', '/api/team-names/status')
@@ -337,6 +352,10 @@ final class TeamNameControllerTest extends TestCase
         self::assertSame('Timeout contacting AI service.', $payload['ai']['last_error']);
         self::assertTrue($payload['ai']['required_for_event']);
         self::assertFalse($payload['ai']['active_for_event']);
+        self::assertSame(7, $payload['ai']['cache']['total']);
+        self::assertSame(500, $payload['lexicon']['total']);
+        self::assertSame(120, $payload['lexicon']['reserved']);
+        self::assertSame(380, $payload['lexicon']['available']);
     }
 
     public function testPreviewReturnsSuggestionsFromService(): void

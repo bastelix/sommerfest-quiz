@@ -442,6 +442,29 @@
                     <p class="uk-text-meta uk-margin-small-top">{{ t('text_random_name_buffer_hint') }}</p>
                   </div>
                   <div
+                    class="uk-alert-secondary uk-alert-small uk-margin-top"
+                    uk-alert
+                    data-random-name-inventory
+                    data-inventory-loading="{{ t('text_random_name_inventory_loading') }}"
+                    data-inventory-error="{{ t('text_random_name_inventory_error') }}"
+                    data-inventory-ai-total="{{ t('text_random_name_inventory_ai_total') }}"
+                    data-inventory-ai-empty="{{ t('text_random_name_inventory_ai_empty') }}"
+                    data-inventory-lexicon="{{ t('text_random_name_inventory_lexicon') }}"
+                    data-inventory-lexicon-empty="{{ t('text_random_name_inventory_lexicon_empty') }}"
+                    hidden
+                  >
+                    <div class="uk-grid-small uk-child-width-1-2@s" uk-grid>
+                      <div>
+                        <div class="uk-text-bold">{{ t('label_random_name_inventory_ai') }}</div>
+                        <div class="uk-text-meta" data-random-name-inventory-ai>{{ t('text_random_name_inventory_loading') }}</div>
+                      </div>
+                      <div>
+                        <div class="uk-text-bold">{{ t('label_random_name_inventory_lexicon') }}</div>
+                        <div class="uk-text-meta" data-random-name-inventory-lexicon>{{ t('text_random_name_inventory_loading') }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
                     class="uk-margin-top"
                     data-random-name-preview
                     data-preview-hint="{{ t('text_random_name_preview_hint') }}"
