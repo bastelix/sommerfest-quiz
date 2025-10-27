@@ -36,13 +36,15 @@
     <div id="rankingWarning" class="uk-alert uk-alert-warning uk-margin-top" hidden></div>
     <div id="rankingHighlights" class="player-ranking-highlights uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-margin-top" uk-grid></div>
     <div id="rankingCards" class="player-ranking-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s uk-margin-top" uk-grid></div>
+    <div id="rankingNameActions" class="player-ranking-name-actions" aria-live="polite">
+      <button id="rankingChangeNameBtn" class="uk-button uk-button-default uk-margin-remove-top">Name bearbeiten</button>
+      <p id="rankingNameHint" class="uk-text-meta uk-margin-small-top"></p>
+    </div>
     <div id="rankingEmpty" class="uk-alert uk-alert-warning uk-margin-top" hidden>
       <p class="uk-margin-remove">Noch keine Ergebnisse gefunden. Spiele ein Quiz oder aktualisiere später erneut.</p>
     </div>
     <div id="rankingTopLists" class="player-ranking-toplists uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m uk-margin-large-top" uk-grid></div>
     <div class="uk-margin-large-top">
-      <button id="rankingChangeNameBtn" class="uk-button uk-button-default uk-margin-remove-top">Name bearbeiten</button>
-      <p id="rankingNameHint" class="uk-text-meta uk-margin-small-top"></p>
       <form id="rankingContactForm" class="uk-form-stacked uk-margin-medium-top" novalidate>
         <div class="uk-margin-small">
           <label class="uk-form-label" for="rankingEmail">E-Mail-Adresse (optional)</label>

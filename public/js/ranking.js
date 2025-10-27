@@ -315,20 +315,44 @@ const formatUpdatedAt = (date) => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
-const createCard = ({ title, icon, placeText, metaText, highlight = false, label = '', headingId = '' }) => {
+const createCard = ({
+  title,
+  icon,
+  placeText,
+  metaText,
+  highlight = false,
+  label = '',
+  headingId = '',
+  actions = null,
+}) => {
   const col = document.createElement('div');
   const card = document.createElement('div');
   card.className = 'uk-card uk-card-default uk-card-body player-ranking-card';
   if (highlight) {
     card.classList.add('player-ranking-card--highlight');
   }
+  const header = document.createElement('div');
+  header.className = 'player-ranking-card__header';
   const heading = document.createElement('h3');
   heading.className = 'player-ranking-card__title';
   if (headingId) {
     heading.id = headingId;
   }
   heading.textContent = title;
-  card.appendChild(heading);
+  header.appendChild(heading);
+  if (actions) {
+    const isFragment = typeof DocumentFragment !== 'undefined' && actions instanceof DocumentFragment;
+    if (actions instanceof HTMLElement) {
+      actions.classList.add('player-ranking-card__actions');
+      header.appendChild(actions);
+    } else if (isFragment) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'player-ranking-card__actions';
+      wrapper.appendChild(actions);
+      header.appendChild(wrapper);
+    }
+  }
+  card.appendChild(header);
   if (icon) {
     const iconWrap = document.createElement('div');
     iconWrap.className = 'player-ranking-card__icon';
@@ -428,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const emptyEl = document.getElementById('rankingEmpty');
   const updatedEl = document.getElementById('rankingUpdatedAt');
   const topLists = document.getElementById('rankingTopLists');
+  const nameActions = document.getElementById('rankingNameActions');
   const nameHint = document.getElementById('rankingNameHint');
   const refreshBtn = document.getElementById('rankingRefreshBtn');
   const changeNameBtn = document.getElementById('rankingChangeNameBtn');
@@ -766,8 +791,20 @@ document.addEventListener('DOMContentLoaded', () => {
     warningEl.textContent = text;
   };
 
+  const ensureNameActionsDefaultPosition = () => {
+    if (!nameActions || !cardsContainer) return;
+    const parent = cardsContainer.parentElement;
+    if (!parent) return;
+    if (nameActions.parentElement === parent && nameActions.previousElementSibling === cardsContainer) {
+      return;
+    }
+    nameActions.classList.remove('player-ranking-card__actions');
+    cardsContainer.insertAdjacentElement('afterend', nameActions);
+  };
+
   const renderRanking = (payload) => {
     if (!cardsContainer || !topLists) return;
+    ensureNameActionsDefaultPosition();
     if (highlightsContainer) {
       highlightsContainer.innerHTML = '';
     }
@@ -832,6 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
       placeText: formatPlace(rankingInfo.points, 'Noch keine Punktewertung'),
       metaText: pointsMetaParts.join(' · '),
       highlight: rankingInfo.points.place === 1,
+      actions: nameActions || null,
     });
 
     const highscoreHeading = highscoreCard.querySelector('.player-ranking-card__title');

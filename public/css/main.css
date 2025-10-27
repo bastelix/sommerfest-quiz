@@ -1271,6 +1271,76 @@ body.admin-page {
   padding-right: 3.5rem;
 }
 
+.player-ranking-card__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+}
+
+.player-ranking-card__header .player-ranking-card__title {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.player-ranking-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.player-ranking-card__header > .player-ranking-card__actions {
+  margin-left: auto;
+  width: auto;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.player-ranking-card__header > .player-ranking-card__actions .uk-button {
+  align-self: flex-end;
+}
+
+.player-ranking-card__actions .uk-text-meta {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .player-ranking-card__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .player-ranking-card__header > .player-ranking-card__actions {
+    margin-left: 0;
+    width: 100%;
+    align-items: stretch;
+    text-align: left;
+  }
+
+  .player-ranking-card__header > .player-ranking-card__actions .uk-button {
+    width: 100%;
+    align-self: stretch;
+  }
+}
+
+.player-ranking-name-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+}
+
+.player-ranking-card__header > .player-ranking-name-actions {
+  margin-top: 0;
+}
+
+.player-ranking-name-actions .uk-text-meta {
+  margin: 0;
+}
+
 .player-ranking-card--highlight .player-ranking-card__icon {
   color: #ffb400;
 }
