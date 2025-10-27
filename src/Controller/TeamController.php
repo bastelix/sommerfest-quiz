@@ -80,12 +80,19 @@ class TeamController
      */
     public function post(Request $request, Response $response): Response {
         $this->setEventFromRequest($request);
+        $existing = $this->service->getAll();
         $body = (string) $request->getBody();
         $data = json_decode($body, true);
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
         $this->service->saveAll($data);
+        if ($existing !== []) {
+            $removed = array_values(array_diff($existing, $data));
+            if ($removed !== []) {
+                $this->results->clearTeams($removed, (string) $this->config->getActiveEventUid());
+            }
+        }
         return $response->withStatus(204);
     }
 

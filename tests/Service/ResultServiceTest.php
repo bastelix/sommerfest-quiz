@@ -1465,4 +1465,83 @@ class ResultServiceTest extends TestCase
         $this->assertArrayHasKey('puzzleTime', $rows[0]);
         $this->assertNull($rows[0]['puzzleTime']);
     }
+
+    public function testClearTeamsRemovesResultsForNames(): void {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE results('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'name TEXT NOT NULL,'
+            . 'catalog TEXT NOT NULL,'
+            . 'attempt INTEGER NOT NULL,'
+            . 'correct INTEGER NOT NULL,'
+            . 'total INTEGER NOT NULL,'
+            . 'time INTEGER NOT NULL,'
+            . 'points INTEGER NOT NULL DEFAULT 0,'
+            . 'max_points INTEGER NOT NULL DEFAULT 0,'
+            . 'event_uid TEXT'
+            . ')'
+        );
+        $pdo->exec(
+            'CREATE TABLE question_results('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . 'name TEXT NOT NULL,'
+            . 'catalog TEXT NOT NULL,'
+            . 'question_id INTEGER NOT NULL,'
+            . 'attempt INTEGER NOT NULL,'
+            . 'correct INTEGER NOT NULL,'
+            . 'points INTEGER NOT NULL DEFAULT 0,'
+            . 'event_uid TEXT'
+            . ')'
+        );
+
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,points,max_points,event_uid) "
+            . "VALUES('Alpha','cat-a',1,1,1,0,5,5,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,points,max_points,event_uid) "
+            . "VALUES('Bravo','cat-b',1,1,1,0,4,4,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,points,max_points,event_uid) "
+            . "VALUES('Bravo','cat-b',1,1,1,0,3,3,'ev2')"
+        );
+        $pdo->exec(
+            "INSERT INTO question_results(name,catalog,question_id,attempt,correct,points,event_uid) "
+            . "VALUES('Alpha','cat-a',1,1,1,5,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO question_results(name,catalog,question_id,attempt,correct,points,event_uid) "
+            . "VALUES('Bravo','cat-b',1,1,1,4,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO question_results(name,catalog,question_id,attempt,correct,points,event_uid) "
+            . "VALUES('Bravo','cat-b',1,1,1,3,'ev2')"
+        );
+
+        $service = new ResultService($pdo);
+        $service->clearTeams([' Bravo ', ''], 'ev1');
+
+        $remainingEv1 = $pdo->query("SELECT name FROM results WHERE event_uid='ev1' ORDER BY name")
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(['Alpha'], $remainingEv1);
+        $remainingQuestionEv1 = $pdo->query("SELECT name FROM question_results WHERE event_uid='ev1' ORDER BY name")
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(['Alpha'], $remainingQuestionEv1);
+
+        $remainingEv2 = $pdo->query("SELECT name FROM results WHERE event_uid='ev2'")
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(['Bravo'], $remainingEv2);
+
+        $service->clearTeams(['Bravo']);
+
+        $remainingGlobal = $pdo->query("SELECT name FROM results ORDER BY name")
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(['Alpha'], $remainingGlobal);
+        $remainingQuestionGlobal = $pdo->query("SELECT name FROM question_results ORDER BY name")
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(['Alpha'], $remainingQuestionGlobal);
+    }
 }

@@ -6229,6 +6229,55 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamDeleteAllConfirmBtn = document.getElementById('teamDeleteAllConfirm');
   const teamDeleteAllModal = window.UIkit ? UIkit.modal('#teamDeleteAllModal') : null;
   const teamRestrictTeams = document.getElementById('teamRestrict');
+  const teamDeleteTitle = window.transTeamDeleteTitle || 'Delete team';
+  const teamDeleteConfirmTemplate = window.transTeamDeleteConfirm || 'Delete ":name" and all associated results?';
+  let teamDeletePendingId = null;
+
+  if (!document.getElementById('teamDeleteConfirmModal')) {
+    const modal = document.createElement('div');
+    modal.id = 'teamDeleteConfirmModal';
+    modal.setAttribute('uk-modal', '');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'
+      + `<h3 class="uk-modal-title">${teamDeleteTitle}</h3>`
+      + '<p id="teamDeleteConfirmText"></p>'
+      + '<div class="uk-text-right">'
+      + `<button id="teamDeleteCancel" class="uk-button uk-button-default uk-modal-close" type="button">${window.transCancel || 'Abbrechen'}</button>`
+      + `<button id="teamDeleteConfirm" class="uk-button uk-button-danger" type="button">${window.transDelete || 'Löschen'}</button>`
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(modal);
+  }
+
+  const teamDeleteModalEl = document.getElementById('teamDeleteConfirmModal');
+  const teamDeleteConfirmTextEl = document.getElementById('teamDeleteConfirmText');
+  const teamDeleteConfirmBtn = document.getElementById('teamDeleteConfirm');
+  const teamDeleteCancelBtn = document.getElementById('teamDeleteCancel');
+  const teamDeleteModal = teamDeleteModalEl && window.UIkit ? UIkit.modal(teamDeleteModalEl) : null;
+
+  teamDeleteModalEl?.addEventListener('hidden', () => {
+    teamDeletePendingId = null;
+    if (teamDeleteConfirmTextEl) {
+      teamDeleteConfirmTextEl.textContent = '';
+    }
+  });
+
+  teamDeleteCancelBtn?.addEventListener('click', () => {
+    teamDeletePendingId = null;
+    if (teamDeleteConfirmTextEl) {
+      teamDeleteConfirmTextEl.textContent = '';
+    }
+  });
+
+  teamDeleteConfirmBtn?.addEventListener('click', event => {
+    event.preventDefault();
+    if (teamDeletePendingId) {
+      applyTeamRemoval(teamDeletePendingId);
+    }
+    teamDeletePendingId = null;
+    if (teamDeleteModal) {
+      teamDeleteModal.hide();
+    }
+  });
 
   if (!document.getElementById('teamEditModal')) {
     const modal = document.createElement('div');
@@ -6285,7 +6334,7 @@ document.addEventListener('DOMContentLoaded', function () {
           delBtn.setAttribute('uk-icon', 'trash');
           delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
           delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
-          delBtn.addEventListener('click', () => removeTeam(item.id));
+          delBtn.addEventListener('click', () => requestTeamRemoval(item));
           wrapper.appendChild(delBtn);
 
           return wrapper;
@@ -6304,7 +6353,7 @@ document.addEventListener('DOMContentLoaded', function () {
           delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
           delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
-          delBtn.addEventListener('click', () => removeTeam(item.id));
+          delBtn.addEventListener('click', () => requestTeamRemoval(item));
 
           wrapper.appendChild(pdfBtn);
           wrapper.appendChild(delBtn);
@@ -6368,6 +6417,48 @@ document.addEventListener('DOMContentLoaded', function () {
     saveTeamList(list);
   }
 
+  function formatTeamDeleteMessage(name) {
+    const template = teamDeleteConfirmTemplate;
+    if (!template.includes(':name')) {
+      return template;
+    }
+    const trimmed = typeof name === 'string' ? name.trim() : '';
+    const replacement = trimmed !== '' ? trimmed : '…';
+    return template.replace(':name', replacement);
+  }
+
+  function requestTeamRemoval(item) {
+    if (!teamManager) {
+      return;
+    }
+    const list = teamManager.getData();
+    const current = list.find(team => team.id === item.id);
+    const message = formatTeamDeleteMessage(current?.name ?? item.name ?? '');
+    if (teamDeleteModal && teamDeleteConfirmTextEl) {
+      teamDeletePendingId = item.id;
+      teamDeleteConfirmTextEl.textContent = message;
+      teamDeleteModal.show();
+      return;
+    }
+    if (window.confirm(message)) {
+      applyTeamRemoval(item.id);
+    }
+  }
+
+  function applyTeamRemoval(id) {
+    if (!teamManager) {
+      return;
+    }
+    const list = teamManager.getData();
+    const idx = list.findIndex(t => t.id === id);
+    if (idx === -1) {
+      return;
+    }
+    list.splice(idx, 1);
+    teamManager.render(list);
+    saveTeamList(list);
+  }
+
   function deleteAllTeams() {
     if (!teamManager) {
       return;
@@ -6409,16 +6500,6 @@ document.addEventListener('DOMContentLoaded', function () {
       .finally(() => {
         teamManager.setColumnLoading('name', false);
       });
-  }
-
-  function removeTeam(id) {
-    const list = teamManager.getData();
-    const idx = list.findIndex(t => t.id === id);
-    if (idx !== -1) {
-      list.splice(idx, 1);
-      teamManager.render(list);
-      saveTeamList(list);
-    }
   }
 
   function openTeamPdf(teamName){

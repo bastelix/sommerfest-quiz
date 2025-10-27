@@ -759,6 +759,45 @@ class ResultService
     }
 
     /**
+     * Remove stored results for the provided team names.
+     *
+     * @param list<string> $teamNames
+     */
+    public function clearTeams(array $teamNames, string $eventUid = ''): void
+    {
+        $normalized = [];
+        foreach ($teamNames as $name) {
+            $trimmed = trim((string) $name);
+            if ($trimmed === '') {
+                continue;
+            }
+            $normalized[$trimmed] = true;
+        }
+
+        if ($normalized === []) {
+            return;
+        }
+
+        $names = array_keys($normalized);
+        $placeholders = implode(',', array_fill(0, count($names), '?'));
+
+        if ($eventUid !== '') {
+            $params = array_merge([$eventUid], $names);
+            $stmt = $this->pdo->prepare(sprintf('DELETE FROM results WHERE event_uid=? AND name IN (%s)', $placeholders));
+            $stmt->execute($params);
+            $stmt = $this->pdo->prepare(sprintf('DELETE FROM question_results WHERE event_uid=? AND name IN (%s)', $placeholders));
+            $stmt->execute($params);
+
+            return;
+        }
+
+        $stmt = $this->pdo->prepare(sprintf('DELETE FROM results WHERE name IN (%s)', $placeholders));
+        $stmt->execute($names);
+        $stmt = $this->pdo->prepare(sprintf('DELETE FROM question_results WHERE name IN (%s)', $placeholders));
+        $stmt->execute($names);
+    }
+
+    /**
      * Mark the puzzle word as solved for the latest entry of the given user.
      */
     public function markPuzzle(string $name, string $catalog, int $time, string $eventUid = ''): bool {
