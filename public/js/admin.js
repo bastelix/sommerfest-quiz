@@ -1687,6 +1687,28 @@ document.addEventListener('DOMContentLoaded', function () {
     updateRandomNameCacheVisibility(!!currentEventUid && !!randomNameCacheContainer && !randomNamePreviewContainer.hidden);
   };
 
+  const resolveRandomNamePreviewCount = () => {
+    const fallback = 1;
+    if (!cfgFields.randomNameBuffer) {
+      return fallback;
+    }
+
+    const rawValue = cfgFields.randomNameBuffer.value;
+    const parsedValue = Number.parseInt(rawValue, 10);
+    const min = Number.parseInt(cfgFields.randomNameBuffer.min, 10);
+    const max = Number.parseInt(cfgFields.randomNameBuffer.max, 10);
+
+    let normalized = Number.isNaN(parsedValue) ? fallback : parsedValue;
+    if (!Number.isNaN(min)) {
+      normalized = Math.max(normalized, min);
+    }
+    if (!Number.isNaN(max)) {
+      normalized = Math.min(normalized, max);
+    }
+
+    return normalized;
+  };
+
   const requestRandomNamePreview = async () => {
     if (
       !cfgFields.randomNamePreviewButton
@@ -1719,9 +1741,11 @@ document.addEventListener('DOMContentLoaded', function () {
     setRandomNamePreviewStatus('loading');
     resetRandomNameCache();
 
+    const targetCount = resolveRandomNamePreviewCount();
+
     const payload = {
       event_id: currentEventUid,
-      count: 6,
+      count: targetCount,
       domains,
       tones
     };
