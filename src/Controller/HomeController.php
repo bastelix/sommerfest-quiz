@@ -120,6 +120,14 @@ class HomeController
                 }
             }
         }
+        if (isset($cfg['inviteText']) && is_string($cfg['inviteText'])) {
+            $cfg['inviteText'] = ConfigService::sanitizeHtml($cfg['inviteText']);
+        }
+
+        if ($event !== null && isset($event['description']) && is_string($event['description'])) {
+            $event['description'] = ConfigService::sanitizeHtml($event['description']);
+        }
+
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
