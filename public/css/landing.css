@@ -401,6 +401,58 @@ body.marketing-page .marketing-event-teaser p {
   color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
 }
 
+.marketing-event-story {
+  max-width: min(720px, 100%);
+  margin: clamp(2.5rem, 6vw, 4rem) auto 0;
+  color: color-mix(in oklab, var(--qr-text) 94%, var(--qr-bg) 6%);
+  line-height: 1.6;
+}
+
+.marketing-event-story :is(h2, h3) {
+  margin: clamp(1.5rem, 4vw, 2.5rem) 0 clamp(0.75rem, 2vw, 1.25rem);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: color-mix(in oklab, var(--qr-text) 98%, var(--qr-bg) 2%);
+}
+
+.marketing-event-story .uk-heading-bullet {
+  padding-left: 0;
+  border-left: none;
+}
+
+.marketing-event-story .uk-heading-bullet::before {
+  display: none;
+}
+
+.marketing-event-story p {
+  margin-bottom: clamp(0.85rem, 2.2vw, 1.35rem);
+  font-size: clamp(1.05rem, 2.4vw, 1.2rem);
+  color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
+}
+
+.marketing-event-story p:last-child {
+  margin-bottom: 0;
+}
+
+.marketing-event-story strong,
+.marketing-event-story .uk-text-bold {
+  color: color-mix(in oklab, var(--qr-text) 99%, var(--qr-bg) 1%);
+  font-weight: 700;
+}
+
+.marketing-event-story ul,
+.marketing-event-story ol {
+  margin: clamp(1rem, 2.5vw, 1.5rem) 0 clamp(1.5rem, 3vw, 2rem);
+  padding-left: 1.2em;
+  color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
+}
+
+.marketing-event-story li {
+  margin-bottom: 0.75rem;
+}
+
 body.marketing-page .marketing-event-schedule .uk-text-muted,
 body.marketing-page .marketing-event-teaser .uk-text-muted {
   color: color-mix(in oklab, var(--qr-text) 84%, var(--qr-bg) 16%);
