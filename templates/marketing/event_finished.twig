@@ -78,9 +78,9 @@
 {% endblock %}
 
 {% block marketing_event_schedule %}
-  <p class="uk-text-lead">Das Event ist beendet{% if end %} – Finale war am {{ end|date('d.m.Y \u\m H:i \U\h\r') }}{% endif %}.</p>
+  <p class="uk-text-lead">Das Event ist beendet{% if end %} – Finale war am {{ end|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}{% endif %}.</p>
   {% if start %}
-    <p class="uk-text-muted">Startzeit: {{ start|date('d.m.Y \u\m H:i \U\h\r') }}</p>
+    <p class="uk-text-muted">Startzeit: {{ start|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</p>
   {% endif %}
 {% endblock %}
 

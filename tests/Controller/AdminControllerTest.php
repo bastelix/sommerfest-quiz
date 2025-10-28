@@ -289,6 +289,9 @@ class AdminControllerTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $twig = Twig::create(__DIR__ . '/../../templates', ['cache' => false]);
+        $twig->addExtension(new \App\Twig\UikitExtension());
+        $twig->addExtension(new \App\Twig\DateTimeFormatExtension());
+        $twig->addExtension(new \App\Twig\TranslationExtension(new \App\Service\TranslationService()));
         $request = $this->createRequest('GET', '/admin/dashboard?event=missing')
             ->withAttribute('view', $twig)
             ->withAttribute('pdo', $pdo);

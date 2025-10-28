@@ -86,10 +86,10 @@
 
 {% block marketing_event_schedule %}
   {% if start %}
-    <p class="uk-text-lead uk-margin-small">Unser Event startet am <strong>{{ start|date('d.m.Y \u\m H:i \U\h\r') }}</strong>.</p>
+    <p class="uk-text-lead uk-margin-small">Unser Event startet am <strong>{{ start|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</strong>.</p>
   {% endif %}
   {% if end %}
-    <p class="uk-text-muted">Geplantes Ende: {{ end|date('d.m.Y \u\m H:i \U\h\r') }}</p>
+    <p class="uk-text-muted">Geplantes Ende: {{ end|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</p>
   {% endif %}
 {% endblock %}
 

@@ -20,6 +20,7 @@ use App\Application\Middleware\UrlMiddleware;
 use App\Infrastructure\Migrations\Migrator;
 use App\Infrastructure\Migrations\MigrationRuntime;
 use PDO;
+use App\Twig\DateTimeFormatExtension;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -59,6 +60,7 @@ class TestCase extends PHPUnit_TestCase
         $translator = new \App\Service\TranslationService();
         $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
         $twig->addExtension(new \App\Twig\UikitExtension());
+        $twig->addExtension(new DateTimeFormatExtension());
         $twig->addExtension(new \App\Twig\TranslationExtension($translator));
         $basePath = getenv('BASE_PATH') ?: '';
         $basePath = '/' . trim($basePath, '/');
