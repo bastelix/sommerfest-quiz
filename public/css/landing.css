@@ -382,7 +382,9 @@ body.qr-landing .site-footer {
 .qr-landing p { color: var(--qr-muted); }
 
 /* Marketing event overrides */
-body.marketing-page .marketing-event-hero p {
+body.marketing-page .marketing-event-hero p,
+body.marketing-page .marketing-event-hero__subtitle,
+body.marketing-page .marketing-event-hero__comment {
   color: var(--qr-text);
 }
 

@@ -76,10 +76,10 @@
     <span class="qr-badge pill pill--soft">Bald verfügbar</span>
     <h1 class="marketing-event-hero__title uk-heading-medium uk-margin-small-top">{{ heroTitle }}</h1>
     {% if hasHeroSubtitle %}
-      <p class="marketing-event-hero__subtitle uk-text-lead uk-margin-small-top">{{ heroSubtitle }}</p>
+      <div class="marketing-event-hero__subtitle uk-text-lead uk-margin-small-top">{{ heroSubtitle|uikitify|raw }}</div>
     {% endif %}
     {% if hasHeroComment %}
-      <p class="marketing-event-hero__comment uk-text-meta">{{ heroComment }}</p>
+      <div class="marketing-event-hero__comment uk-text-meta">{{ heroComment|uikitify|raw }}</div>
     {% endif %}
   </div>
 {% endblock %}
