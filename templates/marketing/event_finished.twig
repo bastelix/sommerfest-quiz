@@ -41,8 +41,8 @@
   {% set heroCommentSource = eventConfig.inviteText|default(null) %}
   {% set heroSubtitleHtml = heroSubtitleSource ? heroSubtitleSource|uikitify : null %}
   {% set heroCommentHtml = heroCommentSource ? heroCommentSource|uikitify : null %}
-  {% set heroSubtitleStory = heroSubtitleHtml is not null and (heroSubtitleSource matches '/<\/?h[2-6]/i' or heroSubtitleSource matches '/<p/i' or heroSubtitleSource|striptags|length > 180) %}
-  {% set heroCommentStory = heroCommentHtml is not null and (heroCommentSource matches '/<\/?h[2-6]/i' or heroCommentSource matches '/<p/i' or heroCommentSource|striptags|length > 180) %}
+  {% set heroSubtitleStory = heroSubtitleHtml is not null and (heroSubtitleSource matches '~</?h[2-6]~i' or heroSubtitleSource matches '/<p/i' or heroSubtitleSource|striptags|length > 180) %}
+  {% set heroCommentStory = heroCommentHtml is not null and (heroCommentSource matches '~</?h[2-6]~i' or heroCommentSource matches '/<p/i' or heroCommentSource|striptags|length > 180) %}
   <section class="uk-section uk-section-large uk-text-center">
     <div class="uk-container uk-container-small">
       {{ block('marketing_event_title') }}
