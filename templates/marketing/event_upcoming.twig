@@ -36,6 +36,13 @@
 {% endblock %}
 
 {% block body %}
+  {% set eventConfig = config|default({}) %}
+  {% set heroSubtitleSource = event.description|default(null) %}
+  {% set heroCommentSource = eventConfig.inviteText|default(null) %}
+  {% set heroSubtitleHtml = heroSubtitleSource ? heroSubtitleSource|uikitify : null %}
+  {% set heroCommentHtml = heroCommentSource ? heroCommentSource|uikitify : null %}
+  {% set heroSubtitleStory = heroSubtitleHtml is not null and (heroSubtitleSource matches '/<\/?h[2-6]/i' or heroSubtitleSource matches '/<p/i' or heroSubtitleSource|striptags|length > 180) %}
+  {% set heroCommentStory = heroCommentHtml is not null and (heroCommentSource matches '/<\/?h[2-6]/i' or heroCommentSource matches '/<p/i' or heroCommentSource|striptags|length > 180) %}
   <section class="uk-section uk-section-large uk-text-center">
     <div class="uk-container uk-container-small">
       {{ block('marketing_event_title') }}
@@ -48,18 +55,17 @@
         {% endif %}
         {{ block('marketing_event_cta') }}
       </div>
+      {{ block('marketing_event_story') }}
       {{ block('marketing_event_teaser') }}
     </div>
   </section>
 {% endblock %}
 
 {% block marketing_event_title %}
-  {% set eventConfig = config|default({}) %}
+  {% set eventConfig = eventConfig|default(config|default({})) %}
   {% set heroTitle = eventConfig.pageTitle|default(event.name) %}
-  {% set heroSubtitle = event.description|default(null) %}
-  {% set heroComment = eventConfig.inviteText|default(null) %}
-  {% set hasHeroSubtitle = heroSubtitle is not null and heroSubtitle|trim != '' %}
-  {% set hasHeroComment = heroComment is not null and heroComment|trim != '' %}
+  {% set hasHeroSubtitle = heroSubtitleHtml is not null and not heroSubtitleStory %}
+  {% set hasHeroComment = heroCommentHtml is not null and not heroCommentStory %}
   {% set rawLogo = eventConfig.logoPath|default('/logo-160.svg') %}
   {% set hasLogo = rawLogo is not empty %}
   {% if hasLogo %}
@@ -76,12 +82,27 @@
     <span class="qr-badge pill pill--soft">Bald verfügbar</span>
     <h1 class="marketing-event-hero__title uk-heading-medium uk-margin-small-top">{{ heroTitle }}</h1>
     {% if hasHeroSubtitle %}
-      <div class="marketing-event-hero__subtitle uk-text-lead uk-margin-small-top">{{ heroSubtitle|uikitify|raw }}</div>
+      <div class="marketing-event-hero__subtitle uk-text-lead uk-margin-small-top">{{ heroSubtitleHtml|raw }}</div>
     {% endif %}
     {% if hasHeroComment %}
-      <div class="marketing-event-hero__comment uk-text-meta">{{ heroComment|uikitify|raw }}</div>
+      <div class="marketing-event-hero__comment uk-text-meta">{{ heroCommentHtml|raw }}</div>
     {% endif %}
   </div>
+{% endblock %}
+
+{% block marketing_event_story %}
+  {% set hasStorySubtitle = heroSubtitleHtml is not null and heroSubtitleStory %}
+  {% set hasStoryComment = heroCommentHtml is not null and heroCommentStory %}
+  {% if hasStorySubtitle or hasStoryComment %}
+    <div class="marketing-event-story uk-text-left uk-margin-large-top">
+      {% if hasStorySubtitle %}
+        {{ heroSubtitleHtml|raw }}
+      {% endif %}
+      {% if hasStoryComment %}
+        {{ heroCommentHtml|raw }}
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block marketing_event_schedule %}
@@ -105,7 +126,7 @@
 {% endblock %}
 
 {% block marketing_event_teaser %}
-  {% if not event.description %}
+  {% if not event.description and not heroCommentHtml %}
     <div class="marketing-event-teaser">
       <p class="uk-margin-large-top uk-text-large">Bereite dein Team auf ein Quiz voller Energie, Rätsel und Live-Spannung vor.</p>
     </div>
