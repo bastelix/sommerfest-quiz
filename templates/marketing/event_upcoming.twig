@@ -85,11 +85,15 @@
 {% endblock %}
 
 {% block marketing_event_schedule %}
-  {% if start %}
-    <p class="uk-text-lead uk-margin-small">Unser Event startet am <strong>{{ start|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</strong>.</p>
-  {% endif %}
-  {% if end %}
-    <p class="uk-text-muted">Geplantes Ende: {{ end|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</p>
+  {% if start or end %}
+    <div class="marketing-event-schedule">
+      {% if start %}
+        <p class="uk-text-lead uk-margin-small">Unser Event startet am <strong>{{ start|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</strong>.</p>
+      {% endif %}
+      {% if end %}
+        <p class="uk-text-muted">Geplantes Ende: {{ end|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</p>
+      {% endif %}
+    </div>
   {% endif %}
 {% endblock %}
 
@@ -102,7 +106,9 @@
 
 {% block marketing_event_teaser %}
   {% if not event.description %}
-    <p class="uk-margin-large-top uk-text-large">Bereite dein Team auf ein Quiz voller Energie, Rätsel und Live-Spannung vor.</p>
+    <div class="marketing-event-teaser">
+      <p class="uk-margin-large-top uk-text-large">Bereite dein Team auf ein Quiz voller Energie, Rätsel und Live-Spannung vor.</p>
+    </div>
   {% endif %}
 {% endblock %}
 
