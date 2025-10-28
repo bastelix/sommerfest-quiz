@@ -971,6 +971,12 @@ body.admin-page {
   align-items: stretch;
 }
 
+.dashboard-container #badge-upcoming {
+  background-color: #fff;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
 .dashboard-tile {
   min-width: 0;
 }
