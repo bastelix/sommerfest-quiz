@@ -9,6 +9,30 @@
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
   <meta name="page-name" content="Event finished marketing">
+  {% set eventConfig = config|default({}) %}
+  {% set colorConfig = eventConfig.colors|default({}) %}
+  {% set landingPrimary = eventConfig.buttonColor|default(colorConfig.accent|default(null)) %}
+  {% set landingBackground = eventConfig.backgroundColor|default(colorConfig.background|default(colorConfig.primary|default(null))) %}
+  {% set landingForeground = colorConfig.foreground|default(colorConfig.text|default(null)) %}
+  {% set heroStart = colorConfig.heroStart|default(colorConfig.gradientStart|default(landingBackground)) %}
+  {% set heroEnd = colorConfig.heroEnd|default(colorConfig.gradientEnd|default(landingPrimary|default(null))) %}
+  {% set landingContrast = colorConfig.contrastOnPrimary|default(colorConfig.onPrimary|default(null)) %}
+  {% if landingPrimary or landingBackground or landingForeground or heroStart or heroEnd or landingContrast %}
+    <style>
+      :root {
+        {% if landingPrimary %}--qr-landing-primary: {{ landingPrimary }};{% endif %}
+        {% if landingBackground %}--qr-bg: {{ landingBackground }};{% endif %}
+        {% if landingForeground %}--qr-fg: {{ landingForeground }};{% endif %}
+        {% if landingContrast %}--qr-contrast-on-primary: {{ landingContrast }};{% endif %}
+        {% if heroStart %}--qr-hero-grad-start: {{ heroStart }};{% endif %}
+        {% if heroEnd %}
+          --qr-hero-grad-end: {{ heroEnd }};
+        {% elseif landingPrimary %}
+          --qr-hero-grad-end: {{ landingPrimary }};
+        {% endif %}
+      }
+    </style>
+  {% endif %}
 {% endblock %}
 
 {% block body %}
@@ -23,8 +47,34 @@
 {% endblock %}
 
 {% block marketing_event_title %}
-  <span class="qr-badge pill pill--soft">Event abgeschlossen</span>
-  <h1 class="uk-heading-medium uk-margin-small-top">{{ event.name }}</h1>
+  {% set eventConfig = config|default({}) %}
+  {% set heroTitle = eventConfig.pageTitle|default(event.name) %}
+  {% set heroSubtitle = event.description|default(null) %}
+  {% set heroComment = eventConfig.inviteText|default(null) %}
+  {% set hasHeroSubtitle = heroSubtitle is not null and heroSubtitle|trim != '' %}
+  {% set hasHeroComment = heroComment is not null and heroComment|trim != '' %}
+  {% set rawLogo = eventConfig.logoPath|default('/logo-160.svg') %}
+  {% set hasLogo = rawLogo is not empty %}
+  {% if hasLogo %}
+    {% if rawLogo matches '/^https?:\\/\\//i' %}
+      {% set logoSrc = rawLogo %}
+    {% else %}
+      {% set logoSrc = basePath ~ rawLogo %}
+    {% endif %}
+  {% endif %}
+  <div class="marketing-event-hero uk-flex uk-flex-column uk-flex-middle uk-text-center">
+    {% if hasLogo %}
+      <img class="marketing-event-hero__logo" src="{{ logoSrc }}" alt="{{ heroTitle }}" loading="lazy">
+    {% endif %}
+    <span class="qr-badge pill pill--soft">Event abgeschlossen</span>
+    <h1 class="marketing-event-hero__title uk-heading-medium uk-margin-small-top">{{ heroTitle }}</h1>
+    {% if hasHeroSubtitle %}
+      <p class="marketing-event-hero__subtitle uk-text-lead uk-margin-small-top">{{ heroSubtitle }}</p>
+    {% endif %}
+    {% if hasHeroComment %}
+      <p class="marketing-event-hero__comment uk-text-meta">{{ heroComment }}</p>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block marketing_event_schedule %}
@@ -35,9 +85,7 @@
 {% endblock %}
 
 {% block marketing_event_teaser %}
-  {% if event.description %}
-    <p class="uk-margin-large-top uk-text-large">{{ event.description }}</p>
-  {% else %}
+  {% if not event.description %}
     <p class="uk-margin-large-top uk-text-large">Wir hoffen, dass QuizRace für Begeisterung gesorgt hat. Für das nächste Team-Event stehen wir gerne bereit.</p>
   {% endif %}
 {% endblock %}
