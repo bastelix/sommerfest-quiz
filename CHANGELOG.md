@@ -245,6 +245,7 @@
 - Redesign calhelp news section
 - Add CalHelp section theming
 - Allow customizing live dashboard widget titles
+- Allow marketing event pages to adopt event branding
 
 ### Fix
 
