@@ -380,6 +380,42 @@ body.qr-landing .site-footer {
 }
 
 .qr-landing p { color: var(--qr-muted); }
+
+/* Marketing event overrides */
+body.marketing-page .marketing-event-hero p {
+  color: var(--qr-text);
+}
+
+body.marketing-page .marketing-event-hero__subtitle {
+  color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-bg) 12%);
+}
+
+body.marketing-page .marketing-event-hero__comment {
+  color: color-mix(in oklab, var(--qr-text) 76%, var(--qr-bg) 24%);
+}
+
+body.marketing-page .marketing-event-schedule p,
+body.marketing-page .marketing-event-teaser p {
+  color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+}
+
+body.marketing-page .marketing-event-schedule .uk-text-muted,
+body.marketing-page .marketing-event-teaser .uk-text-muted {
+  color: color-mix(in oklab, var(--qr-text) 84%, var(--qr-bg) 16%);
+}
+
+body.marketing-page[data-theme="dark"] .marketing-event-schedule .uk-text-muted,
+body.marketing-page[data-theme="dark"] .marketing-event-teaser .uk-text-muted {
+  color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+}
+
+body.marketing-page .uk-text-muted {
+  color: color-mix(in oklab, var(--qr-text) 80%, var(--qr-bg) 20%);
+}
+
+body.marketing-page[data-theme="dark"] .uk-text-muted {
+  color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
+}
 .qr-landing .uk-icon,
 .qr-landing .feature-box svg {
   color: var(--qr-icon-color);

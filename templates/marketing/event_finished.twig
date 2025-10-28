@@ -78,15 +78,19 @@
 {% endblock %}
 
 {% block marketing_event_schedule %}
-  <p class="uk-text-lead">Das Event ist beendet{% if end %} – Finale war am {{ end|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}{% endif %}.</p>
-  {% if start %}
-    <p class="uk-text-muted">Startzeit: {{ start|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</p>
-  {% endif %}
+  <div class="marketing-event-schedule">
+    <p class="uk-text-lead">Das Event ist beendet{% if end %} – Finale war am {{ end|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}{% endif %}.</p>
+    {% if start %}
+      <p class="uk-text-muted">Startzeit: {{ start|format_datetime(pattern="dd.MM.yyyy 'um' HH:mm 'Uhr'", locale='de') }}</p>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block marketing_event_teaser %}
   {% if not event.description %}
-    <p class="uk-margin-large-top uk-text-large">Wir hoffen, dass QuizRace für Begeisterung gesorgt hat. Für das nächste Team-Event stehen wir gerne bereit.</p>
+    <div class="marketing-event-teaser">
+      <p class="uk-margin-large-top uk-text-large">Wir hoffen, dass QuizRace für Begeisterung gesorgt hat. Für das nächste Team-Event stehen wir gerne bereit.</p>
+    </div>
   {% endif %}
 {% endblock %}
 
