@@ -669,12 +669,25 @@ async function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
+  const resolvedColors = typeof cfg.colors === 'object' && cfg.colors !== null
+    ? { ...cfg.colors }
+    : {};
+  if (!resolvedColors.primary && typeof cfg.backgroundColor === 'string' && cfg.backgroundColor.trim() !== '') {
+    resolvedColors.primary = cfg.backgroundColor.trim();
+  }
+  if (!resolvedColors.accent && typeof cfg.buttonColor === 'string' && cfg.buttonColor.trim() !== '') {
+    resolvedColors.accent = cfg.buttonColor.trim();
+  }
+  if (Object.keys(resolvedColors).length > 0) {
+    cfg.colors = resolvedColors;
+  }
   const showCheck = cfg.CheckAnswerButton !== 'no';
   const SCORE_ALPHA = 1.0;
   const SCORE_FLOOR = 0.0;
   if(cfg.colors){
     if(cfg.colors.primary){
       document.documentElement.style.setProperty('--primary-color', cfg.colors.primary);
+      document.documentElement.style.setProperty('--color-bg', cfg.colors.primary);
     }
     if(cfg.colors.accent){
       document.documentElement.style.setProperty('--accent-color', cfg.colors.accent);

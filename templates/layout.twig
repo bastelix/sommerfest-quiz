@@ -102,11 +102,17 @@
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% block head %}{% endblock %}
-  {% if config is defined and config.colors is defined %}
+  {% set rawConfig = config is defined and config ? config : {} %}
+  {% set colors = rawConfig.colors is defined and rawConfig.colors ? rawConfig.colors : {} %}
+  {% set primaryColor = colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null)) %}
+  {% set accentColor = colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null)) %}
+  {% set backgroundColor = attribute(rawConfig, 'backgroundColor')|default(null) ?: (colors.primary is defined and colors.primary ? colors.primary : null) %}
+  {% if primaryColor or accentColor or backgroundColor %}
   <style>
     :root {
-      {% if config.colors.primary is defined %}--primary-color: {{ config.colors.primary }};{% endif %}
-      {% if config.colors.accent is defined %}--accent-color: {{ config.colors.accent }};{% endif %}
+      {% if primaryColor %}--primary-color: {{ primaryColor }};{% endif %}
+      {% if accentColor %}--accent-color: {{ accentColor }};{% endif %}
+      {% if backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
     }
   </style>
   {% endif %}
