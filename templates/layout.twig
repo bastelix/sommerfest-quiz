@@ -103,8 +103,19 @@
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% block head %}{% endblock %}
   {% set rawConfig = config is defined and config ? config : {} %}
+  {% block allow_config_background %}true{% endblock %}
   {% set allowConfigBackground = true %}
-  {% block allow_config_background %}{% endblock %}
+  {% set allowConfigBackgroundRaw = block('allow_config_background') %}
+  {% if allowConfigBackgroundRaw is same as(false) %}
+    {% set allowConfigBackground = false %}
+  {% elseif allowConfigBackgroundRaw is same as(true) %}
+    {% set allowConfigBackground = true %}
+  {% elseif allowConfigBackgroundRaw is not null %}
+    {% set normalizedAllowConfigBackground = allowConfigBackgroundRaw|trim|lower %}
+    {% if normalizedAllowConfigBackground in ['false', '0', 'off', 'no'] %}
+      {% set allowConfigBackground = false %}
+    {% endif %}
+  {% endif %}
   {% set colors = rawConfig.colors is defined and rawConfig.colors ? rawConfig.colors : {} %}
   {% set primaryColor = colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null)) %}
   {% set accentColor = colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null)) %}
