@@ -103,9 +103,11 @@
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% block head %}{% endblock %}
   {% set rawConfig = config is defined and config ? config : {} %}
-  {% block allow_config_background %}true{% endblock %}
+  {% set allowConfigBackgroundRaw %}
+    {% block allow_config_background %}true{% endblock %}
+  {% endset %}
+  {% set allowConfigBackgroundRaw = allowConfigBackgroundRaw|trim %}
   {% set allowConfigBackground = true %}
-  {% set allowConfigBackgroundRaw = block('allow_config_background') %}
   {% if allowConfigBackgroundRaw is same as(false) %}
     {% set allowConfigBackground = false %}
   {% elseif allowConfigBackgroundRaw is same as(true) %}
