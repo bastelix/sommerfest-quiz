@@ -103,16 +103,21 @@
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% block head %}{% endblock %}
   {% set rawConfig = config is defined and config ? config : {} %}
+  {% set allowConfigBackgroundBlock %}
+    {% block allow_config_background %}true{% endblock %}
+  {% endset %}
+  {% set allowConfigBackgroundValue = allowConfigBackgroundBlock|trim|lower %}
+  {% set allowConfigBackground = allowConfigBackgroundValue is same as('') or allowConfigBackgroundValue in ['1', 'true', 'on', 'yes'] %}
   {% set colors = rawConfig.colors is defined and rawConfig.colors ? rawConfig.colors : {} %}
   {% set primaryColor = colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null)) %}
   {% set accentColor = colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null)) %}
   {% set backgroundColor = attribute(rawConfig, 'backgroundColor')|default(null) ?: (colors.primary is defined and colors.primary ? colors.primary : null) %}
-  {% if primaryColor or accentColor or backgroundColor %}
+  {% if primaryColor or accentColor or (allowConfigBackground and backgroundColor) %}
   <style>
     :root {
       {% if primaryColor %}--primary-color: {{ primaryColor }};{% endif %}
       {% if accentColor %}--accent-color: {{ accentColor }};{% endif %}
-      {% if backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
+      {% if allowConfigBackground and backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
     }
   </style>
   {% endif %}
