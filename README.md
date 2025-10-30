@@ -350,6 +350,16 @@ für die Compose-Dateien der Mandanten lässt sich über die Variable
 scripts/create_tenant.sh foo
 ```
 
+Setzt du in `.env` zusätzlich `TENANT_SINGLE_CONTAINER=1`, arbeitet das Skript
+mandantenfähig innerhalb des bestehenden `slim`-Containers. Dafür wird ein
+Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
+falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt und als
+`certs/<domain>.crt` sowie `certs/<domain>.key` im Projekt liegt. Der
+`acme-companion` kann ein solches Zertifikat über die DNS-Challenge beziehen und
+unter gleichem Namen in das `certs/`-Volume schreiben. Ist das Zertifikat
+vorhanden, muss `scripts/create_tenant.sh` den `slim`-Container nicht mehr neu
+starten; neue Mandanten werden sofort nach dem Proxy-Reload erreichbar.
+
 Das Skript sendet einen API-Aufruf an `/tenants`, legt die Datei
 `vhost.d/foo.$DOMAIN` an und lädt anschließend den Proxy neu. Zum Entfernen
 eines Mandanten steht `scripts/delete_tenant.sh` bereit:
