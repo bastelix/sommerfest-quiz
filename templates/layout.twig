@@ -122,15 +122,17 @@
   {% set primaryColor = colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null)) %}
   {% set accentColor = colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null)) %}
   {% set backgroundColor = attribute(rawConfig, 'backgroundColor')|default(null) ?: (colors.primary is defined and colors.primary ? colors.primary : null) %}
-  {% if primaryColor or accentColor or (allowConfigBackground and backgroundColor) %}
-  <style>
-    :root {
-      {% if primaryColor %}--primary-color: {{ primaryColor }};{% endif %}
-      {% if accentColor %}--accent-color: {{ accentColor }};{% endif %}
-      {% if allowConfigBackground and backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
-    }
-  </style>
-  {% endif %}
+  {% block config_color_styles %}
+    {% if primaryColor or accentColor or (allowConfigBackground and backgroundColor) %}
+    <style>
+      :root {
+        {% if primaryColor %}--primary-color: {{ primaryColor }};{% endif %}
+        {% if accentColor %}--accent-color: {{ accentColor }};{% endif %}
+        {% if allowConfigBackground and backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
+      }
+    </style>
+    {% endif %}
+  {% endblock %}
 </head>
 <body data-theme="{% block body_theme %}light{% endblock %}" class="{% block body_class %}{% endblock %}">
   <div class="wrapper">

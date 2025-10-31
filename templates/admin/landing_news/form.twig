@@ -1,5 +1,7 @@
 {% extends 'layout.twig' %}
 
+{% block config_color_styles %}{% endblock %}
+
 {% set isEdit = entry is not null %}
 {% set formValues = override|default({}) %}
 {% set pageId = formValues.page_id|default(isEdit ? entry.pageId : '') %}
