@@ -18,7 +18,7 @@
     {% block center %}
       <div class="uk-flex uk-flex-middle">
         <div id="eventSelectWrap" class="uk-flex-1 uk-visible@m">
-          <select id="eventSelect" class="uk-select" aria-label="{{ t('label_events') }}"></select>
+          <select id="eventSelect" class="uk-select" aria-label="{{ t('label_events') }}" data-placeholder="{{ t('label_event_select') }}"></select>
         </div>
         <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@m" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom" data-event-btn disabled></button>
       </div>
