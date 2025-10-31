@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Exception\DuplicateUsernameBlocklistException;
+use App\Service\ConfigService;
 use App\Service\TranslationService;
 use App\Service\UsernameBlocklistService;
 use DateTimeInterface;
@@ -27,11 +28,17 @@ final class UsernameBlocklistController
 {
     private UsernameBlocklistService $service;
 
+    private ConfigService $configService;
+
     private ?TranslationService $translator;
 
-    public function __construct(UsernameBlocklistService $service, ?TranslationService $translator = null)
-    {
+    public function __construct(
+        UsernameBlocklistService $service,
+        ConfigService $configService,
+        ?TranslationService $translator = null
+    ) {
         $this->service = $service;
+        $this->configService = $configService;
         $this->translator = $translator;
     }
 
@@ -46,12 +53,15 @@ final class UsernameBlocklistController
             $this->service->getAdminEntries()
         );
 
+        $config = $this->configService->getConfig();
+
         return $view->render($response, 'admin/username_blocklist.twig', [
             'entries' => $entries,
             'csrfToken' => $csrf,
             'role' => $_SESSION['user']['role'] ?? '',
             'domainType' => $request->getAttribute('domainType'),
             'currentPath' => $request->getUri()->getPath(),
+            'config' => $config,
         ]);
     }
 
