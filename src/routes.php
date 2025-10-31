@@ -623,6 +623,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('usernameBlocklistController', new UsernameBlocklistController(
                 new UsernameBlocklistService($pdo),
+                $configService,
                 $translator
             ))
             ->withAttribute('catalogStickerController', new CatalogStickerController(
