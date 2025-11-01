@@ -679,7 +679,7 @@ class TeamNameService
 
         $this->warmUpAiSuggestions($eventId, $domains, $tones, $locale, $count);
 
-        if (($this->aiLastLog['status'] ?? 'pending') === 'pending') {
+        if ($this->aiLastLog !== null && $this->aiLastLog['status'] === 'pending') {
             $this->finalizeAiLog('unchanged', ['count' => 0]);
         }
 
