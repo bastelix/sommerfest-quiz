@@ -4427,12 +4427,16 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
+  let undoStack = [];
 
   registerCacheReset(() => {
     catalogs = [];
-    catalogFile = '';
-    initial = [];
     catalogManager?.render([]);
+    if (catSelect) {
+      catSelect.innerHTML = '';
+      catSelect.value = '';
+    }
+    resetQuestionEditorState();
   });
 
   const parseBoolean = value => {
@@ -4738,6 +4742,13 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
     catalogManager.render(catalogs);
+    if (!catalogs.length) {
+      if (catSelect) {
+        catSelect.value = '';
+      }
+      resetQuestionEditorState();
+      return;
+    }
     if (catSelect) {
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
@@ -4817,9 +4828,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadCatalog(catSelect.value);
           }
         } else {
-          catalogFile = '';
-          initial = [];
-          renderAll(initial);
+          resetQuestionEditorState();
         }
         saveCatalogs(updated);
         notify('Katalog gelöscht', 'success');
@@ -4832,9 +4841,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Rendert alle Fragen im Editor neu
   function renderAll(data) {
+    if (!container) {
+      return;
+    }
     container.innerHTML = '';
     cardIndex = 0;
     data.forEach((q, i) => container.appendChild(createCard(q, i)));
+  }
+
+  function resetQuestionEditorState() {
+    catalogFile = '';
+    initial = [];
+    renderAll(initial);
+    undoStack = [JSON.parse(JSON.stringify(initial))];
   }
 
   // Erstellt ein Bearbeitungsformular für eine Frage
@@ -5603,7 +5622,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Speichert die Fragen automatisch auf dem Server
   let saveTimer;
-  let undoStack = [];
   function saveQuestions(list, skipHistory = false) {
     if (!catalogFile) return;
     const data = list || collect();
