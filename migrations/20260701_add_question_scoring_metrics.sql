@@ -1,8 +1,8 @@
-ALTER TABLE question_results ADD COLUMN time_left_sec INTEGER;
-ALTER TABLE question_results ADD COLUMN final_points INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE question_results ADD COLUMN efficiency DOUBLE PRECISION NOT NULL DEFAULT 0;
-ALTER TABLE question_results ADD COLUMN is_correct BOOLEAN;
-ALTER TABLE question_results ADD COLUMN scoring_version INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE question_results ADD COLUMN IF NOT EXISTS time_left_sec INTEGER;
+ALTER TABLE question_results ADD COLUMN IF NOT EXISTS final_points INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE question_results ADD COLUMN IF NOT EXISTS efficiency DOUBLE PRECISION NOT NULL DEFAULT 0;
+ALTER TABLE question_results ADD COLUMN IF NOT EXISTS is_correct BOOLEAN;
+ALTER TABLE question_results ADD COLUMN IF NOT EXISTS scoring_version INTEGER NOT NULL DEFAULT 1;
 
 UPDATE question_results
 SET
