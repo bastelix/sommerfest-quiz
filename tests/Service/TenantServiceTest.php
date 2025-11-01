@@ -12,7 +12,12 @@ use App\Infrastructure\Migrations\Migrator;
 
 class TenantServiceTest extends TestCase
 {
-    private function createService(string $dir, PDO &$pdo, ?\App\Service\NginxService $nginx = null): TenantService {
+    private function createService(
+        string $dir,
+        PDO &$pdo,
+        ?\App\Service\NginxService $nginx = null,
+        ?callable $factory = null
+    ): TenantService {
         $pdo = new class ('sqlite::memory:') extends PDO {
             public function __construct(string $dsn) {
                 parent::__construct($dsn);
@@ -89,6 +94,12 @@ SQL;
                 }
             };
         }
+        if ($factory !== null) {
+            /** @var TenantService $service */
+            $service = $factory($pdo, $dir, $nginx);
+            return $service;
+        }
+
         return new TenantService($pdo, $dir, $nginx);
     }
 
@@ -180,6 +191,40 @@ SQL;
         $this->expectExceptionMessage('tenant-exists');
 
         $service->createTenant('u5b', 'dup');
+    }
+
+    public function testCreateTenantHandlesExistingSchemaWithoutRecord(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+
+        $service = $this->createService(
+            $dir,
+            $pdo,
+            null,
+            static function (PDO $pdoArg, string $migDir, \App\Service\NginxService $nginx): TenantService {
+                return new class ($pdoArg, $migDir, $nginx) extends TenantService {
+                    protected function schemaExists(string $schema): bool
+                    {
+                        if ($schema === 'ghost') {
+                            return true;
+                        }
+
+                        return parent::schemaExists($schema);
+                    }
+                };
+            }
+        );
+
+        $service->createTenant('ghost-uid', 'ghost');
+
+        $row = $pdo
+            ->query("SELECT uid, subdomain, onboarding_state FROM tenants WHERE subdomain='ghost'")
+            ->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('ghost-uid', $row['uid']);
+        $this->assertSame('ghost', $row['subdomain']);
+        $this->assertSame('pending', $row['onboarding_state']);
     }
 
     public function testCreateTenantAllowsRetryAfterFailure(): void

@@ -106,10 +106,6 @@ class TenantService
 
         $schemaAlreadyExists = $this->schemaExists($schema);
 
-        if ($existing === null && $schemaAlreadyExists) {
-            throw new \RuntimeException('schema-exists');
-        }
-
         $isNewSchema = !$schemaAlreadyExists;
 
         if ($isNewSchema) {
@@ -242,7 +238,7 @@ class TenantService
         return false;
     }
 
-    private function schemaExists(string $schema): bool {
+    protected function schemaExists(string $schema): bool {
         try {
             $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
         } catch (PDOException $e) {
