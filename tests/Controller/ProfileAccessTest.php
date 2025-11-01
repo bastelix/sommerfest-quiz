@@ -34,4 +34,18 @@ class ProfileAccessTest extends TestCase
         session_destroy();
         unlink($db);
     }
+
+    public function testServiceAccountCannotAccessAdminUi(): void {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 2, 'role' => 'service-account'];
+
+        $response = $app->handle($this->createRequest('GET', '/admin/profile'));
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('/login', $response->getHeaderLine('Location'));
+
+        session_destroy();
+        unlink($db);
+    }
 }
