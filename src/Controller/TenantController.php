@@ -15,6 +15,16 @@ use Slim\Views\Twig;
  */
 class TenantController
 {
+    private const FILTERABLE_STATUSES = [
+        'active',
+        'canceled',
+        'simulated',
+        TenantService::ONBOARDING_PENDING,
+        TenantService::ONBOARDING_PROVISIONING,
+        TenantService::ONBOARDING_PROVISIONED,
+        TenantService::ONBOARDING_FAILED,
+    ];
+
     private TenantService $service;
     private bool $displayErrors;
 
@@ -153,7 +163,9 @@ class TenantController
     public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $query = isset($params['query']) ? (string) $params['query'] : '';
+        $status = isset($params['status']) ? strtolower((string) $params['status']) : '';
         $list = $this->service->getAll($query);
+        $list = $this->filterByStatus($list, $status);
         $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -163,20 +175,11 @@ class TenantController
      */
     public function listHtml(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $status = isset($params['status']) ? (string) $params['status'] : '';
+        $status = isset($params['status']) ? strtolower((string) $params['status']) : '';
         $query = isset($params['query']) ? (string) $params['query'] : '';
         $list = $this->service->getAll($query);
         /** @var array<array<string, mixed>> $list */
-        if ($status !== '') {
-            $list = array_values(
-                array_filter(
-                    $list,
-                    static function (array $t) use ($status): bool {
-                        return isset($t['status']) && $t['status'] === $status;
-                    }
-                )
-            );
-        }
+        $list = $this->filterByStatus($list, $status);
         $view = Twig::fromRequest($request);
         $html = $view->fetch('admin/tenant_list.twig', [
             'tenants' => $list,
@@ -212,5 +215,24 @@ class TenantController
         return $response
             ->withHeader('Content-Type', 'text/csv')
             ->withHeader('Content-Disposition', 'attachment; filename="tenant-report.csv"');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $list
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterByStatus(array $list, string $status): array {
+        if ($status === '' || !in_array($status, self::FILTERABLE_STATUSES, true)) {
+            return $list;
+        }
+
+        return array_values(
+            array_filter(
+                $list,
+                static function (array $t) use ($status): bool {
+                    return isset($t['status']) && $t['status'] === $status;
+                }
+            )
+        );
     }
 }

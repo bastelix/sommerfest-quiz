@@ -6906,6 +6906,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantReportBtn = document.getElementById('tenantReportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
   const tenantSearchInput = document.getElementById('tenantSearchInput');
+  const TENANT_STATUS_VALUES = new Set([
+    'active',
+    'canceled',
+    'simulated',
+    'pending',
+    'provisioning',
+    'provisioned',
+    'failed'
+  ]);
+  const normalizeTenantStatus = value => {
+    if (typeof value !== 'string') {
+      return '';
+    }
+    const normalized = value.trim().toLowerCase();
+    return TENANT_STATUS_VALUES.has(normalized) ? normalized : '';
+  };
   let tenantColumnBtn = document.getElementById('tenantColumnBtn');
   const tenantTable = tenantTableBody?.closest('table');
   const tenantTableHeadings = tenantTable?.querySelectorAll('thead th') || [];
@@ -7038,7 +7054,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function refreshTenantList(showSpinner = true) {
-    loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value, showSpinner);
+    const statusValue = normalizeTenantStatus(tenantStatusFilter?.value || '');
+    if (tenantStatusFilter && statusValue !== (tenantStatusFilter.value || '')) {
+      tenantStatusFilter.value = '';
+    }
+    loadTenants(statusValue, tenantSearchInput?.value, showSpinner);
   }
 
   try {
@@ -7324,7 +7344,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
-  function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '', showSpinner = true) {
+  function loadTenants(status = '', query = '', showSpinner = true) {
     if (!tenantTableBody) return;
     if (typeof window.domainType !== 'undefined' && window.domainType !== 'main') {
       notify('MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen', 'warning');
@@ -7334,8 +7354,10 @@ document.addEventListener('DOMContentLoaded', function () {
       showTenantSpinner();
     }
     const params = new URLSearchParams();
-    if (status) params.set('status', status);
-    if (query) params.set('query', query);
+    const normalizedStatus = normalizeTenantStatus(status || '');
+    const normalizedQuery = typeof query === 'string' ? query : '';
+    if (normalizedStatus) params.set('status', normalizedStatus);
+    if (normalizedQuery) params.set('query', normalizedQuery);
     const url = '/tenants' + (params.toString() ? ('?' + params.toString()) : '');
     apiFetch(url, { headers: { 'Accept': 'text/html' } })
       .then(r => r.ok ? r.text() : Promise.reject(r))

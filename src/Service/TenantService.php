@@ -934,7 +934,7 @@ class TenantService
      */
     public function getAll(string $query = ''): array {
         $sql = 'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, '
-            . 'stripe_subscription_id, stripe_status, imprint_name, imprint_street, imprint_zip, '
+            . 'stripe_subscription_id, stripe_status, onboarding_state, imprint_name, imprint_street, imprint_zip, '
             . 'imprint_city, imprint_email, custom_limits, plan_started_at, '
             . 'plan_expires_at, created_at FROM tenants';
         $params = [];
@@ -950,6 +950,18 @@ class TenantService
             if ($row['custom_limits'] !== null) {
                 $row['custom_limits'] = json_decode((string) $row['custom_limits'], true);
             }
+            $onboardingState = (string) ($row['onboarding_state'] ?? self::ONBOARDING_COMPLETED);
+            $row['onboarding_state'] = $onboardingState;
+            if (in_array($onboardingState, [
+                self::ONBOARDING_PENDING,
+                self::ONBOARDING_PROVISIONING,
+                self::ONBOARDING_FAILED,
+                self::ONBOARDING_PROVISIONED,
+            ], true)) {
+                $row['status'] = $onboardingState;
+                continue;
+            }
+
             $stripeStatus = (string) ($row['stripe_status'] ?? '');
             if ($stripeStatus === 'canceled') {
                 $row['status'] = 'canceled';
