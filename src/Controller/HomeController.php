@@ -124,8 +124,11 @@ class HomeController
             $cfg['inviteText'] = ConfigService::sanitizeHtml($cfg['inviteText']);
         }
 
-        if ($event !== null && isset($event['description']) && is_string($event['description'])) {
-            $event['description'] = ConfigService::sanitizeHtml($event['description']);
+        if ($event !== null) {
+            $description = $event['description'] ?? null;
+            if (is_string($description)) {
+                $event['description'] = ConfigService::sanitizeHtml($description);
+            }
         }
 
         if ($role !== 'admin') {
