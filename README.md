@@ -188,6 +188,21 @@ php -v
    die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
    sodass neue Spalten sofort verfügbar sind.
 
+## Admin Tools
+
+### Nutzername-Sperrlisten importieren
+
+Für größere Aktualisierungen der Sperrliste steht das Skript `scripts/import_username_blocklists.php` bereit. Es verarbeitet beliebig viele CSV- oder JSON-Dateien, entfernt doppelte Einträge pro Kategorie und schreibt die Daten über den `UsernameBlocklistService` in die Datenbank. Die Verbindung erfolgt wie bei den anderen Admin-Skripten über `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` (bzw. `POSTGRES_PASS`).
+
+```bash
+php scripts/import_username_blocklists.php data/username_blocklist/sample.csv data/username_blocklist/sample.json
+```
+
+Jede Zeile bzw. jedes JSON-Objekt muss die Felder `term` (mindestens drei Zeichen) und `category` enthalten. Die Kategorie wird gegen die internen Werte validiert (`NSFW`, `§86a/NS-Bezug`, `Beleidigung/Slur`, `Allgemein`, `Admin`). Umlaute und Groß-/Kleinschreibung werden automatisch ausgeglichen, bevor die Einträge in Kleinbuchstaben gespeichert werden.
+
+- [CSV-Beispieldatei](data/username_blocklist/sample.csv)
+- [JSON-Beispieldatei](data/username_blocklist/sample.json)
+
 ## Testing
 
 Die automatisierten Tests werden mit PHPUnit ausgeführt. Ist keine Umgebung

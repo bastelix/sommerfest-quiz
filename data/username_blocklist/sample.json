@@ -1,0 +1,7 @@
+[
+  {"term": "AdminUser", "category": "Admin"},
+  {"term": "PartyPirate", "category": "Allgemein"},
+  {"term": "SlurBeispiel", "category": "Beleidigung/Slur"},
+  {"term": "Explizit89", "category": "§86a/NS-Bezug"},
+  {"term": "LateNight", "category": "NSFW"}
+]
