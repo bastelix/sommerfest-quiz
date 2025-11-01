@@ -160,6 +160,53 @@ SQL;
         $this->assertSame('beta', $list[0]['subdomain']);
     }
 
+    public function testGetAllMapsOnboardingStatesToStatus(): void {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+
+        $stmt = $pdo->prepare(
+            'INSERT INTO tenants(uid, subdomain, onboarding_state, plan, stripe_status, created_at) '
+            . 'VALUES(:uid, :subdomain, :state, :plan, :stripe_status, :created_at)'
+        );
+
+        $rows = [
+            ['uid' => 'pending', 'subdomain' => 'pending', 'state' => TenantService::ONBOARDING_PENDING, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-01T00:00:00Z'],
+            ['uid' => 'provisioning', 'subdomain' => 'provisioning', 'state' => TenantService::ONBOARDING_PROVISIONING, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-02T00:00:00Z'],
+            ['uid' => 'provisioned', 'subdomain' => 'provisioned', 'state' => TenantService::ONBOARDING_PROVISIONED, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-03T00:00:00Z'],
+            ['uid' => 'failed', 'subdomain' => 'failed', 'state' => TenantService::ONBOARDING_FAILED, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-04T00:00:00Z'],
+            ['uid' => 'active', 'subdomain' => 'active', 'state' => TenantService::ONBOARDING_COMPLETED, 'plan' => Plan::STARTER->value, 'stripe_status' => null, 'created_at' => '2024-02-05T00:00:00Z'],
+            ['uid' => 'canceled', 'subdomain' => 'canceled', 'state' => TenantService::ONBOARDING_COMPLETED, 'plan' => Plan::STARTER->value, 'stripe_status' => 'canceled', 'created_at' => '2024-02-06T00:00:00Z'],
+            ['uid' => 'simulated', 'subdomain' => 'simulated', 'state' => TenantService::ONBOARDING_COMPLETED, 'plan' => null, 'stripe_status' => null, 'created_at' => '2024-02-07T00:00:00Z'],
+        ];
+
+        foreach ($rows as $row) {
+            $stmt->execute([
+                ':uid' => $row['uid'],
+                ':subdomain' => $row['subdomain'],
+                ':state' => $row['state'],
+                ':plan' => $row['plan'],
+                ':stripe_status' => $row['stripe_status'],
+                ':created_at' => $row['created_at'],
+            ]);
+        }
+
+        $list = $service->getAll();
+        $byUid = [];
+        foreach ($list as $row) {
+            $byUid[$row['uid']] = $row;
+        }
+
+        $this->assertSame(TenantService::ONBOARDING_PENDING, $byUid['pending']['onboarding_state']);
+        $this->assertSame(TenantService::ONBOARDING_PENDING, $byUid['pending']['status']);
+        $this->assertSame(TenantService::ONBOARDING_PROVISIONING, $byUid['provisioning']['status']);
+        $this->assertSame(TenantService::ONBOARDING_PROVISIONED, $byUid['provisioned']['status']);
+        $this->assertSame(TenantService::ONBOARDING_FAILED, $byUid['failed']['status']);
+        $this->assertSame('active', $byUid['active']['status']);
+        $this->assertSame('canceled', $byUid['canceled']['status']);
+        $this->assertSame('simulated', $byUid['simulated']['status']);
+    }
+
     public function testCreateTenantThrowsOnNginxFailure(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');

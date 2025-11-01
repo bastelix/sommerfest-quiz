@@ -1,3 +1,22 @@
+{% set tenantStatusMap = {
+  'active': { text: t('tenant_status_active'), class: 'uk-label-success' },
+  'canceled': { text: t('tenant_status_canceled'), class: 'uk-label-danger' },
+  'simulated': { text: t('tenant_status_simulated'), class: 'uk-label-warning' },
+  'pending': { text: t('tenant_status_pending'), class: 'uk-label-warning' },
+  'provisioning': { text: t('tenant_status_provisioning'), class: 'uk-label-warning' },
+  'provisioned': { text: t('tenant_status_provisioned'), class: 'uk-label-success' },
+  'failed': { text: t('tenant_status_failed'), class: 'uk-label-danger' }
+} %}
+{% set stripeStatusMap = {
+  'trialing': { text: t('tenant_status_stripe_trialing'), class: 'uk-label-success' },
+  'past_due': { text: t('tenant_status_stripe_past_due'), class: 'uk-label-warning' },
+  'unpaid': { text: t('tenant_status_stripe_unpaid'), class: 'uk-label-danger' },
+  'incomplete': { text: t('tenant_status_stripe_incomplete'), class: 'uk-label-warning' },
+  'incomplete_expired': { text: t('tenant_status_stripe_incomplete_expired'), class: 'uk-label-danger' },
+  'paused': { text: t('tenant_status_stripe_paused'), class: 'uk-label-warning' }
+} %}
+{% set defaultStatusText = t('tenant_status_unknown') %}
+{% set defaultStatusClass = 'uk-label-default' %}
 <tbody id="tenantTableBody">
 {% for t in tenants %}
   {% set sub = t.subdomain %}
@@ -9,16 +28,18 @@
   {% set parts = created|split(' ') %}
   {% set datePart = parts[0] ?? '' %}
   {% set timePart = parts[1] ?? '' %}
-  {% set statusKey = t.status %}
-  {% if statusKey == 'canceled' %}
-    {% set statusText = 'Gekündigt' %}
-    {% set statusClass = 'uk-label-danger' %}
-  {% elseif statusKey == 'active' %}
-    {% set statusText = 'Aktiv' %}
-    {% set statusClass = 'uk-label-success' %}
+  {% set statusKey = t.status|default('') %}
+  {% set stripeKey = t.stripe_status|default('') %}
+  {% set statusConfig = tenantStatusMap[statusKey]|default(null) %}
+  {% if statusConfig is null and stripeKey is not empty %}
+    {% set statusConfig = stripeStatusMap[stripeKey]|default(null) %}
+  {% endif %}
+  {% if statusConfig is not null %}
+    {% set statusText = statusConfig.text %}
+    {% set statusClass = statusConfig.class %}
   {% else %}
-    {% set statusText = 'Simuliert' %}
-    {% set statusClass = 'uk-label-warning' %}
+    {% set statusText = statusKey ? statusKey|replace({'_': ' '})|title : defaultStatusText %}
+    {% set statusClass = defaultStatusClass %}
   {% endif %}
   <tr>
     <td class="sticky">
@@ -72,16 +93,18 @@
   {% set plan = t.plan ?? '' %}
   {% set billing = t.billing_info ?? '' %}
   {% set created = t.created_at|replace({'T': ' '})|replace({'Z': ''}) %}
-  {% set statusKey = t.status %}
-  {% if statusKey == 'canceled' %}
-    {% set statusText = 'Gekündigt' %}
-    {% set statusClass = 'uk-label-danger' %}
-  {% elseif statusKey == 'active' %}
-    {% set statusText = 'Aktiv' %}
-    {% set statusClass = 'uk-label-success' %}
+  {% set statusKey = t.status|default('') %}
+  {% set stripeKey = t.stripe_status|default('') %}
+  {% set statusConfig = tenantStatusMap[statusKey]|default(null) %}
+  {% if statusConfig is null and stripeKey is not empty %}
+    {% set statusConfig = stripeStatusMap[stripeKey]|default(null) %}
+  {% endif %}
+  {% if statusConfig is not null %}
+    {% set statusText = statusConfig.text %}
+    {% set statusClass = statusConfig.class %}
   {% else %}
-    {% set statusText = 'Simuliert' %}
-    {% set statusClass = 'uk-label-warning' %}
+    {% set statusText = statusKey ? statusKey|replace({'_': ' '})|title : defaultStatusText %}
+    {% set statusClass = defaultStatusClass %}
   {% endif %}
   <div class="uk-card qr-card uk-card-small uk-margin-small">
     <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">

@@ -2148,10 +2148,14 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
           <div class="uk-width-auto uk-flex uk-flex-middle">
             <select id="tenantStatusFilter" class="uk-select" aria-label="Status filtern">
-              <option value="">Alle</option>
-              <option value="active">Aktiv</option>
-              <option value="canceled">Gekündigt</option>
-              <option value="simulated">Simuliert</option>
+              <option value="">{{ t('tenant_status_filter_all') }}</option>
+              <option value="active">{{ t('tenant_status_active') }}</option>
+              <option value="canceled">{{ t('tenant_status_canceled') }}</option>
+              <option value="simulated">{{ t('tenant_status_simulated') }}</option>
+              <option value="pending">{{ t('tenant_status_pending') }}</option>
+              <option value="provisioning">{{ t('tenant_status_provisioning') }}</option>
+              <option value="provisioned">{{ t('tenant_status_provisioned') }}</option>
+              <option value="failed">{{ t('tenant_status_failed') }}</option>
             </select>
           </div>
 
