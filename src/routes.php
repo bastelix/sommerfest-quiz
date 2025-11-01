@@ -1056,17 +1056,17 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
         return $response->withHeader('Location', $base . '/admin/dashboard')->withStatus(302);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/event/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/event/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/media', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
@@ -1306,16 +1306,16 @@ return function (\Slim\App $app, TranslationService $translator) {
         ];
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/admin/profile', AdminController::class)
-        ->add(new RoleAuthMiddleware(...Roles::ALL))
+        ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))
         ->add(new CsrfMiddleware());
-    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/status', function (Request $request, Response $response) {
         $domainType = (string) $request->getAttribute('domainType');
         $base = Database::connectFromEnv();
@@ -1338,7 +1338,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/invoices', function (Request $request, Response $response) {
         $domainType = (string) $request->getAttribute('domainType');
         $base = Database::connectFromEnv();
@@ -1358,7 +1358,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
         $domainType = $request->getAttribute('domainType');
         $target = 'main';
@@ -1413,15 +1413,15 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post(
         '/admin/subscription/checkout',
         AdminSubscriptionCheckoutController::class
-    )->add(new RoleAuthMiddleware(...Roles::ALL))->add(new CsrfMiddleware());
+    )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
     $app->get(
         '/admin/subscription/checkout/{id}',
         StripeSessionController::class
-    )->add(new RoleAuthMiddleware(...Roles::ALL));
+    )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
     $app->post('/admin/profile/welcome', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'tenant') {
             return $response->withStatus(403);
@@ -2297,18 +2297,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware('admin'));
     $app->get('/admin/reports/catalog-stickers.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->pdf($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
 
     $app->get('/admin/sticker-settings', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->getSettings($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/sticker-settings', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->saveSettings($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
 
     $app->post('/admin/sticker-background', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->uploadBackground($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
 
     $app->get('/uploads/{file:.+}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);

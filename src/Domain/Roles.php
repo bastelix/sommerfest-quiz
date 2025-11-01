@@ -21,4 +21,18 @@ final class Roles
         self::TEAM_MANAGER,
         self::SERVICE_ACCOUNT,
     ];
+
+    /**
+     * Roles that have access to the interactive admin UI.
+     *
+     * Service accounts are excluded because they are meant for
+     * automation and do not have a dashboard.
+     */
+    public const ADMIN_UI = [
+        self::ADMIN,
+        self::CATALOG_EDITOR,
+        self::EVENT_MANAGER,
+        self::ANALYST,
+        self::TEAM_MANAGER,
+    ];
 }
