@@ -86,7 +86,7 @@ class UsernameBlocklistService
     }
 
     /**
-     * @param list<array<string,mixed>> $rows
+     * @param list<array<string,mixed>|mixed> $rows
      */
     public function importEntries(array $rows): void
     {
@@ -138,10 +138,6 @@ class UsernameBlocklistService
             foreach ($terms as $term) {
                 $entries[] = ['term' => $term, 'category' => $category];
             }
-        }
-
-        if ($entries === []) {
-            return;
         }
 
         $statement = $this->pdo->prepare(
