@@ -17,12 +17,32 @@ jobs:
           username: ${{ secrets.USER }}
           password: ${{ secrets.PASSWORD }}
           script: |
+            set -euo pipefail
+
             cd /var/sommerfest-quiz
-            git pull
+            git pull --ff-only
+
             docker build -t sommerfest-quiz:latest .
-            for compose in tenants/*/docker-compose.yml; do
-              slug=$(basename "$(dirname "$compose")")
-              docker compose -f "$compose" -p "$slug" pull
-              docker compose -f "$compose" -p "$slug" up -d
-            done
+
+            if [ -f .env ]; then
+              # Run migrations for the public schema and all tenant schemas using the freshly built image
+              docker run --rm \
+                --env-file .env \
+                --network webproxy \
+                sommerfest-quiz:latest \
+                php scripts/run_migrations.php
+            fi
+
+            # Restart the main stack so the container picks up the new image and reruns the entrypoint
+            if [ -f docker-compose.yml ]; then
+              docker compose -f docker-compose.yml -p main up -d --no-deps --force-recreate slim
+            fi
+
+            if ls tenants/*/docker-compose.yml >/dev/null 2>&1; then
+              for compose in tenants/*/docker-compose.yml; do
+                slug=$(basename "$(dirname "$compose")")
+                docker compose -f "$compose" -p "$slug" pull app || true
+                docker compose -f "$compose" -p "$slug" up -d --no-deps --force-recreate app
+              done
+            fi
 
