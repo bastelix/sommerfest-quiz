@@ -271,7 +271,7 @@ SQL;
 
         $this->assertSame('ghost-uid', $row['uid']);
         $this->assertSame('ghost', $row['subdomain']);
-        $this->assertSame('pending', $row['onboarding_state']);
+        $this->assertSame('provisioned', $row['onboarding_state']);
     }
 
     public function testCreateTenantAllowsRetryAfterFailure(): void
@@ -288,8 +288,65 @@ SQL;
             ->query("SELECT uid, onboarding_state, plan FROM tenants WHERE subdomain='retry'")
             ->fetch(PDO::FETCH_ASSOC);
         $this->assertSame('u6b', $row['uid']);
-        $this->assertSame('pending', $row['onboarding_state']);
+        $this->assertSame('provisioned', $row['onboarding_state']);
         $this->assertSame('starter', $row['plan']);
+    }
+
+    public function testCreateTenantContinuesOnDuplicateColumnError(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+
+        Migrator::setHook(static function (PDO $hookPdo, string $hookDir) use ($pdo, $dir): bool {
+            if ($hookPdo === $pdo && $hookDir === $dir) {
+                throw new \PDOException('duplicate column "onboarding_state"', '42701');
+            }
+
+            return true;
+        });
+
+        try {
+            $service->createTenant('dup-col', 'dupcol');
+        } finally {
+            Migrator::setHook(null);
+        }
+
+        $state = $pdo
+            ->query("SELECT onboarding_state FROM tenants WHERE subdomain='dupcol'")
+            ->fetchColumn();
+
+        $this->assertSame('provisioned', $state);
+    }
+
+    public function testCreateTenantMarksFailureOnMigrationError(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+
+        Migrator::setHook(static function (PDO $hookPdo, string $hookDir) use ($pdo, $dir): bool {
+            if ($hookPdo === $pdo && $hookDir === $dir) {
+                throw new \PDOException('boom', 'XX000');
+            }
+
+            return true;
+        });
+
+        try {
+            $service->createTenant('fail-col', 'failcol');
+            $this->fail('Expected migration failure to throw an exception.');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('migration-failed', $e->getMessage());
+        } finally {
+            Migrator::setHook(null);
+        }
+
+        $state = $pdo
+            ->query("SELECT onboarding_state FROM tenants WHERE subdomain='failcol'")
+            ->fetchColumn();
+
+        $this->assertSame('failed', $state);
     }
 
     public function testExistsReturnsTrueForReserved(): void {
