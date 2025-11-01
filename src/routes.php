@@ -2435,10 +2435,58 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(400);
         }
-        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
-
         $logPath = __DIR__ . '/../logs/onboarding.log';
         $log = is_file($logPath) ? (string) file_get_contents($logPath) : '';
+        $singleContainer = filter_var((string) getenv('TENANT_SINGLE_CONTAINER'), FILTER_VALIDATE_BOOLEAN);
+
+        if ($singleContainer) {
+            $base = Database::connectFromEnv();
+            $tenantService = new TenantService($base);
+            if (!$tenantService->exists($slug)) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'tenant-missing',
+                    'log' => $log,
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(404);
+            }
+
+            try {
+                $schemaPdo = Database::connectWithSchema($slug);
+                MigrationRuntime::ensureUpToDate($schemaPdo, __DIR__ . '/../migrations', 'schema:' . $slug);
+            } catch (\Throwable $e) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'migration-failed',
+                    'details' => $e->getMessage(),
+                    'log' => $log,
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $message = sprintf('[%s] Single container mode active – skipped docker onboarding for "%s".', date('c'), $slug);
+            if (!is_dir(dirname($logPath))) {
+                mkdir(dirname($logPath), 0775, true);
+            }
+            file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+            $log = (string) file_get_contents($logPath);
+
+            $payload = [
+                'status' => 'completed',
+                'tenant' => $slug,
+                'mode' => 'single-container',
+                'log' => $log,
+            ];
+            $response->getBody()->write(json_encode($payload));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
             $response->getBody()->write(json_encode([
