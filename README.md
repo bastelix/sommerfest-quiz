@@ -188,6 +188,36 @@ php -v
    die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
    sodass neue Spalten sofort verfügbar sind.
 
+### Vordefinierte Blocklisten laden
+
+Für die Moderation von Nutzernamen stehen geprüfte Blocklisten im Verzeichnis
+`resources/blocklists/` bereit. Jede CSV-Datei enthält mindestens die Spalte `term`
+und verweist über `source` auf die geprüfte Herkunft der Begriffe.
+
+| Preset      | Kategorie             | Datei                                 | Quellenbeispiele |
+|-------------|-----------------------|---------------------------------------|------------------|
+| `nsfw`      | NSFW                  | `resources/blocklists/nsfw.csv`       | Wikipedia-Artikel zu großen Porno-Plattformen |
+| `ns_symbols`| §86a/NS-Bezug         | `resources/blocklists/ns_symbols.csv` | Bundeszentrale/ADL-Einordnungen rechtsextremer Codes |
+| `slur`      | Beleidigung/Slur      | `resources/blocklists/slur.csv`       | Deutsche Welle, Zentralrat Deutscher Sinti und Roma, Amnesty u. a. |
+| `general`   | Allgemein             | `resources/blocklists/general.csv`    | Microsoft, Google und Salesforce Richtlinien zu reservierten Namen |
+| `admin`     | Admin                 | `resources/blocklists/admin.csv`      | GitHub, GitLab und Discord Vorgaben zu Admin-Rollen |
+
+Importiere die gewünschten Listen beim Datenimport mit dem neuen Preset-Parameter.
+Der folgende Befehl übernimmt alle Beispiele in einem Rutsch:
+
+```bash
+php scripts/import_to_pgsql.php \
+  --preset nsfw \
+  --preset ns_symbols \
+  --preset slur \
+  --preset general \
+  --preset admin
+```
+
+Datenschutz-Hinweis: Die Dateien enthalten ausschließlich generische, nicht-personenbezogene Begriffe,
+die zur Moderation dienen. Bewahre sie dennoch vertraulich auf, da die enthaltenen Ausdrücke sensibel
+oder beleidigend sein können. Eigene Ergänzungen über das Admin-Interface bleiben von den Presets unberührt
+und können jederzeit entfernt werden.
 ## Admin Tools
 
 ### Nutzername-Sperrlisten importieren
