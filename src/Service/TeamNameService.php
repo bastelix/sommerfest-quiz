@@ -938,7 +938,7 @@ class TeamNameService
             return;
         }
 
-        if (($this->aiLastLog['status'] ?? 'pending') !== 'pending') {
+        if ($this->aiLastLog['status'] !== 'pending') {
             return;
         }
 
@@ -981,7 +981,7 @@ class TeamNameService
         }
 
         foreach ($this->aiLastLog['entries'] as $entry) {
-            if (($entry['code'] ?? null) === $code) {
+            if ($entry['code'] === $code) {
                 return true;
             }
         }
@@ -1090,7 +1090,7 @@ class TeamNameService
         $this->releaseExpiredReservations($eventId);
 
         $selection = $this->getNameSelection($domains, $tones);
-        $total = max(0, (int) ($selection['total'] ?? 0));
+        $total = max(0, (int) $selection['total']);
         $reserved = max(0, $this->countActiveAssignments($eventId));
         $available = max(0, $total - $reserved);
 
