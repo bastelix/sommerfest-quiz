@@ -104,92 +104,85 @@ class TenantService
             throw new \RuntimeException('tenant-exists');
         }
 
-        $schemaAlreadyExists = $this->schemaExists($schema);
-
-        $isNewSchema = !$schemaAlreadyExists;
-
-        if ($isNewSchema) {
-            try {
-                $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
-            } catch (PDOException $e) {
-                if ($e->getCode() === '42P06') {
-                    $isNewSchema = false;
-                } else {
-                    throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
-                }
-            }
-        }
-
-        try {
-            $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
-            Migrator::migrate($this->pdo, $this->migrationsDir);
-            if ($isNewSchema) {
-                $this->seedDemoData();
-            }
-        } catch (PDOException $e) {
-            throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
-        } finally {
-            $this->pdo->exec('SET search_path TO public');
-        }
-
         $start = $plan !== null ? new DateTimeImmutable() : null;
         $end = $start?->modify('+30 days');
         $customLimitsJson = $customLimits !== null ? json_encode($customLimits) : null;
+        $record = [
+            'uid' => $uid,
+            'subdomain' => $schema,
+            'plan' => $plan,
+            'billing_info' => $billing,
+            'imprint_name' => $imprintName,
+            'imprint_street' => $imprintStreet,
+            'imprint_zip' => $imprintZip,
+            'imprint_city' => $imprintCity,
+            'imprint_email' => $email,
+            'custom_limits' => $customLimitsJson,
+            'plan_started_at' => $start?->format('Y-m-d H:i:sP'),
+            'plan_expires_at' => $end?->format('Y-m-d H:i:sP'),
+        ];
 
-        if ($existing === null) {
-            $stmt = $this->pdo->prepare(
-                'INSERT INTO tenants(' .
-                'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, ' .
-                'imprint_zip, imprint_city, imprint_email, custom_limits, onboarding_state, plan_started_at, plan_expires_at' .
-                ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-            );
-            $stmt->execute([
-                $uid,
-                $schema,
-                $plan,
-                $billing,
-                null,
-                $imprintName,
-                $imprintStreet,
-                $imprintZip,
-                $imprintCity,
-                $email,
-                $customLimitsJson,
-                self::ONBOARDING_PENDING,
-                $start?->format('Y-m-d H:i:sP'),
-                $end?->format('Y-m-d H:i:sP'),
-            ]);
-        } else {
-            $stmt = $this->pdo->prepare(
-                'UPDATE tenants SET ' .
-                'uid = ?, plan = ?, billing_info = ?, imprint_name = ?, imprint_street = ?, imprint_zip = ?, ' .
-                'imprint_city = ?, imprint_email = ?, custom_limits = ?, onboarding_state = ?, plan_started_at = ?, ' .
-                'plan_expires_at = ? WHERE subdomain = ?'
-            );
-            $stmt->execute([
-                $uid,
-                $plan,
-                $billing,
-                $imprintName,
-                $imprintStreet,
-                $imprintZip,
-                $imprintCity,
-                $email,
-                $customLimitsJson,
-                self::ONBOARDING_PENDING,
-                $start?->format('Y-m-d H:i:sP'),
-                $end?->format('Y-m-d H:i:sP'),
-                $schema,
-            ]);
-        }
+        $hasExistingRecord = $existing !== null;
+        $statePersisted = false;
+        $lockKey = $this->acquireTenantLock($schema);
 
-        if ($this->nginxService !== null) {
-            try {
-                $this->nginxService->createVhost($schema);
-            } catch (\RuntimeException $e) {
-                error_log('Failed to reload nginx: ' . $e->getMessage());
-                throw new \RuntimeException('Nginx reload failed – check Docker installation', 0, $e);
+        try {
+            $this->persistTenantRecord($record, $hasExistingRecord, self::ONBOARDING_PROVISIONING);
+            $statePersisted = true;
+            $hasExistingRecord = true;
+
+            $schemaAlreadyExists = $this->schemaExists($schema);
+            $isNewSchema = !$schemaAlreadyExists;
+
+            if ($isNewSchema) {
+                try {
+                    $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+                } catch (PDOException $e) {
+                    if ($e->getCode() === '42P06') {
+                        $isNewSchema = false;
+                    } else {
+                        throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
+                    }
+                }
             }
+
+            try {
+                $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
+                Migrator::migrate($this->pdo, $this->migrationsDir);
+                if ($isNewSchema) {
+                    $this->seedDemoData();
+                }
+            } catch (PDOException $e) {
+                if ($this->isDuplicateColumnError($e)) {
+                    error_log('Duplicate column detected during migration for schema ' . $schema . ': ' . $e->getMessage());
+                } else {
+                    throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
+                }
+            } finally {
+                $this->pdo->exec('SET search_path TO public');
+            }
+
+            $this->persistTenantRecord($record, $hasExistingRecord, self::ONBOARDING_PROVISIONED);
+
+            if ($this->nginxService !== null) {
+                try {
+                    $this->nginxService->createVhost($schema);
+                } catch (\RuntimeException $e) {
+                    error_log('Failed to reload nginx: ' . $e->getMessage());
+                    throw new \RuntimeException('Nginx reload failed – check Docker installation', 0, $e);
+                }
+            }
+        } catch (\Throwable $e) {
+            if ($statePersisted) {
+                try {
+                    $this->updateOnboardingState($schema, self::ONBOARDING_FAILED);
+                } catch (\Throwable $inner) {
+                    error_log('Failed to mark tenant onboarding as failed: ' . $inner->getMessage());
+                }
+            }
+            throw $e;
+        } finally {
+            $this->releaseTenantLock($lockKey);
         }
     }
 
@@ -291,6 +284,119 @@ class TenantService
         );
         $stmt->execute([$table, $column]);
         return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * @param array{
+     *   uid:string,
+     *   subdomain:string,
+     *   plan:?string,
+     *   billing_info:?string,
+     *   imprint_name:?string,
+     *   imprint_street:?string,
+     *   imprint_zip:?string,
+     *   imprint_city:?string,
+     *   imprint_email:?string,
+     *   custom_limits:?string,
+     *   plan_started_at:?string,
+     *   plan_expires_at:?string
+     * } $record
+     */
+    private function persistTenantRecord(array $record, bool $exists, string $state): void {
+        if (!in_array($state, self::ONBOARDING_STATES, true)) {
+            throw new \InvalidArgumentException('invalid-onboarding-state');
+        }
+
+        if ($exists) {
+            $stmt = $this->pdo->prepare(
+                'UPDATE tenants SET '
+                . 'uid = ?, plan = ?, billing_info = ?, imprint_name = ?, imprint_street = ?, imprint_zip = ?, '
+                . 'imprint_city = ?, imprint_email = ?, custom_limits = ?, onboarding_state = ?, plan_started_at = ?, '
+                . 'plan_expires_at = ? WHERE subdomain = ?'
+            );
+            $stmt->execute([
+                $record['uid'],
+                $record['plan'],
+                $record['billing_info'],
+                $record['imprint_name'],
+                $record['imprint_street'],
+                $record['imprint_zip'],
+                $record['imprint_city'],
+                $record['imprint_email'],
+                $record['custom_limits'],
+                $state,
+                $record['plan_started_at'],
+                $record['plan_expires_at'],
+                $record['subdomain'],
+            ]);
+
+            return;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO tenants('
+            . 'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, '
+            . 'imprint_zip, imprint_city, imprint_email, custom_limits, onboarding_state, plan_started_at, plan_expires_at'
+            . ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([
+            $record['uid'],
+            $record['subdomain'],
+            $record['plan'],
+            $record['billing_info'],
+            null,
+            $record['imprint_name'],
+            $record['imprint_street'],
+            $record['imprint_zip'],
+            $record['imprint_city'],
+            $record['imprint_email'],
+            $record['custom_limits'],
+            $state,
+            $record['plan_started_at'],
+            $record['plan_expires_at'],
+        ]);
+    }
+
+    private function acquireTenantLock(string $subdomain): ?int {
+        try {
+            $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        } catch (PDOException $e) {
+            return null;
+        }
+
+        if ($driver !== 'pgsql') {
+            return null;
+        }
+
+        $lockKey = (int) sprintf('%u', crc32('tenant_create_' . $subdomain));
+        $stmt = $this->pdo->prepare('SELECT pg_advisory_lock(:key)');
+        $stmt->execute([':key' => $lockKey]);
+
+        return $lockKey;
+    }
+
+    private function releaseTenantLock(?int $lockKey): void {
+        if ($lockKey === null) {
+            return;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare('SELECT pg_advisory_unlock(:key)');
+            $stmt->execute([':key' => $lockKey]);
+        } catch (PDOException $e) {
+            error_log('Failed to release advisory lock: ' . $e->getMessage());
+        }
+    }
+
+    private function isDuplicateColumnError(PDOException $exception): bool {
+        if ($exception->getCode() === '42701') {
+            return true;
+        }
+
+        $message = strtolower($exception->getMessage());
+
+        return str_contains($message, 'duplicate column')
+            || str_contains($message, 'already exists');
     }
 
     /**
