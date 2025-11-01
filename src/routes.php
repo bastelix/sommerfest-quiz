@@ -2435,10 +2435,58 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(400);
         }
-        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
-
         $logPath = __DIR__ . '/../logs/onboarding.log';
         $log = is_file($logPath) ? (string) file_get_contents($logPath) : '';
+
+        $singleContainerFlag = getenv('TENANT_SINGLE_CONTAINER');
+        $singleContainerEnabled = $singleContainerFlag !== false && trim((string) $singleContainerFlag) === '1';
+
+        if ($singleContainerEnabled) {
+            try {
+                $base = Database::connectFromEnv();
+                Migrator::migrate($base, __DIR__ . '/../migrations');
+
+                $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
+                $stmt->execute([$slug]);
+                $schema = $stmt->fetchColumn();
+
+                if ($schema === false) {
+                    $response->getBody()->write(json_encode([
+                        'error' => 'Tenant not found',
+                        'log' => $log,
+                    ]));
+
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(404);
+                }
+
+                $pdo = Database::connectWithSchema((string) $schema);
+                Migrator::migrate($pdo, __DIR__ . '/../migrations');
+            } catch (\Throwable $e) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'Failed to onboard tenant',
+                    'log' => $log,
+                    'details' => $e->getMessage(),
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $payload = [
+                'status' => 'completed',
+                'tenant' => $slug,
+                'log' => $log,
+                'mode' => 'single-container',
+            ];
+            $response->getBody()->write(json_encode($payload));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
             $response->getBody()->write(json_encode([
