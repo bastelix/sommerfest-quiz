@@ -31,7 +31,7 @@ use function trim;
  */
 final class UsernameGuard
 {
-    private const DATABASE_CATEGORIES = [
+    public const DATABASE_CATEGORIES = [
         'NSFW',
         '§86a/NS-Bezug',
         'Beleidigung/Slur',
