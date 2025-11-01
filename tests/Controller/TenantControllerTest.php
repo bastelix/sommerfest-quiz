@@ -60,7 +60,7 @@ class TenantControllerTest extends TestCase
 
     public function testCreateStoresEmail(): void {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT)');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT, onboarding_state TEXT DEFAULT "pending")');
         $service = new class ($pdo) extends TenantService {
             private PDO $pdo;
             public function __construct(PDO $pdo) {
@@ -79,8 +79,8 @@ class TenantControllerTest extends TestCase
                 ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
-                $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, imprint_email) VALUES(?, ?, ?)');
-                $stmt->execute([$uid, $schema, $email]);
+                $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, imprint_email, onboarding_state) VALUES(?, ?, ?, ?)');
+                $stmt->execute([$uid, $schema, $email, 'pending']);
             }
 
             public function deleteTenant(string $uid): void {
@@ -214,9 +214,21 @@ class TenantControllerTest extends TestCase
             . 'stripe_price_id TEXT, '
             . 'stripe_status TEXT, '
             . 'stripe_current_period_end TEXT, '
-            . 'stripe_cancel_at_period_end INTEGER'
+            . 'stripe_cancel_at_period_end INTEGER, '
+            . 'onboarding_state TEXT DEFAULT "pending"'
             . ');'
         );
+        $controller = new TenantController(new TenantService($pdo));
+        $req = $this->createRequest('GET', '/tenants/foo');
+        $res = $controller->exists($req, new Response(), ['subdomain' => 'foo']);
+        $this->assertEquals(404, $res->getStatusCode());
+    }
+
+    public function testExistsReturns404ForFailedTenant(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, onboarding_state TEXT)');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, onboarding_state) VALUES('u-failed','foo','failed')");
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/foo');
         $res = $controller->exists($req, new Response(), ['subdomain' => 'foo']);
@@ -245,15 +257,16 @@ class TenantControllerTest extends TestCase
             . 'stripe_price_id TEXT, '
             . 'stripe_status TEXT, '
             . 'stripe_current_period_end TEXT, '
-            . 'stripe_cancel_at_period_end INTEGER'
+            . 'stripe_cancel_at_period_end INTEGER, '
+            . 'onboarding_state TEXT DEFAULT "pending"'
             . ');'
         );
         $pdo->exec(
             "INSERT INTO tenants("
             . "uid, subdomain, plan, billing_info, imprint_name, imprint_street, "
-            . "imprint_zip, imprint_city, imprint_email, created_at"
+            . "imprint_zip, imprint_city, imprint_email, created_at, onboarding_state"
             . ") "
-            . "VALUES('u1', 'bar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '')"
+            . "VALUES('u1', 'bar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', 'completed')"
         );
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/bar');
@@ -314,7 +327,7 @@ class TenantControllerTest extends TestCase
             'imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, ' .
             'plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT, stripe_customer_id TEXT, ' .
             'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, stripe_current_period_end TEXT, ' .
-            'stripe_cancel_at_period_end INTEGER' .
+            'stripe_cancel_at_period_end INTEGER, onboarding_state TEXT DEFAULT "pending"' .
             ')'
         );
         $pdo->exec('CREATE TABLE information_schema.tables(table_schema TEXT)');

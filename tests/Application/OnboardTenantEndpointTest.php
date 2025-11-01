@@ -28,7 +28,17 @@ class OnboardTenantEndpointTest extends TestCase
             . 'subdomain TEXT UNIQUE NOT NULL,'
             . 'plan TEXT,'
             . 'billing_info TEXT,'
-            . 'imprint_email TEXT'
+            . 'stripe_customer_id TEXT,'
+            . 'imprint_name TEXT,'
+            . 'imprint_street TEXT,'
+            . 'imprint_zip TEXT,'
+            . 'imprint_city TEXT,'
+            . 'imprint_email TEXT,'
+            . 'custom_limits TEXT,'
+            . 'plan_started_at TEXT,'
+            . 'plan_expires_at TEXT,'
+            . 'onboarding_state TEXT DEFAULT "pending",'
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP'
             . ')'
         );
         $pdo->exec('CREATE TABLE migrations(version TEXT PRIMARY KEY)');
@@ -77,6 +87,9 @@ class OnboardTenantEndpointTest extends TestCase
             $this->assertSame('completed', $payload['status'] ?? null);
             $this->assertSame('singleslug', $payload['tenant'] ?? null);
             $this->assertSame('single-container', $payload['mode'] ?? null);
+            $state = $pdo->query("SELECT onboarding_state FROM tenants WHERE subdomain='singleslug'")
+                ->fetchColumn();
+            $this->assertSame('provisioned', $state);
         } finally {
             if ($originalLog === null) {
                 if (is_file($logPath)) {

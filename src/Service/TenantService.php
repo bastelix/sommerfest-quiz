@@ -46,6 +46,20 @@ class TenantService
         'kz',
     ];
 
+    public const ONBOARDING_PENDING = 'pending';
+    public const ONBOARDING_PROVISIONING = 'provisioning';
+    public const ONBOARDING_PROVISIONED = 'provisioned';
+    public const ONBOARDING_COMPLETED = 'completed';
+    public const ONBOARDING_FAILED = 'failed';
+
+    private const ONBOARDING_STATES = [
+        self::ONBOARDING_PENDING,
+        self::ONBOARDING_PROVISIONING,
+        self::ONBOARDING_PROVISIONED,
+        self::ONBOARDING_COMPLETED,
+        self::ONBOARDING_FAILED,
+    ];
+
     public function __construct(
         ?PDO $pdo = null,
         ?string $migrationsDir = null,
@@ -73,54 +87,105 @@ class TenantService
         ?string $imprintCity = null,
         ?array $customLimits = null
     ): void {
-        if ($this->exists($schema)) {
+        if ($this->isReserved($schema)) {
             throw new \RuntimeException('tenant-exists');
         }
+
         if ($plan !== null && Plan::tryFrom($plan) === null) {
             throw new \RuntimeException('invalid-plan');
         }
 
-        try {
-            $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
-        } catch (PDOException $e) {
-            if ($e->getCode() === '42P06') {
-                throw new \RuntimeException('schema-exists', 0, $e);
+        $existing = $this->getBySubdomain($schema);
+        $existingState = is_array($existing)
+            ? (string) ($existing['onboarding_state'] ?? self::ONBOARDING_COMPLETED)
+            : null;
+
+        if ($existing !== null && $existingState === self::ONBOARDING_COMPLETED) {
+            throw new \RuntimeException('tenant-exists');
+        }
+
+        $schemaAlreadyExists = $this->schemaExists($schema);
+
+        if ($existing === null && $schemaAlreadyExists) {
+            throw new \RuntimeException('schema-exists');
+        }
+
+        $isNewSchema = !$schemaAlreadyExists;
+
+        if ($isNewSchema) {
+            try {
+                $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+            } catch (PDOException $e) {
+                if ($e->getCode() === '42P06') {
+                    $isNewSchema = false;
+                } else {
+                    throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
+                }
             }
-            throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
         }
 
         try {
             $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
             Migrator::migrate($this->pdo, $this->migrationsDir);
-            $this->seedDemoData();
+            if ($isNewSchema) {
+                $this->seedDemoData();
+            }
         } catch (PDOException $e) {
             throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
         } finally {
             $this->pdo->exec('SET search_path TO public');
         }
-        $start = $plan !== null ? new \DateTimeImmutable() : null;
+
+        $start = $plan !== null ? new DateTimeImmutable() : null;
         $end = $start?->modify('+30 days');
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO tenants(' .
-            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, ' .
-            'imprint_zip, imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        );
-        $stmt->execute([
-            $uid,
-            $schema,
-            $plan,
-            $billing,
-            null,
-            $imprintName,
-            $imprintStreet,
-            $imprintZip,
-            $imprintCity,
-            $email,
-            $customLimits !== null ? json_encode($customLimits) : null,
-            $start?->format('Y-m-d H:i:sP'),
-            $end?->format('Y-m-d H:i:sP'),
-        ]);
+        $customLimitsJson = $customLimits !== null ? json_encode($customLimits) : null;
+
+        if ($existing === null) {
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO tenants(' .
+                'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, ' .
+                'imprint_zip, imprint_city, imprint_email, custom_limits, onboarding_state, plan_started_at, plan_expires_at' .
+                ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            );
+            $stmt->execute([
+                $uid,
+                $schema,
+                $plan,
+                $billing,
+                null,
+                $imprintName,
+                $imprintStreet,
+                $imprintZip,
+                $imprintCity,
+                $email,
+                $customLimitsJson,
+                self::ONBOARDING_PENDING,
+                $start?->format('Y-m-d H:i:sP'),
+                $end?->format('Y-m-d H:i:sP'),
+            ]);
+        } else {
+            $stmt = $this->pdo->prepare(
+                'UPDATE tenants SET ' .
+                'uid = ?, plan = ?, billing_info = ?, imprint_name = ?, imprint_street = ?, imprint_zip = ?, ' .
+                'imprint_city = ?, imprint_email = ?, custom_limits = ?, onboarding_state = ?, plan_started_at = ?, ' .
+                'plan_expires_at = ? WHERE subdomain = ?'
+            );
+            $stmt->execute([
+                $uid,
+                $plan,
+                $billing,
+                $imprintName,
+                $imprintStreet,
+                $imprintZip,
+                $imprintCity,
+                $email,
+                $customLimitsJson,
+                self::ONBOARDING_PENDING,
+                $start?->format('Y-m-d H:i:sP'),
+                $end?->format('Y-m-d H:i:sP'),
+                $schema,
+            ]);
+        }
 
         if ($this->nginxService !== null) {
             try {
@@ -154,10 +219,11 @@ class TenantService
         if ($this->isReserved($subdomain)) {
             return true;
         }
-        $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
+        $stmt = $this->pdo->prepare('SELECT onboarding_state FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
-        if ($stmt->fetchColumn() !== false) {
-            return true;
+        $state = $stmt->fetchColumn();
+        if ($state !== false) {
+            return (string) $state !== self::ONBOARDING_FAILED;
         }
 
         try {
@@ -174,6 +240,28 @@ class TenantService
         }
 
         return false;
+    }
+
+    private function schemaExists(string $schema): bool {
+        try {
+            $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        } catch (PDOException $e) {
+            return false;
+        }
+
+        if ($driver === 'sqlite') {
+            return false;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT 1 FROM information_schema.schemata WHERE schema_name = ? LIMIT 1'
+            );
+            $stmt->execute([$schema]);
+            return $stmt->fetchColumn() !== false;
+        } catch (PDOException $e) {
+            return false;
+        }
     }
 
     private function isReserved(string $subdomain): bool {
@@ -458,6 +546,7 @@ class TenantService
      *   imprint_email:?string,
      *   plan_started_at:?string,
      *   plan_expires_at:?string,
+     *   onboarding_state:?string,
      *   created_at:string
      * }|null
      */
@@ -465,7 +554,7 @@ class TenantService
         $stmt = $this->pdo->prepare(
             'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
             . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
-            . 'plan_started_at, plan_expires_at, created_at '
+            . 'plan_started_at, plan_expires_at, onboarding_state, created_at '
             . 'FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
@@ -498,10 +587,10 @@ class TenantService
         $uid = (string) ($data['uid'] ?? bin2hex(random_bytes(16)));
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants(' .
-            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, ' .
-            'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, ' .
-            'plan_started_at, plan_expires_at' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
+            . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
+            . 'onboarding_state, plan_started_at, plan_expires_at'
+            . ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $uid,
@@ -515,6 +604,7 @@ class TenantService
             $data['imprint_city'] ?? null,
             $data['imprint_email'] ?? null,
             null,
+            self::ONBOARDING_COMPLETED,
             $data['plan_started_at'] ?? null,
             $data['plan_expires_at'] ?? null,
         ]);
@@ -621,6 +711,14 @@ class TenantService
         $stmt->execute($params);
     }
 
+    public function updateOnboardingState(string $subdomain, string $state): void {
+        if (!in_array($state, self::ONBOARDING_STATES, true)) {
+            throw new \InvalidArgumentException('invalid-onboarding-state');
+        }
+        $stmt = $this->pdo->prepare('UPDATE tenants SET onboarding_state = ? WHERE subdomain = ?');
+        $stmt->execute([$state, $subdomain]);
+    }
+
     /**
      * Update a tenant identified by its Stripe customer id.
      *
@@ -693,7 +791,7 @@ class TenantService
             "AND schema_name NOT IN ('information_schema')"
         );
         $schemas = [];
-        $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
+        $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, onboarding_state) VALUES(?, ?, ?)');
         $count = 0;
         while (($schema = $stmt->fetchColumn()) !== false) {
             $schemas[] = $schema;
@@ -704,7 +802,7 @@ class TenantService
             if ($this->isReserved($subdomain)) {
                 continue;
             }
-            $ins->execute([bin2hex(random_bytes(16)), $subdomain]);
+            $ins->execute([bin2hex(random_bytes(16)), $subdomain, self::ONBOARDING_COMPLETED]);
             $existing[] = $subdomain;
             $count++;
         }
@@ -726,7 +824,7 @@ class TenantService
                     $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schemaName));
                     $schemas[] = $schemaName;
                 }
-                $ins->execute([bin2hex(random_bytes(16)), $dir]);
+                $ins->execute([bin2hex(random_bytes(16)), $dir, self::ONBOARDING_COMPLETED]);
                 $existing[] = $dir;
                 $count++;
             }
