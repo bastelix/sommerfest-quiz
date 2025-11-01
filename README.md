@@ -218,6 +218,20 @@ Datenschutz-Hinweis: Die Dateien enthalten ausschließlich generische, nicht-per
 die zur Moderation dienen. Bewahre sie dennoch vertraulich auf, da die enthaltenen Ausdrücke sensibel
 oder beleidigend sein können. Eigene Ergänzungen über das Admin-Interface bleiben von den Presets unberührt
 und können jederzeit entfernt werden.
+## Admin Tools
+
+### Nutzername-Sperrlisten importieren
+
+Für größere Aktualisierungen der Sperrliste steht das Skript `scripts/import_username_blocklists.php` bereit. Es verarbeitet beliebig viele CSV- oder JSON-Dateien, entfernt doppelte Einträge pro Kategorie und schreibt die Daten über den `UsernameBlocklistService` in die Datenbank. Die Verbindung erfolgt wie bei den anderen Admin-Skripten über `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` (bzw. `POSTGRES_PASS`).
+
+```bash
+php scripts/import_username_blocklists.php data/username_blocklist/sample.csv data/username_blocklist/sample.json
+```
+
+Jede Zeile bzw. jedes JSON-Objekt muss die Felder `term` (mindestens drei Zeichen) und `category` enthalten. Die Kategorie wird gegen die internen Werte validiert (`NSFW`, `§86a/NS-Bezug`, `Beleidigung/Slur`, `Allgemein`, `Admin`). Umlaute und Groß-/Kleinschreibung werden automatisch ausgeglichen, bevor die Einträge in Kleinbuchstaben gespeichert werden.
+
+- [CSV-Beispieldatei](data/username_blocklist/sample.csv)
+- [JSON-Beispieldatei](data/username_blocklist/sample.json)
 
 ## Testing
 
