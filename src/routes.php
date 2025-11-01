@@ -2254,6 +2254,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
         $mailer->sendWelcome($email, $domain, $link);
 
+        $tenantBase = Database::connectFromEnv();
+        $tenantService = new TenantService($tenantBase);
+        $tenantService->updateOnboardingState($schema, TenantService::ONBOARDING_COMPLETED);
+
         return $response->withStatus(204);
     })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
     $app->post('/import/{name}', function (Request $request, Response $response, array $args) {
@@ -2437,26 +2441,30 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $logPath = __DIR__ . '/../logs/onboarding.log';
         $log = is_file($logPath) ? (string) file_get_contents($logPath) : '';
+        $base = Database::connectFromEnv();
+        $tenantService = new TenantService($base);
+        $tenant = $tenantService->getBySubdomain($slug);
+
+        if ($tenant === null) {
+            $response->getBody()->write(json_encode([
+                'error' => 'tenant-missing',
+                'log' => $log,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(404);
+        }
+
+        $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONING);
         $singleContainer = filter_var((string) getenv('TENANT_SINGLE_CONTAINER'), FILTER_VALIDATE_BOOLEAN);
 
         if ($singleContainer) {
-            $base = Database::connectFromEnv();
-            $tenantService = new TenantService($base);
-            if (!$tenantService->exists($slug)) {
-                $response->getBody()->write(json_encode([
-                    'error' => 'tenant-missing',
-                    'log' => $log,
-                ]));
-
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(404);
-            }
-
             try {
                 $schemaPdo = Database::connectWithSchema($slug);
                 MigrationRuntime::ensureUpToDate($schemaPdo, __DIR__ . '/../migrations', 'schema:' . $slug);
             } catch (\Throwable $e) {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
                 $response->getBody()->write(json_encode([
                     'error' => 'migration-failed',
                     'details' => $e->getMessage(),
@@ -2475,6 +2483,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
             $log = (string) file_get_contents($logPath);
 
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
             $payload = [
                 'status' => 'completed',
                 'tenant' => $slug,
@@ -2493,7 +2502,6 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         if ($singleContainerEnabled) {
             try {
-                $base = Database::connectFromEnv();
                 Migrator::migrate($base, __DIR__ . '/../migrations');
 
                 $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
@@ -2501,6 +2509,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $schema = $stmt->fetchColumn();
 
                 if ($schema === false) {
+                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
                     $response->getBody()->write(json_encode([
                         'error' => 'Tenant not found',
                         'log' => $log,
@@ -2514,6 +2523,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $pdo = Database::connectWithSchema((string) $schema);
                 Migrator::migrate($pdo, __DIR__ . '/../migrations');
             } catch (\Throwable $e) {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
                 $response->getBody()->write(json_encode([
                     'error' => 'Failed to onboard tenant',
                     'log' => $log,
@@ -2525,6 +2535,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                     ->withStatus(500);
             }
 
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
             $payload = [
                 'status' => 'completed',
                 'tenant' => $slug,
@@ -2536,9 +2547,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json');
         }
 
-        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
-
         if (!is_file($script)) {
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
             $response->getBody()->write(json_encode([
                 'error' => 'Onboard script not found',
                 'log' => $log,
@@ -2554,6 +2564,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $composeFile = $tenantDir . '/docker-compose.yml';
 
         if (!$result['success'] || !is_file($composeFile)) {
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
             $response->getBody()->write(json_encode([
                 'error' => 'Failed to onboard tenant',
                 'stderr' => $result['stderr'],
@@ -2565,6 +2576,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
+        $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
         $payload = ['status' => 'completed', 'tenant' => $slug, 'log' => $log];
         $response->getBody()->write(json_encode($payload));
 
