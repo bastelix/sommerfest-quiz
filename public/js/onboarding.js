@@ -540,12 +540,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         addLog(data.log);
       }
       addLog('Onboarding abgeschlossen …');
-      return true;
+      return data || { status: 'completed' };
+    };
+
+    const computeTenantOrigin = slug => {
+      const baseDomain = (window.mainDomain || window.location.hostname || '').trim();
+      if (!baseDomain) {
+        return null;
+      }
+
+      const matchesCurrentHost = baseDomain.toLowerCase() === window.location.hostname.toLowerCase();
+      const protocol = matchesCurrentHost && window.location.protocol === 'http:'
+        ? 'http'
+        : 'https';
+      const port = matchesCurrentHost && window.location.port ? `:${window.location.port}` : '';
+
+      return `${protocol}://${slug}.${baseDomain}${port}`;
     };
 
     const waitForTenant = async slug => {
-      // directly probe HTTPS endpoint and retry on transient errors until certificates are issued
-      const url = `https://${slug}.${window.mainDomain}/healthz`;
+      const origin = computeTenantOrigin(slug);
+      if (!origin) {
+        addLog('Überspringe Verfügbarkeitsprüfung – keine Domain konfiguriert.');
+        return;
+      }
+
+      // directly probe endpoint and retry on transient errors until certificates are issued
+      const url = `${origin}/healthz`;
       // allow longer waiting periods for SSL certificate issuance
       const attempts = Number(window.waitForTenantRetries ?? 180);
       const delay = Number(window.waitForTenantDelay ?? 2000);
@@ -652,10 +673,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           throw new Error(msg);
         }
         mark('create', true);
+        let onboardingResult = null;
         start('import');
         try {
-          const onboarded = await onboardTenant(subdomain);
-          if (!onboarded) {
+          onboardingResult = await onboardTenant(subdomain);
+          if (!onboardingResult || onboardingResult.status !== 'completed') {
             throw new Error('Onboarding konnte nicht gestartet werden.');
           }
           mark('import', true);
@@ -666,40 +688,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         start('proxy');
         await wait(0);
         mark('proxy', true);
-      start('ssl');
-      await wait(0);
-      mark('ssl', true);
-      start('wait');
-      await waitForTenant(subdomain);
-      mark('wait', true);
+        start('ssl');
+        await wait(0);
+        mark('ssl', true);
 
-      await fetch(withBase('/tenant-welcome'), {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || '',
-          'X-Requested-With': 'fetch'
-        },
-        body: JSON.stringify({ schema: subdomain, email })
-      });
+        const isSingleContainer = onboardingResult && onboardingResult.mode === 'single-container';
 
-      await fetch(withBase('/onboarding/session'), {
-        method: 'DELETE',
-        credentials: 'same-origin',
-        headers: {
-          'X-CSRF-Token': window.csrfToken || '',
-          'X-Requested-With': 'fetch'
+        start('wait');
+        if (isSingleContainer) {
+          addLog('Single-Container-Modus aktiv – überspringe Wartezeit.');
+        } else {
+          await waitForTenant(subdomain);
         }
-      });
-      sessionData = {};
-      const targetUrl = `https://${subdomain}.${window.mainDomain}/`;
-      if (isAllowed(targetUrl)) {
-        window.location.href = escape(targetUrl);
-      } else {
-        console.error('Blocked redirect to untrusted URL:', targetUrl);
-      }
-      return;
+        mark('wait', true);
+
+        await fetch(withBase('/tenant-welcome'), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify({ schema: subdomain, email })
+        });
+
+        await fetch(withBase('/onboarding/session'), {
+          method: 'DELETE',
+          credentials: 'same-origin',
+          headers: {
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          }
+        });
+        sessionData = {};
+        const targetOrigin = computeTenantOrigin(subdomain);
+        const targetUrl = targetOrigin ? `${targetOrigin}/` : null;
+        if (targetUrl && isAllowed(targetUrl)) {
+          window.location.href = escape(targetUrl);
+        } else {
+          console.error('Blocked redirect to untrusted URL:', targetUrl);
+        }
+        return;
     } catch (e) {
       if (taskEls.wait && !taskEls.wait.spinner.hidden && !taskEls.wait.li.querySelector('span:not([uk-spinner])')) {
         mark('wait', false);
