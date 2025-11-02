@@ -69,7 +69,71 @@ class TenantService
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
         $this->nginxService = $nginxService;
-        $this->tenantsDir = $tenantsDir ?? (getenv('TENANTS_DIR') ?: dirname(__DIR__, 2) . '/tenants');
+        $this->tenantsDir = $this->resolveTenantsDir($tenantsDir);
+    }
+
+    private function resolveTenantsDir(?string $tenantsDir): string
+    {
+        $projectRoot = dirname(__DIR__, 2);
+        $envValue = getenv('TENANTS_DIR');
+        $path = $tenantsDir ?? ($envValue !== false && $envValue !== '' ? $envValue : $projectRoot . '/tenants');
+
+        if ($path === '') {
+            return $projectRoot . '/tenants';
+        }
+
+        $path = str_replace('\\', '/', $path);
+
+        if (!$this->isAbsolutePath($path)) {
+            $path = rtrim($projectRoot, '/') . '/' . ltrim($path, '/');
+        }
+
+        $realPath = realpath($path);
+        if ($realPath !== false) {
+            return $realPath;
+        }
+
+        return $this->normalisePath($path);
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return str_starts_with($path, '/')
+            || preg_match('~^[A-Za-z]:[\\/]~', $path) === 1
+            || str_starts_with($path, '\\');
+    }
+
+    private function normalisePath(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $segments = explode('/', $path);
+        $stack = [];
+        $prefix = '';
+
+        if ($segments !== [] && preg_match('~^[A-Za-z]:$~', $segments[0]) === 1) {
+            $prefix = array_shift($segments) . '/';
+        } elseif ($path !== '' && $path[0] === '/') {
+            $prefix = '/';
+        }
+
+        foreach ($segments as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+
+            if ($segment === '..') {
+                if ($stack !== []) {
+                    array_pop($stack);
+                }
+                continue;
+            }
+
+            $stack[] = $segment;
+        }
+
+        $normalised = $prefix . implode('/', $stack);
+
+        return $normalised !== '' ? $normalised : ($prefix === '' ? '.' : $prefix);
     }
 
     /**
