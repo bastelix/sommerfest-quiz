@@ -422,7 +422,11 @@ Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
   ACME-Endpunkte.
 * `ACME_WILDCARD_ENV_*` – Zugangsdaten für das gewählte DNS-Plugin, etwa
   `ACME_WILDCARD_ENV_CF_Token` und `ACME_WILDCARD_ENV_CF_Account_ID` für
-  Cloudflare.
+  Cloudflare. Beachte bei Anbietern mit gemischter Groß-/Kleinschreibung wie
+  Hetzner, dass du entweder den exakten Namen (`ACME_WILDCARD_ENV_HETZNER_Token`)
+  oder dessen komplett großgeschriebene Variante (`ACME_WILDCARD_ENV_HETZNER_TOKEN`)
+  verwenden kannst; das Skript setzt beide Formen auf die benötigte
+  `HETZNER_Token`-Umgebungsvariable des Plugins um.
 
 Ist das Zertifikat vorhanden, muss `scripts/create_tenant.sh` den
 `slim`-Container nicht mehr neu starten; neue Mandanten werden sofort nach dem
