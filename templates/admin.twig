@@ -2473,6 +2473,7 @@
     window.transTenantSyncLastRun = '{{ 'Letzter Sync'|e('js') }}';
     window.transTenantSyncThrottled = '{{ 'Sync läuft bereits – bitte später erneut versuchen'|e('js') }}';
     window.transTenantSyncSuccess = '{{ 'Mandanten eingelesen'|e('js') }}';
+    window.transTenantSyncNoChanges = '{{ t('notify_tenant_sync_no_changes')|e('js') }}';
     window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
