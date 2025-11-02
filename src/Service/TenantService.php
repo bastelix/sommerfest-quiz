@@ -88,12 +88,10 @@ class TenantService
             $path = rtrim($projectRoot, '/') . '/' . ltrim($path, '/');
         }
 
+        $path = $this->normalisePath($path);
         $realPath = realpath($path);
-        if ($realPath !== false) {
-            return $realPath;
-        }
 
-        return $this->normalisePath($path);
+        return $realPath !== false ? $realPath : $path;
     }
 
     private function isAbsolutePath(string $path): bool
@@ -112,6 +110,8 @@ class TenantService
 
         if (preg_match('~^[A-Za-z]:$~', $segments[0]) === 1) {
             $prefix = array_shift($segments) . '/';
+        } elseif (str_starts_with($path, '//')) {
+            $prefix = '//';
         } elseif (str_starts_with($path, '/')) {
             $prefix = '/';
         }

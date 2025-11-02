@@ -581,6 +581,97 @@ SQL;
         $this->assertSame(['main', 's1', 's2'], $subs);
     }
 
+    public function testImportMissingHonoursRelativeTenantsDirectory(): void {
+        $projectRoot = dirname(__DIR__, 2);
+        $base = sys_get_temp_dir() . '/tenants_rel_' . uniqid('', true);
+        $tenantsDir = $base . '/relative';
+        $tenantFolder = $tenantsDir . '/delta';
+
+        mkdir($tenantFolder, 0777, true);
+
+        $relative = $this->makeRelativePath($projectRoot, $tenantsDir);
+        $previousEnv = getenv('TENANTS_DIR');
+        $hadServer = array_key_exists('TENANTS_DIR', $_SERVER);
+        $hadEnv = array_key_exists('TENANTS_DIR', $_ENV);
+        $previousServer = $hadServer ? $_SERVER['TENANTS_DIR'] : null;
+        $previousEnvEntry = $hadEnv ? $_ENV['TENANTS_DIR'] : null;
+
+        putenv('TENANTS_DIR=' . $relative);
+        $_SERVER['TENANTS_DIR'] = $relative;
+        $_ENV['TENANTS_DIR'] = $relative;
+
+        try {
+            $pdo = new class extends PDO {
+                public function __construct() {
+                    parent::__construct('sqlite::memory:');
+                }
+
+                public function getAttribute($attr): mixed {
+                    if ($attr === PDO::ATTR_DRIVER_NAME) {
+                        return 'pgsql';
+                    }
+
+                    return parent::getAttribute($attr);
+                }
+
+                public function exec($statement): int|false {
+                    if (preg_match('/^(CREATE|DROP) SCHEMA/i', $statement)) {
+                        return 0;
+                    }
+
+                    return parent::exec($statement);
+                }
+            };
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
+            $pdo->exec('CREATE TABLE tenants(' .
+                'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
+                'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, ' .
+                'stripe_current_period_end TEXT, stripe_cancel_at_period_end INTEGER, ' .
+                'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
+                'imprint_email TEXT, custom_limits TEXT, onboarding_state TEXT NOT NULL DEFAULT "pending", ' .
+                'plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)');
+            $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
+            $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('public')");
+
+            $service = new TenantService($pdo);
+            $result = $service->importMissing();
+
+            $this->assertFalse($result['throttled']);
+            $this->assertSame(2, $result['imported']);
+            $subs = $pdo->query('SELECT subdomain FROM tenants ORDER BY subdomain')->fetchAll(PDO::FETCH_COLUMN);
+            $this->assertContains('delta', $subs);
+        } finally {
+            if ($previousEnv === false) {
+                putenv('TENANTS_DIR');
+            } else {
+                putenv('TENANTS_DIR=' . $previousEnv);
+            }
+
+            if ($hadServer) {
+                $_SERVER['TENANTS_DIR'] = $previousServer;
+            } else {
+                unset($_SERVER['TENANTS_DIR']);
+            }
+
+            if ($hadEnv) {
+                $_ENV['TENANTS_DIR'] = $previousEnvEntry;
+            } else {
+                unset($_ENV['TENANTS_DIR']);
+            }
+
+            if (is_dir($tenantFolder)) {
+                rmdir($tenantFolder);
+            }
+            if (is_dir($tenantsDir)) {
+                rmdir($tenantsDir);
+            }
+            if (is_dir($base)) {
+                rmdir($base);
+            }
+        }
+    }
+
     public function testImportMissingIsThrottledWithinCooldown(): void {
         $pdo = new class extends PDO {
             public function __construct() {
