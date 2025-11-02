@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Infrastructure\Migrations;
 
 use PDO;
+use PDOException;
+use Throwable;
 
 class Migrator
 {
@@ -64,7 +66,16 @@ class Migrator
                 continue;
             }
 
-            $pdo->exec($sql);
+            try {
+                $pdo->exec($sql);
+            } catch (PDOException $e) {
+                if (self::shouldIgnoreOnboardingStateDuplicate($pdo, $sql, $e)) {
+                    self::finalizeOnboardingStateMigration($pdo);
+                } else {
+                    throw $e;
+                }
+            }
+
             $ins = $pdo->prepare('INSERT INTO migrations(version) VALUES(?)');
             $ins->execute([$version]);
         }
@@ -109,5 +120,47 @@ SQL
             $ins = $pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)');
             $ins->execute([$events[0]]);
         }
+    }
+
+    private static function shouldIgnoreOnboardingStateDuplicate(PDO $pdo, string $sql, PDOException $e): bool
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return false;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (str_contains($normalizedSql, 'add column onboarding_state') === false ||
+            str_contains($normalizedSql, 'alter table tenants') === false) {
+            return false;
+        }
+
+        $sqlState = (string) $e->getCode();
+        $message = strtolower($e->getMessage());
+        if ($sqlState !== '42701' && str_contains($message, 'onboarding_state') === false) {
+            return false;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'tenants'
+                  AND column_name = 'onboarding_state'
+            SQL);
+        } catch (Throwable) {
+            return false;
+        }
+
+        if ($stmt === false) {
+            return false;
+        }
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    private static function finalizeOnboardingStateMigration(PDO $pdo): void
+    {
+        $pdo->exec("UPDATE tenants SET onboarding_state = 'completed'");
     }
 }
