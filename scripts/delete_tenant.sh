@@ -20,14 +20,57 @@ if [ "$#" -eq 2 ]; then
 fi
 BASE_DIR="$(dirname "$0")/.."
 ENV_FILE="$BASE_DIR/.env"
-DOMAIN="$(grep '^DOMAIN=' "$ENV_FILE" | cut -d '=' -f2)"
-NGINX_RELOAD="$(grep '^NGINX_RELOAD=' "$ENV_FILE" | cut -d '=' -f2)"
-RELOADER_URL="$(grep '^NGINX_RELOADER_URL=' "$ENV_FILE" | cut -d '=' -f2)"
-RELOAD_TOKEN="$(grep '^NGINX_RELOAD_TOKEN=' "$ENV_FILE" | cut -d '=' -f2)"
-NGINX_CONTAINER="$(grep '^NGINX_CONTAINER=' "$ENV_FILE" | cut -d '=' -f2)"
+MAIN_DOMAIN=""
 
-[ -z "$NGINX_RELOAD" ] && NGINX_RELOAD=1
-[ -z "$NGINX_CONTAINER" ] && NGINX_CONTAINER="nginx"
+if [ ! -f "$ENV_FILE" ]; then
+  echo "Environment file $ENV_FILE not found" >&2
+  exit 1
+fi
+
+get_env_value() {
+  key="$1"
+  default_value="$2"
+  raw_value=$(grep -E "^${key}=" "$ENV_FILE" | tail -n 1 | cut -d '=' -f2-)
+  if [ -z "$raw_value" ]; then
+    printf '%s' "$default_value"
+    return
+  }
+
+  value=$(printf '%s' "$raw_value" | sed 's/[[:space:]]*#.*$//' | tr -d '\r')
+  value=$(printf '%s' "$value" | sed 's/^ *//;s/ *$//;s/^"//;s/"$//')
+  if [ -z "$value" ]; then
+    printf '%s' "$default_value"
+  else
+    printf '%s' "$value"
+  fi
+}
+
+DOMAIN="$(get_env_value 'DOMAIN' '')"
+MAIN_DOMAIN="$(get_env_value 'MAIN_DOMAIN' '')"
+BASE_PATH="$(get_env_value 'BASE_PATH' '')"
+NGINX_RELOAD="$(get_env_value 'NGINX_RELOAD' '1')"
+RELOADER_URL="$(get_env_value 'NGINX_RELOADER_URL' '')"
+RELOAD_TOKEN="$(get_env_value 'NGINX_RELOAD_TOKEN' '')"
+NGINX_CONTAINER="$(get_env_value 'NGINX_CONTAINER' 'nginx')"
+
+API_HOST="$DOMAIN"
+if [ -z "$API_HOST" ]; then
+  API_HOST="$MAIN_DOMAIN"
+fi
+
+if [ -z "$API_HOST" ]; then
+  echo "DOMAIN or MAIN_DOMAIN must be set in $ENV_FILE" >&2
+  exit 1
+fi
+
+TENANT_DOMAIN="$MAIN_DOMAIN"
+if [ -z "$TENANT_DOMAIN" ]; then
+  TENANT_DOMAIN="$DOMAIN"
+fi
+
+if [ -z "$TENANT_DOMAIN" ]; then
+  TENANT_DOMAIN="$API_HOST"
+fi
 
 # detect docker compose only when a reload via Docker is required
 if [ "$NGINX_RELOAD" = "1" ] && [ -z "$RELOADER_URL" ]; then
@@ -41,14 +84,10 @@ if [ "$NGINX_RELOAD" = "1" ] && [ -z "$RELOADER_URL" ]; then
   fi
 fi
 
-if [ -z "$DOMAIN" ]; then
-  echo "DOMAIN not found in $ENV_FILE" >&2
-  exit 1
-fi
-
 if [ "$DELETE_BY_SUBDOMAIN" -eq 0 ]; then
   if [ -z "$UID" ]; then
-    UID=$(curl -s "http://$DOMAIN/tenants.json" | jq -r --arg sd "$SUBDOMAIN" '.tenants[] | select(.subdomain==$sd) | .uid')
+    API_BASE="http://$API_HOST${BASE_PATH}"
+    UID=$(curl -s "$API_BASE/tenants.json" | jq -r --arg sd "$SUBDOMAIN" '.tenants[] | select(.subdomain==$sd) | .uid')
   fi
   if [ -z "$UID" ] || [ "$UID" = "null" ]; then
     echo "Could not determine UID for tenant $SUBDOMAIN" >&2
@@ -59,14 +98,25 @@ else
   DATA="{\"subdomain\":\"$SUBDOMAIN\"}"
 fi
 
+API_BASE="http://$API_HOST${BASE_PATH}"
+
 curl -s -X DELETE \
   -H 'Content-Type: application/json' \
   -d "$DATA" \
-  "http://$DOMAIN/tenants"
+  "$API_BASE/tenants"
 
-rm -f "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
-rm -f "$BASE_DIR"/certs/"${SUBDOMAIN}.${DOMAIN}"*
-rm -rf "$BASE_DIR/acme/${SUBDOMAIN}.${DOMAIN}" "$BASE_DIR/acme/${SUBDOMAIN}.${DOMAIN}_ecc"
+case "$SUBDOMAIN" in
+  *.*)
+    HOST_NAME=$(printf '%s' "$SUBDOMAIN" | tr '[:upper:]' '[:lower:]')
+    ;;
+  *)
+    HOST_NAME=$(printf '%s.%s' "$SUBDOMAIN" "$TENANT_DOMAIN" | tr '[:upper:]' '[:lower:]')
+    ;;
+esac
+
+rm -f "$BASE_DIR/vhost.d/$HOST_NAME"
+rm -f "$BASE_DIR"/certs/"$HOST_NAME"*
+rm -rf "$BASE_DIR/acme/$HOST_NAME" "$BASE_DIR/acme/${HOST_NAME}_ecc"
 
 if [ -n "$RELOADER_URL" ]; then
   curl -s -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"

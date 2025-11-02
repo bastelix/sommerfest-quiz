@@ -65,9 +65,23 @@ detect_docker_compose() {
   fi
 }
 
-if [ -z "$DOMAIN" ]; then
-  echo "DOMAIN not found in $ENV_FILE" >&2
+API_HOST="$DOMAIN"
+if [ -z "$API_HOST" ]; then
+  API_HOST="$MAIN_DOMAIN"
+fi
+
+if [ -z "$API_HOST" ]; then
+  echo "DOMAIN or MAIN_DOMAIN must be set in $ENV_FILE" >&2
   exit 1
+fi
+
+TENANT_DOMAIN="$MAIN_DOMAIN"
+if [ -z "$TENANT_DOMAIN" ]; then
+  TENANT_DOMAIN="$DOMAIN"
+fi
+
+if [ -z "$TENANT_DOMAIN" ]; then
+  TENANT_DOMAIN="$API_HOST"
 fi
 
 if [ -z "$SERVICE_USER" ] || [ -z "$SERVICE_PASS" ]; then
@@ -80,7 +94,7 @@ case "$SUBDOMAIN" in
     VHOST_NAME=$(printf '%s' "$SUBDOMAIN" | tr '[:upper:]' '[:lower:]')
     ;;
   *)
-    VHOST_NAME=$(printf '%s.%s' "$SUBDOMAIN" "$DOMAIN" | tr '[:upper:]' '[:lower:]')
+    VHOST_NAME=$(printf '%s.%s' "$SUBDOMAIN" "$TENANT_DOMAIN" | tr '[:upper:]' '[:lower:]')
     ;;
 esac
 
@@ -90,11 +104,8 @@ if ! printf '%s' "$VHOST_NAME" | grep -Eq '^[a-z0-9-]+(\.[a-z0-9-]+)+$'; then
 fi
 
 if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
-  BASE_HOST="$MAIN_DOMAIN"
-  if [ -z "$BASE_HOST" ]; then
-    BASE_HOST="$DOMAIN"
-  fi
-
+  BASE_HOST="$TENANT_DOMAIN"
+  
   if [ -z "$BASE_HOST" ]; then
     echo "MAIN_DOMAIN or DOMAIN must be set for single container mode" >&2
     exit 1
@@ -117,7 +128,7 @@ if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
   fi
 fi
 
-API_BASE="http://$DOMAIN${BASE_PATH}"
+API_BASE="http://$API_HOST${BASE_PATH}"
 
 COOKIE_FILE=$(mktemp)
 

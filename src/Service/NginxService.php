@@ -27,7 +27,7 @@ class NginxService
         ?\GuzzleHttp\ClientInterface $httpClient = null
     ) {
         $this->vhostDir = $vhostDir ?? dirname(__DIR__, 2) . '/vhost.d';
-        $this->domain = $domain ?? (getenv('DOMAIN') ?: '');
+        $this->domain = $this->resolveDomain($domain);
         $this->clientMaxBodySize = $clientMaxBodySize ?? (getenv('CLIENT_MAX_BODY_SIZE') ?: '50m');
         $this->reload = $reload ?? (getenv('NGINX_RELOAD') !== '0');
         $this->reloaderUrl = $reloaderUrl ?? (getenv('NGINX_RELOADER_URL') ?: '');
@@ -37,7 +37,7 @@ class NginxService
 
     public function createVhost(string $sub): void {
         if ($this->domain === '') {
-            throw new \RuntimeException('DOMAIN not configured');
+            throw new \RuntimeException('Tenant domain not configured (set MAIN_DOMAIN or DOMAIN)');
         }
         if (!is_dir($this->vhostDir) && !mkdir($this->vhostDir, 0777, true) && !is_dir($this->vhostDir)) {
             throw new \RuntimeException('Unable to create vhost directory');
@@ -55,6 +55,22 @@ class NginxService
         if ($this->reload) {
             $this->reload();
         }
+    }
+
+    private function resolveDomain(?string $domain): string
+    {
+        if ($domain !== null && $domain !== '') {
+            return $domain;
+        }
+
+        $main = getenv('MAIN_DOMAIN') ?: '';
+        if ($main !== '') {
+            return $main;
+        }
+
+        $fallback = getenv('DOMAIN') ?: '';
+
+        return $fallback;
     }
 
     /**
