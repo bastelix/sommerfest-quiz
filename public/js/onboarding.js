@@ -488,11 +488,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const waitForTenant = async slug => {
-      // directly probe HTTPS endpoint and retry on TLS errors until certificates are issued
+      // directly probe HTTPS endpoint and retry on transient errors until certificates are issued
       const url = `https://${slug}.${window.mainDomain}/healthz`;
       // allow longer waiting periods for SSL certificate issuance
       const attempts = Number(window.waitForTenantRetries ?? 180);
       const delay = Number(window.waitForTenantDelay ?? 2000);
+      const transientStatuses = new Set([404, 502, 503, 504]);
       for (let i = 0; i < attempts; i++) {
         try {
           const res = await fetch(url, {
@@ -506,6 +507,8 @@ document.addEventListener('DOMContentLoaded', async () => {
               if (data.error) throw new Error(data.error);
               if (data.status === 'ok') return;
             }
+          } else if (transientStatuses.has(res.status)) {
+            addLog(`Tenant noch nicht erreichbar (HTTP ${res.status})`);
           } else {
             let msg = 'Tenant nicht verfügbar';
             try {
@@ -516,13 +519,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 msg = await res.text();
               }
             } catch (_) {}
-            throw new Error(msg);
+            throw new Error(msg || `HTTP ${res.status}`);
           }
         } catch (e) {
-          if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
+          const message = typeof e === 'object' && e !== null && 'message' in e
+            ? String(e.message)
+            : typeof e === 'string'
+              ? e
+              : '';
+          if (/certificate|tls|ssl/i.test(message)) {
             addLog('HTTPS-Zertifikat noch nicht verfügbar');
+          } else if (/fetch|network|net::|load failed|dns/i.test(message)) {
+            addLog('Verbindung zum Tenant fehlgeschlagen – versuche es erneut');
           } else {
-            throw e;
+            throw e instanceof Error ? e : new Error(message || String(e));
           }
         }
         addLog('Warten auf Tenant …');
