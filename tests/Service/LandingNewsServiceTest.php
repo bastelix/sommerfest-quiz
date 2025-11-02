@@ -17,8 +17,30 @@ class LandingNewsServiceTest extends TestCase
         parent::setUp();
         $this->pdo = new PDO('sqlite::memory:');
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->pdo->exec('CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT NOT NULL, title TEXT NOT NULL, content TEXT NOT NULL)');
-        $this->pdo->exec('CREATE TABLE landing_news (id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER NOT NULL, slug TEXT NOT NULL, title TEXT NOT NULL, excerpt TEXT, content TEXT NOT NULL, published_at TEXT, is_published INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)');
+        $this->pdo->exec(<<<'SQL'
+            CREATE TABLE pages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                slug TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL
+            )
+SQL
+        );
+        $this->pdo->exec(<<<'SQL'
+            CREATE TABLE landing_news (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                page_id INTEGER NOT NULL,
+                slug TEXT NOT NULL,
+                title TEXT NOT NULL,
+                excerpt TEXT,
+                content TEXT NOT NULL,
+                published_at TEXT,
+                is_published INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+            )
+SQL
+        );
         $stmt = $this->pdo->prepare('INSERT INTO pages (slug, title, content) VALUES (?, ?, ?)');
         $stmt->execute(['landing', 'Landing', '<p>Landing</p>']);
     }

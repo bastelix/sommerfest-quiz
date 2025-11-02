@@ -134,9 +134,29 @@ class LandingNewsService
         $normalizedExcerpt = $excerpt !== null ? trim($excerpt) : null;
         $timestamp = $this->normalizePublicationDate($publishedAt, $isPublished);
 
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO landing_news (page_id, slug, title, excerpt, content, published_at, is_published, created_at, updated_at) '
-            . 'VALUES (:pageId, :slug, :title, :excerpt, :content, :publishedAt, :isPublished, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)'
+        $stmt = $this->pdo->prepare(<<<'SQL'
+            INSERT INTO landing_news (
+                page_id,
+                slug,
+                title,
+                excerpt,
+                content,
+                published_at,
+                is_published,
+                created_at,
+                updated_at
+            ) VALUES (
+                :pageId,
+                :slug,
+                :title,
+                :excerpt,
+                :content,
+                :publishedAt,
+                :isPublished,
+                CURRENT_TIMESTAMP,
+                CURRENT_TIMESTAMP
+            )
+SQL
         );
         $stmt->bindValue('pageId', $pageId, PDO::PARAM_INT);
         $stmt->bindValue('slug', $normalizedSlug);
@@ -189,10 +209,18 @@ class LandingNewsService
         $normalizedExcerpt = $excerpt !== null ? trim($excerpt) : null;
         $timestamp = $this->normalizePublicationDate($publishedAt, $isPublished);
 
-        $stmt = $this->pdo->prepare(
-            'UPDATE landing_news SET page_id = :pageId, slug = :slug, title = :title, excerpt = :excerpt, '
-            . 'content = :content, published_at = :publishedAt, is_published = :isPublished, updated_at = CURRENT_TIMESTAMP '
-            . 'WHERE id = :id'
+        $stmt = $this->pdo->prepare(<<<'SQL'
+            UPDATE landing_news SET
+                page_id = :pageId,
+                slug = :slug,
+                title = :title,
+                excerpt = :excerpt,
+                content = :content,
+                published_at = :publishedAt,
+                is_published = :isPublished,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = :id
+SQL
         );
         $stmt->bindValue('pageId', $pageId, PDO::PARAM_INT);
         $stmt->bindValue('slug', $normalizedSlug);
