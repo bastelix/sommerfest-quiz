@@ -123,7 +123,15 @@ if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
   CERT_PATH="$BASE_DIR/certs/$BASE_HOST.crt"
   KEY_PATH="$BASE_DIR/certs/$BASE_HOST.key"
   if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
-    echo "Wildcard certificate certs/$BASE_HOST.crt/.key not found. Provide a Let's Encrypt wildcard for *.$BASE_HOST" >&2
+    echo "Wildcard certificate certs/$BASE_HOST.crt/.key missing; attempting automated provisioning" >&2
+    if ! "$BASE_DIR/scripts/provision_wildcard.sh" --domain "$BASE_HOST" >/dev/null; then
+      echo "Automatic wildcard provisioning failed. Ensure certs/$BASE_HOST.crt and certs/$BASE_HOST.key exist." >&2
+      exit 1
+    fi
+  fi
+
+  if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
+    echo "Wildcard certificate certs/$BASE_HOST.crt/.key not found after provisioning attempt." >&2
     exit 1
   fi
 fi
