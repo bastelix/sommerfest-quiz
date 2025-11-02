@@ -7043,6 +7043,51 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
+  function applyTenantListHtml(html) {
+    if (typeof html !== 'string' || html.trim() === '') {
+      return false;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const newBody = doc.getElementById('tenantTableBody');
+    const newCards = doc.getElementById('tenantCards');
+    const metaState = extractTenantSyncState(doc);
+    let applied = false;
+
+    if (tenantTableBody) {
+      if (newBody) {
+        tenantTableBody.innerHTML = newBody.innerHTML;
+        applied = true;
+      } else {
+        tenantTableBody.innerHTML = '';
+      }
+    }
+
+    if (tenantCards) {
+      if (newCards) {
+        tenantCards.innerHTML = newCards.innerHTML;
+        applied = true;
+      } else {
+        tenantCards.innerHTML = '';
+      }
+    }
+
+    if (applied) {
+      bindTenantColumnButton();
+    }
+
+    if (metaState) {
+      updateTenantSyncState(metaState);
+    }
+
+    if (applied) {
+      updateTenantColumnVisibility();
+    }
+
+    return applied;
+  }
+
   function showTenantSpinner() {
     if (tenantTableBody) {
       const columnCount = tenantTableHeadings.length || tenantColumnDefs.length || 1;
@@ -7313,7 +7358,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const original = tenantSyncBtn.innerHTML;
     tenantSyncBtn.disabled = true;
     tenantSyncBtn.innerHTML = '<div uk-spinner></div>';
-    apiFetch('/tenants/sync', { method: 'POST' })
+    const params = new URLSearchParams();
+    const normalizedStatus = normalizeTenantStatus(tenantStatusFilter?.value || '');
+    const searchQueryRaw = typeof tenantSearchInput?.value === 'string' ? tenantSearchInput.value : '';
+    const searchQuery = searchQueryRaw.trim();
+    if (normalizedStatus) params.set('status', normalizedStatus);
+    if (searchQuery) params.set('query', searchQuery);
+    const syncUrl = '/tenants/sync' + (params.toString() ? ('?' + params.toString()) : '');
+    let shouldRefresh = true;
+    apiFetch(syncUrl, { method: 'POST' })
       .then(async r => {
         const data = await r.json().catch(() => ({}));
         if (!r.ok) {
@@ -7324,6 +7377,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
       })
       .then(data => {
+        if (typeof data?.html === 'string' && applyTenantListHtml(data.html)) {
+          shouldRefresh = false;
+        }
         if (data?.sync) {
           updateTenantSyncState(data.sync);
         }
@@ -7338,7 +7394,9 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Fehler beim Synchronisieren', 'danger');
       })
       .finally(() => {
-        refreshTenantList();
+        if (shouldRefresh) {
+          refreshTenantList();
+        }
         tenantSyncBtn.disabled = false;
         tenantSyncBtn.innerHTML = original;
       });
@@ -7362,23 +7420,9 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch(url, { headers: { 'Accept': 'text/html' } })
       .then(r => r.ok ? r.text() : Promise.reject(r))
       .then((html) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newBody = doc.getElementById('tenantTableBody');
-        const newCards = doc.getElementById('tenantCards');
-        const metaState = extractTenantSyncState(doc);
-        if (newBody) {
-          tenantTableBody.innerHTML = newBody.innerHTML;
-          bindTenantColumnButton();
+        if (!applyTenantListHtml(html) && tenantTableBody) {
+          tenantTableBody.innerHTML = '';
         }
-        if (tenantCards && newCards) {
-          tenantCards.innerHTML = newCards.innerHTML;
-          bindTenantColumnButton();
-        }
-        if (metaState) {
-          updateTenantSyncState(metaState);
-        }
-        updateTenantColumnVisibility();
       })
       .catch(() => notify('Mandanten konnten nicht geladen werden', 'danger'));
   }

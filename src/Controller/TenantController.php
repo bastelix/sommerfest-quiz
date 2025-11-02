@@ -120,6 +120,11 @@ class TenantController
     public function sync(Request $request, Response $response): Response {
         try {
             $result = $this->service->importMissing();
+            $params = $request->getQueryParams();
+            $status = $this->normaliseStatusParam($params['status'] ?? '');
+            $query = isset($params['query']) ? (string) $params['query'] : '';
+            $syncState = isset($result['sync']) && is_array($result['sync']) ? $result['sync'] : null;
+            $result['html'] = $this->renderTenantList($request, $status, $query, $syncState);
             $response->getBody()->write(json_encode($result));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Throwable $e) {
@@ -163,7 +168,7 @@ class TenantController
     public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $query = isset($params['query']) ? (string) $params['query'] : '';
-        $status = isset($params['status']) ? strtolower((string) $params['status']) : '';
+        $status = $this->normaliseStatusParam($params['status'] ?? '');
         $list = $this->service->getAll($query);
         $list = $this->filterByStatus($list, $status);
         $response->getBody()->write(json_encode($list));
@@ -175,20 +180,9 @@ class TenantController
      */
     public function listHtml(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $status = isset($params['status']) ? strtolower((string) $params['status']) : '';
+        $status = $this->normaliseStatusParam($params['status'] ?? '');
         $query = isset($params['query']) ? (string) $params['query'] : '';
-        $list = $this->service->getAll($query);
-        /** @var array<array<string, mixed>> $list */
-        $list = $this->filterByStatus($list, $status);
-        $view = Twig::fromRequest($request);
-        $html = $view->fetch('admin/tenant_list.twig', [
-            'tenants' => $list,
-            'main_domain' => getenv('MAIN_DOMAIN') ?: '',
-            'stripe_dashboard' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN)
-                ? 'https://dashboard.stripe.com/test'
-                : 'https://dashboard.stripe.com',
-            'tenant_sync' => $this->service->getSyncState(),
-        ]);
+        $html = $this->renderTenantList($request, $status, $query);
         $response->getBody()->write($html);
         return $response->withHeader('Content-Type', 'text/html');
     }
@@ -234,5 +228,36 @@ class TenantController
                 }
             )
         );
+    }
+
+    private function normaliseStatusParam(mixed $status): string {
+        if (!is_string($status)) {
+            return '';
+        }
+
+        $normalized = strtolower(trim($status));
+
+        return in_array($normalized, self::FILTERABLE_STATUSES, true) ? $normalized : '';
+    }
+
+    private function renderTenantList(
+        Request $request,
+        string $status,
+        string $query,
+        ?array $syncState = null
+    ): string {
+        $list = $this->service->getAll($query);
+        /** @var array<array<string, mixed>> $list */
+        $list = $this->filterByStatus($list, $status);
+        $view = Twig::fromRequest($request);
+
+        return $view->fetch('admin/tenant_list.twig', [
+            'tenants' => $list,
+            'main_domain' => getenv('MAIN_DOMAIN') ?: '',
+            'stripe_dashboard' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN)
+                ? 'https://dashboard.stripe.com/test'
+                : 'https://dashboard.stripe.com',
+            'tenant_sync' => $syncState ?? $this->service->getSyncState(),
+        ]);
     }
 }
