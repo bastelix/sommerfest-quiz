@@ -389,6 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const taskStatus = document.getElementById('task-status');
     const taskLog = document.getElementById('task-log');
     const taskLogDetails = document.getElementById('task-log-details');
+    const copyTaskLogBtn = document.getElementById('copyTaskLog');
 
     const tasks = [
       { id: 'create', label: 'Mandant anlegen' },
@@ -400,16 +401,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     const taskEls = {};
     const taskMap = {};
 
+    const updateCopyButtonVisibility = () => {
+      if (!copyTaskLogBtn || !taskLog) return;
+      copyTaskLogBtn.hidden = taskLog.children.length === 0;
+    };
+
     const addLog = msg => {
       if (!taskLog) return;
       const li = document.createElement('li');
       li.textContent = msg;
       taskLog.appendChild(li);
       taskLog.scrollTop = taskLog.scrollHeight;
+      updateCopyButtonVisibility();
       if (taskLogDetails) {
         taskLogDetails.open = true;
       }
     };
+
+    if (copyTaskLogBtn && taskLog) {
+      updateCopyButtonVisibility();
+      const defaultLabel = copyTaskLogBtn.textContent;
+
+      const showFeedback = (text, delay = 2000) => {
+        copyTaskLogBtn.textContent = text;
+        setTimeout(() => {
+          copyTaskLogBtn.textContent = defaultLabel;
+        }, delay);
+      };
+
+      copyTaskLogBtn.addEventListener('click', async () => {
+        const items = Array.from(taskLog.querySelectorAll('li')).map(li => li.textContent).filter(Boolean);
+        if (!items.length) {
+          return;
+        }
+        const text = items.join('\n');
+        let success = false;
+        if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(text);
+            success = true;
+          } catch (e) {
+            success = false;
+          }
+        }
+        if (!success) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.top = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            success = document.execCommand('copy');
+          } catch (e) {
+            success = false;
+          }
+          document.body.removeChild(textarea);
+        }
+        if (success) {
+          showFeedback('Kopiert!');
+        } else {
+          showFeedback('Kopieren fehlgeschlagen', 2500);
+        }
+      });
+    }
 
     const start = id => {
       const entry = taskEls[id];
