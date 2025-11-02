@@ -331,11 +331,14 @@ cp sample.env .env
 docker compose up --build -d
 ```
 Die Datei setzt `COMPOSE_PROJECT_NAME=sommerfest-quiz`, damit Docker Compose vorhandene Container und Volumes bei späteren Deployments wiederverwendet.
-Falls der Reverse Proxy das Docker-Netzwerk noch nicht kennt, lege es vorher an:
+Standardmäßig legt Docker Compose das benötigte Netzwerk automatisch an. Soll
+ein bereits vorhandenes Proxy-Netz genutzt werden, setze in deiner `.env`
+`NETWORK_EXTERNAL=true` und lege das Netz manuell an:
 ```bash
 docker network create ${NETWORK:-webproxy}
 ```
-Der Name des Netzwerks lässt sich über die Umgebungsvariable `NETWORK` anpassen.
+Den Namen kannst du weiterhin über die Umgebungsvariable `NETWORK`
+konfigurieren.
 Beenden lässt sich der Stack mit:
 ```bash
 docker compose down
