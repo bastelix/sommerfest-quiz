@@ -2457,48 +2457,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONING);
-        $singleContainer = filter_var((string) getenv('TENANT_SINGLE_CONTAINER'), FILTER_VALIDATE_BOOLEAN);
-
-        if ($singleContainer) {
-            try {
-                $schemaPdo = Database::connectWithSchema($slug);
-                MigrationRuntime::ensureUpToDate($schemaPdo, __DIR__ . '/../migrations', 'schema:' . $slug);
-            } catch (\Throwable $e) {
-                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
-                $response->getBody()->write(json_encode([
-                    'error' => 'migration-failed',
-                    'details' => $e->getMessage(),
-                    'log' => $log,
-                ]));
-
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(500);
-            }
-
-            $message = sprintf('[%s] Single container mode active – skipped docker onboarding for "%s".', date('c'), $slug);
-            if (!is_dir(dirname($logPath))) {
-                mkdir(dirname($logPath), 0775, true);
-            }
-            file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
-            $log = (string) file_get_contents($logPath);
-
-            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
-            $payload = [
-                'status' => 'completed',
-                'tenant' => $slug,
-                'mode' => 'single-container',
-                'log' => $log,
-            ];
-            $response->getBody()->write(json_encode($payload));
-
-            return $response->withHeader('Content-Type', 'application/json');
-        }
-
-        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         $singleContainerFlag = getenv('TENANT_SINGLE_CONTAINER');
-        $singleContainerEnabled = $singleContainerFlag !== false && trim((string) $singleContainerFlag) === '1';
+        $singleContainerEnabled = filter_var((string) $singleContainerFlag, FILTER_VALIDATE_BOOLEAN);
 
         if ($singleContainerEnabled) {
             try {
@@ -2535,6 +2496,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                     ->withStatus(500);
             }
 
+            $message = sprintf('[%s] Single container mode active – skipped docker onboarding for "%s".', date('c'), $slug);
+            if (!is_dir(dirname($logPath))) {
+                mkdir(dirname($logPath), 0775, true);
+            }
+            file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+            $log = (string) file_get_contents($logPath);
+
             $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
             $payload = [
                 'status' => 'completed',
@@ -2546,6 +2514,8 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             return $response->withHeader('Content-Type', 'application/json');
         }
+
+        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
             $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
