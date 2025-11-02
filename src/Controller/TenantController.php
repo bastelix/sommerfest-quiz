@@ -123,7 +123,16 @@ class TenantController
             $params = $request->getQueryParams();
             $status = $this->normaliseStatusParam($params['status'] ?? '');
             $query = isset($params['query']) ? (string) $params['query'] : '';
-            $syncState = isset($result['sync']) && is_array($result['sync']) ? $result['sync'] : null;
+            /** @var array{
+             *     last_run_at:?string,
+             *     next_allowed_at:?string,
+             *     cooldown_seconds:int,
+             *     stale_after_seconds:int,
+             *     is_stale:bool,
+             *     is_throttled:bool
+             * } $syncState
+             */
+            $syncState = $result['sync'];
             $result['html'] = $this->renderTenantList($request, $status, $query, $syncState);
             $response->getBody()->write(json_encode($result));
             return $response->withHeader('Content-Type', 'application/json');
