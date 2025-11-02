@@ -29,8 +29,8 @@ class NginxService
         $this->vhostDir = $vhostDir ?? dirname(__DIR__, 2) . '/vhost.d';
         $this->domain = $this->resolveDomain($domain);
         $this->clientMaxBodySize = $clientMaxBodySize ?? (getenv('CLIENT_MAX_BODY_SIZE') ?: '50m');
-        $this->reload = $reload ?? (getenv('NGINX_RELOAD') !== '0');
         $this->reloaderUrl = $reloaderUrl ?? (getenv('NGINX_RELOADER_URL') ?: '');
+        $this->reload = $this->resolveReloadFlag($reload);
         $this->reloadToken = $reloadToken ?? (getenv('NGINX_RELOAD_TOKEN') ?: '');
         $this->httpClient = $httpClient ?? new \GuzzleHttp\Client();
     }
@@ -71,6 +71,19 @@ class NginxService
         $fallback = getenv('DOMAIN') ?: '';
 
         return $fallback;
+    }
+
+    private function resolveReloadFlag(?bool $reload): bool
+    {
+        if ($reload !== null) {
+            return $reload;
+        }
+
+        if ($this->reloaderUrl !== '') {
+            return true;
+        }
+
+        return getenv('NGINX_RELOAD') !== '0';
     }
 
     /**
