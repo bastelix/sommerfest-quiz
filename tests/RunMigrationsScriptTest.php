@@ -73,6 +73,20 @@ class RunMigrationsScriptTest extends TestCase
         $this->assertSame('public', $schemas[0]['schema']);
         $this->assertSame(spl_object_id($basePdo), $schemas[0]['pdo']);
 
+        $hookCountsByConnection = [];
+        foreach ($schemas as $schemaCall) {
+            $pdoId = $schemaCall['pdo'];
+            $hookCountsByConnection[$pdoId] = ($hookCountsByConnection[$pdoId] ?? 0) + 1;
+        }
+
+        foreach ($hookCountsByConnection as $pdoId => $count) {
+            $this->assertSame(
+                1,
+                $count,
+                sprintf('Expected hook to run once for connection %d, but ran %d times.', $pdoId, $count)
+            );
+        }
+
         $this->assertNotEmpty($migratorCalls, 'Migrator should be invoked for the base connection.');
         $this->assertSame(spl_object_id($basePdo), $migratorCalls[0]['pdo']);
         $this->assertContains('SELECT subdomain FROM tenants', $basePdo->queries);
