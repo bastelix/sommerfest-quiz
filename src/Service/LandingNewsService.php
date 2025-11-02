@@ -134,7 +134,7 @@ class LandingNewsService
         $normalizedExcerpt = $excerpt !== null ? trim($excerpt) : null;
         $timestamp = $this->normalizePublicationDate($publishedAt, $isPublished);
 
-        $stmt = $this->pdo->prepare(<<<'SQL'
+        $query = <<<'SQL'
             INSERT INTO landing_news (
                 page_id,
                 slug,
@@ -156,8 +156,9 @@ class LandingNewsService
                 CURRENT_TIMESTAMP,
                 CURRENT_TIMESTAMP
             )
-SQL
-        );
+SQL;
+
+        $stmt = $this->pdo->prepare($query);
         $stmt->bindValue('pageId', $pageId, PDO::PARAM_INT);
         $stmt->bindValue('slug', $normalizedSlug);
         $stmt->bindValue('title', $normalizedTitle);
@@ -209,7 +210,7 @@ SQL
         $normalizedExcerpt = $excerpt !== null ? trim($excerpt) : null;
         $timestamp = $this->normalizePublicationDate($publishedAt, $isPublished);
 
-        $stmt = $this->pdo->prepare(<<<'SQL'
+        $query = <<<'SQL'
             UPDATE landing_news SET
                 page_id = :pageId,
                 slug = :slug,
@@ -220,8 +221,9 @@ SQL
                 is_published = :isPublished,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id = :id
-SQL
-        );
+SQL;
+
+        $stmt = $this->pdo->prepare($query);
         $stmt->bindValue('pageId', $pageId, PDO::PARAM_INT);
         $stmt->bindValue('slug', $normalizedSlug);
         $stmt->bindValue('title', $normalizedTitle);
