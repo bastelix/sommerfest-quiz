@@ -124,9 +124,11 @@ class TenantService
             }
 
             if ($segment === '..') {
-                if ($stack !== []) {
-                    array_pop($stack);
+                if ($stack === []) {
+                    continue;
                 }
+
+                array_pop($stack);
                 continue;
             }
 
