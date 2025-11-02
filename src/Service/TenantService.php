@@ -110,7 +110,9 @@ class TenantService
         $stack = [];
         $prefix = '';
 
-        if ($segments !== [] && preg_match('~^[A-Za-z]:$~', $segments[0]) === 1) {
+        $firstSegment = $segments[0] ?? null;
+
+        if ($firstSegment !== null && preg_match('~^[A-Za-z]:$~', $firstSegment) === 1) {
             $prefix = array_shift($segments) . '/';
         } elseif ($path !== '' && $path[0] === '/') {
             $prefix = '/';
