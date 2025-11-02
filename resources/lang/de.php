@@ -880,6 +880,7 @@ return [
     'action_delete_tenant' => 'Mandant löschen',
     'action_build_image' => 'Docker-Image bauen',
     'action_sync_tenants' => 'Fehlende Mandanten suchen',
+    'notify_tenant_sync_no_changes' => 'Keine neuen Mandanten gefunden ({count} importiert).',
     'action_renew_ssl' => 'SSL erneuern',
     'action_upgrade_docker' => 'Docker aktualisieren',
     'action_restart_tenant' => 'Docker neu starten',

@@ -7403,8 +7403,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (data?.throttled) {
           notify(window.transTenantSyncThrottled || 'Sync läuft bereits – bitte später erneut versuchen', 'warning');
-        } else {
+          return;
+        }
+
+        const importedRaw = data?.imported;
+        const importedNumber = typeof importedRaw === 'number'
+          ? importedRaw
+          : (typeof importedRaw === 'string' && importedRaw.trim() !== '' ? Number(importedRaw) : NaN);
+        const imported = Number.isFinite(importedNumber) ? importedNumber : 0;
+
+        if (imported > 0) {
           notify(window.transTenantSyncSuccess || 'Mandanten eingelesen', 'success');
+        } else {
+          const template = window.transTenantSyncNoChanges || 'Keine neuen Mandanten gefunden ({count} importiert)';
+          const message = template.replace('{count}', String(imported));
+          notify(message, 'warning');
         }
       })
       .catch(err => {
