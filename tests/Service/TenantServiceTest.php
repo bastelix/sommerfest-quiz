@@ -12,6 +12,29 @@ use App\Infrastructure\Migrations\Migrator;
 
 class TenantServiceTest extends TestCase
 {
+    private function makeRelativePath(string $from, string $to): string
+    {
+        $from = str_replace('\\', '/', rtrim($from, '/'));
+        $to = str_replace('\\', '/', rtrim($to, '/'));
+
+        $fromSegments = $from === '' ? [] : explode('/', ltrim($from, '/'));
+        $toSegments = $to === '' ? [] : explode('/', ltrim($to, '/'));
+
+        $common = 0;
+        $max = min(count($fromSegments), count($toSegments));
+        while ($common < $max && $fromSegments[$common] === $toSegments[$common]) {
+            $common++;
+        }
+
+        $up = array_fill(0, count($fromSegments) - $common, '..');
+        $down = array_slice($toSegments, $common);
+        $parts = array_merge($up, $down);
+
+        $relative = implode('/', $parts);
+
+        return $relative !== '' ? $relative : '.';
+    }
+
     private function createService(
         string $dir,
         PDO &$pdo,
@@ -652,6 +675,84 @@ SQL;
         rmdir($tenantsDir . '/' . $sub);
         if ($createdRoot) {
             rmdir($tenantsDir);
+        }
+    }
+
+    public function testImportMissingUsesRelativeTenantsDir(): void
+    {
+        $projectRoot = dirname(__DIR__, 2);
+        $tempRoot = sys_get_temp_dir() . '/tenants_relative_' . uniqid('', true);
+        $tenantsDir = $tempRoot . '/tenants';
+        mkdir($tenantsDir, 0777, true);
+        $subdomain = 'rel' . uniqid();
+        mkdir($tenantsDir . '/' . $subdomain);
+
+        $relativePath = $this->makeRelativePath($projectRoot, $tenantsDir);
+
+        $previousEnv = getenv('TENANTS_DIR');
+        $hadEnv = $previousEnv !== false;
+        putenv('TENANTS_DIR=' . $relativePath);
+
+        try {
+            $pdo = new class extends PDO {
+                public function __construct() {
+                    parent::__construct('sqlite::memory:');
+                }
+
+                public function getAttribute($attr): mixed
+                {
+                    if ($attr === PDO::ATTR_DRIVER_NAME) {
+                        return 'pgsql';
+                    }
+
+                    return parent::getAttribute($attr);
+                }
+
+                public function exec($statement): int|false
+                {
+                    if (str_starts_with($statement, 'CREATE SCHEMA')) {
+                        return 0;
+                    }
+
+                    return parent::exec($statement);
+                }
+            };
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
+            $pdo->exec('CREATE TABLE tenants(' .
+                'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
+                'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, ' .
+                'stripe_current_period_end TEXT, stripe_cancel_at_period_end INTEGER, ' .
+                'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
+                'imprint_email TEXT, custom_limits TEXT, onboarding_state TEXT NOT NULL DEFAULT "pending", ' .
+                'plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)');
+            $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
+            $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('public')");
+
+            $service = new TenantService($pdo);
+            $result = $service->importMissing();
+
+            $this->assertSame(2, $result['imported']);
+            $this->assertFalse($result['throttled']);
+
+            $subs = $pdo->query('SELECT subdomain FROM tenants ORDER BY subdomain')->fetchAll(PDO::FETCH_COLUMN);
+            $this->assertSame(['main', $subdomain], $subs);
+        } finally {
+            if ($hadEnv) {
+                putenv('TENANTS_DIR=' . $previousEnv);
+            } else {
+                putenv('TENANTS_DIR');
+            }
+
+            if (is_dir($tenantsDir . '/' . $subdomain)) {
+                rmdir($tenantsDir . '/' . $subdomain);
+            }
+            if (is_dir($tenantsDir)) {
+                rmdir($tenantsDir);
+            }
+            if (is_dir($tempRoot)) {
+                rmdir($tempRoot);
+            }
         }
     }
 }
