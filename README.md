@@ -404,9 +404,29 @@ Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
 falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt und als
 `certs/<domain>.crt` sowie `certs/<domain>.key` im Projekt liegt. Der
 `acme-companion` kann ein solches Zertifikat über die DNS-Challenge beziehen und
-unter gleichem Namen in das `certs/`-Volume schreiben. Ist das Zertifikat
-vorhanden, muss `scripts/create_tenant.sh` den `slim`-Container nicht mehr neu
-starten; neue Mandanten werden sofort nach dem Proxy-Reload erreichbar.
+unter gleichem Namen in das `certs/`-Volume schreiben. Die neue Hilfsroutine
+`scripts/provision_wildcard.sh` stößt diesen Prozess automatisiert an: Sie
+startet bei Bedarf den `acme-companion`, ruft `acme.sh` mit dem in `.env`
+konfigurierten DNS-Plugin auf und legt das Zertifikat im `certs/`-Verzeichnis
+ab. `scripts/create_tenant.sh` ruft die Routine automatisch auf, wenn das
+Wildcard-Zertifikat noch fehlt.
+
+Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
+
+* `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (z. B. `dns_cf`).
+* `ACME_WILDCARD_ACCOUNT_EMAIL` (optional) – Account-Adresse; fällt ansonsten
+  auf `LETSENCRYPT_EMAIL` zurück.
+* `ACME_WILDCARD_SERVICE` (optional) – Compose-Service des Companions
+  (`acme-companion`).
+* `ACME_WILDCARD_SERVER` und `ACME_WILDCARD_USE_STAGING` für abweichende
+  ACME-Endpunkte.
+* `ACME_WILDCARD_ENV_*` – Zugangsdaten für das gewählte DNS-Plugin, etwa
+  `ACME_WILDCARD_ENV_CF_Token` und `ACME_WILDCARD_ENV_CF_Account_ID` für
+  Cloudflare.
+
+Ist das Zertifikat vorhanden, muss `scripts/create_tenant.sh` den
+`slim`-Container nicht mehr neu starten; neue Mandanten werden sofort nach dem
+Proxy-Reload erreichbar.
 
 Das Skript sendet einen API-Aufruf an `/tenants`, legt die Datei
 `vhost.d/foo.$DOMAIN` an und lädt anschließend den Proxy neu. Zum Entfernen
