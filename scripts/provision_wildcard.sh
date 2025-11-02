@@ -13,7 +13,9 @@ Ensures a wildcard certificate for the given domain exists in certs/.
 If no domain is provided, the script uses MAIN_DOMAIN or DOMAIN from .env.
 
 Environment variables in .env:
-  ACME_WILDCARD_PROVIDER   DNS plugin passed to acme.sh (e.g. dns_cf)
+  ACME_WILDCARD_PROVIDER   DNS plugin passed to acme.sh (e.g. dns_cf).
+                           Leave empty or set to "manual" to handle the
+                           DNS challenge manually.
   ACME_WILDCARD_SERVICE    Docker Compose service name (default: acme-companion)
   ACME_WILDCARD_SERVER     Optional ACME server URI
   ACME_WILDCARD_USE_STAGING  Set to 1 to request from the staging endpoint
@@ -108,9 +110,19 @@ if [ -f "$CERT_PATH" ] && [ -f "$KEY_PATH" ] && [ "$FORCE" -eq 0 ]; then
 fi
 
 ACME_PROVIDER="$(get_env_value 'ACME_WILDCARD_PROVIDER' '')"
-if [ -z "$ACME_PROVIDER" ]; then
+MANUAL_MODE=0
+if [ -z "$ACME_PROVIDER" ] || [ "$ACME_PROVIDER" = "manual" ]; then
+  MANUAL_MODE=1
+  ACME_PROVIDER=""
+fi
+
+if [ "$MANUAL_MODE" -eq 0 ] && [ -z "$ACME_PROVIDER" ]; then
   echo "ACME_WILDCARD_PROVIDER must be set in .env (e.g. dns_cf)" >&2
   exit 1
+fi
+
+if [ "$MANUAL_MODE" -eq 1 ]; then
+  echo "Running ACME manual DNS mode. You will need to create TXT records yourself." >&2
 fi
 
 ACME_SERVICE="$(get_env_value 'ACME_WILDCARD_SERVICE' 'acme-companion')"
@@ -184,7 +196,13 @@ set -- $DOCKER_COMPOSE -f "$COMPOSE_FILE" run --rm
 for var in $ACME_ENV_VARS; do
   set -- "$@" -e "$var"
 done
-set -- "$@" --entrypoint /app/acme.sh "$ACME_SERVICE" --home /app --config-home /etc/acme.sh/default --issue --dns "$ACME_PROVIDER" -d "$TARGET_DOMAIN" -d "*.$TARGET_DOMAIN" --accountemail "$ACCOUNT_EMAIL"
+set -- "$@" --entrypoint /app/acme.sh "$ACME_SERVICE" --home /app --config-home /etc/acme.sh/default --issue
+if [ "$MANUAL_MODE" -eq 1 ]; then
+  set -- "$@" --dns --yes-I-know-dns-manual-mode-enough-go-ahead-please
+else
+  set -- "$@" --dns "$ACME_PROVIDER"
+fi
+set -- "$@" -d "$TARGET_DOMAIN" -d "*.$TARGET_DOMAIN" --accountemail "$ACCOUNT_EMAIL"
 if [ -n "$ACME_SERVER" ]; then
   set -- "$@" --server "$ACME_SERVER"
 fi
@@ -196,6 +214,66 @@ if [ -n "$ACME_ISSUE_FLAGS" ]; then
     set -- "$@" "$flag"
   done
 fi
+if [ "$MANUAL_MODE" -eq 0 ]; then
+  "$@"
+  exit 0
+fi
+
+TMP_OUTPUT=$(mktemp)
+cleanup_tmp() {
+  rm -f "$TMP_OUTPUT"
+}
+trap cleanup_tmp EXIT HUP INT TERM
+
+set +e
+"$@" >"$TMP_OUTPUT" 2>&1
+STATUS=$?
+set -e
+cat "$TMP_OUTPUT"
+
+if [ "$STATUS" -eq 0 ]; then
+  exit 0
+fi
+
+TXT_DOMAIN_LINE=$(grep -E "Domain:" "$TMP_OUTPUT" | tail -n 1)
+TXT_VALUE_LINE=$(grep -E "TXT[[:space:]]+(value|record)" "$TMP_OUTPUT" | tail -n 1)
+
+TXT_DOMAIN=""
+if [ -n "$TXT_DOMAIN_LINE" ]; then
+  TXT_DOMAIN=$(printf '%s\n' "$TXT_DOMAIN_LINE" | awk "match(\$0, /'[^']*'/){print substr(\$0, RSTART+1, RLENGTH-2)}")
+  if [ -z "$TXT_DOMAIN" ]; then
+    TXT_DOMAIN=$(printf '%s\n' "$TXT_DOMAIN_LINE" | sed -e "s/.*Domain:[[:space:]]*//" -e "s/[\"']//g" -e 's/[[:space:]]*$//')
+  fi
+fi
+
+TXT_VALUE=""
+if [ -n "$TXT_VALUE_LINE" ]; then
+  TXT_VALUE=$(printf '%s\n' "$TXT_VALUE_LINE" | awk "match(\$0, /'[^']*'/){print substr(\$0, RSTART+1, RLENGTH-2)}")
+  if [ -z "$TXT_VALUE" ]; then
+    TXT_VALUE=$(printf '%s\n' "$TXT_VALUE_LINE" | sed -e "s/.*TXT[[:space:]]*\([A-Za-z]*\):[[:space:]]*//" -e "s/[\"']//g" -e 's/[[:space:]]*$//')
+  fi
+fi
+
+if [ -z "$TXT_VALUE" ]; then
+  echo "Manual DNS challenge failed and the TXT value could not be determined. Review the output above." >&2
+  exit "$STATUS"
+fi
+
+echo
+echo "Manual DNS verification required."
+if [ -n "$TXT_DOMAIN" ]; then
+  echo "Create a TXT record for: $TXT_DOMAIN"
+else
+  echo "Create a TXT record for the _acme-challenge subdomain."
+fi
+echo "TXT value: $TXT_VALUE"
+echo
+printf "Press Enter after the TXT record has been created and propagated to continue..."
+read -r _
+
+cleanup_tmp
+trap - EXIT HUP INT TERM
+
 "$@"
 
 set -- $DOCKER_COMPOSE -f "$COMPOSE_FILE" run --rm
