@@ -141,6 +141,30 @@ if [ -z "$ACCOUNT_EMAIL" ]; then
 fi
 
 ACME_ENV_VARS=""
+
+append_acme_env_var() {
+  _var="$1"
+  _value="$2"
+
+  if [ -z "$_var" ]; then
+    return
+  fi
+
+  # Avoid adding duplicate entries while still exporting the latest value.
+  case " $ACME_ENV_VARS " in
+    *" $_var "*)
+      export "$_var=$_value"
+      return
+      ;;
+  esac
+
+  export "$_var=$_value"
+  if [ -z "$ACME_ENV_VARS" ]; then
+    ACME_ENV_VARS="$_var"
+  else
+    ACME_ENV_VARS="$ACME_ENV_VARS $_var"
+  fi
+}
 while IFS= read -r line; do
   case "$line" in
     ACME_WILDCARD_ENV_*=*)
@@ -157,11 +181,18 @@ while IFS= read -r line; do
       if [ -z "$value" ]; then
         continue
       fi
-      export "$var=$value"
-      if [ -z "$ACME_ENV_VARS" ]; then
-        ACME_ENV_VARS="$var"
-      else
-        ACME_ENV_VARS="$ACME_ENV_VARS $var"
+      append_acme_env_var "$var" "$value"
+
+      # Some acme.sh DNS plugins use camel-cased environment variables.
+      # Accept the commonly used upper-case variants to reduce
+      # configuration pitfalls when values come from infrastructure
+      # secrets managers.
+      if [ "$ACME_PROVIDER" = "dns_hetzner" ]; then
+        case "$var" in
+          HETZNER_TOKEN|HETZNER_API_TOKEN)
+            append_acme_env_var "HETZNER_Token" "$value"
+            ;;
+        esac
       fi
       ;;
   esac
