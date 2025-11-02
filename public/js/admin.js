@@ -6945,13 +6945,31 @@ document.addEventListener('DOMContentLoaded', function () {
       const num = parseInt(String(value ?? ''), 10);
       return Number.isNaN(num) ? 0 : num;
     };
+    const parseBoolSafe = value => {
+      if (typeof value === 'boolean') {
+        return value;
+      }
+      if (typeof value === 'number') {
+        return value !== 0;
+      }
+      if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+          return true;
+        }
+        if (['0', 'false', 'no', 'off', ''].includes(normalized)) {
+          return false;
+        }
+      }
+      return Boolean(value);
+    };
     return {
       last_run_at: typeof raw.last_run_at === 'string' && raw.last_run_at !== '' ? raw.last_run_at : null,
       next_allowed_at: typeof raw.next_allowed_at === 'string' && raw.next_allowed_at !== '' ? raw.next_allowed_at : null,
       cooldown_seconds: parseIntSafe(raw.cooldown_seconds),
       stale_after_seconds: parseIntSafe(raw.stale_after_seconds),
-      is_stale: Boolean(raw.is_stale),
-      is_throttled: Boolean(raw.is_throttled)
+      is_stale: parseBoolSafe(raw.is_stale),
+      is_throttled: parseBoolSafe(raw.is_throttled)
     };
   }
 
