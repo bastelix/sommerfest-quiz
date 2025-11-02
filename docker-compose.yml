@@ -147,8 +147,8 @@ services:
 
 networks:
   webproxy:
-    name: webproxy
-    external: true
+    name: ${NETWORK:-webproxy}
+    external: ${NETWORK_EXTERNAL:-false}
 
 volumes:
   certs:
