@@ -30,7 +30,7 @@ certificatesResolvers:
       storage: /etc/traefik/acme.json
       # BEGIN TRAEFIK WILDCARD MANAGED BLOCK
       dnsChallenge: {}
-      certificates: []
+      domains: []
       # END TRAEFIK WILDCARD MANAGED BLOCK
 
 providers:

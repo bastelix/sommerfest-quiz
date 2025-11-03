@@ -188,9 +188,9 @@ managed.extend(delay_line)
 managed.extend(resolver_lines)
 managed.extend(server_line)
 managed.extend([
-    "      certificates:",
+    "      domains:",
     f"        - main: \"{domain}\"",
-    f"          sans:",
+    "          sans:",
     f"            - \"*.{domain}\"",
     end_marker,
 ])
