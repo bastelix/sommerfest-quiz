@@ -17,6 +17,44 @@ sanitize_host_list() {
     printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
 }
 
+filter_certificate_hosts() {
+    sanitized=$(sanitize_host_list "$1")
+    if [ -z "$sanitized" ]; then
+        printf '%s' "$sanitized"
+        return
+    fi
+
+    removed=""
+    filtered=""
+    old_ifs=$IFS
+    IFS=','
+    for host in $sanitized; do
+        case "$host" in
+            '~'*)
+                if [ -z "$removed" ]; then
+                    removed="$host"
+                else
+                    removed="$removed,$host"
+                fi
+                continue
+                ;;
+        esac
+
+        if [ -z "$filtered" ]; then
+            filtered="$host"
+        else
+            filtered="$filtered,$host"
+        fi
+    done
+    IFS=$old_ifs
+
+    if [ -n "$removed" ]; then
+        echo "Warning: Removed unsupported nginx regex hosts from LETSENCRYPT_HOST: $removed" >&2
+    fi
+
+    printf '%s' "$filtered"
+}
+
 append_host_value() {
     var_name="$1"
     host_to_add="$2"
@@ -57,6 +95,14 @@ case "$single_container_flag" in
         fi
         ;;
 esac
+
+if [ -n "${LETSENCRYPT_HOST:-}" ]; then
+    filtered_hosts=$(filter_certificate_hosts "$LETSENCRYPT_HOST")
+    if [ -z "$filtered_hosts" ] && [ -n "$LETSENCRYPT_HOST" ]; then
+        echo "Warning: LETSENCRYPT_HOST only contained unsupported nginx regex hosts; clearing value" >&2
+    fi
+    export LETSENCRYPT_HOST="$filtered_hosts"
+fi
 
 # Install composer dependencies if autoloader or QR code library is missing
 if [ ! -f vendor/autoload.php ] || [ ! -d vendor/chillerlan/php-qrcode ]; then

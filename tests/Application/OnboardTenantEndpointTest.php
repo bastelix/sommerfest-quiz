@@ -61,7 +61,7 @@ ENV;
                 $exported['VIRTUAL_HOST']
             );
             $this->assertSame(
-                'app.example.test,' . $wildcardHost,
+                'app.example.test,quiz.example.test,*.quiz.example.test',
                 $exported['LETSENCRYPT_HOST']
             );
         } finally {
