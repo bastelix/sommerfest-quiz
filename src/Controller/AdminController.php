@@ -229,11 +229,10 @@ class AdminController
         }
 
         $stripeSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-        $tenantSyncState = $tenantSvc?->getSyncState();
+        $tenantSyncState = $tenantSvc->getSyncState();
         if (
             $section === 'tenants'
             && $domainType === 'main'
-            && $tenantSvc !== null
         ) {
             $tenants = $tenantSvc->getAll();
             $initialTenantListHtml = $view->fetch('admin/tenant_list.twig', [
