@@ -287,6 +287,24 @@ dem KI-Endpunkt frühzeitig zu erkennen.
 
 Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit Traefik v2 als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`.
 
+### ACME-Speicher vorbereiten
+
+Traefik kann `acme.json` nur lesen, wenn die Datei bereits existiert und mit `chmod 600` geschützt ist. Führe vor `docker compose up traefik` einmalig (und nach Bedarf erneut) das Skript aus, das die Datei samt Berechtigungen anlegt:
+
+```bash
+./scripts/prepare_traefik_acme.sh
+docker compose up traefik
+```
+
+Verifiziere die Rechte regelmäßig, damit der ACME-Resolver weiterhin Zertifikate schreiben kann:
+
+```bash
+ls -l acme/acme.json
+# -rw------- 1 <user> <group> ... acme.json
+```
+
+Stimmen die Rechte nicht (`rw-------`), wiederhole das Skript oder setze die Berechtigung manuell mit `chmod 600 acme/acme.json`. Andernfalls schlägt der Resolver fehl und Traefik kann keine neuen Zertifikate beziehen.
+
 Die statischen Optionen leben in `config/traefik/traefik.yml`. Dort werden EntryPoints, der ACME-Resolver und globale Settings gepflegt. Dynamische Elemente wie Middlewares und der Zugriff auf die Traefik-API/Dashboard landen in `config/traefik/dynamic/`. Standardmäßig sind zwei Dateien eingebunden:
 
 - `config/traefik/dynamic/middlewares.yml` – Security-Header und Body-Limits, die zuvor vom alten Reverse-Proxy ausgeliefert wurden.
