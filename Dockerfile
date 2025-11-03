@@ -43,5 +43,6 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD ["php", "/var/www/scripts/check_stripe_config.php"]
 EXPOSE 8080
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 

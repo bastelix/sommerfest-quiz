@@ -95,7 +95,6 @@ services:
       - STRIPE_PRICING_TABLE_ID=${STRIPE_PRICING_TABLE_ID:-}
     depends_on:
       - postgres
-    command: php -S 0.0.0.0:8080 -t public public/router.php
     expose:
       - "8080"
     labels:
