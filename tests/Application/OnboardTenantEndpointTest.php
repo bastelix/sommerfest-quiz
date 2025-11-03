@@ -18,7 +18,7 @@ class OnboardTenantEndpointTest extends TestCase
 TENANT_SINGLE_CONTAINER=1
 MAIN_DOMAIN=quiz.example.test
 VIRTUAL_HOST=app.example.test, marketing.example.test
-LETSENCRYPT_HOST=app.example.test
+LETSENCRYPT_HOST=quiz.example.test,marketing.example.test
 
 ENV;
 
@@ -34,7 +34,7 @@ ENV;
             $exported['VIRTUAL_HOST']
         );
         $this->assertSame(
-            'app.example.test,quiz.example.test,*.quiz.example.test',
+            'quiz.example.test,marketing.example.test,*.quiz.example.test',
             $exported['LETSENCRYPT_HOST']
         );
     }
