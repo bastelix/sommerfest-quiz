@@ -10,9 +10,11 @@ Two files ship with the repository:
 - `config/traefik/dynamic/middlewares.yml` – reusable security header and body
   limit middlewares.
 - `config/traefik/dynamic/api.yml` – routes the dashboard and API on entry point
-  `traefik`. When `TRAEFIK_DASHBOARD_RULE` is set the dashboard becomes
-  reachable under the provided host rule; `TRAEFIK_API_BASICAUTH` protects API
-  and dashboard with HTTP basic authentication.
+`traefik`. The insecure dashboard on port `:8080` is disabled, therefore a
+  router must be published explicitly. Set `TRAEFIK_DASHBOARD_RULE` to expose
+  the dashboard under a host rule and supply credentials via
+  `TRAEFIK_API_BASICAUTH` to enforce HTTP basic authentication for both API and
+  dashboard.
 
 ## Default middlewares
 
