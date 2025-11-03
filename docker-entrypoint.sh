@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
-set -euo pipefail
+set -eu
+
+# Enable pipefail when the current shell supports it. BusyBox ash and dash
+# reject the option, so we probe in a subshell before enabling it.
+if (set -o pipefail 2>/dev/null); then
+    set -o pipefail
+fi
 
 cd /var/www
 
