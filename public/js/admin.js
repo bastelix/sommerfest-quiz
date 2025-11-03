@@ -6932,6 +6932,10 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
   const tenantColumnDefaults = tenantColumnDefs.map(c => c.key);
   let tenantColumns = [...tenantColumnDefaults];
+  let initialTenantListHtml = typeof window.initialTenantListHtml === 'string'
+    ? window.initialTenantListHtml
+    : '';
+  let initialTenantHtmlApplied = false;
   let tenantSyncState = null;
 
   function normalizeTenantSyncState(raw) {
@@ -7104,6 +7108,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     return applied;
+  }
+
+  if (initialTenantListHtml.trim() !== '') {
+    initialTenantHtmlApplied = applyTenantListHtml(initialTenantListHtml);
+    window.initialTenantListHtml = '';
+    initialTenantListHtml = '';
   }
 
   function showTenantSpinner() {
@@ -8837,6 +8847,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const path = window.location.pathname.replace(basePath + '/admin', '');
   const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
   if (currentRoute === 'tenants') {
-    refreshTenantList();
+    refreshTenantList(!initialTenantHtmlApplied);
   }
 });
