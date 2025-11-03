@@ -191,5 +191,9 @@ if [ -n "${POSTGRES_DSN:-}" ] && [ -f docs/schema.sql ]; then
     unset PGPASSWORD
 fi
 
+if [ "$#" -eq 0 ]; then
+    set -- php -S 0.0.0.0:8080 -t public
+fi
+
 exec "$@"
 
