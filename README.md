@@ -300,7 +300,7 @@ Weise zusätzliche Hosts über Traefik zu, indem du die vorhandenen Label-Muster
 traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
 `````
 
-Traefik speichert Zertifikate im Volume `acme`. Logs und Debugging-Ausgaben lassen sich über
+Traefik speichert Zertifikate in der Datei `acme/acme.json`, die auf dem Host liegt und in den Container gemountet wird. Logs und Debugging-Ausgaben lassen sich über
 
 `````
 docker compose logs traefik
@@ -408,8 +408,16 @@ mandantenfähig innerhalb des bestehenden `slim`-Containers. Dafür wird ein
 Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
 falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt. Der integrierte
 ACME-Resolver in Traefik übernimmt die Ausstellung und speichert das Zertifikat
-im `acme`-Volume (`acme.json`). Die Hilfsroutine `scripts/provision_wildcard.sh`
-aktualisiert dafür `config/traefik/traefik.yml`, startet Traefik bei Bedarf,
+in der Datei `acme/acme.json`, die vom Host ins Traefik-Container-Dateisystem
+gebunden wird. Stelle sicher, dass die Datei existiert und nur vom Besitzer
+gelesen werden darf:
+
+```bash
+touch acme/acme.json
+chmod 600 acme/acme.json
+```
+
+Die Hilfsroutine `scripts/provision_wildcard.sh` aktualisiert dafür `config/traefik/traefik.yml`, startet Traefik bei Bedarf,
 triggert über `/api/providers/reload` eine Aktualisierung und wartet, bis das
 Zertifikat laut `/api/tls/certificates` verfügbar ist. `scripts/create_tenant.sh`
 ruft die Routine automatisch auf, wenn noch kein wildcard-fähiges Zertifikat
