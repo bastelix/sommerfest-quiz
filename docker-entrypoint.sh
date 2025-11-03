@@ -5,7 +5,12 @@ cd /var/www
 
 # Load variables from .env if available
 if [ -f .env ]; then
-    export $(grep -v '^\s*#' .env | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' | xargs) || true
+    # Remove potential CRLF line endings and source the result to respect
+    # shell syntax, comments, and quoting.
+    sed -e 's/\r$//' .env > /tmp/.env
+    set -a
+    . /tmp/.env
+    set +a
 fi
 
 # Normalize comma-separated host lists by removing whitespace and collapsing
