@@ -5,6 +5,7 @@ set -e
 BASE_DIR="$(dirname "$0")/.."
 ENV_FILE="$BASE_DIR/.env"
 TRAEFIK_CONFIG="$BASE_DIR/config/traefik/traefik.yml"
+ACME_STORAGE="$BASE_DIR/acme/acme.json"
 
 usage() {
   cat <<USAGE >&2
@@ -364,6 +365,26 @@ if [ ! -f "$COMPOSE_FILE" ]; then
   echo "docker-compose.yml not found in project root" >&2
   exit 1
 fi
+
+ensure_acme_storage() {
+  if [ -d "$ACME_STORAGE" ]; then
+    log "ACME storage path $ACME_STORAGE is a directory (likely created by Docker). Remove it so the file can be recreated."
+    exit 1
+  fi
+
+  if [ ! -e "$ACME_STORAGE" ]; then
+    mkdir -p "$(dirname "$ACME_STORAGE")"
+    (
+      umask 177
+      touch "$ACME_STORAGE"
+    )
+  fi
+
+  chmod 600 "$ACME_STORAGE"
+  log "ACME storage file $ACME_STORAGE ready for Traefik (mode 600)"
+}
+
+ensure_acme_storage
 
 update_traefik_config
 
