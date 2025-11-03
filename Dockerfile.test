@@ -1,6 +1,7 @@
 FROM php:8.2.29-alpine
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_ALLOW_SUPERUSER=1 \
+    APP_ENV=Testing
 
 RUN apk add --no-cache \
         libpng \
