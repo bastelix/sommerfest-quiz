@@ -126,7 +126,9 @@ async function failureScenario() {
 
 async function singleContainerScenario() {
   let healthzCalls = 0;
-  const ctx = createCtx({
+  const waitDelays = [];
+  const realSetTimeout = setTimeout;
+  const routes = {
     '/onboarding/checkout/sess': () => Promise.resolve({ ok: true, json: () => Promise.resolve({ paid: true, plan: 'basic' }) }),
     '/tenants': () => Promise.resolve({ ok: true, status: 201, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ created: true }) }),
     '/api/tenants/tenant/onboard': () => Promise.resolve({
@@ -134,13 +136,10 @@ async function singleContainerScenario() {
       headers: { get: () => 'application/json' },
       text: () => Promise.resolve('{"status":"completed","mode":"single-container"}')
     }),
-    'http://tenant.example.com:8080/healthz': () => {
-      healthzCalls += 1;
-      return Promise.resolve({ ok: true, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ status: 'ok' }) });
-    },
     '/tenant-welcome': () => Promise.resolve({ ok: true }),
     '/onboarding/session': () => Promise.resolve({ ok: true })
-  }, {
+  };
+  const ctx = createCtx(routes, {
     window: {
       location: {
         protocol: 'http:',
@@ -148,12 +147,31 @@ async function singleContainerScenario() {
         origin: 'http://example.com:8080',
         hostname: 'example.com',
         port: '8080'
+      },
+      waitForTenantDelay: 50
+    },
+    ctx: {
+      setTimeout: (fn, delay, ...args) => {
+        waitDelays.push(delay);
+        return realSetTimeout(fn, delay, ...args);
+      },
+      fetch: async (url, opts) => {
+        if (url === 'http://tenant.example.com:8080/healthz') {
+          healthzCalls += 1;
+          throw new Error('health-check should be skipped in single-container mode');
+        }
+        const fn = routes[url];
+        if (!fn) {
+          throw new Error('unexpected url ' + url);
+        }
+        return fn(url, opts);
       }
     }
   });
-  ctx.window.waitForTenantDelay = 0;
   const fn = vm.runInNewContext('(' + finalizeCode + ')', ctx);
   await fn();
+  const positiveWaits = waitDelays.filter(delay => typeof delay === 'number' && delay > 0);
+  assert.strictEqual(positiveWaits.length, 0, 'wait loop should be skipped for single-container mode');
   assert.strictEqual(healthzCalls, 0);
   assert.strictEqual(ctx.window.location.href, 'http://tenant.example.com:8080/');
 }
