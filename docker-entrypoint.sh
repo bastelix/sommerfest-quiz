@@ -24,33 +24,26 @@ filter_certificate_hosts() {
         return
     fi
 
-    removed=""
     filtered=""
     old_ifs=$IFS
     IFS=','
     for host in $sanitized; do
-        case "$host" in
-            '~'*)
-                if [ -z "$removed" ]; then
-                    removed="$host"
-                else
-                    removed="$removed,$host"
-                fi
-                continue
-                ;;
-        esac
+        if [ -z "$host" ]; then
+            continue
+        fi
 
         if [ -z "$filtered" ]; then
             filtered="$host"
-        else
-            filtered="$filtered,$host"
+            continue
         fi
+
+        if printf '%s' "$filtered" | tr ',' '\n' | grep -Fx -- "$host" >/dev/null 2>&1; then
+            continue
+        fi
+
+        filtered="$filtered,$host"
     done
     IFS=$old_ifs
-
-    if [ -n "$removed" ]; then
-        echo "Warning: Removed unsupported nginx regex hosts from LETSENCRYPT_HOST: $removed" >&2
-    fi
 
     printf '%s' "$filtered"
 }
@@ -76,6 +69,13 @@ append_host_value() {
     fi
 }
 
+append_proxy_host() {
+    host="$1"
+
+    append_host_value "VIRTUAL_HOST" "$host"
+    append_host_value "LETSENCRYPT_HOST" "$host"
+}
+
 # Automatically expose all tenant subdomains in single-container setups so the
 # proxy requests a matching wildcard certificate.
 single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
@@ -84,12 +84,11 @@ case "$single_container_flag" in
         base_domain="${MAIN_DOMAIN:-${DOMAIN:-}}"
         if [ -n "$base_domain" ]; then
             wildcard_regex="~^([a-z0-9-]+\.)?${base_domain}\$"
-            append_host_value "VIRTUAL_HOST" "$wildcard_regex"
+            append_proxy_host "$wildcard_regex"
 
-            # The Let's Encrypt companion cannot handle nginx regex hosts in
-            # LETSENCRYPT_HOST. Request certificates for the apex and wildcard
-            # domains instead so that the issued certificate covers all
-            # tenants while remaining compatible with nginx-proxy.
+            # Request certificates for the apex and wildcard domains so that
+            # the issued certificate covers all tenants while remaining
+            # compatible with nginx-proxy.
             append_host_value "LETSENCRYPT_HOST" "$base_domain"
             append_host_value "LETSENCRYPT_HOST" "*.${base_domain}"
         fi
