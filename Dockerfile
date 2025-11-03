@@ -20,10 +20,16 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . /var/www
 RUN composer install --no-interaction --prefer-dist --no-progress
-RUN mkdir -p /var/www/logs && chown www-data:www-data /var/www/logs
+RUN mkdir -p /var/www/logs /var/www/logs/traefik \
+    && chown -R www-data:www-data /var/www/logs
 RUN mkdir -p /var/www/backup \
     && chown www-data:www-data /var/www/backup \
     && test -w /var/www/backup
+RUN mkdir -p /var/www/config/traefik/dynamic \
+    && mkdir -p /var/www/logs/traefik \
+    && mkdir -p /var/www/acme \
+    && if [ ! -f /var/www/acme/acme.json ]; then touch /var/www/acme/acme.json; fi \
+    && chmod 600 /var/www/acme/acme.json
 
 # include custom PHP configuration
 COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
