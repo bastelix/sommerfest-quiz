@@ -697,10 +697,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         start('wait');
         if (isSingleContainer) {
           addLog('Single-Container-Modus aktiv – überspringe Wartezeit.');
+          mark('wait', true);
         } else {
           await waitForTenant(subdomain);
+          mark('wait', true);
         }
-        mark('wait', true);
 
         await fetch(withBase('/tenant-welcome'), {
           method: 'POST',
