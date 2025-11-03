@@ -104,8 +104,11 @@ if ! printf '%s' "$VHOST_NAME" | grep -Eq '^[a-z0-9-]+(\.[a-z0-9-]+)+$'; then
 fi
 
 if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
-  BASE_HOST="$TENANT_DOMAIN"
-  
+  BASE_HOST="$MAIN_DOMAIN"
+  if [ -z "$BASE_HOST" ]; then
+    BASE_HOST="$DOMAIN"
+  fi
+
   if [ -z "$BASE_HOST" ]; then
     echo "MAIN_DOMAIN or DOMAIN must be set for single container mode" >&2
     exit 1
@@ -122,6 +125,7 @@ if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
 
   CERT_PATH="$BASE_DIR/certs/$BASE_HOST.crt"
   KEY_PATH="$BASE_DIR/certs/$BASE_HOST.key"
+
   if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
     echo "Wildcard certificate certs/$BASE_HOST.crt/.key missing; attempting automated provisioning" >&2
     if ! "$BASE_DIR/scripts/provision_wildcard.sh" --domain "$BASE_HOST" >/dev/null; then
@@ -138,13 +142,24 @@ fi
 
 API_BASE="http://$API_HOST${BASE_PATH}"
 
+COOKIE_FILE=""
+RELOADER_TMP=""
+ONBOARD_TMP=""
+
+cleanup() {
+  [ -n "$COOKIE_FILE" ] && rm -f "$COOKIE_FILE"
+  [ -n "$RELOADER_TMP" ] && rm -f "$RELOADER_TMP"
+  [ -n "$ONBOARD_TMP" ] && rm -f "$ONBOARD_TMP"
+}
+
+trap cleanup EXIT
+
 COOKIE_FILE=$(mktemp)
 
 if ! curl -fs -c "$COOKIE_FILE" -X POST "$API_BASE/login" \
   -H 'Content-Type: application/json' \
   -d "{\"username\":\"$SERVICE_USER\",\"password\":\"$SERVICE_PASS\"}" >/dev/null; then
   echo "Service account login failed" >&2
-  rm -f "$COOKIE_FILE"
   exit 1
 fi
 
@@ -155,7 +170,6 @@ HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
 
 if [ "$HTTP_STATUS" -ge 400 ]; then
   echo "Tenant creation failed with status $HTTP_STATUS" >&2
-  rm -f "$COOKIE_FILE"
   exit 1
 fi
 
@@ -167,34 +181,36 @@ if [ -n "$RELOADER_URL" ]; then
   echo "Ensuring nginx-reloader service is running"
   if ! $DOCKER_COMPOSE up -d "$RELOADER_SERVICE" >/dev/null 2>&1; then
     echo "nginx-reloader service could not be started" >&2
-    rm -f "$COOKIE_FILE"
     exit 1
   fi
   echo "Reloading reverse proxy via $RELOADER_URL"
-  HTTP_CODE=$(curl -s -o /tmp/reloader.out -w "%{http_code}" -X POST \
+  RELOADER_TMP=$(mktemp)
+  HTTP_CODE=$(curl -s -o "$RELOADER_TMP" -w "%{http_code}" -X POST \
     -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL") || HTTP_CODE=000
   if [ "$HTTP_CODE" -ge 400 ] || [ "$HTTP_CODE" -eq 000 ]; then
-    echo "Proxy reload failed via webhook (status $HTTP_CODE): $(cat /tmp/reloader.out 2>/dev/null)" >&2
-    rm -f /tmp/reloader.out "$COOKIE_FILE"
+    echo "Proxy reload failed via webhook (status $HTTP_CODE): $(cat "$RELOADER_TMP" 2>/dev/null)" >&2
     exit 1
   fi
-  rm -f /tmp/reloader.out
+  rm -f "$RELOADER_TMP"
+  RELOADER_TMP=""
 elif [ "$NGINX_RELOAD" = "1" ]; then
   detect_docker_compose
   echo "Reloading reverse proxy via Docker"
   if ! $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload; then
     echo "Proxy reload failed via Docker" >&2
-    rm -f "$COOKIE_FILE"
     exit 1
   fi
 fi
 
-HTTP_STATUS=$(curl -s -o /tmp/onboard.out -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
+ONBOARD_TMP=$(mktemp)
+HTTP_STATUS=$(curl -s -o "$ONBOARD_TMP" -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
   "$API_BASE/api/tenants/${SUBDOMAIN}/onboard")
 CURL_EXIT=$?
 if [ "$CURL_EXIT" -ne 0 ] || [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
-  echo "Tenant onboarding failed (status $HTTP_STATUS): $(cat /tmp/onboard.out 2>/dev/null)" >&2
-  rm -f /tmp/onboard.out "$COOKIE_FILE"
+  echo "Tenant onboarding failed (status $HTTP_STATUS): $(cat "$ONBOARD_TMP" 2>/dev/null)" >&2
   exit 1
 fi
-rm -f /tmp/onboard.out "$COOKIE_FILE"
+rm -f "$ONBOARD_TMP"
+ONBOARD_TMP=""
+rm -f "$COOKIE_FILE"
+COOKIE_FILE=""
