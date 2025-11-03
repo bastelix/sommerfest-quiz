@@ -35,11 +35,6 @@ services:
     image: adminer
     restart: unless-stopped
     environment:
-      - VIRTUAL_HOST=adminer.${DOMAIN}
-      - LETSENCRYPT_HOST=${ADMINER_LETSENCRYPT_HOST:-}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-      - HTTPS_METHOD=${ADMINER_HTTPS_METHOD:-nohttps}
-      - ENABLE_HTTP_ON_MISSING_CERT=${ADMINER_ENABLE_HTTP_ON_MISSING_CERT:-true}
       - ADMINER_DEFAULT_SERVER=postgres
     ports:
       - "8081:8080"
@@ -47,6 +42,20 @@ services:
       - postgres
     networks:
       - webproxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${NETWORK:-webproxy}
+      - traefik.http.services.adminer.loadbalancer.server.port=8080
+      - traefik.http.routers.adminer-web.entrypoints=web
+      - traefik.http.routers.adminer-web.rule=Host(`adminer.${DOMAIN}`)
+      - traefik.http.routers.adminer-web.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.adminer-web.service=adminer
+      - traefik.http.routers.adminer-secure.entrypoints=websecure
+      - traefik.http.routers.adminer-secure.rule=Host(`adminer.${DOMAIN}`)
+      - traefik.http.routers.adminer-secure.service=adminer
+      - traefik.http.routers.adminer-secure.tls=true
+      - traefik.http.routers.adminer-secure.tls.certresolver=letsencrypt
+      - traefik.http.routers.adminer-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
 
   slim:
     build: .
@@ -58,10 +67,6 @@ services:
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}${MAIN_DOMAIN:+,${MAIN_DOMAIN}}${MARKETING_DOMAINS:+,${MARKETING_DOMAINS}}
-      - LETSENCRYPT_HOST=${SLIM_LETSENCRYPT_HOST:-${MAIN_DOMAIN:-${DOMAIN}}${MARKETING_DOMAINS:+,${MARKETING_DOMAINS}}}
-      - VIRTUAL_PORT=8080
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - POSTGRES_DSN=${POSTGRES_DSN}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -96,7 +101,19 @@ services:
     ports:
       - "8080:8080"
     labels:
-      - "com.github.nginx-proxy.expose=true"
+      - traefik.enable=true
+      - traefik.docker.network=${NETWORK:-webproxy}
+      - traefik.http.services.quizrace.loadbalancer.server.port=8080
+      - traefik.http.routers.quizrace-web.entrypoints=web
+      - traefik.http.routers.quizrace-web.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.quizrace-web.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.quizrace-web.service=quizrace
+      - traefik.http.routers.quizrace-secure.entrypoints=websecure
+      - traefik.http.routers.quizrace-secure.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.quizrace-secure.service=quizrace
+      - traefik.http.routers.quizrace-secure.tls=true
+      - traefik.http.routers.quizrace-secure.tls.certresolver=letsencrypt
+      - traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-50m@file
     networks:
       - webproxy
 
