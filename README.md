@@ -251,6 +251,9 @@ Tests starten mit:
 vendor/bin/phpunit
 ```
 
+The automated harness forces `APP_ENV=Testing` so environment-specific
+feature flags behave consistently during test runs.
+
 ### KI-gestützte Teamnamen und RAG-Endpoint
 
 Der Dienst für Teamnamen kann optional KI-Vorschläge abrufen. Dafür muss der Chat-Endpunkt des RAG-Backends
