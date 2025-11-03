@@ -141,8 +141,53 @@ fi
 dns_resolvers="$(get_env_value 'TRAEFIK_ACME_DNS_RESOLVERS' '')"
 dns_delay="$(get_env_value 'TRAEFIK_ACME_DNS_DELAY' '0')"
 
-api_endpoint="$(get_env_value 'TRAEFIK_ACME_API_ENDPOINT' 'http://traefik:8080')"
+DEFAULT_TRAEFIK_API_ENDPOINT='http://traefik:8080'
+api_endpoint="$(get_env_value 'TRAEFIK_ACME_API_ENDPOINT' "$DEFAULT_TRAEFIK_API_ENDPOINT")"
 api_basicauth="$(get_env_value 'TRAEFIK_API_BASICAUTH' '')"
+
+extract_host() {
+  python3 - "$1" <<'PY'
+from urllib.parse import urlparse
+import sys
+
+raw = sys.argv[1]
+parsed = urlparse(raw)
+host = parsed.hostname or ""
+print(host)
+PY
+}
+
+host_resolves() {
+  python3 - "$1" <<'PY'
+import socket
+import sys
+
+host = sys.argv[1]
+if not host:
+    raise SystemExit(1)
+
+try:
+    socket.getaddrinfo(host, None)
+except socket.gaierror:
+    raise SystemExit(1)
+else:
+    raise SystemExit(0)
+PY
+}
+
+endpoint_host="$(extract_host "$api_endpoint")"
+
+if [ -z "$endpoint_host" ]; then
+  log "Unable to determine host from Traefik API endpoint $api_endpoint"
+elif [ "$endpoint_host" = "traefik" ] && ! host_resolves "$endpoint_host"; then
+  fallback_endpoint='http://127.0.0.1:8080'
+  log "Traefik host '$endpoint_host' not resolvable from here, falling back to $fallback_endpoint"
+  api_endpoint="$fallback_endpoint"
+elif [ "$api_endpoint" = "$DEFAULT_TRAEFIK_API_ENDPOINT" ] && ! host_resolves "$endpoint_host"; then
+  fallback_endpoint='http://127.0.0.1:8080'
+  log "Traefik API endpoint $api_endpoint unreachable, falling back to $fallback_endpoint"
+  api_endpoint="$fallback_endpoint"
+fi
 
 if [ "$STAGING" = "1" ]; then
   acme_server="https://acme-staging-v02.api.letsencrypt.org/directory"
