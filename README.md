@@ -531,15 +531,22 @@ eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
 Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
 Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
 ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
-`VIRTUAL_HOST`/`LETSENCRYPT_HOST`. Zusätzliche Domains kannst du wie
-bisher über `MARKETING_DOMAINS` anhängen. Beim Start normalisiert der
-Container die Liste (Leerzeichen und Zeilenumbrüche werden entfernt) und
-löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
-`acme-companion` direkt Zertifikate für neue Marketing-Domains anfordert.
+`VIRTUAL_HOST`. `LETSENCRYPT_HOST` wird seit Version 4.19 ausschließlich
+aus echten Domains aufgebaut: Standardmäßig landen `MAIN_DOMAIN`
+und alle Einträge aus `MARKETING_DOMAINS` in der Liste. Über
+`SLIM_LETSENCRYPT_HOST` kannst du bei Bedarf weitere konkrete Hosts
+anhängen – Regex-Ausdrücke bleiben ausschließlich in `VIRTUAL_HOST`,
+damit der `acme-companion` keine ungültigen CSRs erzeugt. Beim Start
+normalisiert der Container beide Variablen (Leerzeichen und
+Zeilenumbrüche werden entfernt) und löst einen Reload des Proxys über
+`NGINX_RELOADER_URL` aus, sodass der `acme-companion` direkt Zertifikate
+für neue Domains anfordert.
 
 Weitere nützliche Variablen in `.env` sind:
 
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
+- `SLIM_LETSENCRYPT_HOST` – zusätzliche Zertifikats-Domains für den Slim-Container
+  (nur konkrete Hostnamen, keine Regex-Ausdrücke).
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
   Es sollte den Tag des lokal gebauten Slim-Images (`docker build -t <tag> .`) nutzen,
