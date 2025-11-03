@@ -2531,8 +2531,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $log = (string) file_get_contents($logPath);
             }
 
+            $migrationsDir = __DIR__ . '/../migrations';
+
             try {
-                Migrator::migrate($base, __DIR__ . '/../migrations');
+                Migrator::migrate($base, $migrationsDir);
 
                 $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
                 $stmt->execute([$slug]);
@@ -2551,9 +2553,20 @@ return function (\Slim\App $app, TranslationService $translator) {
                 }
 
                 $pdo = Database::connectWithSchema((string) $schema);
-                Migrator::migrate($pdo, __DIR__ . '/../migrations');
+                Migrator::migrate($pdo, $migrationsDir);
             } catch (\Throwable $e) {
                 $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                if (!is_dir(dirname($logPath))) {
+                    mkdir(dirname($logPath), 0775, true);
+                }
+                $message = sprintf(
+                    '[%s] Failed to migrate tenant "%s" in single container mode: %s',
+                    date('c'),
+                    $slug,
+                    $e->getMessage()
+                );
+                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+                $log = (string) file_get_contents($logPath);
                 $response->getBody()->write(json_encode([
                     'error' => 'Failed to onboard tenant',
                     'log' => $log,
