@@ -161,15 +161,6 @@ class TenantService
             throw new \RuntimeException('invalid-plan');
         }
 
-        $existing = $this->getBySubdomain($schema);
-        $existingState = is_array($existing)
-            ? (string) ($existing['onboarding_state'] ?? self::ONBOARDING_COMPLETED)
-            : null;
-
-        if ($existing !== null && $existingState === self::ONBOARDING_COMPLETED) {
-            throw new \RuntimeException('tenant-exists');
-        }
-
         $start = $plan !== null ? new DateTimeImmutable() : null;
         $end = $start?->modify('+30 days');
         $customLimitsJson = $customLimits !== null ? json_encode($customLimits) : null;
@@ -188,11 +179,20 @@ class TenantService
             'plan_expires_at' => $end?->format('Y-m-d H:i:sP'),
         ];
 
-        $hasExistingRecord = $existing !== null;
         $statePersisted = false;
+        $hasExistingRecord = false;
         $lockKey = $this->acquireTenantLock($schema);
 
         try {
+            $existing = $this->getBySubdomain($schema);
+            if ($existing !== null) {
+                $existingState = (string) ($existing['onboarding_state'] ?? self::ONBOARDING_COMPLETED);
+                if ($existingState === self::ONBOARDING_COMPLETED) {
+                    throw new \RuntimeException('tenant-exists');
+                }
+                $hasExistingRecord = true;
+            }
+
             $this->persistTenantRecord($record, $hasExistingRecord, self::ONBOARDING_PROVISIONING);
             $statePersisted = true;
             $hasExistingRecord = true;
@@ -239,7 +239,7 @@ class TenantService
                 }
             }
         } catch (\Throwable $e) {
-            if ($statePersisted) {
+            if ($statePersisted || $hasExistingRecord) {
                 try {
                     $this->updateOnboardingState($schema, self::ONBOARDING_FAILED);
                 } catch (\Throwable $inner) {
@@ -320,7 +320,13 @@ class TenantService
     }
 
     private function isReserved(string $subdomain): bool {
-        return in_array(strtolower($subdomain), self::RESERVED_SUBDOMAINS, true);
+        $normalised = strtolower($subdomain);
+
+        if ($normalised === self::MAIN_SUBDOMAIN) {
+            return true;
+        }
+
+        return in_array($normalised, self::RESERVED_SUBDOMAINS, true);
     }
 
     private function hasTable(string $name): bool {
