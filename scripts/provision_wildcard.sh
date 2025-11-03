@@ -159,7 +159,7 @@ config_path = Path(sys.argv[1])
 provider = sys.argv[2]
 resolvers_raw = sys.argv[3]
 delay = sys.argv[4]
-domain = sys.argv[5]
+_ = sys.argv[5]
 acme_server = sys.argv[6]
 
 text = config_path.read_text()
@@ -189,13 +189,7 @@ managed = [
 managed.extend(delay_line)
 managed.extend(resolver_lines)
 managed.extend(server_line)
-managed.extend([
-    "      domains:",
-    f"        - main: \"{domain}\"",
-    "          sans:",
-    f"            - \"*.{domain}\"",
-    end_marker,
-])
+managed.append(end_marker)
 
 replacement = "\n".join(managed) + "\n"
 
