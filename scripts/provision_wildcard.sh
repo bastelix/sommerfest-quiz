@@ -1,27 +1,29 @@
 #!/bin/sh
-# Provision a wildcard certificate via acme-companion/acme.sh
+# Provision a wildcard certificate through Traefik's ACME resolver
 set -e
 
 BASE_DIR="$(dirname "$0")/.."
 ENV_FILE="$BASE_DIR/.env"
+TRAEFIK_CONFIG="$BASE_DIR/config/traefik/traefik.yml"
 
 usage() {
   cat <<USAGE >&2
 Usage: $0 [--force] [--domain <domain>]
 
-Ensures a wildcard certificate for the given domain exists in certs/.
-If no domain is provided, the script uses MAIN_DOMAIN or DOMAIN from .env.
+Updates the Traefik ACME resolver configuration and asks Traefik to
+provision (or renew) a wildcard certificate for the given domain.
+When no domain is specified the script falls back to MAIN_DOMAIN and
+finally DOMAIN from .env.
 
-Environment variables in .env:
-  ACME_WILDCARD_PROVIDER   DNS plugin passed to acme.sh (e.g. dns_cf).
-                           Leave empty or set to "manual" to handle the
-                           DNS challenge manually.
-  ACME_WILDCARD_SERVICE    Docker Compose service name (default: acme-companion)
-  ACME_WILDCARD_SERVER     Optional ACME server URI
-  ACME_WILDCARD_USE_STAGING  Set to 1 to request from the staging endpoint
-  ACME_WILDCARD_ISSUE_FLAGS  Additional flags appended to the acme.sh --issue call
-  ACME_WILDCARD_INSTALL_FLAGS Additional flags appended to the --install-cert call
-  ACME_WILDCARD_ENV_*      Extra variables exported for the DNS plugin (e.g. ACME_WILDCARD_ENV_CF_Token)
+Relevant .env settings:
+  TRAEFIK_ACME_DNS_PROVIDER      Name of the Traefik/lego DNS provider
+  TRAEFIK_ACME_DNS_RESOLVERS     Optional comma separated custom resolvers
+  TRAEFIK_ACME_DNS_DELAY         Optional propagation delay (seconds)
+  TRAEFIK_ACME_API_ENDPOINT      Base URL of the Traefik API (default http://traefik:8080)
+  ACME_WILDCARD_PROVIDER         Legacy setting automatically mapped to
+                                 TRAEFIK_ACME_DNS_PROVIDER (dns_ prefix is removed)
+  ACME_WILDCARD_USE_STAGING      Set to 1 to keep using the Let's Encrypt
+                                 staging server (mapped automatically)
 USAGE
 }
 
@@ -29,6 +31,15 @@ if [ ! -f "$ENV_FILE" ]; then
   echo "Environment file $ENV_FILE not found" >&2
   exit 1
 fi
+
+if [ ! -f "$TRAEFIK_CONFIG" ]; then
+  echo "Traefik configuration $TRAEFIK_CONFIG not found" >&2
+  exit 1
+fi
+
+log() {
+  printf '%s\n' "$1" >&2
+}
 
 get_env_value() {
   key="$1"
@@ -48,6 +59,17 @@ get_env_value() {
   else
     printf '%s' "$value"
   fi
+}
+
+normalize_provider() {
+  provider="$1"
+  case "$provider" in
+    dns_*)
+      provider=${provider#dns_}
+      ;;
+  esac
+
+  printf '%s' "$provider"
 }
 
 FORCE=0
@@ -99,110 +121,191 @@ if [ -z "$TARGET_DOMAIN" ]; then
   exit 1
 fi
 
-CERT_PATH="$BASE_DIR/certs/$TARGET_DOMAIN.crt"
-KEY_PATH="$BASE_DIR/certs/$TARGET_DOMAIN.key"
-
-mkdir -p "$BASE_DIR/certs"
-
-if [ -f "$CERT_PATH" ] && [ -f "$KEY_PATH" ] && [ "$FORCE" -eq 0 ]; then
-  echo "Wildcard certificate already present at certs/$TARGET_DOMAIN.crt" >&2
-  exit 0
+STAGING="$(get_env_value 'TRAEFIK_ACME_USE_STAGING' '')"
+if [ -z "$STAGING" ]; then
+  STAGING="$(get_env_value 'ACME_WILDCARD_USE_STAGING' '0')"
 fi
 
-ACME_PROVIDER="$(get_env_value 'ACME_WILDCARD_PROVIDER' '')"
-MANUAL_MODE=0
-if [ -z "$ACME_PROVIDER" ] || [ "$ACME_PROVIDER" = "manual" ]; then
-  MANUAL_MODE=1
-  ACME_PROVIDER=""
+provider="$(get_env_value 'TRAEFIK_ACME_DNS_PROVIDER' '')"
+if [ -z "$provider" ]; then
+  provider="$(get_env_value 'ACME_WILDCARD_PROVIDER' '')"
 fi
+provider="$(normalize_provider "$provider")"
 
-if [ "$MANUAL_MODE" -eq 0 ] && [ -z "$ACME_PROVIDER" ]; then
-  echo "ACME_WILDCARD_PROVIDER must be set in .env (e.g. dns_cf)" >&2
+if [ -z "$provider" ]; then
+  log "TRAEFIK_ACME_DNS_PROVIDER (or legacy ACME_WILDCARD_PROVIDER) must be set in .env"
   exit 1
 fi
 
-if [ "$MANUAL_MODE" -eq 1 ]; then
-  echo "Running ACME manual DNS mode. You will need to create TXT records yourself." >&2
+dns_resolvers="$(get_env_value 'TRAEFIK_ACME_DNS_RESOLVERS' '')"
+dns_delay="$(get_env_value 'TRAEFIK_ACME_DNS_DELAY' '0')"
+
+api_endpoint="$(get_env_value 'TRAEFIK_ACME_API_ENDPOINT' 'http://traefik:8080')"
+
+if [ "$STAGING" = "1" ]; then
+  acme_server="https://acme-staging-v02.api.letsencrypt.org/directory"
+else
+  acme_server=""
 fi
 
-ACME_SERVICE="$(get_env_value 'ACME_WILDCARD_SERVICE' 'acme-companion')"
-ACME_SERVER="$(get_env_value 'ACME_WILDCARD_SERVER' '')"
-ACME_USE_STAGING="$(get_env_value 'ACME_WILDCARD_USE_STAGING' '0')"
-ACME_ISSUE_FLAGS="$(get_env_value 'ACME_WILDCARD_ISSUE_FLAGS' '')"
-ACME_INSTALL_FLAGS="$(get_env_value 'ACME_WILDCARD_INSTALL_FLAGS' '')"
-ACCOUNT_EMAIL="$(get_env_value 'ACME_WILDCARD_ACCOUNT_EMAIL' '')"
-if [ -z "$ACCOUNT_EMAIL" ]; then
-  ACCOUNT_EMAIL="$(get_env_value 'LETSENCRYPT_EMAIL' '')"
-fi
+update_traefik_config() {
+  python3 <<'PY' "$TRAEFIK_CONFIG" "$provider" "$dns_resolvers" "$dns_delay" "$TARGET_DOMAIN" "$acme_server"
+from pathlib import Path
+import sys
 
-if [ -z "$ACCOUNT_EMAIL" ]; then
-  echo "Set LETSENCRYPT_EMAIL or ACME_WILDCARD_ACCOUNT_EMAIL in .env" >&2
-  exit 1
-fi
+config_path = Path(sys.argv[1])
+provider = sys.argv[2]
+resolvers_raw = sys.argv[3]
+delay = sys.argv[4]
+domain = sys.argv[5]
+acme_server = sys.argv[6]
 
-ACME_ENV_VARS=""
+text = config_path.read_text()
+start_marker = "      # BEGIN TRAEFIK WILDCARD MANAGED BLOCK"
+end_marker = "      # END TRAEFIK WILDCARD MANAGED BLOCK"
 
-append_acme_env_var() {
-  _var="$1"
-  _value="$2"
+resolver_lines = []
+resolvers = [value.strip() for value in resolvers_raw.replace("\n", ",").split(",") if value.strip()]
+if resolvers:
+    resolver_lines.append("        resolvers:")
+    for resolver in resolvers:
+        resolver_lines.append(f"          - \"{resolver}\"")
 
-  if [ -z "$_var" ]; then
+delay_line = []
+if delay and delay != "0":
+    delay_line = [f"        delayBeforeCheck: {delay}"]
+
+server_line = []
+if acme_server:
+    server_line = [f"      caServer: \"{acme_server}\""]
+
+managed = [
+    start_marker,
+    "      dnsChallenge:",
+    f"        provider: \"{provider}\"",
+]
+managed.extend(delay_line)
+managed.extend(resolver_lines)
+managed.extend(server_line)
+managed.extend([
+    "      domains:",
+    f"        - main: \"{domain}\"",
+    f"          sans:",
+    f"            - \"*.{domain}\"",
+    end_marker,
+])
+
+replacement = "\n".join(managed) + "\n"
+
+if start_marker in text and end_marker in text:
+    import re
+    pattern = re.compile(r"^\s*# BEGIN TRAEFIK WILDCARD MANAGED BLOCK.*?# END TRAEFIK WILDCARD MANAGED BLOCK\n", re.DOTALL | re.MULTILINE)
+    text, count = pattern.subn(replacement, text)
+    if count == 0:
+        raise SystemExit("Failed to update managed block in traefik.yml")
+else:
+    anchor = "      storage: /etc/traefik/acme.json\n"
+    if anchor not in text:
+        raise SystemExit("Unable to locate certificatesResolvers section in traefik.yml")
+    text = text.replace(anchor, anchor + replacement)
+
+config_path.write_text(text)
+PY
+}
+
+traefik_api_request() {
+  method="$1"
+  path="$2"
+  shift 2 || true
+  if [ $# -gt 0 ]; then
+    body="$1"
+  else
+    body=""
+  fi
+
+  if [ "$method" = "GET" ]; then
+    curl -fsS "$api_endpoint$path"
+  else
+    curl -fsS -X "$method" "$api_endpoint$path" -H 'Content-Type: application/json' -d "$body" 2>/dev/null
+  fi
+}
+
+read_certificate_status() {
+  python3 <<'PY' "$TARGET_DOMAIN"
+import json
+import sys
+
+domain = sys.argv[1]
+payload = sys.stdin.read().strip()
+if not payload:
+    print("ERROR\tno-data")
+    raise SystemExit
+
+try:
+    data = json.loads(payload)
+except json.JSONDecodeError:
+    print("ERROR\tinvalid-json")
+    raise SystemExit
+
+if isinstance(data, dict):
+    certificates = data.get("certificates") or data.get("data", {}).get("certificates")
+    if certificates is None and "value" in data:
+        value = data["value"]
+        if isinstance(value, dict):
+            certificates = value.get("certificates")
+    if certificates is None:
+        certificates = []
+else:
+    certificates = data
+
+target_san = f"*.{domain}"
+
+for cert in certificates:
+    dom = cert.get("domain") or {}
+    main = dom.get("main") or dom.get("Main")
+    sans = dom.get("sans") or dom.get("Sans") or []
+    if not isinstance(sans, list):
+        sans = []
+    if main == domain or target_san in sans:
+        not_after = cert.get("notAfter") or cert.get("NotAfter") or cert.get("expiry") or ""
+        resolver = cert.get("issuer") or cert.get("resolver") or ""
+        print(f"FOUND\t{not_after}\t{resolver}")
+        break
+else:
+    print("MISSING\t\t")
+PY
+}
+
+certificate_ready() {
+  set +e
+  response=$(traefik_api_request GET /api/tls/certificates)
+  status=$?
+  set -e
+  if [ $status -ne 0 ] || [ -z "$response" ]; then
+    echo "ERROR"
     return
   fi
 
-  # Avoid adding duplicate entries while still exporting the latest value.
-  case " $ACME_ENV_VARS " in
-    *" $_var "*)
-      export "$_var=$_value"
-      return
-      ;;
-  esac
-
-  export "$_var=$_value"
-  if [ -z "$ACME_ENV_VARS" ]; then
-    ACME_ENV_VARS="$_var"
-  else
-    ACME_ENV_VARS="$ACME_ENV_VARS $_var"
-  fi
+  status_line=$(printf '%s' "$response" | read_certificate_status)
+  printf '%s' "$status_line"
 }
-while IFS= read -r line; do
-  case "$line" in
-    ACME_WILDCARD_ENV_*=*)
-      key=${line%%=*}
-      var=${key#ACME_WILDCARD_ENV_}
-      if [ -z "$var" ]; then
-        continue
-      fi
-      raw=${line#*=}
-      value=$(printf '%s' "$raw" | sed 's/[[:space:]]*#.*$//' | tr -d '\r')
-      value=$(printf '%s' "$value" | sed 's/^ *//;s/ *$//')
-      value=$(printf '%s' "$value" | sed 's/^"//;s/"$//')
-      value=$(printf '%s' "$value" | sed "s/^'//;s/'$//")
-      if [ -z "$value" ]; then
-        continue
-      fi
-      append_acme_env_var "$var" "$value"
 
-      # Some acme.sh DNS plugins use camel-cased environment variables.
-      # Accept the commonly used upper-case variants to reduce
-      # configuration pitfalls when values come from infrastructure
-      # secrets managers.
-      if [ "$ACME_PROVIDER" = "dns_hetzner" ]; then
-        case "$var" in
-          HETZNER_TOKEN|HETZNER_API_TOKEN)
-            append_acme_env_var "HETZNER_Token" "$value"
-            ;;
-        esac
-      fi
-      ;;
-  esac
-done < "$ENV_FILE"
+ensure_docker_compose() {
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    echo "docker compose"
+    return
+  fi
 
-if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
-  DOCKER_COMPOSE="docker compose"
-elif command -v docker-compose >/dev/null 2>&1; then
-  DOCKER_COMPOSE="docker-compose"
-else
+  if command -v docker-compose >/dev/null 2>&1; then
+    echo "docker-compose"
+    return
+  fi
+
+  echo ""
+}
+
+DOCKER_COMPOSE=$(ensure_docker_compose)
+if [ -z "$DOCKER_COMPOSE" ]; then
   echo "docker compose or docker-compose is required" >&2
   exit 1
 fi
@@ -213,119 +316,53 @@ if [ ! -f "$COMPOSE_FILE" ]; then
   exit 1
 fi
 
-if [ "$DOCKER_COMPOSE" = "docker compose" ]; then
-  SERVICE_CHECK=$($DOCKER_COMPOSE -f "$COMPOSE_FILE" ps -q "$ACME_SERVICE" 2>/dev/null || true)
-else
-  SERVICE_CHECK=$($DOCKER_COMPOSE -f "$COMPOSE_FILE" ps -q "$ACME_SERVICE" 2>/dev/null || true)
+update_traefik_config
+
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" ps -q traefik >/dev/null 2>&1 || [ -z "$($DOCKER_COMPOSE -f "$COMPOSE_FILE" ps -q traefik 2>/dev/null)" ]; then
+  log "Starting Traefik container"
+  $DOCKER_COMPOSE -f "$COMPOSE_FILE" up -d traefik >/dev/null
 fi
 
-if [ -z "$SERVICE_CHECK" ]; then
-  $DOCKER_COMPOSE -f "$COMPOSE_FILE" up -d "$ACME_SERVICE" >/dev/null
-fi
+current_status="$(certificate_ready)"
+status_type=$(printf '%s' "$current_status" | cut -f1)
+expiry=$(printf '%s' "$current_status" | cut -f2)
 
-set -- $DOCKER_COMPOSE -f "$COMPOSE_FILE" run --rm
-for var in $ACME_ENV_VARS; do
-  set -- "$@" -e "$var"
-done
-set -- "$@" --entrypoint /app/acme.sh "$ACME_SERVICE" --home /app --config-home /etc/acme.sh/default --issue
-if [ "$MANUAL_MODE" -eq 1 ]; then
-  set -- "$@" --dns --yes-I-know-dns-manual-mode-enough-go-ahead-please
-else
-  set -- "$@" --dns "$ACME_PROVIDER"
-fi
-set -- "$@" -d "$TARGET_DOMAIN" -d "*.$TARGET_DOMAIN" --accountemail "$ACCOUNT_EMAIL"
-if [ -n "$ACME_SERVER" ]; then
-  set -- "$@" --server "$ACME_SERVER"
-fi
-if [ "$ACME_USE_STAGING" = "1" ]; then
-  set -- "$@" --staging
-fi
-if [ -n "$ACME_ISSUE_FLAGS" ]; then
-  for flag in $ACME_ISSUE_FLAGS; do
-    set -- "$@" "$flag"
-  done
-fi
-if [ "$MANUAL_MODE" -eq 0 ]; then
-  "$@"
+if [ "$status_type" = "FOUND" ] && [ "$FORCE" -eq 0 ]; then
+  if [ -n "$expiry" ]; then
+    log "Wildcard certificate for *.$TARGET_DOMAIN already present (expires $expiry)"
+  else
+    log "Wildcard certificate for *.$TARGET_DOMAIN already present"
+  fi
   exit 0
 fi
 
-TMP_OUTPUT=$(mktemp)
-cleanup_tmp() {
-  rm -f "$TMP_OUTPUT"
-}
-trap cleanup_tmp EXIT HUP INT TERM
+log "Requesting wildcard certificate for $TARGET_DOMAIN via Traefik resolver ($provider)"
 
 set +e
-"$@" >"$TMP_OUTPUT" 2>&1
-STATUS=$?
+traefik_api_request POST /api/providers/reload ""
+if [ $? -ne 0 ]; then
+  log "Warning: unable to trigger Traefik provider reload via API"
+fi
 set -e
-cat "$TMP_OUTPUT"
 
-if [ "$STATUS" -eq 0 ]; then
-  exit 0
-fi
-
-TXT_DOMAIN_LINE=$(grep -E "Domain:" "$TMP_OUTPUT" | tail -n 1)
-TXT_VALUE_LINE=$(grep -E "TXT[[:space:]]+(value|record)" "$TMP_OUTPUT" | tail -n 1)
-
-TXT_DOMAIN=""
-if [ -n "$TXT_DOMAIN_LINE" ]; then
-  TXT_DOMAIN=$(printf '%s\n' "$TXT_DOMAIN_LINE" | awk "match(\$0, /'[^']*'/){print substr(\$0, RSTART+1, RLENGTH-2)}")
-  if [ -z "$TXT_DOMAIN" ]; then
-    TXT_DOMAIN=$(printf '%s\n' "$TXT_DOMAIN_LINE" | sed -e "s/.*Domain:[[:space:]]*//" -e "s/[\"']//g" -e 's/[[:space:]]*$//')
+attempt=0
+max_attempts=12
+while [ $attempt -lt $max_attempts ]; do
+  sleep 5
+  attempt=$((attempt + 1))
+  status_line="$(certificate_ready)"
+  status_type=$(printf '%s' "$status_line" | cut -f1)
+  expiry=$(printf '%s' "$status_line" | cut -f2)
+  if [ "$status_type" = "FOUND" ]; then
+    log "Wildcard certificate for *.$TARGET_DOMAIN ready (expires $expiry)"
+    printf '{"status":"issued","domain":"%s","expires":"%s"}\n' "$TARGET_DOMAIN" "$expiry"
+    exit 0
   fi
-fi
-
-TXT_VALUE=""
-if [ -n "$TXT_VALUE_LINE" ]; then
-  TXT_VALUE=$(printf '%s\n' "$TXT_VALUE_LINE" | awk "match(\$0, /'[^']*'/){print substr(\$0, RSTART+1, RLENGTH-2)}")
-  if [ -z "$TXT_VALUE" ]; then
-    TXT_VALUE=$(printf '%s\n' "$TXT_VALUE_LINE" | sed -e "s/.*TXT[[:space:]]*\([A-Za-z]*\):[[:space:]]*//" -e "s/[\"']//g" -e 's/[[:space:]]*$//')
+  if [ "$status_type" = "ERROR" ]; then
+    log "Waiting for Traefik API to expose certificate list..."
   fi
-fi
-
-if [ -z "$TXT_VALUE" ]; then
-  echo "Manual DNS challenge failed and the TXT value could not be determined. Review the output above." >&2
-  exit "$STATUS"
-fi
-
-echo
-echo "Manual DNS verification required."
-if [ -n "$TXT_DOMAIN" ]; then
-  echo "Create a TXT record for: $TXT_DOMAIN"
-else
-  echo "Create a TXT record for the _acme-challenge subdomain."
-fi
-echo "TXT value: $TXT_VALUE"
-echo
-printf "Press Enter after the TXT record has been created and propagated to continue..."
-read -r _
-
-cleanup_tmp
-trap - EXIT HUP INT TERM
-
-"$@"
-
-set -- $DOCKER_COMPOSE -f "$COMPOSE_FILE" run --rm
-for var in $ACME_ENV_VARS; do
-  set -- "$@" -e "$var"
 done
-set -- "$@" --entrypoint /app/acme.sh "$ACME_SERVICE" --home /app --config-home /etc/acme.sh/default --install-cert -d "$TARGET_DOMAIN" --fullchain-file "/etc/nginx/certs/$TARGET_DOMAIN.crt" --key-file "/etc/nginx/certs/$TARGET_DOMAIN.key" --reloadcmd ""
-if [ -n "$ACME_INSTALL_FLAGS" ]; then
-  for flag in $ACME_INSTALL_FLAGS; do
-    set -- "$@" "$flag"
-  done
-fi
-"$@"
 
-if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
-  echo "Wildcard certificate issuance succeeded but files are missing in certs/" >&2
-  exit 1
-fi
-
-chmod 640 "$CERT_PATH" 2>/dev/null || true
-chmod 600 "$KEY_PATH" 2>/dev/null || true
-
-echo "Wildcard certificate ready at certs/$TARGET_DOMAIN.crt"
-
+log "Timed out waiting for Traefik to report the wildcard certificate"
+printf '{"status":"timeout","domain":"%s"}\n' "$TARGET_DOMAIN"
+exit 1
