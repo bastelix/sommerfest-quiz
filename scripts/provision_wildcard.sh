@@ -151,7 +151,7 @@ else
 fi
 
 update_traefik_config() {
-  python3 <<'PY' "$TRAEFIK_CONFIG" "$provider" "$dns_resolvers" "$dns_delay" "$TARGET_DOMAIN" "$acme_server"
+  python3 - "$TRAEFIK_CONFIG" "$provider" "$dns_resolvers" "$dns_delay" "$TARGET_DOMAIN" "$acme_server" <<'PY'
 from pathlib import Path
 import sys
 
@@ -235,7 +235,7 @@ traefik_api_request() {
 }
 
 read_certificate_status() {
-  python3 <<'PY' "$TARGET_DOMAIN"
+  python3 - "$TARGET_DOMAIN" <<'PY'
 import json
 import sys
 
