@@ -143,34 +143,6 @@ if [ ! -f /var/www/data/config.json ] && [ -d /var/www/data-default ]; then
     cp -a /var/www/data-default/. /var/www/data/
 fi
 
-# Normalize the Let's Encrypt host list and trigger a proxy reload when it changes.
-normalize_hosts() {
-    printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
-}
-
-if [ -n "$LETSENCRYPT_HOST" ]; then
-    normalized_hosts=$(normalize_hosts "$LETSENCRYPT_HOST")
-    cache_file=/var/www/data/.letsencrypt-hosts
-
-    if [ "$normalized_hosts" != "$LETSENCRYPT_HOST" ]; then
-        echo "Warning: LETSENCRYPT_HOST contains whitespace; normalized to '$normalized_hosts'" >&2
-    fi
-
-    if [ -n "$normalized_hosts" ]; then
-        mkdir -p "$(dirname "$cache_file")"
-        if [ ! -f "$cache_file" ] || [ "$(cat "$cache_file" 2>/dev/null)" != "$normalized_hosts" ]; then
-            echo "$normalized_hosts" > "$cache_file"
-            if [ -n "$NGINX_RELOADER_URL" ]; then
-                if curl -fs -X POST -H "X-Token: ${NGINX_RELOAD_TOKEN:-changeme}" "$NGINX_RELOADER_URL" >/dev/null; then
-                    echo "Triggered nginx reload for updated certificate host list"
-                else
-                    echo "Warning: Failed to trigger nginx reload at $NGINX_RELOADER_URL" >&2
-                fi
-            fi
-        fi
-    fi
-fi
-
 if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     host=$(echo "$POSTGRES_DSN" | sed -n 's/.*host=\([^;]*\).*/\1/p')
     port=$(echo "$POSTGRES_DSN" | sed -n 's/.*port=\([^;]*\).*/\1/p')

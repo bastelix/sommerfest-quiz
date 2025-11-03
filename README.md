@@ -282,34 +282,45 @@ dem KI-Endpunkt frühzeitig zu erkennen.
 
 ## Docker Compose
 
-Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Der integrierte PHP-Webserver hört auf Port `8080`, der im Docker-Image freigegeben ist. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook. Dieser Container enthält nun das Docker-CLI, um den Proxy direkt neu laden zu können. Alternativ kann jede beliebige URL über die Variable `NGINX_RELOADER_URL` hinterlegt werden. Wird dieser Webhook genutzt, sollte `NGINX_RELOAD` auf `0` stehen, damit keine Docker-Befehle ausgeführt werden. Das dafür notwendige Token wird über die Datei `.env` als `NGINX_RELOAD_TOKEN` definiert und sowohl an die Anwendung als auch an den Reloader-Container weitergereicht. Die mitgelieferte Beispielkonfiguration ist bereits entsprechend vorbereitet und nutzt standardmäßig `http://nginx-reloader:8080/reload` bei deaktiviertem `NGINX_RELOAD`.
-Sollte der automatische Reload scheitern, bricht `scripts/create_tenant.sh` mit einer Fehlermeldung ab. In diesem Fall lässt sich der Proxy manuell neu laden:
+Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit Traefik v2 als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`.
 
-```bash
-docker compose exec nginx nginx -s reload
-```
+Der Anwendungscode läuft im Service `slim` und wird intern auf Port 8080 ausgeliefert. Traefik routet über die Labels `traefik.http.routers.quizrace-web` und `traefik.http.routers.quizrace-secure` auf diesen Service. Adminer bleibt über `https://adminer.${DOMAIN}` erreichbar und nutzt dieselben Standard-Middlewares (`quizrace-https-redirect`, `quizrace-security-headers` sowie die passenden Body-Limits).
 
-Zur Fehlersuche helfen die Logs des Proxy- oder Reloader-Containers:
+Weise zusätzliche Hosts über Traefik zu, indem du die vorhandenen Label-Muster kopierst und den Router-Namen sowie die `Host(...)`-Regel anpasst. Für individuelle Upload-Limits stehen die in `config/traefik/dynamic/middlewares.yml` hinterlegten `quizrace-body-limit-*`-Middlewares bereit. Passe beispielsweise den gesicherten Router an:
 
-```bash
-docker compose logs nginx
-docker compose logs nginx-reloader
-```
+`````
+traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
+`````
 
-Anschließend kann das Skript erneut aufgerufen werden.
-Zertifikate und Konfigurationen werden komplett in benannten Volumes
-gespeichert. Dadurch bleiben alle Daten auch nach `docker compose down`
-erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
-Adminer-Container,
-der die PostgreSQL-Datenbank über die Subdomain `https://adminer.${DOMAIN}` bereitstellt. Er
-nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen.
-Um größere Uploads zu erlauben, wird die maximale
-Request-Größe des Reverse Proxys über eine Datei in `vhost.d/` konfiguriert.
-Kopiere das Beispiel `vhost.d/example.com` und passe den Wert
-`client_max_body_size` an deine Domain an. Nach dem Ändern genügt
-`docker compose restart docker-gen`, damit nginx die Einstellung übernimmt.
-Die optionale Variable `CLIENT_MAX_BODY_SIZE` in `.env` liefert dabei nur
-einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
+Traefik speichert Zertifikate im Volume `acme`. Logs und Debugging-Ausgaben lassen sich über
+
+`````
+docker compose logs traefik
+docker compose logs slim
+`````
+
+prüfen.
+
+Zum Start genügt:
+
+`````
+cp sample.env .env
+docker compose up --build -d
+`````
+
+Standardmäßig legt Docker Compose das benötigte Netzwerk automatisch an. Soll ein bereits vorhandenes Proxy-Netz genutzt werden, setze `NETWORK_EXTERNAL=true` und lege das Netz manuell an:
+
+`````
+docker network create ${NETWORK:-webproxy}
+`````
+
+Beenden lässt sich der Stack mit:
+
+`````
+docker compose down
+`````
+
+Die Volumes bleiben dabei erhalten.
 
 ### Static upload MIME types
 
@@ -325,28 +336,6 @@ png, svg, ttf, txt, webm, webp, woff, woff2
 
 Keep this list in sync if additional media formats are introduced.
 
-Zum Start genügt:
-```bash
-cp sample.env .env
-docker compose up --build -d
-```
-Die Datei setzt `COMPOSE_PROJECT_NAME=sommerfest-quiz`, damit Docker Compose vorhandene Container und Volumes bei späteren Deployments wiederverwendet.
-Standardmäßig legt Docker Compose das benötigte Netzwerk automatisch an. Soll
-ein bereits vorhandenes Proxy-Netz genutzt werden, setze in deiner `.env`
-`NETWORK_EXTERNAL=true` und lege das Netz manuell an:
-```bash
-docker network create ${NETWORK:-webproxy}
-```
-Den Namen kannst du weiterhin über die Umgebungsvariable `NETWORK`
-konfigurieren.
-Beenden lässt sich der Stack mit:
-```bash
-docker compose down
-```
-Die Volumes bleiben dabei erhalten.
-Beim Einsatz des integrierten Proxy-Stacks (nginx, docker-gen und acme-companion) greift der Wert nur, solange keine eigene Vhost-Konfiguration vorliegt.
-Soll ein höheres Limit dauerhaft gelten, lege im Verzeichnis `vhost.d/` eine Datei an.
-Nach dem Anpassen genügt ein Neustart des Containers `docker-gen` (z.B. `docker compose restart docker-gen`), damit nginx die Einstellung übernimmt.
 
 Werte `upload_max_filesize` und `post_max_size` angepasst werden. Dafür
 liegt im Verzeichnis `config/` eine kleine `php.ini` bereit. Sie wird beim
@@ -523,30 +512,17 @@ GRANT CREATE ON DATABASE quiz TO quiz;
 
 Anschließend kann `CREATE SCHEMA` im Hintergrund ausgeführt werden.
 
-Für den eigentlichen Quiz-Container lässt sich der Hostname über die
-Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
-mit unterschiedlichen Werten, werden die Subdomains automatisch als
-eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
-`nginxproxy/acme-companion` für jede konfigurierte Domain ein
-Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
-Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
-ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
-`VIRTUAL_HOST`. `LETSENCRYPT_HOST` wird seit Version 4.19 ausschließlich
-aus echten Domains aufgebaut: Standardmäßig landen `MAIN_DOMAIN`
-und alle Einträge aus `MARKETING_DOMAINS` in der Liste. Über
-`SLIM_LETSENCRYPT_HOST` kannst du bei Bedarf weitere konkrete Hosts
-anhängen – Regex-Ausdrücke bleiben ausschließlich in `VIRTUAL_HOST`,
-damit der `acme-companion` keine ungültigen CSRs erzeugt. Beim Start
-normalisiert der Container beide Variablen (Leerzeichen und
-Zeilenumbrüche werden entfernt) und löst einen Reload des Proxys über
-`NGINX_RELOADER_URL` aus, sodass der `acme-companion` direkt Zertifikate
-für neue Domains anfordert.
+Für den eigentlichen Quiz-Container steuerst du erreichbare Hosts heute über die Traefik-Routerlabels. Der Standard im Compose-File akzeptiert `MAIN_DOMAIN`, `DOMAIN` sowie alle Subdomains von `DOMAIN`. Möchtest du Marketing-Domains hinzufügen, erweitere die `Host(...)`-Regel der Router. Beispiel:
+
+`````
+traefik.http.routers.quizrace-secure.rule=Host(`${MAIN_DOMAIN}`) || Host(`marketing.example`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
+`````
+
+`scripts/onboard_tenant.sh` erzeugt für dedizierte Container automatisch eigene Router inklusive Zertifikats-Resolver. Im Single-Container-Modus (`TENANT_SINGLE_CONTAINER=1`) sorgt das Entrypoint weiterhin für Wildcard-Domains, damit alle Mandanten über eine gemeinsame Instanz erreichbar bleiben. Traefik erkennt neue Router durch die Docker-Labels automatisch – ein expliziter Reload oder ein `NGINX_RELOADER_URL` ist nicht mehr erforderlich.
 
 Weitere nützliche Variablen in `.env` sind:
 
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
-- `SLIM_LETSENCRYPT_HOST` – zusätzliche Zertifikats-Domains für den Slim-Container
-  (nur konkrete Hostnamen, keine Regex-Ausdrücke).
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
   Es sollte den Tag des lokal gebauten Slim-Images (`docker build -t <tag> .`) nutzen,
@@ -566,10 +542,6 @@ curl -X POST http://$DOMAIN/users.json \
   -H 'Content-Type: application/json' \
   -d '[{"username":"robot","password":"secret","role":"service-account","active":true}]'
 ```
-- `NGINX_RELOAD_TOKEN` – Token für den Webhook `http://nginx-reloader:8080/reload`.
-- `NGINX_CONTAINER` – Name des Proxy-Containers (Standard `nginx`).
-- `NGINX_RELOAD` – auf `0` setzen, wenn ein externer Webhook den Reload übernimmt.
-- `NGINX_RELOADER_URL` – URL eines externen Webhooks für den Proxy-Reload.
 - `DISPLAY_ERROR_DETAILS` – auf `1` setzen, um detaillierte Fehlermeldungen anzuzeigen.
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.

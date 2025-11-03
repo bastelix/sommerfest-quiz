@@ -40,7 +40,7 @@ Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen d
 - `admin.` – Administrationsoberfläche
 - `{tenant}.` – individuelle Mandanteninstanzen
 
-Zusätzlich lassen sich weitere Marketing-Domains über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder Zeilen-separiert) freischalten. Diese Domains liefern die Inhalte der Landing Pages aus, ohne eine Mandanten-Subdomain verwenden zu müssen. Damit der Reverse Proxy automatisch TLS-Zertifikate für diese Hosts anfordert, sollten die Domains kommagetrennt eingetragen werden; `docker-compose.yml` hängt die Liste an `VIRTUAL_HOST` an und übernimmt sie zugleich (ohne Regex-Einträge) in `LETSENCRYPT_HOST`.
+Zusätzliche Marketing-Domains lassen sich über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder zeilengetrennt) freischalten. Sie liefern Landing-Pages ohne Mandanten-Subdomain aus. Füge die Hosts bei Bedarf den Traefik-Routern hinzu, indem du die `Host(...)`-Regeln in `docker-compose.yml` erweiterst oder eigene Router definierst. So stellt Traefik automatisch TLS-Zertifikate für diese Domains aus.
 
 Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und die Marketing-Liste und setzt entsprechend das Attribut `domainType` (`main`, `tenant` oder `marketing`). Ist `MAIN_DOMAIN` leer oder stimmt keine der konfigurierten Domains mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
 
