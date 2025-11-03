@@ -10,6 +10,7 @@ services:
       - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_EMAIL=${LETSENCRYPT_EMAIL}
       - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_STORAGE=/etc/traefik/acme.json
       - TRAEFIK_PROVIDERS_DOCKER_NETWORK=${NETWORK:-webproxy}
+      - TRAEFIK_API_BASICAUTH=${TRAEFIK_API_BASICAUTH:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro

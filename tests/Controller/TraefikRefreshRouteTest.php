@@ -24,12 +24,12 @@ class TraefikRefreshRouteTest extends TestCase
             }
         };
 
-        $old = getenv('NGINX_RELOAD_TOKEN');
-        putenv('NGINX_RELOAD_TOKEN=changeme');
-        $_ENV['NGINX_RELOAD_TOKEN'] = 'changeme';
+        $old = getenv('TRAEFIK_RELOAD_TOKEN');
+        putenv('TRAEFIK_RELOAD_TOKEN=changeme');
+        $_ENV['TRAEFIK_RELOAD_TOKEN'] = 'changeme';
 
         $app = $this->getAppInstance();
-        $req = $this->createRequest('POST', '/nginx-reload', ['X-Token' => 'changeme']);
+        $req = $this->createRequest('POST', '/traefik/reload', ['X-Token' => 'changeme']);
         $req = $req->withAttribute('proxyService', $service);
         $res = $app->handle($req);
 
@@ -37,11 +37,11 @@ class TraefikRefreshRouteTest extends TestCase
         $this->assertTrue($service->notified);
 
         if ($old === false) {
-            putenv('NGINX_RELOAD_TOKEN');
-            unset($_ENV['NGINX_RELOAD_TOKEN']);
+            putenv('TRAEFIK_RELOAD_TOKEN');
+            unset($_ENV['TRAEFIK_RELOAD_TOKEN']);
         } else {
-            putenv('NGINX_RELOAD_TOKEN=' . $old);
-            $_ENV['NGINX_RELOAD_TOKEN'] = $old;
+            putenv('TRAEFIK_RELOAD_TOKEN=' . $old);
+            $_ENV['TRAEFIK_RELOAD_TOKEN'] = $old;
         }
 
         if (file_exists($file)) {

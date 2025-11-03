@@ -16,7 +16,7 @@ class DeleteTenantScriptTest extends TestCase
         $domain = 'example.test';
 
         $envFile = $root . '/.env';
-        file_put_contents($envFile, "DOMAIN=$domain\nNGINX_RELOAD=0\n");
+        file_put_contents($envFile, "DOMAIN=$domain\n");
 
         $certCrt = "$root/certs/$slug.$domain.crt";
         $certKey = "$root/certs/$slug.$domain.key";
