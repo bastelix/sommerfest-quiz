@@ -76,7 +76,7 @@ services:
       - postgres
     expose:
       - "8080"
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
     labels:
       - traefik.enable=true
       - traefik.docker.network=${NETWORK:-webproxy}
