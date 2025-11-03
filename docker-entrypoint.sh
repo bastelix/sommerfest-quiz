@@ -45,9 +45,15 @@ case "$single_container_flag" in
     1|true|yes|on)
         base_domain="${MAIN_DOMAIN:-${DOMAIN:-}}"
         if [ -n "$base_domain" ]; then
-            wildcard_host="~^([a-z0-9-]+\.)?${base_domain}\$"
-            append_host_value "VIRTUAL_HOST" "$wildcard_host"
-            append_host_value "LETSENCRYPT_HOST" "$wildcard_host"
+            wildcard_regex="~^([a-z0-9-]+\.)?${base_domain}\$"
+            append_host_value "VIRTUAL_HOST" "$wildcard_regex"
+
+            # The Let's Encrypt companion cannot handle nginx regex hosts in
+            # LETSENCRYPT_HOST. Request certificates for the apex and wildcard
+            # domains instead so that the issued certificate covers all
+            # tenants while remaining compatible with nginx-proxy.
+            append_host_value "LETSENCRYPT_HOST" "$base_domain"
+            append_host_value "LETSENCRYPT_HOST" "*.${base_domain}"
         fi
         ;;
 esac
