@@ -65,6 +65,8 @@ services:
   slim:
     build: .
     container_name: slim-1
+    entrypoint: []
+    working_dir: /var/www
     volumes:
       - ./:/var/www
       # Mount custom PHP settings (overrides copy in Dockerfile)
