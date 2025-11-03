@@ -34,7 +34,7 @@ ENV;
             $exported['VIRTUAL_HOST']
         );
         $this->assertSame(
-            'app.example.test,' . $wildcardHost . ',quiz.example.test,*.quiz.example.test',
+            'app.example.test,quiz.example.test,*.quiz.example.test',
             $exported['LETSENCRYPT_HOST']
         );
     }
@@ -56,6 +56,21 @@ ENV;
 
         $this->assertSame('app.example.test,marketing.example.test', $exported['VIRTUAL_HOST']);
         $this->assertSame('app.example.test', $exported['LETSENCRYPT_HOST']);
+    }
+
+    public function testEntrypointStripsRegexHostsFromLetsEncryptList(): void
+    {
+        $regexHost = '~^([a-z0-9-]+\.)?quiz.example.test$';
+
+        $envContent = <<<ENV
+LETSENCRYPT_HOST=app.example.test,{$regexHost},quiz.example.test
+
+ENV;
+
+        $exported = $this->runEntrypointWithEnv($envContent);
+
+        $this->assertArrayHasKey('LETSENCRYPT_HOST', $exported);
+        $this->assertSame('app.example.test,quiz.example.test', $exported['LETSENCRYPT_HOST']);
     }
 
     public function testEntrypointLeavesHostsUntouchedWithoutBaseDomain(): void

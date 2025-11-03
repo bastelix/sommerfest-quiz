@@ -17,6 +17,17 @@ sanitize_host_list() {
     printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
 }
 
+is_regex_host() {
+    case "$1" in
+        \~*)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
 filter_certificate_hosts() {
     sanitized=$(sanitize_host_list "$1")
     if [ -z "$sanitized" ]; then
@@ -29,6 +40,10 @@ filter_certificate_hosts() {
     IFS=','
     for host in $sanitized; do
         if [ -z "$host" ]; then
+            continue
+        fi
+
+        if is_regex_host "$host"; then
             continue
         fi
 
@@ -73,7 +88,10 @@ append_proxy_host() {
     host="$1"
 
     append_host_value "VIRTUAL_HOST" "$host"
-    append_host_value "LETSENCRYPT_HOST" "$host"
+
+    if ! is_regex_host "$host"; then
+        append_host_value "LETSENCRYPT_HOST" "$host"
+    fi
 }
 
 # Automatically expose all tenant subdomains in single-container setups so the

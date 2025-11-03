@@ -412,11 +412,12 @@ ab. `scripts/create_tenant.sh` ruft die Routine automatisch auf, wenn das
 Wildcard-Zertifikat noch fehlt.
 
 Das Entrypoint-Skript ergänzt in diesem Modus automatisch einen Regex-Host der
-Form `~^([a-z0-9-]+\.)?${MAIN_DOMAIN}$` (oder `${DOMAIN}`) in den Variablen
-`VIRTUAL_HOST` und `LETSENCRYPT_HOST`. Bestehende Einträge – beispielsweise
-Marketing-Domains – bleiben erhalten und werden nur um den Wildcard-Host
-erweitert, sodass der Reverse Proxy Zertifikate für alle Mandanten-Slugs
-ausstellen kann.
+Form `~^([a-z0-9-]+\.)?${MAIN_DOMAIN}$` (oder `${DOMAIN}`) in `VIRTUAL_HOST`.
+`LETSENCRYPT_HOST` enthält ausschließlich echte Domains beziehungsweise
+Wildcard-Einträge (`*.example.test`), sodass der `acme-companion` keine
+ungültigen CSRs erzeugt. Bestehende Einträge – beispielsweise Marketing-Domains
+– bleiben erhalten und werden passend ergänzt, damit der Reverse Proxy
+Zertifikate für alle Mandanten-Slugs ausstellen kann.
 
 Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
 
