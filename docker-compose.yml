@@ -62,41 +62,18 @@ services:
   slim:
     build: .
     container_name: slim-1
-    working_dir: /var/www
     volumes:
       - ./:/var/www
       # Mount custom PHP settings (overrides copy in Dockerfile)
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - POSTGRES_DSN=${POSTGRES_DSN}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - TENANT_ID=${TENANT_ID}
-      - SMTP_HOST=${SMTP_HOST}
-      - SMTP_USER=${SMTP_USER}
-      - SMTP_PASS=${SMTP_PASS}
-      - SMTP_PORT=${SMTP_PORT}
-      - SMTP_FROM=${SMTP_FROM}
-      - SMTP_FROM_NAME=${SMTP_FROM_NAME}
-      - STRIPE_SANDBOX=${STRIPE_SANDBOX:-0}
-      - STRIPE_SANDBOX_SECRET_KEY=${STRIPE_SANDBOX_SECRET_KEY:-}
-      - STRIPE_SANDBOX_PUBLISHABLE_KEY=${STRIPE_SANDBOX_PUBLISHABLE_KEY:-}
-      - STRIPE_SANDBOX_PRICE_STARTER=${STRIPE_SANDBOX_PRICE_STARTER:-}
-      - STRIPE_SANDBOX_PRICE_STANDARD=${STRIPE_SANDBOX_PRICE_STANDARD:-}
-      - STRIPE_SANDBOX_PRICE_PROFESSIONAL=${STRIPE_SANDBOX_PRICE_PROFESSIONAL:-}
-      - STRIPE_SANDBOX_PRICING_TABLE_ID=${STRIPE_SANDBOX_PRICING_TABLE_ID:-}
-      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
-      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY:-}
-      - STRIPE_PRICE_STARTER=${STRIPE_PRICE_STARTER:-}
-      - STRIPE_PRICE_STANDARD=${STRIPE_PRICE_STANDARD:-}
-      - STRIPE_PRICE_PROFESSIONAL=${STRIPE_PRICE_PROFESSIONAL:-}
-      - STRIPE_PRICING_TABLE_ID=${STRIPE_PRICING_TABLE_ID:-}
+    env_file:
+      - ./.env
     depends_on:
       - postgres
     expose:
       - "8080"
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
     labels:
       - traefik.enable=true
       - traefik.docker.network=${NETWORK:-webproxy}
