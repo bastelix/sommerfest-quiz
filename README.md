@@ -289,11 +289,17 @@ Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit Traefik v2
 
 ### ACME-Speicher vorbereiten
 
-Traefik kann `acme.json` nur lesen, wenn die Datei bereits existiert und mit `chmod 600` geschützt ist. Führe vor `docker compose up traefik` einmalig (und nach Bedarf erneut) das Skript aus, das die Datei samt Berechtigungen anlegt:
+Traefik kann `acme.json` nur lesen, wenn die Datei bereits existiert und mit `chmod 600` geschützt ist. Führe vor `docker compose up traefik` einmalig (und nach Bedarf erneut) das Skript aus, das die Datei samt Berechtigungen anlegt. Das Skript bricht mit einer Fehlermeldung ab, sobald der Modus von `600` abweicht, damit du die Rechte direkt korrigieren kannst:
 
 ```bash
 ./scripts/prepare_traefik_acme.sh
 docker compose up traefik
+```
+
+Setze die Berechtigung falls nötig manuell, bevor du das Skript erneut ausführst:
+
+```bash
+chmod 600 letsencrypt/acme.json
 ```
 
 Verifiziere die Rechte regelmäßig, damit der ACME-Resolver weiterhin Zertifikate schreiben kann:

@@ -12,6 +12,12 @@ if [ ! -f "$ACME_STORAGE" ]; then
 fi
 chmod 600 "$ACME_STORAGE"
 
+ACTUAL_MODE=$(stat -c '%a' "$ACME_STORAGE")
+if [ "$ACTUAL_MODE" != "600" ]; then
+    echo "Fehler: $ACME_STORAGE muss die Berechtigung 600 besitzen, aktuell ist $ACTUAL_MODE gesetzt. Bitte korrigiere die Rechte auf dem Host." >&2
+    exit 1
+fi
+
 # When the marketing configuration directory is mounted read-only, the helper
 # above ensures it exists inside the image. The bind mount can still fail if the
 # directory disappears, so we recreate it just in case.
