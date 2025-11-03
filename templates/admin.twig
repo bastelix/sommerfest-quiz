@@ -2148,10 +2148,14 @@
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
           <div class="uk-width-auto uk-flex uk-flex-middle">
             <select id="tenantStatusFilter" class="uk-select" aria-label="Status filtern">
-              <option value="">Alle</option>
-              <option value="active">Aktiv</option>
-              <option value="canceled">Gekündigt</option>
-              <option value="simulated">Simuliert</option>
+              <option value="">{{ t('tenant_status_filter_all') }}</option>
+              <option value="active">{{ t('tenant_status_active') }}</option>
+              <option value="canceled">{{ t('tenant_status_canceled') }}</option>
+              <option value="simulated">{{ t('tenant_status_simulated') }}</option>
+              <option value="pending">{{ t('tenant_status_pending') }}</option>
+              <option value="provisioning">{{ t('tenant_status_provisioning') }}</option>
+              <option value="provisioned">{{ t('tenant_status_provisioned') }}</option>
+              <option value="failed">{{ t('tenant_status_failed') }}</option>
             </select>
           </div>
 
@@ -2463,12 +2467,14 @@
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
     window.tenantSyncState = {{ tenant_sync|default(null)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.initialTenantListHtml = {{ initialTenantListHtml|default('')|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.transTenantSyncOk = '{{ 'Aktuell'|e('js') }}';
     window.transTenantSyncStale = '{{ 'Sync nötig'|e('js') }}';
     window.transTenantSyncCooling = '{{ 'Wartezeit'|e('js') }}';
     window.transTenantSyncLastRun = '{{ 'Letzter Sync'|e('js') }}';
     window.transTenantSyncThrottled = '{{ 'Sync läuft bereits – bitte später erneut versuchen'|e('js') }}';
     window.transTenantSyncSuccess = '{{ 'Mandanten eingelesen'|e('js') }}';
+    window.transTenantSyncNoChanges = '{{ t('notify_tenant_sync_no_changes')|e('js') }}';
     window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};

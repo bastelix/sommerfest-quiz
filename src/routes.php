@@ -38,7 +38,7 @@ use App\Support\UsernameBlockedException;
 use App\Support\UsernameGuard;
 use App\Service\UserService;
 use App\Service\TenantService;
-use App\Service\NginxService;
+use App\Service\TraefikService;
 use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
 use App\Service\DomainContactTemplateService;
@@ -133,7 +133,6 @@ use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use Slim\Views\Twig;
 use Slim\Psr7\Response as SlimResponse;
-use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
@@ -258,8 +257,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $pdo = Database::connectWithSchema($schema);
         MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
 
-        $nginxService = new NginxService();
-        $tenantService = new TenantService($base, null, $nginxService);
+        $traefikService = new TraefikService();
+        $tenantService = new TenantService($base, null, $traefikService);
 
         $configService = new ConfigService($pdo);
         $eventService = new EventService($pdo, $configService, $tenantService, $sub);
@@ -1056,17 +1055,17 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
         return $response->withHeader('Location', $base . '/admin/dashboard')->withStatus(302);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/event/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/event/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/media', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
@@ -1306,16 +1305,16 @@ return function (\Slim\App $app, TranslationService $translator) {
         ];
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/admin/profile', AdminController::class)
-        ->add(new RoleAuthMiddleware(...Roles::ALL))
+        ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))
         ->add(new CsrfMiddleware());
-    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/status', function (Request $request, Response $response) {
         $domainType = (string) $request->getAttribute('domainType');
         $base = Database::connectFromEnv();
@@ -1338,7 +1337,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/invoices', function (Request $request, Response $response) {
         $domainType = (string) $request->getAttribute('domainType');
         $base = Database::connectFromEnv();
@@ -1358,7 +1357,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
         $domainType = $request->getAttribute('domainType');
         $target = 'main';
@@ -1413,15 +1412,15 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post(
         '/admin/subscription/checkout',
         AdminSubscriptionCheckoutController::class
-    )->add(new RoleAuthMiddleware(...Roles::ALL))->add(new CsrfMiddleware());
+    )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
     $app->get(
         '/admin/subscription/checkout/{id}',
         StripeSessionController::class
-    )->add(new RoleAuthMiddleware(...Roles::ALL));
+    )->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
     $app->post('/admin/profile/welcome', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'tenant') {
             return $response->withStatus(403);
@@ -2254,6 +2253,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
         $mailer->sendWelcome($email, $domain, $link);
 
+        $tenantBase = Database::connectFromEnv();
+        $tenantService = new TenantService($tenantBase);
+        $tenantService->updateOnboardingState($schema, TenantService::ONBOARDING_COMPLETED);
+
         return $response->withStatus(204);
     })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
     $app->post('/import/{name}', function (Request $request, Response $response, array $args) {
@@ -2297,18 +2300,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware('admin'));
     $app->get('/admin/reports/catalog-stickers.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->pdf($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
 
     $app->get('/admin/sticker-settings', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->getSettings($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->post('/admin/sticker-settings', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->saveSettings($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
 
     $app->post('/admin/sticker-background', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->uploadBackground($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
 
     $app->get('/uploads/{file:.+}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
@@ -2383,10 +2386,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('summaryController')($request, $response);
     });
 
-    $app->post('/nginx-reload', function (Request $request, Response $response) {
+    $traefikReloadHandler = function (Request $request, Response $response) {
         $token = $request->getHeaderLine('X-Token');
-        $expected = $_ENV['NGINX_RELOAD_TOKEN'] ?? 'changeme';
-        $reloaderUrl = $_ENV['NGINX_RELOADER_URL'] ?? 'http://nginx-reloader:8080/reload';
+        $expected = $_ENV['TRAEFIK_RELOAD_TOKEN'] ?? 'changeme';
 
         if ($token !== $expected) {
             $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
@@ -2396,17 +2398,15 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(403);
         }
 
-        $client = $request->getAttribute('httpClient');
-        if (!$client instanceof Client) {
-            $client = new Client();
+        $service = $request->getAttribute('proxyService');
+        if (!$service instanceof TraefikService) {
+            $service = new TraefikService();
         }
         try {
-            $client->post($reloaderUrl, [
-                'headers' => ['X-Token' => $expected],
-            ]);
+            $service->notifyConfigChange();
         } catch (\Throwable $e) {
             $response->getBody()->write(json_encode([
-                'error' => 'Reload failed',
+                'error' => 'Refresh failed',
                 'details' => $e->getMessage(),
             ]));
 
@@ -2415,10 +2415,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
+        $response->getBody()->write(json_encode(['status' => 'traefik configuration refreshed']));
 
         return $response->withHeader('Content-Type', 'application/json');
-    });
+    };
+
+    $app->post('/traefik/reload', $traefikReloadHandler);
+    $app->post('/nginx-reload', $traefikReloadHandler);
 
     $app->post('/api/tenants/{slug}/onboard', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
@@ -2435,12 +2438,168 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(400);
         }
-        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
-
         $logPath = __DIR__ . '/../logs/onboarding.log';
         $log = is_file($logPath) ? (string) file_get_contents($logPath) : '';
+        $base = Database::connectFromEnv();
+        $tenantService = new TenantService($base);
+        $tenant = $tenantService->getBySubdomain($slug);
+
+        if ($tenant === null) {
+            $response->getBody()->write(json_encode([
+                'error' => 'tenant-missing',
+                'log' => $log,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(404);
+        }
+
+        $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONING);
+
+        $singleContainerFlag = getenv('TENANT_SINGLE_CONTAINER');
+        $singleContainerEnabled = filter_var((string) $singleContainerFlag, FILTER_VALIDATE_BOOLEAN);
+
+        if ($singleContainerEnabled) {
+            $baseDomain = trim((string) (getenv('MAIN_DOMAIN') ?: getenv('DOMAIN')));
+            $certDir = realpath(__DIR__ . '/../certs') ?: (__DIR__ . '/../certs');
+
+            if ($baseDomain === '') {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                $response->getBody()->write(json_encode([
+                    'error' => 'wildcard-domain-missing',
+                    'log' => $log,
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $certPath = $certDir . '/' . $baseDomain . '.crt';
+            $keyPath = $certDir . '/' . $baseDomain . '.key';
+
+            if (!is_file($certPath) || !is_file($keyPath)) {
+                $overrideScript = getenv('PROVISION_WILDCARD_SCRIPT');
+                if ($overrideScript !== false && $overrideScript !== '') {
+                    $provisionScript = $overrideScript;
+                } else {
+                    $provisionScript = realpath(__DIR__ . '/../scripts/provision_wildcard.sh');
+                }
+
+                if ($provisionScript === false || !is_file($provisionScript)) {
+                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                    $response->getBody()->write(json_encode([
+                        'error' => 'wildcard-script-missing',
+                        'log' => $log,
+                    ]));
+
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(500);
+                }
+
+                if (!is_dir(dirname($logPath))) {
+                    mkdir(dirname($logPath), 0775, true);
+                }
+
+                $message = sprintf('[%s] Missing wildcard certificate for "%s" – provisioning via script.', date('c'), $baseDomain);
+                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+                $log = (string) file_get_contents($logPath);
+
+                $result = runSyncProcess($provisionScript, ['--domain', $baseDomain]);
+
+                clearstatcache(true, $certPath);
+                clearstatcache(true, $keyPath);
+
+                if (!is_file($certPath) || !is_file($keyPath)) {
+                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                    $response->getBody()->write(json_encode([
+                        'error' => 'wildcard-provisioning-failed',
+                        'details' => $result['stderr'] !== '' ? $result['stderr'] : $result['stdout'],
+                        'log' => (string) file_get_contents($logPath),
+                    ]));
+
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(500);
+                }
+
+                $message = sprintf('[%s] Wildcard certificate ready for "%s".', date('c'), $baseDomain);
+                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+                $log = (string) file_get_contents($logPath);
+            }
+
+            $migrationsDir = __DIR__ . '/../migrations';
+
+            try {
+                Migrator::migrate($base, $migrationsDir);
+
+                $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
+                $stmt->execute([$slug]);
+                $schema = $stmt->fetchColumn();
+
+                if ($schema === false) {
+                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                    $response->getBody()->write(json_encode([
+                        'error' => 'Tenant not found',
+                        'log' => $log,
+                    ]));
+
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(404);
+                }
+
+                $pdo = Database::connectWithSchema((string) $schema);
+                Migrator::migrate($pdo, $migrationsDir);
+            } catch (\Throwable $e) {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                if (!is_dir(dirname($logPath))) {
+                    mkdir(dirname($logPath), 0775, true);
+                }
+                $message = sprintf(
+                    '[%s] Failed to migrate tenant "%s" in single container mode: %s',
+                    date('c'),
+                    $slug,
+                    $e->getMessage()
+                );
+                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+                $log = (string) file_get_contents($logPath);
+                $response->getBody()->write(json_encode([
+                    'error' => 'Failed to onboard tenant',
+                    'log' => $log,
+                    'details' => $e->getMessage(),
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $message = sprintf('[%s] Single container mode active – skipped docker onboarding for "%s".', date('c'), $slug);
+            if (!is_dir(dirname($logPath))) {
+                mkdir(dirname($logPath), 0775, true);
+            }
+            file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+            $log = (string) file_get_contents($logPath);
+
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
+            $payload = [
+                'status' => 'completed',
+                'tenant' => $slug,
+                'log' => $log,
+                'mode' => 'single-container',
+            ];
+            $response->getBody()->write(json_encode($payload));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
             $response->getBody()->write(json_encode([
                 'error' => 'Onboard script not found',
                 'log' => $log,
@@ -2456,6 +2615,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $composeFile = $tenantDir . '/docker-compose.yml';
 
         if (!$result['success'] || !is_file($composeFile)) {
+            $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
             $response->getBody()->write(json_encode([
                 'error' => 'Failed to onboard tenant',
                 'stderr' => $result['stderr'],
@@ -2467,6 +2627,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
+        $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_PROVISIONED);
         $payload = ['status' => 'completed', 'tenant' => $slug, 'log' => $log];
         $response->getBody()->write(json_encode($payload));
 

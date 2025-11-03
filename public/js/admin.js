@@ -6906,6 +6906,22 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantReportBtn = document.getElementById('tenantReportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
   const tenantSearchInput = document.getElementById('tenantSearchInput');
+  const TENANT_STATUS_VALUES = new Set([
+    'active',
+    'canceled',
+    'simulated',
+    'pending',
+    'provisioning',
+    'provisioned',
+    'failed'
+  ]);
+  const normalizeTenantStatus = value => {
+    if (typeof value !== 'string') {
+      return '';
+    }
+    const normalized = value.trim().toLowerCase();
+    return TENANT_STATUS_VALUES.has(normalized) ? normalized : '';
+  };
   let tenantColumnBtn = document.getElementById('tenantColumnBtn');
   const tenantTable = tenantTableBody?.closest('table');
   const tenantTableHeadings = tenantTable?.querySelectorAll('thead th') || [];
@@ -6916,6 +6932,10 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
   const tenantColumnDefaults = tenantColumnDefs.map(c => c.key);
   let tenantColumns = [...tenantColumnDefaults];
+  let initialTenantListHtml = typeof window.initialTenantListHtml === 'string'
+    ? window.initialTenantListHtml
+    : '';
+  let initialTenantHtmlApplied = false;
   let tenantSyncState = null;
 
   function normalizeTenantSyncState(raw) {
@@ -6929,13 +6949,31 @@ document.addEventListener('DOMContentLoaded', function () {
       const num = parseInt(String(value ?? ''), 10);
       return Number.isNaN(num) ? 0 : num;
     };
+    const parseBoolSafe = value => {
+      if (typeof value === 'boolean') {
+        return value;
+      }
+      if (typeof value === 'number') {
+        return value !== 0;
+      }
+      if (typeof value === 'string') {
+        const normalized = value.trim().toLowerCase();
+        if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+          return true;
+        }
+        if (['0', 'false', 'no', 'off', ''].includes(normalized)) {
+          return false;
+        }
+      }
+      return Boolean(value);
+    };
     return {
       last_run_at: typeof raw.last_run_at === 'string' && raw.last_run_at !== '' ? raw.last_run_at : null,
       next_allowed_at: typeof raw.next_allowed_at === 'string' && raw.next_allowed_at !== '' ? raw.next_allowed_at : null,
       cooldown_seconds: parseIntSafe(raw.cooldown_seconds),
       stale_after_seconds: parseIntSafe(raw.stale_after_seconds),
-      is_stale: Boolean(raw.is_stale),
-      is_throttled: Boolean(raw.is_throttled)
+      is_stale: parseBoolSafe(raw.is_stale),
+      is_throttled: parseBoolSafe(raw.is_throttled)
     };
   }
 
@@ -7027,6 +7065,57 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   }
 
+  function applyTenantListHtml(html) {
+    if (typeof html !== 'string' || html.trim() === '') {
+      return false;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const newBody = doc.getElementById('tenantTableBody');
+    const newCards = doc.getElementById('tenantCards');
+    const metaState = extractTenantSyncState(doc);
+    let applied = false;
+
+    if (tenantTableBody) {
+      if (newBody) {
+        tenantTableBody.innerHTML = newBody.innerHTML;
+        applied = true;
+      } else {
+        tenantTableBody.innerHTML = '';
+      }
+    }
+
+    if (tenantCards) {
+      if (newCards) {
+        tenantCards.innerHTML = newCards.innerHTML;
+        applied = true;
+      } else {
+        tenantCards.innerHTML = '';
+      }
+    }
+
+    if (applied) {
+      bindTenantColumnButton();
+    }
+
+    if (metaState) {
+      updateTenantSyncState(metaState);
+    }
+
+    if (applied) {
+      updateTenantColumnVisibility();
+    }
+
+    return applied;
+  }
+
+  if (initialTenantListHtml.trim() !== '') {
+    initialTenantHtmlApplied = applyTenantListHtml(initialTenantListHtml);
+    window.initialTenantListHtml = '';
+    initialTenantListHtml = '';
+  }
+
   function showTenantSpinner() {
     if (tenantTableBody) {
       const columnCount = tenantTableHeadings.length || tenantColumnDefs.length || 1;
@@ -7038,7 +7127,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function refreshTenantList(showSpinner = true) {
-    loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value, showSpinner);
+    const statusValue = normalizeTenantStatus(tenantStatusFilter?.value || '');
+    if (tenantStatusFilter && statusValue !== (tenantStatusFilter.value || '')) {
+      tenantStatusFilter.value = '';
+    }
+    loadTenants(statusValue, tenantSearchInput?.value, showSpinner);
   }
 
   try {
@@ -7293,7 +7386,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const original = tenantSyncBtn.innerHTML;
     tenantSyncBtn.disabled = true;
     tenantSyncBtn.innerHTML = '<div uk-spinner></div>';
-    apiFetch('/tenants/sync', { method: 'POST' })
+    const params = new URLSearchParams();
+    const normalizedStatus = normalizeTenantStatus(tenantStatusFilter?.value || '');
+    const searchQueryRaw = typeof tenantSearchInput?.value === 'string' ? tenantSearchInput.value : '';
+    const searchQuery = searchQueryRaw.trim();
+    if (normalizedStatus) params.set('status', normalizedStatus);
+    if (searchQuery) params.set('query', searchQuery);
+    const syncUrl = '/tenants/sync' + (params.toString() ? ('?' + params.toString()) : '');
+    let shouldRefresh = true;
+    apiFetch(syncUrl, { method: 'POST' })
       .then(async r => {
         const data = await r.json().catch(() => ({}));
         if (!r.ok) {
@@ -7304,13 +7405,29 @@ document.addEventListener('DOMContentLoaded', function () {
         return data;
       })
       .then(data => {
+        if (typeof data?.html === 'string' && applyTenantListHtml(data.html)) {
+          shouldRefresh = false;
+        }
         if (data?.sync) {
           updateTenantSyncState(data.sync);
         }
         if (data?.throttled) {
           notify(window.transTenantSyncThrottled || 'Sync läuft bereits – bitte später erneut versuchen', 'warning');
-        } else {
+          return;
+        }
+
+        const importedRaw = data?.imported;
+        const importedNumber = typeof importedRaw === 'number'
+          ? importedRaw
+          : (typeof importedRaw === 'string' && importedRaw.trim() !== '' ? Number(importedRaw) : NaN);
+        const imported = Number.isFinite(importedNumber) ? importedNumber : 0;
+
+        if (imported > 0) {
           notify(window.transTenantSyncSuccess || 'Mandanten eingelesen', 'success');
+        } else {
+          const template = window.transTenantSyncNoChanges || 'Keine neuen Mandanten gefunden ({count} importiert)';
+          const message = template.replace('{count}', String(imported));
+          notify(message, 'warning');
         }
       })
       .catch(err => {
@@ -7318,13 +7435,15 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Fehler beim Synchronisieren', 'danger');
       })
       .finally(() => {
-        refreshTenantList();
+        if (shouldRefresh) {
+          refreshTenantList();
+        }
         tenantSyncBtn.disabled = false;
         tenantSyncBtn.innerHTML = original;
       });
   });
 
-  function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '', showSpinner = true) {
+  function loadTenants(status = '', query = '', showSpinner = true) {
     if (!tenantTableBody) return;
     if (typeof window.domainType !== 'undefined' && window.domainType !== 'main') {
       notify('MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen', 'warning');
@@ -7334,29 +7453,17 @@ document.addEventListener('DOMContentLoaded', function () {
       showTenantSpinner();
     }
     const params = new URLSearchParams();
-    if (status) params.set('status', status);
-    if (query) params.set('query', query);
+    const normalizedStatus = normalizeTenantStatus(status || '');
+    const normalizedQuery = typeof query === 'string' ? query : '';
+    if (normalizedStatus) params.set('status', normalizedStatus);
+    if (normalizedQuery) params.set('query', normalizedQuery);
     const url = '/tenants' + (params.toString() ? ('?' + params.toString()) : '');
     apiFetch(url, { headers: { 'Accept': 'text/html' } })
       .then(r => r.ok ? r.text() : Promise.reject(r))
       .then((html) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const newBody = doc.getElementById('tenantTableBody');
-        const newCards = doc.getElementById('tenantCards');
-        const metaState = extractTenantSyncState(doc);
-        if (newBody) {
-          tenantTableBody.innerHTML = newBody.innerHTML;
-          bindTenantColumnButton();
+        if (!applyTenantListHtml(html) && tenantTableBody) {
+          tenantTableBody.innerHTML = '';
         }
-        if (tenantCards && newCards) {
-          tenantCards.innerHTML = newCards.innerHTML;
-          bindTenantColumnButton();
-        }
-        if (metaState) {
-          updateTenantSyncState(metaState);
-        }
-        updateTenantColumnVisibility();
       })
       .catch(() => notify('Mandanten konnten nicht geladen werden', 'danger'));
   }
@@ -8740,6 +8847,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const path = window.location.pathname.replace(basePath + '/admin', '');
   const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
   if (currentRoute === 'tenants') {
-    refreshTenantList();
+    refreshTenantList(!initialTenantHtmlApplied);
   }
 });

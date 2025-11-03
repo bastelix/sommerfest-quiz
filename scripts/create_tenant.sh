@@ -1,5 +1,5 @@
 #!/bin/sh
-# Create a new tenant and reload nginx proxy
+# Create a new tenant and configure Traefik routing
 set -e
 
 if [ "$#" -ne 1 ]; then
@@ -36,14 +36,9 @@ get_env_value() {
 }
 
 CLIENT_MAX_BODY_SIZE="$(get_env_value 'CLIENT_MAX_BODY_SIZE' '50m')"
-NGINX_RELOAD="$(get_env_value 'NGINX_RELOAD' '1')"
-RELOADER_URL="$(get_env_value 'NGINX_RELOADER_URL' '')"
-RELOAD_TOKEN="$(get_env_value 'NGINX_RELOAD_TOKEN' '')"
-NGINX_CONTAINER="$(get_env_value 'NGINX_CONTAINER' 'nginx')"
 BASE_PATH="$(get_env_value 'BASE_PATH' '')"
 SERVICE_USER="$(get_env_value 'SERVICE_USER' '')"
 SERVICE_PASS="$(get_env_value 'SERVICE_PASS' '')"
-RELOADER_SERVICE="$(get_env_value 'NGINX_RELOADER_SERVICE' 'nginx-reloader')"
 DOMAIN="$(get_env_value 'DOMAIN' '')"
 MAIN_DOMAIN="$(get_env_value 'MAIN_DOMAIN' '')"
 TENANT_SINGLE_CONTAINER="$(get_env_value 'TENANT_SINGLE_CONTAINER' '0')"
@@ -65,9 +60,23 @@ detect_docker_compose() {
   fi
 }
 
-if [ -z "$DOMAIN" ]; then
-  echo "DOMAIN not found in $ENV_FILE" >&2
+API_HOST="$DOMAIN"
+if [ -z "$API_HOST" ]; then
+  API_HOST="$MAIN_DOMAIN"
+fi
+
+if [ -z "$API_HOST" ]; then
+  echo "DOMAIN or MAIN_DOMAIN must be set in $ENV_FILE" >&2
   exit 1
+fi
+
+TENANT_DOMAIN="$MAIN_DOMAIN"
+if [ -z "$TENANT_DOMAIN" ]; then
+  TENANT_DOMAIN="$DOMAIN"
+fi
+
+if [ -z "$TENANT_DOMAIN" ]; then
+  TENANT_DOMAIN="$API_HOST"
 fi
 
 if [ -z "$SERVICE_USER" ] || [ -z "$SERVICE_PASS" ]; then
@@ -80,7 +89,7 @@ case "$SUBDOMAIN" in
     VHOST_NAME=$(printf '%s' "$SUBDOMAIN" | tr '[:upper:]' '[:lower:]')
     ;;
   *)
-    VHOST_NAME=$(printf '%s.%s' "$SUBDOMAIN" "$DOMAIN" | tr '[:upper:]' '[:lower:]')
+    VHOST_NAME=$(printf '%s.%s' "$SUBDOMAIN" "$TENANT_DOMAIN" | tr '[:upper:]' '[:lower:]')
     ;;
 esac
 
@@ -111,13 +120,32 @@ if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
 
   CERT_PATH="$BASE_DIR/certs/$BASE_HOST.crt"
   KEY_PATH="$BASE_DIR/certs/$BASE_HOST.key"
+
   if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
-    echo "Wildcard certificate certs/$BASE_HOST.crt/.key not found. Provide a Let's Encrypt wildcard for *.$BASE_HOST" >&2
+    echo "Wildcard certificate certs/$BASE_HOST.crt/.key missing; attempting automated provisioning" >&2
+    if ! "$BASE_DIR/scripts/provision_wildcard.sh" --domain "$BASE_HOST" >/dev/null; then
+      echo "Automatic wildcard provisioning failed. Ensure certs/$BASE_HOST.crt and certs/$BASE_HOST.key exist." >&2
+      exit 1
+    fi
+  fi
+
+  if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
+    echo "Wildcard certificate certs/$BASE_HOST.crt/.key not found after provisioning attempt." >&2
     exit 1
   fi
 fi
 
-API_BASE="http://$DOMAIN${BASE_PATH}"
+API_BASE="http://$API_HOST${BASE_PATH}"
+
+COOKIE_FILE=""
+ONBOARD_TMP=""
+
+cleanup() {
+  [ -n "$COOKIE_FILE" ] && rm -f "$COOKIE_FILE"
+  [ -n "$ONBOARD_TMP" ] && rm -f "$ONBOARD_TMP"
+}
+
+trap cleanup EXIT
 
 COOKIE_FILE=$(mktemp)
 
@@ -125,7 +153,6 @@ if ! curl -fs -c "$COOKIE_FILE" -X POST "$API_BASE/login" \
   -H 'Content-Type: application/json' \
   -d "{\"username\":\"$SERVICE_USER\",\"password\":\"$SERVICE_PASS\"}" >/dev/null; then
   echo "Service account login failed" >&2
-  rm -f "$COOKIE_FILE"
   exit 1
 fi
 
@@ -136,46 +163,22 @@ HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
 
 if [ "$HTTP_STATUS" -ge 400 ]; then
   echo "Tenant creation failed with status $HTTP_STATUS" >&2
-  rm -f "$COOKIE_FILE"
   exit 1
 fi
 
-mkdir -p "$BASE_DIR/vhost.d"
-echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/$VHOST_NAME"
-
-if [ -n "$RELOADER_URL" ]; then
-  detect_docker_compose
-  echo "Ensuring nginx-reloader service is running"
-  if ! $DOCKER_COMPOSE up -d "$RELOADER_SERVICE" >/dev/null 2>&1; then
-    echo "nginx-reloader service could not be started" >&2
-    rm -f "$COOKIE_FILE"
-    exit 1
-  fi
-  echo "Reloading reverse proxy via $RELOADER_URL"
-  HTTP_CODE=$(curl -s -o /tmp/reloader.out -w "%{http_code}" -X POST \
-    -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL") || HTTP_CODE=000
-  if [ "$HTTP_CODE" -ge 400 ] || [ "$HTTP_CODE" -eq 000 ]; then
-    echo "Proxy reload failed via webhook (status $HTTP_CODE): $(cat /tmp/reloader.out 2>/dev/null)" >&2
-    rm -f /tmp/reloader.out "$COOKIE_FILE"
-    exit 1
-  fi
-  rm -f /tmp/reloader.out
-elif [ "$NGINX_RELOAD" = "1" ]; then
-  detect_docker_compose
-  echo "Reloading reverse proxy via Docker"
-  if ! $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload; then
-    echo "Proxy reload failed via Docker" >&2
-    rm -f "$COOKIE_FILE"
-    exit 1
-  fi
+if [ "$(printf '%s' "$CLIENT_MAX_BODY_SIZE" | tr '[:upper:]' '[:lower:]')" != "50m" ]; then
+  echo "Hinweis: Passe die gewünschte Upload-Größe über Traefik-Middlewares an (aktuell $CLIENT_MAX_BODY_SIZE)."
 fi
 
-HTTP_STATUS=$(curl -s -o /tmp/onboard.out -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
+ONBOARD_TMP=$(mktemp)
+HTTP_STATUS=$(curl -s -o "$ONBOARD_TMP" -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
   "$API_BASE/api/tenants/${SUBDOMAIN}/onboard")
 CURL_EXIT=$?
 if [ "$CURL_EXIT" -ne 0 ] || [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
-  echo "Tenant onboarding failed (status $HTTP_STATUS): $(cat /tmp/onboard.out 2>/dev/null)" >&2
-  rm -f /tmp/onboard.out "$COOKIE_FILE"
+  echo "Tenant onboarding failed (status $HTTP_STATUS): $(cat "$ONBOARD_TMP" 2>/dev/null)" >&2
   exit 1
 fi
-rm -f /tmp/onboard.out "$COOKIE_FILE"
+rm -f "$ONBOARD_TMP"
+ONBOARD_TMP=""
+rm -f "$COOKIE_FILE"
+COOKIE_FILE=""

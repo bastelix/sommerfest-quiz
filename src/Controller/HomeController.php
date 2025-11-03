@@ -120,12 +120,18 @@ class HomeController
                 }
             }
         }
-        if (isset($cfg['inviteText']) && is_string($cfg['inviteText'])) {
-            $cfg['inviteText'] = ConfigService::sanitizeHtml($cfg['inviteText']);
+        if (array_key_exists('inviteText', $cfg)) {
+            $inviteText = $cfg['inviteText'];
+            if (is_string($inviteText)) {
+                $cfg['inviteText'] = ConfigService::sanitizeHtml($inviteText);
+            }
         }
 
-        if ($event !== null && isset($event['description']) && is_string($event['description'])) {
-            $event['description'] = ConfigService::sanitizeHtml($event['description']);
+        if ($event !== null) {
+            $description = $event['description'] ?? null;
+            if (is_string($description)) {
+                $event['description'] = ConfigService::sanitizeHtml($description);
+            }
         }
 
         if ($role !== 'admin') {

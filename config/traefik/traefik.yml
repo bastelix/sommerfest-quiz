@@ -1,0 +1,44 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+accessLog:
+  bufferingSize: 100
+
+api:
+  dashboard: true
+  insecure: true
+
+entryPoints:
+  traefik:
+    address: ":8080"
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "${LETSENCRYPT_EMAIL?Missing LETSENCRYPT_EMAIL}"
+      storage: /etc/traefik/acme.json
+      # BEGIN TRAEFIK WILDCARD MANAGED BLOCK
+      dnsChallenge: {}
+      # END TRAEFIK WILDCARD MANAGED BLOCK
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    directory: /etc/traefik/dynamic
+    watch: true

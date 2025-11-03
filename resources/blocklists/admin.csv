@@ -1,0 +1,6 @@
+term,source,notes
+admin,https://docs.github.com/en/get-started/getting-started-with-github/reserved-names,"GitHub reserviert den Login-Namen für interne Zwecke."
+administrator,https://docs.gitlab.com/ee/user/profile/reserved_names.html,"GitLab führt „administrator“ als gesperrten Kontonamen."
+root,https://docs.github.com/en/get-started/getting-started-with-github/reserved-names,"Standardkonto mit höchsten Rechten; vielerorts gesperrt."
+superuser,https://docs.gitlab.com/ee/user/profile/reserved_names.html,"GitLab bezeichnet den Begriff als reservierten Namen."
+moderator,https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names,"Discord blockiert Begriffe, die offizielle Rollen vortäuschen."

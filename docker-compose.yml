@@ -1,58 +1,23 @@
 services:
-  nginx:
-    image: nginx:1.25-alpine
-    container_name: nginx
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - certs:/etc/nginx/certs:ro
-      - ./vhost.d:/etc/nginx/vhost.d
-      - htmldata:/usr/share/nginx/html
-      - confd:/etc/nginx/conf.d
-      - dhparam:/etc/nginx/dhparam
-    labels:
-      com.github.nginx-proxy.nginx: "true"
-    networks:
-      - webproxy
-
-  docker-gen:
-    build:
-      context: ./docker-gen
-    container_name: docker-gen
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs:rw
-      - ./vhost.d:/etc/nginx/vhost.d
-      - htmldata:/usr/share/nginx/html
-      - confd:/etc/nginx/conf.d
-      - nginx_template:/etc/docker-gen/templates
-    command: >
-      -notify-sighup nginx
-      -watch
-      /etc/docker-gen/templates/nginx.tmpl
-      /etc/nginx/conf.d/default.conf
-    labels:
-      com.github.nginx-proxy.docker-gen: "true"
-    networks:
-      - webproxy
-
-  acme-companion:
-    image: nginxproxy/acme-companion
-    container_name: acme-companion
-    restart: unless-stopped
+      - "8080:8080"
     environment:
-      - NGINX_PROXY_CONTAINER=nginx
-      - NGINX_DOCKER_GEN_CONTAINER=docker-gen
-      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
+      - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_EMAIL=${LETSENCRYPT_EMAIL}
+      - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_STORAGE=/etc/traefik/acme.json
+      - TRAEFIK_PROVIDERS_DOCKER_NETWORK=${NETWORK:-webproxy}
+      - TRAEFIK_API_BASICAUTH=${TRAEFIK_API_BASICAUTH:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - certs:/etc/nginx/certs:rw
-      - acme:/etc/acme.sh
-      - ./vhost.d:/etc/nginx/vhost.d
-      - htmldata:/usr/share/nginx/html
+      - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./config/traefik/dynamic/:/etc/traefik/dynamic/:ro
+      - ./logs/traefik/:/etc/traefik/dynamic/marketing/:ro
+      - ./acme/acme.json:/etc/traefik/acme.json
     networks:
       - webproxy
 
@@ -72,16 +37,25 @@ services:
     image: adminer
     restart: unless-stopped
     environment:
-      - VIRTUAL_HOST=adminer.${DOMAIN}
-      - LETSENCRYPT_HOST=adminer.${DOMAIN}
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - ADMINER_DEFAULT_SERVER=postgres
-    ports:
-      - "8081:8080"
     depends_on:
       - postgres
     networks:
       - webproxy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=${NETWORK:-webproxy}
+      - traefik.http.services.adminer.loadbalancer.server.port=8080
+      - traefik.http.routers.adminer-web.entrypoints=web
+      - traefik.http.routers.adminer-web.rule=Host(`adminer.${MAIN_DOMAIN:-${DOMAIN}}`)
+      - traefik.http.routers.adminer-web.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.adminer-web.service=adminer
+      - traefik.http.routers.adminer-secure.entrypoints=websecure
+      - traefik.http.routers.adminer-secure.rule=Host(`adminer.${MAIN_DOMAIN:-${DOMAIN}}`)
+      - traefik.http.routers.adminer-secure.service=adminer
+      - traefik.http.routers.adminer-secure.tls=true
+      - traefik.http.routers.adminer-secure.tls.certresolver=letsencrypt
+      - traefik.http.routers.adminer-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
 
   slim:
     build: .
@@ -93,10 +67,6 @@ services:
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}${MAIN_DOMAIN:+,${MAIN_DOMAIN}}${MARKETING_DOMAINS:+,${MARKETING_DOMAINS}}
-      - LETSENCRYPT_HOST=${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}${MAIN_DOMAIN:+,${MAIN_DOMAIN}}${MARKETING_DOMAINS:+,${MARKETING_DOMAINS}}
-      - VIRTUAL_PORT=8080
-      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - POSTGRES_DSN=${POSTGRES_DSN}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -108,8 +78,6 @@ services:
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_FROM=${SMTP_FROM}
       - SMTP_FROM_NAME=${SMTP_FROM_NAME}
-      - NGINX_RELOAD_TOKEN=${NGINX_RELOAD_TOKEN}
-      - NGINX_RELOADER_URL=${NGINX_RELOADER_URL}
       - STRIPE_SANDBOX=${STRIPE_SANDBOX:-0}
       - STRIPE_SANDBOX_SECRET_KEY=${STRIPE_SANDBOX_SECRET_KEY:-}
       - STRIPE_SANDBOX_PUBLISHABLE_KEY=${STRIPE_SANDBOX_PUBLISHABLE_KEY:-}
@@ -128,33 +96,27 @@ services:
     command: php -S 0.0.0.0:8080 -t public public/router.php
     expose:
       - "8080"
-    ports:
-    - "8080:8080"
     labels:
-      - "com.github.nginx-proxy.expose=true"
-    networks:
-      - webproxy
-
-  nginx-reloader:
-    build: ./nginx-reloader
-    environment:
-      - NGINX_RELOAD_TOKEN=${NGINX_RELOAD_TOKEN}
-      - NGINX_CONTAINER=${NGINX_CONTAINER:-nginx}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - traefik.enable=true
+      - traefik.docker.network=${NETWORK:-webproxy}
+      - traefik.http.services.quizrace.loadbalancer.server.port=8080
+      - traefik.http.routers.quizrace-web.entrypoints=web
+      - traefik.http.routers.quizrace-web.rule=Host(`${DOMAIN}`) || Host(`${MAIN_DOMAIN:-${DOMAIN}}`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
+      - traefik.http.routers.quizrace-web.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.quizrace-web.service=quizrace
+      - traefik.http.routers.quizrace-secure.entrypoints=websecure
+      - traefik.http.routers.quizrace-secure.rule=Host(`${DOMAIN}`) || Host(`${MAIN_DOMAIN:-${DOMAIN}}`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
+      - traefik.http.routers.quizrace-secure.service=quizrace
+      - traefik.http.routers.quizrace-secure.tls=true
+      - traefik.http.routers.quizrace-secure.tls.certresolver=letsencrypt
+      - traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-50m@file
     networks:
       - webproxy
 
 networks:
   webproxy:
-    name: webproxy
-    external: true
+    name: ${NETWORK:-webproxy}
+    external: ${NETWORK_EXTERNAL:-false}
 
 volumes:
-  certs:
-  htmldata:
-  confd:
-  acme:
-  dhparam:
-  nginx_template:
   pgdata:

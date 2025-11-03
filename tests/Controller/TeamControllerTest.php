@@ -21,10 +21,10 @@ class TeamControllerTest extends TestCase
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT, name TEXT)');
         $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY)');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT UNIQUE, plan TEXT, custom_limits TEXT)');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT UNIQUE, plan TEXT, custom_limits TEXT, onboarding_state TEXT DEFAULT "pending")');
         $pdo->exec('CREATE TABLE teams(uid TEXT PRIMARY KEY, event_uid TEXT, sort_order INTEGER, name TEXT)');
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan, custom_limits) VALUES('t1','sub1','starter', NULL)");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan, custom_limits, onboarding_state) VALUES('t1','sub1','starter', NULL,'completed')");
         $cfg = new ConfigService($pdo, new TokenCipher('secret'));
         $cfg->setActiveEventUid('e1');
         $tenantSvc = new TenantService($pdo);

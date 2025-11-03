@@ -18,7 +18,7 @@ class TenantService
 {
     private PDO $pdo;
     private string $migrationsDir;
-    private ?NginxService $nginxService;
+    private ?TraefikService $traefikService;
     private string $tenantsDir;
 
     private const SYNC_SETTINGS_KEY = 'tenants:last_sync';
@@ -46,16 +46,96 @@ class TenantService
         'kz',
     ];
 
+    public const ONBOARDING_PENDING = 'pending';
+    public const ONBOARDING_PROVISIONING = 'provisioning';
+    public const ONBOARDING_PROVISIONED = 'provisioned';
+    public const ONBOARDING_COMPLETED = 'completed';
+    public const ONBOARDING_FAILED = 'failed';
+
+    private const ONBOARDING_STATES = [
+        self::ONBOARDING_PENDING,
+        self::ONBOARDING_PROVISIONING,
+        self::ONBOARDING_PROVISIONED,
+        self::ONBOARDING_COMPLETED,
+        self::ONBOARDING_FAILED,
+    ];
+
     public function __construct(
         ?PDO $pdo = null,
         ?string $migrationsDir = null,
-        ?NginxService $nginxService = null,
+        ?TraefikService $traefikService = null,
         ?string $tenantsDir = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
-        $this->nginxService = $nginxService;
-        $this->tenantsDir = $tenantsDir ?? (getenv('TENANTS_DIR') ?: dirname(__DIR__, 2) . '/tenants');
+        $this->traefikService = $traefikService;
+        $this->tenantsDir = $this->resolveTenantsDir($tenantsDir);
+    }
+
+    private function resolveTenantsDir(?string $tenantsDir): string
+    {
+        $projectRoot = dirname(__DIR__, 2);
+        $envValue = getenv('TENANTS_DIR');
+        $path = $tenantsDir ?? ($envValue !== false && $envValue !== '' ? $envValue : $projectRoot . '/tenants');
+
+        if ($path === '') {
+            return $projectRoot . '/tenants';
+        }
+
+        $path = str_replace('\\', '/', $path);
+
+        if (!$this->isAbsolutePath($path)) {
+            $path = rtrim($projectRoot, '/') . '/' . ltrim($path, '/');
+        }
+
+        $path = $this->normalisePath($path);
+        $realPath = realpath($path);
+
+        return $realPath !== false ? $realPath : $path;
+    }
+
+    private function isAbsolutePath(string $path): bool
+    {
+        return str_starts_with($path, '/')
+            || preg_match('~^[A-Za-z]:[\\/]~', $path) === 1
+            || str_starts_with($path, '\\');
+    }
+
+    private function normalisePath(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $segments = explode('/', $path);
+        $stack = [];
+        $prefix = '';
+
+        if (preg_match('~^[A-Za-z]:$~', $segments[0]) === 1) {
+            $prefix = array_shift($segments) . '/';
+        } elseif (str_starts_with($path, '//')) {
+            $prefix = '//';
+        } elseif (str_starts_with($path, '/')) {
+            $prefix = '/';
+        }
+
+        foreach ($segments as $segment) {
+            if ($segment === '' || $segment === '.') {
+                continue;
+            }
+
+            if ($segment === '..') {
+                if ($stack === []) {
+                    continue;
+                }
+
+                array_pop($stack);
+                continue;
+            }
+
+            $stack[] = $segment;
+        }
+
+        $normalised = $prefix . implode('/', $stack);
+
+        return $normalised !== '' ? $normalised : ($prefix === '' ? '.' : $prefix);
     }
 
     /**
@@ -73,62 +153,102 @@ class TenantService
         ?string $imprintCity = null,
         ?array $customLimits = null
     ): void {
-        if ($this->exists($schema)) {
+        if ($this->isReserved($schema)) {
             throw new \RuntimeException('tenant-exists');
         }
+
         if ($plan !== null && Plan::tryFrom($plan) === null) {
             throw new \RuntimeException('invalid-plan');
         }
 
-        try {
-            $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
-        } catch (PDOException $e) {
-            if ($e->getCode() === '42P06') {
-                throw new \RuntimeException('schema-exists', 0, $e);
-            }
-            throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
-        }
-
-        try {
-            $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
-            Migrator::migrate($this->pdo, $this->migrationsDir);
-            $this->seedDemoData();
-        } catch (PDOException $e) {
-            throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
-        } finally {
-            $this->pdo->exec('SET search_path TO public');
-        }
-        $start = $plan !== null ? new \DateTimeImmutable() : null;
+        $start = $plan !== null ? new DateTimeImmutable() : null;
         $end = $start?->modify('+30 days');
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO tenants(' .
-            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, ' .
-            'imprint_zip, imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
-        );
-        $stmt->execute([
-            $uid,
-            $schema,
-            $plan,
-            $billing,
-            null,
-            $imprintName,
-            $imprintStreet,
-            $imprintZip,
-            $imprintCity,
-            $email,
-            $customLimits !== null ? json_encode($customLimits) : null,
-            $start?->format('Y-m-d H:i:sP'),
-            $end?->format('Y-m-d H:i:sP'),
-        ]);
+        $customLimitsJson = $customLimits !== null ? json_encode($customLimits) : null;
+        $record = [
+            'uid' => $uid,
+            'subdomain' => $schema,
+            'plan' => $plan,
+            'billing_info' => $billing,
+            'imprint_name' => $imprintName,
+            'imprint_street' => $imprintStreet,
+            'imprint_zip' => $imprintZip,
+            'imprint_city' => $imprintCity,
+            'imprint_email' => $email,
+            'custom_limits' => $customLimitsJson,
+            'plan_started_at' => $start?->format('Y-m-d H:i:sP'),
+            'plan_expires_at' => $end?->format('Y-m-d H:i:sP'),
+        ];
 
-        if ($this->nginxService !== null) {
-            try {
-                $this->nginxService->createVhost($schema);
-            } catch (\RuntimeException $e) {
-                error_log('Failed to reload nginx: ' . $e->getMessage());
-                throw new \RuntimeException('Nginx reload failed – check Docker installation', 0, $e);
+        $statePersisted = false;
+        $hasExistingRecord = false;
+        $lockKey = $this->acquireTenantLock($schema);
+
+        try {
+            $existing = $this->getBySubdomain($schema);
+            if ($existing !== null) {
+                $existingState = (string) ($existing['onboarding_state'] ?? self::ONBOARDING_COMPLETED);
+                if ($existingState === self::ONBOARDING_COMPLETED) {
+                    throw new \RuntimeException('tenant-exists');
+                }
+                $hasExistingRecord = true;
             }
+
+            $this->persistTenantRecord($record, $hasExistingRecord, self::ONBOARDING_PROVISIONING);
+            $statePersisted = true;
+            $hasExistingRecord = true;
+
+            $schemaAlreadyExists = $this->schemaExists($schema);
+            $isNewSchema = !$schemaAlreadyExists;
+
+            if ($isNewSchema) {
+                try {
+                    $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+                } catch (PDOException $e) {
+                    if ($e->getCode() === '42P06') {
+                        $isNewSchema = false;
+                    } else {
+                        throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
+                    }
+                }
+            }
+
+            try {
+                $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
+                Migrator::migrate($this->pdo, $this->migrationsDir);
+                if ($isNewSchema) {
+                    $this->seedDemoData();
+                }
+            } catch (PDOException $e) {
+                if ($this->isDuplicateColumnError($e)) {
+                    error_log('Duplicate column detected during migration for schema ' . $schema . ': ' . $e->getMessage());
+                } else {
+                    throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
+                }
+            } finally {
+                $this->pdo->exec('SET search_path TO public');
+            }
+
+            $this->persistTenantRecord($record, $hasExistingRecord, self::ONBOARDING_PROVISIONED);
+
+            if ($this->traefikService !== null) {
+                try {
+                    $this->traefikService->notifyConfigChange();
+                } catch (\RuntimeException $e) {
+                    error_log('Failed to refresh Traefik: ' . $e->getMessage());
+                    throw new \RuntimeException('Traefik refresh failed – check Traefik setup', 0, $e);
+                }
+            }
+        } catch (\Throwable $e) {
+            if ($statePersisted || $hasExistingRecord) {
+                try {
+                    $this->updateOnboardingState($schema, self::ONBOARDING_FAILED);
+                } catch (\Throwable $inner) {
+                    error_log('Failed to mark tenant onboarding as failed: ' . $inner->getMessage());
+                }
+            }
+            throw $e;
+        } finally {
+            $this->releaseTenantLock($lockKey);
         }
     }
 
@@ -154,10 +274,11 @@ class TenantService
         if ($this->isReserved($subdomain)) {
             return true;
         }
-        $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
+        $stmt = $this->pdo->prepare('SELECT onboarding_state FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
-        if ($stmt->fetchColumn() !== false) {
-            return true;
+        $state = $stmt->fetchColumn();
+        if ($state !== false) {
+            return (string) $state !== self::ONBOARDING_FAILED;
         }
 
         try {
@@ -176,8 +297,36 @@ class TenantService
         return false;
     }
 
+    protected function schemaExists(string $schema): bool {
+        try {
+            $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        } catch (PDOException $e) {
+            return false;
+        }
+
+        if ($driver === 'sqlite') {
+            return false;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'SELECT 1 FROM information_schema.schemata WHERE schema_name = ? LIMIT 1'
+            );
+            $stmt->execute([$schema]);
+            return $stmt->fetchColumn() !== false;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
     private function isReserved(string $subdomain): bool {
-        return in_array(strtolower($subdomain), self::RESERVED_SUBDOMAINS, true);
+        $normalised = strtolower($subdomain);
+
+        if ($normalised === self::MAIN_SUBDOMAIN) {
+            return true;
+        }
+
+        return in_array($normalised, self::RESERVED_SUBDOMAINS, true);
     }
 
     private function hasTable(string $name): bool {
@@ -207,6 +356,119 @@ class TenantService
         );
         $stmt->execute([$table, $column]);
         return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * @param array{
+     *   uid:string,
+     *   subdomain:string,
+     *   plan:?string,
+     *   billing_info:?string,
+     *   imprint_name:?string,
+     *   imprint_street:?string,
+     *   imprint_zip:?string,
+     *   imprint_city:?string,
+     *   imprint_email:?string,
+     *   custom_limits:?string,
+     *   plan_started_at:?string,
+     *   plan_expires_at:?string
+     * } $record
+     */
+    private function persistTenantRecord(array $record, bool $exists, string $state): void {
+        if (!in_array($state, self::ONBOARDING_STATES, true)) {
+            throw new \InvalidArgumentException('invalid-onboarding-state');
+        }
+
+        if ($exists) {
+            $stmt = $this->pdo->prepare(
+                'UPDATE tenants SET '
+                . 'uid = ?, plan = ?, billing_info = ?, imprint_name = ?, imprint_street = ?, imprint_zip = ?, '
+                . 'imprint_city = ?, imprint_email = ?, custom_limits = ?, onboarding_state = ?, plan_started_at = ?, '
+                . 'plan_expires_at = ? WHERE subdomain = ?'
+            );
+            $stmt->execute([
+                $record['uid'],
+                $record['plan'],
+                $record['billing_info'],
+                $record['imprint_name'],
+                $record['imprint_street'],
+                $record['imprint_zip'],
+                $record['imprint_city'],
+                $record['imprint_email'],
+                $record['custom_limits'],
+                $state,
+                $record['plan_started_at'],
+                $record['plan_expires_at'],
+                $record['subdomain'],
+            ]);
+
+            return;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO tenants('
+            . 'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, '
+            . 'imprint_zip, imprint_city, imprint_email, custom_limits, onboarding_state, plan_started_at, plan_expires_at'
+            . ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([
+            $record['uid'],
+            $record['subdomain'],
+            $record['plan'],
+            $record['billing_info'],
+            null,
+            $record['imprint_name'],
+            $record['imprint_street'],
+            $record['imprint_zip'],
+            $record['imprint_city'],
+            $record['imprint_email'],
+            $record['custom_limits'],
+            $state,
+            $record['plan_started_at'],
+            $record['plan_expires_at'],
+        ]);
+    }
+
+    private function acquireTenantLock(string $subdomain): ?int {
+        try {
+            $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        } catch (PDOException $e) {
+            return null;
+        }
+
+        if ($driver !== 'pgsql') {
+            return null;
+        }
+
+        $lockKey = (int) sprintf('%u', crc32('tenant_create_' . $subdomain));
+        $stmt = $this->pdo->prepare('SELECT pg_advisory_lock(:key)');
+        $stmt->execute([':key' => $lockKey]);
+
+        return $lockKey;
+    }
+
+    private function releaseTenantLock(?int $lockKey): void {
+        if ($lockKey === null) {
+            return;
+        }
+
+        try {
+            $stmt = $this->pdo->prepare('SELECT pg_advisory_unlock(:key)');
+            $stmt->execute([':key' => $lockKey]);
+        } catch (PDOException $e) {
+            error_log('Failed to release advisory lock: ' . $e->getMessage());
+        }
+    }
+
+    private function isDuplicateColumnError(PDOException $exception): bool {
+        if ($exception->getCode() === '42701') {
+            return true;
+        }
+
+        $message = strtolower($exception->getMessage());
+
+        return str_contains($message, 'duplicate column')
+            || str_contains($message, 'already exists');
     }
 
     /**
@@ -458,6 +720,7 @@ class TenantService
      *   imprint_email:?string,
      *   plan_started_at:?string,
      *   plan_expires_at:?string,
+     *   onboarding_state:?string,
      *   created_at:string
      * }|null
      */
@@ -465,7 +728,7 @@ class TenantService
         $stmt = $this->pdo->prepare(
             'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
             . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
-            . 'plan_started_at, plan_expires_at, created_at '
+            . 'plan_started_at, plan_expires_at, onboarding_state, created_at '
             . 'FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
@@ -498,10 +761,10 @@ class TenantService
         $uid = (string) ($data['uid'] ?? bin2hex(random_bytes(16)));
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants(' .
-            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, ' .
-            'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, ' .
-            'plan_started_at, plan_expires_at' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
+            . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
+            . 'onboarding_state, plan_started_at, plan_expires_at'
+            . ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $uid,
@@ -515,6 +778,7 @@ class TenantService
             $data['imprint_city'] ?? null,
             $data['imprint_email'] ?? null,
             null,
+            self::ONBOARDING_COMPLETED,
             $data['plan_started_at'] ?? null,
             $data['plan_expires_at'] ?? null,
         ]);
@@ -621,6 +885,14 @@ class TenantService
         $stmt->execute($params);
     }
 
+    public function updateOnboardingState(string $subdomain, string $state): void {
+        if (!in_array($state, self::ONBOARDING_STATES, true)) {
+            throw new \InvalidArgumentException('invalid-onboarding-state');
+        }
+        $stmt = $this->pdo->prepare('UPDATE tenants SET onboarding_state = ? WHERE subdomain = ?');
+        $stmt->execute([$state, $subdomain]);
+    }
+
     /**
      * Update a tenant identified by its Stripe customer id.
      *
@@ -693,7 +965,7 @@ class TenantService
             "AND schema_name NOT IN ('information_schema')"
         );
         $schemas = [];
-        $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
+        $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, onboarding_state) VALUES(?, ?, ?)');
         $count = 0;
         while (($schema = $stmt->fetchColumn()) !== false) {
             $schemas[] = $schema;
@@ -704,7 +976,7 @@ class TenantService
             if ($this->isReserved($subdomain)) {
                 continue;
             }
-            $ins->execute([bin2hex(random_bytes(16)), $subdomain]);
+            $ins->execute([bin2hex(random_bytes(16)), $subdomain, self::ONBOARDING_COMPLETED]);
             $existing[] = $subdomain;
             $count++;
         }
@@ -726,7 +998,7 @@ class TenantService
                     $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schemaName));
                     $schemas[] = $schemaName;
                 }
-                $ins->execute([bin2hex(random_bytes(16)), $dir]);
+                $ins->execute([bin2hex(random_bytes(16)), $dir, self::ONBOARDING_COMPLETED]);
                 $existing[] = $dir;
                 $count++;
             }
@@ -840,7 +1112,7 @@ class TenantService
      */
     public function getAll(string $query = ''): array {
         $sql = 'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, '
-            . 'stripe_subscription_id, stripe_status, imprint_name, imprint_street, imprint_zip, '
+            . 'stripe_subscription_id, stripe_status, onboarding_state, imprint_name, imprint_street, imprint_zip, '
             . 'imprint_city, imprint_email, custom_limits, plan_started_at, '
             . 'plan_expires_at, created_at FROM tenants';
         $params = [];
@@ -856,6 +1128,18 @@ class TenantService
             if ($row['custom_limits'] !== null) {
                 $row['custom_limits'] = json_decode((string) $row['custom_limits'], true);
             }
+            $onboardingState = (string) ($row['onboarding_state'] ?? self::ONBOARDING_COMPLETED);
+            $row['onboarding_state'] = $onboardingState;
+            if (in_array($onboardingState, [
+                self::ONBOARDING_PENDING,
+                self::ONBOARDING_PROVISIONING,
+                self::ONBOARDING_FAILED,
+                self::ONBOARDING_PROVISIONED,
+            ], true)) {
+                $row['status'] = $onboardingState;
+                continue;
+            }
+
             $stripeStatus = (string) ($row['stripe_status'] ?? '');
             if ($stripeStatus === 'canceled') {
                 $row['status'] = 'canceled';

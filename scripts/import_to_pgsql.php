@@ -4,6 +4,127 @@ declare(strict_types=1);
 
 $base = dirname(__DIR__);
 
+$presetConfig = [
+    'nsfw' => [
+        'file' => $base . '/resources/blocklists/nsfw.csv',
+        'category' => 'NSFW',
+        'description' => 'Lädt resources/blocklists/nsfw.csv (Kategorie NSFW) für Erwachseneninhalte.',
+    ],
+    'ns_symbols' => [
+        'file' => $base . '/resources/blocklists/ns_symbols.csv',
+        'category' => '§86a/NS-Bezug',
+        'description' => 'Lädt resources/blocklists/ns_symbols.csv (Kategorie §86a/NS-Bezug) für verfassungsfeindliche Codes.',
+    ],
+    'slur' => [
+        'file' => $base . '/resources/blocklists/slur.csv',
+        'category' => 'Beleidigung/Slur',
+        'description' => 'Lädt resources/blocklists/slur.csv (Kategorie Beleidigung/Slur) für diskriminierende Begriffe.',
+    ],
+    'general' => [
+        'file' => $base . '/resources/blocklists/general.csv',
+        'category' => 'Allgemein',
+        'description' => 'Lädt resources/blocklists/general.csv (Kategorie Allgemein) für reservierte Standardkonten.',
+    ],
+    'admin' => [
+        'file' => $base . '/resources/blocklists/admin.csv',
+        'category' => 'Admin',
+        'description' => 'Lädt resources/blocklists/admin.csv (Kategorie Admin) für Admin- und Moderationsnamen.',
+    ],
+];
+
+/**
+ * @param array<string, array{file:string,category:string,description:string}> $presets
+ */
+function printImportHelp(string $scriptName, array $presets): void
+{
+    fwrite(
+        STDOUT,
+        "Usage: php {$scriptName} [--preset <name> ...]\n\n" .
+        "Optionen:\n" .
+        "  --preset <name>    Lädt eine vordefinierte Blockliste. Mehrfach nutzbar.\n" .
+        "  --help             Zeigt diese Hilfe an.\n\n" .
+        "Verfügbare Presets:\n"
+    );
+
+    foreach ($presets as $name => $data) {
+        fwrite(STDOUT, sprintf("  %-12s %s\n", $name, $data['description']));
+    }
+}
+
+/**
+ * @return list<array{term:string}>
+ */
+function loadBlocklistCsv(string $file): array
+{
+    if (!is_readable($file)) {
+        throw new RuntimeException(sprintf('Blocklisten-Datei %s ist nicht lesbar.', $file));
+    }
+
+    $handle = fopen($file, 'rb');
+    if ($handle === false) {
+        throw new RuntimeException(sprintf('Blocklisten-Datei %s konnte nicht geöffnet werden.', $file));
+    }
+
+    $header = null;
+    $rows = [];
+
+    while (($line = fgetcsv($handle)) !== false) {
+        if ($header === null) {
+            $header = array_map(static fn ($col) => strtolower(trim((string) $col)), $line);
+            continue;
+        }
+
+        if ($header === []) {
+            continue;
+        }
+
+        $mapped = [];
+        foreach ($header as $index => $column) {
+            $mapped[$column] = isset($line[$index]) ? trim((string) $line[$index]) : '';
+        }
+
+        $term = $mapped['term'] ?? '';
+        if ($term === '') {
+            continue;
+        }
+
+        $rows[] = ['term' => $term];
+    }
+
+    fclose($handle);
+
+    return $rows;
+}
+
+$options = getopt('', ['help', 'preset:']);
+if ($options === false) {
+    printImportHelp(basename(__FILE__), $presetConfig);
+    exit(1);
+}
+
+if (isset($options['help'])) {
+    printImportHelp(basename(__FILE__), $presetConfig);
+    exit(0);
+}
+
+$selectedPresets = [];
+if (isset($options['preset'])) {
+    $raw = $options['preset'];
+    if (!is_array($raw)) {
+        $raw = [$raw];
+    }
+
+    foreach ($raw as $presetName) {
+        $key = strtolower((string) $presetName);
+        if (!isset($presetConfig[$key])) {
+            fwrite(STDERR, sprintf("Unbekanntes Preset: %s\n\n", (string) $presetName));
+            printImportHelp(basename(__FILE__), $presetConfig);
+            exit(1);
+        }
+        $selectedPresets[$key] = $presetConfig[$key];
+    }
+}
+
 $configFile = "$base/data/config.json";
 $config = [];
 if (is_readable($configFile)) {
@@ -239,6 +360,41 @@ if (is_readable($consentFile)) {
         "SELECT setval(pg_get_serial_sequence('photo_consents','id'), " .
         "GREATEST(1, (SELECT COALESCE(MAX(id),0) FROM photo_consents)))"
     );
+}
+
+if ($selectedPresets !== []) {
+    $insert = $pdo->prepare(
+        'INSERT INTO username_blocklist (term, category) VALUES (:term, :category) '
+        . 'ON CONFLICT ON CONSTRAINT idx_username_blocklist_term_category DO NOTHING'
+    );
+
+    foreach ($selectedPresets as $name => $preset) {
+        $entries = loadBlocklistCsv($preset['file']);
+        $total = count($entries);
+        $inserted = 0;
+
+        foreach ($entries as $entry) {
+            $normalized = mb_strtolower(trim($entry['term']));
+            if ($normalized === '') {
+                continue;
+            }
+
+            $insert->execute([
+                ':term' => $normalized,
+                ':category' => $preset['category'],
+            ]);
+
+            $inserted += $insert->rowCount();
+        }
+
+        printf(
+            "Preset '%s': %d Einträge verarbeitet, %d neu hinzugefügt (%s).\n",
+            $name,
+            $total,
+            $inserted,
+            basename($preset['file'])
+        );
+    }
 }
 
 $pdo->commit();

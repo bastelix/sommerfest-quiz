@@ -51,7 +51,8 @@ class DateTimeFormatExtension extends AbstractExtension
         $timezone = $options['timezone'] ?? $value->getTimezone()->getName();
         $calendar = $options['calendar'] ?? IntlDateFormatter::GREGORIAN;
 
-        $formatter = new IntlDateFormatter($locale, IntlDateFormatter::NONE, IntlDateFormatter::NONE, $timezone, $calendar, $pattern);
+        /** @var IntlDateFormatter|false $formatter */
+        $formatter = IntlDateFormatter::create($locale, IntlDateFormatter::NONE, IntlDateFormatter::NONE, $timezone, $calendar, $pattern);
         if ($formatter === false) {
             return $value->format('Y-m-d H:i');
         }

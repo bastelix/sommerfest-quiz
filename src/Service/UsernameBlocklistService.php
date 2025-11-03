@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Exception\DuplicateUsernameBlocklistException;
+use App\Support\UsernameGuard;
 use DateTimeImmutable;
 use PDO;
 use PDOException;
 use RuntimeException;
 use InvalidArgumentException;
+use function array_key_exists;
 use function array_map;
 use function mb_strlen;
 use function mb_strtolower;
 use function trim;
+use function is_array;
+use function is_string;
+use function sprintf;
 
 /**
  * Manage username blocklist entries created via the admin UI.
@@ -78,6 +83,91 @@ class UsernameBlocklistService
         }
 
         return $entry;
+    }
+
+    /**
+     * @param list<array<string,mixed>|mixed> $rows
+     */
+    public function importEntries(array $rows): void
+    {
+        if ($rows === []) {
+            return;
+        }
+
+        $categoryMap = [];
+        foreach (UsernameGuard::DATABASE_CATEGORIES as $category) {
+            $categoryMap[mb_strtolower($category)] = $category;
+        }
+
+        $normalized = [];
+        foreach ($rows as $index => $row) {
+            if (!is_array($row)) {
+                throw new InvalidArgumentException(sprintf('Row %d must be an array with term and category.', $index));
+            }
+
+            if (!array_key_exists('term', $row) || !array_key_exists('category', $row)) {
+                throw new InvalidArgumentException(sprintf('Row %d must contain "term" and "category" keys.', $index));
+            }
+
+            $termRaw = $row['term'];
+            if (!is_string($termRaw)) {
+                throw new InvalidArgumentException(sprintf('Row %d has an invalid term value.', $index));
+            }
+
+            $term = mb_strtolower(trim($termRaw));
+            if ($term === '' || mb_strlen($term) < 3) {
+                throw new InvalidArgumentException(sprintf('Row %d must contain a term with at least three characters.', $index));
+            }
+
+            $categoryRaw = $row['category'];
+            if (!is_string($categoryRaw)) {
+                throw new InvalidArgumentException(sprintf('Row %d has an invalid category value.', $index));
+            }
+
+            $categoryKey = mb_strtolower(trim($categoryRaw));
+            if ($categoryKey === '' || !array_key_exists($categoryKey, $categoryMap)) {
+                throw new InvalidArgumentException(sprintf('Row %d references an unknown category "%s".', $index, trim((string) $categoryRaw)));
+            }
+
+            $category = $categoryMap[$categoryKey];
+            $normalized[$category][$term] = $term;
+        }
+
+        $entries = [];
+        foreach ($normalized as $category => $terms) {
+            foreach ($terms as $term) {
+                $entries[] = ['term' => $term, 'category' => $category];
+            }
+        }
+
+        $statement = $this->pdo->prepare(
+            'INSERT INTO username_blocklist (term, category) VALUES (?, ?) ON CONFLICT DO NOTHING'
+        );
+
+        if ($statement === false) {
+            throw new RuntimeException('Failed to prepare username blocklist import statement.');
+        }
+
+        $startedTransaction = !$this->pdo->inTransaction();
+        if ($startedTransaction) {
+            $this->pdo->beginTransaction();
+        }
+
+        try {
+            foreach ($entries as $entry) {
+                $statement->execute([$entry['term'], $entry['category']]);
+            }
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+        } catch (PDOException $exception) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw new RuntimeException('Failed to import username blocklist entries.', 0, $exception);
+        }
     }
 
     public function remove(int $id): ?array

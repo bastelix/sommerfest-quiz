@@ -3,7 +3,27 @@
   const basePath = root.basePath || '';
   const DEFAULT_TTL = 600;
   const MAX_BATCH_SIZE = 10;
-  const PREFETCH_TARGET = 5;
+  const PREFETCH_FALLBACK = 5;
+
+  const bufferTarget = (() => {
+    const config = root.quizConfig;
+    if (config && Object.prototype.hasOwnProperty.call(config, 'randomNameBuffer')) {
+      const rawValue = config.randomNameBuffer;
+      if (typeof rawValue === 'number' && Number.isFinite(rawValue)) {
+        return Math.min(Math.max(Math.trunc(rawValue), 0), MAX_BATCH_SIZE);
+      }
+      if (typeof rawValue === 'string') {
+        const trimmed = rawValue.trim();
+        if (trimmed) {
+          const parsed = Number(trimmed);
+          if (Number.isFinite(parsed)) {
+            return Math.min(Math.max(Math.trunc(parsed), 0), MAX_BATCH_SIZE);
+          }
+        }
+      }
+    }
+    return PREFETCH_FALLBACK;
+  })();
 
   /** @type {Array<{name: string, token: string, eventUid: string, expiresAt: number, fallback: boolean, total: number, remaining: number, lexiconVersion: number}>} */
   const nameQueue = [];
@@ -145,7 +165,11 @@
   }
 
   async function fetchBatch(eventUid, desiredCount){
-    const target = Math.max(1, Math.min(typeof desiredCount === 'number' && Number.isFinite(desiredCount) ? Math.trunc(desiredCount) : PREFETCH_TARGET, MAX_BATCH_SIZE));
+    const fallbackTarget = Math.max(1, Math.min(bufferTarget, MAX_BATCH_SIZE));
+    const normalizedDesired = typeof desiredCount === 'number' && Number.isFinite(desiredCount)
+      ? Math.trunc(desiredCount)
+      : fallbackTarget;
+    const target = Math.max(1, Math.min(normalizedDesired, MAX_BATCH_SIZE));
     const params = new URLSearchParams();
     params.set('count', String(target));
     if (eventUid) {
@@ -203,7 +227,7 @@
     }
 
     try {
-      const added = await fetchBatch(eventUid, PREFETCH_TARGET);
+      const added = await fetchBatch(eventUid, bufferTarget);
       if (added > 0) {
         const queued = takeFromQueue(eventUid);
         if (queued) {

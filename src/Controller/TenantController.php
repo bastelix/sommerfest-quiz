@@ -15,6 +15,16 @@ use Slim\Views\Twig;
  */
 class TenantController
 {
+    private const FILTERABLE_STATUSES = [
+        'active',
+        'canceled',
+        'simulated',
+        TenantService::ONBOARDING_PENDING,
+        TenantService::ONBOARDING_PROVISIONING,
+        TenantService::ONBOARDING_PROVISIONED,
+        TenantService::ONBOARDING_FAILED,
+    ];
+
     private TenantService $service;
     private bool $displayErrors;
 
@@ -110,6 +120,20 @@ class TenantController
     public function sync(Request $request, Response $response): Response {
         try {
             $result = $this->service->importMissing();
+            $params = $request->getQueryParams();
+            $status = $this->normaliseStatusParam($params['status'] ?? '');
+            $query = isset($params['query']) ? (string) $params['query'] : '';
+            /** @var array{
+             *     last_run_at:?string,
+             *     next_allowed_at:?string,
+             *     cooldown_seconds:int,
+             *     stale_after_seconds:int,
+             *     is_stale:bool,
+             *     is_throttled:bool
+             * } $syncState
+             */
+            $syncState = $result['sync'];
+            $result['html'] = $this->renderTenantList($request, $status, $query, $syncState);
             $response->getBody()->write(json_encode($result));
             return $response->withHeader('Content-Type', 'application/json');
         } catch (\Throwable $e) {
@@ -153,7 +177,9 @@ class TenantController
     public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $query = isset($params['query']) ? (string) $params['query'] : '';
+        $status = $this->normaliseStatusParam($params['status'] ?? '');
         $list = $this->service->getAll($query);
+        $list = $this->filterByStatus($list, $status);
         $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -163,29 +189,9 @@ class TenantController
      */
     public function listHtml(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $status = isset($params['status']) ? (string) $params['status'] : '';
+        $status = $this->normaliseStatusParam($params['status'] ?? '');
         $query = isset($params['query']) ? (string) $params['query'] : '';
-        $list = $this->service->getAll($query);
-        /** @var array<array<string, mixed>> $list */
-        if ($status !== '') {
-            $list = array_values(
-                array_filter(
-                    $list,
-                    static function (array $t) use ($status): bool {
-                        return isset($t['status']) && $t['status'] === $status;
-                    }
-                )
-            );
-        }
-        $view = Twig::fromRequest($request);
-        $html = $view->fetch('admin/tenant_list.twig', [
-            'tenants' => $list,
-            'main_domain' => getenv('MAIN_DOMAIN') ?: '',
-            'stripe_dashboard' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN)
-                ? 'https://dashboard.stripe.com/test'
-                : 'https://dashboard.stripe.com',
-            'tenant_sync' => $this->service->getSyncState(),
-        ]);
+        $html = $this->renderTenantList($request, $status, $query);
         $response->getBody()->write($html);
         return $response->withHeader('Content-Type', 'text/html');
     }
@@ -212,5 +218,55 @@ class TenantController
         return $response
             ->withHeader('Content-Type', 'text/csv')
             ->withHeader('Content-Disposition', 'attachment; filename="tenant-report.csv"');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $list
+     * @return array<int, array<string, mixed>>
+     */
+    private function filterByStatus(array $list, string $status): array {
+        if ($status === '' || !in_array($status, self::FILTERABLE_STATUSES, true)) {
+            return $list;
+        }
+
+        return array_values(
+            array_filter(
+                $list,
+                static function (array $t) use ($status): bool {
+                    return isset($t['status']) && $t['status'] === $status;
+                }
+            )
+        );
+    }
+
+    private function normaliseStatusParam(mixed $status): string {
+        if (!is_string($status)) {
+            return '';
+        }
+
+        $normalized = strtolower(trim($status));
+
+        return in_array($normalized, self::FILTERABLE_STATUSES, true) ? $normalized : '';
+    }
+
+    private function renderTenantList(
+        Request $request,
+        string $status,
+        string $query,
+        ?array $syncState = null
+    ): string {
+        $list = $this->service->getAll($query);
+        /** @var array<array<string, mixed>> $list */
+        $list = $this->filterByStatus($list, $status);
+        $view = Twig::fromRequest($request);
+
+        return $view->fetch('admin/tenant_list.twig', [
+            'tenants' => $list,
+            'main_domain' => getenv('MAIN_DOMAIN') ?: '',
+            'stripe_dashboard' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN)
+                ? 'https://dashboard.stripe.com/test'
+                : 'https://dashboard.stripe.com',
+            'tenant_sync' => $syncState ?? $this->service->getSyncState(),
+        ]);
     }
 }

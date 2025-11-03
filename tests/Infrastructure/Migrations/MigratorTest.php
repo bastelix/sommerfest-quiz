@@ -6,6 +6,7 @@ namespace Tests\Infrastructure\Migrations;
 
 use App\Infrastructure\Migrations\Migrator;
 use PDO;
+use PDOException;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
 
@@ -45,6 +46,48 @@ final class MigratorTest extends TestCase
         $row = $pdo->query('SELECT qrremember FROM config WHERE id = 1')->fetch(PDO::FETCH_ASSOC);
         self::assertNotFalse($row);
         self::assertSame(1, (int) $row['qrremember']);
+    }
+
+    public function testIgnoresDuplicateOnboardingStateColumn(): void
+    {
+        $pdo = new TenantAwarePDO();
+        $pdo->setCurrentSchema('public');
+        $pdo->exec('CREATE TABLE config (id INTEGER PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE events (uid TEXT)');
+        $pdo->exec('CREATE TABLE active_event (event_uid TEXT)');
+        $pdo->exec("CREATE TABLE tenants (uid TEXT PRIMARY KEY, onboarding_state TEXT NOT NULL DEFAULT 'pending')");
+        $pdo->registerInformationSchemaColumn('tenants', 'onboarding_state');
+        $pdo->exec("INSERT INTO tenants (uid, onboarding_state) VALUES ('t-1', 'pending')");
+
+        $dir = sys_get_temp_dir() . '/migrations_' . uniqid('', true);
+        if (!mkdir($dir) && !is_dir($dir)) {
+            self::fail('Failed to create temporary migrations directory.');
+        }
+
+        $migrationFile = $dir . '/20260926_add_onboarding_state_to_tenants.sql';
+        $migrationSql = <<<'SQL'
+ALTER TABLE tenants ADD COLUMN onboarding_state TEXT NOT NULL DEFAULT 'pending';
+
+UPDATE tenants
+SET onboarding_state = 'completed';
+SQL;
+        file_put_contents($migrationFile, $migrationSql);
+
+        try {
+            Migrator::migrate($pdo, $dir);
+        } finally {
+            $files = glob($dir . '/*');
+            if (is_array($files)) {
+                array_map('unlink', $files);
+            }
+            rmdir($dir);
+        }
+
+        $state = $pdo->query("SELECT onboarding_state FROM tenants WHERE uid = 't-1'")->fetchColumn();
+        self::assertSame('completed', $state);
+
+        $versions = $pdo->query('SELECT version FROM migrations')->fetchAll(PDO::FETCH_COLUMN);
+        self::assertContains('20260926_add_onboarding_state_to_tenants.sql', $versions);
     }
 }
 
@@ -109,6 +152,16 @@ final class TenantAwarePDO extends PDO
 
             $statementForExecution = $this->rewriteLegacyColumn($stmt);
 
+            if (preg_match('/^ALTER TABLE\s+tenants\s+ADD COLUMN\s+onboarding_state/i', $stmt) === 1) {
+                if ($this->hasColumn('tenants', 'onboarding_state')) {
+                    throw new PDOException('column "onboarding_state" of relation "tenants" already exists', 42701);
+                }
+
+                parent::exec("ALTER TABLE tenants ADD COLUMN onboarding_state TEXT NOT NULL DEFAULT 'pending'");
+                $this->registerInformationSchemaColumn('tenants', 'onboarding_state');
+                continue;
+            }
+
             if (preg_match('/^ALTER TABLE\s+config\s+ADD COLUMN IF NOT EXISTS\s+qrremember/i', $stmt) === 1) {
                 if (!$this->hasColumn('config', 'qrremember')) {
                     parent::exec('ALTER TABLE config ADD COLUMN qrremember BOOLEAN DEFAULT FALSE');
@@ -131,13 +184,31 @@ final class TenantAwarePDO extends PDO
     public function query(string $statement, ?int $fetchMode = null, mixed ...$fetchModeArgs): PDOStatement|false
     {
         $normalized = preg_replace('/\s+/', ' ', trim($statement));
-        if (is_string($normalized) && str_starts_with($normalized, 'SELECT EXISTS ( SELECT 1 FROM information_schema.columns')) {
-            $exists = isset($this->informationSchema[$this->currentSchema]['config']['QRRemember']);
+        if (is_string($normalized) && str_contains($normalized, 'FROM information_schema.columns')) {
+            $table = $this->extractInformationSchemaValue($normalized, 'table_name');
+            $column = $this->extractInformationSchemaValue($normalized, 'column_name');
 
-            return ArrayResultStatement::fromSingleColumn($exists ? 1 : 0);
+            if ($table !== null && $column !== null) {
+                $exists = $this->hasInformationSchemaColumn($table, $column);
+
+                return ArrayResultStatement::fromSingleColumn($exists ? 1 : 0);
+            }
         }
 
         return parent::query($this->rewriteLegacyColumn($statement), $fetchMode, ...$fetchModeArgs);
+    }
+
+    private function extractInformationSchemaValue(string $statement, string $field): ?string
+    {
+        if (preg_match(sprintf("/%s\s*=\s*'?([a-zA-Z0-9_]+)'?/i", preg_quote($field, '/')), $statement, $matches) === 1) {
+            return $matches[1];
+        }
+
+        if (str_contains($statement, sprintf('%s = current_schema()', $field))) {
+            return $this->currentSchema;
+        }
+
+        return null;
     }
 
     private function hasColumn(string $table, string $column): bool
@@ -155,6 +226,17 @@ final class TenantAwarePDO extends PDO
         }
 
         return false;
+    }
+
+    private function hasInformationSchemaColumn(string $table, string $column, ?string $schema = null): bool
+    {
+        $schema ??= $this->currentSchema;
+
+        if (isset($this->informationSchema[$schema][$table][$column])) {
+            return true;
+        }
+
+        return $this->hasColumn($table, $column);
     }
 
     private function rewriteLegacyColumn(string $statement): string

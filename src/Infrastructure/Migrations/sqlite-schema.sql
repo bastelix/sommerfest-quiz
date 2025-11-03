@@ -314,6 +314,7 @@ CREATE TABLE IF NOT EXISTS tenants (
     imprint_city TEXT,
     imprint_email TEXT,
     custom_limits TEXT,
+    onboarding_state TEXT NOT NULL DEFAULT 'pending',
     plan_started_at TEXT,
     plan_expires_at TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP

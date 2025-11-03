@@ -19,6 +19,11 @@ if (getenv('MARKETING_DOMAINS') === false) {
     unset($_ENV['MARKETING_DOMAINS']);
 }
 
+if (getenv('APP_ENV') === false || getenv('APP_ENV') === '') {
+    putenv('APP_ENV=Testing');
+    $_ENV['APP_ENV'] = 'Testing';
+}
+
 $rateLimitDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rate_limit_tests_' . getmypid();
 \App\Application\Middleware\RateLimitMiddleware::setPersistentStore(
     new \App\Application\RateLimiting\FilesystemRateLimitStore($rateLimitDir)

@@ -10,25 +10,6 @@ use App\Service\RagChat\HttpChatResponder;
 use App\Service\RagChat\OpenAiChatResponder;
 use App\Service\TeamNameAiClient;
 use App\Service\TeamNameService;
-use JsonException;
-use RuntimeException;
-use Throwable;
-
-use function array_pad;
-use function base64_decode;
-use function count;
-use function date;
-use function getenv;
-use function in_array;
-use function is_array;
-use function is_numeric;
-use function is_string;
-use function json_decode;
-use function parse_url;
-use function rtrim;
-use function str_ends_with;
-use function strtolower;
-use function trim;
 
 try {
     $argv = $argv ?? [];

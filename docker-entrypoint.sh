@@ -3,12 +3,207 @@ set -e
 
 # Load variables from .env if available and not already set
 if [ -r .env ]; then
-    while IFS='=' read -r key value; do
-        case "$key" in ''|\#*) continue ;; esac
-        if [ -z "$(printenv "$key")" ]; then
+    python_exports=$(python3 - <<'PY'
+import ast
+import os
+
+
+def parse_value(raw_value: str) -> str:
+    value = raw_value.strip()
+    if not value:
+        return ""
+
+    if value[0] in {"'", '"'}:
+        quote = value[0]
+        escape = False
+        closing_index = None
+        for index in range(1, len(value)):
+            char = value[index]
+            if escape:
+                escape = False
+                continue
+            if char == '\\':
+                escape = True
+                continue
+            if char == quote:
+                closing_index = index
+                break
+
+        if closing_index is None:
+            return value[1:]
+
+        literal = value[: closing_index + 1]
+        try:
+            return ast.literal_eval(literal)
+        except (SyntaxError, ValueError):
+            return literal[1:-1]
+
+    comment_index = None
+    for index, char in enumerate(value):
+        if char == '#':
+            if index == 0 or value[index - 1].isspace():
+                comment_index = index
+                break
+
+    if comment_index is not None:
+        value = value[:comment_index].rstrip()
+
+    return value
+
+
+def iter_env_lines(path: str):
+    with open(path, 'r', encoding='utf-8') as env_file:
+        for raw_line in env_file:
+            stripped = raw_line.strip()
+            if not stripped or stripped.startswith('#'):
+                continue
+
+            key, sep, remainder = raw_line.partition('=')
+            if not sep:
+                continue
+
+            key = key.strip()
+            if not key:
+                continue
+
+            yield key, parse_value(remainder)
+
+
+accumulator = []
+for key, value in iter_env_lines('.env'):
+    if os.getenv(key) is not None:
+        continue
+
+    accumulator.append(f"{key}={value}")
+
+if accumulator:
+    print("\n".join(accumulator))
+PY
+)
+
+    if [ -n "$python_exports" ]; then
+        tmp_env_file=$(mktemp)
+        printf '%s\n' "$python_exports" > "$tmp_env_file"
+        while IFS='=' read -r key value; do
+            [ -z "$key" ] && continue
             export "$key=$value"
+        done < "$tmp_env_file"
+        rm -f "$tmp_env_file"
+    fi
+fi
+
+# Normalize comma-separated host lists by removing whitespace and collapsing
+# duplicate separators.
+sanitize_host_list() {
+    printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
+}
+
+is_regex_host() {
+    case "$1" in
+        \~*)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+filter_certificate_hosts() {
+    sanitized=$(sanitize_host_list "$1")
+    if [ -z "$sanitized" ]; then
+        printf '%s' "$sanitized"
+        return
+    fi
+
+    filtered=""
+    old_ifs=$IFS
+    IFS=','
+    for host in $sanitized; do
+        if [ -z "$host" ]; then
+            continue
         fi
-    done < .env
+
+        if is_regex_host "$host"; then
+            continue
+        fi
+
+        if [ -z "$filtered" ]; then
+            filtered="$host"
+            continue
+        fi
+
+        if printf '%s' "$filtered" | tr ',' '\n' | grep -Fx -- "$host" >/dev/null 2>&1; then
+            continue
+        fi
+
+        filtered="$filtered,$host"
+    done
+    IFS=$old_ifs
+
+    printf '%s' "$filtered"
+}
+
+append_host_value() {
+    var_name="$1"
+    host_to_add="$2"
+    current=$(printenv "$var_name")
+    sanitized=$(sanitize_host_list "$current")
+
+    if [ -z "$host_to_add" ]; then
+        return
+    fi
+
+    if [ -n "$sanitized" ] && printf '%s' "$sanitized" | tr ',' '\n' | grep -Fx -- "$host_to_add" >/dev/null 2>&1; then
+        return
+    fi
+
+    if [ -n "$sanitized" ]; then
+        export "$var_name=${sanitized},${host_to_add}"
+    else
+        export "$var_name=$host_to_add"
+    fi
+}
+
+append_proxy_host() {
+    host="$1"
+
+    append_host_value "VIRTUAL_HOST" "$host"
+
+    if ! is_regex_host "$host"; then
+        append_host_value "LETSENCRYPT_HOST" "$host"
+    fi
+}
+
+# Automatically expose all tenant subdomains in single-container setups so the
+# proxy requests a matching wildcard certificate.
+single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
+case "$single_container_flag" in
+    1|true|yes|on)
+        base_domain="${MAIN_DOMAIN:-${DOMAIN:-}}"
+        if [ -n "$base_domain" ]; then
+            wildcard_regex="~^([a-z0-9-]+\.)?${base_domain}\$"
+            append_proxy_host "$wildcard_regex"
+
+            # Request certificates for the apex and wildcard domains so that
+            # the issued certificate covers all tenants while remaining
+            # compatible with nginx-proxy.
+            append_host_value "LETSENCRYPT_HOST" "$base_domain"
+            append_host_value "LETSENCRYPT_HOST" "*.${base_domain}"
+        fi
+        ;;
+esac
+
+if [ -f scripts/update_traefik_marketing_domains.php ]; then
+    php scripts/update_traefik_marketing_domains.php
+fi
+
+if [ -n "${LETSENCRYPT_HOST:-}" ]; then
+    filtered_hosts=$(filter_certificate_hosts "$LETSENCRYPT_HOST")
+    if [ -z "$filtered_hosts" ] && [ -n "$LETSENCRYPT_HOST" ]; then
+        echo "Warning: LETSENCRYPT_HOST only contained unsupported nginx regex hosts; clearing value" >&2
+    fi
+    export LETSENCRYPT_HOST="$filtered_hosts"
 fi
 
 # Install composer dependencies if autoloader or QR code library is missing
@@ -19,6 +214,9 @@ fi
 # Ensure log directory exists and is writable
 if [ ! -d /var/www/logs ]; then
     mkdir -p /var/www/logs
+fi
+if [ ! -d /var/www/logs/traefik ]; then
+    mkdir -p /var/www/logs/traefik
 fi
 chown -R www-data:www-data /var/www/logs 2>/dev/null || true
 
@@ -31,34 +229,6 @@ chown -R www-data:www-data /var/www/backup 2>/dev/null || true
 # Copy default data if no config exists in /var/www/data
 if [ ! -f /var/www/data/config.json ] && [ -d /var/www/data-default ]; then
     cp -a /var/www/data-default/. /var/www/data/
-fi
-
-# Normalize the Let's Encrypt host list and trigger a proxy reload when it changes.
-normalize_hosts() {
-    printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
-}
-
-if [ -n "$LETSENCRYPT_HOST" ]; then
-    normalized_hosts=$(normalize_hosts "$LETSENCRYPT_HOST")
-    cache_file=/var/www/data/.letsencrypt-hosts
-
-    if [ "$normalized_hosts" != "$LETSENCRYPT_HOST" ]; then
-        echo "Warning: LETSENCRYPT_HOST contains whitespace; normalized to '$normalized_hosts'" >&2
-    fi
-
-    if [ -n "$normalized_hosts" ]; then
-        mkdir -p "$(dirname "$cache_file")"
-        if [ ! -f "$cache_file" ] || [ "$(cat "$cache_file" 2>/dev/null)" != "$normalized_hosts" ]; then
-            echo "$normalized_hosts" > "$cache_file"
-            if [ -n "$NGINX_RELOADER_URL" ]; then
-                if curl -fs -X POST -H "X-Token: ${NGINX_RELOAD_TOKEN:-changeme}" "$NGINX_RELOADER_URL" >/dev/null; then
-                    echo "Triggered nginx reload for updated certificate host list"
-                else
-                    echo "Warning: Failed to trigger nginx reload at $NGINX_RELOADER_URL" >&2
-                fi
-            fi
-        fi
-    fi
 fi
 
 if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
@@ -106,5 +276,5 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     unset PGPASSWORD
 fi
 
-exec $@
+exec "$@"
 

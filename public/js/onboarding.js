@@ -389,6 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const taskStatus = document.getElementById('task-status');
     const taskLog = document.getElementById('task-log');
     const taskLogDetails = document.getElementById('task-log-details');
+    const copyTaskLogBtn = document.getElementById('copyTaskLog');
 
     const tasks = [
       { id: 'create', label: 'Mandant anlegen' },
@@ -400,16 +401,71 @@ document.addEventListener('DOMContentLoaded', async () => {
     const taskEls = {};
     const taskMap = {};
 
+    const updateCopyButtonVisibility = () => {
+      if (!copyTaskLogBtn || !taskLog) return;
+      copyTaskLogBtn.hidden = taskLog.children.length === 0;
+    };
+
     const addLog = msg => {
       if (!taskLog) return;
       const li = document.createElement('li');
       li.textContent = msg;
       taskLog.appendChild(li);
       taskLog.scrollTop = taskLog.scrollHeight;
+      updateCopyButtonVisibility();
       if (taskLogDetails) {
         taskLogDetails.open = true;
       }
     };
+
+    if (copyTaskLogBtn && taskLog) {
+      updateCopyButtonVisibility();
+      const defaultLabel = copyTaskLogBtn.textContent;
+
+      const showFeedback = (text, delay = 2000) => {
+        copyTaskLogBtn.textContent = text;
+        setTimeout(() => {
+          copyTaskLogBtn.textContent = defaultLabel;
+        }, delay);
+      };
+
+      copyTaskLogBtn.addEventListener('click', async () => {
+        const items = Array.from(taskLog.querySelectorAll('li')).map(li => li.textContent).filter(Boolean);
+        if (!items.length) {
+          return;
+        }
+        const text = items.join('\n');
+        let success = false;
+        if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            await navigator.clipboard.writeText(text);
+            success = true;
+          } catch (e) {
+            success = false;
+          }
+        }
+        if (!success) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.top = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            success = document.execCommand('copy');
+          } catch (e) {
+            success = false;
+          }
+          document.body.removeChild(textarea);
+        }
+        if (success) {
+          showFeedback('Kopiert!');
+        } else {
+          showFeedback('Kopieren fehlgeschlagen', 2500);
+        }
+      });
+    }
 
     const start = id => {
       const entry = taskEls[id];
@@ -484,15 +540,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         addLog(data.log);
       }
       addLog('Onboarding abgeschlossen …');
-      return true;
+      return data || { status: 'completed' };
+    };
+
+    const computeTenantOrigin = slug => {
+      const baseDomain = (window.mainDomain || window.location.hostname || '').trim();
+      if (!baseDomain) {
+        return null;
+      }
+
+      const matchesCurrentHost = baseDomain.toLowerCase() === window.location.hostname.toLowerCase();
+      const protocol = matchesCurrentHost && window.location.protocol === 'http:'
+        ? 'http'
+        : 'https';
+      const port = matchesCurrentHost && window.location.port ? `:${window.location.port}` : '';
+
+      return `${protocol}://${slug}.${baseDomain}${port}`;
     };
 
     const waitForTenant = async slug => {
-      // directly probe HTTPS endpoint and retry on TLS errors until certificates are issued
-      const url = `https://${slug}.${window.mainDomain}/healthz`;
+      const origin = computeTenantOrigin(slug);
+      if (!origin) {
+        addLog('Überspringe Verfügbarkeitsprüfung – keine Domain konfiguriert.');
+        return;
+      }
+
+      // directly probe endpoint and retry on transient errors until certificates are issued
+      const url = `${origin}/healthz`;
       // allow longer waiting periods for SSL certificate issuance
       const attempts = Number(window.waitForTenantRetries ?? 180);
       const delay = Number(window.waitForTenantDelay ?? 2000);
+      const transientStatuses = new Set([404, 502, 503, 504]);
       for (let i = 0; i < attempts; i++) {
         try {
           const res = await fetch(url, {
@@ -506,6 +584,8 @@ document.addEventListener('DOMContentLoaded', async () => {
               if (data.error) throw new Error(data.error);
               if (data.status === 'ok') return;
             }
+          } else if (transientStatuses.has(res.status)) {
+            addLog(`Tenant noch nicht erreichbar (HTTP ${res.status})`);
           } else {
             let msg = 'Tenant nicht verfügbar';
             try {
@@ -516,13 +596,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 msg = await res.text();
               }
             } catch (_) {}
-            throw new Error(msg);
+            throw new Error(msg || `HTTP ${res.status}`);
           }
         } catch (e) {
-          if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
+          const message = typeof e === 'object' && e !== null && 'message' in e
+            ? String(e.message)
+            : typeof e === 'string'
+              ? e
+              : '';
+          if (/certificate|tls|ssl/i.test(message)) {
             addLog('HTTPS-Zertifikat noch nicht verfügbar');
+          } else if (/fetch|network|net::|load failed|dns/i.test(message)) {
+            addLog('Verbindung zum Tenant fehlgeschlagen – versuche es erneut');
           } else {
-            throw e;
+            throw e instanceof Error ? e : new Error(message || String(e));
           }
         }
         addLog('Warten auf Tenant …');
@@ -586,10 +673,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           throw new Error(msg);
         }
         mark('create', true);
+        let onboardingResult = null;
         start('import');
         try {
-          const onboarded = await onboardTenant(subdomain);
-          if (!onboarded) {
+          onboardingResult = await onboardTenant(subdomain);
+          if (!onboardingResult || onboardingResult.status !== 'completed') {
             throw new Error('Onboarding konnte nicht gestartet werden.');
           }
           mark('import', true);
@@ -600,40 +688,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         start('proxy');
         await wait(0);
         mark('proxy', true);
-      start('ssl');
-      await wait(0);
-      mark('ssl', true);
-      start('wait');
-      await waitForTenant(subdomain);
-      mark('wait', true);
+        start('ssl');
+        await wait(0);
+        mark('ssl', true);
 
-      await fetch(withBase('/tenant-welcome'), {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || '',
-          'X-Requested-With': 'fetch'
-        },
-        body: JSON.stringify({ schema: subdomain, email })
-      });
+        const isSingleContainer = onboardingResult && onboardingResult.mode === 'single-container';
 
-      await fetch(withBase('/onboarding/session'), {
-        method: 'DELETE',
-        credentials: 'same-origin',
-        headers: {
-          'X-CSRF-Token': window.csrfToken || '',
-          'X-Requested-With': 'fetch'
+        start('wait');
+        if (isSingleContainer) {
+          addLog('Single-Container-Modus aktiv – überspringe Wartezeit.');
+          mark('wait', true);
+        } else {
+          await waitForTenant(subdomain);
+          mark('wait', true);
         }
-      });
-      sessionData = {};
-      const targetUrl = `https://${subdomain}.${window.mainDomain}/`;
-      if (isAllowed(targetUrl)) {
-        window.location.href = escape(targetUrl);
-      } else {
-        console.error('Blocked redirect to untrusted URL:', targetUrl);
-      }
-      return;
+
+        await fetch(withBase('/tenant-welcome'), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify({ schema: subdomain, email })
+        });
+
+        await fetch(withBase('/onboarding/session'), {
+          method: 'DELETE',
+          credentials: 'same-origin',
+          headers: {
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          }
+        });
+        sessionData = {};
+        const targetOrigin = computeTenantOrigin(subdomain);
+        const targetUrl = targetOrigin ? `${targetOrigin}/` : null;
+        if (targetUrl && isAllowed(targetUrl)) {
+          window.location.href = escape(targetUrl);
+        } else {
+          console.error('Blocked redirect to untrusted URL:', targetUrl);
+        }
+        return;
     } catch (e) {
       if (taskEls.wait && !taskEls.wait.spinner.hidden && !taskEls.wait.li.querySelector('span:not([uk-spinner])')) {
         mark('wait', false);

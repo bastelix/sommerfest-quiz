@@ -66,7 +66,8 @@ class CatalogServiceTest extends TestCase
             . 'stripe_price_id TEXT, '
             . 'stripe_status TEXT, '
             . 'stripe_current_period_end TEXT, '
-            . 'stripe_cancel_at_period_end INTEGER'
+            . 'stripe_cancel_at_period_end INTEGER, '
+            . 'onboarding_state TEXT DEFAULT "pending"'
             . ');'
         );
         return $pdo;
@@ -125,7 +126,8 @@ class CatalogServiceTest extends TestCase
             . 'stripe_price_id TEXT, '
             . 'stripe_status TEXT, '
             . 'stripe_current_period_end TEXT, '
-            . 'stripe_cancel_at_period_end INTEGER'
+            . 'stripe_cancel_at_period_end INTEGER, '
+            . 'onboarding_state TEXT DEFAULT "pending"'
             . ');'
         );
         return $pdo;
@@ -183,7 +185,8 @@ class CatalogServiceTest extends TestCase
             . 'stripe_price_id TEXT, '
             . 'stripe_status TEXT, '
             . 'stripe_current_period_end TEXT, '
-            . 'stripe_cancel_at_period_end INTEGER'
+            . 'stripe_cancel_at_period_end INTEGER, '
+            . 'onboarding_state TEXT DEFAULT "pending"'
             . ');'
         );
         return $pdo;
