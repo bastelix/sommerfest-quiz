@@ -2462,6 +2462,75 @@ return function (\Slim\App $app, TranslationService $translator) {
         $singleContainerEnabled = filter_var((string) $singleContainerFlag, FILTER_VALIDATE_BOOLEAN);
 
         if ($singleContainerEnabled) {
+            $baseDomain = trim((string) (getenv('MAIN_DOMAIN') ?: getenv('DOMAIN')));
+            $certDir = realpath(__DIR__ . '/../certs') ?: (__DIR__ . '/../certs');
+
+            if ($baseDomain === '') {
+                $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                $response->getBody()->write(json_encode([
+                    'error' => 'wildcard-domain-missing',
+                    'log' => $log,
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $certPath = $certDir . '/' . $baseDomain . '.crt';
+            $keyPath = $certDir . '/' . $baseDomain . '.key';
+
+            if (!is_file($certPath) || !is_file($keyPath)) {
+                $overrideScript = getenv('PROVISION_WILDCARD_SCRIPT');
+                if ($overrideScript !== false && $overrideScript !== '') {
+                    $provisionScript = $overrideScript;
+                } else {
+                    $provisionScript = realpath(__DIR__ . '/../scripts/provision_wildcard.sh');
+                }
+
+                if ($provisionScript === false || !is_file($provisionScript)) {
+                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                    $response->getBody()->write(json_encode([
+                        'error' => 'wildcard-script-missing',
+                        'log' => $log,
+                    ]));
+
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(500);
+                }
+
+                if (!is_dir(dirname($logPath))) {
+                    mkdir(dirname($logPath), 0775, true);
+                }
+
+                $message = sprintf('[%s] Missing wildcard certificate for "%s" – provisioning via script.', date('c'), $baseDomain);
+                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+                $log = (string) file_get_contents($logPath);
+
+                $result = runSyncProcess($provisionScript, ['--domain', $baseDomain]);
+
+                clearstatcache(true, $certPath);
+                clearstatcache(true, $keyPath);
+
+                if (!is_file($certPath) || !is_file($keyPath)) {
+                    $tenantService->updateOnboardingState($slug, TenantService::ONBOARDING_FAILED);
+                    $response->getBody()->write(json_encode([
+                        'error' => 'wildcard-provisioning-failed',
+                        'details' => $result['stderr'] !== '' ? $result['stderr'] : $result['stdout'],
+                        'log' => (string) file_get_contents($logPath),
+                    ]));
+
+                    return $response
+                        ->withHeader('Content-Type', 'application/json')
+                        ->withStatus(500);
+                }
+
+                $message = sprintf('[%s] Wildcard certificate ready for "%s".', date('c'), $baseDomain);
+                file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
+                $log = (string) file_get_contents($logPath);
+            }
+
             try {
                 Migrator::migrate($base, __DIR__ . '/../migrations');
 

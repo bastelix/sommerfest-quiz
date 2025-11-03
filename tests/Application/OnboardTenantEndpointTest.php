@@ -89,9 +89,21 @@ ENV;
     {
         putenv('TENANT_SINGLE_CONTAINER=1');
         $_ENV['TENANT_SINGLE_CONTAINER'] = '1';
+        putenv('MAIN_DOMAIN=quiz.example.test');
+        $_ENV['MAIN_DOMAIN'] = 'quiz.example.test';
 
-        $logPath = dirname(__DIR__, 2) . '/logs/onboarding.log';
+        $projectRoot = dirname(__DIR__, 2);
+        $logPath = $projectRoot . '/logs/onboarding.log';
         $originalLog = is_file($logPath) ? file_get_contents($logPath) : null;
+
+        $certDir = $projectRoot . '/certs';
+        if (!is_dir($certDir)) {
+            mkdir($certDir, 0775, true);
+        }
+        $certPath = $certDir . '/quiz.example.test.crt';
+        $keyPath = $certDir . '/quiz.example.test.key';
+        file_put_contents($certPath, 'dummy-cert');
+        file_put_contents($keyPath, 'dummy-key');
 
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -172,8 +184,20 @@ ENV;
                 file_put_contents($logPath, $originalLog);
             }
 
+            if (is_file($certPath)) {
+                unlink($certPath);
+            }
+            if (is_file($keyPath)) {
+                unlink($keyPath);
+            }
+            if (is_dir($certDir) && count(scandir($certDir)) === 2) {
+                rmdir($certDir);
+            }
+
             putenv('TENANT_SINGLE_CONTAINER');
             unset($_ENV['TENANT_SINGLE_CONTAINER']);
+            putenv('MAIN_DOMAIN');
+            unset($_ENV['MAIN_DOMAIN']);
             putenv('RUN_MIGRATIONS_ON_REQUEST');
             unset($_ENV['RUN_MIGRATIONS_ON_REQUEST']);
             putenv('DISPLAY_ERROR_DETAILS');
@@ -184,4 +208,5 @@ ENV;
             Migrator::setHook(null);
         }
     }
+
 }
