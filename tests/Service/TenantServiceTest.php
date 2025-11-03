@@ -38,7 +38,7 @@ class TenantServiceTest extends TestCase
     private function createService(
         string $dir,
         PDO &$pdo,
-        ?\App\Service\NginxService $nginx = null,
+        ?\App\Service\TraefikService $traefik = null,
         ?callable $factory = null
     ): TenantService {
         $pdo = new class ('sqlite::memory:') extends PDO {
@@ -108,22 +108,22 @@ SQL;
             }
             return true;
         });
-        if ($nginx === null) {
-            $nginx = new class extends \App\Service\NginxService {
+        if ($traefik === null) {
+            $traefik = new class extends \App\Service\TraefikService {
                 public function __construct() {
                 }
 
-                public function createVhost(string $sub): void {
+                public function notifyConfigChange(): void {
                 }
             };
         }
         if ($factory !== null) {
             /** @var TenantService $service */
-            $service = $factory($pdo, $dir, $nginx);
+            $service = $factory($pdo, $dir, $traefik);
             return $service;
         }
 
-        return new TenantService($pdo, $dir, $nginx);
+        return new TenantService($pdo, $dir, $traefik);
     }
 
     public function testCreateTenantInsertsRow(): void {
@@ -230,22 +230,22 @@ SQL;
         $this->assertSame('simulated', $byUid['simulated']['status']);
     }
 
-    public function testCreateTenantThrowsOnNginxFailure(): void {
+    public function testCreateTenantThrowsOnTraefikFailure(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
-        $nginx = new class extends \App\Service\NginxService {
+        $traefik = new class extends \App\Service\TraefikService {
             public function __construct() {
             }
 
-            public function createVhost(string $sub): void {
+            public function notifyConfigChange(): void {
                 throw new \RuntimeException('reload failed');
             }
         };
 
-        $service = $this->createService($dir, $pdo, $nginx);
+        $service = $this->createService($dir, $pdo, $traefik);
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Nginx reload failed');
+        $this->expectExceptionMessage('Traefik refresh failed');
 
         $service->createTenant('u4', 's4');
     }
@@ -272,8 +272,8 @@ SQL;
             $dir,
             $pdo,
             null,
-            static function (PDO $pdoArg, string $migDir, \App\Service\NginxService $nginx): TenantService {
-                return new class ($pdoArg, $migDir, $nginx) extends TenantService {
+            static function (PDO $pdoArg, string $migDir, \App\Service\TraefikService $traefik): TenantService {
+                return new class ($pdoArg, $migDir, $traefik) extends TenantService {
                     protected function schemaExists(string $schema): bool
                     {
                         if ($schema === 'ghost') {
@@ -502,11 +502,11 @@ SQL;
         $service->createTenant('u12', 'sub12', Plan::STARTER->value);
         $this->assertSame(Plan::STARTER->value, $service->getPlanBySubdomain('sub12'));
 
-        $webhook = new TenantService($pdo, $dir, new class extends \App\Service\NginxService {
+        $webhook = new TenantService($pdo, $dir, new class extends \App\Service\TraefikService {
             public function __construct() {
             }
 
-            public function createVhost(string $sub): void {
+            public function notifyConfigChange(): void {
             }
         });
         $webhook->updateProfile('sub12', ['plan' => Plan::STANDARD->value]);

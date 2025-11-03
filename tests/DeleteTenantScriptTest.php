@@ -18,9 +18,6 @@ class DeleteTenantScriptTest extends TestCase
         $envFile = $root . '/.env';
         file_put_contents($envFile, "DOMAIN=$domain\nNGINX_RELOAD=0\n");
 
-        $vhost = "$root/vhost.d/$slug.$domain";
-        file_put_contents($vhost, 'dummy');
-
         $certCrt = "$root/certs/$slug.$domain.crt";
         $certKey = "$root/certs/$slug.$domain.key";
         touch($certCrt);
@@ -71,7 +68,6 @@ class DeleteTenantScriptTest extends TestCase
                 $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
             )
         );
-        $this->assertFileDoesNotExist($vhost);
         $this->assertFileDoesNotExist($certCrt);
         $this->assertFileDoesNotExist($certKey);
         $this->assertDirectoryDoesNotExist($acmeDir);

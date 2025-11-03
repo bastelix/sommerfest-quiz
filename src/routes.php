@@ -38,7 +38,7 @@ use App\Support\UsernameBlockedException;
 use App\Support\UsernameGuard;
 use App\Service\UserService;
 use App\Service\TenantService;
-use App\Service\NginxService;
+use App\Service\TraefikService;
 use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
 use App\Service\DomainContactTemplateService;
@@ -133,7 +133,6 @@ use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use Slim\Views\Twig;
 use Slim\Psr7\Response as SlimResponse;
-use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
@@ -258,8 +257,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $pdo = Database::connectWithSchema($schema);
         MigrationRuntime::ensureUpToDate($pdo, __DIR__ . '/../migrations', 'schema:' . $schema);
 
-        $nginxService = new NginxService();
-        $tenantService = new TenantService($base, null, $nginxService);
+        $traefikService = new TraefikService();
+        $tenantService = new TenantService($base, null, $traefikService);
 
         $configService = new ConfigService($pdo);
         $eventService = new EventService($pdo, $configService, $tenantService, $sub);
@@ -2390,7 +2389,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/nginx-reload', function (Request $request, Response $response) {
         $token = $request->getHeaderLine('X-Token');
         $expected = $_ENV['NGINX_RELOAD_TOKEN'] ?? 'changeme';
-        $reloaderUrl = $_ENV['NGINX_RELOADER_URL'] ?? 'http://nginx-reloader:8080/reload';
 
         if ($token !== $expected) {
             $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
@@ -2400,17 +2398,15 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(403);
         }
 
-        $client = $request->getAttribute('httpClient');
-        if (!$client instanceof Client) {
-            $client = new Client();
+        $service = $request->getAttribute('proxyService');
+        if (!$service instanceof TraefikService) {
+            $service = new TraefikService();
         }
         try {
-            $client->post($reloaderUrl, [
-                'headers' => ['X-Token' => $expected],
-            ]);
+            $service->notifyConfigChange();
         } catch (\Throwable $e) {
             $response->getBody()->write(json_encode([
-                'error' => 'Reload failed',
+                'error' => 'Refresh failed',
                 'details' => $e->getMessage(),
             ]));
 
@@ -2419,7 +2415,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
+        $response->getBody()->write(json_encode(['status' => 'traefik refreshed']));
 
         return $response->withHeader('Content-Type', 'application/json');
     });

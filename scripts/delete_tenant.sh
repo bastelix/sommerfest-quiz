@@ -98,7 +98,6 @@ case "$SUBDOMAIN" in
     ;;
 esac
 
-rm -f "$BASE_DIR/vhost.d/$HOST_NAME"
 rm -f "$BASE_DIR"/certs/"$HOST_NAME"*
 rm -rf "$BASE_DIR/acme/$HOST_NAME" "$BASE_DIR/acme/${HOST_NAME}_ecc"
 
