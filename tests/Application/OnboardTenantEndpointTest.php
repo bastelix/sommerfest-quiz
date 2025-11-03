@@ -12,6 +12,79 @@ use Tests\TestCase;
 
 class OnboardTenantEndpointTest extends TestCase
 {
+    public function testEntrypointExportsWildcardHostForSingleContainer(): void
+    {
+        $projectRoot = dirname(__DIR__, 2);
+        $envFile = $projectRoot . '/.env';
+        $originalEnv = is_file($envFile) ? file_get_contents($envFile) : null;
+
+        $varsToReset = ['TENANT_SINGLE_CONTAINER', 'MAIN_DOMAIN', 'DOMAIN', 'VIRTUAL_HOST', 'LETSENCRYPT_HOST'];
+        $previousEnv = [];
+
+        foreach ($varsToReset as $var) {
+            $value = getenv($var);
+            $previousEnv[$var] = $value === false ? null : $value;
+            putenv($var);
+            unset($_ENV[$var]);
+        }
+
+        try {
+            $envContent = <<<ENV
+TENANT_SINGLE_CONTAINER=1
+MAIN_DOMAIN=quiz.example.test
+VIRTUAL_HOST=app.example.test, marketing.example.test
+LETSENCRYPT_HOST=app.example.test
+
+ENV;
+            file_put_contents($envFile, $envContent);
+
+            $command = sprintf('cd %s && ./docker-entrypoint.sh env', escapeshellarg($projectRoot));
+            $output = shell_exec($command);
+            $this->assertIsString($output, 'Entrypoint script did not run successfully');
+
+            $exported = [];
+            foreach (preg_split('/\r?\n/', trim((string) $output)) as $line) {
+                if ($line === '' || strpos($line, '=') === false) {
+                    continue;
+                }
+                [$name, $value] = explode('=', $line, 2);
+                $exported[$name] = $value;
+            }
+
+            $wildcardHost = '~^([a-z0-9-]+\.)?quiz.example.test$';
+
+            $this->assertArrayHasKey('VIRTUAL_HOST', $exported);
+            $this->assertArrayHasKey('LETSENCRYPT_HOST', $exported);
+
+            $this->assertSame(
+                'app.example.test,marketing.example.test,' . $wildcardHost,
+                $exported['VIRTUAL_HOST']
+            );
+            $this->assertSame(
+                'app.example.test,' . $wildcardHost,
+                $exported['LETSENCRYPT_HOST']
+            );
+        } finally {
+            if ($originalEnv === null) {
+                if (is_file($envFile)) {
+                    unlink($envFile);
+                }
+            } else {
+                file_put_contents($envFile, $originalEnv);
+            }
+
+            foreach ($previousEnv as $var => $value) {
+                if ($value === null) {
+                    putenv($var);
+                    unset($_ENV[$var]);
+                } else {
+                    putenv(sprintf('%s=%s', $var, $value));
+                    $_ENV[$var] = $value;
+                }
+            }
+        }
+    }
+
     public function testSingleContainerSkipsDockerProvisioning(): void
     {
         putenv('TENANT_SINGLE_CONTAINER=1');

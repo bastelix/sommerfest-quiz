@@ -11,6 +11,47 @@ if [ -r .env ]; then
     done < .env
 fi
 
+# Normalize comma-separated host lists by removing whitespace and collapsing
+# duplicate separators.
+sanitize_host_list() {
+    printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
+}
+
+append_host_value() {
+    var_name="$1"
+    host_to_add="$2"
+    current=$(printenv "$var_name")
+    sanitized=$(sanitize_host_list "$current")
+
+    if [ -z "$host_to_add" ]; then
+        return
+    fi
+
+    if [ -n "$sanitized" ] && printf '%s' "$sanitized" | tr ',' '\n' | grep -Fx -- "$host_to_add" >/dev/null 2>&1; then
+        return
+    fi
+
+    if [ -n "$sanitized" ]; then
+        export "$var_name=${sanitized},${host_to_add}"
+    else
+        export "$var_name=$host_to_add"
+    fi
+}
+
+# Automatically expose all tenant subdomains in single-container setups so the
+# proxy requests a matching wildcard certificate.
+single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
+case "$single_container_flag" in
+    1|true|yes|on)
+        base_domain="${MAIN_DOMAIN:-${DOMAIN:-}}"
+        if [ -n "$base_domain" ]; then
+            wildcard_host="~^([a-z0-9-]+\.)?${base_domain}\$"
+            append_host_value "VIRTUAL_HOST" "$wildcard_host"
+            append_host_value "LETSENCRYPT_HOST" "$wildcard_host"
+        fi
+        ;;
+esac
+
 # Install composer dependencies if autoloader or QR code library is missing
 if [ ! -f vendor/autoload.php ] || [ ! -d vendor/chillerlan/php-qrcode ]; then
     composer install --no-interaction --prefer-dist --no-progress

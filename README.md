@@ -411,6 +411,13 @@ konfigurierten DNS-Plugin auf und legt das Zertifikat im `certs/`-Verzeichnis
 ab. `scripts/create_tenant.sh` ruft die Routine automatisch auf, wenn das
 Wildcard-Zertifikat noch fehlt.
 
+Das Entrypoint-Skript ergänzt in diesem Modus automatisch einen Regex-Host der
+Form `~^([a-z0-9-]+\.)?${MAIN_DOMAIN}$` (oder `${DOMAIN}`) in den Variablen
+`VIRTUAL_HOST` und `LETSENCRYPT_HOST`. Bestehende Einträge – beispielsweise
+Marketing-Domains – bleiben erhalten und werden nur um den Wildcard-Host
+erweitert, sodass der Reverse Proxy Zertifikate für alle Mandanten-Slugs
+ausstellen kann.
+
 Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
 
 * `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (z. B. `dns_cf`).
