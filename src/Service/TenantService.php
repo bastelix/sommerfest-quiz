@@ -18,7 +18,7 @@ class TenantService
 {
     private PDO $pdo;
     private string $migrationsDir;
-    private ?NginxService $nginxService;
+    private ?TraefikService $traefikService;
     private string $tenantsDir;
 
     private const SYNC_SETTINGS_KEY = 'tenants:last_sync';
@@ -63,12 +63,12 @@ class TenantService
     public function __construct(
         ?PDO $pdo = null,
         ?string $migrationsDir = null,
-        ?NginxService $nginxService = null,
+        ?TraefikService $traefikService = null,
         ?string $tenantsDir = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
-        $this->nginxService = $nginxService;
+        $this->traefikService = $traefikService;
         $this->tenantsDir = $this->resolveTenantsDir($tenantsDir);
     }
 
@@ -230,12 +230,12 @@ class TenantService
 
             $this->persistTenantRecord($record, $hasExistingRecord, self::ONBOARDING_PROVISIONED);
 
-            if ($this->nginxService !== null) {
+            if ($this->traefikService !== null) {
                 try {
-                    $this->nginxService->createVhost($schema);
+                    $this->traefikService->notifyConfigChange();
                 } catch (\RuntimeException $e) {
-                    error_log('Failed to reload nginx: ' . $e->getMessage());
-                    throw new \RuntimeException('Nginx reload failed – check Docker installation', 0, $e);
+                    error_log('Failed to refresh Traefik: ' . $e->getMessage());
+                    throw new \RuntimeException('Traefik refresh failed – check Traefik setup', 0, $e);
                 }
             }
         } catch (\Throwable $e) {
