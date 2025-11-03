@@ -1,11 +1,38 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: INFO
+
+accessLog:
+  bufferingSize: 100
+
+api:
+  dashboard: true
+
 entryPoints:
   web:
     address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
   websecure:
     address: ":443"
 
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: "${LETSENCRYPT_EMAIL?Missing LETSENCRYPT_EMAIL}"
+      storage: /etc/traefik/acme.json
+      tlsChallenge: {}
+
 providers:
   docker:
+    endpoint: "unix:///var/run/docker.sock"
     exposedByDefault: false
   file:
     directory: /etc/traefik/dynamic
