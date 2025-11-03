@@ -519,11 +519,13 @@ Für den eigentlichen Quiz-Container steuerst du erreichbare Hosts heute über d
 traefik.http.routers.quizrace-secure.rule=Host(`${MAIN_DOMAIN}`) || Host(`marketing.example`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
 `````
 
-`scripts/onboard_tenant.sh` erzeugt für dedizierte Container automatisch eigene Router inklusive Zertifikats-Resolver. Im Single-Container-Modus (`TENANT_SINGLE_CONTAINER=1`) sorgt das Entrypoint weiterhin für Wildcard-Domains, damit alle Mandanten über eine gemeinsame Instanz erreichbar bleiben. Traefik erkennt neue Router durch die Docker-Labels automatisch – ein expliziter Reload oder ein `NGINX_RELOADER_URL` ist nicht mehr erforderlich.
+`scripts/onboard_tenant.sh` erzeugt für dedizierte Container automatisch eigene Router inklusive Zertifikats-Resolver. Im Single-Container-Modus (`TENANT_SINGLE_CONTAINER=1`) sorgt das Entrypoint weiterhin für Wildcard-Domains, damit alle Mandanten über eine gemeinsame Instanz erreichbar bleiben. Traefik erkennt neue Router durch die Docker-Labels automatisch – ein separater Reload-Service ist nicht mehr erforderlich. Falls du dennoch eine manuelle Aktualisierung auslösen möchtest, steht der Endpoint `POST /traefik/reload` bereit, der durch das Token `TRAEFIK_RELOAD_TOKEN` geschützt ist.
 
 Weitere nützliche Variablen in `.env` sind:
 
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
+- `TRAEFIK_RELOAD_TOKEN` – Token für den abgesicherten Endpoint `POST /traefik/reload`.
+- `TRAEFIK_API_BASICAUTH` – optionale Basic-Auth-Credentials (`user:pass`) für Traefiks interne API.
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
   Es sollte den Tag des lokal gebauten Slim-Images (`docker build -t <tag> .`) nutzen,

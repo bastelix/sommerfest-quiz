@@ -20,6 +20,7 @@ Relevant .env settings:
   TRAEFIK_ACME_DNS_RESOLVERS     Optional comma separated custom resolvers
   TRAEFIK_ACME_DNS_DELAY         Optional propagation delay (seconds)
   TRAEFIK_ACME_API_ENDPOINT      Base URL of the Traefik API (default http://traefik:8080)
+  TRAEFIK_API_BASICAUTH          Optional "user:password" for Traefik API basic auth
   ACME_WILDCARD_PROVIDER         Legacy setting automatically mapped to
                                  TRAEFIK_ACME_DNS_PROVIDER (dns_ prefix is removed)
   ACME_WILDCARD_USE_STAGING      Set to 1 to keep using the Let's Encrypt
@@ -141,6 +142,7 @@ dns_resolvers="$(get_env_value 'TRAEFIK_ACME_DNS_RESOLVERS' '')"
 dns_delay="$(get_env_value 'TRAEFIK_ACME_DNS_DELAY' '0')"
 
 api_endpoint="$(get_env_value 'TRAEFIK_ACME_API_ENDPOINT' 'http://traefik:8080')"
+api_basicauth="$(get_env_value 'TRAEFIK_API_BASICAUTH' '')"
 
 if [ "$STAGING" = "1" ]; then
   acme_server="https://acme-staging-v02.api.letsencrypt.org/directory"
@@ -224,9 +226,17 @@ traefik_api_request() {
   fi
 
   if [ "$method" = "GET" ]; then
-    curl -fsS "$api_endpoint$path"
+    if [ -n "$api_basicauth" ]; then
+      curl -fsS -u "$api_basicauth" "$api_endpoint$path"
+    else
+      curl -fsS "$api_endpoint$path"
+    fi
   else
-    curl -fsS -X "$method" "$api_endpoint$path" -H 'Content-Type: application/json' -d "$body" 2>/dev/null
+    if [ -n "$api_basicauth" ]; then
+      curl -fsS -u "$api_basicauth" -X "$method" "$api_endpoint$path" -H 'Content-Type: application/json' -d "$body" 2>/dev/null
+    else
+      curl -fsS -X "$method" "$api_endpoint$path" -H 'Content-Type: application/json' -d "$body" 2>/dev/null
+    fi
   fi
 }
 

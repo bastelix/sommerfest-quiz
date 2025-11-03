@@ -54,14 +54,11 @@ load_env_defaults() {
 
 load_env_defaults "$SCRIPT_DIR/../.env" \
   TENANTS_DIR "" \
-  NGINX_RELOAD "" \
-  NGINX_RELOADER_URL "" \
-  NGINX_RELOAD_TOKEN "" \
-  NGINX_RELOADER_SERVICE "" \
-  NGINX_CONTAINER "" \
   DOMAIN "" \
   MAIN_DOMAIN "" \
-  TRAEFIK_ACME_API_ENDPOINT ""
+  TRAEFIK_ACME_API_ENDPOINT "" \
+  TRAEFIK_API_ENDPOINT "" \
+  TRAEFIK_API_BASICAUTH ""
 
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <tenant-slug>|--main" >&2
@@ -70,36 +67,6 @@ fi
 
 if [ -z "${TENANTS_DIR+x}" ] || [ -z "$TENANTS_DIR" ]; then
   TENANTS_DIR="$SCRIPT_DIR/../tenants"
-fi
-
-if [ -n "${NGINX_RELOAD+x}" ]; then
-  RELOAD_FLAG="$NGINX_RELOAD"
-else
-  RELOAD_FLAG="1"
-fi
-
-if [ -n "${NGINX_RELOADER_URL+x}" ]; then
-  RELOADER_URL="$NGINX_RELOADER_URL"
-else
-  RELOADER_URL="http://nginx-reloader:8080/reload"
-fi
-
-if [ -n "${NGINX_RELOAD_TOKEN+x}" ]; then
-  RELOAD_TOKEN="$NGINX_RELOAD_TOKEN"
-else
-  RELOAD_TOKEN="changeme"
-fi
-
-if [ -n "${NGINX_RELOADER_SERVICE+x}" ]; then
-  RELOADER_SERVICE="$NGINX_RELOADER_SERVICE"
-else
-  RELOADER_SERVICE="nginx-reloader"
-fi
-
-if [ -n "${NGINX_CONTAINER+x}" ]; then
-  NGINX_CONTAINER_NAME="$NGINX_CONTAINER"
-else
-  NGINX_CONTAINER_NAME="nginx"
 fi
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
@@ -162,60 +129,8 @@ compose_cmd() {
   fi
 }
 
-reload_via_webhook() {
-  if [ -z "$RELOADER_URL" ]; then
-    return 2
-  fi
-
-  case "$RELOADER_URL" in
-    http://nginx-reloader:*|https://nginx-reloader:*)
-      compose_cmd up -d --no-deps "$RELOADER_SERVICE" >/dev/null 2>&1 || true
-      ;;
-  esac
-
-  tmp_file=$(mktemp)
-  http_code=$(curl -s -o "$tmp_file" -w "%{http_code}" -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL") || http_code=000
-
-  if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
-    rm -f "$tmp_file"
-    return 0
-  fi
-
-  if [ "$http_code" -eq 000 ]; then
-    echo "nginx reload webhook unreachable at $RELOADER_URL" >&2
-  else
-    body=$(cat "$tmp_file" 2>/dev/null)
-    if [ -n "$body" ]; then
-      echo "nginx reload webhook returned status $http_code: $body" >&2
-    else
-      echo "nginx reload webhook returned status $http_code" >&2
-    fi
-  fi
-
-  rm -f "$tmp_file"
-  return 1
-}
-
-reload_via_docker_exec() {
-  if ! command -v docker >/dev/null 2>&1; then
-    echo "docker command not available for nginx reload fallback" >&2
-    return 1
-  fi
-
-  if ! docker inspect -f '{{.State.Running}}' "$NGINX_CONTAINER_NAME" >/dev/null 2>&1; then
-    echo "nginx container '$NGINX_CONTAINER_NAME' is not running" >&2
-    return 1
-  fi
-
-  if ! docker exec "$NGINX_CONTAINER_NAME" nginx -s reload >/dev/null 2>&1; then
-    echo "Failed to reload nginx inside container '$NGINX_CONTAINER_NAME' via docker exec" >&2
-    return 1
-  fi
-
-  return 0
-}
-
-TRAEFIK_API_ENDPOINT="${TRAEFIK_ACME_API_ENDPOINT:-http://traefik:8080}"
+TRAEFIK_API_ENDPOINT="${TRAEFIK_API_ENDPOINT:-${TRAEFIK_ACME_API_ENDPOINT:-http://traefik:8080}}"
+TRAEFIK_API_BASICAUTH="${TRAEFIK_API_BASICAUTH:-}"
 
 traefik_api_request() {
   method="$1"
@@ -228,9 +143,17 @@ traefik_api_request() {
   fi
 
   if [ "$method" = "GET" ]; then
-    curl -fsS "$TRAEFIK_API_ENDPOINT$path"
+    if [ -n "$TRAEFIK_API_BASICAUTH" ]; then
+      curl -fsS -u "$TRAEFIK_API_BASICAUTH" "$TRAEFIK_API_ENDPOINT$path"
+    else
+      curl -fsS "$TRAEFIK_API_ENDPOINT$path"
+    fi
   else
-    curl -fsS -X "$method" "$TRAEFIK_API_ENDPOINT$path" -H 'Content-Type: application/json' -d "$body"
+    if [ -n "$TRAEFIK_API_BASICAUTH" ]; then
+      curl -fsS -u "$TRAEFIK_API_BASICAUTH" -X "$method" "$TRAEFIK_API_ENDPOINT$path" -H 'Content-Type: application/json' -d "$body"
+    else
+      curl -fsS -X "$method" "$TRAEFIK_API_ENDPOINT$path" -H 'Content-Type: application/json' -d "$body"
+    fi
   fi
 }
 
@@ -301,26 +224,6 @@ ensure_traefik_running() {
 
   return 0
 }
-
-WEBHOOK_RESULT=0
-WEBHOOK_RESULT=$(reload_via_webhook) || WEBHOOK_RESULT=$?
-
-if [ "$WEBHOOK_RESULT" -eq 2 ]; then
-  if [ "$RELOAD_FLAG" = "0" ]; then
-    echo "nginx reload webhook disabled in configuration; falling back to docker exec because NGINX_RELOAD=0" >&2
-  else
-    echo "nginx reload webhook disabled, falling back to docker exec" >&2
-  fi
-elif [ "$WEBHOOK_RESULT" -ne 0 ]; then
-  echo "Falling back to docker exec for nginx reload" >&2
-fi
-
-if [ "$WEBHOOK_RESULT" -ne 0 ]; then
-  if ! reload_via_docker_exec; then
-    echo "Failed to trigger nginx reload via webhook or docker exec" >&2
-    exit 1
-  fi
-fi
 
 if [ -z "$DOCKER_COMPOSE" ]; then
   echo "docker compose not available" >&2

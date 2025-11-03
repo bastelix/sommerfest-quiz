@@ -2386,9 +2386,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('summaryController')($request, $response);
     });
 
-    $app->post('/nginx-reload', function (Request $request, Response $response) {
+    $traefikReloadHandler = function (Request $request, Response $response) {
         $token = $request->getHeaderLine('X-Token');
-        $expected = $_ENV['NGINX_RELOAD_TOKEN'] ?? 'changeme';
+        $expected = $_ENV['TRAEFIK_RELOAD_TOKEN'] ?? 'changeme';
 
         if ($token !== $expected) {
             $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
@@ -2415,10 +2415,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'traefik refreshed']));
+        $response->getBody()->write(json_encode(['status' => 'traefik configuration refreshed']));
 
         return $response->withHeader('Content-Type', 'application/json');
-    });
+    };
+
+    $app->post('/traefik/reload', $traefikReloadHandler);
+    $app->post('/nginx-reload', $traefikReloadHandler);
 
     $app->post('/api/tenants/{slug}/onboard', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
