@@ -5,7 +5,7 @@ set -e
 BASE_DIR="$(dirname "$0")/.."
 ENV_FILE="$BASE_DIR/.env"
 TRAEFIK_CONFIG="$BASE_DIR/config/traefik/traefik.yml"
-ACME_STORAGE="$BASE_DIR/acme/acme.json"
+ACME_STORAGE="$BASE_DIR/letsencrypt/acme.json"
 
 usage() {
   cat <<USAGE >&2
@@ -246,7 +246,7 @@ if start_marker in text and end_marker in text:
     if count == 0:
         raise SystemExit("Failed to update managed block in traefik.yml")
 else:
-    anchor = "      storage: /etc/traefik/acme.json\n"
+    anchor = "      storage: /letsencrypt/acme.json\n"
     if anchor not in text:
         raise SystemExit("Unable to locate certificatesResolvers section in traefik.yml")
     text = text.replace(anchor, anchor + replacement)

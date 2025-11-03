@@ -27,9 +27,9 @@ RUN mkdir -p /var/www/backup \
     && test -w /var/www/backup
 RUN mkdir -p /var/www/config/traefik/dynamic \
     && mkdir -p /var/www/logs/traefik \
-    && mkdir -p /var/www/acme \
-    && if [ ! -f /var/www/acme/acme.json ]; then touch /var/www/acme/acme.json; fi \
-    && chmod 600 /var/www/acme/acme.json
+    && mkdir -p /var/www/letsencrypt \
+    && if [ ! -f /var/www/letsencrypt/acme.json ]; then touch /var/www/letsencrypt/acme.json; fi \
+    && chmod 600 /var/www/letsencrypt/acme.json
 
 # include custom PHP configuration
 COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini

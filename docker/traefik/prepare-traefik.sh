@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-ACME_STORAGE="/etc/traefik/acme.json"
+ACME_STORAGE="/letsencrypt/acme.json"
 MARKETING_DIR="/etc/traefik/dynamic/marketing"
 
 # Traefik requires the ACME storage file to exist and be writable by the
