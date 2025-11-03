@@ -113,6 +113,10 @@ case "$single_container_flag" in
         ;;
 esac
 
+if [ -f scripts/update_traefik_marketing_domains.php ]; then
+    php scripts/update_traefik_marketing_domains.php
+fi
+
 if [ -n "${LETSENCRYPT_HOST:-}" ]; then
     filtered_hosts=$(filter_certificate_hosts "$LETSENCRYPT_HOST")
     if [ -z "$filtered_hosts" ] && [ -n "$LETSENCRYPT_HOST" ]; then

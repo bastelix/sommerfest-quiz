@@ -40,7 +40,7 @@ Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen d
 - `admin.` – Administrationsoberfläche
 - `{tenant}.` – individuelle Mandanteninstanzen
 
-Zusätzliche Marketing-Domains lassen sich über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder zeilengetrennt) freischalten. Sie liefern Landing-Pages ohne Mandanten-Subdomain aus. Füge die Hosts bei Bedarf den Traefik-Routern hinzu, indem du die `Host(...)`-Regeln in `docker-compose.yml` erweiterst oder eigene Router definierst. So stellt Traefik automatisch TLS-Zertifikate für diese Domains aus.
+Zusätzliche Marketing-Domains lassen sich über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder zeilengetrennt) freischalten. Sie liefern Landing-Pages ohne Mandanten-Subdomain aus. Beim Containerstart erzeugt `scripts/update_traefik_marketing_domains.php` automatisch die nötigen Traefik-Router samt Let's-Encrypt-Zertifikatsverwaltung. Eine manuelle Pflege der `Host(...)`-Regeln ist nur noch erforderlich, wenn du eine alternative Proxy-Konfiguration verwendest.
 
 Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und die Marketing-Liste und setzt entsprechend das Attribut `domainType` (`main`, `tenant` oder `marketing`). Ist `MAIN_DOMAIN` leer oder stimmt keine der konfigurierten Domains mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
 
