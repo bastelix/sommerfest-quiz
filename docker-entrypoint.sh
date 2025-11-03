@@ -3,12 +3,93 @@ set -e
 
 # Load variables from .env if available and not already set
 if [ -r .env ]; then
-    while IFS='=' read -r key value; do
-        case "$key" in ''|\#*) continue ;; esac
-        if [ -z "$(printenv "$key")" ]; then
+    python_exports=$(python3 - <<'PY'
+import ast
+import os
+
+
+def parse_value(raw_value: str) -> str:
+    value = raw_value.strip()
+    if not value:
+        return ""
+
+    if value[0] in {"'", '"'}:
+        quote = value[0]
+        escape = False
+        closing_index = None
+        for index in range(1, len(value)):
+            char = value[index]
+            if escape:
+                escape = False
+                continue
+            if char == '\\':
+                escape = True
+                continue
+            if char == quote:
+                closing_index = index
+                break
+
+        if closing_index is None:
+            return value[1:]
+
+        literal = value[: closing_index + 1]
+        try:
+            return ast.literal_eval(literal)
+        except (SyntaxError, ValueError):
+            return literal[1:-1]
+
+    comment_index = None
+    for index, char in enumerate(value):
+        if char == '#':
+            if index == 0 or value[index - 1].isspace():
+                comment_index = index
+                break
+
+    if comment_index is not None:
+        value = value[:comment_index].rstrip()
+
+    return value
+
+
+def iter_env_lines(path: str):
+    with open(path, 'r', encoding='utf-8') as env_file:
+        for raw_line in env_file:
+            stripped = raw_line.strip()
+            if not stripped or stripped.startswith('#'):
+                continue
+
+            key, sep, remainder = raw_line.partition('=')
+            if not sep:
+                continue
+
+            key = key.strip()
+            if not key:
+                continue
+
+            yield key, parse_value(remainder)
+
+
+accumulator = []
+for key, value in iter_env_lines('.env'):
+    if os.getenv(key) is not None:
+        continue
+
+    accumulator.append(f"{key}={value}")
+
+if accumulator:
+    print("\n".join(accumulator))
+PY
+)
+
+    if [ -n "$python_exports" ]; then
+        tmp_env_file=$(mktemp)
+        printf '%s\n' "$python_exports" > "$tmp_env_file"
+        while IFS='=' read -r key value; do
+            [ -z "$key" ] && continue
             export "$key=$value"
-        fi
-    done < .env
+        done < "$tmp_env_file"
+        rm -f "$tmp_env_file"
+    fi
 fi
 
 # Normalize comma-separated host lists by removing whitespace and collapsing
