@@ -273,5 +273,5 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     unset PGPASSWORD
 fi
 
-exec $@
+exec "$@"
 
