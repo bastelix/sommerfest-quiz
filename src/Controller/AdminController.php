@@ -105,6 +105,7 @@ class AdminController
         $tenant    = null;
         $tenantSvc = null;
         $sub       = '';
+        $initialTenantListHtml = '';
 
         $configSvc = new ConfigService($pdo);
         if (
@@ -227,6 +228,24 @@ class AdminController
             $tenant = $tenantSvc->getBySubdomain($sub);
         }
 
+        $stripeSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $tenantSyncState = $tenantSvc?->getSyncState();
+        if (
+            $section === 'tenants'
+            && $domainType === 'main'
+            && $tenantSvc !== null
+        ) {
+            $tenants = $tenantSvc->getAll();
+            $initialTenantListHtml = $view->fetch('admin/tenant_list.twig', [
+                'tenants' => $tenants,
+                'main_domain' => $mainDomain,
+                'stripe_dashboard' => $stripeSandbox
+                    ? 'https://dashboard.stripe.com/test'
+                    : 'https://dashboard.stripe.com',
+                'tenant_sync' => $tenantSyncState,
+            ]);
+        }
+
         if (
             $section === 'subscription'
             && $tenant !== null
@@ -326,9 +345,10 @@ class AdminController
               'marketingNewsletterStyles' => $marketingNewsletterStyles,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
-              'tenant_sync' => $tenantSvc->getSyncState(),
+              'tenant_sync' => $tenantSyncState,
               'stripe_configured' => StripeService::isConfigured()['ok'],
-              'stripe_sandbox' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN),
+              'stripe_sandbox' => $stripeSandbox,
+              'initialTenantListHtml' => $initialTenantListHtml,
               'currentPath' => $request->getUri()->getPath(),
               'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,

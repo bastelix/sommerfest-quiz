@@ -2467,6 +2467,7 @@
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
     window.tenantSyncState = {{ tenant_sync|default(null)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.initialTenantListHtml = {{ initialTenantListHtml|default('')|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.transTenantSyncOk = '{{ 'Aktuell'|e('js') }}';
     window.transTenantSyncStale = '{{ 'Sync nötig'|e('js') }}';
     window.transTenantSyncCooling = '{{ 'Wartezeit'|e('js') }}';
