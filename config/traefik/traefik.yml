@@ -28,7 +28,10 @@ certificatesResolvers:
     acme:
       email: "${LETSENCRYPT_EMAIL?Missing LETSENCRYPT_EMAIL}"
       storage: /etc/traefik/acme.json
-      tlsChallenge: {}
+      # BEGIN TRAEFIK WILDCARD MANAGED BLOCK
+      dnsChallenge: {}
+      domains: []
+      # END TRAEFIK WILDCARD MANAGED BLOCK
 
 providers:
   docker:

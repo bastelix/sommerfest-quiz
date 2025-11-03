@@ -390,40 +390,41 @@ scripts/create_tenant.sh foo
 Setzt du in `.env` zusätzlich `TENANT_SINGLE_CONTAINER=1`, arbeitet das Skript
 mandantenfähig innerhalb des bestehenden `slim`-Containers. Dafür wird ein
 Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
-falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt und als
-`certs/<domain>.crt` sowie `certs/<domain>.key` im Projekt liegt. Der
-`acme-companion` kann ein solches Zertifikat über die DNS-Challenge beziehen und
-unter gleichem Namen in das `certs/`-Volume schreiben. Die neue Hilfsroutine
-`scripts/provision_wildcard.sh` stößt diesen Prozess automatisiert an: Sie
-startet bei Bedarf den `acme-companion`, ruft `acme.sh` mit dem in `.env`
-konfigurierten DNS-Plugin auf und legt das Zertifikat im `certs/`-Verzeichnis
-ab. `scripts/create_tenant.sh` ruft die Routine automatisch auf, wenn das
-Wildcard-Zertifikat noch fehlt.
+falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt. Seit der Umstellung
+auf Traefik kümmert sich der integrierte ACME-Resolver um die Ausstellung und
+speichert das Zertifikat im `acme`-Volume (`acme.json`). Die Hilfsroutine
+`scripts/provision_wildcard.sh` schreibt die benötigten Einstellungen in
+`config/traefik/traefik.yml`, startet Traefik bei Bedarf, triggert einen Reload
+über die Traefik-API und wartet, bis das Zertifikat laut `/api/tls/certificates`
+verfügbar ist. `scripts/create_tenant.sh` ruft die Routine automatisch auf, wenn
+noch kein wildcard-fähiges Zertifikat gefunden wird.
 
 Das Entrypoint-Skript ergänzt in diesem Modus automatisch einen Regex-Host der
 Form `~^([a-z0-9-]+\.)?${MAIN_DOMAIN}$` (oder `${DOMAIN}`) in `VIRTUAL_HOST`.
 `LETSENCRYPT_HOST` enthält ausschließlich echte Domains beziehungsweise
-Wildcard-Einträge (`*.example.test`), sodass der `acme-companion` keine
-ungültigen CSRs erzeugt. Bestehende Einträge – beispielsweise Marketing-Domains
-– bleiben erhalten und werden passend ergänzt, damit der Reverse Proxy
-Zertifikate für alle Mandanten-Slugs ausstellen kann.
+Wildcard-Einträge (`*.example.test`), sodass Traefik nur gültige ACME-Anfragen
+stellt. Bestehende Einträge – beispielsweise Marketing-Domains – bleiben
+erhalten und werden passend ergänzt, damit der Reverse Proxy Zertifikate für
+alle Mandanten-Slugs ausstellen kann.
 
 Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
 
-* `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (z. B. `dns_cf`).
-* `ACME_WILDCARD_ACCOUNT_EMAIL` (optional) – Account-Adresse; fällt ansonsten
-  auf `LETSENCRYPT_EMAIL` zurück.
-* `ACME_WILDCARD_SERVICE` (optional) – Compose-Service des Companions
-  (`acme-companion`).
-* `ACME_WILDCARD_SERVER` und `ACME_WILDCARD_USE_STAGING` für abweichende
-  ACME-Endpunkte.
-* `ACME_WILDCARD_ENV_*` – Zugangsdaten für das gewählte DNS-Plugin, etwa
-  `ACME_WILDCARD_ENV_CF_Token` und `ACME_WILDCARD_ENV_CF_Account_ID` für
-  Cloudflare. Beachte bei Anbietern mit gemischter Groß-/Kleinschreibung wie
-  Hetzner, dass du entweder den exakten Namen (`ACME_WILDCARD_ENV_HETZNER_Token`)
-  oder dessen komplett großgeschriebene Variante (`ACME_WILDCARD_ENV_HETZNER_TOKEN`)
-  verwenden kannst; das Skript setzt beide Formen auf die benötigte
-  `HETZNER_Token`-Umgebungsvariable des Plugins um.
+* `TRAEFIK_ACME_DNS_PROVIDER` – Name des von Traefik/lego unterstützten
+  DNS-Providers (z. B. `cloudflare`, `hetzner`, `route53`).
+* `TRAEFIK_ACME_DNS_RESOLVERS` – optionale, komma- oder zeilengetrennte Liste
+  eigener Resolver (z. B. `1.1.1.1:53,8.8.8.8:53`).
+* `TRAEFIK_ACME_DNS_DELAY` – optionale Verzögerung in Sekunden, bevor Traefik
+  den ACME-Dienst informiert (hilfreich bei langsamer DNS-Propagation).
+* `TRAEFIK_ACME_USE_STAGING` – auf `1` setzen, um das Let's-Encrypt-Staging zu
+  verwenden.
+* `TRAEFIK_ACME_API_ENDPOINT` – Basis-URL der Traefik-API (Standard:
+  `http://traefik:8080`), über die die Skripte den Zertifikatstatus abfragen
+  und Reloads anstoßen.
+
+Provider-spezifische Zugangsdaten (z. B. `CLOUDFLARE_API_TOKEN`,
+`HETZNER_API_TOKEN`, `AWS_ACCESS_KEY_ID`) müssen Traefik weiterhin als
+Umgebungsvariablen zur Verfügung stehen. Bewährt hat sich die Ablage in der
+`.env`, die von Docker Compose automatisch übernommen wird.
 
 Ist das Zertifikat vorhanden, muss `scripts/create_tenant.sh` den
 `slim`-Container nicht mehr neu starten; neue Mandanten werden sofort nach dem
@@ -484,8 +485,8 @@ throttled beantwortet, damit keine parallel laufenden Scans entstehen.
 
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
 einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
-Nur so kann der `acme-companion` die HTTP-Challenge beantworten und das
-Zertifikat erstellen.
+Nur so kann Traefik die Router korrekt adressieren und – falls nötig – die
+HTTP-Challenge bedienen, um anschließend ein Zertifikat zu erzeugen.
 
 Um diese Container auch aus dem `slim`-Service heraus starten zu können,
 bringt das Image nun neben dem Docker-CLI auch das Compose-Plugin mit und

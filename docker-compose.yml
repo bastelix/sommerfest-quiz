@@ -9,7 +9,6 @@ services:
     environment:
       - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_EMAIL=${LETSENCRYPT_EMAIL}
       - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_STORAGE=/etc/traefik/acme.json
-      - TRAEFIK_CERTIFICATESRESOLVERS_letsencrypt_ACME_TLSCHALLENGE=true
       - TRAEFIK_PROVIDERS_DOCKER_NETWORK=${NETWORK:-webproxy}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
