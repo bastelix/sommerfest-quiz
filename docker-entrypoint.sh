@@ -4,12 +4,8 @@ set -euo pipefail
 cd /var/www
 
 # Load variables from .env if available
-if [ -r .env ]; then
-    env_exports=$(grep -E -v '^(#|$)' .env | xargs || true)
-    if [ -n "$env_exports" ]; then
-        # shellcheck disable=SC2086
-        export $env_exports || true
-    fi
+if [ -f .env ]; then
+    export $(grep -v '^\s*#' .env | grep -E '^[A-Za-z_][A-Za-z0-9_]*=' | xargs) || true
 fi
 
 # Normalize comma-separated host lists by removing whitespace and collapsing
