@@ -20,7 +20,7 @@ sanitize_host_list() {
 append_host_value() {
     var_name="$1"
     host_to_add="$2"
-    current=$(printenv "$var_name")
+    current=$(eval "printf '%s' \"\${$var_name-}\"")
     sanitized=$(sanitize_host_list "$current")
 
     if [ -z "$host_to_add" ]; then
