@@ -13,4 +13,8 @@ RUN set -eux \
 # permissions and the marketing configuration directory remains available when
 # mounted read-only.
 COPY docker/traefik/prepare-traefik.sh /entrypoint.d/prepare-traefik.sh
-RUN chmod +x /entrypoint.d/prepare-traefik.sh
+COPY docker/traefik/ensure-acme-permissions.sh /usr/local/bin/ensure-acme-permissions.sh
+RUN chmod +x /entrypoint.d/prepare-traefik.sh \
+    && chmod +x /usr/local/bin/ensure-acme-permissions.sh
+
+ENTRYPOINT ["/usr/local/bin/ensure-acme-permissions.sh"]
