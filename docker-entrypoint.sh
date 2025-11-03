@@ -1,94 +1,14 @@
-#!/bin/sh
-set -e
+#!/usr/bin/env sh
+set -euo pipefail
 
-# Load variables from .env if available and not already set
+cd /var/www
+
+# Load variables from .env if available
 if [ -r .env ]; then
-    python_exports=$(python3 - <<'PY'
-import ast
-import os
-
-
-def parse_value(raw_value: str) -> str:
-    value = raw_value.strip()
-    if not value:
-        return ""
-
-    if value[0] in {"'", '"'}:
-        quote = value[0]
-        escape = False
-        closing_index = None
-        for index in range(1, len(value)):
-            char = value[index]
-            if escape:
-                escape = False
-                continue
-            if char == '\\':
-                escape = True
-                continue
-            if char == quote:
-                closing_index = index
-                break
-
-        if closing_index is None:
-            return value[1:]
-
-        literal = value[: closing_index + 1]
-        try:
-            return ast.literal_eval(literal)
-        except (SyntaxError, ValueError):
-            return literal[1:-1]
-
-    comment_index = None
-    for index, char in enumerate(value):
-        if char == '#':
-            if index == 0 or value[index - 1].isspace():
-                comment_index = index
-                break
-
-    if comment_index is not None:
-        value = value[:comment_index].rstrip()
-
-    return value
-
-
-def iter_env_lines(path: str):
-    with open(path, 'r', encoding='utf-8') as env_file:
-        for raw_line in env_file:
-            stripped = raw_line.strip()
-            if not stripped or stripped.startswith('#'):
-                continue
-
-            key, sep, remainder = raw_line.partition('=')
-            if not sep:
-                continue
-
-            key = key.strip()
-            if not key:
-                continue
-
-            yield key, parse_value(remainder)
-
-
-accumulator = []
-for key, value in iter_env_lines('.env'):
-    if os.getenv(key) is not None:
-        continue
-
-    accumulator.append(f"{key}={value}")
-
-if accumulator:
-    print("\n".join(accumulator))
-PY
-)
-
-    if [ -n "$python_exports" ]; then
-        tmp_env_file=$(mktemp)
-        printf '%s\n' "$python_exports" > "$tmp_env_file"
-        while IFS='=' read -r key value; do
-            [ -z "$key" ] && continue
-            export "$key=$value"
-        done < "$tmp_env_file"
-        rm -f "$tmp_env_file"
+    env_exports=$(grep -E -v '^(#|$)' .env | xargs || true)
+    if [ -n "$env_exports" ]; then
+        # shellcheck disable=SC2086
+        export $env_exports || true
     fi
 fi
 
@@ -231,33 +151,27 @@ if [ ! -f /var/www/data/config.json ] && [ -d /var/www/data-default ]; then
     cp -a /var/www/data-default/. /var/www/data/
 fi
 
-if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
+if [ -n "${POSTGRES_DSN:-}" ] && [ -f docs/schema.sql ]; then
     host=$(echo "$POSTGRES_DSN" | sed -n 's/.*host=\([^;]*\).*/\1/p')
     port=$(echo "$POSTGRES_DSN" | sed -n 's/.*port=\([^;]*\).*/\1/p')
     db=${POSTGRES_DB:-$(echo "$POSTGRES_DSN" | sed -n 's/.*dbname=\([^;]*\).*/\1/p')}
     port=${port:-5432}
-    export PGPASSWORD="${POSTGRES_PASSWORD:-$POSTGRES_PASS}"
+    export PGPASSWORD="${POSTGRES_PASSWORD:-${POSTGRES_PASS:-}}"
 
     echo "Waiting for PostgreSQL to become available..."
-    timeout=30
-    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c 'SELECT 1;' >/dev/null 2>&1; do
-        if [ $timeout -le 0 ]; then
-            echo "PostgreSQL not reachable, aborting." >&2
-            exit 1
-        fi
+    until psql -h "$host" -p "$port" -U "${POSTGRES_USER:-}" -d "$db" -c 'SELECT 1;' >/dev/null 2>&1; do
         sleep 1
-        timeout=$((timeout-1))
     done
 
     echo "PostgreSQL is available"
 
     echo "Checking for existing PostgreSQL schema..."
-    schema_present=$(psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -tAc "SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='config');")
+    schema_present=$(psql -h "$host" -p "$port" -U "${POSTGRES_USER:-}" -d "$db" -tAc "SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='config');")
     if [ "$schema_present" = "t" ]; then
         echo "Schema already present, skipping initialization"
     else
         echo "Applying PostgreSQL schema"
-        psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql
+        psql -h "$host" -p "$port" -U "${POSTGRES_USER:-}" -d "$db" -f docs/schema.sql
         echo "Schema initialized"
         if [ -f scripts/import_to_pgsql.php ]; then
             echo "Importing default data"
