@@ -29,7 +29,7 @@ entryPoints:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: "${LETSENCRYPT_EMAIL?Missing LETSENCRYPT_EMAIL}"
+      email: "${LETSENCRYPT_EMAIL}"
       storage: /letsencrypt/acme.json
 
 providers:
