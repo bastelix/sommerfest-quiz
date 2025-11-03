@@ -134,6 +134,9 @@ fi
 if [ ! -d /var/www/logs ]; then
     mkdir -p /var/www/logs
 fi
+if [ ! -d /var/www/logs/traefik ]; then
+    mkdir -p /var/www/logs/traefik
+fi
 chown -R www-data:www-data /var/www/logs 2>/dev/null || true
 
 # Ensure backup directory exists and is writable

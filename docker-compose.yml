@@ -16,6 +16,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
       - ./config/traefik/dynamic/:/etc/traefik/dynamic/:ro
+      - ./logs/traefik/:/etc/traefik/dynamic/marketing/:ro
       - ./acme/acme.json:/etc/traefik/acme.json
     networks:
       - webproxy

@@ -7,29 +7,43 @@ declare(strict_types=1);
  */
 
 $projectRoot = dirname(__DIR__);
-$defaultTarget = $projectRoot . '/config/traefik/dynamic/marketing.yml';
+$defaultTarget = $projectRoot . '/logs/traefik/marketing.yml';
+$legacyTargets = [
+    $projectRoot . '/config/traefik/dynamic/marketing.yml',
+];
 $targetPath = $argv[1] ?? getenv('TRAEFIK_MARKETING_CONFIG_PATH') ?: $defaultTarget;
+$legacyCleanupTargets = array_values(array_filter(
+    $legacyTargets,
+    static fn (string $path): bool => $path !== $targetPath,
+));
 
 $marketingConfig = (string) getenv('MARKETING_DOMAINS');
 $domains = parseMarketingDomains($marketingConfig);
 
 if ($domains === []) {
-    removeConfigFile($targetPath);
+    removeConfigFile($targetPath, $legacyCleanupTargets);
     exit(0);
 }
 
 $rule = buildRule($domains);
 $config = buildConfig($rule);
 
-if (!is_dir(dirname($targetPath))) {
-    if (!mkdir(dirname($targetPath), 0755, true) && !is_dir(dirname($targetPath))) {
+$directory = dirname($targetPath);
+if (!is_dir($directory)) {
+    if (!mkdir($directory, 0755, true) && !is_dir($directory)) {
         fwrite(STDERR, sprintf("Failed to create directory for %s\n", $targetPath));
         exit(1);
     }
 }
 
+if (!is_writable($directory)) {
+    fwrite(STDERR, sprintf("Directory is not writable for %s\n", $targetPath));
+    exit(1);
+}
+
 $existing = file_exists($targetPath) ? (string) file_get_contents($targetPath) : null;
 if ($existing === $config) {
+    cleanupLegacyConfigs($targetPath, $legacyCleanupTargets);
     exit(0);
 }
 
@@ -37,6 +51,12 @@ if (file_put_contents($targetPath, $config) === false) {
     fwrite(STDERR, sprintf("Failed to write marketing Traefik config to %s\n", $targetPath));
     exit(1);
 }
+
+if (!chmod($targetPath, 0644)) {
+    fwrite(STDERR, sprintf("Warning: unable to adjust permissions for %s\n", $targetPath));
+}
+
+cleanupLegacyConfigs($targetPath, $legacyCleanupTargets);
 
 echo sprintf("Updated Traefik marketing router configuration (%d domain%s).\n", count($domains), count($domains) === 1 ? '' : 's');
 
@@ -118,13 +138,49 @@ YAML
     . PHP_EOL;
 }
 
-function removeConfigFile(string $targetPath): void
+function removeConfigFile(string $targetPath, array $extraTargets = []): void
 {
-    if (is_file($targetPath)) {
-        if (!unlink($targetPath)) {
-            fwrite(STDERR, sprintf("Failed to remove marketing Traefik config at %s\n", $targetPath));
-            exit(1);
+    $paths = array_merge([$targetPath], $extraTargets);
+
+    $seen = [];
+    foreach ($paths as $path) {
+        if ($path === '') {
+            continue;
         }
-        echo "Removed Traefik marketing router configuration (no domains configured).\n";
+
+        if (isset($seen[$path])) {
+            continue;
+        }
+        $seen[$path] = true;
+
+        if (!is_file($path)) {
+            continue;
+        }
+
+        if (!unlink($path)) {
+            fwrite(STDERR, sprintf("Failed to remove marketing Traefik config at %s\n", $path));
+            continue;
+        }
+
+        if ($path === $targetPath) {
+            echo "Removed Traefik marketing router configuration (no domains configured).\n";
+        }
+    }
+}
+
+function cleanupLegacyConfigs(string $activePath, array $legacyTargets): void
+{
+    foreach ($legacyTargets as $legacyPath) {
+        if ($legacyPath === $activePath) {
+            continue;
+        }
+
+        if (!is_file($legacyPath)) {
+            continue;
+        }
+
+        if (!unlink($legacyPath)) {
+            fwrite(STDERR, sprintf("Warning: unable to remove legacy Traefik marketing config at %s\n", $legacyPath));
+        }
     }
 }
