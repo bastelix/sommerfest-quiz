@@ -3,7 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$(cd "${SCRIPT_DIR}/.." && pwd)
-ACME_DIR="${PROJECT_ROOT}/acme"
+ACME_DIR="${PROJECT_ROOT}/letsencrypt"
 ACME_FILE="${ACME_DIR}/acme.json"
 
 mkdir -p "${ACME_DIR}"

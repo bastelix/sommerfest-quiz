@@ -30,7 +30,7 @@ certificatesResolvers:
   letsencrypt:
     acme:
       email: "${LETSENCRYPT_EMAIL?Missing LETSENCRYPT_EMAIL}"
-      storage: /etc/traefik/acme.json
+      storage: /letsencrypt/acme.json
 
 providers:
   docker:

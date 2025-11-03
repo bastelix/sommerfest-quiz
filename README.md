@@ -299,11 +299,11 @@ docker compose up traefik
 Verifiziere die Rechte regelmäßig, damit der ACME-Resolver weiterhin Zertifikate schreiben kann:
 
 ```bash
-ls -l acme/acme.json
+ls -l letsencrypt/acme.json
 # -rw------- 1 <user> <group> ... acme.json
 ```
 
-Stimmen die Rechte nicht (`rw-------`), wiederhole das Skript oder setze die Berechtigung manuell mit `chmod 600 acme/acme.json`. Andernfalls schlägt der Resolver fehl und Traefik kann keine neuen Zertifikate beziehen.
+Stimmen die Rechte nicht (`rw-------`), wiederhole das Skript oder setze die Berechtigung manuell mit `chmod 600 letsencrypt/acme.json`. Andernfalls schlägt der Resolver fehl und Traefik kann keine neuen Zertifikate beziehen.
 
 Die statischen Optionen leben in `config/traefik/traefik.yml`. Dort werden EntryPoints, der ACME-Resolver und globale Settings gepflegt. Dynamische Elemente wie Middlewares und der Zugriff auf die Traefik-API/Dashboard landen in `config/traefik/dynamic/`. Standardmäßig sind zwei Dateien eingebunden:
 
@@ -318,7 +318,7 @@ Weise zusätzliche Hosts über Traefik zu, indem du die vorhandenen Label-Muster
 traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
 `````
 
-Traefik speichert Zertifikate in der Datei `acme/acme.json`, die auf dem Host liegt und in den Container gemountet wird. Logs und Debugging-Ausgaben lassen sich über
+Traefik speichert Zertifikate in der Datei `letsencrypt/acme.json`, die auf dem Host liegt und in den Container gemountet wird. Logs und Debugging-Ausgaben lassen sich über
 
 `````
 docker compose logs traefik
@@ -426,13 +426,13 @@ mandantenfähig innerhalb des bestehenden `slim`-Containers. Dafür wird ein
 Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
 falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt. Der integrierte
 ACME-Resolver in Traefik übernimmt die Ausstellung und speichert das Zertifikat
-in der Datei `acme/acme.json`, die vom Host ins Traefik-Container-Dateisystem
+in der Datei `letsencrypt/acme.json`, die vom Host ins Traefik-Container-Dateisystem
 gebunden wird. Stelle sicher, dass die Datei existiert und nur vom Besitzer
 gelesen werden darf:
 
 ```bash
-touch acme/acme.json
-chmod 600 acme/acme.json
+touch letsencrypt/acme.json
+chmod 600 letsencrypt/acme.json
 ```
 
 Die Hilfsroutine `scripts/provision_wildcard.sh` aktualisiert dafür `config/traefik/traefik.yml`, startet Traefik bei Bedarf,
