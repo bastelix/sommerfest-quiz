@@ -12,6 +12,8 @@ services:
     environment:
       - TRAEFIK_PROVIDERS_DOCKER_NETWORK=${NETWORK:-webproxy}
       - TRAEFIK_API_BASICAUTH=${TRAEFIK_API_BASICAUTH:-}
+    env_file:
+      - ./.env
     command:
       - '--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}'
       - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'

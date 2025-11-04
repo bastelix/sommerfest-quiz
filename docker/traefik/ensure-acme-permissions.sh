@@ -41,15 +41,22 @@ if ! chmod 600 "$ACME_STORAGE" 2>/dev/null; then
 fi
 
 raw_email=${LETSENCRYPT_EMAIL:-}
+if [ -z "$raw_email" ]; then
+    raw_email=${LE_EMAIL:-}
+fi
 sanitized_email=""
 if [ -n "$raw_email" ] && sanitized_email=$(sanitize_email "$raw_email"); then
     export LETSENCRYPT_EMAIL="$sanitized_email"
+    if [ -n "${LE_EMAIL:-}" ]; then
+        export LE_EMAIL="$sanitized_email"
+    fi
 else
     if [ -n "$raw_email" ]; then
-        echo "Warnung: Konnte die in LETSENCRYPT_EMAIL angegebene Adresse nicht auswerten. Bitte überprüfe den Wert." >&2
+        echo "Warnung: Konnte die in LETSENCRYPT_EMAIL oder LE_EMAIL angegebene Adresse nicht auswerten. Bitte überprüfe den Wert." >&2
     fi
     sanitized_email=""
     unset LETSENCRYPT_EMAIL || true
+    unset LE_EMAIL || true
 fi
 
 updated_args=""
