@@ -85,16 +85,36 @@ services:
       - traefik.enable=true
       - traefik.docker.network=${NETWORK:-webproxy}
       - traefik.http.services.quizrace.loadbalancer.server.port=8080
-      - traefik.http.routers.quizrace-web.entrypoints=web
-      - traefik.http.routers.quizrace-web.rule=Host(`${DOMAIN}`) || Host(`${MAIN_DOMAIN:-${DOMAIN}}`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
-      - traefik.http.routers.quizrace-web.middlewares=quizrace-https-redirect@file
-      - traefik.http.routers.quizrace-web.service=quizrace
-      - traefik.http.routers.quizrace-secure.entrypoints=websecure
-      - traefik.http.routers.quizrace-secure.rule=Host(`${DOMAIN}`) || Host(`${MAIN_DOMAIN:-${DOMAIN}}`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
-      - traefik.http.routers.quizrace-secure.service=quizrace
-      - traefik.http.routers.quizrace-secure.tls=true
-      - traefik.http.routers.quizrace-secure.tls.certresolver=letsencrypt
-      - traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-50m@file
+      - traefik.http.routers.quizrace-web-primary.entrypoints=web
+      - traefik.http.routers.quizrace-web-primary.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.quizrace-web-primary.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.quizrace-web-primary.service=quizrace
+      - traefik.http.routers.quizrace-web-main.entrypoints=web
+      - traefik.http.routers.quizrace-web-main.rule=Host(`${MAIN_DOMAIN:-${DOMAIN}}`)
+      - traefik.http.routers.quizrace-web-main.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.quizrace-web-main.service=quizrace
+      - traefik.http.routers.quizrace-web-tenant.entrypoints=web
+      - traefik.http.routers.quizrace-web-tenant.rule=HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
+      - traefik.http.routers.quizrace-web-tenant.middlewares=quizrace-https-redirect@file
+      - traefik.http.routers.quizrace-web-tenant.service=quizrace
+      - traefik.http.routers.quizrace-secure-primary.entrypoints=websecure
+      - traefik.http.routers.quizrace-secure-primary.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.quizrace-secure-primary.service=quizrace
+      - traefik.http.routers.quizrace-secure-primary.tls=true
+      - traefik.http.routers.quizrace-secure-primary.tls.certresolver=letsencrypt
+      - traefik.http.routers.quizrace-secure-primary.middlewares=quizrace-security-headers@file,quizrace-body-limit-50m@file
+      - traefik.http.routers.quizrace-secure-main.entrypoints=websecure
+      - traefik.http.routers.quizrace-secure-main.rule=Host(`${MAIN_DOMAIN:-${DOMAIN}}`)
+      - traefik.http.routers.quizrace-secure-main.service=quizrace
+      - traefik.http.routers.quizrace-secure-main.tls=true
+      - traefik.http.routers.quizrace-secure-main.tls.certresolver=letsencrypt
+      - traefik.http.routers.quizrace-secure-main.middlewares=quizrace-security-headers@file,quizrace-body-limit-50m@file
+      - traefik.http.routers.quizrace-secure-tenant.entrypoints=websecure
+      - traefik.http.routers.quizrace-secure-tenant.rule=HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
+      - traefik.http.routers.quizrace-secure-tenant.service=quizrace
+      - traefik.http.routers.quizrace-secure-tenant.tls=true
+      - traefik.http.routers.quizrace-secure-tenant.tls.certresolver=letsencrypt
+      - traefik.http.routers.quizrace-secure-tenant.middlewares=quizrace-security-headers@file,quizrace-body-limit-50m@file
     networks:
       - webproxy
 
