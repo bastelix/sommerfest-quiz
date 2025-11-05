@@ -285,7 +285,7 @@ dem KI-Endpunkt frühzeitig zu erkennen.
 
 ## Docker Compose
 
-Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit dem offiziellen Traefik-v2-Container als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`. Ohne eine gültige Adresse startet der Traefik-Container nicht und fordert dich mit einer Fehlermeldung auf, den Wert nachzutragen.
+Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit dem offiziellen Traefik-v3.5-Container (`traefik:v3.5.4`) als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die erneuerte Standardkonfiguration bindet HTTP (Port 80), HTTPS (Port 443) sowie den dedizierten Verwaltungs-EntryPoint `traefik` (Port 8080), erzwingt dank eines EntryPoint-Redirects automatisch TLS, aktiviert HTTP/3 für gesicherte Verbindungen und setzt auf ein gehärtetes TLS-Default-Profil aus `config/traefik/traefik.yml`. Zugriff und Fehler werden als JSON-Logs geschrieben, zusätzlich exportiert Traefik Prometheus-Metriken und beantwortet Health-Checks über den Ping-Endpunkt. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`. Ohne eine gültige Adresse startet der Traefik-Container nicht und fordert dich mit einer Fehlermeldung auf, den Wert nachzutragen.
 
 Setze in `.env` außerdem `DOMAIN` (und optional `MAIN_DOMAIN`). Der Compose-Stack verweigert den Start mit einem klaren Hinweis, wenn `DOMAIN` fehlt. So entstehen keine ungültigen Host-Regeln mehr, die sonst zu Meldungen wie `No domain found in rule HostRegex` führen.
 
@@ -306,7 +306,7 @@ ls -l letsencrypt/acme.json
 
 Stimmen die Rechte nicht (`rw-------`), wiederhole das Skript oder setze die Berechtigung manuell mit `chmod 600 letsencrypt/acme.json`. Andernfalls schlägt der Resolver fehl und Traefik kann keine neuen Zertifikate beziehen.
 
-Die statischen Optionen leben in `config/traefik/traefik.yml`. Dort werden EntryPoints, der ACME-Resolver und globale Settings gepflegt. Dynamische Elemente wie Middlewares und der Zugriff auf die Traefik-API/Dashboard landen in `config/traefik/dynamic/`. Standardmäßig sind zwei Dateien eingebunden:
+Die statischen Optionen leben in `config/traefik/traefik.yml`. Dort werden EntryPoints, HTTPS-Umleitungen, HTTP/3, das TLS-Default-Profil, JSON-Log- und Prometheus-Einstellungen sowie der ACME-Resolver gepflegt. Dynamische Elemente wie Middlewares und der Zugriff auf die Traefik-API/Dashboard landen in `config/traefik/dynamic/`. Standardmäßig sind zwei Dateien eingebunden:
 
 - `config/traefik/dynamic/middlewares.yml` – Security-Header und Body-Limits, die zuvor vom alten Reverse-Proxy ausgeliefert wurden.
 - `config/traefik/dynamic/api.yml.tmpl` – Router-Konfiguration für das interne Dashboard und die API (`/api`), optional abgesichert über `TRAEFIK_API_BASICAUTH` und eine Host-Regel aus `TRAEFIK_DASHBOARD_RULE`.
@@ -319,7 +319,7 @@ Weise zusätzliche Hosts über Traefik zu, indem du die vorhandenen Label-Muster
 traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
 `````
 
-Traefik speichert Zertifikate in der Datei `letsencrypt/acme.json`, die auf dem Host liegt und in den Container gemountet wird. Logs und Debugging-Ausgaben lassen sich über
+Traefik speichert Zertifikate in der Datei `letsencrypt/acme.json`, die auf dem Host liegt und in den Container gemountet wird. Logs, Metriken und Debugging-Ausgaben lassen sich über
 
 `````
 docker compose logs traefik
@@ -331,6 +331,7 @@ prüfen. Weitere Health-Checks lassen sich direkt im Container ausführen:
 `````
 docker compose exec traefik traefik version
 docker compose exec traefik curl -sf http://localhost:8080/api/http/routers | jq 'keys'
+docker compose exec traefik curl -sf http://localhost:8080/metrics | head
 `````
 
 Der zweite Befehl zeigt an, welche Router Traefik aktuell kennt. Ist `TRAEFIK_DASHBOARD_RULE` gesetzt (z. B. `Host(`traefik.${DOMAIN}`)`), lässt sich das Dashboard nach einem DNS-Eintrag direkt im Browser öffnen. Ohne veröffentlichte Hostregel bleibt die Oberfläche auf Container-Zugriffe beschränkt.
