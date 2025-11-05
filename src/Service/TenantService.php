@@ -181,6 +181,8 @@ class TenantService
 
         $statePersisted = false;
         $hasExistingRecord = false;
+        $schemaCreated = false;
+        $vhostCreated = false;
         $lockKey = $this->acquireTenantLock($schema);
 
         try {
@@ -203,6 +205,7 @@ class TenantService
             if ($isNewSchema) {
                 try {
                     $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+                    $schemaCreated = true;
                 } catch (PDOException $e) {
                     if ($e->getCode() === '42P06') {
                         $isNewSchema = false;
@@ -233,7 +236,13 @@ class TenantService
             if ($this->nginxService !== null) {
                 try {
                     $this->nginxService->createVhost($schema);
-                } catch (\RuntimeException $e) {
+                    $vhostCreated = true;
+                } catch (\Throwable $e) {
+                    try {
+                        $this->nginxService->removeVhost($schema, false);
+                    } catch (\Throwable $inner) {
+                        error_log('Failed to remove nginx vhost after error: ' . $inner->getMessage());
+                    }
                     error_log('Failed to reload nginx: ' . $e->getMessage());
                     throw new \RuntimeException('Nginx reload failed – check Docker installation', 0, $e);
                 }
@@ -244,6 +253,20 @@ class TenantService
                     $this->updateOnboardingState($schema, self::ONBOARDING_FAILED);
                 } catch (\Throwable $inner) {
                     error_log('Failed to mark tenant onboarding as failed: ' . $inner->getMessage());
+                }
+            }
+            if ($schemaCreated) {
+                try {
+                    $this->pdo->exec(sprintf('DROP SCHEMA "%s" CASCADE', $schema));
+                } catch (\Throwable $inner) {
+                    error_log('Failed to drop tenant schema after error: ' . $inner->getMessage());
+                }
+            }
+            if ($this->nginxService !== null && $vhostCreated) {
+                try {
+                    $this->nginxService->removeVhost($schema, false);
+                } catch (\Throwable $inner) {
+                    error_log('Failed to remove nginx vhost after provisioning error: ' . $inner->getMessage());
                 }
             }
             throw $e;

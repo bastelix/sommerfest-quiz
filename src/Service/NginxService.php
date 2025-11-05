@@ -39,13 +39,14 @@ class NginxService
         if ($this->domain === '') {
             throw new \RuntimeException('Tenant domain not configured (set MAIN_DOMAIN or DOMAIN)');
         }
-        if (!is_dir($this->vhostDir) && !mkdir($this->vhostDir, 0777, true) && !is_dir($this->vhostDir)) {
+        $file = $this->getVhostPath($sub);
+        $dir = dirname($file);
+        if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
             throw new \RuntimeException('Unable to create vhost directory');
         }
-        if (!is_writable($this->vhostDir)) {
+        if (!is_writable($dir)) {
             throw new \RuntimeException('Vhost directory not writable');
         }
-        $file = $this->vhostDir . '/' . $sub . '.' . $this->domain;
         if (file_exists($file) && !is_writable($file)) {
             throw new \RuntimeException('Vhost file not writable');
         }
@@ -55,6 +56,34 @@ class NginxService
         if ($this->reload) {
             $this->reload();
         }
+    }
+
+    public function removeVhost(string $sub, ?bool $triggerReload = null): void
+    {
+        if ($this->domain === '') {
+            return;
+        }
+
+        $file = $this->getVhostPath($sub);
+
+        if (file_exists($file) && !is_writable($file)) {
+            throw new \RuntimeException('Vhost file not writable');
+        }
+
+        if (file_exists($file) && !unlink($file)) {
+            throw new \RuntimeException('Unable to remove vhost file');
+        }
+
+        $shouldReload = $triggerReload ?? $this->reload;
+
+        if ($shouldReload) {
+            $this->reload();
+        }
+    }
+
+    private function getVhostPath(string $sub): string
+    {
+        return $this->vhostDir . '/' . $sub . '.' . $this->domain;
     }
 
     private function resolveDomain(?string $domain): string

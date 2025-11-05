@@ -42,17 +42,23 @@ class TenantServiceTest extends TestCase
         ?callable $factory = null
     ): TenantService {
         $pdo = new class ('sqlite::memory:') extends PDO {
+            /** @var list<string> */
+            public array $executedStatements = [];
+
             public function __construct(string $dsn) {
                 parent::__construct($dsn);
             }
 
             public function exec($statement): int|false {
+                $this->executedStatements[] = $statement;
+
                 if (
                     preg_match('/^(CREATE|DROP) SCHEMA/i', $statement)
                     || str_starts_with($statement, 'SET search_path')
                 ) {
                     return 0;
                 }
+
                 return parent::exec($statement);
             }
         };
@@ -114,6 +120,10 @@ SQL;
                 }
 
                 public function createVhost(string $sub): void {
+                }
+
+                public function removeVhost(string $sub, ?bool $triggerReload = null): void
+                {
                 }
             };
         }
@@ -228,6 +238,57 @@ SQL;
         $this->assertSame('active', $byUid['active']['status']);
         $this->assertSame('canceled', $byUid['canceled']['status']);
         $this->assertSame('simulated', $byUid['simulated']['status']);
+    }
+
+    public function testRollbackRemovesSchemaAndVhostOnFailure(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $vhostDir = sys_get_temp_dir() . '/vhosts' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+
+        $nginx = new class ($vhostDir) extends \App\Service\NginxService {
+            public array $removed = [];
+
+            public function __construct(private string $dir) {
+                parent::__construct($dir, 'example.test', '1m', false);
+            }
+
+            public function createVhost(string $sub): void
+            {
+                parent::createVhost($sub);
+                throw new \RuntimeException('simulated-nginx-failure');
+            }
+
+            public function removeVhost(string $sub, ?bool $triggerReload = null): void
+            {
+                $this->removed[] = [$sub, $triggerReload];
+                parent::removeVhost($sub, $triggerReload);
+            }
+        };
+
+        $service = $this->createService($dir, $pdo, $nginx);
+
+        try {
+            $service->createTenant('u-fail', 'schemafail');
+            $this->fail('Expected exception was not thrown');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('Nginx reload failed', $e->getMessage());
+        }
+
+        /** @var object{executedStatements: list<string>} $pdo */
+        $dropStatements = array_filter(
+            $pdo->executedStatements,
+            static fn (string $statement): bool => str_starts_with($statement, 'DROP SCHEMA "schemafail"')
+        );
+
+        $this->assertNotEmpty($dropStatements, 'Expected DROP SCHEMA to be executed');
+
+        $vhostPath = $vhostDir . '/schemafail.example.test';
+        $this->assertFileDoesNotExist($vhostPath);
+
+        $this->assertSame([
+            ['schemafail', false],
+        ], $nginx->removed);
     }
 
     public function testCreateTenantThrowsOnNginxFailure(): void {
