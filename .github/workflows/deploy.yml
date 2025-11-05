@@ -16,8 +16,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd /var/sommerfest-quiz
-            git fetch origin main
-            git reset --hard origin/main
+            git pull
             mkdir -p resources/fonts
             curl -L -o resources/fonts/NotoSans-Bold.ttf https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf
             export $(grep -v '^#' .env | xargs)

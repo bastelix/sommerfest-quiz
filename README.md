@@ -251,9 +251,6 @@ Tests starten mit:
 vendor/bin/phpunit
 ```
 
-The automated harness forces `APP_ENV=Testing` so environment-specific
-feature flags behave consistently during test runs.
-
 ### KI-gestützte Teamnamen und RAG-Endpoint
 
 Der Dienst für Teamnamen kann optional KI-Vorschläge abrufen. Dafür muss der Chat-Endpunkt des RAG-Backends
@@ -285,85 +282,41 @@ dem KI-Endpunkt frühzeitig zu erkennen.
 
 ## Docker Compose
 
-Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit dem offiziellen Traefik-v3.5-Container (`traefik:v3.5.4`) als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die erneuerte Standardkonfiguration bindet HTTP (Port 80), HTTPS (Port 443) sowie den dedizierten Verwaltungs-EntryPoint `traefik` (Port 8080), aktiviert HTTP/3 für gesicherte Verbindungen und setzt auf ein gehärtetes TLS-Default-Profil aus `config/traefik/traefik.yml`. Der bislang aktive EntryPoint-Redirect ist bewusst auskommentiert, damit Traefik die ACME-HTTP-01-Challenge auf Port 80 beantworten kann; sobald Let's Encrypt das erste Zertifikat ausgestellt hat, kannst du die Umleitung in `config/traefik/traefik.yml` wieder aktivieren. Zugriff und Fehler werden als JSON-Logs geschrieben, zusätzlich exportiert Traefik Prometheus-Metriken und beantwortet Health-Checks über den Ping-Endpunkt. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`. Ohne eine gültige Adresse startet der Traefik-Container nicht und fordert dich mit einer Fehlermeldung auf, den Wert nachzutragen.
-
-Setze in `.env` außerdem `DOMAIN` (und optional `MAIN_DOMAIN`). Der Compose-Stack verweigert den Start mit einem klaren Hinweis, wenn `DOMAIN` fehlt. So entstehen keine ungültigen Host-Regeln mehr, die sonst zu Meldungen wie `No domain found in rule HostRegex` führen.
-
-### ACME-Speicher vorbereiten
-
-Traefik kann `acme.json` nur lesen, wenn die Datei bereits existiert, mit `chmod 600` geschützt ist und mindestens ein leeres JSON-Objekt (`{}`) enthält. Das Repository liefert daher eine vorkonfigurierte `letsencrypt/acme.json` mit den passenden Platzhalterdaten aus. Setze nach dem Klonen einmalig die Berechtigung, bevor du `docker compose up traefik` startest:
+Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Der integrierte PHP-Webserver hört auf Port `8080`, der im Docker-Image freigegeben ist. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook. Dieser Container enthält nun das Docker-CLI, um den Proxy direkt neu laden zu können. Alternativ kann jede beliebige URL über die Variable `NGINX_RELOADER_URL` hinterlegt werden. Wird dieser Webhook genutzt, sollte `NGINX_RELOAD` auf `0` stehen, damit keine Docker-Befehle ausgeführt werden. Das dafür notwendige Token wird über die Datei `.env` als `NGINX_RELOAD_TOKEN` definiert und sowohl an die Anwendung als auch an den Reloader-Container weitergereicht. Die mitgelieferte Beispielkonfiguration ist bereits entsprechend vorbereitet und nutzt standardmäßig `http://nginx-reloader:8080/reload` bei deaktiviertem `NGINX_RELOAD`.
+Sollte der automatische Reload scheitern, bricht `scripts/create_tenant.sh` mit einer Fehlermeldung ab. In diesem Fall lässt sich der Proxy manuell neu laden:
 
 ```bash
-chmod 600 letsencrypt/acme.json
+docker compose exec nginx nginx -s reload
 ```
 
-Verifiziere die Rechte gelegentlich, damit der ACME-Resolver weiterhin Zertifikate schreiben kann:
+Zur Fehlersuche helfen die Logs des Proxy- oder Reloader-Containers:
 
 ```bash
-ls -l letsencrypt/acme.json
-# -rw------- 1 <user> <group> ... acme.json
+docker compose logs nginx
+docker compose logs nginx-reloader
 ```
 
-Stimmen die Rechte nicht (`rw-------`), wiederhole das Skript oder setze die Berechtigung manuell mit `chmod 600 letsencrypt/acme.json`. Andernfalls schlägt der Resolver fehl und Traefik kann keine neuen Zertifikate beziehen.
-
-Die statischen Optionen leben in `config/traefik/traefik.yml`. Dort werden EntryPoints, optionale HTTPS-Umleitungen, HTTP/3, das TLS-Default-Profil, JSON-Log- und Prometheus-Einstellungen sowie der ACME-Resolver gepflegt. Dynamische Elemente wie Middlewares und der Zugriff auf die Traefik-API/Dashboard landen in `config/traefik/dynamic/`. Standardmäßig sind zwei Dateien eingebunden:
-
-- `config/traefik/dynamic/middlewares.yml` – Security-Header und Body-Limits, die zuvor vom alten Reverse-Proxy ausgeliefert wurden.
-- `config/traefik/dynamic/api.yml.tmpl` – Router-Konfiguration für das interne Dashboard und die API (`/api`), optional abgesichert über `TRAEFIK_API_BASICAUTH` und eine Host-Regel aus `TRAEFIK_DASHBOARD_RULE`.
-
-Der Anwendungscode läuft im Service `slim` und wird intern auf Port 8080 ausgeliefert. Traefik routet über die Labels `traefik.http.routers.quizrace-web` und `traefik.http.routers.quizrace-secure` auf diesen Service. Adminer bleibt über `https://adminer.${DOMAIN}` erreichbar und nutzt dieselben Standard-Middlewares (`quizrace-https-redirect`, `quizrace-security-headers` sowie die passenden Body-Limits).
-
-Weise zusätzliche Hosts über Traefik zu, indem du die vorhandenen Label-Muster kopierst und den Router-Namen sowie die `Host(...)`-Regel anpasst. Für individuelle Upload-Limits stehen die in `config/traefik/dynamic/middlewares.yml` hinterlegten `quizrace-body-limit-*`-Middlewares bereit. Passe beispielsweise den gesicherten Router an:
-
-`````
-traefik.http.routers.quizrace-secure.middlewares=quizrace-security-headers@file,quizrace-body-limit-10m@file
-`````
-
-Traefik speichert Zertifikate in der Datei `letsencrypt/acme.json`, die auf dem Host liegt und in den Container gemountet wird. Logs, Metriken und Debugging-Ausgaben lassen sich über
-
-`````
-docker compose logs traefik
-docker compose logs slim
-`````
-
-prüfen. Weitere Health-Checks lassen sich direkt im Container ausführen:
-
-`````
-docker compose exec traefik traefik version
-docker compose exec traefik curl -sf http://localhost:8080/api/http/routers | jq 'keys'
-docker compose exec traefik curl -sf http://localhost:8080/metrics | head
-`````
-
-Der zweite Befehl zeigt an, welche Router Traefik aktuell kennt. Ist `TRAEFIK_DASHBOARD_RULE` gesetzt (z. B. `Host(`traefik.${DOMAIN}`)`), lässt sich das Dashboard nach einem DNS-Eintrag direkt im Browser öffnen. Ohne veröffentlichte Hostregel bleibt die Oberfläche auf Container-Zugriffe beschränkt.
-
-Zum Start genügt:
-
-`````
-cp sample.env .env
-docker compose up --build -d
-`````
-
-Standardmäßig legt Docker Compose das benötigte Netzwerk automatisch an. Soll ein bereits vorhandenes Proxy-Netz genutzt werden, setze `NETWORK_EXTERNAL=true` und lege das Netz manuell an:
-
-`````
-docker network create ${NETWORK:-webproxy}
-`````
-
-Beenden lässt sich der Stack mit:
-
-`````
-docker compose down
-`````
-
-Die Volumes bleiben dabei erhalten.
+Anschließend kann das Skript erneut aufgerufen werden.
+Zertifikate und Konfigurationen werden komplett in benannten Volumes
+gespeichert. Dadurch bleiben alle Daten auch nach `docker compose down`
+erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
+Adminer-Container,
+der die PostgreSQL-Datenbank über die Subdomain `https://adminer.${DOMAIN}` bereitstellt. Er
+nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen.
+Um größere Uploads zu erlauben, wird die maximale
+Request-Größe des Reverse Proxys über eine Datei in `vhost.d/` konfiguriert.
+Kopiere das Beispiel `vhost.d/example.com` und passe den Wert
+`client_max_body_size` an deine Domain an. Nach dem Ändern genügt
+`docker compose restart docker-gen`, damit nginx die Einstellung übernimmt.
+Die optionale Variable `CLIENT_MAX_BODY_SIZE` in `.env` liefert dabei nur
+einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
 
 ### Static upload MIME types
 
-Der Development-Router in `public/router.php` whitelists statische Dateiendungen,
-damit lokale Aufrufe das Produktionsverhalten imitieren. Stelle sicher, dass
-Traefik (bzw. ein davor geschalteter Webserver) dieselbe Liste aus `/uploads/`
-mit passenden MIME Types ausliefert, damit Downloads nicht auf den PHP-Handler
-zurückfallen. Aktuell erlaubt sind:
+The development router in `public/router.php` whitelists static file extensions
+to mirror the production web server configuration. Ensure nginx or Apache serve
+the same list from `/uploads/` with matching MIME types so media downloads do
+not fall back to the PHP handler. The current extensions are:
 
 ```
 avif, css, gif, html, ico, jpeg, jpg, js, json, map, mp3, mp4, ogg, pdf,
@@ -372,6 +325,28 @@ png, svg, ttf, txt, webm, webp, woff, woff2
 
 Keep this list in sync if additional media formats are introduced.
 
+Zum Start genügt:
+```bash
+cp sample.env .env
+docker compose up --build -d
+```
+Die Datei setzt `COMPOSE_PROJECT_NAME=sommerfest-quiz`, damit Docker Compose vorhandene Container und Volumes bei späteren Deployments wiederverwendet.
+Standardmäßig legt Docker Compose das benötigte Netzwerk automatisch an. Soll
+ein bereits vorhandenes Proxy-Netz genutzt werden, setze in deiner `.env`
+`NETWORK_EXTERNAL=true` und lege das Netz manuell an:
+```bash
+docker network create ${NETWORK:-webproxy}
+```
+Den Namen kannst du weiterhin über die Umgebungsvariable `NETWORK`
+konfigurieren.
+Beenden lässt sich der Stack mit:
+```bash
+docker compose down
+```
+Die Volumes bleiben dabei erhalten.
+Beim Einsatz des integrierten Proxy-Stacks (nginx, docker-gen und acme-companion) greift der Wert nur, solange keine eigene Vhost-Konfiguration vorliegt.
+Soll ein höheres Limit dauerhaft gelten, lege im Verzeichnis `vhost.d/` eine Datei an.
+Nach dem Anpassen genügt ein Neustart des Containers `docker-gen` (z.B. `docker compose restart docker-gen`), damit nginx die Einstellung übernimmt.
 
 Werte `upload_max_filesize` und `post_max_size` angepasst werden. Dafür
 liegt im Verzeichnis `config/` eine kleine `php.ini` bereit. Sie wird beim
@@ -426,68 +401,62 @@ scripts/create_tenant.sh foo
 Setzt du in `.env` zusätzlich `TENANT_SINGLE_CONTAINER=1`, arbeitet das Skript
 mandantenfähig innerhalb des bestehenden `slim`-Containers. Dafür wird ein
 Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
-falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt. Der integrierte
-ACME-Resolver in Traefik übernimmt die Ausstellung und speichert das Zertifikat
-in der Datei `letsencrypt/acme.json`, die vom Host ins Traefik-Container-Dateisystem
-gebunden wird. Stelle sicher, dass die Datei existiert und nur vom Besitzer
-gelesen werden darf:
+falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt und als
+`certs/<domain>.crt` sowie `certs/<domain>.key` im Projekt liegt. Der
+`acme-companion` kann ein solches Zertifikat über die DNS-Challenge beziehen und
+unter gleichem Namen in das `certs/`-Volume schreiben. Die neue Hilfsroutine
+`scripts/provision_wildcard.sh` stößt diesen Prozess automatisiert an: Sie
+startet bei Bedarf den `acme-companion`, ruft `acme.sh` mit dem in `.env`
+konfigurierten DNS-Plugin auf und legt das Zertifikat im `certs/`-Verzeichnis
+ab. `scripts/create_tenant.sh` ruft die Routine automatisch auf, wenn das
+Wildcard-Zertifikat noch fehlt.
 
-```bash
-touch letsencrypt/acme.json
-chmod 600 letsencrypt/acme.json
-```
-
-Die Hilfsroutine `scripts/provision_wildcard.sh` aktualisiert dafür `config/traefik/traefik.yml`, startet Traefik bei Bedarf,
-triggert über `/api/providers/reload` eine Aktualisierung und wartet, bis das
-Zertifikat laut `/api/tls/certificates` verfügbar ist. `scripts/create_tenant.sh`
-ruft die Routine automatisch auf, wenn noch kein wildcard-fähiges Zertifikat
-gefunden wird.
-
-Für die Single-Container-Variante ergänzt das Entrypoint-Skript automatisch
-eine Host-Regel, die alle Subdomains des Basis-Hosts abdeckt. Dadurch kann
-Traefik neue Router sofort bedienen, sobald sie über Docker-Labels bekannt
-werden.
+Das Entrypoint-Skript ergänzt in diesem Modus automatisch einen Regex-Host der
+Form `~^([a-z0-9-]+\.)?${MAIN_DOMAIN}$` (oder `${DOMAIN}`) in `VIRTUAL_HOST`.
+`LETSENCRYPT_HOST` enthält ausschließlich echte Domains beziehungsweise
+Wildcard-Einträge (`*.example.test`), sodass der `acme-companion` keine
+ungültigen CSRs erzeugt. Bestehende Einträge – beispielsweise Marketing-Domains
+– bleiben erhalten und werden passend ergänzt, damit der Reverse Proxy
+Zertifikate für alle Mandanten-Slugs ausstellen kann.
 
 Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
 
-* `TRAEFIK_ACME_DNS_PROVIDER` – Name des von Traefik/lego unterstützten
-  DNS-Providers (z. B. `cloudflare`, `hetzner`, `route53`).
-* `TRAEFIK_ACME_DNS_RESOLVERS` – optionale, komma- oder zeilengetrennte Liste
-  eigener Resolver (z. B. `1.1.1.1:53,8.8.8.8:53`).
-* `TRAEFIK_ACME_DNS_DELAY` – optionale Verzögerung in Sekunden, bevor Traefik
-  den ACME-Dienst informiert (hilfreich bei langsamer DNS-Propagation).
-* `TRAEFIK_ACME_USE_STAGING` – auf `1` setzen, um das Let's-Encrypt-Staging zu
-  verwenden.
-* `TRAEFIK_ACME_API_ENDPOINT` – Basis-URL der Traefik-API (Standard:
-  `http://traefik:8080`), über die die Skripte den Zertifikatstatus abfragen
-  und Reloads anstoßen.
-
-Provider-spezifische Zugangsdaten (z. B. `CLOUDFLARE_API_TOKEN`,
-`HETZNER_API_TOKEN`, `AWS_ACCESS_KEY_ID`) müssen Traefik weiterhin als
-Umgebungsvariablen zur Verfügung stehen. Bewährt hat sich die Ablage in der
-`.env`, die von Docker Compose automatisch übernommen wird.
+* `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (z. B. `dns_cf`).
+* `ACME_WILDCARD_ACCOUNT_EMAIL` (optional) – Account-Adresse; fällt ansonsten
+  auf `LETSENCRYPT_EMAIL` zurück.
+* `ACME_WILDCARD_SERVICE` (optional) – Compose-Service des Companions
+  (`acme-companion`).
+* `ACME_WILDCARD_SERVER` und `ACME_WILDCARD_USE_STAGING` für abweichende
+  ACME-Endpunkte.
+* `ACME_WILDCARD_ENV_*` – Zugangsdaten für das gewählte DNS-Plugin, etwa
+  `ACME_WILDCARD_ENV_CF_Token` und `ACME_WILDCARD_ENV_CF_Account_ID` für
+  Cloudflare. Beachte bei Anbietern mit gemischter Groß-/Kleinschreibung wie
+  Hetzner, dass du entweder den exakten Namen (`ACME_WILDCARD_ENV_HETZNER_Token`)
+  oder dessen komplett großgeschriebene Variante (`ACME_WILDCARD_ENV_HETZNER_TOKEN`)
+  verwenden kannst; das Skript setzt beide Formen auf die benötigte
+  `HETZNER_Token`-Umgebungsvariable des Plugins um.
 
 Ist das Zertifikat vorhanden, muss `scripts/create_tenant.sh` den
 `slim`-Container nicht mehr neu starten; neue Mandanten werden sofort nach dem
-Provider-Reload erreichbar. Das Skript nutzt Service-Account-Credentials, um den
-Mandanten per API anzulegen (`/tenants`) und triggert anschließend den
-Onboarding-Endpunkt (`/api/tenants/<slug>/onboard`).
+Proxy-Reload erreichbar.
 
-Zum Entfernen eines Mandanten steht `scripts/delete_tenant.sh` bereit:
+Das Skript sendet einen API-Aufruf an `/tenants`, legt die Datei
+`vhost.d/foo.$DOMAIN` an und lädt anschließend den Proxy neu. Zum Entfernen
+eines Mandanten steht `scripts/delete_tenant.sh` bereit:
 
 ```bash
 scripts/delete_tenant.sh foo
 ```
 
-Beide Skripte lesen die Variablen aus `.env` und übernehmen etwa `DOMAIN`,
-`MAIN_DOMAIN` oder `BASE_PATH` automatisch. Befindet sich im Projektverzeichnis
-eine `.env`, lädt `scripts/onboard_tenant.sh` sie ebenfalls und übernimmt die
-dort definierten Werte.
+Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
+für die vhost-Konfiguration. Befindet sich im Projektverzeichnis eine `.env`,
+lädt `scripts/onboard_tenant.sh` sie automatisch und übernimmt die dort
+definierten Variablen.
 
 Das Proxy-Setup legt zudem standardmäßig ein Docker-Netzwerk namens
 `webproxy` an. Nach dem Aufruf von `scripts/create_tenant.sh` oder einem
 `POST /tenants` muss das Onboarding angestoßen werden, damit der neue
-Mandant diesem Netzwerk beitritt und Traefik ein Zertifikat ausstellt.
+Mandant diesem Netzwerk beitritt und ein Let's-Encrypt-Zertifikat erhält.
 Starte dazu den Web-Assistenten unter `/onboarding` oder führe
 `scripts/onboard_tenant.sh <subdomain>` aus. Stelle sicher, dass dein
 Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Den Namen kannst du
@@ -525,19 +494,16 @@ eingelesen werden. Wiederholte Aufrufe innerhalb dieser Frist werden
 throttled beantwortet, damit keine parallel laufenden Scans entstehen.
 
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
-einen PHP-Webserver auf Port `8080` startet, den Port via `expose` veröffentlicht
-und die notwendigen Traefik-Labels (`traefik.http.routers.*`) setzt. Nur so kann
-Traefik die Router korrekt adressieren und – falls nötig – die HTTP-Challenge
-bedienen, um anschließend ein Zertifikat zu erzeugen.
+einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
+Nur so kann der `acme-companion` die HTTP-Challenge beantworten und das
+Zertifikat erstellen.
 
 Um diese Container auch aus dem `slim`-Service heraus starten zu können,
 bringt das Image nun neben dem Docker-CLI auch das Compose-Plugin mit und
 benötigt Zugriff auf den Docker-Daemon. Binde dafür
 `/var/run/docker.sock` ein oder führe `scripts/onboard_tenant.sh`
 alternativ direkt auf dem Host aus, wenn Docker im Container nicht
-verfügbar ist. Die von dem Skript erzeugten Compose-Dateien enthalten bereits
-die erforderlichen Traefik-Labels (Router, CertResolver, Middlewares), sodass
-der Reverse Proxy neue Container automatisch registriert.
+verfügbar ist.
 
 Zum Entfernen einer isolierten Instanz nutzt du `scripts/offboard_tenant.sh`.
 Das Skript stoppt den Container und löscht das Verzeichnis
@@ -557,20 +523,30 @@ GRANT CREATE ON DATABASE quiz TO quiz;
 
 Anschließend kann `CREATE SCHEMA` im Hintergrund ausgeführt werden.
 
-Für den eigentlichen Quiz-Container steuerst du erreichbare Hosts über die Traefik-Routerlabels. Der Standard im Compose-File akzeptiert `MAIN_DOMAIN`, `DOMAIN` sowie alle Subdomains von `DOMAIN`. Möchtest du Marketing-Domains hinzufügen, erweitere die `Host(...)`-Regel der Router. Beispiel:
-
-`````
-traefik.http.routers.quizrace-secure.rule=Host(`${MAIN_DOMAIN}`) || Host(`marketing.example`) || HostRegexp(`{tenant:[a-z0-9-]+}.${DOMAIN}`)
-`````
-
-`scripts/onboard_tenant.sh` erzeugt für dedizierte Container automatisch eigene Router inklusive Zertifikats-Resolver. Im Single-Container-Modus (`TENANT_SINGLE_CONTAINER=1`) sorgt das Entrypoint weiterhin für Wildcard-Domains, damit alle Mandanten über eine gemeinsame Instanz erreichbar bleiben. Traefik erkennt neue Router durch die Docker-Labels automatisch – ein separater Reload-Service ist nicht mehr erforderlich. Falls du dennoch eine manuelle Aktualisierung auslösen möchtest, steht der Endpoint `POST /traefik/reload` bereit, der durch das Token `TRAEFIK_RELOAD_TOKEN` geschützt ist.
+Für den eigentlichen Quiz-Container lässt sich der Hostname über die
+Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
+mit unterschiedlichen Werten, werden die Subdomains automatisch als
+eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
+`nginxproxy/acme-companion` für jede konfigurierte Domain ein
+Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
+Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
+ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
+`VIRTUAL_HOST`. `LETSENCRYPT_HOST` wird seit Version 4.19 ausschließlich
+aus echten Domains aufgebaut: Standardmäßig landen `MAIN_DOMAIN`
+und alle Einträge aus `MARKETING_DOMAINS` in der Liste. Über
+`SLIM_LETSENCRYPT_HOST` kannst du bei Bedarf weitere konkrete Hosts
+anhängen – Regex-Ausdrücke bleiben ausschließlich in `VIRTUAL_HOST`,
+damit der `acme-companion` keine ungültigen CSRs erzeugt. Beim Start
+normalisiert der Container beide Variablen (Leerzeichen und
+Zeilenumbrüche werden entfernt) und löst einen Reload des Proxys über
+`NGINX_RELOADER_URL` aus, sodass der `acme-companion` direkt Zertifikate
+für neue Domains anfordert.
 
 Weitere nützliche Variablen in `.env` sind:
 
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
-- `TRAEFIK_RELOAD_TOKEN` – Token für den abgesicherten Endpoint `POST /traefik/reload`.
-- `TRAEFIK_API_BASICAUTH` – optionale Basic-Auth-Credentials (`user:pass`) für Traefiks interne API.
-- `TRAEFIK_DASHBOARD_RULE` – Host-Regel für das Dashboard, z. B. ``Host(`traefik.${DOMAIN}`)``.
+- `SLIM_LETSENCRYPT_HOST` – zusätzliche Zertifikats-Domains für den Slim-Container
+  (nur konkrete Hostnamen, keine Regex-Ausdrücke).
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
   Es sollte den Tag des lokal gebauten Slim-Images (`docker build -t <tag> .`) nutzen,
@@ -590,6 +566,10 @@ curl -X POST http://$DOMAIN/users.json \
   -H 'Content-Type: application/json' \
   -d '[{"username":"robot","password":"secret","role":"service-account","active":true}]'
 ```
+- `NGINX_RELOAD_TOKEN` – Token für den Webhook `http://nginx-reloader:8080/reload`.
+- `NGINX_CONTAINER` – Name des Proxy-Containers (Standard `nginx`).
+- `NGINX_RELOAD` – auf `0` setzen, wenn ein externer Webhook den Reload übernimmt.
+- `NGINX_RELOADER_URL` – URL eines externen Webhooks für den Proxy-Reload.
 - `DISPLAY_ERROR_DETAILS` – auf `1` setzen, um detaillierte Fehlermeldungen anzuzeigen.
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.

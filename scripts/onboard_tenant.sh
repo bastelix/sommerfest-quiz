@@ -29,6 +29,7 @@ TENANT_DIR="$TENANTS_DIR/$SLUG"
 DATA_DIR="$TENANT_DIR/data"
 COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
 DOMAIN_SUFFIX="${MAIN_DOMAIN:-$DOMAIN}"
+EMAIL="${LETSENCRYPT_EMAIL:-admin@quizrace.app}"
 
 log "Starte Onboarding für Tenant '$SLUG'"
 
@@ -100,29 +101,17 @@ if ! mkdir -p "$DATA_DIR"; then
 fi
 
 log "Erstelle docker-compose Datei"
-case "$(printf '%s' "$CLIENT_MAX_BODY_SIZE" | tr '[:upper:]' '[:lower:]')" in
-  5m|5mb|5mib)
-    BODY_LIMIT_MIDDLEWARE="quizrace-body-limit-5m@file"
-    ;;
-  10m|10mb|10mib)
-    BODY_LIMIT_MIDDLEWARE="quizrace-body-limit-10m@file"
-    ;;
-  *)
-    BODY_LIMIT_MIDDLEWARE="quizrace-body-limit-50m@file"
-    ;;
-esac
-
-ROUTER_PREFIX=$(printf '%s' "$SLUG" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-')
-SERVICE_NAME="${ROUTER_PREFIX:-tenant}-service"
-ROUTER_WEB="${ROUTER_PREFIX:-tenant}-web"
-ROUTER_SECURE="${ROUTER_PREFIX:-tenant}-secure"
-
 cat > "$COMPOSE_FILE" <<YAML
 version: '3.8'
 services:
   app:
     image: ${IMAGE}
     container_name: ${SLUG}_app
+    environment:
+      - VIRTUAL_HOST=${SLUG}.${DOMAIN_SUFFIX}
+      - LETSENCRYPT_HOST=${SLUG}.${DOMAIN_SUFFIX}
+      - LETSENCRYPT_EMAIL=${EMAIL}
+      - VIRTUAL_PORT=8080
     command: php -S 0.0.0.0:8080 -t public public/router.php
     expose:
       - "8080"
@@ -131,19 +120,7 @@ services:
     networks:
       - ${NETWORK}
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=${NETWORK}
-      - traefik.http.services.${SERVICE_NAME}.loadbalancer.server.port=8080
-      - traefik.http.routers.${ROUTER_WEB}.entrypoints=web
-      - traefik.http.routers.${ROUTER_WEB}.rule=Host(`$SLUG.${DOMAIN_SUFFIX}`)
-      - traefik.http.routers.${ROUTER_WEB}.middlewares=quizrace-https-redirect@file
-      - traefik.http.routers.${ROUTER_WEB}.service=${SERVICE_NAME}
-      - traefik.http.routers.${ROUTER_SECURE}.entrypoints=websecure
-      - traefik.http.routers.${ROUTER_SECURE}.rule=Host(`$SLUG.${DOMAIN_SUFFIX}`)
-      - traefik.http.routers.${ROUTER_SECURE}.service=${SERVICE_NAME}
-      - traefik.http.routers.${ROUTER_SECURE}.tls=true
-      - traefik.http.routers.${ROUTER_SECURE}.tls.certresolver=letsencrypt
-      - traefik.http.routers.${ROUTER_SECURE}.middlewares=quizrace-security-headers@file,${BODY_LIMIT_MIDDLEWARE}
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
 
 networks:
   ${NETWORK}:
@@ -161,6 +138,27 @@ log "Starte Tenant-Stack"
 if ! compose_out=$($DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d 2>&1); then
   echo "$compose_out"
   error_exit "docker compose konnte den Tenant-Container nicht starten."
+fi
+
+log "Löse Nginx-Reload aus"
+# optional reload to speed up certificate issuance
+# Without a successful reload no certificate will be requested, so abort on failure
+RELOADER_URL="${NGINX_RELOADER_URL:-http://nginx-reloader:8080/reload}"
+RELOAD_TOKEN="${NGINX_RELOAD_TOKEN:-changeme}"
+if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; then
+  error_exit "Konnte Nginx-Reload nicht auslösen; kein Zertifikat beantragt"
+fi
+
+log "Starte Container neu"
+# restart the tenant container to pick up the certificate
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" restart >/dev/null; then
+  error_exit "Konnte Tenant-Container nicht neu starten"
+fi
+
+log "Löse zweiten Nginx-Reload aus"
+# trigger a second reload so nginx picks up the certificate
+if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; then
+  echo "Warnung: Konnte zweiten Nginx-Reload nicht auslösen" >&2
 fi
 
 echo "Tenant '$SLUG' deployed under https://${SLUG}.${DOMAIN_SUFFIX}"

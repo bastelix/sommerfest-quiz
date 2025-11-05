@@ -288,7 +288,6 @@
 - Verify sticker background path
 - Remove quoted identifiers in sticker migration
 - Allow automated commits to trigger ci
-- Guard entrypoint pipefail usage
 
 ### Refactor
 

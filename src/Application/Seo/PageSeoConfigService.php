@@ -120,7 +120,7 @@ class PageSeoConfigService
             . 'og_title, og_description, og_image, favicon_path, schema_json, hreflang) '
             . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) '
             . 'ON CONFLICT(page_id) DO UPDATE SET domain=excluded.domain, meta_title=excluded.meta_title, '
-            . 'meta_description=excluded.meta_description, slug=excluded.slug, '
+            . 'meta_description=excluded.meta_description, '
             . 'canonical_url=excluded.canonical_url, robots_meta=excluded.robots_meta, '
             . 'og_title=excluded.og_title, og_description=excluded.og_description, '
             . 'og_image=excluded.og_image, favicon_path=excluded.favicon_path, schema_json=excluded.schema_json, '
