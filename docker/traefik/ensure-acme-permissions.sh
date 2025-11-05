@@ -69,13 +69,13 @@ if [ -n "$raw_email" ] && sanitized_email=$(sanitize_email "$raw_email"); then
     if [ -n "${LE_EMAIL:-}" ]; then
         export LE_EMAIL="$sanitized_email"
     fi
+    echo "Info: Verwende LETSENCRYPT_EMAIL=$sanitized_email" >&2
 else
     if [ -n "$raw_email" ]; then
         echo "Warnung: Konnte die in LETSENCRYPT_EMAIL oder LE_EMAIL angegebene Adresse nicht auswerten. Bitte überprüfe den Wert." >&2
     fi
-    sanitized_email=""
-    unset LETSENCRYPT_EMAIL || true
-    unset LE_EMAIL || true
+    echo "Fehler: Traefik benötigt eine gültige Kontaktadresse in LETSENCRYPT_EMAIL (oder LE_EMAIL). Setze die Variable in .env und starte den Container neu." >&2
+    exit 1
 fi
 
 updated_args=""
