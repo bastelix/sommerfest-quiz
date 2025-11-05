@@ -120,7 +120,7 @@ services:
     networks:
       - ${NETWORK}
     labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
+      - "com.github.nginxproxy.acme-companion.nginx_proxy=true"
 
 networks:
   ${NETWORK}:
