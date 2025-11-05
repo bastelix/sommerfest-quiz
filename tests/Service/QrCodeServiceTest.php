@@ -97,4 +97,28 @@ class QrCodeServiceTest extends TestCase
         $this->assertMatchesRegularExpression('/<image[^>]*width="100"[^>]*height="50"/i', $svg);
         $this->assertMatchesRegularExpression('/<rect[^>]*width="100"[^>]*height="50"/i', $svg);
     }
+
+    public function testLogoFileRemainsAvailableAfterMultipleGenerations(): void {
+        $svc = new QrCodeService();
+
+        $dir = dirname(__DIR__, 2) . '/data';
+        $logoPath = $dir . '/logo-persist.png';
+
+        $logo = imagecreatetruecolor(32, 32);
+        imagepng($logo, $logoPath);
+        imagedestroy($logo);
+
+        $this->assertFileExists($logoPath);
+
+        for ($i = 0; $i < 3; $i++) {
+            $svc->generateCatalog([
+                't' => 'https://example.com',
+                'format' => 'png',
+                'logo_path' => 'logo-persist.png',
+            ]);
+        }
+
+        clearstatcache(true, $logoPath);
+        $this->assertFileExists($logoPath);
+    }
 }

@@ -30,6 +30,8 @@ use function ob_get_clean;
 use function ob_start;
 use function pathinfo;
 use function preg_replace;
+use function realpath;
+use function rtrim;
 use function sprintf;
 use function str_starts_with;
 use function unlink;
@@ -139,12 +141,19 @@ class QrCodeService
             default => EccLevel::M,
         };
 
+        $dataDir = realpath(__DIR__ . '/../../data') ?: __DIR__ . '/../../data';
+        $dataDir = rtrim($dataDir, '/');
+        $tmpDir = $dataDir . '/tmp';
+
         $logoPath = null;
+        $deleteLogoAfterRender = false;
         $logoParam = (string)($q['logo_path'] ?? ($defaults['logo_path'] ?? ''));
         if ($logoParam !== '') {
-            $p = __DIR__ . '/../../data' . (str_starts_with($logoParam, '/') ? $logoParam : '/' . $logoParam);
-            if (is_readable($p)) {
-                $logoPath = $p;
+            $candidate = $dataDir . (str_starts_with($logoParam, '/') ? $logoParam : '/' . $logoParam);
+            $resolved = realpath($candidate);
+            if ($resolved !== false && is_readable($resolved) && str_starts_with($resolved, $dataDir . '/')) {
+                $logoPath = $resolved;
+                $deleteLogoAfterRender = str_starts_with($resolved, rtrim($tmpDir, '/') . '/');
             }
         }
         // no default logo if none provided
@@ -161,7 +170,7 @@ class QrCodeService
             'logoPunchout' => $logoPath ? $logoPunchout : false,
         ]);
 
-        if ($logoPath !== null && file_exists($logoPath)) {
+        if ($deleteLogoAfterRender && $logoPath !== null && file_exists($logoPath)) {
             @unlink($logoPath);
         }
 
