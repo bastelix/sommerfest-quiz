@@ -436,6 +436,18 @@ Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
   verwenden kannst; das Skript setzt beide Formen auf die benötigte
   `HETZNER_Token`-Umgebungsvariable des Plugins um.
 
+Über zusätzliche Variablen lässt sich der eingesetzte ACME-Anbieter anpassen.
+Standardmäßig nutzt der Companion Let's Encrypt, kann aber durch folgende
+Parameter in `.env` umkonfiguriert werden:
+
+* `ACME_DEFAULT_CA` – Voreinstellung des Companions (`letsencrypt`,
+  `letsencrypt-staging`, `zerossl`, `buypass`).
+* `ACME_CA_URI` – Überschriebene Directory-URL des bevorzugten ACME-Servers.
+* `ACME_CA_URI_ALTERNATE` – Alternative Directory-URL für den automatischen
+  Fallback.
+* `ACME_EAB_KID` und `ACME_EAB_HMAC_KEY` – Zugangsdaten für CAs, die ein
+  External Account Binding voraussetzen.
+
 Ist das Zertifikat vorhanden, muss `scripts/create_tenant.sh` den
 `slim`-Container nicht mehr neu starten; neue Mandanten werden sofort nach dem
 Proxy-Reload erreichbar.
