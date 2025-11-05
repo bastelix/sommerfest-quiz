@@ -13,8 +13,20 @@ sanitize_email() {
     for token in $normalized; do
         case "$token" in
             *"@"*)
-                if printf '%s' "$token" | grep -Eq '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'; then
-                    printf '%s' "$token"
+                clean_token=$token
+                # Strip wrappers such as "mailto:" links or quoted names so that
+                # common contact notations like "Team <admin@example.com>" work.
+                case "$clean_token" in
+                    [Mm][Aa][Ii][Ll][Tt][Oo]:*)
+                        clean_token=${clean_token#*:}
+                        ;;
+                esac
+
+                clean_token=$(printf '%s' "$clean_token" | tr -d '<>"'"'"'')
+                clean_token=$(printf '%s' "$clean_token" | sed 's/^[[:space:],;:()]*//; s/[[:space:],;:()]*$//')
+
+                if printf '%s' "$clean_token" | grep -Eq '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'; then
+                    printf '%s' "$clean_token"
                     return 0
                 fi
                 ;;
