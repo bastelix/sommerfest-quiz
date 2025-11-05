@@ -285,7 +285,7 @@ dem KI-Endpunkt frühzeitig zu erkennen.
 
 ## Docker Compose
 
-Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit Traefik v2 als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`.
+Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit Traefik v2 als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`. Ohne eine gültige Adresse startet der Traefik-Container nicht und fordert dich mit einer Fehlermeldung auf, den Wert nachzutragen.
 
 ### ACME-Speicher vorbereiten
 
