@@ -1,5 +1,6 @@
 #!/bin/sh
-# Create a new tenant and reload nginx proxy
+# Create a new tenant and reload nginx proxy. Bei Fehlern räumt das Skript angelegte Ressourcen
+# (Tenant-Verzeichnis, docker-compose.yml/data und vhost-Eintrag) wieder auf.
 set -e
 
 if [ "$#" -ne 1 ]; then
@@ -47,6 +48,22 @@ RELOADER_SERVICE="$(get_env_value 'NGINX_RELOADER_SERVICE' 'nginx-reloader')"
 DOMAIN="$(get_env_value 'DOMAIN' '')"
 MAIN_DOMAIN="$(get_env_value 'MAIN_DOMAIN' '')"
 TENANT_SINGLE_CONTAINER="$(get_env_value 'TENANT_SINGLE_CONTAINER' '0')"
+TENANTS_DIR_VALUE="$(get_env_value 'TENANTS_DIR' '')"
+
+if [ -n "$TENANTS_DIR_VALUE" ]; then
+  case "$TENANTS_DIR_VALUE" in
+    /*)
+      TENANTS_DIR="$TENANTS_DIR_VALUE"
+      ;;
+    *)
+      TENANTS_DIR="$BASE_DIR/$TENANTS_DIR_VALUE"
+      ;;
+  esac
+else
+  TENANTS_DIR="$BASE_DIR/tenants"
+fi
+
+TENANT_DIR="$TENANTS_DIR/$OFFBOARD_SLUG"
 
 DOCKER_COMPOSE=""
 
@@ -103,6 +120,8 @@ if ! printf '%s' "$VHOST_NAME" | grep -Eq '^[a-z0-9-]+(\.[a-z0-9-]+)+$'; then
   exit 1
 fi
 
+VHOST_FILE="$BASE_DIR/vhost.d/$VHOST_NAME"
+
 if [ "$TENANT_SINGLE_CONTAINER" = "1" ]; then
   BASE_HOST="$MAIN_DOMAIN"
   if [ -z "$BASE_HOST" ]; then
@@ -145,14 +164,42 @@ API_BASE="http://$API_HOST${BASE_PATH}"
 COOKIE_FILE=""
 RELOADER_TMP=""
 ONBOARD_TMP=""
+TENANT_DIR=""
+VHOST_FILE=""
+OFFBOARD_SCRIPT="$BASE_DIR/scripts/offboard_tenant.sh"
+OFFBOARD_SLUG=$(printf '%s' "$SUBDOMAIN" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 
 cleanup() {
+  exit_code="$1"
+  trap - EXIT
+
   [ -n "$COOKIE_FILE" ] && rm -f "$COOKIE_FILE"
   [ -n "$RELOADER_TMP" ] && rm -f "$RELOADER_TMP"
   [ -n "$ONBOARD_TMP" ] && rm -f "$ONBOARD_TMP"
+
+  if [ "$exit_code" -ne 0 ]; then
+    if [ -z "$VHOST_FILE" ] && [ -n "$VHOST_NAME" ]; then
+      VHOST_FILE="$BASE_DIR/vhost.d/$VHOST_NAME"
+    fi
+    if [ -n "$OFFBOARD_SCRIPT" ] && [ -x "$OFFBOARD_SCRIPT" ]; then
+      if ! "$OFFBOARD_SCRIPT" "$OFFBOARD_SLUG" >/dev/null 2>&1; then
+        if [ -n "$TENANT_DIR" ] && [ -d "$TENANT_DIR" ]; then
+          rm -rf "$TENANT_DIR"
+        fi
+      fi
+    elif [ -n "$TENANT_DIR" ] && [ -d "$TENANT_DIR" ]; then
+      rm -rf "$TENANT_DIR"
+    fi
+
+    if [ -n "$VHOST_FILE" ] && [ -f "$VHOST_FILE" ]; then
+      rm -f "$VHOST_FILE"
+    fi
+  fi
+
+  exit "$exit_code"
 }
 
-trap cleanup EXIT
+trap 'cleanup "$?"' EXIT
 
 COOKIE_FILE=$(mktemp)
 

@@ -1,5 +1,6 @@
 #!/bin/sh
-# Onboard a new tenant with dedicated subdomain and SSL
+# Onboard a new tenant with dedicated subdomain and SSL. Das Skript rollt fehlgeschlagene
+# Deployments automatisch zurück und entfernt angelegte Ressourcen.
 set -e
 
 log() {
@@ -12,6 +13,7 @@ error_exit() {
 }
 
 SCRIPT_DIR="$(dirname "$0")"
+BASE_DIR="$SCRIPT_DIR/.."
 if [ -f "$SCRIPT_DIR/../.env" ]; then
   set -a
   # shellcheck source=/dev/null
@@ -24,6 +26,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 SLUG=$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+OFFBOARD_SLUG="$SLUG"
 TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
 TENANT_DIR="$TENANTS_DIR/$SLUG"
 DATA_DIR="$TENANT_DIR/data"
@@ -31,12 +34,43 @@ COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
 DOMAIN_SUFFIX="${MAIN_DOMAIN:-$DOMAIN}"
 EMAIL="${LETSENCRYPT_EMAIL:-admin@quizrace.app}"
 
+OFFBOARD_SCRIPT="$SCRIPT_DIR/offboard_tenant.sh"
+VHOST_FILE=""
+
+cleanup() {
+  exit_code="$1"
+  trap - EXIT
+
+  if [ "$exit_code" -ne 0 ]; then
+    if [ -n "$OFFBOARD_SCRIPT" ] && [ -x "$OFFBOARD_SCRIPT" ]; then
+      if ! "$OFFBOARD_SCRIPT" "$OFFBOARD_SLUG" >/dev/null 2>&1; then
+        if [ -n "$TENANT_DIR" ] && [ -d "$TENANT_DIR" ]; then
+          rm -rf "$TENANT_DIR"
+        fi
+      fi
+    elif [ -n "$TENANT_DIR" ] && [ -d "$TENANT_DIR" ]; then
+      rm -rf "$TENANT_DIR"
+    fi
+
+    if [ -n "$VHOST_FILE" ] && [ -f "$VHOST_FILE" ]; then
+      rm -f "$VHOST_FILE"
+    fi
+  fi
+
+  exit "$exit_code"
+}
+
+trap 'cleanup "$?"' EXIT
+
 log "Starte Onboarding für Tenant '$SLUG'"
 
 log "Prüfe Domain-Konfiguration"
 if [ -z "$DOMAIN_SUFFIX" ]; then
   error_exit "MAIN_DOMAIN oder DOMAIN muss gesetzt sein"
 fi
+
+
+VHOST_FILE="$BASE_DIR/vhost.d/${SLUG}.${DOMAIN_SUFFIX}"
 
 log "Prüfe APP_IMAGE"
 if [ -z "$APP_IMAGE" ]; then
