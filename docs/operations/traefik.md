@@ -1,20 +1,34 @@
 # Traefik configuration
 
-The stack now relies on Traefik v2.x for edge routing. Static options live in
+The stack now relies on Traefik v3.5 for edge routing. Static options live in
 `config/traefik/traefik.yml` and are mounted into the reverse proxy container by
 `docker-compose.yml`. The file defines the entry points (`web`, `websecure`,
-`traefik`), configures the ACME resolver, and enables the dashboard/API surface.
+`traefik`), enables HTTP/3 on the secure entry point, enforces HTTPS via an
+entry point redirect, configures the default TLS profile, the ACME resolver,
+and enables the dashboard/API surface. JSON logs with filtered headers, a
+Prometheus metrics exporter, the ping health-check endpoint, and
+`serversTransport.maxIdleConnsPerHost` are all configured statically as well.
 Everything under `config/traefik/dynamic/` is loaded as a watched file provider.
 Two files ship with the repository:
 
 - `config/traefik/dynamic/middlewares.yml` – reusable security header and body
-  limit middlewares.
+  limit middlewares. The HTTPS redirect middleware is kept for backwards
+  compatibility with existing Docker labels even though the `web` entry point
+  now performs a global redirect to `websecure`.
 - `config/traefik/dynamic/api.yml.tmpl` – routes the dashboard and API on entry point
 `traefik`. The insecure dashboard on port `:8080` is disabled, therefore a
   router must be published explicitly. Set `TRAEFIK_DASHBOARD_RULE` to expose
   the dashboard under a host rule and supply credentials via
   `TRAEFIK_API_BASICAUTH` to enforce HTTP basic authentication for both API and
   dashboard.
+
+The static configuration also defines a `tls.options.default` profile enforcing
+TLS 1.2 or newer, strict SNI handling, and modern curve preferences. Custom TLS
+options can be added alongside the default entry when specific routers require
+additional settings. Access logs are emitted as JSON (with common headers
+filtered) to make ingestion by structured log stacks easier. Prometheus metrics
+are exposed on the `traefik` entry point at `/metrics` and answer readiness
+queries via the ping handler on `/ping`.
 
 ## Default middlewares
 
@@ -53,11 +67,15 @@ examples for the `slim` application container and the optional Adminer utility.
 Add more routers by copying the existing label pattern and adjusting the router
 name and rule. Multiple tenants can share the same service by pointing their
 router definitions to the same load balancer (`quizrace` in the default compose
-file). After changes run:
+file). Because the `websecure` entry point now ships with a default TLS profile
+and cert-resolver, routers only need to set `tls=true`; Traefik automatically
+selects `letsencrypt` when the resolver is not overridden. After changes run:
 
 ```
 docker compose exec traefik curl -sf http://localhost:8080/api/http/routers | jq 'keys'
 docker compose exec traefik curl -sf http://localhost:8080/api/tls/certificates | jq '.certificates | length'
+docker compose exec traefik curl -sf http://localhost:8080/metrics | head
+docker compose exec traefik curl -sf http://localhost:8080/ping
 ```
 
 The commands verify that Traefik sees the new routers and has certificates in
