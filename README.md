@@ -285,24 +285,19 @@ dem KI-Endpunkt frühzeitig zu erkennen.
 
 ## Docker Compose
 
-Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit Traefik v2 als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`. Ohne eine gültige Adresse startet der Traefik-Container nicht und fordert dich mit einer Fehlermeldung auf, den Wert nachzutragen.
+Das mitgelieferte `docker-compose.yml` startet den QuizRace-Stack mit dem offiziellen Traefik-v2-Container als Edge-Router. Traefik überwacht den Docker-Daemon und registriert Container mit dem Label `traefik.enable=true`. Die Standardkonfiguration bindet HTTP (Port 80) und HTTPS (Port 443) und leitet unsichere Aufrufe automatisch auf TLS weiter. Zertifikate stellt der integrierte ACME-Resolver aus; die Kontaktadresse liefert `LETSENCRYPT_EMAIL` aus `.env`. Ohne eine gültige Adresse startet der Traefik-Container nicht und fordert dich mit einer Fehlermeldung auf, den Wert nachzutragen.
+
+Setze in `.env` außerdem `DOMAIN` (und optional `MAIN_DOMAIN`). Der Compose-Stack verweigert den Start mit einem klaren Hinweis, wenn `DOMAIN` fehlt. So entstehen keine ungültigen Host-Regeln mehr, die sonst zu Meldungen wie `No domain found in rule HostRegex` führen.
 
 ### ACME-Speicher vorbereiten
 
-Traefik kann `acme.json` nur lesen, wenn die Datei bereits existiert und mit `chmod 600` geschützt ist. Führe vor `docker compose up traefik` einmalig (und nach Bedarf erneut) das Skript aus, das die Datei samt Berechtigungen anlegt. Das Skript bricht mit einer Fehlermeldung ab, sobald der Modus von `600` abweicht, damit du die Rechte direkt korrigieren kannst:
-
-```bash
-./scripts/prepare_traefik_acme.sh
-docker compose up traefik
-```
-
-Setze die Berechtigung falls nötig manuell, bevor du das Skript erneut ausführst:
+Traefik kann `acme.json` nur lesen, wenn die Datei bereits existiert, mit `chmod 600` geschützt ist und mindestens ein leeres JSON-Objekt (`{}`) enthält. Das Repository liefert daher eine vorkonfigurierte `letsencrypt/acme.json` mit den passenden Platzhalterdaten aus. Setze nach dem Klonen einmalig die Berechtigung, bevor du `docker compose up traefik` startest:
 
 ```bash
 chmod 600 letsencrypt/acme.json
 ```
 
-Verifiziere die Rechte regelmäßig, damit der ACME-Resolver weiterhin Zertifikate schreiben kann:
+Verifiziere die Rechte gelegentlich, damit der ACME-Resolver weiterhin Zertifikate schreiben kann:
 
 ```bash
 ls -l letsencrypt/acme.json
