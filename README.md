@@ -463,7 +463,11 @@ scripts/delete_tenant.sh foo
 Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration. Befindet sich im Projektverzeichnis eine `.env`,
 lädt `scripts/onboard_tenant.sh` sie automatisch und übernimmt die dort
-definierten Variablen.
+definierten Variablen. Sowohl `scripts/create_tenant.sh` als auch
+`scripts/onboard_tenant.sh` räumen bei Fehlern die bereits erzeugten
+Ressourcen wieder auf: vhost-Eintrag, `docker-compose.yml`, `data/`-Ordner
+und gestartete Container werden über `scripts/offboard_tenant.sh`
+beziehungsweise als Fallback per Dateilöschung entfernt.
 
 Das Proxy-Setup legt zudem standardmäßig ein Docker-Netzwerk namens
 `webproxy` an. Nach dem Aufruf von `scripts/create_tenant.sh` oder einem
