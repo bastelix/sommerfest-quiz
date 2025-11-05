@@ -46,12 +46,14 @@ entryPoints:
     address: ":8080"
   web:
     address: ":80"
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
-          permanent: true
+    # Die ACME HTTP-01-Challenge muss über Port 80 beantwortet werden.
+    # Aktiviere die Umleitung erneut, sobald die Zertifikate erstellt sind.
+    # http:
+    #   redirections:
+    #     entryPoint:
+    #       to: websecure
+    #       scheme: https
+    #       permanent: true
   websecure:
     address: ":443"
     http3: true
