@@ -43,6 +43,63 @@ sanitize_email() {
     return 1
 }
 
+sanitize_domain() {
+    # Normalise DOMAIN and MAIN_DOMAIN values which are frequently copied with
+    # schemes or trailing paths. Traefik expects bare hostnames in the router
+    # rules, so we strip common wrappers and validate the remaining label.
+    input=$(printf '%s' "$1" | tr '\r\n' ' ')
+    normalized=$(printf '%s' "$input" | tr ',;' ' ')
+
+    for token in $normalized; do
+        clean_token=$(printf '%s' "$token" | tr -d '<>"'"'"'')
+        clean_token=$(printf '%s' "$clean_token" | tr '[:upper:]' '[:lower:]')
+
+        case "$clean_token" in
+            *://*)
+                clean_token=${clean_token#*://}
+                ;;
+        esac
+
+        clean_token=${clean_token#*@}
+        clean_token=${clean_token%%/*}
+        clean_token=${clean_token%%\?*}
+        clean_token=${clean_token%%\#*}
+        clean_token=${clean_token#*[[]}
+        clean_token=${clean_token%]*}
+        clean_token=$(printf '%s' "$clean_token" | sed 's/^[[:space:].-]*//; s/[[:space:]]*$//; s/\.$//')
+
+        if printf '%s' "$clean_token" | grep -Eq '^[[:alnum:]]([[:alnum:]-]{0,61}[[:alnum:]])?(\.[[:alnum:]]([[:alnum:]-]{0,61}[[:alnum:]])?)*$'; then
+            printf '%s' "$clean_token"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+# Normalise domain-related environment variables before Traefik starts. The
+# ACME resolver aborts when router rules reference malformed domains, so we
+# attempt to extract a clean hostname from the provided value. If no usable
+# hostname is found we abort early with a descriptive error.
+sanitize_domain_var() {
+    var_name=$1
+    raw_value=$(printenv "$var_name" 2>/dev/null || true)
+
+    if [ -z "$raw_value" ]; then
+        return 0
+    fi
+
+    sanitized_value=""
+    if sanitized_value=$(sanitize_domain "$raw_value"); then
+        export "$var_name"="$sanitized_value"
+        echo "Info: Verwende $var_name=$sanitized_value" >&2
+        return 0
+    fi
+
+    echo "Fehler: Der Wert in $var_name enthält keinen gültigen Hostnamen. Entferne Schemata wie https:// und wiederhole den Start." >&2
+    exit 1
+}
+
 if [ ! -e "$ACME_STORAGE" ]; then
     # The default Traefik entrypoint will take care of creating the file if it
     # is missing, but we ensure it exists so the permission fix below can run
@@ -77,6 +134,9 @@ else
     echo "Fehler: Traefik benötigt eine gültige Kontaktadresse in LETSENCRYPT_EMAIL (oder LE_EMAIL). Setze die Variable in .env und starte den Container neu." >&2
     exit 1
 fi
+
+sanitize_domain_var DOMAIN
+sanitize_domain_var MAIN_DOMAIN
 
 updated_args=""
 for arg in "$@"; do
