@@ -314,7 +314,7 @@ Stimmen die Rechte nicht (`rw-------`), wiederhole das Skript oder setze die Ber
 Die statischen Optionen leben in `config/traefik/traefik.yml`. Dort werden EntryPoints, der ACME-Resolver und globale Settings gepflegt. Dynamische Elemente wie Middlewares und der Zugriff auf die Traefik-API/Dashboard landen in `config/traefik/dynamic/`. Standardmäßig sind zwei Dateien eingebunden:
 
 - `config/traefik/dynamic/middlewares.yml` – Security-Header und Body-Limits, die zuvor vom alten Reverse-Proxy ausgeliefert wurden.
-- `config/traefik/dynamic/api.yml` – Router-Konfiguration für das interne Dashboard und die API (`/api`), optional abgesichert über `TRAEFIK_API_BASICAUTH` und eine Host-Regel aus `TRAEFIK_DASHBOARD_RULE`.
+- `config/traefik/dynamic/api.yml.tmpl` – Router-Konfiguration für das interne Dashboard und die API (`/api`), optional abgesichert über `TRAEFIK_API_BASICAUTH` und eine Host-Regel aus `TRAEFIK_DASHBOARD_RULE`.
 
 Der Anwendungscode läuft im Service `slim` und wird intern auf Port 8080 ausgeliefert. Traefik routet über die Labels `traefik.http.routers.quizrace-web` und `traefik.http.routers.quizrace-secure` auf diesen Service. Adminer bleibt über `https://adminer.${DOMAIN}` erreichbar und nutzt dieselben Standard-Middlewares (`quizrace-https-redirect`, `quizrace-security-headers` sowie die passenden Body-Limits).
 
