@@ -22,8 +22,7 @@ sanitize_email() {
                         ;;
                 esac
 
-                clean_token=$(printf '%s' "$clean_token" | tr -d '<>"')
-                clean_token=${clean_token//\'/}
+                clean_token=$(printf '%s' "$clean_token" | tr -d '<>"'"'"'')
                 clean_token=$(printf '%s' "$clean_token" | sed 's/^[[:space:],;:()]*//; s/[[:space:],;:()]*$//')
 
                 if printf '%s' "$clean_token" | grep -Eq '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'; then
