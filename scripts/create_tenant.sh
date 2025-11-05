@@ -1,5 +1,5 @@
 #!/bin/sh
-# Create a new tenant and configure Traefik routing
+# Create a new tenant and reload nginx proxy
 set -e
 
 if [ "$#" -ne 1 ]; then
@@ -36,9 +36,14 @@ get_env_value() {
 }
 
 CLIENT_MAX_BODY_SIZE="$(get_env_value 'CLIENT_MAX_BODY_SIZE' '50m')"
+NGINX_RELOAD="$(get_env_value 'NGINX_RELOAD' '1')"
+RELOADER_URL="$(get_env_value 'NGINX_RELOADER_URL' '')"
+RELOAD_TOKEN="$(get_env_value 'NGINX_RELOAD_TOKEN' '')"
+NGINX_CONTAINER="$(get_env_value 'NGINX_CONTAINER' 'nginx')"
 BASE_PATH="$(get_env_value 'BASE_PATH' '')"
 SERVICE_USER="$(get_env_value 'SERVICE_USER' '')"
 SERVICE_PASS="$(get_env_value 'SERVICE_PASS' '')"
+RELOADER_SERVICE="$(get_env_value 'NGINX_RELOADER_SERVICE' 'nginx-reloader')"
 DOMAIN="$(get_env_value 'DOMAIN' '')"
 MAIN_DOMAIN="$(get_env_value 'MAIN_DOMAIN' '')"
 TENANT_SINGLE_CONTAINER="$(get_env_value 'TENANT_SINGLE_CONTAINER' '0')"
@@ -138,10 +143,12 @@ fi
 API_BASE="http://$API_HOST${BASE_PATH}"
 
 COOKIE_FILE=""
+RELOADER_TMP=""
 ONBOARD_TMP=""
 
 cleanup() {
   [ -n "$COOKIE_FILE" ] && rm -f "$COOKIE_FILE"
+  [ -n "$RELOADER_TMP" ] && rm -f "$RELOADER_TMP"
   [ -n "$ONBOARD_TMP" ] && rm -f "$ONBOARD_TMP"
 }
 
@@ -166,8 +173,33 @@ if [ "$HTTP_STATUS" -ge 400 ]; then
   exit 1
 fi
 
-if [ "$(printf '%s' "$CLIENT_MAX_BODY_SIZE" | tr '[:upper:]' '[:lower:]')" != "50m" ]; then
-  echo "Hinweis: Passe die gewünschte Upload-Größe über Traefik-Middlewares an (aktuell $CLIENT_MAX_BODY_SIZE)."
+mkdir -p "$BASE_DIR/vhost.d"
+echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/$VHOST_NAME"
+
+if [ -n "$RELOADER_URL" ]; then
+  detect_docker_compose
+  echo "Ensuring nginx-reloader service is running"
+  if ! $DOCKER_COMPOSE up -d "$RELOADER_SERVICE" >/dev/null 2>&1; then
+    echo "nginx-reloader service could not be started" >&2
+    exit 1
+  fi
+  echo "Reloading reverse proxy via $RELOADER_URL"
+  RELOADER_TMP=$(mktemp)
+  HTTP_CODE=$(curl -s -o "$RELOADER_TMP" -w "%{http_code}" -X POST \
+    -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL") || HTTP_CODE=000
+  if [ "$HTTP_CODE" -ge 400 ] || [ "$HTTP_CODE" -eq 000 ]; then
+    echo "Proxy reload failed via webhook (status $HTTP_CODE): $(cat "$RELOADER_TMP" 2>/dev/null)" >&2
+    exit 1
+  fi
+  rm -f "$RELOADER_TMP"
+  RELOADER_TMP=""
+elif [ "$NGINX_RELOAD" = "1" ]; then
+  detect_docker_compose
+  echo "Reloading reverse proxy via Docker"
+  if ! $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload; then
+    echo "Proxy reload failed via Docker" >&2
+    exit 1
+  fi
 fi
 
 ONBOARD_TMP=$(mktemp)

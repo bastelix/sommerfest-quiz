@@ -1,5 +1,5 @@
 #!/bin/sh
-# Delete a tenant and clean up Traefik routing artefacts
+# Delete a tenant and reload nginx proxy
 set -e
 
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
@@ -48,6 +48,10 @@ get_env_value() {
 DOMAIN="$(get_env_value 'DOMAIN' '')"
 MAIN_DOMAIN="$(get_env_value 'MAIN_DOMAIN' '')"
 BASE_PATH="$(get_env_value 'BASE_PATH' '')"
+NGINX_RELOAD="$(get_env_value 'NGINX_RELOAD' '1')"
+RELOADER_URL="$(get_env_value 'NGINX_RELOADER_URL' '')"
+RELOAD_TOKEN="$(get_env_value 'NGINX_RELOAD_TOKEN' '')"
+NGINX_CONTAINER="$(get_env_value 'NGINX_CONTAINER' 'nginx')"
 
 API_HOST="$DOMAIN"
 if [ -z "$API_HOST" ]; then
@@ -66,6 +70,18 @@ fi
 
 if [ -z "$TENANT_DOMAIN" ]; then
   TENANT_DOMAIN="$API_HOST"
+fi
+
+# detect docker compose only when a reload via Docker is required
+if [ "$NGINX_RELOAD" = "1" ] && [ -z "$RELOADER_URL" ]; then
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+  elif command -v docker-compose >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker-compose"
+  else
+    echo "docker compose oder docker-compose ist nicht verf\u00fcgbar" >&2
+    exit 1
+  fi
 fi
 
 if [ "$DELETE_BY_SUBDOMAIN" -eq 0 ]; then
@@ -98,7 +114,12 @@ case "$SUBDOMAIN" in
     ;;
 esac
 
+rm -f "$BASE_DIR/vhost.d/$HOST_NAME"
 rm -f "$BASE_DIR"/certs/"$HOST_NAME"*
 rm -rf "$BASE_DIR/acme/$HOST_NAME" "$BASE_DIR/acme/${HOST_NAME}_ecc"
 
-
+if [ -n "$RELOADER_URL" ]; then
+  curl -s -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"
+elif [ "$NGINX_RELOAD" = "1" ]; then
+  $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload
+fi
