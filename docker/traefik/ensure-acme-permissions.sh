@@ -23,7 +23,14 @@ sanitize_email() {
                 esac
 
                 clean_token=$(printf '%s' "$clean_token" | tr -d '<>"'"'"'')
-                clean_token=$(printf '%s' "$clean_token" | sed 's/^[[:space:],;:()]*//; s/[[:space:],;:()]*$//')
+                # Drop query strings that often appear in copied mailto links.
+                clean_token=${clean_token%%\?*}
+                clean_token=${clean_token%%\#*}
+
+                # Normalise leading/trailing separators commonly used in
+                # signatures. We include punctuation like dots or exclamation
+                # marks because the address may be followed by a sentence.
+                clean_token=$(printf '%s' "$clean_token" | sed 's/^[[:space:],;:()]*//; s/[[:space:],;:().!?-]*$//')
 
                 if printf '%s' "$clean_token" | grep -Eq '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'; then
                     printf '%s' "$clean_token"
