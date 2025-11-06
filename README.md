@@ -548,15 +548,17 @@ Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
 Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
 ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
 `VIRTUAL_HOST`. `LETSENCRYPT_HOST` wird seit Version 4.19 ausschließlich
-aus echten Domains aufgebaut: Standardmäßig landen `MAIN_DOMAIN`
-und alle Einträge aus `MARKETING_DOMAINS` in der Liste. Über
-`SLIM_LETSENCRYPT_HOST` kannst du bei Bedarf weitere konkrete Hosts
-anhängen – Regex-Ausdrücke bleiben ausschließlich in `VIRTUAL_HOST`,
-damit der `acme-companion` keine ungültigen CSRs erzeugt. Beim Start
-normalisiert der Container beide Variablen (Leerzeichen und
-Zeilenumbrüche werden entfernt) und löst einen Reload des Proxys über
-`NGINX_RELOADER_URL` aus, sodass der `acme-companion` direkt Zertifikate
-für neue Domains anfordert.
+aus echten Domains aufgebaut: Standardmäßig landen alle konkreten
+Einträge aus `SLIM_VIRTUAL_HOST` (inklusive des Fallbacks auf
+`MAIN_DOMAIN`) sowie sämtliche Werte aus `MARKETING_DOMAINS` in der
+Liste. Damit erhält auch die Admin-Subdomain automatisch ein Zertifikat,
+sobald sie in `SLIM_VIRTUAL_HOST` auftaucht. Über `SLIM_LETSENCRYPT_HOST`
+kannst du bei Bedarf weitere konkrete Hosts anhängen – Regex-Ausdrücke
+bleiben ausschließlich in `VIRTUAL_HOST`, damit der `acme-companion`
+keine ungültigen CSRs erzeugt. Beim Start normalisiert der Container
+beide Variablen (Leerzeichen und Zeilenumbrüche werden entfernt) und
+löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
+`acme-companion` direkt Zertifikate für neue Domains anfordert.
 
 Weitere nützliche Variablen in `.env` sind:
 
