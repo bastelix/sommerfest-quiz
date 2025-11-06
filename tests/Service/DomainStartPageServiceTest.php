@@ -11,10 +11,27 @@ use PHPUnit\Framework\TestCase;
 
 class DomainStartPageServiceTest extends TestCase
 {
-    public function testMarketingAliasSlugsAreExcludedFromOptions(): void
+    private function createPdo(): PDO
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS marketing_domains ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'host TEXT NOT NULL, '
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'label TEXT, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+        );
+
+        return $pdo;
+    }
+
+    public function testMarketingAliasSlugsAreExcludedFromOptions(): void
+    {
+        $pdo = $this->createPdo();
         $pdo->exec(
             'CREATE TABLE pages ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
@@ -74,18 +91,24 @@ class DomainStartPageServiceTest extends TestCase
 
     public function testDetermineDomainsCanonicalisesMarketingEntries(): void
     {
-        $pdo = new PDO('sqlite::memory:');
+        $pdo = $this->createPdo();
         $service = new DomainStartPageService($pdo);
 
         $previous = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        putenv('MARKETING_DOMAINS=calserver.com promo.example.com');
+        $_ENV['MARKETING_DOMAINS'] = 'calserver.com promo.example.com';
+
+        $service->createMarketingDomain('calserver.com', 'Calserver');
 
         try {
-            $domains = $service->determineDomains(null, 'calserver.com', 'legacy.example.com');
+            $domains = $service->determineDomains(null, 'calserver.com promo.example.com', 'legacy.example.com');
 
             $this->assertTrue(
                 in_array(['domain' => 'calserver.com', 'normalized' => 'calserver', 'type' => 'marketing'], $domains, true)
+            );
+
+            $this->assertTrue(
+                in_array(['domain' => 'promo.example.com', 'normalized' => 'promo', 'type' => 'marketing'], $domains, true)
             );
 
             $legacyEntry = null;
@@ -107,5 +130,21 @@ class DomainStartPageServiceTest extends TestCase
                 $_ENV['MARKETING_DOMAINS'] = $previous;
             }
         }
+    }
+
+    public function testCreateMarketingDomainNormalizesAndStoresValues(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new DomainStartPageService($pdo);
+
+        $domain = $service->createMarketingDomain('HTTPS://WWW.CalServer.com ', '  Calserver  ');
+
+        $this->assertSame('calserver.com', $domain['host']);
+        $this->assertSame('calserver.com', $domain['normalized_host']);
+        $this->assertSame('Calserver', $domain['label']);
+
+        $listed = $service->listMarketingDomains();
+        $this->assertCount(1, $listed);
+        $this->assertSame($domain, $listed[0]);
     }
 }

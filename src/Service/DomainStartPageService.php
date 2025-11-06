@@ -27,6 +27,85 @@ class DomainStartPageService
     }
 
     /**
+     * Retrieve all marketing domains stored in the database.
+     *
+     * @return list<array{id:int,host:string,normalized_host:string,label:?string}>
+     */
+    public function listMarketingDomains(): array {
+        try {
+            $stmt = $this->pdo->query(
+                'SELECT id, host, normalized_host, label FROM marketing_domains ORDER BY host ASC'
+            );
+        } catch (PDOException $exception) {
+            if ($this->isMissingMarketingDomainsTable($exception)) {
+                return [];
+            }
+
+            throw $exception;
+        }
+
+        $rows = $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+        $domains = [];
+
+        foreach ($rows ?: [] as $row) {
+            $domain = $this->hydrateMarketingDomain($row);
+            if ($domain !== null) {
+                $domains[] = $domain;
+            }
+        }
+
+        return $domains;
+    }
+
+    /**
+     * Persist or update a marketing domain entry.
+     *
+     * @return array{id:int,host:string,normalized_host:string,label:?string}
+     */
+    public function createMarketingDomain(string $host, ?string $label = null): array {
+        [$displayHost, $normalizedHost] = $this->prepareMarketingHost($host);
+        $labelValue = $this->normalizeMarketingLabel($label);
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO marketing_domains (host, normalized_host, label) VALUES (?, ?, ?)
+            ON CONFLICT(normalized_host) DO UPDATE SET host = EXCLUDED.host, label = EXCLUDED.label'
+        );
+        $stmt->execute([$displayHost, $normalizedHost, $labelValue]);
+
+        $domain = $this->getMarketingDomainByNormalized($normalizedHost);
+        if ($domain === null) {
+            throw new PDOException('Failed to persist marketing domain.');
+        }
+
+        return $domain;
+    }
+
+    /**
+     * Update an existing marketing domain entry by its identifier.
+     *
+     * @return array{id:int,host:string,normalized_host:string,label:?string}|null
+     */
+    public function updateMarketingDomain(int $id, string $host, ?string $label = null): ?array {
+        [$displayHost, $normalizedHost] = $this->prepareMarketingHost($host);
+        $labelValue = $this->normalizeMarketingLabel($label);
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE marketing_domains SET host = ?, normalized_host = ?, label = ? WHERE id = ?'
+        );
+        $stmt->execute([$displayHost, $normalizedHost, $labelValue, $id]);
+
+        return $this->getMarketingDomainById($id);
+    }
+
+    /**
+     * Delete a marketing domain entry by its identifier.
+     */
+    public function deleteMarketingDomain(int $id): void {
+        $stmt = $this->pdo->prepare('DELETE FROM marketing_domains WHERE id = ?');
+        $stmt->execute([$id]);
+    }
+
+    /**
      * Build the available start page options combining core pages and marketing pages.
      *
      * @return array<string,string> Map of slug => label
@@ -364,6 +443,32 @@ class DomainStartPageService
             ];
         }
 
+        foreach ($this->listMarketingDomains() as $marketingDomain) {
+            $domain = $marketingDomain['host'] !== ''
+                ? $marketingDomain['host']
+                : $marketingDomain['normalized_host'];
+            $domain = $this->normalizeDomain($domain, stripAdmin: false);
+            if ($domain === '') {
+                continue;
+            }
+
+            $canonical = DomainNameHelper::canonicalizeSlug($domain);
+            if ($canonical === '') {
+                $canonical = $this->normalizeDomain($domain);
+            }
+            if ($canonical === '') {
+                continue;
+            }
+
+            if (!isset($domains[$canonical])) {
+                $domains[$canonical] = [
+                    'domain' => $domain,
+                    'normalized' => $canonical,
+                    'type' => 'marketing',
+                ];
+            }
+        }
+
         $marketingDomains = preg_split('/[\s,]+/', $marketingConfig) ?: [];
         foreach ($marketingDomains as $domain) {
             $domain = trim((string) $domain);
@@ -377,7 +482,7 @@ class DomainStartPageService
 
             $canonical = DomainNameHelper::canonicalizeSlug($display);
             if ($canonical === '') {
-                continue;
+                $canonical = $display;
             }
             if (!isset($domains[$canonical])) {
                 $domains[$canonical] = [
@@ -564,5 +669,100 @@ class DomainStartPageService
         $value = $existing[$key];
 
         return $value === null ? null : (int) $value;
+    }
+
+    /**
+     * @param array<string,mixed> $row
+     * @return array{id:int,host:string,normalized_host:string,label:?string}|null
+     */
+    private function hydrateMarketingDomain(array $row): ?array {
+        if (!isset($row['id'], $row['normalized_host'])) {
+            return null;
+        }
+
+        $id = (int) $row['id'];
+        $normalized = (string) $row['normalized_host'];
+        if ($normalized === '') {
+            return null;
+        }
+
+        $host = isset($row['host']) ? (string) $row['host'] : '';
+        if ($host === '') {
+            $host = $normalized;
+        }
+
+        $label = null;
+        if (array_key_exists('label', $row) && $row['label'] !== null) {
+            $label = trim((string) $row['label']);
+            if ($label === '') {
+                $label = null;
+            }
+        }
+
+        return [
+            'id' => $id,
+            'host' => $host,
+            'normalized_host' => $normalized,
+            'label' => $label,
+        ];
+    }
+
+    private function getMarketingDomainByNormalized(string $normalizedHost): ?array {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, host, normalized_host, label FROM marketing_domains WHERE normalized_host = ?'
+        );
+        $stmt->execute([$normalizedHost]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row === false ? null : $this->hydrateMarketingDomain($row);
+    }
+
+    private function getMarketingDomainById(int $id): ?array {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, host, normalized_host, label FROM marketing_domains WHERE id = ?'
+        );
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row === false ? null : $this->hydrateMarketingDomain($row);
+    }
+
+    /**
+     * @return array{0:string,1:string}
+     */
+    private function prepareMarketingHost(string $host): array {
+        $displayHost = $this->normalizeDomain($host, stripAdmin: false);
+        if ($displayHost === '') {
+            throw new InvalidArgumentException('Invalid marketing domain supplied.');
+        }
+
+        $normalizedHost = $this->normalizeDomain($displayHost);
+        if ($normalizedHost === '') {
+            throw new InvalidArgumentException('Unable to normalize marketing domain.');
+        }
+
+        return [$displayHost, $normalizedHost];
+    }
+
+    private function normalizeMarketingLabel(?string $label): ?string {
+        if ($label === null) {
+            return null;
+        }
+
+        $trimmed = trim($label);
+
+        return $trimmed === '' ? null : $trimmed;
+    }
+
+    private function isMissingMarketingDomainsTable(PDOException $exception): bool {
+        $code = (string) $exception->getCode();
+        if ($code === '42P01') {
+            return true;
+        }
+
+        $message = strtolower($exception->getMessage());
+
+        return str_contains($message, 'no such table')
+            || str_contains($message, 'relation "marketing_domains" does not exist');
     }
 }
