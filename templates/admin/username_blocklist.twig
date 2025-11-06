@@ -1,6 +1,8 @@
 {% extends 'layout.twig' %}
 
-{% block config_color_styles %}{% endblock %}
+{% block config_color_styles %}
+  {{ parent() }}
+{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
@@ -55,6 +57,7 @@
         class="uk-section uk-section-small"
         data-username-blocklist
         data-create-url="{{ basePath }}/admin/username-blocklist"
+        data-import-url="{{ basePath }}/admin/username-blocklist/import"
         data-empty-message="{{ t('text_username_blocklist_empty') }}"
         data-error-default="{{ t('error_username_blocklist_unknown') }}"
         data-remove-label="{{ t('action_username_blocklist_remove') }}"
@@ -87,6 +90,68 @@
               </div>
             </div>
           </form>
+
+          <div class="uk-card uk-card-default uk-card-body uk-card-small uk-margin">
+            <div class="uk-form-label" id="usernameBlocklistPresetsLabel">{{ t('label_username_blocklist_presets') }}</div>
+            <div
+              class="uk-margin-small-top uk-flex uk-flex-wrap uk-grid-small"
+              role="group"
+              aria-labelledby="usernameBlocklistPresetsLabel"
+              uk-grid
+            >
+              <div>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default uk-button-small"
+                  data-username-blocklist-import
+                  data-preset="nsfw"
+                >
+                  {{ t('label_username_blocklist_preset_nsfw') }}
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default uk-button-small"
+                  data-username-blocklist-import
+                  data-preset="ns_symbols"
+                >
+                  {{ t('label_username_blocklist_preset_ns_symbols') }}
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default uk-button-small"
+                  data-username-blocklist-import
+                  data-preset="slur"
+                >
+                  {{ t('label_username_blocklist_preset_slur') }}
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default uk-button-small"
+                  data-username-blocklist-import
+                  data-preset="general"
+                >
+                  {{ t('label_username_blocklist_preset_general') }}
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default uk-button-small"
+                  data-username-blocklist-import
+                  data-preset="admin"
+                >
+                  {{ t('label_username_blocklist_preset_admin') }}
+                </button>
+              </div>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_username_blocklist_presets_hint') }}</p>
+          </div>
 
           <div class="uk-alert" hidden data-username-blocklist-feedback></div>
 

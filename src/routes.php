@@ -2011,6 +2011,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->store($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
+    $app->post('/admin/username-blocklist/import', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('usernameBlocklistController');
+        if (!$controller instanceof UsernameBlocklistController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->import($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->delete('/admin/username-blocklist/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
         $controller = $request->getAttribute('usernameBlocklistController');
         if (!$controller instanceof UsernameBlocklistController) {
