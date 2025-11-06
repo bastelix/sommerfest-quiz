@@ -2993,6 +2993,111 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainStartPageTable.dataset.empty || '',
       error: domainStartPageTable.dataset.error || transDomainStartPageError
     };
+    const marketingDomainForm = document.getElementById('marketingDomainForm');
+    const marketingDomainHost = document.getElementById('marketingDomainHost');
+    const marketingDomainLabel = document.getElementById('marketingDomainLabel');
+    const marketingDomainError = document.getElementById('marketingDomainFormError');
+    const marketingMessages = {
+      invalid: marketingDomainForm?.dataset.invalid || window.transMarketingDomainInvalid || transDomainContactTemplateInvalidDomain,
+      error: marketingDomainForm?.dataset.error || window.transMarketingDomainError || transDomainStartPageError,
+      success: marketingDomainForm?.dataset.success || window.transMarketingDomainCreated || transDomainStartPageSaved,
+    };
+
+    const marketingDomainPattern = /^(?=.{1,255}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+
+    const toggleMarketingFormDisabled = disabled => {
+      if (!marketingDomainForm) {
+        return;
+      }
+      Array.from(marketingDomainForm.elements || []).forEach(el => {
+        if (el && typeof el === 'object' && 'disabled' in el) {
+          el.disabled = disabled;
+        }
+      });
+    };
+
+    const setMarketingFormError = message => {
+      if (!marketingDomainError) {
+        return;
+      }
+      if (message) {
+        marketingDomainError.textContent = message;
+        marketingDomainError.hidden = false;
+      } else {
+        marketingDomainError.textContent = '';
+        marketingDomainError.hidden = true;
+      }
+    };
+
+    const validateMarketingDomain = value => {
+      const trimmed = typeof value === 'string' ? value.trim() : '';
+      return trimmed !== '' && marketingDomainPattern.test(trimmed);
+    };
+
+    if (marketingDomainHost) {
+      marketingDomainHost.addEventListener('input', () => {
+        marketingDomainHost.classList.remove('uk-form-danger');
+        setMarketingFormError('');
+      });
+    }
+
+    if (marketingDomainForm && marketingDomainHost) {
+      marketingDomainForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const hostValue = marketingDomainHost.value.trim();
+        const labelValue = marketingDomainLabel ? marketingDomainLabel.value.trim() : '';
+
+        if (!validateMarketingDomain(hostValue)) {
+          marketingDomainHost.classList.add('uk-form-danger');
+          setMarketingFormError(marketingMessages.invalid);
+          notify(marketingMessages.invalid, 'warning');
+          marketingDomainHost.focus();
+          return;
+        }
+
+        toggleMarketingFormDisabled(true);
+        setMarketingFormError('');
+
+        apiFetch('/admin/marketing-domains', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            domain: hostValue,
+            label: labelValue !== '' ? labelValue : null,
+          })
+        })
+          .then(res => {
+            return res
+              .json()
+              .catch(() => ({}))
+              .then(data => {
+                if (!res.ok) {
+                  const message = data?.error || marketingMessages.error;
+                  throw new Error(message);
+                }
+                return data;
+              });
+          })
+          .then(() => {
+            marketingDomainForm.reset();
+            if (marketingDomainHost) {
+              marketingDomainHost.classList.remove('uk-form-danger');
+            }
+            notify(marketingMessages.success, 'success');
+            if (typeof reloadDomainStartPages === 'function') {
+              reloadDomainStartPages();
+            }
+          })
+          .catch(err => {
+            const message = err?.message || marketingMessages.error;
+            setMarketingFormError(message);
+            notify(message, 'danger');
+          })
+          .finally(() => {
+            toggleMarketingFormDisabled(false);
+          });
+      });
+    }
 
     const renderMessageRow = message => {
       if (!tbody) return;
