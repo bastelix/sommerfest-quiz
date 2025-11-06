@@ -17,10 +17,13 @@ use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\ProxyMiddleware;
 use App\Application\Middleware\UrlMiddleware;
+use App\Application\Middleware\DomainMiddleware;
 use App\Infrastructure\Migrations\Migrator;
 use App\Infrastructure\Migrations\MigrationRuntime;
 use PDO;
 use App\Twig\DateTimeFormatExtension;
+use App\Service\MarketingDomainProvider;
+use App\Support\DomainNameHelper;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -71,7 +74,10 @@ class TestCase extends PHPUnit_TestCase
         $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
         $app->add(new UrlMiddleware($twig));
-        $app->add(new \App\Application\Middleware\DomainMiddleware());
+        $pdo = $this->getDatabase();
+        $marketingDomainProvider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
+        DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
+        $app->add(new DomainMiddleware($marketingDomainProvider));
         $app->add(new ProxyMiddleware());
 
         // Register routes

@@ -4,14 +4,23 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Service\MarketingDomainProvider;
+use Throwable;
+
 /**
  * Normalises host names for domain-specific features.
  */
 final class DomainNameHelper
 {
+    private static ?MarketingDomainProvider $marketingDomainProvider = null;
 
     private function __construct()
     {
+    }
+
+    public static function setMarketingDomainProvider(?MarketingDomainProvider $provider): void
+    {
+        self::$marketingDomainProvider = $provider;
     }
 
     public static function normalize(string $domain, bool $stripAdmin = true): string
@@ -120,6 +129,31 @@ final class DomainNameHelper
      */
     private static function getMarketingDomains(): array
     {
+        if (self::$marketingDomainProvider !== null) {
+            try {
+                $domains = self::$marketingDomainProvider->getMarketingDomains();
+                if ($domains === []) {
+                    return [];
+                }
+
+                $map = [];
+                foreach ($domains as $domain) {
+                    $domain = strtolower(trim((string) $domain));
+                    if ($domain === '') {
+                        continue;
+                    }
+
+                    $map[$domain] = true;
+                }
+
+                if ($map !== []) {
+                    return $map;
+                }
+            } catch (Throwable $exception) {
+                // Ignore provider failures and fall back to environment configuration.
+            }
+        }
+
         $config = getenv('MARKETING_DOMAINS');
         if ($config === false || trim((string) $config) === '') {
             return [];
