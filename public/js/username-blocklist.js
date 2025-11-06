@@ -11,6 +11,7 @@ if (container) {
   const csrfToken = container.dataset.csrf || '';
   const emptyMessage = container.dataset.emptyMessage || '';
   const defaultError = container.dataset.errorDefault || 'An error occurred.';
+  const csrfError = container.dataset.csrfError || defaultError;
   const removeLabel = container.dataset.removeLabel || 'Remove';
   const importButtons = Array.from(container.querySelectorAll('[data-username-blocklist-import]'));
 
@@ -35,6 +36,16 @@ if (container) {
     feedback.textContent = message;
     feedback.classList.remove('uk-alert-success', 'uk-alert-danger');
     feedback.classList.add(type === 'error' ? 'uk-alert-danger' : 'uk-alert-success');
+  }
+
+  function resolveErrorMessage(payload) {
+    if (payload && typeof payload.error === 'string') {
+      if (payload.error === 'csrf') {
+        return csrfError;
+      }
+      return payload.error;
+    }
+    return defaultError;
   }
 
   function setLoading(isLoading) {
@@ -194,8 +205,7 @@ if (container) {
 
       const payload = await parseJson(response);
       if (!response.ok) {
-        const message = payload && typeof payload.error === 'string' ? payload.error : defaultError;
-        showFeedback('error', message);
+        showFeedback('error', resolveErrorMessage(payload));
         return;
       }
 
@@ -298,8 +308,7 @@ if (container) {
 
       const payload = await parseJson(response);
       if (!response.ok) {
-        const message = payload && typeof payload.error === 'string' ? payload.error : defaultError;
-        showFeedback('error', message);
+        showFeedback('error', resolveErrorMessage(payload));
         return;
       }
 

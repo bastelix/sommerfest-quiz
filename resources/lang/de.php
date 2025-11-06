@@ -110,6 +110,7 @@ return [
     'error_username_blocklist_invalid' => 'Bitte einen gültigen Nutzernamen angeben (mindestens 3 Zeichen).',
     'error_username_blocklist_duplicate' => 'Dieser Nutzername ist bereits gesperrt.',
     'error_username_blocklist_not_found' => 'Der Eintrag wurde nicht gefunden.',
+    'error_username_blocklist_csrf' => 'Sitzung abgelaufen, bitte laden Sie die Seite neu.',
     'error_username_blocklist_unknown' => 'Die Aktion konnte nicht ausgeführt werden.',
     'error_username_blocklist_import_unknown_preset' => 'Bitte wähle ein gültiges Preset aus.',
     'error_username_blocklist_import_missing' => 'Die Preset-Datei ist nicht verfügbar.',
