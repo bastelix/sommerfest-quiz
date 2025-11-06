@@ -6,6 +6,7 @@ namespace App\Application\Middleware;
 
 use App\Infrastructure\Database;
 use App\Service\DomainStartPageService;
+use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -19,6 +20,13 @@ use Throwable;
  */
 class DomainMiddleware implements MiddlewareInterface
 {
+    private MarketingDomainProvider $domainProvider;
+
+    public function __construct(MarketingDomainProvider $domainProvider)
+    {
+        $this->domainProvider = $domainProvider;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -27,7 +35,8 @@ class DomainMiddleware implements MiddlewareInterface
         $host = $this->normalizeHost($originalHost);
         $marketingHost = $this->normalizeHost($originalHost, stripAdmin: false);
 
-        $mainDomain = $this->normalizeHost((string) getenv('MAIN_DOMAIN'));
+        $mainDomainRaw = $this->domainProvider->getMainDomain();
+        $mainDomain = $mainDomainRaw !== null ? $this->normalizeHost($mainDomainRaw) : '';
         $marketingDomains = $this->getMarketingDomains();
 
         $domainType = null;
@@ -112,27 +121,18 @@ class DomainMiddleware implements MiddlewareInterface
      * @return list<string>
      */
     private function getMarketingDomains(): array {
-        $env = (string) getenv('MARKETING_DOMAINS');
-        if ($env === '') {
-            return [];
-        }
+        $domains = [];
 
-        $domains = preg_split('/[\s,]+/', $env);
-        if ($domains === false) {
-            return [];
-        }
-
-        $normalized = [];
-        foreach ($domains as $domain) {
-            $domain = trim($domain);
-            if ($domain === '') {
+        foreach ($this->domainProvider->getMarketingDomains(stripAdmin: false) as $domain) {
+            $normalized = $this->normalizeHost($domain, stripAdmin: false);
+            if ($normalized === '') {
                 continue;
             }
 
-            $normalized[] = $this->normalizeHost($domain, stripAdmin: false);
+            $domains[$normalized] = true;
         }
 
-        return array_values(array_unique($normalized));
+        return array_keys($domains);
     }
 
     private function normalizeHost(string $host, bool $stripAdmin = true): string {

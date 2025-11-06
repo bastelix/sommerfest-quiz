@@ -50,6 +50,9 @@ use App\Twig\UikitExtension;
 use App\Twig\TranslationExtension;
 use App\Service\TranslationService;
 use App\Service\StripeService;
+use App\Service\MarketingDomainProvider;
+use App\Support\DomainNameHelper;
+use App\Infrastructure\Database;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Psr\Log\NullLogger;
@@ -80,9 +83,15 @@ $twig->addExtension(new UikitExtension());
 $twig->addExtension(new DateTimeFormatExtension());
 $twig->addExtension(new TranslationExtension($translator));
 $twig->getEnvironment()->addGlobal('basePath', $basePath);
+$marketingDomainProvider = new MarketingDomainProvider(
+    static function (): \PDO {
+        return Database::connectFromEnv();
+    }
+);
+DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new UrlMiddleware($twig));
-$app->add(new DomainMiddleware());
+$app->add(new DomainMiddleware($marketingDomainProvider));
 $app->add(new ProxyMiddleware());
 
 RateLimitMiddleware::setPersistentStore(RateLimitStoreFactory::createDefault());
