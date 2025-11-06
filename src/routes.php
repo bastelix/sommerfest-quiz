@@ -1888,6 +1888,24 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->post('/admin/marketing-domains', function (Request $request, Response $response) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->createMarketingDomain($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->patch('/admin/marketing-domains/{id}', function (Request $request, Response $response, array $args) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->updateMarketingDomain($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->delete('/admin/marketing-domains/{id}', function (Request $request, Response $response, array $args) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->deleteMarketingDomain($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
