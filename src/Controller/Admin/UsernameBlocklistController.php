@@ -8,19 +8,38 @@ use App\Exception\DuplicateUsernameBlocklistException;
 use App\Service\ConfigService;
 use App\Service\TranslationService;
 use App\Service\UsernameBlocklistService;
-use DateTimeInterface;
 use InvalidArgumentException;
+use DateTimeInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 use Slim\Views\Twig;
 use function array_map;
+use function count;
+use function array_sum;
+use function array_key_exists;
 use function bin2hex;
+use function dirname;
+use function fclose;
+use function fgetcsv;
+use function fgets;
+use function file_get_contents;
+use function fopen;
+use function fseek;
+use function ftell;
 use function is_array;
+use function is_readable;
+use function is_string;
 use function json_decode;
 use function json_encode;
+use function ksort;
+use function mb_strlen;
+use function mb_strtolower;
+use function rtrim;
 use function random_bytes;
 use function sprintf;
+use function substr_count;
+use function trim;
 use const JSON_UNESCAPED_SLASHES;
 use const JSON_UNESCAPED_UNICODE;
 
@@ -32,14 +51,26 @@ final class UsernameBlocklistController
 
     private ?TranslationService $translator;
 
+    private string $presetDirectory;
+
+    private const PRESET_CATEGORIES = [
+        'nsfw' => 'NSFW',
+        'ns_symbols' => '§86a/NS-Bezug',
+        'slur' => 'Beleidigung/Slur',
+        'general' => 'Allgemein',
+        'admin' => UsernameBlocklistService::ADMIN_CATEGORY,
+    ];
+
     public function __construct(
         UsernameBlocklistService $service,
         ConfigService $configService,
-        ?TranslationService $translator = null
+        ?TranslationService $translator = null,
+        ?string $presetDirectory = null
     ) {
         $this->service = $service;
         $this->configService = $configService;
         $this->translator = $translator;
+        $this->presetDirectory = $presetDirectory ?? dirname(__DIR__, 3) . '/resources/blocklists';
     }
 
     public function index(Request $request, Response $response): Response
@@ -107,6 +138,62 @@ final class UsernameBlocklistController
                 'entry' => $this->transformEntry($entry),
             ],
             201
+        );
+    }
+
+    public function import(Request $request, Response $response): Response
+    {
+        $data = $this->parsePayload($request);
+        $preset = isset($data['preset']) ? (string) $data['preset'] : '';
+
+        if ($preset === '' || !isset(self::PRESET_CATEGORIES[$preset])) {
+            return $this->jsonError($response, $this->translate('error_username_blocklist_import_unknown_preset'), 422);
+        }
+
+        try {
+            $rows = $this->loadPreset($preset);
+        } catch (RuntimeException) {
+            return $this->jsonError($response, $this->translate('error_username_blocklist_import_missing'), 404);
+        } catch (InvalidArgumentException) {
+            return $this->jsonError($response, $this->translate('error_username_blocklist_import_invalid'), 422);
+        }
+
+        try {
+            $this->service->importEntries($rows);
+        } catch (InvalidArgumentException) {
+            return $this->jsonError($response, $this->translate('error_username_blocklist_import_invalid'), 422);
+        } catch (RuntimeException $exception) {
+            return $this->jsonError(
+                $response,
+                $exception->getMessage() !== ''
+                    ? $exception->getMessage()
+                    : $this->translate('error_username_blocklist_unknown'),
+                500
+            );
+        }
+
+        $summary = $this->summarizeRows($rows);
+        $total = array_sum($summary);
+        $presetLabel = $this->translate('label_username_blocklist_preset_' . $preset);
+        $message = sprintf(
+            $this->translate('message_username_blocklist_imported'),
+            $total,
+            $presetLabel
+        );
+
+        $entries = array_map(
+            fn (array $entry): array => $this->transformEntry($entry),
+            $this->service->getAdminEntries()
+        );
+
+        return $this->json(
+            $response,
+            [
+                'status' => 'ok',
+                'message' => $message,
+                'entries' => $entries,
+                'summary' => $summary,
+            ]
         );
     }
 
@@ -183,6 +270,177 @@ final class UsernameBlocklistController
     private function translate(string $key): string
     {
         return $this->translator?->translate($key) ?? $key;
+    }
+
+    /**
+     * @return list<array{term:string,category:string}>
+     */
+    private function loadPreset(string $preset): array
+    {
+        $category = self::PRESET_CATEGORIES[$preset];
+        $basePath = rtrim($this->presetDirectory, '/\\');
+        $csvPath = $basePath . '/' . $preset . '.csv';
+        $jsonPath = $basePath . '/' . $preset . '.json';
+
+        if (is_readable($csvPath)) {
+            return $this->loadCsvPreset($csvPath, $category);
+        }
+
+        if (is_readable($jsonPath)) {
+            return $this->loadJsonPreset($jsonPath, $category);
+        }
+
+        throw new RuntimeException('Preset file not found.');
+    }
+
+    /**
+     * @return list<array{term:string,category:string}>
+     */
+    private function loadCsvPreset(string $path, string $category): array
+    {
+        $handle = fopen($path, 'rb');
+        if ($handle === false) {
+            throw new RuntimeException('Unable to open preset file.');
+        }
+
+        try {
+            $delimiter = $this->detectDelimiter($handle);
+            $header = fgetcsv($handle, 0, $delimiter);
+            if ($header === false) {
+                return [];
+            }
+
+            $termIndex = null;
+            foreach ($header as $index => $column) {
+                if (mb_strtolower(trim((string) $column)) === 'term') {
+                    $termIndex = $index;
+                    break;
+                }
+            }
+
+            if ($termIndex === null) {
+                throw new InvalidArgumentException('CSV file must contain a "term" column.');
+            }
+
+            $rows = [];
+            while (($values = fgetcsv($handle, 0, $delimiter)) !== false) {
+                if ($values === null) {
+                    continue;
+                }
+
+                $term = isset($values[$termIndex]) ? trim((string) $values[$termIndex]) : '';
+                if ($term === '') {
+                    continue;
+                }
+
+                $rows[] = [
+                    'term' => $term,
+                    'category' => $category,
+                ];
+            }
+
+            return $rows;
+        } finally {
+            fclose($handle);
+        }
+    }
+
+    /**
+     * @return list<array{term:string,category:string}>
+     */
+    private function loadJsonPreset(string $path, string $category): array
+    {
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            throw new RuntimeException('Unable to read preset file.');
+        }
+
+        $decoded = json_decode($contents, true);
+        if (!is_array($decoded)) {
+            throw new InvalidArgumentException('JSON preset must contain an array of entries.');
+        }
+
+        $rows = [];
+        foreach ($decoded as $index => $row) {
+            if (is_array($row) && array_key_exists('term', $row)) {
+                $term = (string) $row['term'];
+            } elseif (is_string($row)) {
+                $term = $row;
+            } else {
+                throw new InvalidArgumentException(sprintf('Entry %d in preset is invalid.', $index));
+            }
+
+            $term = trim($term);
+            if ($term === '') {
+                continue;
+            }
+
+            $rows[] = [
+                'term' => $term,
+                'category' => $category,
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
+     * @param list<array{term:string,category:string}> $rows
+     * @return array<string,int>
+     */
+    private function summarizeRows(array $rows): array
+    {
+        if ($rows === []) {
+            return [];
+        }
+
+        $summary = [];
+        foreach ($rows as $row) {
+            $term = mb_strtolower(trim($row['term']));
+            if ($term === '' || mb_strlen($term) < 3) {
+                continue;
+            }
+
+            $category = $row['category'];
+            if ($category === '') {
+                continue;
+            }
+
+            $summary[$category][$term] = true;
+        }
+
+        $result = [];
+        foreach ($summary as $category => $terms) {
+            $result[$category] = count($terms);
+        }
+
+        ksort($result);
+
+        return $result;
+    }
+
+    /**
+     * @param resource $handle
+     */
+    private function detectDelimiter($handle): string
+    {
+        $position = ftell($handle);
+        $line = fgets($handle);
+        $delimiter = ',';
+
+        if ($line !== false) {
+            $semicolonCount = substr_count($line, ';');
+            $commaCount = substr_count($line, ',');
+            if ($semicolonCount > 0 && $semicolonCount >= $commaCount) {
+                $delimiter = ';';
+            }
+        }
+
+        if ($position !== false) {
+            fseek($handle, $position);
+        }
+
+        return $delimiter;
     }
 
     private function json(Response $response, array $payload, int $status = 200): Response

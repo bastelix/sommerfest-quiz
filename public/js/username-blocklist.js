@@ -7,10 +7,12 @@ if (container) {
   const tableBody = container.querySelector('[data-username-blocklist-table]');
   const feedback = container.querySelector('[data-username-blocklist-feedback]');
   const createUrl = container.dataset.createUrl || '';
+  const importUrl = container.dataset.importUrl || '';
   const csrfToken = container.dataset.csrf || '';
   const emptyMessage = container.dataset.emptyMessage || '';
   const defaultError = container.dataset.errorDefault || 'An error occurred.';
   const removeLabel = container.dataset.removeLabel || 'Remove';
+  const importButtons = Array.from(container.querySelectorAll('[data-username-blocklist-import]'));
 
   if (feedback) {
     feedback.setAttribute('role', 'alert');
@@ -41,6 +43,18 @@ if (container) {
     }
     submitButton.disabled = isLoading;
     submitButton.classList.toggle('uk-disabled', isLoading);
+  }
+
+  function setImportLoading(isLoading) {
+    importButtons.forEach((button) => {
+      button.disabled = isLoading;
+      button.classList.toggle('uk-disabled', isLoading);
+      if (isLoading) {
+        button.setAttribute('aria-busy', 'true');
+      } else {
+        button.removeAttribute('aria-busy');
+      }
+    });
   }
 
   function removeEmptyRow() {
@@ -124,6 +138,23 @@ if (container) {
     tableBody.appendChild(row);
   }
 
+  function setEntries(entries) {
+    if (!tableBody) {
+      return;
+    }
+
+    tableBody.innerHTML = '';
+
+    if (!Array.isArray(entries) || entries.length === 0) {
+      ensureEmptyRow();
+      return;
+    }
+
+    entries.forEach((entry) => {
+      appendEntry(entry);
+    });
+  }
+
   async function parseJson(response) {
     const text = await response.text();
     if (!text) {
@@ -189,6 +220,57 @@ if (container) {
     }
   }
 
+  async function handleImportClick(event) {
+    const button = event.currentTarget;
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const preset = button.getAttribute('data-preset');
+    if (!preset || !importUrl) {
+      return;
+    }
+
+    event.preventDefault();
+    clearFeedback();
+    setImportLoading(true);
+
+    try {
+      const response = await fetch(importUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+        },
+        body: JSON.stringify({ preset }),
+      });
+
+      const payload = await parseJson(response);
+      if (!response.ok) {
+        const message = payload && typeof payload.error === 'string' ? payload.error : defaultError;
+        showFeedback('error', message);
+        return;
+      }
+
+      if (payload && Array.isArray(payload.entries)) {
+        setEntries(payload.entries);
+      } else {
+        ensureEmptyRow();
+      }
+
+      if (payload && typeof payload.message === 'string') {
+        showFeedback('success', payload.message);
+      } else {
+        showFeedback('success', '');
+      }
+    } catch (error) {
+      showFeedback('error', defaultError);
+    } finally {
+      setImportLoading(false);
+    }
+  }
+
   async function handleDelete(event) {
     if (!(event.target instanceof Element)) {
       return;
@@ -246,4 +328,8 @@ if (container) {
   if (tableBody) {
     tableBody.addEventListener('click', handleDelete);
   }
+
+  importButtons.forEach((button) => {
+    button.addEventListener('click', handleImportClick);
+  });
 }
