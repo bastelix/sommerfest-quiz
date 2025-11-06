@@ -109,6 +109,7 @@ return [
     'error_username_blocklist_invalid' => 'Please enter a valid username (at least 3 characters).',
     'error_username_blocklist_duplicate' => 'This username is already blocked.',
     'error_username_blocklist_not_found' => 'The entry could not be found.',
+    'error_username_blocklist_csrf' => 'Session expired, please reload the page.',
     'error_username_blocklist_unknown' => 'The action could not be completed.',
     'text_marketing_newsletter_empty' => 'No CTA entries configured yet.',
     'label_marketing_newsletter_style_primary' => 'Primary button',
