@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Infrastructure\Migrations\Migrator;
 use App\Service\DomainStartPageService;
 use App\Service\PageService;
+use PDO;
 use Tests\TestCase;
+
+use function file_get_contents;
+use function preg_match_all;
 
 class DomainStartPageControllerTest extends TestCase
 {
     public function testCanSaveNewMarketingPageAsStartPage(): void {
+        $this->bootMinimalSchema();
+
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }
@@ -23,6 +30,10 @@ class DomainStartPageControllerTest extends TestCase
         $previousEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $previousSecret = getenv('DASHBOARD_TOKEN_SECRET');
+        $previousEnvSecret = $_ENV['DASHBOARD_TOKEN_SECRET'] ?? null;
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
 
         try {
             $pdo = $this->getDatabase();
@@ -66,6 +77,7 @@ class DomainStartPageControllerTest extends TestCase
             $settingsValue = $pdo->query("SELECT value FROM settings WHERE key = 'home_page'")?->fetchColumn();
             $this->assertSame('fresh-marketing', $settingsValue);
         } finally {
+            Migrator::setHook(null);
             if ($previousMainDomain === false) {
                 putenv('MAIN_DOMAIN');
             } else {
@@ -76,7 +88,52 @@ class DomainStartPageControllerTest extends TestCase
             } else {
                 $_ENV['MAIN_DOMAIN'] = $previousEnvMainDomain;
             }
+            if ($previousSecret === false) {
+                putenv('DASHBOARD_TOKEN_SECRET');
+            } else {
+                putenv('DASHBOARD_TOKEN_SECRET=' . $previousSecret);
+            }
+            if ($previousEnvSecret === null) {
+                unset($_ENV['DASHBOARD_TOKEN_SECRET']);
+            } else {
+                $_ENV['DASHBOARD_TOKEN_SECRET'] = $previousEnvSecret;
+            }
             session_destroy();
         }
+    }
+
+    private function bootMinimalSchema(): void
+    {
+        Migrator::setHook(static function (PDO $pdo): bool {
+            $schemaPath = __DIR__ . '/../../src/Infrastructure/Migrations/sqlite-schema.sql';
+            $schema = file_get_contents($schemaPath);
+            if ($schema === false) {
+                throw new \RuntimeException('Unable to load SQLite schema.');
+            }
+
+            preg_match_all('/(CREATE TABLE[\s\S]*?;)/', $schema, $tableMatches);
+            foreach ($tableMatches[1] as $statement) {
+                $pdo->exec($statement);
+            }
+
+            preg_match_all('/(CREATE (?:UNIQUE )?INDEX[\s\S]*?;)/', $schema, $indexMatches);
+            foreach ($indexMatches[1] as $statement) {
+                $pdo->exec($statement);
+            }
+
+            $pdo->exec('CREATE TABLE IF NOT EXISTS marketing_domains ('
+                . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+                . 'host TEXT NOT NULL, '
+                . 'normalized_host TEXT NOT NULL UNIQUE, '
+                . 'label TEXT, '
+                . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+                . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP'
+                . ')');
+
+            $pdo->exec("INSERT OR IGNORE INTO settings(key, value) VALUES('home_page', 'help')");
+            $pdo->exec("INSERT OR IGNORE INTO settings(key, value) VALUES('registration_enabled', '0')");
+
+            return false;
+        });
     }
 }
