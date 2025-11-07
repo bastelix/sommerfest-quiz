@@ -57,7 +57,120 @@ load_env_defaults "$SCRIPT_DIR/../.env" \
   NGINX_RELOADER_URL "" \
   NGINX_RELOAD_TOKEN "" \
   NGINX_RELOADER_SERVICE "" \
-  NGINX_CONTAINER ""
+  NGINX_CONTAINER "" \
+  MAIN_DOMAIN "" \
+  DOMAIN "" \
+  DOMAIN_STRIPPED_PREFIXES ""
+
+build_alias_list() {
+  config=$(printf '%s' "${DOMAIN_STRIPPED_PREFIXES:-}" | tr '[:upper:]' '[:lower:]')
+  config=$(printf '%s' "$config" | tr '\t,\n' '   ')
+
+  if [ -n "$config" ]; then
+    aliases="www"
+    for token in $config; do
+      token=$(printf '%s' "$token" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+      if [ -z "$token" ]; then
+        continue
+      fi
+      case " $aliases " in
+        *" $token "*)
+          ;;
+        *)
+          aliases="$aliases $token"
+          ;;
+      esac
+    done
+  else
+    aliases="www admin assistant"
+  fi
+
+  printf '%s' "$aliases"
+}
+
+BASE_DOMAIN=""
+if [ -n "${MAIN_DOMAIN+x}" ] && [ -n "$MAIN_DOMAIN" ]; then
+  BASE_DOMAIN=$(printf '%s' "$MAIN_DOMAIN" | tr '[:upper:]' '[:lower:]')
+elif [ -n "${DOMAIN+x}" ] && [ -n "$DOMAIN" ]; then
+  BASE_DOMAIN=$(printf '%s' "$DOMAIN" | tr '[:upper:]' '[:lower:]')
+fi
+
+MAIN_ALIAS_LIST="$(build_alias_list)"
+
+is_main_alias() {
+  candidate=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+  for alias in $MAIN_ALIAS_LIST; do
+    if [ "$alias" = "$candidate" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+resolve_slug() {
+  input="$1"
+  lowered=$(printf '%s' "$input" | tr '[:upper:]' '[:lower:]')
+  trimmed=$(printf '%s' "$lowered" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+  host=$(printf '%s' "$trimmed" | sed -E 's#^[a-z0-9+.-]+://##')
+  host=${host%%/*}
+  host=${host%%\?*}
+  host=${host%%#*}
+  host=${host%%:*}
+  host=$(printf '%s' "$host" | tr -cd 'abcdefghijklmnopqrstuvwxyz0123456789.-')
+
+  if [ -n "$host" ] && [ -n "$BASE_DOMAIN" ]; then
+    if [ "$host" = "$BASE_DOMAIN" ]; then
+      printf 'main'
+      return
+    fi
+
+    suffix=".$BASE_DOMAIN"
+    case "$host" in
+      *"$suffix")
+        prefix=${host%$suffix}
+        prefix=${prefix%.}
+        if [ -z "$prefix" ]; then
+          printf 'main'
+          return
+        fi
+
+        first_label=${prefix%%.*}
+        if [ -z "$first_label" ]; then
+          first_label="$prefix"
+        fi
+
+        if is_main_alias "$first_label"; then
+          printf 'main'
+          return
+        fi
+
+        slug=$(printf '%s' "$prefix" | tr '.:/_' '-' | sed 's/[^a-z0-9-]/-/g')
+        slug=$(printf '%s' "$slug" | sed 's/--*/-/g;s/^-//;s/-$//')
+        if [ -z "$slug" ]; then
+          printf 'main'
+        else
+          printf '%s' "$slug"
+        fi
+        return
+        ;;
+    esac
+  fi
+
+  fallback=$(printf '%s' "$input" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
+  fallback=$(printf '%s' "$fallback" | sed 's/--*/-/g;s/^-//;s/-$//')
+
+  if [ -z "$fallback" ]; then
+    printf '%s' "$fallback"
+    return
+  fi
+
+  if [ -n "$BASE_DOMAIN" ] && is_main_alias "$fallback"; then
+    printf 'main'
+  else
+    printf '%s' "$fallback"
+  fi
+}
 
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <tenant-slug>|--main" >&2
@@ -108,10 +221,14 @@ fi
 
 if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
   SLUG="main"
+else
+  SLUG="$(resolve_slug "$1")"
+fi
+
+if [ "$SLUG" = "main" ]; then
   COMPOSE_FILE="$SCRIPT_DIR/../docker-compose.yml"
   SERVICE="slim"
 else
-  SLUG="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
   TENANT_DIR="$TENANTS_DIR/$SLUG"
   COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
   SERVICE="${TENANT_SERVICE:-app}"
