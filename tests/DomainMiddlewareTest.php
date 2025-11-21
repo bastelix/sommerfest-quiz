@@ -191,6 +191,26 @@ class DomainMiddlewareTest extends TestCase
         $this->assertSame('marketing', $handler->request->getAttribute('domainType'));
     }
 
+    public function testMarketingDomainAllowedWithoutMainDomain(): void {
+        $middleware = new DomainMiddleware($this->createProvider(['marketing-domain.tld']));
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('GET', 'https://marketing-domain.tld/');
+
+        $handler = new class implements RequestHandlerInterface {
+            public ?Request $request = null;
+
+            public function handle(Request $request): ResponseInterface {
+                $this->request = $request;
+                return new Response();
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('marketing', $handler->request->getAttribute('domainType'));
+    }
+
     private function restoreEnv(string $variable, mixed $value): void {
         if ($value === false || $value === null) {
             putenv($variable);

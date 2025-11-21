@@ -54,8 +54,11 @@ class DomainMiddleware implements MiddlewareInterface
         }
 
         if (
-            $mainDomain === ''
-            || $domainType === null
+            $domainType !== 'marketing'
+            && (
+                $mainDomain === ''
+                || $domainType === null
+            )
         ) {
             $message = 'Invalid main domain configuration.';
             error_log(sprintf(
