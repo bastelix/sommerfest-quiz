@@ -132,12 +132,26 @@
       return;
     }
 
+    if (!container.dataset.placeholder) {
+      container.dataset.placeholder = container.innerHTML;
+    }
+
     const iframe = document.createElement('iframe');
     iframe.src = src;
     iframe.title = container.getAttribute('data-video-title') || '';
     iframe.loading = 'lazy';
     iframe.setAttribute('allow', ALLOW_ATTR);
     iframe.setAttribute('allowfullscreen', 'true');
+
+    iframe.addEventListener('error', function () {
+      if (!container.isConnected || !container.dataset.placeholder) {
+        return;
+      }
+
+      container.innerHTML = container.dataset.placeholder;
+      container.dataset.state = 'error';
+      container.classList.remove('is-loaded');
+    });
 
     container.innerHTML = '';
     container.appendChild(iframe);
