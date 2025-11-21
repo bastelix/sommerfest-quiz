@@ -569,13 +569,34 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card
     border-color: rgba(255, 255, 255, 0.7);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast) .site-footer,
-body.qr-landing.calserver-theme:not(.high-contrast) .site-footer a,
-body.qr-landing.calserver-theme:not(.high-contrast) .footer-section,
-body.qr-landing.calserver-theme:not(.high-contrast) .footer-section p,
-body.qr-landing.calserver-theme:not(.high-contrast) .footer-section li,
-body.qr-landing.calserver-theme:not(.high-contrast) .footer-section strong {
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .site-footer,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .site-footer a,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section p,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section li,
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section strong,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer a,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section p,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section li,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section strong {
     color: #ffffff;
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer,
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer a,
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section,
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section p,
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section li,
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section strong,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer a,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section p,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section li,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section strong {
+    color: color-mix(in oklab, var(--qr-text, #1c2131) 92%, var(--calserver-primary) 8%);
 }
 
 body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast),
