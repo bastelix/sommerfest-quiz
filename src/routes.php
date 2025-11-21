@@ -820,6 +820,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
     });
+    $app->get('/labor', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('labor');
+        return $controller($request, $response);
+    });
     $app->get('/fluke-metcal', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {

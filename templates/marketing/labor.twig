@@ -1,0 +1,326 @@
+{% extends 'layout.twig' %}
+
+{% set navLinks = [
+  { 'label': 'Startseite', 'href': '/' },
+  { 'label': 'Kalibrierung', 'href': '/kalibrierung' },
+  { 'label': 'Akkreditierung', 'href': '/akkreditierung' },
+  { 'label': 'Branchen', 'href': '/branchen' },
+  { 'label': 'Über uns', 'href': '/ueber-uns' },
+  { 'label': 'Downloads', 'href': '/downloads' }
+] %}
+{% set contactLink = { 'label': 'Kontakt', 'href': '/kontakt' } %}
+{% set pageConfig = {
+  'page': 'startseite',
+  'title': 'Kalibrierlabor – DAkkS-akkreditiert',
+  'sections': [
+    {
+      'type': 'HeroBlock',
+      'headline': 'Präzision beginnt mit Vertrauen.',
+      'subline': 'DAkkS-akkreditiertes Kalibrierlabor für elektrische und thermische Messgrößen – zuverlässig, rückführbar und auditsicher.',
+      'buttons': [
+        { 'label': 'Kalibrierung anfragen', 'link': '/kontakt' },
+        { 'label': 'Akkreditierung ansehen', 'link': '/akkreditierung' }
+      ],
+      'backgroundImage': '/assets/labor-hero.jpg'
+    },
+    {
+      'type': 'TextBlock',
+      'title': 'Unsere Mission',
+      'text': 'Wir kalibrieren Messmittel mit höchster Präzision – damit Ihre Prozesse sicher, normkonform und jederzeit reproduzierbar bleiben. Seit über 20 Jahren unterstützen wir Industrieunternehmen, Energieversorger und Forschungseinrichtungen mit zuverlässigen Kalibrierprozessen und kurzen Durchlaufzeiten.'
+    },
+    {
+      'type': 'IconGrid',
+      'columns': 4,
+      'items': [
+        {
+          'icon': 'check',
+          'title': 'DAkkS-akkreditiert',
+          'text': 'Rückführbare Messergebnisse nach DIN EN ISO/IEC 17025.'
+        },
+        {
+          'icon': 'bolt',
+          'title': 'Schnelle Durchlaufzeiten',
+          'text': 'Planbare Prozesse, geringe Liegezeiten, flexible Terminabstimmung.'
+        },
+        {
+          'icon': 'lifesaver',
+          'title': 'Modernes Labor',
+          'text': 'Hochpräzise Referenznormale und dokumentierte Kalibrierketten.'
+        },
+        {
+          'icon': 'cog',
+          'title': 'Kompletter Service',
+          'text': 'Abhol-/Bringservice, Prüfmittelmanagement und digitale Zertifikate.'
+        }
+      ]
+    },
+    {
+      'type': 'CardGrid',
+      'title': 'Unsere Kalibrierbereiche',
+      'columns': 4,
+      'items': [
+        {
+          'image': '/assets/messgroessen-elektrisch.jpg',
+          'title': 'Elektrische Messgrößen',
+          'text': 'Spannung, Strom, Widerstand, Frequenz, Leistung.',
+          'link': '/kalibrierung/elektrisch'
+        },
+        {
+          'image': '/assets/temperatur.jpg',
+          'title': 'Temperatur',
+          'text': 'Thermometer, Fühler, Logger.',
+          'link': '/kalibrierung/temperatur'
+        },
+        {
+          'image': '/assets/vor-ort.jpg',
+          'title': 'Vor-Ort-Kalibrierung',
+          'text': 'Direkt bei Ihnen in der Produktion.',
+          'link': '/kalibrierung/vor-ort'
+        },
+        {
+          'image': '/assets/pruefmittel.jpg',
+          'title': 'Prüfmittelmanagement',
+          'text': 'Digital, transparent, automatisiert.',
+          'link': '/pruefmittelmanagement'
+        }
+      ]
+    },
+    {
+      'type': 'ProcessStepper',
+      'title': 'So funktioniert eine Kalibrierung bei uns',
+      'steps': [
+        { 'title': '1. Messmittel anmelden', 'text': 'Einfach online oder per Formular.' },
+        { 'title': '2. Versand / Abholung', 'text': 'Sie senden das Gerät – oder wir holen es ab.' },
+        { 'title': '3. Kalibrierung', 'text': 'Akkreditiert, dokumentiert, rückführbar.' },
+        { 'title': '4. Zertifikat erhalten', 'text': 'Digital, sicher archiviert, jederzeit abrufbar.' }
+      ]
+    },
+    {
+      'type': 'TwoColumnSection',
+      'title': 'Digitales Messmittelportal (calServer)',
+      'image': '/assets/calserver-dashboard.png',
+      'text': 'Alle Messmittel. Ein Portal. Maximale Transparenz.\nMit unserem Messmittelportal calServer behalten Sie jederzeit den Überblick über Kalibrierfristen, Historien, Zertifikate und Wartungstermine. Cloudbasiert, DSGVO-konform, 24/7 verfügbar.\n\n• Zentrale Verwaltung aller Messmittel\n• Digitale Zertifikate jederzeit abrufbar\n• Automatische Erinnerungen\n• Audit-sichere Historien\n• Multi-User Zugang\n• REST-API für ERP/LIMS-Integration',
+      'button': { 'label': 'Zum Messmittelportal', 'link': '/messmittelportal' }
+    },
+    {
+      'type': 'TwoColumnSection',
+      'title': 'Vertrauen durch Qualität',
+      'image': '/assets/dakks-logo.png',
+      'text': 'Wir sind durch die Deutsche Akkreditierungsstelle (DAkkS) nach DIN EN ISO/IEC 17025 akkreditiert. Unsere Normale, Prozesse und Messunsicherheiten werden regelmäßig auditiert. Die aktuelle Akkreditierungsurkunde finden Sie hier.',
+      'button': { 'label': 'Akkreditierung öffnen', 'link': '/akkreditierung' }
+    },
+    {
+      'type': 'CTASection',
+      'headline': 'Bereit für präzise Kalibrierung?',
+      'subline': 'Fordern Sie ein unverbindliches Angebot an – Antwort innerhalb eines Werktages.',
+      'button': { 'label': 'Kalibrierung anfragen', 'link': '/kontakt' }
+    }
+  ]
+} %}
+
+{% block title %}{{ metaTitle|default(pageConfig.title) }}{% endblock %}
+
+{% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/labor.css">
+  <meta name="page-name" content="Labor Landing Page">
+{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}labor-landing{% endblock %}
+
+{% block body %}
+  <header class="labor-header" uk-sticky="animation: uk-animation-slide-top; sel-target: .labor-nav; cls-active: is-sticky">
+    <nav class="labor-nav uk-navbar-container" uk-navbar>
+      <div class="uk-navbar-left">
+        <div class="uk-navbar-item">
+          <a class="labor-logo" href="/">Systems Engineering</a>
+        </div>
+      </div>
+      <div class="uk-navbar-right">
+        <ul class="uk-navbar-nav uk-visible@m">
+          {% for link in navLinks %}
+            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+          {% endfor %}
+        </ul>
+        <a class="uk-button uk-button-primary labor-nav__cta uk-visible@m" href="{{ contactLink.href }}">{{ contactLink.label }}</a>
+        <button class="uk-navbar-toggle uk-hidden@m" type="button" aria-label="Menü"
+                uk-toggle="target: #labor-offcanvas" uk-navbar-toggle-icon></button>
+      </div>
+    </nav>
+    <div id="labor-offcanvas" uk-offcanvas="overlay: true">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close" type="button" aria-label="Menü schließen" uk-close></button>
+        <ul class="uk-nav uk-nav-default labor-offcanvas__nav">
+          {% for link in navLinks %}
+            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+          {% endfor %}
+        </ul>
+        <a class="uk-button uk-button-primary labor-nav__cta uk-width-1-1" href="{{ contactLink.href }}">{{ contactLink.label }}</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="labor-main" aria-label="{{ pageConfig.title }}">
+    {% for section in pageConfig.sections %}
+      {% if section.type == 'HeroBlock' %}
+        <section class="labor-hero" style="background-image: url('{{ basePath ~ section.backgroundImage }}');">
+          <div class="labor-hero__overlay" aria-hidden="true"></div>
+          <div class="uk-container">
+            <div class="labor-hero__grid">
+              <div class="labor-hero__content">
+                <p class="labor-eyebrow">{{ pageConfig.title }}</p>
+                <h1 class="labor-hero__headline">{{ section.headline }}</h1>
+                <p class="labor-hero__subline">{{ section.subline }}</p>
+                <div class="labor-hero__actions" role="group" aria-label="Hauptaktionen">
+                  {% for button in section.buttons %}
+                    <a class="uk-button {% if loop.first %}uk-button-primary labor-button-primary{% else %}uk-button-default labor-button-secondary{% endif %}"
+                       href="{{ button.link }}">{{ button.label }}</a>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      {% elseif section.type == 'TextBlock' %}
+        <section class="uk-section labor-section">
+          <div class="uk-container uk-container-small uk-text-center">
+            <h2 class="labor-section__title">{{ section.title }}</h2>
+            <p class="labor-section__text">{{ section.text }}</p>
+          </div>
+        </section>
+      {% elseif section.type == 'IconGrid' %}
+        <section class="uk-section labor-section labor-section--muted">
+          <div class="uk-container">
+            <div class="uk-child-width-1-2@s uk-child-width-1-{{ section.columns }}@l" uk-grid>
+              {% for item in section.items %}
+                <div>
+                  <div class="labor-icon-card uk-card uk-card-default uk-card-body">
+                    <div class="labor-icon-card__icon" aria-hidden="true" uk-icon="icon: {{ item.icon }}; ratio: 1.5"></div>
+                    <h3 class="labor-icon-card__title">{{ item.title }}</h3>
+                    <p class="labor-icon-card__text">{{ item.text }}</p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      {% elseif section.type == 'CardGrid' %}
+        <section class="uk-section labor-section">
+          <div class="uk-container">
+            <div class="labor-section__header">
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+            </div>
+            <div class="uk-grid-small uk-child-width-1-2@m uk-child-width-1-{{ section.columns }}@l" uk-grid>
+              {% for item in section.items %}
+                <div>
+                  <div class="labor-card uk-card uk-card-default uk-card-body">
+                    <div class="labor-card__image" role="presentation">
+                      <img src="{{ basePath ~ item.image }}" alt="{{ item.title }}" loading="lazy">
+                    </div>
+                    <h3 class="labor-card__title">{{ item.title }}</h3>
+                    <p class="labor-card__text">{{ item.text }}</p>
+                    <a class="labor-card__link" href="{{ item.link }}">Mehr erfahren →</a>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      {% elseif section.type == 'ProcessStepper' %}
+        <section class="uk-section labor-section labor-section--muted">
+          <div class="uk-container">
+            <div class="labor-section__header">
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+            </div>
+            <ol class="labor-stepper" aria-label="Ablauf der Kalibrierung">
+              {% for step in section.steps %}
+                <li class="labor-stepper__item">
+                  <div class="labor-stepper__index" aria-hidden="true">{{ loop.index }}</div>
+                  <div class="labor-stepper__body">
+                    <h3 class="labor-stepper__title">{{ step.title }}</h3>
+                    <p class="labor-stepper__text">{{ step.text }}</p>
+                  </div>
+                </li>
+              {% endfor %}
+            </ol>
+          </div>
+        </section>
+      {% elseif section.type == 'TwoColumnSection' %}
+        <section class="uk-section labor-section">
+          <div class="uk-container">
+            {% set imageFirst = loop.index is even %}
+            <div class="uk-grid-large uk-flex-middle" uk-grid>
+              <div class="uk-width-1-2@m {% if not imageFirst %}uk-flex-last@m{% endif %}">
+                <div class="labor-media">
+                  <img src="{{ basePath ~ section.image }}" alt="{{ section.title }}" loading="lazy">
+                </div>
+              </div>
+              <div class="uk-width-1-2@m">
+                <div class="labor-text-block">
+                  <h2 class="labor-section__title">{{ section.title }}</h2>
+                  {% for paragraph in section.text|split('\n') %}
+                    {% if paragraph|trim != '' %}
+                      <p class="labor-section__text">{{ paragraph }}</p>
+                    {% endif %}
+                  {% endfor %}
+                  {% if section.button is defined %}
+                    <a class="uk-button uk-button-primary labor-button-primary" href="{{ section.button.link }}">{{ section.button.label }}</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      {% elseif section.type == 'CTASection' %}
+        <section class="uk-section labor-section labor-cta">
+          <div class="uk-container uk-text-center">
+            <h2 class="labor-cta__headline">{{ section.headline }}</h2>
+            <p class="labor-cta__subline">{{ section.subline }}</p>
+            <a class="uk-button uk-button-primary labor-button-primary" href="{{ section.button.link }}">{{ section.button.label }}</a>
+          </div>
+        </section>
+      {% endif %}
+    {% endfor %}
+  </main>
+
+  <footer class="labor-footer" aria-label="Footer">
+    <div class="uk-container">
+      <div class="uk-grid-large uk-child-width-1-3@m" uk-grid>
+        <div>
+          <h3 class="labor-footer__title">Navigation</h3>
+          <ul class="labor-footer__links">
+            <li><a href="/">Startseite</a></li>
+            <li><a href="/kalibrierung">Kalibrierung</a></li>
+            <li><a href="/akkreditierung">Akkreditierung</a></li>
+            <li><a href="/branchen">Branchen</a></li>
+            <li><a href="/ueber-uns">Über uns</a></li>
+            <li><a href="/kontakt">Kontakt</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="labor-footer__title">Rechtliches</h3>
+          <ul class="labor-footer__links">
+            <li><a href="/impressum">Impressum</a></li>
+            <li><a href="/datenschutz">Datenschutz</a></li>
+            <li><a href="/downloads">AGB</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="labor-footer__title">Kontakt</h3>
+          <ul class="labor-footer__contact">
+            <li>Systems Engineering Kalibrierlabor</li>
+            <li>Technologiepark 5<br>01234 Musterstadt</li>
+            <li><a href="mailto:kontakt@systems-engineering.de">kontakt@systems-engineering.de</a></li>
+            <li><a href="tel:+49301234567">+49 30 1234567</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="labor-footer__bottom">
+        <p>© Systems Engineering Kalibrierlabor · Alle Rechte vorbehalten</p>
+      </div>
+    </div>
+  </footer>
+{% endblock %}
