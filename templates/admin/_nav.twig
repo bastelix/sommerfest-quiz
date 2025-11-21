@@ -15,6 +15,7 @@
       { href: basePath ~ '/admin/events', icon: 'calendar', text: t('tab_events') },
       { href: basePath ~ '/admin/event/dashboard', icon: 'tv', text: t('tab_event_dashboard') },
       { href: basePath ~ '/admin/event/settings', icon: 'cog', text: t('tab_event_settings') },
+      { href: basePath ~ '/admin/username-blocklist', icon: 'lock', text: t('tab_username_blocklist'), admin: true },
       { href: basePath ~ '/admin/summary', icon: 'table', text: t('tab_summary') },
       { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor'] },
       { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions') },
@@ -63,7 +64,6 @@
       { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management'), noEvent: true },
       { href: basePath ~ '/admin/logs', icon: 'history', text: t('tab_logs'), noEvent: true },
       { href: basePath ~ '/admin/mail-providers', icon: 'mail', text: t('tab_mail_providers'), noEvent: true },
-      { href: basePath ~ '/admin/username-blocklist', icon: 'lock', text: t('tab_username_blocklist'), noEvent: true },
       { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main', noEvent: true },
     ]
   },
