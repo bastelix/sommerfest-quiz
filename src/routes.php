@@ -65,6 +65,7 @@ use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
+use App\Service\CertificateProvisioningService;
 use App\Service\UsernameBlocklistService;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
@@ -478,6 +479,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainStartPageService = new DomainStartPageService($pdo);
+        $certificateProvisioner = new CertificateProvisioningService($domainStartPageService);
         $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $passwordResetService = new PasswordResetService(
@@ -573,7 +575,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute(
                 'domainStartPageController',
-                new DomainStartPageController($domainStartPageService, $settingsService, $pageService)
+                new DomainStartPageController(
+                    $domainStartPageService,
+                    $certificateProvisioner,
+                    $settingsService,
+                    $pageService
+                )
             )
             ->withAttribute(
                 'domainContactTemplateController',
@@ -1900,6 +1907,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var DomainStartPageController $controller */
         $controller = $request->getAttribute('domainStartPageController');
         return $controller->createMarketingDomain($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-start-pages/certificate', function (Request $request, Response $response) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->provisionCertificate($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->patch('/admin/marketing-domains/{id}', function (Request $request, Response $response, array $args) {

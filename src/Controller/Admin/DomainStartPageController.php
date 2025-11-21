@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Service\CertificateProvisioningService;
 use App\Service\DomainStartPageService;
 use App\Service\PageService;
 use App\Service\SettingsService;
@@ -19,16 +20,19 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DomainStartPageController
 {
     private DomainStartPageService $domainService;
+    private CertificateProvisioningService $certificateProvisioner;
     private SettingsService $settingsService;
 
     private PageService $pageService;
 
     public function __construct(
         DomainStartPageService $domainService,
+        CertificateProvisioningService $certificateProvisioner,
         SettingsService $settingsService,
         PageService $pageService
     ) {
         $this->domainService = $domainService;
+        $this->certificateProvisioner = $certificateProvisioner;
         $this->settingsService = $settingsService;
         $this->pageService = $pageService;
     }
@@ -173,6 +177,7 @@ class DomainStartPageController
 
         try {
             $domain = $this->domainService->createMarketingDomain($host, $label);
+            $this->certificateProvisioner->provisionMarketingDomain($domain['host']);
         } catch (InvalidArgumentException $exception) {
             $message = $translationService?->translate('notify_domain_contact_template_invalid_domain')
                 ?? $exception->getMessage();
@@ -194,6 +199,46 @@ class DomainStartPageController
         ]));
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    }
+
+    public function provisionCertificate(Request $request, Response $response): Response {
+        $data = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $data = json_decode((string) $request->getBody(), true);
+        }
+
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
+
+        $domain = isset($data['domain']) ? (string) $data['domain'] : '';
+        if ($domain === '') {
+            return $response->withStatus(400);
+        }
+
+        try {
+            $this->certificateProvisioner->provisionMarketingDomain($domain);
+        } catch (InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (\Throwable $exception) {
+            $message = $exception->getMessage();
+            $response->getBody()->write(json_encode(['error' => $message !== '' ? $message : 'Certificate request failed.']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode([
+            'status' => 'ok',
+            'domain' => $domain,
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function updateMarketingDomain(Request $request, Response $response, array $args): Response {

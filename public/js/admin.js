@@ -2993,6 +2993,9 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainStartPageTable.dataset.empty || '',
       error: domainStartPageTable.dataset.error || transDomainStartPageError
     };
+    const sslActionLabel = window.actionDomainIssueSsl || 'Request certificate';
+    const sslSuccessMessage = window.transDomainSslIssued || transDomainStartPageSaved;
+    const sslErrorMessage = window.transDomainSslError || transDomainStartPageError;
     const marketingDomainForm = document.getElementById('marketingDomainForm');
     const marketingDomainHost = document.getElementById('marketingDomainHost');
     const marketingDomainLabel = document.getElementById('marketingDomainLabel');
@@ -3174,6 +3177,40 @@ document.addEventListener('DOMContentLoaded', function () {
         templateButton.addEventListener('click', () => openContactTemplateEditor(item));
         templateCell.appendChild(templateButton);
         tr.appendChild(templateCell);
+
+        const sslCell = document.createElement('td');
+        sslCell.className = 'uk-table-shrink';
+        const sslButton = document.createElement('button');
+        sslButton.type = 'button';
+        sslButton.className = 'uk-button uk-button-default uk-button-small';
+        sslButton.textContent = sslActionLabel;
+        sslButton.addEventListener('click', () => {
+          sslButton.disabled = true;
+          apiFetch('/admin/domain-start-pages/certificate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ domain: item.domain })
+          })
+            .then(res => {
+              if (!res.ok) {
+                return res.json().catch(() => ({})).then(data => {
+                  throw new Error(data?.error || sslErrorMessage);
+                });
+              }
+              return res.json();
+            })
+            .then(() => {
+              notify(sslSuccessMessage, 'success');
+            })
+            .catch(err => {
+              notify(err?.message || sslErrorMessage, 'danger');
+            })
+            .finally(() => {
+              sslButton.disabled = false;
+            });
+        });
+        sslCell.appendChild(sslButton);
+        tr.appendChild(sslCell);
 
         const typeCell = document.createElement('td');
         typeCell.textContent = domainStartPageTypeLabels[item.type] || item.type;
