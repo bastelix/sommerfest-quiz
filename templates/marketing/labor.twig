@@ -34,6 +34,25 @@
       'text': 'Wir kalibrieren Messmittel mit höchster Präzision – damit Ihre Prozesse sicher, normkonform und jederzeit reproduzierbar bleiben. Seit über 20 Jahren unterstützen wir Industrieunternehmen, Energieversorger und Forschungseinrichtungen mit zuverlässigen Kalibrierprozessen und kurzen Durchlaufzeiten.'
     },
     {
+      'type': 'MeasurementTicker',
+      'title': 'Messgrößen im Überblick',
+      'label': 'Alle Messgrößen von Systems Engineering',
+      'items': [
+        'Gleich- & Wechselspannung',
+        'Gleich- & Wechselstrom',
+        'Widerstand & Niederohm',
+        'Frequenz, Zeitmarken & Impuls',
+        'Leistung & Energie',
+        'Temperaturfühler & Thermometer',
+        'Druck (absolut & relativ)',
+        'Drehmoment & Drehzahl',
+        'Länge, Winkel & Dimension',
+        'Feuchte & Klima',
+        'Signal- und Prozesskalibratoren',
+        'Prüfstände & Multifunktionsgeräte'
+      ]
+    },
+    {
       'type': 'KpiBand',
       'title': 'Kennzahlen aus dem Laboralltag',
       'columns': { 's': 2, 'm': 3, 'l': 4 },
@@ -331,11 +350,30 @@
           </div>
         </section>
       {% elseif section.type == 'TextBlock' %}
-        {% set textClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'centered' ? 'labor-section--centered' : ''] %}
-        <section class="{{ textClasses|join(' ') }}">
-          <div class="uk-container uk-container-small {{ variant == 'centered' ? 'uk-text-center' : '' }}">
-            <h2 class="labor-section__title">{{ section.title }}</h2>
-            <p class="labor-section__text">{{ section.text }}</p>
+      {% set textClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'centered' ? 'labor-section--centered' : ''] %}
+      <section class="{{ textClasses|join(' ') }}">
+        <div class="uk-container uk-container-small {{ variant == 'centered' ? 'uk-text-center' : '' }}">
+          <h2 class="labor-section__title">{{ section.title }}</h2>
+          <p class="labor-section__text">{{ section.text }}</p>
+        </div>
+      </section>
+      {% elseif section.type == 'MeasurementTicker' %}
+        <section class="uk-section labor-section labor-measurement-ticker">
+          <div class="uk-container">
+            <div class="labor-measurement-ticker__headline">
+              <span class="labor-measurement-ticker__label">{{ section.label }}</span>
+              <div class="labor-measurement-ticker__track" aria-hidden="true">
+                <div class="labor-measurement-ticker__rail">
+                  {% for item in section.items %}
+                    <span class="labor-measurement-ticker__pill">{{ item }}</span>
+                  {% endfor %}
+                  {% for item in section.items %}
+                    <span class="labor-measurement-ticker__pill">{{ item }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="uk-hidden">{{ section.title }}</div>
           </div>
         </section>
       {% elseif section.type == 'IconGrid' %}
