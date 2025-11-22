@@ -11,6 +11,7 @@ use App\Service\DomainStartPageService;
 use App\Service\MarketingDomainProvider;
 use App\Service\PageService;
 use App\Service\SettingsService;
+use App\Support\DomainNameHelper;
 use PDO;
 use Slim\Psr7\Response;
 use Tests\TestCase;
@@ -180,6 +181,63 @@ class AdminDomainStartPageControllerTest extends TestCase
         $this->assertSame('Launch', $data['domain']['label'] ?? null);
         $this->assertCount(1, $data['marketing_domains'] ?? []);
         $this->assertSame(1, $marketingDomainProvider->clearCount);
+    }
+
+    public function testAdminCanReconcileMarketingDomains(): void
+    {
+        $this->bootMinimalSchema();
+
+        $pdo = $this->getDatabase();
+        $service = new DomainStartPageService($pdo);
+        $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
+        $controller = new DomainStartPageController(
+            $service,
+            new CertificateProvisioningService($service),
+            new SettingsService($pdo),
+            new PageService($pdo),
+            $marketingDomainProvider
+        );
+
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        putenv('MARKETING_DOMAINS=');
+        $_ENV['MARKETING_DOMAINS'] = '';
+
+        $this->insertMarketingDomain($pdo, 'promo.example.com');
+        $marketingDomainProvider->getMarketingDomains(stripAdmin: false);
+        $this->insertMarketingDomain($pdo, 'launch.example.com');
+
+        $request = $this->createRequest('POST', '/admin/marketing-domains/reconcile', [
+            'Content-Type' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+
+        try {
+            $response = $controller->reconcileMarketingDomains($request, new Response());
+        } finally {
+            Migrator::setHook(null);
+        }
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $data = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('ok', $data['status'] ?? null);
+        $this->assertSame(['launch.example.com'], $data['provisioned'] ?? []);
+        $this->assertCount(2, $data['marketing_domains'] ?? []);
+        $this->assertContains('promo.example.com', $data['resolved_marketing_domains'] ?? []);
+        $this->assertContains('launch.example.com', $data['resolved_marketing_domains'] ?? []);
+        $this->assertSame(1, $marketingDomainProvider->clearCount);
+    }
+
+    private function insertMarketingDomain(PDO $pdo, string $host): void
+    {
+        $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (:host, :normalized)');
+        $stmt->execute([
+            ':host' => $host,
+            ':normalized' => $normalized,
+        ]);
     }
 
     private function bootMinimalSchema(): void

@@ -1938,6 +1938,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->deleteMarketingDomain($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->post('/admin/marketing-domains/reconcile', function (Request $request, Response $response) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->reconcileMarketingDomains($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
