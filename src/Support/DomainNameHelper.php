@@ -23,6 +23,11 @@ final class DomainNameHelper
         self::$marketingDomainProvider = $provider;
     }
 
+    public static function getMarketingDomainProvider(): ?MarketingDomainProvider
+    {
+        return self::$marketingDomainProvider;
+    }
+
     public static function normalize(string $domain, bool $stripAdmin = true): string
     {
         $domain = strtolower(trim($domain));
