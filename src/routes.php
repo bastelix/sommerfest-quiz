@@ -579,7 +579,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                     $domainStartPageService,
                     $certificateProvisioner,
                     $settingsService,
-                    $pageService
+                    $pageService,
+                    $marketingDomainProvider
                 )
             )
             ->withAttribute(
