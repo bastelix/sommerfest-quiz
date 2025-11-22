@@ -6,7 +6,9 @@ namespace Tests\Controller;
 
 use App\Controller\Admin\DomainStartPageController;
 use App\Infrastructure\Migrations\Migrator;
+use App\Service\CertificateProvisioningService;
 use App\Service\DomainStartPageService;
+use App\Service\MarketingDomainProvider;
 use App\Service\PageService;
 use App\Service\SettingsService;
 use PDO;
@@ -16,6 +18,17 @@ use Tests\TestCase;
 use function file_get_contents;
 use function preg_match_all;
 
+final class TrackingMarketingDomainProvider extends MarketingDomainProvider
+{
+    public int $clearCount = 0;
+
+    public function clearCache(): void
+    {
+        $this->clearCount++;
+        parent::clearCache();
+    }
+}
+
 class AdminDomainStartPageControllerTest extends TestCase
 {
     public function testAdminCanCreateMarketingDomain(): void
@@ -24,10 +37,13 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $pdo = $this->getDatabase();
         $service = new DomainStartPageService($pdo);
+        $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
         $controller = new DomainStartPageController(
             $service,
+            new CertificateProvisioningService($service),
             new SettingsService($pdo),
-            new PageService($pdo)
+            new PageService($pdo),
+            $marketingDomainProvider
         );
 
         putenv('MAIN_DOMAIN=example.com');
@@ -67,6 +83,7 @@ class AdminDomainStartPageControllerTest extends TestCase
         $this->assertSame('promo.example.com', $domains[0]['host']);
         $this->assertSame('promo.example.com', $domains[0]['normalized_host']);
         $this->assertSame('Promo', $domains[0]['label']);
+        $this->assertSame(1, $marketingDomainProvider->clearCount);
     }
 
     public function testAdminCanDeleteMarketingDomain(): void
@@ -75,10 +92,13 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $pdo = $this->getDatabase();
         $service = new DomainStartPageService($pdo);
+        $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
         $controller = new DomainStartPageController(
             $service,
+            new CertificateProvisioningService($service),
             new SettingsService($pdo),
-            new PageService($pdo)
+            new PageService($pdo),
+            $marketingDomainProvider
         );
 
         $created = $service->createMarketingDomain('promo.example.com', 'Promo');
@@ -109,6 +129,57 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $domains = $service->listMarketingDomains();
         $this->assertCount(0, $domains);
+        $this->assertSame(1, $marketingDomainProvider->clearCount);
+    }
+
+    public function testAdminCanUpdateMarketingDomainAndClearCache(): void
+    {
+        $this->bootMinimalSchema();
+
+        $pdo = $this->getDatabase();
+        $service = new DomainStartPageService($pdo);
+        $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
+        $controller = new DomainStartPageController(
+            $service,
+            new CertificateProvisioningService($service),
+            new SettingsService($pdo),
+            new PageService($pdo),
+            $marketingDomainProvider
+        );
+
+        $created = $service->createMarketingDomain('promo.example.com', 'Promo');
+
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        putenv('MARKETING_DOMAINS=');
+        $_ENV['MARKETING_DOMAINS'] = '';
+
+        $request = $this->createRequest('PUT', '/admin/marketing-domains/' . $created['id'], [
+            'Content-Type' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+        $payload = json_encode([
+            'domain' => 'launch.example.com',
+            'label' => 'Launch',
+        ], JSON_THROW_ON_ERROR);
+        $request->getBody()->write($payload);
+        $request->getBody()->rewind();
+
+        try {
+            $response = $controller->updateMarketingDomain($request, new Response(), ['id' => (string) $created['id']]);
+        } finally {
+            Migrator::setHook(null);
+        }
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $data = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('ok', $data['status'] ?? null);
+        $this->assertSame('launch.example.com', $data['domain']['host'] ?? null);
+        $this->assertSame('Launch', $data['domain']['label'] ?? null);
+        $this->assertCount(1, $data['marketing_domains'] ?? []);
+        $this->assertSame(1, $marketingDomainProvider->clearCount);
     }
 
     private function bootMinimalSchema(): void

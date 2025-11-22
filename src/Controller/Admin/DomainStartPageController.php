@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Service\CertificateProvisioningService;
 use App\Service\DomainStartPageService;
+use App\Service\MarketingDomainProvider;
 use App\Service\PageService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
@@ -25,16 +26,20 @@ class DomainStartPageController
 
     private PageService $pageService;
 
+    private MarketingDomainProvider $marketingDomainProvider;
+
     public function __construct(
         DomainStartPageService $domainService,
         CertificateProvisioningService $certificateProvisioner,
         SettingsService $settingsService,
-        PageService $pageService
+        PageService $pageService,
+        MarketingDomainProvider $marketingDomainProvider
     ) {
         $this->domainService = $domainService;
         $this->certificateProvisioner = $certificateProvisioner;
         $this->settingsService = $settingsService;
         $this->pageService = $pageService;
+        $this->marketingDomainProvider = $marketingDomainProvider;
     }
 
     public function index(Request $request, Response $response): Response {
@@ -188,6 +193,8 @@ class DomainStartPageController
                 ->withStatus(422);
         }
 
+        $this->refreshMarketingDomainCache();
+
         $overview = $this->buildDomainOverview(strtolower($request->getUri()->getHost()));
 
         $response->getBody()->write(json_encode([
@@ -301,6 +308,8 @@ class DomainStartPageController
             return $response->withStatus(404);
         }
 
+        $this->refreshMarketingDomainCache();
+
         $overview = $this->buildDomainOverview(strtolower($request->getUri()->getHost()));
 
         $response->getBody()->write(json_encode([
@@ -335,6 +344,8 @@ class DomainStartPageController
 
         $this->domainService->deleteMarketingDomain($id);
 
+        $this->refreshMarketingDomainCache();
+
         $overview = $this->buildDomainOverview(strtolower($request->getUri()->getHost()));
 
         $response->getBody()->write(json_encode([
@@ -345,6 +356,11 @@ class DomainStartPageController
         ]));
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function refreshMarketingDomainCache(): void
+    {
+        $this->marketingDomainProvider->clearCache();
     }
 
     /**
