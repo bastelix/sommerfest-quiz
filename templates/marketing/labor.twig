@@ -29,6 +29,17 @@
       'text': 'Wir kalibrieren Messmittel mit höchster Präzision – damit Ihre Prozesse sicher, normkonform und jederzeit reproduzierbar bleiben. Seit über 20 Jahren unterstützen wir Industrieunternehmen, Energieversorger und Forschungseinrichtungen mit zuverlässigen Kalibrierprozessen und kurzen Durchlaufzeiten.'
     },
     {
+      'type': 'KpiBand',
+      'title': 'Kennzahlen aus dem Laboralltag',
+      'columns': { 's': 2, 'm': 3, 'l': 4 },
+      'items': [
+        { 'value': '48 h', 'label': 'Durchlaufzeit Standard', 'description': 'Schnelle Rücksendung Ihrer Messmittel bei Bestandskunden.' },
+        { 'value': '99,3 %', 'label': 'Audit-Quote', 'description': 'Bestätigte Messergebnisse in der letzten DAkkS-Begutachtung.' },
+        { 'value': '14 kt CO₂', 'label': 'Einsparung', 'description': 'Dank optimierter Logistik- und Verpackungsketten pro Jahr.' },
+        { 'value': '5.200', 'label': 'Zertifikate/Jahr', 'description': 'Digital, revisionssicher und jederzeit abrufbar.' }
+      ]
+    },
+    {
       'type': 'IconGrid',
       'columns': 4,
       'items': [
@@ -96,6 +107,30 @@
       ]
     },
     {
+      'type': 'StorySlider',
+      'title': 'Erfahrungen aus der Praxis',
+      'stories': [
+        {
+          'title': 'Serienkalibrierung unter Zeitdruck',
+          'text': 'Für einen Automobilzulieferer haben wir 180 Stromzangen innerhalb von drei Tagen kalibriert – inklusive Versandlogistik und digitaler Zertifikate.',
+          'author': 'Claudia König · Lead QM',
+          'badge': 'Automotive'
+        },
+        {
+          'title': 'Audit-sichere Rückverfolgbarkeit',
+          'text': 'Unsere Messmittelakten sind so strukturiert, dass Auditor:innen jede Messkette sofort nachvollziehen konnten. Ergebnis: keine Abweichungen, klare Freigabe.',
+          'author': 'Dr. Amir Rahman · Leiter Messtechnik',
+          'badge': 'Energie'
+        },
+        {
+          'title': 'Kalibrierung mit Vor-Ort-Service',
+          'text': 'Die Vor-Ort-Teams haben unsere Produktionslinien ohne Stillstand vermessen. Die mobile Infrastruktur passte perfekt zu unseren Reinraum-Vorgaben.',
+          'author': 'Marlene Voigt · Operations',
+          'badge': 'Halbleiter'
+        }
+      ]
+    },
+    {
       'type': 'TwoColumnSection',
       'title': 'Digitales Messmittelportal (calServer)',
       'image': '/assets/calserver-dashboard.png',
@@ -108,6 +143,35 @@
       'image': '/assets/dakks-logo.png',
       'text': 'Wir sind durch die Deutsche Akkreditierungsstelle (DAkkS) nach DIN EN ISO/IEC 17025 akkreditiert. Unsere Normale, Prozesse und Messunsicherheiten werden regelmäßig auditiert. Die aktuelle Akkreditierungsurkunde finden Sie hier.',
       'button': { 'label': 'Akkreditierung öffnen', 'link': '/akkreditierung' }
+    },
+    {
+      'type': 'MediaOverlayTimeline',
+      'title': 'Kalibrieren mit Blick aufs Wesentliche',
+      'description': 'Transparente Schritte – vom Wareneingang bis zum audit-sicheren Zertifikat. Fokusbilder lassen sich je Breakpoint definieren, damit die wichtigsten Details sichtbar bleiben.',
+      'focusImages': {
+        'l': '/assets/labor-timeline-desktop.jpg',
+        'm': '/assets/labor-timeline-tablet.jpg',
+        'default': '/assets/labor-timeline-mobile.jpg'
+      },
+      'columns': { 's': 1, 'm': 2, 'l': 3 },
+      'callouts': [
+        {
+          'label': 'Wareneingang',
+          'text': 'Eingangsprüfung, Seriennummern-Scan und automatisierte Zuordnung zu Messreihen.'
+        },
+        {
+          'label': 'Messplatz',
+          'text': 'Rückführbare Referenznormale mit dokumentierter Messunsicherheit pro Schritt.'
+        },
+        {
+          'label': 'Dokumentation',
+          'text': 'Digitale Laborjournale mit Live-Status, Kommentaren und Freigaben.'
+        },
+        {
+          'label': 'Zertifikat',
+          'text': 'Unterschrift, Prüfstempel und PDF/JSON-Export inklusive Audit-Report.'
+        }
+      ]
     },
     {
       'type': 'CTASection',
@@ -184,6 +248,33 @@
             </div>
           </div>
         </section>
+      {% elseif section.type == 'KpiBand' %}
+        {% set columns = section.columns|default({ 's': 2, 'm': 3, 'l': 4 }) %}
+        {% set columnClasses = [
+          'uk-child-width-1-' ~ (columns.s|default(2)) ~ '@s',
+          'uk-child-width-1-' ~ (columns.m|default(3)) ~ '@m',
+          'uk-child-width-1-' ~ (columns.l|default(4)) ~ '@l'
+        ] %}
+        <section class="uk-section labor-section labor-kpi-band">
+          <div class="uk-container">
+            <div class="labor-section__header">
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+            </div>
+            <div class="uk-grid-small {{ columnClasses|join(' ') }}" uk-grid>
+              {% for item in section.items %}
+                <div>
+                  <div class="labor-kpi">
+                    <span class="labor-kpi__value">{{ item.value }}</span>
+                    <span class="labor-kpi__label">{{ item.label }}</span>
+                    {% if item.description is defined %}
+                      <p class="labor-kpi__description">{{ item.description }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
       {% elseif section.type == 'TextBlock' %}
         <section class="uk-section labor-section">
           <div class="uk-container uk-container-small uk-text-center">
@@ -248,6 +339,37 @@
             </ol>
           </div>
         </section>
+      {% elseif section.type == 'StorySlider' %}
+        <section class="uk-section labor-section labor-story-slider labor-section--muted">
+          <div class="uk-container">
+            <div class="labor-section__header">
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+            </div>
+            <div class="uk-position-relative" uk-slider="finite: true; autoplay: true; autoplay-interval: 6000">
+              <div class="uk-slider-container">
+                <ul class="uk-slider-items uk-grid uk-grid-medium uk-child-width-1-1 uk-child-width-1-2@m uk-child-width-1-3@l">
+                  {% for story in section.stories %}
+                    <li>
+                      <article class="labor-story">
+                        <div class="labor-story__badge">{{ story.badge }}</div>
+                        <h3 class="labor-story__title">{{ story.title }}</h3>
+                        <p class="labor-story__text">{{ story.text }}</p>
+                        {% if story.author is defined %}
+                          <p class="labor-story__author">{{ story.author }}</p>
+                        {% endif %}
+                      </article>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="labor-story__nav uk-visible@m">
+                <a class="uk-slidenav-large" href="#" uk-slidenav-previous uk-slider-item="previous" aria-label="Vorherige Story"></a>
+                <a class="uk-slidenav-large" href="#" uk-slidenav-next uk-slider-item="next" aria-label="Nächste Story"></a>
+              </div>
+              <ul class="uk-slider-nav uk-dotnav uk-flex-center uk-margin-top"></ul>
+            </div>
+          </div>
+        </section>
       {% elseif section.type == 'TwoColumnSection' %}
         <section class="uk-section labor-section">
           <div class="uk-container">
@@ -269,6 +391,52 @@
                   {% if section.button is defined %}
                     <a class="uk-button uk-button-primary labor-button-primary" href="{{ section.button.link }}">{{ section.button.label }}</a>
                   {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      {% elseif section.type == 'MediaOverlayTimeline' %}
+        {% set columns = section.columns|default({ 's': 1, 'm': 2, 'l': 3 }) %}
+        {% set focusImages = section.focusImages|default({}) %}
+        {% set columnClasses = [
+          'uk-child-width-1-' ~ (columns.s|default(1)) ~ '@s',
+          'uk-child-width-1-' ~ (columns.m|default(2)) ~ '@m',
+          'uk-child-width-1-' ~ (columns.l|default(3)) ~ '@l'
+        ] %}
+        {% set breakpoints = {'xl': '(min-width: 1280px)', 'l': '(min-width: 960px)', 'm': '(min-width: 640px)'} %}
+        <section class="uk-section labor-section labor-media-timeline">
+          <div class="uk-container">
+            <div class="uk-grid-large uk-flex-middle" uk-grid>
+              <div class="uk-width-1-2@m">
+                <div class="labor-media-timeline__copy">
+                  <h2 class="labor-section__title">{{ section.title }}</h2>
+                  {% if section.description is defined %}
+                    <p class="labor-section__text">{{ section.description }}</p>
+                  {% endif %}
+                </div>
+                <div class="labor-media-timeline__callouts uk-grid-small {{ columnClasses|join(' ') }}" uk-grid>
+                  {% for callout in section.callouts %}
+                    <div>
+                      <div class="labor-callout">
+                        <div class="labor-callout__label">{{ callout.label }}</div>
+                        <p class="labor-callout__text">{{ callout.text }}</p>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="uk-width-1-2@m">
+                <div class="labor-media-timeline__media">
+                  <picture>
+                    {% for key, mediaQuery in breakpoints %}
+                      {% if focusImages[key] is defined %}
+                        <source media="{{ mediaQuery }}" srcset="{{ basePath ~ focusImages[key] }}">
+                      {% endif %}
+                    {% endfor %}
+                    <img src="{{ basePath ~ (focusImages.default|default(focusImages.l|default(''))) }}" alt="{{ section.title }}" loading="lazy">
+                  </picture>
+                  <div class="labor-media-timeline__overlay" aria-hidden="true"></div>
                 </div>
               </div>
             </div>
