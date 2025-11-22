@@ -65,6 +65,7 @@ use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
+use App\Service\MarketingDomainProvider;
 use App\Service\CertificateProvisioningService;
 use App\Service\UsernameBlocklistService;
 use App\Infrastructure\Database;
@@ -482,6 +483,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         $certificateProvisioner = new CertificateProvisioningService($domainStartPageService);
         $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
+        $marketingDomainProvider = new MarketingDomainProvider(
+            static function () use ($schema): \PDO {
+                return Database::connectWithSchema($schema);
+            }
+        );
+        DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
