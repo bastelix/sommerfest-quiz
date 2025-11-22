@@ -76,6 +76,14 @@ body.labor-landing {
   color: #fff;
 }
 
+.labor-hero--split {
+  padding: 120px 0 110px;
+}
+
+.labor-hero--tone-light {
+  color: var(--labor-text);
+}
+
 .labor-hero__overlay {
   position: absolute;
   inset: 0;
@@ -85,6 +93,26 @@ body.labor-landing {
 .labor-hero__grid {
   position: relative;
   max-width: 720px;
+}
+
+.labor-hero--split .labor-hero__grid {
+  max-width: none;
+}
+
+.labor-hero__media {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.labor-hero__image {
+  width: 100%;
+  min-height: 280px;
+  border-radius: 16px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--labor-shadow);
+  border: 1px solid rgba(28, 47, 92, 0.08);
 }
 
 .labor-eyebrow {
@@ -147,12 +175,47 @@ body.labor-landing {
   color: #fff !important;
 }
 
+.labor-button-ghost {
+  background: transparent;
+  color: inherit !important;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklab, currentColor 40%, transparent);
+  padding: 0 18px;
+  line-height: 44px;
+}
+
+.labor-button-ghost:hover,
+.labor-button-ghost:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .labor-section {
   padding: 96px 0;
 }
 
 .labor-section--muted {
   background: var(--labor-muted);
+}
+
+.labor-section--centered .labor-section__title,
+.labor-section--centered .labor-section__text {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.labor-section--feature {
+  background: linear-gradient(135deg, #f6f8fc 0%, #ffffff 60%, #e8f0ff 100%);
+  border-top: 1px solid rgba(28, 47, 92, 0.05);
+  border-bottom: 1px solid rgba(28, 47, 92, 0.05);
+}
+
+.labor-section--dark {
+  color: #fff;
+}
+
+.labor-section--dark .labor-section__title,
+.labor-section--dark .labor-section__text {
+  color: #f0f3f7;
 }
 
 .labor-section__title {
@@ -245,6 +308,11 @@ body.labor-landing {
   gap: 10px;
 }
 
+.labor-card--split {
+  background: linear-gradient(145deg, rgba(28, 47, 92, 0.03), #fff 60%);
+  border: 1px solid rgba(28, 47, 92, 0.1);
+}
+
 .labor-card__image img {
   width: 100%;
   height: 180px;
@@ -291,6 +359,10 @@ body.labor-landing {
   grid-template-columns: auto 1fr;
   gap: 14px;
   align-items: start;
+}
+
+.labor-stepper__item--split {
+  background: linear-gradient(120deg, #ffffff 0%, #f2f5fb 100%);
 }
 
 .labor-stepper__index {
@@ -452,6 +524,18 @@ body.labor-landing {
   margin: 0 16px;
   padding: 80px 24px;
   box-shadow: var(--labor-shadow);
+}
+
+.labor-cta--outline {
+  background: transparent;
+  color: var(--labor-text);
+  border: 1px solid rgba(28, 47, 92, 0.14);
+  box-shadow: none;
+}
+
+.labor-cta--tone-light .labor-cta__headline,
+.labor-cta--tone-light .labor-cta__subline {
+  color: var(--labor-text);
 }
 
 .labor-cta__headline {

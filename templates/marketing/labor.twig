@@ -17,15 +17,20 @@
       'type': 'HeroBlock',
       'headline': 'Präzision beginnt mit Vertrauen.',
       'subline': 'DAkkS-akkreditiertes Kalibrierlabor für elektrische und thermische Messgrößen – zuverlässig, rückführbar und auditsicher.',
+      'variant': 'split',
+      'background': 'gradient',
+      'tone': 'dark',
       'buttons': [
-        { 'label': 'Kalibrierung anfragen', 'link': '/kontakt' },
-        { 'label': 'Akkreditierung ansehen', 'link': '/akkreditierung' }
+        { 'label': 'Kalibrierung anfragen', 'link': '/kontakt', 'style': 'primary' },
+        { 'label': 'Akkreditierung ansehen', 'link': '/akkreditierung', 'style': 'ghost' }
       ],
       'backgroundImage': '/assets/labor-hero.jpg'
     },
     {
       'type': 'TextBlock',
       'title': 'Unsere Mission',
+      'tone': 'light',
+      'variant': 'centered',
       'text': 'Wir kalibrieren Messmittel mit höchster Präzision – damit Ihre Prozesse sicher, normkonform und jederzeit reproduzierbar bleiben. Seit über 20 Jahren unterstützen wir Industrieunternehmen, Energieversorger und Forschungseinrichtungen mit zuverlässigen Kalibrierprozessen und kurzen Durchlaufzeiten.'
     },
     {
@@ -42,6 +47,7 @@
     {
       'type': 'IconGrid',
       'columns': 4,
+      'variant': 'muted',
       'items': [
         {
           'icon': 'check',
@@ -69,6 +75,8 @@
       'type': 'CardGrid',
       'title': 'Unsere Kalibrierbereiche',
       'columns': 4,
+      'variant': 'split',
+      'tone': 'light',
       'items': [
         {
           'image': '/assets/messgroessen-elektrisch.jpg',
@@ -99,6 +107,7 @@
     {
       'type': 'ProcessStepper',
       'title': 'So funktioniert eine Kalibrierung bei uns',
+      'variant': 'muted',
       'steps': [
         { 'title': '1. Messmittel anmelden', 'text': 'Einfach online oder per Formular.' },
         { 'title': '2. Versand / Abholung', 'text': 'Sie senden das Gerät – oder wir holen es ab.' },
@@ -134,15 +143,20 @@
       'type': 'TwoColumnSection',
       'title': 'Digitales Messmittelportal (calServer)',
       'image': '/assets/calserver-dashboard.png',
+      'variant': 'feature',
+      'tone': 'light',
       'text': 'Alle Messmittel. Ein Portal. Maximale Transparenz.\nMit unserem Messmittelportal calServer behalten Sie jederzeit den Überblick über Kalibrierfristen, Historien, Zertifikate und Wartungstermine. Cloudbasiert, DSGVO-konform, 24/7 verfügbar.\n\n• Zentrale Verwaltung aller Messmittel\n• Digitale Zertifikate jederzeit abrufbar\n• Automatische Erinnerungen\n• Audit-sichere Historien\n• Multi-User Zugang\n• REST-API für ERP/LIMS-Integration',
-      'button': { 'label': 'Zum Messmittelportal', 'link': '/messmittelportal' }
+      'button': { 'label': 'Zum Messmittelportal', 'link': '/messmittelportal', 'style': 'primary' }
     },
     {
       'type': 'TwoColumnSection',
       'title': 'Vertrauen durch Qualität',
       'image': '/assets/dakks-logo.png',
+      'variant': 'split',
+      'tone': 'dark',
+      'background': 'gradient',
       'text': 'Wir sind durch die Deutsche Akkreditierungsstelle (DAkkS) nach DIN EN ISO/IEC 17025 akkreditiert. Unsere Normale, Prozesse und Messunsicherheiten werden regelmäßig auditiert. Die aktuelle Akkreditierungsurkunde finden Sie hier.',
-      'button': { 'label': 'Akkreditierung öffnen', 'link': '/akkreditierung' }
+      'button': { 'label': 'Akkreditierung öffnen', 'link': '/akkreditierung', 'style': 'ghost' }
     },
     {
       'type': 'MediaOverlayTimeline',
@@ -177,9 +191,11 @@
       'type': 'CTASection',
       'headline': 'Bereit für präzise Kalibrierung?',
       'subline': 'Fordern Sie ein unverbindliches Angebot an – Antwort innerhalb eines Werktages.',
-      'button': { 'label': 'Kalibrierung anfragen', 'link': '/kontakt' }
+      'variant': 'outline',
+      'tone': 'light',
+      'button': { 'label': 'Kalibrierung anfragen', 'link': '/kontakt', 'style': 'primary' }
     }
-  ]
+  ],
 } %}
 
 {% block title %}{{ metaTitle|default(pageConfig.title) }}{% endblock %}
@@ -229,23 +245,62 @@
 
   <main class="labor-main" aria-label="{{ pageConfig.title }}">
     {% for section in pageConfig.sections %}
+      {% set variant = section.variant|default('default') %}
+      {% set tone = section.tone|default('light') %}
+      {% set background = section.background|default('plain') %}
+
       {% if section.type == 'HeroBlock' %}
-        <section class="labor-hero" style="background-image: url('{{ basePath ~ section.backgroundImage }}');">
-          <div class="labor-hero__overlay" aria-hidden="true"></div>
+        {% set heroVariant = section.variant|default('full') %}
+        {% set heroTone = section.tone|default('dark') %}
+        {% set heroBackground = section.background|default('image') %}
+        {% set heroClasses = ['labor-hero', 'labor-hero--' ~ heroVariant, 'labor-hero--tone-' ~ heroTone] %}
+        {% set heroStyle = '' %}
+        {% if heroBackground == 'image' and section.backgroundImage is defined %}
+          {% set heroStyle = "background-image: url('" ~ basePath ~ section.backgroundImage ~ "');" %}
+        {% elseif heroBackground == 'gradient' %}
+          {% set heroStyle = 'background-image: radial-gradient(circle at 20% 20%, rgba(63,133,246,0.35), transparent 35%), linear-gradient(120deg, #101a33, #1f3b73);' %}
+        {% endif %}
+        <section class="{{ heroClasses|join(' ') }}" style="{{ heroStyle }}">
+          {% if heroBackground == 'image' %}
+            <div class="labor-hero__overlay" aria-hidden="true"></div>
+          {% endif %}
           <div class="uk-container">
-            <div class="labor-hero__grid">
-              <div class="labor-hero__content">
-                <p class="labor-eyebrow">{{ pageConfig.title }}</p>
-                <h1 class="labor-hero__headline">{{ section.headline }}</h1>
-                <p class="labor-hero__subline">{{ section.subline }}</p>
-                <div class="labor-hero__actions" role="group" aria-label="Hauptaktionen">
-                  {% for button in section.buttons %}
-                    <a class="uk-button {% if loop.first %}uk-button-primary labor-button-primary{% else %}uk-button-default labor-button-secondary{% endif %}"
-                       href="{{ button.link }}">{{ button.label }}</a>
-                  {% endfor %}
+            {% if heroVariant == 'split' %}
+              <div class="labor-hero__grid uk-grid-large uk-flex-middle" uk-grid>
+                <div class="uk-width-3-5@m">
+                  <div class="labor-hero__content">
+                    <p class="labor-eyebrow">{{ pageConfig.title }}</p>
+                    <h1 class="labor-hero__headline">{{ section.headline }}</h1>
+                    <p class="labor-hero__subline">{{ section.subline }}</p>
+                    <div class="labor-hero__actions" role="group" aria-label="Hauptaktionen">
+                      {% for button in section.buttons %}
+                        {% set buttonStyle = button.style|default(loop.first ? 'primary' : 'secondary') %}
+                        <a class="uk-button {{ buttonStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ buttonStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ buttonStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ button.link }}">{{ button.label }}</a>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-width-2-5@m">
+                  <div class="labor-hero__media" aria-hidden="true">
+                    <div class="labor-hero__image" style="background-image: url('{{ basePath ~ section.backgroundImage }}');"></div>
+                  </div>
                 </div>
               </div>
-            </div>
+            {% else %}
+              <div class="labor-hero__grid">
+                <div class="labor-hero__content">
+                  <p class="labor-eyebrow">{{ pageConfig.title }}</p>
+                  <h1 class="labor-hero__headline">{{ section.headline }}</h1>
+                  <p class="labor-hero__subline">{{ section.subline }}</p>
+                  <div class="labor-hero__actions" role="group" aria-label="Hauptaktionen">
+                    {% for button in section.buttons %}
+                      {% set buttonStyle = button.style|default(loop.first ? 'primary' : 'secondary') %}
+                      <a class="uk-button {{ buttonStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ buttonStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ buttonStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ button.link }}">{{ button.label }}</a>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            {% endif %}
           </div>
         </section>
       {% elseif section.type == 'KpiBand' %}
@@ -276,14 +331,16 @@
           </div>
         </section>
       {% elseif section.type == 'TextBlock' %}
-        <section class="uk-section labor-section">
-          <div class="uk-container uk-container-small uk-text-center">
+        {% set textClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'centered' ? 'labor-section--centered' : ''] %}
+        <section class="{{ textClasses|join(' ') }}">
+          <div class="uk-container uk-container-small {{ variant == 'centered' ? 'uk-text-center' : '' }}">
             <h2 class="labor-section__title">{{ section.title }}</h2>
             <p class="labor-section__text">{{ section.text }}</p>
           </div>
         </section>
       {% elseif section.type == 'IconGrid' %}
-        <section class="uk-section labor-section labor-section--muted">
+        {% set iconClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+        <section class="{{ iconClasses|join(' ') }}">
           <div class="uk-container">
             <div class="uk-child-width-1-2@s uk-child-width-1-{{ section.columns }}@l" uk-grid>
               {% for item in section.items %}
@@ -299,7 +356,8 @@
           </div>
         </section>
       {% elseif section.type == 'CardGrid' %}
-        <section class="uk-section labor-section">
+        {% set cardClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+        <section class="{{ cardClasses|join(' ') }}">
           <div class="uk-container">
             <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -307,7 +365,7 @@
             <div class="uk-grid-small uk-child-width-1-2@m uk-child-width-1-{{ section.columns }}@l" uk-grid>
               {% for item in section.items %}
                 <div>
-                  <div class="labor-card uk-card uk-card-default uk-card-body">
+                  <div class="labor-card uk-card uk-card-default uk-card-body {{ variant == 'split' ? 'labor-card--split' : '' }}">
                     <div class="labor-card__image" role="presentation">
                       <img src="{{ basePath ~ item.image }}" alt="{{ item.title }}" loading="lazy">
                     </div>
@@ -321,14 +379,15 @@
           </div>
         </section>
       {% elseif section.type == 'ProcessStepper' %}
-        <section class="uk-section labor-section labor-section--muted">
+        {% set processClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+        <section class="{{ processClasses|join(' ') }}">
           <div class="uk-container">
             <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
             </div>
             <ol class="labor-stepper" aria-label="Ablauf der Kalibrierung">
               {% for step in section.steps %}
-                <li class="labor-stepper__item">
+                <li class="labor-stepper__item {{ variant == 'split' ? 'labor-stepper__item--split' : '' }}">
                   <div class="labor-stepper__index" aria-hidden="true">{{ loop.index }}</div>
                   <div class="labor-stepper__body">
                     <h3 class="labor-stepper__title">{{ step.title }}</h3>
@@ -371,9 +430,14 @@
           </div>
         </section>
       {% elseif section.type == 'TwoColumnSection' %}
-        <section class="uk-section labor-section">
+        {% set twoColumnClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'feature' ? 'labor-section--feature' : '', tone == 'dark' ? 'labor-section--dark' : ''] %}
+        {% set twoColumnStyle = '' %}
+        {% if background == 'gradient' %}
+          {% set twoColumnStyle = 'background-image: linear-gradient(135deg, #0f1a33 0%, #1c2f5c 50%, #2b4f9c 100%); color: #fff;' %}
+        {% endif %}
+        <section class="{{ twoColumnClasses|join(' ') }}" style="{{ twoColumnStyle }}">
           <div class="uk-container">
-            {% set imageFirst = loop.index is even %}
+            {% set imageFirst = loop.index is even and variant != 'split' %}
             <div class="uk-grid-large uk-flex-middle" uk-grid>
               <div class="uk-width-1-2@m {% if not imageFirst %}uk-flex-last@m{% endif %}">
                 <div class="labor-media">
@@ -389,7 +453,8 @@
                     {% endif %}
                   {% endfor %}
                   {% if section.button is defined %}
-                    <a class="uk-button uk-button-primary labor-button-primary" href="{{ section.button.link }}">{{ section.button.label }}</a>
+                    {% set buttonStyle = section.button.style|default('primary') %}
+                    <a class="uk-button {{ buttonStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ buttonStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ buttonStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.button.link }}">{{ section.button.label }}</a>
                   {% endif %}
                 </div>
               </div>
@@ -443,11 +508,15 @@
           </div>
         </section>
       {% elseif section.type == 'CTASection' %}
-        <section class="uk-section labor-section labor-cta">
+        {% set ctaVariant = section.variant|default('solid') %}
+        {% set ctaTone = section.tone|default('dark') %}
+        {% set ctaClasses = ['uk-section', 'labor-section', 'labor-cta', 'labor-cta--' ~ ctaVariant, 'labor-cta--tone-' ~ ctaTone] %}
+        <section class="{{ ctaClasses|join(' ') }}">
           <div class="uk-container uk-text-center">
             <h2 class="labor-cta__headline">{{ section.headline }}</h2>
             <p class="labor-cta__subline">{{ section.subline }}</p>
-            <a class="uk-button uk-button-primary labor-button-primary" href="{{ section.button.link }}">{{ section.button.label }}</a>
+            {% set buttonStyle = section.button.style|default('primary') %}
+            <a class="uk-button {{ buttonStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ buttonStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ buttonStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.button.link }}">{{ section.button.label }}</a>
           </div>
         </section>
       {% endif %}
