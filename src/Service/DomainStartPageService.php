@@ -106,6 +106,45 @@ class DomainStartPageService
     }
 
     /**
+     * Provision certificates for marketing domains that were added outside the admin controller.
+     *
+     * @return array{provisioned:list<string>,resolved_marketing_domains:list<string>}
+     */
+    public function reconcileMarketingDomains(
+        MarketingDomainProvider $marketingDomainProvider,
+        CertificateProvisioningService $certificateProvisioningService
+    ): array {
+        $known = [];
+        foreach ($marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $existing) {
+            $normalized = DomainNameHelper::normalize($existing, stripAdmin: false);
+            if ($normalized !== '') {
+                $known[$normalized] = true;
+            }
+        }
+
+        $provisioned = [];
+        foreach ($this->listMarketingDomains() as $domain) {
+            $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
+            $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+            if ($normalized === '' || isset($known[$normalized])) {
+                continue;
+            }
+
+            $certificateProvisioningService->provisionMarketingDomain($host);
+            $provisioned[] = $host;
+            $known[$normalized] = true;
+        }
+
+        $marketingDomainProvider->clearCache();
+        $resolvedDomains = $marketingDomainProvider->getMarketingDomains(stripAdmin: false);
+
+        return [
+            'provisioned' => $provisioned,
+            'resolved_marketing_domains' => $resolvedDomains,
+        ];
+    }
+
+    /**
      * Build the available start page options combining core pages and marketing pages.
      *
      * @return array<string,string> Map of slug => label
