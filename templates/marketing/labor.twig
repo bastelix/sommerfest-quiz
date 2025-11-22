@@ -367,6 +367,7 @@
                 <div>
                   <div class="labor-card uk-card uk-card-default uk-card-body {{ variant == 'split' ? 'labor-card--split' : '' }}">
                     <div class="labor-card__image" role="presentation">
+                      <div class="labor-card__placeholder" aria-hidden="true">Bildvorschau</div>
                       <img src="{{ basePath ~ item.image }}" alt="{{ item.title }}" loading="lazy">
                     </div>
                     <h3 class="labor-card__title">{{ item.title }}</h3>

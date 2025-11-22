@@ -19,6 +19,16 @@ body.labor-landing {
   border-bottom: 1px solid rgba(28, 47, 92, 0.08);
 }
 
+#labor-offcanvas .uk-offcanvas-bar {
+  background: #0f1a33;
+  color: #fff;
+  padding-top: 24px;
+}
+
+#labor-offcanvas .uk-offcanvas-close {
+  color: #fff;
+}
+
 .labor-header .labor-logo {
   font-weight: 700;
   color: var(--labor-text);
@@ -59,8 +69,13 @@ body.labor-landing {
 }
 
 .labor-offcanvas__nav li a {
-  color: var(--labor-text);
+  color: #fff;
   font-weight: 600;
+}
+
+#labor-offcanvas .labor-offcanvas__nav li a:hover,
+#labor-offcanvas .labor-offcanvas__nav li a:focus-visible {
+  color: var(--labor-hover);
 }
 
 .labor-main {
@@ -108,11 +123,19 @@ body.labor-landing {
 .labor-hero__image {
   width: 100%;
   min-height: 280px;
+  aspect-ratio: 4 / 3;
   border-radius: 16px;
   background-size: cover;
   background-position: center;
+  background-color: #0f1a33;
+  background-image: linear-gradient(135deg, rgba(63, 133, 246, 0.08), rgba(28, 47, 92, 0.14));
   box-shadow: var(--labor-shadow);
   border: 1px solid rgba(28, 47, 92, 0.08);
+}
+
+.labor-hero__headline,
+.labor-hero__subline {
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
 }
 
 .labor-eyebrow {
@@ -225,7 +248,7 @@ body.labor-landing {
 }
 
 .labor-section__text {
-  color: #3a4764;
+  color: #1f2d4a;
   line-height: 1.7;
   font-size: 1.05rem;
 }
@@ -266,7 +289,7 @@ body.labor-landing {
 
 .labor-kpi__description {
   margin: 0;
-  color: #4a5673;
+  color: #1f2d4a;
   line-height: 1.6;
 }
 
@@ -295,7 +318,7 @@ body.labor-landing {
 
 .labor-icon-card__text {
   margin: 0;
-  color: #4a5673;
+  color: #1f2d4a;
 }
 
 .labor-card {
@@ -314,10 +337,39 @@ body.labor-landing {
 }
 
 .labor-card__image img {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
   border-radius: 12px;
+}
+
+.labor-card__image {
+  position: relative;
+  background: linear-gradient(135deg, #f0f3f7, #d6e2ff);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+}
+
+.labor-card__placeholder {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  color: #1f2d4a;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(28, 47, 92, 0.05),
+    rgba(28, 47, 92, 0.05) 12px,
+    rgba(63, 133, 246, 0.08) 12px,
+    rgba(63, 133, 246, 0.08) 24px
+  );
 }
 
 .labor-card__title {
@@ -327,7 +379,7 @@ body.labor-landing {
 
 .labor-card__text {
   margin: 0;
-  color: #4a5673;
+  color: #1f2d4a;
 }
 
 .labor-card__link {
@@ -383,7 +435,7 @@ body.labor-landing {
 
 .labor-stepper__text {
   margin: 0;
-  color: #4a5673;
+  color: #1f2d4a;
 }
 
 .labor-story-slider {
@@ -421,7 +473,7 @@ body.labor-landing {
 
 .labor-story__text {
   margin: 0;
-  color: #4a5673;
+  color: #1f2d4a;
   line-height: 1.6;
 }
 
@@ -487,7 +539,7 @@ body.labor-landing {
 
 .labor-callout__text {
   margin: 0;
-  color: #4a5673;
+  color: #1f2d4a;
   line-height: 1.6;
 }
 
