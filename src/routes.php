@@ -483,12 +483,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         $certificateProvisioner = new CertificateProvisioningService($domainStartPageService);
         $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
-        $marketingDomainProvider = new MarketingDomainProvider(
-            static function () use ($schema): \PDO {
-                return Database::connectWithSchema($schema);
-            }
-        );
-        DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
+        $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
+        if ($marketingDomainProvider === null) {
+            $marketingDomainProvider = new MarketingDomainProvider(
+                static function () use ($schema): \PDO {
+                    return Database::connectWithSchema($schema);
+                }
+            );
+            DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
+        }
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
