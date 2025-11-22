@@ -358,6 +358,41 @@ class DomainStartPageController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function reconcileMarketingDomains(Request $request, Response $response): Response {
+        $known = [];
+        foreach ($this->marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $existing) {
+            $normalized = DomainNameHelper::normalize($existing, stripAdmin: false);
+            if ($normalized !== '') {
+                $known[$normalized] = true;
+            }
+        }
+
+        $provisioned = [];
+        foreach ($this->domainService->listMarketingDomains() as $domain) {
+            $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
+            $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+            if ($normalized === '' || isset($known[$normalized])) {
+                continue;
+            }
+
+            $this->certificateProvisioner->provisionMarketingDomain($host);
+            $provisioned[] = $host;
+            $known[$normalized] = true;
+        }
+
+        $this->refreshMarketingDomainCache();
+        $refreshedDomains = $this->marketingDomainProvider->getMarketingDomains(stripAdmin: false);
+
+        $response->getBody()->write(json_encode([
+            'status' => 'ok',
+            'provisioned' => $provisioned,
+            'marketing_domains' => $this->domainService->listMarketingDomains(),
+            'resolved_marketing_domains' => $refreshedDomains,
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     private function refreshMarketingDomainCache(): void
     {
         $this->marketingDomainProvider->clearCache();
