@@ -253,6 +253,65 @@ body.labor-landing {
   font-size: 1.05rem;
 }
 
+.labor-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.labor-feature-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(28, 47, 92, 0.08);
+  background: linear-gradient(135deg, #f8faff 0%, #eef3ff 100%);
+  box-shadow: 0 8px 24px rgba(28, 47, 92, 0.06);
+}
+
+.labor-feature-list__icon {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3f85f6 0%, #1c2f5c 100%);
+  box-shadow: 0 4px 10px rgba(28, 47, 92, 0.18);
+}
+
+.labor-feature-list__icon::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  width: 4px;
+  height: 7px;
+  border: 2px solid #fff;
+  border-top: 0;
+  border-left: 0;
+  transform: rotate(45deg);
+}
+
+.labor-feature-list__text {
+  color: #1f2d4a;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.labor-section--dark .labor-feature-list__item {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+
+.labor-section--dark .labor-feature-list__text {
+  color: #f0f3f7;
+}
+
 .labor-section__header {
   display: flex;
   align-items: baseline;
