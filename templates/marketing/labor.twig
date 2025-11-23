@@ -186,31 +186,37 @@
       'button': { 'label': 'Akkreditierung öffnen', 'link': '/akkreditierung', 'style': 'ghost' }
     },
     {
-      'type': 'MediaOverlayTimeline',
+      'type': 'FeatureGridSection',
       'title': 'Kalibrieren mit Blick aufs Wesentliche',
-      'description': 'Transparente Schritte – vom Wareneingang bis zum audit-sicheren Zertifikat. Fokusbilder lassen sich je Breakpoint definieren, damit die wichtigsten Details sichtbar bleiben.',
-      'focusImages': {
-        'l': '/assets/labor-timeline-desktop.jpg',
-        'm': '/assets/labor-timeline-tablet.jpg',
-        'default': '/assets/labor-timeline-mobile.jpg'
-      },
+      'description': 'Digital geführt, rückverfolgbar dokumentiert: Unsere Laborprozesse bleiben transparent wie eine Logistikkette – von der Abholung bis zum Zertifikat.',
       'columns': { 's': 1, 'm': 2, 'l': 3 },
-      'callouts': [
+      'items': [
         {
-          'label': 'Wareneingang',
-          'text': 'Eingangsprüfung, Seriennummern-Scan und automatisierte Zuordnung zu Messreihen.'
+          'title': 'Digitale Prozessführung',
+          'subtitle': 'Geführte Abläufe für jedes Messmittel',
+          'features': [
+            'Barcode-Scan, Seriennummern-Erkennung und automatische Auftragszuordnung',
+            'Schritt-für-Schritt-Programme mit dokumentierter Messunsicherheit',
+            'Live-Status inkl. Kommentaren und Freigaben je Kalibrierschritt'
+          ]
         },
         {
-          'label': 'Messplatz',
-          'text': 'Rückführbare Referenznormale mit dokumentierter Messunsicherheit pro Schritt.'
+          'title': 'Laborlogistik & Tracking',
+          'subtitle': 'Transparenz wie in der City-Logistik',
+          'features': [
+            'Track & Trace vom Wareneingang bis zum Rückversand – inkl. Push bei Freigabe',
+            'Abhol- und Bringrouten abgestimmt auf Ihre Produktionsfenster',
+            'Sichere Verpackungs- und Transportkonzepte für sensible Messmittel'
+          ]
         },
         {
-          'label': 'Dokumentation',
-          'text': 'Digitale Laborjournale mit Live-Status, Kommentaren und Freigaben.'
-        },
-        {
-          'label': 'Zertifikat',
-          'text': 'Unterschrift, Prüfstempel und PDF/JSON-Export inklusive Audit-Report.'
+          'title': 'Zertifikate & Compliance',
+          'subtitle': 'Audit-sichere Dokumentation',
+          'features': [
+            'Signierte Zertifikate als PDF und JSON mit Versionshistorie',
+            'Rollen- und Rechtekonzepte für QS, Einkauf und Produktion',
+            'REST-API für ERP/LIMS und revisionssicheren Export'
+          ]
         }
       ]
     },
@@ -518,49 +524,44 @@
             </div>
           </div>
         </section>
-      {% elseif section.type == 'MediaOverlayTimeline' %}
+      {% elseif section.type == 'FeatureGridSection' %}
         {% set columns = section.columns|default({ 's': 1, 'm': 2, 'l': 3 }) %}
-        {% set focusImages = section.focusImages|default({}) %}
         {% set columnClasses = [
           'uk-child-width-1-' ~ (columns.s|default(1)) ~ '@s',
           'uk-child-width-1-' ~ (columns.m|default(2)) ~ '@m',
           'uk-child-width-1-' ~ (columns.l|default(3)) ~ '@l'
         ] %}
-        {% set breakpoints = {'xl': '(min-width: 1280px)', 'l': '(min-width: 960px)', 'm': '(min-width: 640px)'} %}
-        <section class="uk-section labor-section labor-media-timeline">
+        <section class="uk-section labor-section labor-feature-grid">
           <div class="uk-container">
-            <div class="uk-grid-large uk-flex-middle" uk-grid>
-              <div class="uk-width-1-2@m">
-                <div class="labor-media-timeline__copy">
-                  <h2 class="labor-section__title">{{ section.title }}</h2>
-                  {% if section.description is defined %}
-                    <p class="labor-section__text">{{ section.description }}</p>
-                  {% endif %}
-                </div>
-                <div class="labor-media-timeline__callouts uk-grid-small {{ columnClasses|join(' ') }}" uk-grid>
-                  {% for callout in section.callouts %}
-                    <div>
-                      <div class="labor-callout">
-                        <div class="labor-callout__label">{{ callout.label }}</div>
-                        <p class="labor-callout__text">{{ callout.text }}</p>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              </div>
-              <div class="uk-width-1-2@m">
-                <div class="labor-media-timeline__media">
-                  <picture>
-                    {% for key, mediaQuery in breakpoints %}
-                      {% if focusImages[key] is defined %}
-                        <source media="{{ mediaQuery }}" srcset="{{ basePath ~ focusImages[key] }}">
+            <div class="labor-feature-grid__intro uk-width-2-3@m">
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+              {% if section.description is defined %}
+                <p class="labor-section__text">{{ section.description }}</p>
+              {% endif %}
+            </div>
+            <div class="labor-feature-grid__cards {{ columnClasses|join(' ') }}" uk-grid>
+              {% for item in section.items %}
+                <div>
+                  <article class="labor-feature-card">
+                    <div class="labor-feature-card__header">
+                      <h3 class="labor-feature-card__title">{{ item.title }}</h3>
+                      {% if item.subtitle is defined %}
+                        <p class="labor-feature-card__subtitle">{{ item.subtitle }}</p>
                       {% endif %}
-                    {% endfor %}
-                    <img src="{{ basePath ~ (focusImages.default|default(focusImages.l|default(''))) }}" alt="{{ section.title }}" loading="lazy">
-                  </picture>
-                  <div class="labor-media-timeline__overlay" aria-hidden="true"></div>
+                    </div>
+                    {% if item.features is defined and item.features|length > 0 %}
+                      <ul class="labor-feature-list" aria-label="Hauptmerkmale">
+                        {% for feature in item.features %}
+                          <li class="labor-feature-list__item">
+                            <span class="labor-feature-list__icon" aria-hidden="true"></span>
+                            <span class="labor-feature-list__text">{{ feature }}</span>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  </article>
                 </div>
-              </div>
+              {% endfor %}
             </div>
           </div>
         </section>
