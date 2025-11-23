@@ -155,6 +155,25 @@
       ]
     },
     {
+      'type': 'AboutSection',
+      'eyebrow': 'Über uns',
+      'title': 'Teams, die Präzision leben',
+      'text': 'Wir sind Ingenieur:innen, Messtechniker:innen und Logistiker:innen, die Kalibrierung mit Verantwortung denken. Unser Labor in Musterstadt verbindet automatisierte Abläufe mit persönlicher Betreuung – damit Sie immer wissen, wer sich um Ihre Messmittel kümmert.\n\nAls DAkkS-akkreditiertes Kalibrierlabor nach DIN EN ISO/IEC 17025 arbeiten wir revisionssicher und dokumentiert. Dank digitaler Prozesse bleiben Fristen, Zertifikate und Abholtermine transparent.',
+      'highlights': [
+        { 'label': 'Team', 'value': '28 Spezialist:innen für elektrische und thermische Messtechnik' },
+        { 'label': 'Standort', 'value': 'Labor in Musterstadt – mobiles Einsatzteam bundesweit' },
+        { 'label': 'Akkreditierung', 'value': 'DAkkS-akkreditiert nach DIN EN ISO/IEC 17025' },
+        { 'label': 'Service', 'value': 'Feste Ansprechpartner:innen, abgestimmte Slots, Abholservice' }
+      ],
+      'contact': {
+        'title': 'Direkter Kontakt',
+        'name': 'Laborservice',
+        'email': 'kontakt@systems-engineering.de',
+        'phone': '+49 30 1234567',
+        'cta': { 'label': 'Kalibrierung anfragen', 'link': '/kontakt' }
+      }
+    },
+    {
       'type': 'TwoColumnSection',
       'title': 'Digitales Messmittelportal (calServer)',
       'image': '/assets/calserver-dashboard.png',
@@ -435,17 +454,17 @@
           </div>
         </section>
       {% elseif section.type == 'CardGrid' %}
-        {% set cardClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
-        <section class="{{ cardClasses|join(' ') }}">
-          <div class="uk-container">
-            <div class="labor-section__header">
-              <h2 class="labor-section__title">{{ section.title }}</h2>
-            </div>
-            <div class="uk-grid-small uk-child-width-1-2@m uk-child-width-1-{{ section.columns }}@l" uk-grid>
-              {% for item in section.items %}
-                <div>
-                  <div class="labor-card uk-card uk-card-default uk-card-body {{ variant == 'split' ? 'labor-card--split' : '' }}">
-                    <div class="labor-card__image" role="presentation">
+      {% set cardClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+      <section class="{{ cardClasses|join(' ') }}">
+        <div class="uk-container">
+          <div class="labor-section__header">
+            <h2 class="labor-section__title">{{ section.title }}</h2>
+          </div>
+          <div class="uk-grid-small uk-child-width-1-2@m uk-child-width-1-{{ section.columns }}@l" uk-grid>
+            {% for item in section.items %}
+              <div>
+                <div class="labor-card uk-card uk-card-default uk-card-body {{ variant == 'split' ? 'labor-card--split' : '' }}">
+                  <div class="labor-card__image" role="presentation">
                       <div class="labor-card__placeholder" aria-hidden="true">Bildvorschau</div>
                       <img src="{{ basePath ~ item.image }}" alt="{{ item.title }}" loading="lazy">
                     </div>
@@ -453,16 +472,67 @@
                     <p class="labor-card__text">{{ item.text }}</p>
                     <a class="labor-card__link" href="{{ item.link }}">Mehr erfahren →</a>
                   </div>
-                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    {% elseif section.type == 'AboutSection' %}
+      {% set aboutClasses = ['uk-section', 'labor-section', 'labor-about', variant == 'muted' ? 'labor-section--muted' : ''] %}
+      <section class="{{ aboutClasses|join(' ') }}" id="about">
+        <div class="uk-container">
+          <div class="uk-grid-large uk-child-width-1-2@m" uk-grid>
+            <div>
+              {% if section.eyebrow is defined %}
+                <p class="labor-eyebrow">{{ section.eyebrow }}</p>
+              {% endif %}
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+              {% for paragraph in section.text|split('\n') %}
+                {% if paragraph|trim != '' %}
+                  <p class="labor-section__text">{{ paragraph }}</p>
+                {% endif %}
               {% endfor %}
             </div>
+            <div>
+              <div class="labor-about__panel" aria-label="Ansprechpartner und Fakten zum Labor">
+                {% if section.highlights is defined and section.highlights|length > 0 %}
+                  <ul class="labor-about__list">
+                    {% for item in section.highlights %}
+                      <li class="labor-about__item">
+                        <span class="labor-about__label">{{ item.label }}</span>
+                        <span class="labor-about__value">{{ item.value }}</span>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+                {% if section.contact is defined %}
+                  <div class="labor-about__contact">
+                    <p class="labor-about__contact-title">{{ section.contact.title }}</p>
+                    {% if section.contact.name is defined %}
+                      <p class="labor-about__contact-name">{{ section.contact.name }}</p>
+                    {% endif %}
+                    {% if section.contact.email is defined %}
+                      <a class="labor-about__contact-link" href="mailto:{{ section.contact.email }}">{{ section.contact.email }}</a>
+                    {% endif %}
+                    {% if section.contact.phone is defined %}
+                      <a class="labor-about__contact-link" href="tel:{{ section.contact.phone|replace({' ': ''}) }}">{{ section.contact.phone }}</a>
+                    {% endif %}
+                    {% if section.contact.cta is defined %}
+                      {% set buttonStyle = section.contact.cta.style|default('primary') %}
+                      <a class="uk-button {{ buttonStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ buttonStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ buttonStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.contact.cta.link }}">{{ section.contact.cta.label }}</a>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+            </div>
           </div>
-        </section>
-      {% elseif section.type == 'ProcessStepper' %}
-        {% set processClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
-        <section class="{{ processClasses|join(' ') }}">
-          <div class="uk-container">
-            <div class="labor-section__header">
+        </div>
+      </section>
+    {% elseif section.type == 'ProcessStepper' %}
+      {% set processClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+      <section class="{{ processClasses|join(' ') }}">
+        <div class="uk-container">
+          <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
             </div>
             <ol class="labor-stepper" aria-label="Ablauf der Kalibrierung">
