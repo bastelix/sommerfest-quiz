@@ -164,7 +164,15 @@
       'image': '/assets/calserver-dashboard.png',
       'variant': 'feature',
       'tone': 'light',
-      'text': 'Alle Messmittel. Ein Portal. Maximale Transparenz.\nMit unserem Messmittelportal calServer behalten Sie jederzeit den Überblick über Kalibrierfristen, Historien, Zertifikate und Wartungstermine. Cloudbasiert, DSGVO-konform, 24/7 verfügbar.\n\n• Zentrale Verwaltung aller Messmittel\n• Digitale Zertifikate jederzeit abrufbar\n• Automatische Erinnerungen\n• Audit-sichere Historien\n• Multi-User Zugang\n• REST-API für ERP/LIMS-Integration',
+      'text': 'Alle Messmittel. Ein Portal. Maximale Transparenz.\nMit unserem Messmittelportal calServer behalten Sie jederzeit den Überblick über Kalibrierfristen, Historien, Zertifikate und Wartungstermine. Cloudbasiert, DSGVO-konform, 24/7 verfügbar.',
+      'list': [
+        'Zentrale Verwaltung aller Messmittel',
+        'Digitale Zertifikate jederzeit abrufbar',
+        'Automatische Erinnerungen',
+        'Audit-sichere Historien',
+        'Multi-User Zugang',
+        'REST-API für ERP/LIMS-Integration'
+      ],
       'button': { 'label': 'Zum Messmittelportal', 'link': '/messmittelportal', 'style': 'primary' }
     },
     {
@@ -491,6 +499,16 @@
                       <p class="labor-section__text">{{ paragraph }}</p>
                     {% endif %}
                   {% endfor %}
+                  {% if section.list is defined and section.list|length > 0 %}
+                    <ul class="labor-feature-list" aria-label="Highlights des Angebots">
+                      {% for item in section.list %}
+                        <li class="labor-feature-list__item">
+                          <span class="labor-feature-list__icon" aria-hidden="true"></span>
+                          <span class="labor-feature-list__text">{{ item }}</span>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
                   {% if section.button is defined %}
                     {% set buttonStyle = section.button.style|default('primary') %}
                     <a class="uk-button {{ buttonStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ buttonStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ buttonStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.button.link }}">{{ section.button.label }}</a>
