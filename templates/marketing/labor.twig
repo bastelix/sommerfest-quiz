@@ -70,21 +70,31 @@
       'steps': [
         {
           'title': 'DAkkS-akkreditiert',
-          'text': 'Rückführbare Messergebnisse nach DIN EN ISO/IEC 17025 – Audit-Quote 99,3 % bestätigt.'
+          'text': 'Rückführbare Messergebnisse nach DIN EN ISO/IEC 17025.',
+          'icon': 'star'
         },
         {
           'title': 'Schnelle Durchlaufzeiten',
-          'text': 'Planbare Prozesse, 48h Standard-Turnaround für Bestandskunden, flexible Terminabstimmung.'
+          'text': 'Planbare Prozesse, geringe Liegezeiten, flexible Terminabstimmung.',
+          'icon': 'clock'
         },
         {
           'title': 'Modernes Labor',
-          'text': 'Hochpräzise Referenznormale bis 8½ Digit und dokumentierte Kalibrierketten.'
+          'text': 'Hochpräzise Referenznormale und dokumentierte Kalibrierketten.',
+          'icon': 'settings'
         },
         {
           'title': 'Kompletter Service',
-          'text': 'Abholservice deutschlandweit, Prüfmittelmanagement und digitale Zertifikate.'
+          'text': 'Abhol-/Bringservice, Prüfmittelmanagement und digitale Zertifikate.',
+          'icon': 'cart'
         }
-      ]
+      ],
+      'cta': {
+        'label': 'Labor-Rundgang vereinbaren',
+        'link': '/kontakt',
+        'style': 'ghost',
+        'size': 'small'
+      }
     },
     {
       'type': 'CardGrid',
@@ -560,7 +570,13 @@
             <ol class="labor-stepper" aria-label="Ablauf der Kalibrierung">
               {% for step in section.steps %}
                 <li class="labor-stepper__item {{ variant == 'split' ? 'labor-stepper__item--split' : '' }}">
-                  <div class="labor-stepper__index" aria-hidden="true">{{ loop.index }}</div>
+                  <div class="labor-stepper__index" aria-hidden="true">
+                    {% if step.icon is defined %}
+                      <span uk-icon="icon: {{ step.icon }}"></span>
+                    {% else %}
+                      {{ loop.index }}
+                    {% endif %}
+                  </div>
                   <div class="labor-stepper__body">
                     <h3 class="labor-stepper__title">{{ step.title }}</h3>
                     <p class="labor-stepper__text">{{ step.text }}</p>
@@ -568,6 +584,14 @@
                 </li>
               {% endfor %}
             </ol>
+            {% if section.cta is defined %}
+              {% set ctaStyle = section.cta.style|default('primary') %}
+              {% set ctaSize = section.cta.size|default('default') %}
+              {% set ctaSizeClass = ctaSize == 'small' ? 'uk-button-small' : '' %}
+              <div class="labor-stepper__actions">
+                <a class="uk-button {{ ctaSizeClass }} {{ ctaStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ ctaStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ ctaStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.cta.link }}">{{ section.cta.label }}</a>
+              </div>
+            {% endif %}
           </div>
         </section>
       {% elseif section.type == 'StorySlider' %}
