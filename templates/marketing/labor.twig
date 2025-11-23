@@ -67,6 +67,7 @@
       'type': 'ProcessStepper',
       'title': 'Unser Labor auf einen Blick',
       'variant': 'muted',
+      'layout': 'grid',
       'steps': [
         {
           'title': 'DAkkS-akkreditiert',
@@ -562,12 +563,13 @@
       </section>
     {% elseif section.type == 'ProcessStepper' %}
       {% set processClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+      {% set stepLayout = section.layout|default('stack') %}
       <section class="{{ processClasses|join(' ') }}">
         <div class="uk-container">
           <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
             </div>
-            <ol class="labor-stepper" aria-label="Ablauf der Kalibrierung">
+            <ol class="labor-stepper {{ stepLayout == 'grid' ? 'labor-stepper--grid' : '' }}" aria-label="Ablauf der Kalibrierung">
               {% for step in section.steps %}
                 <li class="labor-stepper__item {{ variant == 'split' ? 'labor-stepper__item--split' : '' }}">
                   <div class="labor-stepper__index" aria-hidden="true">
