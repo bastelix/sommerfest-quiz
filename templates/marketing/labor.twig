@@ -15,32 +15,31 @@
   'sections': [
     {
       'type': 'HeroBlock',
-      'headline': 'DAkkS-akkreditiertes Kalibrierlabor für hohe Stückzahlen.',
-      'subline': 'Digitale Auftragsabwicklung, schnelle Durchlaufzeiten und revisionssichere Zertifikate – damit Ihre Prüfmittel immer einsatzbereit bleiben.',
+      'headline': 'Mehr Effizienz im Labor – klar, digital, auditfähig.',
+      'subline': 'Wir verbinden Laborprozesse, Kalibrierzertifikate und Prüfmittelverwaltung zu einem standardisierten digitalen Workflow – sicher, schnell und jederzeit nachweisbar.',
       'variant': 'split',
       'background': 'gradient',
       'tone': 'dark',
       'buttons': [
         { 'label': 'Jetzt Demo anfragen', 'link': '/kontakt', 'style': 'primary', 'size': 'large' }
       ],
-      'backgroundImage': '/assets/labor-hero.jpg',
       'valueProps': [
-        { 'icon': 'bolt', 'text': 'Expressfähige Slots und abgestimmte Logistik für Serienkalibrierungen.' },
-        { 'icon': 'shield', 'text': 'DAkkS-akkreditiert mit revisionssicheren Zertifikaten im Portal.' },
-        { 'icon': 'cloud', 'text': 'Digitale Anbindung per Upload oder API für durchgängige Prozesse.' }
+        { 'icon': 'bolt', 'title': 'Schnellere Prozesse', 'description': 'Weniger manuelle Schritte, bessere Übersicht' },
+        { 'icon': 'lock', 'title': 'Sichere Daten', 'description': 'Zertifikate & Messdaten DSGVO-konform in Deutschland' },
+        { 'icon': 'file-text', 'title': 'Für Audits optimiert', 'description': 'Rückverfolgbar, versioniert, jederzeit abrufbar' }
       ],
       'trustBadges': [
-        'ISO/IEC 17025 akkreditiert',
-        'Audit-Trail & digitale Zertifikate',
-        'Über 850 aktive Industriekunden'
+        'DAkkS-konforme Prozesse',
+        '100 % Rückverfolgbarkeit',
+        'Deutsche Server (DSGVO)'
       ]
     },
     {
       'type': 'TextBlock',
-      'title': 'Mission: Präzision mit Verantwortung',
+      'title': 'Unsere Mission für moderne Labore',
       'tone': 'light',
       'variant': 'centered',
-      'text': 'Wir kalibrieren jedes Messmittel so, dass Ihre Produktion sicher weiterläuft.\nWir verbinden akkreditierte Qualität mit digitalen Prozessen für maximale Transparenz.\nWir handeln partnerschaftlich, liefern verlässlich und halten unsere Zusagen ein.'
+      'text': 'Wir machen Laborprozesse dauerhaft einfacher.\nWir digitalisieren Kalibrierungen, Zertifikate und Messmittelbestände.\nDamit Labore schneller, sicherer und auditfähig arbeiten – jeden Tag.'
     },
     {
       'type': 'MeasurementTicker',
@@ -400,7 +399,17 @@
                     <p class="labor-eyebrow">{{ pageConfig.title }}</p>
                     <h1 class="labor-hero__headline">{{ section.headline }}</h1>
                     <p class="labor-hero__subline">{{ section.subline }}</p>
-                    <div class="labor-hero__actions" role="group" aria-label="Hauptaktionen">
+                    {% if section.valueProps is defined and section.valueProps|length > 0 %}
+                      <ul class="labor-hero__value-props uk-list uk-list-large uk-list-divider uk-margin-medium-top" aria-label="Wichtigste Vorteile">
+                        {% for item in section.valueProps %}
+                          <li class="labor-hero__value-prop">
+                            <span class="labor-hero__value-icon" aria-hidden="true" uk-icon="icon: {{ item.icon }}; ratio: 1.2"></span>
+                            <span class="labor-hero__value-text"><strong>{{ item.title }}</strong>: {{ item.description }}</span>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                    <div class="labor-hero__actions uk-margin-medium-top" role="group" aria-label="Hauptaktionen">
                       {% for button in section.buttons %}
                         {% set buttonStyle = button.style|default(loop.first ? 'primary' : 'secondary') %}
                         {% set buttonSize = button.size|default('') %}
@@ -412,7 +421,8 @@
                         <div class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m" uk-grid>
                           {% for badge in section.trustBadges %}
                             <div>
-                              <div class="labor-hero__trust-item uk-card uk-card-default uk-card-body uk-card-small">
+                              <div class="labor-hero__trust-item uk-card uk-card-default uk-card-body uk-card-small uk-flex uk-flex-middle">
+                                <span class="uk-margin-small-right" aria-hidden="true" uk-icon="icon: check; ratio: 0.9"></span>
                                 <span class="labor-hero__trust-label">{{ badge }}</span>
                               </div>
                             </div>
@@ -420,24 +430,16 @@
                         </div>
                       </div>
                     {% endif %}
-                    {% if section.valueProps is defined and section.valueProps|length > 0 %}
-                      <ul class="labor-hero__value-props uk-list uk-list-large uk-list-divider uk-margin-medium-top" aria-label="Wichtigste Vorteile">
-                        {% for item in section.valueProps %}
-                          <li class="labor-hero__value-prop">
-                            <span class="labor-hero__value-icon" aria-hidden="true" uk-icon="icon: {{ item.icon }}; ratio: 1.2"></span>
-                            <span class="labor-hero__value-text">{{ item.text }}</span>
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    {% endif %}
                   </div>
                 </div>
                 <div class="uk-width-1-3@m">
-                  <div class="labor-hero__media uk-card uk-card-default uk-card-body uk-flex uk-flex-middle uk-flex-center" aria-hidden="true">
+                  <div class="labor-hero__media uk-card uk-card-default uk-card-body" aria-hidden="true">
                     {% if section.backgroundImage is defined %}
                       <img class="labor-hero__visual" src="{{ basePath ~ section.backgroundImage }}" alt="Kalibrierlabor" loading="lazy">
                     {% else %}
-                      <div class="labor-hero__placeholder" aria-hidden="true">Dashboard-Preview</div>
+                      <div class="hero-image-placeholder uk-background-muted uk-flex uk-flex-center uk-flex-middle" style="min-height: 360px;">
+                        <span class="uk-text-meta">[Bild/Mockup hier einfügen]</span>
+                      </div>
                     {% endif %}
                   </div>
                 </div>
