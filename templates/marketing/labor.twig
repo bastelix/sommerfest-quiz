@@ -36,10 +36,10 @@
     },
     {
       'type': 'TextBlock',
-      'title': 'Unsere Mission',
+      'title': 'Mission: Präzision mit Verantwortung',
       'tone': 'light',
       'variant': 'centered',
-      'text': 'Wir kalibrieren Messmittel mit höchster Präzision – damit Ihre Prozesse sicher, normkonform und jederzeit reproduzierbar bleiben. Seit über 20 Jahren unterstützen wir Industrieunternehmen, Energieversorger und Forschungseinrichtungen mit zuverlässigen Kalibrierprozessen und kurzen Durchlaufzeiten.'
+      'text': 'Wir kalibrieren jedes Messmittel so, dass Ihre Produktion sicher weiterläuft.\nWir verbinden akkreditierte Qualität mit digitalen Prozessen für maximale Transparenz.\nWir handeln partnerschaftlich, liefern verlässlich und halten unsere Zusagen ein.'
     },
     {
       'type': 'MeasurementTicker',
@@ -489,11 +489,14 @@
           </div>
         </section>
       {% elseif section.type == 'TextBlock' %}
-      {% set textClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'centered' ? 'labor-section--centered' : ''] %}
+      {% set variant = section.variant|default('') %}
+      {% set textClasses = ['uk-section', 'uk-section-large', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'centered' ? 'labor-section--centered' : ''] %}
       <section class="{{ textClasses|join(' ') }}">
-        <div class="uk-container uk-container-small {{ variant == 'centered' ? 'uk-text-center' : '' }}">
-          <h2 class="labor-section__title">{{ section.title }}</h2>
-          <p class="labor-section__text">{{ section.text }}</p>
+        <div class="uk-container uk-container-large">
+          <div class="uk-margin-auto {{ variant == 'centered' ? 'uk-text-center' : '' }}" style="max-width: 900px;">
+            <h2 class="labor-section__title">{{ section.title }}</h2>
+            <p class="labor-section__text">{{ section.text|nl2br }}</p>
+          </div>
         </div>
       </section>
       {% elseif section.type == 'MeasurementTicker' %}
