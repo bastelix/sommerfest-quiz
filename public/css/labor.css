@@ -833,6 +833,67 @@ body.labor-landing {
   font-size: 1.05rem;
 }
 
+.labor-about__panel {
+  background: #fff;
+  border: 1px solid #e6ebf5;
+  border-radius: 20px;
+  box-shadow: var(--labor-shadow);
+  padding: 28px;
+  display: grid;
+  gap: 20px;
+}
+
+.labor-about__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.labor-about__item {
+  display: grid;
+  gap: 6px;
+}
+
+.labor-about__label {
+  font-weight: 600;
+  color: var(--labor-blue);
+  letter-spacing: 0.01em;
+}
+
+.labor-about__value {
+  color: var(--labor-text);
+  line-height: 1.5;
+}
+
+.labor-about__contact {
+  border-top: 1px solid #e6ebf5;
+  padding-top: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.labor-about__contact-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--labor-text);
+}
+
+.labor-about__contact-name {
+  margin: 0;
+  color: #34456b;
+}
+
+.labor-about__contact-link {
+  color: var(--labor-blue);
+}
+
+.labor-about__contact-link:hover,
+.labor-about__contact-link:focus-visible {
+  color: var(--labor-hover);
+}
+
 .labor-footer {
   background: var(--labor-blue);
   color: #fff;
