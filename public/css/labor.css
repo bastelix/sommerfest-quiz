@@ -357,6 +357,50 @@ body.labor-landing {
   margin-bottom: 24px;
 }
 
+.labor-faq__header {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.labor-faq__list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.labor-faq__item {
+  border: 1px solid rgba(28, 47, 92, 0.08);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f8faff 0%, #eef3ff 70%, #ffffff 100%);
+  box-shadow: 0 10px 26px rgba(28, 47, 92, 0.08);
+  overflow: hidden;
+}
+
+.labor-faq__question {
+  padding: 16px 20px;
+  font-weight: 700;
+  color: var(--labor-text);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.labor-faq__question::after {
+  filter: drop-shadow(0 2px 6px rgba(28, 47, 92, 0.18));
+}
+
+.labor-faq__answer {
+  padding: 0 20px 18px;
+  color: #1f2d4a;
+  line-height: 1.7;
+}
+
+.labor-faq__answer p:last-child {
+  margin-bottom: 0;
+}
+
 .labor-measurement-ticker {
   padding-top: 24px;
   padding-bottom: 24px;

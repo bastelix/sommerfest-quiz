@@ -217,6 +217,37 @@
       ]
     },
     {
+      'type': 'FaqSection',
+      'title': 'Häufige Fragen zum Kalibrierlabor',
+      'description': 'Kurze Antworten auf die wichtigsten Fragen rund um Ablauf, Dokumentation und Sicherheit.',
+      'items': [
+        {
+          'question': 'Welche Messmittel kann ich kalibrieren lassen?',
+          'answer': 'Wir kalibrieren elektrische und thermische Messgrößen – von Multimetern und Stromzangen bis hin zu Temperaturfühlern, Prüfständen und Prozesskalibratoren.'
+        },
+        {
+          'question': 'Wie lange dauert die Kalibrierung?',
+          'answer': 'Standardaufträge bearbeiten wir in 48 Stunden nach Wareneingang. Für Expressaufträge stimmen wir die Durchlaufzeit individuell ab.'
+        },
+        {
+          'question': 'Erhalte ich digitale Zertifikate?',
+          'answer': 'Ja. Jedes Messergebnis wird revisionssicher dokumentiert. Sie erhalten Zertifikate als PDF und JSON mit Versionshistorie in unserem Messmittelportal.'
+        },
+        {
+          'question': 'Gibt es eine Vor-Ort-Kalibrierung?',
+          'answer': 'Unsere mobilen Teams kalibrieren Ihre Messmittel direkt in der Produktion – inklusive abgestimmter Routenplanung und Reinraumkonzepten.'
+        },
+        {
+          'question': 'Wie läuft der Versand?',
+          'answer': 'Sie senden Ihre Geräte ein oder nutzen unseren Abholservice. Verpackungslösungen und Tracking stellen wir bereit, damit Ihre Messmittel sicher ankommen.'
+        },
+        {
+          'question': 'Wie bleibt die Rückverfolgbarkeit gesichert?',
+          'answer': 'Alle Normale sind rückführbar und werden regelmäßig auditiert. Messunsicherheiten und Prüfintervalle dokumentieren wir transparent im Zertifikat.'
+        }
+      ]
+    },
+    {
       'type': 'CTASection',
       'headline': 'Bereit für präzise Kalibrierung?',
       'subline': 'Fordern Sie ein unverbindliches Angebot an – Antwort innerhalb eines Werktages.',
@@ -559,6 +590,32 @@
                 </div>
               {% endfor %}
             </div>
+          </div>
+        </section>
+      {% elseif section.type == 'FaqSection' %}
+        {% set faqClasses = ['uk-section', 'labor-section', 'labor-faq', variant == 'muted' ? 'labor-section--muted' : ''] %}
+        <section class="{{ faqClasses|join(' ') }}">
+          <div class="uk-container uk-container-small">
+            <div class="labor-section__header labor-faq__header">
+              <h2 class="labor-section__title">{{ section.title }}</h2>
+              {% if section.description is defined %}
+                <p class="labor-section__text">{{ section.description }}</p>
+              {% endif %}
+            </div>
+            <ul class="labor-faq__list" uk-accordion="multiple: true">
+              {% for item in section.items %}
+                <li class="labor-faq__item {{ loop.first ? 'uk-open' : '' }}">
+                  <a class="uk-accordion-title labor-faq__question" href="#">{{ item.question }}</a>
+                  <div class="uk-accordion-content labor-faq__answer">
+                    {% for paragraph in item.answer|split('\n') %}
+                      {% if paragraph|trim != '' %}
+                        <p>{{ paragraph }}</p>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
           </div>
         </section>
       {% elseif section.type == 'CTASection' %}
