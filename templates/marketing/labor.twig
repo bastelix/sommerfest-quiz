@@ -15,8 +15,8 @@
   'sections': [
     {
       'type': 'HeroBlock',
-      'headline': 'Präzision beginnt mit Vertrauen.',
-      'subline': 'DAkkS-akkreditiertes Kalibrierlabor für elektrische und thermische Messgrößen – zuverlässig, rückführbar und auditsicher.',
+      'headline': 'Kalibrierlabor für anspruchsvolle Stückzahlen.',
+      'subline': 'DAkkS-akkreditiert, schnell, digital – mit messbarer Performance für elektrische und thermische Messgrößen.',
       'variant': 'split',
       'background': 'gradient',
       'tone': 'dark',
@@ -24,7 +24,15 @@
         { 'label': 'Kalibrierung anfragen', 'link': '/kontakt', 'style': 'primary' },
         { 'label': 'Akkreditierung ansehen', 'link': '/akkreditierung', 'style': 'ghost' }
       ],
-      'backgroundImage': '/assets/labor-hero.jpg'
+      'backgroundImage': '/assets/labor-hero.jpg',
+      'heroStats': [
+        { 'value': '24 h', 'label': 'Expresskalibrierung verfügbar', 'icon': 'bolt' },
+        { 'value': '48 h', 'label': 'Durchschnittliche Bearbeitungszeit', 'icon': 'clock' },
+        { 'value': '100 %', 'label': 'Digitale Zertifikate mit Audit-Trail', 'icon': 'shield' },
+        { 'value': '850+', 'label': 'Aktive Firmenkunden', 'icon': 'users' },
+        { 'value': '200+', 'label': 'Messbereiche abgedeckt', 'icon': 'grid' },
+        { 'value': '99,9 %', 'label': 'Datenverfügbarkeit im Portal', 'icon': 'cloud' }
+      ]
     },
     {
       'type': 'TextBlock',
@@ -57,10 +65,10 @@
       'title': 'Kennzahlen aus dem Laboralltag',
       'columns': { 's': 2, 'm': 3, 'l': 4 },
       'items': [
-        { 'value': '48 h', 'label': 'Durchlaufzeit Standard', 'description': 'Schnelle Rücksendung Ihrer Messmittel bei Bestandskunden.' },
-        { 'value': '99,3 %', 'label': 'Audit-Quote', 'description': 'Bestätigte Messergebnisse in der letzten DAkkS-Begutachtung.' },
-        { 'value': '14 kt CO₂', 'label': 'Einsparung', 'description': 'Dank optimierter Logistik- und Verpackungsketten pro Jahr.' },
-        { 'value': '5.200', 'label': 'Zertifikate/Jahr', 'description': 'Digital, revisionssicher und jederzeit abrufbar.' }
+        { 'value': '25.000+', 'label': 'Kalibrierungen pro Jahr', 'description': 'Skalierte Prozesse mit eingespielten Routinen und stabilen Abläufen.' },
+        { 'value': 'Seit 2012', 'label': 'DAkkS-akkreditiert', 'description': 'DIN EN ISO/IEC 17025 – kontinuierlich auditiert und rückführbar.' },
+        { 'value': '98,7 %', 'label': 'Termintreue', 'description': 'Verbindliche Fertigstellung ohne ungeplante Produktionsstillstände.' },
+        { 'value': '< 0,1 %', 'label': 'Rückläuferquote', 'description': 'Nahezu fehlerfreie Ergebnisse dank dokumentierter Prüfpfade.' }
       ]
     },
     {
@@ -400,6 +408,37 @@
                     {% endfor %}
                   </div>
                 </div>
+              </div>
+            {% endif %}
+            {% if section.heroStats is defined and section.heroStats|length > 0 %}
+              <div class="labor-hero__stats-bar" data-uk-scrollspy="cls: uk-animation-fade; delay: 150">
+                <ul class="labor-hero__stats" role="list" aria-label="Leistungskennzahlen">
+                  {% for stat in section.heroStats %}
+                    <li class="labor-hero__stat" role="listitem">
+                      <span class="labor-hero__stat-icon" aria-hidden="true">
+                        {% if stat.icon == 'bolt' %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M11 3 5 14h5l-1 7 7-12h-5l1-6Z"></path></svg>
+                        {% elseif stat.icon == 'clock' %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 7v5l3 2"></path><circle cx="12" cy="12" r="9"></circle></svg>
+                        {% elseif stat.icon == 'shield' %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 3 5 6v5c0 5 3.5 7.9 7 10 3.5-2.1 7-5 7-10V6l-7-3Z"></path><path d="M9 12.5 11 14l4-4"></path></svg>
+                        {% elseif stat.icon == 'users' %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="8" cy="9" r="3"></circle><circle cx="17" cy="9" r="3"></circle><path d="M3 20c0-3 2.5-5 5-5s5 2 5 5"></path><path d="M11 15.5c.7-.6 1.6-1 3-1 2.4 0 5 2 5 5"></path></svg>
+                        {% elseif stat.icon == 'grid' %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M4 4h6v6H4Z"></path><path d="M14 4h6v6h-6Z"></path><path d="M4 14h6v6H4Z"></path><path d="M14 14h6v6h-6Z"></path></svg>
+                        {% elseif stat.icon == 'cloud' %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M7 18h10a4 4 0 0 0 .7-7.95A5 5 0 0 0 7 7a4 4 0 0 0 0 8Z"></path></svg>
+                        {% else %}
+                          <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg>
+                        {% endif %}
+                      </span>
+                      <span class="labor-hero__stat-label">
+                        <strong>{{ stat.value }}</strong>
+                        <span>{{ stat.label }}</span>
+                      </span>
+                    </li>
+                  {% endfor %}
+                </ul>
               </div>
             {% endif %}
           </div>
