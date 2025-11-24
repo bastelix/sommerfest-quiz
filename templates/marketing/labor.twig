@@ -418,13 +418,12 @@
                     </div>
                     {% if section.trustBadges is defined and section.trustBadges|length > 0 %}
                       <div class="labor-hero__trust uk-margin-medium-top">
-                        <div class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-3@m" uk-grid>
+                        <div class="uk-grid-small uk-grid-match uk-child-width-1-2@s uk-child-width-1-3@m labor-hero__trust-grid" uk-grid>
                           {% for badge in section.trustBadges %}
                             <div>
-                              <div class="labor-hero__trust-item uk-card uk-card-default uk-card-body uk-card-small uk-flex uk-flex-middle">
-                                <span class="uk-margin-small-right" aria-hidden="true" uk-icon="icon: check; ratio: 0.9"></span>
-                                <span class="labor-hero__trust-label">{{ badge }}</span>
-                              </div>
+                              <article class="labor-hero__trust-card" aria-label="{{ badge }}">
+                                <p class="labor-hero__trust-label">{{ badge }}</p>
+                              </article>
                             </div>
                           {% endfor %}
                         </div>

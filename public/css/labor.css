@@ -191,6 +191,46 @@ body.labor-landing {
   gap: 12px;
 }
 
+.labor-hero__trust {
+  position: relative;
+}
+
+.labor-hero__trust-grid {
+  margin: 0;
+}
+
+.labor-hero__trust-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+  min-height: 120px;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.labor-hero__trust-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 24px 24px, rgba(63, 133, 246, 0.35), transparent 55%);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.labor-hero__trust-label {
+  margin: 0;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+}
+
 .labor-hero__stats-bar {
   position: relative;
   margin-top: 28px;
