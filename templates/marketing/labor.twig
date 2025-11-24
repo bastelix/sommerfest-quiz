@@ -61,7 +61,7 @@
     'label': 'Branchen & Team',
     'items': [
       { 'label': 'Einsatzfelder', 'href': '#branchen', 'explain': 'branchen' },
-      { 'label': 'Über uns', 'href': '#about', 'explain': 'team' },
+      { 'label': 'Über uns', 'href': '#labor-historie', 'explain': 'team' },
       { 'label': 'Akkreditierung', 'href': '#akkreditierung', 'explain': 'dakkS' }
     ],
     'explains': [
@@ -316,10 +316,11 @@
       ]
     },
     {
-      'type': 'AboutSection',
-      'anchor': 'about',
-      'eyebrow': 'Unser Labor – Team, Historie & Akkreditierung',
-      'title': 'Unser Labor – Präzision, Erfahrung und Verantwortung',
+      'type': 'Timeline',
+      'anchor': 'labor-historie',
+      'eyebrow': 'Historie',
+      'title': 'Unsere Geschichte – 40+ Jahre Laborentwicklung',
+      'intro': 'Meilensteine vom Kalibrierbetrieb zum mobilen Labor – dokumentiert, auditiert und kontinuierlich verbessert.',
       'text': 'Wir sind Ingenieurinnen, Messtechniker und Logistikerinnen mit mehr als vier Jahrzehnten Laborpraxis. Unser DAkkS-akkreditiertes Labor verbindet modernste Messtechnik mit präzisen Prozessen und persönlicher Betreuung – damit Sie jederzeit auf rückführbare, normgerechte und verlässlich dokumentierte Messergebnisse vertrauen können.\n\nTeams, Prozesse und Technik greifen seit Jahrzehnten ineinander: Vom ersten akkreditierten Messplatz bis zum mobilen Vor-Ort-Labor haben wir jeden Schritt dokumentiert und kontinuierlich weiterentwickelt.',
       'highlights': [
         { 'label': 'Team', 'value': '28 Spezialistinnen für elektrische und thermische Messtechnik' },
@@ -334,14 +335,7 @@
         'email': 'kontakt@systems-engineering.de',
         'phone': '+49 30 1234567',
         'cta': { 'label': 'Kalibrierung anfragen', 'link': '/kontakt' }
-      }
-    },
-    {
-      'type': 'Timeline',
-      'anchor': 'labor-historie',
-      'eyebrow': 'Historie',
-      'title': 'Unsere Geschichte – 40+ Jahre Laborentwicklung',
-      'intro': 'Meilensteine vom Kalibrierbetrieb zum mobilen Labor – dokumentiert, auditiert und kontinuierlich verbessert.',
+      },
       'items': [
         {
           'year': '1983',
@@ -378,8 +372,7 @@
           'title': 'Modernstes Labor für elektrische & thermische Messgrößen',
           'text': 'Digital dokumentierte Kalibrierpraxis mit mobilen Einsatzteams und kontinuierlicher Verbesserung.'
         }
-      ],
-      'contact': null
+      ]
     },
     {
       'type': 'TwoColumnSection',
@@ -821,7 +814,7 @@
       </section>
     {% elseif section.type == 'Timeline' %}
       {% set timelineClasses = ['uk-section', 'labor-section', 'labor-timeline-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
-      {% set hasTimelineAside = section.contact is defined and section.contact %}
+      {% set hasTimelineAside = (section.contact is defined and section.contact) or (section.highlights is defined and section.highlights|length > 0) %}
       <section class="{{ timelineClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
         <div class="uk-container">
           <div class="labor-section__header">
@@ -831,6 +824,13 @@
             <h2 class="labor-section__title">{{ section.title }}</h2>
             {% if section.intro is defined %}
               <p class="labor-section__text">{{ section.intro }}</p>
+            {% endif %}
+            {% if section.text is defined %}
+              {% for paragraph in section.text|split('\n') %}
+                {% if paragraph|trim != '' %}
+                  <p class="labor-section__text">{{ paragraph }}</p>
+                {% endif %}
+              {% endfor %}
             {% endif %}
           </div>
           <div class="uk-grid-large {{ hasTimelineAside ? 'uk-child-width-1-2@m' : 'uk-child-width-1-1' }}" uk-grid>
@@ -849,26 +849,36 @@
             </div>
             {% if hasTimelineAside %}
               <div>
-                <aside class="labor-timeline__aside" aria-label="{{ section.contact.title }}">
-                  <h3 class="labor-timeline__aside-title">{{ section.contact.title }}</h3>
-                  {% if section.contact.address is defined %}
-                    <ul class="labor-timeline__address">
-                      {% for line in section.contact.address %}
-                        <li>{{ line }}</li>
+                <aside class="labor-timeline__aside labor-about__panel" aria-label="{{ section.contact.title|default('Laborprofil') }}">
+                  {% if section.highlights is defined and section.highlights|length > 0 %}
+                    <ul class="labor-about__list">
+                      {% for item in section.highlights %}
+                        <li class="labor-about__item">
+                          <span class="labor-about__label">{{ item.label }}</span>
+                          <span class="labor-about__value">{{ item.value }}</span>
+                        </li>
                       {% endfor %}
                     </ul>
                   {% endif %}
-                  <div class="labor-timeline__contact-links">
-                    {% if section.contact.phone is defined %}
-                      <a class="labor-timeline__contact-link" href="tel:{{ section.contact.phone|replace({' ': ''}) }}">{{ section.contact.phone }}</a>
-                    {% endif %}
-                    {% if section.contact.email is defined %}
-                      <a class="labor-timeline__contact-link" href="mailto:{{ section.contact.email }}">{{ section.contact.email }}</a>
-                    {% endif %}
-                  </div>
-                  {% if section.contact.cta is defined %}
-                    {% set timelineCtaStyle = section.contact.cta.style|default('primary') %}
-                    <a class="uk-button {{ timelineCtaStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ timelineCtaStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ timelineCtaStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.contact.cta.link }}">{{ section.contact.cta.label }}</a>
+                  {% if section.contact is defined and section.contact %}
+                    <div class="labor-about__contact">
+                      {% if section.contact.title is defined %}
+                        <p class="labor-about__contact-title">{{ section.contact.title }}</p>
+                      {% endif %}
+                      {% if section.contact.name is defined %}
+                        <p class="labor-about__contact-name">{{ section.contact.name }}</p>
+                      {% endif %}
+                      {% if section.contact.email is defined %}
+                        <a class="labor-about__contact-link" href="mailto:{{ section.contact.email }}">{{ section.contact.email }}</a>
+                      {% endif %}
+                      {% if section.contact.phone is defined %}
+                        <a class="labor-about__contact-link" href="tel:{{ section.contact.phone|replace({' ': ''}) }}">{{ section.contact.phone }}</a>
+                      {% endif %}
+                      {% if section.contact.cta is defined %}
+                        {% set timelineCtaStyle = section.contact.cta.style|default('primary') %}
+                        <a class="uk-button {{ timelineCtaStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ timelineCtaStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ timelineCtaStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.contact.cta.link }}">{{ section.contact.cta.label }}</a>
+                      {% endif %}
+                    </div>
                   {% endif %}
                 </aside>
               </div>
