@@ -190,6 +190,10 @@ body.labor-landing {
   transform: scale(var(--labor-logo-sticky-scale));
 }
 
+.labor-topbar.labor-topbar--condensed .labor-logo__image {
+  transform: translateY(var(--labor-logo-shift)) scale(var(--labor-logo-sticky-scale));
+}
+
 .labor-offcanvas__nav li a {
   color: #fff;
   font-weight: 600;
