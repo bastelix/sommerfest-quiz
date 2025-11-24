@@ -1,5 +1,11 @@
 {% extends 'layout.twig' %}
 
+{% import _self as laborMedia %}
+
+{% macro asset(path, assets, basePath) %}
+  {{ assets[path]|default(basePath ~ path) }}
+{% endmacro %}
+
 {% set megaNav = [
   {
     'label': 'Angebot',
@@ -114,8 +120,9 @@
     ]
   }
 ] %}
+{% set laborAssetMap = laborAssets|default({}) %}
 {% set contactLink = { 'label': 'Kalibrierung anfragen', 'href': '#kontakt' } %}
-{% set laborLogoUrl = '/uploads/labor/labor-logo.png' %}
+{% set laborLogoUrl = laborMedia.asset('/uploads/labor/labor-logo.png', laborAssetMap, basePath) %}
 {% set pageConfig = {
   'page': 'startseite',
   'title': 'Kalibrierlabor – DAkkS-akkreditiert',
@@ -209,8 +216,8 @@
       'media': {
         'type': 'carousel',
         'items': [
-          { 'src': '/assets/labor-hero.jpg', 'alt': 'Kalibrierlabor mit Referenzgeräten' },
-          { 'src': '/assets/kalibrierung-labor-detail.jpg', 'alt': 'Detailaufnahme eines Kalibrierplatzes' }
+          { 'src': laborMedia.asset('/assets/labor-hero.jpg', laborAssetMap, basePath), 'alt': 'Kalibrierlabor mit Referenzgeräten' },
+          { 'src': laborMedia.asset('/assets/kalibrierung-labor-detail.jpg', laborAssetMap, basePath), 'alt': 'Detailaufnahme eines Kalibrierplatzes' }
         ],
         'caption': 'Ein Blick in unser akkreditiertes Labor – präzise, dokumentiert und auf schnelle Durchlaufzeiten ausgelegt.'
       },
@@ -230,25 +237,25 @@
       'tone': 'light',
       'items': [
         {
-          'image': '/assets/messgroessen-elektrisch.jpg',
+          'image': laborMedia.asset('/assets/messgroessen-elektrisch.jpg', laborAssetMap, basePath),
           'title': 'Elektrische Messgrößen',
           'text': 'Spannung, Strom, Widerstand, Frequenz, Leistung.',
           'link': '/kalibrierung/elektrisch'
         },
         {
-          'image': '/assets/temperatur.jpg',
+          'image': laborMedia.asset('/assets/temperatur.jpg', laborAssetMap, basePath),
           'title': 'Temperatur',
           'text': 'Thermometer, Fühler, Logger.',
           'link': '/kalibrierung/temperatur'
         },
         {
-          'image': '/assets/vor-ort.jpg',
+          'image': laborMedia.asset('/assets/vor-ort.jpg', laborAssetMap, basePath),
           'title': 'Vor-Ort-Kalibrierung',
           'text': 'Direkt bei Ihnen in der Produktion.',
           'link': '/kalibrierung/vor-ort'
         },
         {
-          'image': '/assets/pruefmittel.jpg',
+          'image': laborMedia.asset('/assets/pruefmittel.jpg', laborAssetMap, basePath),
           'title': 'Prüfmittelmanagement',
           'text': 'Digital, transparent, automatisiert.',
           'link': '/pruefmittelmanagement'
@@ -378,7 +385,7 @@
       'type': 'TwoColumnSection',
       'anchor': 'digitales-portal',
       'title': 'Digitales Messmittelportal (calServer)',
-      'image': '/assets/calserver-dashboard.png',
+      'image': laborMedia.asset('/assets/calserver-dashboard.png', laborAssetMap, basePath),
       'variant': 'feature',
       'tone': 'light',
       'text': 'Alle Messmittel. Ein Portal. Maximale Transparenz.\ncalServer bündelt Fristen, Historien, Zertifikate und Wartungen in einer cloudbasierten Plattform – DSGVO-konform, revisionssicher und 24/7 verfügbar.',
@@ -396,7 +403,7 @@
       'type': 'TwoColumnSection',
       'anchor': 'akkreditierung',
       'title': 'Vertrauen durch Qualität',
-      'image': '/assets/dakks-logo.png',
+      'image': laborMedia.asset('/assets/dakks-logo.png', laborAssetMap, basePath),
       'variant': 'split',
       'tone': 'dark',
       'background': 'gradient',
@@ -752,7 +759,7 @@
                 <div class="labor-card uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small {{ variant == 'split' ? 'labor-card--split' : '' }}">
                   <div class="labor-card__image" role="presentation">
                       <div class="labor-card__placeholder" aria-hidden="true">Bildvorschau</div>
-                      <img src="{{ basePath ~ item.image }}" alt="{{ item.title }}" loading="lazy">
+                      <img src="{{ item.image }}" alt="{{ item.title }}" loading="lazy">
                     </div>
                     <h3 class="labor-card__title">{{ item.title }}</h3>
                     <p class="labor-card__text">{{ item.text }}</p>
@@ -935,7 +942,7 @@
                         <ul class="uk-slider-items uk-child-width-1-1">
                           {% for item in section.media.items %}
                             <li>
-                              <img src="{{ basePath ~ item.src }}" alt="{{ item.alt|default(section.title) }}" loading="lazy">
+                              <img src="{{ item.src }}" alt="{{ item.alt|default(section.title) }}" loading="lazy">
                             </li>
                           {% endfor %}
                         </ul>
@@ -1006,7 +1013,7 @@
             <div class="uk-grid-large uk-flex-middle" uk-grid>
               <div class="uk-width-1-2@m {% if not imageFirst %}uk-flex-last@m{% endif %}">
                 <div class="labor-media">
-                  <img src="{{ basePath ~ section.image }}" alt="{{ section.title }}" loading="lazy">
+                  <img src="{{ section.image }}" alt="{{ section.title }}" loading="lazy">
                 </div>
               </div>
               <div class="uk-width-1-2@m">
