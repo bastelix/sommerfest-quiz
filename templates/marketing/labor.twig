@@ -38,7 +38,8 @@
       'title': 'Unsere Vision',
       'tone': 'light',
       'variant': 'centered',
-      'text': 'Wir schaffen die Grundlage für verlässliche Entscheidungen – mit präzisen, rückführbaren und jederzeit verfügbaren Messergebnissen.'
+      'size': 'large',
+      'text': 'Entscheidungen brauchen messbare Sicherheit – präzise, rückführbar und jederzeit verfügbar.'
     },
     {
       'type': 'MeasurementTicker',
@@ -491,12 +492,14 @@
         </section>
       {% elseif section.type == 'TextBlock' %}
       {% set variant = section.variant|default('') %}
+      {% set size = section.size|default('') %}
       {% set textClasses = ['uk-section', 'uk-section-large', 'labor-section', variant == 'muted' ? 'labor-section--muted' : '', variant == 'centered' ? 'labor-section--centered' : ''] %}
+      {% set paragraphClasses = ['labor-section__text', size == 'large' ? 'labor-section__text--large' : ''] %}
       <section class="{{ textClasses|join(' ') }}">
         <div class="uk-container uk-container-large">
           <div class="uk-margin-auto {{ variant == 'centered' ? 'uk-text-center' : '' }}" style="max-width: 900px;">
             <h2 class="labor-section__title">{{ section.title }}</h2>
-            <p class="labor-section__text">{{ section.text|nl2br }}</p>
+            <p class="{{ paragraphClasses|join(' ') }}">{{ section.text|nl2br }}</p>
           </div>
         </div>
       </section>
