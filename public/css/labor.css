@@ -392,6 +392,12 @@ body.labor-landing {
   font-size: 1.05rem;
 }
 
+.labor-section__text--large {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
 .labor-feature-grid__intro {
   margin-bottom: 28px;
 }
