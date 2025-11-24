@@ -1,14 +1,120 @@
 {% extends 'layout.twig' %}
 
-{% set navLinks = [
-  { 'label': 'Startseite', 'href': '/' },
-  { 'label': 'Kalibrierung', 'href': '/kalibrierung' },
-  { 'label': 'Akkreditierung', 'href': '/akkreditierung' },
-  { 'label': 'Branchen', 'href': '/branchen' },
-  { 'label': 'Über uns', 'href': '/ueber-uns' },
-  { 'label': 'Downloads', 'href': '/downloads' }
+{% set megaNav = [
+  {
+    'label': 'Angebot',
+    'items': [
+      { 'label': 'Kalibrierbereiche', 'href': '#kalibrierbereiche', 'explain': 'bereiche' },
+      { 'label': 'Messgrößen', 'href': '#messgroessen', 'explain': 'messgroessen' },
+      { 'label': 'Digitales Portal', 'href': '#digitales-portal', 'explain': 'portal' }
+    ],
+    'explains': [
+      {
+        'key': 'bereiche',
+        'title': 'Alle Kalibrierbereiche',
+        'text': 'Elektrische Messgrößen, Temperatur, Vor-Ort-Kalibrierung und Prüfmittelmanagement auf einen Blick.',
+        'subline': 'Kalibrierungen & Services gebündelt'
+      },
+      {
+        'key': 'messgroessen',
+        'title': 'Messgrößen im Überblick',
+        'text': 'Von Spannung über Drehmoment bis Feuchte – transparent dokumentiert und rückführbar.',
+        'subline': 'Elektrisch, mechanisch, thermisch'
+      },
+      {
+        'key': 'portal',
+        'title': 'Digitales Messmittelportal',
+        'text': 'calServer bündelt Zertifikate, Fristen und Geräte-Historien – inkl. Rollen, Rechte und API.',
+        'subline': '24/7 verfügbar, DSGVO-konform'
+      }
+    ]
+  },
+  {
+    'label': 'Qualität & Ablauf',
+    'items': [
+      { 'label': 'Kennzahlen & SLAs', 'href': '#kennzahlen', 'explain': 'kpi' },
+      { 'label': 'Labor im Überblick', 'href': '#laborprofil', 'explain': 'labor' },
+      { 'label': 'Ablauf & Tracking', 'href': '#ablauf', 'explain': 'ablauf' }
+    ],
+    'explains': [
+      {
+        'key': 'kpi',
+        'title': 'Transparente Kennzahlen',
+        'text': 'DAkkS-Status, Termintreue und Rückläuferquote zeigen die Stabilität unseres Labors.',
+        'subline': '25.000+ Kalibrierungen · 98,7 % Termintreue'
+      },
+      {
+        'key': 'labor',
+        'title': 'Labor im Fokus',
+        'text': 'Akkreditierte Messketten, kurze Liegezeiten und persönlicher Service mit Abhol-Option.',
+        'subline': 'DIN EN ISO/IEC 17025 geprüft'
+      },
+      {
+        'key': 'ablauf',
+        'title': 'Geführter Ablauf',
+        'text': 'Vom Anmelden bis zum Zertifikat – klar strukturierter Prozess mit Status-Tracking.',
+        'subline': 'Anmeldung · Abholung · Kalibrierung · Zertifikat'
+      }
+    ]
+  },
+  {
+    'label': 'Branchen & Team',
+    'items': [
+      { 'label': 'Einsatzfelder', 'href': '#branchen', 'explain': 'branchen' },
+      { 'label': 'Über uns', 'href': '#about', 'explain': 'team' },
+      { 'label': 'Akkreditierung', 'href': '#akkreditierung', 'explain': 'dakkS' }
+    ],
+    'explains': [
+      {
+        'key': 'branchen',
+        'title': 'Stories aus der Praxis',
+        'text': 'Automotive, Energie, Luftfahrt oder Pharma – jede Branche mit passendem Workflow.',
+        'subline': '8 Branchen mit konkreten Use Cases'
+      },
+      {
+        'key': 'team',
+        'title': 'Menschen im Labor',
+        'text': '28 Spezialist:innen für elektrische und thermische Messtechnik – bundesweit im Einsatz.',
+        'subline': 'Feste Ansprechpartner:innen & Service-Slots'
+      },
+      {
+        'key': 'dakkS',
+        'title': 'Auditierte Qualität',
+        'text': 'DAkkS-Urkunde, dokumentierte Normale und regelmäßige Audits sichern die Rückführbarkeit.',
+        'subline': 'DIN EN ISO/IEC 17025'
+      }
+    ]
+  },
+  {
+    'label': 'Service',
+    'items': [
+      { 'label': 'Prozess-Features', 'href': '#prozesse', 'explain': 'prozesse' },
+      { 'label': 'FAQ', 'href': '#faq', 'explain': 'faq' },
+      { 'label': 'Kontakt', 'href': '#kontakt', 'explain': 'kontakt' }
+    ],
+    'explains': [
+      {
+        'key': 'prozesse',
+        'title': 'Laborlogistik & Tracking',
+        'text': 'Track & Trace, Rollenmodelle und signierte Zertifikate für durchgängige Compliance.',
+        'subline': 'Transparenz wie in der Logistik'
+      },
+      {
+        'key': 'faq',
+        'title': 'Antworten parat',
+        'text': 'Fragen zu Messmitteln, Laufzeiten und Versand sind kompakt erklärt.',
+        'subline': 'Kalibrierung, Versand, Dokumentation'
+      },
+      {
+        'key': 'kontakt',
+        'title': 'Direkter Draht',
+        'text': 'Anfrage stellen, Rückruf buchen oder einen Labor-Rundgang vereinbaren.',
+        'subline': 'Antwort innerhalb eines Werktags'
+      }
+    ]
+  }
 ] %}
-{% set contactLink = { 'label': 'Kontakt', 'href': '/kontakt' } %}
+{% set contactLink = { 'label': 'Kalibrierung anfragen', 'href': '#kontakt' } %}
 {% set laborLogoUrl = '/uploads/labor/labor-logo.png' %}
 {% set pageConfig = {
   'page': 'startseite',
@@ -42,6 +148,7 @@
     },
     {
       'type': 'MeasurementTicker',
+      'anchor': 'messgroessen',
       'title': 'Messgrößen im Überblick',
       'label': 'Alle Messgrößen von Systems Engineering',
       'items': [
@@ -61,6 +168,7 @@
     },
     {
       'type': 'KpiBand',
+      'anchor': 'kennzahlen',
       'title': 'Kennzahlen aus dem Laboralltag',
       'columns': { 's': 2, 'm': 3, 'l': 4 },
       'items': [
@@ -72,6 +180,7 @@
     },
     {
       'type': 'ProcessStepper',
+      'anchor': 'laborprofil',
       'title': 'Unser Labor auf einen Blick',
       'variant': 'muted',
       'steps': [
@@ -113,6 +222,7 @@
     },
     {
       'type': 'CardGrid',
+      'anchor': 'kalibrierbereiche',
       'title': 'Unsere Kalibrierbereiche',
       'columns': 4,
       'variant': 'split',
@@ -146,6 +256,7 @@
     },
     {
       'type': 'ProcessStepper',
+      'anchor': 'ablauf',
       'title': 'So funktioniert eine Kalibrierung bei uns',
       'variant': 'muted',
       'steps': [
@@ -157,6 +268,7 @@
     },
     {
       'type': 'StorySlider',
+      'anchor': 'branchen',
       'title': 'Unsere Branchen – Funktionen, die den Alltag erleichtern',
       'stories': [
         {
@@ -203,6 +315,7 @@
     },
     {
       'type': 'AboutSection',
+      'anchor': 'about',
       'eyebrow': 'Über uns',
       'title': 'Teams, die Präzision leben',
       'text': 'Wir sind Ingenieur:innen, Messtechniker:innen und Logistiker:innen, die Kalibrierung mit Verantwortung denken. Unser Labor in Musterstadt verbindet automatisierte Abläufe mit persönlicher Betreuung – damit Sie immer wissen, wer sich um Ihre Messmittel kümmert.\n\nAls DAkkS-akkreditiertes Kalibrierlabor nach DIN EN ISO/IEC 17025 arbeiten wir revisionssicher und dokumentiert. Dank digitaler Prozesse bleiben Fristen, Zertifikate und Abholtermine transparent.',
@@ -222,6 +335,7 @@
     },
     {
       'type': 'TwoColumnSection',
+      'anchor': 'digitales-portal',
       'title': 'Digitales Messmittelportal (calServer)',
       'image': '/assets/calserver-dashboard.png',
       'variant': 'feature',
@@ -239,6 +353,7 @@
     },
     {
       'type': 'TwoColumnSection',
+      'anchor': 'akkreditierung',
       'title': 'Vertrauen durch Qualität',
       'image': '/assets/dakks-logo.png',
       'variant': 'split',
@@ -249,6 +364,7 @@
     },
     {
       'type': 'FeatureGridSection',
+      'anchor': 'prozesse',
       'title': 'Kalibrieren mit Blick aufs Wesentliche',
       'description': 'Digital geführt, rückverfolgbar dokumentiert: Unsere Laborprozesse bleiben transparent wie eine Logistikkette – von der Abholung bis zum Zertifikat.',
       'columns': { 's': 1, 'm': 2, 'l': 3 },
@@ -284,6 +400,7 @@
     },
     {
       'type': 'FaqSection',
+      'anchor': 'faq',
       'title': 'Häufige Fragen zum Kalibrierlabor',
       'description': 'Kurze Antworten auf die wichtigsten Fragen rund um Ablauf, Dokumentation und Sicherheit.',
       'items': [
@@ -315,6 +432,7 @@
     },
     {
       'type': 'CTASection',
+      'anchor': 'kontakt',
       'headline': 'Bereit für präzise Kalibrierung?',
       'subline': 'Fordern Sie ein unverbindliches Angebot an – Antwort innerhalb eines Werktages.',
       'variant': 'outline',
@@ -330,6 +448,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/labor.css">
   <meta name="page-name" content="Labor Landing Page">
 {% endblock %}
@@ -338,35 +457,74 @@
 {% block body_class %}labor-landing{% endblock %}
 
 {% block body %}
-  <header class="labor-header" uk-sticky="animation: uk-animation-slide-top; sel-target: .labor-nav; cls-active: is-sticky">
+  <header class="labor-header labor-topbar qr-topbar uk-position-sticky uk-top" id="start"
+          uk-sticky="animation: uk-animation-slide-top; sel-target: .labor-nav; cls-active: is-sticky">
     <nav class="labor-nav uk-navbar-container" uk-navbar>
       <div class="uk-navbar-left">
         <div class="uk-navbar-item">
+          <button class="uk-navbar-toggle uk-hidden@m" type="button" aria-label="Menü"
+                  uk-toggle="target: #labor-offcanvas" uk-navbar-toggle-icon></button>
           <a class="labor-logo" href="/" aria-label="Systems Engineering Startseite">
             <img src="{{ laborLogoUrl }}" alt="Systems Engineering" class="labor-logo__image" loading="eager">
           </a>
         </div>
       </div>
-      <div class="uk-navbar-right">
-        <ul class="uk-navbar-nav uk-visible@m">
-          {% for link in navLinks %}
-            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+      <div class="uk-navbar-center uk-visible@m">
+        <ul class="uk-navbar-nav labor-mega-nav">
+          {% for item in megaNav %}
+            <li>
+              <a href="{{ item.items|first.href }}" uk-scroll aria-haspopup="true">{{ item.label }}</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      {% for link in item.items %}
+                        <li>
+                          <a href="{{ link.href }}" uk-scroll data-explain="{{ link.explain }}">
+                            {{ link.label }}
+                          </a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    {% for explain in item.explains %}
+                      <div class="explain-pane {{ loop.first ? '' : 'uk-hidden' }}" data-explain-pane="{{ explain.key }}">
+                        <h5>{{ explain.title }}</h5>
+                        <p>{{ explain.text }}</p>
+                        <p class="menu-explain__subline">{{ explain.subline }}</p>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </li>
           {% endfor %}
         </ul>
-        <a class="uk-button uk-button-primary labor-nav__cta uk-visible@m" href="{{ contactLink.href }}">{{ contactLink.label }}</a>
-        <button class="uk-navbar-toggle uk-hidden@m" type="button" aria-label="Menü"
-                uk-toggle="target: #labor-offcanvas" uk-navbar-toggle-icon></button>
+      </div>
+      <div class="uk-navbar-right">
+        <a class="uk-button uk-button-primary labor-nav__cta uk-visible@m" href="{{ contactLink.href }}" uk-scroll>
+          {{ contactLink.label }}
+        </a>
       </div>
     </nav>
     <div id="labor-offcanvas" uk-offcanvas="overlay: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close" type="button" aria-label="Menü schließen" uk-close></button>
         <ul class="uk-nav uk-nav-default labor-offcanvas__nav">
-          {% for link in navLinks %}
-            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+          {% for item in megaNav %}
+            <li class="uk-nav-header">{{ item.label }}</li>
+            {% for link in item.items %}
+              <li><a href="{{ link.href }}" uk-scroll>{{ link.label }}</a></li>
+            {% endfor %}
+            {% if not loop.last %}
+              <li class="uk-nav-divider"></li>
+            {% endif %}
           {% endfor %}
         </ul>
-        <a class="uk-button uk-button-primary labor-nav__cta uk-width-1-1" href="{{ contactLink.href }}">{{ contactLink.label }}</a>
+        <a class="uk-button uk-button-primary labor-nav__cta uk-width-1-1" href="{{ contactLink.href }}" uk-scroll>
+          {{ contactLink.label }}
+        </a>
       </div>
     </div>
   </header>
@@ -388,7 +546,7 @@
         {% elseif heroBackground == 'gradient' %}
           {% set heroStyle = 'background-image: radial-gradient(circle at 20% 20%, rgba(63,133,246,0.35), transparent 35%), linear-gradient(120deg, #101a33, #1f3b73);' %}
         {% endif %}
-        <section class="{{ heroClasses|join(' ') }}" style="{{ heroStyle }}">
+        <section class="{{ heroClasses|join(' ') }}" style="{{ heroStyle }}" id="start">
           {% if heroBackground == 'image' %}
             <div class="labor-hero__overlay" aria-hidden="true"></div>
           {% endif %}
@@ -469,7 +627,7 @@
           'uk-child-width-1-' ~ (columns.m|default(3)) ~ '@m',
           'uk-child-width-1-' ~ (columns.l|default(4)) ~ '@l'
         ] %}
-        <section class="uk-section labor-section labor-kpi-band">
+        <section class="uk-section labor-section labor-kpi-band" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container">
             <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -501,7 +659,7 @@
         </div>
       </section>
       {% elseif section.type == 'MeasurementTicker' %}
-        <section class="uk-section labor-section labor-measurement-ticker">
+      <section class="uk-section labor-section labor-measurement-ticker" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container">
             <div class="labor-measurement-ticker__headline">
               <span class="labor-measurement-ticker__label">{{ section.label }}</span>
@@ -538,7 +696,7 @@
         </section>
       {% elseif section.type == 'CardGrid' %}
       {% set cardClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
-      <section class="{{ cardClasses|join(' ') }}">
+      <section class="{{ cardClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
         <div class="uk-container">
           <div class="labor-section__header">
             <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -562,7 +720,7 @@
       </section>
     {% elseif section.type == 'AboutSection' %}
       {% set aboutClasses = ['uk-section', 'labor-section', 'labor-about', variant == 'muted' ? 'labor-section--muted' : ''] %}
-      <section class="{{ aboutClasses|join(' ') }}" id="about">
+      <section class="{{ aboutClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
         <div class="uk-container">
           <div class="uk-grid-large uk-child-width-1-2@m" uk-grid>
             <div>
@@ -614,7 +772,7 @@
     {% elseif section.type == 'ProcessStepper' %}
       {% set processClasses = ['uk-section', 'labor-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
       {% set hasMedia = section.media is defined %}
-      <section class="{{ processClasses|join(' ') }}">
+      <section class="{{ processClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
         <div class="uk-container">
           <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -679,7 +837,7 @@
           </div>
         </section>
       {% elseif section.type == 'StorySlider' %}
-        <section class="uk-section labor-section labor-story-slider labor-section--muted">
+        <section class="uk-section labor-section labor-story-slider labor-section--muted" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container">
             <div class="labor-section__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -715,7 +873,7 @@
         {% if background == 'gradient' %}
           {% set twoColumnStyle = 'background-image: linear-gradient(135deg, #0f1a33 0%, #1c2f5c 50%, #2b4f9c 100%); color: #fff;' %}
         {% endif %}
-        <section class="{{ twoColumnClasses|join(' ') }}" style="{{ twoColumnStyle }}">
+        <section class="{{ twoColumnClasses|join(' ') }}" style="{{ twoColumnStyle }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container">
             {% set imageFirst = loop.index is even and variant != 'split' %}
             <div class="uk-grid-large uk-flex-middle" uk-grid>
@@ -758,7 +916,7 @@
           'uk-child-width-1-' ~ (columns.m|default(2)) ~ '@m',
           'uk-child-width-1-' ~ (columns.l|default(3)) ~ '@l'
         ] %}
-        <section class="uk-section labor-section labor-feature-grid">
+        <section class="uk-section labor-section labor-feature-grid" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container">
             <div class="labor-feature-grid__intro uk-width-2-3@m">
               <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -794,7 +952,7 @@
         </section>
       {% elseif section.type == 'FaqSection' %}
         {% set faqClasses = ['uk-section', 'labor-section', 'labor-faq', variant == 'muted' ? 'labor-section--muted' : ''] %}
-        <section class="{{ faqClasses|join(' ') }}">
+        <section class="{{ faqClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container uk-container-small">
             <div class="labor-section__header labor-faq__header">
               <h2 class="labor-section__title">{{ section.title }}</h2>
@@ -822,7 +980,7 @@
         {% set ctaVariant = section.variant|default('solid') %}
         {% set ctaTone = section.tone|default('dark') %}
         {% set ctaClasses = ['uk-section', 'labor-section', 'labor-cta', 'labor-cta--' ~ ctaVariant, 'labor-cta--tone-' ~ ctaTone] %}
-        <section class="{{ ctaClasses|join(' ') }}">
+        <section class="{{ ctaClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
           <div class="uk-container uk-text-center">
             <h2 class="labor-cta__headline">{{ section.headline }}</h2>
             <p class="labor-cta__subline">{{ section.subline }}</p>
@@ -871,4 +1029,48 @@
       </div>
     </div>
   </footer>
+{% endblock %}
+
+{% block scripts %}
+  {{ parent() }}
+  <script>
+    (function () {
+      var hoverIntentTimer;
+
+      function scheduleSwap(e) {
+        var link = e.target.closest('.labor-nav a[data-explain]');
+        if (!link) {
+          return;
+        }
+
+        clearTimeout(hoverIntentTimer);
+
+        if (e.type === 'focusin') {
+          swapPane(link);
+          return;
+        }
+
+        hoverIntentTimer = setTimeout(function () {
+          swapPane(link);
+        }, 90);
+      }
+
+      function swapPane(link) {
+        var dropdown = link.closest('.uk-navbar-dropdown');
+        if (!dropdown) {
+          return;
+        }
+
+        var explainKey = link.getAttribute('data-explain');
+        var panes = dropdown.querySelectorAll('.menu-explain .explain-pane');
+        panes.forEach(function (pane) {
+          var key = pane.getAttribute('data-explain-pane');
+          pane.classList.toggle('uk-hidden', key !== explainKey);
+        });
+      }
+
+      document.addEventListener('mouseover', scheduleSwap, true);
+      document.addEventListener('focusin', scheduleSwap, true);
+    })();
+  </script>
 {% endblock %}

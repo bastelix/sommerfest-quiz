@@ -17,6 +17,12 @@ body.labor-landing {
   background: #fff;
   padding: 12px 24px;
   border-bottom: 1px solid rgba(28, 47, 92, 0.08);
+  backdrop-filter: blur(8px);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.labor-topbar .uk-navbar-container {
+  background: transparent;
 }
 
 #labor-offcanvas .uk-offcanvas-bar {
@@ -88,6 +94,96 @@ body.labor-landing {
   background: var(--labor-hover);
   color: #fff !important;
   transform: translateY(-1px);
+}
+
+.labor-mega-nav > li > a {
+  color: var(--labor-text);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.labor-mega-nav .uk-navbar-dropdown {
+  width: 760px;
+  padding: 16px 0;
+  box-sizing: border-box;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(28, 47, 92, 0.08);
+}
+
+.labor-mega-nav .uk-navbar-dropdown-nav > li > a {
+  padding: 10px 18px;
+  line-height: 1.35;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.labor-mega-nav .uk-navbar-dropdown-nav > li + li {
+  margin-top: 2px;
+}
+
+.labor-mega-nav .uk-navbar-dropdown-nav > li > a:hover,
+.labor-mega-nav .uk-navbar-dropdown-nav > li > a:focus {
+  background: rgba(63, 133, 246, 0.08);
+  color: var(--labor-text);
+}
+
+.labor-mega-nav .uk-navbar-dropdown-nav > li > a:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--labor-hover) 50%, transparent);
+  outline-offset: 2px;
+}
+
+.labor-mega-nav .menu-explain {
+  padding: 18px;
+  border-left: 1px solid rgba(28, 47, 92, 0.08);
+  background: var(--labor-muted);
+  min-height: 220px;
+}
+
+.labor-mega-nav .menu-explain h5 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--labor-text);
+}
+
+.labor-mega-nav .menu-explain p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.labor-mega-nav .menu-explain p.menu-explain__subline {
+  margin-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  opacity: 0.76;
+}
+
+.labor-mega-nav .menu-explain .explain-pane.uk-hidden {
+  display: none !important;
+}
+
+.labor-mega-nav .uk-navbar-dropdown h5,
+.labor-mega-nav .uk-navbar-dropdown h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.labor-mega-nav .uk-navbar-dropdown h6 {
+  font-size: 13px;
+  opacity: 0.78;
+}
+
+.labor-landing section[id] {
+  scroll-margin-top: 128px;
+}
+
+@media (max-width: 959px) {
+  .labor-landing section[id] {
+    scroll-margin-top: 96px;
+  }
 }
 
 .is-sticky .labor-nav {
