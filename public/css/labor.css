@@ -59,8 +59,8 @@ body.labor-landing {
   display: block;
   height: var(--labor-logo-size);
   width: auto;
-  transform: translateY(var(--labor-logo-shift)) scale(var(--labor-logo-expanded-scale));
-  transform-origin: center;
+  transform: scale(var(--labor-logo-expanded-scale)) translateY(var(--labor-logo-shift));
+  transform-origin: top left;
   transition: transform 0.24s ease;
 }
 
@@ -188,7 +188,7 @@ body.labor-landing {
 }
 
 .labor-topbar.labor-topbar--condensed .labor-logo__image {
-  transform: translateY(0) scale(var(--labor-logo-condensed-scale));
+  transform: scale(var(--labor-logo-condensed-scale)) translateY(0);
 }
 
 .labor-offcanvas__nav li a {
