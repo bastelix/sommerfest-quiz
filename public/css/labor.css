@@ -929,6 +929,18 @@ body.labor-landing {
   overflow: hidden;
 }
 
+.labor-story-slider__tags {
+  --pill-bg: #f6f8ff;
+  --pill-border: rgba(28, 47, 92, 0.18);
+  --pill-fg: #1c2f5c;
+  margin: 6px auto 24px;
+}
+
+.labor-story-slider__tags a:hover {
+  color: var(--labor-blue);
+  border-color: color-mix(in oklab, var(--labor-blue) 35%, var(--pill-border));
+}
+
 .labor-story-slider .uk-slider-items > * {
   display: flex;
 }
