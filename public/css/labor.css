@@ -5,6 +5,11 @@
   --labor-muted: #F6F8FC;
   --labor-text: #1C2F5C;
   --labor-shadow: 0 12px 32px rgba(28, 47, 92, 0.08);
+  --labor-nav-height: 72px;
+  --labor-logo-size: clamp(52px, 7vw, 64px);
+  --labor-logo-scale: 1.12;
+  --labor-logo-sticky-scale: 0.96;
+  --labor-logo-shift: -4px;
 }
 
 body.labor-landing {
@@ -15,9 +20,13 @@ body.labor-landing {
 
 .labor-header .labor-nav {
   background: #fff;
-  padding: 12px 24px;
+  padding: 10px 22px;
   border-bottom: 1px solid rgba(28, 47, 92, 0.08);
   backdrop-filter: blur(8px);
+  min-height: var(--labor-nav-height);
+  box-sizing: border-box;
+  align-items: center;
+  overflow: visible;
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
@@ -43,6 +52,15 @@ body.labor-landing {
   letter-spacing: 0.2px;
   font-size: clamp(1.05rem, 2.4vw, 1.35rem);
   line-height: 1.1;
+}
+
+.labor-header .labor-logo__image {
+  display: block;
+  height: var(--labor-logo-size);
+  width: auto;
+  transform: translateY(var(--labor-logo-shift)) scale(var(--labor-logo-scale));
+  transform-origin: center;
+  transition: transform 0.24s ease;
 }
 
 .labor-header .uk-navbar-nav > li > a {
@@ -166,6 +184,10 @@ body.labor-landing {
 
 .is-sticky .labor-nav {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.is-sticky .labor-logo__image {
+  transform: scale(var(--labor-logo-sticky-scale));
 }
 
 .labor-offcanvas__nav li a {
