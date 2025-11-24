@@ -25,6 +25,10 @@ body.labor-landing {
   background: transparent;
 }
 
+.labor-topbar--condensed .labor-logo__image {
+  transform: scale(0.9);
+}
+
 #labor-offcanvas .uk-offcanvas-bar {
   background: #0f1a33;
   color: #fff;
@@ -43,6 +47,13 @@ body.labor-landing {
   letter-spacing: 0.2px;
   font-size: clamp(1.05rem, 2.4vw, 1.35rem);
   line-height: 1.1;
+}
+
+.labor-header .labor-logo__image {
+  display: block;
+  height: 48px;
+  transition: transform 0.2s ease;
+  transform-origin: left center;
 }
 
 .labor-header .uk-navbar-nav > li > a {
