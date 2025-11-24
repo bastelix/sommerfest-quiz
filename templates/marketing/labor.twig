@@ -122,7 +122,7 @@
 ] %}
 {% set laborAssetMap = laborAssets|default({}) %}
 {% set contactLink = { 'label': 'Kalibrierung anfragen', 'href': '#kontakt' } %}
-{% set laborLogoUrl = laborMedia.asset('/uploads/labor/labor-logo.png', laborAssetMap, basePath) %}
+{% set laborLogoUrl = basePath ~ '/uploads/labor/labor-logo.png' %}
 {% set pageConfig = {
   'page': 'startseite',
   'title': 'Kalibrierlabor – DAkkS-akkreditiert',

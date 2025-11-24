@@ -346,7 +346,6 @@ class MarketingPageController
     private function buildLaborAssetUrls(string $basePath): array
     {
         $assetConfig = [
-            '/uploads/labor/labor-logo.png' => ['label' => 'Laborlogo', 'width' => 220, 'height' => 64],
             '/assets/labor-hero.jpg' => ['label' => 'Labor Hero', 'width' => 1200, 'height' => 900],
             '/assets/kalibrierung-labor-detail.jpg' => ['label' => 'Labor Detail', 'width' => 1200, 'height' => 900],
             '/assets/messgroessen-elektrisch.jpg' => ['label' => 'Elektrische Messgrößen', 'width' => 960, 'height' => 640],
