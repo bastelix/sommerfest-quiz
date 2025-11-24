@@ -6,10 +6,10 @@
   --labor-text: #1C2F5C;
   --labor-shadow: 0 12px 32px rgba(28, 47, 92, 0.08);
   --labor-nav-height: 72px;
-  --labor-logo-size: clamp(52px, 7vw, 64px);
-  --labor-logo-scale: 1.12;
-  --labor-logo-sticky-scale: 0.96;
-  --labor-logo-shift: -4px;
+  --labor-logo-size: clamp(58px, 8vw, 88px);
+  --labor-logo-expanded-scale: 1.48;
+  --labor-logo-condensed-scale: 1.02;
+  --labor-logo-shift: -18px;
 }
 
 body.labor-landing {
@@ -59,7 +59,7 @@ body.labor-landing {
   display: block;
   height: var(--labor-logo-size);
   width: auto;
-  transform: translateY(var(--labor-logo-shift)) scale(var(--labor-logo-scale));
+  transform: translateY(var(--labor-logo-shift)) scale(var(--labor-logo-expanded-scale));
   transform-origin: center;
   transition: transform 0.24s ease;
 }
@@ -183,16 +183,12 @@ body.labor-landing {
   }
 }
 
-.is-sticky .labor-nav {
+.labor-topbar.labor-topbar--condensed .labor-nav {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
-.is-sticky .labor-logo__image {
-  transform: scale(var(--labor-logo-sticky-scale));
-}
-
 .labor-topbar.labor-topbar--condensed .labor-logo__image {
-  transform: translateY(var(--labor-logo-shift)) scale(var(--labor-logo-sticky-scale));
+  transform: translateY(0) scale(var(--labor-logo-condensed-scale));
 }
 
 .labor-offcanvas__nav li a {
