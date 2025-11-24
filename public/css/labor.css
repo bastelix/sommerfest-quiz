@@ -41,23 +41,23 @@ body.labor-landing {
 
 .labor-logo__image {
   display: block;
-  height: 72px;
+  height: 144px;
   width: auto;
   object-fit: contain;
   transition: height 0.25s ease, transform 0.25s ease;
 }
 
 .is-sticky .labor-logo__image {
-  height: 44px;
+  height: 88px;
 }
 
 @media (max-width: 959px) {
   .labor-logo__image {
-    height: 60px;
+    height: 120px;
   }
 
   .is-sticky .labor-logo__image {
-    height: 40px;
+    height: 80px;
   }
 }
 
