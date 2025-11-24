@@ -9,6 +9,7 @@
   { 'label': 'Downloads', 'href': '/downloads' }
 ] %}
 {% set contactLink = { 'label': 'Kontakt', 'href': '/kontakt' } %}
+{% set laborLogoUrl = '/uploads/labor/labor-logo.png' %}
 {% set pageConfig = {
   'page': 'startseite',
   'title': 'Kalibrierlabor – DAkkS-akkreditiert',
@@ -343,7 +344,9 @@
     <nav class="labor-nav uk-navbar-container" uk-navbar>
       <div class="uk-navbar-left">
         <div class="uk-navbar-item">
-          <a class="labor-logo" href="/">Systems Engineering</a>
+          <a class="labor-logo" href="/" aria-label="Systems Engineering Startseite">
+            <img src="{{ laborLogoUrl }}" alt="Systems Engineering" class="labor-logo__image" loading="eager">
+          </a>
         </div>
       </div>
       <div class="uk-navbar-right">
