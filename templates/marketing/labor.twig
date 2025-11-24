@@ -819,7 +819,7 @@
       {% set hasTimelineAside = (section.contact is defined and section.contact) or (section.highlights is defined and section.highlights|length > 0) %}
       <section class="{{ timelineClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
         <div class="uk-container">
-          <div class="labor-section__header">
+          <div class="labor-section__header labor-section__header--timeline">
             {% if section.eyebrow is defined %}
               <p class="labor-eyebrow">{{ section.eyebrow }}</p>
             {% endif %}
