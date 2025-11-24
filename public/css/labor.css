@@ -30,9 +30,13 @@ body.labor-landing {
 }
 
 .labor-header .labor-logo {
+  display: inline-flex;
+  align-items: center;
   font-weight: 700;
   color: var(--labor-text);
   letter-spacing: 0.2px;
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  line-height: 1.1;
 }
 
 .labor-header .uk-navbar-nav > li > a {
@@ -390,6 +394,12 @@ body.labor-landing {
   color: #1f2d4a;
   line-height: 1.7;
   font-size: 1.05rem;
+}
+
+.labor-section__text--large {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.6;
 }
 
 .labor-feature-grid__intro {
