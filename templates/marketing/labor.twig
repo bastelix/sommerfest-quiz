@@ -1184,6 +1184,24 @@
 
       document.addEventListener('mouseover', scheduleSwap, true);
       document.addEventListener('focusin', scheduleSwap, true);
+
+      document.addEventListener('DOMContentLoaded', function () {
+        var topbar = document.querySelector('.labor-topbar');
+        if (!topbar) {
+          return;
+        }
+
+        var toggleTopbarState = function () {
+          if (window.scrollY > 12) {
+            topbar.classList.add('labor-topbar--condensed');
+          } else {
+            topbar.classList.remove('labor-topbar--condensed');
+          }
+        };
+
+        toggleTopbarState();
+        window.addEventListener('scroll', toggleTopbarState, { passive: true });
+      });
     })();
   </script>
 {% endblock %}
