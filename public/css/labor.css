@@ -9,7 +9,8 @@
   --labor-logo-size: clamp(58px, 8vw, 88px);
   --labor-logo-expanded-scale: 1.48;
   --labor-logo-condensed-scale: 1.02;
-  --labor-logo-shift: -18px;
+  --labor-logo-offset-x: 5px;
+  --labor-logo-offset-y: 5px;
 }
 
 body.labor-landing {
@@ -59,8 +60,8 @@ body.labor-landing {
   display: block;
   height: var(--labor-logo-size);
   width: auto;
-  transform: scale(var(--labor-logo-expanded-scale)) translateY(var(--labor-logo-shift));
-  transform-origin: top left;
+  transform: translate(var(--labor-logo-offset-x), var(--labor-logo-offset-y)) scale(var(--labor-logo-expanded-scale));
+  transform-origin: 0 0;
   transition: transform 0.24s ease;
 }
 
@@ -188,7 +189,7 @@ body.labor-landing {
 }
 
 .labor-topbar.labor-topbar--condensed .labor-logo__image {
-  transform: scale(var(--labor-logo-condensed-scale)) translateY(0);
+  transform: translate(var(--labor-logo-offset-x), var(--labor-logo-offset-y)) scale(var(--labor-logo-condensed-scale));
 }
 
 .labor-offcanvas__nav li a {
