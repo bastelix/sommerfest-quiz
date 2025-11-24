@@ -20,10 +20,11 @@ body.labor-landing {
 
 .labor-header .labor-nav {
   background: #fff;
-  padding: 10px 22px;
+  padding: 0 22px;
   border-bottom: 1px solid rgba(28, 47, 92, 0.08);
   backdrop-filter: blur(8px);
-  min-height: var(--labor-nav-height);
+  height: var(--labor-nav-height);
+  max-height: var(--labor-nav-height);
   box-sizing: border-box;
   align-items: center;
   overflow: visible;
@@ -1359,7 +1360,7 @@ body.labor-landing {
 
 @media (max-width: 640px) {
   .labor-header .labor-nav {
-    padding: 10px 14px;
+    padding: 0 14px;
   }
 
   .labor-hero__headline {
