@@ -30,9 +30,35 @@ body.labor-landing {
 }
 
 .labor-header .labor-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 700;
   color: var(--labor-text);
   letter-spacing: 0.2px;
+  text-decoration: none;
+}
+
+.labor-logo__image {
+  display: block;
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+  transition: height 0.25s ease, transform 0.25s ease;
+}
+
+.is-sticky .labor-logo__image {
+  height: 44px;
+}
+
+@media (max-width: 959px) {
+  .labor-logo__image {
+    height: 60px;
+  }
+
+  .is-sticky .labor-logo__image {
+    height: 40px;
+  }
 }
 
 .labor-header .uk-navbar-nav > li > a {
