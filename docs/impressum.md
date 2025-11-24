@@ -3,31 +3,44 @@ layout: default
 title: Impressum
 ---
 
-Angaben gemäß § 5 TMG
+Verantwortlich im Sinne des § 6 Teledienstegesetzes und des § 10 Mediendienste-Staatsvertrags:
+Peter Reinhardt, Geschäftsführer der Systems Engineering GmbH & Co. KG, ansässig im Rheinland / NRW unter nebenstehender Anschrift.
 
-René Buske  
-Weidenbusch 8  
-14532 Kleinmachnow  
-Deutschland
+Leimberg 9  
+52222 Stolberg / Rheinland
 
-E-Mail: [office@calhelp.de](mailto:office@calhelp.de)
+Fon    02402 - 90 01 80  
+Fax    02402 - 2 76 15
 
-**Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:**  
-René Buske  
-Weidenbusch 8  
-14532 Kleinmachnow
+E-Mail: [info@systems-engineering.eu](mailto:info@systems-engineering.eu)
 
-Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz: DE 259645623
+**Geschäftsführer:** Peter Reinhardt, Bastian Hahn  
+**Amtsgericht:** Aachen HRA 5617  HRB 11194
 
-## Haftungsausschluss
+Umsatzsteuer-Identifikationsnummer gemäß § 27 a des Umsatzsteuergesetzes: DE 160.367.476
 
-Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.
+## Datenschutzerklärung
 
-## Urheberrecht
+Außer der automatischen Erhebung von technischen Daten wie z. B. Browser, Uhrzeit, IP-Adresse bei Aufruf der Webseite erheben wir keine weiteren Nutzerdaten bei Seitenzugriff.
 
-Die durch den Seitenbetreiber erstellten Inhalte und Werke auf dieser Website unterliegen dem deutschen Urheberrecht. Beiträge Dritter sind als solche gekennzeichnet.
+Näheres finden Sie in unserer Datenschutzerklärung, die hier ausgedruckt oder eingesehen werden kann.
 
-## Quellcode
+## Urheberrechtshinweis
 
-Der Quellcode dieser Anwendung ist Eigentum von René Buske und nicht öffentlich zugänglich.
+Bitte beachten Sie, dass alle Texte, Bilder und Grafiken sowie ihre Arrangements dem Schutz des Urheberrechts unterliegen. Sie dürfen damit beispielsweise weder kopiert, noch verändert noch auf anderen Web-Sites verwendet werden. Der Nutzung der allgemein zugänglichen Texte durch Dritte stimmen wir hiermit – auch auszugsweise – nur unter der Bedingung zu, dass Systems Engineering GmbH & Co. KG als Urheber genannt wird. Die Nutzung der anderen Inhalte wie beispielsweise der Bilder und Grafiken ist nicht gestattet. Sollten Sie jedoch Interesse an einem Nutzungsrecht haben, wenden Sie sich bitte an die nebenstehende Adresse.
 
+## AGB
+
+Es gelten unsere Allgemeinen Geschäftsbedingungen, die hier eingesehen oder ausgedruckt werden können.
+
+## Anschrift
+
+Systems Engineering Kalibrierlaboratorium GmbH & Co KG  
+Leimberg 9  
+52222 Stolberg / Rheinland
+
+Fon    02402 - 90 01 80  
+Fax    02402 - 2 76 15
+
+[info@systems-engineering.eu](mailto:info@systems-engineering.eu)  
+[www.systems-engineering.eu](https://www.systems-engineering.eu)
