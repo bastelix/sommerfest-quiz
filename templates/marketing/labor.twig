@@ -335,6 +335,52 @@
       }
     },
     {
+      'type': 'Timeline',
+      'anchor': 'labor-historie',
+      'eyebrow': 'Historie',
+      'title': 'Über 40 Jahre Laborpraxis',
+      'intro': 'Vom ersten akkreditierten Messplatz bis zum fahrbaren Labor – wir haben unsere Kalibrierprozesse über Jahrzehnte verfeinert.',
+      'items': [
+        {
+          'year': '40+ Jahre',
+          'title': 'Erfahrung in der Elektronik',
+          'text': 'Mehr als vier Jahrzehnte Kalibrierpraxis für elektrische und thermische Messgrößen – mit kontinuierlich dokumentierter Rückführung.'
+        },
+        {
+          'year': '1993',
+          'title': 'Gründung als Kalibrierlabor',
+          'text': 'Start als unabhängiges Labor mit Fokus auf präzise, nachvollziehbare Messergebnisse für Industrie und Forschung.'
+        },
+        {
+          'year': '1994',
+          'title': 'PTB-Akkreditierung',
+          'text': 'Erste Akkreditierung durch die Physikalisch-Technische Bundesanstalt – Fundament für unsere normgerechten Prüfketten.'
+        },
+        {
+          'year': '2004',
+          'title': 'Fahrbares Messlabor & DKD Temperatur',
+          'text': 'Mobiler Service für Vor-Ort-Kalibrierungen ergänzt um DKD-akkreditierte Temperaturmessungen im Labor.'
+        },
+        {
+          'year': '2009',
+          'title': 'Umzug ins erweiterte Labor',
+          'text': 'Skalierung der Kapazitäten mit neuen Referenznormalen, optimierten Messplätzen und abgestimmter Logistik.'
+        },
+        {
+          'year': '2014',
+          'title': 'Umstellung auf DAkkS',
+          'text': 'Konsequente Weiterentwicklung zur DAkkS-akkreditierten Kalibrierstelle nach DIN EN ISO/IEC 17025.'
+        }
+      ],
+      'contact': {
+        'title': 'Kontakt & Standort',
+        'address': ['Systems Engineering Kalibrierlabor', 'Technologiepark 5', '01234 Musterstadt'],
+        'email': 'kontakt@systems-engineering.de',
+        'phone': '+49 30 1234567',
+        'cta': { 'label': 'Termin vereinbaren', 'link': '/kontakt', 'style': 'primary' }
+      }
+    },
+    {
       'type': 'TwoColumnSection',
       'anchor': 'digitales-portal',
       'title': 'Digitales Messmittelportal (calServer)',
@@ -769,6 +815,62 @@
                 {% endif %}
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+    {% elseif section.type == 'Timeline' %}
+      {% set timelineClasses = ['uk-section', 'labor-section', 'labor-timeline-section', variant == 'muted' ? 'labor-section--muted' : ''] %}
+      <section class="{{ timelineClasses|join(' ') }}" {% if section.anchor is defined %}id="{{ section.anchor }}"{% endif %}>
+        <div class="uk-container">
+          <div class="labor-section__header">
+            {% if section.eyebrow is defined %}
+              <p class="labor-eyebrow">{{ section.eyebrow }}</p>
+            {% endif %}
+            <h2 class="labor-section__title">{{ section.title }}</h2>
+            {% if section.intro is defined %}
+              <p class="labor-section__text">{{ section.intro }}</p>
+            {% endif %}
+          </div>
+          <div class="uk-grid-large uk-child-width-1-2@m" uk-grid>
+            <div>
+              <ol class="labor-timeline" aria-label="Chronik des Kalibrierlabors">
+                {% for item in section.items %}
+                  <li class="labor-timeline__item">
+                    <div class="labor-timeline__year">{{ item.year }}</div>
+                    <div class="labor-timeline__content">
+                      <h3 class="labor-timeline__title">{{ item.title }}</h3>
+                      <p class="labor-timeline__text">{{ item.text }}</p>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ol>
+            </div>
+            {% if section.contact is defined %}
+              <div>
+                <aside class="labor-timeline__aside" aria-label="{{ section.contact.title }}">
+                  <h3 class="labor-timeline__aside-title">{{ section.contact.title }}</h3>
+                  {% if section.contact.address is defined %}
+                    <ul class="labor-timeline__address">
+                      {% for line in section.contact.address %}
+                        <li>{{ line }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                  <div class="labor-timeline__contact-links">
+                    {% if section.contact.phone is defined %}
+                      <a class="labor-timeline__contact-link" href="tel:{{ section.contact.phone|replace({' ': ''}) }}">{{ section.contact.phone }}</a>
+                    {% endif %}
+                    {% if section.contact.email is defined %}
+                      <a class="labor-timeline__contact-link" href="mailto:{{ section.contact.email }}">{{ section.contact.email }}</a>
+                    {% endif %}
+                  </div>
+                  {% if section.contact.cta is defined %}
+                    {% set timelineCtaStyle = section.contact.cta.style|default('primary') %}
+                    <a class="uk-button {{ timelineCtaStyle == 'primary' ? 'uk-button-primary labor-button-primary' : '' }} {{ timelineCtaStyle == 'secondary' ? 'uk-button-default labor-button-secondary' : '' }} {{ timelineCtaStyle == 'ghost' ? 'uk-button-default labor-button-ghost' : '' }}" href="{{ section.contact.cta.link }}">{{ section.contact.cta.label }}</a>
+                  {% endif %}
+                </aside>
+              </div>
+            {% endif %}
           </div>
         </div>
       </section>
