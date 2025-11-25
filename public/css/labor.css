@@ -153,7 +153,7 @@ body.labor-landing {
   line-height: 1.35;
   font-weight: 500;
   border-radius: 6px;
-  color: var(--labor-text);
+  color: #ffffff;
   transition: background-color 0.18s ease, color 0.18s ease;
 }
 
@@ -164,7 +164,7 @@ body.labor-landing {
 .labor-mega-nav .uk-navbar-dropdown-nav > li > a:hover,
 .labor-mega-nav .uk-navbar-dropdown-nav > li > a:focus {
   background: rgba(63, 133, 246, 0.08);
-  color: var(--labor-text);
+  color: #ffffff;
 }
 
 .labor-mega-nav .uk-navbar-dropdown-nav > li > a:focus-visible {
