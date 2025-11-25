@@ -147,6 +147,7 @@ body.labor-landing {
   line-height: 1.35;
   font-weight: 500;
   border-radius: 6px;
+  color: var(--labor-text);
   transition: background-color 0.18s ease, color 0.18s ease;
 }
 
