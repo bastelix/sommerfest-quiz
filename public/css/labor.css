@@ -52,9 +52,9 @@ body.labor-landing {
 }
 
 #labor-offcanvas .labor-nav__cta {
-  background: var(--labor-blue);
+  background: var(--labor-hover);
   color: #fff !important;
-  border: 1px solid color-mix(in oklab, var(--labor-blue) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--labor-hover) 70%, transparent);
 }
 
 #labor-offcanvas .labor-nav__cta:hover,
@@ -95,12 +95,12 @@ body.labor-landing {
 }
 
 .labor-nav__cta {
-  background: var(--labor-blue);
+  background: var(--labor-hover);
   color: #fff !important;
   border-radius: 10px;
   padding: 0 18px;
   line-height: 42px;
-  border: 1px solid color-mix(in oklab, var(--labor-blue) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--labor-hover) 70%, transparent);
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
