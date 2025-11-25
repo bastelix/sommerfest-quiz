@@ -674,7 +674,7 @@ body.labor-landing {
 }
 
 .labor-section__text {
-  color: #1f2d4a;
+  color: currentColor;
   line-height: 1.7;
   font-size: 1.05rem;
 }
