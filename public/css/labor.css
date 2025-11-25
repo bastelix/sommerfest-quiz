@@ -36,6 +36,23 @@ body.labor-landing {
   background: transparent;
 }
 
+.labor-topbar .uk-navbar-toggle {
+  color: var(--labor-text);
+  background: color-mix(in oklab, #ffffff 88%, var(--labor-text) 12%);
+  border: 1px solid color-mix(in oklab, var(--labor-text) 18%, transparent);
+  border-radius: 10px;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.labor-topbar .uk-navbar-toggle:hover,
+.labor-topbar .uk-navbar-toggle:focus-visible {
+  color: #fff;
+  background: var(--labor-hover);
+  border-color: color-mix(in oklab, var(--labor-hover) 70%, transparent);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--labor-hover) 26%, transparent);
+}
+
 #labor-offcanvas .uk-offcanvas-bar {
   background: #0f1a33;
   color: #fff;
