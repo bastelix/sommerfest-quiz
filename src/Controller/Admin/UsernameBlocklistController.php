@@ -324,10 +324,7 @@ final class UsernameBlocklistController
 
             $rows = [];
             while (($values = fgetcsv($handle, 0, $delimiter)) !== false) {
-                if ($values === null) {
-                    continue;
-                }
-
+                
                 $term = isset($values[$termIndex]) ? trim((string) $values[$termIndex]) : '';
                 if ($term === '') {
                     continue;
