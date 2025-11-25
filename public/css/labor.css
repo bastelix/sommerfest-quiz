@@ -513,12 +513,28 @@ body.labor-landing {
 }
 
 .labor-section--dark {
-  color: #fff;
+  color: #e8eef7;
+  background: linear-gradient(145deg, #0f1a33 0%, #14284c 55%, #1f3c73 100%);
 }
 
 .labor-section--dark .labor-section__title,
 .labor-section--dark .labor-section__text {
   color: #f0f3f7;
+}
+
+.labor-section--dark a {
+  color: #c4d7ff;
+}
+
+.labor-section--dark a:hover,
+.labor-section--dark a:focus-visible {
+  color: #dbe7ff;
+}
+
+.labor-section--feature.labor-section--dark {
+  background: linear-gradient(145deg, #0d192f 0%, #182a53 60%, #20407d 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .labor-section__title {
@@ -1381,6 +1397,10 @@ body.labor-landing {
 
   .labor-hero__headline {
     font-size: 2rem;
+  }
+
+  .labor-section--dark .labor-section__header {
+    color: #f6f9ff;
   }
 
   .labor-hero__actions {
