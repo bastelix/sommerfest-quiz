@@ -46,6 +46,23 @@ body.labor-landing {
   color: #fff;
 }
 
+#labor-offcanvas .uk-nav-default > li > a,
+#labor-offcanvas .uk-nav-default .uk-nav-header {
+  color: #fff;
+}
+
+#labor-offcanvas .labor-nav__cta {
+  background: var(--labor-blue);
+  color: #fff !important;
+  border: 1px solid color-mix(in oklab, var(--labor-blue) 70%, transparent);
+}
+
+#labor-offcanvas .labor-nav__cta:hover,
+#labor-offcanvas .labor-nav__cta:focus-visible {
+  background: var(--labor-hover);
+  color: #fff !important;
+}
+
 .labor-header .labor-logo {
   display: inline-flex;
   align-items: center;
