@@ -223,6 +223,37 @@ body.labor-landing {
   background: var(--labor-bg);
 }
 
+.labor-main [uk-scrollspy] {
+  --labor-scroll-duration: 520ms;
+  will-change: opacity, transform;
+}
+
+.labor-main .uk-animation-slide-bottom-medium,
+.labor-main .uk-animation-slide-bottom-small,
+.labor-main .uk-animation-slide-left-medium,
+.labor-main .uk-animation-slide-left-small,
+.labor-main .uk-animation-fade {
+  animation-duration: var(--labor-scroll-duration);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .labor-main [uk-scrollspy] {
+    visibility: visible !important;
+  }
+
+  .labor-main [uk-scrollspy] *,
+  .labor-main .uk-animation-slide-bottom-medium,
+  .labor-main .uk-animation-slide-bottom-small,
+  .labor-main .uk-animation-slide-left-medium,
+  .labor-main .uk-animation-slide-left-small,
+  .labor-main .uk-animation-fade {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
 .labor-hero {
   position: relative;
   background-size: cover;
