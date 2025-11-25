@@ -501,6 +501,20 @@ body.labor-landing {
   color: #fff !important;
 }
 
+.labor-section:not(.labor-section--dark) .labor-button-secondary {
+  background: color-mix(in oklab, var(--labor-blue) 10%, #ffffff);
+  color: var(--labor-text) !important;
+  border-color: color-mix(in oklab, var(--labor-blue) 60%, transparent);
+  box-shadow: var(--labor-shadow);
+}
+
+.labor-section:not(.labor-section--dark) .labor-button-secondary:hover,
+.labor-section:not(.labor-section--dark) .labor-button-secondary:focus-visible {
+  background: color-mix(in oklab, var(--labor-blue) 18%, #ffffff);
+  color: var(--labor-text) !important;
+  border-color: var(--labor-blue);
+}
+
 .labor-button-ghost {
   background: transparent;
   color: inherit !important;
