@@ -1543,6 +1543,14 @@ body.labor-landing {
     flex-direction: column;
   }
 
+  .labor-measurement-ticker__headline {
+    padding: 14px;
+  }
+
+  .labor-measurement-ticker__label {
+    display: none;
+  }
+
   .labor-card__image img {
     height: 160px;
   }
