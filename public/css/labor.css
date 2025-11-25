@@ -575,18 +575,18 @@ body.labor-landing {
   color: #fff !important;
 }
 
-.labor-hero--tone-light .labor-button-secondary {
-  background: color-mix(in oklab, var(--labor-text) 12%, transparent);
+.labor-section:not(.labor-section--dark) .labor-button-secondary {
+  background: color-mix(in oklab, var(--labor-blue) 10%, #ffffff);
   color: var(--labor-text) !important;
-  border-color: color-mix(in oklab, var(--labor-text) 44%, transparent);
+  border-color: color-mix(in oklab, var(--labor-blue) 60%, transparent);
   box-shadow: var(--labor-shadow);
 }
 
-.labor-hero--tone-light .labor-button-secondary:hover,
-.labor-hero--tone-light .labor-button-secondary:focus-visible {
-  background: color-mix(in oklab, var(--labor-text) 18%, transparent);
-  border-color: color-mix(in oklab, var(--labor-text) 56%, transparent);
+.labor-section:not(.labor-section--dark) .labor-button-secondary:hover,
+.labor-section:not(.labor-section--dark) .labor-button-secondary:focus-visible {
+  background: color-mix(in oklab, var(--labor-blue) 18%, #ffffff);
   color: var(--labor-text) !important;
+  border-color: var(--labor-blue);
 }
 
 .labor-button-ghost {
