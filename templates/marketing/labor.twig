@@ -515,8 +515,6 @@
     <nav class="labor-nav uk-navbar-container" uk-navbar>
       <div class="uk-navbar-left">
         <div class="uk-navbar-item">
-          <button class="uk-navbar-toggle uk-hidden@m" type="button" aria-label="Menü"
-                  uk-toggle="target: #labor-offcanvas" uk-navbar-toggle-icon></button>
           <a class="labor-logo" href="/" aria-label="Systems Engineering Startseite">
             <img src="{{ laborLogoUrl }}" alt="Systems Engineering" class="labor-logo__image" loading="eager">
           </a>
@@ -556,6 +554,10 @@
         </ul>
       </div>
       <div class="uk-navbar-right">
+        <div class="uk-navbar-item uk-hidden@m">
+          <button class="uk-navbar-toggle" type="button" aria-label="Menü"
+                  uk-toggle="target: #labor-offcanvas" uk-navbar-toggle-icon></button>
+        </div>
         <a class="uk-button uk-button-primary labor-nav__cta uk-visible@m" href="{{ contactLink.href }}" uk-scroll>
           {{ contactLink.label }}
         </a>
