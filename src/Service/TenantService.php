@@ -182,7 +182,6 @@ class TenantService
         $statePersisted = false;
         $hasExistingRecord = false;
         $schemaCreated = false;
-        $vhostCreated = false;
         $lockKey = $this->acquireTenantLock($schema);
 
         try {
@@ -236,7 +235,6 @@ class TenantService
             if ($this->nginxService !== null) {
                 try {
                     $this->nginxService->createVhost($schema);
-                    $vhostCreated = true;
                 } catch (\Throwable $e) {
                     try {
                         $this->nginxService->removeVhost($schema, false);
@@ -260,13 +258,6 @@ class TenantService
                     $this->pdo->exec(sprintf('DROP SCHEMA "%s" CASCADE', $schema));
                 } catch (\Throwable $inner) {
                     error_log('Failed to drop tenant schema after error: ' . $inner->getMessage());
-                }
-            }
-            if ($this->nginxService !== null && $vhostCreated) {
-                try {
-                    $this->nginxService->removeVhost($schema, false);
-                } catch (\Throwable $inner) {
-                    error_log('Failed to remove nginx vhost after provisioning error: ' . $inner->getMessage());
                 }
             }
             throw $e;

@@ -296,9 +296,6 @@ class MarketingDomainProvider
     private function resolveConnection(): PDO
     {
         $connection = ($this->connectionFactory)();
-        if (!$connection instanceof PDO) {
-            throw new RuntimeException('MarketingDomainProvider connection factory must return a PDO instance.');
-        }
 
         return $connection;
     }
