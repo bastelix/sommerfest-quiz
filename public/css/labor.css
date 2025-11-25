@@ -32,25 +32,31 @@ body.labor-landing {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+.labor-topbar {
+  --topbar-btn-bg: color-mix(in oklab, #ffffff 88%, var(--labor-text) 12%);
+  --topbar-btn-bg-hover: var(--labor-hover);
+  --topbar-btn-border: color-mix(in oklab, var(--labor-text) 18%, transparent);
+  --topbar-btn-border-hover: color-mix(in oklab, var(--labor-hover) 70%, transparent);
+  --topbar-focus-ring: color-mix(in oklab, var(--labor-hover) 26%, transparent);
+  --topbar-text: var(--labor-text);
+}
+
 .labor-topbar .uk-navbar-container {
   background: transparent;
 }
 
-.labor-topbar .uk-navbar-toggle {
-  color: var(--labor-text);
-  background: color-mix(in oklab, #ffffff 88%, var(--labor-text) 12%);
-  border: 1px solid color-mix(in oklab, var(--labor-text) 18%, transparent);
+.labor-topbar .git-btn {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
   border-radius: 10px;
-  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  color: var(--labor-text);
 }
 
-.labor-topbar .uk-navbar-toggle:hover,
-.labor-topbar .uk-navbar-toggle:focus-visible {
+.labor-topbar .git-btn:hover,
+.labor-topbar .git-btn:focus-visible {
   color: #fff;
-  background: var(--labor-hover);
-  border-color: color-mix(in oklab, var(--labor-hover) 70%, transparent);
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--labor-hover) 26%, transparent);
 }
 
 #labor-offcanvas .uk-offcanvas-bar {
