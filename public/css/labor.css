@@ -271,6 +271,10 @@ body.labor-landing {
   color: var(--labor-text);
 }
 
+.labor-hero--tone-light .labor-hero__overlay {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.82), color-mix(in oklab, var(--labor-hover) 18%, transparent));
+}
+
 .labor-hero__overlay {
   position: absolute;
   inset: 0;
@@ -334,6 +338,11 @@ body.labor-landing {
   text-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
 }
 
+.labor-hero--tone-light .labor-hero__headline,
+.labor-hero--tone-light .labor-hero__subline {
+  text-shadow: none;
+}
+
 .labor-eyebrow {
   display: inline-flex;
   padding: 6px 12px;
@@ -343,17 +352,21 @@ body.labor-landing {
   letter-spacing: 0.3px;
 }
 
+.labor-hero--tone-light .labor-eyebrow {
+  background: color-mix(in oklab, var(--labor-text) 10%, transparent);
+}
+
 .labor-hero__headline {
   font-size: clamp(2.2rem, 4vw, 3.2rem);
   line-height: 1.15;
   margin: 16px 0 12px;
-  color: #fff;
+  color: currentColor;
 }
 
 .labor-hero__subline {
   font-size: 1.05rem;
   line-height: 1.7;
-  color: #f0f3f7;
+  color: color-mix(in oklab, currentColor 85%, #fff 15%);
   margin-bottom: 24px;
 }
 
@@ -403,6 +416,20 @@ body.labor-landing {
   line-height: 1.4;
 }
 
+.labor-hero--tone-light .labor-hero__trust-card {
+  background: #fff;
+  border-color: color-mix(in oklab, var(--labor-text) 14%, transparent);
+  box-shadow: var(--labor-shadow);
+}
+
+.labor-hero--tone-light .labor-hero__trust-card::after {
+  background: radial-gradient(circle at 24px 24px, color-mix(in oklab, var(--labor-hover) 35%, transparent), transparent 55%);
+}
+
+.labor-hero--tone-light .labor-hero__trust-label {
+  color: var(--labor-text);
+}
+
 .labor-hero__stats-bar {
   position: relative;
   margin-top: 28px;
@@ -412,6 +439,12 @@ body.labor-landing {
   border-radius: 16px;
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(8px);
+}
+
+.labor-hero--tone-light .labor-hero__stats-bar {
+  background: #fff;
+  border-color: color-mix(in oklab, var(--labor-text) 14%, transparent);
+  box-shadow: var(--labor-shadow);
 }
 
 .labor-hero__stats {
@@ -434,6 +467,12 @@ body.labor-landing {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+.labor-hero--tone-light .labor-hero__stat {
+  background: color-mix(in oklab, var(--labor-muted) 80%, #fff 20%);
+  border-color: color-mix(in oklab, var(--labor-text) 10%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--labor-text) 6%, transparent);
+}
+
 .labor-hero__stat-icon {
   display: inline-flex;
   width: 44px;
@@ -445,6 +484,11 @@ body.labor-landing {
   border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.labor-hero--tone-light .labor-hero__stat-icon {
+  background: color-mix(in oklab, var(--labor-hover) 30%, transparent);
+  border-color: color-mix(in oklab, var(--labor-text) 16%, transparent);
+}
+
 .labor-hero__stat-icon svg {
   width: 24px;
   height: 24px;
@@ -453,10 +497,18 @@ body.labor-landing {
   stroke-width: 1.8;
 }
 
+.labor-hero--tone-light .labor-hero__stat-icon svg {
+  stroke: var(--labor-text);
+}
+
 .labor-hero__stat-label {
   display: grid;
   gap: 4px;
   color: #f3f6fb;
+}
+
+.labor-hero--tone-light .labor-hero__stat-label {
+  color: var(--labor-text);
 }
 
 .labor-hero__stat-label strong {
@@ -468,6 +520,10 @@ body.labor-landing {
   font-size: 0.95rem;
   line-height: 1.4;
   color: #dbe5f7;
+}
+
+.labor-hero--tone-light .labor-hero__stat-label span {
+  color: color-mix(in oklab, var(--labor-text) 78%, #0f1a33 22%);
 }
 
 .labor-button-primary {
@@ -501,6 +557,20 @@ body.labor-landing {
   color: #fff !important;
 }
 
+.labor-hero--tone-light .labor-button-secondary {
+  background: color-mix(in oklab, var(--labor-text) 6%, transparent);
+  color: var(--labor-text) !important;
+  border-color: color-mix(in oklab, var(--labor-text) 30%, transparent);
+  box-shadow: var(--labor-shadow);
+}
+
+.labor-hero--tone-light .labor-button-secondary:hover,
+.labor-hero--tone-light .labor-button-secondary:focus-visible {
+  background: color-mix(in oklab, var(--labor-text) 12%, transparent);
+  border-color: color-mix(in oklab, var(--labor-text) 38%, transparent);
+  color: var(--labor-text) !important;
+}
+
 .labor-button-ghost {
   background: transparent;
   color: inherit !important;
@@ -513,6 +583,16 @@ body.labor-landing {
 .labor-button-ghost:hover,
 .labor-button-ghost:focus-visible {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.labor-hero--tone-light .labor-button-ghost {
+  color: var(--labor-text) !important;
+  border-color: color-mix(in oklab, var(--labor-text) 34%, transparent);
+}
+
+.labor-hero--tone-light .labor-button-ghost:hover,
+.labor-hero--tone-light .labor-button-ghost:focus-visible {
+  background: color-mix(in oklab, var(--labor-text) 8%, transparent);
 }
 
 .uk-button-small.labor-button-primary,
