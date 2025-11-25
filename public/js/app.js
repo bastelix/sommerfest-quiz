@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityIcons = document.querySelectorAll('.accessibility-icon');
   const helpButtons = document.querySelectorAll('.help-toggle');
   const teamNameBtn = document.getElementById('teamNameBtn');
+  const isLaborLanding = document.body.classList.contains('labor-landing');
 
   if (offcanvasToggle && !offcanvasHasItems) {
     offcanvasToggle.hidden = true;
@@ -107,7 +108,11 @@ document.addEventListener('DOMContentLoaded', function () {
   document.body.dataset.theme = dark ? 'dark' : 'light';
   document.body.classList.toggle('dark-mode', dark);
   if (uikitStylesheet) {
-    document.body.classList.toggle('uk-light', dark);
+    if (isLaborLanding) {
+      document.body.classList.remove('uk-light');
+    } else {
+      document.body.classList.toggle('uk-light', dark);
+    }
   }
 
   const sunSVG = `
@@ -202,7 +207,11 @@ document.addEventListener('DOMContentLoaded', function () {
       document.body.dataset.theme = dark ? 'dark' : 'light';
       document.body.classList.toggle('dark-mode', dark);
       if (uikitStylesheet) {
-        document.body.classList.toggle('uk-light', dark);
+        if (isLaborLanding) {
+          document.body.classList.remove('uk-light');
+        } else {
+          document.body.classList.toggle('uk-light', dark);
+        }
       }
       syncDarkStylesheet();
       if (typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.DARK_MODE) {
