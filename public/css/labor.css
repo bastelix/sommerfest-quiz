@@ -871,6 +871,8 @@ body.labor-landing {
 .labor-card__title {
   margin: 4px 0;
   color: var(--labor-text);
+  hyphens: auto;
+  overflow-wrap: anywhere;
 }
 
 .labor-card__text {
