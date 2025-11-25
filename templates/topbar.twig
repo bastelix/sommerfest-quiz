@@ -1,16 +1,6 @@
 <nav class="uk-navbar-container uk-padding-small topbar{% if nav_class is defined %} {{ nav_class }}{% endif %}" role="navigation" aria-label="{{ t('primary_navigation') }}" uk-navbar>
     <div class="uk-navbar-left">
       <div class="uk-navbar-item">
-        <button id="offcanvas-toggle"
-                type="button"
-                class="uk-navbar-toggle uk-hidden@m git-btn"
-                uk-navbar-toggle-icon
-                uk-toggle="target: #qr-offcanvas"
-                aria-controls="qr-offcanvas"
-                aria-expanded="false"
-                aria-haspopup="true"
-                aria-label="{{ t('menu') }}">
-        </button>
         {% block left %}{% endblock %}
       </div>
     </div>
@@ -20,6 +10,18 @@
     </div>
   </div>
       <div class="uk-navbar-right">
+        <div class="uk-navbar-item uk-hidden@m">
+          <button id="offcanvas-toggle"
+                  type="button"
+                  class="uk-navbar-toggle git-btn"
+                  uk-navbar-toggle-icon
+                  uk-toggle="target: #qr-offcanvas"
+                  aria-controls="qr-offcanvas"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-label="{{ t('menu') }}">
+          </button>
+        </div>
         {% block right %}{% endblock %}
         {% block help_button %}{% endblock %}
         {% block switches %}
