@@ -370,6 +370,20 @@ body.uk-padding {
   display: none;
 }
 .qr-nav-text { margin-left: 8px; }
+.qr-sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+.qr-nav-accordion { margin-top: 4px; }
+.qr-nav-accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.qr-nav-accordion-label { font-size: 0.95rem; }
+.qr-nav-accordion-chevron { transition: transform 0.2s ease-in-out; }
+.qr-nav-accordion .uk-accordion-content { padding: 2px 0 10px 0; }
+.qr-nav-accordion-item.uk-open .qr-nav-accordion-chevron { transform: rotate(180deg); }
 .uk-nav-default > li.uk-active > a {
   background: var(--uk-background-muted, #f8f8f8);
   border-radius: 6px;
