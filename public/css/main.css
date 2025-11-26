@@ -369,8 +369,27 @@ body.uk-padding {
 .admin-page.sidebar-collapsed .qr-sidebar-card {
   display: none;
 }
-.qr-nav-text { margin-left: 8px; }
+.qr-nav-text { margin-left: 0; }
 .qr-sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+.qr-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+}
+.qr-nav-sub {
+  margin-left: 0;
+  padding-left: 0;
+}
+.qr-nav-sub-link {
+  padding: 6px;
+  font-size: 0.875rem;
+  line-height: 1.25;
+  color: #4b5563;
+}
+.qr-nav-sub-link:hover {
+  color: var(--primary-color, #1e87f0);
+}
 .qr-nav-accordion { margin-top: 4px; }
 .qr-nav-accordion-title {
   display: flex;
