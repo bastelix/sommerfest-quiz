@@ -599,6 +599,8 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
     pageBodies.forEach((tbodyEl, idx) => {
       // eslint-disable-next-line no-param-reassign
       tbodyEl.hidden = idx !== index;
+      tbodyEl.style.display = idx === index ? 'table-row-group' : 'none';
+      tbodyEl.setAttribute('aria-hidden', idx === index ? 'false' : 'true');
     });
     pagerButtons.forEach((button, idx) => {
       if (idx === index) {
@@ -625,6 +627,7 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
       const tbody = document.createElement('tbody');
       tbody.dataset.page = String(i);
       tbody.hidden = true;
+      tbody.style.display = 'none';
       const start = i * effectivePageSize;
       const pageRows = limitedRows.slice(start, start + effectivePageSize);
       pageRows.forEach((row, rowIndex) => {
@@ -665,6 +668,7 @@ function renderResultsModule(rows, moduleConfig, layoutOverride = null, defaults
     const tbody = document.createElement('tbody');
     tbody.dataset.page = '0';
     tbody.hidden = true;
+    tbody.style.display = 'none';
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
     emptyCell.colSpan = columnCount;
