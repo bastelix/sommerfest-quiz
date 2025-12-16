@@ -383,7 +383,7 @@ body.uk-padding {
 }
 .qr-nav-sub {
   margin-left: 0;
-  padding-left: 0;
+  padding-left: 10px;
 }
 .qr-nav-sub-link {
   padding: 6px;
