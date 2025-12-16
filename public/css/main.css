@@ -371,6 +371,10 @@ body.uk-padding {
 }
 .qr-nav-text { margin-left: 0; }
 .qr-sidebar-nav { display: flex; flex-direction: column; gap: 8px; }
+.qr-sidebar-nav > .uk-nav {
+  margin-left: 0;
+  padding-left: 0;
+}
 .qr-nav-link {
   display: flex;
   align-items: center;
