@@ -327,6 +327,19 @@ document.addEventListener('DOMContentLoaded', () => {
     load();
   });
 
+  document.addEventListener('current-event-changed', () => {
+    if (filter) {
+      filter.value = '';
+    }
+    if (filterSuggestions) {
+      filterSuggestions.innerHTML = '';
+    }
+    filteredData = [];
+    currentPage = 1;
+    updatePagination();
+    load();
+  });
+
   function initRotateButtons() {
     document.querySelectorAll('.photo-rotate-btn').forEach(btn => {
       const wrap = btn.closest('.photo-wrapper');
