@@ -977,8 +977,15 @@ document.addEventListener('DOMContentLoaded', function () {
     Object.assign(cfgInitial, source);
     return cloneConfig(cfgInitial);
   }
+  const normalizeId = (value) => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return String(value);
+  };
+
   const cfgParams = new URLSearchParams(window.location.search);
-  let currentEventUid = cfgParams.get('event') || '';
+  let currentEventUid = normalizeId(cfgParams.get('event') || '');
   const eventIndicators = document.querySelectorAll('[data-current-event-indicator]');
   const indicatorNodes = Array.from(eventIndicators);
   const eventSelectNodes = indicatorNodes
@@ -989,7 +996,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let availableEvents = [];
   if (!currentEventUid) {
     const seededUid = indicatorNodes.map(el => el.dataset.currentEventUid || '').find(uid => uid);
-    currentEventUid = seededUid || cfgInitial.event_uid || '';
+    currentEventUid = normalizeId(seededUid || cfgInitial.event_uid || '');
   }
   if (!cfgInitial.event_uid && currentEventUid) {
     cfgInitial.event_uid = currentEventUid;
@@ -1014,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   eventSelectNodes.forEach(select => {
     select.addEventListener('change', () => {
-      const uid = select.value || '';
+      const uid = normalizeId(select.value || '');
       const option = select.options[select.selectedIndex] || null;
       const name = option ? (option.textContent || '') : '';
       if (uid === (currentEventUid || '')) {
@@ -6083,14 +6090,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function highlightCurrentEvent() {
+    const normalizedCurrent = normalizeId(currentEventUid);
     Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach(row => {
-      const isCurrent = row.dataset.id === currentEventUid;
+      const isCurrent = normalizeId(row.dataset.id) === normalizedCurrent;
       row.classList.toggle('active-event', isCurrent);
       const input = row.querySelector('input[name="currentEventList"]');
       if (input) input.checked = isCurrent;
     });
     Array.from(eventsCardsEl?.children || []).forEach(card => {
-      const isCurrent = card.dataset.id === currentEventUid;
+      const isCurrent = normalizeId(card.dataset.id) === normalizedCurrent;
       card.classList.toggle('active-event', isCurrent);
       const input = card.querySelector('input[name="currentEventCard"]');
       if (input) input.checked = isCurrent;
@@ -6102,14 +6110,15 @@ document.addEventListener('DOMContentLoaded', function () {
       highlightCurrentEvent();
       return Promise.resolve();
     }
+    const normalizedUid = normalizeId(uid);
     const prevUid = currentEventUid;
     const prevName = currentEventName;
     const prevSlug = currentEventSlug;
-    return switchEvent(uid, name)
+    return switchEvent(normalizedUid, name)
       .then(cfg => {
-        currentEventUid = uid || '';
+        currentEventUid = normalizedUid;
         currentEventName = currentEventUid ? (name || currentEventName) : '';
-        const matched = availableEvents.find(ev => ev.uid === currentEventUid);
+        const matched = availableEvents.find(ev => normalizeId(ev.uid) === currentEventUid);
         currentEventSlug = matched?.slug || currentEventSlug;
         updateDashboardShareLinks();
         cfgInitial.event_uid = currentEventUid;
@@ -6167,17 +6176,18 @@ document.addEventListener('DOMContentLoaded', function () {
           const input = document.createElement('input');
           input.type = 'radio';
           input.name = 'currentEventList';
-          input.dataset.id = ev.id;
-          input.checked = ev.id === currentEventUid;
+          const normalizedId = normalizeId(ev.id);
+          input.dataset.id = normalizedId;
+          input.checked = normalizedId === normalizeId(currentEventUid);
           input.addEventListener('change', () => {
             if (!input.checked) return;
             if (switchPending || lastSwitchFailed) {
               highlightCurrentEvent();
               return;
             }
-            const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
+            const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${normalizedId}"]`);
             if (twin) twin.checked = true;
-            setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
+            setCurrentEvent(normalizedId, ev.name).finally(highlightCurrentEvent);
           });
           const slider = document.createElement('span');
           slider.className = 'slider';
@@ -6192,17 +6202,18 @@ document.addEventListener('DOMContentLoaded', function () {
           const input = document.createElement('input');
           input.type = 'radio';
           input.name = 'currentEventCard';
-          input.dataset.id = ev.id;
-          input.checked = ev.id === currentEventUid;
+          const normalizedId = normalizeId(ev.id);
+          input.dataset.id = normalizedId;
+          input.checked = normalizedId === normalizeId(currentEventUid);
           input.addEventListener('change', () => {
             if (!input.checked) return;
             if (switchPending || lastSwitchFailed) {
               highlightCurrentEvent();
               return;
             }
-            const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
+            const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${normalizedId}"]`);
             if (twin) twin.checked = true;
-            setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
+            setCurrentEvent(normalizedId, ev.name).finally(highlightCurrentEvent);
           });
           const slider = document.createElement('span');
           slider.className = 'slider';
