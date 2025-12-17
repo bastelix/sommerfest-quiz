@@ -6106,8 +6106,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function setCurrentEvent(uid, name) {
-    const normalizedUid = uid === null || typeof uid === 'undefined' ? '' : String(uid);
-    const normalizedCurrentUid = currentEventUid === null || typeof currentEventUid === 'undefined' ? '' : String(currentEventUid);
+    const normalizedUid = normalizeId(uid);
+    const normalizedCurrentUid = normalizeId(currentEventUid);
 
     if (normalizedUid === normalizedCurrentUid) {
       // Short-circuit when selecting the already active event to avoid redundant network calls
@@ -6119,7 +6119,6 @@ document.addEventListener('DOMContentLoaded', function () {
       highlightCurrentEvent();
       return Promise.resolve();
     }
-    const normalizedUid = normalizeId(uid);
     const prevUid = currentEventUid;
     const prevName = currentEventName;
     const prevSlug = currentEventSlug;
