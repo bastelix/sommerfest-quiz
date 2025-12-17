@@ -6098,6 +6098,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function setCurrentEvent(uid, name) {
+    const normalizedUid = uid === null || typeof uid === 'undefined' ? '' : String(uid);
+    const normalizedCurrentUid = currentEventUid === null || typeof currentEventUid === 'undefined' ? '' : String(currentEventUid);
+
+    if (normalizedUid === normalizedCurrentUid) {
+      // Short-circuit when selecting the already active event to avoid redundant network calls
+      highlightCurrentEvent();
+      return Promise.resolve();
+    }
+
     if (switchPending || lastSwitchFailed) {
       highlightCurrentEvent();
       return Promise.resolve();
