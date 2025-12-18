@@ -3,7 +3,6 @@
   const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
   const withBase = (p) => basePath + p;
   let eventId = document.body?.dataset.eventId || currentScript?.dataset.eventId || window.eventId || '';
-  let switchEpoch = 0;
   const currentEventSelects = new Set();
   const notify = (message, status = 'primary') => {
     if (window.UIkit?.notification) {
@@ -779,48 +778,13 @@
     select.dataset.currentEventValue = hasOption ? value : '';
   };
 
-  const setCurrentEvent = (uid, name) => {
-    return csrfFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: uid })
-    })
-      .then((resp) => {
-        if (!resp.ok) {
-          return resp.text().then((text) => {
-            throw new Error(text || 'Fehler beim Wechseln des Events');
-          });
-        }
-        if (uid) {
-          return fetch(withBase(`/admin/event/${encodeURIComponent(uid)}`), {
-            credentials: 'same-origin',
-            cache: 'no-store',
-            headers: { Accept: 'application/json' }
-          }).then((res) => {
-            if (!res.ok) {
-              return res.text().then((text) => {
-                throw new Error(text || 'Fehler beim Laden des Events');
-              });
-            }
-            return res.json();
-          });
-        }
-        return { event: null, config: {} };
-      })
-      .then((detail) => {
-        const config = detail?.config || {};
-        const epoch = ++switchEpoch;
-        const detailPayload = { uid, name, config, epoch };
-        document.dispatchEvent(new CustomEvent('event:changed', { detail: detailPayload }));
-        document.dispatchEvent(new CustomEvent('current-event-changed', { detail: detailPayload }));
-        return detail;
-      })
-      .catch((err) => {
-        if (err instanceof TypeError) {
-          throw new Error('Server unreachable');
-        }
-        throw err;
-      });
+  let eventSwitcherImport;
+
+  const getEventSwitcher = () => {
+    if (!eventSwitcherImport) {
+      eventSwitcherImport = import(withBase('/js/event-switcher.js'));
+    }
+    return eventSwitcherImport;
   };
 
   const initializeCurrentEventSelect = (select) => {
@@ -837,7 +801,13 @@
       const option = select.options[select.selectedIndex] || null;
       const name = uid ? ((option?.textContent || '').trim()) : '';
       select.disabled = true;
-      setCurrentEvent(uid, name)
+      getEventSwitcher()
+        .then(({ setCurrentEvent }) => {
+          if (typeof setCurrentEvent !== 'function') {
+            throw new Error('Fehler beim Wechseln des Events');
+          }
+          return setCurrentEvent(uid, name);
+        })
         .then(() => {
           syncCurrentEventSelect(select, uid);
         })
