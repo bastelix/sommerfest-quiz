@@ -34,7 +34,6 @@ use function is_string;
 use function json_decode;
 use function json_encode;
 use function ksort;
-use function mb_strlen;
 use function mb_strtolower;
 use function rtrim;
 use function random_bytes;
@@ -186,7 +185,7 @@ final class UsernameBlocklistController
         $rows = $this->mapPresetEntriesToAdmin($rows);
 
         try {
-            $this->service->importEntries($rows);
+            $result = $this->service->importEntries($rows, true);
         } catch (InvalidArgumentException) {
             return $this->jsonError($response, $this->translate('error_username_blocklist_import_invalid'), 422);
         } catch (RuntimeException $exception) {
@@ -199,7 +198,7 @@ final class UsernameBlocklistController
             );
         }
 
-        $summary = $this->summarizeRows($rows);
+        $summary = $this->summarizeRows($result['entries']);
         $total = array_sum($summary);
         $presetLabel = $this->translate('label_username_blocklist_preset_' . $preset);
         $message = sprintf(
@@ -207,20 +206,35 @@ final class UsernameBlocklistController
             $total,
             $presetLabel
         );
+        $skipped = $result['skipped'];
 
         $entries = array_map(
             fn (array $entry): array => $this->transformEntry($entry),
             $this->service->getAdminEntries()
         );
 
+        $payload = [
+            'status' => 'ok',
+            'message' => $message,
+            'entries' => $entries,
+            'summary' => $summary,
+            'skipped' => $skipped,
+        ];
+
+        if ($skipped > 0) {
+            $payload['warning'] = sprintf(
+                $this->translate('warning_username_blocklist_import_skipped'),
+                $skipped
+            );
+        }
+
+        if ($result['warnings'] !== []) {
+            $payload['warnings'] = $result['warnings'];
+        }
+
         return $this->json(
             $response,
-            [
-                'status' => 'ok',
-                'message' => $message,
-                'entries' => $entries,
-                'summary' => $summary,
-            ]
+            $payload
         );
     }
 
@@ -436,7 +450,7 @@ final class UsernameBlocklistController
         $summary = [];
         foreach ($rows as $row) {
             $term = mb_strtolower(trim($row['term']));
-            if ($term === '' || mb_strlen($term) < 3) {
+            if ($term === '') {
                 continue;
             }
 
