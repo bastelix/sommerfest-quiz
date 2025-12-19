@@ -108,7 +108,7 @@ class DomainStartPageService
     /**
      * Provision certificates for marketing domains that were added outside the admin controller.
      *
-     * @return array{provisioned:list<string>,resolved_marketing_domains:list<string>}
+     * @return array{provisioned:list<string>,resolved_marketing_domains:list<string>,unresolved_marketing_domains:list<string>}
      */
     public function reconcileMarketingDomains(
         MarketingDomainProvider $marketingDomainProvider,
@@ -123,7 +123,9 @@ class DomainStartPageService
         }
 
         $provisioned = [];
-        foreach ($this->listMarketingDomains() as $domain) {
+        $unresolved = [];
+        $marketingDomains = $this->listMarketingDomains();
+        foreach ($marketingDomains as $domain) {
             $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
             $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
             if ($normalized === '' || isset($known[$normalized])) {
@@ -135,13 +137,43 @@ class DomainStartPageService
             $known[$normalized] = true;
         }
 
+        foreach ($marketingDomains as $domain) {
+            $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
+            $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+            if ($normalized === '' || isset($unresolved[$normalized])) {
+                continue;
+            }
+            if (!$this->isDomainResolvable($host)) {
+                $unresolved[$normalized] = $host;
+            }
+        }
+
         $marketingDomainProvider->clearCache();
         $resolvedDomains = $marketingDomainProvider->getMarketingDomains(stripAdmin: false);
 
         return [
             'provisioned' => $provisioned,
             'resolved_marketing_domains' => $resolvedDomains,
+            'unresolved_marketing_domains' => array_values($unresolved),
         ];
+    }
+
+    private function isDomainResolvable(string $domain): bool
+    {
+        $domain = trim($domain);
+        if ($domain === '') {
+            return false;
+        }
+
+        if (function_exists('dns_get_record')) {
+            $records = @dns_get_record($domain, DNS_A | DNS_AAAA);
+            if (is_array($records) && $records !== []) {
+                return true;
+            }
+        }
+
+        $resolved = gethostbyname($domain);
+        return $resolved !== $domain;
     }
 
     /**

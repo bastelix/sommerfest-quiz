@@ -3109,6 +3109,86 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
+    const marketingDomainReconcileButton = document.getElementById('marketingDomainReconcile');
+    const marketingDomainReconcileMessages = {
+      provisioned: window.transMarketingDomainReconcileProvisioned || 'Certificates checked: {count} domains.',
+      resolved: window.transMarketingDomainReconcileResolved || 'Resolved marketing domains ({count}): {domains}',
+      unresolved: window.transMarketingDomainReconcileUnresolved || 'Unresolved marketing domains ({count}): {domains}',
+      error: window.transMarketingDomainReconcileError || transDomainStartPageError,
+    };
+
+    const normalizeDomainList = list => {
+      if (!Array.isArray(list)) {
+        return [];
+      }
+      return list
+        .map(value => (value === null || value === undefined ? '' : String(value)).trim())
+        .filter(value => value !== '');
+    };
+
+    const setReconcileButtonState = isBusy => {
+      if (!marketingDomainReconcileButton) {
+        return;
+      }
+      marketingDomainReconcileButton.disabled = isBusy;
+      marketingDomainReconcileButton.setAttribute('aria-busy', isBusy ? 'true' : 'false');
+    };
+
+    if (marketingDomainReconcileButton) {
+      marketingDomainReconcileButton.addEventListener('click', () => {
+        setReconcileButtonState(true);
+        apiFetch('/admin/marketing-domains/reconcile', { method: 'POST' })
+          .then(res => {
+            return res
+              .json()
+              .catch(() => ({}))
+              .then(data => {
+                if (!res.ok) {
+                  const message = data?.error || marketingDomainReconcileMessages.error;
+                  throw new Error(message);
+                }
+                return data;
+              });
+          })
+          .then(data => {
+            const provisioned = normalizeDomainList(data?.provisioned);
+            const resolved = normalizeDomainList(data?.resolved_marketing_domains);
+            const unresolved = normalizeDomainList(data?.unresolved_marketing_domains);
+            const provisionedMessage = formatTemplate(marketingDomainReconcileMessages.provisioned, {
+              count: provisioned.length,
+              domains: provisioned.join(', ')
+            });
+            const resolvedMessage = formatTemplate(marketingDomainReconcileMessages.resolved, {
+              count: resolved.length,
+              domains: resolved.join(', ')
+            });
+            const summaryMessage = [provisionedMessage, resolvedMessage].filter(Boolean).join(' ');
+            if (summaryMessage) {
+              notify(summaryMessage, 'success');
+            }
+            if (unresolved.length) {
+              const unresolvedMessage = formatTemplate(marketingDomainReconcileMessages.unresolved, {
+                count: unresolved.length,
+                domains: unresolved.join(', ')
+              });
+              if (unresolvedMessage) {
+                notify(unresolvedMessage, 'warning');
+              }
+            }
+            if (typeof reloadDomainStartPages === 'function') {
+              reloadDomainStartPages();
+            }
+          })
+          .catch(err => {
+            const message = err?.message || marketingDomainReconcileMessages.error;
+            notify(message, 'danger');
+          })
+          .finally(() => {
+            setReconcileButtonState(false);
+          });
+      });
+    }
+
     const renderMessageRow = message => {
       if (!tbody) return;
       const tr = document.createElement('tr');
