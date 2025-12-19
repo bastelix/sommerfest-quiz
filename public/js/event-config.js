@@ -1143,7 +1143,15 @@
       method,
       body
     })
-      .catch(() => {})
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Failed to save');
+        }
+        UIkit?.notification({ message: 'Einstellungen gespeichert', status: 'success' });
+      })
+      .catch(() => {
+        UIkit?.notification({ message: 'Fehler beim Speichern', status: 'danger' });
+      })
       .finally(() => {
         isDirty = false;
       });
