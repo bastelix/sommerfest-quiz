@@ -569,6 +569,9 @@ keine ungültigen CSRs erzeugt. Beim Start normalisiert der Container
 beide Variablen (Leerzeichen und Zeilenumbrüche werden entfernt) und
 löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
 `acme-companion` direkt Zertifikate für neue Domains anfordert.
+Zusätzlich prüft der Startvorgang, ob jede Domain in `LETSENCRYPT_HOST`
+auflösbar ist; nicht auflösbare Hosts werden mit einer Warnung entfernt,
+damit keine vermeidbaren ACME-Fehler entstehen.
 
 Weitere nützliche Variablen in `.env` sind:
 

@@ -63,6 +63,37 @@ filter_certificate_hosts() {
     printf '%s' "$filtered"
 }
 
+filter_resolvable_hosts() {
+    sanitized=$(sanitize_host_list "$1")
+    if [ -z "$sanitized" ]; then
+        printf '%s' "$sanitized"
+        return
+    fi
+
+    filtered=""
+    old_ifs=$IFS
+    IFS=','
+    for host in $sanitized; do
+        if [ -z "$host" ]; then
+            continue
+        fi
+
+        if getent hosts "$host" >/dev/null 2>&1; then
+            if [ -z "$filtered" ]; then
+                filtered="$host"
+                continue
+            fi
+
+            filtered="$filtered,$host"
+        else
+            echo "Warning: LETSENCRYPT_HOST entry '$host' does not resolve; skipping" >&2
+        fi
+    done
+    IFS=$old_ifs
+
+    printf '%s' "$filtered"
+}
+
 append_host_value() {
     var_name="$1"
     host_to_add="$2"
@@ -118,6 +149,7 @@ if [ -n "${LETSENCRYPT_HOST:-}" ]; then
     if [ -z "$filtered_hosts" ] && [ -n "$LETSENCRYPT_HOST" ]; then
         echo "Warning: LETSENCRYPT_HOST only contained unsupported nginx regex hosts; clearing value" >&2
     fi
+    filtered_hosts=$(filter_resolvable_hosts "$filtered_hosts")
     export LETSENCRYPT_HOST="$filtered_hosts"
 fi
 
@@ -217,4 +249,3 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
 fi
 
 exec $@
-
