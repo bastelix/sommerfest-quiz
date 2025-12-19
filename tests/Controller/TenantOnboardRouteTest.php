@@ -179,4 +179,3 @@ class TenantOnboardRouteTest extends TestCase
         }
     }
 }
-

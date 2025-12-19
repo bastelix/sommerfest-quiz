@@ -200,4 +200,3 @@ class MarketingNewsletterConfigService
             : self::STYLE_PRIMARY;
     }
 }
-

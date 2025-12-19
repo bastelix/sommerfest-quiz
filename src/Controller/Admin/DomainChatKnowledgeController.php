@@ -388,4 +388,3 @@ final class DomainChatKnowledgeController
             ->withHeader('Content-Type', 'application/json');
     }
 }
-

@@ -235,4 +235,3 @@ final class DomainIndexManager
         }
     }
 }
-

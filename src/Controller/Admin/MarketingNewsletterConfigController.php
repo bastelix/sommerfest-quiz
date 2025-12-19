@@ -74,4 +74,3 @@ class MarketingNewsletterConfigController
         return $response->withStatus(204);
     }
 }
-

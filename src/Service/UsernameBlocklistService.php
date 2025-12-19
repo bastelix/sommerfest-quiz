@@ -68,7 +68,7 @@ class UsernameBlocklistService
         }
 
         $insert = $this->pdo->prepare(
-            'INSERT INTO username_blocklist (term, category) VALUES (?, ?)' 
+            'INSERT INTO username_blocklist (term, category) VALUES (?, ?)'
         );
 
         try {

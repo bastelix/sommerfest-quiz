@@ -455,4 +455,3 @@ final class DomainDocumentStorage
         return $name === '' ? 'document' : $name;
     }
 }
-

@@ -189,4 +189,3 @@ final class DomainNameHelper
         return $parts[0];
     }
 }
-

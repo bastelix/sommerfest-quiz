@@ -636,7 +636,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           </div>
         </div>
 
-        
+
         <ul class="trust-story trust-story--timeline" role="list" aria-label="So begleitet calServer dein Team">
                                               <li class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-devices" aria-describedby="trust-step-devices-description">
               <div class="trust-story__marker" aria-hidden="true">
