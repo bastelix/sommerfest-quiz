@@ -113,7 +113,7 @@ class LegalPageResolver
         }
 
         $parts = explode('.', $host);
-        $subdomain = $parts[0] ?? '';
+        $subdomain = $parts[0];
 
         return $this->normalizeNamespace($subdomain);
     }
