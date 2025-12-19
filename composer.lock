@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f0275f1ce8cdb0fae4b84f37eaebf6e9",
+    "content-hash": "9539a3f296d3630b6d5c40b75278f0df",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1889,16 +1889,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v18.0.0",
+            "version": "v19.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "70d6c286f0eca002b60ccd62afa7140c43c14bbb"
+                "reference": "4e3de7211645699b1f5b5f1f1b45bd9faf369426"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/70d6c286f0eca002b60ccd62afa7140c43c14bbb",
-                "reference": "70d6c286f0eca002b60ccd62afa7140c43c14bbb",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/4e3de7211645699b1f5b5f1f1b45bd9faf369426",
+                "reference": "4e3de7211645699b1f5b5f1f1b45bd9faf369426",
                 "shasum": ""
             },
             "require": {
@@ -1942,9 +1942,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v18.0.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v19.1.0"
             },
-            "time": "2025-09-30T22:56:22+00:00"
+            "time": "2025-12-16T19:48:17+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
