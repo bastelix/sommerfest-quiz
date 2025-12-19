@@ -1949,6 +1949,7 @@
                   <th class="uk-table-shrink">{{ t('column_contact_template') }}</th>
                   <th class="uk-table-shrink">{{ t('column_domain_ssl') }}</th>
                   <th>{{ t('column_domain_type') }}</th>
+                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -2550,6 +2551,9 @@
     window.transDomainStartPageSaved = '{{ t('notify_domain_start_page_saved')|e('js') }}';
     window.transDomainStartPageError = '{{ t('notify_domain_start_page_error')|e('js') }}';
     window.transDomainStartPageInvalidEmail = '{{ t('notify_domain_start_page_invalid_email')|e('js') }}';
+    window.transDomainStartPageDeleted = '{{ t('notify_domain_start_page_deleted')|e('js') }}';
+    window.transDomainStartPageDeleteError = '{{ t('notify_domain_start_page_delete_error')|e('js') }}';
+    window.transDomainStartPageDeleteConfirm = '{{ t('confirm_domain_start_page_delete')|e('js') }}';
     window.transDomainSmtpTitle = '{{ t('heading_domain_smtp_settings')|e('js') }}';
     window.transDomainSmtpSaved = '{{ t('notify_domain_smtp_saved')|e('js') }}';
     window.transDomainSmtpError = '{{ t('notify_domain_smtp_error')|e('js') }}';

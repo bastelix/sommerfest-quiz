@@ -333,6 +333,21 @@ class DomainStartPageService
     }
 
     /**
+     * Remove the stored configuration for a given domain.
+     */
+    public function deleteDomainConfig(string $domain): bool {
+        $normalized = $this->normalizeDomain($domain);
+        if ($normalized === '') {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare('DELETE FROM domain_start_pages WHERE domain = ?');
+        $stmt->execute([$normalized]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
      * Fetch all configured domain mappings.
      *
      * @return array<string,array{

@@ -161,6 +161,49 @@ class DomainStartPageController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function delete(Request $request, Response $response): Response {
+        $translator = $request->getAttribute('translator');
+        $translationService = $translator instanceof TranslationService ? $translator : null;
+
+        $data = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $data = json_decode((string) $request->getBody(), true);
+        }
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
+
+        $domain = isset($data['domain']) ? (string) $data['domain'] : '';
+        if ($domain === '') {
+            return $response->withStatus(400);
+        }
+
+        if ($this->domainService->getDomainConfig($domain) === null) {
+            return $response->withStatus(404);
+        }
+
+        $deleted = $this->domainService->deleteDomainConfig($domain);
+        if (!$deleted) {
+            $message = $translationService?->translate('notify_domain_start_page_delete_error')
+                ?? 'Could not delete the domain start page.';
+            $response->getBody()->write(json_encode(['error' => $message]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $overview = $this->buildDomainOverview(strtolower($request->getUri()->getHost()));
+        $response->getBody()->write(json_encode([
+            'status' => 'ok',
+            'domains' => $overview['domains'],
+            'marketing_domains' => $overview['marketing_domains'],
+            'main' => $overview['main'],
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function createMarketingDomain(Request $request, Response $response): Response {
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
