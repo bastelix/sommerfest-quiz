@@ -233,6 +233,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  const sliderElement = document.getElementById('scenario-slider');
+  const pills = Array.from(document.querySelectorAll('#scenario-nav > li'));
+  if (!sliderElement || !pills.length || !window.UIkit) {
+    return;
+  }
+
+  const slider = UIkit.slider(sliderElement);
+  const slides = Array.from(document.querySelectorAll('.usecase-slider > li'));
+
+  const setActive = (index) => {
+    pills.forEach((li, i) => li.classList.toggle('uk-active', i === index));
+  };
+
+  const setCurrent = (index) => {
+    slides.forEach((li, i) => li.classList.toggle('uk-current', i === index));
+  };
+
+  pills.forEach((li, i) => {
+    li.addEventListener('click', (event) => {
+      event.preventDefault();
+      slider.show(i);
+      setActive(i);
+      setCurrent(i);
+    });
+  });
+
+  UIkit.util.on(sliderElement, 'itemshown', () => {
+    setActive(slider.index);
+    setCurrent(slider.index);
+  });
+
+  setActive(0);
+  setCurrent(0);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
   const counters = document.querySelectorAll('[data-counter-target]');
   if (!counters.length) return;
 

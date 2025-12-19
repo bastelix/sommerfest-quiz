@@ -35,15 +35,15 @@
       {% set wikiLinkMarkup = '<li><a href="' ~ marketingWikiMenu.url ~ '"><span class="uk-margin-small-right" uk-icon="icon: file-text"></span>' ~ marketingWikiMenu.label ~ '</a></li>' %}
     {% endif %}
     {% set headerMarkup = headerMarkup|replace({'{{ marketing_wiki_link }}': wikiLinkMarkup}) %}
-    <header class="qr-topbar" id="editable-header">
+    <header class="qr-topbar">
       {{ headerMarkup|raw }}
     </header>
     {% if isAdmin %}
       <button type="button"
-              id="header-save"
+              id="inline-edit-save"
               class="uk-button uk-button-primary"
               style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;">
-        Header speichern
+        Inhalte speichern
       </button>
     {% endif %}
     <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
@@ -159,7 +159,9 @@
 
     <div class="section-divider"></div>
 
-    {{ content|raw }}
+    <div id="inline-edit-content" data-inline-page-slug="{{ marketingSlug }}">
+      {{ content|raw }}
+    </div>
 
     {% if landingNews is defined and landingNews %}
       <section id="landing-news" class="uk-section uk-section-muted landing-news">
@@ -221,61 +223,78 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/inline/ckeditor.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        const header = document.getElementById('editable-header');
-        const saveButton = document.getElementById('header-save');
+        const saveButton = document.getElementById('inline-edit-save');
+        const contentContainer = document.getElementById('inline-edit-content');
+        const editableSections = Array.from(document.querySelectorAll('[data-inline-editable="true"]'));
 
-        if (!header || !saveButton || typeof InlineEditor === 'undefined') {
+        if (!saveButton || !contentContainer || editableSections.length === 0 || typeof InlineEditor === 'undefined') {
           return;
         }
 
-        InlineEditor.create(header, {
-          toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
-        })
-          .then(editor => {
-            const basePath = window.basePath || '';
-            const csrfToken = '{{ csrf_token }}';
-            const defaultLabel = saveButton.textContent;
-
-            saveButton.addEventListener('click', async () => {
-              saveButton.disabled = true;
-              saveButton.textContent = 'Speichern...';
-
-              try {
-                const response = await fetch(`${basePath}/api/save-header`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-Token': csrfToken,
-                    'X-Requested-With': 'fetch',
-                  },
-                  body: JSON.stringify({ html: editor.getData() }),
-                });
-
-                if (!response.ok) {
-                  throw new Error(`Save failed (${response.status})`);
-                }
-
-                if (window.UIkit && typeof window.UIkit.notification === 'function') {
-                  window.UIkit.notification({ message: 'Header gespeichert.', status: 'success' });
-                } else {
-                  alert('Header gespeichert.');
-                }
-              } catch (error) {
-                console.error(error);
-                if (window.UIkit && typeof window.UIkit.notification === 'function') {
-                  window.UIkit.notification({ message: 'Header konnte nicht gespeichert werden.', status: 'danger' });
-                } else {
-                  alert('Header konnte nicht gespeichert werden.');
-                }
-              } finally {
-                saveButton.disabled = false;
-                saveButton.textContent = defaultLabel;
-              }
-            });
+        const editors = new Map();
+        const editorPromises = editableSections.map(section =>
+          InlineEditor.create(section, {
+            toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
           })
-          .catch(error => {
+            .then(editor => {
+              editors.set(section, editor);
+            })
+            .catch(error => {
+              console.error(error);
+            })
+        );
+
+        const basePath = window.basePath || '';
+        const csrfToken = '{{ csrf_token }}';
+        const defaultLabel = saveButton.textContent;
+
+        saveButton.addEventListener('click', async () => {
+          saveButton.disabled = true;
+          saveButton.textContent = 'Speichern...';
+
+          try {
+            await Promise.all(editorPromises);
+            editors.forEach((editor, section) => {
+              section.innerHTML = editor.getData();
+            });
+
+            const slug = contentContainer.dataset.inlinePageSlug || '';
+            const payload = {
+              slug,
+              html: contentContainer.innerHTML,
+            };
+
+            const response = await fetch(`${basePath}/api/save-marketing-content`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken,
+                'X-Requested-With': 'fetch',
+              },
+              body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+              throw new Error(`Save failed (${response.status})`);
+            }
+
+            if (window.UIkit && typeof window.UIkit.notification === 'function') {
+              window.UIkit.notification({ message: 'Inhalte gespeichert.', status: 'success' });
+            } else {
+              alert('Inhalte gespeichert.');
+            }
+          } catch (error) {
             console.error(error);
-          });
+            if (window.UIkit && typeof window.UIkit.notification === 'function') {
+              window.UIkit.notification({ message: 'Inhalte konnten nicht gespeichert werden.', status: 'danger' });
+            } else {
+              alert('Inhalte konnten nicht gespeichert werden.');
+            }
+          } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = defaultLabel;
+          }
+        });
       });
     </script>
   {% endif %}
