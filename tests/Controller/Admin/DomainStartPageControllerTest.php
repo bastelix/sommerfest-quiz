@@ -9,7 +9,9 @@ use App\Infrastructure\Migrations\Migrator;
 use App\Service\CertificateProvisioningService;
 use App\Service\DomainStartPageService;
 use App\Service\MarketingDomainProvider;
+use App\Service\NginxService;
 use App\Service\PageService;
+use App\Service\ReverseProxyHostUpdater;
 use App\Service\SettingsService;
 use App\Support\DomainNameHelper;
 use PDO;
@@ -38,10 +40,12 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $pdo = $this->getDatabase();
         $service = new DomainStartPageService($pdo);
+        [$envFile, $proxyUpdater] = $this->buildProxyUpdater($service);
         $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
         $controller = new DomainStartPageController(
             $service,
             new CertificateProvisioningService($service),
+            $proxyUpdater,
             new SettingsService($pdo),
             new PageService($pdo),
             $marketingDomainProvider
@@ -67,6 +71,7 @@ class AdminDomainStartPageControllerTest extends TestCase
             $response = $controller->createMarketingDomain($request, new Response());
         } finally {
             Migrator::setHook(null);
+            @unlink($envFile);
         }
 
         $this->assertSame(201, $response->getStatusCode());
@@ -93,10 +98,12 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $pdo = $this->getDatabase();
         $service = new DomainStartPageService($pdo);
+        [$envFile, $proxyUpdater] = $this->buildProxyUpdater($service);
         $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
         $controller = new DomainStartPageController(
             $service,
             new CertificateProvisioningService($service),
+            $proxyUpdater,
             new SettingsService($pdo),
             new PageService($pdo),
             $marketingDomainProvider
@@ -118,6 +125,7 @@ class AdminDomainStartPageControllerTest extends TestCase
             $response = $controller->deleteMarketingDomain($request, new Response(), ['id' => (string) $created['id']]);
         } finally {
             Migrator::setHook(null);
+            @unlink($envFile);
         }
 
         $this->assertSame(200, $response->getStatusCode());
@@ -139,10 +147,12 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $pdo = $this->getDatabase();
         $service = new DomainStartPageService($pdo);
+        [$envFile, $proxyUpdater] = $this->buildProxyUpdater($service);
         $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
         $controller = new DomainStartPageController(
             $service,
             new CertificateProvisioningService($service),
+            $proxyUpdater,
             new SettingsService($pdo),
             new PageService($pdo),
             $marketingDomainProvider
@@ -170,6 +180,7 @@ class AdminDomainStartPageControllerTest extends TestCase
             $response = $controller->updateMarketingDomain($request, new Response(), ['id' => (string) $created['id']]);
         } finally {
             Migrator::setHook(null);
+            @unlink($envFile);
         }
 
         $this->assertSame(200, $response->getStatusCode());
@@ -189,10 +200,12 @@ class AdminDomainStartPageControllerTest extends TestCase
 
         $pdo = $this->getDatabase();
         $service = new DomainStartPageService($pdo);
+        [$envFile, $proxyUpdater] = $this->buildProxyUpdater($service);
         $marketingDomainProvider = new TrackingMarketingDomainProvider(static fn (): PDO => $pdo, 0);
         $controller = new DomainStartPageController(
             $service,
             new CertificateProvisioningService($service),
+            $proxyUpdater,
             new SettingsService($pdo),
             new PageService($pdo),
             $marketingDomainProvider
@@ -216,6 +229,7 @@ class AdminDomainStartPageControllerTest extends TestCase
             $response = $controller->reconcileMarketingDomains($request, new Response());
         } finally {
             Migrator::setHook(null);
+            @unlink($envFile);
         }
 
         $this->assertSame(200, $response->getStatusCode());
@@ -238,6 +252,28 @@ class AdminDomainStartPageControllerTest extends TestCase
             ':host' => $host,
             ':normalized' => $normalized,
         ]);
+    }
+
+    /**
+     * @return array{0:string,1:ReverseProxyHostUpdater}
+     */
+    private function buildProxyUpdater(DomainStartPageService $service): array
+    {
+        $envFile = tempnam(sys_get_temp_dir(), 'quiz-env-');
+        if ($envFile === false) {
+            throw new \RuntimeException('Unable to create a temporary environment file.');
+        }
+
+        if (file_put_contents($envFile, '') === false) {
+            throw new \RuntimeException('Unable to initialize temporary environment file.');
+        }
+
+        putenv('NGINX_RELOAD=0');
+        $_ENV['NGINX_RELOAD'] = '0';
+
+        $updater = new ReverseProxyHostUpdater($service, new NginxService(), $envFile);
+
+        return [$envFile, $updater];
     }
 
     private function bootMinimalSchema(): void

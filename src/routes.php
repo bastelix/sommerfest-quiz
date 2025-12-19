@@ -67,6 +67,7 @@ use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingDomainProvider;
 use App\Service\CertificateProvisioningService;
+use App\Service\ReverseProxyHostUpdater;
 use App\Service\UsernameBlocklistService;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
@@ -483,6 +484,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainStartPageService = new DomainStartPageService($pdo);
         $certificateProvisioner = new CertificateProvisioningService($domainStartPageService);
+        $reverseProxyHostUpdater = new ReverseProxyHostUpdater($domainStartPageService, $nginxService);
         $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
@@ -590,6 +592,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 new DomainStartPageController(
                     $domainStartPageService,
                     $certificateProvisioner,
+                    $reverseProxyHostUpdater,
                     $settingsService,
                     $pageService,
                     $marketingDomainProvider
