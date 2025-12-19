@@ -1,0 +1,284 @@
+{
+  "presets": [
+    {
+      "preset": "admin",
+      "category": "Admin",
+      "entries": [
+        {
+          "term": "admin",
+          "source": "https://docs.github.com/en/get-started/getting-started-with-github/reserved-names",
+          "notes": "GitHub reserviert den Login-Namen für interne Zwecke."
+        },
+        {
+          "term": "administrator",
+          "source": "https://docs.gitlab.com/ee/user/profile/reserved_names.html",
+          "notes": "GitLab führt „administrator“ als gesperrten Kontonamen."
+        },
+        {
+          "term": "root",
+          "source": "https://docs.github.com/en/get-started/getting-started-with-github/reserved-names",
+          "notes": "Standardkonto mit höchsten Rechten; vielerorts gesperrt."
+        },
+        {
+          "term": "superuser",
+          "source": "https://docs.gitlab.com/ee/user/profile/reserved_names.html",
+          "notes": "GitLab bezeichnet den Begriff als reservierten Namen."
+        },
+        {
+          "term": "moderator",
+          "source": "https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names",
+          "notes": "Discord blockiert Begriffe, die offizielle Rollen vortäuschen."
+        },
+        {
+          "term": "sysadmin",
+          "source": "https://en.wikipedia.org/wiki/System_administrator",
+          "notes": "Bezeichnet Systemadministration; häufig als Konto- oder Rollenname geschützt."
+        },
+        {
+          "term": "operator",
+          "source": "https://en.wikipedia.org/wiki/Computer_operator",
+          "notes": "Historische Admin-Rolle in Rechenzentren; wird oft für Systemkonten genutzt."
+        },
+        {
+          "term": "staff",
+          "source": "https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names",
+          "notes": "„Staff“ impliziert offizielles Plattformpersonal."
+        },
+        {
+          "term": "owner",
+          "source": "https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names",
+          "notes": "„Owner“ suggeriert Betreiber- oder Administrationsrechte."
+        },
+        {
+          "term": "team",
+          "source": "https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names",
+          "notes": "„Team“ kann eine offizielle Rolle vortäuschen."
+        }
+      ]
+    },
+    {
+      "preset": "general",
+      "category": "Allgemein",
+      "entries": [
+        {
+          "term": "support",
+          "source": "https://learn.microsoft.com/azure/active-directory/enterprise-users/users-restricted-azure-ad",
+          "notes": "Microsoft reserviert den Namen für Support-Adressen zur Vermeidung von Verwechslungen."
+        },
+        {
+          "term": "info",
+          "source": "https://learn.microsoft.com/azure/active-directory/enterprise-users/users-restricted-azure-ad",
+          "notes": "Gehört zu den von Microsoft gesperrten Standardkonten."
+        },
+        {
+          "term": "helpdesk",
+          "source": "https://help.salesforce.com/s/articleView?id=sf.admin_reserved_words_usernames.htm",
+          "notes": "Salesforce weist den Begriff als reservierten Benutzername aus."
+        },
+        {
+          "term": "mail",
+          "source": "https://developers.google.com/admin-sdk/directory/v1/guides/reserved-ids",
+          "notes": "Google Workspace dokumentiert „mail“ als reserviertes Alias."
+        },
+        {
+          "term": "webmaster",
+          "source": "https://learn.microsoft.com/azure/active-directory/enterprise-users/users-restricted-azure-ad",
+          "notes": "In vielen Diensten als Systemkonto vorbehalten."
+        },
+        {
+          "term": "postmaster",
+          "source": "https://www.rfc-editor.org/rfc/rfc2142",
+          "notes": "RFC 2142 reserviert Standard-Mailboxen für Postmaster."
+        },
+        {
+          "term": "hostmaster",
+          "source": "https://www.rfc-editor.org/rfc/rfc2142",
+          "notes": "RFC 2142 definiert Hostmaster-Kontakte für Domainbetrieb."
+        },
+        {
+          "term": "abuse",
+          "source": "https://www.rfc-editor.org/rfc/rfc2142",
+          "notes": "RFC 2142 legt „abuse“ als Standardkontakt für Missbrauchsmeldungen fest."
+        },
+        {
+          "term": "mailer-daemon",
+          "source": "https://www.rfc-editor.org/rfc/rfc2142",
+          "notes": "RFC 2142 beschreibt Mailer-Daemon-Adressen für Zustellfehler."
+        },
+        {
+          "term": "noc",
+          "source": "https://www.rfc-editor.org/rfc/rfc2142",
+          "notes": "RFC 2142 empfiehlt „noc“ als Kontakt für Network Operations Center."
+        }
+      ]
+    },
+    {
+      "preset": "ns_symbols",
+      "category": "§86a/NS-Bezug",
+      "entries": [
+        {
+          "term": "hakenkreuz",
+          "source": "https://de.wikipedia.org/wiki/Hakenkreuz",
+          "notes": "Symbol verboten nach §86a StGB in Deutschland."
+        },
+        {
+          "term": "ss-rune",
+          "source": "https://de.wikipedia.org/wiki/Siegrune",
+          "notes": "Doppelrune der Schutzstaffel; Verwendung in Deutschland strafbar."
+        },
+        {
+          "term": "reichskriegsflagge",
+          "source": "https://de.wikipedia.org/wiki/Reichskriegsflagge",
+          "notes": "Historische Flagge, die von rechtsextremen Gruppen genutzt wird."
+        },
+        {
+          "term": "88",
+          "source": "https://www.adl.org/resources/hate-symbol/88",
+          "notes": "Zahlencode steht für „Heil Hitler“ in rechtsextremer Szene."
+        },
+        {
+          "term": "14/88",
+          "source": "https://www.adl.org/resources/hate-symbol/1488",
+          "notes": "Kombination verbreiteter Neonazi-Zahlen-Codes."
+        },
+        {
+          "term": "schwarze sonne",
+          "source": "https://de.wikipedia.org/wiki/Schwarze_Sonne_(Symbol)",
+          "notes": "Esoterisches Symbol, das in rechtsextremen Kontexten verwendet wird."
+        },
+        {
+          "term": "wolfsangel",
+          "source": "https://de.wikipedia.org/wiki/Wolfsangel",
+          "notes": "Historisches Zeichen, das von rechtsextremen Gruppen genutzt wird."
+        },
+        {
+          "term": "odalsrune",
+          "source": "https://de.wikipedia.org/wiki/Odalrune",
+          "notes": "Rune, die von NS-Organisationen eingesetzt wurde."
+        },
+        {
+          "term": "totenkopf",
+          "source": "https://de.wikipedia.org/wiki/Totenkopf",
+          "notes": "Symbol der SS-Totenkopfverbände; rechtsextreme Nutzung dokumentiert."
+        },
+        {
+          "term": "siegrune",
+          "source": "https://de.wikipedia.org/wiki/Siegrune",
+          "notes": "Einzelne Siegrune als NS-Bezug; in Neonazi-Symbolik verbreitet."
+        }
+      ]
+    },
+    {
+      "preset": "nsfw",
+      "category": "NSFW",
+      "entries": [
+        {
+          "term": "pornhub",
+          "source": "https://en.wikipedia.org/wiki/Pornhub",
+          "notes": "International pornographic video platform; commonly filtered in youth protection contexts."
+        },
+        {
+          "term": "onlyfans",
+          "source": "https://en.wikipedia.org/wiki/OnlyFans",
+          "notes": "Subscription-based adult content service referenced in Jugendschutz guidelines."
+        },
+        {
+          "term": "xvideos",
+          "source": "https://en.wikipedia.org/wiki/XVideos",
+          "notes": "Adult video sharing site listed among major pornographic services."
+        },
+        {
+          "term": "redtube",
+          "source": "https://en.wikipedia.org/wiki/RedTube",
+          "notes": "Pornographic video streaming portal."
+        },
+        {
+          "term": "cam4",
+          "source": "https://en.wikipedia.org/wiki/Cam4",
+          "notes": "Live webcam site categorized as adult entertainment."
+        },
+        {
+          "term": "xnxx",
+          "source": "https://en.wikipedia.org/wiki/XNXX",
+          "notes": "Großer Anbieter für pornografische Streaming-Inhalte."
+        },
+        {
+          "term": "youporn",
+          "source": "https://en.wikipedia.org/wiki/YouPorn",
+          "notes": "Pornografisches Videoportal mit großer Reichweite."
+        },
+        {
+          "term": "brazzers",
+          "source": "https://en.wikipedia.org/wiki/Brazzers",
+          "notes": "Kommerzielle Marke für Erwachsenenunterhaltung."
+        },
+        {
+          "term": "chaturbate",
+          "source": "https://en.wikipedia.org/wiki/Chaturbate",
+          "notes": "Live-Streaming-Plattform für Erwachsenen-Inhalte."
+        },
+        {
+          "term": "livejasmin",
+          "source": "https://en.wikipedia.org/wiki/LiveJasmin",
+          "notes": "Live-Cam-Plattform im Erwachsenenbereich."
+        }
+      ]
+    },
+    {
+      "preset": "slur",
+      "category": "Beleidigung/Slur",
+      "entries": [
+        {
+          "term": "neger",
+          "source": "https://www.dw.com/de/warum-das-n-wort-rassistisch-ist/a-56702067",
+          "notes": "Historisch belasteter rassistischer Ausdruck laut Deutscher Welle."
+        },
+        {
+          "term": "zigeuner",
+          "source": "https://www.sintiundroma.de/antiziganismus/zigeuner-ist-und-bleibt-eine-beleidigung/",
+          "notes": "Zentralrat Deutscher Sinti und Roma ordnet den Begriff als diskriminierend ein."
+        },
+        {
+          "term": "kanake",
+          "source": "https://www.bpb.de/shop/zeitschriften/apuz/32463/kanak-attack/",
+          "notes": "Bundeszentrale für politische Bildung beschreibt die Nutzung als fremdenfeindliche Beschimpfung."
+        },
+        {
+          "term": "schwarzfahrer",
+          "source": "https://www.amnesty.de/informieren/hintergrund/rassismus/warum-der-begriff-schwarzfahren-rassistisch-ist",
+          "notes": "Amnesty International erklärt den Begriff als rassistisch konnotiert."
+        },
+        {
+          "term": "spast",
+          "source": "https://www.aktion-mensch.de/magazin/gesellschaft-und-vielfalt/sprache/warum-das-wort-spasti-nicht-ok-ist",
+          "notes": "Aktion Mensch stuft den Ausdruck als behindertenfeindliche Beleidigung ein."
+        },
+        {
+          "term": "schwuchtel",
+          "source": "https://www.duden.de/rechtschreibung/schwuchtel",
+          "notes": "Duden markiert den Ausdruck als derb abwertend gegenüber homosexuellen Männern."
+        },
+        {
+          "term": "krüppel",
+          "source": "https://www.duden.de/rechtschreibung/Kruppel",
+          "notes": "Duden kennzeichnet den Begriff als abwertend für Menschen mit Behinderung."
+        },
+        {
+          "term": "missgeburt",
+          "source": "https://www.duden.de/rechtschreibung/Missgeburt",
+          "notes": "Duden weist die Nutzung als beleidigend aus."
+        },
+        {
+          "term": "tunte",
+          "source": "https://www.duden.de/rechtschreibung/Tunte",
+          "notes": "Duden beschreibt den Begriff als abwertend."
+        },
+        {
+          "term": "fotze",
+          "source": "https://www.duden.de/rechtschreibung/Fotze",
+          "notes": "Duden markiert den Ausdruck als vulgär und beleidigend."
+        }
+      ]
+    }
+  ]
+}

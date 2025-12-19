@@ -4,3 +4,8 @@ administrator,https://docs.gitlab.com/ee/user/profile/reserved_names.html,"GitLa
 root,https://docs.github.com/en/get-started/getting-started-with-github/reserved-names,"Standardkonto mit höchsten Rechten; vielerorts gesperrt."
 superuser,https://docs.gitlab.com/ee/user/profile/reserved_names.html,"GitLab bezeichnet den Begriff als reservierten Namen."
 moderator,https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names,"Discord blockiert Begriffe, die offizielle Rollen vortäuschen."
+sysadmin,https://en.wikipedia.org/wiki/System_administrator,"Bezeichnet Systemadministration; häufig als Konto- oder Rollenname geschützt."
+operator,https://en.wikipedia.org/wiki/Computer_operator,"Historische Admin-Rolle in Rechenzentren; wird oft für Systemkonten genutzt."
+staff,https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names,"„Staff“ impliziert offizielles Plattformpersonal."
+owner,https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names,"„Owner“ suggeriert Betreiber- oder Administrationsrechte."
+team,https://support.discord.com/hc/en-us/articles/115001542132-Restricted-Names,"„Team“ kann eine offizielle Rolle vortäuschen."
