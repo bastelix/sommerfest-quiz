@@ -183,6 +183,8 @@ final class UsernameBlocklistController
             return $this->jsonError($response, $this->translate('error_username_blocklist_import_invalid'), 422);
         }
 
+        $rows = $this->mapPresetEntriesToAdmin($rows);
+
         try {
             $this->service->importEntries($rows);
         } catch (InvalidArgumentException) {
@@ -404,6 +406,21 @@ final class UsernameBlocklistController
         }
 
         return $rows;
+    }
+
+    /**
+     * @param list<array{term:string,category:string}> $rows
+     * @return list<array{term:string,category:string}>
+     */
+    private function mapPresetEntriesToAdmin(array $rows): array
+    {
+        return array_map(
+            static fn (array $row): array => [
+                'term' => $row['term'],
+                'category' => UsernameBlocklistService::ADMIN_CATEGORY,
+            ],
+            $rows
+        );
     }
 
     /**

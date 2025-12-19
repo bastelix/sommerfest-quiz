@@ -108,7 +108,7 @@ return [
     'message_marketing_newsletter_error' => 'Unable to save newsletter CTAs.',
     'message_username_blocklist_created' => '"%s" was added to the blocklist.',
     'message_username_blocklist_deleted' => '"%s" was removed from the blocklist.',
-    'message_username_blocklist_imported' => 'Imported %1$d usernames from the %2$s preset.',
+    'message_username_blocklist_imported' => 'Imported %1$d usernames from the %2$s preset into the admin blocklist.',
     'error_marketing_newsletter_invalid_slug' => 'Please provide a slug.',
     'error_username_blocklist_invalid' => 'Please enter a valid username (at least 3 characters).',
     'error_username_blocklist_duplicate' => 'This username is already blocked.',

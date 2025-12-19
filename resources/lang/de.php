@@ -108,7 +108,7 @@ return [
     'message_marketing_newsletter_error' => 'Newsletter-CTAs konnten nicht gespeichert werden.',
     'message_username_blocklist_created' => '„%s“ wurde zur Sperrliste hinzugefügt.',
     'message_username_blocklist_deleted' => '„%s“ wurde aus der Sperrliste entfernt.',
-    'message_username_blocklist_imported' => 'Es wurden %1$d Nutzernamen aus dem Preset %2$s importiert.',
+    'message_username_blocklist_imported' => 'Es wurden %1$d Nutzernamen aus dem Preset %2$s in die Admin-Sperrliste importiert.',
     'error_marketing_newsletter_invalid_slug' => 'Bitte einen Slug angeben.',
     'error_username_blocklist_invalid' => 'Bitte einen gültigen Nutzernamen angeben (mindestens 3 Zeichen).',
     'error_username_blocklist_duplicate' => 'Dieser Nutzername ist bereits gesperrt.',
