@@ -55,4 +55,3 @@ final class MigrationRuntime
         return $normalised !== '' && in_array($normalised, ['1', 'true', 'yes', 'on'], true);
     }
 }
-

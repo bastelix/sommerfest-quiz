@@ -28,7 +28,7 @@ class LandingNewsControllerTest extends TestCase
 
         $newsStmt = $pdo->prepare(
             'INSERT INTO landing_news (page_id, slug, title, excerpt, content, published_at, is_published) '
-            . 'VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)' 
+            . 'VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)'
         );
         $newsStmt->execute([
             $pageId,

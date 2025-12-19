@@ -237,4 +237,3 @@ final class DomainDocumentStorageTest extends TestCase
         rmdir($path);
     }
 }
-

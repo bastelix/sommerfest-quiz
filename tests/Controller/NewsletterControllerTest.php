@@ -64,4 +64,3 @@ class NewsletterControllerTest extends TestCase
         $this->assertStringContainsString('href="/calserver"', $body, 'Fallback link should point to the resolved slug.');
     }
 }
-

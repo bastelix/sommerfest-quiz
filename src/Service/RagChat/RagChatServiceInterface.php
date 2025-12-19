@@ -8,4 +8,3 @@ interface RagChatServiceInterface
 {
     public function answer(string $question, string $locale = 'de', ?string $domain = null): RagChatResponse;
 }
-

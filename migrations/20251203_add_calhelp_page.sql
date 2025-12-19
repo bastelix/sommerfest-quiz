@@ -253,7 +253,7 @@ VALUES (
     ]
   }
   </script>
-  
+
   <section id="benefits" class="uk-section uk-section-muted calhelp-section" aria-labelledby="benefits-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -276,7 +276,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="process" class="uk-section calhelp-section" aria-labelledby="process-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -514,7 +514,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="comparison" class="uk-section uk-section-muted calhelp-section" aria-labelledby="comparison-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -801,7 +801,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <script type="application/json" data-calhelp-usecases>
   {
     "usecases": [
@@ -1009,7 +1009,7 @@ VALUES (
   }
   </script>
   <div data-calhelp-usecases></div>
-  
+
   <section id="proof" class="uk-section calhelp-section" aria-labelledby="proof-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1158,7 +1158,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="services" class="uk-section uk-section-muted calhelp-section" aria-labelledby="services-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1189,7 +1189,7 @@ VALUES (
       </aside>
     </div>
   </section>
-  
+
   <section id="cases" class="uk-section calhelp-section" aria-labelledby="cases-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1266,7 +1266,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="demo" class="uk-section calhelp-section" aria-labelledby="demo-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1297,7 +1297,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="about" class="uk-section uk-section-muted calhelp-section" aria-labelledby="about-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1319,7 +1319,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="news" class="uk-section calhelp-section" aria-labelledby="news-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1389,7 +1389,7 @@ VALUES (
       </section>
     </div>
   </section>
-  
+
   <section id="faq" class="uk-section uk-section-muted calhelp-section" aria-labelledby="faq-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1415,7 +1415,7 @@ VALUES (
       </dl>
     </div>
   </section>
-  
+
   <section id="cta" class="uk-section calhelp-section calhelp-cta" aria-labelledby="cta-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
@@ -1431,7 +1431,7 @@ VALUES (
       </div>
     </div>
   </section>
-  
+
   <section id="seo" class="uk-section uk-section-muted calhelp-section" aria-labelledby="seo-title">
     <div class="uk-container">
       <div class="calhelp-section__header">

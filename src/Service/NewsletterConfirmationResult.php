@@ -49,4 +49,3 @@ final class NewsletterConfirmationResult
         return $this->metadata;
     }
 }
-

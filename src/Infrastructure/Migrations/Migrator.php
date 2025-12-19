@@ -66,8 +66,15 @@ class Migrator
                 continue;
             }
 
+            $shouldStripOnboardingAlter = self::shouldStripOnboardingStateAlter($pdo, $sql);
+            if ($shouldStripOnboardingAlter) {
+                $sql = self::stripOnboardingStateAlter($sql);
+            }
+
             try {
-                $pdo->exec($sql);
+                if (trim($sql) !== '') {
+                    $pdo->exec($sql);
+                }
             } catch (PDOException $e) {
                 if (self::shouldIgnoreOnboardingStateDuplicate($pdo, $sql, $e)) {
                     self::finalizeOnboardingStateMigration($pdo);
@@ -157,6 +164,45 @@ SQL
         }
 
         return $stmt->fetchColumn() !== false;
+    }
+
+    private static function shouldStripOnboardingStateAlter(PDO $pdo, string $sql): bool
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return false;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (str_contains($normalizedSql, 'add column onboarding_state') === false ||
+            str_contains($normalizedSql, 'alter table tenants') === false) {
+            return false;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'tenants'
+                  AND column_name = 'onboarding_state'
+            SQL);
+        } catch (Throwable) {
+            return false;
+        }
+
+        if ($stmt === false) {
+            return false;
+        }
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    private static function stripOnboardingStateAlter(string $sql): string
+    {
+        $pattern = '/^\\s*ALTER\\s+TABLE\\s+tenants\\s+ADD\\s+COLUMN\\s+onboarding_state\\b[^;]*;?/mi';
+        $updated = preg_replace($pattern, '', $sql);
+
+        return $updated ?? $sql;
     }
 
     private static function finalizeOnboardingStateMigration(PDO $pdo): void
