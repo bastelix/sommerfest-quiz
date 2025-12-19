@@ -37,6 +37,23 @@ body[data-theme="dark"].high-contrast{
   --topbar-focus-ring: rgba(140,200,255,0.8);
 }
 
+.topbar{
+  --topbar-height: 40px;
+}
+
+.admin-page .topbar{
+  --topbar-height: 48px;
+}
+
+.topbar.uk-navbar-container,
+.topbar .uk-navbar,
+.topbar .uk-navbar-container,
+.topbar .uk-navbar-item{
+  min-height: var(--topbar-height);
+  height: var(--topbar-height);
+  align-items: center;
+}
+
 /* Buttons in der Topbar */
 .topbar .uk-button,
 .topbar .uk-navbar-nav>li>a{
@@ -74,7 +91,11 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
   color: var(--topbar-text, var(--qr-fg));
 }
 .git-btn{
-  width:40px;height:40px;padding:0;
+  width:var(--topbar-height);
+  height:var(--topbar-height);
+  min-width:var(--topbar-height);
+  min-height:var(--topbar-height);
+  padding:0;
   border-radius:6px;
   border:1px solid var(--topbar-btn-border);
   color:var(--topbar-text);
@@ -103,10 +124,10 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 }
 
 .admin-page .topbar .config-menu #configMenuToggle.git-btn{
-  width:48px;
-  height:48px;
-  min-width:48px;
-  min-height:48px;
+  width:var(--topbar-height);
+  height:var(--topbar-height);
+  min-width:var(--topbar-height);
+  min-height:var(--topbar-height);
   line-height:1;
   padding:0;
 }
@@ -120,9 +141,9 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 }
 .git-btn svg{width:24px;height:24px;}
 .uk-navbar-toggle.git-btn{
-  width:40px;
-  height:40px;
-  min-height:40px;
+  width:var(--topbar-height);
+  height:var(--topbar-height);
+  min-height:var(--topbar-height);
   padding:0;
   aspect-ratio:1/1;
 }
