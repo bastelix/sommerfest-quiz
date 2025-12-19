@@ -1,0 +1,56 @@
+<nav class="uk-navbar-container" uk-navbar>
+  <div class="uk-navbar-left">
+    <div class="uk-navbar-item">
+      <button id="offcanvas-toggle"
+              class="uk-navbar-toggle uk-hidden@m git-btn"
+              uk-navbar-toggle-icon
+              uk-toggle="target: #qr-offcanvas"
+              aria-controls="qr-offcanvas"
+              aria-expanded="false"
+              aria-label="Menü"></button>
+      <a class="uk-logo" href="landing">QuizRace</a>
+    </div>
+  </div>
+  <div class="uk-navbar-right">
+    <ul class="uk-navbar-nav uk-visible@m">
+      <li>
+        <a href="#innovations">
+          <span class="uk-margin-small-right" uk-icon="icon: star"></span>Innovationen
+        </a>
+      </li>
+      <li>
+        <a href="#how-it-works">
+          <span class="uk-margin-small-right" uk-icon="icon: settings"></span>So funktioniert’s
+        </a>
+      </li>
+      <li>
+        <a href="#scenarios">
+          <span class="uk-margin-small-right" uk-icon="icon: thumbnails"></span>Szenarien
+        </a>
+      </li>
+      <li>
+        <a href="#pricing">
+          <span class="uk-margin-small-right" uk-icon="icon: credit-card"></span>Preise
+        </a>
+      </li>
+      <li>
+        <a href="#faq">
+          <span class="uk-margin-small-right" uk-icon="icon: question"></span>FAQ
+        </a>
+      </li>
+      <li>
+        <a href="#contact-us">
+          <span class="uk-margin-small-right" uk-icon="icon: mail"></span>Kontakt
+        </a>
+      </li>
+      {{ marketing_wiki_link }}
+    </ul>
+    <a class="uk-navbar-item btn btn-black top-cta uk-visible@m"
+       href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ"
+       target="_blank"
+       rel="noopener">
+      <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+    </a>
+    {{ config_menu }}
+  </div>
+</nav>

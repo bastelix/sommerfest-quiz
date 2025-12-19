@@ -74,6 +74,7 @@ use App\Infrastructure\Migrations\MigrationRuntime;
 use App\Support\DomainNameHelper;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
+use App\Application\Middleware\AdminAuthMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
 use App\Controller\ResultController;
@@ -1816,6 +1817,29 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller->confirm($request, $response);
     });
+
+    $app->post('/api/save-header', function (Request $request, Response $response): Response {
+        $data = json_decode((string) $request->getBody(), true);
+        $html = is_array($data) ? ($data['html'] ?? '') : '';
+        if (!is_string($html)) {
+            return $response->withStatus(400);
+        }
+
+        $filePath = dirname(__DIR__) . '/content/header.html';
+        $directory = dirname($filePath);
+        if (!is_dir($directory) || !is_writable($directory)) {
+            return $response->withStatus(500);
+        }
+
+        $written = file_put_contents($filePath, $html, LOCK_EX);
+        if ($written === false) {
+            return $response->withStatus(500);
+        }
+
+        $response->getBody()->write((string) json_encode(['status' => 'ok']));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new AdminAuthMiddleware())->add(new CsrfMiddleware());
 
     $app->delete('/api/player-contact', function (Request $request, Response $response) {
         /** @var PlayerContactController|null $controller */
