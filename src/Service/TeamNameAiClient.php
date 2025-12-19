@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Service\RagChat\HttpChatResponder;
+use App\Support\UsernameGuard;
 use DateTimeImmutable;
 use DateTimeZone;
+use PDO;
+use PDOException;
 use RuntimeException;
 
 use function array_filter;
+use function array_fill;
 use function array_key_exists;
 use function array_map;
 use function array_merge;
@@ -70,16 +74,26 @@ class TeamNameAiClient
 
     private ?string $model;
 
+    private ?PDO $pdo;
+
+    /**
+     * @var list<string>
+     */
+    private array $databaseBlockedTerms = [];
+
+    private bool $databaseLoaded = false;
+
     private ?DateTimeImmutable $lastResponseAt = null;
 
     private ?DateTimeImmutable $lastSuccessAt = null;
 
     private ?string $lastError = null;
 
-    public function __construct(HttpChatResponder $chatResponder, ?string $model = null)
+    public function __construct(HttpChatResponder $chatResponder, ?string $model = null, ?PDO $pdo = null)
     {
         $this->chatResponder = $chatResponder;
         $this->model = $model !== null && trim($model) !== '' ? trim($model) : null;
+        $this->pdo = $pdo;
     }
 
     /**
@@ -595,7 +609,7 @@ class TeamNameAiClient
 
     private function containsBlockedContent(string $lower): bool
     {
-        foreach (self::BLOCKED_SUBSTRINGS as $blocked) {
+        foreach ($this->getBlacklistTerms() as $blocked) {
             if (str_contains($lower, $blocked)) {
                 return true;
             }
@@ -753,7 +767,55 @@ class TeamNameAiClient
 
     private function formatBlacklistTerms(): string
     {
-        return implode(', ', self::BLOCKED_SUBSTRINGS);
+        return implode(', ', $this->getBlacklistTerms());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getBlacklistTerms(): array
+    {
+        $this->loadDatabaseBlockedTerms();
+
+        return array_values(array_unique(array_merge(self::BLOCKED_SUBSTRINGS, $this->databaseBlockedTerms)));
+    }
+
+    private function loadDatabaseBlockedTerms(): void
+    {
+        if ($this->databaseLoaded || $this->pdo === null) {
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count(UsernameGuard::DATABASE_CATEGORIES), '?'));
+        $sql = sprintf('SELECT term FROM username_blocklist WHERE category IN (%s)', $placeholders);
+
+        $stmt = $this->pdo->prepare($sql);
+        if ($stmt === false) {
+            $this->databaseLoaded = true;
+            return;
+        }
+
+        try {
+            $stmt->execute(UsernameGuard::DATABASE_CATEGORIES);
+        } catch (PDOException) {
+            $this->databaseLoaded = true;
+            return;
+        }
+
+        $terms = [];
+        while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
+            $term = mb_strtolower(trim((string) ($row['term'] ?? '')));
+            if ($term === '') {
+                continue;
+            }
+            $terms[] = $term;
+        }
+
+        if ($terms !== []) {
+            $this->databaseBlockedTerms = array_values(array_unique($terms));
+        }
+
+        $this->databaseLoaded = true;
     }
 
     private const STOP_WORDS = [

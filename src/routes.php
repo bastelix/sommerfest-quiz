@@ -449,7 +449,8 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             $teamNameAiClient = new TeamNameAiClient(
                 $teamNameAiResponder,
-                $modelEnv
+                $modelEnv,
+                $pdo
             );
         } catch (\RuntimeException $exception) {
             $teamNameAiClient = null;
