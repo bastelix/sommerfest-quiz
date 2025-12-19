@@ -8,6 +8,7 @@ use App\Service\CertificateProvisioningService;
 use App\Service\DomainStartPageService;
 use App\Service\MarketingDomainProvider;
 use App\Service\PageService;
+use App\Service\ReverseProxyHostUpdater;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Support\DomainNameHelper;
@@ -22,6 +23,7 @@ class DomainStartPageController
 {
     private DomainStartPageService $domainService;
     private CertificateProvisioningService $certificateProvisioner;
+    private ReverseProxyHostUpdater $reverseProxyHostUpdater;
     private SettingsService $settingsService;
 
     private PageService $pageService;
@@ -31,12 +33,14 @@ class DomainStartPageController
     public function __construct(
         DomainStartPageService $domainService,
         CertificateProvisioningService $certificateProvisioner,
+        ReverseProxyHostUpdater $reverseProxyHostUpdater,
         SettingsService $settingsService,
         PageService $pageService,
         MarketingDomainProvider $marketingDomainProvider
     ) {
         $this->domainService = $domainService;
         $this->certificateProvisioner = $certificateProvisioner;
+        $this->reverseProxyHostUpdater = $reverseProxyHostUpdater;
         $this->settingsService = $settingsService;
         $this->pageService = $pageService;
         $this->marketingDomainProvider = $marketingDomainProvider;
@@ -182,6 +186,7 @@ class DomainStartPageController
 
         try {
             $domain = $this->domainService->createMarketingDomain($host, $label);
+            $this->reverseProxyHostUpdater->persistMarketingDomain($domain['host']);
             $this->certificateProvisioner->provisionMarketingDomain($domain['host']);
         } catch (InvalidArgumentException $exception) {
             $message = $translationService?->translate('notify_domain_contact_template_invalid_domain')
@@ -191,6 +196,14 @@ class DomainStartPageController
             return $response
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(422);
+        } catch (\RuntimeException $exception) {
+            $message = $translationService?->translate('notify_domain_proxy_update_failed')
+                ?? 'Failed to update reverse proxy configuration. Please check the server logs.';
+            $response->getBody()->write(json_encode(['error' => $message]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
         }
 
         $this->refreshMarketingDomainCache();
