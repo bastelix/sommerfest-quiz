@@ -13,6 +13,7 @@ use RuntimeException;
 use InvalidArgumentException;
 use function array_key_exists;
 use function array_map;
+use function ctype_digit;
 use function mb_strlen;
 use function mb_strtolower;
 use function trim;
@@ -87,11 +88,12 @@ class UsernameBlocklistService
 
     /**
      * @param list<array<string,mixed>|mixed> $rows
+     * @return array{entries:list<array{term:string,category:string}>,skipped:int,warnings:list<string>}
      */
-    public function importEntries(array $rows): void
+    public function importEntries(array $rows, bool $allowNumericShortTerms = false): array
     {
         if ($rows === []) {
-            return;
+            return ['entries' => [], 'skipped' => 0, 'warnings' => []];
         }
 
         $categoryMap = [];
@@ -100,36 +102,19 @@ class UsernameBlocklistService
         }
 
         $normalized = [];
+        $warnings = [];
+        $skipped = 0;
         foreach ($rows as $index => $row) {
-            if (!is_array($row)) {
-                throw new InvalidArgumentException(sprintf('Row %d must be an array with term and category.', $index));
+            $error = null;
+            $normalizedRow = $this->normalizeImportRow($row, $index, $categoryMap, $allowNumericShortTerms, $error);
+            if ($normalizedRow === null) {
+                $warnings[] = $error ?? sprintf('Row %d could not be imported.', $index);
+                $skipped++;
+                continue;
             }
 
-            if (!array_key_exists('term', $row) || !array_key_exists('category', $row)) {
-                throw new InvalidArgumentException(sprintf('Row %d must contain "term" and "category" keys.', $index));
-            }
-
-            $termRaw = $row['term'];
-            if (!is_string($termRaw)) {
-                throw new InvalidArgumentException(sprintf('Row %d has an invalid term value.', $index));
-            }
-
-            $term = mb_strtolower(trim($termRaw));
-            if ($term === '' || mb_strlen($term) < 3) {
-                throw new InvalidArgumentException(sprintf('Row %d must contain a term with at least three characters.', $index));
-            }
-
-            $categoryRaw = $row['category'];
-            if (!is_string($categoryRaw)) {
-                throw new InvalidArgumentException(sprintf('Row %d has an invalid category value.', $index));
-            }
-
-            $categoryKey = mb_strtolower(trim($categoryRaw));
-            if ($categoryKey === '' || !array_key_exists($categoryKey, $categoryMap)) {
-                throw new InvalidArgumentException(sprintf('Row %d references an unknown category "%s".', $index, trim((string) $categoryRaw)));
-            }
-
-            $category = $categoryMap[$categoryKey];
+            $term = $normalizedRow['term'];
+            $category = $normalizedRow['category'];
             $normalized[$category][$term] = $term;
         }
 
@@ -138,6 +123,10 @@ class UsernameBlocklistService
             foreach ($terms as $term) {
                 $entries[] = ['term' => $term, 'category' => $category];
             }
+        }
+
+        if ($entries === []) {
+            return ['entries' => [], 'skipped' => $skipped, 'warnings' => $warnings];
         }
 
         $statement = $this->pdo->prepare(
@@ -168,6 +157,8 @@ class UsernameBlocklistService
 
             throw new RuntimeException('Failed to import username blocklist entries.', 0, $exception);
         }
+
+        return ['entries' => $entries, 'skipped' => $skipped, 'warnings' => $warnings];
     }
 
     public function remove(int $id): ?array
@@ -203,6 +194,83 @@ class UsernameBlocklistService
         $stmt->execute([$term, self::ADMIN_CATEGORY]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row === false ? null : $this->hydrateRow($row);
+    }
+
+    /**
+     * @param array<string,string> $categoryMap
+     * @return array{term:string,category:string}|null
+     */
+    private function normalizeImportRow(
+        mixed $row,
+        int $index,
+        array $categoryMap,
+        bool $allowNumericShortTerms,
+        ?string &$error
+    ): ?array {
+        if (!is_array($row)) {
+            $error = sprintf('Row %d must be an array with term and category.', $index);
+            return null;
+        }
+
+        if (!array_key_exists('term', $row) || !array_key_exists('category', $row)) {
+            $error = sprintf('Row %d must contain "term" and "category" keys.', $index);
+            return null;
+        }
+
+        $termRaw = $row['term'];
+        if (!is_string($termRaw)) {
+            $error = sprintf('Row %d has an invalid term value.', $index);
+            return null;
+        }
+
+        $term = mb_strtolower(trim($termRaw));
+        if ($term === '') {
+            $error = sprintf('Row %d must contain a term.', $index);
+            return null;
+        }
+
+        if (!$this->isTermAllowed($term, $allowNumericShortTerms)) {
+            $error = $this->formatTermLengthError($index, $allowNumericShortTerms, $term);
+            return null;
+        }
+
+        $categoryRaw = $row['category'];
+        if (!is_string($categoryRaw)) {
+            $error = sprintf('Row %d has an invalid category value.', $index);
+            return null;
+        }
+
+        $categoryKey = mb_strtolower(trim($categoryRaw));
+        if ($categoryKey === '' || !array_key_exists($categoryKey, $categoryMap)) {
+            $error = sprintf('Row %d references an unknown category "%s".', $index, trim((string) $categoryRaw));
+            return null;
+        }
+
+        $error = null;
+
+        return [
+            'term' => $term,
+            'category' => $categoryMap[$categoryKey],
+        ];
+    }
+
+    private function isTermAllowed(string $term, bool $allowNumericShortTerms): bool
+    {
+        $minimumLength = 3;
+        if ($allowNumericShortTerms && ctype_digit($term)) {
+            $minimumLength = 2;
+        }
+
+        return mb_strlen($term) >= $minimumLength;
+    }
+
+    private function formatTermLengthError(int $index, bool $allowNumericShortTerms, string $term): string
+    {
+        if ($allowNumericShortTerms && ctype_digit($term)) {
+            return sprintf('Row %d must contain a numeric term with at least two characters.', $index);
+        }
+
+        return sprintf('Row %d must contain a term with at least three characters.', $index);
     }
 
     /**
