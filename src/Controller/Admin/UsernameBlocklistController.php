@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Exception\DuplicateUsernameBlocklistException;
 use App\Service\ConfigService;
+use App\Service\EventService;
 use App\Service\TranslationService;
 use App\Service\UsernameBlocklistService;
 use InvalidArgumentException;
@@ -17,7 +18,6 @@ use Slim\Views\Twig;
 use function array_map;
 use function count;
 use function array_sum;
-use function array_key_exists;
 use function bin2hex;
 use function dirname;
 use function fclose;
@@ -27,6 +27,7 @@ use function file_get_contents;
 use function fopen;
 use function fseek;
 use function ftell;
+use function array_key_exists;
 use function is_array;
 use function is_readable;
 use function is_string;
@@ -49,6 +50,8 @@ final class UsernameBlocklistController
 
     private ConfigService $configService;
 
+    private EventService $eventService;
+
     private ?TranslationService $translator;
 
     private string $presetDirectory;
@@ -64,11 +67,13 @@ final class UsernameBlocklistController
     public function __construct(
         UsernameBlocklistService $service,
         ConfigService $configService,
+        EventService $eventService,
         ?TranslationService $translator = null,
         ?string $presetDirectory = null
     ) {
         $this->service = $service;
         $this->configService = $configService;
+        $this->eventService = $eventService;
         $this->translator = $translator;
         $this->presetDirectory = $presetDirectory ?? dirname(__DIR__, 3) . '/resources/blocklists';
     }
@@ -84,7 +89,25 @@ final class UsernameBlocklistController
             $this->service->getAdminEntries()
         );
 
-        $config = $this->configService->getConfig();
+        $events = $this->eventService->getAll();
+        $params = $request->getQueryParams();
+        if (array_key_exists('event', $params)) {
+            $uid = (string) $params['event'];
+            if ($this->eventService->getByUid($uid) === null) {
+                return $response->withStatus(404);
+            }
+            $this->configService->setActiveEventUid($uid);
+        } else {
+            $uid = $this->configService->getActiveEventUid();
+        }
+
+        if ($uid === '') {
+            $config = [];
+            $event = null;
+        } else {
+            $config = $this->configService->getConfigForEvent($uid);
+            $event = $this->eventService->getByUid($uid);
+        }
 
         return $view->render($response, 'admin/username_blocklist.twig', [
             'entries' => $entries,
@@ -93,6 +116,8 @@ final class UsernameBlocklistController
             'domainType' => $request->getAttribute('domainType'),
             'currentPath' => $request->getUri()->getPath(),
             'config' => $config,
+            'events' => $events,
+            'event' => $event,
         ]);
     }
 
