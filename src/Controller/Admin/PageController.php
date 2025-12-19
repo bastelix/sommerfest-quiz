@@ -32,7 +32,7 @@ class PageController
             return $response->withStatus(404);
         }
 
-        $content = $this->pageService->get($slug);
+        $content = $this->pageService->getByKey(PageService::DEFAULT_NAMESPACE, (string) $slug);
         if ($content === null) {
             return $response->withStatus(404);
         }
@@ -59,7 +59,7 @@ class PageController
         }
 
         $html = (string)($data['content'] ?? '');
-        $this->pageService->save($slug, $html);
+        $this->pageService->save(PageService::DEFAULT_NAMESPACE, (string) $slug, $html);
 
         return $response->withStatus(204);
     }
@@ -70,11 +70,11 @@ class PageController
             return $response->withStatus(404);
         }
 
-        if ($this->pageService->findBySlug($slug) === null) {
+        if ($this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, (string) $slug) === null) {
             return $response->withStatus(404);
         }
 
-        $this->pageService->delete($slug);
+        $this->pageService->delete(PageService::DEFAULT_NAMESPACE, (string) $slug);
         $this->editableSlugs = null;
 
         return $response->withStatus(204);
@@ -102,7 +102,7 @@ class PageController
         $content = isset($data['content']) ? (string) $data['content'] : '';
 
         try {
-            $page = $this->pageService->create($slug, $title, $content);
+            $page = $this->pageService->create(PageService::DEFAULT_NAMESPACE, $slug, $title, $content);
         } catch (InvalidArgumentException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
 
@@ -142,6 +142,9 @@ class PageController
 
         $slugs = [];
         foreach ($this->pageService->getAll() as $page) {
+            if ($page->getNamespace() !== PageService::DEFAULT_NAMESPACE) {
+                continue;
+            }
             $slug = $page->getSlug();
             if ($slug === '') {
                 continue;

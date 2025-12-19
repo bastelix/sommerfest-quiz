@@ -19,7 +19,7 @@ class ImpressumController
 {
     public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
-        $html = $service->get('impressum');
+        $html = $service->getByKey(PageService::DEFAULT_NAMESPACE, 'impressum');
         if ($html === null) {
             return $response->withStatus(404);
         }

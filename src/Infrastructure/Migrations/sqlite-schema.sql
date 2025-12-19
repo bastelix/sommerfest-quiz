@@ -357,11 +357,18 @@ CREATE TABLE IF NOT EXISTS invitations (
 -- Pages
 CREATE TABLE IF NOT EXISTS pages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    slug TEXT UNIQUE NOT NULL,
+    namespace TEXT NOT NULL DEFAULT 'default',
+    slug TEXT NOT NULL,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
+    type TEXT,
+    parent_id INTEGER REFERENCES pages(id) ON DELETE SET NULL,
+    status TEXT,
+    language TEXT,
+    content_source TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(namespace, slug)
 );
 
 -- Landing page news

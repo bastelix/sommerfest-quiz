@@ -21,7 +21,7 @@ class FaqController
      */
     public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
-        $html = $service->get('faq');
+        $html = $service->getByKey(PageService::DEFAULT_NAMESPACE, 'faq');
         if ($html === null) {
             return $response->withStatus(404);
         }

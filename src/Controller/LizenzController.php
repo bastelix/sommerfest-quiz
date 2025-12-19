@@ -18,7 +18,7 @@ class LizenzController
 {
     public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
-        $html = $service->get('lizenz');
+        $html = $service->getByKey(PageService::DEFAULT_NAMESPACE, 'lizenz');
         if ($html === null) {
             return $response->withStatus(404);
         }

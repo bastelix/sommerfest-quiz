@@ -303,7 +303,7 @@ final class DomainChatKnowledgeController
             return null;
         }
 
-        $page = $this->pageService->findBySlug($domain);
+        $page = $this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, $domain);
         if ($page instanceof Page) {
             return $page;
         }
@@ -313,7 +313,7 @@ final class DomainChatKnowledgeController
             return null;
         }
 
-        return $this->pageService->findBySlug($baseSlug);
+        return $this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, $baseSlug);
     }
 
     /**
@@ -361,7 +361,7 @@ final class DomainChatKnowledgeController
         }
 
         if ($this->pageService !== null) {
-            $page = $this->pageService->findBySlug($candidate);
+            $page = $this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, $candidate);
             if ($page instanceof Page) {
                 return $page->getSlug();
             }
