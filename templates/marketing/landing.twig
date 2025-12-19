@@ -159,7 +159,9 @@
 
     <div class="section-divider"></div>
 
-    <div id="inline-edit-content" data-inline-page-slug="{{ marketingSlug }}">
+    <div id="inline-edit-content"
+         data-inline-page-slug="{{ marketingSlug }}"
+         data-inline-page-namespace="{{ marketingNamespace|default('default')|e('html_attr') }}">
       {{ content|raw }}
     </div>
 
@@ -259,7 +261,9 @@
             });
 
             const slug = contentContainer.dataset.inlinePageSlug || '';
+            const namespace = contentContainer.dataset.inlinePageNamespace || '';
             const payload = {
+              namespace,
               slug,
               html: contentContainer.innerHTML,
             };

@@ -1846,19 +1846,20 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/api/save-marketing-content', function (Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         $slug = is_array($data) ? (string) ($data['slug'] ?? '') : '';
+        $namespace = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
         $html = is_array($data) ? ($data['html'] ?? '') : '';
 
-        if ($slug === '' || !is_string($html)) {
+        if ($slug === '' || $namespace === '' || !is_string($html)) {
             return $response->withStatus(400);
         }
 
         $pageService = new PageService();
-        $page = $pageService->findBySlug($slug);
+        $page = $pageService->findByKey($namespace, $slug);
         if ($page === null) {
             return $response->withStatus(404);
         }
 
-        $pageService->save($slug, $html);
+        $pageService->save($namespace, $slug, $html);
 
         $response->getBody()->write((string) json_encode(['status' => 'ok']));
 

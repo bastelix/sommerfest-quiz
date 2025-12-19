@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Domain\Roles;
 use App\Domain\Page;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
@@ -186,7 +187,7 @@ class MarketingPageController
         $headerContent = '';
         $isAdmin = false;
         if ($templateSlug === 'landing') {
-            $isAdmin = ($_SESSION['user']['role'] ?? null) === 'admin';
+            $isAdmin = ($_SESSION['user']['role'] ?? null) === Roles::ADMIN;
             $headerContent = $this->loadHeaderContent($view);
         }
 
@@ -221,6 +222,7 @@ class MarketingPageController
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
             $data['isAdmin'] = $isAdmin;
+            $data['marketingNamespace'] = $page->getNamespace();
         }
 
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
