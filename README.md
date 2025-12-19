@@ -202,6 +202,16 @@ und verweist über `source` auf die geprüfte Herkunft der Begriffe.
 | `general`   | Allgemein             | `resources/blocklists/general.csv`    | Microsoft, Google und Salesforce Richtlinien zu reservierten Namen |
 | `admin`     | Admin                 | `resources/blocklists/admin.csv`      | GitHub, GitLab und Discord Vorgaben zu Admin-Rollen |
 
+Die CSV-Dateien werden aus dem globalen Index `data/username_blocklist/presets.json` erzeugt. Ergänzungen
+oder Änderungen sollten dort erfolgen und anschließend per Build-Schritt übernommen werden:
+
+```bash
+php scripts/build_blocklist_presets.php
+```
+
+Die Import-Buttons in der Admin-Oberfläche lesen **direkt** aus den Dateien unter
+`resources/blocklists/`. Stelle daher sicher, dass die CSVs nach Änderungen am Index neu erstellt werden.
+
 Importiere die gewünschten Listen beim Datenimport mit dem neuen Preset-Parameter.
 Der folgende Befehl übernimmt alle Beispiele in einem Rutsch:
 
@@ -849,4 +859,3 @@ Durch den Einsatz von Slim Framework und standardisierten Endpunkten ist die Anw
 
 ## Lizenz
 Dieses Projekt steht unter einer proprietären Lizenz. Alle Rechte gehören René Buske. Eine kommerzielle Nutzung ist erlaubt. Weitere Informationen finden Sie in der Datei `LICENSE`.
-
