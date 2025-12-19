@@ -42,6 +42,8 @@ Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen d
 
 Zusätzlich lassen sich weitere Marketing-Domains über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder Zeilen-separiert) freischalten. Diese Domains liefern die Inhalte der Landing Pages aus, ohne eine Mandanten-Subdomain verwenden zu müssen. Damit der Reverse Proxy automatisch TLS-Zertifikate für diese Hosts anfordert, sollten die Domains kommagetrennt eingetragen werden; `docker-compose.yml` hängt die Liste an `VIRTUAL_HOST` an und übernimmt sie zugleich (ohne Regex-Einträge) in `LETSENCRYPT_HOST`.
 
+Im Admin-Tab **Administration → Domains** kann die Schaltfläche **Domains prüfen** genutzt werden, um fehlende Zertifikate nachzuziehen und nicht auflösbare DNS-Einträge zu melden.
+
 Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und die Marketing-Liste und setzt entsprechend das Attribut `domainType` (`main`, `tenant` oder `marketing`). Ist `MAIN_DOMAIN` leer oder stimmt keine der konfigurierten Domains mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
 
 ### Beispiel für eine Fehlkonfiguration

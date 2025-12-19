@@ -1400,6 +1400,12 @@
               </tbody>
             </table>
           </div>
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-small-top" style="gap: 12px;">
+            <span class="uk-text-meta">{{ t('text_marketing_domain_reconcile_hint') }}</span>
+            <button type="button" id="marketingDomainReconcile" class="uk-button uk-button-default">
+              {{ t('action_marketing_domain_reconcile') }}
+            </button>
+          </div>
         </div>
         <ul id="resultsPagination" class="uk-pagination uk-flex-center"></ul>
         {% set showReset = role == 'admin' %}
@@ -2557,6 +2563,11 @@
     window.transMarketingDomainCreated = '{{ t('notify_marketing_domain_created')|e('js') }}';
     window.transMarketingDomainInvalid = '{{ t('notify_marketing_domain_invalid')|e('js') }}';
     window.transMarketingDomainError = '{{ t('notify_marketing_domain_error')|e('js') }}';
+    window.actionMarketingDomainReconcile = '{{ t('action_marketing_domain_reconcile')|e('js') }}';
+    window.transMarketingDomainReconcileProvisioned = '{{ t('notify_marketing_domain_reconcile_provisioned')|e('js') }}';
+    window.transMarketingDomainReconcileResolved = '{{ t('notify_marketing_domain_reconcile_resolved')|e('js') }}';
+    window.transMarketingDomainReconcileUnresolved = '{{ t('notify_marketing_domain_reconcile_unresolved')|e('js') }}';
+    window.transMarketingDomainReconcileError = '{{ t('notify_marketing_domain_reconcile_error')|e('js') }}';
     window.domainStartPageSecretPlaceholder = '{{ constant('App\\Service\\DomainStartPageService::SECRET_PLACEHOLDER')|e('js') }}';
     window.transDomainContactTemplateEdit = '{{ t('action_edit_contact_template')|e('js') }}';
     window.transDomainContactTemplateSaved = '{{ t('notify_domain_contact_template_saved')|e('js') }}';

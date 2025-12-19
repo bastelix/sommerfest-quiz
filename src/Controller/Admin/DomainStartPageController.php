@@ -369,6 +369,7 @@ class DomainStartPageController
             'provisioned' => $result['provisioned'],
             'marketing_domains' => $this->domainService->listMarketingDomains(),
             'resolved_marketing_domains' => $result['resolved_marketing_domains'],
+            'unresolved_marketing_domains' => $result['unresolved_marketing_domains'],
         ]));
 
         return $response->withHeader('Content-Type', 'application/json');
