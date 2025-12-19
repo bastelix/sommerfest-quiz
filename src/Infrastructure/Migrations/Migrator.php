@@ -87,39 +87,6 @@ class Migrator
             $ins->execute([$version]);
         }
 
-        // Manuelle Migration für PostgreSQL: QRRemember-Spalte mit Altwertübernahme
-        if ($driver === 'pgsql') {
-            // Spalte qrremember hinzufügen, falls noch nicht vorhanden
-            $pdo->exec(<<<'SQL'
-                ALTER TABLE config
-                ADD COLUMN IF NOT EXISTS qrremember BOOLEAN DEFAULT FALSE;
-SQL
-            );
-
-            // Prüfen, ob eine alte Spalte "QRRemember" existiert
-            $hasOldColumn = $pdo->query(<<<'SQL'
-                SELECT EXISTS (
-                    SELECT 1
-                    FROM information_schema.columns
-                    WHERE table_name = 'config'
-                      AND column_name = 'QRRemember'
-                      AND table_schema = current_schema()
-                )
-SQL
-            )->fetchColumn();
-
-            if ($hasOldColumn) {
-                // Werte übernehmen und alte Spalte entfernen
-                $pdo->exec(<<<'SQL'
-                    UPDATE config
-                    SET qrremember = COALESCE("QRRemember", qrremember);
-SQL
-                );
-
-                $pdo->exec('ALTER TABLE config DROP COLUMN IF EXISTS "QRRemember";');
-            }
-        }
-
         $eventStmt = $pdo->query('SELECT uid FROM events LIMIT 2');
         $events = $eventStmt->fetchAll(PDO::FETCH_COLUMN);
         if (count($events) === 1) {
