@@ -27,6 +27,8 @@ class MigrationScriptRunner
             throw self::connectionException($e, $availableDrivers);
         }
 
+        self::assertProductionDatabaseDriver($base);
+
         Migrator::migrate($base, $migrationsPath);
 
         try {
@@ -64,6 +66,29 @@ class MigrationScriptRunner
         }
 
         return $errors;
+    }
+
+    private static function assertProductionDatabaseDriver(PDO $connection): void
+    {
+        $appEnv = getenv('APP_ENV') ?: 'dev';
+        if ($appEnv !== 'production') {
+            return;
+        }
+
+        $driver = $connection->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'pgsql') {
+            return;
+        }
+
+        $allowSqlite = getenv('ALLOW_SQLITE_MIGRATIONS') === '1';
+        if ($driver === 'sqlite' && $allowSqlite) {
+            return;
+        }
+
+        throw new RuntimeException(sprintf(
+            'Refusing to run production migrations with "%s". Use a PostgreSQL DSN or set ALLOW_SQLITE_MIGRATIONS=1 explicitly.',
+            $driver
+        ));
     }
 
     /**
