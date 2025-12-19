@@ -566,9 +566,7 @@ const renderTopList = ({ title, icon, items, matcher, formatter }) => {
 document.addEventListener('DOMContentLoaded', () => {
   const cfg = window.quizConfig || {};
   const params = new URLSearchParams(window.location.search);
-  const urlEventUid = params.get('event') || params.get('event_uid') || '';
-  const configEventUid = cfg.event_uid || '';
-  const eventUid = urlEventUid || configEventUid;
+  const eventUid = window.getActiveEventId ? window.getActiveEventId() : '';
   const urlPlayerUid = params.get('uid') || params.get('player_uid') || '';
   const contactToken = params.get('contact_token') || '';
 

@@ -8686,8 +8686,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.addEventListener('event:changed', e => {
     const detail = e.detail || {};
-    const { uid, name, config, epoch } = detail;
+    const { uid, name, config, epoch, pending } = detail;
     if (typeof epoch === 'number' && !isCurrentEpoch(epoch)) {
+      return;
+    }
+    if (pending) {
+      currentEventUid = '';
+      currentEventName = '';
+      const configClone = replaceInitialConfig({});
+      cfgInitial.event_uid = '';
+      window.quizConfig = configClone;
+      renderCfg(configClone);
+      updateActiveHeader('');
+      renderCurrentEventIndicator('', '', availableEvents.length > 0);
+      updateEventButtons('');
+      updateHeading(eventSettingsHeading, '');
+      updateHeading(catalogsHeading, '');
+      updateHeading(questionsHeading, '');
+      eventDependentSections.forEach(sec => { sec.hidden = true; });
+      highlightCurrentEvent();
       return;
     }
     currentEventUid = uid || '';

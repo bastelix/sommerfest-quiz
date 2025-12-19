@@ -55,9 +55,13 @@
     if (preferred && typeof preferred === 'string') {
       return preferred;
     }
-    const cfg = root.quizConfig || {};
-    if (typeof cfg.event_uid === 'string' && cfg.event_uid) {
-      return cfg.event_uid;
+    if (typeof root.getActiveEventId === 'function') {
+      const active = root.getActiveEventId();
+      if (active) {
+        return active;
+      }
+    } else if (typeof root.activeEventId === 'string' && root.activeEventId) {
+      return root.activeEventId;
     }
     const locationObj = typeof window !== 'undefined' ? window.location : (typeof location !== 'undefined' ? location : null);
     if (locationObj && typeof locationObj.search === 'string' && locationObj.search) {

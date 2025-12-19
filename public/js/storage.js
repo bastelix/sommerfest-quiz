@@ -40,9 +40,27 @@
     STORAGE_KEYS.PLAYER_EMAIL_CONSENT
   ]);
 
+  function getActiveEventId(){
+    if (typeof window.getActiveEventId === 'function') {
+      return window.getActiveEventId();
+    }
+    return typeof window.activeEventId === 'string' ? window.activeEventId : '';
+  }
+
+  function normalizeEventUid(eventUid){
+    if (typeof eventUid === 'string') {
+      return eventUid.trim();
+    }
+    return eventUid ? String(eventUid).trim() : '';
+  }
+
+  function mapKeyForEvent(key, eventUid){
+    const normalizedEvent = normalizeEventUid(eventUid);
+    return eventScoped.has(key) ? `${key}:${normalizedEvent}` : key;
+  }
+
   function mapKey(key){
-    const currentEventUid = (window.quizConfig || {}).event_uid || '';
-    return eventScoped.has(key) ? `${key}:${currentEventUid}` : key;
+    return mapKeyForEvent(key, getActiveEventId());
   }
 
   function readStorage(key){
@@ -71,8 +89,7 @@
             }
           }
         }else{
-          const currentEventUid = (window.quizConfig || {}).event_uid || '';
-          const legacy = `${key}:${currentEventUid}`;
+          const legacy = `${key}:${getActiveEventId()}`;
           val = readStorage(legacy);
           if(val !== null){
             setStored(key, val);
@@ -99,6 +116,15 @@
     try{
       removeStorage(mapped);
     }catch(e){ /* empty */ }
+  }
+
+  function getStoredForEvent(key, eventUid){
+    const mapped = mapKeyForEvent(key, eventUid);
+    try{
+      return readStorage(mapped);
+    }catch(e){
+      return null;
+    }
   }
 
   /*
@@ -135,4 +161,5 @@
   globalThis.getStored = getStored;
   globalThis.setStored = setStored;
   globalThis.clearStored = clearStored;
+  globalThis.getStoredForEvent = getStoredForEvent;
 })();

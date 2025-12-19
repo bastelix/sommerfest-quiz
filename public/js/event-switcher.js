@@ -6,6 +6,16 @@ const getCsrfToken = () =>
   window.csrfToken || '';
 
 const toStringUid = (uid) => (typeof uid === 'string' ? uid : uid ? String(uid) : '');
+const getGlobalActiveEventId = () => toStringUid(window.activeEventId || '');
+const setGlobalActiveEventId = (uid) => {
+  const normalized = toStringUid(uid);
+  if (typeof window.setActiveEventId === 'function') {
+    window.setActiveEventId(normalized);
+  } else {
+    window.activeEventId = normalized;
+  }
+  return normalized;
+};
 
 const deepClone = (value, seen = new Map()) => {
   if (typeof value !== 'object' || value === null) {
@@ -33,7 +43,8 @@ const deepClone = (value, seen = new Map()) => {
 export let switchPending = false;
 export let lastSwitchFailed = false;
 
-let activeEventUid = toStringUid(window.quizConfig?.event_uid || '');
+let activeEventUid = getGlobalActiveEventId();
+let activeEventName = '';
 let switchEpoch = 0;
 const cacheResetters = new Set();
 const scopedControllers = new Set();
@@ -86,7 +97,7 @@ const dispatchSwitchEvent = (detail) => {
 };
 
 export function getActiveEventUID() {
-  return activeEventUid;
+  return getGlobalActiveEventId();
 }
 
 export function getSwitchEpoch() {
@@ -131,14 +142,20 @@ export function markSwitchError() {
 export function setCurrentEvent(uid, name) {
   const targetUid = toStringUid(uid);
   const eventName = typeof name === 'string' ? name.trim() : '';
-  const previousUid = activeEventUid;
+  const previousUid = getGlobalActiveEventId();
+  const previousName = activeEventName;
+  const previousConfig = deepClone(window.quizConfig || {});
 
   switchPending = true;
   lastSwitchFailed = false;
 
   const epoch = ++switchEpoch;
   abortControllersBefore(epoch);
-  notifyCacheReset({ uid: targetUid, previousUid, epoch, pending: true });
+  activeEventUid = setGlobalActiveEventId('');
+  activeEventName = '';
+  window.quizConfig = {};
+  notifyCacheReset({ uid: '', targetUid, previousUid, epoch, pending: true });
+  dispatchSwitchEvent({ uid: '', name: '', pending: true, targetUid, previousUid, epoch });
 
   const token = getCsrfToken();
   const headers = {
@@ -156,9 +173,11 @@ export function setCurrentEvent(uid, name) {
     if (!ensureEpochActive()) {
       return safeConfig;
     }
-    activeEventUid = targetUid;
+    activeEventUid = setGlobalActiveEventId(targetUid);
+    activeEventName = eventName || activeEventName;
+    window.quizConfig = safeConfig;
     notifyCacheReset({ uid: targetUid, previousUid, epoch, pending: false, config: safeConfig });
-    dispatchSwitchEvent({ uid: targetUid, name: eventName, config: safeConfig, epoch, previousUid });
+    dispatchSwitchEvent({ uid: targetUid, name: activeEventName, config: safeConfig, pending: false, epoch, previousUid });
     resetSwitchState();
     return safeConfig;
   };
@@ -169,7 +188,10 @@ export function setCurrentEvent(uid, name) {
     }
     const normalizedError = error instanceof TypeError ? new Error('Server unreachable') : error;
     if (ensureEpochActive()) {
-      activeEventUid = previousUid;
+      activeEventUid = setGlobalActiveEventId(previousUid);
+      activeEventName = previousName;
+      window.quizConfig = previousConfig;
+      dispatchSwitchEvent({ uid: previousUid, name: previousName, config: previousConfig, pending: false, epoch, previousUid });
       markSwitchError();
     }
     throw normalizedError;

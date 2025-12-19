@@ -1162,22 +1162,22 @@
   }
 
   document.addEventListener('event:changed', (e) => {
-    const { uid = '', name = '' } = e.detail || {};
-    eventId = uid;
+    const { uid = '', name = '', pending = false } = e.detail || {};
+    eventId = pending ? '' : uid;
     clearTimeout(autosaveTimer);
     isDirty = false;
     clearForm();
     currentEventSelects.forEach((select) => {
-      syncCurrentEventSelect(select, uid);
+      syncCurrentEventSelect(select, eventId);
     });
     if (eventSettingsHeading) {
       eventSettingsHeading.textContent = name
         ? `${name} – ${eventSettingsHeading.dataset.title}`
         : eventSettingsHeading.dataset.title;
     }
-    if (uid) {
-      loadConfig(uid).catch(() => {
-        window.location.href = withBase(`/admin/event-config?event=${uid}`);
+    if (eventId) {
+      loadConfig(eventId).catch(() => {
+        window.location.href = withBase(`/admin/event-config?event=${eventId}`);
       });
     } else {
       applyRules();
