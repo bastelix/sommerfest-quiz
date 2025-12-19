@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\PageService;
+use App\Service\LegalPageResolver;
 use App\Service\PageVariableService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -18,8 +18,8 @@ use Slim\Views\Twig;
 class ImpressumController
 {
     public function __invoke(Request $request, Response $response): Response {
-        $service = new PageService();
-        $html = $service->getByKey(PageService::DEFAULT_NAMESPACE, 'impressum');
+        $resolver = new LegalPageResolver();
+        $html = $resolver->resolve($request, 'impressum');
         if ($html === null) {
             return $response->withStatus(404);
         }
