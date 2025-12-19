@@ -6,10 +6,12 @@ Die Listenansichten nutzen den Twig-Makro `qr_rowcards` und den JavaScript-`Tabl
 
 `qr_rowcards(list_id, sortable=true, list_class='uk-hidden@m uk-list', tag='ul')` erzeugt einen leeren Container für Karten.
 
+{% raw %}
 ```twig
 {% from 'components/table.twig' import qr_rowcards %}
 {{ qr_rowcards('teamsCards') }}
 ```
+{% endraw %}
 
 ## TableManager
 
