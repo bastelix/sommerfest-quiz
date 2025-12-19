@@ -9,6 +9,7 @@ const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
 const getStored = window.getStored || (() => null);
+const getStoredForEvent = window.getStoredForEvent || (() => null);
 const STORAGE_KEYS = window.STORAGE_KEYS || {};
 
 const getCsrfToken = () =>
@@ -75,19 +76,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const readSolvedCatalogs = (uid) => {
     const solved = new Set();
     if (typeof getStored === 'function' && STORAGE_KEYS.QUIZ_SOLVED) {
-      const prevUid = (window.quizConfig || {}).event_uid;
-      if (!window.quizConfig) window.quizConfig = {};
-      window.quizConfig.event_uid = uid;
       try {
-        const stored = getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]';
+        const stored = getStoredForEvent(STORAGE_KEYS.QUIZ_SOLVED, uid)
+          || getStored(STORAGE_KEYS.QUIZ_SOLVED)
+          || '[]';
         JSON.parse(stored).forEach((s) => solved.add(String(s).toLowerCase()));
       } catch (e) {
         /* ignore malformed storage */
-      }
-      if (prevUid) {
-        window.quizConfig.event_uid = prevUid;
-      } else if (window.quizConfig) {
-        delete window.quizConfig.event_uid;
       }
     }
     return solved;
@@ -315,6 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageEventUid = params.get('event') || '';
   if (isAdminPage) {
     currentEventUid = eventSelect?.value || pageEventUid;
+  } else {
+    currentEventUid = window.getActiveEventId ? window.getActiveEventId() : pageEventUid;
   }
 
   const updateEventButtons = (uid) => {
@@ -385,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return r.json();
       })
       .then((events) => {
-        currentEventUid = pageEventUid;
+        currentEventUid = window.getActiveEventId ? window.getActiveEventId() : pageEventUid;
         const cfgPromise = currentEventUid
           ? csrfFetch(`/events/${encodeURIComponent(currentEventUid)}/config.json`).then((r) => {
               if (!r.ok) throw new Error('HTTP error');
@@ -441,6 +438,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('event:changed', (e) => {
     const uid = e.detail.uid || '';
+    const pending = e.detail.pending === true;
+    if (pending) {
+      currentEventUid = '';
+      updateEventButtons('');
+      return;
+    }
     currentEventUid = uid;
     updateEventButtons(uid);
   });

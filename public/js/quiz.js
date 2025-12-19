@@ -9,28 +9,10 @@ if(!window.quizConfig){
 }
 
 const currentEventUid = (() => {
-  const initial = typeof quizConfig.event_uid === 'string' ? quizConfig.event_uid : '';
-  if(initial){
-    quizConfig.event_uid = initial;
-    return initial;
+  if (typeof window.getActiveEventId === 'function') {
+    return window.getActiveEventId();
   }
-  let search = '';
-  if(typeof window !== 'undefined' && window.location && typeof window.location.search === 'string'){
-    search = window.location.search;
-  }else if(typeof location !== 'undefined' && typeof location.search === 'string'){
-    search = location.search;
-  }
-  let resolved = '';
-  if(search){
-    try{
-      const params = new URLSearchParams(search);
-      resolved = params.get('event') || params.get('event_uid') || '';
-    }catch(e){
-      resolved = '';
-    }
-  }
-  quizConfig.event_uid = typeof resolved === 'string' ? resolved : '';
-  return quizConfig.event_uid;
+  return typeof window.activeEventId === 'string' ? window.activeEventId : '';
 })();
 
 const basePath = window.basePath || '';

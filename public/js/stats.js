@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let data = [];
   let catalogMap = null;
+  let activeRequestId = 0;
   let filteredData = [];
   let currentPage = 1;
 
@@ -94,9 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.rotatePhoto = rotatePhoto;
   }
 
-  function fetchCatalogMap() {
+  function fetchCatalogMap(eventUid) {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } })
+    const query = eventUid ? `?event=${encodeURIComponent(eventUid)}` : '';
+    return fetch(withBase(`/kataloge/catalogs.json${query}`), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         const map = {};
@@ -284,18 +286,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function load() {
-    const currentEventUid = (window.quizConfig || {}).event_uid || '';
+    const currentEventUid = window.getActiveEventId ? window.getActiveEventId() : '';
     if (!currentEventUid) {
       data = [];
       renderNoEvent();
       return;
     }
+    const requestId = ++activeRequestId;
     const previousQuery = filter ? filter.value : '';
     Promise.all([
-      fetchCatalogMap(),
-      fetch(withBase('/question-results.json')).then(r => r.json())
+      fetchCatalogMap(currentEventUid),
+      fetch(withBase(`/question-results.json?event_uid=${encodeURIComponent(currentEventUid)}`))
+        .then(r => r.json())
     ])
       .then(([catMap, rows]) => {
+        if (requestId !== activeRequestId || currentEventUid !== (window.getActiveEventId ? window.getActiveEventId() : '')) {
+          return;
+        }
         rows.forEach(r => {
           if (!r.catalogName && catMap[r.catalog]) r.catalogName = catMap[r.catalog];
         });
@@ -327,7 +334,13 @@ document.addEventListener('DOMContentLoaded', () => {
     load();
   });
 
-  document.addEventListener('current-event-changed', () => {
+  document.addEventListener('current-event-changed', (e) => {
+    if (e.detail?.pending) {
+      data = [];
+      renderNoEvent();
+      return;
+    }
+    catalogMap = null;
     if (filter) {
       filter.value = '';
     }

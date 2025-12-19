@@ -1,4 +1,30 @@
 /* global UIkit */
+(() => {
+  const normalizeEventId = (value) => {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+    return value ? String(value).trim() : '';
+  };
+
+  const resolveInitialEventId = () => {
+    const params = new URLSearchParams(window.location.search || '');
+    const fromUrl = params.get('event') || params.get('event_uid') || '';
+    if (fromUrl) {
+      return normalizeEventId(fromUrl);
+    }
+    const cfg = window.quizConfig || {};
+    return normalizeEventId(cfg.event_uid || '');
+  };
+
+  const seeded = normalizeEventId(window.activeEventId || '');
+  window.activeEventId = seeded || resolveInitialEventId();
+  window.getActiveEventId = () => normalizeEventId(window.activeEventId || '');
+  window.setActiveEventId = (value) => {
+    window.activeEventId = normalizeEventId(value);
+    return window.activeEventId;
+  };
+})();
 document.addEventListener('DOMContentLoaded', function () {
   const themeToggles = document.querySelectorAll('.theme-toggle');
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');

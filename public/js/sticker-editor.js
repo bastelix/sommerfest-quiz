@@ -432,7 +432,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       const file = bgInput.files && bgInput.files[0];
       if (!file) return;
       if (bgName) bgName.value = file.name;
-      const uid = (window.quizConfig || {}).event_uid || '';
+      const uid = window.getActiveEventId ? window.getActiveEventId() : '';
       const uploadUrl = uid
         ? withBase(`/admin/sticker-background?event_uid=${encodeURIComponent(uid)}`)
         : withBase('/admin/sticker-background');
@@ -481,7 +481,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   async function loadStickerSettings() {
-    const uid = (window.quizConfig || {}).event_uid || '';
+    const uid = window.getActiveEventId ? window.getActiveEventId() : '';
     const url = uid
       ? withBase(`/admin/sticker-settings?event_uid=${encodeURIComponent(uid)}`)
       : withBase('/admin/sticker-settings');
@@ -539,7 +539,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   async function saveStickerSettings() {
-    const uid = (window.quizConfig || {}).event_uid || '';
+    const uid = window.getActiveEventId ? window.getActiveEventId() : '';
     const payload = {
       stickerTemplate: tplSel.value,
       stickerDescTop: descTop.value,
@@ -644,4 +644,3 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     );
   });
 })();
-

@@ -110,11 +110,9 @@ async function buildSolvedSet(cfg){
   if(cfg?.competitionMode){
     try{
       let path = '/results.json';
-      if(cfg && typeof cfg.event_uid !== 'undefined'){
-        const uid = String(cfg.event_uid || '').trim();
-        if(uid){
-          path = `/results.json?event_uid=${encodeURIComponent(uid)}`;
-        }
+      const uid = typeof window.getActiveEventId === 'function' ? window.getActiveEventId() : '';
+      if(uid){
+        path = `/results.json?event_uid=${encodeURIComponent(uid)}`;
       }
       const url = (typeof withBase === 'function') ? withBase(path) : path;
       const res = await fetch(url, { headers: (typeof jsonHeaders !== 'undefined') ? jsonHeaders : { Accept: 'application/json' } });

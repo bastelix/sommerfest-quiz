@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const params = new URLSearchParams(window.location.search);
-  let fallbackEventUid = params.get('event') || '';
+  let fallbackEventUid = window.getActiveEventId ? window.getActiveEventId() : (params.get('event') || '');
   let activeRequestId = 0;
   const dataService = new ResultsDataService({ basePath });
 
@@ -432,8 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const getCurrentEventUid = () => {
-    const configUid = (window.quizConfig || {}).event_uid || '';
-    return configUid || fallbackEventUid;
+    return window.getActiveEventId ? window.getActiveEventId() : fallbackEventUid;
   };
 
   function load() {
@@ -447,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dataService.setEventUid(currentEventUid);
     dataService.load()
       .then(({ rows, questionRows, catalogCount }) => {
-        if (requestId !== activeRequestId) {
+        if (requestId !== activeRequestId || currentEventUid !== getCurrentEventUid()) {
           return;
         }
         resultsData = rows;
@@ -552,6 +551,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('event:changed', e => {
     const detail = e.detail || {};
+    if (detail.pending) {
+      fallbackEventUid = '';
+      dataService.setEventUid('');
+      renderNoEvent();
+      return;
+    }
     fallbackEventUid = typeof detail.uid === 'string' ? detail.uid : fallbackEventUid;
     dataService.setEventUid(fallbackEventUid);
     resultsData = [];

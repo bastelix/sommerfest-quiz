@@ -171,7 +171,7 @@ async function deleteName(e) {
 document.addEventListener('DOMContentLoaded', async () => {
   nameInput = document.getElementById('playerName');
   const cfg = window.quizConfig || {};
-  currentEventUid = cfg.event_uid || '';
+  currentEventUid = window.getActiveEventId ? window.getActiveEventId() : '';
   const params = new URLSearchParams(location.search);
   const uidParam = params.get('uid') || params.get('player_uid');
   if (uidParam) {
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else {
     nameInput.value = await requestNameSuggestion();
   }
-  if (!storedName && uidParam && cfg.collectPlayerUid) {
+  if (!storedName && uidParam && cfg.collectPlayerUid && currentEventUid) {
     fetch(`/api/players?event_uid=${encodeURIComponent(currentEventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
@@ -200,4 +200,3 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('save-name')?.addEventListener('click', saveName);
   document.getElementById('delete-name')?.addEventListener('click', deleteName);
 });
-
