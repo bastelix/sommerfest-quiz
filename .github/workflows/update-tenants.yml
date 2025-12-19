@@ -25,6 +25,11 @@ jobs:
             docker build -t sommerfest-quiz:latest .
 
             if [ -f .env ]; then
+              export $(grep -v '^#' .env | xargs)
+              if [[ "${POSTGRES_DSN:-}" != pgsql:* ]]; then
+                echo "POSTGRES_DSN must start with pgsql: to run migrations in production."
+                exit 1
+              fi
               # Run migrations for the public schema and all tenant schemas using the freshly built image
               docker run --rm \
                 --env-file .env \
@@ -45,4 +50,3 @@ jobs:
                 docker compose -f "$compose" -p "$slug" up -d --no-deps --force-recreate app
               done
             fi
-

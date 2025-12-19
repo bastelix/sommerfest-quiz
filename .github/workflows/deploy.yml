@@ -20,6 +20,10 @@ jobs:
             mkdir -p resources/fonts
             curl -L -o resources/fonts/NotoSans-Bold.ttf https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf
             export $(grep -v '^#' .env | xargs)
+            if [[ "${POSTGRES_DSN:-}" != pgsql:* ]]; then
+              echo "POSTGRES_DSN must start with pgsql: to run migrations in production."
+              exit 1
+            fi
             BASE_IMAGE="${APP_IMAGE%:*}"
             docker build -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
             export COMPOSE_PROJECT_NAME=sommerfest-quiz
