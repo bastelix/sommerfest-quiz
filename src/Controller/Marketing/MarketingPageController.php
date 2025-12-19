@@ -182,6 +182,13 @@ class MarketingPageController
             return $response->withStatus(404);
         }
 
+        $headerContent = '';
+        $isAdmin = false;
+        if ($templateSlug === 'landing') {
+            $isAdmin = ($_SESSION['user']['role'] ?? null) === 'admin';
+            $headerContent = $this->loadHeaderContent($view);
+        }
+
         $config = $this->seo->load($page->getId());
         $globals = $view->getEnvironment()->getGlobals();
         $canonicalFallback = isset($globals['canonicalUrl']) ? (string) $globals['canonicalUrl'] : null;
@@ -210,6 +217,10 @@ class MarketingPageController
             'marketingSlug' => $templateSlug,
             'marketingChatEndpoint' => $basePath . $chatPath,
         ];
+        if ($templateSlug === 'landing') {
+            $data['headerContent'] = $headerContent;
+            $data['isAdmin'] = $isAdmin;
+        }
 
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
@@ -338,6 +349,24 @@ class MarketingPageController
         $endLabel = $this->formatWithIntl($end, $intlLocale, $timezone, $endPattern, $endFallback);
 
         return sprintf('%s–%s', $startLabel, $endLabel);
+    }
+
+    private function loadHeaderContent(Twig $view): string
+    {
+        $filePath = dirname(__DIR__, 3) . '/content/header.html';
+        if (!is_readable($filePath)) {
+            return '';
+        }
+
+        $fileContent = file_get_contents($filePath);
+        if ($fileContent === false) {
+            return '';
+        }
+
+        $configMenu = $view->fetch('components/config-menu.twig', ['show_help' => false]);
+        $lockedMenu = '<div class="qr-header-config-menu" contenteditable="false">' . $configMenu . '</div>';
+
+        return str_replace('{{ config_menu }}', $lockedMenu, $fileContent);
     }
 
     /**

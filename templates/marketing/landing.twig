@@ -29,37 +29,23 @@
 
 {% block body %}
   <div class="landing-content">
-    <header class="qr-topbar">
-      <nav class="uk-navbar-container" uk-navbar>
-        <div class="uk-navbar-left">
-          <div class="uk-navbar-item">
-            <button id="offcanvas-toggle"
-                    class="uk-navbar-toggle uk-hidden@m git-btn"
-                    uk-navbar-toggle-icon
-                    uk-toggle="target: #qr-offcanvas"
-                    aria-controls="qr-offcanvas"
-                    aria-expanded="false"
-                    aria-label="Menü"></button>
-            <a class="uk-logo" href="landing">QuizRace</a>
-          </div>
-        </div>
-        <div class="uk-navbar-right">
-          <ul class="uk-navbar-nav uk-visible@m">
-            {% for link in links %}
-              <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-          <a class="uk-navbar-item btn btn-black top-cta uk-visible@m" href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ" target="_blank" rel="noopener">
-            <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
-          </a>
-          {% include 'components/config-menu.twig' with { show_help: false } %}
-        </div>
-      </nav>
+    {% set headerMarkup = headerContent is defined and headerContent ? headerContent : '' %}
+    {% set wikiLinkMarkup = '' %}
+    {% if marketingWikiMenu is defined %}
+      {% set wikiLinkMarkup = '<li><a href="' ~ marketingWikiMenu.url ~ '"><span class="uk-margin-small-right" uk-icon="icon: file-text"></span>' ~ marketingWikiMenu.label ~ '</a></li>' %}
+    {% endif %}
+    {% set headerMarkup = headerMarkup|replace({'{{ marketing_wiki_link }}': wikiLinkMarkup}) %}
+    <header class="qr-topbar" id="editable-header">
+      {{ headerMarkup|raw }}
     </header>
+    {% if isAdmin %}
+      <button type="button"
+              id="header-save"
+              class="uk-button uk-button-primary"
+              style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;">
+        Header speichern
+      </button>
+    {% endif %}
     <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
@@ -198,6 +184,71 @@
       </section>
     {% endif %}
   </div>
+{% endblock %}
+
+{% block scripts %}
+  {% if isAdmin %}
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/inline/ckeditor.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const header = document.getElementById('editable-header');
+        const saveButton = document.getElementById('header-save');
+
+        if (!header || !saveButton || typeof InlineEditor === 'undefined') {
+          return;
+        }
+
+        InlineEditor.create(header, {
+          toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
+        })
+          .then(editor => {
+            const basePath = window.basePath || '';
+            const csrfToken = '{{ csrf_token }}';
+            const defaultLabel = saveButton.textContent;
+
+            saveButton.addEventListener('click', async () => {
+              saveButton.disabled = true;
+              saveButton.textContent = 'Speichern...';
+
+              try {
+                const response = await fetch(`${basePath}/api/save-header`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrfToken,
+                    'X-Requested-With': 'fetch',
+                  },
+                  body: JSON.stringify({ html: editor.getData() }),
+                });
+
+                if (!response.ok) {
+                  throw new Error(`Save failed (${response.status})`);
+                }
+
+                if (window.UIkit && typeof window.UIkit.notification === 'function') {
+                  window.UIkit.notification({ message: 'Header gespeichert.', status: 'success' });
+                } else {
+                  alert('Header gespeichert.');
+                }
+              } catch (error) {
+                console.error(error);
+                if (window.UIkit && typeof window.UIkit.notification === 'function') {
+                  window.UIkit.notification({ message: 'Header konnte nicht gespeichert werden.', status: 'danger' });
+                } else {
+                  alert('Header konnte nicht gespeichert werden.');
+                }
+              } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = defaultLabel;
+              }
+            });
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      });
+    </script>
+  {% endif %}
 {% endblock %}
 
 {% block footer %}
