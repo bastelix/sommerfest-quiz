@@ -17,33 +17,49 @@ use RuntimeException;
  */
 class PageService
 {
+    public const DEFAULT_NAMESPACE = 'default';
+
     private PDO $pdo;
 
     public function __construct(?PDO $pdo = null) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
     }
 
-    public function get(string $slug): ?string {
-        $page = $this->findBySlug($slug);
+    public function getByKey(string $namespace, string $slug): ?string {
+        $page = $this->findByKey($namespace, $slug);
         return $page?->getContent();
     }
 
-    public function save(string $slug, string $content): void {
-        $stmt = $this->pdo->prepare('UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?');
-        $stmt->execute([$content, $slug]);
+    public function save(string $namespace, string $slug, string $content): void {
+        $stmt = $this->pdo->prepare(
+            'UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE namespace = ? AND slug = ?'
+        );
+        $stmt->execute([$content, $namespace, $slug]);
     }
 
-    public function delete(string $slug): void {
+    public function delete(string $namespace, string $slug): void {
         $normalized = trim($slug);
         if ($normalized === '') {
             return;
         }
 
-        $stmt = $this->pdo->prepare('DELETE FROM pages WHERE slug = ?');
-        $stmt->execute([$normalized]);
+        $stmt = $this->pdo->prepare('DELETE FROM pages WHERE namespace = ? AND slug = ?');
+        $stmt->execute([$namespace, $normalized]);
     }
 
-    public function create(string $slug, string $title, string $content): Page {
+    public function create(string $namespace, string $slug, string $title, string $content): Page {
+        $normalizedNamespace = strtolower(trim($namespace));
+        if ($normalizedNamespace === '') {
+            throw new InvalidArgumentException('Bitte gib einen Namespace an.');
+        }
+
+        if (!preg_match('/^[a-z0-9][a-z0-9\-]{0,99}$/', $normalizedNamespace)) {
+            throw new InvalidArgumentException(
+                'Der Namespace darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
+                . '(max. 100 Zeichen).'
+            );
+        }
+
         $normalizedSlug = strtolower(trim($slug));
         if ($normalizedSlug === '') {
             throw new InvalidArgumentException('Bitte gib einen Slug an.');
@@ -61,21 +77,23 @@ class PageService
             throw new InvalidArgumentException('Bitte gib einen Titel für die Seite an.');
         }
 
-        if ($this->findBySlug($normalizedSlug) !== null) {
-            throw new LogicException(sprintf('Eine Seite mit dem Slug "%s" existiert bereits.', $normalizedSlug));
+        if ($this->findByKey($normalizedNamespace, $normalizedSlug) !== null) {
+            throw new LogicException(
+                sprintf('Eine Seite mit dem Namespace "%s" und dem Slug "%s" existiert bereits.', $normalizedNamespace, $normalizedSlug)
+            );
         }
 
         $html = (string) $content;
 
-        $stmt = $this->pdo->prepare('INSERT INTO pages (slug, title, content) VALUES (?, ?, ?)');
+        $stmt = $this->pdo->prepare('INSERT INTO pages (namespace, slug, title, content) VALUES (?, ?, ?, ?)');
 
         try {
-            $stmt->execute([$normalizedSlug, $normalizedTitle, $html]);
+            $stmt->execute([$normalizedNamespace, $normalizedSlug, $normalizedTitle, $html]);
         } catch (PDOException $exception) {
             throw new RuntimeException('Die Seite konnte nicht angelegt werden.', 0, $exception);
         }
 
-        return $this->loadCreatedPage($normalizedSlug);
+        return $this->loadCreatedPage($normalizedNamespace, $normalizedSlug);
     }
 
     /**
@@ -84,21 +102,19 @@ class PageService
      * @return Page[]
      */
     public function getAll(): array {
-        $stmt = $this->pdo->query('SELECT id, slug, title, content FROM pages ORDER BY title');
+        $stmt = $this->pdo->query(
+            'SELECT id, namespace, slug, title, content, type, parent_id, status, language, content_source FROM pages ORDER BY title'
+        );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         $pages = [];
         foreach ($rows as $row) {
-            $id = isset($row['id']) ? (int) $row['id'] : 0;
-            $slug = isset($row['slug']) ? (string) $row['slug'] : '';
-            $title = isset($row['title']) ? (string) $row['title'] : '';
-            $content = isset($row['content']) ? (string) $row['content'] : '';
-
-            if ($id <= 0 || $slug === '' || $title === '') {
+            $page = $this->mapRowToPage($row);
+            if ($page === null) {
                 continue;
             }
 
-            $pages[] = new Page($id, $slug, $title, $content);
+            $pages[] = $page;
         }
 
         return $pages;
@@ -109,50 +125,84 @@ class PageService
             return null;
         }
 
-        $stmt = $this->pdo->prepare('SELECT id, slug, title, content FROM pages WHERE id = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT id, namespace, slug, title, content, type, parent_id, status, language, content_source FROM pages WHERE id = ?'
+        );
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
         }
 
-        $slug = isset($row['slug']) ? (string) $row['slug'] : '';
-        $title = isset($row['title']) ? (string) $row['title'] : '';
-        if ($slug === '' || $title === '') {
+        return $this->mapRowToPage($row);
+    }
+
+    public function findByKey(string $namespace, string $slug): ?Page {
+        $normalizedNamespace = trim($namespace);
+        if ($normalizedNamespace === '') {
             return null;
         }
 
-        return new Page((int) $row['id'], $slug, $title, (string) ($row['content'] ?? ''));
-    }
-
-    public function findBySlug(string $slug): ?Page {
         $normalized = trim($slug);
         if ($normalized === '') {
             return null;
         }
 
-        $stmt = $this->pdo->prepare('SELECT id, slug, title, content FROM pages WHERE slug = ?');
-        $stmt->execute([$normalized]);
+        $stmt = $this->pdo->prepare(
+            'SELECT id, namespace, slug, title, content, type, parent_id, status, language, content_source '
+            . 'FROM pages WHERE namespace = ? AND slug = ?'
+        );
+        $stmt->execute([$normalizedNamespace, $normalized]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
         }
 
-        $pageSlug = isset($row['slug']) ? (string) $row['slug'] : '';
-        $title = isset($row['title']) ? (string) $row['title'] : '';
-        if ($pageSlug === '' || $title === '') {
-            return null;
-        }
-
-        return new Page((int) $row['id'], $pageSlug, $title, (string) ($row['content'] ?? ''));
+        return $this->mapRowToPage($row);
     }
 
-    private function loadCreatedPage(string $slug): Page {
-        $page = $this->findBySlug($slug);
+    private function loadCreatedPage(string $namespace, string $slug): Page {
+        $page = $this->findByKey($namespace, $slug);
         if ($page === null) {
             throw new RuntimeException('Die neu angelegte Seite konnte nicht geladen werden.');
         }
 
         return $page;
+    }
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    private function mapRowToPage(array $row): ?Page {
+        $id = isset($row['id']) ? (int) $row['id'] : 0;
+        $namespace = isset($row['namespace']) ? (string) $row['namespace'] : '';
+        $slug = isset($row['slug']) ? (string) $row['slug'] : '';
+        $title = isset($row['title']) ? (string) $row['title'] : '';
+        $content = isset($row['content']) ? (string) $row['content'] : '';
+
+        if ($id <= 0 || $namespace === '' || $slug === '' || $title === '') {
+            return null;
+        }
+
+        $type = isset($row['type']) ? (string) $row['type'] : null;
+        $parentId = isset($row['parent_id']) ? (int) $row['parent_id'] : null;
+        $status = isset($row['status']) ? (string) $row['status'] : null;
+        $language = isset($row['language']) ? (string) $row['language'] : null;
+        $contentSource = isset($row['content_source']) ? (string) $row['content_source'] : null;
+
+        if ($type === '') {
+            $type = null;
+        }
+        if ($status === '') {
+            $status = null;
+        }
+        if ($language === '') {
+            $language = null;
+        }
+        if ($contentSource === '') {
+            $contentSource = null;
+        }
+
+        return new Page($id, $namespace, $slug, $title, $content, $type, $parentId, $status, $language, $contentSource);
     }
 }

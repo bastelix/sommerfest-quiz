@@ -47,9 +47,10 @@ final class MarketingPageWikiArticleController
 
         $locale = (string) $request->getAttribute('lang', 'de');
         $pageSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
-        $page = $this->pageService->findBySlug($pageSlug);
+        $namespace = PageService::DEFAULT_NAMESPACE;
+        $page = $this->pageService->findByKey($namespace, $pageSlug);
         if ($page === null && $pageSlug !== $slug) {
-            $page = $this->pageService->findBySlug($slug);
+            $page = $this->pageService->findByKey($namespace, $slug);
         }
         if ($page === null) {
             return $response->withStatus(404);
@@ -59,7 +60,7 @@ final class MarketingPageWikiArticleController
         $wikiSlug = $slug;
         $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
         if ($baseSlug !== $page->getSlug()) {
-            $basePage = $this->pageService->findBySlug($baseSlug);
+            $basePage = $this->pageService->findByKey($namespace, $baseSlug);
             if ($basePage !== null) {
                 $settingsPage = $basePage;
                 $wikiSlug = $baseSlug;

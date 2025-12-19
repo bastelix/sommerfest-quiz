@@ -93,9 +93,10 @@ class MarketingPageController
         $locale = (string) $request->getAttribute('lang');
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
-        $page = $this->pages->findBySlug($contentSlug);
+        $namespace = PageService::DEFAULT_NAMESPACE;
+        $page = $this->pages->findByKey($namespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
-            $page = $this->pages->findBySlug($templateSlug);
+            $page = $this->pages->findByKey($namespace, $templateSlug);
             $contentSlug = $templateSlug;
         }
         if ($page === null) {
@@ -133,7 +134,7 @@ class MarketingPageController
         if ($landingNews === []) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($landingNewsOwnerSlug);
             if ($baseSlug !== $landingNewsOwnerSlug) {
-                $basePage = $this->pages->findBySlug($baseSlug);
+                $basePage = $this->pages->findByKey($namespace, $baseSlug);
                 if ($basePage !== null) {
                     $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 3);
                     if ($fallbackNews !== []) {
@@ -240,7 +241,7 @@ class MarketingPageController
         $wikiPage = $page;
         $baseWikiSlug = MarketingSlugResolver::resolveBaseSlug($wikiSlug);
         if ($baseWikiSlug !== $wikiSlug) {
-            $baseWikiPage = $this->pages->findBySlug($baseWikiSlug);
+            $baseWikiPage = $this->pages->findByKey($namespace, $baseWikiSlug);
             if ($baseWikiPage !== null) {
                 $wikiPage = $baseWikiPage;
                 $wikiSlug = $baseWikiSlug;
@@ -290,6 +291,7 @@ class MarketingPageController
     private function syncStaticContent(Page $page): Page
     {
         $slug = $page->getSlug();
+        $namespace = $page->getNamespace();
         $fileName = self::STATIC_CONTENT_FILES[$slug] ?? null;
         if ($fileName === null) {
             return $page;
@@ -309,14 +311,25 @@ class MarketingPageController
             return $page;
         }
 
-        $this->pages->save($slug, $fileContent);
-        $syncedPage = $this->pages->findBySlug($slug);
+        $this->pages->save($namespace, $slug, $fileContent);
+        $syncedPage = $this->pages->findByKey($namespace, $slug);
 
         if ($syncedPage !== null) {
             return $syncedPage;
         }
 
-        return new Page($page->getId(), $slug, $page->getTitle(), $fileContent);
+        return new Page(
+            $page->getId(),
+            $page->getNamespace(),
+            $slug,
+            $page->getTitle(),
+            $fileContent,
+            $page->getType(),
+            $page->getParentId(),
+            $page->getStatus(),
+            $page->getLanguage(),
+            $page->getContentSource()
+        );
     }
 
     private function normalizeStaticHtml(string $html): string

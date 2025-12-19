@@ -42,7 +42,7 @@ class LandingNewsController
         if ($entries === []) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
             if ($baseSlug !== $page->getSlug()) {
-                $basePage = $this->pages->findBySlug($baseSlug);
+                $basePage = $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $baseSlug);
                 if ($basePage !== null) {
                     $fallbackEntries = $this->news->getPublishedForPage($basePage->getId(), 20);
                     if ($fallbackEntries !== []) {
@@ -95,7 +95,7 @@ class LandingNewsController
         if ($entry === null) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
             if ($baseSlug !== $page->getSlug()) {
-                $basePage = $this->pages->findBySlug($baseSlug);
+                $basePage = $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $baseSlug);
                 if ($basePage !== null) {
                     $entry = $this->news->findPublished($basePage->getSlug(), $newsSlug);
                     if ($entry !== null) {
@@ -140,7 +140,7 @@ class LandingNewsController
             $slug = 'landing';
         }
 
-        return $this->pages->findBySlug($slug);
+        return $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $slug);
     }
 
     private function buildNewsBasePath(Request $request, string $pageSlug): string
