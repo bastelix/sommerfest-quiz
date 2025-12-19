@@ -12,6 +12,7 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\PageContentLoader;
+use App\Service\PageModuleService;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\TurnstileConfig;
@@ -60,6 +61,7 @@ class MarketingPageController
     private MarketingPageWikiSettingsService $wikiSettings;
     private MarketingPageWikiArticleService $wikiArticles;
     private PageContentLoader $contentLoader;
+    private PageModuleService $pageModules;
 
     public function __construct(
         ?string $slug = null,
@@ -70,7 +72,8 @@ class MarketingPageController
         ?LandingNewsService $landingNews = null,
         ?MarketingPageWikiSettingsService $wikiSettings = null,
         ?MarketingPageWikiArticleService $wikiArticles = null,
-        ?PageContentLoader $contentLoader = null
+        ?PageContentLoader $contentLoader = null,
+        ?PageModuleService $pageModules = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -81,6 +84,7 @@ class MarketingPageController
         $this->wikiSettings = $wikiSettings ?? new MarketingPageWikiSettingsService();
         $this->wikiArticles = $wikiArticles ?? new MarketingPageWikiArticleService();
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
+        $this->pageModules = $pageModules ?? new PageModuleService();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -214,6 +218,7 @@ class MarketingPageController
             'csrf_token' => $csrf,
             'marketingSlug' => $templateSlug,
             'marketingChatEndpoint' => $basePath . $chatPath,
+            'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
         ];
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;

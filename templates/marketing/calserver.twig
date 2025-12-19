@@ -478,6 +478,11 @@
       {{ newsSection|raw }}
     {% endif %}
 
+    {% include 'marketing/partials/page-modules.twig' with {
+      modules: pageModules['after-content']|default([]),
+      position: 'after-content'
+    } %}
+
     <div class="calserver-cookie-banner uk-card uk-card-default uk-card-body"
          id="calserver-cookie-banner"
          data-calserver-cookie-banner

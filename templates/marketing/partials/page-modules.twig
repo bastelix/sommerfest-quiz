@@ -1,0 +1,16 @@
+{% set moduleItems = modules|default([]) %}
+{% if moduleItems %}
+  <section class="uk-section page-modules"
+           data-page-modules-position="{{ position|default('')|e('html_attr') }}">
+    <div class="uk-container">
+      {% for module in moduleItems %}
+        <div class="page-module"
+             data-page-module-id="{{ module.id|e('html_attr') }}"
+             data-page-module-type="{{ module.type|e('html_attr') }}"
+             data-page-module-position="{{ module.position|e('html_attr') }}"
+             data-page-module-config="{{ module.config|json_encode|e('html_attr') }}">
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}

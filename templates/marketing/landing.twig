@@ -164,6 +164,10 @@
          data-inline-page-namespace="{{ marketingNamespace|default('default')|e('html_attr') }}">
       {{ content|raw }}
     </div>
+    {% include 'marketing/partials/page-modules.twig' with {
+      modules: pageModules['after-content']|default([]),
+      position: 'after-content'
+    } %}
 
     {% if landingNews is defined and landingNews %}
       <section id="landing-news" class="uk-section uk-section-muted landing-news">
