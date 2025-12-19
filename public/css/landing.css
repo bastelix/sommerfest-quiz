@@ -514,6 +514,10 @@ body.marketing-page[data-theme="dark"] .uk-text-muted {
   top: 0;
   z-index: 1000;
 }
+.qr-landing .qr-topbar .uk-navbar,
+.qr-landing .qr-topbar .uk-navbar-container{
+  background: transparent;
+}
 @media (max-width: 959px) {
   .qr-landing .qr-topbar{
     min-height:56px;
