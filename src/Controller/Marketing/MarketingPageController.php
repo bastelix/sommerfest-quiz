@@ -6,12 +6,12 @@ namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Roles;
-use App\Domain\Page;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\PageContentLoader;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\TurnstileConfig;
@@ -32,8 +32,8 @@ use function html_entity_decode;
 use function htmlspecialchars;
 use function is_readable;
 use function max;
-use function rawurlencode;
 use function preg_replace;
+use function rawurlencode;
 use function str_replace;
 use function trim;
 
@@ -51,11 +51,6 @@ class MarketingPageController
         'future-is-green' => 'Future is Green',
     ];
 
-    private const STATIC_CONTENT_FILES = [
-        'calhelp' => 'calhelp.html',
-        'calserver' => 'calserver.html',
-    ];
-
     private PageService $pages;
     private PageSeoConfigService $seo;
     private ?string $slug;
@@ -64,6 +59,7 @@ class MarketingPageController
     private LandingNewsService $landingNews;
     private MarketingPageWikiSettingsService $wikiSettings;
     private MarketingPageWikiArticleService $wikiArticles;
+    private PageContentLoader $contentLoader;
 
     public function __construct(
         ?string $slug = null,
@@ -73,7 +69,8 @@ class MarketingPageController
         ?ProvenExpertRatingService $provenExpert = null,
         ?LandingNewsService $landingNews = null,
         ?MarketingPageWikiSettingsService $wikiSettings = null,
-        ?MarketingPageWikiArticleService $wikiArticles = null
+        ?MarketingPageWikiArticleService $wikiArticles = null,
+        ?PageContentLoader $contentLoader = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -83,6 +80,7 @@ class MarketingPageController
         $this->landingNews = $landingNews ?? new LandingNewsService();
         $this->wikiSettings = $wikiSettings ?? new MarketingPageWikiSettingsService();
         $this->wikiArticles = $wikiArticles ?? new MarketingPageWikiArticleService();
+        $this->contentLoader = $contentLoader ?? new PageContentLoader();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -104,9 +102,7 @@ class MarketingPageController
             return $response->withStatus(404);
         }
 
-        $page = $this->syncStaticContent($page);
-
-        $html = $page->getContent();
+        $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
 
@@ -288,55 +284,6 @@ class MarketingPageController
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
-    }
-
-    private function syncStaticContent(Page $page): Page
-    {
-        $slug = $page->getSlug();
-        $namespace = $page->getNamespace();
-        $fileName = self::STATIC_CONTENT_FILES[$slug] ?? null;
-        if ($fileName === null) {
-            return $page;
-        }
-
-        $filePath = dirname(__DIR__, 3) . '/content/marketing/' . $fileName;
-        if (!is_readable($filePath)) {
-            return $page;
-        }
-
-        $fileContent = file_get_contents($filePath);
-        if ($fileContent === false) {
-            return $page;
-        }
-
-        if ($this->normalizeStaticHtml($fileContent) === $this->normalizeStaticHtml($page->getContent())) {
-            return $page;
-        }
-
-        $this->pages->save($namespace, $slug, $fileContent);
-        $syncedPage = $this->pages->findByKey($namespace, $slug);
-
-        if ($syncedPage !== null) {
-            return $syncedPage;
-        }
-
-        return new Page(
-            $page->getId(),
-            $page->getNamespace(),
-            $slug,
-            $page->getTitle(),
-            $fileContent,
-            $page->getType(),
-            $page->getParentId(),
-            $page->getStatus(),
-            $page->getLanguage(),
-            $page->getContentSource()
-        );
-    }
-
-    private function normalizeStaticHtml(string $html): string
-    {
-        return trim(str_replace(["\r\n", "\r"], "\n", $html));
     }
 
     private function buildMaintenanceWindowLabel(string $locale): string
