@@ -20,6 +20,10 @@ jobs:
             set -euo pipefail
 
             cd /var/sommerfest-quiz
+            if ! git diff --quiet; then
+              echo "Uncommitted changes detected. Stash or commit them before proceeding."
+              exit 1
+            fi
             git pull --ff-only
 
             docker build -t sommerfest-quiz:latest .
