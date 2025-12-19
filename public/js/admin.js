@@ -322,6 +322,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
   const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
   const transDomainStartPageInvalidEmail = window.transDomainStartPageInvalidEmail || transDomainStartPageError;
+  const transDomainStartPageDeleted = window.transDomainStartPageDeleted || 'Eintrag gelöscht';
+  const transDomainStartPageDeleteError = window.transDomainStartPageDeleteError || transDomainStartPageError;
+  const transDomainStartPageDeleteConfirm = window.transDomainStartPageDeleteConfirm || 'Eintrag entfernen?';
   const transDomainSmtpTitle = window.transDomainSmtpTitle || 'SMTP-Einstellungen';
   const transDomainSmtpSaved = window.transDomainSmtpSaved || transDomainStartPageSaved;
   const transDomainSmtpError = window.transDomainSmtpError || transDomainStartPageError;
@@ -3302,6 +3305,52 @@ document.addEventListener('DOMContentLoaded', function () {
         const typeCell = document.createElement('td');
         typeCell.textContent = domainStartPageTypeLabels[item.type] || item.type;
         tr.appendChild(typeCell);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'uk-table-shrink uk-text-center';
+        if (item.type === 'custom') {
+          const deleteButton = document.createElement('button');
+          deleteButton.type = 'button';
+          deleteButton.className = 'uk-button uk-button-danger uk-button-small';
+          deleteButton.textContent = window.transDelete || 'Löschen';
+          deleteButton.addEventListener('click', () => {
+            if (!window.confirm(transDomainStartPageDeleteConfirm)) {
+              return;
+            }
+            deleteButton.disabled = true;
+            const targetDomain = item.normalized || item.domain;
+            apiFetch('/admin/domain-start-pages', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ domain: targetDomain })
+            })
+              .then(res => {
+                return res
+                  .json()
+                  .catch(() => ({}))
+                  .then(data => {
+                    if (!res.ok) {
+                      throw new Error(data?.error || transDomainStartPageDeleteError);
+                    }
+                    return data;
+                  });
+              })
+              .then(() => {
+                notify(transDomainStartPageDeleted, 'success');
+                if (typeof reloadDomainStartPages === 'function') {
+                  reloadDomainStartPages();
+                }
+              })
+              .catch(err => {
+                notify(err?.message || transDomainStartPageDeleteError, 'danger');
+              })
+              .finally(() => {
+                deleteButton.disabled = false;
+              });
+          });
+          actionsCell.appendChild(deleteButton);
+        }
+        tr.appendChild(actionsCell);
 
         select.addEventListener('change', () => {
           const previous = item.start_page;

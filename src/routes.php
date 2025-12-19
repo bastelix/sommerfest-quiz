@@ -1966,6 +1966,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->delete('/admin/domain-start-pages', function (Request $request, Response $response) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->delete($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->post('/admin/marketing-domains', function (Request $request, Response $response) {
         /** @var DomainStartPageController $controller */
         $controller = $request->getAttribute('domainStartPageController');
