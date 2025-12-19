@@ -51,6 +51,10 @@
     </ul>
   </nav>
   {{ content|raw }}
+  {% include 'marketing/partials/page-modules.twig' with {
+    modules: pageModules['after-content']|default([]),
+    position: 'after-content'
+  } %}
 {% endblock %}
 
 {% block scripts %}

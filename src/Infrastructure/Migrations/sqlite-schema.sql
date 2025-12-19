@@ -371,6 +371,18 @@ CREATE TABLE IF NOT EXISTS pages (
     UNIQUE(namespace, slug)
 );
 
+CREATE TABLE IF NOT EXISTS page_modules (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    config TEXT,
+    position TEXT NOT NULL,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_modules_page_position
+    ON page_modules(page_id, position, id);
+
 -- Landing page news
 CREATE TABLE IF NOT EXISTS landing_news (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
