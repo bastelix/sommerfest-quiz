@@ -1583,6 +1583,7 @@
               {% if pages|default([]) is empty %}
                 <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
+                {% include 'admin/components/page_tree.twig' %}
                 {% set selectedSlug = selectedPageSlug|default('') %}
                 {% if selectedSlug == '' and pages|length > 0 %}
                   {% set selectedSlug = (pages|first).slug %}

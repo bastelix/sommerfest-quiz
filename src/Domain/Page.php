@@ -25,6 +25,8 @@ class Page implements JsonSerializable
 
     private ?int $parentId;
 
+    private int $sortOrder;
+
     private ?string $status;
 
     private ?string $language;
@@ -39,6 +41,7 @@ class Page implements JsonSerializable
         string $content,
         ?string $type,
         ?int $parentId,
+        int $sortOrder,
         ?string $status,
         ?string $language,
         ?string $contentSource
@@ -50,6 +53,7 @@ class Page implements JsonSerializable
         $this->content = $content;
         $this->type = $type;
         $this->parentId = $parentId;
+        $this->sortOrder = $sortOrder;
         $this->status = $status;
         $this->language = $language;
         $this->contentSource = $contentSource;
@@ -83,6 +87,10 @@ class Page implements JsonSerializable
         return $this->parentId;
     }
 
+    public function getSortOrder(): int {
+        return $this->sortOrder;
+    }
+
     public function getStatus(): ?string {
         return $this->status;
     }
@@ -105,6 +113,7 @@ class Page implements JsonSerializable
             'content' => $this->content,
             'type' => $this->type,
             'parent_id' => $this->parentId,
+            'sort_order' => $this->sortOrder,
             'status' => $this->status,
             'language' => $this->language,
             'content_source' => $this->contentSource,

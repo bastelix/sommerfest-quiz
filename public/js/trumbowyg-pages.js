@@ -789,10 +789,145 @@ export function showPreview() {
 }
 
 window.showPreview = showPreview;
+
+const TYPE_LABELS = {
+  landing: 'Landing',
+  legal: 'Legal',
+  wiki: 'Wiki'
+};
+
+const TYPE_CLASSES = {
+  landing: 'uk-label-success',
+  legal: 'uk-label-warning',
+  wiki: 'uk-label-danger'
+};
+
+function getTypeLabel(type) {
+  if (!type) {
+    return 'Standard';
+  }
+  const normalized = String(type);
+  return TYPE_LABELS[normalized] || normalized;
+}
+
+function getTypeClass(type) {
+  if (!type) {
+    return 'uk-label';
+  }
+  const normalized = String(type);
+  return TYPE_CLASSES[normalized] || 'uk-label';
+}
+
+function buildPageTreeList(nodes, level = 0) {
+  const list = document.createElement('ul');
+  list.className = 'uk-list uk-list-collapse';
+  if (level > 0) {
+    list.classList.add('uk-margin-small-left');
+  }
+
+  nodes.forEach(node => {
+    const item = document.createElement('li');
+    const row = document.createElement('div');
+    row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+    const info = document.createElement('div');
+    const title = document.createElement('span');
+    title.className = 'uk-text-bold';
+    title.textContent = node.title || node.slug || 'Ohne Titel';
+    info.appendChild(title);
+
+    if (node.slug) {
+      const slug = document.createElement('span');
+      slug.className = 'uk-text-meta uk-margin-small-left';
+      slug.textContent = `/${node.slug}`;
+      info.appendChild(slug);
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+
+    const typeLabel = document.createElement('span');
+    typeLabel.className = `uk-label ${getTypeClass(node.type)}`;
+    typeLabel.textContent = getTypeLabel(node.type);
+    meta.appendChild(typeLabel);
+
+    if (node.language) {
+      const language = document.createElement('span');
+      language.className = 'uk-text-meta uk-margin-small-left';
+      language.textContent = node.language;
+      meta.appendChild(language);
+    }
+
+    row.appendChild(info);
+    row.appendChild(meta);
+    item.appendChild(row);
+
+    if (Array.isArray(node.children) && node.children.length) {
+      item.appendChild(buildPageTreeList(node.children, level + 1));
+    }
+
+    list.appendChild(item);
+  });
+
+  return list;
+}
+
+async function initPageTree() {
+  const container = document.querySelector('[data-page-tree]');
+  if (!container) {
+    return;
+  }
+
+  const loading = container.querySelector('[data-page-tree-loading]');
+  const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
+  const errorMessage = container.dataset.error || 'Seitenbaum konnte nicht geladen werden.';
+  const endpoint = container.dataset.endpoint || '/admin/pages/tree';
+
+  try {
+    const response = await (window.apiFetch ? window.apiFetch(endpoint) : fetch(endpoint));
+    if (!response.ok) {
+      throw new Error('page-tree-request-failed');
+    }
+    const payload = await response.json();
+    const tree = Array.isArray(payload.tree) ? payload.tree : [];
+    container.innerHTML = '';
+
+    if (!tree.length) {
+      const empty = document.createElement('div');
+      empty.className = 'uk-text-meta';
+      empty.textContent = emptyMessage;
+      container.appendChild(empty);
+      return;
+    }
+
+    tree.forEach(section => {
+      const heading = document.createElement('h4');
+      heading.className = 'uk-heading-line uk-margin-small-top';
+      const headingText = document.createElement('span');
+      headingText.textContent = section.namespace || 'default';
+      heading.appendChild(headingText);
+      container.appendChild(heading);
+
+      const pages = Array.isArray(section.pages) ? section.pages : [];
+      container.appendChild(buildPageTreeList(pages));
+    });
+  } catch (error) {
+    if (loading) {
+      loading.textContent = errorMessage;
+    } else {
+      const errorEl = document.createElement('div');
+      errorEl.className = 'uk-text-danger';
+      errorEl.textContent = errorMessage;
+      container.appendChild(errorEl);
+    }
+  }
+}
+
 const initPagesModule = () => {
   initPageEditors();
   initPageSelection();
   initPageCreation();
+  initPageTree();
 };
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPagesModule);

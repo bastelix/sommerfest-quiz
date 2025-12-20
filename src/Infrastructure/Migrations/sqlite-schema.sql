@@ -363,6 +363,7 @@ CREATE TABLE IF NOT EXISTS pages (
     content TEXT NOT NULL,
     type TEXT,
     parent_id INTEGER REFERENCES pages(id) ON DELETE SET NULL,
+    sort_order INTEGER NOT NULL DEFAULT 0,
     status TEXT,
     language TEXT,
     content_source TEXT,
