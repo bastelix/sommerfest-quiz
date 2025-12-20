@@ -85,10 +85,13 @@ class PageService
 
         $html = (string) $content;
 
-        $stmt = $this->pdo->prepare('INSERT INTO pages (namespace, slug, title, content) VALUES (?, ?, ?, ?)');
+        $sortOrder = $this->getNextSortOrder($normalizedNamespace, null);
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO pages (namespace, slug, title, content, sort_order) VALUES (?, ?, ?, ?, ?)'
+        );
 
         try {
-            $stmt->execute([$normalizedNamespace, $normalizedSlug, $normalizedTitle, $html]);
+            $stmt->execute([$normalizedNamespace, $normalizedSlug, $normalizedTitle, $html, $sortOrder]);
         } catch (PDOException $exception) {
             throw new RuntimeException('Die Seite konnte nicht angelegt werden.', 0, $exception);
         }
@@ -103,7 +106,8 @@ class PageService
      */
     public function getAll(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, status, language, content_source FROM pages ORDER BY title'
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            . 'FROM pages ORDER BY title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -126,7 +130,8 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, status, language, content_source FROM pages WHERE id = ?'
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            . 'FROM pages WHERE id = ?'
         );
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -149,7 +154,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, status, language, content_source '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
             . 'FROM pages WHERE namespace = ? AND slug = ?'
         );
         $stmt->execute([$normalizedNamespace, $normalized]);
@@ -171,6 +176,82 @@ class PageService
     }
 
     /**
+     * Build a recursive page tree grouped by namespace.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getTree(): array {
+        $pages = $this->getAllForTree();
+        $nodes = [];
+        foreach ($pages as $page) {
+            $nodes[$page->getId()] = [
+                'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'type' => $page->getType(),
+                'parent_id' => $page->getParentId(),
+                'sort_order' => $page->getSortOrder(),
+                'status' => $page->getStatus(),
+                'language' => $page->getLanguage(),
+                'children' => [],
+            ];
+        }
+
+        $tree = [];
+        foreach ($nodes as $id => &$node) {
+            $parentId = $node['parent_id'];
+            if ($parentId !== null && isset($nodes[$parentId])) {
+                $nodes[$parentId]['children'][] = &$node;
+                continue;
+            }
+
+            $namespace = $node['namespace'] !== '' ? $node['namespace'] : self::DEFAULT_NAMESPACE;
+            if (!isset($tree[$namespace])) {
+                $tree[$namespace] = [];
+            }
+            $tree[$namespace][] = &$node;
+        }
+        unset($node);
+
+        $payload = [];
+        foreach ($tree as $namespace => $items) {
+            $this->sortTree($items);
+            $payload[] = [
+                'namespace' => $namespace,
+                'pages' => $items,
+            ];
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Fetch all pages for tree rendering.
+     *
+     * @return Page[]
+     */
+    public function getAllForTree(): array {
+        $stmt = $this->pdo->query(
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            . 'FROM pages ORDER BY namespace, parent_id, sort_order, title'
+        );
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        $pages = [];
+        foreach ($rows as $row) {
+            $page = $this->mapRowToPage($row);
+            if ($page === null) {
+                continue;
+            }
+
+            $pages[] = $page;
+        }
+
+        return $pages;
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     private function mapRowToPage(array $row): ?Page {
@@ -186,6 +267,7 @@ class PageService
 
         $type = isset($row['type']) ? (string) $row['type'] : null;
         $parentId = isset($row['parent_id']) ? (int) $row['parent_id'] : null;
+        $sortOrder = isset($row['sort_order']) ? (int) $row['sort_order'] : 0;
         $status = isset($row['status']) ? (string) $row['status'] : null;
         $language = isset($row['language']) ? (string) $row['language'] : null;
         $contentSource = isset($row['content_source']) ? (string) $row['content_source'] : null;
@@ -203,6 +285,63 @@ class PageService
             $contentSource = null;
         }
 
-        return new Page($id, $namespace, $slug, $title, $content, $type, $parentId, $status, $language, $contentSource);
+        return new Page(
+            $id,
+            $namespace,
+            $slug,
+            $title,
+            $content,
+            $type,
+            $parentId,
+            $sortOrder,
+            $status,
+            $language,
+            $contentSource
+        );
+    }
+
+    private function getNextSortOrder(string $namespace, ?int $parentId): int {
+        if ($parentId === null) {
+            $stmt = $this->pdo->prepare(
+                'SELECT COALESCE(MAX(sort_order), 0) FROM pages WHERE namespace = ? AND parent_id IS NULL'
+            );
+            $stmt->execute([$namespace]);
+        } else {
+            $stmt = $this->pdo->prepare(
+                'SELECT COALESCE(MAX(sort_order), 0) FROM pages WHERE namespace = ? AND parent_id = ?'
+            );
+            $stmt->execute([$namespace, $parentId]);
+        }
+
+        return ((int) $stmt->fetchColumn()) + 1;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $nodes
+     */
+    private function sortTree(array &$nodes): void {
+        usort($nodes, function (array $left, array $right): int {
+            $leftOrder = (int) ($left['sort_order'] ?? 0);
+            $rightOrder = (int) ($right['sort_order'] ?? 0);
+            if ($leftOrder !== $rightOrder) {
+                return $leftOrder <=> $rightOrder;
+            }
+
+            $leftTitle = (string) ($left['title'] ?? '');
+            $rightTitle = (string) ($right['title'] ?? '');
+            $titleCmp = strcasecmp($leftTitle, $rightTitle);
+            if ($titleCmp !== 0) {
+                return $titleCmp;
+            }
+
+            return ((int) ($left['id'] ?? 0)) <=> ((int) ($right['id'] ?? 0));
+        });
+
+        foreach ($nodes as &$node) {
+            if (!empty($node['children']) && is_array($node['children'])) {
+                $this->sortTree($node['children']);
+            }
+        }
+        unset($node);
     }
 }

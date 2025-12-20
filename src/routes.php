@@ -1524,6 +1524,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->sample($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
+    $app->get('/admin/pages/tree', function (Request $request, Response $response) {
+        $controller = new PageController();
+        return $controller->tree($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->edit($request, $response, $args);

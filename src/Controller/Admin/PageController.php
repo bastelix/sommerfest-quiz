@@ -131,6 +131,19 @@ class PageController
     }
 
     /**
+     * Return the full page tree for admin UI use.
+     */
+    public function tree(Request $request, Response $response): Response {
+        $payload = [
+            'tree' => $this->pageService->getTree(),
+        ];
+
+        $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
      * Determine which page slugs can be edited via the admin area.
      *
      * @return string[]
