@@ -279,8 +279,35 @@ class DomainStartPageController
             return $response->withStatus(400);
         }
 
+        $normalizedDomain = $this->domainService->normalizeDomain($domain, stripAdmin: false);
+        if ($normalizedDomain === '') {
+            return $response->withStatus(400);
+        }
+
+        $mainDomain = getenv('MAIN_DOMAIN') ?: '';
+        $normalizedMain = $this->domainService->normalizeDomain($mainDomain, stripAdmin: false);
+        $isMainDomain = $normalizedMain !== '' && $normalizedDomain === $normalizedMain;
+        $storedDomain = $this->domainService->normalizeDomain($normalizedDomain);
+
+        if (!$isMainDomain) {
+            $exists = false;
+            foreach ($this->domainService->listMarketingDomains() as $marketingDomain) {
+                if ($marketingDomain['normalized_host'] === $storedDomain) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            if (!$exists) {
+                $this->domainService->createMarketingDomain($normalizedDomain, null);
+            }
+
+            $this->reverseProxyHostUpdater->persistMarketingDomain($normalizedDomain);
+            $this->refreshMarketingDomainCache();
+        }
+
         try {
-            $this->certificateProvisioner->provisionMarketingDomain($domain);
+            $this->certificateProvisioner->provisionMarketingDomain($normalizedDomain);
         } catch (InvalidArgumentException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
 
@@ -298,7 +325,7 @@ class DomainStartPageController
 
         $response->getBody()->write(json_encode([
             'status' => 'ok',
-            'domain' => $domain,
+            'domain' => $normalizedDomain,
         ]));
 
         return $response->withHeader('Content-Type', 'application/json');
