@@ -826,7 +826,11 @@ function buildPageTreeList(nodes, level = 0) {
   }
 
   nodes.forEach(node => {
+    const selectableSlug = node.slug || node.id;
     const item = document.createElement('li');
+    if (selectableSlug) {
+      item.dataset.pageTreeItem = selectableSlug;
+    }
     const row = document.createElement('div');
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
@@ -841,6 +845,15 @@ function buildPageTreeList(nodes, level = 0) {
       slug.className = 'uk-text-meta uk-margin-small-left';
       slug.textContent = `/${node.slug}`;
       info.appendChild(slug);
+    }
+
+    if (selectableSlug) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'uk-button uk-button-text uk-margin-small-left page-tree-select';
+      button.dataset.pageSlug = selectableSlug;
+      button.textContent = getTranslation('transEdit', 'Bearbeiten');
+      info.appendChild(button);
     }
 
     const meta = document.createElement('div');
@@ -872,11 +885,68 @@ function buildPageTreeList(nodes, level = 0) {
   return list;
 }
 
+function updatePageTreeActive(container, slug) {
+  if (!container) {
+    return;
+  }
+  const activeSlug = (slug || '').trim();
+  container.querySelectorAll('[data-page-tree-item]').forEach(item => {
+    const isActive = item.dataset.pageTreeItem === activeSlug;
+    item.classList.toggle('is-active', isActive);
+    const button = item.querySelector('[data-page-slug]');
+    if (button) {
+      button.classList.toggle('is-active', isActive);
+    }
+  });
+}
+
+function bindPageTreeInteractions(container) {
+  if (!container || container.dataset.treeBound === '1') {
+    return;
+  }
+  container.dataset.treeBound = '1';
+
+  container.addEventListener('click', event => {
+    const trigger = event.target?.closest?.('[data-page-slug]');
+    if (!trigger || !container.contains(trigger)) {
+      return;
+    }
+    const slug = (trigger.dataset.pageSlug || '').trim();
+    if (!slug) {
+      return;
+    }
+    const select = document.getElementById('pageContentSelect');
+    if (select) {
+      select.value = slug;
+    }
+    const state = pageSelectionState || initPageSelection();
+    if (state && typeof state.toggleForms === 'function') {
+      state.toggleForms(slug);
+    }
+    updatePageTreeActive(container, slug);
+  });
+
+  const select = document.getElementById('pageContentSelect');
+  if (select) {
+    select.addEventListener('change', () => {
+      updatePageTreeActive(container, select.value);
+    });
+  }
+
+  document.addEventListener('marketing-page:created', () => {
+    initPageTree();
+  });
+  document.addEventListener('marketing-page:deleted', () => {
+    initPageTree();
+  });
+}
+
 async function initPageTree() {
   const container = document.querySelector('[data-page-tree]');
   if (!container) {
     return;
   }
+  bindPageTreeInteractions(container);
 
   const loading = container.querySelector('[data-page-tree-loading]');
   const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
@@ -911,6 +981,11 @@ async function initPageTree() {
       const pages = Array.isArray(section.pages) ? section.pages : [];
       container.appendChild(buildPageTreeList(pages));
     });
+
+    const select = document.getElementById('pageContentSelect');
+    if (select) {
+      updatePageTreeActive(container, select.value);
+    }
   } catch (error) {
     if (loading) {
       loading.textContent = errorMessage;
