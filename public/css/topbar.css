@@ -45,6 +45,7 @@ body[data-theme="dark"].high-contrast{
   --topbar-height: 48px;
 }
 
+.topbar,
 .topbar.uk-navbar-container,
 .topbar .uk-navbar,
 .topbar .uk-navbar-container,
@@ -52,6 +53,10 @@ body[data-theme="dark"].high-contrast{
   min-height: var(--topbar-height);
   height: var(--topbar-height);
   align-items: center;
+}
+.topbar .uk-navbar-item{
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Buttons in der Topbar */
@@ -93,6 +98,8 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 .git-btn{
   width:var(--topbar-height);
   height:var(--topbar-height);
+  max-width:var(--topbar-height);
+  max-height:var(--topbar-height);
   min-width:var(--topbar-height);
   min-height:var(--topbar-height);
   padding:0;
@@ -143,6 +150,7 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 .uk-navbar-toggle.git-btn{
   width:var(--topbar-height);
   height:var(--topbar-height);
+  max-height:var(--topbar-height);
   min-height:var(--topbar-height);
   padding:0;
   aspect-ratio:1/1;
