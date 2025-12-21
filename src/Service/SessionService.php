@@ -18,6 +18,42 @@ class SessionService
     }
 
     /**
+     * @param list<array{namespace:string,is_default:bool}> $namespaces
+     */
+    public function resolveActiveNamespace(array $namespaces, ?string $preferred = null): string {
+        $preferred = $this->normalizeNamespace($preferred);
+        $fallback = null;
+        $default = null;
+
+        foreach ($namespaces as $entry) {
+            $namespace = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
+            if ($namespace === null) {
+                continue;
+            }
+
+            $fallback ??= $namespace;
+
+            if ($preferred !== null && $namespace === $preferred) {
+                return $namespace;
+            }
+
+            if ($default === null && !empty($entry['is_default'])) {
+                $default = $namespace;
+            }
+        }
+
+        if ($default !== null) {
+            return $default;
+        }
+
+        if ($fallback !== null) {
+            return $fallback;
+        }
+
+        return PageService::DEFAULT_NAMESPACE;
+    }
+
+    /**
      * Store the current session id for the given user.
      */
     public function persistSession(int $userId, string $sessionId): void {
@@ -59,5 +95,18 @@ class SessionService
 
         $del = $this->pdo->prepare('DELETE FROM user_sessions WHERE user_id=?');
         $del->execute([$userId]);
+    }
+
+    private function normalizeNamespace(?string $candidate): ?string {
+        if ($candidate === null) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($candidate));
+        if ($normalized === '') {
+            return null;
+        }
+
+        return $normalized;
     }
 }
