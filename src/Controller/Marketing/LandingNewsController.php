@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Domain\Page;
 use App\Service\LandingNewsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -22,16 +23,23 @@ class LandingNewsController
     private LandingNewsService $news;
 
     private PageService $pages;
+    private NamespaceResolver $namespaceResolver;
 
-    public function __construct(?LandingNewsService $news = null, ?PageService $pages = null)
+    public function __construct(
+        ?LandingNewsService $news = null,
+        ?PageService $pages = null,
+        ?NamespaceResolver $namespaceResolver = null
+    )
     {
         $this->news = $news ?? new LandingNewsService();
         $this->pages = $pages ?? new PageService();
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     public function index(Request $request, Response $response, array $args = []): Response
     {
-        $page = $this->resolvePage($args);
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $page = $this->resolvePage($args, $namespace);
         if ($page === null) {
             return $response->withStatus(404);
         }
@@ -42,7 +50,7 @@ class LandingNewsController
         if ($entries === []) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
             if ($baseSlug !== $page->getSlug()) {
-                $basePage = $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $baseSlug);
+                $basePage = $this->pages->findByKey($namespace, $baseSlug);
                 if ($basePage !== null) {
                     $fallbackEntries = $this->news->getPublishedForPage($basePage->getId(), 20);
                     if ($fallbackEntries !== []) {
@@ -79,7 +87,8 @@ class LandingNewsController
 
     public function show(Request $request, Response $response, array $args = []): Response
     {
-        $page = $this->resolvePage($args);
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $page = $this->resolvePage($args, $namespace);
         if ($page === null) {
             return $response->withStatus(404);
         }
@@ -95,7 +104,7 @@ class LandingNewsController
         if ($entry === null) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($page->getSlug());
             if ($baseSlug !== $page->getSlug()) {
-                $basePage = $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $baseSlug);
+                $basePage = $this->pages->findByKey($namespace, $baseSlug);
                 if ($basePage !== null) {
                     $entry = $this->news->findPublished($basePage->getSlug(), $newsSlug);
                     if ($entry !== null) {
@@ -130,7 +139,7 @@ class LandingNewsController
         ]);
     }
 
-    private function resolvePage(array $args): ?Page
+    private function resolvePage(array $args, string $namespace): ?Page
     {
         $slug = isset($args['landingSlug']) ? (string) $args['landingSlug'] : '';
         if ($slug === '') {
@@ -140,7 +149,7 @@ class LandingNewsController
             $slug = 'landing';
         }
 
-        return $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $slug);
+        return $this->pages->findByKey($namespace, $slug);
     }
 
     private function buildNewsBasePath(Request $request, string $pageSlug): string

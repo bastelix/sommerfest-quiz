@@ -8,6 +8,8 @@ use App\Domain\MarketingPageWikiArticle;
 use App\Domain\Page;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceContext;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
@@ -43,24 +45,30 @@ final class DomainChatKnowledgeController
 
     private ?PageService $pageService;
 
+    private NamespaceResolver $namespaceResolver;
+
     public function __construct(
         DomainDocumentStorage $storage,
         DomainIndexManager $indexManager,
         ?DomainWikiSelectionService $wikiSelection = null,
         ?MarketingPageWikiArticleService $wikiArticles = null,
-        ?PageService $pageService = null
+        ?PageService $pageService = null,
+        ?NamespaceResolver $namespaceResolver = null
     ) {
         $this->storage = $storage;
         $this->indexManager = $indexManager;
         $this->wikiSelection = $wikiSelection;
         $this->wikiArticles = $wikiArticles;
         $this->pageService = $pageService;
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     public function list(Request $request, Response $response): Response
     {
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+
         try {
-            $domain = $this->extractDomain($request);
+            $domain = $this->extractDomain($request, null, $namespaceContext);
         } catch (InvalidArgumentException $exception) {
             return $this->json($response, ['error' => $exception->getMessage()], 400);
         }
@@ -70,14 +78,16 @@ final class DomainChatKnowledgeController
         return $this->json($response, [
             'domain' => $domain,
             'documents' => $documents,
-            'wiki' => $this->buildWikiPayload($domain),
+            'wiki' => $this->buildWikiPayload($domain, $namespaceContext),
         ]);
     }
 
     public function upload(Request $request, Response $response): Response
     {
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+
         try {
-            $domain = $this->extractDomain($request);
+            $domain = $this->extractDomain($request, null, $namespaceContext);
         } catch (InvalidArgumentException $exception) {
             return $this->json($response, ['error' => $exception->getMessage()], 400);
         }
@@ -101,8 +111,10 @@ final class DomainChatKnowledgeController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+
         try {
-            $domain = $this->extractDomain($request);
+            $domain = $this->extractDomain($request, null, $namespaceContext);
         } catch (InvalidArgumentException $exception) {
             return $this->json($response, ['error' => $exception->getMessage()], 400);
         }
@@ -123,8 +135,10 @@ final class DomainChatKnowledgeController
 
     public function download(Request $request, Response $response): Response
     {
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+
         try {
-            $domain = $this->extractDomain($request);
+            $domain = $this->extractDomain($request, null, $namespaceContext);
         } catch (InvalidArgumentException $exception) {
             return $this->json($response, ['error' => $exception->getMessage()], 400);
         }
@@ -151,8 +165,10 @@ final class DomainChatKnowledgeController
 
     public function rebuild(Request $request, Response $response): Response
     {
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+
         try {
-            $domain = $this->extractDomain($request);
+            $domain = $this->extractDomain($request, null, $namespaceContext);
         } catch (InvalidArgumentException $exception) {
             return $this->json($response, ['error' => $exception->getMessage()], 400);
         }
@@ -178,9 +194,10 @@ final class DomainChatKnowledgeController
         }
 
         $body = $this->parseRequestBody($request);
+        $namespaceContext = $this->namespaceResolver->resolve($request);
 
         try {
-            $domain = $this->extractDomain($request, $body);
+            $domain = $this->extractDomain($request, $body, $namespaceContext);
         } catch (InvalidArgumentException $exception) {
             return $this->json($response, ['error' => $exception->getMessage()], 400);
         }
@@ -190,7 +207,7 @@ final class DomainChatKnowledgeController
             return $this->json($response, ['error' => 'invalid-payload'], 400);
         }
 
-        $page = $this->resolveWikiPage($domain);
+        $page = $this->resolveWikiPage($domain, $namespaceContext);
         if ($page === null) {
             if ($articles !== []) {
                 return $this->json($response, ['error' => 'wiki-not-available'], 422);
@@ -200,7 +217,7 @@ final class DomainChatKnowledgeController
 
             return $this->json($response, [
                 'success' => true,
-                'wiki' => $this->buildWikiPayload($domain),
+                'wiki' => $this->buildWikiPayload($domain, $namespaceContext),
             ]);
         }
 
@@ -237,14 +254,14 @@ final class DomainChatKnowledgeController
 
         return $this->json($response, [
             'success' => true,
-            'wiki' => $this->buildWikiPayload($domain),
+            'wiki' => $this->buildWikiPayload($domain, $namespaceContext),
         ]);
     }
 
     /**
      * @return array<string,mixed>
      */
-    private function buildWikiPayload(string $domain): array
+    private function buildWikiPayload(string $domain, NamespaceContext $namespaceContext): array
     {
         if ($this->wikiSelection === null || $this->wikiArticles === null || $this->pageService === null) {
             return [
@@ -255,7 +272,7 @@ final class DomainChatKnowledgeController
             ];
         }
 
-        $page = $this->resolveWikiPage($domain);
+        $page = $this->resolveWikiPage($domain, $namespaceContext);
         if ($page === null) {
             return [
                 'enabled' => true,
@@ -297,13 +314,14 @@ final class DomainChatKnowledgeController
         ];
     }
 
-    private function resolveWikiPage(string $domain): ?Page
+    private function resolveWikiPage(string $domain, NamespaceContext $namespaceContext): ?Page
     {
         if ($this->pageService === null) {
             return null;
         }
 
-        $page = $this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, $domain);
+        $namespace = $namespaceContext->getNamespace();
+        $page = $this->pageService->findByKey($namespace, $domain);
         if ($page instanceof Page) {
             return $page;
         }
@@ -313,7 +331,7 @@ final class DomainChatKnowledgeController
             return null;
         }
 
-        return $this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, $baseSlug);
+        return $this->pageService->findByKey($namespace, $baseSlug);
     }
 
     /**
@@ -340,7 +358,7 @@ final class DomainChatKnowledgeController
         return [];
     }
 
-    private function extractDomain(Request $request, ?array $body = null): string
+    private function extractDomain(Request $request, ?array $body = null, ?NamespaceContext $namespaceContext = null): string
     {
         $domain = '';
         $params = $request->getQueryParams();
@@ -360,8 +378,9 @@ final class DomainChatKnowledgeController
             throw new InvalidArgumentException('Invalid domain parameter.');
         }
 
-        if ($this->pageService !== null) {
-            $page = $this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, $candidate);
+        if ($this->pageService !== null && $namespaceContext !== null) {
+            $namespace = $namespaceContext->getNamespace();
+            $page = $this->pageService->findByKey($namespace, $candidate);
             if ($page instanceof Page) {
                 return $page->getSlug();
             }

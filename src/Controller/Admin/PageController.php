@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use InvalidArgumentException;
 use LogicException;
@@ -15,12 +16,14 @@ use Slim\Views\Twig;
 class PageController
 {
     private PageService $pageService;
+    private NamespaceResolver $namespaceResolver;
 
-    /** @var string[]|null */
-    private ?array $editableSlugs = null;
+    /** @var array<string, string[]> */
+    private array $editableSlugs = [];
 
-    public function __construct(?PageService $pageService = null) {
+    public function __construct(?PageService $pageService = null, ?NamespaceResolver $namespaceResolver = null) {
         $this->pageService = $pageService ?? new PageService();
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     /**
@@ -28,11 +31,12 @@ class PageController
      */
     public function edit(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
-        if (!in_array($slug, $this->getEditableSlugs(), true)) {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
             return $response->withStatus(404);
         }
 
-        $content = $this->pageService->getByKey(PageService::DEFAULT_NAMESPACE, (string) $slug);
+        $content = $this->pageService->getByKey($namespace, (string) $slug);
         if ($content === null) {
             return $response->withStatus(404);
         }
@@ -49,33 +53,35 @@ class PageController
      */
     public function update(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
-        if (!in_array($slug, $this->getEditableSlugs(), true)) {
-            return $response->withStatus(404);
-        }
-
         $data = $request->getParsedBody();
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
 
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
         $html = (string)($data['content'] ?? '');
-        $this->pageService->save(PageService::DEFAULT_NAMESPACE, (string) $slug, $html);
+        $this->pageService->save($namespace, (string) $slug, $html);
 
         return $response->withStatus(204);
     }
 
     public function delete(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
-        if (!in_array($slug, $this->getEditableSlugs(), true)) {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
             return $response->withStatus(404);
         }
 
-        if ($this->pageService->findByKey(PageService::DEFAULT_NAMESPACE, (string) $slug) === null) {
+        if ($this->pageService->findByKey($namespace, (string) $slug) === null) {
             return $response->withStatus(404);
         }
 
-        $this->pageService->delete(PageService::DEFAULT_NAMESPACE, (string) $slug);
-        $this->editableSlugs = null;
+        $this->pageService->delete($namespace, (string) $slug);
+        unset($this->editableSlugs[$namespace]);
 
         return $response->withStatus(204);
     }
@@ -101,8 +107,10 @@ class PageController
         $title = isset($data['title']) ? (string) $data['title'] : '';
         $content = isset($data['content']) ? (string) $data['content'] : '';
 
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+
         try {
-            $page = $this->pageService->create(PageService::DEFAULT_NAMESPACE, $slug, $title, $content);
+            $page = $this->pageService->create($namespace, $slug, $title, $content);
         } catch (InvalidArgumentException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
 
@@ -148,14 +156,14 @@ class PageController
      *
      * @return string[]
      */
-    private function getEditableSlugs(): array {
-        if ($this->editableSlugs !== null) {
-            return $this->editableSlugs;
+    private function getEditableSlugs(string $namespace): array {
+        if (isset($this->editableSlugs[$namespace])) {
+            return $this->editableSlugs[$namespace];
         }
 
         $slugs = [];
         foreach ($this->pageService->getAll() as $page) {
-            if ($page->getNamespace() !== PageService::DEFAULT_NAMESPACE) {
+            if ($page->getNamespace() !== $namespace) {
                 continue;
             }
             $slug = $page->getSlug();
@@ -165,8 +173,8 @@ class PageController
             $slugs[$slug] = true;
         }
 
-        $this->editableSlugs = array_keys($slugs);
+        $this->editableSlugs[$namespace] = array_keys($slugs);
 
-        return $this->editableSlugs;
+        return $this->editableSlugs[$namespace];
     }
 }

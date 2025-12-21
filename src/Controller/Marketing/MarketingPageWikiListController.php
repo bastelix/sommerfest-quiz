@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\FeatureFlags;
 use App\Support\MarketingWikiThemeResolver;
@@ -23,14 +24,18 @@ final class MarketingPageWikiListController
 
     private MarketingPageWikiArticleService $articleService;
 
+    private NamespaceResolver $namespaceResolver;
+
     public function __construct(
         ?PageService $pageService = null,
         ?MarketingPageWikiSettingsService $settingsService = null,
-        ?MarketingPageWikiArticleService $articleService = null
+        ?MarketingPageWikiArticleService $articleService = null,
+        ?NamespaceResolver $namespaceResolver = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->settingsService = $settingsService ?? new MarketingPageWikiSettingsService();
         $this->articleService = $articleService ?? new MarketingPageWikiArticleService();
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -46,7 +51,7 @@ final class MarketingPageWikiListController
 
         $locale = (string) $request->getAttribute('lang', 'de');
         $pageSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
-        $namespace = PageService::DEFAULT_NAMESPACE;
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $page = $this->pageService->findByKey($namespace, $pageSlug);
         if ($page === null && $pageSlug !== $slug) {
             $page = $this->pageService->findByKey($namespace, $slug);

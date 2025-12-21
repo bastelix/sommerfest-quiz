@@ -11,6 +11,7 @@ use App\Service\MailService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceResolver;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
@@ -62,6 +63,7 @@ class MarketingPageController
     private MarketingPageWikiArticleService $wikiArticles;
     private PageContentLoader $contentLoader;
     private PageModuleService $pageModules;
+    private NamespaceResolver $namespaceResolver;
 
     public function __construct(
         ?string $slug = null,
@@ -73,7 +75,8 @@ class MarketingPageController
         ?MarketingPageWikiSettingsService $wikiSettings = null,
         ?MarketingPageWikiArticleService $wikiArticles = null,
         ?PageContentLoader $contentLoader = null,
-        ?PageModuleService $pageModules = null
+        ?PageModuleService $pageModules = null,
+        ?NamespaceResolver $namespaceResolver = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -85,6 +88,7 @@ class MarketingPageController
         $this->wikiArticles = $wikiArticles ?? new MarketingPageWikiArticleService();
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
         $this->pageModules = $pageModules ?? new PageModuleService();
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -96,7 +100,7 @@ class MarketingPageController
         $locale = (string) $request->getAttribute('lang');
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
-        $namespace = PageService::DEFAULT_NAMESPACE;
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $page = $this->pages->findByKey($namespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
             $page = $this->pages->findByKey($namespace, $templateSlug);

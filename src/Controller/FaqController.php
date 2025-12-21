@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -21,7 +22,8 @@ class FaqController
      */
     public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
-        $html = $service->getByKey(PageService::DEFAULT_NAMESPACE, 'faq');
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $html = $service->getByKey($namespace, 'faq');
         if ($html === null) {
             return $response->withStatus(404);
         }
