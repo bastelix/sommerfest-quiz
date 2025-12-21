@@ -322,14 +322,15 @@ final class NamespaceController
             ];
         }
 
-        if (!array_filter(
+        $currentNamespaceExists = array_filter(
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
-        )) {
+        );
+        if (!$currentNamespaceExists) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
-                'label' => null,
-                'is_active' => true,
+                'label' => 'nicht gespeichert',
+                'is_active' => false,
                 'created_at' => null,
                 'updated_at' => null,
             ];
