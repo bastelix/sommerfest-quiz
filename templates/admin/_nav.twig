@@ -79,7 +79,7 @@
 {% set current = currentPath %}
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set projectModules = [
-  { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview') },
+  { href: basePath ~ '/admin/projects', icon: 'grid', text: 'Übersicht' },
   { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages'), query: 'pageTab=content', pageTab: 'content' },
   { href: basePath ~ '/admin/pages', icon: 'search', text: t('tab_page_seo_base'), query: 'pageTab=seo', pageTab: 'seo' },
   { href: basePath ~ '/admin/pages', icon: 'file-text', text: 'Wiki', query: 'pageTab=wiki', pageTab: 'wiki' },
