@@ -210,9 +210,14 @@ const buildProjectPageTreeList = (nodes, level = 0) => {
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
     const info = document.createElement('div');
-    const title = document.createElement('span');
-    title.className = 'uk-text-bold';
-    title.textContent = node.title || node.slug || 'Ohne Titel';
+    const label = node.title || node.slug || 'Ohne Titel';
+    const title = node.editUrl
+      ? createProjectLink(label, node.editUrl, 'uk-text-bold')
+      : document.createElement('span');
+    if (!node.editUrl) {
+      title.className = 'uk-text-bold';
+      title.textContent = label;
+    }
     info.appendChild(title);
 
     if (node.slug) {
@@ -274,6 +279,16 @@ const createProjectStatusLabel = (text, status) => {
   return label;
 };
 
+const createProjectLink = (label, url, className = '') => {
+  const link = document.createElement('a');
+  link.textContent = label;
+  link.href = url;
+  if (className) {
+    link.className = className;
+  }
+  return link;
+};
+
 const buildProjectWikiList = (entries) => {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-divider';
@@ -284,9 +299,14 @@ const buildProjectWikiList = (entries) => {
     header.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
     const info = document.createElement('div');
-    const pageTitle = document.createElement('span');
-    pageTitle.className = 'uk-text-bold';
-    pageTitle.textContent = entry.page?.title || entry.page?.slug || 'Ohne Titel';
+    const pageLabel = entry.page?.title || entry.page?.slug || 'Ohne Titel';
+    const pageTitle = entry.page?.editUrl
+      ? createProjectLink(pageLabel, entry.page.editUrl, 'uk-text-bold')
+      : document.createElement('span');
+    if (!entry.page?.editUrl) {
+      pageTitle.className = 'uk-text-bold';
+      pageTitle.textContent = pageLabel;
+    }
     info.appendChild(pageTitle);
 
     if (entry.page?.slug) {
@@ -308,8 +328,13 @@ const buildProjectWikiList = (entries) => {
         articleRow.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
         const articleInfo = document.createElement('div');
-        const articleTitle = document.createElement('span');
-        articleTitle.textContent = article.title || article.slug || 'Ohne Titel';
+        const articleLabel = article.title || article.slug || 'Ohne Titel';
+        const articleTitle = article.editUrl
+          ? createProjectLink(articleLabel, article.editUrl)
+          : document.createElement('span');
+        if (!article.editUrl) {
+          articleTitle.textContent = articleLabel;
+        }
         articleInfo.appendChild(articleTitle);
         if (article.slug) {
           const articleSlug = document.createElement('span');
@@ -365,9 +390,14 @@ const buildProjectNewsList = (entries) => {
     header.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
     const info = document.createElement('div');
-    const pageTitle = document.createElement('span');
-    pageTitle.className = 'uk-text-bold';
-    pageTitle.textContent = entry.page?.title || entry.page?.slug || 'Ohne Titel';
+    const pageLabel = entry.page?.title || entry.page?.slug || 'Ohne Titel';
+    const pageTitle = entry.page?.editUrl
+      ? createProjectLink(pageLabel, entry.page.editUrl, 'uk-text-bold')
+      : document.createElement('span');
+    if (!entry.page?.editUrl) {
+      pageTitle.className = 'uk-text-bold';
+      pageTitle.textContent = pageLabel;
+    }
     info.appendChild(pageTitle);
 
     if (entry.page?.slug) {
@@ -389,8 +419,13 @@ const buildProjectNewsList = (entries) => {
         newsRow.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
         const newsInfo = document.createElement('div');
-        const newsTitle = document.createElement('span');
-        newsTitle.textContent = news.title || news.slug || 'Ohne Titel';
+        const newsLabel = news.title || news.slug || 'Ohne Titel';
+        const newsTitle = news.editUrl
+          ? createProjectLink(newsLabel, news.editUrl)
+          : document.createElement('span');
+        if (!news.editUrl) {
+          newsTitle.textContent = newsLabel;
+        }
         newsInfo.appendChild(newsTitle);
         if (news.slug) {
           const newsSlug = document.createElement('span');
@@ -433,8 +468,14 @@ const buildProjectSlugList = (slugs) => {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
   slugs.forEach(slug => {
+    const entry = typeof slug === 'string' ? { slug } : slug || {};
+    const label = entry.slug || '';
     const item = document.createElement('li');
-    item.textContent = slug;
+    if (entry.editUrl) {
+      item.appendChild(createProjectLink(label, entry.editUrl));
+    } else {
+      item.textContent = label;
+    }
     list.appendChild(item);
   });
   return list;

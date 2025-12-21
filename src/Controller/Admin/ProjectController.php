@@ -15,9 +15,15 @@ use App\Service\LandingNewsService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\PageService;
+use App\Support\BasePathHelper;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteContext;
+
+use function http_build_query;
+use function is_array;
+use function rawurlencode;
 
 class ProjectController
 {
@@ -53,6 +59,7 @@ class ProjectController
      */
     public function tree(Request $request, Response $response): Response
     {
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $pageTree = $this->pageService->getTree();
         $treeByNamespace = [];
         $knownNamespaces = [];
@@ -81,10 +88,10 @@ class ProjectController
             $namespacePages = $pagesByNamespace[$namespace] ?? [];
             $payload[] = [
                 'namespace' => $namespace,
-                'pages' => array_values($treeByNamespace[$namespace] ?? []),
-                'wiki' => $this->buildWikiEntries($namespacePages),
-                'landingNews' => $this->buildLandingNewsEntries($namespacePages),
-                'newsletterSlugs' => $this->buildNewsletterSlugs($namespace),
+                'pages' => $this->mapTreeNodes($treeByNamespace[$namespace] ?? [], $basePath, $namespace),
+                'wiki' => $this->buildWikiEntries($namespacePages, $basePath, $namespace),
+                'landingNews' => $this->buildLandingNewsEntries($namespacePages, $basePath, $namespace),
+                'newsletterSlugs' => $this->buildNewsletterSlugs($namespace, $basePath),
                 'mediaReferences' => $this->buildMediaReferences($namespace),
             ];
         }
@@ -97,9 +104,9 @@ class ProjectController
     /**
      * @param Page[] $pages
      *
-     * @return list<array{page:array{id:int,slug:string,title:string},articles:list<array{id:int,slug:string,title:string,locale:string,status:string,isStartDocument:bool}>}>
+     * @return list<array{page:array{id:int,slug:string,title:string,editUrl:?string},articles:list<array{id:int,slug:string,title:string,locale:string,status:string,isStartDocument:bool,editUrl:?string}>}>
      */
-    private function buildWikiEntries(array $pages): array
+    private function buildWikiEntries(array $pages, string $basePath, string $namespace): array
     {
         $entries = [];
         foreach ($pages as $page) {
@@ -109,8 +116,16 @@ class ProjectController
             }
 
             $entries[] = [
-                'page' => $this->mapPage($page),
-                'articles' => array_map([$this, 'mapWikiArticle'], $articles),
+                'page' => $this->mapPage($page, $basePath, $namespace),
+                'articles' => array_map(
+                    fn (MarketingPageWikiArticle $article): array => $this->mapWikiArticle(
+                        $article,
+                        $basePath,
+                        $namespace,
+                        $page->getId()
+                    ),
+                    $articles
+                ),
             ];
         }
 
@@ -120,9 +135,9 @@ class ProjectController
     /**
      * @param Page[] $pages
      *
-     * @return list<array{page:array{id:int,slug:string,title:string},items:list<array{id:int,slug:string,title:string,isPublished:bool,publishedAt:?string}>}>
+     * @return list<array{page:array{id:int,slug:string,title:string,editUrl:?string},items:list<array{id:int,slug:string,title:string,isPublished:bool,publishedAt:?string,editUrl:?string}>}>
      */
-    private function buildLandingNewsEntries(array $pages): array
+    private function buildLandingNewsEntries(array $pages, string $basePath, string $namespace): array
     {
         $entries = [];
         foreach ($pages as $page) {
@@ -132,8 +147,11 @@ class ProjectController
             }
 
             $entries[] = [
-                'page' => $this->mapPage($page),
-                'items' => array_map([$this, 'mapLandingNews'], $newsItems),
+                'page' => $this->mapPage($page, $basePath, $namespace),
+                'items' => array_map(
+                    fn (LandingNews $news): array => $this->mapLandingNews($news, $basePath, $namespace),
+                    $newsItems
+                ),
             ];
         }
 
@@ -141,15 +159,27 @@ class ProjectController
     }
 
     /**
-     * @return list<string>
+     * @return list<array{slug:string,editUrl:string}>
      */
-    private function buildNewsletterSlugs(string $namespace): array
+    private function buildNewsletterSlugs(string $namespace, string $basePath): array
     {
         $newsletterConfigs = $this->newsletterService->getAllGrouped($namespace);
         $slugs = array_keys($newsletterConfigs);
         sort($slugs);
 
-        return array_values($slugs);
+        return array_values(array_map(
+            fn (string $slug): array => [
+                'slug' => $slug,
+                'editUrl' => $this->buildAdminUrl(
+                    $basePath,
+                    '/admin/management',
+                    $namespace,
+                    [],
+                    'marketingNewsletterConfigSection'
+                ),
+            ],
+            $slugs
+        ));
     }
 
     /**
@@ -178,22 +208,47 @@ class ProjectController
     }
 
     /**
-     * @return array{id:int,slug:string,title:string}
+     * @return array{id:int,slug:string,title:string,editUrl:?string}
      */
-    private function mapPage(Page $page): array
+    private function mapPage(Page $page, string $basePath, string $namespace): array
     {
+        $slug = $page->getSlug();
+        $editUrl = $slug !== ''
+            ? $this->buildAdminUrl(
+                $basePath,
+                '/admin/pages/' . rawurlencode($slug),
+                $namespace
+            )
+            : null;
+
         return [
             'id' => $page->getId(),
-            'slug' => $page->getSlug(),
+            'slug' => $slug,
             'title' => $page->getTitle(),
+            'editUrl' => $editUrl,
         ];
     }
 
     /**
-     * @return array{id:int,slug:string,title:string,locale:string,status:string,isStartDocument:bool}
+     * @return array{id:int,slug:string,title:string,locale:string,status:string,isStartDocument:bool,editUrl:?string}
      */
-    private function mapWikiArticle(MarketingPageWikiArticle $article): array
-    {
+    private function mapWikiArticle(
+        MarketingPageWikiArticle $article,
+        string $basePath,
+        string $namespace,
+        int $pageId
+    ): array {
+        $editUrl = $this->buildAdminUrl(
+            $basePath,
+            '/admin/pages',
+            $namespace,
+            [
+                'pageTab' => 'wiki',
+                'wikiPageId' => $pageId,
+                'wikiArticleId' => $article->getId(),
+            ]
+        );
+
         return [
             'id' => $article->getId(),
             'slug' => $article->getSlug(),
@@ -201,13 +256,14 @@ class ProjectController
             'locale' => $article->getLocale(),
             'status' => $article->getStatus(),
             'isStartDocument' => $article->isStartDocument(),
+            'editUrl' => $editUrl,
         ];
     }
 
     /**
-     * @return array{id:int,slug:string,title:string,isPublished:bool,publishedAt:?string}
+     * @return array{id:int,slug:string,title:string,isPublished:bool,publishedAt:?string,editUrl:?string}
      */
-    private function mapLandingNews(LandingNews $news): array
+    private function mapLandingNews(LandingNews $news, string $basePath, string $namespace): array
     {
         return [
             'id' => $news->getId(),
@@ -215,7 +271,70 @@ class ProjectController
             'title' => $news->getTitle(),
             'isPublished' => $news->isPublished(),
             'publishedAt' => $news->getPublishedAt()?->format(DATE_ATOM),
+            'editUrl' => $this->buildAdminUrl(
+                $basePath,
+                '/admin/landing-news/' . $news->getId(),
+                $namespace
+            ),
         ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $nodes
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function mapTreeNodes(array $nodes, string $basePath, string $namespace): array
+    {
+        $mapped = [];
+        foreach ($nodes as $node) {
+            if (!is_array($node)) {
+                continue;
+            }
+            $slug = isset($node['slug']) ? (string) $node['slug'] : '';
+            $editUrl = $slug !== ''
+                ? $this->buildAdminUrl(
+                    $basePath,
+                    '/admin/pages/' . rawurlencode($slug),
+                    $namespace
+                )
+                : null;
+            $children = [];
+            if (isset($node['children']) && is_array($node['children'])) {
+                $children = $this->mapTreeNodes($node['children'], $basePath, $namespace);
+            }
+            $mappedNode = $node;
+            $mappedNode['editUrl'] = $editUrl;
+            $mappedNode['children'] = $children;
+            $mapped[] = $mappedNode;
+        }
+
+        return $mapped;
+    }
+
+    /**
+     * @param array<string, string|int> $query
+     */
+    private function buildAdminUrl(
+        string $basePath,
+        string $path,
+        string $namespace,
+        array $query = [],
+        string $fragment = ''
+    ): string {
+        $params = $query;
+        if ($namespace !== '') {
+            $params = array_merge(['namespace' => $namespace], $params);
+        }
+        $url = $basePath . $path;
+        if ($params !== []) {
+            $url .= '?' . http_build_query($params);
+        }
+        if ($fragment !== '') {
+            $url .= '#' . ltrim($fragment, '#');
+        }
+
+        return $url;
     }
 
     private function normalizeNamespace(string $namespace): string
