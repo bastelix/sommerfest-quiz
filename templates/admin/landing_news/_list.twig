@@ -1,6 +1,8 @@
 {% set newsEntries = entries|default([]) %}
 {% set newsStatus = status|default('') %}
 {% set token = csrfToken|default('') %}
+{% set pageNamespace = pageNamespace|default('') %}
+{% set namespaceQuery = pageNamespace is not empty ? '?namespace=' ~ pageNamespace|url_encode : '' %}
 
 {% if newsStatus == 'created' %}
   <div class="uk-alert-success" uk-alert>{{ t('message_news_created') }}</div>
@@ -53,11 +55,11 @@
               <div uk-dropdown="mode: click; pos: bottom-right; offset: 0; container: .admin-page">
                 <ul class="uk-nav uk-dropdown-nav">
                   <li>
-                    <a href="{{ basePath }}/admin/landing-news/{{ entry.id }}" uk-dropdown-close>{{ t('action_edit') }}</a>
+                    <a href="{{ basePath }}/admin/landing-news/{{ entry.id }}{{ namespaceQuery }}" uk-dropdown-close>{{ t('action_edit') }}</a>
                   </li>
                   <li class="uk-nav-divider"></li>
                   <li>
-                    <form method="post" action="{{ basePath }}/admin/landing-news/{{ entry.id }}/delete" onsubmit="return confirm('{{ t('confirm_news_delete') }}');">
+                    <form method="post" action="{{ basePath }}/admin/landing-news/{{ entry.id }}/delete{{ namespaceQuery }}" onsubmit="return confirm('{{ t('confirm_news_delete') }}');">
                       <input type="hidden" name="_token" value="{{ token }}">
                       <button type="submit" class="uk-button uk-button-link uk-text-danger uk-width-1-1 uk-text-left" uk-dropdown-close>{{ t('action_delete') }}</button>
                     </form>

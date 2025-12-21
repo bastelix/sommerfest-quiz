@@ -615,10 +615,33 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminMenu = document.getElementById('adminMenu');
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
+  const pageNamespaceSelect = document.getElementById('pageNamespaceSelect');
+  const pageTabs = document.getElementById('pageTabs');
 
   if (window.domainType !== 'main') {
     adminTabs?.querySelector('[data-route="tenants"]')?.remove();
     adminMenu?.querySelector('a[href$="/admin/tenants"]')?.parentElement?.remove();
+  }
+
+  const resolveActivePageTab = () => pageTabs?.querySelector('li.uk-active')?.dataset.pageTab || '';
+  if (pageNamespaceSelect) {
+    const currentNamespace = pageNamespaceSelect.dataset.pageNamespace || pageNamespaceSelect.value || '';
+    if (currentNamespace && pageNamespaceSelect.value !== currentNamespace) {
+      pageNamespaceSelect.value = currentNamespace;
+    }
+    pageNamespaceSelect.addEventListener('change', () => {
+      const selectedNamespace = pageNamespaceSelect.value || '';
+      if (!selectedNamespace) {
+        return;
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set('namespace', selectedNamespace);
+      const activeTab = resolveActivePageTab();
+      if (activeTab) {
+        url.searchParams.set('pageTab', activeTab);
+      }
+      window.location.assign(url.toString());
+    });
   }
 
   const adminRoutes = Array.from(adminTabs ? adminTabs.querySelectorAll('li') : [])

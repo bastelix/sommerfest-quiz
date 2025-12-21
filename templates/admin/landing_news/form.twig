@@ -11,7 +11,9 @@
 {% set published = formValues.is_published is defined ? formValues.is_published : (isEdit ? entry.isPublished : false) %}
 {% set publishedAt = formValues.published_at|default(isEdit and entry.publishedAt ? entry.publishedAt|date('Y-m-d\\TH:i') : '') %}
 {% set slug = formValues.slug|default(isEdit ? entry.slug : '') %}
-{% set formAction = isEdit ? basePath ~ '/admin/landing-news/' ~ entry.id : basePath ~ '/admin/landing-news' %}
+{% set pageNamespace = pageNamespace|default('') %}
+{% set namespaceQuery = pageNamespace is not empty ? '?namespace=' ~ pageNamespace|url_encode : '' %}
+{% set formAction = (isEdit ? basePath ~ '/admin/landing-news/' ~ entry.id : basePath ~ '/admin/landing-news') ~ namespaceQuery %}
 
 {% block title %}{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}{% endblock %}
 
@@ -119,7 +121,7 @@
           </div>
           <div class="uk-width-1-1 uk-margin-top">
             <button type="submit" class="uk-button uk-button-primary">{{ t('button_save') }}</button>
-            <a class="uk-button uk-button-default" href="{{ basePath }}/admin/pages?pageTab=landing-news">{{ t('button_cancel') }}</a>
+            <a class="uk-button uk-button-default" href="{{ basePath }}/admin/pages?pageTab=landing-news{% if pageNamespace is not empty %}&namespace={{ pageNamespace|url_encode }}{% endif %}">{{ t('button_cancel') }}</a>
           </div>
           {% if error %}
             <div class="uk-width-1-1">

@@ -16,6 +16,21 @@ const sanitize = str => {
   }
   return value;
 };
+
+const resolvePageNamespace = () => {
+  const select = document.getElementById('pageNamespaceSelect');
+  const candidate = select?.value || select?.dataset.pageNamespace || window.pageNamespace || '';
+  return String(candidate || '').trim();
+};
+
+const withNamespace = (url) => {
+  const namespace = resolvePageNamespace();
+  if (!namespace) {
+    return url;
+  }
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}namespace=${encodeURIComponent(namespace)}`;
+};
 $.extend(true, $.trumbowyg, {
   langs: { de: { template: 'Vorlage', variable: 'Variable' } },
   plugins: {
@@ -481,7 +496,7 @@ const setupPageForm = form => {
       if (window.pagesContent && typeof window.pagesContent === 'object') {
         window.pagesContent[slug] = html;
       }
-      apiFetch(`/admin/pages/${encodeURIComponent(slug)}`, {
+      apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(slug)}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ content: html })
@@ -506,7 +521,7 @@ const setupPageForm = form => {
         return;
       }
 
-      apiFetch(`/admin/pages/${encodeURIComponent(slug)}`, { method: 'DELETE' })
+      apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(slug)}`), { method: 'DELETE' })
         .then(response => {
           if (response.status === 204) {
             removePageFromInterface(slug);
@@ -732,7 +747,7 @@ const initPageCreation = () => {
     }
 
     try {
-      const response = await apiFetch('/admin/pages', {
+      const response = await apiFetch(withNamespace('/admin/pages'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -887,7 +902,7 @@ function buildPageTreeList(nodes, level = 0) {
 
 function resolveActiveNamespace(container) {
   const select = document.getElementById('pageNamespaceSelect');
-  const candidate = select?.dataset.pageNamespace || select?.value || container?.dataset.namespace || '';
+  const candidate = select?.value || select?.dataset.pageNamespace || container?.dataset.namespace || '';
   return candidate.trim();
 }
 
@@ -957,7 +972,7 @@ async function initPageTree() {
   const loading = container.querySelector('[data-page-tree-loading]');
   const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
   const errorMessage = container.dataset.error || 'Seitenbaum konnte nicht geladen werden.';
-  const endpoint = container.dataset.endpoint || '/admin/pages/tree';
+  const endpoint = withNamespace(container.dataset.endpoint || '/admin/pages/tree');
 
   try {
     const response = await (window.apiFetch ? window.apiFetch(endpoint) : fetch(endpoint));
