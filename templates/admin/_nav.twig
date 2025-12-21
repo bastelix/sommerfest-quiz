@@ -79,6 +79,7 @@
 {% set current = currentPath %}
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set projectModules = [
+  { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview') },
   { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages') },
   { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news') },
   { href: basePath ~ '/admin/management', icon: 'mail', text: t('tab_newsletter'), anchor: '#marketingNewsletterConfigSection' },

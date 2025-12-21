@@ -31,6 +31,7 @@ return [
     'tab_summary' => 'Summary',
     'tab_results' => 'Results',
     'tab_statistics' => 'Statistics',
+    'tab_project_overview' => 'Overview',
     'tab_pages' => 'Pages',
     'tab_landing_news' => 'Landing news',
     'tab_newsletter' => 'Newsletter',

@@ -1354,6 +1354,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/projects', function (Request $request, Response $response) {
+        $controller = new ProjectController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN))
         ->add($namespaceQueryMiddleware);
