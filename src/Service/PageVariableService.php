@@ -15,10 +15,14 @@ class PageVariableService
     /**
      * Apply profile-based replacements on the given HTML.
      */
-    public static function apply(string $html): string {
+    public static function apply(string $html, ?string $namespace = null): string {
+        $namespace = $namespace !== null && $namespace !== ''
+            ? $namespace
+            : PageService::DEFAULT_NAMESPACE;
+
         try {
             $pdo = Database::connectFromEnv();
-            $profile = (new TenantService($pdo))->getMainTenant();
+            $profile = (new TenantService($pdo))->getNamespaceProfile($namespace);
         } catch (\Throwable $e) {
             $file = dirname(__DIR__, 2) . '/data/profile.json';
             $profile = is_readable($file)

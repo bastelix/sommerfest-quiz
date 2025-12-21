@@ -757,6 +757,22 @@ class TenantService
     }
 
     /**
+     * Retrieve namespace-specific profile data with a fallback to the default namespace.
+     *
+     * @return array<string,mixed>
+     */
+    public function getNamespaceProfile(string $namespace): array {
+        $normalized = $this->normalizeNamespace($namespace);
+        $profile = $this->fetchNamespaceProfile($normalized);
+
+        if ($profile === null && $normalized !== PageService::DEFAULT_NAMESPACE) {
+            $profile = $this->fetchNamespaceProfile(PageService::DEFAULT_NAMESPACE);
+        }
+
+        return $profile ?? $this->getMainTenant();
+    }
+
+    /**
      * Retrieve the main-domain profile, seeding it from the legacy JSON file if necessary.
      *
      * @return array<string,mixed>
@@ -897,6 +913,10 @@ class TenantService
         $sql = 'UPDATE tenants SET ' . implode(', ', $set) . ' WHERE subdomain = ?';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+
+        if ($subdomain === self::MAIN_SUBDOMAIN) {
+            $this->syncNamespaceProfile(PageService::DEFAULT_NAMESPACE, $data);
+        }
     }
 
     public function updateOnboardingState(string $subdomain, string $state): void {
@@ -905,6 +925,71 @@ class TenantService
         }
         $stmt = $this->pdo->prepare('UPDATE tenants SET onboarding_state = ? WHERE subdomain = ?');
         $stmt->execute([$state, $subdomain]);
+    }
+
+    private function fetchNamespaceProfile(string $namespace): ?array {
+        if (!$this->hasTable('namespace_profile')) {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT namespace, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email '
+            . 'FROM namespace_profile WHERE namespace = ?'
+        );
+        $stmt->execute([$namespace]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row === false ? null : $row;
+    }
+
+    private function normalizeNamespace(string $namespace): string {
+        $normalized = strtolower(trim($namespace));
+
+        return $normalized !== '' ? $normalized : PageService::DEFAULT_NAMESPACE;
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function syncNamespaceProfile(string $namespace, array $data): void {
+        if (!$this->hasTable('namespace_profile')) {
+            return;
+        }
+
+        $fields = [
+            'imprint_name',
+            'imprint_street',
+            'imprint_zip',
+            'imprint_city',
+            'imprint_email',
+        ];
+
+        $payload = [];
+        foreach ($fields as $field) {
+            if (array_key_exists($field, $data)) {
+                $payload[$field] = $data[$field];
+            }
+        }
+
+        if ($payload === []) {
+            return;
+        }
+
+        $columns = array_merge(['namespace'], array_keys($payload));
+        $placeholders = array_fill(0, count($columns), '?');
+        $updates = [];
+        foreach (array_keys($payload) as $field) {
+            $updates[] = $field . ' = EXCLUDED.' . $field;
+        }
+
+        $sql = sprintf(
+            'INSERT INTO namespace_profile (%s) VALUES (%s) ON CONFLICT (namespace) DO UPDATE SET %s',
+            implode(', ', $columns),
+            implode(', ', $placeholders),
+            implode(', ', $updates)
+        );
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(array_merge([$namespace], array_values($payload)));
     }
 
     /**

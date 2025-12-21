@@ -320,6 +320,16 @@ CREATE TABLE IF NOT EXISTS tenants (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS namespace_profile (
+    namespace TEXT PRIMARY KEY,
+    imprint_name TEXT,
+    imprint_street TEXT,
+    imprint_zip TEXT,
+    imprint_city TEXT,
+    imprint_email TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Active event
 CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,
