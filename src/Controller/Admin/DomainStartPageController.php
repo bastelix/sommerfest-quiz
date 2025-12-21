@@ -92,6 +92,9 @@ class DomainStartPageController
         $smtpPass = array_key_exists('smtp_pass', $data)
             ? (string) $data['smtp_pass']
             : DomainStartPageService::SECRET_PLACEHOLDER;
+        $normalizedStartPage = $this->domainService->normalizeStartPageKey($startPage, $this->pageService);
+        $startPage = $normalizedStartPage['key'];
+
         if ($domain === '' || $startPage === '' || !in_array($startPage, $validStartPages, true)) {
             return $response->withStatus(400);
         }
@@ -501,6 +504,7 @@ class DomainStartPageController
         $mappings = $this->domainService->getAllMappings();
         $mainNormalized = $this->domainService->normalizeDomain((string) $mainDomain);
         $defaultMain = $this->settingsService->get('home_page', 'help');
+        $defaultMainKey = $this->domainService->normalizeStartPageKey($defaultMain, $this->pageService)['key'];
 
         $combined = [];
         foreach ($domains as $item) {
@@ -584,11 +588,12 @@ class DomainStartPageController
         foreach ($ordered as $item) {
             $startPage = $item['start_page'];
             if ($item['type'] === 'main' && ($startPage === null || $startPage === '')) {
-                $startPage = $defaultMain;
+                $startPage = $defaultMainKey;
             }
             if ($startPage === null || $startPage === '') {
                 $startPage = 'landing';
             }
+            $startPage = $this->domainService->normalizeStartPageKey($startPage, $this->pageService)['key'];
 
             $items[] = [
                 'domain' => $item['domain'],

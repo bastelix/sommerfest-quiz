@@ -194,7 +194,8 @@ class LandingpageController
         $mappings = $this->domainService->getAllMappings();
         $domainsBySlug = [];
         foreach ($mappings as $domain => $config) {
-            $slug = trim($config['start_page']);
+            $parsed = $this->domainService->parseStartPageKey($config['start_page']);
+            $slug = $parsed['slug'];
             if ($slug === '') {
                 continue;
             }

@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
+use App\Service\DomainStartPageService;
 use App\Service\EventService;
 use App\Service\SettingsService;
 use App\Service\ResultService;
@@ -33,6 +34,7 @@ class HomeController
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
         $settingsSvc = new SettingsService($pdo);
+        $domainStartPageService = new DomainStartPageService($pdo);
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -72,6 +74,14 @@ class HomeController
             $domainStartPage = $request->getAttribute('domainStartPage');
             if (is_string($domainStartPage) && $domainStartPage !== '') {
                 $home = $domainStartPage;
+            } else {
+                $parsed = $domainStartPageService->parseStartPageKey((string) $home);
+                if ($parsed['slug'] !== '') {
+                    $home = $parsed['slug'];
+                }
+                if ($parsed['namespace'] !== null && $request->getAttribute('pageNamespace') === null) {
+                    $request = $request->withAttribute('pageNamespace', $parsed['namespace']);
+                }
             }
             if ($home === 'events') {
                 $events = $eventSvc->getAll();

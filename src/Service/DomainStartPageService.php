@@ -18,6 +18,8 @@ class DomainStartPageService
 
     private const EXCLUDED_LEGAL_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
 
+    private const START_PAGE_NAMESPACE_SEPARATOR = ':';
+
     public const SECRET_PLACEHOLDER = '__SECRET_KEEP__';
 
     private PDO $pdo;
@@ -179,7 +181,7 @@ class DomainStartPageService
     /**
      * Build the available start page options combining core pages and marketing pages.
      *
-     * @return array<string,string> Map of slug => label
+     * @return array<string,string> Map of start page key => label
      */
     public function getStartPageOptions(PageService $pageService): array {
         $options = [];
@@ -187,6 +189,9 @@ class DomainStartPageService
         foreach (self::CORE_START_PAGES as $slug) {
             $options[$slug] = $this->buildLabelFromSlug($slug);
         }
+
+        $namespaceIndex = $this->collectPageNamespaceIndex($pageService);
+        $ambiguousSlugs = $this->collectAmbiguousSlugs($namespaceIndex);
 
         foreach ($pageService->getAll() as $page) {
             $slug = $page->getSlug();
@@ -197,9 +202,12 @@ class DomainStartPageService
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($slug);
             $title = trim($page->getTitle());
             $label = $title !== '' ? $title : $this->buildLabelFromSlug($baseSlug);
+            $namespace = $this->normalizeNamespace($page->getNamespace());
+            $label = sprintf('%s · %s', $namespace, $label);
+            $key = $this->buildStartPageKey($baseSlug, $namespace, isset($ambiguousSlugs[$baseSlug]));
 
-            if (!isset($options[$baseSlug]) || $slug === $baseSlug) {
-                $options[$baseSlug] = $label;
+            if (!isset($options[$key]) || $slug === $baseSlug) {
+                $options[$key] = $label;
             }
         }
 
@@ -231,8 +239,151 @@ class DomainStartPageService
         }
 
         $startPage = trim($config['start_page']);
+        if ($startPage !== '') {
+            $parsed = $this->parseStartPageKey($startPage);
+            $startPage = $parsed['slug'];
+        }
 
         return $startPage === '' ? null : $startPage;
+    }
+
+    /**
+     * @return array{slug:string,namespace:?string}
+     */
+    public function parseStartPageKey(string $startPage): array {
+        $startPage = trim($startPage);
+        if ($startPage === '') {
+            return ['slug' => '', 'namespace' => null];
+        }
+
+        $separator = self::START_PAGE_NAMESPACE_SEPARATOR;
+        if (str_contains($startPage, $separator)) {
+            [$namespace, $slug] = explode($separator, $startPage, 2);
+            $namespace = $this->normalizeNamespace($namespace);
+            $slug = MarketingSlugResolver::resolveBaseSlug($slug);
+
+            return [
+                'slug' => $slug,
+                'namespace' => $namespace !== '' ? $namespace : null,
+            ];
+        }
+
+        return [
+            'slug' => MarketingSlugResolver::resolveBaseSlug($startPage),
+            'namespace' => null,
+        ];
+    }
+
+    /**
+     * @return array{key:string,slug:string,namespace:?string}
+     */
+    public function normalizeStartPageKey(string $startPage, PageService $pageService): array {
+        $parsed = $this->parseStartPageKey($startPage);
+        $slug = $parsed['slug'];
+        if ($slug === '') {
+            return ['key' => '', 'slug' => '', 'namespace' => null];
+        }
+
+        $namespaceIndex = $this->collectPageNamespaceIndex($pageService);
+        $ambiguousSlugs = $this->collectAmbiguousSlugs($namespaceIndex);
+        $forceNamespace = isset($ambiguousSlugs[$slug]) && !in_array($slug, self::CORE_START_PAGES, true);
+        $namespace = $parsed['namespace'];
+
+        if ($forceNamespace) {
+            if ($namespace === null) {
+                $namespace = $this->resolveNamespaceForSlug(
+                    $slug,
+                    $namespaceIndex,
+                    PageService::DEFAULT_NAMESPACE
+                );
+            }
+            $namespace = $this->normalizeNamespace($namespace);
+
+            return [
+                'key' => $namespace . self::START_PAGE_NAMESPACE_SEPARATOR . $slug,
+                'slug' => $slug,
+                'namespace' => $namespace,
+            ];
+        }
+
+        return [
+            'key' => $slug,
+            'slug' => $slug,
+            'namespace' => $namespace,
+        ];
+    }
+
+    /**
+     * @return array<string, array<string, bool>>
+     */
+    private function collectPageNamespaceIndex(PageService $pageService): array {
+        $index = [];
+
+        foreach ($pageService->getAll() as $page) {
+            $slug = $page->getSlug();
+            if ($slug === '' || in_array($slug, self::EXCLUDED_LEGAL_SLUGS, true)) {
+                continue;
+            }
+
+            $baseSlug = MarketingSlugResolver::resolveBaseSlug($slug);
+            if ($baseSlug === '') {
+                continue;
+            }
+
+            $namespace = $this->normalizeNamespace($page->getNamespace());
+            $index[$baseSlug][$namespace] = true;
+        }
+
+        return $index;
+    }
+
+    /**
+     * @param array<string, array<string, bool>> $namespaceIndex
+     * @return array<string, bool>
+     */
+    private function collectAmbiguousSlugs(array $namespaceIndex): array {
+        $ambiguous = [];
+        foreach ($namespaceIndex as $slug => $namespaces) {
+            if (count($namespaces) > 1) {
+                $ambiguous[$slug] = true;
+            }
+        }
+
+        return $ambiguous;
+    }
+
+    private function buildStartPageKey(string $slug, string $namespace, bool $forceNamespace): string
+    {
+        if (!$forceNamespace || in_array($slug, self::CORE_START_PAGES, true)) {
+            return $slug;
+        }
+
+        return $namespace . self::START_PAGE_NAMESPACE_SEPARATOR . $slug;
+    }
+
+    /**
+     * @param array<string, array<string, bool>> $namespaceIndex
+     */
+    private function resolveNamespaceForSlug(string $slug, array $namespaceIndex, string $fallback): string {
+        $fallback = $this->normalizeNamespace($fallback);
+        if (!isset($namespaceIndex[$slug])) {
+            return $fallback;
+        }
+
+        if (isset($namespaceIndex[$slug][$fallback])) {
+            return $fallback;
+        }
+
+        $candidates = array_keys($namespaceIndex[$slug]);
+        sort($candidates);
+
+        return $candidates[0] ?? $fallback;
+    }
+
+    private function normalizeNamespace(string $namespace): string {
+        $normalized = strtolower(trim($namespace));
+
+        return $normalized !== '' ? $normalized : PageService::DEFAULT_NAMESPACE;
     }
 
     /**
