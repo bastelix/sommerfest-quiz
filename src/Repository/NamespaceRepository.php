@@ -43,6 +43,38 @@ final class NamespaceRepository
         return $rows;
     }
 
+    /**
+     * @return list<string>
+     */
+    public function listKnownNamespaces(): array
+    {
+        $sources = [
+            'pages' => 'namespace',
+            'namespace_profile' => 'namespace',
+            'marketing_newsletter_configs' => 'namespace',
+            'user_namespaces' => 'namespace',
+        ];
+
+        $namespaces = [];
+        foreach ($sources as $table => $column) {
+            if (!$this->hasTable($table)) {
+                continue;
+            }
+
+            $stmt = $this->pdo->query(sprintf('SELECT DISTINCT %s AS namespace FROM %s', $column, $table));
+            while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
+                $namespace = trim((string) ($row['namespace'] ?? ''));
+                if ($namespace === '') {
+                    continue;
+                }
+                $namespaces[] = $namespace;
+            }
+            $stmt->closeCursor();
+        }
+
+        return $namespaces;
+    }
+
     public function exists(string $namespace): bool
     {
         $this->assertTableExists();
