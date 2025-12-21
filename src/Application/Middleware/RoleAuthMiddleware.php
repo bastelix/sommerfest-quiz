@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Middleware;
 
+use App\Domain\Roles;
 use App\Infrastructure\Database;
 use App\Service\NamespaceResolver;
 use App\Service\UserService;
@@ -55,6 +56,10 @@ class RoleAuthMiddleware implements MiddlewareInterface
             ) {
                 $request = $request->withAttribute('namespace', $activeNamespace);
             }
+        }
+
+        if ($role === Roles::ADMIN) {
+            return $handler->handle($request);
         }
 
         $namespaces = $this->resolveUserNamespaces($request);
