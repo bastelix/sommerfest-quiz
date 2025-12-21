@@ -7923,6 +7923,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     wrapper.appendChild(select);
 
+    const summary = document.createElement('div');
+    summary.className = 'uk-text-small uk-text-muted uk-margin-small-top';
+    wrapper.appendChild(summary);
+
     const activeRow = document.createElement('div');
     activeRow.className = 'uk-text-meta uk-margin-small-top';
     wrapper.appendChild(activeRow);
@@ -7966,6 +7970,9 @@ document.addEventListener('DOMContentLoaded', function () {
         defaultSelect.value = result.defaultNamespace || '';
       }
 
+      summary.textContent = result.namespaces.length
+        ? result.namespaces.map(formatNamespaceLabel).join(', ')
+        : namespaceNoneLabel;
       activeRow.textContent = `${namespaceActiveLabel}: ${result.defaultNamespace || namespaceNoneLabel}`;
 
       if (commit) {
