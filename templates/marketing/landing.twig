@@ -139,38 +139,29 @@
 
 {% block scripts %}
   {% if isAdmin %}
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/inline/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         const saveButton = document.getElementById('inline-edit-save');
         const contentContainer = document.getElementById('inline-edit-content');
         const editableSections = Array.from(document.querySelectorAll('[data-inline-editable="true"]'));
+        const editorConstructor = window.CKEDITOR && window.CKEDITOR.InlineEditor ? window.CKEDITOR.InlineEditor : null;
 
-        if (!saveButton || !contentContainer || editableSections.length === 0 || typeof InlineEditor === 'undefined') {
+        if (!saveButton || !contentContainer || editableSections.length === 0 || !editorConstructor) {
           return;
         }
 
         const editors = new Map();
         const editorPromises = editableSections.map(section =>
-          InlineEditor.create(section, {
+          editorConstructor.create(section, {
             toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
             htmlSupport: {
               allow: [
                 {
                   name: /.*/,
-                  attributes: [
-                    /^uk-.+/,
-                    'uk-grid',
-                    'uk-slider',
-                    'uk-accordion',
-                    'uk-scrollspy',
-                    'uk-modal',
-                    'uk-navbar',
-                    'uk-offcanvas',
-                    'uk-toggle',
-                    'uk-icon',
-                    'uk-slideshow',
-                  ],
+                  attributes: true,
+                  classes: true,
+                  styles: true,
                 },
               ],
             },
