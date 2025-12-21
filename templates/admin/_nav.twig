@@ -42,7 +42,7 @@
         noEvent: true
       },
       {
-        href: basePath ~ '/admin/pages',
+        href: basePath ~ '/admin/pages/content',
         icon: 'file-edit',
         text: t('tab_pages'),
         admin: true,
@@ -80,13 +80,13 @@
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set projectModules = [
   { href: basePath ~ '/admin/projects', icon: 'grid', text: 'Übersicht' },
-  { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages'), query: 'pageTab=content', pageTab: 'content' },
-  { href: basePath ~ '/admin/pages', icon: 'search', text: t('tab_page_seo_base'), query: 'pageTab=seo', pageTab: 'seo' },
-  { href: basePath ~ '/admin/pages', icon: 'file-text', text: 'Wiki', query: 'pageTab=wiki', pageTab: 'wiki' },
-  { href: basePath ~ '/admin/pages', icon: 'file-text', text: t('tab_cookies'), query: 'pageTab=content&pageSlug=cookies', pageTab: 'content', pageSlug: 'cookies' },
-  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news', matchPrefix: basePath ~ '/admin/pages' },
+{ href: basePath ~ '/admin/pages/content', icon: 'file-edit', text: t('tab_pages'), pageTab: 'content', matchPrefix: basePath ~ '/admin/pages' },
+  { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), pageTab: 'seo' },
+  { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: 'Wiki', pageTab: 'wiki' },
+  { href: basePath ~ '/admin/pages/content', icon: 'file-text', text: t('tab_cookies'), query: 'pageSlug=cookies', pageTab: 'content', pageSlug: 'cookies' },
+  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news' },
   { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat') },
-  { href: basePath ~ '/admin/management', icon: 'mail', text: t('tab_newsletter'), anchor: '#marketingNewsletterConfigSection' },
+  { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), pageTab: 'newsletter' },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
 {% if projectNamespaceOptions is empty %}
@@ -128,7 +128,8 @@
               {% set namespaceValue = entry.namespace|default('') %}
               {% if namespaceValue == activeNamespace %}
                 {% for module in projectModules %}
-                  {% if current starts with module.href %}
+                  {% set matchPrefix = module.matchPrefix|default('') %}
+                  {% if current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
                     {% set groupActive = true %}
                   {% endif %}
                 {% endfor %}
@@ -147,15 +148,26 @@
                     {% if entry.is_active is not defined or entry.is_active %}
                       {% set namespaceValue = entry.namespace|default('') %}
                       {% set namespaceLabel = entry.label|default('') %}
-                      {% set modulePageTab = pageTab|default(current starts with basePath ~ '/admin/landing-news' ? 'landing-news' : 'content') %}
-                      {% set modulePageSlug = selectedPageSlug|default('') %}
+{% set modulePageTab = pageTab|default('') %}
+{% set modulePageSlug = selectedPageSlug|default('') %}
+{% set projectSlugModules = [] %}
+{% for module in projectModules %}
+  {% if module.pageSlug is defined %}
+    {% set projectSlugModules = projectSlugModules|merge([module.pageSlug]) %}
+  {% endif %}
+{% endfor %}
+{% set hasSpecificSlugMatch = modulePageSlug is not empty and modulePageSlug in projectSlugModules %}
                       {% set namespaceActive = namespaceValue == activeNamespace %}
                       {% set namespaceHasActive = false %}
                       {% for module in projectModules %}
                         {% set matchPrefix = module.matchPrefix|default('') %}
                         {% set pathMatches = current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
                         {% set tabMatches = module.pageTab is not defined or module.pageTab == modulePageTab %}
-                        {% set slugMatches = module.pageSlug is not defined or module.pageSlug == modulePageSlug %}
+                        {% if module.pageSlug is defined %}
+                          {% set slugMatches = module.pageSlug == modulePageSlug %}
+                        {% else %}
+                          {% set slugMatches = not hasSpecificSlugMatch %}
+                        {% endif %}
                         {% if namespaceActive and pathMatches and tabMatches and slugMatches %}
                           {% set namespaceHasActive = true %}
                         {% endif %}
@@ -174,7 +186,11 @@
                               {% set matchPrefix = module.matchPrefix|default('') %}
                               {% set pathMatches = current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
                               {% set tabMatches = module.pageTab is not defined or module.pageTab == modulePageTab %}
-                              {% set slugMatches = module.pageSlug is not defined or module.pageSlug == modulePageSlug %}
+                              {% if module.pageSlug is defined %}
+                                {% set slugMatches = module.pageSlug == modulePageSlug %}
+                              {% else %}
+                                {% set slugMatches = not hasSpecificSlugMatch %}
+                              {% endif %}
                               {% set isActive = namespaceActive and pathMatches and tabMatches and slugMatches %}
                               {% set moduleQuery = module.query|default('') %}
                               {% set moduleQueryPrefix = moduleQuery is not empty ? '?' ~ moduleQuery : '' %}

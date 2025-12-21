@@ -100,6 +100,7 @@ use App\Controller\EventConfigController;
 use App\Controller\DashboardController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
+use App\Controller\Admin\ProjectPagesController;
 use App\Controller\Admin\ProjectController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainChatKnowledgeController;
@@ -108,6 +109,7 @@ use App\Controller\Admin\MailProviderController;
 use App\Controller\Admin\UsernameBlocklistController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
+use App\Controller\Admin\MarketingNewsletterController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
@@ -167,9 +169,11 @@ require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/AdminMediaController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
+require_once __DIR__ . '/Controller/Admin/ProjectPagesController.php';
 require_once __DIR__ . '/Controller/Admin/ProjectController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingNewsletterController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingPageWikiController.php';
@@ -1361,9 +1365,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectController();
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
-    $app->get('/admin/pages', AdminController::class)
-        ->add(new RoleAuthMiddleware(Roles::ADMIN))
-        ->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages', function (Request $request, Response $response) {
+        $controller = new ProjectPagesController();
+        return $controller->content($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages/content', function (Request $request, Response $response) {
+        $controller = new ProjectPagesController();
+        return $controller->content($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages/seo', function (Request $request, Response $response) {
+        $controller = new ProjectPagesController();
+        return $controller->seo($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages/wiki', function (Request $request, Response $response) {
+        $controller = new ProjectPagesController();
+        return $controller->wiki($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/newsletter', function (Request $request, Response $response) {
+        $controller = new MarketingNewsletterController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));

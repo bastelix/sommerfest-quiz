@@ -13,6 +13,8 @@
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
+  {% set activePageNamespace = pageNamespace|default('default') %}
+  {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
   {% embed 'topbar.twig' %}
     {% block left %}
       <button
@@ -43,7 +45,7 @@
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle uk-padding-small uk-padding-remove-horizontal">
           <h1 class="uk-heading-bullet uk-margin-remove">{{ t('heading_landing_news') }}</h1>
-          <a class="uk-button uk-button-primary" href="{{ basePath }}/admin/landing-news/create">{{ t('button_add_news') }}</a>
+          <a class="uk-button uk-button-primary" href="{{ basePath }}/admin/landing-news/create{{ pageNamespaceQuery }}">{{ t('button_add_news') }}</a>
         </div>
       </div>
     {% endblock %}
@@ -57,10 +59,49 @@
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
       <div class="uk-container uk-container-expand">
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
         {% include 'admin/landing_news/_list.twig' with {
           entries: entries,
           status: status,
-          csrfToken: csrfToken
+          csrfToken: csrfToken,
+          pageNamespace: activePageNamespace
         } %}
       </div>
     </main>
@@ -69,4 +110,5 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/storage.js"></script>
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
 {% endblock %}

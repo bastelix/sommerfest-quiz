@@ -1,0 +1,213 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('heading_pages') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+  <script>
+    window.profileVars = {
+      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
+      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
+      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
+      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
+      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
+    };
+  </script>
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
+  </script>
+  <script type="module" src="{{ basePath }}/js/trumbowyg-pages.js"></script>
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('heading_pages') }}</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
+
+        {% include 'admin/components/project_tree.twig' %}
+
+        {% if pages|default([]) is empty %}
+          <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
+        {% else %}
+          {% include 'admin/components/page_tree.twig' %}
+          {% set selectedSlug = selectedPageSlug|default('') %}
+          {% if selectedSlug == '' and pages|length > 0 %}
+            {% set selectedSlug = (pages|first).slug %}
+          {% endif %}
+          {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
+          <div class="uk-flex uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
+            <div class="uk-width-1-1 uk-width-expand@m uk-margin-small-bottom">
+              <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageContentSelect"
+                  class="uk-select"
+                  data-selected="{{ selectedSlug }}"
+                  data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
+                >
+                  {% for page in pages %}
+                    {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+                    <option
+                      value="{{ page.slug }}"
+                      {% if page.slug == selectedSlug %}selected{% endif %}
+                    >{{ pageLabel }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-margin-small-left">
+              <button
+                class="uk-button uk-button-default"
+                type="button"
+                uk-toggle="target: #createPageModal"
+              >Neue Seite</button>
+            </div>
+          </div>
+          <div id="pageFormsContainer">
+            {% for page in pages %}
+            <form
+              class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}"
+              data-slug="{{ page.slug }}"
+              data-landing="{{ page.slug not in excludedLandingSlugs ? 'true' : 'false' }}"
+            >
+              <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
+              <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
+              <div class="uk-margin-top">
+                <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
+                <a
+                  class="uk-button uk-button-default uk-margin-small-left preview-link"
+                  href="{{ basePath }}/{{ page.slug }}"
+                  target="_blank"
+                >Vorschau</a>
+                <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
+              </div>
+            </form>
+            {% endfor %}
+          </div>
+          <div id="createPageModal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+              <h2 class="uk-modal-title">Neue Seite anlegen</h2>
+              <form id="createPageForm" class="uk-form-stacked">
+                <div id="createPageFeedback" class="uk-alert uk-alert-danger" hidden></div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="newPageSlug">Slug</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. neue-landingpage">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="newPageTitle">Titel</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="newPageTitle" name="title" type="text" required placeholder="Seitentitel">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="newPageContent">Initiales HTML (optional)</label>
+                  <div class="uk-form-controls">
+                    <textarea class="uk-textarea" id="newPageContent" name="content" rows="6" placeholder="&lt;section class=&quot;uk-section&quot;&gt;...&lt;/section&gt;"></textarea>
+                  </div>
+                </div>
+                <div class="uk-flex uk-flex-right">
+                  <button type="submit" class="uk-button uk-button-primary">Seite erstellen</button>
+                  <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

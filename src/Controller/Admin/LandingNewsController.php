@@ -54,8 +54,29 @@ class LandingNewsController
     {
         $params = $request->getQueryParams();
         $status = isset($params['status']) ? (string) $params['status'] : '';
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $pages = $this->pages->getAllForNamespace($namespace);
+        $allowedPageIds = [];
+        foreach ($pages as $page) {
+            $allowedPageIds[$page->getId()] = true;
+        }
+        $entries = array_values(array_filter(
+            $this->news->getAll(),
+            static fn (LandingNews $entry): bool => isset($allowedPageIds[$entry->getPageId()])
+        ));
 
-        return $this->redirectToPages($request, $response, $status, 302);
+        return $view->render($response, 'admin/landing_news/index.twig', [
+            'entries' => $entries,
+            'status' => $this->normalizeStatus($status),
+            'csrfToken' => $this->ensureCsrfToken(),
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'pageNamespace' => $namespace,
+            'available_namespaces' => $availableNamespaces,
+            'pageTab' => 'landing-news',
+        ]);
     }
 
     public function create(Request $request, Response $response): Response
@@ -169,12 +190,13 @@ class LandingNewsController
             'entry' => $entry,
             'pages' => $pages,
             'error' => $error,
-            'csrfToken' => $_SESSION['csrf_token'] ?? '',
+            'csrfToken' => $this->ensureCsrfToken(),
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
             'pageNamespace' => $namespace,
             'available_namespaces' => $availableNamespaces,
+            'pageTab' => 'landing-news',
         ];
 
         if ($override !== null) {
@@ -200,7 +222,7 @@ class LandingNewsController
         $normalizedStatus = $this->normalizeStatus($status);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $params = $request->getQueryParams();
-        $query = ['pageTab' => 'landing-news'];
+        $query = [];
         $event = $params['event'] ?? null;
         if (is_string($event) && $event !== '') {
             $query['event'] = (string) $event;
@@ -210,12 +232,12 @@ class LandingNewsController
             $query['namespace'] = $namespace;
         }
         if ($normalizedStatus !== '') {
-            $query['landingNewsStatus'] = $normalizedStatus;
+            $query['status'] = $normalizedStatus;
         }
 
         $queryString = http_build_query($query);
 
-        return $basePath . '/admin/pages' . ($queryString !== '' ? '?' . $queryString : '');
+        return $basePath . '/admin/landing-news' . ($queryString !== '' ? '?' . $queryString : '');
     }
 
     private function normalizeStatus(?string $status): string
@@ -228,6 +250,17 @@ class LandingNewsController
         $allowed = ['created', 'updated', 'deleted'];
 
         return in_array($value, $allowed, true) ? $value : '';
+    }
+
+    private function ensureCsrfToken(): string
+    {
+        $token = $_SESSION['csrf_token'] ?? '';
+        if ($token === '') {
+            $token = bin2hex(random_bytes(16));
+            $_SESSION['csrf_token'] = $token;
+        }
+
+        return $token;
     }
 
     /**

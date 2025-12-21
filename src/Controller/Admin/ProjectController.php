@@ -329,8 +329,9 @@ class ProjectController
         $editUrl = $slug !== ''
             ? $this->buildAdminUrl(
                 $basePath,
-                '/admin/pages/' . rawurlencode($slug),
-                $namespace
+                '/admin/pages/content',
+                $namespace,
+                ['pageSlug' => $slug]
             )
             : null;
 
@@ -353,12 +354,11 @@ class ProjectController
     ): array {
         $editUrl = $this->buildAdminUrl(
             $basePath,
-            '/admin/pages',
+            '/admin/pages/wiki',
             $namespace,
             [
-                'pageTab' => 'wiki',
-                'wikiPageId' => $pageId,
-                'wikiArticleId' => $article->getId(),
+                'pageId' => $pageId,
+                'articleId' => $article->getId(),
             ]
         );
 
@@ -408,8 +408,9 @@ class ProjectController
             $editUrl = $slug !== ''
                 ? $this->buildAdminUrl(
                     $basePath,
-                    '/admin/pages/' . rawurlencode($slug),
-                    $namespace
+                    '/admin/pages/content',
+                    $namespace,
+                    ['pageSlug' => $slug]
                 )
                 : null;
             $children = [];

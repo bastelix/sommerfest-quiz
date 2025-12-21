@@ -1,0 +1,328 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}Wiki{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script>
+    window.profileVars = {
+      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
+      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
+      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
+      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
+      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
+    };
+  </script>
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
+  </script>
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">Wiki</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
+
+        {% include 'admin/components/project_tree.twig' %}
+
+        {% if pages|default([]) is empty %}
+          <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
+        {% else %}
+          {% set initialWikiPageId = selectedWikiPageId|default(pages|first.id|default(0)) %}
+          <div
+            class="wiki-manager"
+            data-wiki-manager
+            data-base-path="{{ basePath }}"
+            data-namespace="{{ activePageNamespace|e('html_attr') }}"
+            data-pages="{{ pages|json_encode|e('html_attr') }}"
+            data-selected-page-id="{{ initialWikiPageId }}"
+          >
+            <div class="uk-alert uk-alert-primary" data-wiki-feedback hidden role="status"></div>
+            <div class="uk-grid-small uk-flex-middle uk-flex-wrap" uk-grid>
+              <div class="uk-width-1-1 uk-width-expand@m">
+                <label class="uk-form-label" for="wikiPageSelect">Marketing-Seite</label>
+                <div class="uk-form-controls">
+                  <select id="wikiPageSelect" class="uk-select" data-wiki-page-select>
+                    {% for page in pages %}
+                      {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+                      <option
+                        value="{{ page.id }}"
+                        data-slug="{{ page.slug }}"
+                        {% if page.id == initialWikiPageId %}selected{% endif %}
+                      >
+                        {{ pageLabel }} ({{ page.slug }})
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="uk-width-auto uk-margin-small-top uk-margin-remove-top@m">
+                <span class="uk-text-meta" data-wiki-selected-slug></span>
+              </div>
+            </div>
+
+            <div class="uk-card uk-card-default uk-card-body uk-margin" data-wiki-settings hidden>
+              <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+                <h3 class="uk-card-title uk-margin-remove">Wiki-Einstellungen</h3>
+                <span class="uk-text-meta" data-wiki-settings-updated></span>
+              </div>
+              <form class="uk-form-stacked" data-wiki-settings-form>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiActive">Wiki im Menü aktivieren</label>
+                  <div class="uk-form-controls">
+                    <label class="uk-form-label uk-flex uk-flex-middle" style="gap: 8px;">
+                      <input class="uk-checkbox" type="checkbox" id="wikiActive" data-wiki-active>
+                      <span>Artikel-Liste im Marketing-Menü anzeigen</span>
+                    </label>
+                    <p class="uk-text-meta uk-margin-small-top">
+                      Ist der Schalter deaktiviert, erscheinen veröffentlichte Artikel nicht in der Navigation.
+                    </p>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiMenuLabel">Menülabel</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="wikiMenuLabel" type="text" data-wiki-menu-label maxlength="80" placeholder="z. B. Dokumentation">
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">Optional – Standard ist „Dokumentation“.</p>
+                </div>
+                <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 12px;">
+                  <button type="submit" class="uk-button uk-button-primary" data-wiki-settings-submit>Einstellungen speichern</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="uk-card uk-card-default uk-card-body uk-margin" data-wiki-articles hidden>
+              <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+                <h3 class="uk-card-title uk-margin-remove">Wiki-Artikel</h3>
+                <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
+                  <label class="uk-form-label uk-margin-remove" for="wikiLocaleFilter">Locale</label>
+                  <select id="wikiLocaleFilter" class="uk-select uk-form-small" data-wiki-locale-filter>
+                    <option value="all">Alle</option>
+                  </select>
+                  <button type="button" class="uk-button uk-button-default" data-wiki-upload>Markdown importieren</button>
+                  <input
+                    type="file"
+                    accept=".md,.markdown,text/markdown"
+                    hidden
+                    data-wiki-upload-input
+                  >
+                  <button type="button" class="uk-button uk-button-primary" data-wiki-create>Artikel erstellen</button>
+                </div>
+              </div>
+              <p class="uk-text-meta uk-margin-small">Artikel können nach Locale gefiltert und in der Reihenfolge angepasst werden.</p>
+              <div class="uk-alert uk-alert-warning" data-wiki-articles-empty hidden>Für diese Auswahl sind keine Artikel vorhanden.</div>
+              <div class="uk-overflow-auto admin-table-wrapper">
+                <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+                  <thead>
+                    <tr>
+                      <th>Titel</th>
+                      <th>Locale</th>
+                      <th>Status</th>
+                      <th>Veröffentlicht</th>
+                      <th class="uk-table-shrink">Reihenfolge</th>
+                      <th class="uk-table-shrink">Aktionen</th>
+                    </tr>
+                  </thead>
+                  <tbody data-wiki-article-list>
+                    <tr data-wiki-loading-row>
+                      <td colspan="6">Lädt…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div id="wikiArticleModal" class="uk-modal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+              <button class="uk-modal-close-default" type="button" uk-close></button>
+              <h2 class="uk-modal-title" data-wiki-modal-title>Artikel bearbeiten</h2>
+              <div class="uk-alert uk-alert-danger" data-wiki-article-error hidden></div>
+              <form class="uk-form-stacked" data-wiki-article-form>
+                <input type="hidden" data-wiki-article-id>
+                <div class="uk-grid-small" uk-grid>
+                  <div class="uk-width-1-2@m">
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="wikiArticleLocale">Locale</label>
+                      <div class="uk-form-controls">
+                        <input class="uk-input" id="wikiArticleLocale" type="text" data-wiki-article-locale required maxlength="10" placeholder="de">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-2@m">
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="wikiArticleStatus">Status</label>
+                      <div class="uk-form-controls">
+                        <select class="uk-select" id="wikiArticleStatus" data-wiki-article-status>
+                          <option value="draft">Entwurf</option>
+                          <option value="published">Veröffentlicht</option>
+                          <option value="archived">Archiviert</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiArticleTitle">Titel</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="wikiArticleTitle" type="text" data-wiki-article-title required maxlength="160">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiArticleSlug">Slug</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="wikiArticleSlug" type="text" data-wiki-article-slug required maxlength="120" placeholder="z. B. quickstart">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiArticleExcerpt">Kurzbeschreibung</label>
+                  <div class="uk-form-controls">
+                    <textarea class="uk-textarea" id="wikiArticleExcerpt" rows="3" data-wiki-article-excerpt maxlength="280" placeholder="Teasertext für die Übersicht"></textarea>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiArticleStart">Startdokument</label>
+                  <div class="uk-form-controls">
+                    <label class="uk-flex uk-flex-middle" style="gap: 8px;">
+                      <input class="uk-checkbox" id="wikiArticleStart" type="checkbox" data-wiki-article-start>
+                      <span>Als erstes Dokument anzeigen (z. B. Inhaltsverzeichnis)</span>
+                    </label>
+                    <p class="uk-text-meta uk-margin-small-top">Pro Locale kann nur ein Startdokument aktiv sein.</p>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="wikiArticleContent">Inhalt (Markdown)</label>
+                  <div class="uk-form-controls">
+                    <textarea class="uk-textarea" id="wikiArticleContent" rows="14" data-wiki-article-content placeholder="# Überschrift\nAbsätze werden durch Leerzeilen getrennt."></textarea>
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">Unterstützt einfache Markdown-Syntax, die beim Speichern in Wiki-Blöcke umgewandelt wird.</p>
+                </div>
+                <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-top uk-flex-wrap" style="gap: 12px;">
+                  <span class="uk-text-meta" data-wiki-article-updated></span>
+                  <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 8px;">
+                    <button type="submit" class="uk-button uk-button-primary" data-wiki-article-submit>Speichern</button>
+                    <button type="button" class="uk-button uk-button-default uk-modal-close">Abbrechen</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    window.transWikiSettingsSaved = 'Wiki-Einstellungen gespeichert';
+    window.transWikiSettingsError = 'Einstellungen konnten nicht gespeichert werden.';
+    window.transWikiArticleSaved = 'Wiki-Artikel gespeichert.';
+    window.transWikiArticleError = 'Artikel konnte nicht gespeichert werden.';
+    window.transWikiArticleDeleted = 'Artikel gelöscht.';
+    window.transWikiArticleDeleteConfirm = 'Diesen Artikel wirklich löschen?';
+    window.transWikiArticleDuplicate = 'Artikel dupliziert.';
+    window.transWikiArticleDuplicateError = 'Duplizieren fehlgeschlagen.';
+    window.transWikiSortSaved = 'Reihenfolge gespeichert.';
+    window.transWikiSortError = 'Reihenfolge konnte nicht gespeichert werden.';
+    window.transWikiStatusDraft = 'Entwurf';
+    window.transWikiStatusPublished = 'Veröffentlicht';
+    window.transWikiStatusArchived = 'Archiviert';
+    window.transWikiLoading = 'Lädt…';
+    window.transWikiEmpty = 'Keine Artikel vorhanden.';
+    window.transWikiArticleImport = 'Markdown importiert.';
+    window.transWikiArticleImportError = 'Markdown-Import fehlgeschlagen.';
+    window.transWikiArticleImportInvalid = 'Bitte eine Markdown-Datei auswählen.';
+    window.transWikiArticleImportNoPage = 'Bitte zuerst eine Marketing-Seite auswählen.';
+    window.transWikiArticleStartMarked = 'Startdokument gespeichert.';
+    window.transWikiArticleStartRemoved = 'Startdokument entfernt.';
+    window.transWikiArticleStartBadge = 'Start';
+  </script>
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+  <script type="module" src="{{ basePath }}/js/wiki-admin.js"></script>
+{% endblock %}
