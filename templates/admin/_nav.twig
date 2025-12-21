@@ -167,8 +167,8 @@
               {% set namespaceValue = namespace|lower %}
               {% set namespaceActive = activeNamespace == namespaceValue %}
               {% set namespaceQuery = 'namespace=' ~ namespaceValue|url_encode %}
-              <div class="qr-nav-accordion-item {{ namespaceActive ? 'uk-open' }}">
-                <a class="uk-accordion-title qr-nav-accordion-title" href="#">
+              <div class="qr-nav-accordion-item {{ namespaceActive ? 'uk-open uk-active' }}">
+                <a class="uk-accordion-title qr-nav-accordion-title {{ namespaceActive ? 'uk-active' }}" href="#">
                   <span class="qr-nav-accordion-label">{{ namespace }}</span>
                   <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.7"></span>
                 </a>

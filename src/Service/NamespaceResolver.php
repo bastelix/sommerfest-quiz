@@ -37,8 +37,13 @@ final class NamespaceResolver
     {
         $candidates = [];
 
-        $queryNamespace = $this->normalizeNamespace($request->getQueryParams()['namespace'] ?? null);
-        $this->pushCandidate($candidates, $queryNamespace);
+        $path = $request->getUri()->getPath();
+        $basePath = RouteContext::fromRequest($request)->getBasePath();
+        $adminPrefix = rtrim($basePath, '/') . '/admin';
+        if (str_starts_with($path, $adminPrefix)) {
+            $queryNamespace = $this->normalizeNamespace($request->getQueryParams()['namespace'] ?? null);
+            $this->pushCandidate($candidates, $queryNamespace);
+        }
 
         $explicit = $this->normalizeNamespace(
             $request->getAttribute('legalPageNamespace')
