@@ -62,6 +62,19 @@
             is_active: true
           }] %}
         {% endif %}
+        {% set hasActiveNamespace = false %}
+        {% for entry in projectNamespaceOptions %}
+          {% if entry.namespace|default('') == activeProjectNamespace %}
+            {% set hasActiveNamespace = true %}
+          {% endif %}
+        {% endfor %}
+        {% if not hasActiveNamespace %}
+          {% set projectNamespaceOptions = projectNamespaceOptions|merge([{
+            namespace: activeProjectNamespace,
+            label: null,
+            is_active: true
+          }]) %}
+        {% endif %}
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <div class="uk-grid-small uk-flex-middle" uk-grid>
             <div class="uk-width-1-1 uk-width-expand@m">
@@ -73,16 +86,21 @@
                   data-project-namespace="{{ activeProjectNamespace|e('html_attr') }}"
                 >
                   {% for entry in projectNamespaceOptions %}
-                    {% if entry.is_active is not defined or entry.is_active %}
-                      {% set entryNamespace = entry.namespace|default('') %}
-                      {% set entryLabel = entry.label|default('') %}
-                      <option
-                        value="{{ entryNamespace|e('html_attr') }}"
-                        {% if entryNamespace == activeProjectNamespace %}selected{% endif %}
-                      >
-                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      </option>
-                    {% endif %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsActive = entry.is_active is not defined or entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == activeProjectNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %}
+                        – {{ entryLabel }}
+                      {% endif %}
+                      {% if not entryIsActive %}
+                        – inaktiv
+                      {% endif %}
+                    </option>
                   {% endfor %}
                 </select>
               </div>
