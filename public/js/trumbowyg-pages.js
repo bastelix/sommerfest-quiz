@@ -3,7 +3,48 @@
 // Define custom UIkit templates for Trumbowyg
 const DOMPURIFY_PAGE_EDITOR_CONFIG = {
   ADD_TAGS: ['video', 'source'],
-  ADD_ATTR: ['autoplay', 'muted', 'loop', 'playsinline', 'preload', 'src', 'type', 'aria-label']
+  ADD_ATTR: [
+    'autoplay',
+    'muted',
+    'loop',
+    'playsinline',
+    'preload',
+    'src',
+    'type',
+    'aria-label',
+    'uk-accordion',
+    'uk-close',
+    'uk-grid',
+    'uk-icon',
+    'uk-modal',
+    'uk-navbar',
+    'uk-navbar-toggle-icon',
+    'uk-offcanvas',
+    'uk-scroll',
+    'uk-scrollspy',
+    'uk-slider',
+    'uk-slider-item',
+    'uk-slidenav-next',
+    'uk-slidenav-previous',
+    'uk-slideshow',
+    'uk-switcher',
+    'uk-toggle',
+    'uk-tooltip',
+    'data-uk-accordion',
+    'data-uk-close',
+    'data-uk-grid',
+    'data-uk-icon',
+    'data-uk-modal',
+    'data-uk-offcanvas',
+    'data-uk-scrollspy',
+    'data-uk-slider',
+    'data-uk-slider-item',
+    'data-uk-slidenav-next',
+    'data-uk-slidenav-previous',
+    'data-uk-switcher',
+    'data-uk-toggle',
+    'data-uk-tooltip'
+  ]
 };
 
 const sanitize = str => {
