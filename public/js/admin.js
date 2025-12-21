@@ -7340,9 +7340,47 @@ document.addEventListener('DOMContentLoaded', function () {
   const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
   const labelNamespaces = usersListEl?.dataset.labelNamespaces || 'Namespaces';
   const labelActive = usersListEl?.dataset.labelActive || 'Aktiv';
-  const availableNamespaces = Array.isArray(window.availableNamespaces) && window.availableNamespaces.length
+  const rawAvailableNamespaces = Array.isArray(window.availableNamespaces)
     ? window.availableNamespaces
-    : [window.defaultNamespace || 'default'];
+    : [];
+  const normalizeNamespaceEntry = (entry) => {
+    if (!entry) {
+      return null;
+    }
+    if (typeof entry === 'string') {
+      const namespace = entry.trim().toLowerCase();
+      return namespace ? { namespace, label: null, is_active: true } : null;
+    }
+    if (typeof entry === 'object') {
+      const namespace = String(entry.namespace || '').trim().toLowerCase();
+      if (!namespace) {
+        return null;
+      }
+      const label = entry.label ? String(entry.label).trim() : null;
+      const isActive = entry.is_active !== false;
+      return { namespace, label: label || null, is_active: isActive };
+    }
+    return null;
+  };
+  const normalizedAvailableEntries = rawAvailableNamespaces
+    .map(normalizeNamespaceEntry)
+    .filter(Boolean);
+  if (normalizedAvailableEntries.length === 0) {
+    normalizedAvailableEntries.push({
+      namespace: window.defaultNamespace || 'default',
+      label: null,
+      is_active: true
+    });
+  }
+  const availableNamespaces = normalizedAvailableEntries
+    .filter(entry => entry.is_active !== false)
+    .map(entry => entry.namespace);
+  if (availableNamespaces.length === 0) {
+    availableNamespaces.push(window.defaultNamespace || 'default');
+  }
+  const availableNamespaceLabels = new Map(
+    normalizedAvailableEntries.map(entry => [entry.namespace, entry.label])
+  );
   const defaultNamespace = window.defaultNamespace || 'default';
   const canEditNamespaces = window.currentUserRole === 'admin';
   const namespaceActiveLabel = window.transNamespaceActiveLabel || 'Aktiv';
@@ -7553,10 +7591,17 @@ document.addEventListener('DOMContentLoaded', function () {
         namespaceOptions.push(namespace);
       }
     });
+    const formatNamespaceLabel = (namespace) => {
+      const label = availableNamespaceLabels.get(namespace);
+      if (label) {
+        return `${namespace} – ${label}`;
+      }
+      return namespace;
+    };
     namespaceOptions.forEach(namespace => {
       const option = document.createElement('option');
       option.value = namespace;
-      option.textContent = namespace;
+      option.textContent = formatNamespaceLabel(namespace);
       option.selected = selectedSet.has(namespace);
       select.appendChild(option);
     });
@@ -7600,7 +7645,7 @@ document.addEventListener('DOMContentLoaded', function () {
         result.namespaces.forEach(namespace => {
           const option = document.createElement('option');
           option.value = namespace;
-          option.textContent = namespace;
+          option.textContent = formatNamespaceLabel(namespace);
           defaultSelect.appendChild(option);
         });
         defaultSelect.value = result.defaultNamespace || '';

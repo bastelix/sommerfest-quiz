@@ -9,7 +9,7 @@ use App\Controller\Admin\LandingpageController as LandingpageSeoController;
 use App\Domain\Page;
 use App\Domain\Roles;
 use App\Infrastructure\Database;
-use App\Repository\UserNamespaceRepository;
+use App\Repository\NamespaceRepository;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
@@ -151,8 +151,24 @@ class AdminController
 
         if ($section === 'management') {
             $users = (new UserService($pdo))->getAll();
-            $namespaceRepository = new UserNamespaceRepository($pdo);
-            $availableNamespaces = $namespaceRepository->getKnownNamespaces();
+            $namespaceRepository = new NamespaceRepository($pdo);
+            try {
+                $availableNamespaces = $namespaceRepository->list();
+            } catch (\RuntimeException $exception) {
+                $availableNamespaces = [];
+            }
+            if (!array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+            )) {
+                $availableNamespaces[] = [
+                    'namespace' => PageService::DEFAULT_NAMESPACE,
+                    'label' => null,
+                    'is_active' => true,
+                    'created_at' => null,
+                    'updated_at' => null,
+                ];
+            }
         }
 
         $pageSvc = new PageService($pdo);
