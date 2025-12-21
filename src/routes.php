@@ -1134,7 +1134,10 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/event/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
-    $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/konfig', function (Request $request, Response $response) {
+        $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        return $response->withHeader('Location', $base . '/admin/event/settings')->withStatus(302);
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
