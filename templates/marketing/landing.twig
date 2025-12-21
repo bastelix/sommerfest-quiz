@@ -154,6 +154,26 @@
         const editorPromises = editableSections.map(section =>
           InlineEditor.create(section, {
             toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
+            htmlSupport: {
+              allow: [
+                {
+                  name: /.*/,
+                  attributes: [
+                    /^uk-.+/,
+                    'uk-grid',
+                    'uk-slider',
+                    'uk-accordion',
+                    'uk-scrollspy',
+                    'uk-modal',
+                    'uk-navbar',
+                    'uk-offcanvas',
+                    'uk-toggle',
+                    'uk-icon',
+                    'uk-slideshow',
+                  ],
+                },
+              ],
+            },
           })
             .then(editor => {
               editors.set(section, editor);
