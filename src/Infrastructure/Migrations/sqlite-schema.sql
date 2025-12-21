@@ -330,6 +330,15 @@ CREATE TABLE IF NOT EXISTS namespace_profile (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS namespaces (
+    namespace TEXT PRIMARY KEY,
+    label TEXT,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+INSERT OR IGNORE INTO namespaces (namespace, is_active) VALUES ('default', 1);
+
 -- Active event
 CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,
