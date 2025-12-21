@@ -133,6 +133,7 @@ use App\Controller\InvitationController;
 use App\Controller\CatalogStickerController;
 use App\Controller\EventImageController;
 use App\Controller\GlobalMediaController;
+use App\Controller\ProjectMediaController;
 use App\Service\ImageUploadService;
 use App\Service\MediaLibraryService;
 use App\Service\LandingMediaReferenceService;
@@ -211,6 +212,7 @@ require_once __DIR__ . '/Controller/InvitationController.php';
 require_once __DIR__ . '/Controller/CatalogStickerController.php';
 require_once __DIR__ . '/Controller/EventImageController.php';
 require_once __DIR__ . '/Controller/GlobalMediaController.php';
+require_once __DIR__ . '/Controller/ProjectMediaController.php';
 
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -674,6 +676,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('eventImageController', new EventImageController($configService))
             ->withAttribute('globalMediaController', new GlobalMediaController($configService))
+            ->withAttribute('projectMediaController', new ProjectMediaController($configService))
             ->withAttribute('importController', $importController = new ImportController(
                 $catalogService,
                 $configService,
@@ -2520,6 +2523,13 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/sticker-background', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->uploadBackground($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+
+    $app->get('/uploads/projects/{namespace}/{file:.+}', function (Request $request, Response $response, array $args) {
+        $req = $request
+            ->withAttribute('namespace', $args['namespace'])
+            ->withAttribute('file', $args['file']);
+        return $request->getAttribute('projectMediaController')->get($req, $response);
+    });
 
     $app->get('/uploads/{file:.+}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);

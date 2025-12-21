@@ -19,6 +19,7 @@ class MediaLibraryService
 {
     public const SCOPE_GLOBAL = 'global';
     public const SCOPE_EVENT = 'event';
+    public const SCOPE_PROJECT = 'project';
 
     public const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 
@@ -57,8 +58,8 @@ class MediaLibraryService
      *
      * @return list<array<string, mixed>>
      */
-    public function listFiles(string $scope, ?string $eventUid = null): array {
-        [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+    public function listFiles(string $scope, ?string $eventUid = null, ?string $namespace = null): array {
+        [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid, $namespace);
         $metadata = $this->readMetadata($dir);
 
         if (!is_dir($dir)) {
@@ -107,7 +108,8 @@ class MediaLibraryService
         string $scope,
         UploadedFileInterface $file,
         ?string $eventUid = null,
-        ?array $options = null
+        ?array $options = null,
+        ?string $namespace = null
     ): array {
         $clientName = (string) $file->getClientFilename();
         if ($clientName === '') {
@@ -125,7 +127,7 @@ class MediaLibraryService
 
         $this->images->validate($file, self::MAX_UPLOAD_SIZE, self::ALLOWED_EXTENSIONS, self::ALLOWED_MIME_TYPES);
 
-        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid, $namespace);
 
         $baseName = $options['name'] ?? (string) pathinfo($clientName, PATHINFO_FILENAME);
         $baseName = $this->sanitizeBaseName($baseName);
@@ -181,7 +183,8 @@ class MediaLibraryService
         string $scope,
         string $name,
         UploadedFileInterface $file,
-        ?string $eventUid = null
+        ?string $eventUid = null,
+        ?string $namespace = null
     ): array {
         $name = $this->sanitizeExistingName($name);
 
@@ -206,7 +209,7 @@ class MediaLibraryService
 
         $this->images->validate($file, self::MAX_UPLOAD_SIZE, self::ALLOWED_EXTENSIONS, self::ALLOWED_MIME_TYPES);
 
-        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid, $namespace);
         $targetPath = $dir . DIRECTORY_SEPARATOR . $name;
         if (!is_file($targetPath)) {
             throw new RuntimeException('file not found');
@@ -239,10 +242,15 @@ class MediaLibraryService
     /**
      * Convert an existing file to an alternative format supported by the media manager.
      */
-    public function convertFile(string $scope, string $name, ?string $eventUid = null): array {
+    public function convertFile(
+        string $scope,
+        string $name,
+        ?string $eventUid = null,
+        ?string $namespace = null
+    ): array {
         $name = $this->sanitizeExistingName($name);
 
-        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid, $namespace);
         $sourcePath = $dir . DIRECTORY_SEPARATOR . $name;
         if (!is_file($sourcePath)) {
             throw new RuntimeException('file not found');
@@ -275,9 +283,14 @@ class MediaLibraryService
     /**
      * @deprecated Use convertFile() instead.
      */
-    public function convertFileToWebp(string $scope, string $name, ?string $eventUid = null): array
+    public function convertFileToWebp(
+        string $scope,
+        string $name,
+        ?string $eventUid = null,
+        ?string $namespace = null
+    ): array
     {
-        return $this->convertFile($scope, $name, $eventUid);
+        return $this->convertFile($scope, $name, $eventUid, $namespace);
     }
 
     private function convertImageToWebp(
@@ -451,7 +464,8 @@ class MediaLibraryService
         string $oldName,
         string $newName,
         ?string $eventUid = null,
-        ?array $options = null
+        ?array $options = null,
+        ?string $namespace = null
     ): array {
         $oldName = $this->sanitizeExistingName($oldName);
         $newName = trim($newName);
@@ -459,7 +473,7 @@ class MediaLibraryService
             throw new RuntimeException('invalid filename');
         }
 
-        [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid, $namespace);
         $metadata = $this->readMetadata($dir);
 
         $oldPath = $dir . DIRECTORY_SEPARATOR . $oldName;
@@ -526,9 +540,14 @@ class MediaLibraryService
     /**
      * Delete a file within the given scope.
      */
-    public function deleteFile(string $scope, string $name, ?string $eventUid = null): void {
+    public function deleteFile(
+        string $scope,
+        string $name,
+        ?string $eventUid = null,
+        ?string $namespace = null
+    ): void {
         $name = $this->sanitizeExistingName($name);
-        [$dir] = $this->resolveScope($scope, $eventUid);
+        [$dir] = $this->resolveScope($scope, $eventUid, $namespace);
         $path = $dir . DIRECTORY_SEPARATOR . $name;
         if (!is_file($path)) {
             throw new RuntimeException('file not found');
@@ -559,7 +578,7 @@ class MediaLibraryService
     /**
      * @return array{0:string,1:string,2:string,3:?string}
      */
-    private function resolveScope(string $scope, ?string $eventUid): array {
+    private function resolveScope(string $scope, ?string $eventUid, ?string $namespace): array {
         if ($scope === self::SCOPE_EVENT) {
             $uid = $eventUid ?? $this->config->getActiveEventUid();
             if ($uid === '') {
@@ -569,6 +588,17 @@ class MediaLibraryService
             $public = $this->config->getEventImagesPath($uid);
             $relative = ltrim($public, '/');
             return [$dir, $relative, $public, $uid];
+        }
+
+        if ($scope === self::SCOPE_PROJECT) {
+            if ($namespace === null || $namespace === '') {
+                throw new RuntimeException('namespace required');
+            }
+            $dir = $this->config->getProjectUploadsDir($namespace);
+            $public = $this->config->getProjectUploadsPath($namespace);
+            $relative = ltrim($public, '/');
+
+            return [$dir, $relative, $public, null];
         }
 
         if ($scope !== self::SCOPE_GLOBAL) {

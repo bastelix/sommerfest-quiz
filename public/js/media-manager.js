@@ -215,9 +215,15 @@ ready(() => {
     const limitTemplate = limitText?.dataset.template || '';
     const initialLandingSlugs = parseJsonAttribute(root, 'data-landing-slugs', []);
     const NO_FOLDER_FILTER = '__no_folder__';
+    const allowedScopes = new Set(['global', 'project', 'event']);
+    const scopeAttribute = root.getAttribute('data-media-scope') || '';
+    const namespaceAttribute = root.getAttribute('data-media-namespace') || '';
+    const initialScope = allowedScopes.has(scopeAttribute) ? scopeAttribute : 'global';
+    const initialNamespace = typeof namespaceAttribute === 'string' ? namespaceAttribute.trim() : '';
 
     const state = {
-      scope: 'global',
+      scope: initialScope,
+      namespace: initialNamespace,
       search: '',
       page: 1,
       perPage: 20,
@@ -1084,6 +1090,9 @@ ready(() => {
         page: String(state.page),
         perPage: String(state.perPage)
       });
+      if (state.scope === 'project' && state.namespace) {
+        params.set('namespace', state.namespace);
+      }
       if (state.search) params.set('search', state.search);
       if (state.filters.tags.length) {
         params.set('tags', state.filters.tags.join(','));
@@ -1162,7 +1171,7 @@ ready(() => {
       if (!file || state.uploading) return;
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('scope', state.scope);
+      appendScopeData(formData);
       const nameValue = nameInput?.value?.trim();
       if (nameValue) {
         formData.append('name', nameValue);
@@ -1242,7 +1251,7 @@ ready(() => {
     async function updateMetadata(file, changes) {
       if (!file || state.metadataSaving) return;
       const payload = {
-        scope: state.scope,
+        ...buildScopePayload(),
         oldName: file.name,
         newName: file.name,
       };
@@ -1343,7 +1352,7 @@ ready(() => {
       }
       const formData = new FormData();
       formData.append('file', replacement);
-      formData.append('scope', state.scope);
+      appendScopeData(formData);
       formData.append('name', file.name);
       try {
         state.replacing = true;
@@ -1383,7 +1392,7 @@ ready(() => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            scope: state.scope,
+            ...buildScopePayload(),
             name: file.name
           })
         });
@@ -1412,7 +1421,7 @@ ready(() => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            scope: state.scope,
+            ...buildScopePayload(),
             oldName: file.name,
             newName
           })
@@ -1435,7 +1444,7 @@ ready(() => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            scope: state.scope,
+            ...buildScopePayload(),
             name: file.name
           })
         });
@@ -1677,6 +1686,21 @@ ready(() => {
         handleDelete(file);
       }
     });
+
+    function appendScopeData(formData) {
+      formData.append('scope', state.scope);
+      if (state.scope === 'project' && state.namespace) {
+        formData.append('namespace', state.namespace);
+      }
+    }
+
+    function buildScopePayload() {
+      const payload = { scope: state.scope };
+      if (state.scope === 'project' && state.namespace) {
+        payload.namespace = state.namespace;
+      }
+      return payload;
+    }
 
     updateUploadState();
     updatePagination();

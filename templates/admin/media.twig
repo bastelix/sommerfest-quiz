@@ -5,6 +5,8 @@
 {% set sizeMb = (limits.maxSize|default(0) / 1048576)|number_format(1, '.', '') %}
 {% set limitText = t('text_media_limits')|format(sizeMb, allowedExtensions|join(', ')) %}
 {% set landingSlugs = mediaLandingSlugs|default([]) %}
+{% set mediaScope = mediaScope|default(role == 'admin' ? 'global' : 'project') %}
+{% set mediaNamespace = mediaNamespace|default(pageNamespace|default('')) %}
 {% set landingTitleCounts = {} %}
 {% for landing in landingSlugs %}
   {% set titleKey = landing.title|default(landing.slug)|default('') %}
@@ -77,6 +79,8 @@
     data-limits="{{ limits|json_encode|e('html_attr') }}"
     data-translations="{{ translations|json_encode|e('html_attr') }}"
     data-landing-slugs="{{ landingSlugs|json_encode|e('html_attr') }}"
+    data-media-scope="{{ mediaScope|e('html_attr') }}"
+    data-media-namespace="{{ mediaNamespace|e('html_attr') }}"
   >
     <div class="uk-width-1-1 uk-width-2-3@l media-column">
       <div class="uk-card uk-card-default uk-card-small uk-margin media-controls-card">

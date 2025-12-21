@@ -131,7 +131,7 @@ class LandingMediaReferenceService
                     $files[$path] = $pathReferences;
                 }
 
-                $absolute = $this->resolveAbsolutePath($path);
+                $absolute = $this->resolveAbsolutePath($path, $namespace);
                 if (!is_file($absolute)) {
                     $missingKey = sprintf(
                         '%s|%s|%s|%s',
@@ -141,7 +141,7 @@ class LandingMediaReferenceService
                         $reference['field']
                     );
                     if (!isset($seenMissing[$missingKey])) {
-                        $missing[] = $this->buildMissingEntry($reference, $path);
+                        $missing[] = $this->buildMissingEntry($reference, $path, $namespace);
                         $seenMissing[$missingKey] = true;
                     }
                 }
@@ -354,13 +354,26 @@ class LandingMediaReferenceService
         return false;
     }
 
-    private function resolveAbsolutePath(string $normalized): string {
+    private function resolveAbsolutePath(string $normalized, ?string $namespace = null): string {
         if (!str_starts_with($normalized, 'uploads/')) {
             throw new RuntimeException('invalid upload path: ' . $normalized);
         }
 
         $relative = substr($normalized, strlen('uploads/'));
         $relative = ltrim($relative, '/');
+
+        if ($namespace !== null && $namespace !== '') {
+            $normalizedNamespace = $this->normalizeNamespace($namespace);
+            $projectPrefix = $normalizedNamespace !== '' ? 'projects/' . $normalizedNamespace . '/' : '';
+            if ($projectPrefix !== '' && str_starts_with($relative, $projectPrefix)) {
+                $relative = substr($relative, strlen($projectPrefix));
+                $relative = ltrim($relative, '/');
+                $relative = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $relative);
+
+                return $this->config->getProjectUploadsDir($normalizedNamespace) . DIRECTORY_SEPARATOR . $relative;
+            }
+        }
+
         $relative = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $relative);
 
         return $this->config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . $relative;
@@ -370,8 +383,8 @@ class LandingMediaReferenceService
      * @param MediaReference $reference
      * @return MissingMediaReference
      */
-    private function buildMissingEntry(array $reference, string $path): array {
-        $folder = $this->extractFolder($path);
+    private function buildMissingEntry(array $reference, string $path, ?string $namespace): array {
+        $folder = $this->extractFolder($path, $namespace);
         $name = pathinfo($path, PATHINFO_FILENAME);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
 
@@ -420,12 +433,19 @@ class LandingMediaReferenceService
         return $map;
     }
 
-    private function extractFolder(string $path): ?string {
+    private function extractFolder(string $path, ?string $namespace = null): ?string {
         $segments = explode('/', trim($path, '/'));
         if (count($segments) <= 2) {
             return null;
         }
         array_shift($segments); // remove "uploads"
+        if (isset($segments[0]) && $segments[0] === 'projects') {
+            array_shift($segments);
+        }
+        $normalizedNamespace = $namespace !== null ? $this->normalizeNamespace($namespace) : '';
+        if ($normalizedNamespace !== '' && isset($segments[0]) && $segments[0] === $normalizedNamespace) {
+            array_shift($segments);
+        }
         array_pop($segments);   // remove filename
         if ($segments === []) {
             return null;
@@ -474,5 +494,16 @@ class LandingMediaReferenceService
         $trimmed = preg_replace('~/+~', '/', $trimmed) ?? $trimmed;
 
         return trim($trimmed);
+    }
+
+    private function normalizeNamespace(string $namespace): string
+    {
+        $validator = new NamespaceValidator();
+        $normalized = $validator->normalizeCandidate($namespace);
+        if ($normalized === null) {
+            return '';
+        }
+
+        return $normalized;
     }
 }

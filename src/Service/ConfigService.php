@@ -641,6 +641,14 @@ class ConfigService
     }
 
     /**
+     * Return the relative path to a project's uploads directory.
+     */
+    public function getProjectUploadsPath(string $namespace): string {
+        $namespace = $this->normalizeProjectNamespace($namespace);
+        return '/uploads/projects/' . $namespace;
+    }
+
+    /**
      * Return the absolute path to the image directory of an event and ensure it exists.
      */
     public function getEventImagesDir(?string $uid = null): string {
@@ -659,6 +667,17 @@ class ConfigService
         $dir = dirname(__DIR__, 2) . '/data' . $this->getGlobalUploadsPath();
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
             throw new RuntimeException('unable to create uploads directory');
+        }
+        return $dir;
+    }
+
+    /**
+     * Return the absolute path to a project's uploads directory and ensure it exists.
+     */
+    public function getProjectUploadsDir(string $namespace): string {
+        $dir = dirname(__DIR__, 2) . '/data' . $this->getProjectUploadsPath($namespace);
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new RuntimeException('unable to create project uploads directory');
         }
         return $dir;
     }
@@ -731,6 +750,17 @@ class ConfigService
         }
 
         return 'light';
+    }
+
+    private function normalizeProjectNamespace(string $namespace): string
+    {
+        $validator = new NamespaceValidator();
+        $normalized = $validator->normalizeCandidate($namespace);
+        if ($normalized === null) {
+            throw new RuntimeException('invalid namespace');
+        }
+
+        return $normalized;
     }
 
     /**
