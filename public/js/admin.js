@@ -801,7 +801,9 @@ const initProjectTree = () => {
   const emptyMessage = container.dataset.empty || 'Keine Projektdaten vorhanden.';
   const errorMessage = container.dataset.error || 'Projektübersicht konnte nicht geladen werden.';
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
-  const activeNamespace = resolveProjectNamespace(container);
+  const projectNamespaceSelect = document.getElementById('projectNamespaceSelect');
+  const selectedNamespace = projectNamespaceSelect?.value || '';
+  const activeNamespace = (selectedNamespace || resolveProjectNamespace(container)).trim();
   const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
 
   if (loading) {
