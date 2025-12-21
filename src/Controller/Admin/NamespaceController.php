@@ -82,7 +82,7 @@ final class NamespaceController
                     'namespace' => $namespace,
                     'label' => $entry['label'] ?? null,
                     'created_at' => $entry['created_at'] ?? null,
-                    'is_active' => $entry['is_active'] ?? true,
+                    'is_active' => $entry['is_active'],
                     'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
                 ];
             },
@@ -132,7 +132,7 @@ final class NamespaceController
      */
     public function update(Request $request, Response $response, array $args): Response
     {
-        $source = isset($args['namespace']) ? (string) $args['namespace'] : '';
+        $source = (string) $args['namespace'];
         $data = $this->parsePayload($request);
         $target = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
         $labelPayload = $this->parseLabelPayload($data);
@@ -176,7 +176,7 @@ final class NamespaceController
      */
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $namespace = isset($args['namespace']) ? (string) $args['namespace'] : '';
+        $namespace = (string) $args['namespace'];
 
         try {
             $this->service->delete($namespace);

@@ -93,7 +93,7 @@ class ProjectController
         $treeByNamespace = [];
         $knownNamespaces = [];
         foreach ($pageTree as $section) {
-            $namespace = $this->normalizeNamespace((string) ($section['namespace'] ?? ''));
+            $namespace = $this->normalizeNamespace((string) $section['namespace']);
             if ($requestedNamespace !== '' && $namespace !== $requestedNamespace) {
                 continue;
             }
@@ -125,7 +125,7 @@ class ProjectController
 
         $namespaceEntries = $this->namespaceRepository->list();
         foreach ($namespaceEntries as $namespace) {
-            $normalizedNamespace = $this->normalizeNamespace((string) ($namespace['namespace'] ?? ''));
+            $normalizedNamespace = $this->normalizeNamespace((string) $namespace['namespace']);
             if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
                 continue;
             }
@@ -137,7 +137,7 @@ class ProjectController
 
         $namespaceInfo = [];
         foreach ($namespaceEntries as $entry) {
-            $entryNamespace = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
+            $entryNamespace = $this->normalizeNamespace((string) $entry['namespace']);
             if ($entryNamespace === '') {
                 continue;
             }
@@ -146,7 +146,7 @@ class ProjectController
             }
             $namespaceInfo[$entryNamespace] = [
                 'label' => $entry['label'] ?? null,
-                'is_active' => (bool) ($entry['is_active'] ?? false),
+                'is_active' => (bool) $entry['is_active'],
                 'is_default' => $entryNamespace === PageService::DEFAULT_NAMESPACE,
             ];
         }
@@ -190,7 +190,7 @@ class ProjectController
 
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
         )) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
@@ -203,7 +203,7 @@ class ProjectController
 
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+            static fn (array $entry): bool => $entry['namespace'] === $namespace
         )) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
@@ -305,10 +305,7 @@ class ProjectController
     {
         $references = $this->mediaReferenceService->collect($namespace);
         $files = [];
-        foreach (($references['files'] ?? []) as $path => $items) {
-            if (!is_array($items)) {
-                continue;
-            }
+        foreach ($references['files'] as $path => $items) {
             $files[] = [
                 'path' => (string) $path,
                 'count' => count($items),
@@ -319,7 +316,7 @@ class ProjectController
 
         return [
             'files' => $files,
-            'missing' => array_values($references['missing'] ?? []),
+            'missing' => array_values($references['missing']),
         ];
     }
 
