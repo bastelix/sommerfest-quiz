@@ -129,6 +129,7 @@ return [
     'error_namespace_not_found' => 'Namespace not found.',
     'error_namespace_default_locked' => 'The default namespace cannot be changed.',
     'error_namespace_in_use' => 'The namespace is still in use and cannot be deactivated:',
+    'error_namespace_table_missing' => 'The namespaces table is missing. Please run the migrations.',
     'error_namespace_unknown' => 'The action could not be completed.',
     'error_username_blocklist_invalid' => 'Please enter a valid username (at least 3 characters).',
     'error_username_blocklist_duplicate' => 'This username is already blocked.',
