@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\LandingMediaReferenceService;
 use App\Service\MediaLibraryService;
+use App\Service\NamespaceResolver;
 use JsonException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -38,11 +39,12 @@ class AdminMediaController
         $_SESSION['csrf_token'] = $csrf;
 
         $role = (string) ($_SESSION['user']['role'] ?? '');
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
 
         return $view->render($response, 'admin/media.twig', [
             'csrf_token' => $csrf,
             'limits' => $this->media->getLimits(),
-            'mediaLandingSlugs' => $this->landing->getLandingSlugs(),
+            'mediaLandingSlugs' => $this->landing->getLandingSlugs($namespace),
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
@@ -67,13 +69,14 @@ class AdminMediaController
         }
 
         $landingFilter = '';
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $landingData = [
-            'slugs' => $this->landing->getLandingSlugs(),
+            'slugs' => $this->landing->getLandingSlugs($namespace),
             'missing' => [],
             'active' => '',
         ];
 
-        $landingReferences = $this->landing->collect();
+        $landingReferences = $this->landing->collect($namespace);
         $landingData['slugs'] = $landingReferences['slugs'];
         $landingData['missing'] = $landingReferences['missing'];
 

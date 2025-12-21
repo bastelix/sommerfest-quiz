@@ -124,6 +124,37 @@ class PageService
         return $pages;
     }
 
+    /**
+     * Fetch all stored pages for the given namespace.
+     *
+     * @return Page[]
+     */
+    public function getAllForNamespace(string $namespace): array {
+        $normalized = $this->normalizeNamespace($namespace);
+        if ($normalized === '') {
+            return [];
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            . 'FROM pages WHERE namespace = ? ORDER BY title'
+        );
+        $stmt->execute([$normalized]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        $pages = [];
+        foreach ($rows as $row) {
+            $page = $this->mapRowToPage($row);
+            if ($page === null) {
+                continue;
+            }
+
+            $pages[] = $page;
+        }
+
+        return $pages;
+    }
+
     public function findById(int $id): ?Page {
         if ($id <= 0) {
             return null;
@@ -314,6 +345,10 @@ class PageService
         }
 
         return ((int) $stmt->fetchColumn()) + 1;
+    }
+
+    private function normalizeNamespace(string $namespace): string {
+        return strtolower(trim($namespace));
     }
 
     /**

@@ -28,6 +28,7 @@ use App\Service\ImageUploadService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use App\Service\MarketingNewsletterConfigService;
+use App\Service\NamespaceResolver;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -156,7 +157,8 @@ class AdminController
         $landingNewsService = new LandingNewsService($pdo);
         $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
         $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
-        $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped();
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped($namespace);
         $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
         sort($marketingNewsletterSlugs);
         $marketingNewsletterStyles = $newsletterConfigService->getAllowedStyles();
@@ -342,6 +344,7 @@ class AdminController
               'marketingNewsletterConfigs' => $marketingNewsletterConfigs,
               'marketingNewsletterSlugs' => $marketingNewsletterSlugs,
               'marketingNewsletterStyles' => $marketingNewsletterStyles,
+              'marketingNewsletterNamespace' => $namespace,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'tenant_sync' => $tenantSyncState,
@@ -353,7 +356,7 @@ class AdminController
               'csrf_token' => $csrf,
               'version' => $version,
               'mediaLimits' => $mediaLimits,
-              'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs(),
+              'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs($namespace),
               'ragChatSecretPlaceholder' => self::CHAT_SECRET_PLACEHOLDER,
           ]);
     }

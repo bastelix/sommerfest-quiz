@@ -97,6 +97,7 @@ return [
     'heading_homepage' => 'Homepage',
     'heading_marketing_newsletter_ctas' => 'Newsletter CTAs',
     'text_marketing_newsletter_ctas_hint' => 'Define per landing page calls-to-action that appear on the newsletter confirmation page.',
+    'text_marketing_newsletter_namespace_hint' => 'Editing newsletter CTAs for namespace: %s.',
     'label_marketing_newsletter_slug' => 'Marketing slug',
     'text_marketing_newsletter_slug_hint' => 'Slug of the marketing page (e.g. "landing", "calserver"). Unknown slugs are created when saving.',
     'label_marketing_newsletter_label' => 'Label',

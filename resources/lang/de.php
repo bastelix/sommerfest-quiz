@@ -97,6 +97,7 @@ return [
     'heading_homepage' => 'Startseite',
     'heading_marketing_newsletter_ctas' => 'Newsletter-CTAs',
     'text_marketing_newsletter_ctas_hint' => 'Lege pro Landingpage passende Buttons oder Links für die Newsletter-Bestätigungsseite fest.',
+    'text_marketing_newsletter_namespace_hint' => 'Newsletter-CTAs für Namespace: %s.',
     'label_marketing_newsletter_slug' => 'Marketing-Slug',
     'text_marketing_newsletter_slug_hint' => 'Slug der Marketingseite (z. B. „landing“, „calserver“). Nicht existente Slugs werden beim Speichern angelegt.',
     'label_marketing_newsletter_label' => 'Beschriftung',
