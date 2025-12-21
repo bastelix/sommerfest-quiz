@@ -735,11 +735,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($version === false || $version === '') {
             $version = (new VersionService())->getCurrentVersion();
         }
+        $dbStatus = [
+            'status' => 'skipped',
+        ];
+        $dsn = getenv('POSTGRES_DSN');
+        if ($dsn !== false && trim((string) $dsn) !== '') {
+            try {
+                $pdo = Database::connectFromEnv(0, 0);
+                $pdo->query('SELECT 1');
+                $dbStatus['status'] = 'ok';
+            } catch (\Throwable $error) {
+                $dbStatus['status'] = 'error';
+            }
+        }
+        $isHealthy = $dbStatus['status'] !== 'error';
         $payload = [
-            'status'  => 'ok',
+            'status'  => $isHealthy ? 'ok' : 'error',
             'app'     => 'quizrace',
             'version' => $version,
             'time'    => gmdate('c'),
+            'db'      => $dbStatus,
         ];
         $payloadJson = json_encode($payload);
 
@@ -750,6 +765,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $response = $response
             ->withHeader('Content-Type', 'application/json')
             ->withHeader('Access-Control-Allow-Origin', '*');
+
+        if (!$isHealthy) {
+            $response = $response->withStatus(503);
+        }
 
         return $response;
     });
