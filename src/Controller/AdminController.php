@@ -164,7 +164,7 @@ class AdminController
         $marketingNewsletterStyles = $newsletterConfigService->getAllowedStyles();
         $pages = [];
         $pageContents = [];
-        $allPages = $pageSvc->getAll();
+        $allPages = $pageSvc->getAllForNamespace($namespace);
         foreach ($allPages as $page) {
             $pages[] = [
                 'id' => $page->getId(),
@@ -345,6 +345,7 @@ class AdminController
               'marketingNewsletterSlugs' => $marketingNewsletterSlugs,
               'marketingNewsletterStyles' => $marketingNewsletterStyles,
               'marketingNewsletterNamespace' => $namespace,
+              'pageNamespace' => $namespace,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'tenant_sync' => $tenantSyncState,

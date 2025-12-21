@@ -142,8 +142,13 @@ class PageController
      * Return the full page tree for admin UI use.
      */
     public function tree(Request $request, Response $response): Response {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $tree = array_values(array_filter(
+            $this->pageService->getTree(),
+            static fn (array $section): bool => ($section['namespace'] ?? '') === $namespace
+        ));
         $payload = [
-            'tree' => $this->pageService->getTree(),
+            'tree' => $tree,
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));

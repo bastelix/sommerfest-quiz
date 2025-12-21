@@ -885,6 +885,12 @@ function buildPageTreeList(nodes, level = 0) {
   return list;
 }
 
+function resolveActiveNamespace(container) {
+  const select = document.getElementById('pageNamespaceSelect');
+  const candidate = select?.dataset.pageNamespace || select?.value || container?.dataset.namespace || '';
+  return candidate.trim();
+}
+
 function updatePageTreeActive(container, slug) {
   if (!container) {
     return;
@@ -960,9 +966,13 @@ async function initPageTree() {
     }
     const payload = await response.json();
     const tree = Array.isArray(payload.tree) ? payload.tree : [];
+    const activeNamespace = resolveActiveNamespace(container);
+    const filteredTree = activeNamespace
+      ? tree.filter(section => (section.namespace || '').trim() === activeNamespace)
+      : tree;
     container.innerHTML = '';
 
-    if (!tree.length) {
+    if (!filteredTree.length) {
       const empty = document.createElement('div');
       empty.className = 'uk-text-meta';
       empty.textContent = emptyMessage;
@@ -970,7 +980,7 @@ async function initPageTree() {
       return;
     }
 
-    tree.forEach(section => {
+    filteredTree.forEach(section => {
       const heading = document.createElement('h4');
       heading.className = 'uk-heading-line uk-margin-small-top';
       const headingText = document.createElement('span');
