@@ -127,6 +127,52 @@
           {% if selectedSlug == '' and pages|length > 0 %}
             {% set selectedSlug = (pages|first).slug %}
           {% endif %}
+
+          <div
+            class="uk-card uk-card-default uk-card-body uk-margin"
+            data-marketing-menu-manager
+            data-base-path="{{ basePath }}"
+            data-pages="{{ menu_pages|default([])|json_encode|e('html_attr') }}"
+            data-selected-slug="{{ selectedSlug }}"
+            data-namespace="{{ activePageNamespace|e('html_attr') }}"
+          >
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+              <div>
+                <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+                <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
+              </div>
+              <button type="button" class="uk-button uk-button-default" data-menu-add>Eintrag hinzufügen</button>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">
+              Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top">
+              Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+            </p>
+            <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
+            <div class="uk-overflow-auto admin-table-wrapper">
+              <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
+                <thead>
+                  <tr>
+                    <th class="uk-table-shrink"></th>
+                    <th>Label</th>
+                    <th>Link</th>
+                    <th class="uk-table-shrink">Icon</th>
+                    <th class="uk-table-shrink">Locale</th>
+                    <th class="uk-table-shrink uk-text-center">Extern</th>
+                    <th class="uk-table-shrink uk-text-center">Aktiv</th>
+                    <th class="uk-table-shrink uk-text-right">Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody data-menu-items>
+                  <tr data-menu-loading-row>
+                    <td colspan="8">Lädt…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
           <div class="uk-flex uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
             <div class="uk-width-1-1 uk-width-expand@m uk-margin-small-bottom">
@@ -215,4 +261,5 @@
 
 {% block scripts %}
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
+  <script type="module" src="{{ basePath }}/js/marketing-menu-admin.js"></script>
 {% endblock %}
