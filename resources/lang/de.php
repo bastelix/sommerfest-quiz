@@ -33,6 +33,8 @@ return [
     'tab_statistics' => 'Statistik',
     'tab_project_overview' => 'Übersicht',
     'tab_pages' => 'Seiten',
+    'tab_page_seo_base' => 'Page SEO (Basis)',
+    'tab_cookies' => 'Cookies',
     'tab_landing_news' => 'Landing-News',
     'tab_newsletter' => 'Newsletter',
     'tab_landingpage_seo' => 'Landingpage SEO',
