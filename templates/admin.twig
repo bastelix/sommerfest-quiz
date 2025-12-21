@@ -1504,6 +1504,7 @@
               </div>
             </div>
           </div>
+          {% include 'admin/components/project_tree.twig' %}
           {% set currentPageTab = pageTab|default('seo') %}
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
             <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>

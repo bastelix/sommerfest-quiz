@@ -1,0 +1,19 @@
+<div class="uk-card uk-card-default uk-card-body uk-margin">
+  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+    <h3 class="uk-card-title uk-margin-remove">Projektübersicht</h3>
+    <span class="uk-text-meta">Namespace · Inhalte</span>
+  </div>
+  <p class="uk-text-meta uk-margin-small-top">
+    Strukturierte Übersicht der Marketing-Inhalte inklusive Wiki, News, Newsletter und Medien-Referenzen.
+  </p>
+  <div
+    class="project-tree"
+    data-project-tree
+    data-endpoint="{{ basePath }}/admin/projects/tree"
+    data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
+    data-empty="Keine Projektdaten vorhanden."
+    data-error="Projektübersicht konnte nicht geladen werden."
+  >
+    <div class="uk-text-meta" data-project-tree-loading>Projektübersicht wird geladen…</div>
+  </div>
+</div>

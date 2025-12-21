@@ -197,6 +197,419 @@ window.notify = (msg, status = 'primary', timeout = 2000) => {
   }
 };
 
+const buildProjectPageTreeList = (nodes, level = 0) => {
+  const list = document.createElement('ul');
+  list.className = 'uk-list uk-list-collapse';
+  if (level > 0) {
+    list.classList.add('uk-margin-small-left');
+  }
+
+  nodes.forEach(node => {
+    const item = document.createElement('li');
+    const row = document.createElement('div');
+    row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+    const info = document.createElement('div');
+    const title = document.createElement('span');
+    title.className = 'uk-text-bold';
+    title.textContent = node.title || node.slug || 'Ohne Titel';
+    info.appendChild(title);
+
+    if (node.slug) {
+      const slug = document.createElement('span');
+      slug.className = 'uk-text-meta uk-margin-small-left';
+      slug.textContent = `/${node.slug}`;
+      info.appendChild(slug);
+    }
+
+    row.appendChild(info);
+
+    const meta = document.createElement('div');
+    meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+    if (node.type) {
+      const typeLabel = document.createElement('span');
+      typeLabel.className = 'uk-label uk-label-default';
+      typeLabel.textContent = node.type;
+      meta.appendChild(typeLabel);
+    }
+    if (node.language) {
+      const language = document.createElement('span');
+      language.className = 'uk-text-meta uk-margin-small-left';
+      language.textContent = node.language;
+      meta.appendChild(language);
+    }
+    if (meta.childElementCount > 0) {
+      row.appendChild(meta);
+    }
+
+    item.appendChild(row);
+    if (Array.isArray(node.children) && node.children.length) {
+      item.appendChild(buildProjectPageTreeList(node.children, level + 1));
+    }
+    list.appendChild(item);
+  });
+
+  return list;
+};
+
+const createProjectEmptyState = message => {
+  const empty = document.createElement('div');
+  empty.className = 'uk-text-meta';
+  empty.textContent = message;
+  return empty;
+};
+
+const createProjectStatusLabel = (text, status) => {
+  const label = document.createElement('span');
+  const classMap = {
+    published: 'uk-label-success',
+    draft: 'uk-label-warning',
+    archived: 'uk-label-default',
+    active: 'uk-label-success',
+    inactive: 'uk-label-warning'
+  };
+  const className = classMap[status] || 'uk-label-default';
+  label.className = `uk-label ${className}`;
+  label.textContent = text;
+  return label;
+};
+
+const buildProjectWikiList = (entries) => {
+  const list = document.createElement('ul');
+  list.className = 'uk-list uk-list-divider';
+
+  entries.forEach(entry => {
+    const item = document.createElement('li');
+    const header = document.createElement('div');
+    header.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+    const info = document.createElement('div');
+    const pageTitle = document.createElement('span');
+    pageTitle.className = 'uk-text-bold';
+    pageTitle.textContent = entry.page?.title || entry.page?.slug || 'Ohne Titel';
+    info.appendChild(pageTitle);
+
+    if (entry.page?.slug) {
+      const slug = document.createElement('span');
+      slug.className = 'uk-text-meta uk-margin-small-left';
+      slug.textContent = `/${entry.page.slug}`;
+      info.appendChild(slug);
+    }
+    header.appendChild(info);
+    item.appendChild(header);
+
+    const articles = Array.isArray(entry.articles) ? entry.articles : [];
+    if (articles.length) {
+      const articleList = document.createElement('ul');
+      articleList.className = 'uk-list uk-list-collapse uk-margin-small-top';
+      articles.forEach(article => {
+        const articleItem = document.createElement('li');
+        const articleRow = document.createElement('div');
+        articleRow.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+        const articleInfo = document.createElement('div');
+        const articleTitle = document.createElement('span');
+        articleTitle.textContent = article.title || article.slug || 'Ohne Titel';
+        articleInfo.appendChild(articleTitle);
+        if (article.slug) {
+          const articleSlug = document.createElement('span');
+          articleSlug.className = 'uk-text-meta uk-margin-small-left';
+          articleSlug.textContent = article.slug;
+          articleInfo.appendChild(articleSlug);
+        }
+        articleRow.appendChild(articleInfo);
+
+        const meta = document.createElement('div');
+        meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+        if (article.locale) {
+          const locale = document.createElement('span');
+          locale.className = 'uk-text-meta';
+          locale.textContent = article.locale;
+          meta.appendChild(locale);
+        }
+        if (article.status) {
+          const statusLabel = createProjectStatusLabel(
+            article.status === 'published' ? 'Veröffentlicht' : article.status,
+            article.status
+          );
+          statusLabel.classList.add('uk-margin-small-left');
+          meta.appendChild(statusLabel);
+        }
+        if (article.isStartDocument) {
+          const startDoc = createProjectStatusLabel('Start', 'active');
+          startDoc.classList.add('uk-margin-small-left');
+          meta.appendChild(startDoc);
+        }
+        if (meta.childElementCount > 0) {
+          articleRow.appendChild(meta);
+        }
+        articleItem.appendChild(articleRow);
+        articleList.appendChild(articleItem);
+      });
+      item.appendChild(articleList);
+    }
+
+    list.appendChild(item);
+  });
+
+  return list;
+};
+
+const buildProjectNewsList = (entries) => {
+  const list = document.createElement('ul');
+  list.className = 'uk-list uk-list-divider';
+
+  entries.forEach(entry => {
+    const item = document.createElement('li');
+    const header = document.createElement('div');
+    header.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+    const info = document.createElement('div');
+    const pageTitle = document.createElement('span');
+    pageTitle.className = 'uk-text-bold';
+    pageTitle.textContent = entry.page?.title || entry.page?.slug || 'Ohne Titel';
+    info.appendChild(pageTitle);
+
+    if (entry.page?.slug) {
+      const slug = document.createElement('span');
+      slug.className = 'uk-text-meta uk-margin-small-left';
+      slug.textContent = `/${entry.page.slug}`;
+      info.appendChild(slug);
+    }
+    header.appendChild(info);
+    item.appendChild(header);
+
+    const newsItems = Array.isArray(entry.items) ? entry.items : [];
+    if (newsItems.length) {
+      const newsList = document.createElement('ul');
+      newsList.className = 'uk-list uk-list-collapse uk-margin-small-top';
+      newsItems.forEach(news => {
+        const newsItem = document.createElement('li');
+        const newsRow = document.createElement('div');
+        newsRow.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+        const newsInfo = document.createElement('div');
+        const newsTitle = document.createElement('span');
+        newsTitle.textContent = news.title || news.slug || 'Ohne Titel';
+        newsInfo.appendChild(newsTitle);
+        if (news.slug) {
+          const newsSlug = document.createElement('span');
+          newsSlug.className = 'uk-text-meta uk-margin-small-left';
+          newsSlug.textContent = news.slug;
+          newsInfo.appendChild(newsSlug);
+        }
+        newsRow.appendChild(newsInfo);
+
+        const meta = document.createElement('div');
+        meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+        if (news.isPublished !== undefined) {
+          const labelText = news.isPublished ? 'Veröffentlicht' : 'Entwurf';
+          const labelState = news.isPublished ? 'published' : 'draft';
+          meta.appendChild(createProjectStatusLabel(labelText, labelState));
+        }
+        if (news.publishedAt) {
+          const publishedAt = document.createElement('span');
+          publishedAt.className = 'uk-text-meta uk-margin-small-left';
+          publishedAt.textContent = new Date(news.publishedAt).toLocaleDateString('de-DE');
+          meta.appendChild(publishedAt);
+        }
+        if (meta.childElementCount > 0) {
+          newsRow.appendChild(meta);
+        }
+
+        newsItem.appendChild(newsRow);
+        newsList.appendChild(newsItem);
+      });
+      item.appendChild(newsList);
+    }
+
+    list.appendChild(item);
+  });
+
+  return list;
+};
+
+const buildProjectSlugList = (slugs) => {
+  const list = document.createElement('ul');
+  list.className = 'uk-list uk-list-collapse';
+  slugs.forEach(slug => {
+    const item = document.createElement('li');
+    item.textContent = slug;
+    list.appendChild(item);
+  });
+  return list;
+};
+
+const buildProjectMediaList = (media) => {
+  const wrapper = document.createElement('div');
+
+  const files = Array.isArray(media?.files) ? media.files : [];
+  const missing = Array.isArray(media?.missing) ? media.missing : [];
+
+  if (files.length) {
+    const fileList = document.createElement('ul');
+    fileList.className = 'uk-list uk-list-divider';
+    files.forEach(file => {
+      const item = document.createElement('li');
+      const row = document.createElement('div');
+      row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
+
+      const info = document.createElement('div');
+      const path = document.createElement('span');
+      path.textContent = file.path || 'Ohne Pfad';
+      info.appendChild(path);
+      row.appendChild(info);
+
+      const meta = document.createElement('div');
+      meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
+      const count = document.createElement('span');
+      count.className = 'uk-text-meta';
+      count.textContent = `${file.count || 0} Referenzen`;
+      meta.appendChild(count);
+      row.appendChild(meta);
+
+      item.appendChild(row);
+      fileList.appendChild(item);
+    });
+    wrapper.appendChild(fileList);
+  }
+
+  if (missing.length) {
+    const missingHeading = document.createElement('div');
+    missingHeading.className = 'uk-text-bold uk-margin-small-top';
+    missingHeading.textContent = 'Fehlende Medien';
+    wrapper.appendChild(missingHeading);
+
+    const missingList = document.createElement('ul');
+    missingList.className = 'uk-list uk-list-collapse';
+    missing.forEach(entry => {
+      const item = document.createElement('li');
+      item.textContent = entry.displayPath || entry.path || '';
+      missingList.appendChild(item);
+    });
+    wrapper.appendChild(missingList);
+  }
+
+  if (!files.length && !missing.length) {
+    wrapper.appendChild(createProjectEmptyState('Keine Medien-Referenzen.'));
+  }
+
+  return wrapper;
+};
+
+const appendProjectBlock = (container, title, content) => {
+  const block = document.createElement('div');
+  block.className = 'uk-margin-small';
+  const heading = document.createElement('h5');
+  heading.className = 'uk-margin-small-bottom';
+  heading.textContent = title;
+  block.appendChild(heading);
+  block.appendChild(content);
+  container.appendChild(block);
+};
+
+const renderProjectTree = (container, namespaces, emptyMessage) => {
+  container.innerHTML = '';
+  if (!namespaces.length) {
+    container.appendChild(createProjectEmptyState(emptyMessage));
+    return;
+  }
+
+  namespaces.forEach(section => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'project-tree-section uk-margin';
+
+    const heading = document.createElement('h4');
+    heading.className = 'uk-heading-line uk-margin-small-top';
+    const headingText = document.createElement('span');
+    headingText.textContent = section.namespace || 'default';
+    heading.appendChild(headingText);
+    wrapper.appendChild(heading);
+
+    const pages = Array.isArray(section.pages) ? section.pages : [];
+    appendProjectBlock(
+      wrapper,
+      'Pages',
+      pages.length ? buildProjectPageTreeList(pages) : createProjectEmptyState('Keine Seiten vorhanden.')
+    );
+
+    const wikiEntries = Array.isArray(section.wiki) ? section.wiki : [];
+    appendProjectBlock(
+      wrapper,
+      'Wiki-Artikel',
+      wikiEntries.length ? buildProjectWikiList(wikiEntries) : createProjectEmptyState('Keine Wiki-Artikel vorhanden.')
+    );
+
+    const newsEntries = Array.isArray(section.landingNews) ? section.landingNews : [];
+    appendProjectBlock(
+      wrapper,
+      'Landing-News',
+      newsEntries.length ? buildProjectNewsList(newsEntries) : createProjectEmptyState('Keine Landing-News vorhanden.')
+    );
+
+    const newsletterSlugs = Array.isArray(section.newsletterSlugs) ? section.newsletterSlugs : [];
+    appendProjectBlock(
+      wrapper,
+      'Newsletter-Slugs',
+      newsletterSlugs.length ? buildProjectSlugList(newsletterSlugs) : createProjectEmptyState('Keine Newsletter-Slugs vorhanden.')
+    );
+
+    appendProjectBlock(
+      wrapper,
+      'Medien-Refs',
+      buildProjectMediaList(section.mediaReferences || {})
+    );
+
+    container.appendChild(wrapper);
+  });
+};
+
+const resolveProjectNamespace = (container) => {
+  const candidate = container?.dataset.namespace || '';
+  return candidate.trim();
+};
+
+const initProjectTree = () => {
+  const container = document.querySelector('[data-project-tree]');
+  if (!container) {
+    return;
+  }
+  const loading = container.querySelector('[data-project-tree-loading]');
+  const emptyMessage = container.dataset.empty || 'Keine Projektdaten vorhanden.';
+  const errorMessage = container.dataset.error || 'Projektübersicht konnte nicht geladen werden.';
+  const endpoint = container.dataset.endpoint || '/admin/projects/tree';
+
+  if (loading) {
+    loading.textContent = loading.textContent || 'Projektübersicht wird geladen…';
+  }
+
+  apiFetch(endpoint)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('project-tree-request-failed');
+      }
+      return response.json();
+    })
+    .then(payload => {
+      const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
+      const activeNamespace = resolveProjectNamespace(container);
+      const filtered = activeNamespace
+        ? namespaces.filter(section => (section.namespace || '').trim() === activeNamespace)
+        : namespaces;
+      renderProjectTree(container, filtered, emptyMessage);
+    })
+    .catch(() => {
+      if (loading) {
+        loading.textContent = errorMessage;
+      } else {
+        const error = document.createElement('div');
+        error.className = 'uk-text-danger';
+        error.textContent = errorMessage;
+        container.appendChild(error);
+      }
+    });
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   const adminTabs = document.getElementById('adminTabs');
   const adminMenu = document.getElementById('adminMenu');
@@ -9614,6 +10027,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
+  initProjectTree();
   loadBackups();
   const path = window.location.pathname.replace(basePath + '/admin', '');
   const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';

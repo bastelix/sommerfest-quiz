@@ -100,6 +100,7 @@ use App\Controller\EventConfigController;
 use App\Controller\DashboardController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
+use App\Controller\Admin\ProjectController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
@@ -165,6 +166,7 @@ require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/AdminMediaController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
+require_once __DIR__ . '/Controller/Admin/ProjectController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
@@ -1529,6 +1531,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->get('/admin/pages/tree', function (Request $request, Response $response) {
         $controller = new PageController();
+        return $controller->tree($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/projects/tree', function (Request $request, Response $response) {
+        $controller = new ProjectController();
         return $controller->tree($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
