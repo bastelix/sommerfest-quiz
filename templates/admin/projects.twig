@@ -1,0 +1,126 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_project_overview') }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Projektübersicht</h2>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activeProjectNamespace = pageNamespace|default('default') %}
+        {% set projectNamespaceOptions = available_namespaces|default([]) %}
+        {% if projectNamespaceOptions is empty %}
+          {% set projectNamespaceOptions = [{
+            namespace: activeProjectNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="projectNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="projectNamespaceSelect"
+                  class="uk-select"
+                  data-project-namespace="{{ activeProjectNamespace|e('html_attr') }}"
+                >
+                  {% for entry in projectNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activeProjectNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Übersicht des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
+
+        {% set projectKpis = [
+          { key: 'pages', label: 'Seiten' },
+          { key: 'wiki', label: 'Wiki-Artikel' },
+          { key: 'news', label: 'Landing-News' },
+          { key: 'newsletter', label: 'Newsletter-Slugs' },
+          { key: 'media', label: 'Medien-Refs' }
+        ] %}
+        <div
+          class="uk-grid-small uk-child-width-1-2@s uk-child-width-1-5@m uk-margin"
+          uk-grid
+          data-project-kpis
+        >
+          {% for kpi in projectKpis %}
+            <div>
+              <div class="uk-card uk-card-default uk-card-body uk-text-center">
+                <div class="uk-text-large uk-text-bold" data-project-kpi="{{ kpi.key }}">0</div>
+                <div class="uk-text-meta">{{ kpi.label }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {% include 'admin/components/project_tree.twig' %}
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

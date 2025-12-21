@@ -632,10 +632,60 @@ const isProjectContentEmpty = section => {
   );
 };
 
+const countProjectPages = (nodes) => {
+  if (!Array.isArray(nodes)) {
+    return 0;
+  }
+  return nodes.reduce((total, node) => {
+    const children = Array.isArray(node.children) ? node.children : [];
+    return total + 1 + countProjectPages(children);
+  }, 0);
+};
+
+const buildProjectKpis = (namespaces) => {
+  return namespaces.reduce((totals, section) => {
+    totals.pages += countProjectPages(section.pages);
+    totals.wiki += (Array.isArray(section.wiki) ? section.wiki : []).reduce(
+      (sum, entry) => sum + (Array.isArray(entry.articles) ? entry.articles.length : 0),
+      0
+    );
+    totals.news += (Array.isArray(section.landingNews) ? section.landingNews : []).reduce(
+      (sum, entry) => sum + (Array.isArray(entry.items) ? entry.items.length : 0),
+      0
+    );
+    totals.newsletter += Array.isArray(section.newsletterSlugs) ? section.newsletterSlugs.length : 0;
+    const mediaRefs = section.mediaReferences || {};
+    totals.media += (Array.isArray(mediaRefs.files) ? mediaRefs.files.length : 0)
+      + (Array.isArray(mediaRefs.missing) ? mediaRefs.missing.length : 0);
+    return totals;
+  }, {
+    pages: 0,
+    wiki: 0,
+    news: 0,
+    newsletter: 0,
+    media: 0
+  });
+};
+
+const updateProjectKpis = (namespaces) => {
+  const container = document.querySelector('[data-project-kpis]');
+  if (!container) {
+    return;
+  }
+  const totals = buildProjectKpis(namespaces);
+  Object.entries(totals).forEach(([key, value]) => {
+    const element = container.querySelector(`[data-project-kpi=\"${key}\"]`);
+    if (element) {
+      element.textContent = String(value);
+    }
+  });
+};
+
 const renderProjectTree = (container, namespaces, emptyMessage) => {
   container.innerHTML = '';
   if (!namespaces.length) {
     container.appendChild(createProjectEmptyState(emptyMessage));
+    updateProjectKpis([]);
     return;
   }
 
@@ -725,6 +775,7 @@ const initProjectTree = () => {
         ? namespaces.filter(section => (section.namespace || '').trim() === activeNamespace)
         : namespaces;
       renderProjectTree(container, filtered, emptyMessage);
+      updateProjectKpis(filtered);
     })
     .catch(() => {
       if (loading) {
@@ -735,6 +786,7 @@ const initProjectTree = () => {
         error.textContent = errorMessage;
         container.appendChild(error);
       }
+      updateProjectKpis([]);
     });
 };
 
@@ -744,6 +796,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
   const pageNamespaceSelect = document.getElementById('pageNamespaceSelect');
+  const projectNamespaceSelect = document.getElementById('projectNamespaceSelect');
   const pageTabs = document.getElementById('pageTabs');
 
   if (window.domainType !== 'main') {
@@ -768,6 +821,21 @@ document.addEventListener('DOMContentLoaded', function () {
       if (activeTab) {
         url.searchParams.set('pageTab', activeTab);
       }
+      window.location.assign(url.toString());
+    });
+  }
+  if (projectNamespaceSelect) {
+    const currentNamespace = projectNamespaceSelect.dataset.projectNamespace || projectNamespaceSelect.value || '';
+    if (currentNamespace && projectNamespaceSelect.value !== currentNamespace) {
+      projectNamespaceSelect.value = currentNamespace;
+    }
+    projectNamespaceSelect.addEventListener('change', () => {
+      const selectedNamespace = projectNamespaceSelect.value || '';
+      if (!selectedNamespace) {
+        return;
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.set('namespace', selectedNamespace);
       window.location.assign(url.toString());
     });
   }

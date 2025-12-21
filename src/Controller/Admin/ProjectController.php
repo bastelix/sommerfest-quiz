@@ -15,12 +15,14 @@ use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
+use Slim\Views\Twig;
 
 use function http_build_query;
 use function is_array;
@@ -56,6 +58,24 @@ class ProjectController
             $this->landingNewsService
         );
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
+    }
+
+    /**
+     * Render the project overview page for admin UI.
+     */
+    public function index(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $role = $_SESSION['user']['role'] ?? '';
+
+        return $view->render($response, 'admin/projects.twig', [
+            'role' => $role,
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
+        ]);
     }
 
     /**
@@ -111,6 +131,48 @@ class ProjectController
         $response->getBody()->write(json_encode(['namespaces' => $payload], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * @return array{0: list<array<string, mixed>>, 1: string}
+     */
+    private function loadNamespaces(Request $request): array
+    {
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+
+        try {
+            $availableNamespaces = $this->namespaceRepository->list();
+        } catch (\RuntimeException $exception) {
+            $availableNamespaces = [];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        return [$availableNamespaces, $namespace];
     }
 
     /**
