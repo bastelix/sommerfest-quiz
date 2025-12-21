@@ -30,6 +30,7 @@ CREATE TABLE email_confirmations (
 CREATE UNIQUE INDEX idx_email_confirmations_token ON email_confirmations(token);
 CREATE UNIQUE INDEX idx_email_confirmations_email ON email_confirmations(email);
 CREATE TABLE newsletter_subscriptions (
+    namespace TEXT NOT NULL DEFAULT 'default',
     email TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending',
     consent_requested_at TEXT NOT NULL,
@@ -39,7 +40,7 @@ CREATE TABLE newsletter_subscriptions (
     attributes TEXT NULL,
     unsubscribe_metadata TEXT NULL
 );
-CREATE UNIQUE INDEX idx_newsletter_subscriptions_email ON newsletter_subscriptions(email);
+CREATE UNIQUE INDEX idx_newsletter_subscriptions_email ON newsletter_subscriptions(namespace, email);
 SQL
         );
     }
@@ -70,6 +71,7 @@ SQL
             $this->pdo,
             new EmailConfirmationService($this->pdo),
             $manager,
+            'default',
             $mailer
         );
 
@@ -92,8 +94,10 @@ SQL
         $this->assertTrue($result->isSuccess());
         $this->assertSame(['ip' => '127.0.0.1'], $result->getMetadata());
 
-        $stmt = $this->pdo->prepare('SELECT status, consent_confirmed_at FROM newsletter_subscriptions WHERE email = :email');
-        $stmt->execute(['email' => 'user@example.com']);
+        $stmt = $this->pdo->prepare(
+            'SELECT status, consent_confirmed_at FROM newsletter_subscriptions WHERE namespace = :namespace AND email = :email'
+        );
+        $stmt->execute(['namespace' => 'default', 'email' => 'user@example.com']);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $this->assertNotFalse($row);
         $this->assertSame('subscribed', $row['status']);
@@ -104,9 +108,11 @@ SQL
     {
         $now = date('Y-m-d H:i:s');
         $stmt = $this->pdo->prepare(
-            'INSERT INTO newsletter_subscriptions (email, status, consent_requested_at, consent_confirmed_at) VALUES (:email, :status, :requested, :confirmed)'
+            'INSERT INTO newsletter_subscriptions (namespace, email, status, consent_requested_at, consent_confirmed_at)'
+            . ' VALUES (:namespace, :email, :status, :requested, :confirmed)'
         );
         $stmt->execute([
+            'namespace' => 'default',
             'email' => 'user@example.com',
             'status' => 'subscribed',
             'requested' => $now,
@@ -123,14 +129,17 @@ SQL
         $service = new NewsletterSubscriptionService(
             $this->pdo,
             new EmailConfirmationService($this->pdo),
-            $manager
+            $manager,
+            'default'
         );
 
         $result = $service->unsubscribe('user@example.com', ['ip' => '127.0.0.1']);
         $this->assertTrue($result);
 
-        $stmt = $this->pdo->prepare('SELECT status, unsubscribe_at, unsubscribe_metadata FROM newsletter_subscriptions WHERE email = :email');
-        $stmt->execute(['email' => 'user@example.com']);
+        $stmt = $this->pdo->prepare(
+            'SELECT status, unsubscribe_at, unsubscribe_metadata FROM newsletter_subscriptions WHERE namespace = :namespace AND email = :email'
+        );
+        $stmt->execute(['namespace' => 'default', 'email' => 'user@example.com']);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $this->assertNotFalse($row);
         $this->assertSame('unsubscribed', $row['status']);

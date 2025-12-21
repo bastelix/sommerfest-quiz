@@ -15,6 +15,7 @@ use Throwable;
 
 class NewsletterSubscriptionService
 {
+    private string $namespace;
     private PDO $pdo;
 
     private EmailConfirmationService $confirmationService;
@@ -29,6 +30,7 @@ class NewsletterSubscriptionService
         PDO $pdo,
         EmailConfirmationService $confirmationService,
         MailProviderManager $providerManager,
+        string $namespace,
         ?MailService $mailService = null,
         ?LoggerInterface $logger = null
     ) {
@@ -37,6 +39,7 @@ class NewsletterSubscriptionService
         $this->providerManager = $providerManager;
         $this->mailService = $mailService;
         $this->logger = $logger ?? new NullLogger();
+        $this->namespace = $this->normalizeNamespace($namespace);
     }
 
     /**
@@ -169,9 +172,9 @@ class NewsletterSubscriptionService
         $attributesJson = $this->encodeScalarMap($attributes);
 
         $sql = <<<'SQL'
-INSERT INTO newsletter_subscriptions (email, status, consent_requested_at, consent_metadata, attributes)
-VALUES (:email, 'pending', :requested_at, :metadata, :attributes)
-ON CONFLICT(email) DO UPDATE SET
+INSERT INTO newsletter_subscriptions (namespace, email, status, consent_requested_at, consent_metadata, attributes)
+VALUES (:namespace, :email, 'pending', :requested_at, :metadata, :attributes)
+ON CONFLICT(namespace, email) DO UPDATE SET
     status = excluded.status,
     consent_requested_at = excluded.consent_requested_at,
     consent_metadata = excluded.consent_metadata,
@@ -182,6 +185,7 @@ ON CONFLICT(email) DO UPDATE SET
 SQL;
 
         $this->executeStatement($sql, [
+            'namespace' => $this->namespace,
             'email' => $email,
             'requested_at' => $now,
             'metadata' => $metadataJson,
@@ -192,12 +196,13 @@ SQL;
     private function ensureSubscriptionRow(string $email): void
     {
         $sql = <<<'SQL'
-INSERT INTO newsletter_subscriptions (email, status, consent_requested_at)
-VALUES (:email, 'pending', :requested_at)
-ON CONFLICT(email) DO NOTHING
+INSERT INTO newsletter_subscriptions (namespace, email, status, consent_requested_at)
+VALUES (:namespace, :email, 'pending', :requested_at)
+ON CONFLICT(namespace, email) DO NOTHING
 SQL;
 
         $this->executeStatement($sql, [
+            'namespace' => $this->namespace,
             'email' => $email,
             'requested_at' => $this->now(),
         ]);
@@ -209,10 +214,11 @@ SQL;
 UPDATE newsletter_subscriptions
    SET status = 'subscribed',
        consent_confirmed_at = :confirmed_at
- WHERE email = :email
+ WHERE namespace = :namespace AND email = :email
 SQL;
 
         $this->executeStatement($sql, [
+            'namespace' => $this->namespace,
             'email' => $email,
             'confirmed_at' => $this->now(),
         ]);
@@ -232,10 +238,11 @@ UPDATE newsletter_subscriptions
    SET status = 'unsubscribed',
        unsubscribe_at = :unsubscribed_at,
        unsubscribe_metadata = :metadata
- WHERE email = :email
+ WHERE namespace = :namespace AND email = :email
 SQL;
 
             $this->executeStatement($sql, [
+                'namespace' => $this->namespace,
                 'email' => $email,
                 'unsubscribed_at' => $now,
                 'metadata' => $metadataJson,
@@ -245,15 +252,16 @@ SQL;
         }
 
         $sql = <<<'SQL'
-INSERT INTO newsletter_subscriptions (email, status, consent_requested_at, unsubscribe_at, unsubscribe_metadata)
-VALUES (:email, 'unsubscribed', :requested_at, :unsubscribed_at, :metadata)
-ON CONFLICT(email) DO UPDATE SET
+INSERT INTO newsletter_subscriptions (namespace, email, status, consent_requested_at, unsubscribe_at, unsubscribe_metadata)
+VALUES (:namespace, :email, 'unsubscribed', :requested_at, :unsubscribed_at, :metadata)
+ON CONFLICT(namespace, email) DO UPDATE SET
     status = excluded.status,
     unsubscribe_at = excluded.unsubscribe_at,
     unsubscribe_metadata = excluded.unsubscribe_metadata
 SQL;
 
         $this->executeStatement($sql, [
+            'namespace' => $this->namespace,
             'email' => $email,
             'requested_at' => $now,
             'unsubscribed_at' => $now,
@@ -267,9 +275,13 @@ SQL;
     private function findSubscription(string $email): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT email, status, consent_metadata, attributes FROM newsletter_subscriptions WHERE email = :email'
+            'SELECT email, status, consent_metadata, attributes FROM newsletter_subscriptions'
+            . ' WHERE namespace = :namespace AND email = :email'
         );
-        $stmt->execute(['email' => $email]);
+        $stmt->execute([
+            'namespace' => $this->namespace,
+            'email' => $email,
+        ]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $row === false ? null : $row;
@@ -359,5 +371,11 @@ SQL;
     private function now(): string
     {
         return (new DateTimeImmutable())->format('Y-m-d H:i:s');
+    }
+
+    private function normalizeNamespace(string $namespace): string
+    {
+        $normalized = strtolower(trim($namespace));
+        return $normalized !== '' ? $normalized : PageService::DEFAULT_NAMESPACE;
     }
 }

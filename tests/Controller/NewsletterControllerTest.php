@@ -29,9 +29,10 @@ class NewsletterControllerTest extends TestCase
 
         $pdo->prepare(
             'INSERT INTO newsletter_subscriptions('
-            . 'email, status, consent_requested_at, consent_metadata, attributes'
-            . ') VALUES (:email, :status, :requested, :metadata, :attributes)'
+            . 'namespace, email, status, consent_requested_at, consent_metadata, attributes'
+            . ') VALUES (:namespace, :email, :status, :requested, :metadata, :attributes)'
         )->execute([
+            'namespace' => 'default',
             'email' => $email,
             'status' => 'pending',
             'requested' => date('Y-m-d H:i:s'),
@@ -40,10 +41,12 @@ class NewsletterControllerTest extends TestCase
         ]);
 
         $pdo->prepare(
-            'INSERT INTO marketing_newsletter_configs (slug, position, label, url, style)'
-            . ' VALUES (:slug, :position, :label, :url, :style)'
-            . ' ON CONFLICT(slug, position) DO UPDATE SET label = excluded.label, url = excluded.url, style = excluded.style'
+            'INSERT INTO marketing_newsletter_configs (namespace, slug, position, label, url, style)'
+            . ' VALUES (:namespace, :slug, :position, :label, :url, :style)'
+            . ' ON CONFLICT(namespace, slug, position) DO UPDATE SET'
+            . ' label = excluded.label, url = excluded.url, style = excluded.style'
         )->execute([
+            'namespace' => 'default',
             'slug' => 'calserver',
             'position' => 0,
             'label' => 'CTA für Test',
