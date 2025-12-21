@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Exception\DuplicateNamespaceException;
 use App\Exception\NamespaceNotFoundException;
 use App\Service\NamespaceService;
+use App\Service\NamespaceValidator;
 use App\Service\PageService;
 use App\Service\TranslationService;
 use InvalidArgumentException;
@@ -20,8 +21,11 @@ use Slim\Views\Twig;
  */
 final class NamespaceController
 {
-    public function __construct(private NamespaceService $service)
+    private NamespaceValidator $validator;
+
+    public function __construct(private NamespaceService $service, ?NamespaceValidator $validator = null)
     {
+        $this->validator = $validator ?? new NamespaceValidator();
     }
 
     /**
@@ -39,6 +43,8 @@ final class NamespaceController
             'domainType' => $request->getAttribute('domainType'),
             'currentPath' => $request->getUri()->getPath(),
             'defaultNamespace' => PageService::DEFAULT_NAMESPACE,
+            'namespacePattern' => $this->validator->getPattern(),
+            'namespaceMaxLength' => $this->validator->getMaxLength(),
         ]);
     }
 
@@ -71,13 +77,19 @@ final class NamespaceController
     {
         $data = $this->parsePayload($request);
         $namespace = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
+        $normalized = $this->validator->normalize($namespace);
+
+        $validationError = $this->validateNamespace($request, $response, $normalized);
+        if ($validationError instanceof Response) {
+            return $validationError;
+        }
 
         try {
-            $entry = $this->service->create($namespace);
+            $entry = $this->service->create($normalized);
         } catch (DuplicateNamespaceException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_duplicate', 'Namespace exists.'), 409);
-        } catch (InvalidArgumentException) {
-            return $this->jsonError($response, $this->translate($request, 'error_namespace_invalid', 'Invalid namespace.'), 422);
+        } catch (InvalidArgumentException $exception) {
+            return $this->jsonError($response, $this->resolveNamespaceError($request, $exception), 422);
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 500);
         }
@@ -98,21 +110,29 @@ final class NamespaceController
         $source = isset($args['namespace']) ? (string) $args['namespace'] : '';
         $data = $this->parsePayload($request);
         $target = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
+        $normalized = $this->validator->normalize($target);
+
+        $validationError = $this->validateNamespace($request, $response, $normalized);
+        if ($validationError instanceof Response) {
+            return $validationError;
+        }
 
         try {
-            $entry = $this->service->rename($source, $target);
+            $entry = $this->service->rename($source, $normalized);
         } catch (NamespaceNotFoundException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_not_found', 'Namespace not found.'), 404);
         } catch (DuplicateNamespaceException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_duplicate', 'Namespace exists.'), 409);
         } catch (InvalidArgumentException $exception) {
-            $messageKey = $exception->getMessage() === 'default-namespace'
-                ? 'error_namespace_default_locked'
-                : 'error_namespace_invalid';
-            $fallback = $messageKey === 'error_namespace_default_locked'
-                ? 'Default namespace cannot be changed.'
-                : 'Invalid namespace.';
-            return $this->jsonError($response, $this->translate($request, $messageKey, $fallback), 422);
+            if ($exception->getMessage() === 'default-namespace') {
+                return $this->jsonError(
+                    $response,
+                    $this->translate($request, 'error_namespace_default_locked', 'Default namespace cannot be changed.'),
+                    422
+                );
+            }
+
+            return $this->jsonError($response, $this->resolveNamespaceError($request, $exception), 422);
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 500);
         }
@@ -170,6 +190,39 @@ final class NamespaceController
     private function jsonError(Response $response, string $message, int $status): Response
     {
         return $this->json($response, ['error' => $message], $status);
+    }
+
+    private function validateNamespace(Request $request, Response $response, string $namespace): ?Response
+    {
+        try {
+            $this->validator->assertValid($namespace);
+        } catch (InvalidArgumentException $exception) {
+            return $this->jsonError($response, $this->resolveNamespaceError($request, $exception), 422);
+        }
+
+        return null;
+    }
+
+    private function resolveNamespaceError(Request $request, InvalidArgumentException $exception): string
+    {
+        return match ($exception->getMessage()) {
+            'namespace-empty' => $this->translate(
+                $request,
+                'error_namespace_empty',
+                'Please enter a namespace.'
+            ),
+            'namespace-length' => $this->translate(
+                $request,
+                'error_namespace_invalid_length',
+                'Namespace is too long.'
+            ),
+            'namespace-format' => $this->translate(
+                $request,
+                'error_namespace_invalid_format',
+                'Namespace format is invalid.'
+            ),
+            default => $this->translate($request, 'error_namespace_invalid', 'Invalid namespace.'),
+        };
     }
 
     private function translate(Request $request, string $key, string $fallback): string

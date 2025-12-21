@@ -11,8 +11,11 @@ use InvalidArgumentException;
 
 final class NamespaceService
 {
-    public function __construct(private NamespaceRepository $repository)
+    private NamespaceValidator $validator;
+
+    public function __construct(private NamespaceRepository $repository, ?NamespaceValidator $validator = null)
     {
+        $this->validator = $validator ?? new NamespaceValidator();
     }
 
     /**
@@ -28,8 +31,8 @@ final class NamespaceService
      */
     public function create(string $namespace): array
     {
-        $normalized = $this->normalizeNamespace($namespace);
-        $this->assertValidNamespace($normalized);
+        $normalized = $this->validator->normalize($namespace);
+        $this->validator->assertValid($normalized);
 
         if ($this->repository->exists($normalized)) {
             throw new DuplicateNamespaceException('namespace-exists');
@@ -51,14 +54,14 @@ final class NamespaceService
      */
     public function rename(string $namespace, string $newNamespace): array
     {
-        $source = $this->normalizeNamespace($namespace);
-        $target = $this->normalizeNamespace($newNamespace);
+        $source = $this->validator->normalize($namespace);
+        $target = $this->validator->normalize($newNamespace);
 
         if ($source === PageService::DEFAULT_NAMESPACE) {
             throw new InvalidArgumentException('default-namespace');
         }
 
-        $this->assertValidNamespace($target);
+        $this->validator->assertValid($target);
 
         if (!$this->repository->exists($source)) {
             throw new NamespaceNotFoundException('namespace-missing');
@@ -84,7 +87,7 @@ final class NamespaceService
      */
     public function delete(string $namespace): void
     {
-        $normalized = $this->normalizeNamespace($namespace);
+        $normalized = $this->validator->normalize($namespace);
 
         if ($normalized === PageService::DEFAULT_NAMESPACE) {
             throw new InvalidArgumentException('default-namespace');
@@ -97,19 +100,4 @@ final class NamespaceService
         $this->repository->delete($normalized);
     }
 
-    private function normalizeNamespace(string $namespace): string
-    {
-        return strtolower(trim($namespace));
-    }
-
-    private function assertValidNamespace(string $namespace): void
-    {
-        if ($namespace === '') {
-            throw new InvalidArgumentException('namespace-empty');
-        }
-
-        if (!preg_match('/^[a-z0-9][a-z0-9-]{0,99}$/', $namespace)) {
-            throw new InvalidArgumentException('namespace-invalid');
-        }
-    }
 }
