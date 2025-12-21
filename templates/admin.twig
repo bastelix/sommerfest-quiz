@@ -2145,6 +2145,7 @@
                 <th class="uk-table-shrink"></th>
                 <th data-key="username">{{ t('column_username') }}</th>
                 <th data-key="role">{{ t('column_role') }}</th>
+                <th data-key="namespaces">{{ t('column_namespaces') }}</th>
                 <th data-key="active" class="uk-table-shrink">{{ t('column_active') }}</th>
                 <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
               </tr>
@@ -2153,6 +2154,7 @@
               id="usersList"
               data-label-username="{{ t('column_username') }}"
               data-label-role="{{ t('column_role') }}"
+              data-label-namespaces="{{ t('column_namespaces') }}"
               data-label-active="{{ t('column_active') }}"
             ></tbody>
           </table>
@@ -2545,6 +2547,12 @@
     window.transRagChatTokenMissing = '{{ t('text_rag_chat_token_missing')|e('js') }}';
     window.ragChatTokenPlaceholder = '{{ t('placeholder_rag_chat_token')|e('js') }}';
     window.roles = {{ roles|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.availableNamespaces = {{ available_namespaces|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.defaultNamespace = '{{ default_namespace|default('default')|e('js') }}';
+    window.currentUserRole = '{{ role|e('js') }}';
+    window.transNamespaceActiveLabel = '{{ t('label_namespace_active')|e('js') }}';
+    window.transNamespaceDefaultLabel = '{{ t('label_namespace_default')|e('js') }}';
+    window.transNamespaceNone = '{{ t('text_namespace_none')|e('js') }}';
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';

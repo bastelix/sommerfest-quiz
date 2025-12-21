@@ -6925,17 +6925,57 @@ document.addEventListener('DOMContentLoaded', function () {
   const userPassForm = document.getElementById('userPassForm');
   const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
   const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
+  const labelNamespaces = usersListEl?.dataset.labelNamespaces || 'Namespaces';
   const labelActive = usersListEl?.dataset.labelActive || 'Aktiv';
+  const availableNamespaces = Array.isArray(window.availableNamespaces) && window.availableNamespaces.length
+    ? window.availableNamespaces
+    : [window.defaultNamespace || 'default'];
+  const defaultNamespace = window.defaultNamespace || 'default';
+  const canEditNamespaces = window.currentUserRole === 'admin';
+  const namespaceActiveLabel = window.transNamespaceActiveLabel || 'Aktiv';
+  const namespaceDefaultLabel = window.transNamespaceDefaultLabel || 'Standard';
+  const namespaceNoneLabel = window.transNamespaceNone || '-';
   let currentUserId = null;
   let userManager;
+
+  function normalizeUserNamespaces(item) {
+    const existing = Array.isArray(item.namespaces) ? item.namespaces : [];
+    const normalized = [];
+    existing.forEach(entry => {
+      const namespace = typeof entry === 'string' ? entry : entry?.namespace;
+      if (!namespace) return;
+      const value = String(namespace).trim().toLowerCase();
+      if (!value || normalized.some(v => v.namespace === value)) return;
+      normalized.push({
+        namespace: value,
+        is_default: Boolean(entry?.is_default)
+      });
+    });
+    if (normalized.length === 0) {
+      normalized.push({ namespace: defaultNamespace, is_default: true });
+    }
+    if (!normalized.some(entry => entry.is_default)) {
+      normalized[0].is_default = true;
+    }
+    item.namespaces = normalized;
+    return normalized;
+  }
+
+  function getDefaultNamespace(item) {
+    const namespaces = normalizeUserNamespaces(item);
+    const selected = namespaces.find(entry => entry.is_default);
+    return selected?.namespace || namespaces[0]?.namespace || defaultNamespace;
+  }
 
   function renderUsers(list = []) {
     const data = list.map(u => ({
       ...u,
       id: u.id ?? crypto.randomUUID(),
       role: u.role || (window.roles && window.roles[0]) || '',
-      password: ''
+      password: '',
+      namespaces: Array.isArray(u.namespaces) ? u.namespaces : []
     }));
+    data.forEach(item => normalizeUserNamespaces(item));
     userManager.render(data);
   }
 
@@ -6951,6 +6991,7 @@ document.addEventListener('DOMContentLoaded', function () {
         role: u.role,
         active: u.active !== false,
         password: u.password || '',
+        namespaces: Array.isArray(u.namespaces) ? u.namespaces : [],
         position: index
       }))
       .filter(u => u.username);
@@ -7004,7 +7045,8 @@ document.addEventListener('DOMContentLoaded', function () {
       username: '',
       role: (window.roles && window.roles[0]) || '',
       active: true,
-      password: ''
+      password: '',
+      namespaces: [{ namespace: defaultNamespace, is_default: true }]
     });
     userManager.render(list);
     const cell = usersListEl?.querySelector(`[data-id="${id}"][data-key="username"]`);
@@ -7046,6 +7088,126 @@ document.addEventListener('DOMContentLoaded', function () {
     userNameModal?.hide();
   });
 
+  function normalizeNamespaceList(values = []) {
+    const normalized = [];
+    values.forEach(value => {
+      if (!value) return;
+      const normalizedValue = String(value).trim().toLowerCase();
+      if (normalizedValue && !normalized.includes(normalizedValue)) {
+        normalized.push(normalizedValue);
+      }
+    });
+    return normalized;
+  }
+
+  function updateNamespaceSelection(item, selectedValues, defaultValue) {
+    const normalizedValues = normalizeNamespaceList(selectedValues);
+    if (normalizedValues.length === 0) {
+      normalizedValues.push(defaultNamespace);
+    }
+
+    let activeDefault = defaultValue ? String(defaultValue).trim().toLowerCase() : '';
+    if (!normalizedValues.includes(activeDefault)) {
+      activeDefault = normalizedValues[0] || defaultNamespace;
+    }
+
+    item.namespaces = normalizedValues.map(namespace => ({
+      namespace,
+      is_default: namespace === activeDefault
+    }));
+
+    return {
+      namespaces: normalizedValues,
+      defaultNamespace: activeDefault
+    };
+  }
+
+  function buildNamespaceCell(item) {
+    normalizeUserNamespaces(item);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'uk-flex uk-flex-column';
+
+    const select = document.createElement('select');
+    select.className = 'uk-select';
+    select.multiple = true;
+    select.setAttribute('aria-label', labelNamespaces);
+    select.disabled = !canEditNamespaces;
+
+    const selectedSet = new Set(normalizeUserNamespaces(item).map(entry => entry.namespace));
+    const namespaceOptions = [...availableNamespaces];
+    selectedSet.forEach(namespace => {
+      if (!namespaceOptions.includes(namespace)) {
+        namespaceOptions.push(namespace);
+      }
+    });
+    namespaceOptions.forEach(namespace => {
+      const option = document.createElement('option');
+      option.value = namespace;
+      option.textContent = namespace;
+      option.selected = selectedSet.has(namespace);
+      select.appendChild(option);
+    });
+
+    wrapper.appendChild(select);
+
+    const activeRow = document.createElement('div');
+    activeRow.className = 'uk-text-meta uk-margin-small-top';
+    wrapper.appendChild(activeRow);
+
+    let defaultSelect = null;
+    if (canEditNamespaces) {
+      const defaultRow = document.createElement('div');
+      defaultRow.className = 'uk-margin-small-top uk-flex uk-flex-middle';
+
+      const label = document.createElement('span');
+      label.className = 'uk-text-meta uk-margin-small-right';
+      label.textContent = `${namespaceDefaultLabel}:`;
+      defaultRow.appendChild(label);
+
+      defaultSelect = document.createElement('select');
+      defaultSelect.className = 'uk-select uk-form-small';
+      defaultSelect.setAttribute('aria-label', namespaceDefaultLabel);
+      defaultRow.appendChild(defaultSelect);
+      wrapper.appendChild(defaultRow);
+    }
+
+    const syncDisplay = (commit = false) => {
+      const selectedValues = Array.from(select.selectedOptions).map(option => option.value);
+      const defaultValue = defaultSelect ? defaultSelect.value : getDefaultNamespace(item);
+      const result = updateNamespaceSelection(item, selectedValues, defaultValue);
+
+      if (selectedValues.length === 0) {
+        Array.from(select.options).forEach(option => {
+          option.selected = option.value === result.defaultNamespace;
+        });
+      }
+
+      if (defaultSelect) {
+        defaultSelect.innerHTML = '';
+        result.namespaces.forEach(namespace => {
+          const option = document.createElement('option');
+          option.value = namespace;
+          option.textContent = namespace;
+          defaultSelect.appendChild(option);
+        });
+        defaultSelect.value = result.defaultNamespace || '';
+      }
+
+      activeRow.textContent = `${namespaceActiveLabel}: ${result.defaultNamespace || namespaceNoneLabel}`;
+
+      if (commit) {
+        saveUsers(userManager.getData());
+      }
+    };
+
+    select.addEventListener('change', () => syncDisplay(true));
+    defaultSelect?.addEventListener('change', () => syncDisplay(true));
+
+    syncDisplay(false);
+
+    return wrapper;
+  }
+
   if (usersListEl) {
     const roleTemplate = document.getElementById('userRoleSelect');
     const userColumns = [
@@ -7073,6 +7235,11 @@ document.addEventListener('DOMContentLoaded', function () {
           });
           return select;
         }
+      },
+      {
+        key: 'namespaces',
+        label: labelNamespaces,
+        render: item => buildNamespaceCell(item)
       },
       {
         key: 'active',
