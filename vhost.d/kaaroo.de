@@ -1,0 +1,2 @@
+location ~* ^/(?:wp-admin|wp-content|wp-includes|wp-json|wordpress)/ { return 444; }
+location ~* ^/(?:wp-login\.php|wp-signin\.php|xmlrpc\.php|wp-.*\.php)$ { return 444; }
