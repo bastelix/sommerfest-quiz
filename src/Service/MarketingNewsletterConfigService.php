@@ -26,6 +26,8 @@ class MarketingNewsletterConfigService
         self::STYLE_LINK,
     ];
 
+    private const DEFAULT_NAMESPACE = 'default';
+
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
@@ -38,18 +40,19 @@ class MarketingNewsletterConfigService
      *
      * @return list<array{label:string,url:string,style:string}>
      */
-    public function getCtasForSlug(string $slug): array
+    public function getCtasForSlug(string $slug, string $namespace): array
     {
         $normalized = $this->normalizeSlug($slug);
         if ($normalized === '') {
             return [];
         }
 
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
         $stmt = $this->pdo->prepare(
-            'SELECT label, url, style FROM marketing_newsletter_configs WHERE slug = :slug'
+            'SELECT label, url, style FROM marketing_newsletter_configs WHERE namespace = :namespace AND slug = :slug'
             . ' ORDER BY position ASC, id ASC'
         );
-        $stmt->execute(['slug' => $normalized]);
+        $stmt->execute(['namespace' => $normalizedNamespace, 'slug' => $normalized]);
 
         $items = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -68,12 +71,14 @@ class MarketingNewsletterConfigService
      *
      * @return list<array{id:int,slug:string,position:int,label:string,url:string,style:string}>
      */
-    public function getAll(): array
+    public function getAll(string $namespace): array
     {
-        $stmt = $this->pdo->query(
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
+        $stmt = $this->pdo->prepare(
             'SELECT id, slug, position, label, url, style'
-            . ' FROM marketing_newsletter_configs ORDER BY slug ASC, position ASC, id ASC'
+            . ' FROM marketing_newsletter_configs WHERE namespace = :namespace ORDER BY slug ASC, position ASC, id ASC'
         );
+        $stmt->execute(['namespace' => $normalizedNamespace]);
 
         $entries = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -95,10 +100,10 @@ class MarketingNewsletterConfigService
      *
      * @return array<string,list<array{id:int,position:int,label:string,url:string,style:string}>>
      */
-    public function getAllGrouped(): array
+    public function getAllGrouped(string $namespace): array
     {
         $grouped = [];
-        foreach ($this->getAll() as $entry) {
+        foreach ($this->getAll($namespace) as $entry) {
             $slug = $this->normalizeSlug($entry['slug']);
             if (!isset($grouped[$slug])) {
                 $grouped[$slug] = [];
@@ -120,13 +125,14 @@ class MarketingNewsletterConfigService
      *
      * @param list<array{label?:string,url?:string,style?:string}> $entries
      */
-    public function saveEntries(string $slug, array $entries): void
+    public function saveEntries(string $slug, string $namespace, array $entries): void
     {
         $normalized = $this->normalizeSlug($slug);
         if ($normalized === '') {
             throw new RuntimeException('Slug is required for newsletter CTA configuration.');
         }
 
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
         $items = [];
         foreach ($entries as $entry) {
             if (!array_key_exists('label', $entry) || !array_key_exists('url', $entry)) {
@@ -148,17 +154,20 @@ class MarketingNewsletterConfigService
         try {
             $this->pdo->beginTransaction();
 
-            $delete = $this->pdo->prepare('DELETE FROM marketing_newsletter_configs WHERE slug = :slug');
-            $delete->execute(['slug' => $normalized]);
+            $delete = $this->pdo->prepare(
+                'DELETE FROM marketing_newsletter_configs WHERE namespace = :namespace AND slug = :slug'
+            );
+            $delete->execute(['namespace' => $normalizedNamespace, 'slug' => $normalized]);
 
             if ($items !== []) {
                 $insert = $this->pdo->prepare(
-                    'INSERT INTO marketing_newsletter_configs (slug, position, label, url, style)'
-                    . ' VALUES (:slug, :position, :label, :url, :style)'
+                    'INSERT INTO marketing_newsletter_configs (namespace, slug, position, label, url, style)'
+                    . ' VALUES (:namespace, :slug, :position, :label, :url, :style)'
                 );
 
                 foreach ($items as $index => $item) {
                     $insert->execute([
+                        'namespace' => $normalizedNamespace,
                         'slug' => $normalized,
                         'position' => $index,
                         'label' => $item['label'],
@@ -186,6 +195,12 @@ class MarketingNewsletterConfigService
     private function normalizeSlug(string $slug): string
     {
         return strtolower(trim($slug));
+    }
+
+    private function normalizeNamespace(string $namespace): string
+    {
+        $normalized = strtolower(trim($namespace));
+        return $normalized !== '' ? $normalized : self::DEFAULT_NAMESPACE;
     }
 
     private function normalizeStyle(?string $style): string

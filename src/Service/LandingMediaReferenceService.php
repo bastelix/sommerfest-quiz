@@ -66,9 +66,9 @@ class LandingMediaReferenceService
      *
      * @return list<array{slug:string,title:string}>
      */
-    public function getLandingSlugs(): array {
+    public function getLandingSlugs(?string $namespace = null): array {
         $slugs = [];
-        foreach ($this->getLandingPages() as $page) {
+        foreach ($this->getLandingPages($namespace) as $page) {
             $slugs[] = [
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
@@ -87,8 +87,8 @@ class LandingMediaReferenceService
      *     missing:list<MissingMediaReference>
      * }
      */
-    public function collect(): array {
-        $landingPages = $this->getLandingPages();
+    public function collect(?string $namespace = null): array {
+        $landingPages = $this->getLandingPages($namespace);
         /** @var list<array{slug:string,title:string}> $slugs */
         $slugs = [];
         /** @var array<string, list<MediaReference>> $files */
@@ -170,8 +170,10 @@ class LandingMediaReferenceService
     /**
      * @return Page[]
      */
-    private function getLandingPages(): array {
-        $pages = $this->pages->getAll();
+    private function getLandingPages(?string $namespace = null): array {
+        $pages = $namespace !== null && $namespace !== ''
+            ? $this->pages->getAllForNamespace($namespace)
+            : $this->pages->getAll();
 
         return array_values(array_filter(
             $pages,

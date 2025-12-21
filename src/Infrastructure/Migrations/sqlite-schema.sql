@@ -411,6 +411,7 @@ CREATE TABLE IF NOT EXISTS landing_news (
 
 CREATE TABLE IF NOT EXISTS marketing_newsletter_configs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    namespace TEXT NOT NULL DEFAULT 'default',
     slug TEXT NOT NULL,
     position INTEGER NOT NULL DEFAULT 0,
     label TEXT NOT NULL,
@@ -419,27 +420,27 @@ CREATE TABLE IF NOT EXISTS marketing_newsletter_configs (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_marketing_newsletter_configs_unique
-    ON marketing_newsletter_configs(slug, position);
+    ON marketing_newsletter_configs(namespace, slug, position);
 
 CREATE INDEX IF NOT EXISTS idx_marketing_newsletter_configs_slug
-    ON marketing_newsletter_configs(slug);
+    ON marketing_newsletter_configs(namespace, slug);
 
-INSERT INTO marketing_newsletter_configs (slug, position, label, url, style) VALUES
-    ('landing', 0, 'QuizRace entdecken', '/landing', 'primary'),
-    ('landing', 1, 'Kontakt aufnehmen', '/landing#contact-us', 'secondary'),
-    ('calserver', 0, 'Mehr über calServer', '/calserver', 'primary'),
-    ('calserver', 1, 'Demo anfragen', '/calserver#contact', 'secondary'),
-    ('calserver-maintenance', 0, 'Service anfragen', '/calserver-maintenance', 'primary'),
-    ('calserver-maintenance', 1, 'Direkt Kontakt aufnehmen', '/calserver-maintenance#contact', 'secondary'),
-    ('calserver-accessibility', 0, 'Barrierefreiheit entdecken', '/calserver-accessibility', 'primary'),
-    ('calserver-accessibility', 1, 'Beratung vereinbaren', '/calserver#contact', 'secondary'),
-    ('calhelp', 0, 'CALhelp kennenlernen', '/calhelp', 'primary'),
-    ('calhelp', 1, 'Beratung anfordern', '/calhelp#contact-info', 'secondary'),
-    ('future-is-green', 0, 'Future is Green entdecken', '/future-is-green', 'primary'),
-    ('future-is-green', 1, 'Kontakt aufnehmen', '#contact', 'secondary'),
-    ('fluke-metcal', 0, 'Met/Track kennenlernen', '/fluke-metcal', 'primary'),
-    ('fluke-metcal', 1, 'Kontakt aufnehmen', '/calserver#contact-us', 'secondary')
-ON CONFLICT(slug, position) DO UPDATE SET
+INSERT INTO marketing_newsletter_configs (namespace, slug, position, label, url, style) VALUES
+    ('default', 'landing', 0, 'QuizRace entdecken', '/landing', 'primary'),
+    ('default', 'landing', 1, 'Kontakt aufnehmen', '/landing#contact-us', 'secondary'),
+    ('default', 'calserver', 0, 'Mehr über calServer', '/calserver', 'primary'),
+    ('default', 'calserver', 1, 'Demo anfragen', '/calserver#contact', 'secondary'),
+    ('default', 'calserver-maintenance', 0, 'Service anfragen', '/calserver-maintenance', 'primary'),
+    ('default', 'calserver-maintenance', 1, 'Direkt Kontakt aufnehmen', '/calserver-maintenance#contact', 'secondary'),
+    ('default', 'calserver-accessibility', 0, 'Barrierefreiheit entdecken', '/calserver-accessibility', 'primary'),
+    ('default', 'calserver-accessibility', 1, 'Beratung vereinbaren', '/calserver#contact', 'secondary'),
+    ('default', 'calhelp', 0, 'CALhelp kennenlernen', '/calhelp', 'primary'),
+    ('default', 'calhelp', 1, 'Beratung anfordern', '/calhelp#contact-info', 'secondary'),
+    ('default', 'future-is-green', 0, 'Future is Green entdecken', '/future-is-green', 'primary'),
+    ('default', 'future-is-green', 1, 'Kontakt aufnehmen', '#contact', 'secondary'),
+    ('default', 'fluke-metcal', 0, 'Met/Track kennenlernen', '/fluke-metcal', 'primary'),
+    ('default', 'fluke-metcal', 1, 'Kontakt aufnehmen', '/calserver#contact-us', 'secondary')
+ON CONFLICT(namespace, slug, position) DO UPDATE SET
     label = excluded.label,
     url = excluded.url,
     style = excluded.style;

@@ -10,6 +10,7 @@ use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceResolver;
 use App\Service\NewsletterSubscriptionService;
 use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -41,6 +42,7 @@ class NewsletterController
         $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager);
         $domainService = new DomainStartPageService($pdo);
         $configService = new MarketingNewsletterConfigService($pdo);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
 
         $success = false;
         $marketingSlug = null;
@@ -61,9 +63,9 @@ class NewsletterController
                     $marketingSlug = 'landing';
                 }
 
-                $ctas = $configService->getCtasForSlug($marketingSlug);
+                $ctas = $configService->getCtasForSlug($marketingSlug, $namespace);
                 if ($ctas === [] && $marketingSlug !== 'landing') {
-                    $ctas = $configService->getCtasForSlug('landing');
+                    $ctas = $configService->getCtasForSlug('landing', $namespace);
                 }
             }
         } catch (RuntimeException $exception) {
