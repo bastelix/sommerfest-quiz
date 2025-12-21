@@ -51,6 +51,11 @@
     ]
   },
   {
+    header: t('menu_projects'),
+    admin: true,
+    type: 'projects'
+  },
+  {
     header: t('menu_account'),
     items: [
       { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile'), noEvent: true },
@@ -72,6 +77,20 @@
 {% set allowMultipleAccordion = false %}
 {% set accordionOptions = allowMultipleAccordion ? 'multiple: true' : 'multiple: false' %}
 {% set current = currentPath %}
+{% set activeNamespace = pageNamespace|default('default') %}
+{% set projectModules = [
+  { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages') },
+  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news') },
+  { href: basePath ~ '/admin/management', icon: 'mail', text: t('tab_newsletter'), anchor: '#marketingNewsletterConfigSection' },
+] %}
+{% set projectNamespaceOptions = available_namespaces|default([]) %}
+{% if projectNamespaceOptions is empty %}
+  {% set projectNamespaceOptions = [{
+    namespace: activeNamespace,
+    label: null,
+    is_active: true
+  }] %}
+{% endif %}
 {% set startGroup = groups|first %}
 {% set accordionGroups = groups|slice(1) %}
 
@@ -95,42 +114,111 @@
   <div class="qr-nav-accordion uk-margin-small-top" uk-accordion="{{ accordionOptions }}">
     {% for group in accordionGroups %}
       {% if (group.admin is not defined or role == 'admin') and (group.roles is not defined or role in group.roles) %}
-        {% set groupActive = false %}
-        {% set hasItems = false %}
-        {% for it in group.items %}
-          {% if (it.roles is not defined or role in it.roles)
-              and (it.admin is not defined or role == 'admin')
-              and (it.domain is not defined or it.domain == domainType) %}
-            {% set hasItems = true %}
-            {% if current starts with it.href %}
-              {% set groupActive = true %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {% if hasItems %}
-          <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
-            <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
-              <span class="qr-nav-accordion-label">{{ group.header|upper }}</span>
-              <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
-            </a>
-            <div class="uk-accordion-content uk-padding-remove">
-              <ul class="uk-nav uk-nav-default qr-nav-sub">
-                {% for it in group.items %}
-                  {% if (it.roles is not defined or role in it.roles)
-                      and (it.admin is not defined or role == 'admin')
-                      and (it.domain is not defined or it.domain == domainType) %}
-                    {% set active = current starts with it.href ? 'uk-active' : '' %}
-                    <li class="{{ active }}">
-                      <a class="qr-nav-link qr-nav-sub-link" href="{{ it.href }}">
-                        <span uk-icon="icon: {{ it.icon }}; ratio: 0.85"></span>
-                        <span class="qr-nav-text">{{ it.text }}</span>
-                      </a>
-                    </li>
+        {% if group.type is defined and group.type == 'projects' %}
+          {% set groupActive = false %}
+          {% set hasItems = false %}
+          {% for entry in projectNamespaceOptions %}
+            {% if entry.is_active is not defined or entry.is_active %}
+              {% set hasItems = true %}
+              {% set namespaceValue = entry.namespace|default('') %}
+              {% if namespaceValue == activeNamespace %}
+                {% for module in projectModules %}
+                  {% if current starts with module.href %}
+                    {% set groupActive = true %}
                   {% endif %}
                 {% endfor %}
-              </ul>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if hasItems %}
+            <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
+              <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
+                <span class="qr-nav-accordion-label">{{ group.header|upper }}</span>
+                <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+              </a>
+              <div class="uk-accordion-content uk-padding-remove">
+                <div class="qr-nav-accordion" uk-accordion="{{ accordionOptions }}">
+                  {% for entry in projectNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set namespaceValue = entry.namespace|default('') %}
+                      {% set namespaceLabel = entry.label|default('') %}
+                      {% set namespaceQuery = namespaceValue is not empty ? '?namespace=' ~ namespaceValue|url_encode : '' %}
+                      {% set namespaceActive = namespaceValue == activeNamespace %}
+                      {% set namespaceHasActive = false %}
+                      {% for module in projectModules %}
+                        {% if namespaceActive and current starts with module.href %}
+                          {% set namespaceHasActive = true %}
+                        {% endif %}
+                      {% endfor %}
+                      <div class="qr-nav-accordion-item {{ namespaceHasActive ? 'uk-open' }}">
+                        <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
+                          <span class="qr-nav-accordion-label">
+                            {{ namespaceValue }}
+                            {% if namespaceLabel is not empty %}· {{ namespaceLabel }}{% endif %}
+                          </span>
+                          <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                        </a>
+                        <div class="uk-accordion-content uk-padding-remove">
+                          <ul class="uk-nav uk-nav-default qr-nav-sub">
+                            {% for module in projectModules %}
+                              {% set isActive = namespaceActive and current starts with module.href %}
+                              <li class="{{ isActive ? 'uk-active' : '' }}">
+                                <a
+                                  class="qr-nav-link qr-nav-sub-link"
+                                  href="{{ module.href }}{{ namespaceQuery }}{{ module.anchor|default('') }}"
+                                >
+                                  <span uk-icon="icon: {{ module.icon }}; ratio: 0.85"></span>
+                                  <span class="qr-nav-text">{{ module.text }}</span>
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
             </div>
-          </div>
+          {% endif %}
+        {% else %}
+          {% set groupActive = false %}
+          {% set hasItems = false %}
+          {% for it in group.items %}
+            {% if (it.roles is not defined or role in it.roles)
+                and (it.admin is not defined or role == 'admin')
+                and (it.domain is not defined or it.domain == domainType) %}
+              {% set hasItems = true %}
+              {% if current starts with it.href %}
+                {% set groupActive = true %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% if hasItems %}
+            <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
+              <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
+                <span class="qr-nav-accordion-label">{{ group.header|upper }}</span>
+                <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+              </a>
+              <div class="uk-accordion-content uk-padding-remove">
+                <ul class="uk-nav uk-nav-default qr-nav-sub">
+                  {% for it in group.items %}
+                    {% if (it.roles is not defined or role in it.roles)
+                        and (it.admin is not defined or role == 'admin')
+                        and (it.domain is not defined or it.domain == domainType) %}
+                      {% set active = current starts with it.href ? 'uk-active' : '' %}
+                      <li class="{{ active }}">
+                        <a class="qr-nav-link qr-nav-sub-link" href="{{ it.href }}">
+                          <span uk-icon="icon: {{ it.icon }}; ratio: 0.85"></span>
+                          <span class="qr-nav-text">{{ it.text }}</span>
+                        </a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          {% endif %}
         {% endif %}
       {% endif %}
     {% endfor %}

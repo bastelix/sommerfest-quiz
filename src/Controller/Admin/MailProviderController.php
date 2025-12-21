@@ -5,9 +5,14 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Infrastructure\MailProviderRepository;
+use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
 use App\Service\DomainStartPageService;
 use App\Service\MailProvider\MailProviderManager;
+use App\Service\NamespaceResolver;
+use App\Service\PageService;
 use App\Service\SettingsService;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
@@ -79,6 +84,8 @@ class MailProviderController
             }
         }
 
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+
         return $view->render($response, 'admin/mail_providers.twig', [
             'providers' => $providers,
             'activeProvider' => $active,
@@ -89,6 +96,8 @@ class MailProviderController
             'domainType' => $request->getAttribute('domainType'),
             'errorMessage' => $error,
             'domainOverrides' => $this->collectDomainOverrides(),
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
         ]);
     }
 
@@ -330,6 +339,52 @@ class MailProviderController
         $trimmed = trim($value);
 
         return $trimmed === '' ? null : $trimmed;
+    }
+
+    /**
+     * @return array{0: list<array<string,mixed>>, 1: string}
+     */
+    private function loadNamespaces(Request $request): array
+    {
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $repository = new NamespaceRepository($pdo);
+        try {
+            $availableNamespaces = $repository->list();
+        } catch (RuntimeException $exception) {
+            $availableNamespaces = [];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        return [$availableNamespaces, $namespace];
     }
 
     /**
