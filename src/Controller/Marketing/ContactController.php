@@ -9,6 +9,7 @@ use App\Service\DomainStartPageService;
 use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
+use App\Service\NamespaceResolver;
 use App\Service\NewsletterSubscriptionService;
 use App\Infrastructure\Database;
 use App\Service\TenantService;
@@ -176,7 +177,14 @@ class ContactController
 
         if ($shouldSubscribe || $shouldUnsubscribe) {
             $confirmationService = new EmailConfirmationService($pdo);
-            $newsletterService = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $mailer);
+            $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            $newsletterService = new NewsletterSubscriptionService(
+                $pdo,
+                $confirmationService,
+                $manager,
+                $namespace,
+                $mailer
+            );
 
             $serverParams = $request->getServerParams();
             $metadata = [

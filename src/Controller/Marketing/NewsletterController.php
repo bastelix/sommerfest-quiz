@@ -39,10 +39,10 @@ class NewsletterController
             $manager = new MailProviderManager(new SettingsService($pdo));
         }
 
-        $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $namespace);
         $domainService = new DomainStartPageService($pdo);
         $configService = new MarketingNewsletterConfigService($pdo);
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
 
         $success = false;
         $marketingSlug = null;
@@ -104,7 +104,8 @@ class NewsletterController
             $manager = new MailProviderManager(new SettingsService($pdo));
         }
 
-        $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $namespace);
 
         $serverParams = $request->getServerParams();
         $metadata = [
