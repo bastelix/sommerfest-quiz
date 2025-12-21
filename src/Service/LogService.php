@@ -53,10 +53,78 @@ class LogService
      * Fetch the most recent Docker log lines for the given container.
      */
     public static function tailDocker(string $container, int $lines = 20): string {
-        $result = runSyncProcess('docker', ['logs', '--tail', (string) $lines, $container]);
-        if ($result['stdout'] !== '') {
-            return $result['stdout'];
+        if (self::hasDockerBinary()) {
+            $result = runSyncProcess('docker', ['logs', '--tail', (string) $lines, $container]);
+            if ($result['stdout'] !== '') {
+                return $result['stdout'];
+            }
+            if ($result['stderr'] === '' || self::isDockerUnavailableError($result['stderr'])) {
+                return self::tailDockerViaSocket($container, $lines);
+            }
+            return $result['stderr'];
         }
-        return $result['stderr'];
+
+        return self::tailDockerViaSocket($container, $lines);
+    }
+
+    private static function hasDockerBinary(): bool
+    {
+        $paths = explode(PATH_SEPARATOR, (string) getenv('PATH'));
+        foreach ($paths as $path) {
+            $candidate = rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'docker';
+            if (is_file($candidate) && is_executable($candidate)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function isDockerUnavailableError(string $stderr): bool
+    {
+        $needle = strtolower($stderr);
+        return str_contains($needle, 'not found')
+            || str_contains($needle, 'cannot execute')
+            || str_contains($needle, 'permission denied');
+    }
+
+    private static function tailDockerViaSocket(string $container, int $lines): string
+    {
+        $socket = '/var/run/docker.sock';
+        if (!file_exists($socket) || filetype($socket) !== 'socket') {
+            return 'Docker socket not available.';
+        }
+
+        $url = sprintf(
+            'http://localhost/containers/%s/logs?stdout=1&stderr=1&tail=%d',
+            rawurlencode($container),
+            $lines
+        );
+
+        $ch = curl_init();
+        if ($ch === false) {
+            return 'Failed to initialize Docker log request.';
+        }
+
+        curl_setopt($ch, CURLOPT_UNIX_SOCKET_PATH, $socket);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+
+        $response = curl_exec($ch);
+        if ($response === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            return $error !== '' ? sprintf('Docker log request failed: %s', $error) : 'Docker log request failed.';
+        }
+
+        $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        curl_close($ch);
+
+        if ($status >= 400) {
+            return sprintf('Docker log request failed with status %d.', $status);
+        }
+
+        return $response;
     }
 }
