@@ -66,100 +66,10 @@
       </div>
     </div>
 
-    <section class="qr-hero uk-section uk-section-large">
-      <div class="qr-hero-bg hero-bg-quizrace" aria-hidden="true"></div>
-      <div class="uk-container">
-        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
-          <div>
-            <span class="qr-badge">Made in Germany</span>
-            <h1 class="qr-h1">Das Team-Quiz, das Ihr Event <span id="rotating-word">unvergesslich</span> macht.</h1>
-            <p class="qr-sub">Interaktive Quiz-Rallyes für jedes Event – vom Kindergeburtstag bis zur Firmenfeier.
-            In Minuten startklar – live, vor Ort oder hybrid.</p>
-            <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
-              <a class="btn btn-black cta-main" href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ" target="_blank" rel="noopener">
-                <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
-              </a>
-              <a class="btn btn-transparent" href="#how-it-works">
-                <span class="uk-margin-small-right" uk-icon="icon: info"></span>Mehr erfahren
-              </a>
-            </div>
-            <div class="qr-proof uk-margin-top">
-              <span>Vollständige Quiz-Einrichtung für Ihr Event</span>
-            </div>
-            {% if provenExpertRating is defined and provenExpertRating %}
-              <div class="provenexpert-rating uk-margin-top" aria-label="Bewertungen">
-                {{ provenExpertRating|raw }}
-              </div>
-            {% endif %}
-          </div>
-          <div>
-            <div class="qr-mockup uk-card qr-card">
-              <div class="qr-hero-gallery">
-                <picture class="qr-hero-gallery__item">
-                  <source srcset="{{ basePath }}/uploads/landing/quizrace-shot-backend.avif" type="image/avif">
-                  <img src="{{ basePath }}/uploads/landing/quizrace-shot-backend.webp" width="960" height="540" loading="lazy" alt="Screenshot des QuizRace-Backends mit Aufgabenverwaltung und Teamübersicht">
-                </picture>
-                <picture class="qr-hero-gallery__item">
-                  <source srcset="{{ basePath }}/uploads/landing/quizrace-shot-frontend.avif" type="image/avif">
-                  <img src="{{ basePath }}/uploads/landing/quizrace-shot-frontend.webp" width="960" height="540" loading="lazy" alt="Screenshot der QuizRace-Frontend-Ansicht für Teilnehmende mit Live-Ranking">
-                </picture>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    {% set innovations = [
-      {
-        'title': 'KI-Teamnamen & Warm-up',
-        'description': 'Automatische Vorschläge liefern sofort kreative Teamnamen und sorgen mit kleinen Warm-ups für einen motivierten Start.'
-      },
-      {
-        'title': 'Sechs Fragetypen',
-        'description': 'Von Multiple Choice über Sortieraufgaben bis zu Foto- und Wissenskarten – abwechslungsreiche Stationen für jedes Event.'
-      },
-      {
-        'title': 'QR-Login & Dunkelmodus',
-        'description': 'Ohne App starten: QR-Code scannen, losspielen und auf Wunsch automatisch in den Dunkelmodus wechseln.'
-      },
-      {
-        'title': 'Puzzlewort & Fotoeinwilligung',
-        'description': 'Bonus-Rätsel und DSGVO-konforme Foto-Uploads erweitern jede Rallye um kreative Missionen inklusive rechtssicherer Freigabe.'
-      },
-      {
-        'title': 'Mandanten & Branding',
-        'description': 'Eigene Subdomains, White-Label-Layouts und flexible Texte passen QuizRace exakt an Ihre Organisation an.'
-      },
-      {
-        'title': 'Barrierefrei & datensicher',
-        'description': 'Zugänglich für alle Nutzergruppen, in Deutschland gehostet und mit Performance-Reserven auch für große Teams.'
-      }
-    ] %}
-
-    <section id="innovations" class="uk-section section section--alt">
-      <div class="uk-container container-xl">
-        <div class="uk-text-center">
-          <span class="qr-badge">Innovationen</span>
-          <h2 class="uk-heading-medium">Was QuizRace besonders macht</h2>
-          <p class="uk-text-lead uk-margin-small">
-            Alles, was Ihre Rallye einzigartig macht: Automatisierung, Vielfalt und Sicherheit in einem Paket.
-          </p>
-        </div>
-        <div class="uk-grid-large uk-grid-match uk-child-width-1-2@m uk-child-width-1-3@l uk-margin-large-top" uk-grid>
-          {% for innovation in innovations %}
-            <div>
-              <div class="uk-card uk-card-quizrace uk-card-body">
-                <h3 class="uk-h5 uk-margin-remove">{{ innovation.title }}</h3>
-                <p class="uk-margin-small-top">{{ innovation.description }}</p>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-
-    <div class="section-divider"></div>
+    {% include 'marketing/partials/page-modules.twig' with {
+      modules: pageModules['before-content']|default([]),
+      position: 'before-content'
+    } %}
 
     <div id="inline-edit-content"
          data-inline-editable="true"

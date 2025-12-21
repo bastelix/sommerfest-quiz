@@ -98,6 +98,8 @@ Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum
 
 Wird die dunkle Hero-Vorlage (`uk-section-primary uk-light`) genutzt, sollte anschließend ein Abschnitt mit einer Hintergrundklasse wie `section--alt` eingefügt werden, damit der Seitenhintergrund wieder aufgehellt wird.
 
+The landing page template now renders its hero, innovation highlights, and section dividers from the database content or page modules instead of hardcoded Twig sections. Use the **Seiten → landing** editor to manage the main HTML content and configure optional page modules for the `before-content` and `after-content` positions if you want to insert reusable blocks around the content. Header and footer markup remain part of the Twig template.
+
 ## Bild-Uploads
 
 Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien landen im Verzeichnis `data/uploads`, eventbezogene Bilder unter `data/events/<event_uid>/images`.
