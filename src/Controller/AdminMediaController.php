@@ -693,6 +693,6 @@ class AdminMediaController
         }
 
         $data = $request->getParsedBody();
-        return is_array($data) ? $data : [];
+        return (array) $data;
     }
 }

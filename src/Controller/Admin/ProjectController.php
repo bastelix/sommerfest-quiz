@@ -411,8 +411,8 @@ class ProjectController
                 )
                 : null;
             $children = [];
-            if (isset($node['children']) && is_array($node['children'])) {
-                $children = $this->mapTreeNodes($node['children'], $basePath, $namespace);
+            if (isset($node['children'])) {
+                $children = $this->mapTreeNodes((array) $node['children'], $basePath, $namespace);
             }
             $mappedNode = $node;
             $mappedNode['editUrl'] = $editUrl;
