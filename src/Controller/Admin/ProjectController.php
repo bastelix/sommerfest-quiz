@@ -108,18 +108,38 @@ class ProjectController
             $knownNamespaces[$this->normalizeNamespace($namespace)] = true;
         }
 
-        foreach ($this->namespaceRepository->list() as $namespace) {
+        $namespaceEntries = $this->namespaceRepository->list();
+        foreach ($namespaceEntries as $namespace) {
             $knownNamespaces[$this->normalizeNamespace((string) ($namespace['namespace'] ?? ''))] = true;
         }
 
         $namespaces = array_keys($knownNamespaces);
         sort($namespaces);
 
+        $namespaceInfo = [];
+        foreach ($namespaceEntries as $entry) {
+            $entryNamespace = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
+            if ($entryNamespace === '') {
+                continue;
+            }
+            $namespaceInfo[$entryNamespace] = [
+                'label' => $entry['label'] ?? null,
+                'is_active' => (bool) ($entry['is_active'] ?? false),
+                'is_default' => $entryNamespace === PageService::DEFAULT_NAMESPACE,
+            ];
+        }
+
         $payload = [];
         foreach ($namespaces as $namespace) {
             $namespacePages = $pagesByNamespace[$namespace] ?? [];
+            $info = $namespaceInfo[$namespace] ?? [
+                'label' => null,
+                'is_active' => true,
+                'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
+            ];
             $payload[] = [
                 'namespace' => $namespace,
+                'namespaceInfo' => $info,
                 'pages' => $this->mapTreeNodes($treeByNamespace[$namespace] ?? [], $basePath, $namespace),
                 'wiki' => $this->buildWikiEntries($namespacePages, $basePath, $namespace),
                 'landingNews' => $this->buildLandingNewsEntries($namespacePages, $basePath, $namespace),
