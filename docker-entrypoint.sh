@@ -211,14 +211,32 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     export PGPASSWORD="${POSTGRES_PASSWORD:-$POSTGRES_PASS}"
 
     echo "Waiting for PostgreSQL to become available..."
-    timeout=30
-    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c 'SELECT 1;' >/dev/null 2>&1; do
-        if [ $timeout -le 0 ]; then
-            echo "PostgreSQL not reachable, aborting." >&2
-            exit 1
+    wait_timeout=${POSTGRES_WAIT_TIMEOUT_SECONDS:-30}
+    retry_flag=$(printf '%s' "${POSTGRES_WAIT_RETRY_ENABLED:-}" | tr '[:upper:]' '[:lower:]')
+    backoff_seconds=${POSTGRES_WAIT_RETRY_BACKOFF_SECONDS:-5}
+
+    while :; do
+        timeout=$wait_timeout
+        until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c 'SELECT 1;' >/dev/null 2>&1; do
+            if [ "$timeout" -le 0 ]; then
+                echo "PostgreSQL not reachable after ${wait_timeout}s (host=${host:-?} port=$port db=$db)." >&2
+                case "$retry_flag" in
+                    1|true|yes|on)
+                        echo "Retrying PostgreSQL wait in ${backoff_seconds}s..." >&2
+                        sleep "$backoff_seconds"
+                        ;;
+                    *)
+                        exit 1
+                        ;;
+                esac
+                break
+            fi
+            sleep 1
+            timeout=$((timeout-1))
+        done
+        if [ "$timeout" -gt 0 ]; then
+            break
         fi
-        sleep 1
-        timeout=$((timeout-1))
     done
 
     echo "PostgreSQL is available"
