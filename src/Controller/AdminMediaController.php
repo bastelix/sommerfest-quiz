@@ -656,13 +656,11 @@ class AdminMediaController
             $body = $this->parseBody($request);
         }
 
-        if (is_array($body)) {
-            if ($scope === null) {
-                $scope = $body['scope'] ?? null;
-            }
-            if ($namespace === null) {
-                $namespace = $body['namespace'] ?? null;
-            }
+        if ($scope === null) {
+            $scope = $body['scope'] ?? null;
+        }
+        if ($namespace === null) {
+            $namespace = $body['namespace'] ?? null;
         }
 
         $scope = is_string($scope) ? trim($scope) : '';
