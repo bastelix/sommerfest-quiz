@@ -143,44 +143,55 @@ const LANDING_STYLE_FILES = [
   '/css/topbar.landing.css'
 ];
 
-let landingStylesPromise;
+const LANDING_FONT_URL = 'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap';
 
-function ensureLandingEditorStyles() {
-  if (document.getElementById('landing-editor-styles')) {
+const landingStylesPromises = {};
+
+function ensureLandingFont() {
+  if (document.getElementById('landing-font')) {
+    return;
+  }
+  const fontLink = document.createElement('link');
+  fontLink.id = 'landing-font';
+  fontLink.rel = 'stylesheet';
+  fontLink.href = LANDING_FONT_URL;
+  document.head.appendChild(fontLink);
+}
+
+function ensureScopedLandingStyles(styleId, scopeSelector) {
+  if (document.getElementById(styleId)) {
     return Promise.resolve();
   }
-  if (landingStylesPromise) {
-    return landingStylesPromise;
+  if (landingStylesPromises[styleId]) {
+    return landingStylesPromises[styleId];
   }
   const base = window.basePath || '';
   const requests = LANDING_STYLE_FILES.map(path => {
     const url = base.replace(/\/$/, '') + path;
     return fetch(url).then(resp => (resp.ok ? resp.text() : '')).catch(() => '');
   });
-  landingStylesPromise = Promise.all(requests).then(chunks => {
+  landingStylesPromises[styleId] = Promise.all(requests).then(chunks => {
     const scoped = chunks
-      .map(chunk => scopeLandingCss(chunk, '.landing-editor'))
+      .map(chunk => scopeLandingCss(chunk, scopeSelector))
       .filter(Boolean)
       .join('\n');
     if (scoped) {
       const styleEl = document.createElement('style');
-      styleEl.id = 'landing-editor-styles';
+      styleEl.id = styleId;
       styleEl.textContent = scoped;
       document.head.appendChild(styleEl);
     }
-    if (!document.getElementById('landing-editor-font')) {
-      const fontLink = document.createElement('link');
-      fontLink.id = 'landing-editor-font';
-      fontLink.rel = 'stylesheet';
-      fontLink.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap';
-      document.head.appendChild(fontLink);
-    }
+    ensureLandingFont();
   }).catch(err => {
     if (window.console && typeof window.console.warn === 'function') {
-      window.console.warn('Failed to load landing editor styles', err);
+      window.console.warn('Failed to load landing styles', err);
     }
   });
-  return landingStylesPromise;
+  return landingStylesPromises[styleId];
+}
+
+function ensureLandingEditorStyles() {
+  return ensureScopedLandingStyles('landing-editor-styles', '.landing-editor');
 }
 
 function scopeLandingCss(css, scopeSelector) {
@@ -319,6 +330,32 @@ function applyLandingStyling(element) {
     element.setAttribute('data-theme', 'dark');
   }
   element.classList.add('dark-mode');
+}
+
+const PREVIEW_LANDING_CLASS = 'landing-preview';
+
+function ensureLandingPreviewStyles() {
+  return ensureScopedLandingStyles('landing-preview-styles', `.${PREVIEW_LANDING_CLASS}`);
+}
+
+function applyLandingPreviewStyling(element) {
+  if (!element) {
+    return;
+  }
+  ensureLandingPreviewStyles();
+  element.classList.add(PREVIEW_LANDING_CLASS);
+  if (!element.hasAttribute('data-theme')) {
+    element.setAttribute('data-theme', 'dark');
+  }
+  element.classList.add('dark-mode');
+}
+
+function resetLandingPreviewStyling(element) {
+  if (!element) {
+    return;
+  }
+  element.classList.remove(PREVIEW_LANDING_CLASS, 'dark-mode');
+  element.removeAttribute('data-theme');
 }
 
 const PAGE_EDITOR_BUTTON_GROUPS = [
@@ -825,7 +862,74 @@ const initPageCreation = () => {
   });
 };
 
-export function showPreview() {
+const assetUrlToAbsolute = href => {
+  try {
+    return new URL(href, window.location.href).href;
+  } catch (error) {
+    return href;
+  }
+};
+
+const ensureStylesheetLoaded = (id, href) => {
+  if (document.getElementById(id)) {
+    return;
+  }
+  const absoluteHref = assetUrlToAbsolute(href);
+  const alreadyLoaded = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+    .some(link => link.href === absoluteHref);
+  if (alreadyLoaded) {
+    return;
+  }
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = href;
+  document.head.appendChild(link);
+};
+
+const ensureScriptLoaded = (id, src) => new Promise(resolve => {
+  if (document.getElementById(id)) {
+    resolve();
+    return;
+  }
+  const absoluteSrc = assetUrlToAbsolute(src);
+  const alreadyLoaded = Array.from(document.querySelectorAll('script[src]'))
+    .some(script => script.src === absoluteSrc);
+  if (alreadyLoaded) {
+    resolve();
+    return;
+  }
+  const script = document.createElement('script');
+  script.id = id;
+  script.src = src;
+  script.defer = true;
+  script.onload = () => resolve();
+  script.onerror = () => resolve();
+  document.body.appendChild(script);
+});
+
+let previewAssetsPromise;
+
+const ensurePreviewAssets = () => {
+  if (previewAssetsPromise) {
+    return previewAssetsPromise;
+  }
+  const uikitCss = withBase('/css/uikit.min.css');
+  const uikitJs = withBase('/js/uikit.min.js');
+  const uikitIconsJs = withBase('/js/uikit-icons.min.js');
+
+  ensureStylesheetLoaded('preview-uikit-css', uikitCss);
+
+  const scripts = [];
+  if (!window.UIkit) {
+    scripts.push(ensureScriptLoaded('preview-uikit-js', uikitJs));
+  }
+  scripts.push(ensureScriptLoaded('preview-uikit-icons-js', uikitIconsJs));
+  previewAssetsPromise = Promise.all(scripts).then(() => undefined);
+  return previewAssetsPromise;
+};
+
+export async function showPreview() {
   const activeForm = document.querySelector('.page-form:not(.uk-hidden)');
   const editor = activeForm ? ensurePageEditorInitialized(activeForm) : null;
   if (!editor) return;
@@ -834,9 +938,13 @@ export function showPreview() {
   if (target) {
     target.innerHTML = html;
     if (activeForm?.dataset.landing === 'true') {
-      applyLandingStyling(target);
+      applyLandingPreviewStyling(target);
     } else {
-      resetLandingStyling(target);
+      resetLandingPreviewStyling(target);
+    }
+    await ensurePreviewAssets();
+    if (window.UIkit && typeof window.UIkit.update === 'function') {
+      window.UIkit.update(target, 'mutation');
     }
   }
   if (window.UIkit) {
