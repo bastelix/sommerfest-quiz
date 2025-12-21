@@ -32,6 +32,7 @@ return [
     'tab_results' => 'Results',
     'tab_statistics' => 'Statistics',
     'tab_project_overview' => 'Overview',
+    'tab_wiki' => 'Wiki',
     'tab_pages' => 'Pages',
     'tab_page_seo_base' => 'Page SEO (base)',
     'tab_cookies' => 'Cookies',
