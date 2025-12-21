@@ -138,6 +138,74 @@ class PageController
             ->withStatus(201);
     }
 
+    public function namespaceAction(Request $request, Response $response): Response {
+        $data = $request->getParsedBody();
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
+            $raw = (string) $request->getBody();
+            if ($raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data = $decoded;
+                }
+            }
+        }
+
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
+
+        $slug = isset($data['slug']) ? trim((string) $data['slug']) : '';
+        $action = isset($data['action']) ? strtolower(trim((string) $data['action'])) : '';
+        $targetNamespace = isset($data['target_namespace']) ? trim((string) $data['target_namespace']) : '';
+
+        if ($slug === '' || $action === '' || $targetNamespace === '') {
+            $response->getBody()->write(json_encode(['error' => 'Bitte alle Felder ausfüllen.'], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
+        try {
+            if ($action === 'copy') {
+                $page = $this->pageService->copyToNamespace($namespace, $slug, $targetNamespace);
+            } elseif ($action === 'move') {
+                $page = $this->pageService->moveToNamespace($namespace, $slug, $targetNamespace);
+                unset($this->editableSlugs[$namespace]);
+            } else {
+                throw new InvalidArgumentException('Bitte wähle eine gültige Aktion.');
+            }
+        } catch (InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (LogicException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(409);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['page' => $page, 'action' => $action], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     /**
      * Return the full page tree for admin UI use.
      */

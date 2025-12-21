@@ -1707,6 +1707,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->create($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->post('/admin/pages/namespace-action', function (Request $request, Response $response) {
+        $controller = new PageController();
+        return $controller->namespaceAction($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->get('/admin/landing-news', function (Request $request, Response $response) {
         $controller = new AdminLandingNewsController();
         return $controller->index($request, $response);

@@ -984,6 +984,7 @@ const TYPE_CLASSES = {
   legal: 'uk-label-warning',
   wiki: 'uk-label-danger'
 };
+const PAGE_NAMESPACE_ACTIONS = ['copy', 'move'];
 
 function getTypeLabel(type) {
   if (!type) {
@@ -1001,6 +1002,56 @@ function getTypeClass(type) {
   return TYPE_CLASSES[normalized] || 'uk-label';
 }
 
+function getPageActionLabel(action) {
+  const normalized = String(action || '').toLowerCase();
+  if (normalized === 'copy') {
+    return getTranslation('transPageActionCopy', 'Kopieren');
+  }
+  if (normalized === 'move') {
+    return getTranslation('transPageActionMove', 'Verschieben');
+  }
+  return normalized;
+}
+
+let pageNamespaceActionState = null;
+
+function openPageNamespaceActionModal({ slug, title, action }) {
+  if (!pageNamespaceActionState) {
+    return;
+  }
+  const {
+    modal,
+    feedback,
+    slugInput,
+    actionSelect,
+    namespaceSelect,
+    titleOutput,
+    setFeedback,
+    resolveDefaultNamespace
+  } = pageNamespaceActionState;
+  if (feedback) {
+    setFeedback('');
+  }
+  if (slugInput) {
+    slugInput.value = slug || '';
+  }
+  if (titleOutput) {
+    titleOutput.textContent = title || '';
+  }
+  if (actionSelect) {
+    actionSelect.value = PAGE_NAMESPACE_ACTIONS.includes(action) ? action : 'copy';
+  }
+  if (namespaceSelect) {
+    const nextNamespace = resolveDefaultNamespace();
+    if (nextNamespace) {
+      namespaceSelect.value = nextNamespace;
+    }
+  }
+  if (modal) {
+    modal.show();
+  }
+}
+
 function buildPageTreeList(nodes, level = 0) {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
@@ -1014,6 +1065,7 @@ function buildPageTreeList(nodes, level = 0) {
     if (selectableSlug) {
       item.dataset.pageTreeItem = selectableSlug;
     }
+    item.dataset.pageTitle = node.title || node.slug || 'Ohne Titel';
     const row = document.createElement('div');
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
@@ -1054,6 +1106,39 @@ function buildPageTreeList(nodes, level = 0) {
       meta.appendChild(language);
     }
 
+    if (selectableSlug) {
+      const actionWrapper = document.createElement('div');
+      actionWrapper.className = 'uk-inline uk-margin-small-left';
+
+      const actionButton = document.createElement('button');
+      actionButton.type = 'button';
+      actionButton.className = 'uk-button uk-button-default uk-button-small page-tree-action-button';
+      actionButton.textContent = getTranslation('transActions', 'Aktionen');
+      actionButton.setAttribute('aria-label', getTranslation('transActions', 'Aktionen'));
+
+      const dropdown = document.createElement('div');
+      dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right');
+
+      const listEl = document.createElement('ul');
+      listEl.className = 'uk-nav uk-dropdown-nav';
+
+      PAGE_NAMESPACE_ACTIONS.forEach(action => {
+        const listItem = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = '#';
+        link.dataset.pageAction = action;
+        link.dataset.pageSlug = selectableSlug;
+        link.dataset.pageTitle = node.title || node.slug || selectableSlug;
+        link.textContent = getPageActionLabel(action);
+        listItem.appendChild(link);
+        listEl.appendChild(listItem);
+      });
+
+      dropdown.appendChild(listEl);
+      actionWrapper.append(actionButton, dropdown);
+      meta.appendChild(actionWrapper);
+    }
+
     row.appendChild(info);
     row.appendChild(meta);
     item.appendChild(row);
@@ -1089,6 +1174,146 @@ function updatePageTreeActive(container, slug) {
   });
 }
 
+function initPageNamespaceActionModal() {
+  const modalEl = document.getElementById('pageNamespaceActionModal');
+  if (!modalEl) {
+    pageNamespaceActionState = null;
+    return;
+  }
+
+  const form = modalEl.querySelector('form');
+  if (!form) {
+    pageNamespaceActionState = null;
+    return;
+  }
+
+  const feedback = modalEl.querySelector('[data-page-namespace-feedback]');
+  const slugInput = form.querySelector('input[name="page_slug"]');
+  const actionSelect = form.querySelector('select[name="page_action"]');
+  const namespaceSelect = form.querySelector('select[name="target_namespace"]');
+  const titleOutput = modalEl.querySelector('[data-page-namespace-title]');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const modal = window.UIkit ? window.UIkit.modal(modalEl) : null;
+
+  const setFeedback = (message, status = 'danger') => {
+    if (!feedback) {
+      return;
+    }
+    feedback.classList.remove('uk-alert-danger', 'uk-alert-success');
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.classList.add(status === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+  };
+
+  const resolveDefaultNamespace = () => {
+    if (!namespaceSelect) {
+      return '';
+    }
+    const sourceNamespace = resolvePageNamespace();
+    const options = Array.from(namespaceSelect.options);
+    const preferred = options.find(option => option.value && option.value !== sourceNamespace);
+    return (preferred || options[0] || {}).value || '';
+  };
+
+  pageNamespaceActionState = {
+    modal,
+    feedback,
+    slugInput,
+    actionSelect,
+    namespaceSelect,
+    titleOutput,
+    setFeedback,
+    resolveDefaultNamespace
+  };
+
+  if (!form.dataset.bound) {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+
+      const slug = (slugInput?.value || '').trim();
+      const action = (actionSelect?.value || '').trim();
+      const targetNamespace = (namespaceSelect?.value || '').trim();
+      const sourceNamespace = resolvePageNamespace();
+
+      if (!slug) {
+        setFeedback(getTranslation('transPageNamespaceActionError', 'Aktion konnte nicht ausgeführt werden.'));
+        return;
+      }
+      if (!PAGE_NAMESPACE_ACTIONS.includes(action)) {
+        setFeedback(getTranslation('transPageNamespaceActionRequired', 'Bitte eine Aktion auswählen.'));
+        return;
+      }
+      if (!targetNamespace) {
+        setFeedback(getTranslation('transPageNamespaceTargetRequired', 'Bitte einen Ziel-Namespace auswählen.'));
+        return;
+      }
+      if (sourceNamespace && targetNamespace === sourceNamespace) {
+        setFeedback(getTranslation('transPageNamespaceSame', 'Quelle und Ziel dürfen nicht identisch sein.'));
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+
+      let payload = null;
+
+      try {
+        const response = await apiFetch(withNamespace('/admin/pages/namespace-action'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug,
+            action,
+            target_namespace: targetNamespace
+          })
+        });
+        payload = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(payload?.error || 'page-namespace-action-failed');
+        }
+
+        if (action === 'move' && targetNamespace !== sourceNamespace) {
+          removePageFromInterface(slug);
+        }
+
+        const select = document.getElementById('pageContentSelect');
+        const currentSelection = select?.value || '';
+
+        await initPageTree();
+
+        const container = document.querySelector('[data-page-tree]');
+        if (container) {
+          updatePageTreeActive(container, currentSelection || select?.value || '');
+        }
+
+        const successMessage = action === 'copy'
+          ? getTranslation('transPageCopied', 'Seite kopiert.')
+          : getTranslation('transPageMoved', 'Seite verschoben.');
+        notify(successMessage, 'success');
+        if (modal) {
+          modal.hide();
+        }
+      } catch (error) {
+        const message = payload?.error
+          ? payload.error
+          : getTranslation('transPageNamespaceActionError', 'Aktion konnte nicht ausgeführt werden.');
+        setFeedback(message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+      }
+    });
+    form.dataset.bound = '1';
+  }
+}
+
 function bindPageTreeInteractions(container) {
   if (!container || container.dataset.treeBound === '1') {
     return;
@@ -1096,6 +1321,19 @@ function bindPageTreeInteractions(container) {
   container.dataset.treeBound = '1';
 
   container.addEventListener('click', event => {
+    const actionTrigger = event.target?.closest?.('[data-page-action]');
+    if (actionTrigger && container.contains(actionTrigger)) {
+      event.preventDefault();
+      const slug = (actionTrigger.dataset.pageSlug || '').trim();
+      if (!slug) {
+        return;
+      }
+      const title = (actionTrigger.dataset.pageTitle || '').trim()
+        || getTranslation('transPageActionFallbackTitle', 'Ausgewählte Seite');
+      openPageNamespaceActionModal({ slug, title, action: actionTrigger.dataset.pageAction });
+      return;
+    }
+
     const trigger = event.target?.closest?.('[data-page-slug]');
     if (!trigger || !container.contains(trigger)) {
       return;
@@ -1195,6 +1433,7 @@ const initPagesModule = () => {
   initPageEditors();
   initPageSelection();
   initPageCreation();
+  initPageNamespaceActionModal();
   initPageTree();
 };
 if (document.readyState === 'loading') {

@@ -99,6 +99,93 @@ class PageService
         return $this->loadCreatedPage($normalizedNamespace, $normalizedSlug);
     }
 
+    public function copyToNamespace(string $sourceNamespace, string $slug, string $targetNamespace): Page {
+        $page = $this->findByKey($sourceNamespace, $slug);
+        if ($page === null) {
+            throw new InvalidArgumentException('Die Seite wurde nicht gefunden.');
+        }
+
+        $normalizedTarget = $this->assertValidNamespace($targetNamespace);
+        if ($normalizedTarget === $page->getNamespace()) {
+            throw new LogicException('Ziel- und Quell-Namespace dürfen nicht identisch sein.');
+        }
+
+        if ($this->findByKey($normalizedTarget, $page->getSlug()) !== null) {
+            throw new LogicException(
+                sprintf(
+                    'Eine Seite mit dem Namespace "%s" und dem Slug "%s" existiert bereits.',
+                    $normalizedTarget,
+                    $page->getSlug()
+                )
+            );
+        }
+
+        $sortOrder = $this->getNextSortOrder($normalizedTarget, null);
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO pages (namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+
+        try {
+            $stmt->execute([
+                $normalizedTarget,
+                $page->getSlug(),
+                $page->getTitle(),
+                $page->getContent(),
+                $page->getType(),
+                null,
+                $sortOrder,
+                $page->getStatus(),
+                $page->getLanguage(),
+                $page->getContentSource(),
+            ]);
+        } catch (PDOException $exception) {
+            throw new RuntimeException('Die Seite konnte nicht kopiert werden.', 0, $exception);
+        }
+
+        return $this->loadCreatedPage($normalizedTarget, $page->getSlug());
+    }
+
+    public function moveToNamespace(string $sourceNamespace, string $slug, string $targetNamespace): Page {
+        $page = $this->findByKey($sourceNamespace, $slug);
+        if ($page === null) {
+            throw new InvalidArgumentException('Die Seite wurde nicht gefunden.');
+        }
+
+        $normalizedTarget = $this->assertValidNamespace($targetNamespace);
+        if ($normalizedTarget === $page->getNamespace()) {
+            throw new LogicException('Ziel- und Quell-Namespace dürfen nicht identisch sein.');
+        }
+
+        if ($this->findByKey($normalizedTarget, $page->getSlug()) !== null) {
+            throw new LogicException(
+                sprintf(
+                    'Eine Seite mit dem Namespace "%s" und dem Slug "%s" existiert bereits.',
+                    $normalizedTarget,
+                    $page->getSlug()
+                )
+            );
+        }
+
+        $sortOrder = $this->getNextSortOrder($normalizedTarget, null);
+        $stmt = $this->pdo->prepare(
+            'UPDATE pages SET namespace = ?, parent_id = NULL, sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        );
+
+        try {
+            $stmt->execute([$normalizedTarget, $sortOrder, $page->getId()]);
+        } catch (PDOException $exception) {
+            throw new RuntimeException('Die Seite konnte nicht verschoben werden.', 0, $exception);
+        }
+
+        $updated = $this->findById($page->getId());
+        if ($updated === null) {
+            throw new RuntimeException('Die Seite konnte nach dem Verschieben nicht geladen werden.');
+        }
+
+        return $updated;
+    }
+
     /**
      * Fetch all stored pages.
      *
@@ -349,6 +436,22 @@ class PageService
 
     private function normalizeNamespace(string $namespace): string {
         return strtolower(trim($namespace));
+    }
+
+    private function assertValidNamespace(string $namespace): string {
+        $normalizedNamespace = strtolower(trim($namespace));
+        if ($normalizedNamespace === '') {
+            throw new InvalidArgumentException('Bitte gib einen Namespace an.');
+        }
+
+        if (!preg_match('/^[a-z0-9][a-z0-9\-]{0,99}$/', $normalizedNamespace)) {
+            throw new InvalidArgumentException(
+                'Der Namespace darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
+                . '(max. 100 Zeichen).'
+            );
+        }
+
+        return $normalizedNamespace;
     }
 
     /**
