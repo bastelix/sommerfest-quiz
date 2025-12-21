@@ -9297,6 +9297,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const labelSave = namespaceManager.dataset.labelSave || 'Save';
     const labelDelete = namespaceManager.dataset.labelDelete || 'Delete';
     const labelDefault = namespaceManager.dataset.labelDefault || 'Default';
+    const labelInactive = namespaceManager.dataset.labelInactive || 'Inactive';
     const namespacePattern = namespaceManager.dataset.namespacePattern || '^[a-z0-9][a-z0-9-]*$';
     const namespaceMaxLength = Number.parseInt(namespaceManager.dataset.namespaceMaxLength || '100', 10) || 100;
     const messages = {
@@ -9310,6 +9311,7 @@ document.addEventListener('DOMContentLoaded', function () {
       duplicate: namespaceManager.dataset.messageDuplicate || 'Namespace exists.',
       notFound: namespaceManager.dataset.messageNotFound || 'Namespace not found.',
       defaultLocked: namespaceManager.dataset.messageDefaultLocked || 'Default namespace cannot be changed.',
+      inUse: namespaceManager.dataset.messageInUse || 'Namespace is still in use.',
       error: namespaceManager.dataset.messageError || 'Action failed.',
       loading: namespaceManager.dataset.textLoading || 'Loading namespaces...',
       empty: namespaceManager.dataset.textEmpty || 'No namespaces configured yet.',
@@ -9420,8 +9422,13 @@ document.addEventListener('DOMContentLoaded', function () {
           entries.forEach(item => {
             const namespaceValue = typeof item.namespace === 'string' ? item.namespace : '';
             const isDefault = Boolean(item.is_default) || namespaceValue === defaultNamespace;
+            const isActive = item.is_active !== false;
+            const isInactive = !isActive;
 
             const tr = document.createElement('tr');
+            if (isInactive) {
+              tr.classList.add('uk-text-muted');
+            }
 
             const nameCell = document.createElement('td');
             const nameInput = document.createElement('input');
@@ -9435,7 +9442,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tr.appendChild(nameCell);
 
             const statusCell = document.createElement('td');
-            statusCell.textContent = isDefault ? labelDefault : '-';
+            statusCell.textContent = isDefault ? labelDefault : (isInactive ? labelInactive : '-');
             tr.appendChild(statusCell);
 
             const actionCell = document.createElement('td');
@@ -9452,7 +9459,7 @@ document.addEventListener('DOMContentLoaded', function () {
             deleteButton.type = 'button';
             deleteButton.className = 'uk-button uk-button-danger uk-button-small';
             deleteButton.textContent = labelDelete;
-            deleteButton.disabled = isDefault;
+            deleteButton.disabled = isDefault || isInactive;
             actionCell.appendChild(deleteButton);
 
             saveButton.addEventListener('click', () => {
@@ -9482,8 +9489,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .catch(err => {
                   const message = err?.message || messages.error;
-                  if (message === messages.defaultLocked) {
-                    notify(messages.defaultLocked, 'warning');
+                  if (message === messages.defaultLocked || message === messages.inUse) {
+                    notify(message, 'warning');
                   } else {
                     notify(message, 'danger');
                   }
@@ -9507,14 +9514,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
                 .catch(err => {
                   const message = err?.message || messages.error;
-                  if (message === messages.defaultLocked) {
-                    notify(messages.defaultLocked, 'warning');
+                  if (message === messages.defaultLocked || message === messages.inUse) {
+                    notify(message, 'warning');
                   } else {
                     notify(message, 'danger');
                   }
                 })
                 .finally(() => {
-                  deleteButton.disabled = isDefault;
+                  deleteButton.disabled = isDefault || isInactive;
                 });
             });
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Exception\DuplicateNamespaceException;
+use App\Exception\NamespaceInUseException;
 use App\Exception\NamespaceNotFoundException;
 use App\Repository\NamespaceRepository;
 use InvalidArgumentException;
@@ -97,7 +98,12 @@ final class NamespaceService
             throw new NamespaceNotFoundException('namespace-missing');
         }
 
-        $this->repository->delete($normalized);
+        $usage = $this->repository->findUsage($normalized);
+        if ($usage !== []) {
+            throw new NamespaceInUseException($usage);
+        }
+
+        $this->repository->deactivate($normalized);
     }
 
 }
