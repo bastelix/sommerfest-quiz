@@ -115,7 +115,11 @@
 
         <h2 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h2>
         <p class="uk-text-meta">{{ t('text_marketing_newsletter_namespace_hint')|format(activePageNamespace) }}</p>
-        <div id="marketingNewsletterConfigSection" class="uk-card uk-card-default uk-card-body uk-margin">
+        <div
+          id="marketingNewsletterConfigSection"
+          class="uk-card uk-card-default uk-card-body uk-margin"
+          data-marketing-namespace="{{ activePageNamespace|e('html_attr') }}"
+        >
           <div class="uk-margin">
             <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
             <div class="uk-form-controls">

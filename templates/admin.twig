@@ -1912,7 +1912,11 @@
                 <h3 class="uk-heading-bullet">Projekt → Newsletter</h3>
                 <p class="uk-text-meta">Projekt → Newsletter</p>
                 <p class="uk-text-meta">{{ t('text_marketing_newsletter_namespace_hint')|format(marketingNewsletterNamespace) }}</p>
-                <div id="marketingNewsletterConfigSection" class="uk-card uk-card-default uk-card-body uk-margin">
+                <div
+                  id="marketingNewsletterConfigSection"
+                  class="uk-card uk-card-default uk-card-body uk-margin"
+                  data-marketing-namespace="{{ marketingNewsletterNamespace|e('html_attr') }}"
+                >
                   <div class="uk-margin">
                     <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
                     <div class="uk-form-controls">
