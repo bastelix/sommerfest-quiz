@@ -110,6 +110,7 @@ use App\Controller\Admin\UsernameBlocklistController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
+use App\Controller\Admin\MarketingMenuController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
@@ -177,6 +178,7 @@ require_once __DIR__ . '/Controller/Admin/MarketingNewsletterController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingPageWikiController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingMenuController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -1611,6 +1613,30 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller->index($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/pages/{pageId:[0-9]+}/menu', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuController();
+
+        return $controller->index($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/menu', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuController();
+
+        return $controller->save($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/pages/{pageId:[0-9]+}/menu', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuController();
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/menu/sort', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuController();
+
+        return $controller->sort($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/wiki/settings', function (Request $request, Response $response, array $args) {
         $controller = new MarketingPageWikiController();
