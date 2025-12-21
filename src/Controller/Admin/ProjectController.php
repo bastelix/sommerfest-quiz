@@ -401,9 +401,6 @@ class ProjectController
     {
         $mapped = [];
         foreach ($nodes as $node) {
-            if (!is_array($node)) {
-                continue;
-            }
             $slug = isset($node['slug']) ? (string) $node['slug'] : '';
             $editUrl = $slug !== ''
                 ? $this->buildAdminUrl(
