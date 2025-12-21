@@ -58,6 +58,14 @@ class ProjectPagesController
             ],
             $pages
         );
+        $menuPages = array_map(
+            static fn (Page $page): array => [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+            ],
+            $pages
+        );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
 
         return $view->render($response, 'admin/pages/content.twig', [
@@ -67,6 +75,7 @@ class ProjectPagesController
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'pages' => $pageList,
+            'menu_pages' => $menuPages,
             'selectedPageSlug' => $selectedSlug,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
