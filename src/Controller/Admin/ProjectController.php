@@ -84,11 +84,19 @@ class ProjectController
     public function tree(Request $request, Response $response): Response
     {
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
+        $queryParams = $request->getQueryParams();
+        $requestedNamespace = '';
+        if (isset($queryParams['namespace']) && trim((string) $queryParams['namespace']) !== '') {
+            $requestedNamespace = $this->normalizeNamespace((string) $queryParams['namespace']);
+        }
         $pageTree = $this->pageService->getTree();
         $treeByNamespace = [];
         $knownNamespaces = [];
         foreach ($pageTree as $section) {
             $namespace = $this->normalizeNamespace((string) ($section['namespace'] ?? ''));
+            if ($requestedNamespace !== '' && $namespace !== $requestedNamespace) {
+                continue;
+            }
             $treeByNamespace[$namespace] = $section['pages'] ?? [];
             $knownNamespaces[$namespace] = true;
         }
@@ -97,6 +105,9 @@ class ProjectController
         $pages = $this->pageService->getAll();
         foreach ($pages as $page) {
             $namespace = $this->normalizeNamespace($page->getNamespace());
+            if ($requestedNamespace !== '' && $namespace !== $requestedNamespace) {
+                continue;
+            }
             if (!isset($pagesByNamespace[$namespace])) {
                 $pagesByNamespace[$namespace] = [];
             }
@@ -105,21 +116,32 @@ class ProjectController
         }
 
         foreach ($this->newsletterService->getNamespaces() as $namespace) {
-            $knownNamespaces[$this->normalizeNamespace($namespace)] = true;
+            $normalizedNamespace = $this->normalizeNamespace($namespace);
+            if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
+                continue;
+            }
+            $knownNamespaces[$normalizedNamespace] = true;
         }
 
         $namespaceEntries = $this->namespaceRepository->list();
         foreach ($namespaceEntries as $namespace) {
-            $knownNamespaces[$this->normalizeNamespace((string) ($namespace['namespace'] ?? ''))] = true;
+            $normalizedNamespace = $this->normalizeNamespace((string) ($namespace['namespace'] ?? ''));
+            if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
+                continue;
+            }
+            $knownNamespaces[$normalizedNamespace] = true;
         }
 
-        $namespaces = array_keys($knownNamespaces);
+        $namespaces = $requestedNamespace !== '' ? [$requestedNamespace] : array_keys($knownNamespaces);
         sort($namespaces);
 
         $namespaceInfo = [];
         foreach ($namespaceEntries as $entry) {
             $entryNamespace = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
             if ($entryNamespace === '') {
+                continue;
+            }
+            if ($requestedNamespace !== '' && $entryNamespace !== $requestedNamespace) {
                 continue;
             }
             $namespaceInfo[$entryNamespace] = [

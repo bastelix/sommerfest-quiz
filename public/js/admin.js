@@ -784,6 +784,14 @@ const resolveProjectNamespace = (container) => {
   return candidate.trim();
 };
 
+const withProjectNamespace = (endpoint, namespace) => {
+  if (!namespace) {
+    return endpoint;
+  }
+  const separator = endpoint.includes('?') ? '&' : '?';
+  return `${endpoint}${separator}namespace=${encodeURIComponent(namespace)}`;
+};
+
 const initProjectTree = () => {
   const container = document.querySelector('[data-project-tree]');
   if (!container) {
@@ -793,12 +801,14 @@ const initProjectTree = () => {
   const emptyMessage = container.dataset.empty || 'Keine Projektdaten vorhanden.';
   const errorMessage = container.dataset.error || 'Projektübersicht konnte nicht geladen werden.';
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
+  const activeNamespace = resolveProjectNamespace(container);
+  const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
 
   if (loading) {
     loading.textContent = loading.textContent || 'Projektübersicht wird geladen…';
   }
 
-  apiFetch(endpoint)
+  apiFetch(endpointWithNamespace)
     .then(response => {
       if (!response.ok) {
         throw new Error('project-tree-request-failed');
@@ -807,7 +817,6 @@ const initProjectTree = () => {
     })
     .then(payload => {
       const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
-      const activeNamespace = resolveProjectNamespace(container);
       const filtered = activeNamespace
         ? namespaces.filter(section => (section.namespace || '').trim() === activeNamespace)
         : namespaces;
