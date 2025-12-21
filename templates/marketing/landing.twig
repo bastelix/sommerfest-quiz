@@ -27,6 +27,8 @@
 
 {% block body_class %}qr-landing dark-mode{% endblock %}
 
+{% block allow_config_background %}false{% endblock %}
+
 {% block body %}
   <div class="landing-content">
     {% set headerMarkup = headerContent is defined and headerContent ? headerContent : '' %}

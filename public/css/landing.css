@@ -1,6 +1,6 @@
 /* Design-Tokens NUR für die Landing */
 
-:root{
+body.qr-landing{
   --qr-brand-50:#eff6ff;
   --qr-brand-100:#dbeafe;
   --qr-brand-200:#bfdbfe;
