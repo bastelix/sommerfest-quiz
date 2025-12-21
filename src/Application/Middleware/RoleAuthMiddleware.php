@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Middleware;
 
+use App\Infrastructure\Database;
+use App\Service\NamespaceResolver;
+use App\Service\UserService;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
@@ -31,22 +35,12 @@ class RoleAuthMiddleware implements MiddlewareInterface
         }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role === null || !in_array($role, $this->roles, true)) {
-            $accept = $request->getHeaderLine('Accept');
-            $xhr = $request->getHeaderLine('X-Requested-With');
-            $path = $request->getUri()->getPath();
-            $base = RouteContext::fromRequest($request)->getBasePath();
-            $isApi = str_starts_with($path, $base . '/api/')
-                || str_contains($accept, 'application/json')
-                || $xhr === 'fetch';
-
-            if ($isApi) {
-                $response = new SlimResponse(401);
-                $response->getBody()->write(json_encode(['error' => 'unauthorized']));
-
-                return $response->withHeader('Content-Type', 'application/json');
+            if ($this->isApiRequest($request)) {
+                return $this->jsonErrorResponse('unauthorized', 401);
             }
 
             $response = new SlimResponse();
+            $base = RouteContext::fromRequest($request)->getBasePath();
 
             return $response->withHeader('Location', $base . '/login')->withStatus(302);
         }
@@ -63,6 +57,60 @@ class RoleAuthMiddleware implements MiddlewareInterface
             }
         }
 
+        $namespaceContext = (new NamespaceResolver())->resolve($request);
+        if (!$this->userHasNamespace($request, $namespaceContext->getNamespace())) {
+            if ($this->isApiRequest($request)) {
+                return $this->jsonErrorResponse('forbidden', 403);
+            }
+
+            return (new SlimResponse())->withStatus(403);
+        }
+
         return $handler->handle($request);
+    }
+
+    private function isApiRequest(Request $request): bool {
+        $accept = $request->getHeaderLine('Accept');
+        $xhr = $request->getHeaderLine('X-Requested-With');
+        $path = $request->getUri()->getPath();
+        $base = RouteContext::fromRequest($request)->getBasePath();
+
+        return str_starts_with($path, $base . '/api/')
+            || str_contains($accept, 'application/json')
+            || $xhr === 'fetch';
+    }
+
+    private function jsonErrorResponse(string $error, int $status): Response {
+        $response = new SlimResponse($status);
+        $response->getBody()->write(json_encode(['error' => $error]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function userHasNamespace(Request $request, string $namespace): bool {
+        $userId = $_SESSION['user']['id'] ?? null;
+        if ($userId === null) {
+            return false;
+        }
+
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        $userService = new UserService($pdo);
+        $record = $userService->getById((int) $userId);
+        if ($record === null) {
+            return false;
+        }
+
+        foreach ($record['namespaces'] as $entry) {
+            $candidate = strtolower(trim((string) ($entry['namespace'] ?? '')));
+            if ($candidate !== '' && $candidate === $namespace) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
