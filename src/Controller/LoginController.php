@@ -95,6 +95,7 @@ class LoginController
                 'id' => $record['id'],
                 'username' => $record['username'],
                 'role' => $record['role'],
+                'namespaces' => $record['namespaces'] ?? [],
                 'active_namespace' => $activeNamespace,
             ];
             $sessionService->persistSession((int) $record['id'], session_id());

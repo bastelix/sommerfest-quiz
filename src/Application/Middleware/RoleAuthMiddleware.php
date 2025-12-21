@@ -57,8 +57,22 @@ class RoleAuthMiddleware implements MiddlewareInterface
             }
         }
 
+        $namespaces = $this->resolveUserNamespaces($request);
+        if (is_string($activeNamespace) && $activeNamespace !== '') {
+            if (!$this->namespaceListHas($namespaces, $activeNamespace)) {
+                $namespaces = $this->resolveUserNamespaces($request, true);
+            }
+            if (!$this->namespaceListHas($namespaces, $activeNamespace)) {
+                if ($this->isApiRequest($request)) {
+                    return $this->jsonErrorResponse('forbidden', 403);
+                }
+
+                return (new SlimResponse())->withStatus(403);
+            }
+        }
+
         $namespaceContext = (new NamespaceResolver())->resolve($request);
-        if (!$this->userHasNamespace($request, $namespaceContext->getNamespace())) {
+        if (!$this->namespaceListHas($namespaces, $namespaceContext->getNamespace())) {
             if ($this->isApiRequest($request)) {
                 return $this->jsonErrorResponse('forbidden', 403);
             }
@@ -87,10 +101,21 @@ class RoleAuthMiddleware implements MiddlewareInterface
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    private function userHasNamespace(Request $request, string $namespace): bool {
+    /**
+     * @return list<array{namespace:string,is_default:bool}>
+     */
+    private function resolveUserNamespaces(Request $request, bool $forceReload = false): array
+    {
+        if (!$forceReload) {
+            $existing = $_SESSION['user']['namespaces'] ?? null;
+            if (is_array($existing)) {
+                return $existing;
+            }
+        }
+
         $userId = $_SESSION['user']['id'] ?? null;
         if ($userId === null) {
-            return false;
+            return [];
         }
 
         $pdo = $request->getAttribute('pdo');
@@ -101,12 +126,28 @@ class RoleAuthMiddleware implements MiddlewareInterface
         $userService = new UserService($pdo);
         $record = $userService->getById((int) $userId);
         if ($record === null) {
+            return [];
+        }
+
+        $namespaces = $record['namespaces'] ?? [];
+        $_SESSION['user']['namespaces'] = $namespaces;
+
+        return $namespaces;
+    }
+
+    /**
+     * @param list<array{namespace:string,is_default:bool}> $namespaces
+     */
+    private function namespaceListHas(array $namespaces, string $namespace): bool
+    {
+        $normalized = strtolower(trim($namespace));
+        if ($normalized === '') {
             return false;
         }
 
-        foreach ($record['namespaces'] as $entry) {
+        foreach ($namespaces as $entry) {
             $candidate = strtolower(trim((string) ($entry['namespace'] ?? '')));
-            if ($candidate !== '' && $candidate === $namespace) {
+            if ($candidate !== '' && $candidate === $normalized) {
                 return true;
             }
         }
