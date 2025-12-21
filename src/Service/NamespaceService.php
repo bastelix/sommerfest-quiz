@@ -30,20 +30,21 @@ final class NamespaceService
     /**
      * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}
      */
-    public function create(string $namespace): array
+    public function create(string $namespace, ?string $label = null): array
     {
         $normalized = $this->validator->normalize($namespace);
         $this->validator->assertValid($normalized);
+        $normalizedLabel = $this->normalizeLabel($label);
 
         if ($this->repository->exists($normalized)) {
             throw new DuplicateNamespaceException('namespace-exists');
         }
 
-        $this->repository->create($normalized);
+        $this->repository->create($normalized, $normalizedLabel);
 
         return $this->repository->find($normalized) ?? [
             'namespace' => $normalized,
-            'label' => null,
+            'label' => $normalizedLabel,
             'is_active' => true,
             'created_at' => null,
             'updated_at' => null,
@@ -53,10 +54,15 @@ final class NamespaceService
     /**
      * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}
      */
-    public function rename(string $namespace, string $newNamespace): array
-    {
+    public function rename(
+        string $namespace,
+        string $newNamespace,
+        ?string $label = null,
+        bool $updateLabel = false
+    ): array {
         $source = $this->validator->normalize($namespace);
         $target = $this->validator->normalize($newNamespace);
+        $normalizedLabel = $updateLabel ? $this->normalizeLabel($label) : null;
 
         if ($source === PageService::DEFAULT_NAMESPACE) {
             throw new InvalidArgumentException('default-namespace');
@@ -72,11 +78,11 @@ final class NamespaceService
             throw new DuplicateNamespaceException('namespace-exists');
         }
 
-        $this->repository->update($source, $target);
+        $this->repository->update($source, $target, $normalizedLabel, null, $updateLabel);
 
         return $this->repository->find($target) ?? [
             'namespace' => $target,
-            'label' => null,
+            'label' => $normalizedLabel,
             'is_active' => true,
             'created_at' => null,
             'updated_at' => null,
@@ -106,4 +112,14 @@ final class NamespaceService
         $this->repository->deactivate($normalized);
     }
 
+    private function normalizeLabel(?string $label): ?string
+    {
+        if ($label === null) {
+            return null;
+        }
+
+        $normalized = trim($label);
+
+        return $normalized === '' ? null : $normalized;
+    }
 }

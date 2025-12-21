@@ -100,7 +100,8 @@ final class NamespaceRepository
         string $namespace,
         string $newNamespace,
         ?string $label = null,
-        ?bool $isActive = null
+        ?bool $isActive = null,
+        bool $updateLabel = false
     ): void {
         $this->assertTableExists();
 
@@ -110,7 +111,7 @@ final class NamespaceRepository
             $fields[] = 'namespace = ?';
             $params[] = $newNamespace;
         }
-        if ($label !== null) {
+        if ($updateLabel) {
             $fields[] = 'label = ?';
             $params[] = $label;
         }
