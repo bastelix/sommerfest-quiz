@@ -63,6 +63,17 @@ all required PHP extensions.
   duplicating code.
 * Align with the detailed engineering rules in [`ROBOTS.md`](ROBOTS.md).
 
+## Namespace fallbacks (SEO + page modules)
+
+Marketing pages can be stored in multiple namespaces. When loading SEO metadata or page modules, the
+application resolves data in this order:
+
+1. Use the namespace-specific page first.
+2. If no SEO configuration or modules exist for that page, fall back to the page with the same slug
+   in the `default` namespace (`PageService::DEFAULT_NAMESPACE`).
+
+This keeps tenant-specific overrides predictable while ensuring shared defaults remain available.
+
 ## Quality gates
 
 Run the following commands before every pull request. They are the same checks executed in CI.

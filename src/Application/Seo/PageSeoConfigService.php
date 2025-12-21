@@ -12,6 +12,7 @@ use App\Domain\PageSeoConfig;
 use App\Infrastructure\Cache\PageSeoCache;
 use App\Infrastructure\Database;
 use App\Infrastructure\Event\EventDispatcher;
+use App\Service\PageService;
 use App\Support\DomainNameHelper;
 use PDO;
 
@@ -25,23 +26,40 @@ class PageSeoConfigService
     private SeoValidator $validator;
     private PageSeoCache $cache;
     private EventDispatcher $dispatcher;
+    private PageService $pages;
 
     public function __construct(
         ?PDO $pdo = null,
         ?RedirectManager $redirects = null,
         ?SeoValidator $validator = null,
         ?PageSeoCache $cache = null,
-        ?EventDispatcher $dispatcher = null
+        ?EventDispatcher $dispatcher = null,
+        ?PageService $pages = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->redirects = $redirects ?? new RedirectManager();
         $this->validator = $validator ?? new SeoValidator();
         $this->cache = $cache ?? new PageSeoCache();
         $this->dispatcher = $dispatcher ?? new EventDispatcher();
+        $this->pages = $pages ?? new PageService($this->pdo);
         SeoConfigListener::register($this->dispatcher, $this->cache);
     }
 
     public function load(int $pageId): ?PageSeoConfig {
+        $config = $this->loadForPageId($pageId);
+        if ($config !== null) {
+            return $config;
+        }
+
+        $fallbackPageId = $this->resolveFallbackPageId($pageId);
+        if ($fallbackPageId === null) {
+            return null;
+        }
+
+        return $this->loadForPageId($fallbackPageId);
+    }
+
+    private function loadForPageId(int $pageId): ?PageSeoConfig {
         $cached = $this->cache->get($pageId);
         if ($cached !== null) {
             return $cached;
@@ -75,6 +93,24 @@ class PageSeoConfigService
         }
 
         return null;
+    }
+
+    private function resolveFallbackPageId(int $pageId): ?int {
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            return null;
+        }
+
+        if ($page->getNamespace() === PageService::DEFAULT_NAMESPACE) {
+            return null;
+        }
+
+        $fallbackPage = $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $page->getSlug());
+        if ($fallbackPage === null) {
+            return null;
+        }
+
+        return $fallbackPage->getId();
     }
 
     public function save(PageSeoConfig $config): void {
