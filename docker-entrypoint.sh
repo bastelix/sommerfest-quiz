@@ -13,8 +13,21 @@ fi
 
 # Normalize comma-separated host lists by removing whitespace and collapsing
 # duplicate separators.
-sanitize_host_list() {
+normalize_host_list() {
     printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
+}
+
+normalized_virtual_host=$(normalize_host_list "${VIRTUAL_HOST:-}")
+if [ -z "$normalized_virtual_host" ]; then
+    echo "Error: VIRTUAL_HOST is empty after normalization. Check .env for VIRTUAL_HOST, DOMAIN, MAIN_DOMAIN, or SLIM_VIRTUAL_HOST." >&2
+    exit 1
+fi
+export VIRTUAL_HOST="$normalized_virtual_host"
+
+# Normalize comma-separated host lists by removing whitespace and collapsing
+# duplicate separators.
+sanitize_host_list() {
+    normalize_host_list "$1"
 }
 
 is_regex_host() {
@@ -153,6 +166,19 @@ if [ -n "${LETSENCRYPT_HOST:-}" ]; then
     export LETSENCRYPT_HOST="$filtered_hosts"
 fi
 
+redact_host_list() {
+    sanitized=$(sanitize_host_list "$1")
+    if [ -z "$sanitized" ]; then
+        printf '%s' "<empty>"
+        return
+    fi
+    count=$(printf '%s' "$sanitized" | tr ',' '\n' | sed '/^$/d' | wc -l | tr -d ' ')
+    printf '%s' "<redacted:${count}>"
+}
+
+echo "VIRTUAL_HOST (redacted): $(redact_host_list "${VIRTUAL_HOST:-}")"
+echo "LETSENCRYPT_HOST (redacted): $(redact_host_list "${LETSENCRYPT_HOST:-}")"
+
 # Install composer dependencies if autoloader or QR code library is missing
 if [ ! -f vendor/autoload.php ] || [ ! -d vendor/chillerlan/php-qrcode ]; then
     composer install --no-interaction --prefer-dist --no-progress
@@ -175,13 +201,8 @@ if [ ! -f /var/www/data/config.json ] && [ -d /var/www/data-default ]; then
     cp -a /var/www/data-default/. /var/www/data/
 fi
 
-# Normalize the Let's Encrypt host list and trigger a proxy reload when it changes.
-normalize_hosts() {
-    printf '%s' "$1" | tr '\n' ',' | sed -e 's/[[:space:]]//g' -e 's/,\{2,\}/,/g' -e 's/^,//' -e 's/,$//'
-}
-
 if [ -n "$LETSENCRYPT_HOST" ]; then
-    normalized_hosts=$(normalize_hosts "$LETSENCRYPT_HOST")
+    normalized_hosts=$(normalize_host_list "$LETSENCRYPT_HOST")
     cache_file=/var/www/data/.letsencrypt-hosts
 
     if [ "$normalized_hosts" != "$LETSENCRYPT_HOST" ]; then
