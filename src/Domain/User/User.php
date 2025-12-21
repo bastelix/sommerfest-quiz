@@ -16,11 +16,26 @@ class User implements JsonSerializable
 
     private string $lastName;
 
-    public function __construct(?int $id, string $username, string $firstName, string $lastName) {
+    /**
+     * @var list<array{namespace:string,is_default:bool}>
+     */
+    private array $namespaces;
+
+    /**
+     * @param list<array{namespace:string,is_default:bool}> $namespaces
+     */
+    public function __construct(
+        ?int $id,
+        string $username,
+        string $firstName,
+        string $lastName,
+        array $namespaces = []
+    ) {
         $this->id = $id;
         $this->username = strtolower($username);
         $this->firstName = ucfirst($firstName);
         $this->lastName = ucfirst($lastName);
+        $this->namespaces = array_values($namespaces);
     }
 
     public function getId(): ?int {
@@ -39,6 +54,13 @@ class User implements JsonSerializable
         return $this->lastName;
     }
 
+    /**
+     * @return list<array{namespace:string,is_default:bool}>
+     */
+    public function getNamespaces(): array {
+        return $this->namespaces;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array {
         return [
@@ -46,6 +68,7 @@ class User implements JsonSerializable
             'username' => $this->username,
             'firstName' => $this->firstName,
             'lastName' => $this->lastName,
+            'namespaces' => $this->namespaces,
         ];
     }
 }
