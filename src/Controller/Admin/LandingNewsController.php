@@ -6,6 +6,8 @@ namespace App\Controller\Admin;
 
 use App\Domain\LandingNews;
 use App\Domain\Page;
+use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
 use App\Service\LandingNewsService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
@@ -18,6 +20,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Throwable;
+use PDO;
 
 use function array_filter;
 use function http_build_query;
@@ -160,7 +163,7 @@ class LandingNewsController
         ?string $error = null
     ): Response {
         $view = Twig::fromRequest($request);
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $pages = $this->getLandingPages($namespace);
         $payload = [
             'entry' => $entry,
@@ -171,6 +174,7 @@ class LandingNewsController
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
             'pageNamespace' => $namespace,
+            'available_namespaces' => $availableNamespaces,
         ];
 
         if ($override !== null) {
@@ -301,6 +305,52 @@ class LandingNewsController
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
         return $page->getNamespace() === $namespace;
+    }
+
+    /**
+     * @return array{0: list<array<string,mixed>>, 1: string}
+     */
+    private function loadNamespaces(Request $request): array
+    {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $repository = new NamespaceRepository($pdo);
+        try {
+            $availableNamespaces = $repository->list();
+        } catch (\RuntimeException $exception) {
+            $availableNamespaces = [];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        return [$availableNamespaces, $namespace];
     }
 
     private function resolveEntry(Request $request, array $args): ?LandingNews

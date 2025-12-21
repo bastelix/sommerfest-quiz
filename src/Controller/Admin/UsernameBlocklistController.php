@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Exception\DuplicateUsernameBlocklistException;
+use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\NamespaceResolver;
+use App\Service\PageService;
 use App\Service\TranslationService;
 use App\Service\UsernameBlocklistService;
 use InvalidArgumentException;
 use DateTimeInterface;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
@@ -108,6 +113,8 @@ final class UsernameBlocklistController
             $event = $this->eventService->getByUid($uid);
         }
 
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+
         return $view->render($response, 'admin/username_blocklist.twig', [
             'entries' => $entries,
             'csrfToken' => $csrf,
@@ -117,6 +124,8 @@ final class UsernameBlocklistController
             'config' => $config,
             'events' => $events,
             'event' => $event,
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
         ]);
     }
 
@@ -311,6 +320,52 @@ final class UsernameBlocklistController
     private function translate(string $key): string
     {
         return $this->translator?->translate($key) ?? $key;
+    }
+
+    /**
+     * @return array{0: list<array<string,mixed>>, 1: string}
+     */
+    private function loadNamespaces(Request $request): array
+    {
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $repository = new NamespaceRepository($pdo);
+        try {
+            $availableNamespaces = $repository->list();
+        } catch (RuntimeException $exception) {
+            $availableNamespaces = [];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        return [$availableNamespaces, $namespace];
     }
 
     /**

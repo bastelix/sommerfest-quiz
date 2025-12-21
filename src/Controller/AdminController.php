@@ -160,37 +160,35 @@ class AdminController
         $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $availableNamespaces = [];
-        if (in_array($section, ['management', 'pages'], true)) {
-            $namespaceRepository = new NamespaceRepository($pdo);
-            try {
-                $availableNamespaces = $namespaceRepository->list();
-            } catch (\RuntimeException $exception) {
-                $availableNamespaces = [];
-            }
-            if (!array_filter(
-                $availableNamespaces,
-                static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
-            )) {
-                $availableNamespaces[] = [
-                    'namespace' => PageService::DEFAULT_NAMESPACE,
-                    'label' => null,
-                    'is_active' => true,
-                    'created_at' => null,
-                    'updated_at' => null,
-                ];
-            }
-            if (!array_filter(
-                $availableNamespaces,
-                static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
-            )) {
-                $availableNamespaces[] = [
-                    'namespace' => $namespace,
-                    'label' => null,
-                    'is_active' => true,
-                    'created_at' => null,
-                    'updated_at' => null,
-                ];
-            }
+        $namespaceRepository = new NamespaceRepository($pdo);
+        try {
+            $availableNamespaces = $namespaceRepository->list();
+        } catch (\RuntimeException $exception) {
+            $availableNamespaces = [];
+        }
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+        if (!array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+        )) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
         }
         $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped($namespace);
         $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
