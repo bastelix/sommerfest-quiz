@@ -12,39 +12,9 @@ const DOMPURIFY_PAGE_EDITOR_CONFIG = {
     'src',
     'type',
     'aria-label',
-    'uk-accordion',
-    'uk-close',
-    'uk-grid',
-    'uk-icon',
-    'uk-modal',
-    'uk-navbar',
-    'uk-navbar-toggle-icon',
-    'uk-offcanvas',
-    'uk-scroll',
-    'uk-scrollspy',
-    'uk-slider',
-    'uk-slider-item',
-    'uk-slidenav-next',
-    'uk-slidenav-previous',
-    'uk-slideshow',
-    'uk-switcher',
-    'uk-toggle',
-    'uk-tooltip',
-    'data-uk-accordion',
-    'data-uk-close',
-    'data-uk-grid',
-    'data-uk-icon',
-    'data-uk-modal',
-    'data-uk-offcanvas',
-    'data-uk-scrollspy',
-    'data-uk-slider',
-    'data-uk-slider-item',
-    'data-uk-slidenav-next',
-    'data-uk-slidenav-previous',
-    'data-uk-switcher',
-    'data-uk-toggle',
-    'data-uk-tooltip'
-  ]
+    /^(uk|data-uk)-.*$/
+  ],
+  ALLOW_DATA_ATTR: true
 };
 
 const sanitize = str => {
