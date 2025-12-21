@@ -96,6 +96,19 @@
     is_active: true
   }] %}
 {% endif %}
+{% set activeNamespaceExists = false %}
+{% for entry in projectNamespaceOptions %}
+  {% if entry.namespace|default('') == activeNamespace %}
+    {% set activeNamespaceExists = true %}
+  {% endif %}
+{% endfor %}
+{% if not activeNamespaceExists %}
+  {% set projectNamespaceOptions = projectNamespaceOptions|merge([{
+    namespace: activeNamespace,
+    label: null,
+    is_active: false
+  }]) %}
+{% endif %}
 {% set startGroup = groups|first %}
 {% set accordionGroups = groups|slice(1) %}
 
@@ -123,17 +136,15 @@
           {% set groupActive = false %}
           {% set hasItems = false %}
           {% for entry in projectNamespaceOptions %}
-            {% if entry.is_active is not defined or entry.is_active %}
-              {% set hasItems = true %}
-              {% set namespaceValue = entry.namespace|default('') %}
-              {% if namespaceValue == activeNamespace %}
-                {% for module in projectModules %}
-                  {% set matchPrefix = module.matchPrefix|default('') %}
-                  {% if current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
-                    {% set groupActive = true %}
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
+            {% set hasItems = true %}
+            {% set namespaceValue = entry.namespace|default('') %}
+            {% if namespaceValue == activeNamespace %}
+              {% for module in projectModules %}
+                {% set matchPrefix = module.matchPrefix|default('') %}
+                {% if current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
+                  {% set groupActive = true %}
+                {% endif %}
+              {% endfor %}
             {% endif %}
           {% endfor %}
           {% if hasItems %}
@@ -145,9 +156,8 @@
               <div class="uk-accordion-content uk-padding-remove">
                 <div class="qr-nav-accordion" uk-accordion="{{ accordionOptions }}">
                   {% for entry in projectNamespaceOptions %}
-                    {% if entry.is_active is not defined or entry.is_active %}
-                      {% set namespaceValue = entry.namespace|default('') %}
-                      {% set namespaceLabel = entry.label|default('') %}
+                    {% set namespaceValue = entry.namespace|default('') %}
+                    {% set namespaceLabel = entry.label|default('') %}
 {% set modulePageTab = pageTab|default('') %}
 {% set modulePageSlug = selectedPageSlug|default('') %}
 {% set projectSlugModules = [] %}
@@ -177,6 +187,7 @@
                           <span class="qr-nav-accordion-label">
                             {{ namespaceValue }}
                             {% if namespaceLabel is not empty %}· {{ namespaceLabel }}{% endif %}
+                            {% if entry.is_active is defined and not entry.is_active %}· inaktiv{% endif %}
                           </span>
                           <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
                         </a>
@@ -208,7 +219,6 @@
                           </ul>
                         </div>
                       </div>
-                    {% endif %}
                   {% endfor %}
                 </div>
               </div>
