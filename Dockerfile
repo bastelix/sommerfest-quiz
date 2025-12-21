@@ -4,6 +4,7 @@ FROM php:8.2.29-alpine
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache \
+    curl \
     libpng libjpeg-turbo freetype libwebp postgresql-client imagemagick \
     python3 py3-pip \
     && apk add --no-cache --virtual .build-deps \
@@ -38,4 +39,3 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD ["php", "/var/www/scripts/check_stripe_config.php"]
 EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
