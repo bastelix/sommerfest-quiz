@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Exception\DuplicateNamespaceException;
+use App\Exception\NamespaceInUseException;
 use App\Exception\NamespaceNotFoundException;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
@@ -59,6 +60,7 @@ final class NamespaceController
                 return [
                     'namespace' => $namespace,
                     'created_at' => $entry['created_at'] ?? null,
+                    'is_active' => $entry['is_active'] ?? true,
                     'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
                 ];
             },
@@ -154,6 +156,18 @@ final class NamespaceController
 
         try {
             $this->service->delete($namespace);
+        } catch (NamespaceInUseException $exception) {
+            $message = $this->translate(
+                $request,
+                'error_namespace_in_use',
+                'Namespace is still in use.'
+            );
+            $sources = $exception->getSources();
+            if ($sources !== []) {
+                $message .= ' ' . implode(', ', $sources);
+            }
+
+            return $this->jsonError($response, $message, 409);
         } catch (NamespaceNotFoundException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_not_found', 'Namespace not found.'), 404);
         } catch (InvalidArgumentException) {

@@ -139,6 +139,42 @@ final class NamespaceRepository
         $stmt->closeCursor();
     }
 
+    /**
+     * @return list<string>
+     */
+    public function findUsage(string $namespace): array
+    {
+        $usage = [];
+
+        if ($this->hasTable('pages') && $this->hasNamespaceReference('pages', 'namespace', $namespace)) {
+            $usage[] = 'pages';
+        }
+        if ($this->hasTable('namespace_profile')
+            && $this->hasNamespaceReference('namespace_profile', 'namespace', $namespace)
+        ) {
+            $usage[] = 'namespace_profile';
+        }
+        if ($this->hasTable('marketing_newsletter_configs')
+            && $this->hasNamespaceReference('marketing_newsletter_configs', 'namespace', $namespace)
+        ) {
+            $usage[] = 'marketing_newsletter_configs';
+        }
+        if ($this->hasTable('user_namespaces') && $this->hasNamespaceReference('user_namespaces', 'namespace', $namespace)) {
+            $usage[] = 'user_namespaces';
+        }
+
+        return $usage;
+    }
+
+    public function deactivate(string $namespace): void
+    {
+        $this->assertTableExists();
+
+        $stmt = $this->pdo->prepare('UPDATE namespaces SET is_active = FALSE WHERE namespace = ?');
+        $stmt->execute([$namespace]);
+        $stmt->closeCursor();
+    }
+
     private function assertTableExists(): void
     {
         if (!$this->hasTable('namespaces')) {
@@ -158,5 +194,15 @@ final class NamespaceRepository
         $stmt = $this->pdo->prepare('SELECT to_regclass(?)');
         $stmt->execute([$name]);
         return $stmt->fetchColumn() !== null;
+    }
+
+    private function hasNamespaceReference(string $table, string $column, string $namespace): bool
+    {
+        $stmt = $this->pdo->prepare(sprintf('SELECT 1 FROM %s WHERE %s = ? LIMIT 1', $table, $column));
+        $stmt->execute([$namespace]);
+        $exists = $stmt->fetchColumn() !== false;
+        $stmt->closeCursor();
+
+        return $exists;
     }
 }
