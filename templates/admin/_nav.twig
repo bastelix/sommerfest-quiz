@@ -65,10 +65,10 @@
 {% set current = currentPath %}
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set projectModules = [
-  { href: basePath ~ '/admin/projects', icon: 'grid', text: 'Übersicht' },
-{ href: basePath ~ '/admin/pages/content', icon: 'file-edit', text: t('tab_pages'), pageTab: 'content', matchPrefix: basePath ~ '/admin/pages' },
+  { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview') },
+  { href: basePath ~ '/admin/pages/content', icon: 'file-edit', text: t('tab_pages'), pageTab: 'content', matchPrefix: basePath ~ '/admin/pages' },
   { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), pageTab: 'seo' },
-  { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: 'Wiki', pageTab: 'wiki' },
+  { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), pageTab: 'wiki' },
   { href: basePath ~ '/admin/pages/content', icon: 'file-text', text: t('tab_cookies'), query: 'pageSlug=cookies', pageTab: 'content', pageSlug: 'cookies' },
   { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news' },
   { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat') },
