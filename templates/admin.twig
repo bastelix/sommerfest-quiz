@@ -1483,6 +1483,27 @@
       <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
+          {% set activePageNamespace = pageNamespace|default('default') %}
+          <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+            <div class="uk-grid-small uk-flex-middle" uk-grid>
+              <div class="uk-width-1-1 uk-width-expand@m">
+                <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+                <div class="uk-form-controls">
+                  <select
+                    id="pageNamespaceSelect"
+                    class="uk-select"
+                    data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                    disabled
+                  >
+                    <option value="{{ activePageNamespace|e('html_attr') }}">{{ activePageNamespace }}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+                Namespace wird automatisch aus dem Request gesetzt.
+              </div>
+            </div>
+          </div>
           {% set currentPageTab = pageTab|default('seo') %}
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
             <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
