@@ -78,7 +78,35 @@ final class UserNamespaceRepository
      */
     public function getKnownNamespaces(): array
     {
-        $stmt = $this->pdo->query('SELECT DISTINCT namespace FROM user_namespaces ORDER BY namespace');
+        $namespaces = [];
+        if ($this->hasTable('namespaces')) {
+            $namespaces = $this->loadNamespaces(
+                'SELECT namespace FROM namespaces WHERE is_active = TRUE ORDER BY namespace'
+            );
+        }
+        if ($namespaces === [] && $this->hasTable('user_namespaces')) {
+            $namespaces = $this->loadNamespaces(
+                'SELECT DISTINCT namespace FROM user_namespaces ORDER BY namespace'
+            );
+        }
+
+        if (!in_array(PageService::DEFAULT_NAMESPACE, $namespaces, true)) {
+            $namespaces[] = PageService::DEFAULT_NAMESPACE;
+        }
+
+        sort($namespaces);
+
+        return $namespaces;
+    }
+
+    /**
+     * @param list<mixed> $params
+     * @return list<string>
+     */
+    private function loadNamespaces(string $sql, array $params = []): array
+    {
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
 
         $namespaces = [];
         while (($value = $stmt->fetchColumn()) !== false) {
@@ -90,13 +118,21 @@ final class UserNamespaceRepository
         }
         $stmt->closeCursor();
 
-        if (!in_array(PageService::DEFAULT_NAMESPACE, $namespaces, true)) {
-            $namespaces[] = PageService::DEFAULT_NAMESPACE;
+        return $namespaces;
+    }
+
+    private function hasTable(string $name): bool
+    {
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
+            $stmt->execute([$name]);
+            return $stmt->fetchColumn() !== false;
         }
 
-        sort($namespaces);
-
-        return $namespaces;
+        $stmt = $this->pdo->prepare('SELECT to_regclass(?)');
+        $stmt->execute([$name]);
+        return $stmt->fetchColumn() !== null;
     }
 
     /**

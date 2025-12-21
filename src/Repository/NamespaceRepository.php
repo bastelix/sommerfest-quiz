@@ -14,14 +14,14 @@ final class NamespaceRepository
     }
 
     /**
-     * @return list<array{namespace:string,created_at:?string}>
+     * @return list<array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}>
      */
-    public function all(): array
+    public function list(): array
     {
         $this->assertTableExists();
 
         $stmt = $this->pdo->query(
-            'SELECT namespace, created_at FROM namespace_profile ORDER BY namespace'
+            'SELECT namespace, label, is_active, created_at, updated_at FROM namespaces ORDER BY namespace'
         );
 
         $rows = [];
@@ -32,7 +32,10 @@ final class NamespaceRepository
             }
             $rows[] = [
                 'namespace' => $namespace,
+                'label' => $row['label'] !== null ? (string) $row['label'] : null,
+                'is_active' => (bool) ($row['is_active'] ?? false),
                 'created_at' => $row['created_at'] ?? null,
+                'updated_at' => $row['updated_at'] ?? null,
             ];
         }
         $stmt->closeCursor();
@@ -44,7 +47,7 @@ final class NamespaceRepository
     {
         $this->assertTableExists();
 
-        $stmt = $this->pdo->prepare('SELECT 1 FROM namespace_profile WHERE namespace = ?');
+        $stmt = $this->pdo->prepare('SELECT 1 FROM namespaces WHERE namespace = ?');
         $stmt->execute([$namespace]);
         $exists = $stmt->fetchColumn() !== false;
         $stmt->closeCursor();
@@ -53,13 +56,15 @@ final class NamespaceRepository
     }
 
     /**
-     * @return array{namespace:string,created_at:?string}|null
+     * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}|null
      */
     public function find(string $namespace): ?array
     {
         $this->assertTableExists();
 
-        $stmt = $this->pdo->prepare('SELECT namespace, created_at FROM namespace_profile WHERE namespace = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT namespace, label, is_active, created_at, updated_at FROM namespaces WHERE namespace = ?'
+        );
         $stmt->execute([$namespace]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         $stmt->closeCursor();
@@ -75,25 +80,53 @@ final class NamespaceRepository
 
         return [
             'namespace' => $name,
+            'label' => $row['label'] !== null ? (string) $row['label'] : null,
+            'is_active' => (bool) ($row['is_active'] ?? false),
             'created_at' => $row['created_at'] ?? null,
+            'updated_at' => $row['updated_at'] ?? null,
         ];
     }
 
-    public function insert(string $namespace): void
+    public function create(string $namespace, ?string $label = null, bool $isActive = true): void
     {
         $this->assertTableExists();
 
-        $stmt = $this->pdo->prepare('INSERT INTO namespace_profile (namespace) VALUES (?)');
-        $stmt->execute([$namespace]);
+        $stmt = $this->pdo->prepare('INSERT INTO namespaces (namespace, label, is_active) VALUES (?, ?, ?)');
+        $stmt->execute([$namespace, $label, $isActive]);
         $stmt->closeCursor();
     }
 
-    public function rename(string $namespace, string $newNamespace): void
-    {
+    public function update(
+        string $namespace,
+        string $newNamespace,
+        ?string $label = null,
+        ?bool $isActive = null
+    ): void {
         $this->assertTableExists();
 
-        $stmt = $this->pdo->prepare('UPDATE namespace_profile SET namespace = ? WHERE namespace = ?');
-        $stmt->execute([$newNamespace, $namespace]);
+        $fields = [];
+        $params = [];
+        if ($newNamespace !== $namespace) {
+            $fields[] = 'namespace = ?';
+            $params[] = $newNamespace;
+        }
+        if ($label !== null) {
+            $fields[] = 'label = ?';
+            $params[] = $label;
+        }
+        if ($isActive !== null) {
+            $fields[] = 'is_active = ?';
+            $params[] = $isActive;
+        }
+
+        if ($fields === []) {
+            return;
+        }
+
+        $params[] = $namespace;
+        $sql = 'UPDATE namespaces SET ' . implode(', ', $fields) . ' WHERE namespace = ?';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $stmt->closeCursor();
     }
 
@@ -101,15 +134,15 @@ final class NamespaceRepository
     {
         $this->assertTableExists();
 
-        $stmt = $this->pdo->prepare('DELETE FROM namespace_profile WHERE namespace = ?');
+        $stmt = $this->pdo->prepare('DELETE FROM namespaces WHERE namespace = ?');
         $stmt->execute([$namespace]);
         $stmt->closeCursor();
     }
 
     private function assertTableExists(): void
     {
-        if (!$this->hasTable('namespace_profile')) {
-            throw new RuntimeException('Namespace profile table is not available.');
+        if (!$this->hasTable('namespaces')) {
+            throw new RuntimeException('Namespaces table is not available.');
         }
     }
 

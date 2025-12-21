@@ -16,15 +16,15 @@ final class NamespaceService
     }
 
     /**
-     * @return list<array{namespace:string,created_at:?string}>
+     * @return list<array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}>
      */
     public function all(): array
     {
-        return $this->repository->all();
+        return $this->repository->list();
     }
 
     /**
-     * @return array{namespace:string,created_at:?string}
+     * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}
      */
     public function create(string $namespace): array
     {
@@ -35,16 +35,19 @@ final class NamespaceService
             throw new DuplicateNamespaceException('namespace-exists');
         }
 
-        $this->repository->insert($normalized);
+        $this->repository->create($normalized);
 
         return $this->repository->find($normalized) ?? [
             'namespace' => $normalized,
+            'label' => null,
+            'is_active' => true,
             'created_at' => null,
+            'updated_at' => null,
         ];
     }
 
     /**
-     * @return array{namespace:string,created_at:?string}
+     * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}
      */
     public function rename(string $namespace, string $newNamespace): array
     {
@@ -65,13 +68,14 @@ final class NamespaceService
             throw new DuplicateNamespaceException('namespace-exists');
         }
 
-        if ($source !== $target) {
-            $this->repository->rename($source, $target);
-        }
+        $this->repository->update($source, $target);
 
         return $this->repository->find($target) ?? [
             'namespace' => $target,
+            'label' => null,
+            'is_active' => true,
             'created_at' => null,
+            'updated_at' => null,
         ];
     }
 
