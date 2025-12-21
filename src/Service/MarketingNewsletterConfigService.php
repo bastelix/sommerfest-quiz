@@ -121,6 +121,25 @@ class MarketingNewsletterConfigService
     }
 
     /**
+     * Fetch distinct namespaces used by newsletter configurations.
+     *
+     * @return list<string>
+     */
+    public function getNamespaces(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT DISTINCT namespace FROM marketing_newsletter_configs ORDER BY namespace ASC'
+        );
+        $namespaces = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $namespace = $this->normalizeNamespace((string) ($row['namespace'] ?? ''));
+            $namespaces[] = $namespace;
+        }
+
+        return array_values(array_unique($namespaces));
+    }
+
+    /**
      * Replace CTA entries for a slug with the supplied list.
      *
      * @param list<array{label?:string,url?:string,style?:string}> $entries

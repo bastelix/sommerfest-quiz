@@ -73,6 +73,10 @@ class ProjectController
             $knownNamespaces[$namespace] = true;
         }
 
+        foreach ($this->newsletterService->getNamespaces() as $namespace) {
+            $knownNamespaces[$this->normalizeNamespace($namespace)] = true;
+        }
+
         $namespaces = array_keys($knownNamespaces);
         sort($namespaces);
 
