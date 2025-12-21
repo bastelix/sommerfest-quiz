@@ -40,6 +40,7 @@ class DomainMiddleware implements MiddlewareInterface
         $marketingDomains = $this->getMarketingDomains();
 
         $domainType = null;
+        $allowLocalHost = $this->isLocalHost($host) || $this->isLocalHost($marketingHost);
 
         if ($mainDomain !== '') {
             if ($host === $mainDomain) {
@@ -53,12 +54,17 @@ class DomainMiddleware implements MiddlewareInterface
             $domainType = 'marketing';
         }
 
+        if ($domainType === null && $allowLocalHost) {
+            $domainType = 'main';
+        }
+
         if (
             $domainType !== 'marketing'
             && (
                 $mainDomain === ''
                 || $domainType === null
             )
+            && !$allowLocalHost
         ) {
             $message = 'Invalid main domain configuration.';
             error_log(sprintf(
@@ -147,5 +153,18 @@ class DomainMiddleware implements MiddlewareInterface
 
     private function normalizeHost(string $host, bool $stripAdmin = true): string {
         return DomainNameHelper::normalize($host, $stripAdmin);
+    }
+
+    private function isLocalHost(string $host): bool
+    {
+        if ($host === '') {
+            return false;
+        }
+
+        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
+            return true;
+        }
+
+        return str_ends_with($host, '.localhost');
     }
 }
