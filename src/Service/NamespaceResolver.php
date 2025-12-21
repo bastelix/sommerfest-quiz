@@ -1,0 +1,142 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use App\Support\DomainNameHelper;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteContext;
+
+final class NamespaceResolver
+{
+    private const NAMESPACE_PATTERN = '/^[a-z0-9][a-z0-9\-]{0,99}$/';
+
+    public function resolve(Request $request): NamespaceContext
+    {
+        $candidates = $this->collectCandidates($request);
+
+        if ($candidates === []) {
+            $candidates[] = PageService::DEFAULT_NAMESPACE;
+        }
+
+        $namespace = $candidates[0];
+
+        return new NamespaceContext($namespace, $candidates);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectCandidates(Request $request): array
+    {
+        $candidates = [];
+
+        $explicit = $this->normalizeNamespace(
+            $request->getAttribute('legalPageNamespace')
+                ?? $request->getAttribute('pageNamespace')
+                ?? $request->getAttribute('namespace')
+        );
+        $this->pushCandidate($candidates, $explicit);
+
+        $routeNamespace = $this->resolveRouteNamespace($request);
+        $this->pushCandidate($candidates, $routeNamespace);
+
+        $eventNamespace = $this->resolveEventNamespace($request);
+        $this->pushCandidate($candidates, $eventNamespace);
+
+        $tenantNamespace = $this->resolveTenantNamespace($request);
+        $this->pushCandidate($candidates, $tenantNamespace);
+
+        $this->pushCandidate($candidates, PageService::DEFAULT_NAMESPACE);
+
+        return $candidates;
+    }
+
+    private function resolveRouteNamespace(Request $request): ?string
+    {
+        $route = RouteContext::fromRequest($request)->getRoute();
+        if ($route === null) {
+            return null;
+        }
+
+        $arguments = $route->getArguments();
+
+        $candidate = $arguments['namespace']
+            ?? $arguments['tenantNamespace']
+            ?? $arguments['tenant']
+            ?? $arguments['subdomain']
+            ?? null;
+
+        return $this->normalizeNamespace($candidate);
+    }
+
+    private function resolveEventNamespace(Request $request): ?string
+    {
+        $candidate = $request->getAttribute('event_uid')
+            ?? $request->getAttribute('event')
+            ?? ($request->getQueryParams()['event_uid'] ?? null)
+            ?? ($request->getQueryParams()['event'] ?? null);
+
+        return $this->normalizeNamespace($candidate);
+    }
+
+    private function resolveTenantNamespace(Request $request): ?string
+    {
+        $candidate = $request->getAttribute('tenant')
+            ?? $request->getAttribute('tenantNamespace');
+        $normalized = $this->normalizeNamespace($candidate);
+        if ($normalized !== null) {
+            return $normalized;
+        }
+
+        $domainType = (string) $request->getAttribute('domainType');
+        if ($domainType !== 'tenant') {
+            return null;
+        }
+
+        $host = DomainNameHelper::normalize($request->getUri()->getHost());
+        if ($host === '') {
+            return null;
+        }
+
+        $parts = explode('.', $host);
+        $subdomain = $parts[0];
+
+        return $this->normalizeNamespace($subdomain);
+    }
+
+    private function normalizeNamespace(mixed $candidate): ?string
+    {
+        if (!is_string($candidate)) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($candidate));
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (!preg_match(self::NAMESPACE_PATTERN, $normalized)) {
+            return null;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param list<string> $candidates
+     */
+    private function pushCandidate(array &$candidates, ?string $candidate): void
+    {
+        if ($candidate === null) {
+            return;
+        }
+
+        if (in_array($candidate, $candidates, true)) {
+            return;
+        }
+
+        $candidates[] = $candidate;
+    }
+}
