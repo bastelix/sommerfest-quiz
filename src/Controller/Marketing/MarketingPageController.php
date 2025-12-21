@@ -100,11 +100,24 @@ class MarketingPageController
         $locale = (string) $request->getAttribute('lang');
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+        $namespace = $namespaceContext->getNamespace();
         $page = $this->pages->findByKey($namespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
             $page = $this->pages->findByKey($namespace, $templateSlug);
             $contentSlug = $templateSlug;
+        }
+        if ($page === null && $namespace !== PageService::DEFAULT_NAMESPACE) {
+            $fallbackNamespace = PageService::DEFAULT_NAMESPACE;
+            $page = $this->pages->findByKey($fallbackNamespace, $contentSlug);
+            if ($page === null && $contentSlug !== $templateSlug) {
+                $page = $this->pages->findByKey($fallbackNamespace, $templateSlug);
+                $contentSlug = $templateSlug;
+            }
+
+            if ($page !== null) {
+                $namespace = $fallbackNamespace;
+            }
         }
         if ($page === null) {
             return $response->withStatus(404);
