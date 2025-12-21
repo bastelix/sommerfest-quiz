@@ -59,6 +59,8 @@ class AdminController
         $events = $eventSvc->getAll();
         $settingsSvc = new SettingsService($pdo);
         $settings = $settingsSvc->getAll();
+        $namespaceRepository = new UserNamespaceRepository($pdo);
+        $availableNamespaces = $namespaceRepository->getKnownNamespaces();
         $settingsForView = $settings;
         $token = isset($settingsForView['rag_chat_service_token'])
             ? trim((string) $settingsForView['rag_chat_service_token'])
@@ -151,8 +153,6 @@ class AdminController
 
         if ($section === 'management') {
             $users = (new UserService($pdo))->getAll();
-            $namespaceRepository = new UserNamespaceRepository($pdo);
-            $availableNamespaces = $namespaceRepository->getKnownNamespaces();
         }
 
         $pageSvc = new PageService($pdo);

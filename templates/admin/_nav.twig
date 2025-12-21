@@ -74,6 +74,50 @@
 {% set current = currentPath %}
 {% set startGroup = groups|first %}
 {% set accordionGroups = groups|slice(1) %}
+{% set activeNamespace = pageNamespace|default(default_namespace|default('default')) %}
+{% set currentPageTab = pageTab|default('seo') %}
+{% set projectNamespaces = available_namespaces|default([]) %}
+{% set projectModules = [
+  {
+    key: 'pages',
+    icon: 'file-edit',
+    text: t('tab_pages'),
+    path: '/admin/pages',
+    tabs: ['seo', 'content'],
+    admin: true
+  },
+  {
+    key: 'wiki',
+    icon: 'file-text',
+    text: 'Wiki',
+    path: '/admin/pages',
+    pageTab: 'wiki',
+    admin: true
+  },
+  {
+    key: 'newsletter',
+    icon: 'mail',
+    text: t('tab_newsletter'),
+    path: '/admin/management',
+    anchor: 'marketingNewsletterConfigSection',
+    admin: true
+  },
+  {
+    key: 'landing-news',
+    icon: 'bell',
+    text: t('tab_landing_news'),
+    path: '/admin/pages',
+    pageTab: 'landing-news',
+    admin: true
+  },
+  {
+    key: 'media',
+    icon: 'image',
+    text: t('tab_media'),
+    path: '/admin/media',
+    roles: ['admin', 'catalog-editor']
+  },
+] %}
 
 <div class="qr-sidebar-nav">
   <ul class="uk-nav uk-nav-default uk-margin-remove-bottom">
@@ -93,6 +137,77 @@
   </ul>
 
   <div class="qr-nav-accordion uk-margin-small-top" uk-accordion="{{ accordionOptions }}">
+    {% set hasProjectItems = false %}
+    {% for module in projectModules %}
+      {% if (module.roles is not defined or role in module.roles)
+          and (module.admin is not defined or role == 'admin') %}
+        {% set hasProjectItems = true %}
+      {% endif %}
+    {% endfor %}
+    {% set projectGroupActive = false %}
+    {% if projectNamespaces is not empty %}
+      {% set projectPagesBase = basePath ~ '/admin/pages' %}
+      {% set projectManagementBase = basePath ~ '/admin/management' %}
+      {% set projectMediaBase = basePath ~ '/admin/media' %}
+      {% if current starts with projectPagesBase
+          or current starts with projectManagementBase
+          or current starts with projectMediaBase %}
+        {% set projectGroupActive = true %}
+      {% endif %}
+    {% endif %}
+    {% if hasProjectItems and projectNamespaces is not empty %}
+      <div class="qr-nav-accordion-item {{ projectGroupActive ? 'uk-open' }}">
+        <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
+          <span class="qr-nav-accordion-label">{{ t('menu_projects')|upper }}</span>
+          <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+        </a>
+        <div class="uk-accordion-content uk-padding-remove">
+          <div class="qr-nav-accordion uk-padding-small" uk-accordion="multiple: true">
+            {% for namespace in projectNamespaces %}
+              {% set namespaceValue = namespace|lower %}
+              {% set namespaceActive = activeNamespace == namespaceValue %}
+              {% set namespaceQuery = 'namespace=' ~ namespaceValue|url_encode %}
+              <div class="qr-nav-accordion-item {{ namespaceActive ? 'uk-open' }}">
+                <a class="uk-accordion-title qr-nav-accordion-title" href="#">
+                  <span class="qr-nav-accordion-label">{{ namespace }}</span>
+                  <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.7"></span>
+                </a>
+                <div class="uk-accordion-content uk-padding-remove">
+                  <ul class="uk-nav uk-nav-default qr-nav-sub">
+                    {% for module in projectModules %}
+                      {% if (module.roles is not defined or role in module.roles)
+                          and (module.admin is not defined or role == 'admin') %}
+                        {% set modulePath = basePath ~ module.path %}
+                        {% if module.pageTab is defined %}
+                          {% set moduleHref = modulePath ~ '?pageTab=' ~ module.pageTab ~ '&' ~ namespaceQuery %}
+                        {% else %}
+                          {% set moduleHref = modulePath ~ '?' ~ namespaceQuery %}
+                        {% endif %}
+                        {% if module.anchor is defined %}
+                          {% set moduleHref = moduleHref ~ '#' ~ module.anchor %}
+                        {% endif %}
+                        {% set moduleActive = namespaceActive and (current starts with modulePath) %}
+                        {% if module.pageTab is defined %}
+                          {% set moduleActive = moduleActive and currentPageTab == module.pageTab %}
+                        {% elseif module.tabs is defined %}
+                          {% set moduleActive = moduleActive and currentPageTab in module.tabs %}
+                        {% endif %}
+                        <li class="{{ moduleActive ? 'uk-active' }}">
+                          <a class="qr-nav-link qr-nav-sub-link" href="{{ moduleHref }}">
+                            <span uk-icon="icon: {{ module.icon }}; ratio: 0.85"></span>
+                            <span class="qr-nav-text">{{ module.text }}</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
     {% for group in accordionGroups %}
       {% if (group.admin is not defined or role == 'admin') and (group.roles is not defined or role in group.roles) %}
         {% set groupActive = false %}
