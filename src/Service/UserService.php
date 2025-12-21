@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Domain\Roles;
+use App\Repository\UserNamespaceRepository;
 use App\Support\UsernameBlockedException;
 use App\Support\UsernameGuard;
 use PDO;
 use PDOException;
+use Throwable;
 
 /**
  * Service for user and role management.
@@ -19,15 +21,30 @@ class UserService
 
     private UsernameGuard $usernameGuard;
 
-    public function __construct(PDO $pdo, ?UsernameGuard $usernameGuard = null) {
+    private UserNamespaceRepository $namespaceRepository;
+
+    public function __construct(
+        PDO $pdo,
+        ?UsernameGuard $usernameGuard = null,
+        ?UserNamespaceRepository $namespaceRepository = null
+    ) {
         $this->pdo = $pdo;
         $this->usernameGuard = $usernameGuard ?? UsernameGuard::fromConfigFile(null, $pdo);
+        $this->namespaceRepository = $namespaceRepository ?? new UserNamespaceRepository($pdo);
     }
 
     /**
      * Find a user by username.
      *
-     * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
+     * @return array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
+     * }|null
      */
     public function getByUsername(string $username): ?array {
         $stmt = $this->pdo->prepare(
@@ -35,13 +52,21 @@ class UserService
         );
         $stmt->execute([$username]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? $row : null;
+        return $row !== false ? $this->attachNamespaces($row) : null;
     }
 
     /**
      * Find a user by email.
      *
-     * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
+     * @return array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
+     * }|null
      */
     public function getByEmail(string $email): ?array {
         $stmt = $this->pdo->prepare(
@@ -49,19 +74,27 @@ class UserService
         );
         $stmt->execute([$email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? $row : null;
+        return $row !== false ? $this->attachNamespaces($row) : null;
     }
 
     /**
      * Find a user by id.
      *
-     * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
+     * @return array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
+     * }|null
      */
     public function getById(int $id): ?array {
         $stmt = $this->pdo->prepare('SELECT id,username,password,email,role,active FROM users WHERE id=?');
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? $row : null;
+        return $row !== false ? $this->attachNamespaces($row) : null;
     }
 
     /**
@@ -80,14 +113,36 @@ class UserService
         if (!in_array($role, Roles::ALL, true)) {
             $role = Roles::CATALOG_EDITOR;
         }
-        $stmt = $this->pdo->prepare('INSERT INTO users(username,password,email,role,active) VALUES(?,?,?,?,?)');
-        $stmt->execute([
-            strtolower($username),
-            password_hash($password, PASSWORD_DEFAULT),
-            $email,
-            $role,
-            $active,
-        ]);
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO users(username,password,email,role,active) VALUES(?,?,?,?,?) RETURNING id'
+            );
+            $stmt->execute([
+                strtolower($username),
+                password_hash($password, PASSWORD_DEFAULT),
+                $email,
+                $role,
+                $active,
+            ]);
+
+            $userId = (int) $stmt->fetchColumn();
+            $stmt->closeCursor();
+
+            if ($userId > 0) {
+                $this->namespaceRepository->ensureDefaultNamespace($userId);
+            }
+
+            $this->pdo->commit();
+        } catch (Throwable $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $exception;
+        }
     }
 
     /**
@@ -167,7 +222,7 @@ class UserService
         }
 
         $insert = $this->pdo->prepare(
-            'INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?)'
+            'INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?) RETURNING id'
         );
         $update = $this->pdo->prepare('UPDATE users SET username=?,email=?,role=?,active=?,position=? WHERE id=?');
         $updatePass = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
@@ -201,6 +256,11 @@ class UserService
                     $active,
                     $position,
                 ]);
+                $insertedId = (int) $insert->fetchColumn();
+                $insert->closeCursor();
+                if ($insertedId > 0) {
+                    $this->namespaceRepository->ensureDefaultNamespace($insertedId);
+                }
                 continue;
             }
 
@@ -216,5 +276,23 @@ class UserService
         }
 
         $this->pdo->commit();
+    }
+
+    /**
+     * @param array{id:int} $row
+     * @return array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
+     * }
+     */
+    private function attachNamespaces(array $row): array {
+        $row['namespaces'] = $this->namespaceRepository->loadForUser((int) $row['id']);
+
+        return $row;
     }
 }
