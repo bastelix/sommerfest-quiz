@@ -14,15 +14,34 @@ use PDO;
 class PageModuleService
 {
     private PDO $pdo;
+    private PageService $pages;
 
-    public function __construct(?PDO $pdo = null) {
+    public function __construct(?PDO $pdo = null, ?PageService $pages = null) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
+        $this->pages = $pages ?? new PageService($this->pdo);
     }
 
     /**
      * @return PageModule[]
      */
     public function getModulesForPage(int $pageId): array {
+        $modules = $this->fetchModulesForPageId($pageId);
+        if ($modules !== []) {
+            return $modules;
+        }
+
+        $fallbackPageId = $this->resolveFallbackPageId($pageId);
+        if ($fallbackPageId === null) {
+            return [];
+        }
+
+        return $this->fetchModulesForPageId($fallbackPageId);
+    }
+
+    /**
+     * @return PageModule[]
+     */
+    private function fetchModulesForPageId(int $pageId): array {
         $stmt = $this->pdo->prepare(
             'SELECT id, page_id, type, config, position FROM page_modules WHERE page_id = ? ORDER BY position, id'
         );
@@ -69,6 +88,24 @@ class PageModuleService
         $config = $this->decodeConfig($configRaw);
 
         return new PageModule($id, $pageId, $type, $config, $position);
+    }
+
+    private function resolveFallbackPageId(int $pageId): ?int {
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            return null;
+        }
+
+        if ($page->getNamespace() === PageService::DEFAULT_NAMESPACE) {
+            return null;
+        }
+
+        $fallbackPage = $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $page->getSlug());
+        if ($fallbackPage === null) {
+            return null;
+        }
+
+        return $fallbackPage->getId();
     }
 
     /**
