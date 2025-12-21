@@ -870,7 +870,7 @@ const assetUrlToAbsolute = href => {
   }
 };
 
-const ensureStylesheetLoaded = (id, href) => {
+const ensureStylesheetLoaded = (id, href, options = {}) => {
   if (document.getElementById(id)) {
     return;
   }
@@ -884,6 +884,14 @@ const ensureStylesheetLoaded = (id, href) => {
   link.id = id;
   link.rel = 'stylesheet';
   link.href = href;
+  if (options.media) {
+    link.media = options.media;
+  }
+  if (options.dataset) {
+    Object.entries(options.dataset).forEach(([key, value]) => {
+      link.dataset[key] = value;
+    });
+  }
   document.head.appendChild(link);
 };
 
@@ -917,8 +925,23 @@ const ensurePreviewAssets = () => {
   const uikitCss = withBase('/css/uikit.min.css');
   const uikitJs = withBase('/js/uikit.min.js');
   const uikitIconsJs = withBase('/js/uikit-icons.min.js');
+  const landingCss = withBase('/css/landing.css');
+  const landingTopbarCss = withBase('/css/topbar.landing.css');
+  const landingOnboardingCss = withBase('/css/onboarding.css');
 
   ensureStylesheetLoaded('preview-uikit-css', uikitCss);
+  ensureStylesheetLoaded('preview-landing-css', landingCss, {
+    media: 'print',
+    dataset: { previewAsset: 'landing' }
+  });
+  ensureStylesheetLoaded('preview-landing-topbar-css', landingTopbarCss, {
+    media: 'print',
+    dataset: { previewAsset: 'landing' }
+  });
+  ensureStylesheetLoaded('preview-landing-onboarding-css', landingOnboardingCss, {
+    media: 'print',
+    dataset: { previewAsset: 'landing' }
+  });
 
   const scripts = [];
   if (!window.UIkit) {
@@ -929,25 +952,46 @@ const ensurePreviewAssets = () => {
   return previewAssetsPromise;
 };
 
+const setLandingPreviewMedia = enabled => {
+  const targetMedia = enabled ? 'all' : 'print';
+  document.querySelectorAll('link[data-preview-asset="landing"]').forEach(link => {
+    link.media = targetMedia;
+  });
+};
+
+const bindPreviewModal = () => {
+  const modalEl = document.getElementById('preview-modal');
+  if (!modalEl || modalEl.dataset.previewBound === '1') {
+    return;
+  }
+  modalEl.addEventListener('hidden', () => {
+    setLandingPreviewMedia(false);
+  });
+  modalEl.dataset.previewBound = '1';
+};
+
 export async function showPreview() {
   const activeForm = document.querySelector('.page-form:not(.uk-hidden)');
   const editor = activeForm ? ensurePageEditorInitialized(activeForm) : null;
   if (!editor) return;
   const html = sanitize($(editor).trumbowyg('html'));
   const target = document.getElementById('preview-content');
+  const isLandingPreview = activeForm?.dataset.landing === 'true';
   if (target) {
     target.innerHTML = html;
-    if (activeForm?.dataset.landing === 'true') {
+    if (isLandingPreview) {
       applyLandingPreviewStyling(target);
     } else {
       resetLandingPreviewStyling(target);
     }
     await ensurePreviewAssets();
+    setLandingPreviewMedia(isLandingPreview);
     if (window.UIkit && typeof window.UIkit.update === 'function') {
       window.UIkit.update(target, 'mutation');
     }
   }
   if (window.UIkit) {
+    bindPreviewModal();
     window.UIkit.modal('#preview-modal').show();
   }
 }
