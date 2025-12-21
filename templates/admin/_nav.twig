@@ -80,8 +80,12 @@
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set projectModules = [
   { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview') },
-  { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages') },
-  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news') },
+  { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages'), query: 'pageTab=content', pageTab: 'content' },
+  { href: basePath ~ '/admin/pages', icon: 'search', text: t('tab_page_seo_base'), query: 'pageTab=seo', pageTab: 'seo' },
+  { href: basePath ~ '/admin/pages', icon: 'file-text', text: 'Wiki', query: 'pageTab=wiki', pageTab: 'wiki' },
+  { href: basePath ~ '/admin/pages', icon: 'file-text', text: t('tab_cookies'), query: 'pageTab=content&pageSlug=cookies', pageTab: 'content', pageSlug: 'cookies' },
+  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news', matchPrefix: basePath ~ '/admin/pages' },
+  { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat') },
   { href: basePath ~ '/admin/management', icon: 'mail', text: t('tab_newsletter'), anchor: '#marketingNewsletterConfigSection' },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
@@ -143,11 +147,16 @@
                     {% if entry.is_active is not defined or entry.is_active %}
                       {% set namespaceValue = entry.namespace|default('') %}
                       {% set namespaceLabel = entry.label|default('') %}
-                      {% set namespaceQuery = namespaceValue is not empty ? '?namespace=' ~ namespaceValue|url_encode : '' %}
+                      {% set modulePageTab = pageTab|default(current starts with basePath ~ '/admin/landing-news' ? 'landing-news' : 'content') %}
+                      {% set modulePageSlug = selectedPageSlug|default('') %}
                       {% set namespaceActive = namespaceValue == activeNamespace %}
                       {% set namespaceHasActive = false %}
                       {% for module in projectModules %}
-                        {% if namespaceActive and current starts with module.href %}
+                        {% set matchPrefix = module.matchPrefix|default('') %}
+                        {% set pathMatches = current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
+                        {% set tabMatches = module.pageTab is not defined or module.pageTab == modulePageTab %}
+                        {% set slugMatches = module.pageSlug is not defined or module.pageSlug == modulePageSlug %}
+                        {% if namespaceActive and pathMatches and tabMatches and slugMatches %}
                           {% set namespaceHasActive = true %}
                         {% endif %}
                       {% endfor %}
@@ -162,11 +171,18 @@
                         <div class="uk-accordion-content uk-padding-remove">
                           <ul class="uk-nav uk-nav-default qr-nav-sub">
                             {% for module in projectModules %}
-                              {% set isActive = namespaceActive and current starts with module.href %}
+                              {% set matchPrefix = module.matchPrefix|default('') %}
+                              {% set pathMatches = current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
+                              {% set tabMatches = module.pageTab is not defined or module.pageTab == modulePageTab %}
+                              {% set slugMatches = module.pageSlug is not defined or module.pageSlug == modulePageSlug %}
+                              {% set isActive = namespaceActive and pathMatches and tabMatches and slugMatches %}
+                              {% set moduleQuery = module.query|default('') %}
+                              {% set moduleQueryPrefix = moduleQuery is not empty ? '?' ~ moduleQuery : '' %}
+                              {% set namespaceQuery = namespaceValue is not empty ? (moduleQuery is not empty ? '&' : '?') ~ 'namespace=' ~ namespaceValue|url_encode : '' %}
                               <li class="{{ isActive ? 'uk-active' : '' }}">
                                 <a
                                   class="qr-nav-link qr-nav-sub-link"
-                                  href="{{ module.href }}{{ namespaceQuery }}{{ module.anchor|default('') }}"
+                                  href="{{ module.href }}{{ moduleQueryPrefix }}{{ namespaceQuery }}{{ module.anchor|default('') }}"
                                 >
                                   <span uk-icon="icon: {{ module.icon }}; ratio: 0.85"></span>
                                   <span class="qr-nav-text">{{ module.text }}</span>

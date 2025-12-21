@@ -348,7 +348,19 @@ class AdminController
             ? $seoPages[$selectedSeoPage->getId()]['config']
             : [];
 
+        $requestedPageSlug = '';
+        if (isset($params['pageSlug']) || isset($params['slug'])) {
+            $requestedPageSlug = trim((string) ($params['pageSlug'] ?? $params['slug'] ?? ''));
+        }
+
         $selectedPageSlug = $selectedSeoPage?->getSlug() ?? '';
+        $pageSlugs = array_values(array_filter(array_map(
+            static fn (array $page): string => (string) ($page['slug'] ?? ''),
+            $pages
+        )));
+        if ($requestedPageSlug !== '' && in_array($requestedPageSlug, $pageSlugs, true)) {
+            $selectedPageSlug = $requestedPageSlug;
+        }
         if ($selectedPageSlug === '') {
             $selectedPageSlug = $pages[0]['slug'] ?? '';
         }
