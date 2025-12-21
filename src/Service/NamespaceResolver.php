@@ -10,7 +10,12 @@ use Slim\Routing\RouteContext;
 
 final class NamespaceResolver
 {
-    private const NAMESPACE_PATTERN = '/^[a-z0-9][a-z0-9\-]{0,99}$/';
+    private NamespaceValidator $validator;
+
+    public function __construct(?NamespaceValidator $validator = null)
+    {
+        $this->validator = $validator ?? new NamespaceValidator();
+    }
 
     public function resolve(Request $request): NamespaceContext
     {
@@ -108,20 +113,7 @@ final class NamespaceResolver
 
     private function normalizeNamespace(mixed $candidate): ?string
     {
-        if (!is_string($candidate)) {
-            return null;
-        }
-
-        $normalized = strtolower(trim($candidate));
-        if ($normalized === '') {
-            return null;
-        }
-
-        if (!preg_match(self::NAMESPACE_PATTERN, $normalized)) {
-            return null;
-        }
-
-        return $normalized;
+        return $this->validator->normalizeCandidate($candidate);
     }
 
     /**

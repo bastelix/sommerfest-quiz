@@ -63,11 +63,16 @@
             data-update-url="{{ basePath }}/admin/namespaces/{namespace}"
             data-delete-url="{{ basePath }}/admin/namespaces/{namespace}"
             data-default-namespace="{{ defaultNamespace|e('html_attr') }}"
+            data-namespace-pattern="{{ namespacePattern|e('html_attr') }}"
+            data-namespace-max-length="{{ namespaceMaxLength|e('html_attr') }}"
             data-column-count="3"
             data-message-created="{{ t('message_namespace_created')|e('html_attr') }}"
             data-message-updated="{{ t('message_namespace_updated')|e('html_attr') }}"
             data-message-deleted="{{ t('message_namespace_deleted')|e('html_attr') }}"
             data-message-invalid="{{ t('error_namespace_invalid')|e('html_attr') }}"
+            data-message-invalid-empty="{{ t('error_namespace_empty')|e('html_attr') }}"
+            data-message-invalid-length="{{ t('error_namespace_invalid_length')|e('html_attr') }}"
+            data-message-invalid-format="{{ t('error_namespace_invalid_format')|e('html_attr') }}"
             data-message-duplicate="{{ t('error_namespace_duplicate')|e('html_attr') }}"
             data-message-not-found="{{ t('error_namespace_not_found')|e('html_attr') }}"
             data-message-default-locked="{{ t('error_namespace_default_locked')|e('html_attr') }}"
@@ -94,6 +99,7 @@
                     data-namespace-input
                   >
                 </div>
+                <p class="uk-text-danger uk-margin-small-top uk-hidden" data-namespace-error></p>
                 <p class="uk-text-meta uk-margin-small-top">{{ t('text_namespace_format_hint') }}</p>
               </div>
               <button class="uk-button uk-button-primary" type="submit">{{ t('button_namespace_add') }}</button>

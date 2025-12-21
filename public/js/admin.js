@@ -9293,14 +9293,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const tableBody = namespaceManager.querySelector('[data-namespace-table-body]');
     const form = namespaceManager.querySelector('[data-namespace-form]');
     const input = namespaceManager.querySelector('[data-namespace-input]');
+    const formError = namespaceManager.querySelector('[data-namespace-error]');
     const labelSave = namespaceManager.dataset.labelSave || 'Save';
     const labelDelete = namespaceManager.dataset.labelDelete || 'Delete';
     const labelDefault = namespaceManager.dataset.labelDefault || 'Default';
+    const namespacePattern = namespaceManager.dataset.namespacePattern || '^[a-z0-9][a-z0-9-]*$';
+    const namespaceMaxLength = Number.parseInt(namespaceManager.dataset.namespaceMaxLength || '100', 10) || 100;
     const messages = {
       created: namespaceManager.dataset.messageCreated || 'Namespace created.',
       updated: namespaceManager.dataset.messageUpdated || 'Namespace updated.',
       deleted: namespaceManager.dataset.messageDeleted || 'Namespace deleted.',
       invalid: namespaceManager.dataset.messageInvalid || 'Invalid namespace.',
+      invalidEmpty: namespaceManager.dataset.messageInvalidEmpty || 'Please enter a namespace.',
+      invalidLength: namespaceManager.dataset.messageInvalidLength || 'Namespace is too long.',
+      invalidFormat: namespaceManager.dataset.messageInvalidFormat || 'Namespace format is invalid.',
       duplicate: namespaceManager.dataset.messageDuplicate || 'Namespace exists.',
       notFound: namespaceManager.dataset.messageNotFound || 'Namespace not found.',
       defaultLocked: namespaceManager.dataset.messageDefaultLocked || 'Default namespace cannot be changed.',
@@ -9311,8 +9317,64 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const normalizeNamespace = value => String(value || '').trim().toLowerCase();
-    const isValidNamespace = value => /^[a-z0-9][a-z0-9-]{0,99}$/.test(value);
+    const namespaceRegex = new RegExp(namespacePattern);
+    const getNamespaceError = value => {
+      if (value === '') {
+        return messages.invalidEmpty || messages.invalid;
+      }
+      if (value.length > namespaceMaxLength) {
+        return messages.invalidLength || messages.invalid;
+      }
+      if (!namespaceRegex.test(value)) {
+        return messages.invalidFormat || messages.invalid;
+      }
+      return null;
+    };
     const buildUrl = (template, namespace) => template.replace('{namespace}', encodeURIComponent(namespace));
+    const buildErrorElement = element => {
+      if (!element?.parentElement) {
+        return null;
+      }
+      let error = element.parentElement.querySelector('[data-namespace-error]');
+      if (!error) {
+        error = document.createElement('p');
+        error.className = 'uk-text-danger uk-margin-small-top uk-hidden';
+        error.dataset.namespaceError = '';
+        element.parentElement.appendChild(error);
+      }
+      if (!error.id) {
+        error.id = `namespace-error-${Math.random().toString(36).slice(2, 10)}`;
+      }
+      return error;
+    };
+    const showNamespaceError = (element, message) => {
+      if (!element) {
+        return;
+      }
+      const error = element === input ? formError || buildErrorElement(element) : buildErrorElement(element);
+      if (error) {
+        error.textContent = message;
+        error.classList.remove('uk-hidden');
+      }
+      element.classList.add('uk-form-danger');
+      element.setAttribute('aria-invalid', 'true');
+      if (error?.id) {
+        element.setAttribute('aria-describedby', error.id);
+      }
+    };
+    const clearNamespaceError = element => {
+      if (!element) {
+        return;
+      }
+      const error = element.parentElement?.querySelector('[data-namespace-error]');
+      if (error) {
+        error.textContent = '';
+        error.classList.add('uk-hidden');
+      }
+      element.classList.remove('uk-form-danger');
+      element.removeAttribute('aria-invalid');
+      element.removeAttribute('aria-describedby');
+    };
 
     const renderMessageRow = message => {
       if (!tableBody) {
@@ -9368,6 +9430,7 @@ document.addEventListener('DOMContentLoaded', function () {
             nameInput.value = namespaceValue;
             nameInput.dataset.original = namespaceValue;
             nameInput.disabled = isDefault;
+            nameInput.maxLength = namespaceMaxLength;
             nameCell.appendChild(nameInput);
             tr.appendChild(nameCell);
 
@@ -9394,12 +9457,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             saveButton.addEventListener('click', () => {
               const nextValue = normalizeNamespace(nameInput.value);
-              if (!isValidNamespace(nextValue)) {
-                nameInput.classList.add('uk-form-danger');
-                notify(messages.invalid, 'warning');
+              const validationMessage = getNamespaceError(nextValue);
+              if (validationMessage) {
+                showNamespaceError(nameInput, validationMessage);
+                notify(validationMessage, 'warning');
+                nameInput.focus();
                 return;
               }
-              nameInput.classList.remove('uk-form-danger');
+              clearNamespaceError(nameInput);
               if (nextValue === nameInput.dataset.original) {
                 return;
               }
@@ -9455,6 +9520,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             tr.appendChild(actionCell);
             tableBody.appendChild(tr);
+
+            nameInput.addEventListener('input', () => {
+              clearNamespaceError(nameInput);
+            });
           });
         })
         .catch(err => {
@@ -9464,16 +9533,18 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     if (form && input) {
+      input.maxLength = namespaceMaxLength;
       form.addEventListener('submit', event => {
         event.preventDefault();
         const value = normalizeNamespace(input.value);
-        if (!isValidNamespace(value)) {
-          input.classList.add('uk-form-danger');
-          notify(messages.invalid, 'warning');
+        const validationMessage = getNamespaceError(value);
+        if (validationMessage) {
+          showNamespaceError(input, validationMessage);
+          notify(validationMessage, 'warning');
           input.focus();
           return;
         }
-        input.classList.remove('uk-form-danger');
+        clearNamespaceError(input);
         input.disabled = true;
 
         apiFetch(createUrl, {
@@ -9501,7 +9572,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       input.addEventListener('input', () => {
-        input.classList.remove('uk-form-danger');
+        clearNamespaceError(input);
       });
     }
 
