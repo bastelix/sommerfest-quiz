@@ -846,6 +846,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const pageNamespaceSelect = document.getElementById('pageNamespaceSelect');
   const projectNamespaceSelect = document.getElementById('projectNamespaceSelect');
   const pageTabs = document.getElementById('pageTabs');
+  const pageContentSelect = document.getElementById('pageContentSelect');
 
   if (window.domainType !== 'main') {
     adminTabs?.querySelector('[data-route="tenants"]')?.remove();
@@ -9817,6 +9818,532 @@ document.addEventListener('DOMContentLoaded', function () {
       ragChatFields.token.value = '';
     }
   });
+
+  const marketingMenuSection = document.getElementById('marketingMenuConfigSection');
+  const marketingMenuList = marketingMenuSection?.querySelector('[data-menu-list]');
+  const marketingMenuAddBtn = marketingMenuSection?.querySelector('[data-menu-add]');
+  const marketingMenuSaveBtn = marketingMenuSection?.querySelector('[data-menu-save]');
+  const marketingMenuResetBtn = marketingMenuSection?.querySelector('[data-menu-reset]');
+  const marketingMenuLoading = marketingMenuSection?.querySelector('[data-menu-loading]');
+  const marketingMenuEmpty = marketingMenuSection?.querySelector('[data-menu-empty]');
+  const marketingMenuError = marketingMenuSection?.querySelector('[data-menu-error]');
+  const marketingMenuPageLabel = marketingMenuSection?.querySelector('[data-menu-page-label]');
+  const marketingMenuIconOptions = document.getElementById('marketingMenuIconOptions');
+
+  if (marketingMenuSection && marketingMenuList) {
+    const menuTexts = {
+      loading: marketingMenuSection.dataset.loading || 'Hauptmenü wird geladen…',
+      empty: marketingMenuSection.dataset.empty || 'Keine Menüeinträge vorhanden.',
+      error: marketingMenuSection.dataset.error || 'Menüeinträge konnten nicht geladen werden.',
+      saved: marketingMenuSection.dataset.saved || 'Menü gespeichert.',
+      saveError: marketingMenuSection.dataset.saveError || 'Speichern fehlgeschlagen.',
+      invalidUrl: marketingMenuSection.dataset.invalidUrl || 'Bitte einen gültigen Link angeben.',
+      invalidLabel: marketingMenuSection.dataset.invalidLabel || 'Menülabel erforderlich.'
+    };
+    const iconChoices = [
+      'home', 'info', 'question', 'mail', 'calendar', 'star', 'settings', 'thumbnails', 'credit-card', 'play',
+      'file-text', 'heart', 'users', 'link', 'world', 'image', 'tag', 'bookmark', 'bell', 'bolt',
+      'comment', 'location', 'phone', 'search', 'download', 'upload', 'triangle-right', 'menu'
+    ];
+    if (marketingMenuIconOptions && marketingMenuIconOptions.childElementCount === 0) {
+      iconChoices.forEach(icon => {
+        const option = document.createElement('option');
+        option.value = icon;
+        marketingMenuIconOptions.appendChild(option);
+      });
+    }
+
+    let menuDirty = false;
+    let menuLoading = false;
+    let currentMenuPageId = null;
+
+    const resolveSelectedMenuPage = () => {
+      if (!pageContentSelect) {
+        return null;
+      }
+      const selected = pageContentSelect.selectedOptions
+        ? pageContentSelect.selectedOptions[0]
+        : pageContentSelect.querySelector('option:checked');
+      if (!selected) {
+        return null;
+      }
+      const pageIdRaw = selected.dataset.pageId;
+      const pageId = pageIdRaw ? Number(pageIdRaw) : null;
+      if (!Number.isFinite(pageId) || pageId <= 0) {
+        return null;
+      }
+      return {
+        id: pageId,
+        slug: selected.value || '',
+        label: selected.textContent?.trim() || selected.value || ''
+      };
+    };
+
+    const resolveMenuNamespace = () => {
+      if (!pageNamespaceSelect) {
+        return '';
+      }
+      return (pageNamespaceSelect.value || pageNamespaceSelect.dataset.pageNamespace || '').trim();
+    };
+
+    const updateMenuPageLabel = (page) => {
+      if (!marketingMenuPageLabel) {
+        return;
+      }
+      if (!page) {
+        marketingMenuPageLabel.textContent = 'Keine Marketing-Seite ausgewählt.';
+        return;
+      }
+      const label = page.label || page.slug || 'Unbenannt';
+      const slugSuffix = page.slug ? ` (${page.slug})` : '';
+      marketingMenuPageLabel.textContent = `Menüeinträge für ${label}${slugSuffix}.`;
+    };
+
+    const setMenuLoading = (isLoading) => {
+      menuLoading = isLoading;
+      if (marketingMenuLoading) {
+        marketingMenuLoading.textContent = menuTexts.loading;
+        marketingMenuLoading.hidden = !isLoading;
+      }
+      if (marketingMenuSaveBtn) {
+        marketingMenuSaveBtn.disabled = isLoading;
+      }
+      if (marketingMenuResetBtn) {
+        marketingMenuResetBtn.disabled = isLoading;
+      }
+      if (marketingMenuAddBtn) {
+        marketingMenuAddBtn.disabled = isLoading;
+      }
+    };
+
+    const getMenuEndpoint = (pageId) => {
+      const endpoint = marketingMenuSection.dataset.endpoint || '';
+      const params = new URLSearchParams();
+      if (pageId) {
+        params.set('pageId', String(pageId));
+      }
+      const namespace = resolveMenuNamespace();
+      if (namespace) {
+        params.set('namespace', namespace);
+      }
+      const query = params.toString();
+      return query ? `${endpoint}?${query}` : endpoint;
+    };
+
+    const markMenuDirty = (dirty) => {
+      menuDirty = dirty;
+      if (marketingMenuSaveBtn) {
+        marketingMenuSaveBtn.disabled = !dirty || menuLoading || hasMenuValidationErrors();
+      }
+    };
+
+    const isExternalHref = (href) => /^(https?:)?\/\//i.test(href) || /^(mailto:|tel:)/i.test(href);
+    const isValidHref = (href) => {
+      const trimmed = href.trim();
+      if (trimmed === '') {
+        return { valid: false, message: menuTexts.invalidUrl };
+      }
+      if (/^(#|\/)/.test(trimmed)) {
+        return { valid: true, isExternal: false };
+      }
+      if (/^(mailto:|tel:)/i.test(trimmed)) {
+        return { valid: true, isExternal: true };
+      }
+      if (/^https?:\/\//i.test(trimmed)) {
+        return { valid: true, isExternal: true };
+      }
+      if (/^[a-z0-9][a-z0-9\-_/]*$/i.test(trimmed)) {
+        return { valid: true, isExternal: false };
+      }
+      return { valid: false, message: menuTexts.invalidUrl };
+    };
+
+    const updateIconPreview = (row, value) => {
+      const preview = row.querySelector('[data-menu-icon-preview]');
+      if (!preview) {
+        return;
+      }
+      const icon = value ? value.trim() : '';
+      preview.setAttribute('uk-icon', icon ? `icon: ${icon}` : 'icon: link');
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(preview, { icon: preview.getAttribute('uk-icon').split(': ')[1] });
+      }
+    };
+
+    const updateMenuRowValidation = (row) => {
+      const labelInput = row.querySelector('[data-menu-field="label"]');
+      const urlInput = row.querySelector('[data-menu-field="href"]');
+      const labelError = row.querySelector('[data-menu-label-error]');
+      const urlError = row.querySelector('[data-menu-url-error]');
+      let hasErrors = false;
+
+      if (labelInput && typeof labelInput.value === 'string') {
+        const label = labelInput.value.trim();
+        const valid = label !== '';
+        labelInput.classList.toggle('uk-form-danger', !valid);
+        if (labelError) {
+          labelError.textContent = valid ? '' : menuTexts.invalidLabel;
+          labelError.hidden = valid;
+        }
+        if (!valid) {
+          hasErrors = true;
+        }
+      }
+
+      if (urlInput && typeof urlInput.value === 'string') {
+        const hrefStatus = isValidHref(urlInput.value);
+        urlInput.classList.toggle('uk-form-danger', !hrefStatus.valid);
+        if (urlError) {
+          urlError.textContent = hrefStatus.valid ? '' : (hrefStatus.message || menuTexts.invalidUrl);
+          urlError.hidden = hrefStatus.valid;
+        }
+        if (!hrefStatus.valid) {
+          hasErrors = true;
+        }
+      }
+
+      row.dataset.menuHasErrors = hasErrors ? '1' : '0';
+      return !hasErrors;
+    };
+
+    const hasMenuValidationErrors = () => {
+      return Array.from(marketingMenuList.querySelectorAll('[data-menu-item]'))
+        .some(row => row.dataset.menuHasErrors === '1');
+    };
+
+    const collectMenuEntries = () => {
+      return Array.from(marketingMenuList.querySelectorAll('[data-menu-item]')).map(row => {
+        const idRaw = row.dataset.menuId;
+        const labelInput = row.querySelector('[data-menu-field="label"]');
+        const urlInput = row.querySelector('[data-menu-field="href"]');
+        const iconInput = row.querySelector('[data-menu-field="icon"]');
+        const activeInput = row.querySelector('[data-menu-field="active"]');
+        const locale = row.dataset.menuLocale || 'de';
+        const href = urlInput && typeof urlInput.value === 'string' ? urlInput.value.trim() : '';
+        const hrefStatus = isValidHref(href);
+        return {
+          id: idRaw && Number.isFinite(Number(idRaw)) ? Number(idRaw) : undefined,
+          label: labelInput && typeof labelInput.value === 'string' ? labelInput.value.trim() : '',
+          href,
+          icon: iconInput && typeof iconInput.value === 'string' ? iconInput.value.trim() : '',
+          locale,
+          is_active: activeInput ? activeInput.checked : true,
+          is_external: hrefStatus.valid ? Boolean(hrefStatus.isExternal || isExternalHref(href)) : false
+        };
+      });
+    };
+
+    const renderMenuRow = (item) => {
+      const row = document.createElement('li');
+      row.dataset.menuItem = '1';
+      if (item.id) {
+        row.dataset.menuId = String(item.id);
+      }
+      row.dataset.menuLocale = item.locale || 'de';
+      row.dataset.menuHasErrors = '0';
+
+      const grid = document.createElement('div');
+      grid.className = 'uk-grid-small uk-flex-middle';
+      grid.setAttribute('uk-grid', '');
+
+      const handleCell = document.createElement('div');
+      handleCell.className = 'uk-width-auto';
+      const handle = document.createElement('span');
+      handle.className = 'uk-icon-button uk-button-default menu-handle';
+      handle.setAttribute('uk-icon', 'icon: menu');
+      handleCell.appendChild(handle);
+      grid.appendChild(handleCell);
+
+      const labelCell = document.createElement('div');
+      labelCell.className = 'uk-width-1-1 uk-width-1-4@m';
+      labelCell.innerHTML = '<label class="uk-form-label uk-hidden@m">Label</label>';
+      const labelControls = document.createElement('div');
+      labelControls.className = 'uk-form-controls';
+      const labelInput = document.createElement('input');
+      labelInput.type = 'text';
+      labelInput.className = 'uk-input';
+      labelInput.value = item.label || '';
+      labelInput.setAttribute('data-menu-field', 'label');
+      const labelError = document.createElement('div');
+      labelError.className = 'uk-text-meta uk-text-danger uk-margin-small-top';
+      labelError.hidden = true;
+      labelError.setAttribute('data-menu-label-error', '');
+      labelControls.appendChild(labelInput);
+      labelControls.appendChild(labelError);
+      labelCell.appendChild(labelControls);
+      grid.appendChild(labelCell);
+
+      const urlCell = document.createElement('div');
+      urlCell.className = 'uk-width-1-1 uk-width-2-5@m';
+      urlCell.innerHTML = '<label class="uk-form-label uk-hidden@m">Link</label>';
+      const urlControls = document.createElement('div');
+      urlControls.className = 'uk-form-controls';
+      const urlInput = document.createElement('input');
+      urlInput.type = 'text';
+      urlInput.className = 'uk-input';
+      urlInput.value = item.href || '';
+      urlInput.setAttribute('data-menu-field', 'href');
+      urlInput.placeholder = 'z. B. /faq oder https://…';
+      const urlError = document.createElement('div');
+      urlError.className = 'uk-text-meta uk-text-danger uk-margin-small-top';
+      urlError.hidden = true;
+      urlError.setAttribute('data-menu-url-error', '');
+      urlControls.appendChild(urlInput);
+      urlControls.appendChild(urlError);
+      urlCell.appendChild(urlControls);
+      grid.appendChild(urlCell);
+
+      const iconCell = document.createElement('div');
+      iconCell.className = 'uk-width-1-1 uk-width-1-5@m';
+      iconCell.innerHTML = '<label class="uk-form-label uk-hidden@m">Icon</label>';
+      const iconControls = document.createElement('div');
+      iconControls.className = 'uk-form-controls uk-flex uk-flex-middle';
+      iconControls.style.gap = '6px';
+      const iconPreview = document.createElement('span');
+      iconPreview.className = 'uk-icon-button uk-button-default';
+      iconPreview.setAttribute('data-menu-icon-preview', '');
+      const iconInput = document.createElement('input');
+      iconInput.type = 'text';
+      iconInput.className = 'uk-input uk-form-small';
+      iconInput.value = item.icon || '';
+      iconInput.setAttribute('data-menu-field', 'icon');
+      if (marketingMenuIconOptions) {
+        iconInput.setAttribute('list', marketingMenuIconOptions.id);
+      }
+      iconInput.placeholder = 'z. B. star';
+      iconControls.appendChild(iconPreview);
+      iconControls.appendChild(iconInput);
+      iconCell.appendChild(iconControls);
+      grid.appendChild(iconCell);
+
+      const statusCell = document.createElement('div');
+      statusCell.className = 'uk-width-auto';
+      const statusLabel = document.createElement('label');
+      statusLabel.className = 'uk-flex uk-flex-middle';
+      const statusInput = document.createElement('input');
+      statusInput.className = 'uk-checkbox';
+      statusInput.type = 'checkbox';
+      statusInput.checked = item.is_active !== false;
+      statusInput.setAttribute('data-menu-field', 'active');
+      const statusText = document.createElement('span');
+      statusText.className = 'uk-margin-small-left';
+      statusText.textContent = 'Aktiv';
+      statusLabel.appendChild(statusInput);
+      statusLabel.appendChild(statusText);
+      statusCell.appendChild(statusLabel);
+      grid.appendChild(statusCell);
+
+      const actionCell = document.createElement('div');
+      actionCell.className = 'uk-width-auto';
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'uk-icon-button uk-button-danger';
+      removeBtn.setAttribute('uk-icon', 'trash');
+      removeBtn.setAttribute('data-menu-remove', '');
+      removeBtn.setAttribute('aria-label', 'Eintrag entfernen');
+      actionCell.appendChild(removeBtn);
+      grid.appendChild(actionCell);
+
+      row.appendChild(grid);
+      updateIconPreview(row, item.icon || '');
+      updateMenuRowValidation(row);
+      if (window.UIkit && UIkit.icon) {
+        UIkit.icon(handle);
+        UIkit.icon(removeBtn);
+      }
+
+      return row;
+    };
+
+    const renderMenuList = (items) => {
+      marketingMenuList.innerHTML = '';
+      if (!items.length) {
+        if (marketingMenuEmpty) {
+          marketingMenuEmpty.textContent = menuTexts.empty;
+          marketingMenuEmpty.hidden = false;
+        }
+      } else if (marketingMenuEmpty) {
+        marketingMenuEmpty.hidden = true;
+      }
+
+      items.forEach(item => {
+        marketingMenuList.appendChild(renderMenuRow(item));
+      });
+      if (marketingMenuSaveBtn) {
+        marketingMenuSaveBtn.disabled = !menuDirty || hasMenuValidationErrors();
+      }
+    };
+
+    const loadMenuItems = () => {
+      const page = resolveSelectedMenuPage();
+      updateMenuPageLabel(page);
+      if (!page) {
+        currentMenuPageId = null;
+        marketingMenuList.innerHTML = '';
+        if (marketingMenuEmpty) {
+          marketingMenuEmpty.textContent = 'Keine Marketing-Seite ausgewählt.';
+          marketingMenuEmpty.hidden = false;
+        }
+        if (marketingMenuError) {
+          marketingMenuError.hidden = true;
+        }
+        if (marketingMenuSaveBtn) {
+          marketingMenuSaveBtn.disabled = true;
+        }
+        if (marketingMenuAddBtn) {
+          marketingMenuAddBtn.disabled = true;
+        }
+        if (marketingMenuResetBtn) {
+          marketingMenuResetBtn.disabled = true;
+        }
+        return Promise.resolve();
+      }
+
+      currentMenuPageId = page.id;
+      setMenuLoading(true);
+      if (marketingMenuError) {
+        marketingMenuError.hidden = true;
+      }
+
+      return apiFetch(getMenuEndpoint(page.id))
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('menu-load-failed');
+          }
+          return res.json().catch(() => ({}));
+        })
+        .then(payload => {
+          const items = Array.isArray(payload?.items) ? payload.items : [];
+          const normalized = items.map(item => ({
+            id: item.id,
+            label: typeof item.label === 'string' ? item.label : '',
+            href: typeof item.href === 'string' ? item.href : '',
+            icon: typeof item.icon === 'string' ? item.icon : '',
+            locale: typeof item.locale === 'string' ? item.locale : 'de',
+            is_active: item.is_active !== false
+          }));
+          menuDirty = false;
+          renderMenuList(normalized);
+        })
+        .catch(() => {
+          marketingMenuList.innerHTML = '';
+          if (marketingMenuEmpty) {
+            marketingMenuEmpty.hidden = true;
+          }
+          if (marketingMenuError) {
+            marketingMenuError.textContent = menuTexts.error;
+            marketingMenuError.hidden = false;
+          }
+        })
+        .finally(() => {
+          setMenuLoading(false);
+        });
+    };
+
+    const handleMenuInput = (event) => {
+      const row = event.target instanceof HTMLElement ? event.target.closest('[data-menu-item]') : null;
+      if (!row) {
+        return;
+      }
+      if (event.target.matches('[data-menu-field="icon"]')) {
+        updateIconPreview(row, event.target.value || '');
+      }
+      updateMenuRowValidation(row);
+      markMenuDirty(true);
+    };
+
+    marketingMenuList.addEventListener('input', handleMenuInput);
+    marketingMenuList.addEventListener('change', handleMenuInput);
+
+    marketingMenuList.addEventListener('click', event => {
+      const target = event.target instanceof HTMLElement ? event.target.closest('[data-menu-remove]') : null;
+      if (!target) {
+        return;
+      }
+      const row = target.closest('[data-menu-item]');
+      if (row) {
+        row.remove();
+        if (!marketingMenuList.querySelector('[data-menu-item]') && marketingMenuEmpty) {
+          marketingMenuEmpty.textContent = menuTexts.empty;
+          marketingMenuEmpty.hidden = false;
+        }
+        markMenuDirty(true);
+      }
+    });
+
+    marketingMenuList.addEventListener('moved', () => {
+      markMenuDirty(true);
+    });
+
+    marketingMenuAddBtn?.addEventListener('click', () => {
+      if (!currentMenuPageId) {
+        return;
+      }
+      if (marketingMenuEmpty) {
+        marketingMenuEmpty.hidden = true;
+      }
+      const row = renderMenuRow({ label: '', href: '', icon: '', locale: 'de', is_active: true });
+      marketingMenuList.appendChild(row);
+      const labelInput = row.querySelector('[data-menu-field="label"]');
+      labelInput?.focus();
+      markMenuDirty(true);
+    });
+
+    marketingMenuResetBtn?.addEventListener('click', () => {
+      loadMenuItems();
+    });
+
+    marketingMenuSaveBtn?.addEventListener('click', () => {
+      if (!currentMenuPageId || menuLoading) {
+        return;
+      }
+      const rows = Array.from(marketingMenuList.querySelectorAll('[data-menu-item]'));
+      const isValid = rows.every(row => updateMenuRowValidation(row));
+      if (!isValid) {
+        const hasLabelError = rows.some(row => {
+          const labelError = row.querySelector('[data-menu-label-error]');
+          return labelError && !labelError.hidden;
+        });
+        notify(hasLabelError ? menuTexts.invalidLabel : menuTexts.invalidUrl, 'warning');
+        markMenuDirty(true);
+        return;
+      }
+
+      const payload = {
+        pageId: currentMenuPageId,
+        items: collectMenuEntries()
+      };
+      setMenuLoading(true);
+      apiFetch(getMenuEndpoint(currentMenuPageId), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('menu-save-failed');
+          }
+        })
+        .then(() => {
+          notify(menuTexts.saved, 'success');
+          menuDirty = false;
+          return loadMenuItems();
+        })
+        .catch(() => {
+          notify(menuTexts.saveError, 'danger');
+        })
+        .finally(() => {
+          setMenuLoading(false);
+          markMenuDirty(menuDirty);
+        });
+    });
+
+    pageContentSelect?.addEventListener('change', () => {
+      loadMenuItems();
+    });
+
+    loadMenuItems();
+  }
 
   if (marketingNewsletterSection && marketingNewsletterSlugInput && marketingNewsletterTableBody) {
     const columnCount = marketingNewsletterTable

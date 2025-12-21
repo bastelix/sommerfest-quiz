@@ -108,6 +108,7 @@ use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\MailProviderController;
 use App\Controller\Admin\UsernameBlocklistController;
 use App\Controller\Admin\DomainContactTemplateController;
+use App\Controller\Admin\MarketingMenuController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
@@ -625,6 +626,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute(
                 'marketingNewsletterConfigController',
                 new MarketingNewsletterConfigController($marketingNewsletterConfigService)
+            )
+            ->withAttribute(
+                'marketingMenuController',
+                new MarketingMenuController($pdo, null, $pageService)
             )
             ->withAttribute(
                 'domainChatController',
@@ -2136,6 +2141,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/marketing-newsletter-configs', function (Request $request, Response $response) {
         /** @var MarketingNewsletterConfigController $controller */
         $controller = $request->getAttribute('marketingNewsletterConfigController');
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/marketing-menu-items', function (Request $request, Response $response) {
+        /** @var MarketingMenuController $controller */
+        $controller = $request->getAttribute('marketingMenuController');
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/marketing-menu-items', function (Request $request, Response $response) {
+        /** @var MarketingMenuController $controller */
+        $controller = $request->getAttribute('marketingMenuController');
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 

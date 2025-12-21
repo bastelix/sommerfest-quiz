@@ -59,6 +59,13 @@ class ProjectPagesController
             $pages
         );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
+        $selectedPageId = null;
+        foreach ($pageList as $page) {
+            if (($page['slug'] ?? '') === $selectedSlug) {
+                $selectedPageId = $page['id'] ?? null;
+                break;
+            }
+        }
 
         return $view->render($response, 'admin/pages/content.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -68,6 +75,7 @@ class ProjectPagesController
             'pageNamespace' => $namespace,
             'pages' => $pageList,
             'selectedPageSlug' => $selectedSlug,
+            'selectedPageId' => $selectedPageId,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),

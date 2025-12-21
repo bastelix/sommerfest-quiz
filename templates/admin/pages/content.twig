@@ -123,6 +123,7 @@
         {% else %}
           {% include 'admin/components/page_tree.twig' %}
           {% set selectedSlug = selectedPageSlug|default('') %}
+          {% set selectedPageId = selectedPageId|default(null) %}
           {% if selectedSlug == '' and pages|length > 0 %}
             {% set selectedSlug = (pages|first).slug %}
           {% endif %}
@@ -141,6 +142,7 @@
                     {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
                     <option
                       value="{{ page.slug }}"
+                      data-page-id="{{ page.id }}"
                       {% if page.slug == selectedSlug %}selected{% endif %}
                     >{{ pageLabel }}</option>
                   {% endfor %}
@@ -154,6 +156,46 @@
                 uk-toggle="target: #createPageModal"
               >Neue Seite</button>
             </div>
+          </div>
+          <div
+            id="marketingMenuConfigSection"
+            class="uk-card uk-card-default uk-card-body uk-margin"
+            data-endpoint="{{ basePath }}/admin/marketing-menu-items"
+            data-loading="Hauptmenü wird geladen…"
+            data-empty="Keine Menüeinträge vorhanden."
+            data-error="Menüeinträge konnten nicht geladen werden."
+            data-saved="Menü gespeichert."
+            data-save-error="Speichern fehlgeschlagen."
+            data-invalid-url="Bitte einen gültigen Link angeben."
+            data-invalid-label="Menülabel erforderlich."
+          >
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+              <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+              <span class="uk-text-meta">Navigation · Reihenfolge</span>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">
+              Menüeinträge für die ausgewählte Marketing-Seite verwalten. Reihenfolge per Drag &amp; Drop anpassen.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top" data-menu-page-label></p>
+            <div class="uk-text-meta uk-margin-small-top" data-menu-loading hidden></div>
+            <div class="uk-alert uk-alert-warning uk-margin-small-top" data-menu-empty hidden></div>
+            <div class="uk-alert uk-alert-danger uk-margin-small-top" data-menu-error hidden></div>
+            <div class="uk-grid-small uk-text-meta uk-margin-small-top uk-visible@m" uk-grid>
+              <div class="uk-width-1-4@m">Label</div>
+              <div class="uk-width-2-5@m">Link</div>
+              <div class="uk-width-1-5@m">Icon</div>
+              <div class="uk-width-1-6@m">Status</div>
+              <div class="uk-width-auto">Aktion</div>
+            </div>
+            <ul class="uk-list uk-list-divider uk-margin-small-top" data-menu-list uk-sortable="handle: .menu-handle"></ul>
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-top">
+              <button type="button" class="uk-button uk-button-default" data-menu-add>Eintrag hinzufügen</button>
+              <div class="uk-flex uk-flex-right uk-flex-middle">
+                <button type="button" class="uk-button uk-button-default" data-menu-reset>Zurücksetzen</button>
+                <button type="button" class="uk-button uk-button-primary uk-margin-small-left" data-menu-save>Speichern</button>
+              </div>
+            </div>
+            <datalist id="marketingMenuIconOptions"></datalist>
           </div>
           <div id="pageFormsContainer">
             {% for page in pages %}
