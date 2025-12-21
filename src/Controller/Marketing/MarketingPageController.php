@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Domain\Page;
 use App\Domain\Roles;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
@@ -101,10 +102,16 @@ class MarketingPageController
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $page = $this->pages->findByKey($namespace, $contentSlug);
-        if ($page === null && $contentSlug !== $templateSlug) {
-            $page = $this->pages->findByKey($namespace, $templateSlug);
-            $contentSlug = $templateSlug;
+        $pageResult = $this->resolvePageForSlugs($namespace, $contentSlug, $templateSlug);
+        $page = $pageResult['page'];
+        $contentSlug = $pageResult['slug'];
+        if ($page === null && $namespace !== PageService::DEFAULT_NAMESPACE) {
+            $pageResult = $this->resolvePageForSlugs(PageService::DEFAULT_NAMESPACE, $contentSlug, $templateSlug);
+            $page = $pageResult['page'];
+            $contentSlug = $pageResult['slug'];
+            if ($page !== null) {
+                $namespace = PageService::DEFAULT_NAMESPACE;
+            }
         }
         if ($page === null) {
             return $response->withStatus(404);
@@ -293,6 +300,25 @@ class MarketingPageController
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    /**
+     * @return array{page: ?Page, slug: string}
+     */
+    private function resolvePageForSlugs(string $namespace, string $contentSlug, string $templateSlug): array
+    {
+        $page = $this->pages->findByKey($namespace, $contentSlug);
+        if ($page === null && $contentSlug !== $templateSlug) {
+            $page = $this->pages->findByKey($namespace, $templateSlug);
+            if ($page !== null) {
+                $contentSlug = $templateSlug;
+            }
+        }
+
+        return [
+            'page' => $page,
+            'slug' => $contentSlug,
+        ];
     }
 
     private function buildMaintenanceWindowLabel(string $locale): string

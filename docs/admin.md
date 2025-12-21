@@ -98,6 +98,13 @@ Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum
 
 Wird die dunkle Hero-Vorlage (`uk-section-primary uk-light`) genutzt, sollte anschließend ein Abschnitt mit einer Hintergrundklasse wie `section--alt` eingefügt werden, damit der Seitenhintergrund wieder aufgehellt wird.
 
+## Marketing page namespaces
+
+Marketing landing content is resolved by namespace. If a marketing route does not provide an explicit
+namespace (for example via a domain start page configuration or a query override), the system falls
+back to `PageService::DEFAULT_NAMESPACE`. Keep shared landing content in the default namespace, and
+only use tenant-specific namespaces when you need overrides for a dedicated customer or campaign.
+
 ## Bild-Uploads
 
 Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien landen im Verzeichnis `data/uploads`, eventbezogene Bilder unter `data/events/<event_uid>/images`.
