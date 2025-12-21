@@ -681,6 +681,48 @@ const updateProjectKpis = (namespaces) => {
   });
 };
 
+const createProjectNamespaceBadge = (label, className) => {
+  const badge = document.createElement('span');
+  badge.className = className;
+  badge.textContent = label;
+  return badge;
+};
+
+const buildProjectNamespaceHeading = (section) => {
+  const heading = document.createElement('h4');
+  heading.className = 'uk-heading-line uk-margin-small-top';
+
+  const headingText = document.createElement('span');
+  headingText.textContent = section.namespace || 'default';
+  heading.appendChild(headingText);
+
+  const info = section.namespaceInfo || {};
+  const label = typeof info.label === 'string' ? info.label.trim() : '';
+  if (label) {
+    const labelText = document.createElement('span');
+    labelText.className = 'uk-text-meta uk-margin-small-left';
+    labelText.textContent = label;
+    heading.appendChild(labelText);
+  }
+
+  const badgeWrapper = document.createElement('span');
+  badgeWrapper.className = 'uk-margin-small-left uk-flex uk-flex-middle uk-flex-wrap';
+
+  const isDefault = info.is_default === true;
+  const isActive = info.is_active !== false;
+  if (isDefault) {
+    badgeWrapper.appendChild(createProjectNamespaceBadge('default', 'uk-label uk-label-default uk-margin-small-left'));
+  }
+  if (!isActive) {
+    badgeWrapper.appendChild(createProjectNamespaceBadge('inaktiv', 'uk-label uk-label-danger uk-margin-small-left'));
+  }
+  if (badgeWrapper.children.length > 0) {
+    heading.appendChild(badgeWrapper);
+  }
+
+  return heading;
+};
+
 const renderProjectTree = (container, namespaces, emptyMessage) => {
   container.innerHTML = '';
   if (!namespaces.length) {
@@ -693,12 +735,7 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'project-tree-section uk-margin';
 
-    const heading = document.createElement('h4');
-    heading.className = 'uk-heading-line uk-margin-small-top';
-    const headingText = document.createElement('span');
-    headingText.textContent = section.namespace || 'default';
-    heading.appendChild(headingText);
-    wrapper.appendChild(heading);
+    wrapper.appendChild(buildProjectNamespaceHeading(section));
 
     if (isProjectContentEmpty(section)) {
       wrapper.appendChild(createProjectEmptyStateWithActions(section.namespace || ''));
