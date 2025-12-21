@@ -168,7 +168,7 @@ class AdminController
         }
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
         )) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
@@ -180,7 +180,7 @@ class AdminController
         }
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+            static fn (array $entry): bool => $entry['namespace'] === $namespace
         )) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
@@ -355,14 +355,14 @@ class AdminController
 
         $selectedPageSlug = $selectedSeoPage?->getSlug() ?? '';
         $pageSlugs = array_values(array_filter(array_map(
-            static fn (array $page): string => (string) ($page['slug'] ?? ''),
+            static fn (array $page): string => $page['slug'],
             $pages
         )));
         if ($requestedPageSlug !== '' && in_array($requestedPageSlug, $pageSlugs, true)) {
             $selectedPageSlug = $requestedPageSlug;
         }
         if ($selectedPageSlug === '') {
-            $selectedPageSlug = $pages[0]['slug'] ?? '';
+            $selectedPageSlug = $pages !== [] ? $pages[0]['slug'] : '';
         }
 
         $mediaService = new MediaLibraryService($configSvc, new ImageUploadService());
@@ -375,7 +375,7 @@ class AdminController
               'catalogs' => $catalogs,
               'teams' => $teams,
               'users' => $users,
-              'available_namespaces' => $availableNamespaces ?? [],
+              'available_namespaces' => $availableNamespaces,
               'default_namespace' => PageService::DEFAULT_NAMESPACE,
               'events' => $events,
               'roles' => Roles::ALL,

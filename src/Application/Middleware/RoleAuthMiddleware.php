@@ -129,7 +129,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
             return [];
         }
 
-        $namespaces = $record['namespaces'] ?? [];
+        $namespaces = $record['namespaces'];
         $_SESSION['user']['namespaces'] = $namespaces;
 
         return $namespaces;
@@ -146,7 +146,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
         }
 
         foreach ($namespaces as $entry) {
-            $candidate = strtolower(trim((string) ($entry['namespace'] ?? '')));
+            $candidate = strtolower(trim((string) $entry['namespace']));
             if ($candidate !== '' && $candidate === $normalized) {
                 return true;
             }

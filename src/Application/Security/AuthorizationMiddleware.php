@@ -75,7 +75,7 @@ class AuthorizationMiddleware implements MiddlewareInterface
         }
 
         foreach ($record['namespaces'] as $entry) {
-            $candidate = strtolower(trim((string) ($entry['namespace'] ?? '')));
+            $candidate = strtolower(trim((string) $entry['namespace']));
             if ($candidate !== '' && $candidate === $namespace) {
                 return true;
             }

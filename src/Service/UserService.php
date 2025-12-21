@@ -303,7 +303,14 @@ class UserService
     }
 
     /**
-     * @param array{id:int} $row
+     * @param array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool
+     * } $row
      * @return array{
      *     id:int,
      *     username:string,

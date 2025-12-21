@@ -146,9 +146,6 @@ final class UserNamespaceRepository
 
         $normalized = [];
         foreach ($namespaces as $namespace) {
-            if (!is_string($namespace)) {
-                continue;
-            }
             $value = trim(strtolower($namespace));
             if ($value === '') {
                 continue;
@@ -167,7 +164,7 @@ final class UserNamespaceRepository
             $default = null;
         }
         if ($default !== null && !in_array($default, $normalized, true)) {
-            $default = $normalized[0] ?? null;
+            $default = $normalized[0];
         }
 
         $delete = $this->pdo->prepare('DELETE FROM user_namespaces WHERE user_id = ?');

@@ -189,9 +189,9 @@ class SessionMiddleware implements Middleware
             }
 
             $sessionService = new SessionService($pdo);
-            $activeNamespace = $sessionService->resolveActiveNamespace($record['namespaces'] ?? []);
+            $activeNamespace = $sessionService->resolveActiveNamespace($record['namespaces']);
 
-            $_SESSION['user']['namespaces'] = $record['namespaces'] ?? [];
+            $_SESSION['user']['namespaces'] = $record['namespaces'];
             $_SESSION['user']['active_namespace'] = $activeNamespace;
 
             return $activeNamespace;

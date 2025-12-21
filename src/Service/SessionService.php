@@ -26,7 +26,7 @@ class SessionService
         $default = null;
 
         foreach ($namespaces as $entry) {
-            $namespace = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
+            $namespace = $this->normalizeNamespace((string) $entry['namespace']);
             if ($namespace === null) {
                 continue;
             }
