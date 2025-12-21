@@ -71,6 +71,8 @@ class Migrator
                 $sql = self::stripOnboardingStateAlter($sql);
             }
 
+            $sql = self::rewritePageSlugConflict($pdo, $sql);
+
             try {
                 if (trim($sql) !== '') {
                     $pdo->exec($sql);
@@ -175,5 +177,42 @@ class Migrator
     private static function finalizeOnboardingStateMigration(PDO $pdo): void
     {
         $pdo->exec("UPDATE tenants SET onboarding_state = 'completed'");
+    }
+
+    private static function rewritePageSlugConflict(PDO $pdo, string $sql): string
+    {
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            return $sql;
+        }
+
+        $normalizedSql = strtolower($sql);
+        if (str_contains($normalizedSql, 'insert into pages') === false ||
+            str_contains($normalizedSql, 'on conflict (slug)') === false) {
+            return $sql;
+        }
+
+        try {
+            $stmt = $pdo->query(<<<'SQL'
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_schema = current_schema()
+                  AND table_name = 'pages'
+                  AND column_name = 'namespace'
+            SQL);
+        } catch (Throwable) {
+            return $sql;
+        }
+
+        if ($stmt === false || $stmt->fetchColumn() === false) {
+            return $sql;
+        }
+
+        $updated = preg_replace(
+            '/ON\\s+CONFLICT\\s*\\(\\s*slug\\s*\\)/i',
+            'ON CONFLICT (namespace, slug)',
+            $sql
+        );
+
+        return $updated ?? $sql;
     }
 }
