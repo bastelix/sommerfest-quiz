@@ -264,6 +264,71 @@ const createProjectEmptyState = message => {
   return empty;
 };
 
+const buildProjectAdminUrl = (path, namespace, query = {}, fragment = '') => {
+  const params = new URLSearchParams();
+  if (namespace) {
+    params.set('namespace', namespace);
+  }
+  Object.entries(query).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, String(value));
+    }
+  });
+  const queryString = params.toString();
+  let url = withBase(path);
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+  if (fragment) {
+    url += `#${String(fragment).replace(/^#/, '')}`;
+  }
+  return url;
+};
+
+const createProjectEmptyStateWithActions = namespace => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'uk-alert uk-alert-primary uk-margin-small';
+
+  const title = document.createElement('div');
+  title.className = 'uk-text-bold';
+  title.textContent = 'Noch keine Inhalte vorhanden.';
+  wrapper.appendChild(title);
+
+  const hint = document.createElement('div');
+  hint.className = 'uk-text-meta uk-margin-small-top';
+  hint.textContent = 'Jetzt Inhalte anlegen:';
+  wrapper.appendChild(hint);
+
+  const list = document.createElement('ul');
+  list.className = 'uk-list uk-list-collapse uk-margin-small-top';
+  const actions = [
+    {
+      label: 'Jetzt Inhalte anlegen (Seiten)',
+      url: buildProjectAdminUrl('/admin/pages', namespace)
+    },
+    {
+      label: 'Jetzt Inhalte anlegen (Wiki)',
+      url: buildProjectAdminUrl('/admin/pages', namespace, { pageTab: 'wiki' })
+    },
+    {
+      label: 'Jetzt Inhalte anlegen (Landing-News)',
+      url: buildProjectAdminUrl('/admin/landing-news/create', namespace)
+    },
+    {
+      label: 'Jetzt Inhalte anlegen (Newsletter)',
+      url: buildProjectAdminUrl('/admin/management', namespace, {}, 'marketingNewsletterConfigSection')
+    }
+  ];
+  actions.forEach(action => {
+    const item = document.createElement('li');
+    item.appendChild(createProjectLink(action.label, action.url));
+    list.appendChild(item);
+  });
+  wrapper.appendChild(list);
+
+  return wrapper;
+};
+
 const createProjectStatusLabel = (text, status) => {
   const label = document.createElement('span');
   const classMap = {
@@ -549,6 +614,24 @@ const appendProjectBlock = (container, title, content) => {
   container.appendChild(block);
 };
 
+const isProjectContentEmpty = section => {
+  const pages = Array.isArray(section.pages) ? section.pages : [];
+  const wikiEntries = Array.isArray(section.wiki) ? section.wiki : [];
+  const newsEntries = Array.isArray(section.landingNews) ? section.landingNews : [];
+  const newsletterSlugs = Array.isArray(section.newsletterSlugs) ? section.newsletterSlugs : [];
+  const mediaRefs = section.mediaReferences || {};
+  const mediaFiles = Array.isArray(mediaRefs.files) ? mediaRefs.files : [];
+  const mediaMissing = Array.isArray(mediaRefs.missing) ? mediaRefs.missing : [];
+  return (
+    pages.length === 0 &&
+    wikiEntries.length === 0 &&
+    newsEntries.length === 0 &&
+    newsletterSlugs.length === 0 &&
+    mediaFiles.length === 0 &&
+    mediaMissing.length === 0
+  );
+};
+
 const renderProjectTree = (container, namespaces, emptyMessage) => {
   container.innerHTML = '';
   if (!namespaces.length) {
@@ -566,6 +649,10 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     headingText.textContent = section.namespace || 'default';
     heading.appendChild(headingText);
     wrapper.appendChild(heading);
+
+    if (isProjectContentEmpty(section)) {
+      wrapper.appendChild(createProjectEmptyStateWithActions(section.namespace || ''));
+    }
 
     const pages = Array.isArray(section.pages) ? section.pages : [];
     appendProjectBlock(

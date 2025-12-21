@@ -9,6 +9,7 @@ use App\Domain\LandingNews;
 use App\Domain\MarketingPageWikiArticle;
 use App\Domain\Page;
 use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
 use App\Service\ConfigService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
@@ -32,6 +33,7 @@ class ProjectController
     private MarketingPageWikiArticleService $wikiService;
     private LandingNewsService $landingNewsService;
     private LandingMediaReferenceService $mediaReferenceService;
+    private NamespaceRepository $namespaceRepository;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -39,7 +41,8 @@ class ProjectController
         ?MarketingNewsletterConfigService $newsletterService = null,
         ?MarketingPageWikiArticleService $wikiService = null,
         ?LandingNewsService $landingNewsService = null,
-        ?LandingMediaReferenceService $mediaReferenceService = null
+        ?LandingMediaReferenceService $mediaReferenceService = null,
+        ?NamespaceRepository $namespaceRepository = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -52,6 +55,7 @@ class ProjectController
             new ConfigService($pdo),
             $this->landingNewsService
         );
+        $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
     }
 
     /**
@@ -82,6 +86,10 @@ class ProjectController
 
         foreach ($this->newsletterService->getNamespaces() as $namespace) {
             $knownNamespaces[$this->normalizeNamespace($namespace)] = true;
+        }
+
+        foreach ($this->namespaceRepository->list() as $namespace) {
+            $knownNamespaces[$this->normalizeNamespace((string) ($namespace['namespace'] ?? ''))] = true;
         }
 
         $namespaces = array_keys($knownNamespaces);
