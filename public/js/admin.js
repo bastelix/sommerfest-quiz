@@ -10016,6 +10016,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const tableBody = namespaceManager.querySelector('[data-namespace-table-body]');
     const form = namespaceManager.querySelector('[data-namespace-form]');
     const input = namespaceManager.querySelector('[data-namespace-input]');
+    const labelInput = namespaceManager.querySelector('[data-namespace-label-input]');
     const formError = namespaceManager.querySelector('[data-namespace-error]');
     const labelSave = namespaceManager.dataset.labelSave || 'Save';
     const labelDelete = namespaceManager.dataset.labelDelete || 'Delete';
@@ -10043,6 +10044,10 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     const normalizeNamespace = value => String(value || '').trim().toLowerCase();
+    const normalizeLabel = value => {
+      const normalized = String(value ?? '').trim();
+      return normalized === '' ? null : normalized;
+    };
     const namespaceRegex = new RegExp(namespacePattern);
     const getNamespaceError = value => {
       if (value === '') {
@@ -10145,6 +10150,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           entries.forEach(item => {
             const namespaceValue = typeof item.namespace === 'string' ? item.namespace : '';
+            const labelValue = typeof item.label === 'string' ? item.label : '';
             const isDefault = Boolean(item.is_default) || namespaceValue === defaultNamespace;
             const isActive = item.is_active !== false;
             const isInactive = !isActive;
@@ -10164,6 +10170,16 @@ document.addEventListener('DOMContentLoaded', function () {
             nameInput.maxLength = namespaceMaxLength;
             nameCell.appendChild(nameInput);
             tr.appendChild(nameCell);
+
+            const labelCell = document.createElement('td');
+            const labelInput = document.createElement('input');
+            labelInput.type = 'text';
+            labelInput.className = 'uk-input';
+            labelInput.value = labelValue;
+            labelInput.dataset.original = normalizeLabel(labelValue) ?? '';
+            labelInput.disabled = isDefault;
+            labelCell.appendChild(labelInput);
+            tr.appendChild(labelCell);
 
             const statusCell = document.createElement('td');
             statusCell.textContent = isDefault ? labelDefault : (isInactive ? labelInactive : '-');
@@ -10188,6 +10204,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             saveButton.addEventListener('click', () => {
               const nextValue = normalizeNamespace(nameInput.value);
+              const nextLabel = normalizeLabel(labelInput.value);
               const validationMessage = getNamespaceError(nextValue);
               if (validationMessage) {
                 showNamespaceError(nameInput, validationMessage);
@@ -10196,15 +10213,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
               }
               clearNamespaceError(nameInput);
-              if (nextValue === nameInput.dataset.original) {
+              if (nextValue === nameInput.dataset.original && (nextLabel ?? '') === labelInput.dataset.original) {
                 return;
               }
               saveButton.disabled = true;
               nameInput.disabled = true;
+              labelInput.disabled = true;
               apiFetch(buildUrl(updateUrlTemplate, namespaceValue), {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ namespace: nextValue })
+                body: JSON.stringify({ namespace: nextValue, label: nextLabel })
               })
                 .then(parseJsonResponse)
                 .then(() => {
@@ -10222,6 +10240,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .finally(() => {
                   saveButton.disabled = isDefault;
                   nameInput.disabled = isDefault;
+                  labelInput.disabled = isDefault;
                 });
             });
 
@@ -10255,6 +10274,9 @@ document.addEventListener('DOMContentLoaded', function () {
             nameInput.addEventListener('input', () => {
               clearNamespaceError(nameInput);
             });
+            labelInput.addEventListener('input', () => {
+              clearNamespaceError(labelInput);
+            });
           });
         })
         .catch(err => {
@@ -10273,6 +10295,7 @@ document.addEventListener('DOMContentLoaded', function () {
       form.addEventListener('submit', event => {
         event.preventDefault();
         const value = normalizeNamespace(input.value);
+        const labelValue = normalizeLabel(labelInput?.value);
         const validationMessage = getNamespaceError(value);
         if (validationMessage) {
           showNamespaceError(input, validationMessage);
@@ -10282,16 +10305,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         clearNamespaceError(input);
         input.disabled = true;
+        if (labelInput) {
+          labelInput.disabled = true;
+        }
 
         apiFetch(createUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ namespace: value })
+          body: JSON.stringify({ namespace: value, label: labelValue })
         })
           .then(parseJsonResponse)
           .then(() => {
             notify(messages.created, 'success');
             input.value = '';
+            if (labelInput) {
+              labelInput.value = '';
+            }
             loadNamespaces();
           })
           .catch(err => {
@@ -10304,6 +10333,9 @@ document.addEventListener('DOMContentLoaded', function () {
           })
           .finally(() => {
             input.disabled = false;
+            if (labelInput) {
+              labelInput.disabled = false;
+            }
           });
       });
 

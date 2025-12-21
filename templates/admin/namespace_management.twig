@@ -65,7 +65,7 @@
             data-default-namespace="{{ defaultNamespace|e('html_attr') }}"
             data-namespace-pattern="{{ namespacePattern|e('html_attr') }}"
             data-namespace-max-length="{{ namespaceMaxLength|e('html_attr') }}"
-            data-column-count="3"
+            data-column-count="4"
             data-message-created="{{ t('message_namespace_created')|e('html_attr') }}"
             data-message-updated="{{ t('message_namespace_updated')|e('html_attr') }}"
             data-message-deleted="{{ t('message_namespace_deleted')|e('html_attr') }}"
@@ -89,21 +89,37 @@
           >
             <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_create') }}</h3>
             <form class="uk-form-stacked" data-namespace-form>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="namespaceInput">{{ t('label_namespace_name') }}</label>
-                <div class="uk-form-controls">
-                  <input
-                    id="namespaceInput"
-                    class="uk-input"
-                    type="text"
-                    name="namespace"
-                    placeholder="{{ t('placeholder_namespace_name') }}"
-                    autocomplete="off"
-                    data-namespace-input
-                  >
+              <div class="uk-grid-small uk-child-width-1-2@m uk-margin" uk-grid>
+                <div>
+                  <label class="uk-form-label" for="namespaceInput">{{ t('label_namespace_name') }}</label>
+                  <div class="uk-form-controls">
+                    <input
+                      id="namespaceInput"
+                      class="uk-input"
+                      type="text"
+                      name="namespace"
+                      placeholder="{{ t('placeholder_namespace_name') }}"
+                      autocomplete="off"
+                      data-namespace-input
+                    >
+                  </div>
+                  <p class="uk-text-danger uk-margin-small-top uk-hidden" data-namespace-error></p>
+                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_namespace_format_hint') }}</p>
                 </div>
-                <p class="uk-text-danger uk-margin-small-top uk-hidden" data-namespace-error></p>
-                <p class="uk-text-meta uk-margin-small-top">{{ t('text_namespace_format_hint') }}</p>
+                <div>
+                  <label class="uk-form-label" for="namespaceLabelInput">{{ t('label_namespace_label') }}</label>
+                  <div class="uk-form-controls">
+                    <input
+                      id="namespaceLabelInput"
+                      class="uk-input"
+                      type="text"
+                      name="label"
+                      placeholder="{{ t('placeholder_namespace_label') }}"
+                      autocomplete="off"
+                      data-namespace-label-input
+                    >
+                  </div>
+                </div>
               </div>
               <button class="uk-button uk-button-primary" type="submit">{{ t('button_namespace_add') }}</button>
             </form>
@@ -116,13 +132,14 @@
                 <thead>
                   <tr>
                     <th>{{ t('column_namespace') }}</th>
+                    <th>{{ t('column_namespace_label') }}</th>
                     <th>{{ t('column_namespace_status') }}</th>
                     <th class="uk-text-center">{{ t('column_namespace_actions') }}</th>
                   </tr>
                 </thead>
                 <tbody data-namespace-table-body>
                   <tr>
-                    <td colspan="3">{{ t('text_namespace_loading') }}</td>
+                    <td colspan="4">{{ t('text_namespace_loading') }}</td>
                   </tr>
                 </tbody>
               </table>

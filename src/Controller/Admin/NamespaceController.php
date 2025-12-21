@@ -80,6 +80,7 @@ final class NamespaceController
                 $namespace = $entry['namespace'];
                 return [
                     'namespace' => $namespace,
+                    'label' => $entry['label'] ?? null,
                     'created_at' => $entry['created_at'] ?? null,
                     'is_active' => $entry['is_active'] ?? true,
                     'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
@@ -100,6 +101,7 @@ final class NamespaceController
     {
         $data = $this->parsePayload($request);
         $namespace = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
+        $labelPayload = $this->parseLabelPayload($data);
         $normalized = $this->validator->normalize($namespace);
 
         $validationError = $this->validateNamespace($request, $response, $normalized);
@@ -108,7 +110,7 @@ final class NamespaceController
         }
 
         try {
-            $entry = $this->service->create($normalized);
+            $entry = $this->service->create($normalized, $labelPayload['label']);
         } catch (DuplicateNamespaceException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_duplicate', 'Namespace exists.'), 409);
         } catch (InvalidArgumentException $exception) {
@@ -133,6 +135,7 @@ final class NamespaceController
         $source = isset($args['namespace']) ? (string) $args['namespace'] : '';
         $data = $this->parsePayload($request);
         $target = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
+        $labelPayload = $this->parseLabelPayload($data);
         $normalized = $this->validator->normalize($target);
 
         $validationError = $this->validateNamespace($request, $response, $normalized);
@@ -141,7 +144,7 @@ final class NamespaceController
         }
 
         try {
-            $entry = $this->service->rename($source, $normalized);
+            $entry = $this->service->rename($source, $normalized, $labelPayload['label'], $labelPayload['provided']);
         } catch (NamespaceNotFoundException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_not_found', 'Namespace not found.'), 404);
         } catch (DuplicateNamespaceException) {
@@ -211,6 +214,25 @@ final class NamespaceController
         }
 
         return is_array($data) ? $data : null;
+    }
+
+    /**
+     * @param array<string, mixed>|null $data
+     *
+     * @return array{label:?string,provided:bool}
+     */
+    private function parseLabelPayload(?array $data): array
+    {
+        if ($data === null || !array_key_exists('label', $data)) {
+            return ['label' => null, 'provided' => false];
+        }
+
+        $label = $data['label'];
+        if ($label === null) {
+            return ['label' => null, 'provided' => true];
+        }
+
+        return ['label' => is_scalar($label) ? (string) $label : null, 'provided' => true];
     }
 
     private function json(Response $response, array $payload, int $status = 200): Response
