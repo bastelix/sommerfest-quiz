@@ -965,11 +965,36 @@ document.addEventListener('DOMContentLoaded', function () {
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
   };
+  const splitStartPageKey = value => {
+    if (typeof value !== 'string') {
+      return null;
+    }
+    const separatorIndex = value.indexOf(':');
+    if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
+      return null;
+    }
+    const namespace = value.slice(0, separatorIndex).trim();
+    const slug = value.slice(separatorIndex + 1).trim();
+    if (!namespace || !slug) {
+      return null;
+    }
+    return { namespace, slug };
+  };
+  const formatStartPageLabel = key => {
+    if (typeof key !== 'string' || key === '') {
+      return '';
+    }
+    const parsed = splitStartPageKey(key);
+    if (!parsed) {
+      return labelFromSlug(key);
+    }
+    return `${parsed.namespace} · ${labelFromSlug(parsed.slug)}`;
+  };
   const ensureDomainStartPageOption = (slug, label) => {
     if (typeof slug !== 'string' || slug === '') {
       return;
     }
-    const normalizedLabel = typeof label === 'string' && label.trim() !== '' ? label : labelFromSlug(slug);
+    const normalizedLabel = typeof label === 'string' && label.trim() !== '' ? label : formatStartPageLabel(slug);
     domainStartPageOptions[slug] = normalizedLabel;
   };
   const mergeDomainStartPageOptions = options => {

@@ -90,6 +90,7 @@ class DomainMiddleware implements MiddlewareInterface
 
         $startPage = null;
         $contactEmail = null;
+        $startPageNamespace = null;
         try {
             $pdo = Database::connectFromEnv();
             $service = new DomainStartPageService($pdo);
@@ -97,7 +98,9 @@ class DomainMiddleware implements MiddlewareInterface
             if ($config !== null) {
                 $startPageValue = trim($config['start_page']);
                 if ($startPageValue !== '') {
-                    $startPage = $startPageValue;
+                    $parsed = $service->parseStartPageKey($startPageValue);
+                    $startPage = $parsed['slug'];
+                    $startPageNamespace = $parsed['namespace'];
                 }
 
                 $email = $config['email'] ?? null;
@@ -116,6 +119,10 @@ class DomainMiddleware implements MiddlewareInterface
             ->withAttribute('domainType', $domainType)
             ->withAttribute('domainStartPage', $startPage)
             ->withAttribute('domainContactEmail', $contactEmail);
+
+        if ($startPageNamespace !== null && $request->getAttribute('pageNamespace') === null) {
+            $request = $request->withAttribute('pageNamespace', $startPageNamespace);
+        }
 
         return $handler->handle($request);
     }
