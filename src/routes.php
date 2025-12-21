@@ -43,6 +43,7 @@ use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
 use App\Service\DomainContactTemplateService;
 use App\Service\PageService;
+use App\Service\NamespaceService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
@@ -511,6 +512,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $imageUploadService = new ImageUploadService();
         $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
         $pageService = new PageService($pdo);
+        $namespaceService = new NamespaceService(new \App\Repository\NamespaceRepository($pdo));
         $landingReferenceService = new LandingMediaReferenceService(
             $pageService,
             new PageSeoConfigService($pdo),
@@ -644,6 +646,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $mailProviderManager,
                 $domainStartPageService
             ))
+            ->withAttribute('namespaceController', new \App\Controller\Admin\NamespaceController($namespaceService))
             ->withAttribute('usernameBlocklistController', new UsernameBlocklistController(
                 new UsernameBlocklistService($pdo),
                 $configService,
@@ -2093,6 +2096,59 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller->testConnection($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/namespaces', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('namespaceController');
+        if (!$controller instanceof \App\Controller\Admin\NamespaceController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/namespaces/data', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('namespaceController');
+        if (!$controller instanceof \App\Controller\Admin\NamespaceController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/namespaces', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('namespaceController');
+        if (!$controller instanceof \App\Controller\Admin\NamespaceController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->patch('/admin/namespaces/{namespace:[a-z0-9\\-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
+        $controller = $request->getAttribute('namespaceController');
+        if (!$controller instanceof \App\Controller\Admin\NamespaceController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->delete('/admin/namespaces/{namespace:[a-z0-9\\-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
+        $controller = $request->getAttribute('namespaceController');
+        if (!$controller instanceof \App\Controller\Admin\NamespaceController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/username-blocklist', function (Request $request, Response $response) {
         $controller = $request->getAttribute('usernameBlocklistController');
