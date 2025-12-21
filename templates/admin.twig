@@ -1504,16 +1504,17 @@
                     data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
                   >
                     {% for entry in pageNamespaceOptions %}
-                      {% if entry.is_active is not defined or entry.is_active %}
-                        {% set entryNamespace = entry.namespace|default('') %}
-                        {% set entryLabel = entry.label|default('') %}
-                        <option
-                          value="{{ entryNamespace|e('html_attr') }}"
-                          {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                        >
-                          {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                        </option>
-                      {% endif %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      {% set entryIsActive = entry.is_active is not defined or entry.is_active %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}
+                        {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                        {% if not entryIsActive %} – inaktiv{% endif %}
+                      </option>
                     {% endfor %}
                   </select>
                 </div>
