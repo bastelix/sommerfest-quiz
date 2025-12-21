@@ -898,6 +898,7 @@ const ensurePreviewAssets = () => {
   const landingCss = withBase('/css/landing.css');
   const landingTopbarCss = withBase('/css/topbar.landing.css');
   const landingOnboardingCss = withBase('/css/onboarding.css');
+  const landingHighcontrastCss = withBase('/css/highcontrast.css');
 
   ensureStylesheetLoaded('preview-uikit-css', uikitCss);
   ensureStylesheetLoaded('preview-landing-css', landingCss, {
@@ -909,6 +910,10 @@ const ensurePreviewAssets = () => {
     dataset: { previewAsset: 'landing' }
   });
   ensureStylesheetLoaded('preview-landing-onboarding-css', landingOnboardingCss, {
+    media: 'print',
+    dataset: { previewAsset: 'landing' }
+  });
+  ensureStylesheetLoaded('preview-landing-highcontrast-css', landingHighcontrastCss, {
     media: 'print',
     dataset: { previewAsset: 'landing' }
   });
