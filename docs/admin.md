@@ -15,7 +15,7 @@ Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/ad
   * **Statistik** – `/admin/statistics`
 * **Inhalte**
   * **Medien** – `/admin/media` (Administrator:innen & Katalog-Editor:innen)
-  * **KI-Chatbot** – `/admin/rag-chat` (Administrator:innen & Katalog-Editor:innen) – verwaltet die Verbindung zum KI-Backend und liefert Zugriff auf die KI-Dokumentation je Domain.
+* **KI-Chatbot** – `/admin/rag-chat` (Administrator:innen & Katalog-Editor:innen) – verwaltet die Verbindung zum KI-Backend und liefert Zugriff auf die projektbezogene KI-Dokumentation.
   * **Seiten** – `/admin/pages` (nur Administrator:innen)
 * **Konto**
   * **Profil** – `/admin/profile`
