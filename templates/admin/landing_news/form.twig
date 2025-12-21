@@ -121,7 +121,7 @@
           </div>
           <div class="uk-width-1-1 uk-margin-top">
             <button type="submit" class="uk-button uk-button-primary">{{ t('button_save') }}</button>
-            <a class="uk-button uk-button-default" href="{{ basePath }}/admin/pages?pageTab=landing-news{% if pageNamespace is not empty %}&namespace={{ pageNamespace|url_encode }}{% endif %}">{{ t('button_cancel') }}</a>
+            <a class="uk-button uk-button-default" href="{{ basePath }}/admin/landing-news{% if pageNamespace is not empty %}?namespace={{ pageNamespace|url_encode }}{% endif %}">{{ t('button_cancel') }}</a>
           </div>
           {% if error %}
             <div class="uk-width-1-1">

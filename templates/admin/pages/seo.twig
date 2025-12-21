@@ -1,0 +1,207 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_page_seo_base') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script>
+    window.profileVars = {
+      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
+      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
+      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
+      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
+      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
+    };
+  </script>
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
+  </script>
+  <script type="module" src="{{ basePath }}/js/seo-form.js"></script>
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_page_seo_base') }}</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
+
+        {% include 'admin/components/project_tree.twig' %}
+
+        {% if seo_pages|default([]) is empty %}
+          <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
+        {% else %}
+          <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo{{ pageNamespaceQuery }}" method="post">
+            <input type="hidden" name="pageId" value="{{ seo_config.pageId|default(selectedSeoPageId|default('')) }}">
+            <input type="hidden" name="domain" id="seoDomain" value="{{ seo_config.domain|default('') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="uk-margin">
+              <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>
+              <div class="uk-form-controls">
+                <select
+                  id="seoPageSelect"
+                  class="uk-select"
+                  data-configs="{{ seo_pages|json_encode|e('html_attr') }}"
+                  data-selected="{{ selectedSeoPageId|default(seo_config.pageId|default('')) }}"
+                >
+                  {% for page in seo_pages %}
+                    <option
+                      value="{{ page.id }}"{% if page.id == selectedSeoPageId %} selected{% endif %}
+                      data-slug="{{ page.slug }}"
+                      data-title="{{ page.title }}"
+                    >
+                      {{ page.title }} ({{ page.slug }})
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="metaTitle">Meta Title</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60" value="{{ seo_config.metaTitle|default('') }}">
+                <small class="uk-text-meta char-count" data-for="metaTitle">0/60</small>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="metaDescription">Meta Description</label>
+              <div class="uk-form-controls">
+                <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160">{{ seo_config.metaDescription|default('') }}</textarea>
+                <small class="uk-text-meta char-count" data-for="metaDescription">0/160</small>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="slug">Slug</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100" value="{{ seo_config.slug|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="canonical">Canonical</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="canonical" name="canonical" type="url" value="{{ seo_config.canonicalUrl|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="robots">Robots</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow" value="{{ seo_config.robotsMeta|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label">OG-Tags</label>
+              <div class="uk-form-controls">
+                <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60" value="{{ seo_config.ogTitle|default('') }}">
+                <input class="uk-input uk-margin-small-bottom" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160" value="{{ seo_config.ogDescription|default('') }}">
+                <input class="uk-input" id="ogImage" name="og_image" type="url" placeholder="og:image" value="{{ seo_config.ogImage|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="schema">Schema.org</label>
+              <div class="uk-form-controls">
+                <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }">{{ seo_config.schemaJson|default('') }}</textarea>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="hreflang">hreflang</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ..." value="{{ seo_config.hreflang|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <button type="button" class="uk-button uk-button-default import-seo-example">Beispiel importieren</button>
+              <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
+            </div>
+          </form>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

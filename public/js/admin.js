@@ -304,11 +304,11 @@ const createProjectEmptyStateWithActions = namespace => {
   const actions = [
     {
       label: 'Jetzt Inhalte anlegen (Seiten)',
-      url: buildProjectAdminUrl('/admin/pages', namespace)
+      url: buildProjectAdminUrl('/admin/pages/content', namespace)
     },
     {
       label: 'Jetzt Inhalte anlegen (Wiki)',
-      url: buildProjectAdminUrl('/admin/pages', namespace, { pageTab: 'wiki' })
+      url: buildProjectAdminUrl('/admin/pages/wiki', namespace)
     },
     {
       label: 'Jetzt Inhalte anlegen (Landing-News)',
@@ -316,7 +316,7 @@ const createProjectEmptyStateWithActions = namespace => {
     },
     {
       label: 'Jetzt Inhalte anlegen (Newsletter)',
-      url: buildProjectAdminUrl('/admin/management', namespace, {}, 'marketingNewsletterConfigSection')
+      url: buildProjectAdminUrl('/admin/newsletter', namespace)
     }
   ];
   actions.forEach(action => {

@@ -1,0 +1,162 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_newsletter') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
+  </script>
+  <script>
+    window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.marketingNewsletterStyles = {{ marketingNewsletterStyles|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.marketingNewsletterStyleLabels = {{ {
+      'primary': t('label_marketing_newsletter_style_primary'),
+      'secondary': t('label_marketing_newsletter_style_secondary'),
+      'link': t('label_marketing_newsletter_style_link')
+    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.transMarketingNewsletterSaved = '{{ t('message_marketing_newsletter_saved')|e('js') }}';
+    window.transMarketingNewsletterError = '{{ t('message_marketing_newsletter_error')|e('js') }}';
+    window.transMarketingNewsletterInvalidSlug = '{{ t('error_marketing_newsletter_invalid_slug')|e('js') }}';
+    window.transMarketingNewsletterRemove = '{{ t('button_marketing_newsletter_remove_entry')|e('js') }}';
+    window.transMarketingNewsletterEmpty = '{{ t('text_marketing_newsletter_empty')|e('js') }}';
+  </script>
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% if entry.is_active is not defined or entry.is_active %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
+
+        <h2 class="uk-heading-bullet">{{ t('tab_newsletter') }}</h2>
+        <p class="uk-text-meta">{{ t('text_marketing_newsletter_namespace_hint')|format(activePageNamespace) }}</p>
+        <div id="marketingNewsletterConfigSection" class="uk-card uk-card-default uk-card-body uk-margin">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="marketingNewsletterSlug">{{ t('label_marketing_newsletter_slug') }}</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="text" id="marketingNewsletterSlug" list="marketingNewsletterSlugOptions" placeholder="landing">
+              <datalist id="marketingNewsletterSlugOptions">
+                {% for slug in marketingNewsletterSlugs %}
+                  <option value="{{ slug }}"></option>
+                {% endfor %}
+              </datalist>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_marketing_newsletter_slug_hint') }}</p>
+          </div>
+          <div class="uk-overflow-auto uk-margin">
+            <table class="uk-table uk-table-small uk-table-divider uk-table-middle" id="marketingNewsletterConfigTable" data-empty="{{ t('text_marketing_newsletter_empty') }}">
+              <thead>
+                <tr>
+                  <th class="uk-table-shrink">#</th>
+                  <th>{{ t('label_marketing_newsletter_label') }}</th>
+                  <th>{{ t('label_marketing_newsletter_url') }}</th>
+                  <th class="uk-table-shrink">{{ t('label_marketing_newsletter_style') }}</th>
+                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+            <div class="uk-flex uk-flex-left" style="gap: 8px;">
+              <button type="button" id="marketingNewsletterAddRow" class="uk-button uk-button-default">{{ t('button_marketing_newsletter_add_entry') }}</button>
+            </div>
+            <div class="uk-flex uk-flex-right" style="gap: 8px;">
+              <button type="button" id="marketingNewsletterReset" class="uk-button uk-button-default">{{ t('action_reset') }}</button>
+              <button type="button" id="marketingNewsletterSave" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}
