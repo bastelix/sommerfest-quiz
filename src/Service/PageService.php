@@ -18,6 +18,7 @@ use RuntimeException;
 class PageService
 {
     public const DEFAULT_NAMESPACE = 'default';
+    private const SLUG_PATTERN = '/^[a-z0-9][a-z0-9\-]{0,99}$/';
 
     private PDO $pdo;
 
@@ -48,29 +49,11 @@ class PageService
     }
 
     public function create(string $namespace, string $slug, string $title, string $content): Page {
-        $normalizedNamespace = strtolower(trim($namespace));
-        if ($normalizedNamespace === '') {
-            throw new InvalidArgumentException('Bitte gib einen Namespace an.');
-        }
+        $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
+        $this->assertValidNamespace($normalizedNamespace);
 
-        if (!preg_match('/^[a-z0-9][a-z0-9\-]{0,99}$/', $normalizedNamespace)) {
-            throw new InvalidArgumentException(
-                'Der Namespace darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
-                . '(max. 100 Zeichen).'
-            );
-        }
-
-        $normalizedSlug = strtolower(trim($slug));
-        if ($normalizedSlug === '') {
-            throw new InvalidArgumentException('Bitte gib einen Slug an.');
-        }
-
-        if (!preg_match('/^[a-z0-9][a-z0-9\-]{0,99}$/', $normalizedSlug)) {
-            throw new InvalidArgumentException(
-                'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
-                . '(max. 100 Zeichen).'
-            );
-        }
+        $normalizedSlug = $this->normalizeSlugInput($slug);
+        $this->assertValidSlug($normalizedSlug);
 
         $normalizedTitle = trim($title);
         if ($normalizedTitle === '') {
@@ -195,6 +178,166 @@ class PageService
         }
 
         return $this->mapRowToPage($row);
+    }
+
+    /**
+     * @return array{page: Page, copied: array<int, array<string, int|string>>}
+     */
+    public function copy(string $sourceNamespace, string $slug, string $targetNamespace): array {
+        $sourceNamespace = $this->normalizeNamespaceInput($sourceNamespace);
+        $this->assertValidNamespace($sourceNamespace);
+        $targetNamespace = $this->normalizeNamespaceInput($targetNamespace);
+        $this->assertValidNamespace($targetNamespace);
+
+        $normalizedSlug = $this->normalizeSlugInput($slug);
+        $this->assertValidSlug($normalizedSlug);
+
+        if ($sourceNamespace === $targetNamespace) {
+            throw new InvalidArgumentException('Quell- und Ziel-Namespace müssen unterschiedlich sein.');
+        }
+
+        $sourcePage = $this->findByKey($sourceNamespace, $normalizedSlug);
+        if ($sourcePage === null) {
+            throw new LogicException('Die Quelle wurde nicht gefunden.');
+        }
+
+        $rows = $this->loadRowsForNamespace($sourceNamespace);
+        $subtree = $this->buildSubtreeRows($rows, $sourcePage->getId());
+        if ($subtree === []) {
+            throw new LogicException('Die Quelle wurde nicht gefunden.');
+        }
+
+        $this->assertNoSlugConflicts($targetNamespace, $subtree);
+
+        $created = [];
+        $idMap = [];
+        $insert = $this->pdo->prepare(
+            'INSERT INTO pages '
+            . '(namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id'
+        );
+
+        $this->pdo->beginTransaction();
+        try {
+            foreach ($subtree as $row) {
+                $parentId = $row['parent_id'] !== null && isset($idMap[$row['parent_id']])
+                    ? $idMap[$row['parent_id']]
+                    : null;
+
+                $insert->execute([
+                    $targetNamespace,
+                    $row['slug'],
+                    $row['title'],
+                    $row['content'],
+                    $row['type'],
+                    $parentId,
+                    $row['sort_order'],
+                    $row['status'],
+                    $row['language'],
+                    $row['content_source'],
+                ]);
+
+                $newId = (int) $insert->fetchColumn();
+                $idMap[$row['id']] = $newId;
+                $created[] = [
+                    'id' => $newId,
+                    'slug' => (string) $row['slug'],
+                    'namespace' => $targetNamespace,
+                    'source_id' => (int) $row['id'],
+                ];
+            }
+
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Die Seite konnte nicht kopiert werden.', 0, $exception);
+        }
+
+        $newRootId = $idMap[$sourcePage->getId()] ?? 0;
+        $newRoot = $this->findById($newRootId);
+        if ($newRoot === null) {
+            throw new RuntimeException('Die kopierte Seite konnte nicht geladen werden.');
+        }
+
+        return [
+            'page' => $newRoot,
+            'copied' => $created,
+        ];
+    }
+
+    /**
+     * @return array{page: Page, moved: array<int, array<string, int|string>>}
+     */
+    public function move(string $sourceNamespace, string $slug, string $targetNamespace): array {
+        $sourceNamespace = $this->normalizeNamespaceInput($sourceNamespace);
+        $this->assertValidNamespace($sourceNamespace);
+        $targetNamespace = $this->normalizeNamespaceInput($targetNamespace);
+        $this->assertValidNamespace($targetNamespace);
+
+        $normalizedSlug = $this->normalizeSlugInput($slug);
+        $this->assertValidSlug($normalizedSlug);
+
+        if ($sourceNamespace === $targetNamespace) {
+            throw new InvalidArgumentException('Quell- und Ziel-Namespace müssen unterschiedlich sein.');
+        }
+
+        $sourcePage = $this->findByKey($sourceNamespace, $normalizedSlug);
+        if ($sourcePage === null) {
+            throw new LogicException('Die Quelle wurde nicht gefunden.');
+        }
+
+        $rows = $this->loadRowsForNamespace($sourceNamespace);
+        $subtree = $this->buildSubtreeRows($rows, $sourcePage->getId());
+        if ($subtree === []) {
+            throw new LogicException('Die Quelle wurde nicht gefunden.');
+        }
+
+        $this->assertNoSlugConflicts($targetNamespace, $subtree);
+
+        $subtreeIds = array_map(static fn (array $row): int => (int) $row['id'], $subtree);
+        $subtreeLookup = array_flip($subtreeIds);
+
+        $rootParentId = $subtree[0]['parent_id'];
+        if ($rootParentId !== null && !isset($subtreeLookup[$rootParentId])) {
+            $rootParentId = null;
+        }
+
+        $updateNamespace = $this->pdo->prepare('UPDATE pages SET namespace = ? WHERE id = ?');
+        $updateRoot = $this->pdo->prepare('UPDATE pages SET namespace = ?, parent_id = ? WHERE id = ?');
+
+        $moved = [];
+
+        $this->pdo->beginTransaction();
+        try {
+            foreach ($subtree as $row) {
+                $id = (int) $row['id'];
+                if ($id === $sourcePage->getId()) {
+                    $updateRoot->execute([$targetNamespace, $rootParentId, $id]);
+                } else {
+                    $updateNamespace->execute([$targetNamespace, $id]);
+                }
+                $moved[] = [
+                    'id' => $id,
+                    'slug' => (string) $row['slug'],
+                    'namespace' => $targetNamespace,
+                ];
+            }
+
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Die Seite konnte nicht verschoben werden.', 0, $exception);
+        }
+
+        $movedRoot = $this->findByKey($targetNamespace, $normalizedSlug);
+        if ($movedRoot === null) {
+            throw new RuntimeException('Die verschobene Seite konnte nicht geladen werden.');
+        }
+
+        return [
+            'page' => $movedRoot,
+            'moved' => $moved,
+        ];
     }
 
     private function loadCreatedPage(string $namespace, string $slug): Page {
@@ -349,6 +492,167 @@ class PageService
 
     private function normalizeNamespace(string $namespace): string {
         return strtolower(trim($namespace));
+    }
+
+    private function normalizeNamespaceInput(string $namespace): string
+    {
+        return strtolower(trim($namespace));
+    }
+
+    private function normalizeSlugInput(string $slug): string
+    {
+        return strtolower(trim($slug));
+    }
+
+    private function assertValidNamespace(string $namespace): void
+    {
+        if ($namespace === '') {
+            throw new InvalidArgumentException('Bitte gib einen Namespace an.');
+        }
+
+        if (!preg_match(self::SLUG_PATTERN, $namespace)) {
+            throw new InvalidArgumentException(
+                'Der Namespace darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
+                . '(max. 100 Zeichen).'
+            );
+        }
+    }
+
+    private function assertValidSlug(string $slug): void
+    {
+        if ($slug === '') {
+            throw new InvalidArgumentException('Bitte gib einen Slug an.');
+        }
+
+        if (!preg_match(self::SLUG_PATTERN, $slug)) {
+            throw new InvalidArgumentException(
+                'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
+                . '(max. 100 Zeichen).'
+            );
+        }
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function loadRowsForNamespace(string $namespace): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            . 'FROM pages WHERE namespace = ? ORDER BY parent_id, sort_order, title'
+        );
+        $stmt->execute([$namespace]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildSubtreeRows(array $rows, int $rootId): array
+    {
+        $rowsById = [];
+        $childrenByParent = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+
+            $parentId = $row['parent_id'];
+            if ($parentId !== null) {
+                $parentId = (int) $parentId;
+            }
+
+            $row['id'] = $id;
+            $row['parent_id'] = $parentId;
+            $rowsById[$id] = $row;
+            $childrenByParent[$parentId ?? 0][] = $id;
+        }
+
+        if (!isset($rowsById[$rootId])) {
+            return [];
+        }
+
+        foreach ($childrenByParent as &$children) {
+            usort($children, function (int $leftId, int $rightId) use ($rowsById): int {
+                $left = $rowsById[$leftId];
+                $right = $rowsById[$rightId];
+
+                $leftOrder = (int) ($left['sort_order'] ?? 0);
+                $rightOrder = (int) ($right['sort_order'] ?? 0);
+                if ($leftOrder !== $rightOrder) {
+                    return $leftOrder <=> $rightOrder;
+                }
+
+                $leftTitle = (string) ($left['title'] ?? '');
+                $rightTitle = (string) ($right['title'] ?? '');
+                $titleCmp = strcasecmp($leftTitle, $rightTitle);
+                if ($titleCmp !== 0) {
+                    return $titleCmp;
+                }
+
+                return $leftId <=> $rightId;
+            });
+        }
+        unset($children);
+
+        $ordered = [];
+        $queue = [$rootId];
+        while ($queue !== []) {
+            $currentId = array_shift($queue);
+            if (!isset($rowsById[$currentId])) {
+                continue;
+            }
+            $ordered[] = $rowsById[$currentId];
+
+            foreach ($childrenByParent[$currentId] ?? [] as $childId) {
+                $queue[] = $childId;
+            }
+        }
+
+        return $ordered;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     */
+    private function assertNoSlugConflicts(string $targetNamespace, array $rows): void
+    {
+        $slugs = [];
+        foreach ($rows as $row) {
+            $slug = (string) ($row['slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+            $slugs[$slug] = true;
+        }
+
+        if ($slugs === []) {
+            return;
+        }
+
+        $slugList = array_keys($slugs);
+        $placeholders = implode(',', array_fill(0, count($slugList), '?'));
+        $stmt = $this->pdo->prepare(
+            sprintf('SELECT slug FROM pages WHERE namespace = ? AND slug IN (%s)', $placeholders)
+        );
+        $stmt->execute(array_merge([$targetNamespace], $slugList));
+        $conflicts = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+        if ($conflicts !== []) {
+            $conflicts = array_unique(array_map('strval', $conflicts));
+            sort($conflicts);
+            throw new LogicException(
+                sprintf(
+                    'Im Ziel-Namespace existieren bereits Seiten mit folgenden Slugs: %s',
+                    implode(', ', $conflicts)
+                )
+            );
+        }
     }
 
     /**
