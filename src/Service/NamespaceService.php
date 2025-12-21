@@ -24,7 +24,35 @@ final class NamespaceService
      */
     public function all(): array
     {
-        return $this->repository->list();
+        $entries = $this->repository->list();
+        $existing = [];
+        foreach ($entries as $entry) {
+            $existing[$entry['namespace']] = true;
+        }
+
+        $knownNamespaces = $this->repository->listKnownNamespaces();
+        $knownNamespaces[] = PageService::DEFAULT_NAMESPACE;
+        foreach ($knownNamespaces as $candidate) {
+            $normalized = $this->validator->normalizeCandidate($candidate);
+            if ($normalized === null || isset($existing[$normalized])) {
+                continue;
+            }
+            $entries[] = [
+                'namespace' => $normalized,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+            $existing[$normalized] = true;
+        }
+
+        usort(
+            $entries,
+            static fn (array $left, array $right): int => strcmp($left['namespace'], $right['namespace'])
+        );
+
+        return $entries;
     }
 
     /**
