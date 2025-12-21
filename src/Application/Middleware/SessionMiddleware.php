@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Middleware;
 
 use App\Service\SessionService;
+use App\Service\UserService;
 use App\Infrastructure\Database;
 use App\Support\DomainNameHelper;
 use PDO;
@@ -73,6 +74,11 @@ class SessionMiddleware implements Middleware
             }
 
             session_start();
+        }
+
+        $activeNamespace = $this->resolveActiveNamespace($request);
+        if ($activeNamespace !== null) {
+            $request = $request->withAttribute('active_namespace', $activeNamespace);
         }
 
         $response = $handler->handle($request);
@@ -158,5 +164,38 @@ class SessionMiddleware implements Middleware
 
     private function defaultSessionDirectory(): string {
         return dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'sessions';
+    }
+
+    private function resolveActiveNamespace(Request $request): ?string {
+        $activeNamespace = $_SESSION['user']['active_namespace'] ?? null;
+        if (is_string($activeNamespace) && $activeNamespace !== '') {
+            return $activeNamespace;
+        }
+
+        if (!isset($_SESSION['user']['id'])) {
+            return null;
+        }
+
+        try {
+            $pdo = $request->getAttribute('pdo');
+            if (!$pdo instanceof PDO) {
+                $pdo = Database::connectFromEnv();
+            }
+
+            $userService = new UserService($pdo);
+            $record = $userService->getById((int) $_SESSION['user']['id']);
+            if ($record === null) {
+                return null;
+            }
+
+            $sessionService = new SessionService($pdo);
+            $activeNamespace = $sessionService->resolveActiveNamespace($record['namespaces'] ?? []);
+
+            $_SESSION['user']['active_namespace'] = $activeNamespace;
+
+            return $activeNamespace;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

@@ -84,12 +84,19 @@ class LoginController
                 error_log('Failed to regenerate session ID');
             }
 
+            $previousNamespace = $_SESSION['user']['active_namespace'] ?? null;
+            $sessionService = new SessionService($pdo);
+            $activeNamespace = $sessionService->resolveActiveNamespace(
+                $record['namespaces'] ?? [],
+                is_string($previousNamespace) ? $previousNamespace : null
+            );
+
             $_SESSION['user'] = [
                 'id' => $record['id'],
                 'username' => $record['username'],
                 'role' => $record['role'],
+                'active_namespace' => $activeNamespace,
             ];
-            $sessionService = new SessionService($pdo);
             $sessionService->persistSession((int) $record['id'], session_id());
             $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
             $mainDomain = (string) getenv('MAIN_DOMAIN');
