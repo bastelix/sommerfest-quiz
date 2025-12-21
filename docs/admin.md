@@ -100,6 +100,12 @@ Wird die dunkle Hero-Vorlage (`uk-section-primary uk-light`) genutzt, sollte ans
 
 The landing page template now renders its hero, innovation highlights, and section dividers from the database content or page modules instead of hardcoded Twig sections. Use the **Seiten → landing** editor to manage the main HTML content and configure optional page modules for the `before-content` and `after-content` positions if you want to insert reusable blocks around the content. Header and footer markup remain part of the Twig template.
 
+### Marketing-Landing-Namespaces
+
+Marketing-Seiten orientieren sich an der Namespace-Auflösung aus `NamespaceResolver`. Die Reihenfolge der Kandidaten ist: Request-Attribute (`legalPageNamespace`, `pageNamespace`, `namespace`), Route-Argumente (`namespace`, `tenantNamespace`, `tenant`, `subdomain`), Event-/Tenant-Kontext, danach der `default`-Namespace.
+
+Wenn eine Marketing-Seite in dem aufgelösten Namespace fehlt, wird automatisch auf die Seite im `default`-Namespace zurückgegriffen. So können tenant-spezifische Landing-Pages einzelne Seiten überschreiben, ohne dass globale Standardinhalte fehlen.
+
 ## Bild-Uploads
 
 Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien landen im Verzeichnis `data/uploads`, eventbezogene Bilder unter `data/events/<event_uid>/images`.
