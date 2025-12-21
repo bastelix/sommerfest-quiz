@@ -955,6 +955,29 @@ document.addEventListener('DOMContentLoaded', function () {
   const transMarketingNewsletterInvalidSlug = window.transMarketingNewsletterInvalidSlug || 'Slug erforderlich';
   const transMarketingNewsletterRemove = window.transMarketingNewsletterRemove || 'Entfernen';
   const transMarketingNewsletterEmpty = window.transMarketingNewsletterEmpty || 'Keine Einträge vorhanden.';
+  const resolveMarketingNewsletterNamespace = () => {
+    const candidates = [
+      marketingNewsletterSection?.dataset.marketingNamespace,
+      window.marketingNewsletterNamespace,
+      window.pageNamespace,
+      window.defaultNamespace
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim() !== '') {
+        return candidate.trim();
+      }
+    }
+    return '';
+  };
+  const buildMarketingNewsletterPath = () => {
+    const namespace = resolveMarketingNewsletterNamespace();
+    const params = new URLSearchParams();
+    if (namespace) {
+      params.set('namespace', namespace);
+    }
+    const query = params.toString();
+    return `/admin/marketing-newsletter-configs${query ? `?${query}` : ''}`;
+  };
   const labelFromSlug = slug => {
     if (typeof slug !== 'string' || slug === '') {
       return '';
@@ -9818,6 +9841,47 @@ document.addEventListener('DOMContentLoaded', function () {
         marketingNewsletterSlugOptions.appendChild(option);
       });
     };
+    const applyNewsletterPayload = payload => {
+      Object.keys(marketingNewsletterData).forEach(key => {
+        delete marketingNewsletterData[key];
+      });
+      marketingNewsletterSlugs.length = 0;
+      const items = payload && typeof payload === 'object' ? payload : {};
+      Object.entries(items).forEach(([slug, entries]) => {
+        const normalizedSlug = normalizeNewsletterSlug(slug);
+        if (normalizedSlug === '') {
+          return;
+        }
+        marketingNewsletterData[normalizedSlug] = Array.isArray(entries)
+          ? entries.map(item => ({
+              label: typeof item.label === 'string' ? item.label : '',
+              url: typeof item.url === 'string' ? item.url : '',
+              style: typeof item.style === 'string' && item.style !== '' ? item.style : (marketingNewsletterStyles[0] || 'primary')
+            }))
+          : [];
+        if (!marketingNewsletterSlugs.includes(normalizedSlug)) {
+          marketingNewsletterSlugs.push(normalizedSlug);
+        }
+      });
+      refreshSlugOptions();
+    };
+    const loadNewsletterConfigs = () => {
+      const path = buildMarketingNewsletterPath();
+      return apiFetch(path)
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('load-failed');
+          }
+          return res.json().catch(() => ({}));
+        })
+        .then(payload => {
+          const items = payload?.items || {};
+          applyNewsletterPayload(items);
+          if (Array.isArray(payload?.styles) && payload.styles.length) {
+            marketingNewsletterStyles.splice(0, marketingNewsletterStyles.length, ...payload.styles);
+          }
+        });
+    };
     const createStyleSelect = selected => {
       const select = document.createElement('select');
       select.className = 'uk-select';
@@ -10008,7 +10072,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
       const entries = gatherNewsletterEntries();
-      apiFetch('/admin/marketing-newsletter-configs', {
+      apiFetch(buildMarketingNewsletterPath(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ slug, entries })
@@ -10028,7 +10092,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
     marketingNewsletterResetBtn?.addEventListener('click', () => {
       const slug = normalizeNewsletterSlug(marketingNewsletterSlugInput.value);
-      renderNewsletterRows(slug);
+      loadNewsletterConfigs()
+        .then(() => {
+          renderNewsletterRows(slug);
+        })
+        .catch(() => {
+          notify(transMarketingNewsletterError, 'danger');
+          renderNewsletterRows(slug);
+        });
     });
   }
 
