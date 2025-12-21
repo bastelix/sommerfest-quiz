@@ -95,14 +95,14 @@
                   {% for entry in pageNamespaceOptions %}
                     {% set entryNamespace = entry.namespace|default('') %}
                     {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsActive = entry.is_active is not defined or entry.is_active %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
                     <option
                       value="{{ entryNamespace|e('html_attr') }}"
                       {% if entryNamespace == activePageNamespace %}selected{% endif %}
                     >
                       {{ entryNamespace }}
                       {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      {% if not entryIsActive %} – inaktiv{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
                     </option>
                   {% endfor %}
                 </select>
