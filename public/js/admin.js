@@ -9282,6 +9282,232 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  const namespaceManager = document.querySelector('[data-namespace-management]');
+  if (namespaceManager) {
+    const listUrl = namespaceManager.dataset.listUrl || '/admin/namespaces/data';
+    const createUrl = namespaceManager.dataset.createUrl || '/admin/namespaces';
+    const updateUrlTemplate = namespaceManager.dataset.updateUrl || '/admin/namespaces/{namespace}';
+    const deleteUrlTemplate = namespaceManager.dataset.deleteUrl || '/admin/namespaces/{namespace}';
+    const defaultNamespace = namespaceManager.dataset.defaultNamespace || 'default';
+    const columnCount = Number.parseInt(namespaceManager.dataset.columnCount || '3', 10) || 3;
+    const tableBody = namespaceManager.querySelector('[data-namespace-table-body]');
+    const form = namespaceManager.querySelector('[data-namespace-form]');
+    const input = namespaceManager.querySelector('[data-namespace-input]');
+    const labelSave = namespaceManager.dataset.labelSave || 'Save';
+    const labelDelete = namespaceManager.dataset.labelDelete || 'Delete';
+    const labelDefault = namespaceManager.dataset.labelDefault || 'Default';
+    const messages = {
+      created: namespaceManager.dataset.messageCreated || 'Namespace created.',
+      updated: namespaceManager.dataset.messageUpdated || 'Namespace updated.',
+      deleted: namespaceManager.dataset.messageDeleted || 'Namespace deleted.',
+      invalid: namespaceManager.dataset.messageInvalid || 'Invalid namespace.',
+      duplicate: namespaceManager.dataset.messageDuplicate || 'Namespace exists.',
+      notFound: namespaceManager.dataset.messageNotFound || 'Namespace not found.',
+      defaultLocked: namespaceManager.dataset.messageDefaultLocked || 'Default namespace cannot be changed.',
+      error: namespaceManager.dataset.messageError || 'Action failed.',
+      loading: namespaceManager.dataset.textLoading || 'Loading namespaces...',
+      empty: namespaceManager.dataset.textEmpty || 'No namespaces configured yet.',
+      confirmDelete: namespaceManager.dataset.confirmDelete || 'Delete namespace?'
+    };
+
+    const normalizeNamespace = value => String(value || '').trim().toLowerCase();
+    const isValidNamespace = value => /^[a-z0-9][a-z0-9-]{0,99}$/.test(value);
+    const buildUrl = (template, namespace) => template.replace('{namespace}', encodeURIComponent(namespace));
+
+    const renderMessageRow = message => {
+      if (!tableBody) {
+        return;
+      }
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = columnCount;
+      td.textContent = message;
+      tr.appendChild(td);
+      tableBody.appendChild(tr);
+    };
+
+    const parseJsonResponse = res => {
+      return res
+        .json()
+        .catch(() => ({}))
+        .then(data => {
+          if (!res.ok) {
+            throw new Error(data?.error || messages.error);
+          }
+          return data;
+        });
+    };
+
+    const loadNamespaces = () => {
+      if (!tableBody) {
+        return;
+      }
+      tableBody.innerHTML = '';
+      if (messages.loading) {
+        renderMessageRow(messages.loading);
+      }
+      apiFetch(listUrl)
+        .then(parseJsonResponse)
+        .then(data => {
+          const entries = Array.isArray(data?.namespaces) ? data.namespaces : [];
+          tableBody.innerHTML = '';
+          if (!entries.length) {
+            renderMessageRow(messages.empty);
+            return;
+          }
+          entries.forEach(item => {
+            const namespaceValue = typeof item.namespace === 'string' ? item.namespace : '';
+            const isDefault = Boolean(item.is_default) || namespaceValue === defaultNamespace;
+
+            const tr = document.createElement('tr');
+
+            const nameCell = document.createElement('td');
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.className = 'uk-input';
+            nameInput.value = namespaceValue;
+            nameInput.dataset.original = namespaceValue;
+            nameInput.disabled = isDefault;
+            nameCell.appendChild(nameInput);
+            tr.appendChild(nameCell);
+
+            const statusCell = document.createElement('td');
+            statusCell.textContent = isDefault ? labelDefault : '-';
+            tr.appendChild(statusCell);
+
+            const actionCell = document.createElement('td');
+            actionCell.className = 'uk-text-center';
+
+            const saveButton = document.createElement('button');
+            saveButton.type = 'button';
+            saveButton.className = 'uk-button uk-button-primary uk-button-small uk-margin-small-right';
+            saveButton.textContent = labelSave;
+            saveButton.disabled = isDefault;
+            actionCell.appendChild(saveButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'uk-button uk-button-danger uk-button-small';
+            deleteButton.textContent = labelDelete;
+            deleteButton.disabled = isDefault;
+            actionCell.appendChild(deleteButton);
+
+            saveButton.addEventListener('click', () => {
+              const nextValue = normalizeNamespace(nameInput.value);
+              if (!isValidNamespace(nextValue)) {
+                nameInput.classList.add('uk-form-danger');
+                notify(messages.invalid, 'warning');
+                return;
+              }
+              nameInput.classList.remove('uk-form-danger');
+              if (nextValue === nameInput.dataset.original) {
+                return;
+              }
+              saveButton.disabled = true;
+              nameInput.disabled = true;
+              apiFetch(buildUrl(updateUrlTemplate, namespaceValue), {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ namespace: nextValue })
+              })
+                .then(parseJsonResponse)
+                .then(() => {
+                  notify(messages.updated, 'success');
+                  loadNamespaces();
+                })
+                .catch(err => {
+                  const message = err?.message || messages.error;
+                  if (message === messages.defaultLocked) {
+                    notify(messages.defaultLocked, 'warning');
+                  } else {
+                    notify(message, 'danger');
+                  }
+                })
+                .finally(() => {
+                  saveButton.disabled = isDefault;
+                  nameInput.disabled = isDefault;
+                });
+            });
+
+            deleteButton.addEventListener('click', () => {
+              if (!window.confirm(messages.confirmDelete)) {
+                return;
+              }
+              deleteButton.disabled = true;
+              apiFetch(buildUrl(deleteUrlTemplate, namespaceValue), { method: 'DELETE' })
+                .then(parseJsonResponse)
+                .then(() => {
+                  notify(messages.deleted, 'success');
+                  loadNamespaces();
+                })
+                .catch(err => {
+                  const message = err?.message || messages.error;
+                  if (message === messages.defaultLocked) {
+                    notify(messages.defaultLocked, 'warning');
+                  } else {
+                    notify(message, 'danger');
+                  }
+                })
+                .finally(() => {
+                  deleteButton.disabled = isDefault;
+                });
+            });
+
+            tr.appendChild(actionCell);
+            tableBody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          tableBody.innerHTML = '';
+          renderMessageRow(err?.message || messages.error);
+        });
+    };
+
+    if (form && input) {
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const value = normalizeNamespace(input.value);
+        if (!isValidNamespace(value)) {
+          input.classList.add('uk-form-danger');
+          notify(messages.invalid, 'warning');
+          input.focus();
+          return;
+        }
+        input.classList.remove('uk-form-danger');
+        input.disabled = true;
+
+        apiFetch(createUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ namespace: value })
+        })
+          .then(parseJsonResponse)
+          .then(() => {
+            notify(messages.created, 'success');
+            input.value = '';
+            loadNamespaces();
+          })
+          .catch(err => {
+            const message = err?.message || messages.error;
+            if (message === messages.duplicate) {
+              notify(messages.duplicate, 'warning');
+            } else {
+              notify(message, 'danger');
+            }
+          })
+          .finally(() => {
+            input.disabled = false;
+          });
+      });
+
+      input.addEventListener('input', () => {
+        input.classList.remove('uk-form-danger');
+      });
+    }
+
+    loadNamespaces();
+  }
+
   ragChatFields.form?.addEventListener('submit', event => {
     event.preventDefault();
     const payload = collectRagChatPayload();
