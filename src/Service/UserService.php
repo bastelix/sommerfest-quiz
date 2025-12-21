@@ -183,12 +183,19 @@ class UserService
      *     email:?string,
      *     role:string,
      *     active:bool,
-     *     position:int
+     *     position:int,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
      * }>
      */
     public function getAll(): array {
         $stmt = $this->pdo->query('SELECT id,username,email,role,active,position FROM users ORDER BY position');
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            $row['namespaces'] = $this->namespaceRepository->loadForUser((int) ($row['id'] ?? 0));
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**
@@ -201,7 +208,8 @@ class UserService
      *     role?:string,
      *     password?:string,
      *     active?:bool,
-     *     position?:int
+     *     position?:int,
+     *     namespaces?:list<array{namespace:string,is_default?:bool}|string>
      * }> $users
      *
      * @throws UsernameBlockedException
@@ -243,6 +251,7 @@ class UserService
             $pass = $u['password'] ?? '';
             $active = isset($u['active']) ? (bool) $u['active'] : true;
             $position = $pos;
+            $namespacePayload = $this->extractNamespacePayload($u['namespaces'] ?? null);
 
             if ($id === 0 || !isset($existing[$id])) {
                 if ($pass === '') {
@@ -259,7 +268,15 @@ class UserService
                 $insertedId = (int) $insert->fetchColumn();
                 $insert->closeCursor();
                 if ($insertedId > 0) {
-                    $this->namespaceRepository->ensureDefaultNamespace($insertedId);
+                    if ($namespacePayload !== null) {
+                        $this->namespaceRepository->replaceForUser(
+                            $insertedId,
+                            $namespacePayload['namespaces'],
+                            $namespacePayload['default']
+                        );
+                    } else {
+                        $this->namespaceRepository->ensureDefaultNamespace($insertedId);
+                    }
                 }
                 continue;
             }
@@ -267,6 +284,13 @@ class UserService
             $update->execute([$username, $email, $role, $active, $position, $id]);
             if ($pass !== '') {
                 $updatePass->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
+            }
+            if ($namespacePayload !== null) {
+                $this->namespaceRepository->replaceForUser(
+                    $id,
+                    $namespacePayload['namespaces'],
+                    $namespacePayload['default']
+                );
             }
             unset($existing[$id]);
         }
@@ -294,5 +318,42 @@ class UserService
         $row['namespaces'] = $this->namespaceRepository->loadForUser((int) $row['id']);
 
         return $row;
+    }
+
+    /**
+     * @return array{namespaces:list<string>,default:?string}|null
+     */
+    private function extractNamespacePayload(mixed $payload): ?array
+    {
+        if (!is_array($payload)) {
+            return null;
+        }
+
+        $namespaces = [];
+        $default = null;
+        foreach ($payload as $entry) {
+            if (is_array($entry)) {
+                $namespace = (string) ($entry['namespace'] ?? '');
+                if (!empty($entry['is_default'])) {
+                    $default = $namespace;
+                }
+            } else {
+                $namespace = (string) $entry;
+            }
+
+            $namespace = strtolower(trim($namespace));
+            if ($namespace === '') {
+                continue;
+            }
+
+            if (!in_array($namespace, $namespaces, true)) {
+                $namespaces[] = $namespace;
+            }
+        }
+
+        return [
+            'namespaces' => $namespaces,
+            'default' => $default !== null ? strtolower(trim($default)) : null,
+        ];
     }
 }

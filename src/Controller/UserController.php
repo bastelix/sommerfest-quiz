@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Roles;
 use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -36,6 +37,15 @@ class UserController
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);
+        }
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role !== Roles::ADMIN) {
+            foreach ($data as &$entry) {
+                if (is_array($entry)) {
+                    unset($entry['namespaces']);
+                }
+            }
+            unset($entry);
         }
         try {
             $this->service->saveAll($data);

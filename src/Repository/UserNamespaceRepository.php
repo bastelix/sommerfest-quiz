@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Service\PageService;
 use PDO;
 
 use function trim;
@@ -70,5 +71,79 @@ final class UserNamespaceRepository
         );
         $stmt->execute([$userId, $namespace]);
         $stmt->closeCursor();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getKnownNamespaces(): array
+    {
+        $stmt = $this->pdo->query('SELECT DISTINCT namespace FROM user_namespaces ORDER BY namespace');
+
+        $namespaces = [];
+        while (($value = $stmt->fetchColumn()) !== false) {
+            $namespace = trim((string) $value);
+            if ($namespace === '') {
+                continue;
+            }
+            $namespaces[] = $namespace;
+        }
+        $stmt->closeCursor();
+
+        if (!in_array(PageService::DEFAULT_NAMESPACE, $namespaces, true)) {
+            $namespaces[] = PageService::DEFAULT_NAMESPACE;
+        }
+
+        sort($namespaces);
+
+        return $namespaces;
+    }
+
+    /**
+     * @param list<string> $namespaces
+     */
+    public function replaceForUser(int $userId, array $namespaces, ?string $defaultNamespace = null): void
+    {
+        if ($userId <= 0) {
+            return;
+        }
+
+        $normalized = [];
+        foreach ($namespaces as $namespace) {
+            if (!is_string($namespace)) {
+                continue;
+            }
+            $value = trim(strtolower($namespace));
+            if ($value === '') {
+                continue;
+            }
+            if (!in_array($value, $normalized, true)) {
+                $normalized[] = $value;
+            }
+        }
+
+        if ($normalized === []) {
+            $normalized = [PageService::DEFAULT_NAMESPACE];
+        }
+
+        $default = $defaultNamespace !== null ? trim(strtolower($defaultNamespace)) : null;
+        if ($default === '') {
+            $default = null;
+        }
+        if ($default !== null && !in_array($default, $normalized, true)) {
+            $default = $normalized[0] ?? null;
+        }
+
+        $delete = $this->pdo->prepare('DELETE FROM user_namespaces WHERE user_id = ?');
+        $delete->execute([$userId]);
+        $delete->closeCursor();
+
+        $insert = $this->pdo->prepare(
+            'INSERT INTO user_namespaces (user_id, namespace, is_default) VALUES (?, ?, ?)'
+        );
+        foreach ($normalized as $namespace) {
+            $insert->execute([$userId, $namespace, $default !== null && $namespace === $default]);
+        }
+        $insert->closeCursor();
     }
 }
