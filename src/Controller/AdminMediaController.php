@@ -7,6 +7,8 @@ namespace App\Controller;
 use App\Service\LandingMediaReferenceService;
 use App\Service\MediaLibraryService;
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceValidator;
+use App\Domain\Roles;
 use JsonException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -40,6 +42,7 @@ class AdminMediaController
 
         $role = (string) ($_SESSION['user']['role'] ?? '');
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        [$scope, $mediaNamespace] = $this->resolveScope($request);
 
         return $view->render($response, 'admin/media.twig', [
             'csrf_token' => $csrf,
@@ -48,6 +51,8 @@ class AdminMediaController
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
+            'mediaScope' => $scope,
+            'mediaNamespace' => $mediaNamespace ?? '',
         ]);
     }
 
@@ -56,16 +61,20 @@ class AdminMediaController
      */
     public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
-        $scope = MediaLibraryService::SCOPE_GLOBAL;
+        try {
+            [$scope, $namespace] = $this->resolveScope($request);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
         $page = max(1, (int) ($params['page'] ?? 1));
         $perPage = (int) ($params['perPage'] ?? 20);
         $perPage = max(1, min(100, $perPage));
         $search = trim((string) ($params['search'] ?? ''));
 
         try {
-            $files = $this->media->listFiles($scope, null);
+            $files = $this->media->listFiles($scope, null, $namespace);
         } catch (RuntimeException $e) {
-            return $this->jsonError($response, $e->getMessage(), 400);
+            return $this->jsonError($response, $e->getMessage(), 400, $namespace);
         }
 
         $landingFilter = '';
@@ -221,7 +230,11 @@ class AdminMediaController
         if (!is_array($body)) {
             $body = [];
         }
-        $scope = MediaLibraryService::SCOPE_GLOBAL;
+        try {
+            [$scope, $namespace] = $this->resolveScope($request, $body);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
 
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {
@@ -248,10 +261,11 @@ class AdminMediaController
                 $scope,
                 $file,
                 null,
-                $options !== [] ? $options : null
+                $options !== [] ? $options : null,
+                $namespace
             );
         } catch (RuntimeException $e) {
-            return $this->jsonError($response, $e->getMessage(), 400);
+            return $this->jsonError($response, $e->getMessage(), 400, $namespace);
         }
 
         $payload = [
@@ -272,7 +286,11 @@ class AdminMediaController
             $body = [];
         }
 
-        $scope = MediaLibraryService::SCOPE_GLOBAL;
+        try {
+            [$scope, $namespace] = $this->resolveScope($request, $body);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
         $name = (string) ($body['name'] ?? '');
 
         if ($name === '') {
@@ -287,9 +305,9 @@ class AdminMediaController
         $file = $files['file'];
 
         try {
-            $stored = $this->media->replaceFile($scope, $name, $file, null);
+            $stored = $this->media->replaceFile($scope, $name, $file, null, $namespace);
         } catch (RuntimeException $e) {
-            return $this->jsonError($response, $e->getMessage(), 400);
+            return $this->jsonError($response, $e->getMessage(), 400, $namespace);
         }
 
         return $this->json($response, [
@@ -304,7 +322,11 @@ class AdminMediaController
      */
     public function convert(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
-        $scope = MediaLibraryService::SCOPE_GLOBAL;
+        try {
+            [$scope, $namespace] = $this->resolveScope($request, $data);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
         $name = (string) ($data['name'] ?? '');
 
         if ($name === '') {
@@ -312,9 +334,9 @@ class AdminMediaController
         }
 
         try {
-            $file = $this->media->convertFile($scope, $name, null);
+            $file = $this->media->convertFile($scope, $name, null, $namespace);
         } catch (RuntimeException $e) {
-            return $this->jsonError($response, $e->getMessage(), 400);
+            return $this->jsonError($response, $e->getMessage(), 400, $namespace);
         }
 
         return $this->json($response, [
@@ -329,7 +351,11 @@ class AdminMediaController
      */
     public function rename(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
-        $scope = MediaLibraryService::SCOPE_GLOBAL;
+        try {
+            [$scope, $namespace] = $this->resolveScope($request, $data);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
         $old = (string) ($data['oldName'] ?? '');
         $new = (string) ($data['newName'] ?? '');
 
@@ -352,10 +378,11 @@ class AdminMediaController
                 $old,
                 $new,
                 null,
-                $options !== [] ? $options : null
+                $options !== [] ? $options : null,
+                $namespace
             );
         } catch (RuntimeException $e) {
-            return $this->jsonError($response, $e->getMessage(), 400);
+            return $this->jsonError($response, $e->getMessage(), 400, $namespace);
         }
 
         return $this->json($response, [
@@ -370,7 +397,11 @@ class AdminMediaController
      */
     public function delete(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
-        $scope = MediaLibraryService::SCOPE_GLOBAL;
+        try {
+            [$scope, $namespace] = $this->resolveScope($request, $data);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
         $name = (string) ($data['name'] ?? '');
 
         if ($name === '') {
@@ -378,9 +409,9 @@ class AdminMediaController
         }
 
         try {
-            $this->media->deleteFile($scope, $name, null);
+            $this->media->deleteFile($scope, $name, null, $namespace);
         } catch (RuntimeException $e) {
-            return $this->jsonError($response, $e->getMessage(), 400);
+            return $this->jsonError($response, $e->getMessage(), 400, $namespace);
         }
 
         return $this->json($response, [
@@ -565,18 +596,90 @@ class AdminMediaController
             ->withStatus($status);
     }
 
-    private function jsonError(Response $response, string $message, int $status): Response {
+    private function jsonError(
+        Response $response,
+        string $message,
+        int $status,
+        ?string $namespace = null
+    ): Response {
         $payload = [
             'error' => $message,
             'limits' => $this->media->getLimits(),
             'landing' => [
-                'slugs' => $this->landing->getLandingSlugs(),
+                'slugs' => $this->landing->getLandingSlugs($namespace),
                 'missing' => [],
                 'active' => '',
             ],
         ];
 
         return $this->json($response, $payload, $status);
+    }
+
+    /**
+     * @return array{0:string,1:?string}
+     */
+    private function resolveScope(Request $request, ?array $body = null): array
+    {
+        $role = (string) ($_SESSION['user']['role'] ?? '');
+        $isAdmin = $role === Roles::ADMIN;
+        [$requestedScope, $requestedNamespace] = $this->extractScopeParams($request, $body);
+
+        if (!$isAdmin) {
+            $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            return [MediaLibraryService::SCOPE_PROJECT, $namespace];
+        }
+
+        if ($requestedScope === MediaLibraryService::SCOPE_PROJECT) {
+            $namespaceValue = $requestedNamespace !== ''
+                ? $this->normalizeNamespace($requestedNamespace)
+                : (new NamespaceResolver())->resolve($request)->getNamespace();
+            if ($namespaceValue === '') {
+                throw new RuntimeException('namespace required');
+            }
+            return [MediaLibraryService::SCOPE_PROJECT, $namespaceValue];
+        }
+
+        return [MediaLibraryService::SCOPE_GLOBAL, null];
+    }
+
+    /**
+     * @param array<string,mixed>|null $body
+     * @return array{0:string,1:string}
+     */
+    private function extractScopeParams(Request $request, ?array $body): array
+    {
+        $params = $request->getQueryParams();
+        $scope = $params['scope'] ?? null;
+        $namespace = $params['namespace'] ?? null;
+
+        if ($body === null) {
+            $body = $this->parseBody($request);
+        }
+
+        if (is_array($body)) {
+            if ($scope === null) {
+                $scope = $body['scope'] ?? null;
+            }
+            if ($namespace === null) {
+                $namespace = $body['namespace'] ?? null;
+            }
+        }
+
+        $scope = is_string($scope) ? trim($scope) : '';
+        $namespace = is_string($namespace) ? trim($namespace) : '';
+
+        return [$scope, $namespace];
+    }
+
+    private function normalizeNamespace(string $namespace): string
+    {
+        $validator = new NamespaceValidator();
+        $normalized = $validator->normalizeCandidate($namespace);
+        if ($normalized === null) {
+            throw new RuntimeException('invalid namespace');
+        }
+
+        return $normalized;
     }
     /**
      * @return array<string,mixed>

@@ -159,6 +159,11 @@ class AdminController
         $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
         $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $requestedScope = trim((string) ($request->getQueryParams()['scope'] ?? ''));
+        $mediaScope = $role === Roles::ADMIN && $requestedScope === MediaLibraryService::SCOPE_PROJECT
+            ? MediaLibraryService::SCOPE_PROJECT
+            : ($role === Roles::ADMIN ? MediaLibraryService::SCOPE_GLOBAL : MediaLibraryService::SCOPE_PROJECT);
+        $mediaNamespace = $mediaScope === MediaLibraryService::SCOPE_PROJECT ? $namespace : '';
         $availableNamespaces = [];
         $namespaceRepository = new NamespaceRepository($pdo);
         try {
@@ -414,6 +419,8 @@ class AdminController
               'version' => $version,
               'mediaLimits' => $mediaLimits,
               'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs($namespace),
+              'mediaScope' => $mediaScope,
+              'mediaNamespace' => $mediaNamespace,
               'ragChatSecretPlaceholder' => self::CHAT_SECRET_PLACEHOLDER,
           ]);
     }
