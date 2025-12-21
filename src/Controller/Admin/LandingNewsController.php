@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Domain\LandingNews;
 use App\Domain\Page;
 use App\Service\LandingNewsService;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use DateTimeImmutable;
@@ -30,14 +31,20 @@ class LandingNewsController
     private LandingNewsService $news;
 
     private PageService $pages;
+    private NamespaceResolver $namespaceResolver;
 
     /** @var list<string> */
     private const EXCLUDED_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
 
-    public function __construct(?LandingNewsService $news = null, ?PageService $pages = null)
+    public function __construct(
+        ?LandingNewsService $news = null,
+        ?PageService $pages = null,
+        ?NamespaceResolver $namespaceResolver = null
+    )
     {
         $this->news = $news ?? new LandingNewsService();
         $this->pages = $pages ?? new PageService();
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     public function index(Request $request, Response $response): Response
@@ -56,6 +63,15 @@ class LandingNewsController
     public function store(Request $request, Response $response): Response
     {
         $data = $this->extractFormData($request);
+        if (!$this->pageMatchesNamespace($request, $data['page_id'])) {
+            return $this->renderForm(
+                $request,
+                $response,
+                null,
+                $data,
+                'Die ausgewählte Seite ist im Namespace nicht verfügbar.'
+            );
+        }
 
         try {
             $publishedAt = $this->parseDateTime($data['published_at']);
@@ -79,7 +95,7 @@ class LandingNewsController
 
     public function edit(Request $request, Response $response, array $args): Response
     {
-        $entry = $this->resolveEntry($args);
+        $entry = $this->resolveEntry($request, $args);
         if ($entry === null) {
             return $response->withStatus(404);
         }
@@ -89,12 +105,21 @@ class LandingNewsController
 
     public function update(Request $request, Response $response, array $args): Response
     {
-        $entry = $this->resolveEntry($args);
+        $entry = $this->resolveEntry($request, $args);
         if ($entry === null) {
             return $response->withStatus(404);
         }
 
         $data = $this->extractFormData($request);
+        if (!$this->pageMatchesNamespace($request, $data['page_id'])) {
+            return $this->renderForm(
+                $request,
+                $response,
+                $entry,
+                $data,
+                'Die ausgewählte Seite ist im Namespace nicht verfügbar.'
+            );
+        }
 
         try {
             $publishedAt = $this->parseDateTime($data['published_at']);
@@ -119,7 +144,7 @@ class LandingNewsController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $entry = $this->resolveEntry($args);
+        $entry = $this->resolveEntry($request, $args);
         if ($entry !== null) {
             $this->news->delete($entry->getId());
         }
@@ -135,7 +160,8 @@ class LandingNewsController
         ?string $error = null
     ): Response {
         $view = Twig::fromRequest($request);
-        $pages = $this->getLandingPages();
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $pages = $this->getLandingPages($namespace);
         $payload = [
             'entry' => $entry,
             'pages' => $pages,
@@ -144,6 +170,7 @@ class LandingNewsController
             'role' => $_SESSION['user']['role'] ?? '',
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
+            'pageNamespace' => $namespace,
         ];
 
         if ($override !== null) {
@@ -174,6 +201,10 @@ class LandingNewsController
         if (is_string($event) && $event !== '') {
             $query['event'] = (string) $event;
         }
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if ($namespace !== '') {
+            $query['namespace'] = $namespace;
+        }
         if ($normalizedStatus !== '') {
             $query['landingNewsStatus'] = $normalizedStatus;
         }
@@ -198,9 +229,9 @@ class LandingNewsController
     /**
      * @return list<Page>
      */
-    private function getLandingPages(): array
+    private function getLandingPages(string $namespace): array
     {
-        $pages = $this->pages->getAll();
+        $pages = $this->pages->getAllForNamespace($namespace);
 
         return array_values(array_filter(
             $pages,
@@ -256,13 +287,44 @@ class LandingNewsController
         return new DateTimeImmutable($trimmed);
     }
 
-    private function resolveEntry(array $args): ?LandingNews
+    private function pageMatchesNamespace(Request $request, int $pageId): bool
+    {
+        if ($pageId <= 0) {
+            return false;
+        }
+
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            return false;
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+
+        return $page->getNamespace() === $namespace;
+    }
+
+    private function resolveEntry(Request $request, array $args): ?LandingNews
     {
         $id = isset($args['id']) ? (int) $args['id'] : 0;
         if ($id <= 0) {
             return null;
         }
 
-        return $this->news->find($id);
+        $entry = $this->news->find($id);
+        if ($entry === null) {
+            return null;
+        }
+
+        $page = $this->pages->findById($entry->getPageId());
+        if ($page === null) {
+            return null;
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if ($page->getNamespace() !== $namespace) {
+            return null;
+        }
+
+        return $entry;
     }
 }

@@ -46,6 +46,22 @@ if (manager) {
     const modalUpdatedLabel = modalElement ? modalElement.querySelector('[data-wiki-article-updated]') : null;
     const modalSubmit = modalElement ? modalElement.querySelector('[data-wiki-article-submit]') : null;
     const modalStartInput = modalElement ? modalElement.querySelector('[data-wiki-article-start]') : null;
+    const basePath = manager.dataset.basePath || '';
+
+    const resolveNamespace = () => {
+      const select = document.getElementById('pageNamespaceSelect');
+      const candidate = select?.value || manager.dataset.namespace || window.pageNamespace || '';
+      return String(candidate || '').trim();
+    };
+
+    const withNamespace = (path) => {
+      const namespace = resolveNamespace();
+      if (!namespace) {
+        return path;
+      }
+      const separator = path.includes('?') ? '&' : '?';
+      return `${path}${separator}namespace=${encodeURIComponent(namespace)}`;
+    };
 
     if (
       !pageSelect ||
@@ -542,7 +558,7 @@ if (manager) {
     }
 
     function fetchJson(path, options = {}) {
-      return window.apiFetch(path, options).then(response => {
+      return window.apiFetch(withNamespace(path), options).then(response => {
         if (!response.ok) {
           const error = new Error(`Request failed with status ${response.status}`);
           error.status = response.status;
@@ -851,7 +867,7 @@ if (manager) {
       formData.append('status', 'draft');
 
       window
-        .apiFetch(`/admin/pages/${state.pageId}/wiki/articles`, {
+        .apiFetch(withNamespace(`/admin/pages/${state.pageId}/wiki/articles`), {
           method: 'POST',
           body: formData
         })
@@ -900,7 +916,7 @@ if (manager) {
       if (!confirm(messages.articleDeleteConfirm)) {
         return;
       }
-      window.apiFetch(`/admin/pages/${state.pageId}/wiki/articles/${articleId}`, {
+      window.apiFetch(withNamespace(`/admin/pages/${state.pageId}/wiki/articles/${articleId}`), {
         method: 'DELETE'
       }).then(response => {
         if (!response.ok && response.status !== 204) {
@@ -990,7 +1006,7 @@ if (manager) {
           duplicateArticle(articleId);
           break;
         case 'download':
-          window.open(`${manager.dataset.basePath || ''}/admin/pages/${state.pageId}/wiki/articles/${articleId}/download`, '_blank');
+          window.open(withNamespace(`${basePath}/admin/pages/${state.pageId}/wiki/articles/${articleId}/download`), '_blank');
           break;
         case 'delete':
           deleteArticle(articleId);

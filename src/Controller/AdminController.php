@@ -151,6 +151,16 @@ class AdminController
 
         if ($section === 'management') {
             $users = (new UserService($pdo))->getAll();
+        }
+
+        $pageSvc = new PageService($pdo);
+        $seoSvc = new PageSeoConfigService($pdo);
+        $landingNewsService = new LandingNewsService($pdo);
+        $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
+        $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $availableNamespaces = [];
+        if (in_array($section, ['management', 'pages'], true)) {
             $namespaceRepository = new NamespaceRepository($pdo);
             try {
                 $availableNamespaces = $namespaceRepository->list();
@@ -169,14 +179,19 @@ class AdminController
                     'updated_at' => null,
                 ];
             }
+            if (!array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+            )) {
+                $availableNamespaces[] = [
+                    'namespace' => $namespace,
+                    'label' => null,
+                    'is_active' => true,
+                    'created_at' => null,
+                    'updated_at' => null,
+                ];
+            }
         }
-
-        $pageSvc = new PageService($pdo);
-        $seoSvc = new PageSeoConfigService($pdo);
-        $landingNewsService = new LandingNewsService($pdo);
-        $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
-        $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped($namespace);
         $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
         sort($marketingNewsletterSlugs);
@@ -311,6 +326,16 @@ class AdminController
         $landingNewsEntries = [];
         if ($section === 'pages' && $role === Roles::ADMIN) {
             $landingNewsEntries = $landingNewsService->getAll();
+            if ($landingNewsEntries !== []) {
+                $allowedPageIds = [];
+                foreach ($allPages as $page) {
+                    $allowedPageIds[$page->getId()] = true;
+                }
+                $landingNewsEntries = array_values(array_filter(
+                    $landingNewsEntries,
+                    static fn ($entry): bool => isset($allowedPageIds[$entry->getPageId()])
+                ));
+            }
         }
 
         $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';

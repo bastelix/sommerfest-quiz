@@ -9,6 +9,7 @@ use App\Domain\Page;
 use App\Domain\PageSeoConfig;
 use App\Infrastructure\Database;
 use App\Service\DomainStartPageService;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,6 +24,7 @@ class LandingpageController
     private PageSeoConfigService $seoService;
     private PageService $pageService;
     private DomainStartPageService $domainService;
+    private NamespaceResolver $namespaceResolver;
 
     /** @var string[] */
     public const EXCLUDED_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
@@ -30,11 +32,13 @@ class LandingpageController
     public function __construct(
         ?PageSeoConfigService $seoService = null,
         ?PageService $pageService = null,
-        ?DomainStartPageService $domainService = null
+        ?DomainStartPageService $domainService = null,
+        ?NamespaceResolver $namespaceResolver = null
     ) {
         $this->seoService = $seoService ?? new PageSeoConfigService();
         $this->pageService = $pageService ?? new PageService();
         $this->domainService = $domainService ?? new DomainStartPageService(Database::connectFromEnv());
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
     /**
@@ -42,7 +46,8 @@ class LandingpageController
      */
     public function page(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
-        $pages = $this->getMarketingPages();
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $pages = $this->getMarketingPages($namespace);
         if ($pages === []) {
             return $view->render($response, 'admin/landingpage/edit.html.twig', [
                 'config' => [],
@@ -105,7 +110,12 @@ class LandingpageController
         );
 
         $page = $this->pageService->findById($payload['pageId']);
-        if ($page === null || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)) {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (
+            $page === null
+            || $page->getNamespace() !== $namespace
+            || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)
+        ) {
             return $response->withStatus(400);
         }
 
@@ -142,16 +152,20 @@ class LandingpageController
         }
 
         $base = RouteContext::fromRequest($request)->getBasePath();
+        $query = [
+            'slug' => $page->getSlug(),
+            'namespace' => $namespace,
+        ];
         return $response
-            ->withHeader('Location', $base . '/admin/landingpage/seo?slug=' . rawurlencode($page->getSlug()))
+            ->withHeader('Location', $base . '/admin/landingpage/seo?' . http_build_query($query))
             ->withStatus(303);
     }
 
     /**
      * @return Page[]
      */
-    private function getMarketingPages(): array {
-        $pages = $this->pageService->getAll();
+    private function getMarketingPages(string $namespace): array {
+        $pages = $this->pageService->getAllForNamespace($namespace);
 
         return array_values(array_filter(
             $pages,

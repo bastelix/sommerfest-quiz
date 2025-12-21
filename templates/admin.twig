@@ -1484,6 +1484,15 @@
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
           {% set activePageNamespace = pageNamespace|default('default') %}
+          {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+          {% set pageNamespaceOptions = available_namespaces|default([]) %}
+          {% if pageNamespaceOptions is empty %}
+            {% set pageNamespaceOptions = [{
+              namespace: activePageNamespace,
+              label: null,
+              is_active: true
+            }] %}
+          {% endif %}
           <div class="uk-card uk-card-default uk-card-body uk-margin-small">
             <div class="uk-grid-small uk-flex-middle" uk-grid>
               <div class="uk-width-1-1 uk-width-expand@m">
@@ -1493,31 +1502,41 @@
                     id="pageNamespaceSelect"
                     class="uk-select"
                     data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                    disabled
                   >
-                    <option value="{{ activePageNamespace|e('html_attr') }}">{{ activePageNamespace }}</option>
+                    {% for entry in pageNamespaceOptions %}
+                      {% if entry.is_active is not defined or entry.is_active %}
+                        {% set entryNamespace = entry.namespace|default('') %}
+                        {% set entryLabel = entry.label|default('') %}
+                        <option
+                          value="{{ entryNamespace|e('html_attr') }}"
+                          {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                        >
+                          {{ entryNamespace }}{% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                        </option>
+                      {% endif %}
+                    {% endfor %}
                   </select>
                 </div>
               </div>
               <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-                Namespace wird automatisch aus dem Request gesetzt.
+                Wechsel lädt die Inhalte des ausgewählten Namespace neu.
               </div>
             </div>
           </div>
           {% include 'admin/components/project_tree.twig' %}
           {% set currentPageTab = pageTab|default('seo') %}
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
-            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
-            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_content') }}</a></li>
-            <li class="{{ currentPageTab == 'wiki' ? 'uk-active' }}"><a href="#">Wiki</a></li>
-            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}"><a href="#">{{ t('tab_landing_news') }}</a></li>
+            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}" data-page-tab="seo"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
+            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}" data-page-tab="content"><a href="#">{{ t('tab_landingpage_content') }}</a></li>
+            <li class="{{ currentPageTab == 'wiki' ? 'uk-active' }}" data-page-tab="wiki"><a href="#">Wiki</a></li>
+            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}" data-page-tab="landing-news"><a href="#">{{ t('tab_landing_news') }}</a></li>
           </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
             <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}">
               {% if seo_pages|default([]) is empty %}
                 <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
-              <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
+              <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo{{ pageNamespaceQuery }}" method="post">
                 <input type="hidden" name="pageId" value="{{ seo_config.pageId|default(selectedSeoPageId|default('')) }}">
                 <input type="hidden" name="domain" id="seoDomain" value="{{ seo_config.domain|default('') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -1701,6 +1720,7 @@
                   class="wiki-manager"
                   data-wiki-manager
                   data-base-path="{{ basePath }}"
+                  data-namespace="{{ activePageNamespace|e('html_attr') }}"
                   data-pages="{{ pages|json_encode|e('html_attr') }}"
                   data-selected-page-id="{{ initialWikiPageId }}"
                 >
@@ -1880,12 +1900,13 @@
             <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}">
               <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
                 <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_landing_news') }}</h3>
-                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-remove-top@s" href="{{ basePath }}/admin/landing-news/create">{{ t('button_add_news') }}</a>
+                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-remove-top@s" href="{{ basePath }}/admin/landing-news/create{{ pageNamespaceQuery }}">{{ t('button_add_news') }}</a>
               </div>
               {% include 'admin/landing_news/_list.twig' with {
                 entries: landingNewsEntries|default([]),
                 status: landingNewsStatus|default(''),
-                csrfToken: csrf_token
+                csrfToken: csrf_token,
+                pageNamespace: activePageNamespace
               } %}
             </li>
           </ul>
@@ -2551,6 +2572,7 @@
     window.roles = {{ roles|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.availableNamespaces = {{ available_namespaces|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.defaultNamespace = '{{ default_namespace|default('default')|e('js') }}';
+    window.pageNamespace = '{{ pageNamespace|default('default')|e('js') }}';
     window.currentUserRole = '{{ role|e('js') }}';
     window.transNamespaceActiveLabel = '{{ t('label_namespace_active')|e('js') }}';
     window.transNamespaceDefaultLabel = '{{ t('label_namespace_default')|e('js') }}';
