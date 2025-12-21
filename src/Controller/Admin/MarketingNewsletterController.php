@@ -69,7 +69,7 @@ class MarketingNewsletterController
 
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
         )) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
@@ -82,7 +82,7 @@ class MarketingNewsletterController
 
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+            static fn (array $entry): bool => $entry['namespace'] === $namespace
         )) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,

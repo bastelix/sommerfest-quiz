@@ -152,7 +152,7 @@ class ProjectPagesController
 
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === PageService::DEFAULT_NAMESPACE
+            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
         )) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
@@ -165,7 +165,7 @@ class ProjectPagesController
 
         if (!array_filter(
             $availableNamespaces,
-            static fn (array $entry): bool => ($entry['namespace'] ?? '') === $namespace
+            static fn (array $entry): bool => $entry['namespace'] === $namespace
         )) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
@@ -228,7 +228,7 @@ class ProjectPagesController
             }
         }
 
-        return $pages[0]->getId() ?? 0;
+        return $pages[0]->getId();
     }
 
     /**
@@ -348,7 +348,7 @@ class ProjectPagesController
         }
 
         $host = $request->getUri()->getHost();
-        $subdomain = explode('.', $host)[0] ?? '';
+        $subdomain = explode('.', $host)[0];
         if ($subdomain === '') {
             return null;
         }
