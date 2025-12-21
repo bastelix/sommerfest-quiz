@@ -10035,6 +10035,7 @@ document.addEventListener('DOMContentLoaded', function () {
       notFound: namespaceManager.dataset.messageNotFound || 'Namespace not found.',
       defaultLocked: namespaceManager.dataset.messageDefaultLocked || 'Default namespace cannot be changed.',
       inUse: namespaceManager.dataset.messageInUse || 'Namespace is still in use.',
+      tableMissing: namespaceManager.dataset.messageTableMissing || 'Namespaces table is missing.',
       error: namespaceManager.dataset.messageError || 'Action failed.',
       loading: namespaceManager.dataset.textLoading || 'Loading namespaces...',
       empty: namespaceManager.dataset.textEmpty || 'No namespaces configured yet.',
@@ -10258,7 +10259,12 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(err => {
           tableBody.innerHTML = '';
-          renderMessageRow(err?.message || messages.error);
+          const message = err?.message || messages.error;
+          if (message === messages.error && messages.tableMissing) {
+            renderMessageRow(messages.tableMissing);
+            return;
+          }
+          renderMessageRow(message);
         });
     };
 

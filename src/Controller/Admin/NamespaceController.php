@@ -61,6 +61,20 @@ final class NamespaceController
      */
     public function list(Request $request, Response $response): Response
     {
+        try {
+            $entries = $this->service->all();
+        } catch (RuntimeException) {
+            return $this->jsonError(
+                $response,
+                $this->translate(
+                    $request,
+                    'error_namespace_table_missing',
+                    'The namespaces table is missing. Please run the migrations.'
+                ),
+                500
+            );
+        }
+
         $namespaces = array_map(
             function (array $entry): array {
                 $namespace = $entry['namespace'];
@@ -71,7 +85,7 @@ final class NamespaceController
                     'is_default' => $namespace === PageService::DEFAULT_NAMESPACE,
                 ];
             },
-            $this->service->all()
+            $entries
         );
 
         return $this->json($response, [

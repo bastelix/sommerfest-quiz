@@ -129,6 +129,7 @@ return [
     'error_namespace_not_found' => 'Namespace nicht gefunden.',
     'error_namespace_default_locked' => 'Der Standard-Namespace kann nicht geändert werden.',
     'error_namespace_in_use' => 'Der Namespace wird noch verwendet und kann nicht deaktiviert werden:',
+    'error_namespace_table_missing' => 'Die Namespace-Tabelle fehlt. Bitte die Migrationen ausführen.',
     'error_namespace_unknown' => 'Die Aktion konnte nicht ausgeführt werden.',
     'error_username_blocklist_invalid' => 'Bitte einen gültigen Nutzernamen angeben (mindestens 3 Zeichen).',
     'error_username_blocklist_duplicate' => 'Dieser Nutzername ist bereits gesperrt.',
