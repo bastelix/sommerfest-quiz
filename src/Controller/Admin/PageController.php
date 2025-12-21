@@ -138,6 +138,106 @@ class PageController
             ->withStatus(201);
     }
 
+    public function copy(Request $request, Response $response, array $args): Response
+    {
+        $slug = $args['slug'] ?? '';
+        $data = $this->parseRequestData($request);
+        if ($data === null) {
+            return $response->withStatus(400);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
+        $targetNamespace = (string) ($data['targetNamespace'] ?? $data['target_namespace'] ?? $data['namespace'] ?? '');
+
+        try {
+            $result = $this->pageService->copy($namespace, (string) $slug, $targetNamespace);
+        } catch (InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (LogicException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(409);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $this->editableSlugs = [];
+        $payload = [
+            'page' => $result['page'],
+            'copied' => $result['copied'],
+        ];
+
+        $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(201);
+    }
+
+    public function move(Request $request, Response $response, array $args): Response
+    {
+        $slug = $args['slug'] ?? '';
+        $data = $this->parseRequestData($request);
+        if ($data === null) {
+            return $response->withStatus(400);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
+        $targetNamespace = (string) ($data['targetNamespace'] ?? $data['target_namespace'] ?? $data['namespace'] ?? '');
+
+        try {
+            $result = $this->pageService->move($namespace, (string) $slug, $targetNamespace);
+        } catch (InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (LogicException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(409);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $this->editableSlugs = [];
+        $payload = [
+            'page' => $result['page'],
+            'moved' => $result['moved'],
+        ];
+
+        $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
+
     /**
      * Return the full page tree for admin UI use.
      */
@@ -181,5 +281,26 @@ class PageController
         $this->editableSlugs[$namespace] = array_keys($slugs);
 
         return $this->editableSlugs[$namespace];
+    }
+
+    private function parseRequestData(Request $request): ?array
+    {
+        $data = $request->getParsedBody();
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
+            $raw = (string) $request->getBody();
+            if ($raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data = $decoded;
+                }
+            }
+        }
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        return $data;
     }
 }
