@@ -88,7 +88,8 @@
             data-label-inactive="{{ t('label_namespace_inactive')|e('html_attr') }}"
           >
             <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_create') }}</h3>
-            <form class="uk-form-stacked" data-namespace-form>
+            <form class="uk-form-stacked" data-namespace-form method="post" action="{{ basePath }}/admin/namespaces">
+              <input type="hidden" name="csrf_token" value="{{ csrfToken }}">
               <div class="uk-grid-small uk-child-width-1-2@m uk-margin" uk-grid>
                 <div>
                   <label class="uk-form-label" for="namespaceInput">{{ t('label_namespace_name') }}</label>
