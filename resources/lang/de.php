@@ -27,6 +27,8 @@ return [
     'tab_questions' => 'Fragen bearbeiten',
     'tab_media' => 'Medien',
     'tab_rag_chat' => 'KI-Chatbot',
+    'tab_domain_chat' => 'KI-Dokumentation',
+    'tab_rag_chat_config' => 'Chatbot Konfiguration',
     'tab_teams' => 'Teams/Personen',
     'tab_summary' => 'Übersicht',
     'tab_results' => 'Ergebnisse',
