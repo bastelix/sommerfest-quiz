@@ -400,7 +400,7 @@ return [
     'label_mail_provider_from_email' => 'Sender email',
     'label_mail_provider_from_name' => 'Sender name',
     'label_mail_provider_mailer_dsn' => 'Mailer DSN (optional)',
-    'text_mail_provider_dsn_hint' => 'If provided, the DSN overrides the SMTP host, user, and password fields.',
+    'text_mail_provider_dsn_hint' => 'A DSN centralizes mail configuration (supports API-based delivery) and replaces multiple individual fields such as host, username, and password.',
     'label_mail_provider_smtp_host' => 'SMTP host',
     'label_mail_provider_smtp_port' => 'SMTP port',
     'label_mail_provider_smtp_encryption' => 'Encryption',
