@@ -189,9 +189,9 @@ final class DomainChatKnowledgeController
         }
 
         $status = 200;
-        if (($result['status'] ?? '') === 'queued') {
+        if ($result['status'] === 'queued') {
             $status = 202;
-        } elseif (($result['status'] ?? '') === 'throttled') {
+        } elseif ($result['status'] === 'throttled') {
             $status = 429;
         }
 
