@@ -38,7 +38,7 @@ final class ProjectSettingsRepository
         $stmt = $this->pdo->prepare(
             'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
-            . 'privacy_url, privacy_url_de, privacy_url_en, updated_at '
+            . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
