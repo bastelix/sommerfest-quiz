@@ -123,6 +123,56 @@
           <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
         {% else %}
           {% include 'admin/components/page_tree.twig' %}
+          <div
+            id="pageNamespaceActionModal"
+            uk-modal
+            data-success-copy="{{ t('notify_page_action_copy_success')|e('html_attr') }}"
+            data-success-move="{{ t('notify_page_action_move_success')|e('html_attr') }}"
+            data-error="{{ t('notify_page_action_error')|e('html_attr') }}"
+            data-invalid="{{ t('notify_page_action_invalid')|e('html_attr') }}"
+            data-same-namespace="{{ t('notify_page_action_same_namespace')|e('html_attr') }}"
+            data-context-label="{{ t('text_page_action_context')|e('html_attr') }}"
+          >
+            <div class="uk-modal-dialog uk-modal-body">
+              <h2 class="uk-modal-title">{{ t('heading_page_namespace_action') }}</h2>
+              <p class="uk-text-meta uk-margin-small-top" data-page-action-summary></p>
+              <form class="uk-form-stacked" data-page-action-form>
+                <div class="uk-alert uk-alert-danger uk-margin-small" data-page-action-feedback hidden></div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="pageActionType">{{ t('label_page_action') }}</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="pageActionType" data-page-action-select required>
+                      <option value="">{{ t('placeholder_select_action') }}</option>
+                      <option value="copy">{{ t('action_copy') }}</option>
+                      <option value="move">{{ t('action_move') }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="pageActionTargetNamespace">{{ t('label_target_namespace') }}</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="pageActionTargetNamespace" data-page-action-namespace required>
+                      <option value="">{{ t('placeholder_select_namespace') }}</option>
+                      {% for entry in pageNamespaceOptions %}
+                        {% set entryNamespace = entry.namespace|default('') %}
+                        {% set entryLabel = entry.label|default('') %}
+                        {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                        <option value="{{ entryNamespace|e('html_attr') }}">
+                          {{ entryNamespace }}
+                          {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                          {% if entryIsInactive %} – {{ t('label_namespace_inactive') }}{% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="uk-flex uk-flex-right">
+                  <button type="submit" class="uk-button uk-button-primary" data-page-action-submit>{{ t('action_apply') }}</button>
+                  <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
+                </div>
+              </form>
+            </div>
+          </div>
           {% set selectedSlug = selectedPageSlug|default('') %}
           {% if selectedSlug == '' and pages|length > 0 %}
             {% set selectedSlug = (pages|first).slug %}

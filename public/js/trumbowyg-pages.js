@@ -450,6 +450,11 @@ const getTranslation = (name, fallback) => {
   return typeof value === 'string' && value ? value : fallback;
 };
 
+const getDatasetValue = (element, key, fallback) => {
+  const value = element?.dataset?.[key];
+  return typeof value === 'string' && value ? value : fallback;
+};
+
 const removePagesEmptyMessage = (root = document.getElementById('pageFormsContainer')) => {
   root?.querySelector('.pages-empty-alert')?.remove();
 };
@@ -1001,7 +1006,7 @@ function getTypeClass(type) {
   return TYPE_CLASSES[normalized] || 'uk-label';
 }
 
-function buildPageTreeList(nodes, level = 0) {
+function buildPageTreeList(nodes, level = 0, actionLabel = '') {
   const list = document.createElement('ul');
   list.className = 'uk-list uk-list-collapse';
   if (level > 0) {
@@ -1054,12 +1059,22 @@ function buildPageTreeList(nodes, level = 0) {
       meta.appendChild(language);
     }
 
+    if (selectableSlug) {
+      const actionButton = document.createElement('button');
+      actionButton.type = 'button';
+      actionButton.className = 'uk-button uk-button-default uk-button-small uk-margin-small-left page-tree-action';
+      actionButton.dataset.pageActionSlug = selectableSlug;
+      actionButton.dataset.pageActionTitle = node.title || node.slug || 'Ohne Titel';
+      actionButton.textContent = actionLabel || getTranslation('transPageTreeAction', 'Kopieren/Verschieben');
+      meta.appendChild(actionButton);
+    }
+
     row.appendChild(info);
     row.appendChild(meta);
     item.appendChild(row);
 
     if (Array.isArray(node.children) && node.children.length) {
-      item.appendChild(buildPageTreeList(node.children, level + 1));
+      item.appendChild(buildPageTreeList(node.children, level + 1, actionLabel));
     }
 
     list.appendChild(item);
@@ -1089,6 +1104,221 @@ function updatePageTreeActive(container, slug) {
   });
 }
 
+let pageActionState = null;
+
+const initPageActionModal = () => {
+  const modalEl = document.getElementById('pageNamespaceActionModal');
+  if (!modalEl) {
+    pageActionState = null;
+    return null;
+  }
+  if (pageActionState) {
+    return pageActionState;
+  }
+
+  const form = modalEl.querySelector('[data-page-action-form]');
+  const actionSelect = modalEl.querySelector('[data-page-action-select]');
+  const namespaceSelect = modalEl.querySelector('[data-page-action-namespace]');
+  const feedback = modalEl.querySelector('[data-page-action-feedback]');
+  const summary = modalEl.querySelector('[data-page-action-summary]');
+  const submitBtn = modalEl.querySelector('[data-page-action-submit]');
+  const modal = window.UIkit ? window.UIkit.modal(modalEl) : null;
+
+  const setFeedback = (message, status = 'danger') => {
+    if (!feedback) {
+      return;
+    }
+    feedback.classList.remove('uk-alert-danger', 'uk-alert-success');
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.classList.add(status === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+  };
+
+  const clearForm = () => {
+    setFeedback('');
+    if (summary) {
+      summary.textContent = '';
+    }
+    if (actionSelect) {
+      actionSelect.value = '';
+    }
+    if (namespaceSelect) {
+      namespaceSelect.value = '';
+    }
+  };
+
+  if (modalEl.dataset.actionBound !== '1') {
+    modalEl.addEventListener('hidden', clearForm);
+    modalEl.dataset.actionBound = '1';
+  }
+
+  const state = {
+    modalEl,
+    modal,
+    form,
+    actionSelect,
+    namespaceSelect,
+    feedback,
+    summary,
+    submitBtn,
+    setFeedback,
+    clearForm,
+    currentSlug: ''
+  };
+
+  if (form && form.dataset.actionBound !== '1') {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      state.setFeedback('');
+
+      const slug = state.currentSlug;
+      if (!slug) {
+        const message = getDatasetValue(
+          modalEl,
+          'invalid',
+          getTranslation('transPageActionInvalid', 'Bitte Aktion und Ziel-Namespace auswählen.')
+        );
+        state.setFeedback(message);
+        return;
+      }
+
+      const action = actionSelect?.value || '';
+      const targetNamespace = namespaceSelect?.value || '';
+      if (!action || !targetNamespace) {
+        const message = getDatasetValue(
+          modalEl,
+          'invalid',
+          getTranslation('transPageActionInvalid', 'Bitte Aktion und Ziel-Namespace auswählen.')
+        );
+        state.setFeedback(message);
+        return;
+      }
+
+      const currentNamespace = resolvePageNamespace();
+      if (currentNamespace && targetNamespace === currentNamespace) {
+        const message = getDatasetValue(
+          modalEl,
+          'sameNamespace',
+          getTranslation('transPageActionSameNamespace', 'Quell- und Ziel-Namespace müssen unterschiedlich sein.')
+        );
+        state.setFeedback(message);
+        return;
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+
+      try {
+        const endpoint = withNamespace(`/admin/pages/${encodeURIComponent(slug)}/${encodeURIComponent(action)}`);
+        const response = await apiFetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify({ targetNamespace })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const message = payload.error
+            || getDatasetValue(
+              modalEl,
+              'error',
+              getTranslation('transPageActionError', 'Aktion konnte nicht ausgeführt werden.')
+            );
+          throw new Error(message);
+        }
+
+        if (action === 'move' && Array.isArray(payload.moved)) {
+          payload.moved.forEach(entry => {
+            if (entry && typeof entry.slug === 'string') {
+              removePageFromInterface(entry.slug);
+            }
+          });
+        }
+
+        const successMessage = getDatasetValue(
+          modalEl,
+          action === 'move' ? 'successMove' : 'successCopy',
+          action === 'move' ? 'Seite verschoben.' : 'Seite kopiert.'
+        );
+        notify(successMessage, 'success');
+
+        if (modal) {
+          modal.hide();
+        }
+        initPageTree();
+      } catch (error) {
+        const message = error instanceof Error
+          ? error.message
+          : getDatasetValue(
+            modalEl,
+            'error',
+            getTranslation('transPageActionError', 'Aktion konnte nicht ausgeführt werden.')
+          );
+        state.setFeedback(message);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+        }
+      }
+    });
+    form.dataset.actionBound = '1';
+  }
+
+  pageActionState = state;
+  return state;
+};
+
+const openPageActionModal = ({ slug, title }) => {
+  const state = initPageActionModal();
+  if (!state) {
+    return;
+  }
+  const normalizedSlug = (slug || '').trim();
+  if (!normalizedSlug) {
+    return;
+  }
+  state.currentSlug = normalizedSlug;
+
+  const label = (title || '').trim();
+  const fallbackLabel = normalizedSlug ? `/${normalizedSlug}` : '';
+  const displayLabel = label && normalizedSlug && label !== normalizedSlug
+    ? `${label} (${fallbackLabel})`
+    : label || fallbackLabel;
+  const contextLabel = getDatasetValue(
+    state.modalEl,
+    'contextLabel',
+    getTranslation('transPageActionFor', 'Aktion für')
+  );
+  if (state.summary) {
+    state.summary.textContent = displayLabel ? `${contextLabel} ${displayLabel}` : contextLabel;
+  }
+
+  if (state.actionSelect && !state.actionSelect.value) {
+    state.actionSelect.value = 'copy';
+  }
+
+  if (state.namespaceSelect) {
+    const currentNamespace = resolvePageNamespace();
+    const options = Array.from(state.namespaceSelect.options).filter(option => option.value);
+    const preferred = options.find(option => option.value !== currentNamespace) || options[0];
+    if (preferred) {
+      state.namespaceSelect.value = preferred.value;
+    }
+  }
+
+  if (state.modal) {
+    state.modal.show();
+  }
+};
+
 function bindPageTreeInteractions(container) {
   if (!container || container.dataset.treeBound === '1') {
     return;
@@ -1096,6 +1326,16 @@ function bindPageTreeInteractions(container) {
   container.dataset.treeBound = '1';
 
   container.addEventListener('click', event => {
+    const actionTrigger = event.target?.closest?.('[data-page-action-slug]');
+    if (actionTrigger && container.contains(actionTrigger)) {
+      event.preventDefault();
+      openPageActionModal({
+        slug: actionTrigger.dataset.pageActionSlug || '',
+        title: actionTrigger.dataset.pageActionTitle || ''
+      });
+      return;
+    }
+
     const trigger = event.target?.closest?.('[data-page-slug]');
     if (!trigger || !container.contains(trigger)) {
       return;
@@ -1141,6 +1381,7 @@ async function initPageTree() {
   const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
   const errorMessage = container.dataset.error || 'Seitenbaum konnte nicht geladen werden.';
   const endpoint = withNamespace(container.dataset.endpoint || '/admin/pages/tree');
+  const actionLabel = container.dataset.actionLabel || getTranslation('transPageTreeAction', 'Kopieren/Verschieben');
 
   try {
     const response = await (window.apiFetch ? window.apiFetch(endpoint) : fetch(endpoint));
@@ -1172,7 +1413,7 @@ async function initPageTree() {
       container.appendChild(heading);
 
       const pages = Array.isArray(section.pages) ? section.pages : [];
-      container.appendChild(buildPageTreeList(pages));
+      container.appendChild(buildPageTreeList(pages, 0, actionLabel));
     });
 
     const select = document.getElementById('pageContentSelect');
@@ -1195,6 +1436,7 @@ const initPagesModule = () => {
   initPageEditors();
   initPageSelection();
   initPageCreation();
+  initPageActionModal();
   initPageTree();
 };
 if (document.readyState === 'loading') {
