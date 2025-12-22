@@ -843,7 +843,7 @@ return [
     'placeholder_marketing_domain_label' => 'e.g. Summer Fair Landing Page',
     'text_marketing_domain_host_hint' => 'Use fully qualified domains only, without protocol or path.',
     'text_marketing_domain_label_hint' => 'Optional name shown in internal lists and dropdowns.',
-    'text_marketing_domain_submit_hint' => 'The domain becomes active right after saving.',
+    'text_marketing_domain_submit_hint' => 'The domain becomes active right after saving and is immediately reachable; please verify DNS and SSL settings in advance.',
     'action_marketing_domain_save' => 'Save domain',
     'action_marketing_domain_reconcile' => 'Check domains',
     'text_marketing_domain_reconcile_hint' => 'Run after adding a new domain or changing DNS to provision HTTPS certificates and ensure reachability.',
