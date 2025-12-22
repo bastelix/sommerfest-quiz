@@ -397,7 +397,7 @@ return [
     'text_mail_provider_domain_override_credentials' => 'eigene SMTP-Zugangsdaten hinterlegt',
     'text_mail_provider_missing_secret' => 'Setze MAIL_PROVIDER_SECRET oder PASSWORD_RESET_SECRET, um Daten verschlüsselt zu speichern.',
     'label_mail_provider_select' => 'Anbieter auswählen',
-    'text_mail_provider_select_hint' => 'Wechsle zwischen verfügbaren Anbietern. Einstellungen werden je Anbieter gespeichert.',
+    'text_mail_provider_select_hint' => 'Wechsle zwischen verfügbaren Anbietern, um mehrere Provider vorzubereiten und schnell umzuschalten. Einstellungen werden je Anbieter gespeichert.',
     'label_mail_provider_from_email' => 'Absenderadresse',
     'label_mail_provider_from_name' => 'Absendername',
     'label_mail_provider_mailer_dsn' => 'Mailer-DSN (optional)',

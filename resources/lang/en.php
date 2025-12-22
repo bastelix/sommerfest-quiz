@@ -396,7 +396,7 @@ return [
     'text_mail_provider_domain_override_credentials' => 'custom SMTP credentials configured',
     'text_mail_provider_missing_secret' => 'Define MAIL_PROVIDER_SECRET or PASSWORD_RESET_SECRET to enable encrypted storage.',
     'label_mail_provider_select' => 'Select provider',
-    'text_mail_provider_select_hint' => 'Switch between available providers. Settings are saved per provider.',
+    'text_mail_provider_select_hint' => 'Switch between available providers to prepare multiple options and swap quickly. Settings are saved per provider.',
     'label_mail_provider_from_email' => 'Sender email',
     'label_mail_provider_from_name' => 'Sender name',
     'label_mail_provider_mailer_dsn' => 'Mailer DSN (optional)',
