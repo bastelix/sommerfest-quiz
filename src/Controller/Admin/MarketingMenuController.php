@@ -41,7 +41,13 @@ final class MarketingMenuController
         }
 
         $params = $request->getQueryParams();
-        $locale = isset($params['locale']) && is_string($params['locale']) ? strtolower(trim($params['locale'])) : null;
+        $locale = null;
+        if (array_key_exists('locale', $params) && is_string($params['locale'])) {
+            $candidate = strtolower(trim($params['locale']));
+            if ($candidate !== '') {
+                $locale = $candidate;
+            }
+        }
 
         $items = $this->menuService->getMenuItemsForPage($pageId, $locale, false);
         $payload = [
