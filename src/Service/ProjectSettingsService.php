@@ -36,6 +36,8 @@ final class ProjectSettingsService
      *     cookie_banner_text_en:string,
      *     cookie_vendor_flags:array<array-key, mixed>,
      *     privacy_url:string,
+     *     privacy_url_de:string,
+     *     privacy_url_en:string,
      *     updated_at:?string
      * }
      */
@@ -63,6 +65,8 @@ final class ProjectSettingsService
         $bannerTextEn = isset($row['cookie_banner_text_en']) ? trim((string) $row['cookie_banner_text_en']) : '';
         $vendorFlags = $this->parseVendorFlags($row['cookie_vendor_flags'] ?? null);
         $privacyUrl = isset($row['privacy_url']) ? trim((string) $row['privacy_url']) : '';
+        $privacyUrlDe = isset($row['privacy_url_de']) ? trim((string) $row['privacy_url_de']) : '';
+        $privacyUrlEn = isset($row['privacy_url_en']) ? trim((string) $row['privacy_url_en']) : '';
 
         return [
             'namespace' => $normalized,
@@ -72,6 +76,8 @@ final class ProjectSettingsService
             'cookie_banner_text_en' => $bannerTextEn !== '' ? $bannerTextEn : $defaults['cookie_banner_text_en'],
             'cookie_vendor_flags' => $vendorFlags,
             'privacy_url' => $privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url'],
+            'privacy_url_de' => $privacyUrlDe !== '' ? $privacyUrlDe : $privacyUrl,
+            'privacy_url_en' => $privacyUrlEn !== '' ? $privacyUrlEn : $privacyUrl,
             'updated_at' => isset($row['updated_at']) ? (string) $row['updated_at'] : null,
         ];
     }
@@ -85,6 +91,8 @@ final class ProjectSettingsService
      *     cookie_banner_text_en:string,
      *     cookie_vendor_flags:array<array-key, mixed>,
      *     privacy_url:string,
+     *     privacy_url_de:string,
+     *     privacy_url_en:string,
      *     updated_at:?string
      * }
      */
@@ -95,7 +103,9 @@ final class ProjectSettingsService
         ?string $bannerTextDe,
         ?string $bannerTextEn,
         ?string $vendorFlags,
-        ?string $privacyUrl
+        ?string $privacyUrl,
+        ?string $privacyUrlDe,
+        ?string $privacyUrlEn
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
         $this->assertTableExists();
@@ -125,7 +135,18 @@ final class ProjectSettingsService
             throw new RuntimeException('Privacy URL is too long.');
         }
 
+        $normalizedPrivacyUrlDe = $privacyUrlDe !== null ? trim($privacyUrlDe) : '';
+        if ($normalizedPrivacyUrlDe !== '' && mb_strlen($normalizedPrivacyUrlDe) > self::MAX_PRIVACY_URL_LENGTH) {
+            throw new RuntimeException('Privacy URL (DE) is too long.');
+        }
+
+        $normalizedPrivacyUrlEn = $privacyUrlEn !== null ? trim($privacyUrlEn) : '';
+        if ($normalizedPrivacyUrlEn !== '' && mb_strlen($normalizedPrivacyUrlEn) > self::MAX_PRIVACY_URL_LENGTH) {
+            throw new RuntimeException('Privacy URL (EN) is too long.');
+        }
+
         $legacyBannerText = $normalizedBannerTextDe !== '' ? $normalizedBannerTextDe : null;
+        $legacyPrivacyUrl = $normalizedPrivacyUrl !== '' ? $normalizedPrivacyUrl : null;
 
         $this->repository->upsert(
             $normalized,
@@ -135,7 +156,9 @@ final class ProjectSettingsService
             $normalizedBannerTextDe !== '' ? $normalizedBannerTextDe : null,
             $normalizedBannerTextEn !== '' ? $normalizedBannerTextEn : null,
             $normalizedVendorFlags,
-            $normalizedPrivacyUrl !== '' ? $normalizedPrivacyUrl : null
+            $legacyPrivacyUrl,
+            $normalizedPrivacyUrlDe !== '' ? $normalizedPrivacyUrlDe : null,
+            $normalizedPrivacyUrlEn !== '' ? $normalizedPrivacyUrlEn : null
         );
 
         return $this->getCookieConsentSettings($normalized);
@@ -150,6 +173,8 @@ final class ProjectSettingsService
      *     cookie_banner_text_en:string,
      *     cookie_vendor_flags:array<array-key, mixed>,
      *     privacy_url:string,
+     *     privacy_url_de:string,
+     *     privacy_url_en:string,
      *     updated_at:?string
      * }
      */
@@ -163,8 +188,36 @@ final class ProjectSettingsService
             'cookie_banner_text_en' => self::DEFAULT_BANNER_TEXT_EN,
             'cookie_vendor_flags' => [],
             'privacy_url' => '',
+            'privacy_url_de' => '',
+            'privacy_url_en' => '',
             'updated_at' => null,
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     */
+    public function resolvePrivacyUrl(array $settings, string $locale, string $basePath): string
+    {
+        $normalizedLocale = strtolower(trim($locale));
+
+        if (str_starts_with($normalizedLocale, 'en')) {
+            $privacyUrl = trim((string) ($settings['privacy_url_en'] ?? ''));
+        } else {
+            $privacyUrl = trim((string) ($settings['privacy_url_de'] ?? ''));
+        }
+
+        if ($privacyUrl === '') {
+            $privacyUrl = trim((string) ($settings['privacy_url'] ?? ''));
+        }
+
+        if ($privacyUrl !== '') {
+            return $privacyUrl;
+        }
+
+        $normalizedBasePath = rtrim($basePath, '/');
+
+        return $normalizedBasePath . '/datenschutz';
     }
 
     private function normalizeNamespace(string $namespace): string

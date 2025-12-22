@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\Middleware;
 
+use App\Service\NamespaceResolver;
+use App\Service\ProjectSettingsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\MiddlewareInterface;
@@ -44,6 +46,13 @@ class UrlMiddleware implements MiddlewareInterface
         $env = $this->twig->getEnvironment();
         $env->addGlobal('baseUrl', $baseUrl);
         $env->addGlobal('canonicalUrl', $canonicalUrl);
+
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $settingsService = new ProjectSettingsService();
+        $cookieSettings = $settingsService->getCookieConsentSettings($namespace);
+        $locale = (string) ($request->getAttribute('lang') ?? 'de');
+        $privacyUrl = $settingsService->resolvePrivacyUrl($cookieSettings, $locale, $basePath);
+        $env->addGlobal('privacyUrl', $privacyUrl);
 
         return $handler->handle($request);
     }

@@ -874,7 +874,8 @@ const initProjectSettings = () => {
       cookieBannerTextDe: form.querySelector('#cookieBannerTextDe')?.value || '',
       cookieBannerTextEn: form.querySelector('#cookieBannerTextEn')?.value || '',
       cookieVendorFlags: form.querySelector('#cookieVendorFlags')?.value || '',
-      privacyUrl: form.querySelector('#privacyUrl')?.value || ''
+      privacyUrlDe: form.querySelector('#privacyUrlDe')?.value || '',
+      privacyUrlEn: form.querySelector('#privacyUrlEn')?.value || ''
     };
 
     setStatus('Speichert…', false);
@@ -900,7 +901,8 @@ const initProjectSettings = () => {
       const bannerEnInput = form.querySelector('#cookieBannerTextEn');
       const vendorFlagsInput = form.querySelector('#cookieVendorFlags');
       const enabledInput = form.querySelector('#cookieConsentEnabled');
-      const privacyInput = form.querySelector('#privacyUrl');
+      const privacyDeInput = form.querySelector('#privacyUrlDe');
+      const privacyEnInput = form.querySelector('#privacyUrlEn');
       if (storageInput && typeof settings.cookie_storage_key === 'string') {
         storageInput.value = settings.cookie_storage_key;
       }
@@ -924,8 +926,11 @@ const initProjectSettings = () => {
       if (enabledInput && typeof settings.cookie_consent_enabled === 'boolean') {
         enabledInput.checked = settings.cookie_consent_enabled;
       }
-      if (privacyInput && typeof settings.privacy_url === 'string') {
-        privacyInput.value = settings.privacy_url;
+      if (privacyDeInput && typeof settings.privacy_url_de === 'string') {
+        privacyDeInput.value = settings.privacy_url_de;
+      }
+      if (privacyEnInput && typeof settings.privacy_url_en === 'string') {
+        privacyEnInput.value = settings.privacy_url_en;
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

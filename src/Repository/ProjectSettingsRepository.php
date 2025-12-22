@@ -37,7 +37,8 @@ final class ProjectSettingsRepository
     {
         $stmt = $this->pdo->prepare(
             'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
-            . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, privacy_url, updated_at '
+            . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, privacy_url, '
+            . 'privacy_url_de, privacy_url_en, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
@@ -59,13 +60,16 @@ final class ProjectSettingsRepository
         ?string $cookieBannerTextDe,
         ?string $cookieBannerTextEn,
         ?string $cookieVendorFlags,
-        ?string $privacyUrl
+        ?string $privacyUrl,
+        ?string $privacyUrlDe,
+        ?string $privacyUrlEn
     ): void {
         $stmt = $this->pdo->prepare(
             'INSERT INTO project_settings ('
             . 'namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
-            . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, privacy_url, updated_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
+            . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, privacy_url, '
+            . 'privacy_url_de, privacy_url_en, updated_at'
+            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
             . 'ON CONFLICT (namespace) DO UPDATE SET '
             . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
             . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
@@ -74,6 +78,8 @@ final class ProjectSettingsRepository
             . 'cookie_banner_text_en = EXCLUDED.cookie_banner_text_en, '
             . 'cookie_vendor_flags = EXCLUDED.cookie_vendor_flags, '
             . 'privacy_url = EXCLUDED.privacy_url, '
+            . 'privacy_url_de = EXCLUDED.privacy_url_de, '
+            . 'privacy_url_en = EXCLUDED.privacy_url_en, '
             . 'updated_at = CURRENT_TIMESTAMP'
         );
         $stmt->execute([
@@ -85,6 +91,8 @@ final class ProjectSettingsRepository
             $cookieBannerTextEn,
             $cookieVendorFlags,
             $privacyUrl,
+            $privacyUrlDe,
+            $privacyUrlEn,
         ]);
         $stmt->closeCursor();
     }

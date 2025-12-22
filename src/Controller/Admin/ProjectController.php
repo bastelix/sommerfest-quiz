@@ -108,6 +108,8 @@ class ProjectController
         $vendorFlags = isset($payload['cookieVendorFlags']) ? (string) $payload['cookieVendorFlags'] : null;
 
         $privacyUrl = isset($payload['privacyUrl']) ? (string) $payload['privacyUrl'] : null;
+        $privacyUrlDe = isset($payload['privacyUrlDe']) ? (string) $payload['privacyUrlDe'] : null;
+        $privacyUrlEn = isset($payload['privacyUrlEn']) ? (string) $payload['privacyUrlEn'] : null;
 
         $settings = $this->projectSettings->saveCookieConsentSettings(
             $namespace,
@@ -116,7 +118,9 @@ class ProjectController
             $bannerTextDe,
             $bannerTextEn,
             $vendorFlags,
-            $privacyUrl
+            $privacyUrl,
+            $privacyUrlDe,
+            $privacyUrlEn
         );
 
         $response->getBody()->write(json_encode([

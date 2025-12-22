@@ -191,16 +191,28 @@
               <div class="uk-text-meta">Optional: Strukturierte Flags für Drittanbieter (JSON).</div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="privacyUrl">Datenschutz-URL</label>
+              <label class="uk-form-label" for="privacyUrlDe">Datenschutz-URL (DE)</label>
               <div class="uk-form-controls">
                 <input
                   class="uk-input"
                   type="url"
-                  id="privacyUrl"
-                  name="privacy_url"
-                  value="{{ cookie_settings.privacy_url|default('')|e('html_attr') }}"
+                  id="privacyUrlDe"
+                  name="privacy_url_de"
+                  value="{{ cookie_settings.privacy_url_de|default('')|e('html_attr') }}"
                   autocomplete="off"
                   placeholder="{{ basePath }}/datenschutz"
+                >
+              </div>
+              <label class="uk-form-label uk-margin-small-top" for="privacyUrlEn">Datenschutz-URL (EN)</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="url"
+                  id="privacyUrlEn"
+                  name="privacy_url_en"
+                  value="{{ cookie_settings.privacy_url_en|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                  placeholder="{{ basePath }}/privacy"
                 >
               </div>
               <div class="uk-text-meta">Optionaler Link zur Datenschutzseite für Marketing und Footer.</div>
