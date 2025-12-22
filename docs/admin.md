@@ -106,6 +106,8 @@ Marketing-Seiten orientieren sich an der Namespace-Auflösung aus `NamespaceReso
 
 Wenn eine Marketing-Seite in dem aufgelösten Namespace fehlt, wird automatisch auf die Seite im `default`-Namespace zurückgegriffen. So können tenant-spezifische Landing-Pages einzelne Seiten überschreiben, ohne dass globale Standardinhalte fehlen.
 
+Die Seed-Daten in `src/Infrastructure/Migrations/sqlite-schema.sql` legen initiale Marketing-Seiten immer im `default`-Namespace an. Der Ziel-Namespace für die Laufzeit wird daher durch die Auflösung im `NamespaceResolver` bestimmt (z. B. über Query-Parameter `namespace`, Route-Argumente oder Tenant-Subdomain). Eigene Projekt-Namespaces werden anschließend über die Admin-Oberfläche gepflegt oder per Datenbank-Import ergänzt.
+
 ## Bild-Uploads
 
 Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien landen im Verzeichnis `data/uploads`, eventbezogene Bilder unter `data/events/<event_uid>/images`.
