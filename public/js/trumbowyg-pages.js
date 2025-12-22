@@ -957,6 +957,7 @@ const initAiPageCreation = () => {
   const promptInvalidMessage = window.transAiPagePromptInvalid || createErrorMessage;
   const emptyResponseMessage = window.transAiPageEmptyResponse || 'Die KI-Antwort ist leer oder ungültig.';
   const invalidHtmlMessage = window.transAiPageInvalidHtml || createErrorMessage;
+  const timeoutMessage = window.transAiPageTimeout || 'Server antwortet nicht rechtzeitig.';
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
   const errorMessageMap = {
     missing_fields: missingFieldsMessage,
@@ -967,7 +968,7 @@ const initAiPageCreation = () => {
     prompt_template_invalid: promptInvalidMessage,
     ai_unavailable: aiUnavailableMessage,
     ai_empty: emptyResponseMessage,
-    ai_timeout: createErrorMessage,
+    ai_timeout: timeoutMessage,
     ai_failed: createErrorMessage,
     ai_error: createErrorMessage,
     ai_invalid_html: invalidHtmlMessage
@@ -1062,7 +1063,25 @@ const initAiPageCreation = () => {
         })
       });
 
-      const payload = await response.json().catch(() => ({}));
+      if (response.status === 504) {
+        throw new Error(timeoutMessage);
+      }
+
+      const contentType = response.headers.get('content-type') || '';
+      let payload = {};
+      if (contentType.includes('application/json')) {
+        payload = await response.json().catch(() => ({}));
+      } else {
+        const snippet = await response.text().catch(() => '');
+        if (window.console && typeof window.console.warn === 'function') {
+          window.console.warn('Unexpected content type for AI page response.', {
+            status: response.status,
+            contentType,
+            snippet: snippet.trim().slice(0, 200)
+          });
+        }
+        throw new Error(timeoutMessage);
+      }
       if (!response.ok) {
         const code = typeof payload.error === 'string' ? payload.error : '';
         const fallback = payload.message || payload.error || createErrorMessage;

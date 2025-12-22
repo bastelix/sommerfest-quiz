@@ -149,6 +149,7 @@ return [
     'error_ai_page_prompt_invalid' => 'The selected prompt template is not available.',
     'error_ai_page_empty_response' => 'The AI response is empty or invalid.',
     'error_ai_page_invalid_html' => 'The AI response contains invalid HTML.',
+    'error_ai_page_timeout' => 'The server did not respond in time.',
     'notify_ai_page_created' => 'AI page created',
     'error_namespace_empty' => 'Please enter a namespace.',
     'error_namespace_invalid_length' => 'The namespace must be at most 100 characters long.',
