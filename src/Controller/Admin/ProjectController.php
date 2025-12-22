@@ -161,13 +161,13 @@ class ProjectController
         $queryParams = $request->getQueryParams();
         $requestedNamespace = '';
         if (isset($queryParams['namespace']) && trim((string) $queryParams['namespace']) !== '') {
-            $requestedNamespace = $this->normalizeNamespace((string) $queryParams['namespace']);
+            $requestedNamespace = $this->normalizeNamespace($queryParams['namespace']);
         }
         $pageTree = $this->pageService->getTree();
         $treeByNamespace = [];
         $knownNamespaces = [];
         foreach ($pageTree as $section) {
-            $namespace = $this->normalizeNamespace((string) $section['namespace']);
+            $namespace = $this->normalizeNamespace($section['namespace'] ?? null);
             if ($requestedNamespace !== '' && $namespace !== $requestedNamespace) {
                 continue;
             }
@@ -199,7 +199,7 @@ class ProjectController
 
         $namespaceEntries = $this->namespaceRepository->list();
         foreach ($namespaceEntries as $namespace) {
-            $normalizedNamespace = $this->normalizeNamespace((string) $namespace['namespace']);
+            $normalizedNamespace = $this->normalizeNamespace($namespace['namespace'] ?? null);
             if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
                 continue;
             }
@@ -211,7 +211,7 @@ class ProjectController
 
         $namespaceInfo = [];
         foreach ($namespaceEntries as $entry) {
-            $entryNamespace = $this->normalizeNamespace((string) $entry['namespace']);
+            $entryNamespace = $this->normalizeNamespace($entry['namespace'] ?? null);
             if ($entryNamespace === '') {
                 continue;
             }
@@ -263,7 +263,7 @@ class ProjectController
         }
 
         foreach ($availableNamespaces as $index => $entry) {
-            $entry['namespace'] = $this->normalizeNamespace((string) $entry['namespace']);
+            $entry['namespace'] = $this->normalizeNamespace($entry['namespace'] ?? null);
             $availableNamespaces[$index] = $entry;
         }
 
@@ -539,7 +539,7 @@ class ProjectController
         return $url;
     }
 
-    private function normalizeNamespace(string $namespace): string
+    private function normalizeNamespace(mixed $namespace): string
     {
         $validator = new NamespaceValidator();
         $normalized = $validator->normalizeCandidate($namespace);
