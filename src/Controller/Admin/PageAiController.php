@@ -134,6 +134,15 @@ final class PageAiController
             );
         }
 
+        if ($message === PageAiGenerator::ERROR_INVALID_HTML) {
+            return $this->errorResponse(
+                $response,
+                'ai_invalid_html',
+                'The AI responder returned HTML that did not pass validation.',
+                422
+            );
+        }
+
         if (str_starts_with($message, PageAiGenerator::ERROR_RESPONDER_FAILED . ':')) {
             if ($this->isTimeout($exception)) {
                 return $this->errorResponse(
