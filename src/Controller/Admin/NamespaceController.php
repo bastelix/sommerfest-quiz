@@ -9,6 +9,7 @@ use App\Exception\NamespaceInUseException;
 use App\Exception\NamespaceNotFoundException;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
+use App\Repository\UserNamespaceRepository;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
@@ -111,6 +112,7 @@ final class NamespaceController
 
         try {
             $entry = $this->service->create($normalized, $labelPayload['label']);
+            $this->grantUserNamespaceAccess($request, $normalized);
         } catch (DuplicateNamespaceException) {
             return $this->jsonError($response, $this->translate($request, 'error_namespace_duplicate', 'Namespace exists.'), 409);
         } catch (InvalidArgumentException $exception) {
@@ -290,6 +292,48 @@ final class NamespaceController
         }
 
         return $fallback;
+    }
+
+    private function grantUserNamespaceAccess(Request $request, string $namespace): void
+    {
+        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        if ($userId <= 0) {
+            return;
+        }
+
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        $repository = new UserNamespaceRepository($pdo);
+        $repository->addNamespaceForUser($userId, $namespace);
+
+        $this->updateSessionNamespaces($namespace);
+    }
+
+    private function updateSessionNamespaces(string $namespace): void
+    {
+        if (!isset($_SESSION['user']['namespaces']) || !is_array($_SESSION['user']['namespaces'])) {
+            return;
+        }
+
+        $normalized = strtolower(trim($namespace));
+        if ($normalized === '') {
+            return;
+        }
+
+        foreach ($_SESSION['user']['namespaces'] as $entry) {
+            $current = strtolower(trim((string) ($entry['namespace'] ?? '')));
+            if ($current !== '' && $current === $normalized) {
+                return;
+            }
+        }
+
+        $_SESSION['user']['namespaces'][] = [
+            'namespace' => $normalized,
+            'is_default' => false,
+        ];
     }
 
     /**
