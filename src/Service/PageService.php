@@ -388,6 +388,14 @@ class PageService
         ];
     }
 
+    /**
+     * @return array{page: Page, moved: array<int, array<string, int|string>>}
+     */
+    public function updateNamespace(string $sourceNamespace, string $slug, string $targetNamespace): array
+    {
+        return $this->move($sourceNamespace, $slug, $targetNamespace);
+    }
+
     private function loadCreatedPage(string $namespace, string $slug): Page {
         $page = $this->findByKey($namespace, $slug);
         if ($page === null) {
