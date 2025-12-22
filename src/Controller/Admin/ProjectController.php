@@ -199,7 +199,7 @@ class ProjectController
 
         $namespaceEntries = $this->namespaceRepository->list();
         foreach ($namespaceEntries as $namespace) {
-            $normalizedNamespace = $this->normalizeNamespace($namespace['namespace'] ?? null);
+            $normalizedNamespace = $this->normalizeNamespace($namespace['namespace']);
             if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
                 continue;
             }
@@ -211,7 +211,7 @@ class ProjectController
 
         $namespaceInfo = [];
         foreach ($namespaceEntries as $entry) {
-            $entryNamespace = $this->normalizeNamespace($entry['namespace'] ?? null);
+            $entryNamespace = $this->normalizeNamespace($entry['namespace']);
             if ($entryNamespace === '') {
                 continue;
             }
@@ -263,7 +263,7 @@ class ProjectController
         }
 
         foreach ($availableNamespaces as $index => $entry) {
-            $entry['namespace'] = $this->normalizeNamespace($entry['namespace'] ?? null);
+            $entry['namespace'] = $this->normalizeNamespace($entry['namespace']);
             $availableNamespaces[$index] = $entry;
         }
 
