@@ -48,6 +48,39 @@ class PageService
         $stmt->execute([$namespace, $normalized]);
     }
 
+    public function deleteTree(string $namespace, string $slug): void
+    {
+        $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
+        $this->assertValidNamespace($normalizedNamespace);
+
+        $normalizedSlug = $this->normalizeSlugInput($slug);
+        $this->assertValidSlug($normalizedSlug);
+
+        $page = $this->findByKey($normalizedNamespace, $normalizedSlug);
+        if ($page === null) {
+            return;
+        }
+
+        $rows = $this->loadRowsForNamespace($normalizedNamespace);
+        $subtree = $this->buildSubtreeRows($rows, $page->getId());
+        if ($subtree === []) {
+            return;
+        }
+
+        $ids = array_map(static fn (array $row): int => (int) $row['id'], $subtree);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $this->pdo->prepare(sprintf('DELETE FROM pages WHERE id IN (%s)', $placeholders));
+
+        $this->pdo->beginTransaction();
+        try {
+            $stmt->execute($ids);
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Die Seite konnte nicht gelöscht werden.', 0, $exception);
+        }
+    }
+
     public function create(
         string $namespace,
         string $slug,
