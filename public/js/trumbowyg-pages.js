@@ -971,6 +971,7 @@ const initAiPageCreation = () => {
   const emptyResponseMessage = window.transAiPageEmptyResponse || 'Die KI-Antwort ist leer oder ungültig.';
   const invalidHtmlMessage = window.transAiPageInvalidHtml || createErrorMessage;
   const timeoutMessage = window.transAiPageTimeout || 'Server antwortet nicht rechtzeitig.';
+  const pendingMessage = window.transAiPagePending || 'Die KI-Seite wird erstellt…';
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
   const errorMessageMap = {
     missing_fields: missingFieldsMessage,
@@ -985,6 +986,36 @@ const initAiPageCreation = () => {
     ai_failed: createErrorMessage,
     ai_error: createErrorMessage,
     ai_invalid_html: invalidHtmlMessage
+  };
+
+  const delay = ms => new Promise(resolve => {
+    window.setTimeout(resolve, ms);
+  });
+
+  const parseJsonResponse = async response => {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const snippet = await response.text().catch(() => '');
+      if (window.console && typeof window.console.warn === 'function') {
+        window.console.warn('Unexpected content type for AI page response.', {
+          status: response.status,
+          contentType,
+          snippet: snippet.trim().slice(0, 200)
+        });
+      }
+      throw new Error(timeoutMessage);
+    }
+
+    return response.json().catch(() => ({}));
+  };
+
+  const resolveErrorMessage = (payload, fallback) => {
+    const code = typeof payload.error === 'string' ? payload.error : '';
+    let errorMessage = errorMessageMap[code] || fallback;
+    if (payload.message && ['ai_failed', 'ai_error', 'ai_timeout'].includes(code)) {
+      errorMessage = payload.message;
+    }
+    return errorMessage;
   };
 
   const updateMenuLabelVisibility = () => {
@@ -1042,6 +1073,50 @@ const initAiPageCreation = () => {
     const candidate = formEl?.dataset.pageId || option?.dataset.pageId || '';
     const pageId = Number.parseInt(candidate, 10);
     return Number.isFinite(pageId) ? pageId : null;
+  };
+
+  const pollJobStatus = async jobId => {
+    const maxAttempts = 60;
+    const pollDelayMs = 2000;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const statusResponse = await apiFetch(
+        withNamespace(`/admin/pages/ai-generate/status?id=${encodeURIComponent(jobId)}`),
+        {
+          headers: { Accept: 'application/json' }
+        }
+      );
+
+      if (statusResponse.status === 504) {
+        throw new Error(timeoutMessage);
+      }
+
+      const statusPayload = await parseJsonResponse(statusResponse);
+
+      if (!statusResponse.ok) {
+        const fallback = statusPayload.message || statusPayload.error || createErrorMessage;
+        throw new Error(resolveErrorMessage(statusPayload, fallback));
+      }
+
+      const status = typeof statusPayload.status === 'string' ? statusPayload.status : '';
+      if (status === 'pending') {
+        await delay(pollDelayMs);
+        continue;
+      }
+
+      if (status === 'failed') {
+        const fallback = statusPayload.message || createErrorMessage;
+        throw new Error(resolveErrorMessage(statusPayload, fallback));
+      }
+
+      if (status === 'done') {
+        return statusPayload;
+      }
+
+      throw new Error(createErrorMessage);
+    }
+
+    throw new Error(timeoutMessage);
   };
 
   form.addEventListener('submit', async event => {
@@ -1114,32 +1189,21 @@ const initAiPageCreation = () => {
         throw new Error(timeoutMessage);
       }
 
-      const contentType = response.headers.get('content-type') || '';
-      let payload = {};
-      if (contentType.includes('application/json')) {
-        payload = await response.json().catch(() => ({}));
-      } else {
-        const snippet = await response.text().catch(() => '');
-        if (window.console && typeof window.console.warn === 'function') {
-          window.console.warn('Unexpected content type for AI page response.', {
-            status: response.status,
-            contentType,
-            snippet: snippet.trim().slice(0, 200)
-          });
-        }
-        throw new Error(timeoutMessage);
-      }
+      const payload = await parseJsonResponse(response);
       if (!response.ok) {
-        const code = typeof payload.error === 'string' ? payload.error : '';
         const fallback = payload.message || payload.error || createErrorMessage;
-        let errorMessage = errorMessageMap[code] || fallback;
-        if (payload.message && ['ai_failed', 'ai_error', 'ai_timeout'].includes(code)) {
-          errorMessage = payload.message;
-        }
-        throw new Error(errorMessage);
+        throw new Error(resolveErrorMessage(payload, fallback));
       }
 
-      const html = typeof payload.html === 'string' ? payload.html.trim() : '';
+      const jobId = typeof payload.jobId === 'string' ? payload.jobId.trim() : '';
+      if (!jobId) {
+        throw new Error(createErrorMessage);
+      }
+
+      setFeedback(pendingMessage);
+
+      const statusPayload = await pollJobStatus(jobId);
+      const html = typeof statusPayload.html === 'string' ? statusPayload.html.trim() : '';
       if (!html) {
         setFeedback(emptyResponseMessage);
         return;

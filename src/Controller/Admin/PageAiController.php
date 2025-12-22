@@ -4,32 +4,25 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Service\Marketing\PageAiGenerator;
+use App\Service\Marketing\PageAiJobDispatcher;
+use App\Service\Marketing\PageAiJobService;
 use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use RuntimeException;
-use Throwable;
 
 use function is_array;
 use function json_decode;
 use function json_encode;
 use function preg_match;
-use function sprintf;
-use function str_contains;
-use function str_starts_with;
-use function strlen;
-use function substr;
 use function strtolower;
 use function trim;
 
 final class PageAiController
 {
     private const SLUG_PATTERN = '/^[a-z0-9][a-z0-9\-]{0,99}$/';
-
-    private PageAiGenerator $generator;
+    private const JOB_ID_PATTERN = '/^[a-f0-9]{32}$/';
 
     private PageService $pageService;
 
@@ -37,16 +30,22 @@ final class PageAiController
 
     private PageAiPromptTemplateService $promptTemplateService;
 
+    private PageAiJobService $jobService;
+
+    private PageAiJobDispatcher $jobDispatcher;
+
     public function __construct(
-        ?PageAiGenerator $generator = null,
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null,
-        ?PageAiPromptTemplateService $promptTemplateService = null
+        ?PageAiPromptTemplateService $promptTemplateService = null,
+        ?PageAiJobService $jobService = null,
+        ?PageAiJobDispatcher $jobDispatcher = null
     ) {
-        $this->generator = $generator ?? new PageAiGenerator();
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
+        $this->jobService = $jobService ?? new PageAiJobService();
+        $this->jobDispatcher = $jobDispatcher ?? new PageAiJobDispatcher();
     }
 
     public function generate(Request $request, Response $response): Response
@@ -110,91 +109,70 @@ final class PageAiController
             );
         }
 
-        try {
-            $html = $this->generator->generate($slug, $title, $theme, $colorScheme, $problem, $promptTemplate);
-        } catch (RuntimeException $exception) {
-            return $this->handleGenerationError($response, $exception);
-        }
+        $jobId = $this->jobService->createJob(
+            $namespace,
+            $slug,
+            $title,
+            $theme,
+            $colorScheme,
+            $problem,
+            $promptTemplate
+        );
 
-        $this->pageService->save($namespace, $slug, $html);
+        $this->jobDispatcher->dispatch($jobId);
 
         return $this->successResponse($response, [
-            'status' => 'ok',
-            'namespace' => $namespace,
-            'slug' => $slug,
-            'html' => $html,
-        ]);
+            'status' => 'queued',
+            'jobId' => $jobId,
+        ], 202);
     }
 
-    private function handleGenerationError(Response $response, RuntimeException $exception): Response
+    public function status(Request $request, Response $response): Response
     {
-        $message = $exception->getMessage();
-
-        if ($message === PageAiGenerator::ERROR_PROMPT_MISSING) {
+        $jobId = trim((string) ($request->getQueryParams()['id'] ?? ''));
+        if ($jobId === '') {
             return $this->errorResponse(
                 $response,
-                'prompt_missing',
-                'The AI prompt template is not configured.',
-                500
+                'missing_job_id',
+                'The request must include a job id.',
+                400
             );
         }
 
-        if ($message === PageAiGenerator::ERROR_RESPONDER_MISSING) {
+        if (!$this->isValidJobId($jobId)) {
             return $this->errorResponse(
                 $response,
-                'ai_unavailable',
-                'The AI responder is not configured. Check RAG_CHAT_SERVICE_URL (and RAG_CHAT_SERVICE_TOKEN, RAG_CHAT_SERVICE_MODEL, RAG_CHAT_SERVICE_TIMEOUT) in your environment configuration.',
-                503
-            );
-        }
-
-        if ($message === PageAiGenerator::ERROR_EMPTY_RESPONSE) {
-            return $this->errorResponse(
-                $response,
-                'ai_empty',
-                'The AI responder returned an empty response.',
-                502
-            );
-        }
-
-        if ($message === PageAiGenerator::ERROR_INVALID_HTML) {
-            return $this->errorResponse(
-                $response,
-                'ai_invalid_html',
-                'The AI responder returned HTML that did not pass validation.',
+                'invalid_job_id',
+                'The job id format is invalid.',
                 422
             );
         }
 
-        if (str_starts_with($message, PageAiGenerator::ERROR_RESPONDER_FAILED . ':')) {
-            $details = trim(substr($message, strlen(PageAiGenerator::ERROR_RESPONDER_FAILED . ':')));
-            if ($this->isTimeout($exception)) {
-                return $this->errorResponse(
-                    $response,
-                    'ai_timeout',
-                    $details !== ''
-                        ? sprintf('The AI responder did not respond in time. %s', $details)
-                        : 'The AI responder did not respond in time.',
-                    504
-                );
-            }
-
+        $job = $this->jobService->getJob($jobId);
+        if ($job === null) {
             return $this->errorResponse(
                 $response,
-                'ai_failed',
-                $details !== ''
-                    ? sprintf('The AI responder failed to generate HTML. %s', $details)
-                    : 'The AI responder failed to generate HTML.',
-                503
+                'job_not_found',
+                'The requested job does not exist.',
+                404
             );
         }
 
-        return $this->errorResponse(
-            $response,
-            'ai_error',
-            'The AI responder failed to generate HTML.',
-            503
-        );
+        $payload = [
+            'status' => $job['status'],
+            'jobId' => $job['job_id'],
+        ];
+
+        if ($job['status'] === PageAiJobService::STATUS_DONE) {
+            $payload['html'] = $job['html'] ?? '';
+            $payload['namespace'] = $job['namespace'];
+            $payload['slug'] = $job['slug'];
+        } elseif ($job['status'] === PageAiJobService::STATUS_FAILED) {
+            $payload['error'] = $job['error_code'] ?? 'ai_error';
+            $payload['message'] = $job['error_message'] ?? 'The AI responder failed to generate HTML.';
+        }
+
+        return $this->successResponse($response, $payload);
     }
 
     private function decodePayload(Request $request): ?array
@@ -231,31 +209,21 @@ final class PageAiController
         return preg_match(self::SLUG_PATTERN, $slug) === 1;
     }
 
-    private function isTimeout(Throwable $exception): bool
+    private function isValidJobId(string $jobId): bool
     {
-        $message = strtolower($exception->getMessage());
-        if (str_contains($message, 'timeout') || str_contains($message, 'timed out')) {
-            return true;
-        }
-
-        $previous = $exception->getPrevious();
-        if ($previous instanceof Throwable) {
-            return $this->isTimeout($previous);
-        }
-
-        return false;
+        return preg_match(self::JOB_ID_PATTERN, $jobId) === 1;
     }
 
     /**
      * @param array<string, mixed> $payload
      */
-    private function successResponse(Response $response, array $payload): Response
+    private function successResponse(Response $response, array $payload, int $status = 200): Response
     {
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
 
         return $response
             ->withHeader('Content-Type', 'application/json')
-            ->withStatus(200);
+            ->withStatus($status);
     }
 
     private function errorResponse(Response $response, string $error, string $message, int $status): Response
