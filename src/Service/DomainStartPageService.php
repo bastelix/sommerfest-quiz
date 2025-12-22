@@ -413,10 +413,6 @@ class DomainStartPageService
 
         $normalized = [];
         foreach ($allowedNamespaces as $namespace) {
-            if (!is_string($namespace)) {
-                continue;
-            }
-
             $value = strtolower(trim($namespace));
             if ($value === '') {
                 continue;

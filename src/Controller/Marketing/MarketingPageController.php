@@ -470,11 +470,11 @@ class MarketingPageController
 
     /**
      * @param array{
-     *     cookie_consent_enabled:bool,
-     *     cookie_storage_key:string,
-     *     cookie_banner_text_de:string,
-     *     cookie_banner_text_en:string,
-     *     cookie_vendor_flags:array<array-key, mixed>
+     *     cookie_consent_enabled?:bool,
+     *     cookie_storage_key?:string,
+     *     cookie_banner_text_de?:string,
+     *     cookie_banner_text_en?:string,
+     *     cookie_vendor_flags?:array<array-key, mixed>
      * } $settings
      * @return array<string, mixed>
      */
@@ -516,7 +516,7 @@ class MarketingPageController
     }
 
     /**
-     * @param array{cookie_banner_text_de:string,cookie_banner_text_en:string} $settings
+     * @param array{cookie_banner_text_de?:string,cookie_banner_text_en?:string} $settings
      */
     private function resolveBannerText(array $settings, string $locale): string
     {
