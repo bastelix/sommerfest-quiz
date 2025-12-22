@@ -1,5 +1,10 @@
 {% extends 'layout.twig' %}
 
+{% set links = marketingMenuItems|default([]) %}
+{% if marketingWikiMenu is defined %}
+  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label }]) %}
+{% endif %}
+
 {% block title %}{{ metaTitle|default('Future is Green – Urbane Logistik für lebenswerte Städte') }}{% endblock %}
 
 {% block head %}
@@ -260,30 +265,14 @@
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
         <ul class="uk-nav uk-nav-default fig-offcanvas-nav">
-          <li class="uk-nav-header">Wirkung</li>
-          <li><a href="#benefits" uk-scroll>KPIs im Quartier</a></li>
-          <li><a href="#benefits" uk-scroll>Pilotgebiete &amp; Zahlen</a></li>
-          <li><a href="#benefits" uk-scroll>CO₂-Bilanz &amp; Audit</a></li>
-          <li class="uk-nav-divider"></li>
-          <li class="uk-nav-header">Lösungen</li>
-          <li><a href="#how-it-works" uk-scroll>So funktioniert’s</a></li>
-          <li><a href="#offerings" uk-scroll>Pakete &amp; Module</a></li>
-          <li><a href="#technology" uk-scroll>Technologie &amp; Integrationen</a></li>
-          <li class="uk-nav-divider"></li>
-          <li class="uk-nav-header">Referenzen</li>
-          <li><a href="#cases" uk-scroll>Case Stories</a></li>
-          <li><a href="#cases" uk-scroll>Branchenfilter</a></li>
-          <li><a href="#cases" uk-scroll>Impact-Reports</a></li>
-          <li class="uk-nav-divider"></li>
-          <li class="uk-nav-header">Preise &amp; FAQ</li>
-          <li><a href="#pricing" uk-scroll>Pakete &amp; Vergleich</a></li>
-          <li><a href="#faq" uk-scroll>Häufige Fragen</a></li>
-          <li><a href="#pricing" uk-scroll>Service-Level</a></li>
-          {% if marketingWikiMenu is defined %}
-            <li class="uk-nav-divider"></li>
-            <li class="uk-nav-header">{{ marketingWikiMenu.label }}</li>
-            <li><a href="{{ marketingWikiMenu.url }}">{{ marketingWikiMenu.label }}</a></li>
-          {% endif %}
+          {% for link in links %}
+            {% set isExternal = link.isExternal|default(false) %}
+            <li>
+              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
+                {{ link.label }}
+              </a>
+            </li>
+          {% endfor %}
         </ul>
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="#kontakt" uk-scroll>
           <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
