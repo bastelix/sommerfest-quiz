@@ -544,19 +544,20 @@ class DomainStartPageController
     }
 
     private function resolveMarketingDomainConfig(): string {
-        $marketingDomains = $this->marketingDomainProvider->getMarketingDomains();
+        $marketingDomains = [];
+        foreach ($this->domainService->listMarketingDomains() as $domain) {
+            $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
+            $normalized = $this->domainService->normalizeDomain($host, stripAdmin: false);
+            if ($normalized !== '') {
+                $marketingDomains[] = $normalized;
+            }
+        }
 
-        return implode(' ', $marketingDomains);
+        return implode(' ', array_values(array_unique($marketingDomains)));
     }
 
     private function resolveMarketingDomainConfigForValidation(): string {
-        if ($this->domainService->listMarketingDomains() !== []) {
-            return '';
-        }
-
-        $marketingDomains = $this->marketingDomainProvider->getMarketingDomains();
-
-        return implode(' ', $marketingDomains);
+        return $this->resolveMarketingDomainConfig();
     }
 
     /**
