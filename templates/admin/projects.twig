@@ -133,6 +133,59 @@
           {% endfor %}
         </div>
 
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin-small"
+          data-project-settings
+          data-endpoint="{{ basePath }}/admin/projects/settings"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <h3 class="uk-card-title uk-margin-remove">Datenschutz-Links</h3>
+            <span class="uk-text-meta" data-project-settings-updated>
+              {% if project_settings.updated_at %}
+                Zuletzt gespeichert: {{ project_settings.updated_at }}
+              {% endif %}
+            </span>
+          </div>
+          <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="privacyUrlDe">Datenschutz-URL (DE)</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="url"
+                  id="privacyUrlDe"
+                  name="privacy_url_de"
+                  value="{{ project_settings.privacy_url_de|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                  placeholder="{{ basePath }}/datenschutz"
+                >
+              </div>
+              <div class="uk-text-meta">Optionaler Link für deutschsprachige Footer und Marketingseiten.</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="privacyUrlEn">Datenschutz-URL (EN)</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="url"
+                  id="privacyUrlEn"
+                  name="privacy_url_en"
+                  value="{{ project_settings.privacy_url_en|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                  placeholder="{{ basePath }}/privacy"
+                >
+              </div>
+              <div class="uk-text-meta">Optionaler Link für englischsprachige Footer und Marketingseiten.</div>
+            </div>
+            <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+              <div>
+                <button type="submit" class="uk-button uk-button-primary">Links speichern</button>
+              </div>
+              <div class="uk-text-meta" data-project-settings-status></div>
+            </div>
+          </form>
+        </div>
+
         {% include 'admin/components/project_tree.twig' %}
       </div>
     </main>

@@ -434,6 +434,8 @@ CREATE TABLE IF NOT EXISTS project_settings (
     cookie_banner_text_en TEXT,
     cookie_vendor_flags TEXT,
     privacy_url TEXT,
+    privacy_url_de TEXT,
+    privacy_url_en TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );

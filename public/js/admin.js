@@ -868,15 +868,40 @@ const initProjectSettings = () => {
       return;
     }
 
-    const payload = {
-      namespace,
-      cookieConsentEnabled: Boolean(form.querySelector('#cookieConsentEnabled')?.checked),
-      cookieStorageKey: form.querySelector('#cookieStorageKey')?.value || '',
-      cookieBannerTextDe: form.querySelector('#cookieBannerTextDe')?.value || '',
-      cookieBannerTextEn: form.querySelector('#cookieBannerTextEn')?.value || '',
-      cookieVendorFlags: form.querySelector('#cookieVendorFlags')?.value || '',
-      privacyUrl: form.querySelector('#privacyUrl')?.value || ''
-    };
+    const payload = { namespace };
+    const consentInput = form.querySelector('#cookieConsentEnabled');
+    const storageInput = form.querySelector('#cookieStorageKey');
+    const bannerDeInput = form.querySelector('#cookieBannerTextDe');
+    const bannerEnInput = form.querySelector('#cookieBannerTextEn');
+    const vendorFlagsInput = form.querySelector('#cookieVendorFlags');
+    const privacyInput = form.querySelector('#privacyUrl');
+    const privacyDeInput = form.querySelector('#privacyUrlDe');
+    const privacyEnInput = form.querySelector('#privacyUrlEn');
+
+    if (consentInput) {
+      payload.cookieConsentEnabled = Boolean(consentInput.checked);
+    }
+    if (storageInput) {
+      payload.cookieStorageKey = storageInput.value || '';
+    }
+    if (bannerDeInput) {
+      payload.cookieBannerTextDe = bannerDeInput.value || '';
+    }
+    if (bannerEnInput) {
+      payload.cookieBannerTextEn = bannerEnInput.value || '';
+    }
+    if (vendorFlagsInput) {
+      payload.cookieVendorFlags = vendorFlagsInput.value || '';
+    }
+    if (privacyInput) {
+      payload.privacyUrl = privacyInput.value || '';
+    }
+    if (privacyDeInput) {
+      payload.privacyUrlDe = privacyDeInput.value || '';
+    }
+    if (privacyEnInput) {
+      payload.privacyUrlEn = privacyEnInput.value || '';
+    }
 
     setStatus('Speichert…', false);
 
@@ -902,6 +927,8 @@ const initProjectSettings = () => {
       const vendorFlagsInput = form.querySelector('#cookieVendorFlags');
       const enabledInput = form.querySelector('#cookieConsentEnabled');
       const privacyInput = form.querySelector('#privacyUrl');
+      const privacyDeInput = form.querySelector('#privacyUrlDe');
+      const privacyEnInput = form.querySelector('#privacyUrlEn');
       if (storageInput && typeof settings.cookie_storage_key === 'string') {
         storageInput.value = settings.cookie_storage_key;
       }
@@ -927,6 +954,12 @@ const initProjectSettings = () => {
       }
       if (privacyInput && typeof settings.privacy_url === 'string') {
         privacyInput.value = settings.privacy_url;
+      }
+      if (privacyDeInput && typeof settings.privacy_url_de === 'string') {
+        privacyDeInput.value = settings.privacy_url_de;
+      }
+      if (privacyEnInput && typeof settings.privacy_url_en === 'string') {
+        privacyEnInput.value = settings.privacy_url_en;
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

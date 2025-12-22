@@ -76,6 +76,8 @@ class ProjectController
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $role = $_SESSION['user']['role'] ?? '';
 
+        $projectSettings = $this->projectSettings->getCookieConsentSettings($namespace);
+
         return $view->render($response, 'admin/projects.twig', [
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
@@ -83,6 +85,7 @@ class ProjectController
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'csrf_token' => $this->ensureCsrfToken(),
+            'project_settings' => $projectSettings,
         ]);
     }
 
@@ -99,13 +102,35 @@ class ProjectController
             return $response->withStatus(400);
         }
 
-        $enabled = filter_var($payload['cookieConsentEnabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $storageKey = isset($payload['cookieStorageKey']) ? (string) $payload['cookieStorageKey'] : null;
-        $bannerTextDe = isset($payload['cookieBannerTextDe']) ? (string) $payload['cookieBannerTextDe'] : null;
-        $bannerTextEn = isset($payload['cookieBannerTextEn']) ? (string) $payload['cookieBannerTextEn'] : null;
-        $vendorFlags = isset($payload['cookieVendorFlags']) ? (string) $payload['cookieVendorFlags'] : null;
+        $currentSettings = $this->projectSettings->getCookieConsentSettings($namespace);
+        $enabled = array_key_exists('cookieConsentEnabled', $payload)
+            ? filter_var($payload['cookieConsentEnabled'], FILTER_VALIDATE_BOOLEAN)
+            : $currentSettings['cookie_consent_enabled'];
+        $storageKey = array_key_exists('cookieStorageKey', $payload)
+            ? (string) $payload['cookieStorageKey']
+            : $currentSettings['cookie_storage_key'];
+        $bannerTextDe = array_key_exists('cookieBannerTextDe', $payload)
+            ? (string) $payload['cookieBannerTextDe']
+            : $currentSettings['cookie_banner_text_de'];
+        $bannerTextEn = array_key_exists('cookieBannerTextEn', $payload)
+            ? (string) $payload['cookieBannerTextEn']
+            : $currentSettings['cookie_banner_text_en'];
+        $vendorFlags = array_key_exists('cookieVendorFlags', $payload)
+            ? (string) $payload['cookieVendorFlags']
+            : json_encode($currentSettings['cookie_vendor_flags'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($vendorFlags === false) {
+            $vendorFlags = null;
+        }
 
-        $privacyUrl = isset($payload['privacyUrl']) ? (string) $payload['privacyUrl'] : null;
+        $privacyUrl = array_key_exists('privacyUrl', $payload)
+            ? (string) $payload['privacyUrl']
+            : $currentSettings['privacy_url'];
+        $privacyUrlDe = array_key_exists('privacyUrlDe', $payload)
+            ? (string) $payload['privacyUrlDe']
+            : $currentSettings['privacy_url_de'];
+        $privacyUrlEn = array_key_exists('privacyUrlEn', $payload)
+            ? (string) $payload['privacyUrlEn']
+            : $currentSettings['privacy_url_en'];
 
         $settings = $this->projectSettings->saveCookieConsentSettings(
             $namespace,
@@ -114,7 +139,9 @@ class ProjectController
             $bannerTextDe,
             $bannerTextEn,
             $vendorFlags,
-            $privacyUrl
+            $privacyUrl,
+            $privacyUrlDe,
+            $privacyUrlEn
         );
 
         $response->getBody()->write(json_encode([

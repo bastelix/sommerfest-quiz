@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Application\Middleware;
 
+use App\Service\NamespaceResolver;
+use App\Service\ProjectSettingsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Server\MiddlewareInterface;
@@ -16,9 +18,11 @@ use Slim\Views\Twig;
 class UrlMiddleware implements MiddlewareInterface
 {
     private Twig $twig;
+    private ProjectSettingsService $projectSettings;
 
-    public function __construct(Twig $twig) {
+    public function __construct(Twig $twig, ?ProjectSettingsService $projectSettings = null) {
         $this->twig = $twig;
+        $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
     }
 
     public function process(Request $request, RequestHandler $handler): Response {
@@ -44,6 +48,17 @@ class UrlMiddleware implements MiddlewareInterface
         $env = $this->twig->getEnvironment();
         $env->addGlobal('baseUrl', $baseUrl);
         $env->addGlobal('canonicalUrl', $canonicalUrl);
+
+        $privacyUrl = rtrim($basePath, '/') . '/datenschutz';
+        try {
+            $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
+            $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
+            $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
+        } catch (\Throwable $error) {
+            $privacyUrl = rtrim($basePath, '/') . '/datenschutz';
+        }
+        $env->addGlobal('privacyUrl', $privacyUrl);
 
         return $handler->handle($request);
     }
