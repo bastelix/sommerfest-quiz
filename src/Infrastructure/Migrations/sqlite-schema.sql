@@ -671,7 +671,8 @@ CREATE TABLE IF NOT EXISTS page_seo_config_history (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
+INSERT OR IGNORE INTO pages (namespace, slug, title, content) VALUES (
+    'default',
     'calserver',
     'calServer',
     '<section class="calserver-highlight calserver-section-glow" aria-label="calServer in Zahlen">
@@ -2447,7 +2448,8 @@ $$
 );
 
 
-INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
+INSERT OR IGNORE INTO pages (namespace, slug, title, content) VALUES (
+    'default',
     'calhelp',
     'calHelp',
     '
@@ -3453,7 +3455,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
 '
 );
 
-INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
+INSERT OR IGNORE INTO pages (namespace, slug, title, content) VALUES (
+    'default',
     'calserver-accessibility',
     'calServer Accessibility',
     '<section class="legal-page" aria-labelledby="calserver-accessibility-title">
@@ -3486,7 +3489,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
 </section>'
 );
 
-INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
+INSERT OR IGNORE INTO pages (namespace, slug, title, content) VALUES (
+    'default',
     'calserver-accessibility-en',
     'calServer Accessibility',
     '<section class="legal-page" aria-labelledby="calserver-accessibility-title">
