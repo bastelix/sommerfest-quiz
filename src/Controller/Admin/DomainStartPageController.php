@@ -98,8 +98,7 @@ class DomainStartPageController
             : DomainStartPageService::SECRET_PLACEHOLDER;
         $parsedStartPage = $this->domainService->parseStartPageKey($startPage);
         if (
-            $allowedNamespaces !== null
-            && $parsedStartPage['namespace'] !== null
+            $parsedStartPage['namespace'] !== null
             && !in_array($parsedStartPage['namespace'], $allowedNamespaces, true)
         ) {
             return $response->withStatus(400);
