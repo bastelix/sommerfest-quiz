@@ -1044,7 +1044,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
   const planSelect = document.getElementById('planSelect');
-  const domainStartPageTable = document.getElementById('domainStartPageTable');
+  const managementSection = document.querySelector('[data-admin-section="management"]');
+  const domainStartPageTable = managementSection?.querySelector('#domainStartPageTable') || null;
   const initialDomainStartPageOptions = window.domainStartPageOptions || {};
   const domainStartPageOptions = { ...initialDomainStartPageOptions };
   window.domainStartPageOptions = domainStartPageOptions;
@@ -3870,10 +3871,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const sslActionLabel = window.actionDomainIssueSsl || 'Request certificate';
     const sslSuccessMessage = window.transDomainSslIssued || transDomainStartPageSaved;
     const sslErrorMessage = window.transDomainSslError || transDomainStartPageError;
-    const marketingDomainForm = document.getElementById('marketingDomainForm');
-    const marketingDomainHost = document.getElementById('marketingDomainHost');
-    const marketingDomainLabel = document.getElementById('marketingDomainLabel');
-    const marketingDomainError = document.getElementById('marketingDomainFormError');
+    const marketingDomainForm = managementSection?.querySelector('#marketingDomainForm') || null;
+    const marketingDomainHost = managementSection?.querySelector('#marketingDomainHost') || null;
+    const marketingDomainLabel = managementSection?.querySelector('#marketingDomainLabel') || null;
+    const marketingDomainError = managementSection?.querySelector('#marketingDomainFormError') || null;
     const marketingMessages = {
       invalid: marketingDomainForm?.dataset.invalid || window.transMarketingDomainInvalid || transDomainContactTemplateInvalidDomain,
       error: marketingDomainForm?.dataset.error || window.transMarketingDomainError || transDomainStartPageError,
@@ -3976,7 +3977,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    const marketingDomainReconcileButton = document.getElementById('marketingDomainReconcile');
+    const marketingDomainReconcileButton = managementSection?.querySelector('#marketingDomainReconcile') || null;
     const marketingDomainReconcileMessages = {
       provisioned: window.transMarketingDomainReconcileProvisioned || 'Certificates checked: {count} domains.',
       resolved: window.transMarketingDomainReconcileResolved || 'Resolved marketing domains ({count}): {domains}',
@@ -7796,14 +7797,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // --------- Benutzer ---------
-  const usersListEl = document.getElementById('usersList');
-  const usersCardsEl = document.getElementById('usersCards');
-  const userAddBtn = document.getElementById('userAddBtn');
-  const userPassModal = window.UIkit ? UIkit.modal('#userPassModal') : null;
-  const userPassInput = document.getElementById('userPassInput');
-  const userPassRepeat = document.getElementById('userPassRepeat');
-  const userPassForm = document.getElementById('userPassForm');
-  const usersPaginationEl = document.getElementById('usersPagination');
+  const usersListEl = managementSection?.querySelector('#usersList') || null;
+  const usersCardsEl = managementSection?.querySelector('#usersCards') || null;
+  const userAddBtn = managementSection?.querySelector('#userAddBtn') || null;
+  const userPassModal = managementSection && window.UIkit ? UIkit.modal('#userPassModal') : null;
+  const userPassInput = managementSection?.querySelector('#userPassInput') || null;
+  const userPassRepeat = managementSection?.querySelector('#userPassRepeat') || null;
+  const userPassForm = managementSection?.querySelector('#userPassForm') || null;
+  const usersPaginationEl = managementSection?.querySelector('#usersPagination') || null;
   const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
   const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
   const labelNamespaces = usersListEl?.dataset.labelNamespaces || 'Namespaces';
@@ -8054,9 +8055,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  const userNameModal = window.UIkit ? UIkit.modal('#userNameModal') : null;
-  const userNameForm = document.getElementById('userNameForm');
-  const userNameInput = document.getElementById('userNameInput');
+  const userNameModal = managementSection && window.UIkit ? UIkit.modal('#userNameModal') : null;
+  const userNameForm = managementSection?.querySelector('#userNameForm') || null;
+  const userNameInput = managementSection?.querySelector('#userNameInput') || null;
 
   function openUserEditor(cell) {
     const id = cell?.dataset.id;
@@ -8369,10 +8370,10 @@ document.addEventListener('DOMContentLoaded', function () {
     userPassRepeat.value = '';
   });
 
-  const importJsonBtn = document.getElementById('importJsonBtn');
-  const exportJsonBtn = document.getElementById('exportJsonBtn');
-  const saveDemoBtn = document.getElementById('saveDemoBtn');
-  const backupTableBody = document.getElementById('backupTableBody');
+  const importJsonBtn = managementSection?.querySelector('#importJsonBtn') || null;
+  const exportJsonBtn = managementSection?.querySelector('#exportJsonBtn') || null;
+  const saveDemoBtn = managementSection?.querySelector('#saveDemoBtn') || null;
+  const backupTableBody = managementSection?.querySelector('#backupTableBody') || null;
   const tenantTableBody = document.getElementById('tenantTableBody');
   const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
