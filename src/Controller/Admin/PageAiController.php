@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\Marketing\PageAiGenerator;
+use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -34,14 +35,18 @@ final class PageAiController
 
     private NamespaceResolver $namespaceResolver;
 
+    private PageAiPromptTemplateService $promptTemplateService;
+
     public function __construct(
         ?PageAiGenerator $generator = null,
         ?PageService $pageService = null,
-        ?NamespaceResolver $namespaceResolver = null
+        ?NamespaceResolver $namespaceResolver = null,
+        ?PageAiPromptTemplateService $promptTemplateService = null
     ) {
         $this->generator = $generator ?? new PageAiGenerator();
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
     }
 
     public function generate(Request $request, Response $response): Response
@@ -61,6 +66,7 @@ final class PageAiController
         $theme = trim((string) ($payload['theme'] ?? ''));
         $colorScheme = trim((string) ($payload['colorScheme'] ?? $payload['color_scheme'] ?? ''));
         $problem = trim((string) ($payload['problem'] ?? ''));
+        $promptTemplateId = trim((string) ($payload['promptTemplateId'] ?? $payload['prompt_template_id'] ?? ''));
 
         if ($slug === '' || $title === '' || $theme === '' || $colorScheme === '' || $problem === '') {
             return $this->errorResponse(
@@ -80,6 +86,20 @@ final class PageAiController
             );
         }
 
+        $promptTemplate = null;
+        if ($promptTemplateId !== '') {
+            $templateEntry = $this->promptTemplateService->findById($promptTemplateId);
+            if ($templateEntry === null) {
+                return $this->errorResponse(
+                    $response,
+                    'prompt_template_invalid',
+                    'The requested AI prompt template was not found.',
+                    422
+                );
+            }
+            $promptTemplate = $templateEntry['template'];
+        }
+
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         if ($this->pageService->findByKey($namespace, $slug) === null) {
             return $this->errorResponse(
@@ -91,7 +111,7 @@ final class PageAiController
         }
 
         try {
-            $html = $this->generator->generate($slug, $title, $theme, $colorScheme, $problem);
+            $html = $this->generator->generate($slug, $title, $theme, $colorScheme, $problem, $promptTemplate);
         } catch (RuntimeException $exception) {
             return $this->handleGenerationError($response, $exception);
         }

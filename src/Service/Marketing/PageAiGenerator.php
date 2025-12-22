@@ -80,9 +80,10 @@ PROMPT;
         string $title,
         string $theme,
         string $colorScheme,
-        string $problem
+        string $problem,
+        ?string $promptTemplate = null
     ): string {
-        $prompt = $this->buildPrompt($slug, $title, $theme, $colorScheme, $problem);
+        $prompt = $this->buildPrompt($slug, $title, $theme, $colorScheme, $problem, $promptTemplate);
         if ($prompt === '') {
             throw new RuntimeException(self::ERROR_PROMPT_MISSING);
         }
@@ -126,9 +127,10 @@ PROMPT;
         string $title,
         string $theme,
         string $colorScheme,
-        string $problem
+        string $problem,
+        ?string $promptTemplate = null
     ): string {
-        $template = trim($this->promptTemplate);
+        $template = $this->resolvePromptTemplate($promptTemplate);
         if ($template === '') {
             return '';
         }
@@ -158,6 +160,16 @@ PROMPT;
             ],
             $template
         );
+    }
+
+    private function resolvePromptTemplate(?string $promptTemplate): string
+    {
+        $candidate = $promptTemplate !== null ? trim($promptTemplate) : '';
+        if ($candidate !== '') {
+            return $candidate;
+        }
+
+        return trim($this->promptTemplate);
     }
 
     /**

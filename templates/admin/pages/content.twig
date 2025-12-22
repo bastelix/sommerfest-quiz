@@ -47,6 +47,7 @@
     window.transAiPageCreateError = '{{ t('error_ai_page_create')|e('js') }}';
     window.transAiPageUnavailable = '{{ t('error_ai_page_unavailable')|e('js') }}';
     window.transAiPagePromptMissing = '{{ t('error_ai_page_prompt_missing')|e('js') }}';
+    window.transAiPagePromptInvalid = '{{ t('error_ai_page_prompt_invalid')|e('js') }}';
     window.transAiPageEmptyResponse = '{{ t('error_ai_page_empty_response')|e('js') }}';
     window.transAiPageInvalidHtml = '{{ t('error_ai_page_invalid_html')|e('js') }}';
     window.transAiPageCreated = '{{ t('notify_ai_page_created')|e('js') }}';
@@ -278,6 +279,21 @@
                     required
                     placeholder="{{ t('placeholder_ai_page_problem') }}"
                   ></textarea>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="aiPagePromptTemplate">{{ t('label_ai_page_prompt_template') }}</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="aiPagePromptTemplate" name="prompt_template_id">
+                    <option value="">{{ t('placeholder_ai_page_prompt_template') }}</option>
+                    {% for template in prompt_templates|default([]) %}
+                      {% set templateId = template.id|default('') %}
+                      {% set templateLabel = template.label|default('') %}
+                      {% if templateId is not empty and templateLabel is not empty %}
+                        <option value="{{ templateId|e('html_attr') }}">{{ templateLabel }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
               <div class="uk-margin">

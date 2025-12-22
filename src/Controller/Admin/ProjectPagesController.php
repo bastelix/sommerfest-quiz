@@ -9,6 +9,7 @@ use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainStartPageService;
+use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\NamespaceService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
@@ -27,6 +28,7 @@ class ProjectPagesController
     private NamespaceRepository $namespaceRepository;
     private NamespaceService $namespaceService;
     private TenantService $tenantService;
+    private PageAiPromptTemplateService $promptTemplateService;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -36,7 +38,8 @@ class ProjectPagesController
         ?NamespaceResolver $namespaceResolver = null,
         ?NamespaceRepository $namespaceRepository = null,
         ?NamespaceService $namespaceService = null,
-        ?TenantService $tenantService = null
+        ?TenantService $tenantService = null,
+        ?PageAiPromptTemplateService $promptTemplateService = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -46,6 +49,7 @@ class ProjectPagesController
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
         $this->namespaceService = $namespaceService ?? new NamespaceService($this->namespaceRepository);
         $this->tenantService = $tenantService ?? new TenantService($pdo);
+        $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
     }
 
     public function content(Request $request, Response $response): Response
@@ -75,6 +79,7 @@ class ProjectPagesController
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),
+            'prompt_templates' => $this->promptTemplateService->list(),
         ]);
     }
 

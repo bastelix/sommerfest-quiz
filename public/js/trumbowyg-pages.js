@@ -912,6 +912,7 @@ const initAiPageCreation = () => {
   const themeInput = form.querySelector('#aiPageTheme');
   const colorSchemeInput = form.querySelector('#aiPageColorScheme');
   const problemInput = form.querySelector('#aiPageProblem');
+  const promptTemplateSelect = form.querySelector('#aiPagePromptTemplate');
   const slugInput = form.querySelector('#aiPageSlug');
   const titleInput = form.querySelector('#aiPageTitle');
   const feedback = form.querySelector('[data-ai-page-feedback]');
@@ -922,6 +923,7 @@ const initAiPageCreation = () => {
   const createErrorMessage = window.transAiPageCreateError || 'Die KI-Seite konnte nicht erstellt werden.';
   const aiUnavailableMessage = window.transAiPageUnavailable || createErrorMessage;
   const promptMissingMessage = window.transAiPagePromptMissing || createErrorMessage;
+  const promptInvalidMessage = window.transAiPagePromptInvalid || createErrorMessage;
   const emptyResponseMessage = window.transAiPageEmptyResponse || 'Die KI-Antwort ist leer oder ungültig.';
   const invalidHtmlMessage = window.transAiPageInvalidHtml || createErrorMessage;
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
@@ -931,6 +933,7 @@ const initAiPageCreation = () => {
     invalid_slug: createErrorMessage,
     page_not_found: createErrorMessage,
     prompt_missing: promptMissingMessage,
+    prompt_template_invalid: promptInvalidMessage,
     ai_unavailable: aiUnavailableMessage,
     ai_empty: emptyResponseMessage,
     ai_timeout: createErrorMessage,
@@ -973,6 +976,7 @@ const initAiPageCreation = () => {
     const themeValue = (themeInput?.value || '').trim();
     const colorSchemeValue = (colorSchemeInput?.value || '').trim();
     const problemValue = (problemInput?.value || '').trim();
+    const promptTemplateId = (promptTemplateSelect?.value || '').trim();
 
     if (!slugValue || !titleValue || !themeValue || !colorSchemeValue || !problemValue) {
       setFeedback(missingFieldsMessage);
@@ -1022,7 +1026,8 @@ const initAiPageCreation = () => {
           title: titleValue,
           theme: themeValue,
           colorScheme: colorSchemeValue,
-          problem: problemValue
+          problem: problemValue,
+          promptTemplateId: promptTemplateId || undefined
         })
       });
 
