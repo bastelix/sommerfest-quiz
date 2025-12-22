@@ -1038,7 +1038,6 @@ return [
     'action_delete_player' => 'Spielername löschen',
     'text_player_name_hint' => 'Name wird lokal im Browser gespeichert',
     'text_stripe_config_missing' => 'Stripe-Konfiguration fehlt. Bitte erforderliche Umgebungsvariablen setzen.',
-];
     'text_prompt_templates_hint' => 'Verwalte die Vorlagen für KI-Prompts. Passe die Texte und Platzhalter nach Bedarf an.',
     'help_prompt_template_placeholders' => 'Verfügbare Platzhalter: <code>{{slug}}</code>, <code>{{title}}</code>, <code>{{theme}}</code>, <code>{{colorScheme}}</code>, <code>{{primaryColor}}</code>, <code>{{backgroundColor}}</code>, <code>{{accentColor}}</code>, <code>{{problem}}</code>.',
     'text_prompt_templates_loading' => 'Promptvorlagen werden geladen ...',
@@ -1053,3 +1052,4 @@ return [
     'error_prompt_template_save' => 'Promptvorlage konnte nicht gespeichert werden.',
     'error_prompt_template_missing' => 'Promptvorlage nicht gefunden.',
     'error_prompt_template_invalid' => 'Bitte einen Namen und Prompttext angeben.',
+];
