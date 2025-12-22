@@ -42,6 +42,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
 use App\Service\DomainContactTemplateService;
+use App\Service\PromptTemplateService;
 use App\Service\PageService;
 use App\Service\NamespaceService;
 use App\Service\TranslationService;
@@ -108,6 +109,7 @@ use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\MailProviderController;
 use App\Controller\Admin\UsernameBlocklistController;
+use App\Controller\Admin\PromptTemplateController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
@@ -509,6 +511,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $certificateProvisioner = new CertificateProvisioningService($domainStartPageService);
         $reverseProxyHostUpdater = new ReverseProxyHostUpdater($domainStartPageService, $nginxService);
         $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
+        $promptTemplateService = new PromptTemplateService($pdo);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
         if ($marketingDomainProvider === null) {
@@ -625,6 +628,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute(
                 'domainContactTemplateController',
                 new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)
+            )
+            ->withAttribute(
+                'promptTemplateController',
+                new PromptTemplateController($promptTemplateService)
             )
             ->withAttribute(
                 'marketingNewsletterConfigController',
@@ -2213,6 +2220,33 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller->testConnection($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/prompt-templates', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('promptTemplateController');
+        if (!$controller instanceof PromptTemplateController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/prompt-templates/data', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('promptTemplateController');
+        if (!$controller instanceof PromptTemplateController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->patch('/admin/prompt-templates/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = $request->getAttribute('promptTemplateController');
+        if (!$controller instanceof PromptTemplateController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/namespaces', function (Request $request, Response $response) {
         $controller = $request->getAttribute('namespaceController');
