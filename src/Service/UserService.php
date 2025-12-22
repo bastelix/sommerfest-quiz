@@ -224,82 +224,90 @@ class UserService
         }
 
         $this->pdo->beginTransaction();
-        $existing = [];
-        foreach ($this->pdo->query('SELECT id FROM users') as $row) {
-            $existing[(int) $row['id']] = true;
-        }
-
-        $insert = $this->pdo->prepare(
-            'INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?) RETURNING id'
-        );
-        $update = $this->pdo->prepare('UPDATE users SET username=?,email=?,role=?,active=?,position=? WHERE id=?');
-        $updatePass = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
-        $delete = $this->pdo->prepare('DELETE FROM users WHERE id=?');
-
-        foreach ($users as $pos => $u) {
-            if (!isset($u['username'])) {
-                continue;
+        try {
+            $existing = [];
+            foreach ($this->pdo->query('SELECT id FROM users') as $row) {
+                $existing[(int) $row['id']] = true;
             }
-            $id = isset($u['id']) ? (int) $u['id'] : 0;
-            $rawUsername = (string) $u['username'];
-            $username = strtolower($rawUsername);
-            $role = isset($u['role']) ? (string) $u['role'] : Roles::CATALOG_EDITOR;
-            $email = isset($u['email']) ? (string) $u['email'] : null;
-            if (!in_array($role, Roles::ALL, true)) {
-                $role = Roles::CATALOG_EDITOR;
-            }
-            $pass = $u['password'] ?? '';
-            $active = isset($u['active']) ? (bool) $u['active'] : true;
-            $position = $pos;
-            $namespacePayload = $this->extractNamespacePayload($u['namespaces'] ?? null);
 
-            if ($id === 0 || !isset($existing[$id])) {
-                if ($pass === '') {
-                    $pass = bin2hex(random_bytes(8));
+            $insert = $this->pdo->prepare(
+                'INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?) RETURNING id'
+            );
+            $update = $this->pdo->prepare('UPDATE users SET username=?,email=?,role=?,active=?,position=? WHERE id=?');
+            $updatePass = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
+            $delete = $this->pdo->prepare('DELETE FROM users WHERE id=?');
+
+            foreach ($users as $pos => $u) {
+                if (!isset($u['username'])) {
+                    continue;
                 }
-                $insert->execute([
-                    $username,
-                    password_hash($pass, PASSWORD_DEFAULT),
-                    $email,
-                    $role,
-                    $active,
-                    $position,
-                ]);
-                $insertedId = (int) $insert->fetchColumn();
-                $insert->closeCursor();
-                if ($insertedId > 0) {
-                    if ($namespacePayload !== null) {
-                        $this->namespaceRepository->replaceForUser(
-                            $insertedId,
-                            $namespacePayload['namespaces'],
-                            $namespacePayload['default']
-                        );
-                    } else {
-                        $this->namespaceRepository->ensureDefaultNamespace($insertedId);
+                $id = isset($u['id']) ? (int) $u['id'] : 0;
+                $rawUsername = (string) $u['username'];
+                $username = strtolower($rawUsername);
+                $role = isset($u['role']) ? (string) $u['role'] : Roles::CATALOG_EDITOR;
+                $email = isset($u['email']) ? (string) $u['email'] : null;
+                if (!in_array($role, Roles::ALL, true)) {
+                    $role = Roles::CATALOG_EDITOR;
+                }
+                $pass = $u['password'] ?? '';
+                $active = isset($u['active']) ? (bool) $u['active'] : true;
+                $position = $pos;
+                $namespacePayload = $this->extractNamespacePayload($u['namespaces'] ?? null);
+
+                if ($id === 0 || !isset($existing[$id])) {
+                    if ($pass === '') {
+                        $pass = bin2hex(random_bytes(8));
                     }
+                    $insert->execute([
+                        $username,
+                        password_hash($pass, PASSWORD_DEFAULT),
+                        $email,
+                        $role,
+                        $active,
+                        $position,
+                    ]);
+                    $insertedId = (int) $insert->fetchColumn();
+                    $insert->closeCursor();
+                    if ($insertedId > 0) {
+                        if ($namespacePayload !== null) {
+                            $this->namespaceRepository->replaceForUser(
+                                $insertedId,
+                                $namespacePayload['namespaces'],
+                                $namespacePayload['default']
+                            );
+                        } else {
+                            $this->namespaceRepository->ensureDefaultNamespace($insertedId);
+                        }
+                    }
+                    continue;
                 }
-                continue;
+
+                $update->execute([$username, $email, $role, $active, $position, $id]);
+                if ($pass !== '') {
+                    $updatePass->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
+                }
+                if ($namespacePayload !== null) {
+                    $this->namespaceRepository->replaceForUser(
+                        $id,
+                        $namespacePayload['namespaces'],
+                        $namespacePayload['default']
+                    );
+                }
+                unset($existing[$id]);
             }
 
-            $update->execute([$username, $email, $role, $active, $position, $id]);
-            if ($pass !== '') {
-                $updatePass->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
+            foreach (array_keys($existing) as $id) {
+                $delete->execute([$id]);
             }
-            if ($namespacePayload !== null) {
-                $this->namespaceRepository->replaceForUser(
-                    $id,
-                    $namespacePayload['namespaces'],
-                    $namespacePayload['default']
-                );
+
+            $this->pdo->commit();
+        } catch (Throwable $exception) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
             }
-            unset($existing[$id]);
+
+            throw $exception;
         }
-
-        foreach (array_keys($existing) as $id) {
-            $delete->execute([$id]);
-        }
-
-        $this->pdo->commit();
     }
 
     /**
