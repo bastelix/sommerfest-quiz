@@ -495,7 +495,7 @@ const buildPageForm = page => {
 
   const previewLink = document.createElement('a');
   previewLink.className = 'uk-button uk-button-default uk-margin-small-left preview-link';
-  previewLink.href = withBase(`/${slug}`);
+  previewLink.href = withNamespace(withBase(`/${slug}`));
   previewLink.target = '_blank';
   previewLink.textContent = 'Vorschau';
 
