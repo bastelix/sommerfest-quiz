@@ -1,17 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% set links = [
-    { 'href': '#trust', 'label': t('calserver_mega_overview_trust'), 'icon': 'star' },
-    { 'href': '#features', 'label': t('calserver_nav_features'), 'icon': 'grid' },
-    { 'href': '#modules', 'label': t('calserver_nav_modules'), 'icon': 'database' },
-    { 'href': '#usecases', 'label': t('calserver_nav_usecases'), 'icon': 'users' },
-    { 'href': '#metcal', 'label': t('calserver_nav_metcal'), 'icon': 'link' },
-    { 'href': '#modes', 'label': t('calserver_nav_modes'), 'icon': 'cog' },
-    { 'href': '#calserver-news', 'label': t('calserver_nav_news'), 'icon': 'rss' },
-    { 'href': '#pricing', 'label': t('calserver_nav_pricing'), 'icon': 'credit-card' },
-    { 'href': '#faq', 'label': t('calserver_nav_faq'), 'icon': 'question' },
-    { 'href': '#demo', 'label': t('calserver_mega_resources_contact'), 'icon': 'play' }
-] %}
+{% set links = marketingMenuItems|default([]) %}
 {% set megaNav = [
   {
     'label': t('calserver_mega_overview'),
@@ -230,9 +219,14 @@
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
         <ul class="uk-nav uk-nav-default">
           {% for link in links %}
+            {% set icon = link.icon|default(null) %}
+            {% set isExternal = link.isExternal|default(false) %}
             <li>
-              <a href="{{ link.href }}">
-                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
+                {% if icon %}
+                  <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
+                {% endif %}
+                {{ link.label }}
               </a>
             </li>
           {% endfor %}

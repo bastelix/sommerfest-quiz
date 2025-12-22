@@ -231,6 +231,16 @@ class MarketingPageController
             $chatPath = sprintf('/m/%s/chat', $templateSlug);
         }
 
+        $marketingMenuItems = $this->marketingMenu->getMenuItemsForSlug(
+            $namespace,
+            $page->getSlug(),
+            $locale,
+            true
+        );
+        if ($marketingMenuItems === []) {
+            $marketingMenuItems = self::DEFAULT_MARKETING_MENU;
+        }
+
         $data = [
             'content' => $html,
             'pageFavicon' => $config?->getFaviconPath(),
@@ -249,6 +259,7 @@ class MarketingPageController
             'marketingSlug' => $templateSlug,
             'marketingChatEndpoint' => $basePath . $chatPath,
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
+            'marketingMenuItems' => $marketingMenuItems,
         ];
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
