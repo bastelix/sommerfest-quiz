@@ -892,7 +892,7 @@ return [
     'column_domain_chat_size' => 'Größe',
     'column_domain_chat_updated' => 'Aktualisiert',
     'heading_domain_chat_wiki' => 'Wiki-Beiträge für den KI-Index',
-    'text_domain_chat_wiki_hint' => 'Wähle veröffentlichte Wiki-Beiträge aus, die in den projektbezogenen KI-Index einfließen sollen.',
+    'text_domain_chat_wiki_hint' => 'Wähle veröffentlichte Wiki-Beiträge aus, damit der Chatbot präzisere Antworten für dieses Projekt liefert und die Inhalte kontrolliert bleiben.',
     'text_domain_chat_wiki_unavailable' => 'Für dieses Projekt ist kein Marketing-Wiki verfügbar.',
     'text_domain_chat_wiki_empty' => 'Keine veröffentlichten Wiki-Beiträge vorhanden.',
     'button_domain_chat_wiki_save' => 'Auswahl speichern',

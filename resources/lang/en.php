@@ -892,7 +892,7 @@ return [
     'column_domain_chat_size' => 'Size',
     'column_domain_chat_updated' => 'Updated',
     'heading_domain_chat_wiki' => 'Wiki articles for the AI index',
-    'text_domain_chat_wiki_hint' => 'Select published wiki articles to feed into the domain-specific AI index.',
+    'text_domain_chat_wiki_hint' => 'Select published wiki articles so the chatbot delivers more precise answers for this project and the content stays controlled.',
     'text_domain_chat_wiki_unavailable' => 'This domain does not have a marketing wiki.',
     'text_domain_chat_wiki_empty' => 'No published wiki articles available.',
     'button_domain_chat_wiki_save' => 'Save selection',
