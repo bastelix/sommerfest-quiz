@@ -6,6 +6,8 @@
   {{ assets[path]|default(basePath ~ path) }}
 {% endmacro %}
 
+{% set links = marketingMenuItems|default([]) %}
+
 {% set megaNav = [
   {
     'label': 'Angebot',
@@ -567,14 +569,13 @@
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close" type="button" aria-label="Menü schließen" uk-close></button>
         <ul class="uk-nav uk-nav-default labor-offcanvas__nav">
-          {% for item in megaNav %}
-            <li class="uk-nav-header">{{ item.label }}</li>
-            {% for link in item.items %}
-              <li><a href="{{ link.href }}" uk-scroll>{{ link.label }}</a></li>
-            {% endfor %}
-            {% if not loop.last %}
-              <li class="uk-nav-divider"></li>
-            {% endif %}
+          {% for link in links %}
+            {% set isExternal = link.isExternal|default(false) %}
+            <li>
+              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
+                {{ link.label }}
+              </a>
+            </li>
           {% endfor %}
         </ul>
         <a class="uk-button uk-button-primary labor-nav__cta uk-width-1-1" href="{{ contactLink.href }}" uk-scroll>
