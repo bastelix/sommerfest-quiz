@@ -275,9 +275,20 @@ final class MarketingMenuService
      */
     private function fetchItemsForPageId(int $pageId, string $namespace, ?string $locale, bool $onlyActive): array
     {
-        $normalizedLocale = $this->normalizeLocale($locale);
-        $params = [$pageId, $namespace, $normalizedLocale];
-        $sql = 'SELECT * FROM marketing_page_menu_items WHERE page_id = ? AND namespace = ? AND locale = ?';
+        $normalizedLocale = null;
+        if ($locale !== null) {
+            $candidate = strtolower(trim($locale));
+            if ($candidate !== '') {
+                $normalizedLocale = $candidate;
+            }
+        }
+        $params = [$pageId, $namespace];
+        $sql = 'SELECT * FROM marketing_page_menu_items WHERE page_id = ? AND namespace = ?';
+
+        if ($normalizedLocale !== null) {
+            $sql .= ' AND locale = ?';
+            $params[] = $normalizedLocale;
+        }
 
         if ($onlyActive) {
             $sql .= ' AND is_active = TRUE';

@@ -141,6 +141,26 @@
           </div>
         </div>
 
+        {% set marketingLocaleOptions = ['de', 'en'] %}
+        {% set selectedMenuLocale = locale()|default('de') %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin">
+          <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
+          <div class="uk-form-controls">
+            <select id="menuLocaleSelect" class="uk-select" data-menu-locale-select>
+              <option value="">Alle Locales</option>
+              {% for localeOption in marketingLocaleOptions %}
+                <option
+                  value="{{ localeOption|e('html_attr') }}"
+                  {% if localeOption == selectedMenuLocale %}selected{% endif %}
+                >{{ localeOption }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="uk-text-meta uk-margin-small-top">
+            Optional: Ohne Auswahl werden Menüeinträge aus allen Locales angezeigt.
+          </div>
+        </div>
+
         {% set menuPagesData = hasPages ? menu_pages|default([]) : [] %}
         <div
           class="uk-card uk-card-default uk-card-body uk-margin"
@@ -149,6 +169,7 @@
           data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
           data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
           data-namespace="{{ activePageNamespace|e('html_attr') }}"
+          data-locale="{{ selectedMenuLocale|e('html_attr') }}"
         >
           <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
             <div>

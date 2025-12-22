@@ -15,6 +15,7 @@ if (manager) {
   })();
 
   const pageSelect = document.getElementById('pageContentSelect');
+  const localeSelect = document.getElementById('menuLocaleSelect');
   const pageLabel = manager.querySelector('[data-menu-page-label]');
   const addButton = manager.querySelector('[data-menu-add]');
   const itemsBody = manager.querySelector('[data-menu-items]');
@@ -61,14 +62,18 @@ if (manager) {
     const candidate = select?.value || manager.dataset.namespace || window.pageNamespace || '';
     return String(candidate || '').trim();
   };
-  const withNamespace = path => {
-    const namespace = resolveNamespace();
-    if (!namespace) {
+  const resolveLocale = () => {
+    const candidate = localeSelect?.value ?? manager.dataset.locale ?? '';
+    return String(candidate || '').trim();
+  };
+  const appendQueryParam = (path, key, value) => {
+    if (!value) {
       return path;
     }
     const separator = path.includes('?') ? '&' : '?';
-    return `${path}${separator}namespace=${encodeURIComponent(namespace)}`;
+    return `${path}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
   };
+  const withNamespace = path => appendQueryParam(path, 'namespace', resolveNamespace());
 
   const resolveCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.csrfToken || '';
@@ -437,14 +442,15 @@ if (manager) {
     });
   };
 
-  const loadMenuItems = () => {
+  const loadMenuItems = locale => {
     hideFeedback();
     if (!state.pageId) {
       showEmpty('Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.');
       return;
     }
     setLoading();
-    apiFetch(withNamespace(buildPath(state.pageId, '/menu')))
+    const path = appendQueryParam(withNamespace(buildPath(state.pageId, '/menu')), 'locale', locale);
+    apiFetch(path)
       .then(response => {
         if (!response.ok) {
           throw new Error('menu-load-failed');
@@ -703,13 +709,18 @@ if (manager) {
     state.pageId = page ? Number(page.id) : null;
     setPageLabel(page);
     addButton.disabled = !state.pageId;
-    loadMenuItems();
+    loadMenuItems(resolveLocale());
   };
 
   addButton.addEventListener('click', addRow);
 
   pageSelect?.addEventListener('change', () => {
     updateSelectedPage();
+  });
+
+  localeSelect?.addEventListener('change', () => {
+    manager.dataset.locale = localeSelect.value || '';
+    loadMenuItems(resolveLocale());
   });
 
   document.addEventListener('marketing-page:created', event => {
