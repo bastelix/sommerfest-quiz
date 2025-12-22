@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\NamespaceResolver;
+use App\Service\PageContentFileRepository;
+use App\Service\PageContentLoader;
 use App\Service\PageService;
 use InvalidArgumentException;
 use LogicException;
@@ -106,11 +108,15 @@ class PageController
         $slug = isset($data['slug']) ? (string) $data['slug'] : '';
         $title = isset($data['title']) ? (string) $data['title'] : '';
         $content = isset($data['content']) ? (string) $data['content'] : '';
+        $contentSource = null;
+        if ($content === '' && PageContentFileRepository::hasFallbackForSlug($slug)) {
+            $contentSource = PageContentLoader::SOURCE_FILE;
+        }
 
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
         try {
-            $page = $this->pageService->create($namespace, $slug, $title, $content);
+            $page = $this->pageService->create($namespace, $slug, $title, $content, $contentSource);
         } catch (InvalidArgumentException $exception) {
             $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
 
