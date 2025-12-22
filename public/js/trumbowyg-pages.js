@@ -920,6 +920,8 @@ const initAiPageCreation = () => {
   const modal = modalEl && window.UIkit ? window.UIkit.modal(modalEl) : null;
   const missingFieldsMessage = window.transAiPageMissingFields || 'Bitte fülle alle Felder aus.';
   const createErrorMessage = window.transAiPageCreateError || 'Die KI-Seite konnte nicht erstellt werden.';
+  const aiUnavailableMessage = window.transAiPageUnavailable || createErrorMessage;
+  const promptMissingMessage = window.transAiPagePromptMissing || createErrorMessage;
   const emptyResponseMessage = window.transAiPageEmptyResponse || 'Die KI-Antwort ist leer oder ungültig.';
   const invalidHtmlMessage = window.transAiPageInvalidHtml || createErrorMessage;
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
@@ -928,8 +930,8 @@ const initAiPageCreation = () => {
     invalid_payload: createErrorMessage,
     invalid_slug: createErrorMessage,
     page_not_found: createErrorMessage,
-    prompt_missing: createErrorMessage,
-    ai_unavailable: createErrorMessage,
+    prompt_missing: promptMissingMessage,
+    ai_unavailable: aiUnavailableMessage,
     ai_empty: emptyResponseMessage,
     ai_timeout: createErrorMessage,
     ai_failed: createErrorMessage,
