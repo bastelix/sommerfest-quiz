@@ -7,10 +7,12 @@ namespace App\Controller\Admin;
 use App\Service\CertificateProvisioningService;
 use App\Service\DomainStartPageService;
 use App\Service\MarketingDomainProvider;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Service\ReverseProxyHostUpdater;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
+use App\Domain\Roles;
 use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -51,7 +53,8 @@ class DomainStartPageController
         $translationService = $translator instanceof TranslationService ? $translator : null;
 
         $overview = $this->buildDomainOverview(strtolower($request->getUri()->getHost()));
-        $overview['options'] = $this->buildOptionLabels($translationService);
+        $allowedNamespaces = $this->resolveAllowedNamespaces($request);
+        $overview['options'] = $this->buildOptionLabels($translationService, $allowedNamespaces);
 
         $response->getBody()->write(json_encode($overview, JSON_PRETTY_PRINT));
 
@@ -62,7 +65,8 @@ class DomainStartPageController
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
 
-        $options = $this->buildOptionLabels($translationService);
+        $allowedNamespaces = $this->resolveAllowedNamespaces($request);
+        $options = $this->buildOptionLabels($translationService, $allowedNamespaces);
         $validStartPages = array_keys($options);
 
         $data = $request->getParsedBody();
@@ -92,7 +96,11 @@ class DomainStartPageController
         $smtpPass = array_key_exists('smtp_pass', $data)
             ? (string) $data['smtp_pass']
             : DomainStartPageService::SECRET_PLACEHOLDER;
-        $normalizedStartPage = $this->domainService->normalizeStartPageKey($startPage, $this->pageService);
+        $normalizedStartPage = $this->domainService->normalizeStartPageKey(
+            $startPage,
+            $this->pageService,
+            $allowedNamespaces
+        );
         $startPage = $normalizedStartPage['key'];
 
         if ($domain === '' || $startPage === '' || !in_array($startPage, $validStartPages, true)) {
@@ -469,8 +477,11 @@ class DomainStartPageController
     /**
      * @return array<string,string>
      */
-    private function buildOptionLabels(?TranslationService $translationService): array {
-        $options = $this->domainService->getStartPageOptions($this->pageService);
+    private function buildOptionLabels(
+        ?TranslationService $translationService,
+        ?array $allowedNamespaces = null
+    ): array {
+        $options = $this->domainService->getStartPageOptions($this->pageService, $allowedNamespaces);
 
         if ($translationService !== null) {
             $options['help'] = $translationService->translate('option_help_page');
@@ -487,6 +498,42 @@ class DomainStartPageController
         }
 
         return $ordered + $options;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    private function resolveAllowedNamespaces(Request $request): ?array
+    {
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role === Roles::ADMIN) {
+            return null;
+        }
+
+        $allowed = [];
+        $namespaces = $_SESSION['user']['namespaces'] ?? null;
+        if (is_array($namespaces)) {
+            foreach ($namespaces as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+
+                $namespace = strtolower(trim((string) ($entry['namespace'] ?? '')));
+                if ($namespace === '' || in_array($namespace, $allowed, true)) {
+                    continue;
+                }
+
+                $allowed[] = $namespace;
+            }
+        }
+
+        if ($allowed !== []) {
+            return $allowed;
+        }
+
+        $namespaceContext = (new NamespaceResolver())->resolve($request);
+
+        return $namespaceContext->getCandidates();
     }
 
     private function resolveMainDomain(): string {

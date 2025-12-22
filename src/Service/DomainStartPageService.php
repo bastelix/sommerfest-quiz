@@ -181,16 +181,18 @@ class DomainStartPageService
     /**
      * Build the available start page options combining core pages and marketing pages.
      *
+     * @param list<string>|null $allowedNamespaces
      * @return array<string,string> Map of start page key => label
      */
-    public function getStartPageOptions(PageService $pageService): array {
+    public function getStartPageOptions(PageService $pageService, ?array $allowedNamespaces = null): array {
         $options = [];
+        $allowedIndex = $this->normalizeAllowedNamespaces($allowedNamespaces);
 
         foreach (self::CORE_START_PAGES as $slug) {
             $options[$slug] = $this->buildLabelFromSlug($slug);
         }
 
-        $namespaceIndex = $this->collectPageNamespaceIndex($pageService);
+        $namespaceIndex = $this->collectPageNamespaceIndex($pageService, $allowedIndex);
         $ambiguousSlugs = $this->collectAmbiguousSlugs($namespaceIndex);
 
         foreach ($pageService->getAll() as $page) {
@@ -203,6 +205,9 @@ class DomainStartPageService
             $title = trim($page->getTitle());
             $label = $title !== '' ? $title : $this->buildLabelFromSlug($baseSlug);
             $namespace = $this->normalizeNamespace($page->getNamespace());
+            if ($allowedIndex !== null && !isset($allowedIndex[$namespace])) {
+                continue;
+            }
             $label = sprintf('%s · %s', $namespace, $label);
             $key = $this->buildStartPageKey($baseSlug, $namespace, isset($ambiguousSlugs[$baseSlug]));
 
@@ -275,16 +280,22 @@ class DomainStartPageService
     }
 
     /**
+     * @param list<string>|null $allowedNamespaces
      * @return array{key:string,slug:string,namespace:?string}
      */
-    public function normalizeStartPageKey(string $startPage, PageService $pageService): array {
+    public function normalizeStartPageKey(
+        string $startPage,
+        PageService $pageService,
+        ?array $allowedNamespaces = null
+    ): array {
         $parsed = $this->parseStartPageKey($startPage);
         $slug = $parsed['slug'];
         if ($slug === '') {
             return ['key' => '', 'slug' => '', 'namespace' => null];
         }
 
-        $namespaceIndex = $this->collectPageNamespaceIndex($pageService);
+        $allowedIndex = $this->normalizeAllowedNamespaces($allowedNamespaces);
+        $namespaceIndex = $this->collectPageNamespaceIndex($pageService, $allowedIndex);
         $ambiguousSlugs = $this->collectAmbiguousSlugs($namespaceIndex);
         $forceNamespace = isset($ambiguousSlugs[$slug]) && !in_array($slug, self::CORE_START_PAGES, true);
         $namespace = $parsed['namespace'];
@@ -314,9 +325,10 @@ class DomainStartPageService
     }
 
     /**
+     * @param array<string, bool>|null $allowedNamespaces
      * @return array<string, array<string, bool>>
      */
-    private function collectPageNamespaceIndex(PageService $pageService): array {
+    private function collectPageNamespaceIndex(PageService $pageService, ?array $allowedNamespaces = null): array {
         $index = [];
 
         foreach ($pageService->getAll() as $page) {
@@ -331,6 +343,9 @@ class DomainStartPageService
             }
 
             $namespace = $this->normalizeNamespace($page->getNamespace());
+            if ($allowedNamespaces !== null && !isset($allowedNamespaces[$namespace])) {
+                continue;
+            }
             $index[$baseSlug][$namespace] = true;
         }
 
@@ -384,6 +399,33 @@ class DomainStartPageService
         $normalized = strtolower(trim($namespace));
 
         return $normalized !== '' ? $normalized : PageService::DEFAULT_NAMESPACE;
+    }
+
+    /**
+     * @param list<string>|null $allowedNamespaces
+     * @return array<string, bool>|null
+     */
+    private function normalizeAllowedNamespaces(?array $allowedNamespaces): ?array
+    {
+        if ($allowedNamespaces === null) {
+            return null;
+        }
+
+        $normalized = [];
+        foreach ($allowedNamespaces as $namespace) {
+            if (!is_string($namespace)) {
+                continue;
+            }
+
+            $value = strtolower(trim($namespace));
+            if ($value === '') {
+                continue;
+            }
+
+            $normalized[$value] = true;
+        }
+
+        return $normalized;
     }
 
     /**
