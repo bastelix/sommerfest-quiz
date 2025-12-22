@@ -165,13 +165,14 @@
                 {% if not hasPages %}
                   <option value="" selected>Keine Marketing-Seiten vorhanden</option>
                 {% endif %}
-                {% for page in pagesList %}
-                  {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
-                  <option
-                    value="{{ page.slug }}"
-                    {% if page.slug == selectedSlug %}selected{% endif %}
-                  >{{ pageLabel }}</option>
-                {% endfor %}
+                  {% for page in pagesList %}
+                    {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+                    <option
+                      value="{{ page.slug }}"
+                      data-page-id="{{ page.id }}"
+                      {% if page.slug == selectedSlug %}selected{% endif %}
+                    >{{ pageLabel }}</option>
+                  {% endfor %}
               </select>
             </div>
           </div>
@@ -199,6 +200,7 @@
             class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}"
             data-slug="{{ page.slug }}"
             data-landing="{{ page.slug not in excludedLandingSlugs ? 'true' : 'false' }}"
+            data-page-id="{{ page.id }}"
           >
             <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
             <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
@@ -306,6 +308,20 @@
                 <label class="uk-form-label" for="aiPageTitle">{{ t('label_ai_page_title') }}</label>
                 <div class="uk-form-controls">
                   <input class="uk-input" id="aiPageTitle" name="title" type="text" required placeholder="{{ t('placeholder_ai_page_title') }}">
+                </div>
+              </div>
+              <div class="uk-margin">
+                <div class="uk-form-controls">
+                  <label>
+                    <input class="uk-checkbox" id="aiPageCreateMenuItem" name="create_menu_item" type="checkbox">
+                    Menüpunkt erstellen
+                  </label>
+                </div>
+              </div>
+              <div class="uk-margin" data-ai-page-menu-label hidden>
+                <label class="uk-form-label" for="aiPageMenuLabel">Menü-Titel (optional)</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="aiPageMenuLabel" name="menu_label" type="text" placeholder="Standard: Seitentitel">
                 </div>
               </div>
               <div class="uk-flex uk-flex-right">

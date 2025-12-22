@@ -474,6 +474,9 @@ const buildPageForm = page => {
   form.className = 'page-form uk-hidden';
   form.dataset.slug = slug;
   form.dataset.landing = excluded.includes(slug) ? 'false' : 'true';
+  if (page?.id) {
+    form.dataset.pageId = String(page.id);
+  }
 
   const hiddenInput = document.createElement('input');
   hiddenInput.type = 'hidden';
@@ -612,15 +615,22 @@ const addPageToInterface = page => {
     const option = document.createElement('option');
     option.value = slug;
     option.textContent = formatPageLabel(page);
+    if (page?.id) {
+      option.dataset.pageId = String(page.id);
+    }
     select.append(option);
+  } else if (page?.id && !existingOption.dataset.pageId) {
+    existingOption.dataset.pageId = String(page.id);
   }
 
   let form = container.querySelector(`.page-form[data-slug="${slug}"]`);
   if (!form) {
     form = buildPageForm(page);
     container.append(form);
-    setupPageForm(form);
+  } else if (page?.id && !form.dataset.pageId) {
+    form.dataset.pageId = String(page.id);
   }
+  setupPageForm(form);
 
   if (window.pagesContent && typeof window.pagesContent === 'object') {
     window.pagesContent[slug] = page.content || '';
@@ -946,6 +956,9 @@ const initAiPageCreation = () => {
   const promptTemplateSelect = form.querySelector('#aiPagePromptTemplate');
   const slugInput = form.querySelector('#aiPageSlug');
   const titleInput = form.querySelector('#aiPageTitle');
+  const createMenuItemCheckbox = form.querySelector('#aiPageCreateMenuItem');
+  const menuLabelInput = form.querySelector('#aiPageMenuLabel');
+  const menuLabelWrapper = form.querySelector('[data-ai-page-menu-label]');
   const feedback = form.querySelector('[data-ai-page-feedback]');
   const submitBtn = form.querySelector('button[type="submit"]');
   const modalEl = document.getElementById('aiPageModal');
@@ -973,6 +986,23 @@ const initAiPageCreation = () => {
     ai_invalid_html: invalidHtmlMessage
   };
 
+  const updateMenuLabelVisibility = () => {
+    if (!menuLabelInput || !menuLabelWrapper) {
+      return;
+    }
+    const enabled = Boolean(createMenuItemCheckbox?.checked);
+    menuLabelWrapper.hidden = !enabled;
+    menuLabelInput.disabled = !enabled;
+    if (!enabled) {
+      menuLabelInput.value = '';
+    }
+  };
+
+  if (createMenuItemCheckbox) {
+    createMenuItemCheckbox.addEventListener('change', updateMenuLabelVisibility);
+  }
+  updateMenuLabelVisibility();
+
   const setFeedback = message => {
     if (!feedback) {
       return;
@@ -998,6 +1028,21 @@ const initAiPageCreation = () => {
     }
   };
 
+  const resolvePageId = slug => {
+    const normalized = (slug || '').trim();
+    if (!normalized) {
+      return null;
+    }
+    const select = document.getElementById('pageContentSelect');
+    const option = select
+      ? Array.from(select.options).find(item => item.value === normalized)
+      : null;
+    const formEl = document.querySelector(`.page-form[data-slug="${normalized}"]`);
+    const candidate = formEl?.dataset.pageId || option?.dataset.pageId || '';
+    const pageId = Number.parseInt(candidate, 10);
+    return Number.isFinite(pageId) ? pageId : null;
+  };
+
   form.addEventListener('submit', async event => {
     event.preventDefault();
     setFeedback('');
@@ -1008,6 +1053,8 @@ const initAiPageCreation = () => {
     const colorSchemeValue = (colorSchemeInput?.value || '').trim();
     const problemValue = (problemInput?.value || '').trim();
     const promptTemplateId = (promptTemplateSelect?.value || '').trim();
+    const shouldCreateMenuItem = Boolean(createMenuItemCheckbox?.checked);
+    const menuLabelValue = (menuLabelInput?.value || '').trim();
 
     if (!slugValue || !titleValue || !themeValue || !colorSchemeValue || !problemValue) {
       setFeedback(missingFieldsMessage);
@@ -1095,7 +1142,36 @@ const initAiPageCreation = () => {
         addPageToInterface(page);
       }
 
+      if (shouldCreateMenuItem) {
+        const pageId = createdPage?.id ?? resolvePageId(slugValue);
+        if (!pageId) {
+          notify('Menüpunkt konnte nicht erstellt werden', 'danger');
+        } else {
+          const label = menuLabelValue || titleValue;
+          const href = withBase(`/${slugValue}`);
+          try {
+            const menuResponse = await apiFetch(withNamespace(`/admin/pages/${pageId}/menu`), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json'
+              },
+              body: JSON.stringify({ label, href })
+            });
+            const menuPayload = await menuResponse.json().catch(() => ({}));
+            if (!menuResponse.ok) {
+              const menuError = menuPayload.error || 'Menüpunkt konnte nicht erstellt werden.';
+              throw new Error(menuError);
+            }
+            notify('Menüpunkt erstellt', 'success');
+          } catch (error) {
+            notify('Menüpunkt konnte nicht erstellt werden', 'danger');
+          }
+        }
+      }
+
       form.reset();
+      updateMenuLabelVisibility();
       if (modal) {
         modal.hide();
       }
