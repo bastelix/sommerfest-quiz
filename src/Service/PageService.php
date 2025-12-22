@@ -48,7 +48,13 @@ class PageService
         $stmt->execute([$namespace, $normalized]);
     }
 
-    public function create(string $namespace, string $slug, string $title, string $content): Page {
+    public function create(
+        string $namespace,
+        string $slug,
+        string $title,
+        string $content,
+        ?string $contentSource = null
+    ): Page {
         $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
         $this->assertValidNamespace($normalizedNamespace);
 
@@ -67,14 +73,23 @@ class PageService
         }
 
         $html = (string) $content;
+        $normalizedContentSource = $this->normalizeContentSourceInput($contentSource);
 
         $sortOrder = $this->getNextSortOrder($normalizedNamespace, null);
         $stmt = $this->pdo->prepare(
-            'INSERT INTO pages (namespace, slug, title, content, sort_order) VALUES (?, ?, ?, ?, ?)'
+            'INSERT INTO pages (namespace, slug, title, content, sort_order, content_source) '
+            . 'VALUES (?, ?, ?, ?, ?, ?)'
         );
 
         try {
-            $stmt->execute([$normalizedNamespace, $normalizedSlug, $normalizedTitle, $html, $sortOrder]);
+            $stmt->execute([
+                $normalizedNamespace,
+                $normalizedSlug,
+                $normalizedTitle,
+                $html,
+                $sortOrder,
+                $normalizedContentSource,
+            ]);
         } catch (PDOException $exception) {
             throw new RuntimeException('Die Seite konnte nicht angelegt werden.', 0, $exception);
         }
@@ -502,6 +517,20 @@ class PageService
     private function normalizeSlugInput(string $slug): string
     {
         return strtolower(trim($slug));
+    }
+
+    private function normalizeContentSourceInput(?string $contentSource): ?string
+    {
+        $normalized = strtolower(trim((string) $contentSource));
+        if ($normalized === '') {
+            return null;
+        }
+
+        if ($normalized === PageContentLoader::SOURCE_FILE) {
+            return PageContentLoader::SOURCE_FILE;
+        }
+
+        return null;
     }
 
     private function assertValidNamespace(string $namespace): void

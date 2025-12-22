@@ -12,6 +12,7 @@ use function is_readable;
 use function ltrim;
 use function preg_match;
 use function rtrim;
+use function strtolower;
 use function trim;
 
 class PageContentFileRepository implements PageContentRepository
@@ -46,6 +47,16 @@ class PageContentFileRepository implements PageContentRepository
         }
 
         return $content;
+    }
+
+    public static function hasFallbackForSlug(string $slug): bool
+    {
+        $normalized = strtolower(trim($slug));
+        if ($normalized === '') {
+            return false;
+        }
+
+        return isset(self::FALLBACK_FILES[$normalized]);
     }
 
     private function resolvePath(Page $page, ?string $sourceReference): ?string
