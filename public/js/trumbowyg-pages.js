@@ -918,6 +918,24 @@ const initAiPageCreation = () => {
   const submitBtn = form.querySelector('button[type="submit"]');
   const modalEl = document.getElementById('aiPageModal');
   const modal = modalEl && window.UIkit ? window.UIkit.modal(modalEl) : null;
+  const missingFieldsMessage = window.transAiPageMissingFields || 'Bitte fülle alle Felder aus.';
+  const createErrorMessage = window.transAiPageCreateError || 'Die KI-Seite konnte nicht erstellt werden.';
+  const emptyResponseMessage = window.transAiPageEmptyResponse || 'Die KI-Antwort ist leer oder ungültig.';
+  const invalidHtmlMessage = window.transAiPageInvalidHtml || createErrorMessage;
+  const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
+  const errorMessageMap = {
+    missing_fields: missingFieldsMessage,
+    invalid_payload: createErrorMessage,
+    invalid_slug: createErrorMessage,
+    page_not_found: createErrorMessage,
+    prompt_missing: createErrorMessage,
+    ai_unavailable: createErrorMessage,
+    ai_empty: emptyResponseMessage,
+    ai_timeout: createErrorMessage,
+    ai_failed: createErrorMessage,
+    ai_error: createErrorMessage,
+    ai_invalid_html: invalidHtmlMessage
+  };
 
   const setFeedback = message => {
     if (!feedback) {
@@ -955,7 +973,7 @@ const initAiPageCreation = () => {
     const problemValue = (problemInput?.value || '').trim();
 
     if (!slugValue || !titleValue || !themeValue || !colorSchemeValue || !problemValue) {
-      setFeedback('Bitte fülle alle Felder aus.');
+      setFeedback(missingFieldsMessage);
       return;
     }
 
@@ -985,7 +1003,7 @@ const initAiPageCreation = () => {
         });
         const createPayload = await createResponse.json().catch(() => ({}));
         if (!createResponse.ok || !createPayload.page) {
-          const errorMessage = createPayload.error || 'Die Seite konnte nicht erstellt werden.';
+          const errorMessage = createPayload.error || createErrorMessage;
           throw new Error(errorMessage);
         }
         createdPage = createPayload.page;
@@ -1008,13 +1026,15 @@ const initAiPageCreation = () => {
 
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) {
-        const errorMessage = payload.message || payload.error || 'Die KI-Seite konnte nicht erstellt werden.';
+        const code = typeof payload.error === 'string' ? payload.error : '';
+        const fallback = payload.message || payload.error || createErrorMessage;
+        const errorMessage = errorMessageMap[code] || fallback;
         throw new Error(errorMessage);
       }
 
       const html = typeof payload.html === 'string' ? payload.html.trim() : '';
       if (!html) {
-        setFeedback('Die KI-Antwort ist leer oder ungültig.');
+        setFeedback(emptyResponseMessage);
         return;
       }
 
@@ -1039,9 +1059,9 @@ const initAiPageCreation = () => {
         modal.hide();
       }
       setFeedback('');
-      notify('KI-Seite erstellt', 'success');
+      notify(createdMessage, 'success');
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Die KI-Seite konnte nicht erstellt werden.';
+      const message = error instanceof Error ? error.message : createErrorMessage;
       setFeedback(message);
     } finally {
       if (submitBtn) {

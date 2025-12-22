@@ -43,6 +43,11 @@
     window.transPageCopied = '{{ t('notify_page_copied')|e('js') }}';
     window.transPageMoved = '{{ t('notify_page_moved')|e('js') }}';
     window.transPageTransferError = '{{ t('notify_page_transfer_error')|e('js') }}';
+    window.transAiPageMissingFields = '{{ t('error_ai_page_missing_fields')|e('js') }}';
+    window.transAiPageCreateError = '{{ t('error_ai_page_create')|e('js') }}';
+    window.transAiPageEmptyResponse = '{{ t('error_ai_page_empty_response')|e('js') }}';
+    window.transAiPageInvalidHtml = '{{ t('error_ai_page_invalid_html')|e('js') }}';
+    window.transAiPageCreated = '{{ t('notify_ai_page_created')|e('js') }}';
   </script>
   <script type="module" src="{{ basePath }}/js/trumbowyg-pages.js"></script>
 {% endblock %}
@@ -235,7 +240,7 @@
               class="uk-button uk-button-primary"
               type="button"
               uk-toggle="target: #aiPageModal"
-            >KI-Seite erstellen</button>
+            >{{ t('action_ai_page_create') }}</button>
           </div>
         </div>
         <div id="pageFormsContainer">
@@ -294,17 +299,17 @@
         </div>
         <div id="aiPageModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">KI-Seite erstellen</h2>
+            <h2 class="uk-modal-title">{{ t('heading_ai_page_create') }}</h2>
             <form id="aiPageForm" class="uk-form-stacked">
               <div class="uk-alert uk-alert-danger" data-ai-page-feedback hidden role="alert"></div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageTheme">Thema</label>
+                <label class="uk-form-label" for="aiPageTheme">{{ t('label_ai_page_theme') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageTheme" name="theme" type="text" required placeholder="z. B. Sommerfest 2024">
+                  <input class="uk-input" id="aiPageTheme" name="theme" type="text" required placeholder="{{ t('placeholder_ai_page_theme') }}">
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageColorScheme">Farbschema</label>
+                <label class="uk-form-label" for="aiPageColorScheme">{{ t('label_ai_page_color_scheme') }}</label>
                 <div class="uk-form-controls">
                   <input
                     class="uk-input"
@@ -312,12 +317,12 @@
                     name="color_scheme"
                     type="text"
                     required
-                    placeholder="Primär: #1e87f0, Background: #0f172a, Accent: #f59e0b"
+                    placeholder="{{ t('placeholder_ai_page_color_scheme') }}"
                   >
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageProblem">Problemstellung</label>
+                <label class="uk-form-label" for="aiPageProblem">{{ t('label_ai_page_problem') }}</label>
                 <div class="uk-form-controls">
                   <textarea
                     class="uk-textarea"
@@ -325,25 +330,25 @@
                     name="problem"
                     rows="5"
                     required
-                    placeholder="Welche Herausforderung soll die Seite lösen?"
+                    placeholder="{{ t('placeholder_ai_page_problem') }}"
                   ></textarea>
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageSlug">Slug</label>
+                <label class="uk-form-label" for="aiPageSlug">{{ t('label_ai_page_slug') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. sommerfest-landing">
+                  <input class="uk-input" id="aiPageSlug" name="slug" type="text" required maxlength="100" placeholder="{{ t('placeholder_ai_page_slug') }}">
                 </div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="aiPageTitle">Titel</label>
+                <label class="uk-form-label" for="aiPageTitle">{{ t('label_ai_page_title') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="aiPageTitle" name="title" type="text" required placeholder="Seitentitel">
+                  <input class="uk-input" id="aiPageTitle" name="title" type="text" required placeholder="{{ t('placeholder_ai_page_title') }}">
                 </div>
               </div>
               <div class="uk-flex uk-flex-right">
-                <button type="submit" class="uk-button uk-button-primary">KI-Seite erstellen</button>
-                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+                <button type="submit" class="uk-button uk-button-primary">{{ t('action_ai_page_create') }}</button>
+                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('button_cancel') }}</button>
               </div>
             </form>
           </div>
