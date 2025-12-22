@@ -411,7 +411,7 @@ return [
     'label_mail_provider_api_key' => 'API-Schlüssel (optional)',
     'label_mail_provider_list_id' => 'Audience/List-ID (optional)',
     'label_mail_provider_active' => 'Als aktiven Anbieter verwenden',
-    'text_mail_provider_active_hint' => 'Aktivieren deaktiviert andere Anbieter und übernimmt die Zugangsdaten sofort.',
+    'text_mail_provider_active_hint' => 'Beim Aktivieren wird der Versand sofort umgestellt, die Zugangsdaten greifen direkt und andere Anbieter werden deaktiviert – ideal für Provider-Wechsel oder um Störungen zu umgehen.',
     'button_mail_provider_save' => 'Einstellungen speichern',
     'button_mail_provider_test' => 'Verbindung testen',
     'message_mail_provider_saved' => 'Mail-Anbieter gespeichert.',

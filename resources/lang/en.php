@@ -410,7 +410,7 @@ return [
     'label_mail_provider_api_key' => 'API key (optional)',
     'label_mail_provider_list_id' => 'Audience/List ID (optional)',
     'label_mail_provider_active' => 'Set as active provider',
-    'text_mail_provider_active_hint' => 'Activation disables other providers and applies these credentials immediately.',
+    'text_mail_provider_active_hint' => 'Activating switches delivery immediately, applies these credentials right away, and disables other providers—useful for provider changes or to work around disruptions.',
     'button_mail_provider_save' => 'Save settings',
     'button_mail_provider_test' => 'Test connection',
     'message_mail_provider_saved' => 'Mail provider settings saved.',
