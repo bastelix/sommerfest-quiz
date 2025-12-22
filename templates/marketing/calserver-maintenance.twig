@@ -273,7 +273,10 @@
       });
     });
   </script>
-  <script src="{{ basePath }}/js/calserver-cookie.js" defer></script>
-  <script src="{{ basePath }}/js/calserver.js" defer></script>
+  <script>
+    window.cookieConsentConfig = {{ cookieConsentConfig|default({})|json_encode|raw }};
+  </script>
+  <script src="{{ basePath }}/js/marketing-cookie.js" defer></script>
+  <script src="{{ basePath }}/js/marketing-consent.js" defer></script>
   <script src="{{ basePath }}/js/landing.js" defer></script>
 {% endblock %}

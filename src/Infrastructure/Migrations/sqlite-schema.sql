@@ -425,6 +425,15 @@ CREATE TABLE IF NOT EXISTS namespaces (
 );
 INSERT OR IGNORE INTO namespaces (namespace, is_active) VALUES ('default', 1);
 
+CREATE TABLE IF NOT EXISTS project_settings (
+    namespace TEXT PRIMARY KEY,
+    cookie_consent_enabled INTEGER NOT NULL DEFAULT 0,
+    cookie_storage_key TEXT,
+    cookie_banner_text TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Active event
 CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,

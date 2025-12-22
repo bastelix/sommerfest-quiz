@@ -1398,6 +1398,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectController();
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->post('/admin/projects/settings', function (Request $request, Response $response) {
+        $controller = new ProjectController();
+        return $controller->updateSettings($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->get('/admin/pages', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->content($request, $response);

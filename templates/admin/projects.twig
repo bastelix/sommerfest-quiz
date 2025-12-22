@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <meta name="csrf-token" content="{{ csrf_token }}">
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
@@ -109,6 +110,69 @@
               Wechsel lädt die Übersicht des ausgewählten Namespace neu.
             </div>
           </div>
+        </div>
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin-small"
+          data-project-settings
+          data-endpoint="{{ basePath }}/admin/projects/settings"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <h3 class="uk-card-title uk-margin-remove">Cookie-Consent</h3>
+            <span class="uk-text-meta" data-project-settings-updated>
+              {% if cookie_settings.updated_at %}
+                Zuletzt gespeichert: {{ cookie_settings.updated_at }}
+              {% endif %}
+            </span>
+          </div>
+          <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieConsentEnabled">Cookie-Banner aktiv</label>
+              <div class="uk-form-controls">
+                <label>
+                  <input
+                    class="uk-checkbox"
+                    type="checkbox"
+                    id="cookieConsentEnabled"
+                    name="cookie_consent_enabled"
+                    {% if cookie_settings.cookie_consent_enabled %}checked{% endif %}
+                  >
+                  Banner anzeigen
+                </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieStorageKey">Storage-Key</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="text"
+                  id="cookieStorageKey"
+                  name="cookie_storage_key"
+                  value="{{ cookie_settings.cookie_storage_key|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                >
+              </div>
+              <div class="uk-text-meta">Wird im Local Storage gespeichert.</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieBannerText">Banner-Text</label>
+              <div class="uk-form-controls">
+                <textarea
+                  class="uk-textarea"
+                  id="cookieBannerText"
+                  name="cookie_banner_text"
+                  rows="4"
+                >{{ cookie_settings.cookie_banner_text|default('')|e }}</textarea>
+              </div>
+              <div class="uk-text-meta">Hinweistext für externe Inhalte.</div>
+            </div>
+            <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+              <div>
+                <button type="submit" class="uk-button uk-button-primary">Einstellungen speichern</button>
+              </div>
+              <div class="uk-text-meta" data-project-settings-status></div>
+            </div>
+          </form>
         </div>
 
         {% set projectKpis = [

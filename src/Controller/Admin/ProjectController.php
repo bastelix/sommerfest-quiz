@@ -18,6 +18,7 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceValidator;
 use App\Service\PageService;
+use App\Service\ProjectSettingsService;
 use App\Support\BasePathHelper;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -27,6 +28,8 @@ use Slim\Views\Twig;
 
 use function http_build_query;
 use function is_array;
+use function json_decode;
+use function json_encode;
 use function rawurlencode;
 
 class ProjectController
@@ -37,6 +40,7 @@ class ProjectController
     private LandingNewsService $landingNewsService;
     private LandingMediaReferenceService $mediaReferenceService;
     private NamespaceRepository $namespaceRepository;
+    private ProjectSettingsService $projectSettings;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -45,7 +49,8 @@ class ProjectController
         ?MarketingPageWikiArticleService $wikiService = null,
         ?LandingNewsService $landingNewsService = null,
         ?LandingMediaReferenceService $mediaReferenceService = null,
-        ?NamespaceRepository $namespaceRepository = null
+        ?NamespaceRepository $namespaceRepository = null,
+        ?ProjectSettingsService $projectSettings = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -59,6 +64,7 @@ class ProjectController
             $this->landingNewsService
         );
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
+        $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
     }
 
     /**
@@ -69,6 +75,7 @@ class ProjectController
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $role = $_SESSION['user']['role'] ?? '';
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
 
         return $view->render($response, 'admin/projects.twig', [
             'role' => $role,
@@ -76,7 +83,36 @@ class ProjectController
             'domainType' => $request->getAttribute('domainType'),
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
+            'cookie_settings' => $cookieSettings,
+            'csrf_token' => $this->ensureCsrfToken(),
         ]);
+    }
+
+    public function updateSettings(Request $request, Response $response): Response
+    {
+        $payload = json_decode((string) $request->getBody(), true);
+        if (!is_array($payload)) {
+            return $response->withStatus(400);
+        }
+
+        $validator = new NamespaceValidator();
+        $namespace = $validator->normalizeCandidate((string) ($payload['namespace'] ?? ''));
+        if ($namespace === null) {
+            return $response->withStatus(400);
+        }
+
+        $enabled = filter_var($payload['cookieConsentEnabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $storageKey = isset($payload['cookieStorageKey']) ? (string) $payload['cookieStorageKey'] : null;
+        $bannerText = isset($payload['cookieBannerText']) ? (string) $payload['cookieBannerText'] : null;
+
+        $settings = $this->projectSettings->saveCookieConsentSettings($namespace, $enabled, $storageKey, $bannerText);
+
+        $response->getBody()->write(json_encode([
+            'namespace' => $namespace,
+            'settings' => $settings,
+        ]));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -222,6 +258,17 @@ class ProjectController
         }
 
         return [$availableNamespaces, $namespace];
+    }
+
+    private function ensureCsrfToken(): string
+    {
+        $token = $_SESSION['csrf_token'] ?? '';
+        if ($token === '') {
+            $token = bin2hex(random_bytes(16));
+            $_SESSION['csrf_token'] = $token;
+        }
+
+        return $token;
     }
 
     /**
