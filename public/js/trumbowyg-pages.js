@@ -879,9 +879,40 @@ const initPageCreation = () => {
         })
       });
 
-      const payload = await response.json().catch(() => ({}));
+      const contentType = response.headers.get('content-type') || '';
+      const responseText = await response.text();
+      let payload = {};
+      let parsedJson = false;
+      if (contentType.includes('application/json')) {
+        try {
+          payload = responseText ? JSON.parse(responseText) : {};
+          parsedJson = true;
+        } catch (err) {
+          const snippet = responseText.trim().slice(0, 200);
+          if (window.console && typeof window.console.warn === 'function') {
+            window.console.warn('Failed to parse JSON response for page creation.', {
+              status: response.status,
+              snippet
+            });
+          }
+          throw new Error(`Serverantwort konnte nicht als JSON gelesen werden, Status ${response.status}.`);
+        }
+      } else {
+        const snippet = responseText.trim().slice(0, 200);
+        if (window.console && typeof window.console.warn === 'function') {
+          window.console.warn('Unexpected content type for page creation response.', {
+            status: response.status,
+            contentType,
+            snippet
+          });
+        }
+        throw new Error(`Serverantwort ist kein JSON, Status ${response.status}.`);
+      }
+
       if (!response.ok || !payload.page) {
-        const errorMessage = payload.error || 'Die Seite konnte nicht erstellt werden.';
+        const errorMessage = parsedJson && payload.error
+          ? payload.error
+          : `Die Seite konnte nicht erstellt werden (Status ${response.status}).`;
         throw new Error(errorMessage);
       }
 
