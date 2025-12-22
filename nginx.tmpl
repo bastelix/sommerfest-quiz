@@ -299,6 +299,10 @@
         include /etc/nginx/network_internal.conf;
         {{- end }}
 
+        {{- if eq .Path "/admin/pages/ai-generate" }}
+        proxy_read_timeout 35s;
+        {{- end }}
+
         {{ $proto := $vpath.proto }}
         {{ $upstream := $vpath.upstream }}
         {{ $dest := $vpath.dest }}

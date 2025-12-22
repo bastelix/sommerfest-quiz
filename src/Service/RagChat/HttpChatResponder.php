@@ -24,7 +24,7 @@ use function trim;
  */
 class HttpChatResponder implements ChatResponderInterface
 {
-    private const DEFAULT_TIMEOUT = 60.0;
+    private const DEFAULT_TIMEOUT = 25.0;
     private const MIN_TIMEOUT = 1.0;
 
     private ClientInterface $httpClient;
