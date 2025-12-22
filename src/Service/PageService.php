@@ -424,8 +424,11 @@ class PageService
         foreach ($nodes as $id => &$node) {
             $parentId = $node['parent_id'];
             if ($parentId !== null && isset($nodes[$parentId])) {
-                $nodes[$parentId]['children'][] = &$node;
-                continue;
+                if ($nodes[$parentId]['namespace'] === $node['namespace']) {
+                    $nodes[$parentId]['children'][] = &$node;
+                    continue;
+                }
+                // Guard against cross-namespace parent links; treat as root to avoid mixing trees.
             }
 
             $namespace = $node['namespace'] !== '' ? $node['namespace'] : self::DEFAULT_NAMESPACE;
