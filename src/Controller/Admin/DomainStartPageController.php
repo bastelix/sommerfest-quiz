@@ -510,9 +510,9 @@ class DomainStartPageController
     }
 
     /**
-     * @return list<string>|null
+     * @return list<string>
      */
-    private function resolveAllowedNamespaces(Request $request): ?array
+    private function resolveAllowedNamespaces(Request $request): array
     {
         $namespaceContext = (new NamespaceResolver())->resolve($request);
         $candidates = $namespaceContext->getCandidates();
