@@ -134,14 +134,14 @@
 
         {% include 'admin/components/project_tree.twig' %}
 
-        {% if pages|default([]) is empty %}
-          <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
-        {% else %}
-          {% include 'admin/components/page_tree.twig' %}
-          {% set selectedSlug = selectedPageSlug|default('') %}
-          {% if selectedSlug == '' and pages|length > 0 %}
-            {% set selectedSlug = (pages|first).slug %}
-          {% endif %}
+        {% set pagesList = pages|default([]) %}
+        {% set selectedSlug = selectedPageSlug|default('') %}
+        {% if selectedSlug == '' and pagesList|length > 0 %}
+          {% set selectedSlug = (pagesList|first).slug %}
+        {% endif %}
+        {% include 'admin/components/page_tree.twig' %}
+
+        {% if pagesList is not empty %}
 
           <div
             class="uk-card uk-card-default uk-card-body uk-margin"
@@ -188,141 +188,145 @@
             </div>
           </div>
 
-          {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
-          <div class="uk-flex uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
-            <div class="uk-width-1-1 uk-width-expand@m uk-margin-small-bottom">
-              <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
-              <div class="uk-form-controls">
-                <select
-                  id="pageContentSelect"
-                  class="uk-select"
-                  data-selected="{{ selectedSlug }}"
-                  data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
-                >
-                  {% for page in pages %}
-                    {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
-                    <option
-                      value="{{ page.slug }}"
-                      {% if page.slug == selectedSlug %}selected{% endif %}
-                    >{{ pageLabel }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="uk-margin-small-left">
-              <button
-                class="uk-button uk-button-default"
-                type="button"
-                uk-toggle="target: #createPageModal"
-              >Neue Seite</button>
+        {% endif %}
+
+        {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
+        <div class="uk-flex uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
+          <div class="uk-width-1-1 uk-width-expand@m uk-margin-small-bottom">
+            <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
+            <div class="uk-form-controls">
+              <select
+                id="pageContentSelect"
+                class="uk-select"
+                data-selected="{{ selectedSlug }}"
+                data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
+              >
+                {% for page in pagesList %}
+                  {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+                  <option
+                    value="{{ page.slug }}"
+                    {% if page.slug == selectedSlug %}selected{% endif %}
+                  >{{ pageLabel }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
-          <div id="pageFormsContainer">
-            {% for page in pages %}
-            <form
-              class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}"
-              data-slug="{{ page.slug }}"
-              data-landing="{{ page.slug not in excludedLandingSlugs ? 'true' : 'false' }}"
-            >
-              <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
-              <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
-              <div class="uk-margin-top">
-                <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
-                <a
-                  class="uk-button uk-button-default uk-margin-small-left preview-link"
-                  href="{{ basePath }}/{{ page.slug }}"
-                  target="_blank"
-                >Vorschau</a>
-                <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
+          <div class="uk-margin-small-left">
+            <button
+              class="uk-button uk-button-default"
+              type="button"
+              uk-toggle="target: #createPageModal"
+            >Neue Seite</button>
+          </div>
+        </div>
+        <div id="pageFormsContainer">
+          {% if pagesList is empty %}
+            <div class="uk-alert uk-alert-warning pages-empty-alert">{{ t('text_no_marketing_pages') }}</div>
+          {% endif %}
+          {% for page in pagesList %}
+          <form
+            class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}"
+            data-slug="{{ page.slug }}"
+            data-landing="{{ page.slug not in excludedLandingSlugs ? 'true' : 'false' }}"
+          >
+            <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
+            <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
+            <div class="uk-margin-top">
+              <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
+              <a
+                class="uk-button uk-button-default uk-margin-small-left preview-link"
+                href="{{ basePath }}/{{ page.slug }}"
+                target="_blank"
+              >Vorschau</a>
+              <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
+            </div>
+          </form>
+          {% endfor %}
+        </div>
+        <div id="createPageModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Neue Seite anlegen</h2>
+            <form id="createPageForm" class="uk-form-stacked">
+              <div id="createPageFeedback" class="uk-alert uk-alert-danger" hidden></div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="newPageSlug">Slug</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. neue-landingpage">
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="newPageTitle">Titel</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="newPageTitle" name="title" type="text" required placeholder="Seitentitel">
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="newPageContent">Initiales HTML (optional)</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="newPageContent" name="content" rows="6" placeholder="&lt;section class=&quot;uk-section&quot;&gt;...&lt;/section&gt;"></textarea>
+                </div>
+              </div>
+              <div class="uk-flex uk-flex-right">
+                <button type="submit" class="uk-button uk-button-primary">Seite erstellen</button>
+                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
               </div>
             </form>
-            {% endfor %}
           </div>
-          <div id="createPageModal" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-              <h2 class="uk-modal-title">Neue Seite anlegen</h2>
-              <form id="createPageForm" class="uk-form-stacked">
-                <div id="createPageFeedback" class="uk-alert uk-alert-danger" hidden></div>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="newPageSlug">Slug</label>
-                  <div class="uk-form-controls">
-                    <input class="uk-input" id="newPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. neue-landingpage">
-                  </div>
+        </div>
+        <div id="pageTransferModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">{{ t('heading_page_transfer') }}</h2>
+            <form id="pageTransferForm" class="uk-form-stacked">
+              <input type="hidden" id="pageTransferSlug" name="slug" value="">
+              <div class="uk-text-meta uk-margin-small-bottom" data-page-transfer-title></div>
+              <div class="uk-alert uk-alert-danger" data-page-transfer-feedback hidden></div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="pageTransferAction">{{ t('label_page_transfer_action') }}</label>
+                <div class="uk-form-controls">
+                  <select id="pageTransferAction" class="uk-select" required>
+                    <option value="">{{ t('placeholder_select_action') }}</option>
+                    <option value="copy">{{ t('option_page_transfer_copy') }}</option>
+                    <option value="move">{{ t('option_page_transfer_move') }}</option>
+                  </select>
                 </div>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="newPageTitle">Titel</label>
-                  <div class="uk-form-controls">
-                    <input class="uk-input" id="newPageTitle" name="title" type="text" required placeholder="Seitentitel">
-                  </div>
-                </div>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="newPageContent">Initiales HTML (optional)</label>
-                  <div class="uk-form-controls">
-                    <textarea class="uk-textarea" id="newPageContent" name="content" rows="6" placeholder="&lt;section class=&quot;uk-section&quot;&gt;...&lt;/section&gt;"></textarea>
-                  </div>
-                </div>
-                <div class="uk-flex uk-flex-right">
-                  <button type="submit" class="uk-button uk-button-primary">Seite erstellen</button>
-                  <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
-                </div>
-              </form>
-            </div>
-          </div>
-          <div id="pageTransferModal" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-              <h2 class="uk-modal-title">{{ t('heading_page_transfer') }}</h2>
-              <form id="pageTransferForm" class="uk-form-stacked">
-                <input type="hidden" id="pageTransferSlug" name="slug" value="">
-                <div class="uk-text-meta uk-margin-small-bottom" data-page-transfer-title></div>
-                <div class="uk-alert uk-alert-danger" data-page-transfer-feedback hidden></div>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="pageTransferAction">{{ t('label_page_transfer_action') }}</label>
-                  <div class="uk-form-controls">
-                    <select id="pageTransferAction" class="uk-select" required>
-                      <option value="">{{ t('placeholder_select_action') }}</option>
-                      <option value="copy">{{ t('option_page_transfer_copy') }}</option>
-                      <option value="move">{{ t('option_page_transfer_move') }}</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="pageTransferNamespace">{{ t('label_page_transfer_namespace') }}</label>
-                  <div class="uk-form-controls">
-                    <select id="pageTransferNamespace" class="uk-select" required>
-                      <option value="">{{ t('placeholder_select_namespace') }}</option>
-                      {% set transferTargets = available_namespaces|default([]) %}
-                      {% if transferTargets is empty %}
-                        {% set transferTargets = [{
-                          namespace: activePageNamespace,
-                          label: null,
-                          is_active: true
-                        }] %}
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="pageTransferNamespace">{{ t('label_page_transfer_namespace') }}</label>
+                <div class="uk-form-controls">
+                  <select id="pageTransferNamespace" class="uk-select" required>
+                    <option value="">{{ t('placeholder_select_namespace') }}</option>
+                    {% set transferTargets = available_namespaces|default([]) %}
+                    {% if transferTargets is empty %}
+                      {% set transferTargets = [{
+                        namespace: activePageNamespace,
+                        label: null,
+                        is_active: true
+                      }] %}
+                    {% endif %}
+                    {% for entry in transferTargets %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      {% if entryNamespace and entryNamespace != activePageNamespace %}
+                        <option value="{{ entryNamespace|e('html_attr') }}">
+                          {{ entryNamespace }}
+                          {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                        </option>
                       {% endif %}
-                      {% for entry in transferTargets %}
-                        {% set entryNamespace = entry.namespace|default('') %}
-                        {% set entryLabel = entry.label|default('') %}
-                        {% if entryNamespace and entryNamespace != activePageNamespace %}
-                          <option value="{{ entryNamespace|e('html_attr') }}">
-                            {{ entryNamespace }}
-                            {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                          </option>
-                        {% endif %}
-                      {% endfor %}
-                    </select>
-                  </div>
+                    {% endfor %}
+                  </select>
                 </div>
-                <div class="uk-flex uk-flex-right">
-                  <button type="submit" class="uk-button uk-button-primary" data-page-transfer-submit>
-                    {{ t('button_page_transfer_submit') }}
-                  </button>
-                  <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">
-                    {{ t('action_cancel') }}
-                  </button>
-                </div>
-              </form>
-            </div>
+              </div>
+              <div class="uk-flex uk-flex-right">
+                <button type="submit" class="uk-button uk-button-primary" data-page-transfer-submit>
+                  {{ t('button_page_transfer_submit') }}
+                </button>
+                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">
+                  {{ t('action_cancel') }}
+                </button>
+              </div>
+            </form>
           </div>
-        {% endif %}
+        </div>
       </div>
     </main>
   </div>

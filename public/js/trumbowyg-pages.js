@@ -703,10 +703,24 @@ export function initPageSelection() {
   const container = document.getElementById('pageFormsContainer');
   let forms = [];
 
+  const updateEmptyState = () => {
+    if (!container) {
+      return;
+    }
+    const hasForms = forms.length > 0;
+    const hasOptions = select.options.length > 0;
+    if (!hasForms || !hasOptions) {
+      showPagesEmptyMessage();
+    } else {
+      removePagesEmptyMessage(container);
+    }
+  };
+
   const refresh = () => {
     forms = container
       ? Array.from(container.querySelectorAll('.page-form'))
       : Array.from(document.querySelectorAll('.page-form'));
+    updateEmptyState();
   };
 
   const toggleForms = slug => {
@@ -726,6 +740,7 @@ export function initPageSelection() {
         teardownPageEditor(form);
       }
     });
+    updateEmptyState();
   };
 
   refresh();
