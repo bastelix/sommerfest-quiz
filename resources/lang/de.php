@@ -140,6 +140,8 @@ return [
     'placeholder_ai_page_title' => 'Seitentitel',
     'error_ai_page_missing_fields' => 'Bitte fülle alle Felder aus.',
     'error_ai_page_create' => 'Die KI-Seite konnte nicht erstellt werden.',
+    'error_ai_page_unavailable' => 'Der KI-Dienst ist nicht erreichbar. Prüfe die RAG_CHAT_SERVICE_URL (ggf. auch RAG_CHAT_SERVICE_TOKEN, RAG_CHAT_SERVICE_MODEL, RAG_CHAT_SERVICE_TIMEOUT) in deiner Umgebungskonfiguration.',
+    'error_ai_page_prompt_missing' => 'Die KI-Prompt-Vorlage ist nicht konfiguriert. Bitte die Konfiguration prüfen.',
     'error_ai_page_empty_response' => 'Die KI-Antwort ist leer oder ungültig.',
     'error_ai_page_invalid_html' => 'Die KI-Antwort enthält unzulässiges HTML.',
     'notify_ai_page_created' => 'KI-Seite erstellt',
