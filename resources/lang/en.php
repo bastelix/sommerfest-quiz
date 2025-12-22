@@ -852,7 +852,7 @@ return [
     'notify_marketing_domain_reconcile_unresolved' => 'Unresolved domains ({count}): {domains}',
     'notify_marketing_domain_reconcile_error' => 'Domain reconciliation failed.',
     'text_username_blocklist_intro' => 'Block additional usernames for registrations and admin accounts. Entries apply to every event and tenant.',
-    'text_username_blocklist_hint' => 'Names are stored in lowercase automatically.',
+    'text_username_blocklist_hint' => 'Names are stored in lowercase automatically, preventing blocked names from being used for registrations or teams.',
     'text_username_blocklist_empty' => 'No blocked usernames yet.',
     'text_username_blocklist_presets_hint' => 'Import curated presets to extend the blocklist in bulk. Existing entries stay untouched.',
     'heading_domain_chat' => 'Domain-specific AI knowledge',

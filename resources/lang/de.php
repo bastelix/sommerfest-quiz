@@ -852,7 +852,7 @@ return [
     'notify_marketing_domain_reconcile_unresolved' => 'Nicht auflösbare Domains ({count}): {domains}',
     'notify_marketing_domain_reconcile_error' => 'Domain-Abgleich fehlgeschlagen.',
     'text_username_blocklist_intro' => 'Sperre zusätzliche Nutzernamen für Registrierungen und Benutzerkonten. Einträge gelten für alle Events und Mandanten.',
-    'text_username_blocklist_hint' => 'Namen werden automatisch in Kleinbuchstaben gespeichert.',
+    'text_username_blocklist_hint' => 'Namen werden automatisch in Kleinbuchstaben gespeichert, damit gesperrte Namen nicht für Registrierungen oder Teams genutzt werden können.',
     'text_username_blocklist_empty' => 'Noch keine gesperrten Nutzernamen.',
     'text_username_blocklist_presets_hint' => 'Importiere geprüfte Presets, um die Sperrliste in einem Schritt zu erweitern. Bestehende Einträge bleiben erhalten.',
     'heading_domain_chat' => 'KI-Dokumentation pro Projekt',
