@@ -247,6 +247,7 @@ class MarketingPageController
 
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings);
+        $privacyUrl = $this->resolvePrivacyUrl($cookieSettings, $basePath);
 
         $data = [
             'content' => $html,
@@ -268,6 +269,7 @@ class MarketingPageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'marketingMenuItems' => $marketingMenuItems,
             'cookieConsentConfig' => $cookieConsentConfig,
+            'privacyUrl' => $privacyUrl,
         ];
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
@@ -502,6 +504,21 @@ class MarketingPageController
                 'triggerActive' => 'calserver-cookie-trigger--active',
             ],
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     */
+    private function resolvePrivacyUrl(array $settings, string $basePath): string
+    {
+        $privacyUrl = trim((string) ($settings['privacy_url'] ?? ''));
+        if ($privacyUrl !== '') {
+            return $privacyUrl;
+        }
+
+        $normalizedBasePath = rtrim($basePath, '/');
+
+        return $normalizedBasePath . '/datenschutz';
     }
 
     private function resolveMarketingAsset(string $path, string $basePath, int $width, int $height, string $label): string

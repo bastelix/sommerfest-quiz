@@ -15,7 +15,7 @@
       <p class="calserver-cookie-banner__copy">{{ consent.bannerText|default('')|e }}</p>
       <p class="calserver-cookie-banner__fineprint">
         Mehr erfährst du in unserer
-        <a href="{{ basePath }}/datenschutz" class="calserver-cookie-banner__link">Datenschutzerklärung</a>.
+        <a href="{{ privacyUrl|default(basePath ~ '/datenschutz') }}" class="calserver-cookie-banner__link">Datenschutzerklärung</a>.
       </p>
     </div>
     <div class="calserver-cookie-banner__actions" role="group" aria-label="Cookie-Auswahl">

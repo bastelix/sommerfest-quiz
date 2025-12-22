@@ -521,7 +521,7 @@
       <strong>Rechtliches</strong>
       <ul>
         <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
-        <li><a href="{{ basePath }}/datenschutz">{{ t('privacy') }}</a></li>
+        <li><a href="{{ privacyUrl|default(basePath ~ '/datenschutz') }}">{{ t('privacy') }}</a></li>
         <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
         {% set accessibilityUrl = locale() == 'en' ? basePath ~ '/calserver/accessibility' : basePath ~ '/calserver/barrierefreiheit' %}
         <li><a href="{{ accessibilityUrl }}">{{ t('accessibility') }}</a></li>

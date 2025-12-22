@@ -630,7 +630,7 @@
       <strong>Rechtliches</strong>
       <ul>
         <li><a href="{{ basePath }}/impressum">Impressum</a></li>
-        <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
+        <li><a href="{{ privacyUrl|default(basePath ~ '/datenschutz') }}">Datenschutz</a></li>
         <li><a href="{{ basePath }}/lizenz">Lizenz</a></li>
       </ul>
     </div>

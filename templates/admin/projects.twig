@@ -166,6 +166,21 @@
               </div>
               <div class="uk-text-meta">Hinweistext für externe Inhalte.</div>
             </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="privacyUrl">Datenschutz-URL</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="url"
+                  id="privacyUrl"
+                  name="privacy_url"
+                  value="{{ cookie_settings.privacy_url|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                  placeholder="{{ basePath }}/datenschutz"
+                >
+              </div>
+              <div class="uk-text-meta">Optionaler Link zur Datenschutzseite für Marketing und Footer.</div>
+            </div>
             <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
               <div>
                 <button type="submit" class="uk-button uk-button-primary">Einstellungen speichern</button>
