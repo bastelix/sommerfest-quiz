@@ -12,16 +12,10 @@ use function is_readable;
 use function ltrim;
 use function preg_match;
 use function rtrim;
-use function strtolower;
 use function trim;
 
 class PageContentFileRepository implements PageContentRepository
 {
-    private const FALLBACK_FILES = [
-        'calhelp' => 'content/marketing/calhelp.html',
-        'calserver' => 'content/marketing/calserver.html',
-    ];
-
     private string $projectRoot;
 
     public function __construct(?string $projectRoot = null)
@@ -49,26 +43,11 @@ class PageContentFileRepository implements PageContentRepository
         return $content;
     }
 
-    public static function hasFallbackForSlug(string $slug): bool
-    {
-        $normalized = strtolower(trim($slug));
-        if ($normalized === '') {
-            return false;
-        }
-
-        return isset(self::FALLBACK_FILES[$normalized]);
-    }
-
     private function resolvePath(Page $page, ?string $sourceReference): ?string
     {
         $reference = trim((string) $sourceReference);
         if ($reference !== '') {
             return $this->normalizePath($reference);
-        }
-
-        $slug = $page->getSlug();
-        if (isset(self::FALLBACK_FILES[$slug])) {
-            return $this->normalizePath(self::FALLBACK_FILES[$slug]);
         }
 
         return null;
