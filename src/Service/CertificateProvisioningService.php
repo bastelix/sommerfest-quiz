@@ -47,6 +47,10 @@ final class CertificateProvisioningService
     }
 
     /**
+     * Marketing domains are sourced from the admin database/provider first.
+     * The MARKETING_DOMAINS env var acts only as a fallback when no entries
+     * are configured in the database.
+     *
      * @return list<string>
      */
     private function collectMarketingDomains(string $primary): array
@@ -62,11 +66,13 @@ final class CertificateProvisioningService
             }
         }
 
-        $env = getenv('MARKETING_DOMAINS') ?: '';
-        foreach (preg_split('/[\s,]+/', $env) ?: [] as $entry) {
-            $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
-            if ($normalized !== '') {
-                $domains[] = $normalized;
+        if ($domains === []) {
+            $env = getenv('MARKETING_DOMAINS') ?: '';
+            foreach (preg_split('/[\s,]+/', $env) ?: [] as $entry) {
+                $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
+                if ($normalized !== '') {
+                    $domains[] = $normalized;
+                }
             }
         }
 
