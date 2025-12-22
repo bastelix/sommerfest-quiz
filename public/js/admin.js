@@ -201,6 +201,7 @@ window.apiFetch = (path, options = {}) => {
       cleanup();
     });
 };
+const apiFetch = window.apiFetch;
 window.notify = (msg, status = 'primary', timeout = 2000) => {
   if (typeof UIkit !== 'undefined' && UIkit.notification) {
     UIkit.notification({ message: msg, status, pos: 'top-center', timeout });
