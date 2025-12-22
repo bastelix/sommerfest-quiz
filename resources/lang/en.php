@@ -955,7 +955,7 @@ return [
     'action_edit_contact_template' => 'Edit template',
     'action_domain_issue_ssl' => 'Request certificate',
     'heading_domain_contact_template' => 'Contact template',
-    'text_domain_contact_template_hint' => 'Customize the contact emails for this domain. Leave fields empty to use the defaults.',
+    'text_domain_contact_template_hint' => 'Customize the contact emails for this domain, e.g. for CI/branding, legal notices, or project-specific tone. Leave fields empty to use the defaults.',
     'label_contact_sender_name' => 'Sender name',
     'label_contact_recipient_html' => 'Recipient email (HTML)',
     'label_contact_recipient_text' => 'Recipient email (text)',

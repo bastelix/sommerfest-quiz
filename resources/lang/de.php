@@ -955,7 +955,7 @@ return [
     'action_edit_contact_template' => 'Template bearbeiten',
     'action_domain_issue_ssl' => 'Zertifikat anfordern',
     'heading_domain_contact_template' => 'Kontakt-Template',
-    'text_domain_contact_template_hint' => 'Passe die Kontakt-E-Mails dieser Domain an. Leere Felder verwenden die Standardvorlagen.',
+    'text_domain_contact_template_hint' => 'Passe die Kontakt-E-Mails dieser Domain an, z. B. für CI/Branding, rechtliche Hinweise oder eine projektspezifische Tonalität. Leere Felder verwenden die Standardvorlagen.',
     'label_contact_sender_name' => 'Absendername',
     'label_contact_recipient_html' => 'Empfänger-Mail (HTML)',
     'label_contact_recipient_text' => 'Empfänger-Mail (Text)',
