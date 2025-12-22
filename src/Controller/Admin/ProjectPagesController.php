@@ -62,14 +62,6 @@ class ProjectPagesController
             ],
             $pages
         );
-        $menuPages = array_map(
-            static fn (Page $page): array => [
-                'id' => $page->getId(),
-                'slug' => $page->getSlug(),
-                'title' => $page->getTitle(),
-            ],
-            $pages
-        );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
 
         return $view->render($response, 'admin/pages/content.twig', [
@@ -79,7 +71,6 @@ class ProjectPagesController
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'pages' => $pageList,
-            'menu_pages' => $menuPages,
             'selectedPageSlug' => $selectedSlug,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
@@ -117,6 +108,45 @@ class ProjectPagesController
             'selectedSeoPageId' => $selectedSeoPage?->getId(),
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'seo',
+            'tenant' => $this->resolveTenant($request),
+        ]);
+    }
+
+    public function navigation(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $pages = $this->pageService->getAllForNamespace($namespace);
+        $pageList = array_map(
+            static fn (Page $page): array => [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'content' => $page->getContent(),
+            ],
+            $pages
+        );
+        $menuPages = array_map(
+            static fn (Page $page): array => [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+            ],
+            $pages
+        );
+        $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
+
+        return $view->render($response, 'admin/pages/navigation.twig', [
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
+            'pages' => $pageList,
+            'menu_pages' => $menuPages,
+            'selectedPageSlug' => $selectedSlug,
+            'csrf_token' => $this->ensureCsrfToken(),
+            'pageTab' => 'navigation',
             'tenant' => $this->resolveTenant($request),
         ]);
     }
