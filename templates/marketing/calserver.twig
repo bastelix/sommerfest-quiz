@@ -477,49 +477,7 @@
       position: 'after-content'
     } %}
 
-    <div class="calserver-cookie-banner uk-card uk-card-default uk-card-body"
-         id="calserver-cookie-banner"
-         data-calserver-cookie-banner
-         role="region"
-         aria-live="polite"
-         tabindex="-1"
-         hidden>
-      <div class="calserver-cookie-banner__text">
-        <p class="calserver-cookie-banner__headline">
-          <span class="calserver-cookie-banner__icon" aria-hidden="true" data-uk-icon="icon: lock"></span>
-          Externe Inhalte &amp; Cookies
-        </p>
-        <p class="calserver-cookie-banner__copy">
-          Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. Du kannst deine
-          Auswahl jederzeit in deinem Browser anpassen.
-        </p>
-        <p class="calserver-cookie-banner__fineprint">
-          Mehr erfährst du in unserer
-          <a href="{{ basePath }}/datenschutz" class="calserver-cookie-banner__link">Datenschutzerklärung</a>.
-        </p>
-      </div>
-      <div class="calserver-cookie-banner__actions" role="group" aria-label="Cookie-Auswahl">
-        <button class="uk-button uk-button-primary calserver-cookie-banner__button"
-                type="button"
-                data-calserver-cookie-accept>
-          Akzeptieren
-        </button>
-        <button class="uk-button uk-button-default calserver-cookie-banner__button"
-                type="button"
-                data-calserver-cookie-necessary>
-          Nur notwendige
-        </button>
-      </div>
-    </div>
-    <button class="calserver-floating-button calserver-cookie-trigger"
-            type="button"
-            aria-controls="calserver-cookie-banner"
-            aria-expanded="false"
-            aria-label="Cookie-Einstellungen öffnen"
-            data-calserver-cookie-open
-            hidden>
-      <span aria-hidden="true" data-uk-icon="icon: fingerprint"></span>
-    </button>
+    {% include 'marketing/partials/cookie-consent.twig' %}
     <button class="calserver-floating-button marketing-chat-fab"
             type="button"
             data-marketing-chat-open
@@ -689,8 +647,11 @@
       }
     };
   </script>
-  <script src="{{ basePath }}/js/calserver-cookie.js" defer></script>
-  <script src="{{ basePath }}/js/calserver.js" defer></script>
+  <script>
+    window.cookieConsentConfig = {{ cookieConsentConfig|default({})|json_encode|raw }};
+  </script>
+  <script src="{{ basePath }}/js/marketing-cookie.js" defer></script>
+  <script src="{{ basePath }}/js/marketing-consent.js" defer></script>
   <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
   <script src="{{ basePath }}/js/landing.js" defer></script>
 {% endblock %}

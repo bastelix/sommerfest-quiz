@@ -838,6 +838,83 @@ const initProjectTree = () => {
     });
 };
 
+const initProjectSettings = () => {
+  const form = document.querySelector('[data-project-settings-form]');
+  if (!form) {
+    return;
+  }
+
+  const wrapper = form.closest('[data-project-settings]');
+  const status = wrapper ? wrapper.querySelector('[data-project-settings-status]') : null;
+  const updatedLabel = wrapper ? wrapper.querySelector('[data-project-settings-updated]') : null;
+  const endpoint = wrapper?.dataset.endpoint || '/admin/projects/settings';
+  const namespaceSelect = document.getElementById('projectNamespaceSelect');
+
+  const setStatus = (message, isError) => {
+    if (!status) {
+      return;
+    }
+    status.textContent = message;
+    status.classList.toggle('uk-text-danger', Boolean(isError));
+  };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const namespace = (namespaceSelect?.value || '').trim();
+    if (!namespace) {
+      setStatus('Namespace fehlt.', true);
+      return;
+    }
+
+    const payload = {
+      namespace,
+      cookieConsentEnabled: Boolean(form.querySelector('#cookieConsentEnabled')?.checked),
+      cookieStorageKey: form.querySelector('#cookieStorageKey')?.value || '',
+      cookieBannerText: form.querySelector('#cookieBannerText')?.value || ''
+    };
+
+    setStatus('Speichert…', false);
+
+    try {
+      const response = await apiFetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': getCsrfToken()
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('project-settings-save-failed');
+      }
+
+      const result = await response.json();
+      const settings = result?.settings || {};
+      const storageInput = form.querySelector('#cookieStorageKey');
+      const bannerInput = form.querySelector('#cookieBannerText');
+      const enabledInput = form.querySelector('#cookieConsentEnabled');
+      if (storageInput && typeof settings.cookie_storage_key === 'string') {
+        storageInput.value = settings.cookie_storage_key;
+      }
+      if (bannerInput && typeof settings.cookie_banner_text === 'string') {
+        bannerInput.value = settings.cookie_banner_text;
+      }
+      if (enabledInput && typeof settings.cookie_consent_enabled === 'boolean') {
+        enabledInput.checked = settings.cookie_consent_enabled;
+      }
+      const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
+      if (updatedLabel) {
+        updatedLabel.textContent = updatedAt ? `Zuletzt gespeichert: ${updatedAt}` : 'Einstellungen gespeichert';
+      }
+      setStatus('Einstellungen gespeichert.', false);
+    } catch (error) {
+      setStatus('Einstellungen konnten nicht gespeichert werden.', true);
+    }
+  });
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   const adminTabs = document.getElementById('adminTabs');
   const adminMenu = document.getElementById('adminMenu');
@@ -887,6 +964,8 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.assign(url.toString());
     });
   }
+
+  initProjectSettings();
 
   const adminRoutes = Array.from(adminTabs ? adminTabs.querySelectorAll('li') : [])
     .map(tab => tab.getAttribute('data-route') || '');

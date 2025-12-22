@@ -18,6 +18,7 @@ use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
+use App\Service\ProjectSettingsService;
 use App\Service\TurnstileConfig;
 use App\Support\BasePathHelper;
 use App\Support\FeatureFlags;
@@ -75,6 +76,7 @@ class MarketingPageController
     private PageContentLoader $contentLoader;
     private PageModuleService $pageModules;
     private NamespaceResolver $namespaceResolver;
+    private ProjectSettingsService $projectSettings;
 
     public function __construct(
         ?string $slug = null,
@@ -88,7 +90,8 @@ class MarketingPageController
         ?MarketingPageWikiArticleService $wikiArticles = null,
         ?PageContentLoader $contentLoader = null,
         ?PageModuleService $pageModules = null,
-        ?NamespaceResolver $namespaceResolver = null
+        ?NamespaceResolver $namespaceResolver = null,
+        ?ProjectSettingsService $projectSettings = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -102,6 +105,7 @@ class MarketingPageController
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
         $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -241,6 +245,9 @@ class MarketingPageController
             $marketingMenuItems = self::DEFAULT_MARKETING_MENU;
         }
 
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
+        $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings);
+
         $data = [
             'content' => $html,
             'pageFavicon' => $config?->getFaviconPath(),
@@ -260,6 +267,7 @@ class MarketingPageController
             'marketingChatEndpoint' => $basePath . $chatPath,
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'marketingMenuItems' => $marketingMenuItems,
+            'cookieConsentConfig' => $cookieConsentConfig,
         ];
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
@@ -456,6 +464,44 @@ class MarketingPageController
         }
 
         return $resolved;
+    }
+
+    /**
+     * @param array{cookie_consent_enabled:bool,cookie_storage_key:string,cookie_banner_text:string} $settings
+     * @return array<string, mixed>
+     */
+    private function buildCookieConsentConfig(array $settings): array
+    {
+        $storageKey = trim((string) ($settings['cookie_storage_key'] ?? ''));
+        if ($storageKey === '') {
+            $storageKey = 'calserverCookieChoices';
+        }
+
+        return [
+            'enabled' => (bool) ($settings['cookie_consent_enabled'] ?? false),
+            'storageKey' => $storageKey,
+            'bannerText' => (string) ($settings['cookie_banner_text'] ?? ''),
+            'eventName' => 'marketing:cookie-preference-changed',
+            'selectors' => [
+                'banner' => '[data-calserver-cookie-banner]',
+                'trigger' => '[data-calserver-cookie-open]',
+                'accept' => '[data-calserver-cookie-accept]',
+                'necessary' => '[data-calserver-cookie-necessary]',
+                'video' => '[data-calserver-video]',
+                'videoConsent' => '[data-calserver-video-consent]',
+                'proSeal' => '[data-calserver-proseal]',
+                'proSealTarget' => '[data-proseal-target]',
+                'proSealPlaceholder' => '[data-calserver-proseal-placeholder]',
+                'proSealConsent' => '[data-calserver-proseal-consent]',
+                'proSealError' => '[data-calserver-proseal-error]',
+                'moduleVideo' => '.calserver-module-figure__video',
+                'moduleFigure' => '.calserver-module-figure',
+            ],
+            'classes' => [
+                'bannerVisible' => 'calserver-cookie-banner--visible',
+                'triggerActive' => 'calserver-cookie-trigger--active',
+            ],
+        ];
     }
 
     private function resolveMarketingAsset(string $path, string $basePath, int $width, int $height, string $label): string
