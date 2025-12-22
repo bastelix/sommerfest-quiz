@@ -846,7 +846,7 @@ return [
     'text_marketing_domain_submit_hint' => 'The domain becomes active right after saving.',
     'action_marketing_domain_save' => 'Save domain',
     'action_marketing_domain_reconcile' => 'Check domains',
-    'text_marketing_domain_reconcile_hint' => 'Refresh certificates and verify DNS resolution.',
+    'text_marketing_domain_reconcile_hint' => 'Run after adding a new domain or changing DNS to provision HTTPS certificates and ensure reachability.',
     'notify_marketing_domain_reconcile_provisioned' => 'Certificates checked: {count} domains queued.',
     'notify_marketing_domain_reconcile_resolved' => 'Resolved marketing domains ({count}): {domains}',
     'notify_marketing_domain_reconcile_unresolved' => 'Unresolved domains ({count}): {domains}',
