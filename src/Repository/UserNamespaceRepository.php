@@ -73,6 +73,30 @@ final class UserNamespaceRepository
         $stmt->closeCursor();
     }
 
+    public function addNamespaceForUser(int $userId, string $namespace, bool $isDefault = false): void
+    {
+        if ($userId <= 0) {
+            return;
+        }
+
+        $normalized = trim(strtolower($namespace));
+        if ($normalized === '') {
+            return;
+        }
+
+        if ($isDefault) {
+            $this->ensureDefaultNamespace($userId, $normalized);
+            return;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO user_namespaces (user_id, namespace, is_default) VALUES (?, ?, FALSE)
+                ON CONFLICT (user_id, namespace) DO NOTHING'
+        );
+        $stmt->execute([$userId, $normalized]);
+        $stmt->closeCursor();
+    }
+
     /**
      * @return list<string>
      */
