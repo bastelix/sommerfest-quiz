@@ -7787,6 +7787,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const userPassInput = document.getElementById('userPassInput');
   const userPassRepeat = document.getElementById('userPassRepeat');
   const userPassForm = document.getElementById('userPassForm');
+  const usersPaginationEl = document.getElementById('usersPagination');
   const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
   const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
   const labelNamespaces = usersListEl?.dataset.labelNamespaces || 'Namespaces';
@@ -7837,6 +7838,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const namespaceActiveLabel = window.transNamespaceActiveLabel || 'Aktiv';
   const namespaceDefaultLabel = window.transNamespaceDefaultLabel || 'Standard';
   const namespaceNoneLabel = window.transNamespaceNone || '-';
+  const USERS_PER_PAGE = 50;
+  const userSectionActive = usersListEl?.closest('li')?.classList.contains('uk-active');
   let currentUserId = null;
   let userManager;
 
@@ -8306,14 +8309,19 @@ document.addEventListener('DOMContentLoaded', function () {
       onEdit: cell => openUserEditor(cell),
       onReorder: () => saveUsers()
     });
-    userManager.setColumnLoading('username', true);
-    apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
-      .then(r => r.json())
-      .then(data => {
-        renderUsers(data);
-      })
-      .catch(() => {})
-      .finally(() => userManager.setColumnLoading('username', false));
+    if (usersPaginationEl) {
+      userManager.bindPagination(usersPaginationEl, USERS_PER_PAGE);
+    }
+    if (userSectionActive) {
+      userManager.setColumnLoading('username', true);
+      apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+          renderUsers(data);
+        })
+        .catch(() => {})
+        .finally(() => userManager.setColumnLoading('username', false));
+    }
   }
 
   userAddBtn?.addEventListener('click', e => {

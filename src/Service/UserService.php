@@ -180,15 +180,13 @@ class UserService
      * @return list<array{
      *     id:int,
      *     username:string,
-     *     email:?string,
      *     role:string,
      *     active:bool,
-     *     position:int,
      *     namespaces:list<array{namespace:string,is_default:bool}>
      * }>
      */
     public function getAll(): array {
-        $stmt = $this->pdo->query('SELECT id,username,email,role,active,position FROM users ORDER BY position');
+        $stmt = $this->pdo->query('SELECT id,username,role,active FROM users ORDER BY position');
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             $row['namespaces'] = $this->namespaceRepository->loadForUser((int) ($row['id'] ?? 0));
