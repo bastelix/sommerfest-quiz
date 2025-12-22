@@ -9,6 +9,7 @@ use App\Service\PageContentFileRepository;
 use App\Service\PageContentLoader;
 use App\Service\PageService;
 use InvalidArgumentException;
+use JsonException;
 use LogicException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -108,6 +109,15 @@ class PageController
         $slug = isset($data['slug']) ? (string) $data['slug'] : '';
         $title = isset($data['title']) ? (string) $data['title'] : '';
         $content = isset($data['content']) ? (string) $data['content'] : '';
+        if ($content !== '' && !mb_check_encoding($content, 'UTF-8')) {
+            $namespaceForLog = $this->namespaceResolver->resolve($request)->getNamespace();
+            error_log(sprintf(
+                'Invalid UTF-8 content detected for page "%s" in namespace "%s"; normalizing input.',
+                $slug,
+                $namespaceForLog
+            ));
+        }
+        $content = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
         $contentSource = null;
         if ($content === '' && PageContentFileRepository::hasFallbackForSlug($slug)) {
             $contentSource = PageContentLoader::SOURCE_FILE;
@@ -118,30 +128,14 @@ class PageController
         try {
             $page = $this->pageService->create($namespace, $slug, $title, $content, $contentSource);
         } catch (InvalidArgumentException $exception) {
-            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(422);
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 422);
         } catch (LogicException $exception) {
-            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(409);
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 409);
         } catch (RuntimeException $exception) {
-            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+            return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 500);
         }
 
-        $response->getBody()->write(json_encode(['page' => $page], JSON_PRETTY_PRINT));
-
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(201);
+        return $this->createJsonResponse($response, ['page' => $page], 201);
     }
 
     public function copy(Request $request, Response $response, array $args): Response
@@ -308,5 +302,24 @@ class PageController
         }
 
         return $data;
+    }
+
+    private function createJsonResponse(Response $response, array $payload, int $status): Response
+    {
+        try {
+            $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR));
+        } catch (JsonException $exception) {
+            error_log(sprintf('Failed to encode JSON response: %s', $exception->getMessage()));
+
+            $response->getBody()->write('{"error":"Failed to encode JSON response."}');
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($status);
     }
 }
