@@ -53,7 +53,30 @@
     admin: true,
     items: [
       { href: basePath ~ '/admin/logins', icon: 'sign-in', text: t('menu_admin_logins'), noEvent: true },
-      { href: basePath ~ '/admin/backups', icon: 'database', text: t('menu_admin_backups'), noEvent: true },
+      {
+        href: basePath ~ '/admin/management#domain-add',
+        icon: 'world',
+        text: t('heading_marketing_domain_add'),
+        noEvent: true
+      },
+      {
+        href: basePath ~ '/admin/management#registration',
+        icon: 'user',
+        text: t('heading_registration'),
+        noEvent: true
+      },
+      {
+        href: basePath ~ '/admin/management#users',
+        icon: 'users',
+        text: t('heading_users'),
+        noEvent: true
+      },
+      {
+        href: basePath ~ '/admin/management#backups',
+        icon: 'database',
+        text: t('heading_backups'),
+        noEvent: true
+      },
     ]
   },
 ] %}
@@ -71,7 +94,7 @@
   { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news' },
   { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat') },
   { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), pageTab: 'newsletter' },
-  { href: basePath ~ '/admin/management', icon: 'world', text: t('tab_domains'), anchor: '#domains' },
+  { href: basePath ~ '/admin/management', icon: 'home', text: t('heading_homepage'), anchor: '#startpage' },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
 {% if projectNamespaceOptions is empty %}
