@@ -878,7 +878,7 @@ return [
     'button_domain_chat_download' => 'Download index',
     'text_domain_chat_loading' => 'Loading documents…',
     'text_domain_chat_empty' => 'No documents for this domain yet.',
-    'text_domain_chat_file_hint' => 'Supported formats: Markdown or HTML, up to %s MB.',
+    'text_domain_chat_file_hint' => 'Supported formats: Markdown or HTML, up to %s MB. These files feed the project AI index and improve the chatbot’s responses.',
     'notify_domain_chat_uploaded' => 'Document saved.',
     'notify_domain_chat_deleted' => 'Document removed.',
     'notify_domain_chat_error' => 'Request failed.',
