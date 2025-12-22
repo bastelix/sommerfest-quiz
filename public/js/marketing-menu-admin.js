@@ -142,7 +142,7 @@ if (manager) {
       return;
     }
     if (!page) {
-      pageLabel.textContent = 'Keine Marketing-Seite ausgewählt.';
+      pageLabel.textContent = 'Keine Marketing-Seite vorhanden.';
       return;
     }
     pageLabel.textContent = `Seite: ${formatPageLabel(page)} (${page.slug})`;
@@ -439,7 +439,7 @@ if (manager) {
   const loadMenuItems = () => {
     hideFeedback();
     if (!state.pageId) {
-      showEmpty('Bitte eine Marketing-Seite auswählen.');
+      showEmpty('Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.');
       return;
     }
     setLoading();
