@@ -71,6 +71,7 @@ use App\Service\MarketingDomainProvider;
 use App\Service\CertificateProvisioningService;
 use App\Service\ReverseProxyHostUpdater;
 use App\Service\UsernameBlocklistService;
+use App\Service\MarketingPageRouteResolver;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
 use App\Infrastructure\Migrations\MigrationRuntime;
@@ -277,6 +278,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return [$request, in_array($domainType, ['main', 'marketing'], true)];
     };
+    $marketingPageRouteResolver = new MarketingPageRouteResolver();
     $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
         if ($request->getUri()->getPath() === '/healthz') {
             return $handler->handle($request);
@@ -839,14 +841,6 @@ return function (\Slim\App $app, TranslationService $translator) {
             'csrf_token' => $csrf,
         ]);
     });
-    $app->get('/landing', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('landing');
-        return $controller($request, $response);
-    });
     $app->get('/landing/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -879,71 +873,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, $args);
-    });
-    $app->get('/future-is-green', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new \App\Controller\Marketing\FutureIsGreenController();
-        return $controller($request, $response);
-    });
-    $app->get('/calhelp', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('calhelp');
-        return $controller($request, $response);
-    });
-
-    $app->get('/calserver', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('calserver');
-        return $controller($request, $response);
-    });
-    $app->get('/labor', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('labor');
-        return $controller($request, $response);
-    });
-    $app->get('/fluke-metcal', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('fluke-metcal');
-        return $controller($request, $response);
-    });
-    $app->get('/calserver/barrierefreiheit', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('calserver-accessibility');
-        return $controller($request, $response);
-    });
-    $app->get('/calserver/accessibility', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('calserver-accessibility');
-        return $controller($request, $response);
-    });
-    $app->get('/calserver-maintenance', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingPageController('calserver-maintenance');
-        return $controller($request, $response);
     });
     $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
@@ -3276,12 +3205,21 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->get(
         '/{slug:[a-z0-9-]+}',
-        function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        function (Request $request, Response $response, array $args) use (
+            $resolveMarketingAccess,
+            $marketingPageRouteResolver
+        ) {
             [$request, $allowed] = $resolveMarketingAccess($request);
-            if (!$allowed || $request->getAttribute('domainType') !== 'marketing') {
+            if (!$allowed) {
                 return $response->withStatus(404);
             }
-            $controller = new MarketingPageController();
+
+            $slug = isset($args['slug']) ? (string) $args['slug'] : '';
+            $controller = $marketingPageRouteResolver->resolveController($request, $slug);
+            if ($controller === null) {
+                return $response->withStatus(404);
+            }
+
             return $controller($request, $response, $args);
         }
     );
