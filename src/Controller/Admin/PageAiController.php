@@ -120,7 +120,7 @@ final class PageAiController
             return $this->errorResponse(
                 $response,
                 'ai_unavailable',
-                'The AI responder is not configured.',
+                'The AI responder is not configured. Check RAG_CHAT_SERVICE_URL (and RAG_CHAT_SERVICE_TOKEN, RAG_CHAT_SERVICE_MODEL, RAG_CHAT_SERVICE_TIMEOUT) in your environment configuration.',
                 503
             );
         }

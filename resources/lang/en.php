@@ -138,6 +138,8 @@ return [
     'placeholder_ai_page_title' => 'Page title',
     'error_ai_page_missing_fields' => 'Please fill in all fields.',
     'error_ai_page_create' => 'The AI page could not be created.',
+    'error_ai_page_unavailable' => 'The AI service is unavailable. Check RAG_CHAT_SERVICE_URL (and RAG_CHAT_SERVICE_TOKEN, RAG_CHAT_SERVICE_MODEL, RAG_CHAT_SERVICE_TIMEOUT) in your environment configuration.',
+    'error_ai_page_prompt_missing' => 'The AI prompt template is not configured. Please check the configuration.',
     'error_ai_page_empty_response' => 'The AI response is empty or invalid.',
     'error_ai_page_invalid_html' => 'The AI response contains invalid HTML.',
     'notify_ai_page_created' => 'AI page created',
