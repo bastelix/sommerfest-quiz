@@ -1,20 +1,7 @@
 {% extends 'layout.twig' %}
 
 {% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
-{% set links = [
-  { 'href': '#hero', 'label': 'Start', 'icon': 'home' },
-  { 'href': '#trust', 'label': 'Vertrauen', 'icon': 'lock' },
-  { 'href': '#kennzahlen', 'label': 'Kennzahlen', 'icon': 'thumbnails' },
-  { 'href': '#situationen', 'label': 'Situationen', 'icon': 'info' },
-  { 'href': '#stories', 'label': 'Praxis', 'icon': 'users' },
-  { 'href': '#wirkung', 'label': 'Wirkung', 'icon': 'grid' },
-  { 'href': '#prozess', 'label': 'Prozess', 'icon': 'clock' },
-  { 'href': '#framework', 'label': 'Framework', 'icon': 'cog' },
-  { 'href': '#zielgruppen', 'label': 'Zielgruppen', 'icon': 'world' },
-  { 'href': '#news', 'label': 'News', 'icon': 'rss' },
-  { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-  { 'href': calserverContactHref, 'label': 'Kontakt', 'icon': 'bolt' }
-] %}
+{% set links = marketingMenuItems|default([]) %}
 {% if marketingWikiMenu is defined %}
   {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
 {% endif %}
@@ -65,9 +52,14 @@
         <div class="uk-navbar-right">
           <ul class="uk-navbar-nav uk-visible@m calhelp-nav">
             {% for link in links %}
+              {% set icon = link.icon|default(null) %}
+              {% set isExternal = link.isExternal|default(false) %}
               <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
+                  {% if icon %}
+                    <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
+                  {% endif %}
+                  {{ link.label }}
                 </a>
               </li>
             {% endfor %}
@@ -83,9 +75,14 @@
         <div class="calhelp-offcanvas__inner">
           <ul class="uk-nav uk-nav-default calhelp-offcanvas__nav">
             {% for link in links %}
+              {% set icon = link.icon|default(null) %}
+              {% set isExternal = link.isExternal|default(false) %}
               <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
+                  {% if icon %}
+                    <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
+                  {% endif %}
+                  {{ link.label }}
                 </a>
               </li>
             {% endfor %}

@@ -1,13 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% set links = [
-    { 'href': '#innovations', 'label': 'Innovationen', 'icon': 'star' },
-    { 'href': '#how-it-works', 'label': 'So funktioniert’s', 'icon': 'settings' },
-  { 'href': '#scenarios', 'label': 'Szenarien', 'icon': 'thumbnails' },
-  { 'href': '#pricing', 'label': 'Preise', 'icon': 'credit-card' },
-  { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-  { 'href': '#contact-us', 'label': 'Kontakt', 'icon': 'mail' }
-] %}
+{% set links = marketingMenuItems|default([]) %}
 {% if marketingWikiMenu is defined %}
   {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
 {% endif %}
@@ -53,9 +46,14 @@
         <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
         <ul class="uk-nav uk-nav-default">
           {% for link in links %}
+            {% set icon = link.icon|default(null) %}
+            {% set isExternal = link.isExternal|default(false) %}
             <li>
-              <a href="{{ link.href }}">
-                <span class="uk-margin-small-right" uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
+                {% if icon %}
+                  <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
+                {% endif %}
+                {{ link.label }}
               </a>
             </li>
           {% endfor %}
