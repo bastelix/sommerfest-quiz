@@ -1030,7 +1030,10 @@ const initAiPageCreation = () => {
       if (!response.ok) {
         const code = typeof payload.error === 'string' ? payload.error : '';
         const fallback = payload.message || payload.error || createErrorMessage;
-        const errorMessage = errorMessageMap[code] || fallback;
+        let errorMessage = errorMessageMap[code] || fallback;
+        if (payload.message && ['ai_failed', 'ai_error', 'ai_timeout'].includes(code)) {
+          errorMessage = payload.message;
+        }
         throw new Error(errorMessage);
       }
 

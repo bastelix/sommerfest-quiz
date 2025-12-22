@@ -16,8 +16,11 @@ use function is_array;
 use function json_decode;
 use function json_encode;
 use function preg_match;
+use function sprintf;
 use function str_contains;
 use function str_starts_with;
+use function strlen;
+use function substr;
 use function strtolower;
 use function trim;
 
@@ -144,11 +147,14 @@ final class PageAiController
         }
 
         if (str_starts_with($message, PageAiGenerator::ERROR_RESPONDER_FAILED . ':')) {
+            $details = trim(substr($message, strlen(PageAiGenerator::ERROR_RESPONDER_FAILED . ':')));
             if ($this->isTimeout($exception)) {
                 return $this->errorResponse(
                     $response,
                     'ai_timeout',
-                    'The AI responder did not respond in time.',
+                    $details !== ''
+                        ? sprintf('The AI responder did not respond in time. %s', $details)
+                        : 'The AI responder did not respond in time.',
                     504
                 );
             }
@@ -156,7 +162,9 @@ final class PageAiController
             return $this->errorResponse(
                 $response,
                 'ai_failed',
-                'The AI responder failed to generate HTML.',
+                $details !== ''
+                    ? sprintf('The AI responder failed to generate HTML. %s', $details)
+                    : 'The AI responder failed to generate HTML.',
                 503
             );
         }
