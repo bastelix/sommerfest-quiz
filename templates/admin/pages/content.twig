@@ -135,60 +135,68 @@
         {% include 'admin/components/project_tree.twig' %}
 
         {% set pagesList = pages|default([]) %}
+        {% set hasPages = pagesList is not empty %}
         {% set selectedSlug = selectedPageSlug|default('') %}
-        {% if selectedSlug == '' and pagesList|length > 0 %}
+        {% if selectedSlug == '' and hasPages %}
           {% set selectedSlug = (pagesList|first).slug %}
         {% endif %}
         {% include 'admin/components/page_tree.twig' %}
 
-        {% if pagesList is not empty %}
-
-          <div
-            class="uk-card uk-card-default uk-card-body uk-margin"
-            data-marketing-menu-manager
-            data-base-path="{{ basePath }}"
-            data-pages="{{ menu_pages|default([])|json_encode|e('html_attr') }}"
-            data-selected-slug="{{ selectedSlug }}"
-            data-namespace="{{ activePageNamespace|e('html_attr') }}"
-          >
-            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-              <div>
-                <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
-                <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
-              </div>
-              <button type="button" class="uk-button uk-button-default" data-menu-add>Eintrag hinzufügen</button>
+        {% set menuPagesData = hasPages ? menu_pages|default([]) : [] %}
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin"
+          data-marketing-menu-manager
+          data-base-path="{{ basePath }}"
+          data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+          data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+          data-namespace="{{ activePageNamespace|e('html_attr') }}"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <div>
+              <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+              <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
             </div>
-            <p class="uk-text-meta uk-margin-small-top">
-              Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
-            </p>
-            <p class="uk-text-meta uk-margin-small-top">
-              Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
-            </p>
-            <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
-            <div class="uk-overflow-auto admin-table-wrapper">
-              <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
-                <thead>
-                  <tr>
-                    <th class="uk-table-shrink"></th>
-                    <th>Label</th>
-                    <th>Link</th>
-                    <th class="uk-table-shrink">Icon</th>
-                    <th class="uk-table-shrink">Locale</th>
-                    <th class="uk-table-shrink uk-text-center">Extern</th>
-                    <th class="uk-table-shrink uk-text-center">Aktiv</th>
-                    <th class="uk-table-shrink uk-text-right">Aktionen</th>
-                  </tr>
-                </thead>
-                <tbody data-menu-items>
-                  <tr data-menu-loading-row>
-                    <td colspan="8">Lädt…</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <button
+              type="button"
+              class="uk-button uk-button-default"
+              data-menu-add
+              {% if selectedSlug == '' %}disabled{% endif %}
+            >Eintrag hinzufügen</button>
           </div>
-
-        {% endif %}
+          {% if not hasPages %}
+            <div class="uk-alert uk-alert-warning uk-margin-small-top">
+              Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+            </div>
+          {% endif %}
+          <p class="uk-text-meta uk-margin-small-top">
+            Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
+          </p>
+          <p class="uk-text-meta uk-margin-small-top">
+            Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+          </p>
+          <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
+          <div class="uk-overflow-auto admin-table-wrapper">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
+              <thead>
+                <tr>
+                  <th class="uk-table-shrink"></th>
+                  <th>Label</th>
+                  <th>Link</th>
+                  <th class="uk-table-shrink">Icon</th>
+                  <th class="uk-table-shrink">Locale</th>
+                  <th class="uk-table-shrink uk-text-center">Extern</th>
+                  <th class="uk-table-shrink uk-text-center">Aktiv</th>
+                  <th class="uk-table-shrink uk-text-right">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody data-menu-items>
+                <tr data-menu-loading-row>
+                  <td colspan="8">Lädt…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
         <div class="uk-flex uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
@@ -200,7 +208,11 @@
                 class="uk-select"
                 data-selected="{{ selectedSlug }}"
                 data-excluded-landing="{{ excludedLandingSlugs|join(',') }}"
+                {% if not hasPages %}disabled{% endif %}
               >
+                {% if not hasPages %}
+                  <option value="" selected>Keine Marketing-Seiten vorhanden</option>
+                {% endif %}
                 {% for page in pagesList %}
                   {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
                   <option
