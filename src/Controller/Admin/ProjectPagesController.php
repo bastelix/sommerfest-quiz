@@ -79,10 +79,19 @@ class ProjectPagesController
         $pageList = array_map(
             fn (Page $page): array => [
                 'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
                 'content' => $page->getContent(),
                 'preview_url' => $this->buildPreviewUrl($page, $namespace, $basePath),
+            ],
+            $pages
+        );
+        $pageNamespaceList = array_map(
+            static fn (Page $page): array => [
+                'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
             ],
             $pages
         );
@@ -95,6 +104,7 @@ class ProjectPagesController
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'pages' => $pageList,
+            'page_namespace_list' => $pageNamespaceList,
             'selectedPageSlug' => $selectedSlug,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'content',
@@ -145,15 +155,25 @@ class ProjectPagesController
         $pageList = array_map(
             static fn (Page $page): array => [
                 'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
                 'content' => $page->getContent(),
             ],
             $pages
         );
+        $pageNamespaceList = array_map(
+            static fn (Page $page): array => [
+                'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
+            ],
+            $pages
+        );
         $menuPages = array_map(
             static fn (Page $page): array => [
                 'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
             ],
@@ -168,6 +188,7 @@ class ProjectPagesController
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'pages' => $pageList,
+            'page_namespace_list' => $pageNamespaceList,
             'menu_pages' => $menuPages,
             'selectedPageSlug' => $selectedSlug,
             'csrf_token' => $this->ensureCsrfToken(),
@@ -184,6 +205,7 @@ class ProjectPagesController
         $pageList = array_map(
             static fn (Page $page): array => [
                 'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
             ],
@@ -198,6 +220,7 @@ class ProjectPagesController
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'pages' => $pageList,
+            'page_namespace_list' => $pageList,
             'selectedWikiPageId' => $selectedPageId,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'wiki',
@@ -407,6 +430,7 @@ class ProjectPagesController
 
             $result[$page->getId()] = [
                 'id' => $page->getId(),
+                'namespace' => $page->getNamespace(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
                 'domains' => $pageDomains,

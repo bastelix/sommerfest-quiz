@@ -1672,6 +1672,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->move($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->post('/admin/pages/{slug}/namespace', function (Request $request, Response $response, array $args) {
+        $controller = new PageController();
+        return $controller->updateNamespace($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->delete('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->delete($request, $response, $args);

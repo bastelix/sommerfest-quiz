@@ -119,6 +119,17 @@ function isAllowed(url, allowedPaths = []) {
 const getCsrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
   window.csrfToken || '';
+const parseDatasetJson = (value, fallback = []) => {
+  if (!value) {
+    return fallback;
+  }
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
 function showUpgradeModal() {
   if (document.getElementById('upgrade-modal')) return;
   const modal = document.createElement('div');
@@ -972,6 +983,143 @@ const initProjectSettings = () => {
   });
 };
 
+const initPageNamespaceManager = () => {
+  const manager = document.querySelector('[data-page-namespace-manager]');
+  if (!manager) {
+    return;
+  }
+  const namespaceSelect = manager.querySelector('[data-page-namespace-select]');
+  if (!namespaceSelect) {
+    return;
+  }
+
+  const feedback = manager.querySelector('[data-page-namespace-feedback]');
+  const pages = parseDatasetJson(manager.dataset.pages, []);
+  const pageSelectId = manager.dataset.pageSelectId || '';
+  const pageSelectKey = manager.dataset.pageSelectKey || 'slug';
+  const pageSelectionParam = manager.dataset.pageSelectionParam || '';
+  const pageSelectionValueKey = manager.dataset.pageSelectionValueKey || 'slug';
+  const successMessage = manager.dataset.successMessage || 'Seite verschoben.';
+  const errorMessageDefault = manager.dataset.errorMessage || 'Namespace konnte nicht geändert werden.';
+  const pageSelect = pageSelectId ? document.getElementById(pageSelectId) : null;
+  const activeNamespaceSelect = document.getElementById('pageNamespaceSelect');
+
+  const resolveActiveNamespace = () =>
+    (activeNamespaceSelect?.value || activeNamespaceSelect?.dataset.pageNamespace || manager.dataset.activeNamespace || '').trim();
+
+  const findPage = () => {
+    if (!pageSelect) {
+      return null;
+    }
+    const rawValue = pageSelect.value;
+    if (!rawValue) {
+      return null;
+    }
+    if (pageSelectKey === 'id') {
+      const numeric = Number(rawValue);
+      return pages.find(page => Number(page?.id) === numeric) || null;
+    }
+    return pages.find(page => String(page?.slug) === String(rawValue)) || null;
+  };
+
+  const setFeedback = (message, status = 'success') => {
+    if (!feedback) {
+      return;
+    }
+    feedback.classList.remove('uk-alert-danger', 'uk-alert-primary', 'uk-alert-success');
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.classList.add(status === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+  };
+
+  const updateNamespaceSelect = () => {
+    const page = findPage();
+    if (!page) {
+      namespaceSelect.disabled = true;
+      return;
+    }
+    namespaceSelect.disabled = false;
+    const namespaceValue = (page.namespace || resolveActiveNamespace() || '').trim();
+    if (namespaceValue) {
+      namespaceSelect.value = namespaceValue;
+    }
+    namespaceSelect.dataset.currentNamespace = namespaceValue;
+  };
+
+  updateNamespaceSelect();
+
+  if (pageSelect) {
+    pageSelect.addEventListener('change', () => {
+      setFeedback('');
+      updateNamespaceSelect();
+    });
+  }
+
+  namespaceSelect.addEventListener('change', async () => {
+    const page = findPage();
+    if (!page) {
+      return;
+    }
+    const targetNamespace = namespaceSelect.value.trim();
+    if (!targetNamespace) {
+      return;
+    }
+    const currentNamespace = (page.namespace || resolveActiveNamespace() || '').trim();
+    if (currentNamespace && targetNamespace === currentNamespace) {
+      setFeedback('');
+      return;
+    }
+
+    namespaceSelect.disabled = true;
+    setFeedback('');
+
+    const endpoint = `${withBase('/admin/pages/')}${encodeURIComponent(page.slug)}/namespace`;
+    try {
+      const response = await window.apiFetch(`${endpoint}?namespace=${encodeURIComponent(resolveActiveNamespace())}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({ namespace: targetNamespace })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = payload.error || errorMessageDefault;
+        throw new Error(message);
+      }
+
+      page.namespace = targetNamespace;
+      namespaceSelect.dataset.currentNamespace = targetNamespace;
+      setFeedback(successMessage, 'success');
+
+      const activeNamespace = resolveActiveNamespace();
+      if (activeNamespace && targetNamespace !== activeNamespace) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('namespace', targetNamespace);
+        if (pageSelectionParam) {
+          const value = page[pageSelectionValueKey] ?? page.slug;
+          if (value !== undefined && value !== null && value !== '') {
+            url.searchParams.set(pageSelectionParam, String(value));
+          }
+        }
+        window.location.assign(url.toString());
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : errorMessageDefault;
+      setFeedback(message, 'danger');
+    } finally {
+      namespaceSelect.disabled = false;
+    }
+  });
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   const adminTabs = document.getElementById('adminTabs');
   const adminMenu = document.getElementById('adminMenu');
@@ -1023,6 +1171,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   initProjectSettings();
+  initPageNamespaceManager();
 
   const adminRoutes = Array.from(adminTabs ? adminTabs.querySelectorAll('li') : [])
     .map(tab => tab.getAttribute('data-route') || '');

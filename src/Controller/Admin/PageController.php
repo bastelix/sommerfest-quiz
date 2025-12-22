@@ -231,6 +231,56 @@ class PageController
             ->withStatus(200);
     }
 
+    public function updateNamespace(Request $request, Response $response, array $args): Response
+    {
+        $slug = $args['slug'] ?? '';
+        $data = $this->parseRequestData($request);
+        if ($data === null) {
+            return $response->withStatus(400);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
+        $targetNamespace = (string) ($data['targetNamespace'] ?? $data['target_namespace'] ?? $data['namespace'] ?? '');
+
+        try {
+            $result = $this->pageService->updateNamespace($namespace, (string) $slug, $targetNamespace);
+        } catch (InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (LogicException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(409);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $this->editableSlugs = [];
+        $payload = [
+            'page' => $result['page'],
+            'moved' => $result['moved'],
+        ];
+
+        $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(200);
+    }
+
     /**
      * Return the full page tree for admin UI use.
      */
