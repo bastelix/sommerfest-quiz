@@ -16,6 +16,7 @@ use App\Service\LandingNewsService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceValidator;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use PDO;
@@ -180,12 +181,17 @@ class ProjectController
      */
     private function loadNamespaces(Request $request): array
     {
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $namespace = $this->normalizeNamespace((new NamespaceResolver())->resolve($request)->getNamespace());
 
         try {
             $availableNamespaces = $this->namespaceRepository->list();
         } catch (\RuntimeException $exception) {
             $availableNamespaces = [];
+        }
+
+        foreach ($availableNamespaces as $index => $entry) {
+            $entry['namespace'] = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
+            $availableNamespaces[$index] = $entry;
         }
 
         if (!array_filter(
@@ -451,7 +457,9 @@ class ProjectController
 
     private function normalizeNamespace(string $namespace): string
     {
-        $normalized = trim($namespace);
-        return $normalized !== '' ? $normalized : PageService::DEFAULT_NAMESPACE;
+        $validator = new NamespaceValidator();
+        $normalized = $validator->normalizeCandidate($namespace);
+
+        return $normalized ?? PageService::DEFAULT_NAMESPACE;
     }
 }
