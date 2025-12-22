@@ -363,6 +363,14 @@ upstream {{ $vpath.upstream }} {
     {{- range $port, $containers := $vpath.ports }}
         {{- range $container := $containers }}
     # Container: {{ $container.Name }}
+            {{- $health := "" }}
+            {{- if and $container.State $container.State.Health }}
+                {{- $health = $container.State.Health.Status }}
+            {{- end }}
+            {{- if and $health (ne $health "healthy") }}
+    # Skipping unhealthy container (health: {{ $health }})
+                {{- continue }}
+            {{- end }}
             {{- $args := dict "globals" $.globals "container" $container }}
             {{- template "container_ip" $args }}
             {{- $ip := $args.ip }}
@@ -569,6 +577,11 @@ proxy_set_header X-Forwarded-Proto $proxy_x_forwarded_proto;
 proxy_set_header X-Forwarded-Ssl $proxy_x_forwarded_ssl;
 proxy_set_header X-Forwarded-Port $proxy_x_forwarded_port;
 proxy_set_header X-Original-URI $request_uri;
+
+# Upstream failover behavior
+proxy_next_upstream error timeout http_502 http_503 http_504;
+proxy_next_upstream_tries 3;
+proxy_next_upstream_timeout 10s;
 
 # Mitigate httpoxy attack (see README for details)
 proxy_set_header Proxy "";
@@ -1092,6 +1105,15 @@ server {
     location = /.git { deny all; return 403; }
     location ~ ^/.git/ { deny all; return 403; }
     location = /.env { deny all; return 403; }
+
+    {{- if (exists "/usr/share/nginx/html/errors/50x.html") }}
+    proxy_intercept_errors on;
+    error_page 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html/errors;
+        internal;
+    }
+    {{- end }}
 
     {{- range $path, $vpath := $vhost.paths }}
         {{- template "location" (dict
