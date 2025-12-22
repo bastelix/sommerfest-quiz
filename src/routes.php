@@ -1657,6 +1657,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->generate($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->get('/admin/pages/ai-generate/status', function (Request $request, Response $response) {
+        $controller = new PageAiController();
+
+        return $controller->status($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->update($request, $response, $args);

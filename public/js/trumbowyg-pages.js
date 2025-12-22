@@ -957,6 +957,8 @@ const initAiPageCreation = () => {
   const promptInvalidMessage = window.transAiPagePromptInvalid || createErrorMessage;
   const emptyResponseMessage = window.transAiPageEmptyResponse || 'Die KI-Antwort ist leer oder ungültig.';
   const invalidHtmlMessage = window.transAiPageInvalidHtml || createErrorMessage;
+  const jobMissingMessage = window.transAiPageJobMissing || createErrorMessage;
+  const generatingMessage = window.transAiPageGenerating || 'Der KI-Inhalt wird erstellt…';
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
   const errorMessageMap = {
     missing_fields: missingFieldsMessage,
@@ -970,7 +972,10 @@ const initAiPageCreation = () => {
     ai_timeout: createErrorMessage,
     ai_failed: createErrorMessage,
     ai_error: createErrorMessage,
-    ai_invalid_html: invalidHtmlMessage
+    ai_invalid_html: invalidHtmlMessage,
+    dispatch_failed: createErrorMessage,
+    job_not_found: jobMissingMessage,
+    missing_job_id: createErrorMessage
   };
 
   const setFeedback = message => {
@@ -996,6 +1001,50 @@ const initAiPageCreation = () => {
     if (state && typeof state.toggleForms === 'function') {
       state.toggleForms(slug);
     }
+  };
+
+  const pollAiJob = async (jobId, options = {}) => {
+    const pollIntervalMs = options.intervalMs || 2000;
+    const maxAttempts = options.maxAttempts || 60;
+    let attempts = 0;
+
+    const pollOnce = async () => {
+      attempts += 1;
+      const response = await apiFetch(withNamespace(`/admin/pages/ai-generate/status?id=${encodeURIComponent(jobId)}`));
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const code = typeof payload.error === 'string' ? payload.error : '';
+        const fallback = payload.message || payload.error || createErrorMessage;
+        let errorMessage = errorMessageMap[code] || fallback;
+        if (payload.message && ['ai_failed', 'ai_error', 'ai_timeout'].includes(code)) {
+          errorMessage = payload.message;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const status = typeof payload.status === 'string' ? payload.status.toLowerCase() : '';
+      if (status === 'done') {
+        return payload;
+      }
+      if (status === 'failed') {
+        const code = typeof payload.error_code === 'string' ? payload.error_code : '';
+        const fallback = payload.error_message || createErrorMessage;
+        let errorMessage = errorMessageMap[code] || fallback;
+        if (payload.error_message && ['ai_failed', 'ai_error', 'ai_timeout'].includes(code)) {
+          errorMessage = payload.error_message;
+        }
+        throw new Error(errorMessage);
+      }
+
+      if (attempts >= maxAttempts) {
+        throw new Error(createErrorMessage);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, pollIntervalMs));
+      return pollOnce();
+    };
+
+    return pollOnce();
   };
 
   form.addEventListener('submit', async event => {
@@ -1073,7 +1122,15 @@ const initAiPageCreation = () => {
         throw new Error(errorMessage);
       }
 
-      const html = typeof payload.html === 'string' ? payload.html.trim() : '';
+      const jobId = typeof payload.jobId === 'string' ? payload.jobId : '';
+      if (!jobId) {
+        throw new Error(jobMissingMessage);
+      }
+
+      setFeedback(generatingMessage);
+      const jobPayload = await pollAiJob(jobId);
+
+      const html = typeof jobPayload.html === 'string' ? jobPayload.html.trim() : '';
       if (!html) {
         setFeedback(emptyResponseMessage);
         return;
