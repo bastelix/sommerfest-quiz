@@ -123,7 +123,6 @@ final class DomainIndexManager
         if (!$async) {
             $result = $this->rebuild($domain);
             $result['status'] = 'completed';
-            $result['success'] = $result['success'] ?? true;
 
             return $result;
         }
