@@ -1982,7 +1982,7 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_management') }}</h2>
 
-        <h3 class="uk-heading-bullet" id="domains">{{ t('heading_homepage') }}</h3>
+        <h3 class="uk-heading-bullet" id="startpage">{{ t('heading_homepage') }}</h3>
         <div class="uk-margin-top">
           <p class="uk-text-meta">{{ t('text_domain_start_page_hint') }}</p>
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
@@ -1995,7 +1995,7 @@
               data-success="{{ t('notify_marketing_domain_created') }}"
             >
               <fieldset class="uk-fieldset">
-                <legend class="uk-legend">{{ t('heading_marketing_domain_add') }}</legend>
+                <legend id="domain-add" class="uk-legend">{{ t('heading_marketing_domain_add') }}</legend>
                 <div class="uk-alert uk-alert-danger uk-margin-small-bottom" id="marketingDomainFormError" hidden role="alert"></div>
                 <div class="uk-grid-small" uk-grid>
                   <div class="uk-width-1-1 uk-width-1-2@m">
