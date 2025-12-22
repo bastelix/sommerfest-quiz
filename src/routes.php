@@ -244,20 +244,21 @@ return function (\Slim\App $app, TranslationService $translator) {
         $domainType = $request->getAttribute('domainType');
         if (!in_array($domainType, ['main', 'marketing'], true)) {
             $host = strtolower($request->getUri()->getHost());
-            $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
-            $marketingDomains = getenv('MARKETING_DOMAINS') ?: '';
+            $normalizedHost = DomainNameHelper::normalize($host, stripAdmin: false);
+            $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
+            $mainDomain = strtolower((string) ($marketingDomainProvider?->getMainDomain() ?? ''));
+            $normalizedMainDomain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
 
             $computed = 'tenant';
-            if ($mainDomain === '' || $host === $mainDomain) {
+            if ($normalizedMainDomain === '' || $normalizedHost === $normalizedMainDomain) {
                 $computed = 'main';
             } else {
-                $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
-                $marketingList = array_map(
+                $marketingDomains = $marketingDomainProvider?->getMarketingDomains(stripAdmin: false) ?? [];
+                $marketingList = array_filter(array_map(
                     static fn (string $domain): string => DomainNameHelper::normalize($domain, stripAdmin: false),
-                    $marketingList
-                );
-                $normalizedHost = DomainNameHelper::normalize($host, stripAdmin: false);
-                if (in_array($normalizedHost, $marketingList, true)) {
+                    $marketingDomains
+                ));
+                if ($marketingList !== [] && in_array($normalizedHost, $marketingList, true)) {
                     $computed = 'marketing';
                 }
             }
