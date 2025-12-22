@@ -846,7 +846,7 @@ return [
     'text_marketing_domain_submit_hint' => 'Die Domain wird direkt nach dem Speichern aktiv.',
     'action_marketing_domain_save' => 'Domain speichern',
     'action_marketing_domain_reconcile' => 'Domains prüfen',
-    'text_marketing_domain_reconcile_hint' => 'Zertifikate nachziehen und DNS-Auflösung prüfen.',
+    'text_marketing_domain_reconcile_hint' => 'Nach neuer Domain oder DNS-Änderungen ausführen, um HTTPS-Zertifikate bereitzustellen und die Erreichbarkeit sicherzustellen.',
     'notify_marketing_domain_reconcile_provisioned' => 'Zertifikate geprüft: {count} Domain(s) werden nachgezogen.',
     'notify_marketing_domain_reconcile_resolved' => 'Aktive Marketing-Domains ({count}): {domains}',
     'notify_marketing_domain_reconcile_unresolved' => 'Nicht auflösbare Domains ({count}): {domains}',
