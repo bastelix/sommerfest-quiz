@@ -151,6 +151,7 @@ return [
     'error_ai_page_prompt_invalid' => 'Die ausgewählte Promptvorlage ist nicht verfügbar.',
     'error_ai_page_empty_response' => 'Die KI-Antwort ist leer oder ungültig.',
     'error_ai_page_invalid_html' => 'Die KI-Antwort enthält unzulässiges HTML.',
+    'error_ai_page_timeout' => 'Der Server antwortet nicht rechtzeitig.',
     'notify_ai_page_created' => 'KI-Seite erstellt',
     'error_namespace_empty' => 'Bitte einen Namespace angeben.',
     'error_namespace_invalid_length' => 'Der Namespace darf maximal 100 Zeichen lang sein.',
