@@ -198,7 +198,7 @@ return [
     'menu_projects' => 'Projekte',
     'menu_account' => 'Konto',
     'menu_admin' => 'Administration',
-    'menu_admin_domains' => 'Domains',
+    'menu_admin_domains' => 'Domänen',
     'menu_admin_logins' => 'Anmeldungen',
     'menu_admin_backups' => 'Sicherungen',
     'logout' => 'Abmelden',

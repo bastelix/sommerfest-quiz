@@ -52,27 +52,9 @@
     header: t('menu_admin_domains'),
     admin: true,
     items: [
-      { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management'), noEvent: true },
-      { href: basePath ~ '/admin/namespaces', icon: 'folder', text: t('tab_namespaces'), noEvent: true },
-      { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main', noEvent: true },
-    ]
-  },
-  {
-    header: t('menu_admin_logins'),
-    admin: true,
-    items: [
-      { href: basePath ~ '/admin/management#registration', icon: 'cog', text: t('heading_registration'), noEvent: true },
-      { href: basePath ~ '/admin/management#users', icon: 'users', text: t('heading_users'), noEvent: true },
-      { href: basePath ~ '/admin/logs', icon: 'history', text: t('tab_logs'), noEvent: true },
-      { href: basePath ~ '/admin/mail-providers', icon: 'mail', text: t('tab_mail_providers'), noEvent: true },
-      { href: basePath ~ '/admin/prompt-templates', icon: 'file-text', text: t('tab_prompt_templates'), noEvent: true },
-    ]
-  },
-  {
-    header: t('menu_admin_backups'),
-    admin: true,
-    items: [
-      { href: basePath ~ '/admin/management#backups', icon: 'database', text: t('heading_backups'), noEvent: true },
+      { href: basePath ~ '/admin/domains', icon: 'world', text: t('menu_admin_domains'), noEvent: true },
+      { href: basePath ~ '/admin/logins', icon: 'sign-in', text: t('menu_admin_logins'), noEvent: true },
+      { href: basePath ~ '/admin/backups', icon: 'database', text: t('menu_admin_backups'), noEvent: true },
     ]
   },
 ] %}
