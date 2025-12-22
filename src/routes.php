@@ -100,6 +100,7 @@ use App\Controller\EventConfigController;
 use App\Controller\DashboardController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
+use App\Controller\Admin\PageAiController;
 use App\Controller\Admin\ProjectPagesController;
 use App\Controller\Admin\ProjectController;
 use App\Controller\Admin\LandingpageController;
@@ -170,6 +171,7 @@ require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/AdminMediaController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
+require_once __DIR__ . '/Controller/Admin/PageAiController.php';
 require_once __DIR__ . '/Controller/Admin/ProjectPagesController.php';
 require_once __DIR__ . '/Controller/Admin/ProjectController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
@@ -1690,6 +1692,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageWikiController();
 
         return $controller->sort($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/pages/ai-generate', function (Request $request, Response $response) {
+        $controller = new PageAiController();
+
+        return $controller->generate($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {

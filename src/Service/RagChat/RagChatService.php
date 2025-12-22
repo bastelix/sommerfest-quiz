@@ -107,6 +107,14 @@ final class RagChatService implements RagChatServiceInterface
         $this->settingsLoader = $settingsLoader;
     }
 
+    /**
+     * Provide the configured chat responder if available.
+     */
+    public function getChatResponder(): ?ChatResponderInterface
+    {
+        return $this->chatResponder ?? $this->createDefaultResponder();
+    }
+
     public function answer(string $question, string $locale = self::DEFAULT_LOCALE, ?string $domain = null): RagChatResponse
     {
         $question = trim($question);
