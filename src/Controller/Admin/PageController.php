@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\NamespaceResolver;
-use App\Service\PageContentFileRepository;
-use App\Service\PageContentLoader;
 use App\Service\PageService;
 use InvalidArgumentException;
 use JsonException;
@@ -118,15 +116,10 @@ class PageController
             ));
         }
         $content = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
-        $contentSource = null;
-        if ($content === '' && PageContentFileRepository::hasFallbackForSlug($slug)) {
-            $contentSource = PageContentLoader::SOURCE_FILE;
-        }
-
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
         try {
-            $page = $this->pageService->create($namespace, $slug, $title, $content, $contentSource);
+            $page = $this->pageService->create($namespace, $slug, $title, $content);
         } catch (InvalidArgumentException $exception) {
             return $this->createJsonResponse($response, ['error' => $exception->getMessage()], 422);
         } catch (LogicException $exception) {
