@@ -841,7 +841,7 @@ return [
     'label_marketing_domain_label' => 'Display name (optional)',
     'placeholder_marketing_domain_host' => 'e.g. promo.example.org',
     'placeholder_marketing_domain_label' => 'e.g. Summer Fair Landing Page',
-    'text_marketing_domain_host_hint' => 'Use fully qualified domains only, without protocol or path.',
+    'text_marketing_domain_host_hint' => 'Use fully qualified domains only, without protocol or path; only these allow correct SSL/DNS mapping.',
     'text_marketing_domain_label_hint' => 'Optional name shown in internal lists and dropdowns.',
     'text_marketing_domain_submit_hint' => 'The domain becomes active right after saving and is immediately reachable; please verify DNS and SSL settings in advance.',
     'action_marketing_domain_save' => 'Save domain',
