@@ -878,7 +878,7 @@ return [
     'button_domain_chat_download' => 'Index herunterladen',
     'text_domain_chat_loading' => 'Dokumente werden geladen …',
     'text_domain_chat_empty' => 'Noch keine Dokumente für dieses Projekt.',
-    'text_domain_chat_file_hint' => 'Erlaubte Dateiformate: Markdown oder HTML, max. %s MB.',
+    'text_domain_chat_file_hint' => 'Erlaubte Dateiformate: Markdown oder HTML, max. %s MB. Diese Dateien speisen den Projekt-KI-Index und verbessern die Antworten des Chatbots.',
     'notify_domain_chat_uploaded' => 'Dokument gespeichert.',
     'notify_domain_chat_deleted' => 'Dokument gelöscht.',
     'notify_domain_chat_error' => 'Aktion fehlgeschlagen.',
