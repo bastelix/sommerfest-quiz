@@ -119,9 +119,9 @@ class DomainStartPageController
             'smtp_pass' => $smtpPass,
         ];
 
-        $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-        $marketing = getenv('MARKETING_DOMAINS') ?: '';
-        $validDomains = $this->domainService->determineDomains($mainDomain, (string) $marketing);
+        $mainDomain = $this->resolveMainDomain();
+        $marketing = $this->resolveMarketingDomainConfig();
+        $validDomains = $this->domainService->determineDomains($mainDomain, $marketing);
         $normalized = $this->domainService->normalizeDomain($domain);
 
         $type = null;
@@ -287,7 +287,7 @@ class DomainStartPageController
             return $response->withStatus(400);
         }
 
-        $mainDomain = getenv('MAIN_DOMAIN') ?: '';
+        $mainDomain = $this->resolveMainDomain();
         $normalizedMain = $this->domainService->normalizeDomain($mainDomain, stripAdmin: false);
         $isMainDomain = $normalizedMain !== '' && $normalizedDomain === $normalizedMain;
         $storedDomain = $this->domainService->normalizeDomain($normalizedDomain);
@@ -489,6 +489,18 @@ class DomainStartPageController
         return $ordered + $options;
     }
 
+    private function resolveMainDomain(): string {
+        $mainDomain = $this->settingsService->get('main_domain', '');
+
+        return strtolower(trim((string) $mainDomain));
+    }
+
+    private function resolveMarketingDomainConfig(): string {
+        $marketingDomains = $this->marketingDomainProvider->getMarketingDomains();
+
+        return implode(' ', $marketingDomains);
+    }
+
     /**
      * @return array{
      *     domains:list<array{domain:string,normalized:string,type:string,start_page:string,email:?string,smtp_host:?string,smtp_user:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,has_smtp_pass:bool}>,
@@ -497,12 +509,12 @@ class DomainStartPageController
      * }
      */
     private function buildDomainOverview(string $currentHost): array {
-        $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-        $marketing = getenv('MARKETING_DOMAINS') ?: '';
+        $mainDomain = $this->resolveMainDomain();
+        $marketing = $this->resolveMarketingDomainConfig();
 
-        $domains = $this->domainService->determineDomains($mainDomain, (string) $marketing, $currentHost);
+        $domains = $this->domainService->determineDomains($mainDomain, $marketing, $currentHost);
         $mappings = $this->domainService->getAllMappings();
-        $mainNormalized = $this->domainService->normalizeDomain((string) $mainDomain);
+        $mainNormalized = $this->domainService->normalizeDomain($mainDomain);
         $defaultMain = $this->settingsService->get('home_page', 'help');
         $defaultMainKey = $this->domainService->normalizeStartPageKey($defaultMain, $this->pageService)['key'];
 
