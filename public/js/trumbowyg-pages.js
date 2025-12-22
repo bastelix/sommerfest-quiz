@@ -1054,6 +1054,17 @@ function buildPageTreeList(nodes, level = 0) {
       meta.appendChild(language);
     }
 
+    if (selectableSlug) {
+      const actionBtn = document.createElement('button');
+      actionBtn.type = 'button';
+      actionBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-left page-tree-action';
+      actionBtn.dataset.pageActionTrigger = '1';
+      actionBtn.dataset.pageSlug = selectableSlug;
+      actionBtn.dataset.pageTitle = node.title || node.slug || selectableSlug;
+      actionBtn.textContent = getTranslation('transPageAction', 'Aktion');
+      meta.appendChild(actionBtn);
+    }
+
     row.appendChild(info);
     row.appendChild(meta);
     item.appendChild(row);
@@ -1089,6 +1100,162 @@ function updatePageTreeActive(container, slug) {
   });
 }
 
+let pageTransferState = null;
+
+const initPageTransferModal = () => {
+  const modalEl = document.getElementById('pageTransferModal');
+  if (!modalEl) {
+    pageTransferState = null;
+    return null;
+  }
+
+  const form = modalEl.querySelector('#pageTransferForm');
+  const slugInput = modalEl.querySelector('#pageTransferSlug');
+  const actionSelect = modalEl.querySelector('#pageTransferAction');
+  const namespaceSelect = modalEl.querySelector('#pageTransferNamespace');
+  const feedback = modalEl.querySelector('[data-page-transfer-feedback]');
+  const titleEl = modalEl.querySelector('[data-page-transfer-title]');
+  const submitBtn = modalEl.querySelector('[data-page-transfer-submit]');
+  const modal = window.UIkit ? window.UIkit.modal(modalEl) : null;
+
+  if (!form || !slugInput || !actionSelect || !namespaceSelect) {
+    pageTransferState = null;
+    return null;
+  }
+
+  const setFeedback = (message, status = 'danger') => {
+    if (!feedback) {
+      return;
+    }
+    feedback.classList.remove('uk-alert-danger', 'uk-alert-success');
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.classList.add(status === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+  };
+
+  const ensureTargetsAvailable = () => {
+    const hasTargets = namespaceSelect.options.length > 1;
+    if (!hasTargets) {
+      const message = getTranslation('transPageTransferNoTargets', 'Keine weiteren Namespaces verfügbar.');
+      setFeedback(message, 'danger');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+      }
+    } else if (submitBtn) {
+      submitBtn.disabled = false;
+    }
+    return hasTargets;
+  };
+
+  const open = ({ slug, title } = {}) => {
+    const normalizedSlug = String(slug || '').trim();
+    if (!normalizedSlug) {
+      return;
+    }
+    slugInput.value = normalizedSlug;
+    if (titleEl) {
+      titleEl.textContent = title
+        ? `${title} (${normalizedSlug})`
+        : normalizedSlug;
+    }
+    actionSelect.value = '';
+    if (namespaceSelect.options.length > 0) {
+      namespaceSelect.value = '';
+    }
+    setFeedback('');
+    ensureTargetsAvailable();
+    if (modal) {
+      modal.show();
+    }
+  };
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    setFeedback('');
+
+    if (!ensureTargetsAvailable()) {
+      return;
+    }
+
+    const slugValue = slugInput.value.trim();
+    const actionValue = actionSelect.value.trim();
+    const targetNamespace = namespaceSelect.value.trim();
+    if (!slugValue || !actionValue || !targetNamespace) {
+      setFeedback(getTranslation('transPageTransferSelectionError', 'Bitte Aktion und Ziel-Namespace wählen.'));
+      return;
+    }
+
+    const currentNamespace = resolvePageNamespace();
+    if (currentNamespace && targetNamespace === currentNamespace) {
+      setFeedback(getTranslation('transPageTransferSameNamespace', 'Ziel-Namespace muss unterschiedlich sein.'));
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
+
+    const endpoint = actionValue === 'move'
+      ? `/admin/pages/${encodeURIComponent(slugValue)}/move`
+      : `/admin/pages/${encodeURIComponent(slugValue)}/copy`;
+
+    const select = document.getElementById('pageContentSelect');
+    const previousSelection = select?.value || '';
+
+    try {
+      const response = await apiFetch(withNamespace(endpoint), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({ targetNamespace })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = payload.error || getTranslation('transPageTransferError', 'Aktion fehlgeschlagen.');
+        throw new Error(message);
+      }
+
+      if (actionValue === 'move' && targetNamespace !== currentNamespace) {
+        removePageFromInterface(slugValue);
+      }
+
+      const selectedAfter = select?.value || previousSelection;
+      if (select && selectedAfter) {
+        select.value = selectedAfter;
+      }
+
+      await initPageTree();
+
+      const successMessage = actionValue === 'move'
+        ? getTranslation('transPageMoved', 'Seite verschoben.')
+        : getTranslation('transPageCopied', 'Seite kopiert.');
+      notify(successMessage, 'success');
+      if (modal) {
+        modal.hide();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : getTranslation('transPageTransferError', 'Aktion fehlgeschlagen.');
+      setFeedback(message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+    }
+  });
+
+  const state = { open };
+  pageTransferState = state;
+  return state;
+};
+
 function bindPageTreeInteractions(container) {
   if (!container || container.dataset.treeBound === '1') {
     return;
@@ -1096,6 +1263,19 @@ function bindPageTreeInteractions(container) {
   container.dataset.treeBound = '1';
 
   container.addEventListener('click', event => {
+    const actionTrigger = event.target?.closest?.('[data-page-action-trigger]');
+    if (actionTrigger && container.contains(actionTrigger)) {
+      event.preventDefault();
+      const slug = (actionTrigger.dataset.pageSlug || '').trim();
+      if (!slug) {
+        return;
+      }
+      const title = (actionTrigger.dataset.pageTitle || '').trim();
+      const state = pageTransferState || initPageTransferModal();
+      state?.open({ slug, title });
+      return;
+    }
+
     const trigger = event.target?.closest?.('[data-page-slug]');
     if (!trigger || !container.contains(trigger)) {
       return;
@@ -1195,6 +1375,7 @@ const initPagesModule = () => {
   initPageEditors();
   initPageSelection();
   initPageCreation();
+  initPageTransferModal();
   initPageTree();
 };
 if (document.readyState === 'loading') {

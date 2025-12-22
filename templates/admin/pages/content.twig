@@ -29,6 +29,21 @@
   <script>
     window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
+  <script>
+    window.transPageAction = '{{ t('action_page_transfer')|e('js') }}';
+    window.transPageTransferTitle = '{{ t('heading_page_transfer')|e('js') }}';
+    window.transPageTransferActionLabel = '{{ t('label_page_transfer_action')|e('js') }}';
+    window.transPageTransferNamespaceLabel = '{{ t('label_page_transfer_namespace')|e('js') }}';
+    window.transPageTransferCopy = '{{ t('option_page_transfer_copy')|e('js') }}';
+    window.transPageTransferMove = '{{ t('option_page_transfer_move')|e('js') }}';
+    window.transPageTransferSubmit = '{{ t('button_page_transfer_submit')|e('js') }}';
+    window.transPageTransferSelectionError = '{{ t('error_page_transfer_selection')|e('js') }}';
+    window.transPageTransferSameNamespace = '{{ t('error_page_transfer_namespace_same')|e('js') }}';
+    window.transPageTransferNoTargets = '{{ t('text_page_transfer_no_targets')|e('js') }}';
+    window.transPageCopied = '{{ t('notify_page_copied')|e('js') }}';
+    window.transPageMoved = '{{ t('notify_page_moved')|e('js') }}';
+    window.transPageTransferError = '{{ t('notify_page_transfer_error')|e('js') }}';
+  </script>
   <script type="module" src="{{ basePath }}/js/trumbowyg-pages.js"></script>
 {% endblock %}
 
@@ -249,6 +264,60 @@
                 <div class="uk-flex uk-flex-right">
                   <button type="submit" class="uk-button uk-button-primary">Seite erstellen</button>
                   <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div id="pageTransferModal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+              <h2 class="uk-modal-title">{{ t('heading_page_transfer') }}</h2>
+              <form id="pageTransferForm" class="uk-form-stacked">
+                <input type="hidden" id="pageTransferSlug" name="slug" value="">
+                <div class="uk-text-meta uk-margin-small-bottom" data-page-transfer-title></div>
+                <div class="uk-alert uk-alert-danger" data-page-transfer-feedback hidden></div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="pageTransferAction">{{ t('label_page_transfer_action') }}</label>
+                  <div class="uk-form-controls">
+                    <select id="pageTransferAction" class="uk-select" required>
+                      <option value="">{{ t('placeholder_select_action') }}</option>
+                      <option value="copy">{{ t('option_page_transfer_copy') }}</option>
+                      <option value="move">{{ t('option_page_transfer_move') }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="pageTransferNamespace">{{ t('label_page_transfer_namespace') }}</label>
+                  <div class="uk-form-controls">
+                    <select id="pageTransferNamespace" class="uk-select" required>
+                      <option value="">{{ t('placeholder_select_namespace') }}</option>
+                      {% set transferTargets = available_namespaces|default([]) %}
+                      {% if transferTargets is empty %}
+                        {% set transferTargets = [{
+                          namespace: activePageNamespace,
+                          label: null,
+                          is_active: true
+                        }] %}
+                      {% endif %}
+                      {% for entry in transferTargets %}
+                        {% set entryNamespace = entry.namespace|default('') %}
+                        {% set entryLabel = entry.label|default('') %}
+                        {% if entryNamespace and entryNamespace != activePageNamespace %}
+                          <option value="{{ entryNamespace|e('html_attr') }}">
+                            {{ entryNamespace }}
+                            {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                          </option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="uk-flex uk-flex-right">
+                  <button type="submit" class="uk-button uk-button-primary" data-page-transfer-submit>
+                    {{ t('button_page_transfer_submit') }}
+                  </button>
+                  <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">
+                    {{ t('action_cancel') }}
+                  </button>
                 </div>
               </form>
             </div>
