@@ -492,6 +492,27 @@ CREATE TABLE IF NOT EXISTS pages (
     UNIQUE(namespace, slug)
 );
 
+CREATE TABLE IF NOT EXISTS page_ai_jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id TEXT NOT NULL,
+    namespace TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    theme TEXT NOT NULL,
+    color_scheme TEXT NOT NULL,
+    problem TEXT NOT NULL,
+    prompt_template TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    html TEXT,
+    error_code TEXT,
+    error_message TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(job_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_ai_jobs_status ON page_ai_jobs(status);
+
 CREATE TABLE IF NOT EXISTS page_modules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
