@@ -254,14 +254,14 @@ return function (\Slim\App $app, TranslationService $translator) {
                 );
                 DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
             }
-            $mainDomain = strtolower((string) ($marketingDomainProvider?->getMainDomain() ?? ''));
+            $mainDomain = strtolower((string) $marketingDomainProvider->getMainDomain());
             $normalizedMainDomain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
 
             $computed = 'tenant';
             if ($normalizedMainDomain === '' || $normalizedHost === $normalizedMainDomain) {
                 $computed = 'main';
             } else {
-                $marketingDomains = $marketingDomainProvider?->getMarketingDomains(stripAdmin: false) ?? [];
+                $marketingDomains = $marketingDomainProvider->getMarketingDomains(stripAdmin: false);
                 $marketingList = array_filter(array_map(
                     static fn (string $domain): string => DomainNameHelper::normalize($domain, stripAdmin: false),
                     $marketingDomains
