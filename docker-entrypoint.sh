@@ -11,6 +11,9 @@ if [ -r .env ]; then
     done < .env
 fi
 
+php_memory_limit="${PHP_MEMORY_LIMIT:-512M}"
+printf 'memory_limit = %s\n' "$php_memory_limit" > /usr/local/etc/php/conf.d/zz-memory-limit.ini
+
 # Normalize comma-separated host lists by removing whitespace and collapsing
 # duplicate separators.
 normalize_host_list() {
