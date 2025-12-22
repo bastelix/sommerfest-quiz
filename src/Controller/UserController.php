@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Domain\Roles;
 use App\Service\UserService;
+use App\Support\UsernameBlockedException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use PDOException;
@@ -49,9 +50,31 @@ class UserController
         }
         try {
             $this->service->saveAll($data);
+        } catch (UsernameBlockedException $exception) {
+            $response->getBody()->write(json_encode([
+                'error' => $exception->getMessage(),
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
         } catch (PDOException $e) {
             if ($e->getCode() === '23505') {
-                return $response->withStatus(409);
+                $message = 'Duplicate entry.';
+                $details = $e->getMessage();
+                if (str_contains($details, 'users_username_key')) {
+                    $message = 'The username is already in use.';
+                } elseif (str_contains($details, 'users_email_key')) {
+                    $message = 'The email address is already in use.';
+                }
+
+                $response->getBody()->write(json_encode([
+                    'error' => $message,
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(409);
             }
 
             throw $e;
