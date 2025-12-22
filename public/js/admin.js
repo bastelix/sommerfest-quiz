@@ -5007,6 +5007,16 @@ document.addEventListener('DOMContentLoaded', function () {
         })
           .then(res => res.json().catch(() => ({})).then(data => {
             const success = data && data.success === true;
+            const status = typeof data.status === 'string' ? data.status : '';
+            if (status === 'throttled') {
+              const retryAfter = typeof data.retry_after === 'number' ? data.retry_after : null;
+              const suffix = retryAfter ? ` (${retryAfter}s)` : '';
+              const message = (domainChatTranslations.rebuildThrottled || 'Bitte warten, bevor der Index neu aufgebaut wird.')
+                + suffix;
+              showStatus(message, 'warning');
+              notify(message, 'warning');
+              return null;
+            }
             if (!res.ok || !success) {
               const errorText = typeof data.error === 'string' ? data.error.trim() : '';
               const stderrText = typeof data.stderr === 'string' ? data.stderr.trim() : '';
@@ -5024,6 +5034,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 error.details = details;
               }
               throw error;
+            }
+            if (data.queued === true || status === 'queued') {
+              const message = domainChatTranslations.rebuildQueued || 'Index-Aufbau eingeplant';
+              showStatus(message, 'success');
+              notify(message, 'success');
+              return null;
             }
             const message = data.cleared
               ? (domainChatTranslations.rebuildCleared || 'Index zurückgesetzt')

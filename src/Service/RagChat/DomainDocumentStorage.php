@@ -168,6 +168,15 @@ final class DomainDocumentStorage
         return $this->basePath . DIRECTORY_SEPARATOR . $normalized . DIRECTORY_SEPARATOR . 'corpus.jsonl';
     }
 
+    public function getDomainDirectory(string $domain): string
+    {
+        $normalized = $this->normaliseDomain($domain);
+        $path = $this->basePath . DIRECTORY_SEPARATOR . $normalized;
+        $this->ensureDirectory($path);
+
+        return $path;
+    }
+
     public function getDocumentFiles(string $domain): array
     {
         $normalized = $this->normaliseDomain($domain);

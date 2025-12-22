@@ -174,7 +174,11 @@ final class DomainChatKnowledgeController
         }
 
         try {
-            $result = $this->indexManager->rebuild($domain);
+            $payload = $this->parseRequestBody($request);
+            $mode = strtolower((string) ($payload['mode'] ?? 'async'));
+            $async = $mode !== 'sync';
+
+            $result = $this->indexManager->requestRebuild($domain, $async);
         } catch (RuntimeException $exception) {
             $message = trim($exception->getMessage());
             if ($message === '') {
@@ -184,7 +188,14 @@ final class DomainChatKnowledgeController
             return $this->json($response, ['error' => $message], 422);
         }
 
-        return $this->json($response, $result);
+        $status = 200;
+        if (($result['status'] ?? '') === 'queued') {
+            $status = 202;
+        } elseif (($result['status'] ?? '') === 'throttled') {
+            $status = 429;
+        }
+
+        return $this->json($response, $result, $status);
     }
 
     public function updateWikiSelection(Request $request, Response $response): Response

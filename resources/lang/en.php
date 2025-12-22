@@ -910,6 +910,8 @@ return [
     'notify_domain_chat_error' => 'Request failed.',
     'notify_domain_chat_rebuild_success' => 'Domain index updated.',
     'notify_domain_chat_rebuild_cleared' => 'Domain index removed because no documents are available.',
+    'notify_domain_chat_rebuild_queued' => 'Domain index rebuild queued.',
+    'notify_domain_chat_rebuild_throttled' => 'Domain index rebuild was triggered recently.',
     'notify_domain_chat_rebuild_error' => 'Domain index could not be updated.',
     'notify_domain_chat_download_error' => 'Index could not be downloaded.',
     'notify_domain_chat_download_missing' => 'No index is available for this domain.',
