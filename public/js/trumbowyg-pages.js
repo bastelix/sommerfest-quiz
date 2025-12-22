@@ -1131,7 +1131,7 @@ const initPageTransferModal = () => {
   const feedback = modalEl.querySelector('[data-page-transfer-feedback]');
   const titleEl = modalEl.querySelector('[data-page-transfer-title]');
   const submitBtn = modalEl.querySelector('[data-page-transfer-submit]');
-  const modal = window.UIkit ? window.UIkit.modal(modalEl) : null;
+  let modal = window.UIkit ? window.UIkit.modal(modalEl) : null;
 
   if (!form || !slugInput || !actionSelect || !namespaceSelect) {
     pageTransferState = null;
@@ -1184,8 +1184,17 @@ const initPageTransferModal = () => {
     }
     setFeedback('');
     ensureTargetsAvailable();
+    if (!modal && window.UIkit) {
+      modal = window.UIkit.modal(modalEl);
+    }
     if (modal) {
       modal.show();
+      return;
+    }
+    modalEl.hidden = false;
+    modalEl.classList.add('uk-open');
+    if (typeof notify === 'function') {
+      notify('UIkit Modal ist nicht verfügbar. Dialog wird ohne UIkit geöffnet.', 'warning');
     }
   };
 
