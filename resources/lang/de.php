@@ -36,6 +36,7 @@ return [
     'tab_project_overview' => 'Übersicht',
     'tab_wiki' => 'Wiki',
     'tab_pages' => 'Seiten',
+    'tab_navigation' => 'Navigation',
     'tab_page_seo_base' => 'Page SEO (Basis)',
     'tab_cookies' => 'Cookies',
     'tab_landing_news' => 'Landing-News',
