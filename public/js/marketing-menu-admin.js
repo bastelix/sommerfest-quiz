@@ -3,6 +3,7 @@
 const manager = document.querySelector('[data-marketing-menu-manager]');
 
 if (manager) {
+  manager.dataset.menuInitialized = 'true';
   const pagesData = (() => {
     try {
       const parsed = JSON.parse(manager.dataset.pages || '[]');

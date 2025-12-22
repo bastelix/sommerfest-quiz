@@ -195,6 +195,19 @@
               </tbody>
             </table>
           </div>
+          <script>
+            window.setTimeout(() => {
+              const container = document.querySelector('[data-marketing-menu-manager]');
+              if (!container || container.dataset.menuInitialized === 'true') {
+                return;
+              }
+              const loadingRow = container.querySelector('[data-menu-loading-row]');
+              if (!loadingRow) {
+                return;
+              }
+              loadingRow.innerHTML = '<td colspan="8" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
+            }, 2000);
+          </script>
         </div>
       </div>
     </main>
