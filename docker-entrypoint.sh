@@ -14,6 +14,117 @@ fi
 php_memory_limit="${PHP_MEMORY_LIMIT:-512M}"
 printf 'memory_limit = %s\n' "$php_memory_limit" > /usr/local/etc/php/conf.d/zz-memory-limit.ini
 
+php_error_log="${PHP_ERROR_LOG:-/proc/self/fd/2}"
+cat <<EOF > /usr/local/etc/php/conf.d/zz-logging.ini
+log_errors = On
+error_log = ${php_error_log}
+display_errors = Off
+EOF
+
+start_container_metrics_logging() {
+    metrics_interval="${CONTAINER_METRICS_LOG_INTERVAL_SECONDS:-30}"
+    case "$metrics_interval" in
+        ''|*[!0-9]*)
+            metrics_interval=30
+            ;;
+    esac
+
+    if [ ! -d /sys/fs/cgroup ]; then
+        echo "Container metrics logging skipped: /sys/fs/cgroup not available" >&2
+        return
+    fi
+
+    cgroup_version=1
+    if [ -f /sys/fs/cgroup/cgroup.controllers ]; then
+        cgroup_version=2
+    fi
+
+    if [ "$cgroup_version" -eq 2 ]; then
+        memory_current_file="/sys/fs/cgroup/memory.current"
+        memory_max_file="/sys/fs/cgroup/memory.max"
+        cpu_stat_file="/sys/fs/cgroup/cpu.stat"
+        oom_events_file="/sys/fs/cgroup/memory.events"
+
+        if [ ! -f "$memory_current_file" ] || [ ! -f "$cpu_stat_file" ]; then
+            echo "Container metrics logging skipped: required cgroup v2 files missing" >&2
+            return
+        fi
+
+        last_cpu_usage=$(awk '/usage_usec/ {print $2}' "$cpu_stat_file" 2>/dev/null || echo 0)
+        last_oom=$(awk '/^oom / {print $2}' "$oom_events_file" 2>/dev/null || echo 0)
+        last_oom_kill=$(awk '/^oom_kill / {print $2}' "$oom_events_file" 2>/dev/null || echo 0)
+
+        while true; do
+            sleep "$metrics_interval"
+            timestamp=$(date -Iseconds)
+            memory_current=$(cat "$memory_current_file" 2>/dev/null || echo 0)
+            memory_max=$(cat "$memory_max_file" 2>/dev/null || echo "max")
+            cpu_usage=$(awk '/usage_usec/ {print $2}' "$cpu_stat_file" 2>/dev/null || echo "$last_cpu_usage")
+            cpu_delta=$((cpu_usage - last_cpu_usage))
+            cpu_percent=$(awk -v delta="$cpu_delta" -v interval="$metrics_interval" 'BEGIN { if (interval > 0) { printf "%.2f", (delta / (interval * 1000000)) * 100 } else { printf "0.00" } }')
+
+            echo "[$timestamp] container_metrics memory_current_bytes=${memory_current} memory_max_bytes=${memory_max} cpu_usage_usec=${cpu_usage} cpu_percent=${cpu_percent}" >&2
+
+            if [ -f "$oom_events_file" ]; then
+                oom=$(awk '/^oom / {print $2}' "$oom_events_file" 2>/dev/null || echo "$last_oom")
+                oom_kill=$(awk '/^oom_kill / {print $2}' "$oom_events_file" 2>/dev/null || echo "$last_oom_kill")
+
+                if [ "$oom" -gt "$last_oom" ] || [ "$oom_kill" -gt "$last_oom_kill" ]; then
+                    echo "[$timestamp] container_oom_event oom=${oom} oom_kill=${oom_kill}" >&2
+                    last_oom=$oom
+                    last_oom_kill=$oom_kill
+                fi
+            fi
+
+            last_cpu_usage=$cpu_usage
+        done &
+
+        return
+    fi
+
+    memory_current_file="/sys/fs/cgroup/memory/memory.usage_in_bytes"
+    memory_limit_file="/sys/fs/cgroup/memory/memory.limit_in_bytes"
+    cpu_usage_file="/sys/fs/cgroup/cpu/cpuacct.usage"
+    oom_control_file="/sys/fs/cgroup/memory/memory.oom_control"
+
+    if [ ! -f "$memory_current_file" ] || [ ! -f "$cpu_usage_file" ]; then
+        echo "Container metrics logging skipped: required cgroup v1 files missing" >&2
+        return
+    fi
+
+    last_cpu_usage=$(cat "$cpu_usage_file" 2>/dev/null || echo 0)
+    last_oom_kill=$(awk '/oom_kill/ {print $2}' "$oom_control_file" 2>/dev/null || echo 0)
+
+    while true; do
+        sleep "$metrics_interval"
+        timestamp=$(date -Iseconds)
+        memory_current=$(cat "$memory_current_file" 2>/dev/null || echo 0)
+        memory_max=$(cat "$memory_limit_file" 2>/dev/null || echo 0)
+        cpu_usage=$(cat "$cpu_usage_file" 2>/dev/null || echo "$last_cpu_usage")
+        cpu_delta=$((cpu_usage - last_cpu_usage))
+        cpu_percent=$(awk -v delta="$cpu_delta" -v interval="$metrics_interval" 'BEGIN { if (interval > 0) { printf "%.2f", (delta / (interval * 1000000000)) * 100 } else { printf "0.00" } }')
+
+        echo "[$timestamp] container_metrics memory_current_bytes=${memory_current} memory_max_bytes=${memory_max} cpu_usage_ns=${cpu_usage} cpu_percent=${cpu_percent}" >&2
+
+        if [ -f "$oom_control_file" ]; then
+            oom_kill=$(awk '/oom_kill/ {print $2}' "$oom_control_file" 2>/dev/null || echo "$last_oom_kill")
+            if [ "$oom_kill" -gt "$last_oom_kill" ]; then
+                echo "[$timestamp] container_oom_event oom_kill=${oom_kill}" >&2
+                last_oom_kill=$oom_kill
+            fi
+        fi
+
+        last_cpu_usage=$cpu_usage
+    done &
+}
+
+metrics_enabled=$(printf '%s' "${CONTAINER_METRICS_LOGGING:-true}" | tr '[:upper:]' '[:lower:]')
+case "$metrics_enabled" in
+    1|true|yes|on)
+        start_container_metrics_logging
+        ;;
+esac
+
 # Normalize comma-separated host lists by removing whitespace and collapsing
 # duplicate separators.
 normalize_host_list() {
