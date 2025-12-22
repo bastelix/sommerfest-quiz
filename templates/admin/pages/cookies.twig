@@ -1,0 +1,222 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_cookies') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script>
+    window.profileVars = {
+      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
+      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
+      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
+      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
+      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
+    };
+  </script>
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
+  </script>
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_cookies') }}</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Cookie-Einstellungen des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
+
+        {% include 'admin/components/project_tree.twig' %}
+
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin-small"
+          data-project-settings
+          data-endpoint="{{ basePath }}/admin/projects/settings"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <h3 class="uk-card-title uk-margin-remove">{{ t('tab_cookies') }}</h3>
+            <span class="uk-text-meta" data-project-settings-updated>
+              {% if cookie_settings.updated_at %}
+                Zuletzt gespeichert: {{ cookie_settings.updated_at }}
+              {% endif %}
+            </span>
+          </div>
+          <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieConsentEnabled">Cookie-Banner aktiv</label>
+              <div class="uk-form-controls">
+                <label>
+                  <input
+                    class="uk-checkbox"
+                    type="checkbox"
+                    id="cookieConsentEnabled"
+                    name="cookie_consent_enabled"
+                    {% if cookie_settings.cookie_consent_enabled %}checked{% endif %}
+                  >
+                  Banner anzeigen
+                </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieStorageKey">Storage-Key</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="text"
+                  id="cookieStorageKey"
+                  name="cookie_storage_key"
+                  value="{{ cookie_settings.cookie_storage_key|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                >
+              </div>
+              <div class="uk-text-meta">Wird im Local Storage gespeichert.</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieBannerTextDe">Banner-Text (DE)</label>
+              <div class="uk-form-controls">
+                <textarea
+                  class="uk-textarea"
+                  id="cookieBannerTextDe"
+                  name="cookie_banner_text_de"
+                  rows="4"
+                >{{ cookie_settings.cookie_banner_text_de|default('')|e }}</textarea>
+              </div>
+              <div class="uk-text-meta">Hinweistext für externe Inhalte (Deutsch).</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieBannerTextEn">Banner-Text (EN)</label>
+              <div class="uk-form-controls">
+                <textarea
+                  class="uk-textarea"
+                  id="cookieBannerTextEn"
+                  name="cookie_banner_text_en"
+                  rows="4"
+                >{{ cookie_settings.cookie_banner_text_en|default('')|e }}</textarea>
+              </div>
+              <div class="uk-text-meta">Hinweistext für externe Inhalte (Englisch).</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieVendorFlags">Vendor-Flags (JSON)</label>
+              <div class="uk-form-controls">
+                <textarea
+                  class="uk-textarea"
+                  id="cookieVendorFlags"
+                  name="cookie_vendor_flags"
+                  rows="4"
+                >{{ cookie_settings.cookie_vendor_flags|default({})|json_encode|e }}</textarea>
+              </div>
+              <div class="uk-text-meta">Optional: Strukturierte Flags für Drittanbieter (JSON).</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="privacyUrl">Datenschutz-URL</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="url"
+                  id="privacyUrl"
+                  name="privacy_url"
+                  value="{{ cookie_settings.privacy_url|default('')|e('html_attr') }}"
+                  autocomplete="off"
+                  placeholder="{{ basePath }}/datenschutz"
+                >
+              </div>
+              <div class="uk-text-meta">Optionaler Link zur Datenschutzseite für Marketing und Footer.</div>
+            </div>
+            <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+              <div>
+                <button type="submit" class="uk-button uk-button-primary">Einstellungen speichern</button>
+              </div>
+              <div class="uk-text-meta" data-project-settings-status></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

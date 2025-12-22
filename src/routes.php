@@ -1419,6 +1419,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectPagesController();
         return $controller->content($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages/cookies', function (Request $request, Response $response) {
+        $controller = new ProjectPagesController();
+        return $controller->cookies($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/navigation', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->navigation($request, $response);

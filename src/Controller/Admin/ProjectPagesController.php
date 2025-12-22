@@ -13,6 +13,7 @@ use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\NamespaceService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
+use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -29,6 +30,7 @@ class ProjectPagesController
     private NamespaceService $namespaceService;
     private TenantService $tenantService;
     private PageAiPromptTemplateService $promptTemplateService;
+    private ProjectSettingsService $projectSettings;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -39,7 +41,8 @@ class ProjectPagesController
         ?NamespaceRepository $namespaceRepository = null,
         ?NamespaceService $namespaceService = null,
         ?TenantService $tenantService = null,
-        ?PageAiPromptTemplateService $promptTemplateService = null
+        ?PageAiPromptTemplateService $promptTemplateService = null,
+        ?ProjectSettingsService $projectSettings = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -50,6 +53,7 @@ class ProjectPagesController
         $this->namespaceService = $namespaceService ?? new NamespaceService($this->namespaceRepository);
         $this->tenantService = $tenantService ?? new TenantService($pdo);
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
+        $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
     }
 
     public function content(Request $request, Response $response): Response
@@ -181,6 +185,25 @@ class ProjectPagesController
             'selectedWikiPageId' => $selectedPageId,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'wiki',
+            'tenant' => $this->resolveTenant($request),
+        ]);
+    }
+
+    public function cookies(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
+
+        return $view->render($response, 'admin/pages/cookies.twig', [
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
+            'available_namespaces' => $availableNamespaces,
+            'pageNamespace' => $namespace,
+            'cookie_settings' => $cookieSettings,
+            'csrf_token' => $this->ensureCsrfToken(),
+            'pageTab' => 'cookies',
             'tenant' => $this->resolveTenant($request),
         ]);
     }
