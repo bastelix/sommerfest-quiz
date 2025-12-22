@@ -841,7 +841,7 @@ return [
     'label_marketing_domain_label' => 'Anzeigename (optional)',
     'placeholder_marketing_domain_host' => 'z. B. promo.example.org',
     'placeholder_marketing_domain_label' => 'z. B. Sommerfest Landingpage',
-    'text_marketing_domain_host_hint' => 'Nur vollqualifizierte Domains, keine Pfade oder Protokolle.',
+    'text_marketing_domain_host_hint' => 'Nur vollqualifizierte Domains, keine Pfade oder Protokolle; nur so ist eine korrekte SSL/DNS-Zuordnung möglich.',
     'text_marketing_domain_label_hint' => 'Optionaler Name für interne Listen und Auswahlfelder.',
     'text_marketing_domain_submit_hint' => 'Die Domain wird direkt nach dem Speichern aktiv und ist sofort erreichbar; bitte DNS- und SSL-Einstellungen vorab prüfen.',
     'action_marketing_domain_save' => 'Domain speichern',
