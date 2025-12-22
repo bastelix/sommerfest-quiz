@@ -108,7 +108,7 @@ return [
     'text_marketing_newsletter_ctas_hint' => 'Define per-landing-page calls-to-action for the newsletter confirmation page so confirmed users return to the right landing page or offer and conversion improves.',
     'text_marketing_newsletter_namespace_hint' => 'Editing newsletter CTAs for namespace: %s. Use them to guide confirmed users back to the right landing page or offer.',
     'label_marketing_newsletter_slug' => 'Marketing slug',
-    'text_marketing_newsletter_slug_hint' => 'Slug of the marketing page (e.g. "landing", "calserver"). Unknown slugs are created when saving.',
+    'text_marketing_newsletter_slug_hint' => 'Slug of the marketing page (e.g. "landing", "calserver"). This slug controls which landing page the CTAs map to (e.g. consistent return flow after newsletter confirmation). Unknown slugs are created when saving.',
     'label_marketing_newsletter_label' => 'Label',
     'label_marketing_newsletter_url' => 'Link',
     'label_marketing_newsletter_style' => 'Display',

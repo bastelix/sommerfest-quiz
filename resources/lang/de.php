@@ -110,7 +110,7 @@ return [
     'text_marketing_newsletter_ctas_hint' => 'Lege pro Landingpage passende Buttons oder Links für die Newsletter-Bestätigungsseite fest, damit bestätigte Nutzer gezielt zur Landingpage oder zum Angebot zurückfinden und die Conversion steigt.',
     'text_marketing_newsletter_namespace_hint' => 'Newsletter-CTAs für Namespace: %s. So führst du bestätigte Nutzer gezielt zur passenden Landingpage oder zum Angebot zurück.',
     'label_marketing_newsletter_slug' => 'Marketing-Slug',
-    'text_marketing_newsletter_slug_hint' => 'Slug der Marketingseite (z. B. „landing“, „calserver“). Nicht existente Slugs werden beim Speichern angelegt.',
+    'text_marketing_newsletter_slug_hint' => 'Slug der Marketingseite (z. B. „landing“, „calserver“). Dieser Slug steuert, welcher Landingpage die CTAs zugeordnet werden (z. B. konsistente Rückführung nach Newsletter-Bestätigung). Nicht existente Slugs werden beim Speichern angelegt.',
     'label_marketing_newsletter_label' => 'Beschriftung',
     'label_marketing_newsletter_url' => 'Link',
     'label_marketing_newsletter_style' => 'Darstellung',
