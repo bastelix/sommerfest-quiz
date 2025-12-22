@@ -871,7 +871,9 @@ const initProjectSettings = () => {
       namespace,
       cookieConsentEnabled: Boolean(form.querySelector('#cookieConsentEnabled')?.checked),
       cookieStorageKey: form.querySelector('#cookieStorageKey')?.value || '',
-      cookieBannerText: form.querySelector('#cookieBannerText')?.value || '',
+      cookieBannerTextDe: form.querySelector('#cookieBannerTextDe')?.value || '',
+      cookieBannerTextEn: form.querySelector('#cookieBannerTextEn')?.value || '',
+      cookieVendorFlags: form.querySelector('#cookieVendorFlags')?.value || '',
       privacyUrl: form.querySelector('#privacyUrl')?.value || ''
     };
 
@@ -894,14 +896,30 @@ const initProjectSettings = () => {
       const result = await response.json();
       const settings = result?.settings || {};
       const storageInput = form.querySelector('#cookieStorageKey');
-      const bannerInput = form.querySelector('#cookieBannerText');
+      const bannerDeInput = form.querySelector('#cookieBannerTextDe');
+      const bannerEnInput = form.querySelector('#cookieBannerTextEn');
+      const vendorFlagsInput = form.querySelector('#cookieVendorFlags');
       const enabledInput = form.querySelector('#cookieConsentEnabled');
       const privacyInput = form.querySelector('#privacyUrl');
       if (storageInput && typeof settings.cookie_storage_key === 'string') {
         storageInput.value = settings.cookie_storage_key;
       }
-      if (bannerInput && typeof settings.cookie_banner_text === 'string') {
-        bannerInput.value = settings.cookie_banner_text;
+      if (bannerDeInput && typeof settings.cookie_banner_text_de === 'string') {
+        bannerDeInput.value = settings.cookie_banner_text_de;
+      }
+      if (bannerEnInput && typeof settings.cookie_banner_text_en === 'string') {
+        bannerEnInput.value = settings.cookie_banner_text_en;
+      }
+      if (vendorFlagsInput && settings.cookie_vendor_flags !== undefined) {
+        if (typeof settings.cookie_vendor_flags === 'string') {
+          vendorFlagsInput.value = settings.cookie_vendor_flags;
+        } else {
+          try {
+            vendorFlagsInput.value = JSON.stringify(settings.cookie_vendor_flags, null, 2);
+          } catch (error) {
+            vendorFlagsInput.value = '';
+          }
+        }
       }
       if (enabledInput && typeof settings.cookie_consent_enabled === 'boolean') {
         enabledInput.checked = settings.cookie_consent_enabled;

@@ -1,6 +1,14 @@
 (function () {
-  const EVENT_NAME = 'calserver:cookie-preference-changed';
-  const STORAGE_KEY = (globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices';
+  const config = globalThis.cookieConsentConfig || {};
+  const selectors = config.selectors || {};
+  const classes = config.classes || {};
+  const EVENT_NAME = (typeof config.eventName === 'string' && config.eventName.trim())
+    ? config.eventName.trim()
+    : 'calserver:cookie-preference-changed';
+  const STORAGE_KEY = (typeof config.storageKey === 'string' && config.storageKey.trim())
+    ? config.storageKey.trim()
+    : ((globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices');
+  const enabled = config.enabled !== false;
   const state = { banner: null, trigger: null, preferences: null };
 
   function normalize(preferences) {
@@ -161,13 +169,13 @@
     if (!state.preferences && !bannerVisible) {
       state.trigger.setAttribute('hidden', '');
       state.trigger.setAttribute('aria-expanded', 'false');
-      state.trigger.classList.remove('calserver-cookie-trigger--active');
+      state.trigger.classList.remove(classes.triggerActive || 'calserver-cookie-trigger--active');
       return;
     }
 
     state.trigger.removeAttribute('hidden');
     state.trigger.setAttribute('aria-expanded', bannerVisible ? 'true' : 'false');
-    state.trigger.classList.toggle('calserver-cookie-trigger--active', bannerVisible);
+    state.trigger.classList.toggle(classes.triggerActive || 'calserver-cookie-trigger--active', bannerVisible);
   }
 
   function setBannerVisibility(visible, options) {
@@ -177,13 +185,13 @@
 
     if (visible) {
       state.banner.removeAttribute('hidden');
-      state.banner.classList.add('calserver-cookie-banner--visible');
+      state.banner.classList.add(classes.bannerVisible || 'calserver-cookie-banner--visible');
       if (options && options.focus === true) {
         focusBanner();
       }
     } else {
       state.banner.setAttribute('hidden', '');
-      state.banner.classList.remove('calserver-cookie-banner--visible');
+      state.banner.classList.remove(classes.bannerVisible || 'calserver-cookie-banner--visible');
     }
 
     refreshTriggerState();
@@ -214,13 +222,17 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    state.banner = document.querySelector('[data-calserver-cookie-banner]');
+    if (!enabled) {
+      return;
+    }
+
+    state.banner = document.querySelector(selectors.banner || '[data-calserver-cookie-banner]');
     if (!state.banner) {
       return;
     }
 
     const existing = getPreferences();
-    state.trigger = document.querySelector('[data-calserver-cookie-open]');
+    state.trigger = document.querySelector(selectors.trigger || '[data-calserver-cookie-open]');
 
     if (state.trigger) {
       state.trigger.addEventListener('click', function () {
@@ -241,14 +253,14 @@
 
     updateBannerVisibility(existing);
 
-    const acceptAll = state.banner.querySelector('[data-calserver-cookie-accept]');
+    const acceptAll = state.banner.querySelector(selectors.accept || '[data-calserver-cookie-accept]');
     if (acceptAll) {
       acceptAll.addEventListener('click', function () {
         allowMarketing();
       });
     }
 
-    const necessaryOnly = state.banner.querySelector('[data-calserver-cookie-necessary]');
+    const necessaryOnly = state.banner.querySelector(selectors.necessary || '[data-calserver-cookie-necessary]');
     if (necessaryOnly) {
       necessaryOnly.addEventListener('click', function () {
         setPreferences({ marketing: false });

@@ -1,11 +1,17 @@
 (function () {
-  const EVENT_NAME = 'calserver:cookie-preference-changed';
+  const consentConfig = globalThis.cookieConsentConfig || {};
+  const selectors = consentConfig.selectors || {};
+  const EVENT_NAME = (typeof consentConfig.eventName === 'string' && consentConfig.eventName.trim())
+    ? consentConfig.eventName.trim()
+    : 'calserver:cookie-preference-changed';
   const ALLOW_ATTR = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-  const STORAGE_KEY = (globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices';
+  const STORAGE_KEY = (typeof consentConfig.storageKey === 'string' && consentConfig.storageKey.trim())
+    ? consentConfig.storageKey.trim()
+    : ((globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices');
   const PROSEAL_SCRIPT_SRC = 'https://s.provenexpert.net/seals/proseal-v2.js';
-  const PROSEAL_SELECTOR = '[data-calserver-proseal]';
-  const MODULE_VIDEO_SELECTOR = '.calserver-module-figure__video';
-  const MODULE_FIGURE_SELECTOR = '.calserver-module-figure';
+  const PROSEAL_SELECTOR = selectors.proSeal || '[data-calserver-proseal]';
+  const MODULE_VIDEO_SELECTOR = selectors.moduleVideo || '.calserver-module-figure__video';
+  const MODULE_FIGURE_SELECTOR = selectors.moduleFigure || '.calserver-module-figure';
   const MODULE_VIDEO_USER_EVENTS = ['click', 'keydown', 'pointerdown', 'touchstart'];
   let proSealScriptLoading = false;
   let proSealScriptLoaded = false;
@@ -13,6 +19,7 @@
   const moduleVideoControls = [];
   let moduleVideoLegacyFallbackAttached = false;
   let moduleFullscreenListenersAttached = false;
+  const consentEnabled = consentConfig.enabled !== false;
 
   function readPreferences() {
     if (globalThis.calserverCookie && typeof globalThis.calserverCookie.getPreferences === 'function') {
@@ -59,11 +66,23 @@
   }
 
   function marketingAllowed() {
+    if (!consentEnabled) {
+      return true;
+    }
+
     const preferences = readPreferences();
     return !!(preferences && preferences.marketing);
   }
 
   function ensureMarketingConsent() {
+    if (!consentEnabled) {
+      return {
+        necessary: true,
+        marketing: true,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
     if (globalThis.calserverCookie && typeof globalThis.calserverCookie.allowMarketing === 'function') {
       return globalThis.calserverCookie.allowMarketing();
     }

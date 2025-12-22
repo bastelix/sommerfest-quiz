@@ -4,24 +4,27 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
+use App\Repository\ProjectSettingsRepository;
 use PDO;
 use RuntimeException;
 
 final class ProjectSettingsService
 {
     private const DEFAULT_STORAGE_KEY = 'calserverCookieChoices';
-    private const DEFAULT_BANNER_TEXT = 'Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. '
+    private const DEFAULT_BANNER_TEXT_DE = 'Wir verwenden notwendige Cookies und laden Inhalte von YouTube erst, wenn du zustimmst. '
         . 'Du kannst deine Auswahl jederzeit in deinem Browser anpassen.';
+    private const DEFAULT_BANNER_TEXT_EN = 'We use essential cookies and only load YouTube content after you consent. '
+        . 'You can adjust your selection in your browser at any time.';
     private const MAX_STORAGE_KEY_LENGTH = 120;
     private const MAX_BANNER_TEXT_LENGTH = 2000;
     private const MAX_PRIVACY_URL_LENGTH = 500;
+    private const MAX_VENDOR_FLAGS_LENGTH = 4000;
 
-    private PDO $pdo;
+    private ProjectSettingsRepository $repository;
 
-    public function __construct(?PDO $pdo = null)
+    public function __construct(?PDO $pdo = null, ?ProjectSettingsRepository $repository = null)
     {
-        $this->pdo = $pdo ?? Database::connectFromEnv();
+        $this->repository = $repository ?? new ProjectSettingsRepository($pdo);
     }
 
     /**
@@ -29,7 +32,9 @@ final class ProjectSettingsService
      *     namespace:string,
      *     cookie_consent_enabled:bool,
      *     cookie_storage_key:string,
-     *     cookie_banner_text:string,
+     *     cookie_banner_text_de:string,
+     *     cookie_banner_text_en:string,
+     *     cookie_vendor_flags:array<array-key, mixed>,
      *     privacy_url:string,
      *     updated_at:?string
      * }
@@ -39,13 +44,13 @@ final class ProjectSettingsService
         $normalized = $this->normalizeNamespace($namespace);
         $defaults = $this->getDefaultSettings($normalized);
 
-        if (!$this->hasTable('project_settings')) {
+        if (!$this->repository->hasTable()) {
             return $defaults;
         }
 
-        $row = $this->fetchSettings($normalized);
+        $row = $this->repository->fetch($normalized);
         if ($row === null && $normalized !== PageService::DEFAULT_NAMESPACE) {
-            $row = $this->fetchSettings(PageService::DEFAULT_NAMESPACE);
+            $row = $this->repository->fetch(PageService::DEFAULT_NAMESPACE);
         }
 
         if ($row === null) {
@@ -53,14 +58,19 @@ final class ProjectSettingsService
         }
 
         $storageKey = isset($row['cookie_storage_key']) ? trim((string) $row['cookie_storage_key']) : '';
-        $bannerText = isset($row['cookie_banner_text']) ? trim((string) $row['cookie_banner_text']) : '';
+        $legacyBannerText = isset($row['cookie_banner_text']) ? trim((string) $row['cookie_banner_text']) : '';
+        $bannerTextDe = isset($row['cookie_banner_text_de']) ? trim((string) $row['cookie_banner_text_de']) : '';
+        $bannerTextEn = isset($row['cookie_banner_text_en']) ? trim((string) $row['cookie_banner_text_en']) : '';
+        $vendorFlags = $this->parseVendorFlags($row['cookie_vendor_flags'] ?? null);
         $privacyUrl = isset($row['privacy_url']) ? trim((string) $row['privacy_url']) : '';
 
         return [
             'namespace' => $normalized,
             'cookie_consent_enabled' => $this->normalizeBoolean($row['cookie_consent_enabled'] ?? null, $defaults['cookie_consent_enabled']),
             'cookie_storage_key' => $storageKey !== '' ? $storageKey : $defaults['cookie_storage_key'],
-            'cookie_banner_text' => $bannerText !== '' ? $bannerText : $defaults['cookie_banner_text'],
+            'cookie_banner_text_de' => $bannerTextDe !== '' ? $bannerTextDe : ($legacyBannerText !== '' ? $legacyBannerText : $defaults['cookie_banner_text_de']),
+            'cookie_banner_text_en' => $bannerTextEn !== '' ? $bannerTextEn : $defaults['cookie_banner_text_en'],
+            'cookie_vendor_flags' => $vendorFlags,
             'privacy_url' => $privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url'],
             'updated_at' => isset($row['updated_at']) ? (string) $row['updated_at'] : null,
         ];
@@ -71,7 +81,9 @@ final class ProjectSettingsService
      *     namespace:string,
      *     cookie_consent_enabled:bool,
      *     cookie_storage_key:string,
-     *     cookie_banner_text:string,
+     *     cookie_banner_text_de:string,
+     *     cookie_banner_text_en:string,
+     *     cookie_vendor_flags:array<array-key, mixed>,
      *     privacy_url:string,
      *     updated_at:?string
      * }
@@ -80,7 +92,9 @@ final class ProjectSettingsService
         string $namespace,
         bool $enabled,
         ?string $storageKey,
-        ?string $bannerText,
+        ?string $bannerTextDe,
+        ?string $bannerTextEn,
+        ?string $vendorFlags,
         ?string $privacyUrl
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
@@ -91,9 +105,19 @@ final class ProjectSettingsService
             throw new RuntimeException('Cookie storage key is too long.');
         }
 
-        $normalizedBannerText = $bannerText !== null ? trim($bannerText) : '';
-        if ($normalizedBannerText !== '' && mb_strlen($normalizedBannerText) > self::MAX_BANNER_TEXT_LENGTH) {
-            throw new RuntimeException('Cookie banner text is too long.');
+        $normalizedBannerTextDe = $bannerTextDe !== null ? trim($bannerTextDe) : '';
+        if ($normalizedBannerTextDe !== '' && mb_strlen($normalizedBannerTextDe) > self::MAX_BANNER_TEXT_LENGTH) {
+            throw new RuntimeException('Cookie banner text (DE) is too long.');
+        }
+
+        $normalizedBannerTextEn = $bannerTextEn !== null ? trim($bannerTextEn) : '';
+        if ($normalizedBannerTextEn !== '' && mb_strlen($normalizedBannerTextEn) > self::MAX_BANNER_TEXT_LENGTH) {
+            throw new RuntimeException('Cookie banner text (EN) is too long.');
+        }
+
+        $normalizedVendorFlags = $this->normalizeVendorFlags($vendorFlags);
+        if ($normalizedVendorFlags !== null && mb_strlen($normalizedVendorFlags) > self::MAX_VENDOR_FLAGS_LENGTH) {
+            throw new RuntimeException('Cookie vendor flags are too long.');
         }
 
         $normalizedPrivacyUrl = $privacyUrl !== null ? trim($privacyUrl) : '';
@@ -101,24 +125,18 @@ final class ProjectSettingsService
             throw new RuntimeException('Privacy URL is too long.');
         }
 
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO project_settings (namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, privacy_url, updated_at) '
-            . 'VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
-            . 'ON CONFLICT (namespace) DO UPDATE SET '
-            . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
-            . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
-            . 'cookie_banner_text = EXCLUDED.cookie_banner_text, '
-            . 'privacy_url = EXCLUDED.privacy_url, '
-            . 'updated_at = CURRENT_TIMESTAMP'
-        );
-        $stmt->execute([
+        $legacyBannerText = $normalizedBannerTextDe !== '' ? $normalizedBannerTextDe : null;
+
+        $this->repository->upsert(
             $normalized,
-            $enabled ? 1 : 0,
+            $enabled,
             $normalizedStorageKey !== '' ? $normalizedStorageKey : null,
-            $normalizedBannerText !== '' ? $normalizedBannerText : null,
-            $normalizedPrivacyUrl !== '' ? $normalizedPrivacyUrl : null,
-        ]);
-        $stmt->closeCursor();
+            $legacyBannerText,
+            $normalizedBannerTextDe !== '' ? $normalizedBannerTextDe : null,
+            $normalizedBannerTextEn !== '' ? $normalizedBannerTextEn : null,
+            $normalizedVendorFlags,
+            $normalizedPrivacyUrl !== '' ? $normalizedPrivacyUrl : null
+        );
 
         return $this->getCookieConsentSettings($normalized);
     }
@@ -128,7 +146,9 @@ final class ProjectSettingsService
      *     namespace:string,
      *     cookie_consent_enabled:bool,
      *     cookie_storage_key:string,
-     *     cookie_banner_text:string,
+     *     cookie_banner_text_de:string,
+     *     cookie_banner_text_en:string,
+     *     cookie_vendor_flags:array<array-key, mixed>,
      *     privacy_url:string,
      *     updated_at:?string
      * }
@@ -139,30 +159,12 @@ final class ProjectSettingsService
             'namespace' => $namespace,
             'cookie_consent_enabled' => true,
             'cookie_storage_key' => self::DEFAULT_STORAGE_KEY,
-            'cookie_banner_text' => self::DEFAULT_BANNER_TEXT,
+            'cookie_banner_text_de' => self::DEFAULT_BANNER_TEXT_DE,
+            'cookie_banner_text_en' => self::DEFAULT_BANNER_TEXT_EN,
+            'cookie_vendor_flags' => [],
             'privacy_url' => '',
             'updated_at' => null,
         ];
-    }
-
-    /**
-     * @return array<string, mixed>|null
-     */
-    private function fetchSettings(string $namespace): ?array
-    {
-        $stmt = $this->pdo->prepare(
-            'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, privacy_url, updated_at '
-            . 'FROM project_settings WHERE namespace = ?'
-        );
-        $stmt->execute([$namespace]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        $stmt->closeCursor();
-
-        if ($row === false) {
-            return null;
-        }
-
-        return $row;
     }
 
     private function normalizeNamespace(string $namespace): string
@@ -197,22 +199,47 @@ final class ProjectSettingsService
 
     private function assertTableExists(): void
     {
-        if (!$this->hasTable('project_settings')) {
+        if (!$this->repository->hasTable()) {
             throw new RuntimeException('Project settings table is not available.');
         }
     }
 
-    private function hasTable(string $name): bool
+    private function normalizeVendorFlags(?string $vendorFlags): ?string
     {
-        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
-        if ($driver === 'sqlite') {
-            $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
-            $stmt->execute([$name]);
-            return $stmt->fetchColumn() !== false;
+        $normalized = $vendorFlags !== null ? trim($vendorFlags) : '';
+        if ($normalized === '') {
+            return null;
         }
 
-        $stmt = $this->pdo->prepare('SELECT to_regclass(?)');
-        $stmt->execute([$name]);
-        return $stmt->fetchColumn() !== null;
+        $decoded = json_decode($normalized, true);
+        if (!is_array($decoded)) {
+            throw new RuntimeException('Cookie vendor flags must be valid JSON.');
+        }
+
+        $encoded = json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($encoded === false) {
+            throw new RuntimeException('Cookie vendor flags could not be serialized.');
+        }
+
+        return $encoded;
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    private function parseVendorFlags(mixed $value): array
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+
+        if (is_string($value) && trim($value) !== '') {
+            $decoded = json_decode($value, true);
+            if (is_array($decoded)) {
+                return $decoded;
+            }
+        }
+
+        return [];
     }
 }

@@ -103,7 +103,9 @@ class ProjectController
 
         $enabled = filter_var($payload['cookieConsentEnabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $storageKey = isset($payload['cookieStorageKey']) ? (string) $payload['cookieStorageKey'] : null;
-        $bannerText = isset($payload['cookieBannerText']) ? (string) $payload['cookieBannerText'] : null;
+        $bannerTextDe = isset($payload['cookieBannerTextDe']) ? (string) $payload['cookieBannerTextDe'] : null;
+        $bannerTextEn = isset($payload['cookieBannerTextEn']) ? (string) $payload['cookieBannerTextEn'] : null;
+        $vendorFlags = isset($payload['cookieVendorFlags']) ? (string) $payload['cookieVendorFlags'] : null;
 
         $privacyUrl = isset($payload['privacyUrl']) ? (string) $payload['privacyUrl'] : null;
 
@@ -111,7 +113,9 @@ class ProjectController
             $namespace,
             $enabled,
             $storageKey,
-            $bannerText,
+            $bannerTextDe,
+            $bannerTextEn,
+            $vendorFlags,
             $privacyUrl
         );
 
