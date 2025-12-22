@@ -796,6 +796,11 @@ const resolveProjectNamespace = (container) => {
   return candidate.trim();
 };
 
+const resolveNamespaceQuery = () => {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get('namespace') || '').trim();
+};
+
 const withProjectNamespace = (endpoint, namespace) => {
   if (!namespace) {
     return endpoint;
@@ -4018,6 +4023,12 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainStartPageTable.dataset.empty || '',
       error: domainStartPageTable.dataset.error || transDomainStartPageError
     };
+    const domainNamespace = resolveNamespaceQuery();
+    const domainStartPageEndpoint = withProjectNamespace('/admin/domain-start-pages', domainNamespace);
+    const domainStartPageCertificateEndpoint = withProjectNamespace(
+      '/admin/domain-start-pages/certificate',
+      domainNamespace
+    );
     const sslActionLabel = window.actionDomainIssueSsl || 'Request certificate';
     const sslSuccessMessage = window.transDomainSslIssued || transDomainStartPageSaved;
     const sslErrorMessage = window.transDomainSslError || transDomainStartPageError;
@@ -4291,7 +4302,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sslButton.textContent = sslActionLabel;
         sslButton.addEventListener('click', () => {
           sslButton.disabled = true;
-          apiFetch('/admin/domain-start-pages/certificate', {
+          apiFetch(domainStartPageCertificateEndpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ domain: item.domain })
@@ -4334,7 +4345,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             deleteButton.disabled = true;
             const targetDomain = item.normalized || item.domain;
-            apiFetch('/admin/domain-start-pages', {
+            apiFetch(domainStartPageEndpoint, {
               method: 'DELETE',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ domain: targetDomain })
@@ -4557,7 +4568,7 @@ document.addEventListener('DOMContentLoaded', function () {
           || Object.prototype.hasOwnProperty.call(payload, 'smtp_dsn')
           || Object.prototype.hasOwnProperty.call(payload, 'smtp_pass')
         );
-      return apiFetch('/admin/domain-start-pages', {
+      return apiFetch(domainStartPageEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -4587,7 +4598,7 @@ document.addEventListener('DOMContentLoaded', function () {
         renderMessageRow(messages.loading);
       }
 
-      apiFetch('/admin/domain-start-pages')
+      apiFetch(domainStartPageEndpoint)
         .then(res => {
           if (!res.ok) {
             return res.json().catch(() => ({})).then(data => {
