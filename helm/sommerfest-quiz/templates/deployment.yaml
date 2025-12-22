@@ -39,6 +39,12 @@ spec:
               value: {{ .Values.smtp.from | quote }}
             - name: SMTP_FROM_NAME
               value: {{ .Values.smtp.fromName | quote }}
+            - name: CONTAINER_METRICS_LOGGING
+              value: {{ .Values.logging.containerMetrics.enabled | quote }}
+            - name: CONTAINER_METRICS_LOG_INTERVAL_SECONDS
+              value: {{ .Values.logging.containerMetrics.intervalSeconds | quote }}
+            - name: PHP_ERROR_LOG
+              value: {{ .Values.logging.phpErrorLog | quote }}
           ports:
             - containerPort: 8080
           volumeMounts:

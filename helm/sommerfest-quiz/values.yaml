@@ -19,6 +19,12 @@ smtp:
   from: support@quizrace.app
   fromName: "QuizRace Support"
 
+logging:
+  containerMetrics:
+    enabled: true
+    intervalSeconds: 30
+  phpErrorLog: /proc/self/fd/2
+
 service:
   type: ClusterIP
   port: 8080
