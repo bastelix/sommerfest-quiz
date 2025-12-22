@@ -1,5 +1,6 @@
 /* global UIkit */
 
+import './marketing-menu-admin.js';
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
 import {
