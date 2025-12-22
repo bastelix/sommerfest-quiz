@@ -913,7 +913,7 @@ return [
     'notify_marketing_domain_error' => 'Domain konnte nicht gespeichert werden.',
     'column_domain_smtp' => 'SMTP',
     'heading_domain_smtp_settings' => 'SMTP-Einstellungen',
-    'text_domain_smtp_hint' => 'Überschreibe den globalen Mailversand für diese Domain oder hinterlege einen eigenen DSN.',
+    'text_domain_smtp_hint' => 'Überschreibe den globalen Mailversand für diese Domain oder hinterlege einen eigenen DSN – etwa für höhere Zustellbarkeit, eine abweichende Absender-Domain oder eine eigene Mail-Infrastruktur.',
     'label_domain_smtp_host' => 'SMTP-Host',
     'label_domain_smtp_user' => 'Benutzername',
     'label_domain_smtp_port' => 'Port',

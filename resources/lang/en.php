@@ -913,7 +913,7 @@ return [
     'notify_marketing_domain_error' => 'Could not save domain.',
     'column_domain_smtp' => 'SMTP',
     'heading_domain_smtp_settings' => 'SMTP settings',
-    'text_domain_smtp_hint' => 'Override the global mail transport for this domain or provide a dedicated DSN.',
+    'text_domain_smtp_hint' => 'Override the global mail transport for this domain or provide a dedicated DSN—useful for better deliverability, a different sender domain, or your own mail infrastructure.',
     'label_domain_smtp_host' => 'SMTP host',
     'label_domain_smtp_user' => 'Username',
     'label_domain_smtp_port' => 'Port',
