@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const sidebarHasItems = adminSidebar && adminSidebar.querySelector('li');
   const offcanvasToggle = document.getElementById('offcanvas-toggle');
   const offcanvas = document.getElementById('qr-offcanvas');
-  const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const defaultDarkMedia = darkStylesheet ? (darkStylesheet.getAttribute('media') || 'all') : 'all';
   const uikitStylesheet = document.querySelector('link[href*="uikit"]');
@@ -48,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamNameBtn = document.getElementById('teamNameBtn');
   const isLaborLanding = document.body.classList.contains('labor-landing');
 
-  if (offcanvasToggle && !offcanvasHasItems) {
+  if (offcanvasToggle && !offcanvas) {
     offcanvasToggle.hidden = true;
   }
 
