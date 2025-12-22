@@ -96,6 +96,14 @@ class DomainStartPageController
         $smtpPass = array_key_exists('smtp_pass', $data)
             ? (string) $data['smtp_pass']
             : DomainStartPageService::SECRET_PLACEHOLDER;
+        $parsedStartPage = $this->domainService->parseStartPageKey($startPage);
+        if (
+            $allowedNamespaces !== null
+            && $parsedStartPage['namespace'] !== null
+            && !in_array($parsedStartPage['namespace'], $allowedNamespaces, true)
+        ) {
+            return $response->withStatus(400);
+        }
         $normalizedStartPage = $this->domainService->normalizeStartPageKey(
             $startPage,
             $this->pageService,
@@ -506,9 +514,12 @@ class DomainStartPageController
      */
     private function resolveAllowedNamespaces(Request $request): ?array
     {
+        $namespaceContext = (new NamespaceResolver())->resolve($request);
+        $candidates = $namespaceContext->getCandidates();
+
         $role = $_SESSION['user']['role'] ?? null;
         if ($role === Roles::ADMIN) {
-            return null;
+            return $candidates;
         }
 
         $allowed = [];
@@ -529,12 +540,11 @@ class DomainStartPageController
         }
 
         if ($allowed !== []) {
-            return $allowed;
+            $allowed = array_values(array_intersect($allowed, $candidates));
+            return $allowed !== [] ? $allowed : [];
         }
 
-        $namespaceContext = (new NamespaceResolver())->resolve($request);
-
-        return $namespaceContext->getCandidates();
+        return $candidates;
     }
 
     private function resolveMainDomain(): string {
