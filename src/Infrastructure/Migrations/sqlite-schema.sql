@@ -430,6 +430,7 @@ CREATE TABLE IF NOT EXISTS project_settings (
     cookie_consent_enabled INTEGER NOT NULL DEFAULT 0,
     cookie_storage_key TEXT,
     cookie_banner_text TEXT,
+    privacy_url TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );

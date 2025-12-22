@@ -105,7 +105,15 @@ class ProjectController
         $storageKey = isset($payload['cookieStorageKey']) ? (string) $payload['cookieStorageKey'] : null;
         $bannerText = isset($payload['cookieBannerText']) ? (string) $payload['cookieBannerText'] : null;
 
-        $settings = $this->projectSettings->saveCookieConsentSettings($namespace, $enabled, $storageKey, $bannerText);
+        $privacyUrl = isset($payload['privacyUrl']) ? (string) $payload['privacyUrl'] : null;
+
+        $settings = $this->projectSettings->saveCookieConsentSettings(
+            $namespace,
+            $enabled,
+            $storageKey,
+            $bannerText,
+            $privacyUrl
+        );
 
         $response->getBody()->write(json_encode([
             'namespace' => $namespace,

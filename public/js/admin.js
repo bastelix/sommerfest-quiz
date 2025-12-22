@@ -871,7 +871,8 @@ const initProjectSettings = () => {
       namespace,
       cookieConsentEnabled: Boolean(form.querySelector('#cookieConsentEnabled')?.checked),
       cookieStorageKey: form.querySelector('#cookieStorageKey')?.value || '',
-      cookieBannerText: form.querySelector('#cookieBannerText')?.value || ''
+      cookieBannerText: form.querySelector('#cookieBannerText')?.value || '',
+      privacyUrl: form.querySelector('#privacyUrl')?.value || ''
     };
 
     setStatus('Speichert…', false);
@@ -895,6 +896,7 @@ const initProjectSettings = () => {
       const storageInput = form.querySelector('#cookieStorageKey');
       const bannerInput = form.querySelector('#cookieBannerText');
       const enabledInput = form.querySelector('#cookieConsentEnabled');
+      const privacyInput = form.querySelector('#privacyUrl');
       if (storageInput && typeof settings.cookie_storage_key === 'string') {
         storageInput.value = settings.cookie_storage_key;
       }
@@ -903,6 +905,9 @@ const initProjectSettings = () => {
       }
       if (enabledInput && typeof settings.cookie_consent_enabled === 'boolean') {
         enabledInput.checked = settings.cookie_consent_enabled;
+      }
+      if (privacyInput && typeof settings.privacy_url === 'string') {
+        privacyInput.value = settings.privacy_url;
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

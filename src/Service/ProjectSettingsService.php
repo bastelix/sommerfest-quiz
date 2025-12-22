@@ -15,6 +15,7 @@ final class ProjectSettingsService
         . 'Du kannst deine Auswahl jederzeit in deinem Browser anpassen.';
     private const MAX_STORAGE_KEY_LENGTH = 120;
     private const MAX_BANNER_TEXT_LENGTH = 2000;
+    private const MAX_PRIVACY_URL_LENGTH = 500;
 
     private PDO $pdo;
 
@@ -24,7 +25,14 @@ final class ProjectSettingsService
     }
 
     /**
-     * @return array{namespace:string,cookie_consent_enabled:bool,cookie_storage_key:string,cookie_banner_text:string,updated_at:?string}
+     * @return array{
+     *     namespace:string,
+     *     cookie_consent_enabled:bool,
+     *     cookie_storage_key:string,
+     *     cookie_banner_text:string,
+     *     privacy_url:string,
+     *     updated_at:?string
+     * }
      */
     public function getCookieConsentSettings(string $namespace): array
     {
@@ -46,24 +54,34 @@ final class ProjectSettingsService
 
         $storageKey = isset($row['cookie_storage_key']) ? trim((string) $row['cookie_storage_key']) : '';
         $bannerText = isset($row['cookie_banner_text']) ? trim((string) $row['cookie_banner_text']) : '';
+        $privacyUrl = isset($row['privacy_url']) ? trim((string) $row['privacy_url']) : '';
 
         return [
             'namespace' => $normalized,
             'cookie_consent_enabled' => $this->normalizeBoolean($row['cookie_consent_enabled'] ?? null, $defaults['cookie_consent_enabled']),
             'cookie_storage_key' => $storageKey !== '' ? $storageKey : $defaults['cookie_storage_key'],
             'cookie_banner_text' => $bannerText !== '' ? $bannerText : $defaults['cookie_banner_text'],
+            'privacy_url' => $privacyUrl !== '' ? $privacyUrl : $defaults['privacy_url'],
             'updated_at' => isset($row['updated_at']) ? (string) $row['updated_at'] : null,
         ];
     }
 
     /**
-     * @return array{namespace:string,cookie_consent_enabled:bool,cookie_storage_key:string,cookie_banner_text:string,updated_at:?string}
+     * @return array{
+     *     namespace:string,
+     *     cookie_consent_enabled:bool,
+     *     cookie_storage_key:string,
+     *     cookie_banner_text:string,
+     *     privacy_url:string,
+     *     updated_at:?string
+     * }
      */
     public function saveCookieConsentSettings(
         string $namespace,
         bool $enabled,
         ?string $storageKey,
-        ?string $bannerText
+        ?string $bannerText,
+        ?string $privacyUrl
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
         $this->assertTableExists();
@@ -78,13 +96,19 @@ final class ProjectSettingsService
             throw new RuntimeException('Cookie banner text is too long.');
         }
 
+        $normalizedPrivacyUrl = $privacyUrl !== null ? trim($privacyUrl) : '';
+        if ($normalizedPrivacyUrl !== '' && mb_strlen($normalizedPrivacyUrl) > self::MAX_PRIVACY_URL_LENGTH) {
+            throw new RuntimeException('Privacy URL is too long.');
+        }
+
         $stmt = $this->pdo->prepare(
-            'INSERT INTO project_settings (namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, updated_at) '
-            . 'VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP) '
+            'INSERT INTO project_settings (namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, privacy_url, updated_at) '
+            . 'VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
             . 'ON CONFLICT (namespace) DO UPDATE SET '
             . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
             . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
             . 'cookie_banner_text = EXCLUDED.cookie_banner_text, '
+            . 'privacy_url = EXCLUDED.privacy_url, '
             . 'updated_at = CURRENT_TIMESTAMP'
         );
         $stmt->execute([
@@ -92,6 +116,7 @@ final class ProjectSettingsService
             $enabled ? 1 : 0,
             $normalizedStorageKey !== '' ? $normalizedStorageKey : null,
             $normalizedBannerText !== '' ? $normalizedBannerText : null,
+            $normalizedPrivacyUrl !== '' ? $normalizedPrivacyUrl : null,
         ]);
         $stmt->closeCursor();
 
@@ -99,7 +124,14 @@ final class ProjectSettingsService
     }
 
     /**
-     * @return array{namespace:string,cookie_consent_enabled:bool,cookie_storage_key:string,cookie_banner_text:string,updated_at:?string}
+     * @return array{
+     *     namespace:string,
+     *     cookie_consent_enabled:bool,
+     *     cookie_storage_key:string,
+     *     cookie_banner_text:string,
+     *     privacy_url:string,
+     *     updated_at:?string
+     * }
      */
     private function getDefaultSettings(string $namespace): array
     {
@@ -108,6 +140,7 @@ final class ProjectSettingsService
             'cookie_consent_enabled' => true,
             'cookie_storage_key' => self::DEFAULT_STORAGE_KEY,
             'cookie_banner_text' => self::DEFAULT_BANNER_TEXT,
+            'privacy_url' => '',
             'updated_at' => null,
         ];
     }
@@ -118,7 +151,7 @@ final class ProjectSettingsService
     private function fetchSettings(string $namespace): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, updated_at '
+            'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, privacy_url, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
