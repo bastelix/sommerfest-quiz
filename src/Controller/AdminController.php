@@ -153,106 +153,183 @@ class AdminController
             $users = (new UserService($pdo))->getAll();
         }
 
-        $pageSvc = new PageService($pdo);
-        $seoSvc = new PageSeoConfigService($pdo);
-        $landingNewsService = new LandingNewsService($pdo);
-        $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
-        $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $requestedScope = trim((string) ($request->getQueryParams()['scope'] ?? ''));
         $mediaScope = $role === Roles::ADMIN && $requestedScope === MediaLibraryService::SCOPE_PROJECT
             ? MediaLibraryService::SCOPE_PROJECT
             : ($role === Roles::ADMIN ? MediaLibraryService::SCOPE_GLOBAL : MediaLibraryService::SCOPE_PROJECT);
         $mediaNamespace = $mediaScope === MediaLibraryService::SCOPE_PROJECT ? $namespace : '';
-        $availableNamespaces = [];
-        $namespaceRepository = new NamespaceRepository($pdo);
-        try {
-            $availableNamespaces = $namespaceRepository->list();
-        } catch (\RuntimeException $exception) {
-            $availableNamespaces = [];
-        }
-        if (!array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-        )) {
-            $availableNamespaces[] = [
-                'namespace' => PageService::DEFAULT_NAMESPACE,
-                'label' => null,
-                'is_active' => true,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-        $currentNamespaceExists = array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === $namespace
-        );
-        if (!$currentNamespaceExists) {
-            $availableNamespaces[] = [
-                'namespace' => $namespace,
-                'label' => 'nicht gespeichert',
-                'is_active' => false,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-        $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped($namespace);
-        $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
-        sort($marketingNewsletterSlugs);
-        $marketingNewsletterStyles = $newsletterConfigService->getAllowedStyles();
-        $pages = [];
-        $pageContents = [];
-        $allPages = $pageSvc->getAllForNamespace($namespace);
-        foreach ($allPages as $page) {
-            $pages[] = [
-                'id' => $page->getId(),
-                'slug' => $page->getSlug(),
-                'title' => $page->getTitle(),
-                'content' => $page->getContent(),
-            ];
-            $pageContents[$page->getSlug()] = $page->getContent();
-        }
-
-        $marketingPages = $this->filterMarketingPages($allPages);
-        $translator = $request->getAttribute('translator');
-        $translationService = $translator instanceof TranslationService ? $translator : null;
-        $domainService = new DomainStartPageService($pdo);
         $uri = $request->getUri();
         $mainDomain = getenv('MAIN_DOMAIN')
             ?: getenv('DOMAIN')
             ?: $uri->getHost();
-        $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
-        if ($translationService !== null) {
-            $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
-            $domainStartPageOptions['events'] = $translationService->translate('option_events_page');
-        }
-        $coreOrder = ['help', 'events'];
-        $orderedDomainOptions = [];
-        foreach ($coreOrder as $slug) {
-            if (isset($domainStartPageOptions[$slug])) {
-                $orderedDomainOptions[$slug] = $domainStartPageOptions[$slug];
-                unset($domainStartPageOptions[$slug]);
-            }
-        }
-        $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
-
-        $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
-        $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $uri->getHost());
-
+        $availableNamespaces = [];
+        $pageContents = [];
+        $domainStartPageOptions = [];
+        $domainChatDomains = [];
         $domainChatPages = [];
-        $seenPageSlugs = [];
-        foreach ($marketingPages as $page) {
-            $slug = $page->getSlug();
-            if ($slug === '' || isset($seenPageSlugs[$slug])) {
-                continue;
-            }
+        $marketingNewsletterConfigs = [];
+        $marketingNewsletterSlugs = [];
+        $marketingNewsletterStyles = [];
+        $landingNewsEntries = [];
+        $pageTab = '';
+        $landingNewsStatus = '';
+        $selectedPageSlug = '';
+        $seoPages = [];
+        $seoConfig = [];
+        $selectedSeoPage = null;
+        $mediaLandingSlugs = [];
 
-            $seenPageSlugs[$slug] = true;
-            $domainChatPages[] = [
-                'slug' => $slug,
-                'title' => $page->getTitle(),
-                'type' => 'marketing',
-            ];
+        $loadMarketingData = $section === 'pages' && $role === Roles::ADMIN;
+        $loadMediaLandingSlugs = $section === 'media';
+        if ($loadMarketingData || $loadMediaLandingSlugs) {
+            $pageSvc = new PageService($pdo);
+            $seoSvc = new PageSeoConfigService($pdo);
+            $landingNewsService = new LandingNewsService($pdo);
+            if ($section === 'media') {
+                $landingReferenceService = new LandingMediaReferenceService(
+                    $pageSvc,
+                    $seoSvc,
+                    $configSvc,
+                    $landingNewsService
+                );
+                $mediaLandingSlugs = $landingReferenceService->getLandingSlugs($namespace);
+            }
+            if ($loadMarketingData) {
+                $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
+                $namespaceRepository = new NamespaceRepository($pdo);
+                try {
+                    $availableNamespaces = $namespaceRepository->list();
+                } catch (\RuntimeException $exception) {
+                    $availableNamespaces = [];
+                }
+                if (!array_filter(
+                    $availableNamespaces,
+                    static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+                )) {
+                    $availableNamespaces[] = [
+                        'namespace' => PageService::DEFAULT_NAMESPACE,
+                        'label' => null,
+                        'is_active' => true,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+                $currentNamespaceExists = array_filter(
+                    $availableNamespaces,
+                    static fn (array $entry): bool => $entry['namespace'] === $namespace
+                );
+                if (!$currentNamespaceExists) {
+                    $availableNamespaces[] = [
+                        'namespace' => $namespace,
+                        'label' => 'nicht gespeichert',
+                        'is_active' => false,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+                $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped($namespace);
+                $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
+                sort($marketingNewsletterSlugs);
+                $marketingNewsletterStyles = $newsletterConfigService->getAllowedStyles();
+                $pages = [];
+                $pageContents = [];
+                $allPages = $pageSvc->getAllForNamespace($namespace);
+                foreach ($allPages as $page) {
+                    $pages[] = [
+                        'id' => $page->getId(),
+                        'slug' => $page->getSlug(),
+                        'title' => $page->getTitle(),
+                        'content' => $page->getContent(),
+                    ];
+                    $pageContents[$page->getSlug()] = $page->getContent();
+                }
+
+                $marketingPages = $this->filterMarketingPages($allPages);
+                $translator = $request->getAttribute('translator');
+                $translationService = $translator instanceof TranslationService ? $translator : null;
+                $domainService = new DomainStartPageService($pdo);
+                $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
+                if ($translationService !== null) {
+                    $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
+                    $domainStartPageOptions['events'] = $translationService->translate('option_events_page');
+                }
+                $coreOrder = ['help', 'events'];
+                $orderedDomainOptions = [];
+                foreach ($coreOrder as $slug) {
+                    if (isset($domainStartPageOptions[$slug])) {
+                        $orderedDomainOptions[$slug] = $domainStartPageOptions[$slug];
+                        unset($domainStartPageOptions[$slug]);
+                    }
+                }
+                $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
+
+                $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
+                $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $uri->getHost());
+
+                $domainChatPages = [];
+                $seenPageSlugs = [];
+                foreach ($marketingPages as $page) {
+                    $slug = $page->getSlug();
+                    if ($slug === '' || isset($seenPageSlugs[$slug])) {
+                        continue;
+                    }
+
+                    $seenPageSlugs[$slug] = true;
+                    $domainChatPages[] = [
+                        'slug' => $slug,
+                        'title' => $page->getTitle(),
+                        'type' => 'marketing',
+                    ];
+                }
+
+                $pageTab = $this->resolvePageTab($params);
+                $landingNewsStatus = $this->normalizeLandingNewsStatus($params);
+                if ($landingNewsStatus !== '') {
+                    $pageTab = 'landing-news';
+                }
+
+                $landingNewsEntries = $landingNewsService->getAll();
+                if ($landingNewsEntries !== []) {
+                    $allowedPageIds = [];
+                    foreach ($allPages as $page) {
+                        $allowedPageIds[$page->getId()] = true;
+                    }
+                    $landingNewsEntries = array_values(array_filter(
+                        $landingNewsEntries,
+                        static fn ($entry): bool => isset($allowedPageIds[$entry->getPageId()])
+                    ));
+                }
+
+                $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
+                $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
+                $seoPages = $this->buildSeoPageData(
+                    $seoSvc,
+                    $marketingPages,
+                    $domainService,
+                    $request->getUri()->getHost()
+                );
+                $seoConfig = $selectedSeoPage !== null && isset($seoPages[$selectedSeoPage->getId()])
+                    ? $seoPages[$selectedSeoPage->getId()]['config']
+                    : [];
+
+                $requestedPageSlug = '';
+                if (isset($params['pageSlug']) || isset($params['slug'])) {
+                    $requestedPageSlug = trim((string) ($params['pageSlug'] ?? $params['slug'] ?? ''));
+                }
+
+                $selectedPageSlug = $selectedSeoPage?->getSlug() ?? '';
+                $pageSlugs = array_values(array_filter(array_map(
+                    static fn (array $page): string => $page['slug'],
+                    $pages
+                )));
+                if ($requestedPageSlug !== '' && in_array($requestedPageSlug, $pageSlugs, true)) {
+                    $selectedPageSlug = $requestedPageSlug;
+                }
+                if ($selectedPageSlug === '') {
+                    $selectedPageSlug = $pages !== [] ? $pages[0]['slug'] : '';
+                }
+            }
         }
 
         $domainType = $request->getAttribute('domainType');
@@ -321,56 +398,6 @@ class AdminController
             $resultsUrl .= '?results=1';
         }
 
-        $pageTab = $this->resolvePageTab($params);
-        $landingNewsStatus = $this->normalizeLandingNewsStatus($params);
-        if ($landingNewsStatus !== '') {
-            $pageTab = 'landing-news';
-        }
-
-        $landingNewsEntries = [];
-        if ($section === 'pages' && $role === Roles::ADMIN) {
-            $landingNewsEntries = $landingNewsService->getAll();
-            if ($landingNewsEntries !== []) {
-                $allowedPageIds = [];
-                foreach ($allPages as $page) {
-                    $allowedPageIds[$page->getId()] = true;
-                }
-                $landingNewsEntries = array_values(array_filter(
-                    $landingNewsEntries,
-                    static fn ($entry): bool => isset($allowedPageIds[$entry->getPageId()])
-                ));
-            }
-        }
-
-        $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
-        $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
-        $seoPages = $this->buildSeoPageData(
-            $seoSvc,
-            $marketingPages,
-            $domainService,
-            $request->getUri()->getHost()
-        );
-        $seoConfig = $selectedSeoPage !== null && isset($seoPages[$selectedSeoPage->getId()])
-            ? $seoPages[$selectedSeoPage->getId()]['config']
-            : [];
-
-        $requestedPageSlug = '';
-        if (isset($params['pageSlug']) || isset($params['slug'])) {
-            $requestedPageSlug = trim((string) ($params['pageSlug'] ?? $params['slug'] ?? ''));
-        }
-
-        $selectedPageSlug = $selectedSeoPage?->getSlug() ?? '';
-        $pageSlugs = array_values(array_filter(array_map(
-            static fn (array $page): string => $page['slug'],
-            $pages
-        )));
-        if ($requestedPageSlug !== '' && in_array($requestedPageSlug, $pageSlugs, true)) {
-            $selectedPageSlug = $requestedPageSlug;
-        }
-        if ($selectedPageSlug === '') {
-            $selectedPageSlug = $pages !== [] ? $pages[0]['slug'] : '';
-        }
-
         $mediaService = new MediaLibraryService($configSvc, new ImageUploadService());
         $mediaLimits = $mediaService->getLimits();
 
@@ -419,7 +446,7 @@ class AdminController
               'csrf_token' => $csrf,
               'version' => $version,
               'mediaLimits' => $mediaLimits,
-              'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs($namespace),
+              'mediaLandingSlugs' => $mediaLandingSlugs,
               'mediaScope' => $mediaScope,
               'mediaNamespace' => $mediaNamespace,
               'ragChatSecretPlaceholder' => self::CHAT_SECRET_PLACEHOLDER,
