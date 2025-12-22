@@ -165,10 +165,19 @@
                   </div>
                 </div>
                 <div class="uk-margin">
-                  <label class="uk-form-label" for="wikiMenuLabel">Menülabel</label>
-                  <div class="uk-form-controls">
-                    <input class="uk-input" id="wikiMenuLabel" type="text" data-wiki-menu-label maxlength="80" placeholder="z. B. Dokumentation">
-                  </div>
+                  <label class="uk-form-label">Menülabel</label>
+                  <ul class="uk-tab" uk-tab>
+                    <li><a href="#">DE</a></li>
+                    <li><a href="#">EN</a></li>
+                  </ul>
+                  <ul class="uk-switcher uk-margin-small-top">
+                    <li>
+                      <input class="uk-input" type="text" data-wiki-menu-label-locale="de" maxlength="80" placeholder="z. B. Dokumentation">
+                    </li>
+                    <li>
+                      <input class="uk-input" type="text" data-wiki-menu-label-locale="en" maxlength="80" placeholder="e.g. Documentation">
+                    </li>
+                  </ul>
                   <p class="uk-text-meta uk-margin-small-top">Optional – Standard ist „Dokumentation“.</p>
                 </div>
                 <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 12px;">

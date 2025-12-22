@@ -93,7 +93,7 @@ final class MarketingPageWikiListController
 
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
-        $menuLabel = $settings->getMenuLabel() ?? 'Dokumentation';
+        $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
 
         $theme = MarketingWikiThemeResolver::resolve($settingsPage->getSlug());
 

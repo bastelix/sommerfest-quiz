@@ -19,7 +19,7 @@ if (manager) {
     const settingsForm = manager.querySelector('[data-wiki-settings-form]');
     const settingsUpdated = manager.querySelector('[data-wiki-settings-updated]');
     const settingsActiveInput = manager.querySelector('[data-wiki-active]');
-    const settingsMenuLabelInput = manager.querySelector('[data-wiki-menu-label]');
+    const settingsMenuLabelInputs = Array.from(manager.querySelectorAll('[data-wiki-menu-label-locale]'));
     const settingsSubmit = manager.querySelector('[data-wiki-settings-submit]');
     const articlesCard = manager.querySelector('[data-wiki-articles]');
     const articlesTableBody = manager.querySelector('[data-wiki-article-list]');
@@ -70,7 +70,7 @@ if (manager) {
       !localeFilter ||
       !modalForm ||
       !settingsActiveInput ||
-      !settingsMenuLabelInput ||
+      settingsMenuLabelInputs.length === 0 ||
       !settingsSubmit ||
       !articlesCard ||
       !articlesEmpty ||
@@ -99,6 +99,38 @@ if (manager) {
       draft: window.transWikiStatusDraft || 'Draft',
       published: window.transWikiStatusPublished || 'Published',
       archived: window.transWikiStatusArchived || 'Archived'
+    };
+
+    const getMenuLabelInputs = () => settingsMenuLabelInputs.filter(input => input.dataset.wikiMenuLabelLocale);
+
+    const buildMenuLabelsPayload = () => {
+      const labels = {};
+      getMenuLabelInputs().forEach(input => {
+        const locale = String(input.dataset.wikiMenuLabelLocale || '').toLowerCase().trim();
+        const value = input.value.trim();
+        if (locale && value) {
+          labels[locale] = value;
+        }
+      });
+      return labels;
+    };
+
+    const setMenuLabelInputs = (labels, fallbackLabel = '') => {
+      getMenuLabelInputs().forEach(input => {
+        const locale = String(input.dataset.wikiMenuLabelLocale || '').toLowerCase().trim();
+        if (!locale) {
+          return;
+        }
+        if (labels && typeof labels === 'object' && labels[locale]) {
+          input.value = labels[locale];
+          return;
+        }
+        if (fallbackLabel && locale === 'de') {
+          input.value = fallbackLabel;
+          return;
+        }
+        input.value = '';
+      });
     };
 
     const messages = {
@@ -539,7 +571,7 @@ if (manager) {
 
     function resetSettingsForm() {
       settingsActiveInput.checked = false;
-      settingsMenuLabelInput.value = '';
+      setMenuLabelInputs(null, '');
       if (settingsUpdated) {
         settingsUpdated.textContent = '';
       }
@@ -551,7 +583,7 @@ if (manager) {
         return;
       }
       settingsActiveInput.checked = Boolean(settings.active);
-      settingsMenuLabelInput.value = settings.menuLabel || '';
+      setMenuLabelInputs(settings.menuLabels, settings.menuLabel || '');
       if (settingsUpdated) {
         settingsUpdated.textContent = settings.updatedAt ? `Aktualisiert: ${formatDate(settings.updatedAt)}` : '';
       }
@@ -617,8 +649,9 @@ if (manager) {
       }
       const payload = {
         active: settingsActiveInput.checked,
-        menuLabel: settingsMenuLabelInput.value.trim() || null
+        menuLabels: buildMenuLabelsPayload()
       };
+      payload.menuLabel = payload.menuLabels.de || null;
       settingsSubmit.disabled = true;
       fetchJson(`/admin/pages/${state.pageId}/wiki/settings`, {
         method: 'POST',
