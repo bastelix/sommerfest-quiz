@@ -92,20 +92,35 @@ class BackupController
         }
         $zip->close();
 
-        $data = file_get_contents($zipFile);
-        if ($data === false) {
+        $size = filesize($zipFile);
+        $stream = fopen($zipFile, 'rb');
+        if ($stream === false) {
             if (!unlink($zipFile)) {
                 return $this->deleteError($response, $zipFile, false);
             }
+
             return $response->withStatus(500);
         }
 
-        $size = filesize($zipFile);
+        while (!feof($stream)) {
+            $chunk = fread($stream, 1048576);
+            if ($chunk === false) {
+                fclose($stream);
+                if (!unlink($zipFile)) {
+                    return $this->deleteError($response, $zipFile, false);
+                }
+
+                return $response->withStatus(500);
+            }
+            $response->getBody()->write($chunk);
+        }
+
+        fclose($stream);
+
         if (!unlink($zipFile)) {
             return $this->deleteError($response, $zipFile, false);
         }
 
-        $response->getBody()->write($data);
         return $response
             ->withHeader('Content-Type', 'application/zip')
             ->withHeader('Content-Length', (string) $size)

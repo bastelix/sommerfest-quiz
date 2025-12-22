@@ -910,6 +910,8 @@ return [
     'notify_domain_chat_error' => 'Aktion fehlgeschlagen.',
     'notify_domain_chat_rebuild_success' => 'Projekt-Index aktualisiert.',
     'notify_domain_chat_rebuild_cleared' => 'Projekt-Index wurde entfernt, da keine Dokumente vorliegen.',
+    'notify_domain_chat_rebuild_queued' => 'Projekt-Index wird neu aufgebaut.',
+    'notify_domain_chat_rebuild_throttled' => 'Der Index wurde kürzlich neu aufgebaut.',
     'notify_domain_chat_rebuild_error' => 'Projekt-Index konnte nicht aktualisiert werden.',
     'notify_domain_chat_download_error' => 'Index konnte nicht heruntergeladen werden.',
     'notify_domain_chat_download_missing' => 'Für dieses Projekt ist kein Index vorhanden.',
