@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamNameBtn = document.getElementById('teamNameBtn');
   const isLaborLanding = document.body.classList.contains('labor-landing');
 
-  if (offcanvasToggle && !offcanvas) {
-    offcanvasToggle.hidden = true;
+  if (offcanvasToggle) {
+    offcanvasToggle.hidden = !offcanvas;
   }
 
   if (sidebarToggle) {
