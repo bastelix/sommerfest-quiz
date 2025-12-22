@@ -127,8 +127,9 @@ class DomainStartPageController
             'smtp_pass' => $smtpPass,
         ];
 
-        $mainDomain = $this->resolveMainDomain();
-        $marketing = $this->resolveMarketingDomainConfig();
+        $mainDomain = $this->settingsService->get('main_domain', '');
+        $mainDomain = strtolower(trim((string) $mainDomain));
+        $marketing = $this->resolveMarketingDomainConfigForValidation();
         $validDomains = $this->domainService->determineDomains($mainDomain, $marketing);
         $normalized = $this->domainService->normalizeDomain($domain);
 
@@ -543,6 +544,16 @@ class DomainStartPageController
     }
 
     private function resolveMarketingDomainConfig(): string {
+        $marketingDomains = $this->marketingDomainProvider->getMarketingDomains();
+
+        return implode(' ', $marketingDomains);
+    }
+
+    private function resolveMarketingDomainConfigForValidation(): string {
+        if ($this->domainService->listMarketingDomains() !== []) {
+            return '';
+        }
+
         $marketingDomains = $this->marketingDomainProvider->getMarketingDomains();
 
         return implode(' ', $marketingDomains);
