@@ -206,7 +206,7 @@
               <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
               <a
                 class="uk-button uk-button-default uk-margin-small-left preview-link"
-                href="{{ basePath }}/{{ page.slug }}?namespace={{ activePageNamespace|url_encode }}"
+                href="{{ page.preview_url }}"
                 target="_blank"
               >Vorschau</a>
               <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>

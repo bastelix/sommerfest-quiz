@@ -10,18 +10,32 @@ use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainStartPageService;
 use App\Service\Marketing\PageAiPromptTemplateService;
+use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
+use App\Support\BasePathHelper;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 class ProjectPagesController
 {
+    private const FIXED_MARKETING_SLUGS = [
+        'landing',
+        'calserver',
+        'calhelp',
+        'future-is-green',
+        'labor',
+        'fluke-metcal',
+        'calserver-maintenance',
+        'calserver-accessibility',
+    ];
+
     private PageService $pageService;
     private PageSeoConfigService $seoService;
     private DomainStartPageService $domainService;
@@ -60,13 +74,15 @@ class ProjectPagesController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $pages = $this->pageService->getAllForNamespace($namespace);
         $pageList = array_map(
-            static fn (Page $page): array => [
+            fn (Page $page): array => [
                 'id' => $page->getId(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
                 'content' => $page->getContent(),
+                'preview_url' => $this->buildPreviewUrl($page, $namespace, $basePath),
             ],
             $pages
         );
@@ -399,6 +415,29 @@ class ProjectPagesController
         }
 
         return $result;
+    }
+
+    private function buildPreviewUrl(Page $page, string $namespace, string $basePath): string
+    {
+        $slug = trim($page->getSlug());
+        if ($slug === '') {
+            return '';
+        }
+
+        $baseSlug = MarketingSlugResolver::resolveBaseSlug($slug);
+        $path = $this->resolvePreviewPath($slug, $baseSlug);
+        $query = http_build_query(['namespace' => $namespace]);
+
+        return $basePath . $path . ($query !== '' ? '?' . $query : '');
+    }
+
+    private function resolvePreviewPath(string $slug, string $baseSlug): string
+    {
+        if (in_array($baseSlug, self::FIXED_MARKETING_SLUGS, true)) {
+            return '/' . $baseSlug;
+        }
+
+        return '/m/' . $slug;
     }
 
     private function ensureCsrfToken(): string
