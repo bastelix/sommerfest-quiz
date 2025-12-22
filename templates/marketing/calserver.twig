@@ -523,7 +523,8 @@
         <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
         <li><a href="{{ privacyUrl }}">{{ t('privacy') }}</a></li>
         <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
-        {% set accessibilityUrl = locale() == 'en' ? basePath ~ '/calserver/accessibility' : basePath ~ '/calserver/barrierefreiheit' %}
+        {% set accessibilityLocale = locale() ?: 'de' %}
+        {% set accessibilityUrl = basePath ~ '/calserver-accessibility?lang=' ~ accessibilityLocale %}
         <li><a href="{{ accessibilityUrl }}">{{ t('accessibility') }}</a></li>
       </ul>
     </div>
