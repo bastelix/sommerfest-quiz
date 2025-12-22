@@ -401,7 +401,7 @@ return [
     'label_mail_provider_from_email' => 'Absenderadresse',
     'label_mail_provider_from_name' => 'Absendername',
     'label_mail_provider_mailer_dsn' => 'Mailer-DSN (optional)',
-    'text_mail_provider_dsn_hint' => 'Ein DSN überschreibt Host, Benutzername und Passwort.',
+    'text_mail_provider_dsn_hint' => 'Ein DSN bündelt die Mail-Einstellungen zentral (API-Versand möglich) und ersetzt mehrere Einzel-Felder wie Host, Benutzername und Passwort.',
     'label_mail_provider_smtp_host' => 'SMTP-Host',
     'label_mail_provider_smtp_port' => 'SMTP-Port',
     'label_mail_provider_smtp_encryption' => 'Verschlüsselung',
