@@ -230,6 +230,13 @@
               uk-toggle="target: #createPageModal"
             >Neue Seite</button>
           </div>
+          <div class="uk-margin-small-left">
+            <button
+              class="uk-button uk-button-primary"
+              type="button"
+              uk-toggle="target: #aiPageModal"
+            >KI-Seite erstellen</button>
+          </div>
         </div>
         <div id="pageFormsContainer">
           {% if pagesList is empty %}
@@ -280,6 +287,62 @@
               </div>
               <div class="uk-flex uk-flex-right">
                 <button type="submit" class="uk-button uk-button-primary">Seite erstellen</button>
+                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div id="aiPageModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">KI-Seite erstellen</h2>
+            <form id="aiPageForm" class="uk-form-stacked">
+              <div class="uk-alert uk-alert-danger" data-ai-page-feedback hidden role="alert"></div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="aiPageTheme">Thema</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="aiPageTheme" name="theme" type="text" required placeholder="z. B. Sommerfest 2024">
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="aiPageColorScheme">Farbschema</label>
+                <div class="uk-form-controls">
+                  <input
+                    class="uk-input"
+                    id="aiPageColorScheme"
+                    name="color_scheme"
+                    type="text"
+                    required
+                    placeholder="Primär: #1e87f0, Background: #0f172a, Accent: #f59e0b"
+                  >
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="aiPageProblem">Problemstellung</label>
+                <div class="uk-form-controls">
+                  <textarea
+                    class="uk-textarea"
+                    id="aiPageProblem"
+                    name="problem"
+                    rows="5"
+                    required
+                    placeholder="Welche Herausforderung soll die Seite lösen?"
+                  ></textarea>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="aiPageSlug">Slug</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="aiPageSlug" name="slug" type="text" required maxlength="100" placeholder="z. B. sommerfest-landing">
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="aiPageTitle">Titel</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="aiPageTitle" name="title" type="text" required placeholder="Seitentitel">
+                </div>
+              </div>
+              <div class="uk-flex uk-flex-right">
+                <button type="submit" class="uk-button uk-button-primary">KI-Seite erstellen</button>
                 <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">Abbrechen</button>
               </div>
             </form>

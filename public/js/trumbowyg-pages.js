@@ -635,6 +635,62 @@ const addPageToInterface = page => {
   document.dispatchEvent(new CustomEvent('marketing-page:created', { detail: page }));
 };
 
+const updatePageOptionLabel = page => {
+  if (!page) {
+    return;
+  }
+
+  const select = document.getElementById('pageContentSelect');
+  if (!select) {
+    return;
+  }
+  const slug = (page.slug || '').trim();
+  if (!slug) {
+    return;
+  }
+  const option = Array.from(select.options).find(item => item.value === slug);
+  if (!option) {
+    return;
+  }
+  option.textContent = formatPageLabel(page);
+};
+
+const updatePageContentInInterface = (slug, html) => {
+  const normalized = (slug || '').trim();
+  if (!normalized) {
+    return;
+  }
+  const form = document.querySelector(`.page-form[data-slug="${normalized}"]`);
+  if (!form) {
+    return;
+  }
+
+  const sanitized = sanitize(typeof html === 'string' ? html : '');
+  const input = form.querySelector('input[name="content"]');
+  const editorEl = form.querySelector('.page-editor');
+  if (input) {
+    input.value = sanitized;
+  }
+  if (editorEl) {
+    editorEl.dataset.content = sanitized;
+    if (editorEl.dataset.editorInitialized === '1') {
+      try {
+        $(editorEl).trumbowyg('html', sanitized);
+      } catch (error) {
+        if (window.console && typeof window.console.warn === 'function') {
+          window.console.warn('Failed to update page editor HTML', error);
+        }
+      }
+    } else {
+      editorEl.innerHTML = '';
+    }
+  }
+
+  if (window.pagesContent && typeof window.pagesContent === 'object') {
+    window.pagesContent[normalized] = sanitized;
+  }
+};
+
 const removePageFromInterface = slug => {
   const select = document.getElementById('pageContentSelect');
   const container = document.getElementById('pageFormsContainer');
@@ -838,6 +894,154 @@ const initPageCreation = () => {
       notify('Seite erstellt', 'success');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Die Seite konnte nicht erstellt werden.';
+      setFeedback(message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+    }
+  });
+};
+
+const initAiPageCreation = () => {
+  const form = document.getElementById('aiPageForm');
+  if (!form) {
+    return;
+  }
+
+  const themeInput = form.querySelector('#aiPageTheme');
+  const colorSchemeInput = form.querySelector('#aiPageColorScheme');
+  const problemInput = form.querySelector('#aiPageProblem');
+  const slugInput = form.querySelector('#aiPageSlug');
+  const titleInput = form.querySelector('#aiPageTitle');
+  const feedback = form.querySelector('[data-ai-page-feedback]');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const modalEl = document.getElementById('aiPageModal');
+  const modal = modalEl && window.UIkit ? window.UIkit.modal(modalEl) : null;
+
+  const setFeedback = message => {
+    if (!feedback) {
+      return;
+    }
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+  };
+
+  const ensurePageSelected = slug => {
+    const select = document.getElementById('pageContentSelect');
+    if (!select || !slug) {
+      return;
+    }
+    select.value = slug;
+    const state = pageSelectionState || initPageSelection();
+    if (state && typeof state.toggleForms === 'function') {
+      state.toggleForms(slug);
+    }
+  };
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    setFeedback('');
+
+    const slugValue = (slugInput?.value || '').trim().toLowerCase();
+    const titleValue = (titleInput?.value || '').trim();
+    const themeValue = (themeInput?.value || '').trim();
+    const colorSchemeValue = (colorSchemeInput?.value || '').trim();
+    const problemValue = (problemInput?.value || '').trim();
+
+    if (!slugValue || !titleValue || !themeValue || !colorSchemeValue || !problemValue) {
+      setFeedback('Bitte fülle alle Felder aus.');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
+
+    try {
+      const select = document.getElementById('pageContentSelect');
+      const existingOption = select
+        ? Array.from(select.options).find(option => option.value === slugValue)
+        : null;
+      let createdPage = null;
+
+      if (!existingOption) {
+        const createResponse = await apiFetch(withNamespace('/admin/pages'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify({
+            slug: slugValue,
+            title: titleValue,
+            content: ''
+          })
+        });
+        const createPayload = await createResponse.json().catch(() => ({}));
+        if (!createResponse.ok || !createPayload.page) {
+          const errorMessage = createPayload.error || 'Die Seite konnte nicht erstellt werden.';
+          throw new Error(errorMessage);
+        }
+        createdPage = createPayload.page;
+      }
+
+      const response = await apiFetch(withNamespace('/admin/pages/ai-generate'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          slug: slugValue,
+          title: titleValue,
+          theme: themeValue,
+          colorScheme: colorSchemeValue,
+          problem: problemValue
+        })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const errorMessage = payload.message || payload.error || 'Die KI-Seite konnte nicht erstellt werden.';
+        throw new Error(errorMessage);
+      }
+
+      const html = typeof payload.html === 'string' ? payload.html.trim() : '';
+      if (!html) {
+        setFeedback('Die KI-Antwort ist leer oder ungültig.');
+        return;
+      }
+
+      const page = createdPage || {
+        slug: slugValue,
+        title: titleValue,
+        content: html
+      };
+      page.title = titleValue;
+      page.content = html;
+
+      if (existingOption) {
+        updatePageOptionLabel(page);
+        updatePageContentInInterface(slugValue, html);
+        ensurePageSelected(slugValue);
+      } else {
+        addPageToInterface(page);
+      }
+
+      form.reset();
+      if (modal) {
+        modal.hide();
+      }
+      setFeedback('');
+      notify('KI-Seite erstellt', 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Die KI-Seite konnte nicht erstellt werden.';
       setFeedback(message);
     } finally {
       if (submitBtn) {
@@ -1399,6 +1603,7 @@ const initPagesModule = () => {
   initPageEditors();
   initPageSelection();
   initPageCreation();
+  initAiPageCreation();
   initPageTransferModal();
   initPageTree();
 };
