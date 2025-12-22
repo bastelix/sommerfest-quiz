@@ -139,9 +139,28 @@
                   </tr>
                 </thead>
                 <tbody data-namespace-table-body>
-                  <tr>
-                    <td colspan="4">{{ t('text_namespace_loading') }}</td>
-                  </tr>
+                  {% if available_namespaces is defined and available_namespaces|length > 0 %}
+                    {% for entry in available_namespaces %}
+                      <tr{% if entry.is_active is defined and not entry.is_active %} class="uk-text-muted"{% endif %}>
+                        <td>{{ entry.namespace }}</td>
+                        <td>{{ entry.label ?? '-' }}</td>
+                        <td>
+                          {% if entry.namespace == defaultNamespace %}
+                            {{ t('label_namespace_default') }}
+                          {% elseif entry.is_active is defined and not entry.is_active %}
+                            {{ t('label_namespace_inactive') }}
+                          {% else %}
+                            -
+                          {% endif %}
+                        </td>
+                        <td class="uk-text-center">—</td>
+                      </tr>
+                    {% endfor %}
+                  {% else %}
+                    <tr>
+                      <td colspan="4">{{ t('text_namespace_loading') }}</td>
+                    </tr>
+                  {% endif %}
                 </tbody>
               </table>
             </div>
