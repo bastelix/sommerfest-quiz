@@ -1,4 +1,4 @@
-/* global $, apiFetch, notify */
+/* global $, notify */
 
 // Define custom UIkit templates for Trumbowyg
 const DOMPURIFY_PAGE_EDITOR_CONFIG = {
@@ -42,6 +42,8 @@ const withNamespace = (url) => {
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}namespace=${encodeURIComponent(namespace)}`;
 };
+
+const apiFetch = window.apiFetch || ((path, options = {}) => fetch(path, options));
 $.extend(true, $.trumbowyg, {
   langs: { de: { template: 'Vorlage', variable: 'Variable' } },
   plugins: {
