@@ -246,6 +246,14 @@ return function (\Slim\App $app, TranslationService $translator) {
             $host = strtolower($request->getUri()->getHost());
             $normalizedHost = DomainNameHelper::normalize($host, stripAdmin: false);
             $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
+            if ($marketingDomainProvider === null) {
+                $marketingDomainProvider = new MarketingDomainProvider(
+                    static function (): \PDO {
+                        return Database::connectFromEnv();
+                    }
+                );
+                DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
+            }
             $mainDomain = strtolower((string) ($marketingDomainProvider?->getMainDomain() ?? ''));
             $normalizedMainDomain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
 
