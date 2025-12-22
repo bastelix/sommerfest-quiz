@@ -82,7 +82,7 @@ class PageController
             return $response->withStatus(404);
         }
 
-        $this->pageService->delete($namespace, (string) $slug);
+        $this->pageService->deleteTree($namespace, (string) $slug);
         unset($this->editableSlugs[$namespace]);
 
         return $response->withStatus(204);
