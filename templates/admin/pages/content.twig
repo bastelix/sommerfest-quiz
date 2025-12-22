@@ -291,6 +291,11 @@
             <form id="pageTransferForm" class="uk-form-stacked">
               <input type="hidden" id="pageTransferSlug" name="slug" value="">
               <div class="uk-text-meta uk-margin-small-bottom" data-page-transfer-title></div>
+              {% if not hasPages %}
+                <div class="uk-alert uk-alert-warning uk-margin-small-bottom">
+                  Keine Seiten im Namespace.
+                </div>
+              {% endif %}
               <div class="uk-alert uk-alert-danger" data-page-transfer-feedback hidden></div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="pageTransferAction">{{ t('label_page_transfer_action') }}</label>
@@ -329,7 +334,12 @@
                 </div>
               </div>
               <div class="uk-flex uk-flex-right">
-                <button type="submit" class="uk-button uk-button-primary" data-page-transfer-submit>
+                <button
+                  type="submit"
+                  class="uk-button uk-button-primary"
+                  data-page-transfer-submit
+                  {% if not hasPages %}disabled{% endif %}
+                >
                   {{ t('button_page_transfer_submit') }}
                 </button>
                 <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">
