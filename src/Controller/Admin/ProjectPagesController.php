@@ -9,6 +9,7 @@ use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainStartPageService;
+use App\Service\NamespaceService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Service\TenantService;
@@ -24,6 +25,7 @@ class ProjectPagesController
     private DomainStartPageService $domainService;
     private NamespaceResolver $namespaceResolver;
     private NamespaceRepository $namespaceRepository;
+    private NamespaceService $namespaceService;
     private TenantService $tenantService;
 
     public function __construct(
@@ -33,6 +35,7 @@ class ProjectPagesController
         ?DomainStartPageService $domainService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?NamespaceRepository $namespaceRepository = null,
+        ?NamespaceService $namespaceService = null,
         ?TenantService $tenantService = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
@@ -41,6 +44,7 @@ class ProjectPagesController
         $this->domainService = $domainService ?? new DomainStartPageService($pdo);
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
+        $this->namespaceService = $namespaceService ?? new NamespaceService($this->namespaceRepository);
         $this->tenantService = $tenantService ?? new TenantService($pdo);
     }
 
@@ -154,7 +158,7 @@ class ProjectPagesController
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
         try {
-            $availableNamespaces = $this->namespaceRepository->list();
+            $availableNamespaces = $this->namespaceService->all();
         } catch (\RuntimeException $exception) {
             $availableNamespaces = [];
         }
