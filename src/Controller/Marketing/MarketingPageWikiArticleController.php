@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\MarketingWikiThemeConfigService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\FeatureFlags;
@@ -26,16 +27,20 @@ final class MarketingPageWikiArticleController
 
     private NamespaceResolver $namespaceResolver;
 
+    private MarketingWikiThemeConfigService $themeConfigService;
+
     public function __construct(
         ?PageService $pageService = null,
         ?MarketingPageWikiSettingsService $settingsService = null,
         ?MarketingPageWikiArticleService $articleService = null,
-        ?NamespaceResolver $namespaceResolver = null
+        ?NamespaceResolver $namespaceResolver = null,
+        ?MarketingWikiThemeConfigService $themeConfigService = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->settingsService = $settingsService ?? new MarketingPageWikiSettingsService();
         $this->articleService = $articleService ?? new MarketingPageWikiArticleService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
     }
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -86,7 +91,8 @@ final class MarketingPageWikiArticleController
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
 
-        $theme = MarketingWikiThemeResolver::resolve($settingsPage->getSlug());
+        $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
+        $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
 
         return $view->render($response, 'marketing/wiki/show.twig', [
             'page' => $page,

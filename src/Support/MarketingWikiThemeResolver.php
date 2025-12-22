@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Support;
 
 /**
- * Provides consistent colour palettes for marketing wiki pages based on their owner slug.
+ * Provides consistent colour palettes for marketing wiki pages based on configuration data.
  */
 final class MarketingWikiThemeResolver
 {
@@ -32,95 +32,13 @@ final class MarketingWikiThemeResolver
     }
 
     /**
-     * Theme overrides per marketing page slug.
+     * Resolve the styling configuration for a marketing wiki based on its theme configuration.
      *
-     * @var array<string, array{
+     * @param array{
      *     bodyClasses?: list<string>,
      *     stylesheets?: list<string>,
      *     colors?: array<string, string>
-     * }>
-     */
-    private const THEME_MAP = [
-        'landing' => [
-            'bodyClasses' => ['marketing-wiki--landing'],
-            'colors' => [
-                'headerFrom' => '#0d1117',
-                'headerTo' => '#2563eb',
-                'detailHeaderFrom' => '#0d1117',
-                'detailHeaderTo' => '#3b82f6',
-            ],
-        ],
-        'calserver' => [
-            'bodyClasses' => ['marketing-wiki--calserver'],
-            'colors' => [
-                'headerFrom' => '#091126',
-                'headerTo' => '#1f63e6',
-                'detailHeaderFrom' => '#091a33',
-                'detailHeaderTo' => '#1f63e6',
-                'excerpt' => '#1e293b',
-                'calloutBorder' => '#1f63e6',
-                'calloutBackground' => 'rgba(31, 99, 230, 0.12)',
-                'calloutText' => '#0b1733',
-            ],
-        ],
-        'calhelp' => [
-            'bodyClasses' => ['marketing-wiki--calhelp'],
-            'colors' => [
-                'headerFrom' => '#091126',
-                'headerTo' => '#1f63e6',
-                'detailHeaderFrom' => '#091a33',
-                'detailHeaderTo' => '#1f63e6',
-                'excerpt' => '#1e293b',
-                'calloutBorder' => '#1f63e6',
-                'calloutBackground' => 'rgba(31, 99, 230, 0.12)',
-                'calloutText' => '#0b1733',
-            ],
-        ],
-        'fluke-metcal' => [
-            'bodyClasses' => ['marketing-wiki--fluke-metcal'],
-            'colors' => [
-                'headerFrom' => '#091126',
-                'headerTo' => '#1f63e6',
-                'detailHeaderFrom' => '#091a33',
-                'detailHeaderTo' => '#1f63e6',
-                'excerpt' => '#1e293b',
-                'calloutBorder' => '#1f63e6',
-                'calloutBackground' => 'rgba(31, 99, 230, 0.12)',
-                'calloutText' => '#0b1733',
-            ],
-        ],
-        'calserver-maintenance' => [
-            'bodyClasses' => ['marketing-wiki--calserver-maintenance'],
-            'colors' => [
-                'headerFrom' => '#091126',
-                'headerTo' => '#1f63e6',
-                'detailHeaderFrom' => '#091a33',
-                'detailHeaderTo' => '#1f63e6',
-                'excerpt' => '#1e293b',
-                'calloutBorder' => '#1f63e6',
-                'calloutBackground' => 'rgba(31, 99, 230, 0.12)',
-                'calloutText' => '#0b1733',
-            ],
-        ],
-        'future-is-green' => [
-            'bodyClasses' => ['marketing-wiki--future-is-green'],
-            'colors' => [
-                'headerFrom' => '#0c3a26',
-                'headerTo' => '#138f52',
-                'detailHeaderFrom' => '#0b2d20',
-                'detailHeaderTo' => '#138f52',
-                'excerpt' => '#2f5a44',
-                'calloutBorder' => '#138f52',
-                'calloutBackground' => 'rgba(19, 143, 82, 0.14)',
-                'calloutText' => '#0c3a26',
-            ],
-        ],
-    ];
-
-    /**
-     * Resolve the styling configuration for a marketing wiki based on its owning page slug.
-     *
-     * @param string $slug Marketing page slug or localized variant.
+     * }|null $theme Theme overrides from configuration storage.
      *
      * @return array{
      *     bodyClasses: list<string>,
@@ -128,12 +46,8 @@ final class MarketingWikiThemeResolver
      *     colors: array<string, string>
      * }
      */
-    public static function resolve(string $slug): array
+    public static function resolve(?array $theme = null): array
     {
-        $normalized = strtolower(trim($slug));
-        /** @var array<string, mixed>|null $theme */
-        $theme = self::THEME_MAP[$normalized] ?? null;
-
         $bodyClasses = [self::BASE_BODY_CLASS];
         if ($theme !== null) {
             $themeBodyClasses = $theme['bodyClasses'] ?? null;
