@@ -7881,6 +7881,72 @@ document.addEventListener('DOMContentLoaded', function () {
     userManager.render(data);
   }
 
+  const getResponseErrorText = (payload) => {
+    if (!payload) {
+      return '';
+    }
+    if (typeof payload === 'string') {
+      return payload.trim();
+    }
+    const candidate =
+      payload.error ||
+      payload.message ||
+      payload.detail ||
+      payload.title;
+    if (typeof candidate === 'string') {
+      return candidate.trim();
+    }
+    if (Array.isArray(payload.errors) && payload.errors.length) {
+      const first = payload.errors.find(entry => typeof entry === 'string');
+      if (first) {
+        return first.trim();
+      }
+    }
+    if (payload.errors && typeof payload.errors === 'object') {
+      const firstKey = Object.keys(payload.errors)[0];
+      const entry = payload.errors[firstKey];
+      if (Array.isArray(entry) && entry.length && typeof entry[0] === 'string') {
+        return entry[0].trim();
+      }
+      if (typeof entry === 'string') {
+        return entry.trim();
+      }
+    }
+    return '';
+  };
+
+  const getUserConflictMessage = (payload) => {
+    const hint =
+      payload?.conflict ||
+      payload?.field ||
+      payload?.code ||
+      payload?.reason ||
+      '';
+    const normalized = String(hint || getResponseErrorText(payload)).toLowerCase();
+    if (normalized.includes('email') || normalized.includes('e-mail') || normalized.includes('mail')) {
+      return 'E-Mail bereits vergeben';
+    }
+    if (normalized.includes('rolle') || normalized.includes('role')) {
+      return 'Rolle bereits vergeben';
+    }
+    if (normalized.includes('user') || normalized.includes('benutzer') || normalized.includes('name')) {
+      return 'Benutzername bereits vergeben';
+    }
+    const fallback = getResponseErrorText(payload);
+    return fallback || 'Benutzername bereits vergeben';
+  };
+
+  const readErrorPayload = async (response) => {
+    if (!response || response.ok) {
+      return null;
+    }
+    try {
+      return await response.clone().json();
+    } catch (error) {
+      return null;
+    }
+  };
+
   function saveUsers(list = userManager?.getData() || []) {
     if (list.some(u => !u.username?.trim())) {
       notify('Benutzername darf nicht leer sein', 'warning');
@@ -7902,12 +7968,24 @@ document.addEventListener('DOMContentLoaded', function () {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-      .then(r => {
+      .then(async r => {
+        const errorPayload = await readErrorPayload(r);
         if (r.status === 409) {
-          notify('Benutzername bereits vergeben', 'danger');
+          notify(getUserConflictMessage(errorPayload), 'danger');
           return Promise.reject();
         }
-        if (!r.ok) throw new Error(r.statusText);
+        if (!r.ok) {
+          const message = getResponseErrorText(errorPayload);
+          if (r.status === 400 || r.status === 422) {
+            notify(message || 'Benutzername nicht erlaubt', 'danger');
+            return Promise.reject();
+          }
+          if (message) {
+            notify(message, 'danger');
+            return Promise.reject();
+          }
+          throw new Error(r.statusText);
+        }
         return r.json();
       })
       .then(data => {
