@@ -2178,12 +2178,12 @@
           </div>
         </div>
 
-        <h3 class="uk-heading-bullet" id="registrations">{{ t('heading_registration') }}</h3>
+        <h3 id="registration" class="uk-heading-bullet">{{ t('heading_registration') }}</h3>
         <div class="uk-margin uk-flex uk-flex-middle">
           <label><input class="uk-checkbox" type="checkbox" id="cfgRegistrationEnabled" {% if settings.registration_enabled == '1' %}checked{% endif %}> {{ t('label_registration_enabled') }}</label>
         </div>
 
-        <h3 class="uk-heading-bullet" id="users">{{ t('heading_users') }}</h3>
+        <h3 id="users" class="uk-heading-bullet">{{ t('heading_users') }}</h3>
         <p class="uk-text-meta">Namespaces werden zentral verwaltet.</p>
         {% from 'components/table.twig' import qr_rowcards %}
         <div class="uk-overflow-auto uk-visible@m">
@@ -2246,7 +2246,7 @@
           </div>
         </div>
 
-        <h3 class="uk-heading-bullet" id="backups">{{ t('heading_backups') }}</h3>
+        <h3 id="backups" class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
         <div class="uk-margin uk-child-width-1-1 uk-child-width-auto@s uk-grid-small uk-flex-right@s" uk-grid>
           <div>
             <button id="exportJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">{{ t('action_create_backup') }}</button>
