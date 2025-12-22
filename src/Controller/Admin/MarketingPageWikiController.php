@@ -57,6 +57,7 @@ final class MarketingPageWikiController
             'settings' => [
                 'active' => $settings->isActive(),
                 'menuLabel' => $settings->getMenuLabel(),
+                'menuLabels' => $settings->getMenuLabels(),
                 'updatedAt' => $settings->getUpdatedAt()?->format(DateTimeImmutable::ATOM),
             ],
             'articles' => array_map(fn (MarketingPageWikiArticle $article): array => $this->serializeArticle($article, false), $articles),
@@ -89,11 +90,13 @@ final class MarketingPageWikiController
 
         $isActive = isset($body['active']) ? (bool) $body['active'] : false;
         $menuLabel = isset($body['menuLabel']) ? (string) $body['menuLabel'] : null;
+        $menuLabels = isset($body['menuLabels']) && is_array($body['menuLabels']) ? $body['menuLabels'] : null;
 
-        $settings = $this->settingsService->updateSettings($pageId, $isActive, $menuLabel);
+        $settings = $this->settingsService->updateSettings($pageId, $isActive, $menuLabel, $menuLabels);
         $payload = [
             'active' => $settings->isActive(),
             'menuLabel' => $settings->getMenuLabel(),
+            'menuLabels' => $settings->getMenuLabels(),
             'updatedAt' => $settings->getUpdatedAt()?->format(DateTimeImmutable::ATOM),
         ];
 

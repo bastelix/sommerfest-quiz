@@ -475,6 +475,7 @@ CREATE TABLE IF NOT EXISTS marketing_page_wiki_settings (
     page_id INTEGER PRIMARY KEY,
     is_active INTEGER NOT NULL DEFAULT 0,
     menu_label TEXT,
+    menu_labels TEXT NOT NULL DEFAULT '{}',
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

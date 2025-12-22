@@ -82,7 +82,7 @@ final class MarketingPageWikiArticleController
             return $response->withStatus(404);
         }
 
-        $menuLabel = $settings->getMenuLabel() ?? 'Dokumentation';
+        $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
 

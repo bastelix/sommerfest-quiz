@@ -285,7 +285,7 @@ class MarketingPageController
         if (FeatureFlags::wikiEnabled() && $wikiSettings->isActive()) {
             $wikiArticles = $this->wikiArticles->getPublishedArticles($wikiPage->getId(), $locale);
             if ($wikiArticles !== []) {
-                $label = $wikiSettings->getMenuLabel() ?? 'Dokumentation';
+                $label = $wikiSettings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
                 $wikiUrl = sprintf('%s/pages/%s/wiki', $basePath, $wikiSlug);
                 $data['marketingWikiMenu'] = [
                     'label' => $label,
