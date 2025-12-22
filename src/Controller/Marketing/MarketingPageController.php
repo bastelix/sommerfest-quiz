@@ -246,7 +246,7 @@ class MarketingPageController
         }
 
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
-        $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings);
+        $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->resolvePrivacyUrl($cookieSettings, $basePath);
 
         $data = [
@@ -469,20 +469,29 @@ class MarketingPageController
     }
 
     /**
-     * @param array{cookie_consent_enabled:bool,cookie_storage_key:string,cookie_banner_text:string} $settings
+     * @param array{
+     *     cookie_consent_enabled:bool,
+     *     cookie_storage_key:string,
+     *     cookie_banner_text_de:string,
+     *     cookie_banner_text_en:string,
+     *     cookie_vendor_flags:array<array-key, mixed>
+     * } $settings
      * @return array<string, mixed>
      */
-    private function buildCookieConsentConfig(array $settings): array
+    private function buildCookieConsentConfig(array $settings, string $locale): array
     {
         $storageKey = trim((string) ($settings['cookie_storage_key'] ?? ''));
         if ($storageKey === '') {
             $storageKey = 'calserverCookieChoices';
         }
 
+        $bannerText = $this->resolveBannerText($settings, $locale);
+
         return [
             'enabled' => (bool) ($settings['cookie_consent_enabled'] ?? false),
             'storageKey' => $storageKey,
-            'bannerText' => (string) ($settings['cookie_banner_text'] ?? ''),
+            'bannerText' => $bannerText,
+            'vendorFlags' => $settings['cookie_vendor_flags'] ?? [],
             'eventName' => 'marketing:cookie-preference-changed',
             'selectors' => [
                 'banner' => '[data-calserver-cookie-banner]',
@@ -504,6 +513,19 @@ class MarketingPageController
                 'triggerActive' => 'calserver-cookie-trigger--active',
             ],
         ];
+    }
+
+    /**
+     * @param array{cookie_banner_text_de:string,cookie_banner_text_en:string} $settings
+     */
+    private function resolveBannerText(array $settings, string $locale): string
+    {
+        $normalizedLocale = strtolower(trim($locale));
+        if (str_starts_with($normalizedLocale, 'en')) {
+            return (string) ($settings['cookie_banner_text_en'] ?? '');
+        }
+
+        return (string) ($settings['cookie_banner_text_de'] ?? '');
     }
 
     /**

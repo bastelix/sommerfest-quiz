@@ -155,16 +155,40 @@
               <div class="uk-text-meta">Wird im Local Storage gespeichert.</div>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="cookieBannerText">Banner-Text</label>
+              <label class="uk-form-label" for="cookieBannerTextDe">Banner-Text (DE)</label>
               <div class="uk-form-controls">
                 <textarea
                   class="uk-textarea"
-                  id="cookieBannerText"
-                  name="cookie_banner_text"
+                  id="cookieBannerTextDe"
+                  name="cookie_banner_text_de"
                   rows="4"
-                >{{ cookie_settings.cookie_banner_text|default('')|e }}</textarea>
+                >{{ cookie_settings.cookie_banner_text_de|default('')|e }}</textarea>
               </div>
-              <div class="uk-text-meta">Hinweistext für externe Inhalte.</div>
+              <div class="uk-text-meta">Hinweistext für externe Inhalte (Deutsch).</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieBannerTextEn">Banner-Text (EN)</label>
+              <div class="uk-form-controls">
+                <textarea
+                  class="uk-textarea"
+                  id="cookieBannerTextEn"
+                  name="cookie_banner_text_en"
+                  rows="4"
+                >{{ cookie_settings.cookie_banner_text_en|default('')|e }}</textarea>
+              </div>
+              <div class="uk-text-meta">Hinweistext für externe Inhalte (Englisch).</div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="cookieVendorFlags">Vendor-Flags (JSON)</label>
+              <div class="uk-form-controls">
+                <textarea
+                  class="uk-textarea"
+                  id="cookieVendorFlags"
+                  name="cookie_vendor_flags"
+                  rows="4"
+                >{{ cookie_settings.cookie_vendor_flags|default({})|json_encode|e }}</textarea>
+              </div>
+              <div class="uk-text-meta">Optional: Strukturierte Flags für Drittanbieter (JSON).</div>
             </div>
             <div class="uk-margin">
               <label class="uk-form-label" for="privacyUrl">Datenschutz-URL</label>
