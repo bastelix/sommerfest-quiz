@@ -21,6 +21,9 @@ if (manager) {
   const itemsBody = manager.querySelector('[data-menu-items]');
   const feedback = manager.querySelector('[data-menu-feedback]');
   const loadingRow = manager.querySelector('[data-menu-loading-row]');
+  if (loadingRow) {
+    loadingRow.innerHTML = '<td colspan="8">Lädt…</td>';
+  }
 
   const basePath = manager.dataset.basePath || window.basePath || '';
   const iconOptions = [
