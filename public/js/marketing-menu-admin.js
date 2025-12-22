@@ -90,7 +90,8 @@ if (manager) {
     });
   };
 
-  const buildPath = path => {
+  const buildPath = (pageId, suffix = '') => {
+    const path = `/admin/pages/${pageId}${suffix}`;
     if (typeof window.apiFetch === 'function') {
       return path;
     }
@@ -442,7 +443,7 @@ if (manager) {
       return;
     }
     setLoading();
-    apiFetch(withNamespace(buildPath(`/admin/pages/${state.pageId}/menu`)))
+    apiFetch(withNamespace(buildPath(state.pageId, '/menu')))
       .then(response => {
         if (!response.ok) {
           throw new Error('menu-load-failed');
@@ -504,7 +505,7 @@ if (manager) {
       payload.id = data.id;
     }
 
-    apiFetch(withNamespace(buildPath(`/admin/pages/${state.pageId}/menu`)), {
+    apiFetch(withNamespace(buildPath(state.pageId, '/menu')), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -561,7 +562,7 @@ if (manager) {
       return;
     }
     setRowBusy(row, true);
-    apiFetch(withNamespace(buildPath(`/admin/pages/${state.pageId}/menu`)), {
+    apiFetch(withNamespace(buildPath(state.pageId, '/menu')), {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
@@ -601,7 +602,7 @@ if (manager) {
     if (!hasChanged) {
       return;
     }
-    apiFetch(withNamespace(buildPath(`/admin/pages/${state.pageId}/menu/sort`)), {
+    apiFetch(withNamespace(buildPath(state.pageId, '/menu/sort')), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ orderedIds: ids })
