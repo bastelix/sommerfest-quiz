@@ -47,9 +47,10 @@ final class CertificateProvisioningService
     }
 
     /**
-     * Marketing domains are sourced from the admin database/provider first.
-     * The MARKETING_DOMAINS env var acts only as a fallback when no entries
-     * are configured in the database.
+     * Marketing domains are sourced from the admin database/provider and act as
+     * the preferred source of truth.
+     * The MARKETING_DOMAINS env var is only used as an optional fallback when
+     * no entries are configured in the database.
      *
      * @return list<string>
      */
@@ -57,8 +58,8 @@ final class CertificateProvisioningService
     {
         $domains = [];
 
-        $existing = $this->domainService->listMarketingDomains();
-        foreach ($existing as $entry) {
+        $providerDomains = $this->domainService->listMarketingDomains();
+        foreach ($providerDomains as $entry) {
             $host = $entry['host'] !== '' ? $entry['host'] : $entry['normalized_host'];
             $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
             if ($normalized !== '') {
