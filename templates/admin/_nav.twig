@@ -49,10 +49,9 @@
     ]
   },
   {
-    header: t('menu_admin_domains'),
+    header: t('menu_admin'),
     admin: true,
     items: [
-      { href: basePath ~ '/admin/domains', icon: 'world', text: t('menu_admin_domains'), noEvent: true },
       { href: basePath ~ '/admin/logins', icon: 'sign-in', text: t('menu_admin_logins'), noEvent: true },
       { href: basePath ~ '/admin/backups', icon: 'database', text: t('menu_admin_backups'), noEvent: true },
     ]
@@ -72,6 +71,7 @@
   { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news' },
   { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat') },
   { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), pageTab: 'newsletter' },
+  { href: basePath ~ '/admin/management', icon: 'world', text: t('tab_domains'), anchor: '#domains' },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
 {% if projectNamespaceOptions is empty %}

@@ -41,6 +41,7 @@ return [
     'tab_cookies' => 'Cookies',
     'tab_landing_news' => 'Landing-News',
     'tab_newsletter' => 'Newsletter',
+    'tab_domains' => 'Domänen',
     'tab_landingpage_seo' => 'Landingpage SEO',
     'tab_landingpage_content' => 'Landingpage Inhalte',
     'tab_management' => 'Administration',
