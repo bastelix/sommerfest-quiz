@@ -1417,8 +1417,13 @@ function buildPageTreeList(nodes, level = 0) {
     const meta = document.createElement('div');
     meta.className = 'uk-flex uk-flex-middle uk-flex-wrap';
 
+    const namespaceLabel = document.createElement('span');
+    namespaceLabel.className = 'uk-text-meta';
+    namespaceLabel.textContent = node.namespace || 'default';
+    meta.appendChild(namespaceLabel);
+
     const typeLabel = document.createElement('span');
-    typeLabel.className = `uk-label ${getTypeClass(node.type)}`;
+    typeLabel.className = `uk-label ${getTypeClass(node.type)} uk-margin-small-left`;
     typeLabel.textContent = getTypeLabel(node.type);
     meta.appendChild(typeLabel);
 
