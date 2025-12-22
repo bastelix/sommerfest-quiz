@@ -75,7 +75,6 @@ class ProjectController
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $role = $_SESSION['user']['role'] ?? '';
-        $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
 
         return $view->render($response, 'admin/projects.twig', [
             'role' => $role,
@@ -83,7 +82,6 @@ class ProjectController
             'domainType' => $request->getAttribute('domainType'),
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
-            'cookie_settings' => $cookieSettings,
             'csrf_token' => $this->ensureCsrfToken(),
         ]);
     }

@@ -848,7 +848,8 @@ const initProjectSettings = () => {
   const status = wrapper ? wrapper.querySelector('[data-project-settings-status]') : null;
   const updatedLabel = wrapper ? wrapper.querySelector('[data-project-settings-updated]') : null;
   const endpoint = wrapper?.dataset.endpoint || '/admin/projects/settings';
-  const namespaceSelect = document.getElementById('projectNamespaceSelect');
+  const namespaceSelect = document.getElementById('projectNamespaceSelect')
+    || document.getElementById('pageNamespaceSelect');
 
   const setStatus = (message, isError) => {
     if (!status) {
