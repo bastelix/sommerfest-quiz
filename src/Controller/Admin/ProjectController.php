@@ -190,7 +190,7 @@ class ProjectController
         }
 
         foreach ($availableNamespaces as $index => $entry) {
-            $entry['namespace'] = $this->normalizeNamespace((string) ($entry['namespace'] ?? ''));
+            $entry['namespace'] = $this->normalizeNamespace((string) $entry['namespace']);
             $availableNamespaces[$index] = $entry;
         }
 
