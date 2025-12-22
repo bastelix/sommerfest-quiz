@@ -19,8 +19,10 @@ RUN apk add --no-cache \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
+COPY composer.json composer.lock /var/www/
+ARG COMPOSER_NO_DEV=
+RUN composer install --no-interaction --prefer-dist --no-progress ${COMPOSER_NO_DEV}
 COPY . /var/www
-RUN composer install --no-interaction --prefer-dist --no-progress
 RUN mkdir -p /var/www/logs && chown www-data:www-data /var/www/logs
 RUN mkdir -p /var/www/backup \
     && chown www-data:www-data /var/www/backup \
