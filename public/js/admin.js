@@ -7,6 +7,7 @@ import {
   setCurrentEvent as switchEvent,
   switchPending,
   lastSwitchFailed,
+  resetSwitchState,
   getSwitchEpoch,
   registerCacheReset,
   registerScopedAbortController,
@@ -7310,9 +7311,12 @@ document.addEventListener('DOMContentLoaded', function () {
       return Promise.resolve();
     }
 
-    if (switchPending || lastSwitchFailed) {
+    if (switchPending) {
       highlightCurrentEvent();
       return Promise.resolve();
+    }
+    if (lastSwitchFailed) {
+      resetSwitchState();
     }
     const prevUid = currentEventUid;
     const prevName = currentEventName;
@@ -7384,12 +7388,15 @@ document.addEventListener('DOMContentLoaded', function () {
           input.checked = normalizedId === normalizeId(currentEventUid);
           input.addEventListener('change', () => {
             if (!input.checked) return;
-            if (switchPending || lastSwitchFailed) {
+            if (switchPending) {
               highlightCurrentEvent();
               return;
             }
             const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${normalizedId}"]`);
             if (twin) twin.checked = true;
+            if (lastSwitchFailed) {
+              resetSwitchState();
+            }
             setCurrentEvent(normalizedId, ev.name).finally(highlightCurrentEvent);
           });
           const slider = document.createElement('span');
@@ -7410,12 +7417,15 @@ document.addEventListener('DOMContentLoaded', function () {
           input.checked = normalizedId === normalizeId(currentEventUid);
           input.addEventListener('change', () => {
             if (!input.checked) return;
-            if (switchPending || lastSwitchFailed) {
+            if (switchPending) {
               highlightCurrentEvent();
               return;
             }
             const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${normalizedId}"]`);
             if (twin) twin.checked = true;
+            if (lastSwitchFailed) {
+              resetSwitchState();
+            }
             setCurrentEvent(normalizedId, ev.name).finally(highlightCurrentEvent);
           });
           const slider = document.createElement('span');
