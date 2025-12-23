@@ -590,6 +590,7 @@ CREATE TABLE IF NOT EXISTS marketing_page_menu_items (
     is_external INTEGER NOT NULL DEFAULT 0,
     locale TEXT NOT NULL DEFAULT 'de',
     is_active INTEGER NOT NULL DEFAULT 1,
+    -- Marks the menu item used as startpage for the namespace/locale.
     is_startpage INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

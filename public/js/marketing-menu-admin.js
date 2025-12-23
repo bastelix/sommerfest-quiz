@@ -80,6 +80,7 @@ if (manager) {
       const candidate = localeSelect?.value ?? manager.dataset.locale ?? '';
       return String(candidate || '').trim();
     };
+    const normalizeLocaleValue = value => String(value || '').trim().toLowerCase();
     const appendQueryParam = (path, key, value) => {
       if (!value) {
         return path;
@@ -178,6 +179,23 @@ if (manager) {
     const fallback = document.createElement('tr');
     fallback.innerHTML = '<td colspan="12">Lädt…</td>';
     itemsBody.appendChild(fallback);
+  };
+
+  const enforceSingleStartpage = row => {
+    const currentLocale = normalizeLocaleValue(row.querySelector('[data-menu-locale]')?.value);
+    itemsBody.querySelectorAll('tr[data-menu-row]').forEach(entry => {
+      if (entry === row) {
+        return;
+      }
+      const entryLocale = normalizeLocaleValue(entry.querySelector('[data-menu-locale]')?.value);
+      if (entryLocale !== currentLocale) {
+        return;
+      }
+      const input = entry.querySelector('[data-menu-startpage]');
+      if (input?.checked) {
+        input.checked = false;
+      }
+    });
   };
 
   const showEmpty = message => {
@@ -608,7 +626,12 @@ if (manager) {
     });
     layoutSelect.addEventListener('change', markDirty);
     localeInput.addEventListener('input', markDirty);
-    startpageInput.addEventListener('change', markDirty);
+    startpageInput.addEventListener('change', () => {
+      if (startpageInput.checked) {
+        enforceSingleStartpage(row);
+      }
+      markDirty();
+    });
     externalInput.addEventListener('change', markDirty);
     activeInput.addEventListener('change', markDirty);
     detailTitleInput.addEventListener('input', markDirty);

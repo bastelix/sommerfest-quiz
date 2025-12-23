@@ -101,7 +101,7 @@ final class MarketingMenuService
     ): array {
         $items = $this->getMenuItemsForSlug($namespace, $slug, $locale, $onlyActive);
 
-        return $this->buildMenuTree($items);
+        return $this->buildMenuTree($items, $onlyActive);
     }
 
     /**
@@ -164,7 +164,7 @@ final class MarketingMenuService
 
         try {
             if ($isStartpage) {
-                $this->resetStartpages($page->getNamespace());
+                $this->resetStartpages($page->getNamespace(), $normalizedLocale);
             }
 
             $stmt = $this->pdo->prepare(
@@ -245,7 +245,7 @@ final class MarketingMenuService
 
         try {
             if ($isStartpage) {
-                $this->resetStartpages($existing->getNamespace());
+                $this->resetStartpages($existing->getNamespace(), $normalizedLocale);
             }
 
             $stmt = $this->pdo->prepare(
@@ -604,20 +604,21 @@ final class MarketingMenuService
         return $parent;
     }
 
-    private function resetStartpages(string $namespace): void
+    private function resetStartpages(string $namespace, string $locale): void
     {
         $stmt = $this->pdo->prepare(
-            'UPDATE marketing_page_menu_items SET is_startpage = FALSE WHERE namespace = ?'
+            'UPDATE marketing_page_menu_items SET is_startpage = FALSE WHERE namespace = ? AND locale = ?'
         );
-        $stmt->execute([$namespace]);
+        $stmt->execute([$namespace, $locale]);
     }
 
     /**
      * @param MarketingPageMenuItem[] $items
      * @return array<int, array<string, mixed>>
      */
-    private function buildMenuTree(array $items): array
+    private function buildMenuTree(array $items, bool $applyStartpageFallback = false): array
     {
+        $fallbackStartpageId = $applyStartpageFallback ? $this->resolveFallbackStartpageId($items) : null;
         $knownIds = [];
         foreach ($items as $item) {
             $knownIds[$item->getId()] = true;
@@ -642,7 +643,7 @@ final class MarketingMenuService
         }
         unset($group);
 
-        $build = function (int $parentKey) use (&$build, $grouped): array {
+        $build = function (int $parentKey) use (&$build, $grouped, $fallbackStartpageId): array {
             $nodes = [];
             foreach ($grouped[$parentKey] ?? [] as $item) {
                 $nodes[] = [
@@ -661,7 +662,8 @@ final class MarketingMenuService
                     'isExternal' => $item->isExternal(),
                     'locale' => $item->getLocale(),
                     'isActive' => $item->isActive(),
-                    'isStartpage' => $item->isStartpage(),
+                    'isStartpage' => $item->isStartpage()
+                        || ($fallbackStartpageId !== null && $item->getId() === $fallbackStartpageId),
                     'children' => $build($item->getId()),
                 ];
             }
@@ -670,6 +672,58 @@ final class MarketingMenuService
         };
 
         return $build(0);
+    }
+
+    /**
+     * @param MarketingPageMenuItem[] $items
+     */
+    private function resolveFallbackStartpageId(array $items): ?int
+    {
+        foreach ($items as $item) {
+            if ($item->isStartpage()) {
+                return null;
+            }
+        }
+
+        if ($items === []) {
+            return null;
+        }
+
+        $candidate = null;
+        foreach ($items as $item) {
+            if ($item->getParentId() !== null) {
+                continue;
+            }
+            if ($candidate === null) {
+                $candidate = $item;
+                continue;
+            }
+            if ($item->getPosition() < $candidate->getPosition()) {
+                $candidate = $item;
+                continue;
+            }
+            if ($item->getPosition() === $candidate->getPosition() && $item->getId() < $candidate->getId()) {
+                $candidate = $item;
+            }
+        }
+
+        if ($candidate === null) {
+            foreach ($items as $item) {
+                if ($candidate === null) {
+                    $candidate = $item;
+                    continue;
+                }
+                if ($item->getPosition() < $candidate->getPosition()) {
+                    $candidate = $item;
+                    continue;
+                }
+                if ($item->getPosition() === $candidate->getPosition() && $item->getId() < $candidate->getId()) {
+                    $candidate = $item;
+                }
+            }
+        }
+
+        return $candidate?->getId();
     }
 
     private function ensureMenuItemsImported(Page $page): void
