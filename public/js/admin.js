@@ -819,8 +819,10 @@ const initProjectTree = () => {
   const emptyMessage = container.dataset.empty || 'Keine Projektdaten vorhanden.';
   const errorMessage = container.dataset.error || 'Projektübersicht konnte nicht geladen werden.';
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
-  const projectNamespaceSelect = document.getElementById('projectNamespaceSelect');
-  const selectedNamespace = projectNamespaceSelect?.value || '';
+  const namespaceSelect = document.getElementById('namespaceSelect')
+    || document.getElementById('projectNamespaceSelect')
+    || document.getElementById('pageNamespaceSelect');
+  const selectedNamespace = namespaceSelect?.value || '';
   const activeNamespace = (selectedNamespace || resolveProjectNamespace(container)).trim();
   const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
 
@@ -866,7 +868,8 @@ const initProjectSettings = () => {
   const status = wrapper ? wrapper.querySelector('[data-project-settings-status]') : null;
   const updatedLabel = wrapper ? wrapper.querySelector('[data-project-settings-updated]') : null;
   const endpoint = wrapper?.dataset.endpoint || '/admin/projects/settings';
-  const namespaceSelect = document.getElementById('projectNamespaceSelect')
+  const namespaceSelect = document.getElementById('namespaceSelect')
+    || document.getElementById('projectNamespaceSelect')
     || document.getElementById('pageNamespaceSelect');
 
   const setStatus = (message, isError) => {
@@ -1133,7 +1136,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
   const pageNamespaceSelect = document.getElementById('pageNamespaceSelect');
-  const projectNamespaceSelect = document.getElementById('projectNamespaceSelect');
+  const namespaceSelect = document.getElementById('namespaceSelect');
   const pageTabs = document.getElementById('pageTabs');
 
   if (window.domainType !== 'main') {
@@ -1161,18 +1164,22 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.assign(url.toString());
     });
   }
-  if (projectNamespaceSelect) {
-    const currentNamespace = projectNamespaceSelect.dataset.projectNamespace || projectNamespaceSelect.value || '';
-    if (currentNamespace && projectNamespaceSelect.value !== currentNamespace) {
-      projectNamespaceSelect.value = currentNamespace;
+  if (namespaceSelect) {
+    const currentNamespace = namespaceSelect.dataset.namespace || namespaceSelect.value || '';
+    if (currentNamespace && namespaceSelect.value !== currentNamespace) {
+      namespaceSelect.value = currentNamespace;
     }
-    projectNamespaceSelect.addEventListener('change', () => {
-      const selectedNamespace = projectNamespaceSelect.value || '';
+    namespaceSelect.addEventListener('change', () => {
+      const selectedNamespace = namespaceSelect.value || '';
       if (!selectedNamespace) {
         return;
       }
       const url = new URL(window.location.href);
       url.searchParams.set('namespace', selectedNamespace);
+      const activeTab = resolveActivePageTab();
+      if (activeTab) {
+        url.searchParams.set('pageTab', activeTab);
+      }
       window.location.assign(url.toString());
     });
   }
