@@ -108,6 +108,12 @@ Wenn eine Marketing-Seite in dem aufgelösten Namespace fehlt, wird automatisch 
 
 Die Seed-Daten in `src/Infrastructure/Migrations/sqlite-schema.sql` legen initiale Marketing-Seiten immer im `default`-Namespace an. Der Ziel-Namespace für die Laufzeit wird daher durch die Auflösung im `NamespaceResolver` bestimmt (z. B. über Query-Parameter `namespace`, Route-Argumente oder Tenant-Subdomain). Eigene Projekt-Namespaces werden anschließend über die Admin-Oberfläche gepflegt oder per Datenbank-Import ergänzt.
 
+### Namespace as the standard project identifier
+
+Namespaces are the canonical project identifier in the admin UI. Any legacy "project" labels should be treated as
+aliases for the namespace: settings, content, and UI selections are stored and resolved by namespace only. If your
+data already uses namespaces exclusively, no migration steps are required.
+
 ## Bild-Uploads
 
 Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien landen im Verzeichnis `data/uploads`, eventbezogene Bilder unter `data/events/<event_uid>/images`.
