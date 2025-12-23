@@ -8013,14 +8013,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // --------- Benutzer ---------
-  const usersListEl = managementSection?.querySelector('#usersList') || null;
-  const usersCardsEl = managementSection?.querySelector('#usersCards') || null;
-  const userAddBtn = managementSection?.querySelector('#userAddBtn') || null;
-  const userPassModal = managementSection && window.UIkit ? UIkit.modal('#userPassModal') : null;
-  const userPassInput = managementSection?.querySelector('#userPassInput') || null;
-  const userPassRepeat = managementSection?.querySelector('#userPassRepeat') || null;
-  const userPassForm = managementSection?.querySelector('#userPassForm') || null;
-  const usersPaginationEl = managementSection?.querySelector('#usersPagination') || null;
+  const usersRoot = managementSection || document;
+  const usersListEl = usersRoot?.querySelector('#usersList') || null;
+  const usersCardsEl = usersRoot?.querySelector('#usersCards') || null;
+  const userAddBtn = usersRoot?.querySelector('#userAddBtn') || null;
+  const userPassModal = usersRoot && window.UIkit ? UIkit.modal('#userPassModal') : null;
+  const userPassInput = usersRoot?.querySelector('#userPassInput') || null;
+  const userPassRepeat = usersRoot?.querySelector('#userPassRepeat') || null;
+  const userPassForm = usersRoot?.querySelector('#userPassForm') || null;
+  const usersPaginationEl = usersRoot?.querySelector('#usersPagination') || null;
   const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
   const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
   const labelNamespaces = usersListEl?.dataset.labelNamespaces || 'Namespaces';
@@ -8271,9 +8272,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  const userNameModal = managementSection && window.UIkit ? UIkit.modal('#userNameModal') : null;
-  const userNameForm = managementSection?.querySelector('#userNameForm') || null;
-  const userNameInput = managementSection?.querySelector('#userNameInput') || null;
+  const userNameModal = usersRoot && window.UIkit ? UIkit.modal('#userNameModal') : null;
+  const userNameForm = usersRoot?.querySelector('#userNameForm') || null;
+  const userNameInput = usersRoot?.querySelector('#userNameInput') || null;
 
   function openUserEditor(cell) {
     const id = cell?.dataset.id;
