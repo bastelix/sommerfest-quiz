@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Marketing;
+namespace App\Repository;
 
 use App\Infrastructure\Database;
 use PDO;
@@ -13,7 +13,7 @@ use function is_array;
 use function random_bytes;
 use function trim;
 
-final class PageAiJobService
+final class PageAiJobRepository
 {
     public const STATUS_PENDING = 'pending';
     public const STATUS_DONE = 'done';

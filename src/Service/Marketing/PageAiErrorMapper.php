@@ -15,7 +15,7 @@ use function strtolower;
 use function substr;
 use function trim;
 
-final class PageAiJobErrorMapper
+final class PageAiErrorMapper
 {
     /**
      * @return array{error_code:string,message:string}
