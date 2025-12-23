@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\LogService;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
+use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use PDO;
@@ -44,6 +45,9 @@ class AdminLogsController
     private function loadNamespaces(Request $request): array
     {
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $role = $_SESSION['user']['role'] ?? null;
+        $accessService = new NamespaceAccessService();
+        $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
@@ -55,10 +59,11 @@ class AdminLogsController
             $availableNamespaces = [];
         }
 
-        if (!array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-        )) {
+        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+            && !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+            )) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -71,7 +76,7 @@ class AdminLogsController
         if (!array_filter(
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
-        )) {
+        ) && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => null,
@@ -80,6 +85,25 @@ class AdminLogsController
                 'updated_at' => null,
             ];
         }
+
+        if ($allowedNamespaces !== []) {
+            foreach ($allowedNamespaces as $allowedNamespace) {
+                if (!array_filter(
+                    $availableNamespaces,
+                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                )) {
+                    $availableNamespaces[] = [
+                        'namespace' => $allowedNamespace,
+                        'label' => 'nicht gespeichert',
+                        'is_active' => false,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+            }
+        }
+
+        $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         return [$availableNamespaces, $namespace];
     }

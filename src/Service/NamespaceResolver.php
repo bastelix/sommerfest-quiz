@@ -50,9 +50,6 @@ final class NamespaceResolver
         $routeNamespace = $this->resolveRouteNamespace($request);
         $this->pushCandidate($candidates, $routeNamespace);
 
-        $eventNamespace = $this->resolveEventNamespace($request);
-        $this->pushCandidate($candidates, $eventNamespace);
-
         $tenantNamespace = $this->resolveTenantNamespace($request);
         $this->pushCandidate($candidates, $tenantNamespace);
 
@@ -75,16 +72,6 @@ final class NamespaceResolver
             ?? $arguments['tenant']
             ?? $arguments['subdomain']
             ?? null;
-
-        return $this->normalizeNamespace($candidate);
-    }
-
-    private function resolveEventNamespace(Request $request): ?string
-    {
-        $candidate = $request->getAttribute('event_uid')
-            ?? $request->getAttribute('event')
-            ?? ($request->getQueryParams()['event_uid'] ?? null)
-            ?? ($request->getQueryParams()['event'] ?? null);
 
         return $this->normalizeNamespace($candidate);
     }

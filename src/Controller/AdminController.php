@@ -29,6 +29,7 @@ use App\Service\ImageUploadService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use App\Service\MarketingNewsletterConfigService;
+use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -331,6 +332,69 @@ class AdminController
                 }
             }
         }
+
+        $namespaceAccess = new NamespaceAccessService();
+        $allowedNamespaces = $namespaceAccess->resolveAllowedNamespaces(is_string($role) ? $role : null);
+        if ($availableNamespaces === []) {
+            $namespaceRepository = new NamespaceRepository($pdo);
+            try {
+                $availableNamespaces = $namespaceRepository->list();
+            } catch (\RuntimeException $exception) {
+                $availableNamespaces = [];
+            }
+        }
+
+        foreach ($availableNamespaces as $index => $entry) {
+            $entry['namespace'] = strtolower(trim((string) ($entry['namespace'] ?? '')));
+            $availableNamespaces[$index] = $entry;
+        }
+
+        if ($namespaceAccess->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+            && !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+            )) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if ($namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+            && !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === $namespace
+            )) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => 'nicht gespeichert',
+                'is_active' => false,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if ($allowedNamespaces !== []) {
+            foreach ($allowedNamespaces as $allowedNamespace) {
+                if (!array_filter(
+                    $availableNamespaces,
+                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                )) {
+                    $availableNamespaces[] = [
+                        'namespace' => $allowedNamespace,
+                        'label' => 'nicht gespeichert',
+                        'is_active' => false,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+            }
+        }
+
+        $availableNamespaces = $namespaceAccess->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {

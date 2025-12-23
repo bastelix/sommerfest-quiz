@@ -6,6 +6,7 @@ namespace App\Application\Middleware;
 
 use App\Domain\Roles;
 use App\Infrastructure\Database;
+use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
 use App\Service\UserService;
 use PDO;
@@ -62,12 +63,17 @@ class RoleAuthMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        $namespaces = $this->resolveUserNamespaces($request);
+        $accessService = new NamespaceAccessService();
+        if (!isset($_SESSION['user']['namespaces'])) {
+            $this->resolveUserNamespaces($request);
+        }
+        $allowedNamespaces = $accessService->resolveAllowedNamespaces($role);
         if (is_string($activeNamespace) && $activeNamespace !== '') {
-            if (!$this->namespaceListHas($namespaces, $activeNamespace)) {
-                $namespaces = $this->resolveUserNamespaces($request, true);
+            if (!in_array(strtolower(trim($activeNamespace)), $allowedNamespaces, true)) {
+                $this->resolveUserNamespaces($request, true);
+                $allowedNamespaces = $accessService->resolveAllowedNamespaces($role);
             }
-            if (!$this->namespaceListHas($namespaces, $activeNamespace)) {
+            if (!in_array(strtolower(trim($activeNamespace)), $allowedNamespaces, true)) {
                 if ($this->isApiRequest($request)) {
                     return $this->jsonErrorResponse('forbidden', 403);
                 }
@@ -77,7 +83,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
         }
 
         $namespaceContext = (new NamespaceResolver())->resolve($request);
-        if (!$this->namespaceListHas($namespaces, $namespaceContext->getNamespace())) {
+        if (!in_array(strtolower(trim($namespaceContext->getNamespace())), $allowedNamespaces, true)) {
             if ($this->isApiRequest($request)) {
                 return $this->jsonErrorResponse('forbidden', 403);
             }
@@ -140,23 +146,4 @@ class RoleAuthMiddleware implements MiddlewareInterface
         return $namespaces;
     }
 
-    /**
-     * @param list<array{namespace:string,is_default:bool}> $namespaces
-     */
-    private function namespaceListHas(array $namespaces, string $namespace): bool
-    {
-        $normalized = strtolower(trim($namespace));
-        if ($normalized === '') {
-            return false;
-        }
-
-        foreach ($namespaces as $entry) {
-            $candidate = strtolower(trim((string) $entry['namespace']));
-            if ($candidate !== '' && $candidate === $normalized) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }
