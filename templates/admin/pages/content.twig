@@ -76,6 +76,9 @@
         QuizRace Admin
       </a>
     {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
     {% block offcanvas %}
       <div id="qr-offcanvas" uk-offcanvas="overlay: true">
         <div class="uk-offcanvas-bar">
@@ -112,7 +115,7 @@
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <div class="uk-grid-small uk-flex-middle" uk-grid>
             <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
               <div class="uk-form-controls">
                 <select
                   id="pageNamespaceSelect"
@@ -136,7 +139,7 @@
               </div>
             </div>
             <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+              Wechsel lädt die Inhalte des ausgewählten Projekts (Namespace) neu.
             </div>
           </div>
         </div>
@@ -202,11 +205,11 @@
           data-page-selection-value-key="slug"
           data-active-namespace="{{ activePageNamespace|e('html_attr') }}"
           data-success-message="Seite verschoben."
-          data-error-message="Namespace konnte nicht geändert werden."
+          data-error-message="Projekt (Namespace) konnte nicht geändert werden."
         >
           <div class="uk-grid-small uk-flex-middle" uk-grid>
             <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespacePerPageSelect">Namespace der Seite</label>
+              <label class="uk-form-label" for="pageNamespacePerPageSelect">{{ t('label_page_project_namespace') }}</label>
               <div class="uk-form-controls">
                 <select id="pageNamespacePerPageSelect" class="uk-select" data-page-namespace-select>
                   {% for entry in pageNamespaceOptions %}
@@ -223,7 +226,7 @@
               </div>
             </div>
             <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Ändert den Namespace der ausgewählten Seite.
+              {{ t('text_page_project_namespace_change') }}
             </div>
           </div>
           <div class="uk-alert uk-alert-primary uk-margin-small-top" data-page-namespace-feedback hidden role="status"></div>

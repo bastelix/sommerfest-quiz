@@ -43,6 +43,9 @@
         QuizRace Admin
       </a>
     {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
     {% block offcanvas %}
       <div id="qr-offcanvas" uk-offcanvas="overlay: true">
         <div class="uk-offcanvas-bar">
@@ -79,7 +82,7 @@
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <div class="uk-grid-small uk-flex-middle" uk-grid>
             <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespaceSelect">Namespace</label>
+              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
               <div class="uk-form-controls">
                 <select
                   id="pageNamespaceSelect"
@@ -103,7 +106,7 @@
               </div>
             </div>
             <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Cookie-Einstellungen des ausgewählten Namespace neu.
+              Wechsel lädt die Cookie-Einstellungen des ausgewählten Projekts (Namespace) neu.
             </div>
           </div>
         </div>
