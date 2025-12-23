@@ -195,17 +195,46 @@
             </table>
           </div>
           <script>
-            window.setTimeout(() => {
+            (() => {
               const container = document.querySelector('[data-marketing-menu-manager]');
-              if (!container || container.dataset.menuInitialized === 'true') {
+              if (!container) {
                 return;
               }
-              const loadingRow = container.querySelector('[data-menu-loading-row]');
-              if (!loadingRow) {
-                return;
-              }
-              loadingRow.innerHTML = '<td colspan="8" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
-            }, 2000);
+
+              const getLoadingRow = () => container.querySelector('[data-menu-loading-row]');
+              const showError = () => {
+                if (container.dataset.menuInitialized === 'true') {
+                  return;
+                }
+                const loadingRow = getLoadingRow();
+                if (!loadingRow) {
+                  return;
+                }
+                loadingRow.dataset.menuFallbackShown = 'true';
+                loadingRow.innerHTML = '<td colspan="8" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
+              };
+
+              const clearErrorIfReady = () => {
+                const loadingRow = getLoadingRow();
+                if (!loadingRow || loadingRow.dataset.menuFallbackShown !== 'true') {
+                  return;
+                }
+                loadingRow.dataset.menuFallbackShown = 'false';
+                loadingRow.innerHTML = '<td colspan="8">Lädt…</td>';
+              };
+
+              window.addEventListener('load', () => {
+                window.setTimeout(showError, 2500);
+              }, { once: true });
+
+              const observer = new MutationObserver(() => {
+                if (container.dataset.menuInitialized === 'true') {
+                  clearErrorIfReady();
+                  observer.disconnect();
+                }
+              });
+              observer.observe(container, { attributes: true, attributeFilter: ['data-menu-initialized'] });
+            })();
           </script>
         </div>
 
