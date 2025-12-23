@@ -1238,14 +1238,14 @@ return function (\Slim\App $app, TranslationService $translator) {
             ?: new DateTimeImmutable('first day of this month');
         $end = $start->modify('first day of next month');
         $stmt = $pdo->prepare(
-            'SELECT uid,name,start_date,end_date,published '
+            'SELECT uid,name,start_date,COALESCE(end_date,start_date) AS end_date,published '
             . 'FROM events '
-            . 'WHERE start_date >= ? AND start_date < ? '
+            . 'WHERE start_date < ? AND COALESCE(end_date,start_date) >= ? '
             . 'ORDER BY start_date'
         );
         $stmt->execute([
-            $start->format('Y-m-d 00:00:00'),
             $end->format('Y-m-d 00:00:00'),
+            $start->format('Y-m-d 00:00:00'),
         ]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $events = [];
