@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
+use App\Service\NamespaceAccessService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
@@ -60,6 +61,9 @@ class MarketingNewsletterController
     private function loadNamespaces(Request $request): array
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $role = $_SESSION['user']['role'] ?? null;
+        $accessService = new NamespaceAccessService();
+        $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
 
         try {
             $availableNamespaces = $this->namespaceRepository->list();
@@ -67,10 +71,11 @@ class MarketingNewsletterController
             $availableNamespaces = [];
         }
 
-        if (!array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-        )) {
+        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+            && !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+            )) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -84,7 +89,8 @@ class MarketingNewsletterController
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
         );
-        if (!$currentNamespaceExists) {
+        if (!$currentNamespaceExists
+            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => 'nicht gespeichert',
@@ -93,6 +99,25 @@ class MarketingNewsletterController
                 'updated_at' => null,
             ];
         }
+
+        if ($allowedNamespaces !== []) {
+            foreach ($allowedNamespaces as $allowedNamespace) {
+                if (!array_filter(
+                    $availableNamespaces,
+                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                )) {
+                    $availableNamespaces[] = [
+                        'namespace' => $allowedNamespace,
+                        'label' => 'nicht gespeichert',
+                        'is_active' => false,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+            }
+        }
+
+        $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         return [$availableNamespaces, $namespace];
     }
