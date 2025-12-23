@@ -86,16 +86,28 @@
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set namespaceQuery = activeNamespace is not empty ? 'namespace=' ~ activeNamespace|url_encode : '' %}
 {% set projectModules = [
-  { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview') },
-  { href: basePath ~ '/admin/pages/content', icon: 'file-edit', text: t('tab_pages'), pageTab: 'content', matchPrefix: basePath ~ '/admin/pages' },
-  { href: basePath ~ '/admin/pages/navigation', icon: 'list', text: t('tab_navigation'), pageTab: 'navigation' },
-  { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), pageTab: 'seo' },
-  { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), pageTab: 'wiki' },
-  { href: basePath ~ '/admin/pages/cookies', icon: 'file-text', text: t('tab_cookies'), pageTab: 'cookies' },
-  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), pageTab: 'landing-news' },
-  { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat') },
-  { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), pageTab: 'newsletter' },
-  { href: basePath ~ '/admin/management', icon: 'home', text: t('heading_homepage'), anchor: '#startpage' },
+  { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview'), activePrefixes: [basePath ~ '/admin/projects'] },
+  {
+    href: basePath ~ '/admin/pages/content',
+    icon: 'file-edit',
+    text: t('tab_pages'),
+    activePaths: [basePath ~ '/admin/pages'],
+    activePrefixes: [basePath ~ '/admin/pages/content']
+  },
+  { href: basePath ~ '/admin/pages/navigation', icon: 'list', text: t('tab_navigation'), activePrefixes: [basePath ~ '/admin/pages/navigation'] },
+  { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), activePrefixes: [basePath ~ '/admin/pages/seo'] },
+  { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), activePrefixes: [basePath ~ '/admin/pages/wiki'] },
+  { href: basePath ~ '/admin/pages/cookies', icon: 'file-text', text: t('tab_cookies'), activePrefixes: [basePath ~ '/admin/pages/cookies'] },
+  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'] },
+  { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), activePrefixes: [basePath ~ '/admin/rag-chat'] },
+  { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'] },
+  {
+    href: basePath ~ '/admin/management',
+    icon: 'home',
+    text: t('heading_homepage'),
+    anchor: '#startpage',
+    activePrefixes: [basePath ~ '/admin/management']
+  },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
 {% if projectNamespaceOptions is empty %}
@@ -175,25 +187,21 @@
       {% if (group.admin is not defined or role == 'admin') and (group.roles is not defined or role in group.roles) %}
         {% if group.type is defined and group.type == 'projects' %}
           {% set groupActive = false %}
-          {% set modulePageTab = pageTab|default('') %}
-          {% set modulePageSlug = selectedPageSlug|default('') %}
-          {% set projectSlugModules = [] %}
           {% for module in projectModules %}
-            {% if module.pageSlug is defined %}
-              {% set projectSlugModules = projectSlugModules|merge([module.pageSlug]) %}
-            {% endif %}
-          {% endfor %}
-          {% set hasSpecificSlugMatch = modulePageSlug is not empty and modulePageSlug in projectSlugModules %}
-          {% for module in projectModules %}
-            {% set matchPrefix = module.matchPrefix|default('') %}
-            {% set pathMatches = current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
-            {% set tabMatches = module.pageTab is not defined or module.pageTab == modulePageTab %}
-            {% if module.pageSlug is defined %}
-              {% set slugMatches = module.pageSlug == modulePageSlug %}
-            {% else %}
-              {% set slugMatches = not hasSpecificSlugMatch %}
-            {% endif %}
-            {% if pathMatches and tabMatches and slugMatches %}
+            {% set activePaths = module.activePaths|default([]) %}
+            {% set activePrefixes = module.activePrefixes|default([]) %}
+            {% set moduleActive = false %}
+            {% for path in activePaths %}
+              {% if current == path %}
+                {% set moduleActive = true %}
+              {% endif %}
+            {% endfor %}
+            {% for prefix in activePrefixes %}
+              {% if current starts with prefix %}
+                {% set moduleActive = true %}
+              {% endif %}
+            {% endfor %}
+            {% if moduleActive %}
               {% set groupActive = true %}
             {% endif %}
           {% endfor %}
@@ -205,15 +213,19 @@
             <div class="uk-accordion-content uk-padding-remove">
               <ul class="uk-nav uk-nav-default qr-nav-sub">
                 {% for module in projectModules %}
-                  {% set matchPrefix = module.matchPrefix|default('') %}
-                  {% set pathMatches = current starts with module.href or (matchPrefix is not empty and current starts with matchPrefix) %}
-                  {% set tabMatches = module.pageTab is not defined or module.pageTab == modulePageTab %}
-                  {% if module.pageSlug is defined %}
-                    {% set slugMatches = module.pageSlug == modulePageSlug %}
-                  {% else %}
-                    {% set slugMatches = not hasSpecificSlugMatch %}
-                  {% endif %}
-                  {% set isActive = pathMatches and tabMatches and slugMatches %}
+                  {% set activePaths = module.activePaths|default([]) %}
+                  {% set activePrefixes = module.activePrefixes|default([]) %}
+                  {% set isActive = false %}
+                  {% for path in activePaths %}
+                    {% if current == path %}
+                      {% set isActive = true %}
+                    {% endif %}
+                  {% endfor %}
+                  {% for prefix in activePrefixes %}
+                    {% if current starts with prefix %}
+                      {% set isActive = true %}
+                    {% endif %}
+                  {% endfor %}
                   {% set moduleQuery = module.query|default('') %}
                   {% set moduleQueryPrefix = moduleQuery is not empty ? '?' ~ moduleQuery : '' %}
                   {% set namespaceSuffix = namespaceQuery is not empty ? (moduleQuery is not empty ? '&' : '?') ~ namespaceQuery : '' %}
