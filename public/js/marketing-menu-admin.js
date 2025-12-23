@@ -23,7 +23,7 @@ if (manager) {
     const feedback = manager.querySelector('[data-menu-feedback]');
     const loadingRow = manager.querySelector('[data-menu-loading-row]');
     if (loadingRow) {
-      loadingRow.innerHTML = '<td colspan="8">Lädt…</td>';
+      loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
     }
 
     const basePath = manager.dataset.basePath || window.basePath || '';
@@ -46,6 +46,12 @@ if (manager) {
       'user',
       'users'
     ];
+    const layoutOptions = [
+      { value: 'link', label: 'Link' },
+      { value: 'dropdown', label: 'Dropdown' },
+      { value: 'mega', label: 'Mega' },
+      { value: 'column', label: 'Spalte' }
+    ];
     const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
 
     if (!itemsBody || !addButton) {
@@ -57,7 +63,11 @@ if (manager) {
       pageId: null,
       pageSlug: '',
       items: [],
-      order: []
+      tree: [],
+      flatItems: [],
+      descendants: new Map(),
+      order: [],
+      orderSignature: ''
     };
 
     const findPageBySlug = slug => pagesData.find(page => page.slug === slug) || null;
@@ -166,7 +176,7 @@ if (manager) {
       return;
     }
     const fallback = document.createElement('tr');
-    fallback.innerHTML = '<td colspan="8">Lädt…</td>';
+    fallback.innerHTML = '<td colspan="12">Lädt…</td>';
     itemsBody.appendChild(fallback);
   };
 
@@ -175,7 +185,7 @@ if (manager) {
     const row = document.createElement('tr');
     row.dataset.menuEmpty = 'true';
     const cell = document.createElement('td');
-    cell.colSpan = 8;
+    cell.colSpan = 12;
     cell.textContent = message;
     row.appendChild(cell);
     itemsBody.appendChild(row);
@@ -233,17 +243,30 @@ if (manager) {
     const labelInput = row.querySelector('[data-menu-label]');
     const hrefInput = row.querySelector('[data-menu-href]');
     const iconSelect = row.querySelector('[data-menu-icon]');
+    const parentSelect = row.querySelector('[data-menu-parent]');
+    const layoutSelect = row.querySelector('[data-menu-layout]');
     const localeInput = row.querySelector('[data-menu-locale]');
+    const startpageInput = row.querySelector('[data-menu-startpage]');
     const externalInput = row.querySelector('[data-menu-external]');
     const activeInput = row.querySelector('[data-menu-active]');
+    const detailTitleInput = row.querySelector('[data-menu-detail-title]');
+    const detailTextInput = row.querySelector('[data-menu-detail-text]');
+    const detailSublineInput = row.querySelector('[data-menu-detail-subline]');
+    const parentValue = parentSelect?.value ? Number(parentSelect.value) : null;
     return {
       id: row.dataset.id ? Number(row.dataset.id) : null,
       label: labelInput?.value.trim() || '',
       href: hrefInput?.value.trim() || '',
       icon: iconSelect?.value.trim() || '',
+      parentId: Number.isFinite(parentValue) ? parentValue : null,
+      layout: layoutSelect?.value.trim() || 'link',
       locale: localeInput?.value.trim() || '',
+      isStartpage: !!startpageInput?.checked,
       isExternal: !!externalInput?.checked,
-      isActive: !!activeInput?.checked
+      isActive: !!activeInput?.checked,
+      detailTitle: detailTitleInput?.value.trim() || '',
+      detailText: detailTextInput?.value.trim() || '',
+      detailSubline: detailSublineInput?.value.trim() || ''
     };
   };
 
@@ -285,6 +308,67 @@ if (manager) {
     return !error;
   };
 
+  const buildTree = items => {
+    const byId = new Map();
+    items.forEach(item => {
+      if (!item?.id) {
+        return;
+      }
+      byId.set(item.id, { ...item, children: [] });
+    });
+
+    const roots = [];
+    byId.forEach(node => {
+      if (node.parentId && byId.has(node.parentId)) {
+        byId.get(node.parentId).children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    const sortNodes = nodes => {
+      nodes.sort((a, b) => {
+        const posA = Number.isFinite(Number(a.position)) ? Number(a.position) : 0;
+        const posB = Number.isFinite(Number(b.position)) ? Number(b.position) : 0;
+        if (posA === posB) {
+          return Number(a.id || 0) - Number(b.id || 0);
+        }
+        return posA - posB;
+      });
+      nodes.forEach(node => sortNodes(node.children));
+    };
+    sortNodes(roots);
+
+    return { roots, byId };
+  };
+
+  const flattenTree = (nodes, depth = 0, list = []) => {
+    nodes.forEach(node => {
+      list.push({ ...node, depth });
+      if (node.children && node.children.length) {
+        flattenTree(node.children, depth + 1, list);
+      }
+    });
+    return list;
+  };
+
+  const buildDescendantsMap = nodes => {
+    const map = new Map();
+    const visit = node => {
+      const children = node.children || [];
+      const descendants = new Set();
+      children.forEach(child => {
+        descendants.add(child.id);
+        const childDescendants = visit(child);
+        childDescendants.forEach(id => descendants.add(id));
+      });
+      map.set(node.id, descendants);
+      return descendants;
+    };
+    nodes.forEach(node => visit(node));
+    return map;
+  };
+
   const createIconSelect = selected => {
     const select = document.createElement('select');
     select.className = 'uk-select uk-form-small';
@@ -301,12 +385,56 @@ if (manager) {
     return select;
   };
 
+  const createLayoutSelect = selected => {
+    const select = document.createElement('select');
+    select.className = 'uk-select uk-form-small';
+    select.dataset.menuLayout = 'true';
+    layoutOptions.forEach(option => {
+      const opt = document.createElement('option');
+      opt.value = option.value;
+      opt.textContent = option.label;
+      if (option.value === selected) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
+    });
+    return select;
+  };
+
+  const createParentSelect = item => {
+    const select = document.createElement('select');
+    select.className = 'uk-select uk-form-small';
+    select.dataset.menuParent = 'true';
+
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = '—';
+    select.appendChild(emptyOption);
+
+    const descendants = state.descendants?.get(item?.id) || new Set();
+    state.flatItems
+      .filter(entry => entry.id && entry.id !== item?.id && !descendants.has(entry.id))
+      .forEach(entry => {
+        const option = document.createElement('option');
+        option.value = String(entry.id);
+        const indent = '—'.repeat(entry.depth || 0);
+        option.textContent = indent ? `${indent} ${entry.label}` : entry.label;
+        if (entry.id === item?.parentId) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+
+    return select;
+  };
+
   const createRow = item => {
     const row = document.createElement('tr');
     row.dataset.menuRow = 'true';
     if (item?.id) {
       row.dataset.id = String(item.id);
     }
+    row.dataset.parentId = item?.parentId ? String(item.parentId) : '';
 
     const handleCell = document.createElement('td');
     handleCell.className = 'uk-table-shrink';
@@ -320,13 +448,16 @@ if (manager) {
     handleCell.appendChild(handleButton);
 
     const labelCell = document.createElement('td');
+    const labelWrapper = document.createElement('div');
     const labelInput = document.createElement('input');
     labelInput.className = 'uk-input uk-form-small';
     labelInput.type = 'text';
     labelInput.placeholder = 'Menütitel';
     labelInput.value = item?.label || '';
     labelInput.dataset.menuLabel = 'true';
-    labelCell.appendChild(labelInput);
+    labelWrapper.style.paddingLeft = `${Math.max(0, Number(item?.depth || 0)) * 16}px`;
+    labelWrapper.appendChild(labelInput);
+    labelCell.appendChild(labelWrapper);
 
     const hrefCell = document.createElement('td');
     const hrefInput = document.createElement('input');
@@ -341,6 +472,16 @@ if (manager) {
     hrefError.hidden = true;
     hrefCell.appendChild(hrefInput);
     hrefCell.appendChild(hrefError);
+
+    const parentCell = document.createElement('td');
+    parentCell.className = 'uk-table-shrink';
+    const parentSelect = createParentSelect(item);
+    parentCell.appendChild(parentSelect);
+
+    const layoutCell = document.createElement('td');
+    layoutCell.className = 'uk-table-shrink';
+    const layoutSelect = createLayoutSelect(item?.layout || 'link');
+    layoutCell.appendChild(layoutSelect);
 
     const iconCell = document.createElement('td');
     const iconWrapper = document.createElement('div');
@@ -368,6 +509,15 @@ if (manager) {
     }
     localeCell.appendChild(localeInput);
 
+    const startpageCell = document.createElement('td');
+    startpageCell.className = 'uk-table-shrink uk-text-center';
+    const startpageInput = document.createElement('input');
+    startpageInput.type = 'checkbox';
+    startpageInput.className = 'uk-checkbox';
+    startpageInput.checked = item?.isStartpage === true;
+    startpageInput.dataset.menuStartpage = 'true';
+    startpageCell.appendChild(startpageInput);
+
     const externalCell = document.createElement('td');
     externalCell.className = 'uk-table-shrink uk-text-center';
     const externalInput = document.createElement('input');
@@ -385,6 +535,31 @@ if (manager) {
     activeInput.checked = item?.isActive !== false;
     activeInput.dataset.menuActive = 'true';
     activeCell.appendChild(activeInput);
+
+    const detailCell = document.createElement('td');
+    const detailWrapper = document.createElement('div');
+    detailWrapper.className = 'uk-flex uk-flex-column';
+    detailWrapper.style.gap = '6px';
+    const detailTitleInput = document.createElement('input');
+    detailTitleInput.className = 'uk-input uk-form-small';
+    detailTitleInput.type = 'text';
+    detailTitleInput.placeholder = 'Titel';
+    detailTitleInput.value = item?.detailTitle || '';
+    detailTitleInput.dataset.menuDetailTitle = 'true';
+    const detailTextInput = document.createElement('textarea');
+    detailTextInput.className = 'uk-textarea uk-form-small';
+    detailTextInput.rows = 2;
+    detailTextInput.placeholder = 'Beschreibung';
+    detailTextInput.value = item?.detailText || '';
+    detailTextInput.dataset.menuDetailText = 'true';
+    const detailSublineInput = document.createElement('input');
+    detailSublineInput.className = 'uk-input uk-form-small';
+    detailSublineInput.type = 'text';
+    detailSublineInput.placeholder = 'Subline';
+    detailSublineInput.value = item?.detailSubline || '';
+    detailSublineInput.dataset.menuDetailSubline = 'true';
+    detailWrapper.append(detailTitleInput, detailTextInput, detailSublineInput);
+    detailCell.appendChild(detailWrapper);
 
     const actionCell = document.createElement('td');
     actionCell.className = 'uk-table-shrink uk-text-right';
@@ -406,10 +581,14 @@ if (manager) {
       handleCell,
       labelCell,
       hrefCell,
+      parentCell,
+      layoutCell,
       iconCell,
       localeCell,
+      startpageCell,
       externalCell,
       activeCell,
+      detailCell,
       actionCell
     );
 
@@ -423,9 +602,18 @@ if (manager) {
       markDirty();
       updateIconPreview(iconPreview, event.target.value || '');
     });
+    parentSelect.addEventListener('change', event => {
+      markDirty();
+      row.dataset.parentId = event.target.value || '';
+    });
+    layoutSelect.addEventListener('change', markDirty);
     localeInput.addEventListener('input', markDirty);
+    startpageInput.addEventListener('change', markDirty);
     externalInput.addEventListener('change', markDirty);
     activeInput.addEventListener('change', markDirty);
+    detailTitleInput.addEventListener('input', markDirty);
+    detailTextInput.addEventListener('input', markDirty);
+    detailSublineInput.addEventListener('input', markDirty);
 
     saveButton.addEventListener('click', () => saveRow(row));
     deleteButton.addEventListener('click', () => deleteRow(row));
@@ -441,12 +629,17 @@ if (manager) {
   };
 
   const renderItems = items => {
+    const tree = buildTree(items);
+    state.tree = tree.roots;
+    state.flatItems = flattenTree(tree.roots);
+    state.descendants = buildDescendantsMap(tree.roots);
+
     itemsBody.innerHTML = '';
-    if (!items.length) {
+    if (!state.flatItems.length) {
       showEmpty('Keine Menüeinträge vorhanden.');
       return;
     }
-    items.forEach(item => {
+    state.flatItems.forEach(item => {
       itemsBody.appendChild(createRow(item));
     });
   };
@@ -468,14 +661,9 @@ if (manager) {
       })
       .then(data => {
         const items = Array.isArray(data?.items) ? data.items.slice() : [];
-        items.sort((a, b) => {
-          const posA = Number.isFinite(Number(a.position)) ? Number(a.position) : 0;
-          const posB = Number.isFinite(Number(b.position)) ? Number(b.position) : 0;
-          return posA - posB;
-        });
         state.items = items;
-        state.order = items.map(item => item.id);
         renderItems(items);
+        state.orderSignature = JSON.stringify(buildOrderPayload());
       })
       .catch(error => {
         console.error('Failed to load menu items', error);
@@ -508,14 +696,25 @@ if (manager) {
 
     setRowBusy(row, true);
 
+    const parentIdValue = data.parentId ? String(data.parentId) : '';
+    const siblingRows = Array.from(itemsBody.querySelectorAll('tr[data-menu-row]'))
+      .filter(entry => (entry.dataset.parentId || '') === parentIdValue);
+    const position = siblingRows.indexOf(row);
+
     const payload = {
       label: data.label,
       href: data.href,
       icon: data.icon || null,
-      position: Array.from(itemsBody.querySelectorAll('tr[data-menu-row]')).indexOf(row) + 1,
+      parentId: data.parentId || null,
+      layout: data.layout || 'link',
+      detailTitle: data.detailTitle || null,
+      detailText: data.detailText || null,
+      detailSubline: data.detailSubline || null,
+      position: position >= 0 ? position : 0,
       isExternal: data.isExternal,
       locale: data.locale || null,
-      isActive: data.isActive
+      isActive: data.isActive,
+      isStartpage: data.isStartpage
     };
     if (data.id) {
       payload.id = data.id;
@@ -546,15 +745,27 @@ if (manager) {
         }
         row.querySelector('[data-menu-label]').value = item.label || payload.label;
         row.querySelector('[data-menu-href]').value = item.href || payload.href;
+        row.querySelector('[data-menu-parent]').value = item.parentId ? String(item.parentId) : '';
+        row.querySelector('[data-menu-layout]').value = item.layout || payload.layout || 'link';
         row.querySelector('[data-menu-icon]').value = item.icon || '';
         row.querySelector('[data-menu-locale]').value = item.locale || '';
+        row.querySelector('[data-menu-startpage]').checked = item.isStartpage === true;
         row.querySelector('[data-menu-external]').checked = item.isExternal === true;
         row.querySelector('[data-menu-active]').checked = item.isActive !== false;
+        row.querySelector('[data-menu-detail-title]').value = item.detailTitle || '';
+        row.querySelector('[data-menu-detail-text]').value = item.detailText || '';
+        row.querySelector('[data-menu-detail-subline]').value = item.detailSubline || '';
+        row.dataset.parentId = item.parentId ? String(item.parentId) : '';
         const iconPreview = row.querySelector('[data-menu-icon-preview]');
         updateIconPreview(iconPreview, item.icon || '');
         row.querySelector('[data-menu-save]').textContent = 'Speichern';
         setRowDirty(row, false);
         hideFeedback();
+        const hasDirtyRows = Array.from(itemsBody.querySelectorAll('tr[data-menu-row]'))
+          .some(entry => entry !== row && entry.dataset.dirty === '1');
+        if (!hasDirtyRows) {
+          loadMenuItems(resolveLocale());
+        }
       })
       .catch(error => {
         console.error('Failed to save menu item', error);
@@ -601,33 +812,49 @@ if (manager) {
       });
   };
 
+  const buildOrderPayload = () => {
+    const rows = Array.from(itemsBody.querySelectorAll('tr[data-menu-row]'));
+    const parentPositions = new Map();
+    const orderedItems = [];
+
+    rows.forEach(row => {
+      const id = row.dataset.id ? Number(row.dataset.id) : null;
+      if (!id) {
+        return;
+      }
+      const parentKey = row.dataset.parentId || 'root';
+      const current = parentPositions.get(parentKey) ?? 0;
+      orderedItems.push({ id, position: current });
+      parentPositions.set(parentKey, current + 1);
+    });
+
+    return orderedItems;
+  };
+
   const saveOrder = () => {
     if (!state.pageId) {
       return;
     }
-    const ids = Array.from(itemsBody.querySelectorAll('tr[data-menu-row]'))
-      .map(row => row.dataset.id)
-      .filter(Boolean)
-      .map(id => Number(id));
-    if (ids.length < 2) {
-      state.order = ids;
+    const orderedItems = buildOrderPayload();
+    if (orderedItems.length < 2) {
+      state.orderSignature = JSON.stringify(orderedItems);
       return;
     }
-    const hasChanged = ids.length !== state.order.length
-      || ids.some((id, index) => id !== state.order[index]);
+    const signature = JSON.stringify(orderedItems);
+    const hasChanged = signature !== state.orderSignature;
     if (!hasChanged) {
       return;
     }
     apiFetch(withNamespace(buildPath(state.pageId, '/menu/sort')), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderedIds: ids })
+      body: JSON.stringify({ orderedItems })
     })
       .then(response => {
         if (!response.ok && response.status !== 204) {
           throw new Error('menu-sort-failed');
         }
-        state.order = ids;
+        state.orderSignature = signature;
         hideFeedback();
       })
       .catch(error => {
@@ -649,6 +876,12 @@ if (manager) {
       label: '',
       href: '',
       icon: '',
+      layout: 'link',
+      parentId: null,
+      detailTitle: '',
+      detailText: '',
+      detailSubline: '',
+      isStartpage: false,
       locale: resolveLocale() || '',
       isExternal: false,
       isActive: true
@@ -659,6 +892,7 @@ if (manager) {
 
   const attachDragHandlers = () => {
     let draggingRow = null;
+    let draggingParentId = '';
 
     const getDragAfterElement = (container, y) => {
       const rows = [...container.querySelectorAll('tr[data-menu-row]:not(.is-dragging)')];
@@ -684,6 +918,7 @@ if (manager) {
         return;
       }
       draggingRow = row;
+      draggingParentId = row.dataset.parentId || '';
       row.classList.add('is-dragging');
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', row.dataset.id);
@@ -691,6 +926,10 @@ if (manager) {
 
     itemsBody.addEventListener('dragover', event => {
       if (!draggingRow) {
+        return;
+      }
+      const targetRow = event.target.closest('tr[data-menu-row]');
+      if (targetRow && (targetRow.dataset.parentId || '') !== draggingParentId) {
         return;
       }
       event.preventDefault();
@@ -706,6 +945,7 @@ if (manager) {
       if (draggingRow) {
         draggingRow.classList.remove('is-dragging');
         draggingRow = null;
+        draggingParentId = '';
         saveOrder();
       }
     });

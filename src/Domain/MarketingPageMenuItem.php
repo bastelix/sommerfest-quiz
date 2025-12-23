@@ -20,6 +20,16 @@ final class MarketingPageMenuItem
 
     private ?string $icon;
 
+    private ?int $parentId;
+
+    private string $layout;
+
+    private ?string $detailTitle;
+
+    private ?string $detailText;
+
+    private ?string $detailSubline;
+
     private int $position;
 
     private bool $isExternal;
@@ -27,6 +37,8 @@ final class MarketingPageMenuItem
     private string $locale;
 
     private bool $isActive;
+
+    private bool $isStartpage;
 
     private ?DateTimeImmutable $updatedAt;
 
@@ -37,10 +49,16 @@ final class MarketingPageMenuItem
         string $label,
         string $href,
         ?string $icon,
+        ?int $parentId,
+        string $layout,
+        ?string $detailTitle,
+        ?string $detailText,
+        ?string $detailSubline,
         int $position,
         bool $isExternal,
         string $locale,
         bool $isActive,
+        bool $isStartpage,
         ?DateTimeImmutable $updatedAt
     ) {
         $this->id = $id;
@@ -49,10 +67,16 @@ final class MarketingPageMenuItem
         $this->label = $label;
         $this->href = $href;
         $this->icon = $icon !== '' ? $icon : null;
+        $this->parentId = $parentId;
+        $this->layout = $layout;
+        $this->detailTitle = $detailTitle !== '' ? $detailTitle : null;
+        $this->detailText = $detailText !== '' ? $detailText : null;
+        $this->detailSubline = $detailSubline !== '' ? $detailSubline : null;
         $this->position = $position;
         $this->isExternal = $isExternal;
         $this->locale = $locale;
         $this->isActive = $isActive;
+        $this->isStartpage = $isStartpage;
         $this->updatedAt = $updatedAt;
     }
 
@@ -86,6 +110,31 @@ final class MarketingPageMenuItem
         return $this->icon;
     }
 
+    public function getParentId(): ?int
+    {
+        return $this->parentId;
+    }
+
+    public function getLayout(): string
+    {
+        return $this->layout;
+    }
+
+    public function getDetailTitle(): ?string
+    {
+        return $this->detailTitle;
+    }
+
+    public function getDetailText(): ?string
+    {
+        return $this->detailText;
+    }
+
+    public function getDetailSubline(): ?string
+    {
+        return $this->detailSubline;
+    }
+
     public function getPosition(): int
     {
         return $this->position;
@@ -104,6 +153,11 @@ final class MarketingPageMenuItem
     public function isActive(): bool
     {
         return $this->isActive;
+    }
+
+    public function isStartpage(): bool
+    {
+        return $this->isStartpage;
     }
 
     public function getUpdatedAt(): ?DateTimeImmutable

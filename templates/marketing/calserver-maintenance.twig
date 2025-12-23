@@ -1,9 +1,7 @@
 {% extends 'layout.twig' %}
 
-{% set links = marketingMenuItems|default([]) %}
-{% if marketingWikiMenu is defined %}
-  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
-{% endif %}
+{% import 'marketing/partials/menu.twig' as menu %}
+{% set menuItems = marketingMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('calHelp – Wartungsmodus') }}{% endblock %}
 
@@ -40,20 +38,7 @@
           </div>
         </div>
         <div class="uk-navbar-right">
-          <ul class="uk-navbar-nav uk-visible@m">
-            {% for link in links %}
-              {% set icon = link.icon|default(null) %}
-              {% set isExternal = link.isExternal|default(false) %}
-              <li>
-                <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
-                  {% if icon %}
-                    <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
-                  {% endif %}
-                  {{ link.label }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
+          {{ menu.render_menu(menuItems, 'uk-navbar-nav uk-visible@m', 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
           {% include 'components/config-menu.twig' with { show_help: false } %}
 
         </div>
@@ -63,20 +48,7 @@
     <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
-        <ul class="uk-nav uk-nav-default">
-          {% for link in links %}
-            {% set icon = link.icon|default(null) %}
-            {% set isExternal = link.isExternal|default(false) %}
-            <li>
-              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
-                {% if icon %}
-                  <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
-                {% endif %}
-                {{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
+        {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default') }}
         <a class="uk-button uk-button-default git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
            href="#support">
           {{ t('calserver_maintenance_cta_secondary') }}
@@ -209,7 +181,7 @@
     <div class="footer-section footer-navigation">
       <strong>Seiten</strong>
       <ul>
-        {% for link in links %}
+        {% for link in menuItems %}
           <li><a href="{{ link.href }}">{{ link.label }}</a></li>
         {% endfor %}
       </ul>

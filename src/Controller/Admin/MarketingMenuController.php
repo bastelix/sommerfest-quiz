@@ -19,9 +19,13 @@ final class MarketingMenuController
     private const MAX_HREF_LENGTH = 2048;
     private const MAX_ICON_LENGTH = 64;
     private const MAX_LOCALE_LENGTH = 8;
+    private const MAX_DETAIL_TITLE_LENGTH = 160;
+    private const MAX_DETAIL_TEXT_LENGTH = 500;
+    private const MAX_DETAIL_SUBLINE_LENGTH = 160;
 
     /** @var string[] */
     private const ALLOWED_SCHEMES = ['http', 'https', 'mailto', 'tel'];
+    private const ALLOWED_LAYOUTS = ['link', 'dropdown', 'mega', 'column'];
 
     private MarketingMenuService $menuService;
     private PageService $pageService;
@@ -97,10 +101,16 @@ final class MarketingMenuController
                     $data['label'],
                     $data['href'],
                     $data['icon'],
+                    $data['parentId'],
+                    $data['layout'],
+                    $data['detailTitle'],
+                    $data['detailText'],
+                    $data['detailSubline'],
                     $data['position'],
                     $data['isExternal'],
                     $data['locale'],
-                    $data['isActive']
+                    $data['isActive'],
+                    $data['isStartpage']
                 );
                 $status = 201;
             } else {
@@ -109,10 +119,16 @@ final class MarketingMenuController
                     $data['label'],
                     $data['href'],
                     $data['icon'],
+                    $data['parentId'],
+                    $data['layout'],
+                    $data['detailTitle'],
+                    $data['detailText'],
+                    $data['detailSubline'],
                     $data['position'],
                     $data['isExternal'],
                     $data['locale'],
-                    $data['isActive']
+                    $data['isActive'],
+                    $data['isStartpage']
                 );
                 $status = 200;
             }
@@ -160,7 +176,7 @@ final class MarketingMenuController
             return $this->jsonError($response, 'Invalid payload.', 400);
         }
 
-        $orderedIds = $payload['orderedIds'] ?? $payload['order'] ?? null;
+        $orderedIds = $payload['orderedItems'] ?? $payload['orderedIds'] ?? $payload['order'] ?? null;
         if (!is_array($orderedIds)) {
             return $this->jsonError($response, 'orderedIds must be an array.', 422);
         }
@@ -205,9 +221,43 @@ final class MarketingMenuController
             $errors['icon'] = sprintf('Icon must be at most %d characters.', self::MAX_ICON_LENGTH);
         }
 
+        $layout = isset($payload['layout']) ? strtolower(trim((string) $payload['layout'])) : 'link';
+        if (!in_array($layout, self::ALLOWED_LAYOUTS, true)) {
+            $errors['layout'] = 'Layout is invalid.';
+        }
+
+        $parentId = isset($payload['parentId']) ? (int) $payload['parentId'] : null;
+        if ($parentId !== null && $parentId <= 0) {
+            $parentId = null;
+        }
+
         $locale = isset($payload['locale']) ? strtolower(trim((string) $payload['locale'])) : null;
         if ($locale !== null && $locale !== '' && mb_strlen($locale) > self::MAX_LOCALE_LENGTH) {
             $errors['locale'] = sprintf('Locale must be at most %d characters.', self::MAX_LOCALE_LENGTH);
+        }
+
+        $detailTitle = isset($payload['detailTitle']) ? trim((string) $payload['detailTitle']) : null;
+        if ($detailTitle !== null && $detailTitle !== '' && mb_strlen($detailTitle) > self::MAX_DETAIL_TITLE_LENGTH) {
+            $errors['detailTitle'] = sprintf(
+                'Detail title must be at most %d characters.',
+                self::MAX_DETAIL_TITLE_LENGTH
+            );
+        }
+
+        $detailText = isset($payload['detailText']) ? trim((string) $payload['detailText']) : null;
+        if ($detailText !== null && $detailText !== '' && mb_strlen($detailText) > self::MAX_DETAIL_TEXT_LENGTH) {
+            $errors['detailText'] = sprintf(
+                'Detail text must be at most %d characters.',
+                self::MAX_DETAIL_TEXT_LENGTH
+            );
+        }
+
+        $detailSubline = isset($payload['detailSubline']) ? trim((string) $payload['detailSubline']) : null;
+        if ($detailSubline !== null && $detailSubline !== '' && mb_strlen($detailSubline) > self::MAX_DETAIL_SUBLINE_LENGTH) {
+            $errors['detailSubline'] = sprintf(
+                'Detail subline must be at most %d characters.',
+                self::MAX_DETAIL_SUBLINE_LENGTH
+            );
         }
 
         $position = null;
@@ -223,10 +273,16 @@ final class MarketingMenuController
             'label' => $label,
             'href' => $href,
             'icon' => $icon !== '' ? $icon : null,
+            'parentId' => $parentId,
+            'layout' => $layout,
             'position' => $position,
             'isExternal' => $this->normalizeBoolean($payload['isExternal'] ?? $payload['external'] ?? false),
             'locale' => $locale !== '' ? $locale : null,
             'isActive' => $this->normalizeBoolean($payload['isActive'] ?? true),
+            'isStartpage' => $this->normalizeBoolean($payload['isStartpage'] ?? false),
+            'detailTitle' => $detailTitle !== '' ? $detailTitle : null,
+            'detailText' => $detailText !== '' ? $detailText : null,
+            'detailSubline' => $detailSubline !== '' ? $detailSubline : null,
         ];
 
         return [$data, $errors];
@@ -298,10 +354,16 @@ final class MarketingMenuController
             'label' => $item->getLabel(),
             'href' => $item->getHref(),
             'icon' => $item->getIcon(),
+            'parentId' => $item->getParentId(),
+            'layout' => $item->getLayout(),
+            'detailTitle' => $item->getDetailTitle(),
+            'detailText' => $item->getDetailText(),
+            'detailSubline' => $item->getDetailSubline(),
             'position' => $item->getPosition(),
             'isExternal' => $item->isExternal(),
             'locale' => $item->getLocale(),
             'isActive' => $item->isActive(),
+            'isStartpage' => $item->isStartpage(),
             'updatedAt' => $item->getUpdatedAt()?->format(DATE_ATOM),
         ];
     }

@@ -1,9 +1,7 @@
 {% extends 'layout.twig' %}
 
-{% set links = marketingMenuItems|default([]) %}
-{% if marketingWikiMenu is defined %}
-  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
-{% endif %}
+{% import 'marketing/partials/menu.twig' as menu %}
+{% set menuItems = marketingMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('QuizRace – Das interaktive Team-Quiz für Events') }}{% endblock %}
 
@@ -25,11 +23,6 @@
 {% block body %}
   <div class="landing-content">
     {% set headerMarkup = headerContent is defined and headerContent ? headerContent : '' %}
-    {% set wikiLinkMarkup = '' %}
-    {% if marketingWikiMenu is defined %}
-      {% set wikiLinkMarkup = '<li><a href="' ~ marketingWikiMenu.url ~ '"><span class="uk-margin-small-right" uk-icon="icon: file-text"></span>' ~ marketingWikiMenu.label ~ '</a></li>' %}
-    {% endif %}
-    {% set headerMarkup = headerMarkup|replace({'{{ marketing_wiki_link }}': wikiLinkMarkup}) %}
     <header class="qr-topbar">
       {{ headerMarkup|raw }}
     </header>
@@ -44,20 +37,7 @@
     <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
-        <ul class="uk-nav uk-nav-default">
-          {% for link in links %}
-            {% set icon = link.icon|default(null) %}
-            {% set isExternal = link.isExternal|default(false) %}
-            <li>
-              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
-                {% if icon %}
-                  <span class="uk-margin-small-right" uk-icon="icon: {{ icon }}"></span>
-                {% endif %}
-                {{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
+        {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default') }}
         <a class="uk-button uk-button-default git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ" target="_blank" rel="noopener">
           <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
         </a>

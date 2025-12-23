@@ -170,6 +170,9 @@
             Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
           </p>
           <p class="uk-text-meta uk-margin-small-top">
+            Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
+          </p>
+          <p class="uk-text-meta uk-margin-small-top">
             Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
           </p>
           <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
@@ -180,16 +183,20 @@
                   <th class="uk-table-shrink"></th>
                   <th>Label</th>
                   <th>Link</th>
+                  <th class="uk-table-shrink">Parent</th>
+                  <th class="uk-table-shrink">Layout</th>
                   <th class="uk-table-shrink">Icon</th>
                   <th class="uk-table-shrink">Locale</th>
+                  <th class="uk-table-shrink uk-text-center">Start</th>
                   <th class="uk-table-shrink uk-text-center">Extern</th>
                   <th class="uk-table-shrink uk-text-center">Aktiv</th>
+                  <th>Erklärung</th>
                   <th class="uk-table-shrink uk-text-right">Aktionen</th>
                 </tr>
               </thead>
               <tbody data-menu-items>
                 <tr data-menu-loading-row>
-                  <td colspan="8">Lädt…</td>
+                  <td colspan="12">Lädt…</td>
                 </tr>
               </tbody>
             </table>
@@ -211,7 +218,7 @@
                   return;
                 }
                 loadingRow.dataset.menuFallbackShown = 'true';
-                loadingRow.innerHTML = '<td colspan="8" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
+                loadingRow.innerHTML = '<td colspan="12" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
               };
 
               const clearErrorIfReady = () => {
@@ -220,7 +227,7 @@
                   return;
                 }
                 loadingRow.dataset.menuFallbackShown = 'false';
-                loadingRow.innerHTML = '<td colspan="8">Lädt…</td>';
+                loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
               };
 
               window.addEventListener('load', () => {

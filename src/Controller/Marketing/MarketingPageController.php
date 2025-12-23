@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
-use App\Domain\MarketingPageMenuItem;
 use App\Domain\Roles;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
@@ -47,14 +46,6 @@ class MarketingPageController
     private const CALHELP_NEWS_PLACEHOLDER = '__CALHELP_NEWS_SECTION__';
 
     private const DEFAULT_NEWSLETTER_BRAND = 'QuizRace';
-    private const DEFAULT_MARKETING_MENU = [
-        ['href' => '#innovations', 'label' => 'Innovationen', 'icon' => 'star'],
-        ['href' => '#how-it-works', 'label' => 'So funktioniert’s', 'icon' => 'settings'],
-        ['href' => '#scenarios', 'label' => 'Szenarien', 'icon' => 'thumbnails'],
-        ['href' => '#pricing', 'label' => 'Preise', 'icon' => 'credit-card'],
-        ['href' => '#faq', 'label' => 'FAQ', 'icon' => 'question'],
-        ['href' => '#contact-us', 'label' => 'Kontakt', 'icon' => 'mail'],
-    ];
 
     /** @var array<string, string> */
     private const NEWSLETTER_BRANDS = [
@@ -222,7 +213,6 @@ class MarketingPageController
         $isAdmin = false;
         if ($templateSlug === 'landing') {
             $isAdmin = ($_SESSION['user']['role'] ?? null) === Roles::ADMIN;
-            $headerContent = $this->loadHeaderContent($view, $page->getNamespace(), $page->getSlug(), $locale);
         }
 
         $config = $this->seo->load($page->getId());
@@ -235,15 +225,12 @@ class MarketingPageController
             $chatPath = sprintf('/m/%s/chat', $templateSlug);
         }
 
-        $marketingMenuItems = $this->marketingMenu->getMenuItemsForSlug(
+        $marketingMenuItems = $this->marketingMenu->getMenuTreeForSlug(
             $namespace,
             $page->getSlug(),
             $locale,
             true
         );
-        if ($marketingMenuItems === []) {
-            $marketingMenuItems = self::DEFAULT_MARKETING_MENU;
-        }
 
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
@@ -267,7 +254,6 @@ class MarketingPageController
             'marketingSlug' => $templateSlug,
             'marketingChatEndpoint' => $basePath . $chatPath,
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
-            'marketingMenuItems' => $marketingMenuItems,
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
         ];
@@ -313,8 +299,16 @@ class MarketingPageController
                     'url' => $wikiUrl,
                 ];
                 $data['marketingWikiArticles'] = $wikiArticles;
+                $marketingMenuItems = $this->appendWikiMenuItem($marketingMenuItems, $label, $wikiUrl);
             }
         }
+
+        if ($templateSlug === 'landing') {
+            $menuMarkup = $this->renderMarketingMenuMarkup($view, $marketingMenuItems, 'uk-navbar-nav uk-visible@m');
+            $headerContent = $this->loadHeaderContent($view, $menuMarkup);
+        }
+
+        $data['marketingMenuItems'] = $marketingMenuItems;
 
         $data['calhelpNewsPlaceholder'] = $calhelpNewsPlaceholderActive ? self::CALHELP_NEWS_PLACEHOLDER : null;
         $data['calhelpNewsPlaceholderActive'] = $calhelpNewsPlaceholderActive;
@@ -369,7 +363,7 @@ class MarketingPageController
         return sprintf('%s–%s', $startLabel, $endLabel);
     }
 
-    private function loadHeaderContent(Twig $view, string $namespace, string $slug, string $locale): string
+    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup): string
     {
         $filePath = dirname(__DIR__, 3) . '/content/header.html';
         if (!is_readable($filePath)) {
@@ -383,59 +377,37 @@ class MarketingPageController
 
         $configMenu = $view->fetch('components/config-menu.twig', ['show_help' => false]);
         $lockedMenu = '<div class="qr-header-config-menu" contenteditable="false">' . $configMenu . '</div>';
-        $marketingMenu = $this->buildMarketingMenuMarkup($namespace, $slug, $locale);
-
-        $fileContent = str_replace('{{ marketing_menu }}', $marketingMenu, $fileContent);
+        $fileContent = str_replace('{{ marketing_menu }}', $marketingMenuMarkup, $fileContent);
 
         return str_replace('{{ config_menu }}', $lockedMenu, $fileContent);
     }
 
-    private function buildMarketingMenuMarkup(string $namespace, string $slug, string $locale): string
+    private function renderMarketingMenuMarkup(Twig $view, array $menuItems, string $navClass): string
     {
-        $menuItems = $this->marketingMenu->getMenuItemsForSlug($namespace, $slug, $locale, true);
-        if ($menuItems === []) {
-            $menuItems = self::DEFAULT_MARKETING_MENU;
-        }
-
-        $lines = ['<ul class="uk-navbar-nav uk-visible@m">'];
-        foreach ($menuItems as $item) {
-            $lines[] = $this->renderMarketingMenuItem($item);
-        }
-        $lines[] = '  {{ marketing_wiki_link }}';
-        $lines[] = '</ul>';
-
-        return implode("\n", $lines);
+        return $view->fetch('marketing/partials/menu-main.twig', [
+            'menuItems' => $menuItems,
+            'navClass' => $navClass,
+            'dropdownAttr' => 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"',
+        ]);
     }
-
     /**
-     * @param MarketingPageMenuItem|array{href:string,label:string,icon?:string,isExternal?:bool} $item
+     * @param array<int, array<string, mixed>> $menuItems
+     * @return array<int, array<string, mixed>>
      */
-    private function renderMarketingMenuItem(MarketingPageMenuItem|array $item): string
+    private function appendWikiMenuItem(array $menuItems, string $label, string $url): array
     {
-        if ($item instanceof MarketingPageMenuItem) {
-            $label = $item->getLabel();
-            $href = $item->getHref();
-            $icon = $item->getIcon();
-            $isExternal = $item->isExternal();
-        } else {
-            $label = (string) $item['label'];
-            $href = (string) $item['href'];
-            $icon = $item['icon'] ?? null;
-            $isExternal = $item['isExternal'] ?? false;
-        }
+        $menuItems[] = [
+            'id' => 'wiki',
+            'label' => $label,
+            'href' => $url,
+            'icon' => 'file-text',
+            'layout' => 'link',
+            'isExternal' => false,
+            'isActive' => true,
+            'children' => [],
+        ];
 
-        $safeLabel = htmlspecialchars($label, ENT_QUOTES);
-        $safeHref = htmlspecialchars($href, ENT_QUOTES);
-        $iconMarkup = '';
-
-        if (is_string($icon) && $icon !== '') {
-            $safeIcon = htmlspecialchars($icon, ENT_QUOTES);
-            $iconMarkup = sprintf('<span class="uk-margin-small-right" uk-icon="icon: %s"></span>', $safeIcon);
-        }
-
-        $externalAttrs = $isExternal ? ' target="_blank" rel="noopener"' : '';
-
-        return sprintf('  <li><a href="%s"%s>%s%s</a></li>', $safeHref, $externalAttrs, $iconMarkup, $safeLabel);
+        return $menuItems;
     }
 
     /**
