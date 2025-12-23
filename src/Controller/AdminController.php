@@ -345,7 +345,7 @@ class AdminController
         }
 
         foreach ($availableNamespaces as $index => $entry) {
-            $entry['namespace'] = strtolower(trim((string) ($entry['namespace'] ?? '')));
+            $entry['namespace'] = strtolower(trim((string) $entry['namespace']));
             $availableNamespaces[$index] = $entry;
         }
 
