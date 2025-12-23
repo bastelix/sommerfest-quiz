@@ -8,7 +8,6 @@ use App\Infrastructure\MailProviderRepository;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\NamespaceAccessService;
-use App\Service\DomainStartPageService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
@@ -18,7 +17,6 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 use Slim\Views\Twig;
-use Throwable;
 
 class MailProviderController
 {
@@ -28,7 +26,6 @@ class MailProviderController
 
     private MailProviderManager $manager;
 
-    private ?DomainStartPageService $domainStartPages;
 
     /**
      * @var array<string,array<string,string>>
@@ -51,13 +48,11 @@ class MailProviderController
     public function __construct(
         ?MailProviderRepository $repository,
         SettingsService $settings,
-        MailProviderManager $manager,
-        ?DomainStartPageService $domainStartPages = null
+        MailProviderManager $manager
     ) {
         $this->repository = $repository;
         $this->settings = $settings;
         $this->manager = $manager;
-        $this->domainStartPages = $domainStartPages;
     }
 
     public function index(Request $request, Response $response): Response
@@ -96,7 +91,6 @@ class MailProviderController
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
             'errorMessage' => $error,
-            'domainOverrides' => $this->collectDomainOverrides(),
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
         ]);
@@ -280,66 +274,6 @@ class MailProviderController
         }
 
         return $result;
-    }
-
-    /**
-     * @return array<int,array<string,bool|string>>
-     */
-    private function collectDomainOverrides(): array
-    {
-        if (!$this->domainStartPages instanceof DomainStartPageService) {
-            return [];
-        }
-
-        try {
-            $mappings = $this->domainStartPages->getAllMappings();
-        } catch (Throwable $exception) {
-            error_log('Failed to load domain SMTP overrides: ' . $exception->getMessage());
-
-            return [];
-        }
-
-        $overrides = [];
-        foreach ($mappings as $domain => $config) {
-            $dsn = $this->normalizeString($config['smtp_dsn'] ?? null);
-            $host = $this->normalizeString($config['smtp_host'] ?? null);
-            $user = $this->normalizeString($config['smtp_user'] ?? null);
-            $encryption = $this->normalizeString($config['smtp_encryption'] ?? null);
-            $hasPassword = (bool) $config['has_smtp_pass'];
-            $port = $config['smtp_port'] ?? null;
-            $hasPort = is_int($port) && $port > 0;
-
-            $hasDsn = $dsn !== null;
-            $hasCredentials = $host !== null || $user !== null || $hasPassword || $hasPort || $encryption !== null;
-
-            if (!$hasDsn && !$hasCredentials) {
-                continue;
-            }
-
-            $overrides[] = [
-                'domain' => (string) $domain,
-                'has_dsn' => $hasDsn,
-                'has_credentials' => $hasCredentials,
-            ];
-        }
-
-        usort(
-            $overrides,
-            static fn (array $left, array $right): int => strcmp((string) $left['domain'], (string) $right['domain'])
-        );
-
-        return $overrides;
-    }
-
-    private function normalizeString(mixed $value): ?string
-    {
-        if (!is_string($value)) {
-            return null;
-        }
-
-        $trimmed = trim($value);
-
-        return $trimmed === '' ? null : $trimmed;
     }
 
     /**

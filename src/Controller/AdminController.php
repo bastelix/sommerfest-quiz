@@ -13,14 +13,13 @@ use App\Repository\NamespaceRepository;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\PageService;
 use App\Service\ResultService;
 use App\Service\SettingsService;
 use App\Service\StripeService;
 use App\Service\TeamService;
 use App\Service\TenantService;
-use App\Service\TranslationService;
 use App\Service\UrlService;
 use App\Service\UserService;
 use App\Service\VersionService;
@@ -166,7 +165,6 @@ class AdminController
             ?: $uri->getHost();
         $availableNamespaces = [];
         $pageContents = [];
-        $domainStartPageOptions = [];
         $domainChatDomains = [];
         $domainChatPages = [];
         $marketingNewsletterConfigs = [];
@@ -182,7 +180,29 @@ class AdminController
         $mediaLandingSlugs = [];
 
         $loadMarketingData = $section === 'pages' && $role === Roles::ADMIN;
+        $loadNamespaces = $section === 'management' || $loadMarketingData;
         $loadMediaLandingSlugs = $section === 'media';
+        if ($loadNamespaces) {
+            $namespaceRepository = new NamespaceRepository($pdo);
+            try {
+                $availableNamespaces = $namespaceRepository->list();
+            } catch (\RuntimeException $exception) {
+                $availableNamespaces = [];
+            }
+            if (!array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+            )) {
+                $availableNamespaces[] = [
+                    'namespace' => PageService::DEFAULT_NAMESPACE,
+                    'label' => null,
+                    'is_active' => true,
+                    'created_at' => null,
+                    'updated_at' => null,
+                ];
+            }
+        }
+
         if ($loadMarketingData || $loadMediaLandingSlugs) {
             $pageSvc = new PageService($pdo);
             $seoSvc = new PageSeoConfigService($pdo);
@@ -198,24 +218,6 @@ class AdminController
             }
             if ($loadMarketingData) {
                 $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
-                $namespaceRepository = new NamespaceRepository($pdo);
-                try {
-                    $availableNamespaces = $namespaceRepository->list();
-                } catch (\RuntimeException $exception) {
-                    $availableNamespaces = [];
-                }
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-                )) {
-                    $availableNamespaces[] = [
-                        'namespace' => PageService::DEFAULT_NAMESPACE,
-                        'label' => null,
-                        'is_active' => true,
-                        'created_at' => null,
-                        'updated_at' => null,
-                    ];
-                }
                 $currentNamespaceExists = array_filter(
                     $availableNamespaces,
                     static fn (array $entry): bool => $entry['namespace'] === $namespace
@@ -247,26 +249,8 @@ class AdminController
                 }
 
                 $marketingPages = $this->filterMarketingPages($allPages);
-                $translator = $request->getAttribute('translator');
-                $translationService = $translator instanceof TranslationService ? $translator : null;
-                $domainService = new DomainStartPageService($pdo);
-                $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
-                if ($translationService !== null) {
-                    $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
-                    $domainStartPageOptions['events'] = $translationService->translate('option_events_page');
-                }
-                $coreOrder = ['help', 'events'];
-                $orderedDomainOptions = [];
-                foreach ($coreOrder as $slug) {
-                    if (isset($domainStartPageOptions[$slug])) {
-                        $orderedDomainOptions[$slug] = $domainStartPageOptions[$slug];
-                        unset($domainStartPageOptions[$slug]);
-                    }
-                }
-                $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
-
-                $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
-                $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $uri->getHost());
+                $domainService = new DomainService($pdo);
+                $domainChatDomains = $domainService->listDomains(includeInactive: true);
 
                 $domainChatPages = [];
                 $seenPageSlugs = [];
@@ -491,7 +475,6 @@ class AdminController
               'landingNewsEntries' => $landingNewsEntries,
               'landingNewsStatus' => $landingNewsStatus,
               'pageTab' => $pageTab,
-              'domain_start_page_options' => $domainStartPageOptions,
               'domain_chat_domains' => $domainChatDomains,
               'domain_chat_pages' => $domainChatPages,
               'marketingNewsletterConfigs' => $marketingNewsletterConfigs,
@@ -583,31 +566,21 @@ class AdminController
     private function buildSeoPageData(
         PageSeoConfigService $service,
         array $pages,
-        DomainStartPageService $domainService,
+        DomainService $domainService,
         string $host
     ): array {
-        $mappings = $domainService->getAllMappings();
-        $domainsBySlug = [];
-        foreach ($mappings as $domain => $config) {
-            $parsed = $domainService->parseStartPageKey($config['start_page']);
-            $slug = $parsed['slug'];
-            if ($slug === '') {
-                continue;
-            }
-            $domainsBySlug[$slug][] = $domain;
-        }
-
+        $domainsByNamespace = $domainService->listDomainsByNamespace(includeInactive: true);
         $mainDomain = $domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
-        if ($mainDomain !== '') {
-            $domainsBySlug['landing'][] = $mainDomain;
-        }
-
         $currentHost = $domainService->normalizeDomain($host);
         $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
 
         $result = [];
         foreach ($pages as $page) {
-            $pageDomains = $domainsBySlug[$page->getSlug()] ?? [];
+            $namespace = $page->getNamespace() !== '' ? $page->getNamespace() : PageService::DEFAULT_NAMESPACE;
+            $pageDomains = array_map(
+                static fn (array $domain): string => $domain['normalized_host'],
+                $domainsByNamespace[$namespace] ?? []
+            );
             if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
                 $pageDomains[] = $mainDomain;
             }

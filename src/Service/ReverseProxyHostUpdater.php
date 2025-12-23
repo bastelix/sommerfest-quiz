@@ -17,7 +17,7 @@ final class ReverseProxyHostUpdater
 {
     private const MARKETING_ENV_KEY = 'MARKETING_DOMAINS';
 
-    private DomainStartPageService $domainService;
+    private DomainService $domainService;
 
     private NginxService $nginxService;
 
@@ -26,7 +26,7 @@ final class ReverseProxyHostUpdater
     private string $nginxContainer;
 
     public function __construct(
-        DomainStartPageService $domainService,
+        DomainService $domainService,
         NginxService $nginxService,
         ?string $envFile = null,
         ?string $nginxContainer = null
@@ -62,7 +62,7 @@ final class ReverseProxyHostUpdater
     {
         $domains = [];
 
-        foreach ($this->domainService->listMarketingDomains() as $domain) {
+        foreach ($this->domainService->listDomains() as $domain) {
             $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
             $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
             if ($normalized !== '') {

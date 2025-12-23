@@ -16,9 +16,9 @@ use function App\runBackgroundProcess;
  */
 final class CertificateProvisioningService
 {
-    private DomainStartPageService $domainService;
+    private DomainService $domainService;
 
-    public function __construct(DomainStartPageService $domainService)
+    public function __construct(DomainService $domainService)
     {
         $this->domainService = $domainService;
     }
@@ -58,8 +58,7 @@ final class CertificateProvisioningService
     {
         $domains = [];
 
-        $providerDomains = $this->domainService->listMarketingDomains();
-        foreach ($providerDomains as $entry) {
+        foreach ($this->domainService->listDomains() as $entry) {
             $host = $entry['host'] !== '' ? $entry['host'] : $entry['normalized_host'];
             $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
             if ($normalized !== '') {

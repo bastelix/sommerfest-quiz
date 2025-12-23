@@ -8,7 +8,7 @@ use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
@@ -39,7 +39,7 @@ class ProjectPagesController
 
     private PageService $pageService;
     private PageSeoConfigService $seoService;
-    private DomainStartPageService $domainService;
+    private DomainService $domainService;
     private NamespaceResolver $namespaceResolver;
     private NamespaceRepository $namespaceRepository;
     private NamespaceService $namespaceService;
@@ -51,7 +51,7 @@ class ProjectPagesController
         ?PDO $pdo = null,
         ?PageService $pageService = null,
         ?PageSeoConfigService $seoService = null,
-        ?DomainStartPageService $domainService = null,
+        ?DomainService $domainService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?NamespaceRepository $namespaceRepository = null,
         ?NamespaceService $namespaceService = null,
@@ -62,7 +62,7 @@ class ProjectPagesController
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
         $this->seoService = $seoService ?? new PageSeoConfigService($pdo);
-        $this->domainService = $domainService ?? new DomainStartPageService($pdo);
+        $this->domainService = $domainService ?? new DomainService($pdo);
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
         $this->namespaceService = $namespaceService ?? new NamespaceService($this->namespaceRepository);
@@ -404,31 +404,21 @@ class ProjectPagesController
     private function buildSeoPageData(
         PageSeoConfigService $service,
         array $pages,
-        DomainStartPageService $domainService,
+        DomainService $domainService,
         string $host
     ): array {
-        $mappings = $domainService->getAllMappings();
-        $domainsBySlug = [];
-        foreach ($mappings as $domain => $config) {
-            $parsed = $domainService->parseStartPageKey($config['start_page']);
-            $slug = $parsed['slug'];
-            if ($slug === '') {
-                continue;
-            }
-            $domainsBySlug[$slug][] = $domain;
-        }
-
+        $domainsByNamespace = $domainService->listDomainsByNamespace(includeInactive: true);
         $mainDomain = $domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
-        if ($mainDomain !== '') {
-            $domainsBySlug['landing'][] = $mainDomain;
-        }
-
         $currentHost = $domainService->normalizeDomain($host);
         $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
 
         $result = [];
         foreach ($pages as $page) {
-            $pageDomains = $domainsBySlug[$page->getSlug()] ?? [];
+            $namespace = $page->getNamespace() !== '' ? $page->getNamespace() : PageService::DEFAULT_NAMESPACE;
+            $pageDomains = array_map(
+                static fn (array $domain): string => $domain['normalized_host'],
+                $domainsByNamespace[$namespace] ?? []
+            );
             if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
                 $pageDomains[] = $mainDomain;
             }

@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Infrastructure\Database;
-use App\Service\DomainStartPageService;
 use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MarketingNewsletterConfigService;
-use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
 use App\Service\NewsletterSubscriptionService;
 use App\Service\SettingsService;
@@ -41,7 +39,6 @@ class NewsletterController
 
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $namespace);
-        $domainService = new DomainStartPageService($pdo);
         $configService = new MarketingNewsletterConfigService($pdo);
 
         $success = false;
@@ -51,17 +48,7 @@ class NewsletterController
             $result = $service->confirmSubscription($token);
             $success = $result->isSuccess();
             if ($success) {
-                $metadata = $result->getMetadata();
-                $landingHost = isset($metadata['landing']) ? (string) $metadata['landing'] : '';
-                $resolved = $landingHost !== '' ? $domainService->getStartPage($landingHost) : null;
-                if ($resolved === null || $resolved === '') {
-                    $resolved = 'landing';
-                }
-
-                $marketingSlug = MarketingSlugResolver::resolveBaseSlug($resolved);
-                if ($marketingSlug === '') {
-                    $marketingSlug = 'landing';
-                }
+                $marketingSlug = 'landing';
 
                 $ctas = $configService->getCtasForSlug($marketingSlug, $namespace);
                 if ($ctas === [] && $marketingSlug !== 'landing') {

@@ -40,7 +40,7 @@ use App\Service\UserService;
 use App\Service\TenantService;
 use App\Service\NginxService;
 use App\Service\SettingsService;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\DomainContactTemplateService;
 use App\Service\PromptTemplateService;
 use App\Service\PageService;
@@ -68,8 +68,6 @@ use App\Service\VersionService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingDomainProvider;
-use App\Service\CertificateProvisioningService;
-use App\Service\ReverseProxyHostUpdater;
 use App\Service\UsernameBlocklistService;
 use App\Service\MarketingPageRouteResolver;
 use App\Infrastructure\Database;
@@ -107,7 +105,7 @@ use App\Controller\Admin\ProjectPagesController;
 use App\Controller\Admin\ProjectController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainChatKnowledgeController;
-use App\Controller\Admin\DomainStartPageController;
+use App\Controller\Admin\DomainController;
 use App\Controller\Admin\MailProviderController;
 use App\Controller\Admin\UsernameBlocklistController;
 use App\Controller\Admin\PromptTemplateController;
@@ -180,7 +178,7 @@ require_once __DIR__ . '/Controller/Admin/ProjectController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingNewsletterController.php';
-require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
+require_once __DIR__ . '/Controller/Admin/DomainController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingPageWikiController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingMenuController.php';
@@ -518,10 +516,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
-        $domainStartPageService = new DomainStartPageService($pdo);
-        $certificateProvisioner = new CertificateProvisioningService($domainStartPageService);
-        $reverseProxyHostUpdater = new ReverseProxyHostUpdater($domainStartPageService, $nginxService);
-        $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
+        $domainService = new DomainService($pdo);
+        $domainContactTemplateService = new DomainContactTemplateService($pdo);
         $promptTemplateService = new PromptTemplateService($pdo);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
         $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
@@ -626,19 +622,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute(
-                'domainStartPageController',
-                new DomainStartPageController(
-                    $domainStartPageService,
-                    $certificateProvisioner,
-                    $reverseProxyHostUpdater,
-                    $settingsService,
-                    $pageService,
-                    $marketingDomainProvider
-                )
+                'domainController',
+                new DomainController($domainService)
             )
             ->withAttribute(
                 'domainContactTemplateController',
-                new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)
+                new DomainContactTemplateController($domainContactTemplateService, $domainService)
             )
             ->withAttribute(
                 'promptTemplateController',
@@ -683,8 +672,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('mailProviderController', new MailProviderController(
                 $mailProviderRepository,
                 $settingsService,
-                $mailProviderManager,
-                $domainStartPageService
+                $mailProviderManager
             ))
             ->withAttribute('namespaceController', new \App\Controller\Admin\NamespaceController($namespaceService))
             ->withAttribute('usernameBlocklistController', new UsernameBlocklistController(
@@ -2054,52 +2042,28 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('settingsController')->post($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->get('/admin/domain-start-pages', function (Request $request, Response $response) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
+    $app->get('/admin/domains', function (Request $request, Response $response) {
+        /** @var DomainController $controller */
+        $controller = $request->getAttribute('domainController');
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->post('/admin/domain-start-pages', function (Request $request, Response $response) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->save($request, $response);
+    $app->post('/admin/domains', function (Request $request, Response $response) {
+        /** @var DomainController $controller */
+        $controller = $request->getAttribute('domainController');
+        return $controller->create($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->delete('/admin/domain-start-pages', function (Request $request, Response $response) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->delete($request, $response);
+    $app->patch('/admin/domains/{id}', function (Request $request, Response $response, array $args) {
+        /** @var DomainController $controller */
+        $controller = $request->getAttribute('domainController');
+        return $controller->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->post('/admin/marketing-domains', function (Request $request, Response $response) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->createMarketingDomain($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
-
-    $app->post('/admin/domain-start-pages/certificate', function (Request $request, Response $response) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->provisionCertificate($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
-
-    $app->patch('/admin/marketing-domains/{id}', function (Request $request, Response $response, array $args) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->updateMarketingDomain($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
-
-    $app->delete('/admin/marketing-domains/{id}', function (Request $request, Response $response, array $args) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->deleteMarketingDomain($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
-
-    $app->post('/admin/marketing-domains/reconcile', function (Request $request, Response $response) {
-        /** @var DomainStartPageController $controller */
-        $controller = $request->getAttribute('domainStartPageController');
-        return $controller->reconcileMarketingDomains($request, $response);
+    $app->delete('/admin/domains/{id}', function (Request $request, Response $response, array $args) {
+        /** @var DomainController $controller */
+        $controller = $request->getAttribute('domainController');
+        return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {

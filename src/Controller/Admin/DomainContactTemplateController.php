@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\DomainContactTemplateService;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\TranslationService;
 use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -17,9 +17,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DomainContactTemplateController
 {
     private DomainContactTemplateService $templates;
-    private DomainStartPageService $domains;
+    private DomainService $domains;
 
-    public function __construct(DomainContactTemplateService $templates, DomainStartPageService $domains) {
+    public function __construct(DomainContactTemplateService $templates, DomainService $domains) {
         $this->templates = $templates;
         $this->domains = $domains;
     }
@@ -116,17 +116,17 @@ class DomainContactTemplateController
     }
 
     private function isAllowedDomain(string $normalized): bool {
-        $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-        $marketing = getenv('MARKETING_DOMAINS') ?: '';
-        $known = $this->domains->determineDomains($mainDomain, (string) $marketing);
-        foreach ($known as $entry) {
-            if ($entry['normalized'] === $normalized) {
+        $mainDomain = $this->domains->normalizeDomain((string) (getenv('MAIN_DOMAIN') ?: ''));
+        if ($mainDomain !== '' && $mainDomain === $normalized) {
+            return true;
+        }
+
+        foreach ($this->domains->listDomains(includeInactive: true) as $entry) {
+            if ($entry['normalized_host'] === $normalized) {
                 return true;
             }
         }
 
-        $stored = $this->domains->getAllMappings();
-
-        return isset($stored[$normalized]);
+        return false;
     }
 }

@@ -2121,55 +2121,85 @@
         <h2 class="uk-heading-bullet">{{ t('heading_management') }}</h2>
 
         <div id="domains" class="uk-card uk-card-default uk-card-body uk-margin">
-          <h3 class="uk-heading-bullet">{{ t('heading_homepage') }}</h3>
+          <h3 class="uk-heading-bullet">{{ t('heading_domains') }}</h3>
           <div class="uk-margin-top">
-            <p class="uk-text-meta">{{ t('text_domain_start_page_hint') }}</p>
+            <p class="uk-text-meta">{{ t('text_domain_management_hint') }}</p>
             <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
               <form
-                id="marketingDomainForm"
+                id="domainForm"
                 class="uk-form-stacked"
                 novalidate
-                data-invalid="{{ t('notify_marketing_domain_invalid') }}"
-                data-error="{{ t('notify_marketing_domain_error') }}"
-                data-success="{{ t('notify_marketing_domain_created') }}"
+                data-invalid="{{ t('notify_domain_invalid') }}"
+                data-error="{{ t('notify_domain_error') }}"
+                data-success="{{ t('notify_domain_saved') }}"
               >
                 <fieldset class="uk-fieldset">
-                  <legend id="domain-add" class="uk-legend">{{ t('heading_marketing_domain_add') }}</legend>
-                  <div class="uk-alert uk-alert-danger uk-margin-small-bottom" id="marketingDomainFormError" hidden role="alert"></div>
+                  <legend id="domain-add" class="uk-legend">{{ t('heading_domain_add') }}</legend>
+                  <input type="hidden" id="domainId" name="id">
+                  <div class="uk-alert uk-alert-danger uk-margin-small-bottom" id="domainFormError" hidden role="alert"></div>
                   <div class="uk-grid-small" uk-grid>
                     <div class="uk-width-1-1 uk-width-1-2@m">
-                      <label class="uk-form-label" for="marketingDomainHost">{{ t('label_marketing_domain_host') }}</label>
+                      <label class="uk-form-label" for="domainHost">{{ t('label_domain_host') }}</label>
                       <div class="uk-form-controls">
                         <input
                           class="uk-input"
                           type="text"
-                          id="marketingDomainHost"
+                          id="domainHost"
                           name="domain"
                           required
-                          placeholder="{{ t('placeholder_marketing_domain_host') }}"
+                          placeholder="{{ t('placeholder_domain_host') }}"
                           autocomplete="off"
                         >
                       </div>
-                      <p class="uk-text-meta uk-margin-small">{{ t('text_marketing_domain_host_hint') }}</p>
+                      <p class="uk-text-meta uk-margin-small">{{ t('text_domain_host_hint') }}</p>
                     </div>
                     <div class="uk-width-1-1 uk-width-1-2@m">
-                      <label class="uk-form-label" for="marketingDomainLabel">{{ t('label_marketing_domain_label') }}</label>
+                      <label class="uk-form-label" for="domainLabel">{{ t('label_domain_label') }}</label>
                       <div class="uk-form-controls">
                         <input
                           class="uk-input"
                           type="text"
-                          id="marketingDomainLabel"
+                          id="domainLabel"
                           name="label"
                           maxlength="120"
-                          placeholder="{{ t('placeholder_marketing_domain_label') }}"
+                          placeholder="{{ t('placeholder_domain_label') }}"
                           autocomplete="off"
                         >
                       </div>
-                      <p class="uk-text-meta uk-margin-small">{{ t('text_marketing_domain_label_hint') }}</p>
+                      <p class="uk-text-meta uk-margin-small">{{ t('text_domain_label_hint') }}</p>
+                    </div>
+                    <div class="uk-width-1-1 uk-width-1-2@m">
+                      <label class="uk-form-label" for="domainNamespace">{{ t('label_domain_namespace') }}</label>
+                      <div class="uk-form-controls">
+                        <select class="uk-select" id="domainNamespace" name="namespace">
+                          <option value="">{{ t('text_domain_namespace_none') }}</option>
+                          {% for entry in available_namespaces|default([]) %}
+                            {% set entryNamespace = entry.namespace|default('') %}
+                            {% if entryNamespace is not empty %}
+                              <option value="{{ entryNamespace }}">{{ entry.label|default(entryNamespace) }}</option>
+                            {% endif %}
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <p class="uk-text-meta uk-margin-small">{{ t('text_domain_namespace_hint') }}</p>
+                    </div>
+                    <div class="uk-width-1-1 uk-width-1-2@m">
+                      <label class="uk-form-label">{{ t('label_domain_status') }}</label>
+                      <div class="uk-form-controls">
+                        <label class="uk-text-small">
+                          <input class="uk-checkbox" type="checkbox" id="domainActive" name="is_active" checked>
+                          {{ t('label_domain_active') }}
+                        </label>
+                      </div>
                     </div>
                     <div class="uk-width-1-1 uk-flex uk-flex-middle uk-flex-between">
-                      <span class="uk-text-meta">{{ t('text_marketing_domain_submit_hint') }}</span>
-                      <button type="submit" class="uk-button uk-button-primary">{{ t('action_marketing_domain_save') }}</button>
+                      <span class="uk-text-meta">{{ t('text_domain_submit_hint') }}</span>
+                      <div class="uk-flex uk-flex-middle" style="gap: 8px;">
+                        <button type="submit" class="uk-button uk-button-primary">{{ t('action_domain_save') }}</button>
+                        <button type="button" class="uk-button uk-button-default" id="domainFormCancel" hidden>
+                          {{ t('action_cancel') }}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </fieldset>
@@ -2177,146 +2207,31 @@
             </div>
             <div class="uk-overflow-auto">
               <table
-                id="domainStartPageTable"
+                id="domainTable"
                 class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive"
-                data-loading="{{ t('text_domain_start_pages_loading') }}"
-                data-empty="{{ t('text_domain_start_pages_empty') }}"
-                data-error="{{ t('text_domain_start_pages_error') }}"
+                data-loading="{{ t('text_domains_loading') }}"
+                data-empty="{{ t('text_domains_empty') }}"
+                data-error="{{ t('text_domains_error') }}"
               >
                 <thead>
                   <tr>
                     <th>{{ t('column_domain') }}</th>
-                    <th>{{ t('column_start_page') }}</th>
-                    <th>{{ t('column_domain_email') }}</th>
-                    <th>{{ t('column_domain_smtp') }}</th>
-                    <th class="uk-table-shrink">{{ t('column_contact_template') }}</th>
-                    <th class="uk-table-shrink">{{ t('column_domain_ssl') }}</th>
-                    <th>{{ t('column_domain_type') }}</th>
+                    <th>{{ t('column_domain_label') }}</th>
+                    <th>{{ t('column_domain_namespace') }}</th>
+                    <th>{{ t('column_domain_status') }}</th>
                     <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td colspan="7">{{ t('text_domain_start_pages_loading') }}</td>
+                    <td colspan="5">{{ t('text_domains_loading') }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-small-top" style="gap: 12px;">
-              <span class="uk-text-meta">{{ t('text_marketing_domain_reconcile_hint') }}</span>
-              <button type="button" id="marketingDomainReconcile" class="uk-button uk-button-default">
-                {{ t('action_marketing_domain_reconcile') }}
-              </button>
-            </div>
           </div>
         </div>
 
-
-        <div id="domainContactTemplateModal" uk-modal>
-          <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">{{ t('heading_domain_contact_template') }}</h2>
-            <p id="domainContactTemplateInfo" class="uk-text-meta uk-margin-remove"></p>
-            <p class="uk-text-meta">{{ t('text_domain_contact_template_hint') }}</p>
-            <p class="uk-text-meta uk-margin-small">{{ t('help_contact_template_placeholders')|raw }}</p>
-            <form id="domainContactTemplateForm" class="uk-form-stacked">
-              <input type="hidden" id="domainContactTemplateDomain">
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainContactTemplateSenderName">{{ t('label_contact_sender_name') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="text" id="domainContactTemplateSenderName" placeholder="{{ t('label_contact_sender_name') }}">
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainContactTemplateRecipientHtml">{{ t('label_contact_recipient_html') }}</label>
-                <div class="uk-form-controls">
-                  <textarea class="uk-textarea" id="domainContactTemplateRecipientHtml" rows="6" data-template-editor="html"></textarea>
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainContactTemplateRecipientText">{{ t('label_contact_recipient_text') }}</label>
-                <div class="uk-form-controls">
-                  <textarea class="uk-textarea" id="domainContactTemplateRecipientText" rows="4"></textarea>
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainContactTemplateSenderHtml">{{ t('label_contact_sender_html') }}</label>
-                <div class="uk-form-controls">
-                  <textarea class="uk-textarea" id="domainContactTemplateSenderHtml" rows="6" data-template-editor="html"></textarea>
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainContactTemplateSenderText">{{ t('label_contact_sender_text') }}</label>
-                <div class="uk-form-controls">
-                  <textarea class="uk-textarea" id="domainContactTemplateSenderText" rows="4"></textarea>
-                </div>
-              </div>
-              <div class="uk-flex uk-flex-right uk-margin-top">
-                <button type="submit" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
-                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div id="domainSmtpModal" uk-modal>
-          <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">{{ t('heading_domain_smtp_settings') }}</h2>
-            <p id="domainSmtpInfo" class="uk-text-meta uk-margin-remove"></p>
-            <p class="uk-text-meta">{{ t('text_domain_smtp_hint') }}</p>
-            <form id="domainSmtpForm" class="uk-form-stacked">
-              <input type="hidden" id="domainSmtpDomain">
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainSmtpHost">{{ t('label_domain_smtp_host') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="text" id="domainSmtpHost" placeholder="smtp.example.org">
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainSmtpUser">{{ t('label_domain_smtp_user') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="text" id="domainSmtpUser" placeholder="user@example.org">
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainSmtpPort">{{ t('label_domain_smtp_port') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="number" min="1" max="65535" id="domainSmtpPort" placeholder="587">
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainSmtpEncryption">{{ t('label_domain_smtp_encryption') }}</label>
-                <div class="uk-form-controls">
-                  <select class="uk-select" id="domainSmtpEncryption">
-                    <option value="">{{ t('option_domain_smtp_encryption_default') }}</option>
-                    <option value="none">{{ t('option_domain_smtp_encryption_none') }}</option>
-                    <option value="tls">{{ t('option_domain_smtp_encryption_tls') }}</option>
-                    <option value="ssl">{{ t('option_domain_smtp_encryption_ssl') }}</option>
-                    <option value="starttls">{{ t('option_domain_smtp_encryption_starttls') }}</option>
-                  </select>
-                </div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainSmtpPass">{{ t('label_domain_smtp_pass') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="password" id="domainSmtpPass" autocomplete="new-password" placeholder="{{ t('placeholder_domain_smtp_pass') }}">
-                </div>
-                <p class="uk-text-meta uk-margin-small">{{ t('text_domain_smtp_password_hint') }}</p>
-                <label class="uk-text-small"><input class="uk-checkbox" type="checkbox" id="domainSmtpClearPass"> {{ t('label_domain_smtp_clear_password') }}</label>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="domainSmtpDsn">{{ t('label_domain_smtp_dsn') }}</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" type="text" id="domainSmtpDsn" placeholder="smtp://user:pass@host:587">
-                </div>
-                <p class="uk-text-meta uk-margin-small">{{ t('text_domain_smtp_dsn_hint') }}</p>
-              </div>
-              <div class="uk-flex uk-flex-right uk-margin-top">
-                <button type="submit" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
-                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
-              </div>
-            </form>
-          </div>
-        </div>
 
         <div id="backups" class="uk-card uk-card-default uk-card-body uk-margin">
           <h3 class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
@@ -2676,6 +2591,7 @@
     window.currentUserRole = '{{ role|e('js') }}';
     window.transNamespaceActiveLabel = '{{ t('label_namespace_active')|e('js') }}';
     window.transNamespaceDefaultLabel = '{{ t('label_namespace_default')|e('js') }}';
+    window.transNamespaceInactiveLabel = '{{ t('label_namespace_inactive')|e('js') }}';
     window.transNamespaceNone = '{{ t('text_namespace_none')|e('js') }}';
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
@@ -2689,7 +2605,6 @@
     window.transTenantSyncThrottled = '{{ 'Sync läuft bereits – bitte später erneut versuchen'|e('js') }}';
     window.transTenantSyncSuccess = '{{ 'Mandanten eingelesen'|e('js') }}';
     window.transTenantSyncNoChanges = '{{ t('notify_tenant_sync_no_changes')|e('js') }}';
-    window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterConfigs = {{ marketingNewsletterConfigs|default({})|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterSlugs = {{ marketingNewsletterSlugs|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
     window.marketingNewsletterStyles = {{ marketingNewsletterStyles|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
@@ -2698,41 +2613,11 @@
       'secondary': t('label_marketing_newsletter_style_secondary'),
       'link': t('label_marketing_newsletter_style_link')
     }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
-    window.domainStartPageTypeLabels = {{ {
-      'main': t('label_domain_type_main'),
-      'marketing': t('label_domain_type_marketing'),
-      'custom': t('label_domain_type_custom')
-    }|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
-    window.transDomainStartPageSaved = '{{ t('notify_domain_start_page_saved')|e('js') }}';
-    window.transDomainStartPageError = '{{ t('notify_domain_start_page_error')|e('js') }}';
-    window.transDomainStartPageInvalidEmail = '{{ t('notify_domain_start_page_invalid_email')|e('js') }}';
-    window.transDomainStartPageDeleted = '{{ t('notify_domain_start_page_deleted')|e('js') }}';
-    window.transDomainStartPageDeleteError = '{{ t('notify_domain_start_page_delete_error')|e('js') }}';
-    window.transDomainStartPageDeleteConfirm = '{{ t('confirm_domain_start_page_delete')|e('js') }}';
-    window.transDomainSmtpTitle = '{{ t('heading_domain_smtp_settings')|e('js') }}';
-    window.transDomainSmtpSaved = '{{ t('notify_domain_smtp_saved')|e('js') }}';
-    window.transDomainSmtpError = '{{ t('notify_domain_smtp_error')|e('js') }}';
-    window.transDomainSmtpInvalid = '{{ t('notify_domain_start_page_invalid_smtp')|e('js') }}';
-    window.actionDomainIssueSsl = '{{ t('action_domain_issue_ssl')|e('js') }}';
-    window.transDomainSslIssued = '{{ t('notify_domain_ssl_issued')|e('js') }}';
-    window.transDomainSslError = '{{ t('notify_domain_ssl_error')|e('js') }}';
-    window.transDomainSmtpDefault = '{{ t('text_domain_smtp_default_summary')|e('js') }}';
-    window.transDomainSmtpSummaryDsn = '{{ t('text_domain_smtp_summary_dsn')|e('js') }}';
-    window.transDomainSmtpPasswordSet = '{{ t('text_domain_smtp_password_set')|e('js') }}';
-    window.transMarketingDomainCreated = '{{ t('notify_marketing_domain_created')|e('js') }}';
-    window.transMarketingDomainInvalid = '{{ t('notify_marketing_domain_invalid')|e('js') }}';
-    window.transMarketingDomainError = '{{ t('notify_marketing_domain_error')|e('js') }}';
-    window.actionMarketingDomainReconcile = '{{ t('action_marketing_domain_reconcile')|e('js') }}';
-    window.transMarketingDomainReconcileProvisioned = '{{ t('notify_marketing_domain_reconcile_provisioned')|e('js') }}';
-    window.transMarketingDomainReconcileResolved = '{{ t('notify_marketing_domain_reconcile_resolved')|e('js') }}';
-    window.transMarketingDomainReconcileUnresolved = '{{ t('notify_marketing_domain_reconcile_unresolved')|e('js') }}';
-    window.transMarketingDomainReconcileError = '{{ t('notify_marketing_domain_reconcile_error')|e('js') }}';
-    window.domainStartPageSecretPlaceholder = '{{ constant('App\\Service\\DomainStartPageService::SECRET_PLACEHOLDER')|e('js') }}';
-    window.transDomainContactTemplateEdit = '{{ t('action_edit_contact_template')|e('js') }}';
-    window.transDomainContactTemplateSaved = '{{ t('notify_domain_contact_template_saved')|e('js') }}';
-    window.transDomainContactTemplateError = '{{ t('notify_domain_contact_template_error')|e('js') }}';
-    window.transDomainContactTemplateLoadError = '{{ t('notify_domain_contact_template_load_error')|e('js') }}';
-    window.transDomainContactTemplateInvalidDomain = '{{ t('notify_domain_contact_template_invalid_domain')|e('js') }}';
+    window.transDomainSaved = '{{ t('notify_domain_saved')|e('js') }}';
+    window.transDomainError = '{{ t('notify_domain_error')|e('js') }}';
+    window.transDomainInvalid = '{{ t('notify_domain_invalid')|e('js') }}';
+    window.transDomainDeleted = '{{ t('notify_domain_deleted')|e('js') }}';
+    window.transDomainDeleteConfirm = '{{ t('confirm_domain_delete')|e('js') }}';
     window.transMarketingNewsletterSaved = '{{ t('message_marketing_newsletter_saved')|e('js') }}';
     window.transMarketingNewsletterError = '{{ t('message_marketing_newsletter_error')|e('js') }}';
     window.transMarketingNewsletterInvalidSlug = '{{ t('error_marketing_newsletter_invalid_slug')|e('js') }}';

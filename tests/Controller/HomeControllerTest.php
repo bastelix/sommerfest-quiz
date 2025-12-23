@@ -295,7 +295,7 @@ class HomeControllerTest extends TestCase
             "INSERT INTO pages(slug,title,content) VALUES(" .
             "'calserver-maintenance','calHelp Wartung','<p>Wartungshinweis</p>')"
         );
-        (new \App\Service\DomainStartPageService($pdo))->saveStartPage('main.test', 'calserver-maintenance');
+        $pdo->exec("UPDATE settings SET value = 'calserver-maintenance' WHERE key = 'home_page'");
 
         try {
             $app = $this->getAppInstance();

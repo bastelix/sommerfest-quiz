@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Service\DomainContactTemplateService;
-use App\Service\DomainStartPageService;
 use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
@@ -102,39 +101,11 @@ class ContactController
         }
 
         $pdo = Database::connectFromEnv();
-        $domainService = new DomainStartPageService($pdo);
-        $templateService = new DomainContactTemplateService($pdo, $domainService);
+        $templateService = new DomainContactTemplateService($pdo);
         $host = strtolower($request->getUri()->getHost());
-        $domainConfig = $domainService->getDomainConfig($host, includeSensitive: true);
-        $domainEmail = null;
-        if ($domainConfig !== null && $domainConfig['email'] !== null) {
-            $domainEmail = trim((string) $domainConfig['email']);
-            if ($domainEmail === '') {
-                $domainEmail = null;
-            }
-        }
-        $smtpOverride = null;
-        if ($domainConfig !== null) {
-            $override = [
-                'smtp_host' => $domainConfig['smtp_host'] ?? null,
-                'smtp_user' => $domainConfig['smtp_user'] ?? null,
-                'smtp_pass' => $domainConfig['smtp_pass'] ?? null,
-                'smtp_port' => $domainConfig['smtp_port'] ?? null,
-                'smtp_encryption' => $domainConfig['smtp_encryption'] ?? null,
-                'smtp_dsn' => $domainConfig['smtp_dsn'] ?? null,
-            ];
-            $hasDsn = is_string($override['smtp_dsn']) && $override['smtp_dsn'] !== '';
-            $hasCredentials =
-                is_string($override['smtp_host']) && $override['smtp_host'] !== '' &&
-                is_string($override['smtp_user']) && $override['smtp_user'] !== '' &&
-                is_string($override['smtp_pass']) && $override['smtp_pass'] !== '';
-            if ($hasDsn || $hasCredentials) {
-                $smtpOverride = $override;
-            }
-        }
         $template = $templateService->getForHost($host);
         $tenant = (new TenantService($pdo))->getMainTenant();
-        $to = $domainEmail ?? (string) ($tenant['imprint_email'] ?? '');
+        $to = (string) ($tenant['imprint_email'] ?? '');
         if ($to === '') {
             return $response->withStatus(500);
         }
@@ -155,7 +126,7 @@ class ContactController
             $mailer = new MailService($twig, $manager);
         }
         try {
-            $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail, $smtpOverride, $companyName ?: null);
+            $mailer->sendContact($to, $name, $email, $message, $template, null, null, $companyName ?: null);
         } catch (RuntimeException $e) {
             error_log('Contact mail failed: ' . $e->getMessage());
             $response->getBody()->write('Mailversand fehlgeschlagen');
