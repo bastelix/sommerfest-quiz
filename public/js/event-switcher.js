@@ -226,7 +226,9 @@ export function setCurrentEvent(uid, name) {
     }).then((r) => {
       if (!r.ok) {
         return r.text().then((text) => {
-          throw new Error(text || 'Fehler beim Laden des Events');
+          const error = new Error(text || 'Fehler beim Laden des Events');
+          error.status = r.status;
+          throw error;
         });
       }
       return r
@@ -237,7 +239,12 @@ export function setCurrentEvent(uid, name) {
 
   const fetchConfigFallback = () => {
     updateEventQuery(targetUid);
-    return fetchEventConfig();
+    return fetchEventConfig().catch((error) => {
+      if (error?.status === 401 || error?.status === 403) {
+        return {};
+      }
+      throw error;
+    });
   };
 
   if (!token) {
