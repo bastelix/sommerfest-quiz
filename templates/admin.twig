@@ -218,7 +218,7 @@
           </table>
         </div>
         {% from 'components/table.twig' import qr_rowcards %}
-        {{ qr_rowcards('eventsCards') }}
+        {{ qr_rowcards('eventsCards', true, 'uk-hidden@m uk-list', 'ul', t('text_no_events'), t('text_events_fetch_error')) }}
         <div class="uk-margin">
           <button
             id="eventAddBtn"

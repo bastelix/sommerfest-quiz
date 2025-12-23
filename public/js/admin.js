@@ -7069,6 +7069,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Veranstaltungen ---------
   const eventsListEl = document.getElementById('eventsList');
   const eventsCardsEl = document.getElementById('eventsCards');
+  const eventsCardsEmptyEl = document.getElementById('eventsCardsEmpty');
   const eventAddBtn = document.getElementById('eventAddBtn');
 
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
@@ -7212,6 +7213,21 @@ document.addEventListener('DOMContentLoaded', function () {
   eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
   let eventManager;
   let eventEditor;
+  const eventsCardsEmptyDefault = eventsCardsEmptyEl?.textContent || '';
+
+  function updateEventsCardsEmptyState({ force = null, useError = false } = {}) {
+    if (!eventsCardsEmptyEl) {
+      return;
+    }
+    const count = eventsCardsEl ? eventsCardsEl.children.length : 0;
+    const shouldShow = typeof force === 'boolean' ? force : count === 0;
+    if (useError) {
+      eventsCardsEmptyEl.textContent = eventsCardsEmptyEl.dataset.errorText || transEventsFetchError;
+    } else {
+      eventsCardsEmptyEl.textContent = eventsCardsEmptyDefault;
+    }
+    eventsCardsEmptyEl.hidden = !shouldShow;
+  }
 
   function createEventItem(ev = {}) {
     const id = ev.uid || ev.id || crypto.randomUUID();
@@ -7488,6 +7504,7 @@ document.addEventListener('DOMContentLoaded', function () {
       list.splice(idx, 1);
       eventManager.render(list);
       highlightCurrentEvent();
+      updateEventsCardsEmptyState();
       saveEvents();
       syncCurrentEventState(list);
     }
@@ -7502,6 +7519,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (eventManager) {
       eventManager.render(initial);
       highlightCurrentEvent();
+      updateEventsCardsEmptyState();
     }
     if (!initialEmpty) {
       syncCurrentEventState(initial);
@@ -7525,6 +7543,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const list = data.map(d => createEventItem(d));
           eventManager.render(list);
           highlightCurrentEvent();
+          updateEventsCardsEmptyState();
           syncCurrentEventState(list);
           if (initialEmpty && list.length === 0) {
             notify('Keine Events gefunden', 'warning');
@@ -7536,6 +7555,9 @@ document.addEventListener('DOMContentLoaded', function () {
             ? transEventsFetchError
             : (err.message && err.message.trim() ? err.message : transEventsFetchError);
           notify(message, 'warning');
+          if (!eventsCardsEl || eventsCardsEl.children.length === 0) {
+            updateEventsCardsEmptyState({ force: true, useError: true });
+          }
         });
     }
   }
@@ -7548,6 +7570,7 @@ document.addEventListener('DOMContentLoaded', function () {
     list.push(item);
     eventManager.render(list);
     highlightCurrentEvent();
+    updateEventsCardsEmptyState();
     const nameCell = eventsListEl?.querySelector(`tr[data-id="${item.id}"] td[data-key="name"]`);
     const nameCard = eventsCardsEl?.querySelector(`.qr-cell[data-id="${item.id}"][data-key="name"]`);
     const target = nameCell || nameCard;
