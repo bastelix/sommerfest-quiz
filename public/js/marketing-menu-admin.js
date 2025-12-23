@@ -3,109 +3,110 @@
 const manager = document.querySelector('[data-marketing-menu-manager]');
 
 if (manager) {
-  manager.dataset.menuInitialized = 'true';
-  const pagesData = (() => {
-    try {
-      const parsed = JSON.parse(manager.dataset.pages || '[]');
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (error) {
-      console.warn('Failed to parse marketing menu pages dataset', error);
-      return [];
+  (() => {
+    manager.dataset.menuInitialized = 'true';
+    const pagesData = (() => {
+      try {
+        const parsed = JSON.parse(manager.dataset.pages || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('Failed to parse marketing menu pages dataset', error);
+        return [];
+      }
+    })();
+
+    const pageSelect = document.getElementById('pageContentSelect');
+    const localeSelect = document.getElementById('menuLocaleSelect');
+    const pageLabel = manager.querySelector('[data-menu-page-label]');
+    const addButton = manager.querySelector('[data-menu-add]');
+    const itemsBody = manager.querySelector('[data-menu-items]');
+    const feedback = manager.querySelector('[data-menu-feedback]');
+    const loadingRow = manager.querySelector('[data-menu-loading-row]');
+    if (loadingRow) {
+      loadingRow.innerHTML = '<td colspan="8">Lädt…</td>';
     }
-  })();
 
-  const pageSelect = document.getElementById('pageContentSelect');
-  const localeSelect = document.getElementById('menuLocaleSelect');
-  const pageLabel = manager.querySelector('[data-menu-page-label]');
-  const addButton = manager.querySelector('[data-menu-add]');
-  const itemsBody = manager.querySelector('[data-menu-items]');
-  const feedback = manager.querySelector('[data-menu-feedback]');
-  const loadingRow = manager.querySelector('[data-menu-loading-row]');
-  if (loadingRow) {
-    loadingRow.innerHTML = '<td colspan="8">Lädt…</td>';
-  }
+    const basePath = manager.dataset.basePath || window.basePath || '';
+    const iconOptions = [
+      '',
+      'home',
+      'info',
+      'question',
+      'calendar',
+      'star',
+      'bookmark',
+      'file-text',
+      'bolt',
+      'heart',
+      'mail',
+      'location',
+      'phone',
+      'link',
+      'world',
+      'user',
+      'users'
+    ];
+    const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
 
-  const basePath = manager.dataset.basePath || window.basePath || '';
-  const iconOptions = [
-    '',
-    'home',
-    'info',
-    'question',
-    'calendar',
-    'star',
-    'bookmark',
-    'file-text',
-    'bolt',
-    'heart',
-    'mail',
-    'location',
-    'phone',
-    'link',
-    'world',
-    'user',
-    'users'
-  ];
-  const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
-
-  if (!itemsBody || !addButton) {
-    console.warn('Marketing menu manager requirements missing.');
-    return;
-  }
-
-  const state = {
-    pageId: null,
-    pageSlug: '',
-    items: [],
-    order: []
-  };
-
-  const findPageBySlug = slug => pagesData.find(page => page.slug === slug) || null;
-  const resolveNamespace = () => {
-    const select = document.getElementById('pageNamespaceSelect');
-    const candidate = select?.value || manager.dataset.namespace || window.pageNamespace || '';
-    return String(candidate || '').trim();
-  };
-  const resolveLocale = () => {
-    const candidate = localeSelect?.value ?? manager.dataset.locale ?? '';
-    return String(candidate || '').trim();
-  };
-  const appendQueryParam = (path, key, value) => {
-    if (!value) {
-      return path;
+    if (!itemsBody || !addButton) {
+      console.warn('Marketing menu manager requirements missing.');
+      return;
     }
-    const separator = path.includes('?') ? '&' : '?';
-    return `${path}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
-  };
-  const withNamespace = path => appendQueryParam(path, 'namespace', resolveNamespace());
 
-  const resolveCsrfToken = () =>
-    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.csrfToken || '';
-
-  const apiFetch = (path, options = {}) => {
-    if (typeof window.apiFetch === 'function') {
-      return window.apiFetch(path, options);
-    }
-    const token = resolveCsrfToken();
-    const headers = {
-      ...(token ? { 'X-CSRF-Token': token } : {}),
-      'X-Requested-With': 'fetch',
-      ...(options.headers || {})
+    const state = {
+      pageId: null,
+      pageSlug: '',
+      items: [],
+      order: []
     };
-    return fetch(path, {
-      credentials: 'same-origin',
-      cache: 'no-store',
-      ...options,
-      headers
-    });
-  };
 
-  const buildPath = (pageId, suffix = '') => {
-    const path = `/admin/pages/${pageId}${suffix}`;
-    if (typeof window.apiFetch === 'function') {
-      return path;
-    }
-    return `${basePath}${path}`;
-  };
+    const findPageBySlug = slug => pagesData.find(page => page.slug === slug) || null;
+    const resolveNamespace = () => {
+      const select = document.getElementById('pageNamespaceSelect');
+      const candidate = select?.value || manager.dataset.namespace || window.pageNamespace || '';
+      return String(candidate || '').trim();
+    };
+    const resolveLocale = () => {
+      const candidate = localeSelect?.value ?? manager.dataset.locale ?? '';
+      return String(candidate || '').trim();
+    };
+    const appendQueryParam = (path, key, value) => {
+      if (!value) {
+        return path;
+      }
+      const separator = path.includes('?') ? '&' : '?';
+      return `${path}${separator}${encodeURIComponent(key)}=${encodeURIComponent(value)}`;
+    };
+    const withNamespace = path => appendQueryParam(path, 'namespace', resolveNamespace());
+
+    const resolveCsrfToken = () =>
+      document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.csrfToken || '';
+
+    const apiFetch = (path, options = {}) => {
+      if (typeof window.apiFetch === 'function') {
+        return window.apiFetch(path, options);
+      }
+      const token = resolveCsrfToken();
+      const headers = {
+        ...(token ? { 'X-CSRF-Token': token } : {}),
+        'X-Requested-With': 'fetch',
+        ...(options.headers || {})
+      };
+      return fetch(path, {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        ...options,
+        headers
+      });
+    };
+
+    const buildPath = (pageId, suffix = '') => {
+      const path = `/admin/pages/${pageId}${suffix}`;
+      if (typeof window.apiFetch === 'function') {
+        return path;
+      }
+      return `${basePath}${path}`;
+    };
 
   const setFeedback = (message, status = 'primary') => {
     if (!feedback) {
@@ -757,4 +758,5 @@ if (manager) {
 
   attachDragHandlers();
   updateSelectedPage();
+  })();
 }
