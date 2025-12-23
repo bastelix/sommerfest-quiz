@@ -7072,6 +7072,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsCardsEl = document.getElementById('eventsCards');
   const eventsCardsEmptyEl = document.getElementById('eventsCardsEmpty');
   const eventAddBtn = document.getElementById('eventAddBtn');
+  const hasEventsContainer = !!(eventsListEl || eventsCardsEl);
 
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const eventSettingsHeading = document.getElementById('eventSettingsHeading');
@@ -7366,8 +7367,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  if (eventsListEl) {
-    const labels = eventsListEl.dataset || {};
+  if (hasEventsContainer) {
+    const labels = eventsListEl?.dataset || eventsCardsEl?.dataset || {};
     const eventColumns = [
       { className: 'row-num' },
       { key: 'name', label: labels.labelName || 'Name', className: 'event-name', editable: true },
@@ -7421,7 +7422,7 @@ document.addEventListener('DOMContentLoaded', function () {
               highlightCurrentEvent();
               return;
             }
-            const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${normalizedId}"]`);
+            const twin = eventsListEl?.querySelector(`input[name="currentEventList"][data-id="${normalizedId}"]`);
             if (twin) twin.checked = true;
             if (lastSwitchFailed) {
               resetSwitchState();
@@ -7480,8 +7481,12 @@ document.addEventListener('DOMContentLoaded', function () {
         + '</div>';
       document.body.appendChild(modal);
     }
+    const eventTableBody = eventsListEl || (eventsCardsEl ? document.createElement('tbody') : null);
+    if (eventTableBody && !eventTableBody.id && eventsCardsEl?.id) {
+      eventTableBody.id = `${eventsCardsEl.id}-table`;
+    }
     eventManager = new TableManager({
-      tbody: eventsListEl,
+      tbody: eventTableBody,
       mobileCards: { container: eventsCardsEl },
       sortable: true,
       columns: eventColumns,
@@ -7569,6 +7574,15 @@ document.addEventListener('DOMContentLoaded', function () {
             updateEventsCardsEmptyState({ force: true, useError: true });
           }
         });
+    }
+  }
+
+  if (!hasEventsContainer && eventAddBtn) {
+    if ('disabled' in eventAddBtn) {
+      eventAddBtn.disabled = true;
+    } else {
+      eventAddBtn.classList.add('uk-disabled');
+      eventAddBtn.setAttribute('aria-disabled', 'true');
     }
   }
 
