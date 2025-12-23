@@ -54,63 +54,6 @@
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
       <div class="uk-container uk-container-large">
-        {% set activeProjectNamespace = pageNamespace|default('default') %}
-        {% set projectNamespaceOptions = available_namespaces|default([]) %}
-        {% if projectNamespaceOptions is empty %}
-          {% set projectNamespaceOptions = [{
-            namespace: activeProjectNamespace,
-            label: null,
-            is_active: true
-          }] %}
-        {% endif %}
-        {% set hasActiveNamespace = false %}
-        {% for entry in projectNamespaceOptions %}
-          {% if entry.namespace|default('') == activeProjectNamespace %}
-            {% set hasActiveNamespace = true %}
-          {% endif %}
-        {% endfor %}
-        {% if not hasActiveNamespace %}
-          {% set projectNamespaceOptions = projectNamespaceOptions|merge([{
-            namespace: activeProjectNamespace,
-            label: null,
-            is_active: true
-          }]) %}
-        {% endif %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="projectNamespaceSelect">Namespace</label>
-              <div class="uk-form-controls">
-                <select
-                  id="projectNamespaceSelect"
-                  class="uk-select"
-                  data-project-namespace="{{ activeProjectNamespace|e('html_attr') }}"
-                >
-                  {% for entry in projectNamespaceOptions %}
-                    {% set entryNamespace = entry.namespace|default('') %}
-                    {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                    <option
-                      value="{{ entryNamespace|e('html_attr') }}"
-                      {% if entryNamespace == activeProjectNamespace %}selected{% endif %}
-                    >
-                      {{ entryNamespace }}
-                      {% if entryLabel is not empty %}
-                        – {{ entryLabel }}
-                      {% endif %}
-                      {% if entryIsInactive %}
-                        – inaktiv
-                      {% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Übersicht des ausgewählten Namespace neu.
-            </div>
-          </div>
-        </div>
         {% set projectKpis = [
           { key: 'pages', label: 'Seiten' },
           { key: 'wiki', label: 'Wiki-Artikel' },
