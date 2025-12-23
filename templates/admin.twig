@@ -2118,92 +2118,94 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_management') }}</h2>
 
-        <h3 class="uk-heading-bullet" id="startpage">{{ t('heading_homepage') }}</h3>
-        <div class="uk-margin-top">
-          <p class="uk-text-meta">{{ t('text_domain_start_page_hint') }}</p>
-          <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
-            <form
-              id="marketingDomainForm"
-              class="uk-form-stacked"
-              novalidate
-              data-invalid="{{ t('notify_marketing_domain_invalid') }}"
-              data-error="{{ t('notify_marketing_domain_error') }}"
-              data-success="{{ t('notify_marketing_domain_created') }}"
-            >
-              <fieldset class="uk-fieldset">
-                <legend id="domain-add" class="uk-legend">{{ t('heading_marketing_domain_add') }}</legend>
-                <div class="uk-alert uk-alert-danger uk-margin-small-bottom" id="marketingDomainFormError" hidden role="alert"></div>
-                <div class="uk-grid-small" uk-grid>
-                  <div class="uk-width-1-1 uk-width-1-2@m">
-                    <label class="uk-form-label" for="marketingDomainHost">{{ t('label_marketing_domain_host') }}</label>
-                    <div class="uk-form-controls">
-                      <input
-                        class="uk-input"
-                        type="text"
-                        id="marketingDomainHost"
-                        name="domain"
-                        required
-                        placeholder="{{ t('placeholder_marketing_domain_host') }}"
-                        autocomplete="off"
-                      >
+        <div id="domains" class="uk-card uk-card-default uk-card-body uk-margin">
+          <h3 class="uk-heading-bullet">{{ t('heading_homepage') }}</h3>
+          <div class="uk-margin-top">
+            <p class="uk-text-meta">{{ t('text_domain_start_page_hint') }}</p>
+            <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
+              <form
+                id="marketingDomainForm"
+                class="uk-form-stacked"
+                novalidate
+                data-invalid="{{ t('notify_marketing_domain_invalid') }}"
+                data-error="{{ t('notify_marketing_domain_error') }}"
+                data-success="{{ t('notify_marketing_domain_created') }}"
+              >
+                <fieldset class="uk-fieldset">
+                  <legend id="domain-add" class="uk-legend">{{ t('heading_marketing_domain_add') }}</legend>
+                  <div class="uk-alert uk-alert-danger uk-margin-small-bottom" id="marketingDomainFormError" hidden role="alert"></div>
+                  <div class="uk-grid-small" uk-grid>
+                    <div class="uk-width-1-1 uk-width-1-2@m">
+                      <label class="uk-form-label" for="marketingDomainHost">{{ t('label_marketing_domain_host') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          class="uk-input"
+                          type="text"
+                          id="marketingDomainHost"
+                          name="domain"
+                          required
+                          placeholder="{{ t('placeholder_marketing_domain_host') }}"
+                          autocomplete="off"
+                        >
+                      </div>
+                      <p class="uk-text-meta uk-margin-small">{{ t('text_marketing_domain_host_hint') }}</p>
                     </div>
-                    <p class="uk-text-meta uk-margin-small">{{ t('text_marketing_domain_host_hint') }}</p>
-                  </div>
-                  <div class="uk-width-1-1 uk-width-1-2@m">
-                    <label class="uk-form-label" for="marketingDomainLabel">{{ t('label_marketing_domain_label') }}</label>
-                    <div class="uk-form-controls">
-                      <input
-                        class="uk-input"
-                        type="text"
-                        id="marketingDomainLabel"
-                        name="label"
-                        maxlength="120"
-                        placeholder="{{ t('placeholder_marketing_domain_label') }}"
-                        autocomplete="off"
-                      >
+                    <div class="uk-width-1-1 uk-width-1-2@m">
+                      <label class="uk-form-label" for="marketingDomainLabel">{{ t('label_marketing_domain_label') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          class="uk-input"
+                          type="text"
+                          id="marketingDomainLabel"
+                          name="label"
+                          maxlength="120"
+                          placeholder="{{ t('placeholder_marketing_domain_label') }}"
+                          autocomplete="off"
+                        >
+                      </div>
+                      <p class="uk-text-meta uk-margin-small">{{ t('text_marketing_domain_label_hint') }}</p>
                     </div>
-                    <p class="uk-text-meta uk-margin-small">{{ t('text_marketing_domain_label_hint') }}</p>
+                    <div class="uk-width-1-1 uk-flex uk-flex-middle uk-flex-between">
+                      <span class="uk-text-meta">{{ t('text_marketing_domain_submit_hint') }}</span>
+                      <button type="submit" class="uk-button uk-button-primary">{{ t('action_marketing_domain_save') }}</button>
+                    </div>
                   </div>
-                  <div class="uk-width-1-1 uk-flex uk-flex-middle uk-flex-between">
-                    <span class="uk-text-meta">{{ t('text_marketing_domain_submit_hint') }}</span>
-                    <button type="submit" class="uk-button uk-button-primary">{{ t('action_marketing_domain_save') }}</button>
-                  </div>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-          <div class="uk-overflow-auto">
-            <table
-              id="domainStartPageTable"
-              class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive"
-              data-loading="{{ t('text_domain_start_pages_loading') }}"
-              data-empty="{{ t('text_domain_start_pages_empty') }}"
-              data-error="{{ t('text_domain_start_pages_error') }}"
-            >
-              <thead>
-                <tr>
-                  <th>{{ t('column_domain') }}</th>
-                  <th>{{ t('column_start_page') }}</th>
-                  <th>{{ t('column_domain_email') }}</th>
-                  <th>{{ t('column_domain_smtp') }}</th>
-                  <th class="uk-table-shrink">{{ t('column_contact_template') }}</th>
-                  <th class="uk-table-shrink">{{ t('column_domain_ssl') }}</th>
-                  <th>{{ t('column_domain_type') }}</th>
-                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="7">{{ t('text_domain_start_pages_loading') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-small-top" style="gap: 12px;">
-            <span class="uk-text-meta">{{ t('text_marketing_domain_reconcile_hint') }}</span>
-            <button type="button" id="marketingDomainReconcile" class="uk-button uk-button-default">
-              {{ t('action_marketing_domain_reconcile') }}
-            </button>
+                </fieldset>
+              </form>
+            </div>
+            <div class="uk-overflow-auto">
+              <table
+                id="domainStartPageTable"
+                class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive"
+                data-loading="{{ t('text_domain_start_pages_loading') }}"
+                data-empty="{{ t('text_domain_start_pages_empty') }}"
+                data-error="{{ t('text_domain_start_pages_error') }}"
+              >
+                <thead>
+                  <tr>
+                    <th>{{ t('column_domain') }}</th>
+                    <th>{{ t('column_start_page') }}</th>
+                    <th>{{ t('column_domain_email') }}</th>
+                    <th>{{ t('column_domain_smtp') }}</th>
+                    <th class="uk-table-shrink">{{ t('column_contact_template') }}</th>
+                    <th class="uk-table-shrink">{{ t('column_domain_ssl') }}</th>
+                    <th>{{ t('column_domain_type') }}</th>
+                    <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="7">{{ t('text_domain_start_pages_loading') }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-small-top" style="gap: 12px;">
+              <span class="uk-text-meta">{{ t('text_marketing_domain_reconcile_hint') }}</span>
+              <button type="button" id="marketingDomainReconcile" class="uk-button uk-button-default">
+                {{ t('action_marketing_domain_reconcile') }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2314,29 +2316,31 @@
           </div>
         </div>
 
-        <h3 id="backups" class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
-        <div class="uk-margin uk-child-width-1-1 uk-child-width-auto@s uk-grid-small uk-flex-right@s" uk-grid>
-          <div>
-            <button id="exportJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">{{ t('action_create_backup') }}</button>
+        <div id="backups" class="uk-card uk-card-default uk-card-body uk-margin">
+          <h3 class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
+          <div class="uk-margin uk-child-width-1-1 uk-child-width-auto@s uk-grid-small uk-flex-right@s" uk-grid>
+            <div>
+              <button id="exportJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">{{ t('action_create_backup') }}</button>
+            </div>
+            <div>
+              <button id="importJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_import') }}; pos: right">{{ t('action_restore_demo') }}</button>
+            </div>
+            <div>
+              <button id="saveDemoBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_save') }}; pos: right">{{ t('action_save_demo') }}</button>
+            </div>
           </div>
-          <div>
-            <button id="importJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_import') }}; pos: right">{{ t('action_restore_demo') }}</button>
+          {% set backupRows %}{% include 'admin/_backup_table.twig' %}{% endset %}
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+              <thead>
+                <tr>
+                  <th class="uk-table-expand">{{ t('column_folder') }}</th>
+                  <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody id="backupTableBody">{{ backupRows|raw }}</tbody>
+            </table>
           </div>
-          <div>
-            <button id="saveDemoBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_save') }}; pos: right">{{ t('action_save_demo') }}</button>
-          </div>
-        </div>
-        {% set backupRows %}{% include 'admin/_backup_table.twig' %}{% endset %}
-        <div class="uk-overflow-auto">
-          <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
-            <thead>
-              <tr>
-                <th class="uk-table-expand">{{ t('column_folder') }}</th>
-                <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
-              </tr>
-            </thead>
-            <tbody id="backupTableBody">{{ backupRows|raw }}</tbody>
-          </table>
         </div>
       </div>
     </li>
