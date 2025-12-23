@@ -37,7 +37,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminSidebar = document.getElementById('adminSidebar');
   const sidebarHasItems = adminSidebar && adminSidebar.querySelector('li');
   const offcanvasToggle = document.getElementById('offcanvas-toggle');
+  const adminOffcanvasToggle = document.getElementById('adminOffcanvasToggle');
+  const offcanvasToggles = [offcanvasToggle, adminOffcanvasToggle].filter(Boolean);
   const offcanvas = document.getElementById('qr-offcanvas');
+  const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const defaultDarkMedia = darkStylesheet ? (darkStylesheet.getAttribute('media') || 'all') : 'all';
   const uikitStylesheet = document.querySelector('link[href*="uikit"]');
@@ -47,8 +50,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamNameBtn = document.getElementById('teamNameBtn');
   const isLaborLanding = document.body.classList.contains('labor-landing');
 
-  if (offcanvasToggle) {
-    offcanvasToggle.hidden = !offcanvas;
+  if (offcanvasToggles.length) {
+    offcanvasToggles.forEach((toggle) => {
+      toggle.hidden = !offcanvas;
+    });
   }
 
   if (sidebarToggle) {
@@ -313,12 +318,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  if (offcanvasToggle && offcanvasHasItems) {
+  if (offcanvasToggles.length && offcanvasHasItems) {
     UIkit.util.on(offcanvas, 'show', () => {
-      offcanvasToggle.setAttribute('aria-expanded', 'true');
+      offcanvasToggles.forEach((toggle) => {
+        toggle.setAttribute('aria-expanded', 'true');
+      });
     });
     UIkit.util.on(offcanvas, 'hide', () => {
-      offcanvasToggle.setAttribute('aria-expanded', 'false');
+      offcanvasToggles.forEach((toggle) => {
+        toggle.setAttribute('aria-expanded', 'false');
+      });
     });
   }
 
