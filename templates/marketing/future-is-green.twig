@@ -1,9 +1,7 @@
 {% extends 'layout.twig' %}
 
-{% set links = marketingMenuItems|default([]) %}
-{% if marketingWikiMenu is defined %}
-  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label }]) %}
-{% endif %}
+{% import 'marketing/partials/menu.twig' as menu %}
+{% set menuItems = marketingMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('Future is Green – Urbane Logistik für lebenswerte Städte') }}{% endblock %}
 
@@ -69,185 +67,7 @@
           </div>
         </div>
         <div class="uk-navbar-center uk-visible@m">
-          <ul class="uk-navbar-nav fig-mega-nav">
-            <li>
-              <a href="#benefits" uk-scroll>Wirkung</a>
-              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
-                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
-                  <div>
-                    <ul class="uk-nav uk-navbar-dropdown-nav">
-                      <li>
-                        <a href="#benefits" uk-scroll data-explain="kpi">
-                          KPIs im Quartier
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#benefits" uk-scroll data-explain="cases">
-                          Pilotgebiete &amp; Zahlen
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#benefits" uk-scroll data-explain="audit">
-                          CO₂-Bilanz &amp; Audit
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="menu-explain">
-                    <div class="explain-pane" data-explain-pane="kpi">
-                      <h5>Wirkung verstehen</h5>
-                      <p>Sechs Kennzahlen zeigen, wie Klimaschutz, Lebensqualität und Tempo zusammengehen.</p>
-                      <p class="menu-explain__subline">0 Emissionen, −60% Fahrten, +24% Tempo</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="cases">
-                      <h5>Reale Ergebnisse</h5>
-                      <p>Pilotquartiere mit verifizierten Kennzahlen und Lessons Learned.</p>
-                      <p class="menu-explain__subline">Filterbar nach Stadt/Branche</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="audit">
-                      <h5>Transparenz &amp; Audit</h5>
-                      <p>Live-Dashboards, Messmethoden und Audit-Scopes für Kommunen &amp; Partner.</p>
-                      <p class="menu-explain__subline">Methodik, Audit-Scopes, Reporting</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li>
-              <a href="#how-it-works" uk-scroll>Lösungen</a>
-              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
-                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
-                  <div>
-                    <ul class="uk-nav uk-navbar-dropdown-nav">
-                      <li>
-                        <a href="#how-it-works" uk-scroll data-explain="flow">
-                          So funktioniert’s
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#offerings" uk-scroll data-explain="pakete">
-                          Pakete &amp; Module
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#technology" uk-scroll data-explain="tech">
-                          Technologie &amp; Integrationen
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="menu-explain">
-                    <div class="explain-pane" data-explain-pane="flow">
-                      <h5>Vom Mikrohub zur Haustür</h5>
-                      <p>KI-Routen, gebündelte Stopps und Off-Peak-Lieferungen sorgen für Tempo ohne Lärm.</p>
-                      <p class="menu-explain__subline">KI-Routen, gebündelte Stopps, Off-Peak-Lieferungen</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="pakete">
-                      <h5>Passend skalieren</h5>
-                      <p>Start, Pro und City kombinieren Module für Quartiere jeder Größe.</p>
-                      <p class="menu-explain__subline">Start, Pro, City – kombinierbar</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="tech">
-                      <h5>API-first</h5>
-                      <p>ERP- &amp; Shop-Integrationen, Live-Dashboards und auditierbare CO₂-Bilanzen.</p>
-                      <p class="menu-explain__subline">ERP/Shop-Anbindung, Dashboards, CO₂-Bilanz</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li>
-              <a href="#cases" uk-scroll>Referenzen</a>
-              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
-                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
-                  <div>
-                    <ul class="uk-nav uk-navbar-dropdown-nav">
-                      <li>
-                        <a href="#cases" uk-scroll data-explain="story">
-                          Case Stories
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#cases" uk-scroll data-explain="branchen">
-                          Branchenfilter
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#cases" uk-scroll data-explain="reports">
-                          Impact-Reports
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="menu-explain">
-                    <div class="explain-pane" data-explain-pane="story">
-                      <h5>Stimmen aus der Praxis</h5>
-                      <p>Was Kommunen, Händler:innen und Rider über den Umbau berichten.</p>
-                      <p class="menu-explain__subline">Kommunen, Händler:innen &amp; Rider im O-Ton</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="branchen">
-                      <h5>Filter nach Branchen</h5>
-                      <p>Von Lebensmitteln bis Pharma – passende Referenzen in Sekunden finden.</p>
-                      <p class="menu-explain__subline">Von Lebensmittel bis Pharma – schnell gefunden</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="reports">
-                      <h5>Zahlen zum Nachlesen</h5>
-                      <p>PDF-Reports mit Kennzahlen, Lessons Learned und Zertifizierungen.</p>
-                      <p class="menu-explain__subline">Kennzahlen, Lessons Learned, Zertifizierungen</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            <li>
-              <a href="#pricing" uk-scroll>Preise &amp; FAQ</a>
-              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
-                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
-                  <div>
-                    <ul class="uk-nav uk-navbar-dropdown-nav">
-                      <li>
-                        <a href="#pricing" uk-scroll data-explain="preise">
-                          Pakete &amp; Vergleich
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#faq" uk-scroll data-explain="faq">
-                          Häufige Fragen
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#pricing" uk-scroll data-explain="service">
-                          Service-Level
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="menu-explain">
-                    <div class="explain-pane" data-explain-pane="preise">
-                      <h5>Transparente Pakete</h5>
-                      <p>Vergleiche Start, Pro und City – monatlich kündbar und förderfähig.</p>
-                      <p class="menu-explain__subline">Start, Pro, City im direkten Überblick</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="faq">
-                      <h5>Antworten in Sekunden</h5>
-                      <p>Finanzierung, Aufbauzeit und Zustellfenster sind kompakt erklärt.</p>
-                      <p class="menu-explain__subline">Finanzierung, Aufbauzeit, Zustellfenster</p>
-                    </div>
-                    <div class="explain-pane uk-hidden" data-explain-pane="service">
-                      <h5>Service &amp; Support</h5>
-                      <p>SLA, Schulungen und Monitoring – abgestimmt auf Stadt &amp; Partner.</p>
-                      <p class="menu-explain__subline">SLA, Schulung, Monitoring auf einen Blick</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-            {% if marketingWikiMenu is defined %}
-              <li>
-                <a href="{{ marketingWikiMenu.url }}">{{ marketingWikiMenu.label }}</a>
-              </li>
-            {% endif %}
-          </ul>
+          {{ menu.render_menu(menuItems, 'uk-navbar-nav fig-mega-nav', 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
         </div>
         <div class="uk-navbar-right">
           <div class="uk-navbar-item fig-cta uk-visible@m">
@@ -264,16 +84,7 @@
     <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
-        <ul class="uk-nav uk-nav-default fig-offcanvas-nav">
-          {% for link in links %}
-            {% set isExternal = link.isExternal|default(false) %}
-            <li>
-              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
-                {{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
+        {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default fig-offcanvas-nav') }}
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="#kontakt" uk-scroll>
           <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
         </a>

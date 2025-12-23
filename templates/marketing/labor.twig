@@ -1,127 +1,13 @@
 {% extends 'layout.twig' %}
 
 {% import _self as laborMedia %}
+{% import 'marketing/partials/menu.twig' as menu %}
 
 {% macro asset(path, assets, basePath) %}
   {{ assets[path]|default(basePath ~ path) }}
 {% endmacro %}
 
-{% set links = marketingMenuItems|default([]) %}
-
-{% set megaNav = [
-  {
-    'label': 'Angebot',
-    'items': [
-      { 'label': 'Kalibrierbereiche', 'href': '#kalibrierbereiche', 'explain': 'bereiche' },
-      { 'label': 'Messgrößen', 'href': '#messgroessen', 'explain': 'messgroessen' },
-      { 'label': 'Digitales Portal', 'href': '#digitales-portal', 'explain': 'portal' }
-    ],
-    'explains': [
-      {
-        'key': 'bereiche',
-        'title': 'Alle Kalibrierbereiche',
-        'text': 'Elektrische Messgrößen, Temperatur, Vor-Ort-Kalibrierung und Prüfmittelmanagement auf einen Blick.',
-        'subline': 'Kalibrierungen & Services gebündelt'
-      },
-      {
-        'key': 'messgroessen',
-        'title': 'Messgrößen im Überblick',
-        'text': 'Von Spannung über Drehmoment bis Feuchte – transparent dokumentiert und rückführbar.',
-        'subline': 'Elektrisch, mechanisch, thermisch'
-      },
-      {
-        'key': 'portal',
-        'title': 'Digitales Messmittelportal',
-        'text': 'calServer bündelt Zertifikate, Fristen und Geräte-Historien – inkl. Rollen, Rechte und API.',
-        'subline': '24/7 verfügbar, DSGVO-konform'
-      }
-    ]
-  },
-  {
-    'label': 'Qualität & Ablauf',
-    'items': [
-      { 'label': 'Kennzahlen & SLAs', 'href': '#kennzahlen', 'explain': 'kpi' },
-      { 'label': 'Labor im Überblick', 'href': '#laborprofil', 'explain': 'labor' },
-      { 'label': 'Ablauf & Tracking', 'href': '#ablauf', 'explain': 'ablauf' }
-    ],
-    'explains': [
-      {
-        'key': 'kpi',
-        'title': 'Transparente Kennzahlen',
-        'text': 'DAkkS-Status, Termintreue und Rückläuferquote zeigen die Stabilität unseres Labors.',
-        'subline': '25.000+ Kalibrierungen · 98,7 % Termintreue'
-      },
-      {
-        'key': 'labor',
-        'title': 'Labor im Fokus',
-        'text': 'Akkreditierte Messketten, kurze Liegezeiten und persönlicher Service mit Abhol-Option.',
-        'subline': 'DIN EN ISO/IEC 17025 geprüft'
-      },
-      {
-        'key': 'ablauf',
-        'title': 'Geführter Ablauf',
-        'text': 'Vom Anmelden bis zum Zertifikat – klar strukturierter Prozess mit Status-Tracking.',
-        'subline': 'Anmeldung · Abholung · Kalibrierung · Zertifikat'
-      }
-    ]
-  },
-  {
-    'label': 'Branchen & Team',
-    'items': [
-      { 'label': 'Einsatzfelder', 'href': '#branchen', 'explain': 'branchen' },
-      { 'label': 'Über uns', 'href': '#labor-historie', 'explain': 'team' },
-      { 'label': 'Akkreditierung', 'href': '#akkreditierung', 'explain': 'dakkS' }
-    ],
-    'explains': [
-      {
-        'key': 'branchen',
-        'title': 'Stories aus der Praxis',
-        'text': 'Automotive, Energie, Luftfahrt oder Pharma – jede Branche mit passendem Workflow.',
-        'subline': '8 Branchen mit konkreten Use Cases'
-      },
-      {
-        'key': 'team',
-        'title': 'Menschen im Labor',
-        'text': '28 Spezialist:innen für elektrische und thermische Messtechnik – bundesweit im Einsatz.',
-        'subline': 'Feste Ansprechpartner:innen & Service-Slots'
-      },
-      {
-        'key': 'dakkS',
-        'title': 'Auditierte Qualität',
-        'text': 'DAkkS-Urkunde, dokumentierte Normale und regelmäßige Audits sichern die Rückführbarkeit.',
-        'subline': 'DIN EN ISO/IEC 17025'
-      }
-    ]
-  },
-  {
-    'label': 'Service',
-    'items': [
-      { 'label': 'Prozess-Features', 'href': '#prozesse', 'explain': 'prozesse' },
-      { 'label': 'FAQ', 'href': '#faq', 'explain': 'faq' },
-      { 'label': 'Kontakt', 'href': '#kontakt', 'explain': 'kontakt' }
-    ],
-    'explains': [
-      {
-        'key': 'prozesse',
-        'title': 'Laborlogistik & Tracking',
-        'text': 'Track & Trace, Rollenmodelle und signierte Zertifikate für durchgängige Compliance.',
-        'subline': 'Transparenz wie in der Logistik'
-      },
-      {
-        'key': 'faq',
-        'title': 'Antworten parat',
-        'text': 'Fragen zu Messmitteln, Laufzeiten und Versand sind kompakt erklärt.',
-        'subline': 'Kalibrierung, Versand, Dokumentation'
-      },
-      {
-        'key': 'kontakt',
-        'title': 'Direkter Draht',
-        'text': 'Anfrage stellen, Rückruf buchen oder einen Labor-Rundgang vereinbaren.',
-        'subline': 'Antwort innerhalb eines Werktags'
-      }
-    ]
-  }
-] %}
+{% set menuItems = marketingMenuItems|default([]) %}
 {% set laborAssetMap = laborAssets|default({}) %}
 {% set contactLink = { 'label': 'Kalibrierung anfragen', 'href': '#kontakt' } %}
 {% set laborLogoUrl = basePath ~ '/uploads/labor/labor-logo.png' %}
@@ -523,37 +409,7 @@
         </div>
       </div>
       <div class="uk-navbar-center uk-visible@m">
-        <ul class="uk-navbar-nav labor-mega-nav">
-          {% for item in megaNav %}
-            <li>
-              <a href="{{ item.items|first.href }}" uk-scroll aria-haspopup="true">{{ item.label }}</a>
-              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
-                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
-                  <div>
-                    <ul class="uk-nav uk-navbar-dropdown-nav">
-                      {% for link in item.items %}
-                        <li>
-                          <a href="{{ link.href }}" uk-scroll data-explain="{{ link.explain }}">
-                            {{ link.label }}
-                          </a>
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  </div>
-                  <div class="menu-explain">
-                    {% for explain in item.explains %}
-                      <div class="explain-pane {{ loop.first ? '' : 'uk-hidden' }}" data-explain-pane="{{ explain.key }}">
-                        <h5>{{ explain.title }}</h5>
-                        <p>{{ explain.text }}</p>
-                        <p class="menu-explain__subline">{{ explain.subline }}</p>
-                      </div>
-                    {% endfor %}
-                  </div>
-                </div>
-              </div>
-            </li>
-          {% endfor %}
-        </ul>
+        {{ menu.render_menu(menuItems, 'uk-navbar-nav labor-mega-nav', 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
       </div>
       <div class="uk-navbar-right">
         <div class="uk-navbar-item uk-hidden@m">
@@ -568,16 +424,7 @@
     <div id="labor-offcanvas" uk-offcanvas="overlay: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close" type="button" aria-label="Menü schließen" uk-close></button>
-        <ul class="uk-nav uk-nav-default labor-offcanvas__nav">
-          {% for link in links %}
-            {% set isExternal = link.isExternal|default(false) %}
-            <li>
-              <a href="{{ link.href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>
-                {{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
+        {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default labor-offcanvas__nav') }}
         <a class="uk-button uk-button-primary labor-nav__cta uk-width-1-1" href="{{ contactLink.href }}" uk-scroll>
           {{ contactLink.label }}
         </a>

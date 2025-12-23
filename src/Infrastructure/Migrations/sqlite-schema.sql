@@ -580,18 +580,27 @@ CREATE TABLE IF NOT EXISTS marketing_page_menu_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
     namespace TEXT NOT NULL DEFAULT 'default',
+    parent_id INTEGER REFERENCES marketing_page_menu_items(id) ON DELETE CASCADE,
     label TEXT NOT NULL,
     href TEXT NOT NULL,
     icon TEXT,
+    layout TEXT NOT NULL DEFAULT 'link',
+    detail_title TEXT,
+    detail_text TEXT,
+    detail_subline TEXT,
     position INTEGER NOT NULL DEFAULT 0,
     is_external INTEGER NOT NULL DEFAULT 0,
     locale TEXT NOT NULL DEFAULT 'de',
     is_active INTEGER NOT NULL DEFAULT 1,
+    is_startpage INTEGER NOT NULL DEFAULT 0,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS marketing_page_menu_items_page_locale_idx
     ON marketing_page_menu_items(page_id, namespace, locale, position, id);
+
+CREATE INDEX IF NOT EXISTS marketing_page_menu_items_parent_idx
+    ON marketing_page_menu_items(parent_id);
 
 -- Marketing page wiki
 CREATE TABLE IF NOT EXISTS marketing_page_wiki_settings (
