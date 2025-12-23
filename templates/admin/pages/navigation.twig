@@ -105,12 +105,8 @@
                 </select>
               </div>
             </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
-            </div>
           </div>
         </div>
-
 
         {% set pagesList = pages|default([]) %}
         {% set hasPages = pagesList is not empty %}
@@ -118,8 +114,6 @@
         {% if selectedSlug == '' and hasPages %}
           {% set selectedSlug = (pagesList|first).slug %}
         {% endif %}
-        {% include 'admin/components/page_tree.twig' %}
-
         <div class="uk-card uk-card-default uk-card-body uk-margin">
           <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
           <div class="uk-form-controls">
@@ -142,63 +136,9 @@
             </select>
           </div>
         </div>
-        <div
-          class="uk-card uk-card-default uk-card-body uk-margin"
-          data-page-namespace-manager
-          data-pages="{{ page_namespace_list|json_encode|e('html_attr') }}"
-          data-page-select-id="pageContentSelect"
-          data-page-select-key="slug"
-          data-page-selection-param="pageSlug"
-          data-page-selection-value-key="slug"
-          data-active-namespace="{{ activePageNamespace|e('html_attr') }}"
-          data-success-message="Seite verschoben."
-          data-error-message="Namespace konnte nicht geändert werden."
-        >
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespacePerPageSelect">{{ t('label_page_project_namespace') }}</label>
-              <div class="uk-form-controls">
-                <select id="pageNamespacePerPageSelect" class="uk-select" data-page-namespace-select>
-                  {% for entry in pageNamespaceOptions %}
-                    {% set entryNamespace = entry.namespace|default('') %}
-                    {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                    <option value="{{ entryNamespace|e('html_attr') }}">
-                      {{ entryNamespace }}
-                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      {% if entryIsInactive %} – inaktiv{% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              {{ t('text_page_project_namespace_change') }}
-            </div>
-          </div>
-          <div class="uk-alert uk-alert-primary uk-margin-small-top" data-page-namespace-feedback hidden role="status"></div>
-        </div>
 
         {% set marketingLocaleOptions = ['de', 'en'] %}
         {% set selectedMenuLocale = locale()|default('de') %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
-          <div class="uk-form-controls">
-            <select id="menuLocaleSelect" class="uk-select" data-menu-locale-select>
-              <option value="">Alle Locales</option>
-              {% for localeOption in marketingLocaleOptions %}
-                <option
-                  value="{{ localeOption|e('html_attr') }}"
-                  {% if localeOption == selectedMenuLocale %}selected{% endif %}
-                >{{ localeOption }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="uk-text-meta uk-margin-small-top">
-            Optional: Ohne Auswahl werden Menüeinträge aus allen Locales angezeigt.
-          </div>
-        </div>
-
         {% set menuPagesData = hasPages ? menu_pages|default([]) : [] %}
         <div
           class="uk-card uk-card-default uk-card-body uk-margin"
@@ -267,6 +207,68 @@
               loadingRow.innerHTML = '<td colspan="8" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
             }, 2000);
           </script>
+        </div>
+
+        <div class="uk-margin">
+          <ul class="uk-accordion" uk-accordion="collapsible: true">
+            <li>
+              <a class="uk-accordion-title" href="#">Erweitert</a>
+              <div class="uk-accordion-content">
+                {% include 'admin/components/page_tree.twig' %}
+                <div
+                  class="uk-card uk-card-default uk-card-body uk-margin"
+                  data-page-namespace-manager
+                  data-pages="{{ page_namespace_list|json_encode|e('html_attr') }}"
+                  data-page-select-id="pageContentSelect"
+                  data-page-select-key="slug"
+                  data-page-selection-param="pageSlug"
+                  data-page-selection-value-key="slug"
+                  data-active-namespace="{{ activePageNamespace|e('html_attr') }}"
+                  data-success-message="Seite verschoben."
+                  data-error-message="Namespace konnte nicht geändert werden."
+                >
+                  <div class="uk-grid-small uk-flex-middle" uk-grid>
+                    <div class="uk-width-1-1 uk-width-expand@m">
+                      <label class="uk-form-label" for="pageNamespacePerPageSelect">{{ t('label_page_project_namespace') }}</label>
+                      <div class="uk-form-controls">
+                        <select id="pageNamespacePerPageSelect" class="uk-select" data-page-namespace-select>
+                          {% for entry in pageNamespaceOptions %}
+                            {% set entryNamespace = entry.namespace|default('') %}
+                            {% set entryLabel = entry.label|default('') %}
+                            {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                            <option value="{{ entryNamespace|e('html_attr') }}">
+                              {{ entryNamespace }}
+                              {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                              {% if entryIsInactive %} – inaktiv{% endif %}
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="uk-alert uk-alert-primary uk-margin-small-top" data-page-namespace-feedback hidden role="status"></div>
+                </div>
+
+                <div class="uk-card uk-card-default uk-card-body uk-margin">
+                  <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
+                  <div class="uk-form-controls">
+                    <select id="menuLocaleSelect" class="uk-select" data-menu-locale-select>
+                      <option value="">Alle Locales</option>
+                      {% for localeOption in marketingLocaleOptions %}
+                        <option
+                          value="{{ localeOption|e('html_attr') }}"
+                          {% if localeOption == selectedMenuLocale %}selected{% endif %}
+                        >{{ localeOption }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="uk-text-meta uk-margin-small-top">
+                    Optional: Ohne Auswahl werden Menüeinträge aus allen Locales angezeigt.
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </main>
