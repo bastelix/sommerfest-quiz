@@ -1,13 +1,13 @@
 <div class="uk-card uk-card-default uk-card-body uk-margin">
   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-    <h3 class="uk-card-title uk-margin-remove">Projektübersicht</h3>
+    <h3 class="uk-card-title uk-margin-remove">Namespace-Übersicht</h3>
     <span class="uk-text-meta">{{ t('label_project_namespace') }} · {{ t('menu_content') }}</span>
   </div>
   <p class="uk-text-meta uk-margin-small-top">
     Strukturierte Übersicht der Marketing-Inhalte inklusive Wiki, News, Newsletter und Medien-Referenzen.
   </p>
   <p class="uk-text-meta uk-margin-small-top">
-    Neue, leere Projekte zeigen hier einen Hinweis mit direkten Links zum Anlegen der ersten Inhalte.
+    Neue, leere Namespaces zeigen hier einen Hinweis mit direkten Links zum Anlegen der ersten Inhalte.
   </p>
   <div class="uk-text-meta uk-margin-small-top">
     <span class="uk-margin-small-right">Status-Legende:</span>
@@ -20,9 +20,9 @@
     data-endpoint="{{ basePath }}/admin/projects/tree"
     data-base-url="{{ basePath }}"
     data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
-    data-empty="Keine Projektdaten vorhanden."
-    data-error="Projektübersicht konnte nicht geladen werden."
+    data-empty="Keine Namespace-Daten vorhanden."
+    data-error="Namespace-Übersicht konnte nicht geladen werden."
   >
-    <div class="uk-text-meta" data-project-tree-loading>Projektübersicht wird geladen…</div>
+    <div class="uk-text-meta" data-project-tree-loading>Namespace-Übersicht wird geladen…</div>
   </div>
 </div>

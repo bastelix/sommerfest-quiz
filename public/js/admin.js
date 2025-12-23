@@ -816,8 +816,8 @@ const initProjectTree = () => {
     return;
   }
   const loading = container.querySelector('[data-project-tree-loading]');
-  const emptyMessage = container.dataset.empty || 'Keine Projektdaten vorhanden.';
-  const errorMessage = container.dataset.error || 'Projektübersicht konnte nicht geladen werden.';
+  const emptyMessage = container.dataset.empty || 'Keine Namespace-Daten vorhanden.';
+  const errorMessage = container.dataset.error || 'Namespace-Übersicht konnte nicht geladen werden.';
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
   const namespaceSelect = document.getElementById('namespaceSelect')
     || document.getElementById('projectNamespaceSelect')
@@ -827,7 +827,7 @@ const initProjectTree = () => {
   const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
 
   if (loading) {
-    loading.textContent = loading.textContent || 'Projektübersicht wird geladen…';
+    loading.textContent = loading.textContent || 'Namespace-Übersicht wird geladen…';
   }
 
   apiFetch(endpointWithNamespace)
