@@ -1045,7 +1045,6 @@ return [
     'action_delete_player' => 'Delete player name',
     'text_player_name_hint' => 'Name is stored locally in the browser',
     'text_stripe_config_missing' => 'Stripe configuration missing. Please set required environment variables.',
-];
     'text_prompt_templates_hint' => 'Maintain the templates used for AI prompt generation. Update the copy and placeholders as needed.',
     'help_prompt_template_placeholders' => 'Available placeholders: <code>{{slug}}</code>, <code>{{title}}</code>, <code>{{theme}}</code>, <code>{{colorScheme}}</code>, <code>{{primaryColor}}</code>, <code>{{backgroundColor}}</code>, <code>{{accentColor}}</code>, <code>{{problem}}</code>.',
     'text_prompt_templates_loading' => 'Loading prompt templates ...',
@@ -1060,3 +1059,4 @@ return [
     'error_prompt_template_save' => 'Prompt template could not be saved.',
     'error_prompt_template_missing' => 'Prompt template not found.',
     'error_prompt_template_invalid' => 'Please enter a name and prompt text.',
+];
