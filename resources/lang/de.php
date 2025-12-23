@@ -201,7 +201,7 @@ return [
     'menu' => 'Menü',
     'menu_event_management' => 'Eventverwaltung',
     'menu_content' => 'Inhalte',
-    'menu_projects' => 'Namespaces',
+    'menu_projects' => 'Webverwaltung',
     'menu_account' => 'Konto',
     'menu_admin' => 'Administration',
     'menu_admin_domains' => 'Domänen',

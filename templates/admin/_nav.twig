@@ -25,18 +25,6 @@
     ]
   },
   {
-    header: t('menu_content'),
-    items: [
-      {
-        href: basePath ~ '/admin/media',
-        icon: 'image',
-        text: t('tab_media'),
-        roles: ['admin', 'catalog-editor'],
-        noEvent: true
-      },
-    ]
-  },
-  {
     header: t('menu_projects'),
     admin: true,
     type: 'projects'
@@ -93,6 +81,14 @@
     text: t('tab_pages'),
     activePaths: [basePath ~ '/admin/pages'],
     activePrefixes: [basePath ~ '/admin/pages/content']
+  },
+  {
+    href: basePath ~ '/admin/media',
+    icon: 'image',
+    text: t('tab_media'),
+    activePrefixes: [basePath ~ '/admin/media'],
+    roles: ['admin', 'catalog-editor'],
+    noEvent: true
   },
   { href: basePath ~ '/admin/pages/navigation', icon: 'list', text: t('tab_navigation'), activePrefixes: [basePath ~ '/admin/pages/navigation'] },
   { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), activePrefixes: [basePath ~ '/admin/pages/seo'] },
@@ -214,6 +210,7 @@
             <div class="uk-accordion-content uk-padding-remove">
               <ul class="uk-nav uk-nav-default qr-nav-sub">
                 {% for module in projectModules %}
+                  {% if module.roles is not defined or role in module.roles %}
                   {% set activePaths = module.activePaths|default([]) %}
                   {% set activePrefixes = module.activePrefixes|default([]) %}
                   {% set isActive = false %}
@@ -239,6 +236,7 @@
                       <span class="qr-nav-text">{{ module.text }}</span>
                     </a>
                   </li>
+                  {% endif %}
                 {% endfor %}
               </ul>
             </div>
