@@ -54,6 +54,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
                 $request->getAttribute('namespace') === null
                 && $request->getAttribute('pageNamespace') === null
                 && $request->getAttribute('legalPageNamespace') === null
+                && $request->getAttribute('domainNamespace') === null
             ) {
                 $request = $request->withAttribute('namespace', $activeNamespace);
             }

@@ -105,6 +105,34 @@ final class MarketingMenuService
     }
 
     /**
+     * Resolve the startpage slug for the given namespace and locale.
+     */
+    public function resolveStartpageSlug(string $namespace, ?string $locale = null): ?string
+    {
+        $normalizedLocale = $this->normalizeLocale($locale);
+        $item = $this->fetchStartpageMenuItem($namespace, $normalizedLocale, true);
+        if ($item === null && $normalizedLocale !== 'de') {
+            $item = $this->fetchStartpageMenuItem($namespace, 'de', true);
+        }
+        if ($item === null) {
+            $item = $this->fetchStartpageMenuItem($namespace, $normalizedLocale, false);
+        }
+        if ($item === null && $normalizedLocale !== 'de') {
+            $item = $this->fetchStartpageMenuItem($namespace, 'de', false);
+        }
+        if ($item === null) {
+            return null;
+        }
+
+        $page = $this->pages->findById($item->getPageId());
+        if ($page === null) {
+            return null;
+        }
+
+        return $page->getSlug();
+    }
+
+    /**
      * Fetch a single menu item by its id.
      */
     public function getMenuItemById(int $id): ?MarketingPageMenuItem
@@ -724,6 +752,30 @@ final class MarketingMenuService
         }
 
         return $candidate?->getId();
+    }
+
+    private function fetchStartpageMenuItem(
+        string $namespace,
+        string $locale,
+        bool $requireStartpage
+    ): ?MarketingPageMenuItem {
+        $sql = 'SELECT * FROM marketing_page_menu_items WHERE namespace = ? AND locale = ?'
+            . ' AND is_active = TRUE AND is_external = FALSE';
+
+        if ($requireStartpage) {
+            $sql .= ' AND is_startpage = TRUE';
+        }
+
+        $sql .= ' ORDER BY CASE WHEN parent_id IS NULL THEN 0 ELSE 1 END, position ASC, id ASC LIMIT 1';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$namespace, $locale]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->hydrateItem($row);
     }
 
     private function ensureMenuItemsImported(Page $page): void

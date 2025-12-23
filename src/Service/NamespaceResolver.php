@@ -47,6 +47,9 @@ final class NamespaceResolver
         );
         $this->pushCandidate($candidates, $explicit);
 
+        $domainNamespace = $this->normalizeNamespace($request->getAttribute('domainNamespace'));
+        $this->pushCandidate($candidates, $domainNamespace);
+
         $routeNamespace = $this->resolveRouteNamespace($request);
         $this->pushCandidate($candidates, $routeNamespace);
 

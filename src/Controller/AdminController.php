@@ -569,19 +569,14 @@ class AdminController
         DomainService $domainService,
         string $host
     ): array {
-        $domainsByNamespace = $domainService->listDomainsByNamespace(includeInactive: true);
         $mainDomain = $domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
         $currentHost = $domainService->normalizeDomain($host);
         $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
 
         $result = [];
         foreach ($pages as $page) {
-            $namespace = $page->getNamespace() !== '' ? $page->getNamespace() : PageService::DEFAULT_NAMESPACE;
-            $pageDomains = array_map(
-                static fn (array $domain): string => $domain['normalized_host'],
-                $domainsByNamespace[$namespace] ?? []
-            );
-            if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
+            $pageDomains = [];
+            if ($page->getSlug() === 'landing' && $mainDomain !== '') {
                 $pageDomains[] = $mainDomain;
             }
             if ($pageDomains === [] && $fallbackHost !== '') {

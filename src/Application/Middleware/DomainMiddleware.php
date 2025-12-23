@@ -94,13 +94,13 @@ class DomainMiddleware implements MiddlewareInterface
             return $response->withHeader('Content-Type', 'text/html');
         }
 
-        $startPageNamespace = null;
+        $domainNamespace = null;
         try {
             $pdo = Database::connectFromEnv();
             $service = new DomainService($pdo);
             $domain = $service->getDomainForHost($originalHost, includeInactive: true);
             if ($domain !== null && $domain['namespace'] !== null) {
-                $startPageNamespace = $domain['namespace'];
+                $domainNamespace = $domain['namespace'];
             }
         } catch (Throwable $e) {
             // Ignore errors so the request can continue even if the table is missing.
@@ -109,8 +109,8 @@ class DomainMiddleware implements MiddlewareInterface
         $request = $request
             ->withAttribute('domainType', $domainType);
 
-        if ($startPageNamespace !== null && $request->getAttribute('pageNamespace') === null) {
-            $request = $request->withAttribute('pageNamespace', $startPageNamespace);
+        if ($domainNamespace !== null) {
+            $request = $request->withAttribute('domainNamespace', $domainNamespace);
         }
 
         return $handler->handle($request);

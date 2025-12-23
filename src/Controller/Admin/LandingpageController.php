@@ -191,19 +191,14 @@ class LandingpageController
      * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
      */
     private function buildSeoPageList(array $pages, Page $selected, string $host): array {
-        $domainsByNamespace = $this->domainService->listDomainsByNamespace(includeInactive: true);
         $mainDomain = $this->domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
         $currentHost = $this->domainService->normalizeDomain($host);
         $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
 
         $result = [];
         foreach ($pages as $page) {
-            $namespace = $page->getNamespace() !== '' ? $page->getNamespace() : PageService::DEFAULT_NAMESPACE;
-            $pageDomains = array_map(
-                static fn (array $domain): string => $domain['normalized_host'],
-                $domainsByNamespace[$namespace] ?? []
-            );
-            if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
+            $pageDomains = [];
+            if ($page->getSlug() === 'landing' && $mainDomain !== '') {
                 $pageDomains[] = $mainDomain;
             }
             if ($pageDomains === [] && $fallbackHost !== '') {
@@ -237,8 +232,8 @@ class LandingpageController
         }
 
         if (!isset($result[$selected->getId()])) {
-            $pageDomains = $domainsBySlug[$selected->getSlug()] ?? [];
-            if ($pageDomains === [] && $selected->getSlug() === 'landing' && $mainDomain !== '') {
+            $pageDomains = [];
+            if ($selected->getSlug() === 'landing' && $mainDomain !== '') {
                 $pageDomains[] = $mainDomain;
             }
             if ($pageDomains === [] && $fallbackHost !== '') {

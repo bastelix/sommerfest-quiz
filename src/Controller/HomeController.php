@@ -10,8 +10,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\EventService;
+use App\Service\MarketingMenuService;
 use App\Service\MarketingSlugResolver;
-use App\Service\SettingsService;
+use App\Service\NamespaceResolver;
 use App\Service\ResultService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
@@ -33,7 +34,8 @@ class HomeController
         }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
-        $settingsSvc = new SettingsService($pdo);
+        $menuService = new MarketingMenuService($pdo);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -69,25 +71,24 @@ class HomeController
             if ($event !== null && (!isset($cfg['event_uid']) || (string) $cfg['event_uid'] === '')) {
                 $cfg['event_uid'] = (string) $event['uid'];
             }
-            $home = $settingsSvc->get('home_page', 'help');
-            $parsed = $this->parseStartPageKey((string) $home);
-            if ($parsed['slug'] !== '') {
-                $home = $parsed['slug'];
-            }
-            if ($parsed['namespace'] !== null && $request->getAttribute('pageNamespace') === null) {
-                $request = $request->withAttribute('pageNamespace', $parsed['namespace']);
-            }
-            if ($home === 'events') {
+
+            $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
+            $startpageSlug = $menuService->resolveStartpageSlug($namespace, $locale);
+            $startpageBaseSlug = $startpageSlug !== null
+                ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)
+                : '';
+
+            if ($startpageBaseSlug === 'events') {
                 $events = $eventSvc->getAll();
                 return $view->render($response, 'events_overview.twig', [
                     'events' => $events,
                     'config' => $cfg,
                     'role' => $role,
                 ]);
-            } elseif ($home === 'help') {
+            } elseif ($startpageBaseSlug === 'help') {
                 $ctrl = new HelpController();
                 return $ctrl($request, $response);
-            } elseif ($home === 'landing') {
+            } elseif ($startpageBaseSlug === 'landing') {
                 if ($catalogParam === '') {
                     $domainType = $request->getAttribute('domainType');
                     $host = $request->getUri()->getHost();
@@ -102,26 +103,31 @@ class HomeController
                         return $ctrl($request, $response);
                     }
                 }
-            } elseif ($home === 'calhelp') {
+            } elseif ($startpageBaseSlug === 'calhelp') {
                 if ($catalogParam === '') {
-                    $ctrl = new \App\Controller\Marketing\MarketingPageController('calhelp');
+                    $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug ?? 'calhelp');
                     return $ctrl($request, $response);
                 }
-            } elseif ($home === 'calserver') {
+            } elseif ($startpageBaseSlug === 'calserver') {
                 if ($catalogParam === '') {
                     $ctrl = new \App\Controller\Marketing\CalserverController();
                     return $ctrl($request, $response);
                 }
-            } elseif ($home === 'calserver-maintenance') {
+            } elseif ($startpageBaseSlug === 'calserver-maintenance') {
                 if ($catalogParam === '') {
-                    $ctrl = new \App\Controller\Marketing\MarketingPageController('calserver-maintenance');
+                    $ctrl = new \App\Controller\Marketing\MarketingPageController(
+                        $startpageSlug ?? 'calserver-maintenance'
+                    );
                     return $ctrl($request, $response);
                 }
-            } elseif ($home === 'future-is-green') {
+            } elseif ($startpageBaseSlug === 'future-is-green') {
                 if ($catalogParam === '') {
                     $ctrl = new \App\Controller\Marketing\FutureIsGreenController();
                     return $ctrl($request, $response);
                 }
+            } elseif ($startpageSlug !== null && $catalogParam === '') {
+                $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug);
+                return $ctrl($request, $response);
             }
         }
         if (array_key_exists('inviteText', $cfg)) {
@@ -240,31 +246,4 @@ class HomeController
         ]);
     }
 
-    /**
-     * @return array{slug:string,namespace:?string}
-     */
-    private function parseStartPageKey(string $startPage): array
-    {
-        $startPage = trim($startPage);
-        if ($startPage === '') {
-            return ['slug' => '', 'namespace' => null];
-        }
-
-        $separator = ':';
-        if (str_contains($startPage, $separator)) {
-            [$namespace, $slug] = explode($separator, $startPage, 2);
-            $namespace = strtolower(trim($namespace));
-            $slug = MarketingSlugResolver::resolveBaseSlug($slug);
-
-            return [
-                'slug' => $slug,
-                'namespace' => $namespace !== '' ? $namespace : null,
-            ];
-        }
-
-        return [
-            'slug' => MarketingSlugResolver::resolveBaseSlug($startPage),
-            'namespace' => null,
-        ];
-    }
 }
