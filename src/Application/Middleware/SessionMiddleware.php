@@ -6,6 +6,9 @@ namespace App\Application\Middleware;
 
 use App\Service\SessionService;
 use App\Service\UserService;
+use App\Service\NamespaceAccessService;
+use App\Service\NamespaceValidator;
+use App\Domain\Roles;
 use App\Infrastructure\Database;
 use App\Support\DomainNameHelper;
 use PDO;
@@ -76,9 +79,16 @@ class SessionMiddleware implements Middleware
             session_start();
         }
 
+        $requestedNamespace = $this->resolveRequestedNamespace($request);
+        if ($requestedNamespace !== null) {
+            $this->applyRequestedNamespace($request, $requestedNamespace);
+        }
+
         $activeNamespace = $this->resolveActiveNamespace($request);
         if ($activeNamespace !== null) {
-            $request = $request->withAttribute('active_namespace', $activeNamespace);
+            $request = $request
+                ->withAttribute('active_namespace', $activeNamespace)
+                ->withAttribute('namespace', $activeNamespace);
         }
 
         $response = $handler->handle($request);
@@ -177,10 +187,7 @@ class SessionMiddleware implements Middleware
         }
 
         try {
-            $pdo = $request->getAttribute('pdo');
-            if (!$pdo instanceof PDO) {
-                $pdo = Database::connectFromEnv();
-            }
+            $pdo = $this->resolvePdo($request);
 
             $userService = new UserService($pdo);
             $record = $userService->getById((int) $_SESSION['user']['id']);
@@ -198,5 +205,73 @@ class SessionMiddleware implements Middleware
         } catch (\Throwable $e) {
             return null;
         }
+    }
+
+    private function resolveRequestedNamespace(Request $request): ?string {
+        $validator = new NamespaceValidator();
+        return $validator->normalizeCandidate($request->getQueryParams()['namespace'] ?? null);
+    }
+
+    private function applyRequestedNamespace(Request $request, string $requestedNamespace): void {
+        if (!isset($_SESSION['user']['id'])) {
+            return;
+        }
+
+        $record = $this->loadUserRecord($request);
+        if ($record === null) {
+            return;
+        }
+
+        $_SESSION['user']['namespaces'] = $record['namespaces'];
+
+        $role = $_SESSION['user']['role'] ?? null;
+        $accessService = new NamespaceAccessService();
+        $allowed = $accessService->resolveAllowedNamespaces($role);
+
+        if (!$accessService->shouldExposeNamespace($requestedNamespace, $allowed, $role)) {
+            return;
+        }
+
+        if ($role === Roles::ADMIN) {
+            $_SESSION['user']['active_namespace'] = $requestedNamespace;
+            return;
+        }
+
+        $pdo = $this->resolvePdo($request);
+        $sessionService = new SessionService($pdo);
+        $_SESSION['user']['active_namespace'] = $sessionService->resolveActiveNamespace(
+            $record['namespaces'],
+            $requestedNamespace
+        );
+    }
+
+    /**
+     * @return array{
+     *     id:int,
+     *     username:string,
+     *     password:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     namespaces:list<array{namespace:string,is_default:bool}>
+     * }|null
+     */
+    private function loadUserRecord(Request $request): ?array {
+        try {
+            $pdo = $this->resolvePdo($request);
+            $userService = new UserService($pdo);
+            return $userService->getById((int) $_SESSION['user']['id']);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function resolvePdo(Request $request): PDO {
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        return $pdo;
     }
 }
