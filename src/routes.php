@@ -1234,26 +1234,36 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
         }
+        $configService = $request->getAttribute('configService');
+        if (!$configService instanceof ConfigService) {
+            $configService = new ConfigService($pdo);
+        }
+        $eventService = new EventService($pdo, $configService);
         $start = DateTimeImmutable::createFromFormat('Y-m-d', $month . '-01')
             ?: new DateTimeImmutable('first day of this month');
         $end = $start->modify('first day of next month');
-        $stmt = $pdo->prepare(
-            'SELECT uid,name,start_date,COALESCE(end_date,start_date) AS end_date,published '
-            . 'FROM events '
-            . 'WHERE start_date < ? AND COALESCE(end_date,start_date) >= ? '
-            . 'ORDER BY start_date'
-        );
-        $stmt->execute([
-            $end->format('Y-m-d 00:00:00'),
-            $start->format('Y-m-d 00:00:00'),
-        ]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $eventService->getAll();
+        $rows = array_filter($rows, static function (array $row) use ($start, $end): bool {
+            $startValue = $row['start_date'] ?? null;
+            if ($startValue === null || $startValue === '') {
+                return false;
+            }
+            $eventStart = new DateTimeImmutable((string) $startValue);
+            $endValue = $row['end_date'] ?? null;
+            $eventEnd = $endValue ? new DateTimeImmutable((string) $endValue) : $eventStart;
+            return $eventStart < $end && $eventEnd >= $start;
+        });
+        usort($rows, static function (array $left, array $right): int {
+            return strcmp((string) ($left['start_date'] ?? ''), (string) ($right['start_date'] ?? ''));
+        });
         $events = [];
         $now = new DateTimeImmutable('now');
         $teamStmt = $pdo->prepare('SELECT COUNT(*) FROM teams WHERE event_uid = ?');
         foreach ($rows as $row) {
             $startDate = new DateTimeImmutable((string) $row['start_date']);
-            $endDate = new DateTimeImmutable((string) $row['end_date']);
+            $endDate = $row['end_date'] !== null && $row['end_date'] !== ''
+                ? new DateTimeImmutable((string) $row['end_date'])
+                : $startDate;
             $teamStmt->execute([$row['uid']]);
             $teams = (int) $teamStmt->fetchColumn();
             if (!(bool) $row['published']) {
