@@ -203,7 +203,7 @@ return [
     'menu_account' => 'Account',
     'menu_admin' => 'Administration',
     'menu_admin_domains' => 'Domains',
-    'menu_admin_logins' => 'Logins',
+    'menu_admin_logins' => 'Access',
     'menu_admin_backups' => 'Backups',
     'logout' => 'Logout',
     'tip_logo_upload' => 'Upload PNG, WebP or SVG logo for start page.',
