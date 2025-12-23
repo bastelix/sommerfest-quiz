@@ -205,7 +205,7 @@ return [
     'menu_account' => 'Konto',
     'menu_admin' => 'Administration',
     'menu_admin_domains' => 'Domänen',
-    'menu_admin_logins' => 'Anmeldungen',
+    'menu_admin_logins' => 'Zugänge',
     'menu_admin_backups' => 'Sicherungen',
     'logout' => 'Abmelden',
     'tip_logo_upload' => 'PNG-, WebP- oder SVG-Datei als Logo für die Startseite hochladen.',

@@ -40,23 +40,17 @@
     header: t('menu_admin'),
     admin: true,
     items: [
-      { href: basePath ~ '/admin/logins', icon: 'sign-in', text: t('menu_admin_logins'), noEvent: true },
+      {
+        href: basePath ~ '/admin/logins',
+        icon: 'sign-in',
+        text: t('menu_admin_logins'),
+        noEvent: true,
+        noNamespace: true
+      },
       {
         href: basePath ~ '/admin/management#domains',
         icon: 'world',
         text: t('menu_admin_domains'),
-        noEvent: true
-      },
-      {
-        href: basePath ~ '/admin/logins#registration',
-        icon: 'user',
-        text: t('heading_registration'),
-        noEvent: true
-      },
-      {
-        href: basePath ~ '/admin/logins#users',
-        icon: 'users',
-        text: t('heading_users'),
         noEvent: true
       },
       {
@@ -73,6 +67,7 @@
 {% set current = currentPath %}
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set namespaceQuery = activeNamespace is not empty ? 'namespace=' ~ activeNamespace|url_encode : '' %}
+{% set lockNamespaceSelect = current starts with (basePath ~ '/admin/logins') %}
 {% set projectModules = [
   { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview'), activePrefixes: [basePath ~ '/admin/projects'] },
   {
@@ -137,6 +132,7 @@
         id="namespaceSelect"
         class="uk-select"
         data-namespace="{{ activeNamespace|e('html_attr') }}"
+        {% if lockNamespaceSelect %}disabled{% endif %}
       >
         {% for entry in projectNamespaceOptions %}
           {% set entryNamespace = entry.namespace|default('') %}
@@ -165,7 +161,7 @@
         {% set hrefBase = hrefParts[0] %}
         {% set hrefAnchor = hrefParts|length > 1 ? '#' ~ hrefParts[1] : '' %}
         {% set namespaceSuffix = '' %}
-        {% if namespaceQuery is not empty %}
+        {% if namespaceQuery is not empty and (it.noNamespace is not defined or not it.noNamespace) %}
           {% set namespaceSuffix = ('?' in hrefBase) ? '&' ~ namespaceQuery : '?' ~ namespaceQuery %}
         {% endif %}
         {% set href = hrefBase ~ namespaceSuffix ~ hrefAnchor %}
