@@ -150,7 +150,7 @@ class AdminController
             $teams = (new TeamService($pdo, $configSvc))->getAll();
         }
 
-        if ($section === 'management') {
+        if (in_array($section, ['management', 'logins'], true)) {
             $users = (new UserService($pdo))->getAll();
         }
 
