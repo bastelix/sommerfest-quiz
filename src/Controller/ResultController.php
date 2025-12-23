@@ -226,6 +226,8 @@ class ResultController
         $eventUid = (string)($params['event_uid'] ?? '');
         $view = Twig::fromRequest($request);
         $results = $this->service->getAll($eventUid);
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
 
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
@@ -258,7 +260,7 @@ class ResultController
         }
         unset($row);
 
-        return $view->render($response, 'results.twig', ['results' => $results]);
+        return $view->render($response, 'results.twig', ['results' => $results, 'csrf_token' => $csrf]);
     }
 
     /**

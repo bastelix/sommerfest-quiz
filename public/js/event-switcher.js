@@ -17,6 +17,23 @@ const setGlobalActiveEventId = (uid) => {
   return normalized;
 };
 
+const updateEventQuery = (uid) => {
+  if (!window.location) {
+    return;
+  }
+  const url = new URL(window.location.href);
+  if (uid) {
+    url.searchParams.set('event', uid);
+  } else {
+    url.searchParams.delete('event');
+  }
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState({}, document.title, url.toString());
+  } else {
+    window.location.search = url.search;
+  }
+};
+
 const deepClone = (value, seen = new Map()) => {
   if (typeof value !== 'object' || value === null) {
     return value;
@@ -198,6 +215,39 @@ export function setCurrentEvent(uid, name) {
   };
 
   const postBody = JSON.stringify({ event_uid: targetUid });
+  const fetchEventConfig = () => {
+    if (!targetUid) {
+      return Promise.resolve({});
+    }
+    return fetch(withBase(`/events/${encodeURIComponent(targetUid)}/config.json`), {
+      headers: { Accept: 'application/json' },
+      credentials: 'same-origin',
+      signal: controller.signal
+    }).then((r) => {
+      if (!r.ok) {
+        return r.text().then((text) => {
+          throw new Error(text || 'Fehler beim Laden des Events');
+        });
+      }
+      return r
+        .json()
+        .catch(() => ({}));
+    });
+  };
+
+  const fetchConfigFallback = () => {
+    updateEventQuery(targetUid);
+    return fetchEventConfig();
+  };
+
+  if (!token) {
+    return fetchConfigFallback()
+      .then(handleConfigResponse)
+      .catch(fail)
+      .finally(() => {
+        cleanupController();
+      });
+  }
 
   return fetch(withBase('/config.json'), {
     method: 'POST',
@@ -207,28 +257,15 @@ export function setCurrentEvent(uid, name) {
     signal: controller.signal
   })
     .then((resp) => {
+      if (resp.status === 401 || resp.status === 403) {
+        return fetchConfigFallback();
+      }
       if (!resp.ok) {
         return resp.text().then((text) => {
           throw new Error(text || 'Fehler beim Wechseln des Events');
         });
       }
-      if (!targetUid) {
-        return {};
-      }
-      return fetch(withBase(`/events/${encodeURIComponent(targetUid)}/config.json`), {
-        headers: { Accept: 'application/json' },
-        credentials: 'same-origin',
-        signal: controller.signal
-      }).then((r) => {
-        if (!r.ok) {
-          return r.text().then((text) => {
-            throw new Error(text || 'Fehler beim Laden des Events');
-          });
-        }
-        return r
-          .json()
-          .catch(() => ({}));
-      });
+      return fetchEventConfig();
     })
     .then(handleConfigResponse)
     .catch(fail)
