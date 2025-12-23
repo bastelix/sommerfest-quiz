@@ -21,11 +21,14 @@ Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/ad
   * **Profil** – `/admin/profile`
   * **Abo** – `/admin/subscription`
 * **Administration**
+  * **Logins** – `/admin/logins` (nur Administrator:innen)
   * **Administration** – `/admin/management` (nur Administrator:innen)
   * **Logs** – `/admin/logs` (nur Administrator:innen)
   * **Mail-Provider** – `/admin/mail-providers` (nur Administrator:innen)
   * **Subdomains** – `/admin/tenants` (nur Administrator:innen, nur auf der Hauptdomain sichtbar)
-Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf wiederherstellen. Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
+The **Logins** tab combines registration settings with the user management list. The **Administration** tab provides
+JSON backup exports and restores. The statistics tab lists every answer with name, attempt, catalog, question, answer,
+correctness, and an optional evidence photo, and can be filtered by team or person.
 
 ## Dashboard-Konfiguration
 
