@@ -68,6 +68,7 @@ class EventService
         }
 
         $events = array_map(function (array $row) {
+            $row['uid'] = (string) ($row['uid'] ?? $row['id'] ?? '');
             $row['slug'] = (string) ($row['slug'] ?? $row['uid'] ?? '');
             $row['start_date'] = $this->formatDate($row['start_date'] ?? null);
             $row['end_date'] = $this->formatDate($row['end_date'] ?? null);

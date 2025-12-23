@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const createEventRow = (event) => {
-    const uid = event?.uid || '';
+    const uid = event?.uid || event?.id || '';
     if (!uid) return null;
     const tr = document.createElement('tr');
     const tdName = document.createElement('td');
@@ -202,9 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     lazyRenderingActive = true;
-    if (eventsFallback) {
-      eventsFallback.remove();
-    }
     eventsBody.innerHTML = '';
 
     let nextIndex = 0;
@@ -230,23 +227,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const appendChunk = () => {
       if (isRendering || nextIndex >= eventList.length) {
-        return;
+        return 0;
       }
       isRendering = true;
       const fragment = document.createDocumentFragment();
+      let rendered = 0;
       const end = Math.min(nextIndex + chunkSize, eventList.length);
       for (let i = nextIndex; i < end; i += 1) {
         const row = createEventRow(eventList[i]);
         if (row) {
           fragment.appendChild(row);
+          rendered += 1;
         }
       }
       eventsBody.appendChild(fragment);
       nextIndex = end;
       isRendering = false;
+      if (rendered > 0 && eventsFallback) {
+        eventsFallback.remove();
+      }
       if (nextIndex >= eventList.length && eventsLoadMore) {
         eventsLoadMore.hidden = true;
       }
+      return rendered;
     };
 
     const maybeLoadMoreIfInView = () => {
@@ -261,7 +264,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    appendChunk();
+    const initialRendered = appendChunk();
+    if (initialRendered === 0 && eventsFallback) {
+      lazyRenderingActive = false;
+      if (eventsLoadMore) {
+        eventsLoadMore.hidden = true;
+      }
+      return;
+    }
     if (eventsLoadMore && nextIndex < eventList.length) {
       eventsLoadMore.hidden = false;
       if ('IntersectionObserver' in window) {
