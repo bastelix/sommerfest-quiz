@@ -68,8 +68,9 @@ class EventService
         }
 
         $events = array_map(function (array $row) {
-            $row['uid'] = (string) ($row['uid'] ?? $row['id'] ?? '');
-            $row['slug'] = (string) ($row['slug'] ?? $row['uid'] ?? '');
+            $uid = array_key_exists('uid', $row) ? $row['uid'] : ($row['id'] ?? '');
+            $row['uid'] = (string) $uid;
+            $row['slug'] = (string) (array_key_exists('slug', $row) ? $row['slug'] : $row['uid']);
             $row['start_date'] = $this->formatDate($row['start_date'] ?? null);
             $row['end_date'] = $this->formatDate($row['end_date'] ?? null);
             $row['published'] = (bool)($row['published'] ?? false);
