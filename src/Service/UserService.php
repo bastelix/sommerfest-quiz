@@ -214,18 +214,31 @@ class UserService
      * @throws PDOException
      */
     public function saveAll(array $users): void {
+        $existingUsers = [];
+        foreach ($this->pdo->query('SELECT id, username FROM users') as $row) {
+            $existingUsers[(int) $row['id']] = (string) $row['username'];
+        }
+
         foreach ($users as $candidate) {
             if (!isset($candidate['username'])) {
                 continue;
             }
-            $this->usernameGuard->assertAllowed((string) $candidate['username']);
+            $id = isset($candidate['id']) ? (int) $candidate['id'] : 0;
+            $username = (string) $candidate['username'];
+            if ($id > 0 && isset($existingUsers[$id])) {
+                $existingUsername = strtolower(trim($existingUsers[$id]));
+                if ($existingUsername === strtolower(trim($username))) {
+                    continue;
+                }
+            }
+            $this->usernameGuard->assertAllowed($username);
         }
 
         $this->pdo->beginTransaction();
         try {
             $existing = [];
-            foreach ($this->pdo->query('SELECT id FROM users') as $row) {
-                $existing[(int) $row['id']] = true;
+            foreach ($existingUsers as $id => $username) {
+                $existing[$id] = true;
             }
 
             $insert = $this->pdo->prepare(
