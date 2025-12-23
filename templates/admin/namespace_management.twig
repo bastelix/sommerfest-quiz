@@ -29,6 +29,9 @@
         QuizRace Admin
       </a>
     {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
     {% block offcanvas %}
       <div id="qr-offcanvas" uk-offcanvas="overlay: true">
         <div class="uk-offcanvas-bar">

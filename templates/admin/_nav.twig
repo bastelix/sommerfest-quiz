@@ -135,7 +135,7 @@
 
 <div class="qr-sidebar-nav">
   <div class="uk-margin-small">
-    <label class="uk-form-label" for="namespaceSelect">Projekt (Namespace)</label>
+    <label class="uk-form-label" for="namespaceSelect">{{ t('label_project_namespace') }}</label>
     <div class="uk-form-controls">
       <select
         id="namespaceSelect"
@@ -157,6 +157,7 @@
         {% endfor %}
       </select>
     </div>
+    <div class="uk-text-meta uk-margin-small-top">{{ t('text_project_namespace_hint') }}</div>
   </div>
   <ul class="uk-nav uk-nav-default uk-margin-remove-bottom">
     {% for it in startGroup.items %}
