@@ -360,6 +360,11 @@ if (manager) {
     localeInput.placeholder = 'de';
     localeInput.value = item?.locale || '';
     localeInput.dataset.menuLocale = 'true';
+    const activeLocaleFilter = resolveLocale();
+    if (activeLocaleFilter && !item?.id) {
+      localeInput.readOnly = true;
+      localeInput.title = 'Locale wird durch den Filter vorgegeben.';
+    }
     localeCell.appendChild(localeInput);
 
     const externalCell = document.createElement('td');
@@ -643,7 +648,7 @@ if (manager) {
       label: '',
       href: '',
       icon: '',
-      locale: '',
+      locale: resolveLocale() || '',
       isExternal: false,
       isActive: true
     });
