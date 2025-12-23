@@ -8013,7 +8013,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   // --------- Benutzer ---------
-  const usersRoot = managementSection || document;
+  const usersSection = document.querySelector('[data-admin-section="users"]');
+  const usersRoot = usersSection || document;
   const usersListEl = usersRoot?.querySelector('#usersList') || null;
   const usersCardsEl = usersRoot?.querySelector('#usersCards') || null;
   const userAddBtn = usersRoot?.querySelector('#userAddBtn') || null;
@@ -8076,6 +8077,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const userSectionActive = usersListEl?.closest('li')?.classList.contains('uk-active');
   let currentUserId = null;
   let userManager;
+  let usersInitialized = false;
+  let usersLoading = false;
 
   function normalizeUserNamespaces(item) {
     const existing = Array.isArray(item.namespaces) ? item.namespaces : [];
@@ -8546,15 +8549,36 @@ document.addEventListener('DOMContentLoaded', function () {
     if (usersPaginationEl) {
       userManager.bindPagination(usersPaginationEl, USERS_PER_PAGE);
     }
-    if (userSectionActive) {
+    const loadUsers = () => {
+      if (!usersListEl || usersInitialized || usersLoading) {
+        return;
+      }
+      usersLoading = true;
       userManager.setColumnLoading('username', true);
       apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
         .then(r => r.json())
         .then(data => {
           renderUsers(data);
+          usersInitialized = true;
         })
         .catch(() => {})
-        .finally(() => userManager.setColumnLoading('username', false));
+        .finally(() => {
+          usersLoading = false;
+          userManager.setColumnLoading('username', false);
+        });
+    };
+
+    if (userSectionActive) {
+      loadUsers();
+    }
+
+    if (adminTabs && window.UIkit && UIkit.util) {
+      UIkit.util.on(adminTabs, 'shown', (e, tab) => {
+        const index = Array.prototype.indexOf.call(adminTabs.children, tab);
+        if (adminRoutes[index] === 'logins') {
+          loadUsers();
+        }
+      });
     }
   }
 

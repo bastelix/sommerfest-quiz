@@ -2017,99 +2017,101 @@
             </label>
           </div>
 
-          <h3 id="users" class="uk-heading-bullet">{{ t('heading_users') }}</h3>
-          <p class="uk-text-meta">Namespaces werden zentral verwaltet.</p>
-          {% from 'components/table.twig' import qr_rowcards %}
-          <div class="uk-overflow-auto uk-visible@m">
-            <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
-              <thead>
-                <tr>
-                  <th class="uk-table-shrink"></th>
-                  <th data-key="username">{{ t('column_username') }}</th>
-                  <th data-key="role">{{ t('column_role') }}</th>
-                  <th data-key="namespaces">{{ t('column_namespaces') }}</th>
-                  <th data-key="active" class="uk-table-shrink">{{ t('column_active') }}</th>
-                  <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody
-                id="usersList"
-                data-label-username="{{ t('column_username') }}"
-                data-label-role="{{ t('column_role') }}"
-                data-label-namespaces="{{ t('column_namespaces') }}"
-                data-label-active="{{ t('column_active') }}"
-              ></tbody>
-            </table>
-          </div>
-          {{ qr_rowcards('usersCards') }}
-          <ul id="usersPagination" class="uk-pagination uk-flex-center uk-margin-top"></ul>
-          <template id="userRoleSelect">
-            <select class="uk-select">
-              {% for role in roles %}
-                <option value="{{ role }}">{{ role }}</option>
-              {% endfor %}
-            </select>
-          </template>
-          <div class="uk-margin">
-            <button
-              id="userAddBtn"
-              class="uk-icon-button uk-button-default"
-              uk-icon="plus"
-              uk-tooltip="title: {{ t('tip_user_add') }}; pos: right"
-              aria-label="{{ t('tip_user_add') }}"
-            ></button>
-          </div>
-          <div id="userNameModal" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-              <h2 class="uk-modal-title">{{ t('heading_username_modal') }}</h2>
-              <form id="userNameForm">
-                <div class="uk-margin">
-                  <input
-                    id="userNameInput"
-                    class="uk-input"
-                    type="text"
-                    placeholder="{{ t('placeholder_username_modal') }}"
-                    required
-                  >
-                </div>
-                <div class="uk-flex uk-flex-right uk-margin-top">
-                  <button
-                    class="uk-icon-button uk-button-primary"
-                    uk-icon="check"
-                    type="submit"
-                    aria-label="{{ t('action_save') }}"
-                  ></button>
-                  <button class="uk-button uk-button-default uk-modal-close" type="button">
-                    {{ t('action_cancel') }}
-                  </button>
-                </div>
-              </form>
+          <div data-admin-section="users">
+            <h3 id="users" class="uk-heading-bullet">{{ t('heading_users') }}</h3>
+            <p class="uk-text-meta">Namespaces werden zentral verwaltet.</p>
+            {% from 'components/table.twig' import qr_rowcards %}
+            <div class="uk-overflow-auto uk-visible@m">
+              <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
+                <thead>
+                  <tr>
+                    <th class="uk-table-shrink"></th>
+                    <th data-key="username">{{ t('column_username') }}</th>
+                    <th data-key="role">{{ t('column_role') }}</th>
+                    <th data-key="namespaces">{{ t('column_namespaces') }}</th>
+                    <th data-key="active" class="uk-table-shrink">{{ t('column_active') }}</th>
+                    <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="usersList"
+                  data-label-username="{{ t('column_username') }}"
+                  data-label-role="{{ t('column_role') }}"
+                  data-label-namespaces="{{ t('column_namespaces') }}"
+                  data-label-active="{{ t('column_active') }}"
+                ></tbody>
+              </table>
             </div>
-          </div>
+            {{ qr_rowcards('usersCards') }}
+            <ul id="usersPagination" class="uk-pagination uk-flex-center uk-margin-top"></ul>
+            <template id="userRoleSelect">
+              <select class="uk-select">
+                {% for role in roles %}
+                  <option value="{{ role }}">{{ role }}</option>
+                {% endfor %}
+              </select>
+            </template>
+            <div class="uk-margin">
+              <button
+                id="userAddBtn"
+                class="uk-icon-button uk-button-default"
+                uk-icon="plus"
+                uk-tooltip="title: {{ t('tip_user_add') }}; pos: right"
+                aria-label="{{ t('tip_user_add') }}"
+              ></button>
+            </div>
+            <div id="userNameModal" uk-modal>
+              <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title">{{ t('heading_username_modal') }}</h2>
+                <form id="userNameForm">
+                  <div class="uk-margin">
+                    <input
+                      id="userNameInput"
+                      class="uk-input"
+                      type="text"
+                      placeholder="{{ t('placeholder_username_modal') }}"
+                      required
+                    >
+                  </div>
+                  <div class="uk-flex uk-flex-right uk-margin-top">
+                    <button
+                      class="uk-icon-button uk-button-primary"
+                      uk-icon="check"
+                      type="submit"
+                      aria-label="{{ t('action_save') }}"
+                    ></button>
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">
+                      {{ t('action_cancel') }}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
 
-          <div id="userPassModal" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-              <h2 class="uk-modal-title">Passwort setzen</h2>
-              <form id="userPassForm">
-                <div class="uk-margin">
-                  <input id="userPassInput" class="uk-input" type="password" placeholder="Passwort">
-                </div>
-                <div class="uk-margin">
-                  <input id="userPassRepeat" class="uk-input" type="password" placeholder="Wiederholen">
-                </div>
-                <div class="uk-flex uk-flex-right uk-margin-top">
-                  <button
-                    id="userPassSave"
-                    class="uk-icon-button uk-button-primary"
-                    uk-icon="check"
-                    type="submit"
-                    aria-label="{{ t('action_save') }}"
-                  ></button>
-                  <button class="uk-button uk-button-default uk-modal-close" type="button">
-                    {{ t('action_cancel') }}
-                  </button>
-                </div>
-              </form>
+            <div id="userPassModal" uk-modal>
+              <div class="uk-modal-dialog uk-modal-body">
+                <h2 class="uk-modal-title">Passwort setzen</h2>
+                <form id="userPassForm">
+                  <div class="uk-margin">
+                    <input id="userPassInput" class="uk-input" type="password" placeholder="Passwort">
+                  </div>
+                  <div class="uk-margin">
+                    <input id="userPassRepeat" class="uk-input" type="password" placeholder="Wiederholen">
+                  </div>
+                  <div class="uk-flex uk-flex-right uk-margin-top">
+                    <button
+                      id="userPassSave"
+                      class="uk-icon-button uk-button-primary"
+                      uk-icon="check"
+                      type="submit"
+                      aria-label="{{ t('action_save') }}"
+                    ></button>
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">
+                      {{ t('action_cancel') }}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
