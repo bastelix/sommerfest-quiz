@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
 
+use App\Repository\PageAiJobRepository;
+use App\Service\Marketing\PageAiErrorMapper;
 use App\Service\Marketing\PageAiGenerator;
-use App\Service\Marketing\PageAiJobErrorMapper;
-use App\Service\Marketing\PageAiJobService;
 use App\Service\PageService;
 use RuntimeException;
 use Throwable;
@@ -22,8 +22,8 @@ try {
         throw new RuntimeException('Job id must not be empty.');
     }
 
-    $jobService = new PageAiJobService();
-    $job = $jobService->getPendingJob($jobId);
+    $jobRepository = new PageAiJobRepository();
+    $job = $jobRepository->getPendingJob($jobId);
     if ($job === null) {
         throw new RuntimeException('Job not found or already processed.');
     }
@@ -41,15 +41,15 @@ try {
     $pageService = new PageService();
     $pageService->save($job['namespace'], $job['slug'], $html);
 
-    $jobService->markDone($jobId, $html);
+    $jobRepository->markDone($jobId, $html);
 } catch (Throwable $exception) {
     $jobId = $jobId ?? '';
     if (is_string($jobId) && $jobId !== '' && isset($job) && is_array($job)) {
         try {
-            $mapper = new PageAiJobErrorMapper();
+            $mapper = new PageAiErrorMapper();
             $mapped = $mapper->map($exception);
-            $jobService = $jobService ?? new PageAiJobService();
-            $jobService->markFailed($jobId, $mapped['error_code'], $mapped['message']);
+            $jobRepository = $jobRepository ?? new PageAiJobRepository();
+            $jobRepository->markFailed($jobId, $mapped['error_code'], $mapped['message']);
         } catch (Throwable $inner) {
             error_log('Failed to update page AI job: ' . $inner->getMessage());
         }

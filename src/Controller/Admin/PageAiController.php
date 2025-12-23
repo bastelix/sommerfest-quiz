@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Repository\PageAiJobRepository;
 use App\Service\Marketing\PageAiJobDispatcher;
-use App\Service\Marketing\PageAiJobService;
 use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
@@ -30,7 +30,7 @@ final class PageAiController
 
     private PageAiPromptTemplateService $promptTemplateService;
 
-    private PageAiJobService $jobService;
+    private PageAiJobRepository $jobRepository;
 
     private PageAiJobDispatcher $jobDispatcher;
 
@@ -38,13 +38,13 @@ final class PageAiController
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
-        ?PageAiJobService $jobService = null,
+        ?PageAiJobRepository $jobRepository = null,
         ?PageAiJobDispatcher $jobDispatcher = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
-        $this->jobService = $jobService ?? new PageAiJobService();
+        $this->jobRepository = $jobRepository ?? new PageAiJobRepository();
         $this->jobDispatcher = $jobDispatcher ?? new PageAiJobDispatcher();
     }
 
@@ -109,7 +109,7 @@ final class PageAiController
             );
         }
 
-        $jobId = $this->jobService->createJob(
+        $jobId = $this->jobRepository->createJob(
             $namespace,
             $slug,
             $title,
@@ -148,7 +148,7 @@ final class PageAiController
             );
         }
 
-        $job = $this->jobService->getJob($jobId);
+        $job = $this->jobRepository->getJob($jobId);
         if ($job === null) {
             return $this->errorResponse(
                 $response,
@@ -163,11 +163,11 @@ final class PageAiController
             'jobId' => $job['job_id'],
         ];
 
-        if ($job['status'] === PageAiJobService::STATUS_DONE) {
+        if ($job['status'] === PageAiJobRepository::STATUS_DONE) {
             $payload['html'] = $job['html'] ?? '';
             $payload['namespace'] = $job['namespace'];
             $payload['slug'] = $job['slug'];
-        } elseif ($job['status'] === PageAiJobService::STATUS_FAILED) {
+        } elseif ($job['status'] === PageAiJobRepository::STATUS_FAILED) {
             $payload['error'] = $job['error_code'] ?? 'ai_error';
             $payload['message'] = $job['error_message'] ?? 'The AI responder failed to generate HTML.';
         }

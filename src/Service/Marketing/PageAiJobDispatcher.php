@@ -18,7 +18,7 @@ final class PageAiJobDispatcher
     public function __construct(?string $phpBinary = null, ?string $scriptPath = null)
     {
         $this->phpBinary = $phpBinary ?? PHP_BINARY;
-        $this->scriptPath = $scriptPath ?? dirname(__DIR__, 3) . '/scripts/page_ai_generate_job.php';
+        $this->scriptPath = $scriptPath ?? dirname(__DIR__, 3) . '/scripts/page_ai_generate.php';
     }
 
     public function dispatch(string $jobId): void
