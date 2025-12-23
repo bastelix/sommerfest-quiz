@@ -6,25 +6,28 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use App\Infrastructure\Database;
 use App\Service\CertificateProvisioningService;
-use App\Service\DomainStartPageService;
-use App\Service\MarketingDomainProvider;
+use App\Service\DomainService;
 use App\Support\EnvLoader;
 use PDO;
 
 EnvLoader::loadAndSet(__DIR__ . '/../.env');
 
 $pdo = Database::connectFromEnv();
-$domainService = new DomainStartPageService($pdo);
-$marketingDomainProvider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
+$domainService = new DomainService($pdo);
 $certificateProvisioner = new CertificateProvisioningService($domainService);
 
-$result = $domainService->reconcileMarketingDomains($marketingDomainProvider, $certificateProvisioner);
+$provisioned = [];
+foreach ($domainService->listDomains() as $domain) {
+    $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
+    if ($host === '') {
+        continue;
+    }
+    $certificateProvisioner->provisionMarketingDomain($host);
+    $provisioned[] = $host;
+}
 
-$provisioned = $result['provisioned'];
 if ($provisioned === []) {
-    echo "No new marketing domains required provisioning.\n";
+    echo "No domains required provisioning.\n";
 } else {
     echo 'Provisioned domains: ' . implode(', ', $provisioned) . "\n";
 }
-
-echo 'Resolved marketing domains: ' . implode(', ', $result['resolved_marketing_domains']) . "\n";

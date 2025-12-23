@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\DomainContactTemplateService;
-use App\Service\DomainStartPageService;
 use Tests\TestCase;
 
 class DomainContactTemplateServiceTest extends TestCase
 {
     public function testSaveAndRetrieveTemplates(): void {
         $pdo = $this->createDatabase();
-        $domainService = new DomainStartPageService($pdo);
-        $service = new DomainContactTemplateService($pdo, $domainService);
+        $service = new DomainContactTemplateService($pdo);
 
         $service->save('www.example.com', [
             'sender_name' => 'Quiz Team',

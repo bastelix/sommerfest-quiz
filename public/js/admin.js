@@ -1209,11 +1209,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const emailInput = document.getElementById('subscription-email');
   const planSelect = document.getElementById('planSelect');
   const managementSection = document.querySelector('[data-admin-section="management"]');
-  const domainStartPageTable = managementSection?.querySelector('#domainStartPageTable') || null;
-  const initialDomainStartPageOptions = window.domainStartPageOptions || {};
-  const domainStartPageOptions = { ...initialDomainStartPageOptions };
-  window.domainStartPageOptions = domainStartPageOptions;
-  const coreDomainStartPageOrder = ['help', 'events'];
+  const domainTable = managementSection?.querySelector('#domainTable') || null;
   const marketingNewsletterSection = document.getElementById('marketingNewsletterConfigSection');
   const marketingNewsletterSlugInput = document.getElementById('marketingNewsletterSlug');
   const marketingNewsletterSlugOptions = document.getElementById('marketingNewsletterSlugOptions');
@@ -1291,76 +1287,12 @@ document.addEventListener('DOMContentLoaded', function () {
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
   };
-  const splitStartPageKey = value => {
-    if (typeof value !== 'string') {
-      return null;
-    }
-    const separatorIndex = value.indexOf(':');
-    if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
-      return null;
-    }
-    const namespace = value.slice(0, separatorIndex).trim();
-    const slug = value.slice(separatorIndex + 1).trim();
-    if (!namespace || !slug) {
-      return null;
-    }
-    return { namespace, slug };
-  };
-  const formatStartPageLabel = key => {
-    if (typeof key !== 'string' || key === '') {
-      return '';
-    }
-    const parsed = splitStartPageKey(key);
-    if (!parsed) {
-      return labelFromSlug(key);
-    }
-    return `${parsed.namespace} · ${labelFromSlug(parsed.slug)}`;
-  };
-  const ensureDomainStartPageOption = (slug, label) => {
-    if (typeof slug !== 'string' || slug === '') {
-      return;
-    }
-    const normalizedLabel = typeof label === 'string' && label.trim() !== '' ? label : formatStartPageLabel(slug);
-    domainStartPageOptions[slug] = normalizedLabel;
-  };
-  const mergeDomainStartPageOptions = options => {
-    if (!options || typeof options !== 'object') {
-      return;
-    }
-    Object.entries(options).forEach(([slug, label]) => {
-      ensureDomainStartPageOption(slug, label);
-    });
-  };
-  const getDomainStartPageOptionEntries = () => {
-    const coreEntries = [];
-    coreDomainStartPageOrder.forEach(slug => {
-      if (Object.prototype.hasOwnProperty.call(domainStartPageOptions, slug)) {
-        coreEntries.push([slug, domainStartPageOptions[slug]]);
-      }
-    });
-    const rest = Object.entries(domainStartPageOptions).filter(
-      ([slug]) => !coreDomainStartPageOrder.includes(slug)
-    );
-    rest.sort((a, b) => {
-      return a[1].localeCompare(b[1], undefined, { sensitivity: 'base' });
-    });
-    return coreEntries.concat(rest);
-  };
-  mergeDomainStartPageOptions(initialDomainStartPageOptions);
-  const domainStartPageTypeLabels = window.domainStartPageTypeLabels || {};
-  const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
-  const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
-  const transDomainStartPageInvalidEmail = window.transDomainStartPageInvalidEmail || transDomainStartPageError;
-  const transDomainStartPageDeleted = window.transDomainStartPageDeleted || 'Eintrag gelöscht';
-  const transDomainStartPageDeleteError = window.transDomainStartPageDeleteError || transDomainStartPageError;
-  const transDomainStartPageDeleteConfirm = window.transDomainStartPageDeleteConfirm || 'Eintrag entfernen?';
-  const transDomainSmtpTitle = window.transDomainSmtpTitle || 'SMTP-Einstellungen';
-  const transDomainSmtpSaved = window.transDomainSmtpSaved || transDomainStartPageSaved;
-  const transDomainSmtpError = window.transDomainSmtpError || transDomainStartPageError;
+  const transDomainSmtpSaved = window.transDomainSmtpSaved || 'SMTP settings saved.';
+  const transDomainSmtpError = window.transDomainSmtpError || 'SMTP settings could not be saved.';
   const transDomainSmtpInvalid = window.transDomainSmtpInvalid || transDomainSmtpError;
-  const transDomainSmtpDefault = window.transDomainSmtpDefault || 'Standard';
+  const transDomainSmtpDefault = window.transDomainSmtpDefault || 'Default';
   const transDomainSmtpSummaryDsn = window.transDomainSmtpSummaryDsn || 'DSN';
-  const transDomainSmtpPasswordSet = window.transDomainSmtpPasswordSet || 'Passwort gesetzt';
+  const transDomainSmtpPasswordSet = window.transDomainSmtpPasswordSet || 'Password stored';
   const secretPlaceholder = window.domainStartPageSecretPlaceholder || '__SECRET_KEEP__';
   const transDomainContactTemplateEdit = window.transDomainContactTemplateEdit || 'Template bearbeiten';
   const transDomainContactTemplateSaved = window.transDomainContactTemplateSaved || 'Template gespeichert';
@@ -1399,10 +1331,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     : null;
   const domainSmtpSubmit = domainSmtpForm?.querySelector('button[type="submit"]') || null;
-  let mainDomainNormalized = '';
-  let domainStartPageData = [];
-  let domainStartPageUpdater = null;
-  let reloadDomainStartPages = null;
   let currentSmtpItem = null;
   const trumbowygAvailable = () => !!(window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.trumbowyg === 'function');
   const ensureTemplateEditor = element => {
@@ -4024,208 +3952,103 @@ document.addEventListener('DOMContentLoaded', function () {
   renderCfg(cfgInitial);
   renderRagChatSettings();
 
-  if (domainStartPageTable) {
-    const tbody = domainStartPageTable.querySelector('tbody');
-    const columnCount = domainStartPageTable.querySelectorAll('thead th').length || 5;
+  if (domainTable) {
+    const tbody = domainTable.querySelector('tbody');
+    const columnCount = domainTable.querySelectorAll('thead th').length || 4;
     const messages = {
-      loading: domainStartPageTable.dataset.loading || '',
-      empty: domainStartPageTable.dataset.empty || '',
-      error: domainStartPageTable.dataset.error || transDomainStartPageError
+      loading: domainTable.dataset.loading || '',
+      empty: domainTable.dataset.empty || '',
+      error: domainTable.dataset.error || window.transDomainError || 'Domain load failed.'
     };
-    const domainNamespace = resolveNamespaceQuery();
-    const domainStartPageEndpoint = withProjectNamespace('/admin/domain-start-pages', domainNamespace);
-    const domainStartPageCertificateEndpoint = withProjectNamespace(
-      '/admin/domain-start-pages/certificate',
-      domainNamespace
-    );
-    const sslActionLabel = window.actionDomainIssueSsl || 'Request certificate';
-    const sslSuccessMessage = window.transDomainSslIssued || transDomainStartPageSaved;
-    const sslErrorMessage = window.transDomainSslError || transDomainStartPageError;
-    const marketingDomainForm = managementSection?.querySelector('#marketingDomainForm') || null;
-    const marketingDomainHost = managementSection?.querySelector('#marketingDomainHost') || null;
-    const marketingDomainLabel = managementSection?.querySelector('#marketingDomainLabel') || null;
-    const marketingDomainError = managementSection?.querySelector('#marketingDomainFormError') || null;
-    const marketingMessages = {
-      invalid: marketingDomainForm?.dataset.invalid || window.transMarketingDomainInvalid || transDomainContactTemplateInvalidDomain,
-      error: marketingDomainForm?.dataset.error || window.transMarketingDomainError || transDomainStartPageError,
-      success: marketingDomainForm?.dataset.success || window.transMarketingDomainCreated || transDomainStartPageSaved,
-    };
-
-    const marketingDomainPattern = /^(?=.{1,255}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
-
-    const toggleMarketingFormDisabled = disabled => {
-      if (!marketingDomainForm) {
-        return;
+    const domainEndpoint = '/admin/domains';
+    const domainForm = managementSection?.querySelector('#domainForm') || null;
+    const domainFormError = managementSection?.querySelector('#domainFormError') || null;
+    const domainIdInput = managementSection?.querySelector('#domainId') || null;
+    const domainHostInput = managementSection?.querySelector('#domainHost') || null;
+    const domainLabelInput = managementSection?.querySelector('#domainLabel') || null;
+    const domainNamespaceSelect = managementSection?.querySelector('#domainNamespace') || null;
+    const domainActiveInput = managementSection?.querySelector('#domainActive') || null;
+    const domainFormCancel = managementSection?.querySelector('#domainFormCancel') || null;
+    const transDomainSaved = window.transDomainSaved || 'Domain saved.';
+    const transDomainError = window.transDomainError || 'Domain save failed.';
+    const transDomainInvalid = window.transDomainInvalid || transDomainError;
+    const transDomainDeleted = window.transDomainDeleted || 'Domain deleted.';
+    const transDomainDeleteConfirm = window.transDomainDeleteConfirm || 'Remove this domain?';
+    const transDomainStatusActive = window.transNamespaceActiveLabel || 'Active';
+    const transDomainStatusInactive = window.transNamespaceInactiveLabel || 'Inactive';
+    const namespaceEntries = Array.isArray(window.availableNamespaces) ? window.availableNamespaces : [];
+    const namespaceLabels = namespaceEntries.reduce((acc, entry) => {
+      const key = typeof entry?.namespace === 'string' ? entry.namespace : '';
+      if (key) {
+        acc[key] = entry?.label || key;
       }
-      Array.from(marketingDomainForm.elements || []).forEach(el => {
-        if (el && typeof el === 'object' && 'disabled' in el) {
-          el.disabled = disabled;
-        }
-      });
-    };
+      return acc;
+    }, {});
+    const domainPattern = /^(?=.{1,255}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+    let domainData = [];
 
-    const setMarketingFormError = message => {
-      if (!marketingDomainError) {
+    const setFormError = message => {
+      if (!domainFormError) {
         return;
       }
       if (message) {
-        marketingDomainError.textContent = message;
-        marketingDomainError.hidden = false;
+        domainFormError.textContent = message;
+        domainFormError.hidden = false;
       } else {
-        marketingDomainError.textContent = '';
-        marketingDomainError.hidden = true;
+        domainFormError.textContent = '';
+        domainFormError.hidden = true;
       }
     };
 
-    const validateMarketingDomain = value => {
-      const trimmed = typeof value === 'string' ? value.trim() : '';
-      return trimmed !== '' && marketingDomainPattern.test(trimmed);
-    };
-
-    if (marketingDomainHost) {
-      marketingDomainHost.addEventListener('input', () => {
-        marketingDomainHost.classList.remove('uk-form-danger');
-        setMarketingFormError('');
-      });
-    }
-
-    if (marketingDomainForm && marketingDomainHost) {
-      marketingDomainForm.addEventListener('submit', event => {
-        event.preventDefault();
-        const hostValue = marketingDomainHost.value.trim();
-        const labelValue = marketingDomainLabel ? marketingDomainLabel.value.trim() : '';
-
-        if (!validateMarketingDomain(hostValue)) {
-          marketingDomainHost.classList.add('uk-form-danger');
-          setMarketingFormError(marketingMessages.invalid);
-          notify(marketingMessages.invalid, 'warning');
-          marketingDomainHost.focus();
-          return;
-        }
-
-        toggleMarketingFormDisabled(true);
-        setMarketingFormError('');
-
-        apiFetch('/admin/marketing-domains', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            domain: hostValue,
-            label: labelValue !== '' ? labelValue : null,
-          })
-        })
-          .then(res => {
-            return res
-              .json()
-              .catch(() => ({}))
-              .then(data => {
-                if (!res.ok) {
-                  const message = data?.error || marketingMessages.error;
-                  throw new Error(message);
-                }
-                return data;
-              });
-          })
-          .then(() => {
-            marketingDomainForm.reset();
-            if (marketingDomainHost) {
-              marketingDomainHost.classList.remove('uk-form-danger');
-            }
-            notify(marketingMessages.success, 'success');
-            if (typeof reloadDomainStartPages === 'function') {
-              reloadDomainStartPages();
-            }
-          })
-          .catch(err => {
-            const message = err?.message || marketingMessages.error;
-            setMarketingFormError(message);
-            notify(message, 'danger');
-          })
-          .finally(() => {
-            toggleMarketingFormDisabled(false);
-          });
-      });
-    }
-
-    const marketingDomainReconcileButton = managementSection?.querySelector('#marketingDomainReconcile') || null;
-    const marketingDomainReconcileMessages = {
-      provisioned: window.transMarketingDomainReconcileProvisioned || 'Certificates checked: {count} domains.',
-      resolved: window.transMarketingDomainReconcileResolved || 'Resolved marketing domains ({count}): {domains}',
-      unresolved: window.transMarketingDomainReconcileUnresolved || 'Unresolved marketing domains ({count}): {domains}',
-      error: window.transMarketingDomainReconcileError || transDomainStartPageError,
-    };
-
-    const normalizeDomainList = list => {
-      if (!Array.isArray(list)) {
-        return [];
+    const resetForm = () => {
+      if (domainIdInput) {
+        domainIdInput.value = '';
       }
-      return list
-        .map(value => (value === null || value === undefined ? '' : String(value)).trim())
-        .filter(value => value !== '');
+      if (domainHostInput) {
+        domainHostInput.value = '';
+        domainHostInput.classList.remove('uk-form-danger');
+      }
+      if (domainLabelInput) {
+        domainLabelInput.value = '';
+      }
+      if (domainNamespaceSelect) {
+        domainNamespaceSelect.value = '';
+      }
+      if (domainActiveInput) {
+        domainActiveInput.checked = true;
+      }
+      if (domainFormCancel) {
+        domainFormCancel.hidden = true;
+      }
+      setFormError('');
     };
 
-    const setReconcileButtonState = isBusy => {
-      if (!marketingDomainReconcileButton) {
+    const applyForm = domain => {
+      if (!domain) {
+        resetForm();
         return;
       }
-      marketingDomainReconcileButton.disabled = isBusy;
-      marketingDomainReconcileButton.setAttribute('aria-busy', isBusy ? 'true' : 'false');
+      if (domainIdInput) {
+        domainIdInput.value = String(domain.id || '');
+      }
+      if (domainHostInput) {
+        domainHostInput.value = domain.host || domain.normalized_host || '';
+        domainHostInput.classList.remove('uk-form-danger');
+      }
+      if (domainLabelInput) {
+        domainLabelInput.value = domain.label || '';
+      }
+      if (domainNamespaceSelect) {
+        domainNamespaceSelect.value = domain.namespace || '';
+      }
+      if (domainActiveInput) {
+        domainActiveInput.checked = Boolean(domain.is_active);
+      }
+      if (domainFormCancel) {
+        domainFormCancel.hidden = false;
+      }
+      setFormError('');
     };
-
-    if (marketingDomainReconcileButton) {
-      marketingDomainReconcileButton.addEventListener('click', () => {
-        setReconcileButtonState(true);
-        apiFetch('/admin/marketing-domains/reconcile', { method: 'POST' })
-          .then(res => {
-            return res
-              .json()
-              .catch(() => ({}))
-              .then(data => {
-                if (!res.ok) {
-                  const message = data?.error || marketingDomainReconcileMessages.error;
-                  throw new Error(message);
-                }
-                return data;
-              });
-          })
-          .then(data => {
-            const provisioned = normalizeDomainList(data?.provisioned);
-            const resolved = normalizeDomainList(data?.resolved_marketing_domains);
-            const unresolved = normalizeDomainList(data?.unresolved_marketing_domains);
-            const provisionedMessage = formatTemplate(marketingDomainReconcileMessages.provisioned, {
-              count: provisioned.length,
-              domains: provisioned.join(', ')
-            });
-            const resolvedMessage = formatTemplate(marketingDomainReconcileMessages.resolved, {
-              count: resolved.length,
-              domains: resolved.join(', ')
-            });
-            const summaryMessage = [provisionedMessage, resolvedMessage].filter(Boolean).join(' ');
-            if (summaryMessage) {
-              notify(summaryMessage, 'success');
-            }
-            if (unresolved.length) {
-              const unresolvedMessage = formatTemplate(marketingDomainReconcileMessages.unresolved, {
-                count: unresolved.length,
-                domains: unresolved.join(', ')
-              });
-              if (unresolvedMessage) {
-                notify(unresolvedMessage, 'warning');
-              }
-            }
-            if (typeof reloadDomainStartPages === 'function') {
-              reloadDomainStartPages();
-            }
-          })
-          .catch(err => {
-            const message = err?.message || marketingDomainReconcileMessages.error;
-            notify(message, 'danger');
-          })
-          .finally(() => {
-            setReconcileButtonState(false);
-          });
-      });
-    }
 
     const renderMessageRow = message => {
       if (!tbody) return;
@@ -4237,368 +4060,87 @@ document.addEventListener('DOMContentLoaded', function () {
       tbody.appendChild(tr);
     };
 
-    const renderDomainTable = () => {
-      if (!tbody) {
-        return;
-      }
+    const renderDomains = () => {
+      if (!tbody) return;
       tbody.innerHTML = '';
-      if (!domainStartPageData.length) {
+      if (!domainData.length) {
         if (messages.empty) {
           renderMessageRow(messages.empty);
         }
         return;
       }
 
-      domainStartPageData.forEach(item => {
+      domainData.forEach(item => {
         const tr = document.createElement('tr');
 
         const domainCell = document.createElement('td');
-        domainCell.textContent = item.domain;
+        domainCell.textContent = item.host || item.normalized_host;
         tr.appendChild(domainCell);
 
-        const selectCell = document.createElement('td');
-        const select = document.createElement('select');
-        select.className = 'uk-select';
-        if (!Object.prototype.hasOwnProperty.call(domainStartPageOptions, item.start_page)) {
-          ensureDomainStartPageOption(item.start_page, item.start_page);
+        const labelCell = document.createElement('td');
+        labelCell.textContent = item.label || '';
+        tr.appendChild(labelCell);
+
+        const namespaceCell = document.createElement('td');
+        if (item.namespace && namespaceLabels[item.namespace]) {
+          namespaceCell.textContent = namespaceLabels[item.namespace];
+        } else {
+          namespaceCell.textContent = item.namespace || window.transNamespaceNone || '';
         }
-        getDomainStartPageOptionEntries().forEach(([value, label]) => {
-          const option = document.createElement('option');
-          option.value = value;
-          option.textContent = label || value;
-          select.appendChild(option);
+        tr.appendChild(namespaceCell);
+
+        const statusCell = document.createElement('td');
+        statusCell.textContent = item.is_active ? transDomainStatusActive : transDomainStatusInactive;
+        tr.appendChild(statusCell);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'uk-table-shrink uk-text-center';
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'uk-button uk-button-default uk-button-small';
+        editButton.textContent = window.transEdit || 'Edit';
+        editButton.addEventListener('click', () => {
+          applyForm(item);
         });
-        select.value = item.start_page;
-        selectCell.appendChild(select);
-        tr.appendChild(selectCell);
+        actionsCell.appendChild(editButton);
 
-        const emailCell = document.createElement('td');
-        const emailInput = document.createElement('input');
-        emailInput.type = 'email';
-        emailInput.className = 'uk-input';
-        emailInput.value = typeof item.email === 'string' ? item.email : '';
-        emailCell.appendChild(emailInput);
-        tr.appendChild(emailCell);
-
-        const smtpCell = document.createElement('td');
-        const smtpSummary = document.createElement('div');
-        smtpSummary.className = 'uk-text-meta';
-        smtpSummary.textContent = describeSmtpConfig(item);
-        smtpCell.appendChild(smtpSummary);
-        const smtpButton = document.createElement('button');
-        smtpButton.type = 'button';
-        smtpButton.className = 'uk-button uk-button-default uk-button-small uk-margin-small-top';
-        smtpButton.textContent = transDomainSmtpTitle;
-        smtpButton.addEventListener('click', () => openSmtpEditor(item));
-        smtpCell.appendChild(smtpButton);
-        tr.appendChild(smtpCell);
-
-        const templateCell = document.createElement('td');
-        templateCell.className = 'uk-table-shrink';
-        const templateButton = document.createElement('button');
-        templateButton.type = 'button';
-        templateButton.className = 'uk-button uk-button-default uk-button-small';
-        templateButton.textContent = transDomainContactTemplateEdit;
-        templateButton.addEventListener('click', () => openContactTemplateEditor(item));
-        templateCell.appendChild(templateButton);
-        tr.appendChild(templateCell);
-
-        const sslCell = document.createElement('td');
-        sslCell.className = 'uk-table-shrink';
-        const sslButton = document.createElement('button');
-        sslButton.type = 'button';
-        sslButton.className = 'uk-button uk-button-default uk-button-small';
-        sslButton.textContent = sslActionLabel;
-        sslButton.addEventListener('click', () => {
-          sslButton.disabled = true;
-          apiFetch(domainStartPageCertificateEndpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ domain: item.domain })
-          })
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'uk-button uk-button-danger uk-button-small uk-margin-small-left';
+        deleteButton.textContent = window.transDelete || 'Delete';
+        deleteButton.addEventListener('click', () => {
+          if (!window.confirm(transDomainDeleteConfirm)) {
+            return;
+          }
+          deleteButton.disabled = true;
+          apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
             .then(res => {
               if (!res.ok) {
                 return res.json().catch(() => ({})).then(data => {
-                  throw new Error(data?.error || sslErrorMessage);
+                  throw new Error(data?.error || transDomainError);
                 });
               }
               return res.json();
             })
             .then(() => {
-              notify(sslSuccessMessage, 'success');
+              notify(transDomainDeleted, 'success');
+              loadDomains();
             })
             .catch(err => {
-              notify(err?.message || sslErrorMessage, 'danger');
+              notify(err?.message || transDomainError, 'danger');
             })
             .finally(() => {
-              sslButton.disabled = false;
+              deleteButton.disabled = false;
             });
         });
-        sslCell.appendChild(sslButton);
-        tr.appendChild(sslCell);
+        actionsCell.appendChild(deleteButton);
 
-        const typeCell = document.createElement('td');
-        typeCell.textContent = domainStartPageTypeLabels[item.type] || item.type;
-        tr.appendChild(typeCell);
-
-        const actionsCell = document.createElement('td');
-        actionsCell.className = 'uk-table-shrink uk-text-center';
-        if (item.type === 'custom') {
-          const deleteButton = document.createElement('button');
-          deleteButton.type = 'button';
-          deleteButton.className = 'uk-button uk-button-danger uk-button-small';
-          deleteButton.textContent = window.transDelete || 'Löschen';
-          deleteButton.addEventListener('click', () => {
-            if (!window.confirm(transDomainStartPageDeleteConfirm)) {
-              return;
-            }
-            deleteButton.disabled = true;
-            const targetDomain = item.normalized || item.domain;
-            apiFetch(domainStartPageEndpoint, {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ domain: targetDomain })
-            })
-              .then(res => {
-                return res
-                  .json()
-                  .catch(() => ({}))
-                  .then(data => {
-                    if (!res.ok) {
-                      throw new Error(data?.error || transDomainStartPageDeleteError);
-                    }
-                    return data;
-                  });
-              })
-              .then(() => {
-                notify(transDomainStartPageDeleted, 'success');
-                if (typeof reloadDomainStartPages === 'function') {
-                  reloadDomainStartPages();
-                }
-              })
-              .catch(err => {
-                notify(err?.message || transDomainStartPageDeleteError, 'danger');
-              })
-              .finally(() => {
-                deleteButton.disabled = false;
-              });
-          });
-          actionsCell.appendChild(deleteButton);
-        }
         tr.appendChild(actionsCell);
-
-        select.addEventListener('change', () => {
-          const previous = item.start_page;
-          const newValue = select.value;
-          select.disabled = true;
-          const payload = buildDomainPayload(item, {
-            start_page: newValue,
-            email: emailInput.value.trim(),
-          });
-          domainStartPageUpdater(payload)
-            .then(data => {
-              const config = data?.config || null;
-              if (config) {
-                applyDomainConfig(item, config);
-              } else {
-                item.start_page = newValue;
-                item.email = emailInput.value.trim();
-              }
-              select.value = item.start_page;
-              emailInput.value = item.email || '';
-              smtpSummary.textContent = describeSmtpConfig(item);
-              if (item.type === 'main') {
-                settingsInitial.home_page = item.start_page;
-              }
-              notify(transDomainStartPageSaved, 'success');
-            })
-            .catch(err => {
-              select.value = previous;
-              notify(err.message || transDomainStartPageError, 'danger');
-            })
-            .finally(() => {
-              select.disabled = false;
-            });
-        });
-
-        emailInput.addEventListener('change', () => {
-          const previous = typeof item.email === 'string' ? item.email : '';
-          const newValue = emailInput.value.trim();
-          if (newValue === previous) {
-            emailInput.value = previous;
-            return;
-          }
-
-          emailInput.disabled = true;
-          const payload = buildDomainPayload(item, {
-            email: newValue,
-          });
-          domainStartPageUpdater(payload)
-            .then(data => {
-              const config = data?.config || null;
-              if (config) {
-                applyDomainConfig(item, config);
-              } else {
-                item.email = newValue;
-              }
-              select.value = item.start_page;
-              emailInput.value = item.email || '';
-              smtpSummary.textContent = describeSmtpConfig(item);
-              notify(transDomainStartPageSaved, 'success');
-            })
-            .catch(err => {
-              emailInput.value = previous;
-              notify(err.message || transDomainStartPageError, 'danger');
-            })
-            .finally(() => {
-              emailInput.disabled = false;
-            });
-        });
-
         tbody.appendChild(tr);
       });
     };
 
-    const toggleSmtpFormDisabled = disabled => {
-      if (!domainSmtpForm) {
-        return;
-      }
-      const elements = domainSmtpForm.querySelectorAll('input, select, button');
-      elements.forEach(el => {
-        if (el.classList.contains('uk-modal-close')) {
-          return;
-        }
-        el.disabled = disabled;
-      });
-    };
-
-    if (domainSmtpForm && domainSmtpFields) {
-      domainSmtpForm.addEventListener('submit', event => {
-        event.preventDefault();
-        if (!currentSmtpItem) {
-          notify(transDomainSmtpInvalid, 'danger');
-          return;
-        }
-
-        const hostValue = domainSmtpFields.host?.value?.trim() || '';
-        const userValue = domainSmtpFields.user?.value?.trim() || '';
-        const encryptionValue = domainSmtpFields.encryption?.value || '';
-        const dsnValue = domainSmtpFields.dsn?.value?.trim() || '';
-        const portInput = domainSmtpFields.port?.value ?? '';
-        const clearPass = !!domainSmtpFields.clear?.checked;
-        const passInput = domainSmtpFields.pass?.value || '';
-
-        let portPayload = '';
-        if (typeof portInput === 'string') {
-          const trimmed = portInput.trim();
-          if (trimmed !== '') {
-            const parsed = Number.parseInt(trimmed, 10);
-            portPayload = Number.isNaN(parsed) ? trimmed : parsed;
-          }
-        } else if (typeof portInput === 'number') {
-          portPayload = portInput;
-        }
-
-        let passPayload = secretPlaceholder;
-        if (clearPass) {
-          passPayload = '';
-        } else if (passInput !== '') {
-          passPayload = passInput;
-        }
-
-        const payload = buildDomainPayload(currentSmtpItem, {
-          smtp_host: hostValue,
-          smtp_user: userValue,
-          smtp_port: portPayload,
-          smtp_encryption: encryptionValue,
-          smtp_dsn: dsnValue,
-          smtp_pass: passPayload,
-        });
-
-        toggleSmtpFormDisabled(true);
-
-        domainStartPageUpdater(payload)
-          .then(data => {
-            const config = data?.config || null;
-            if (config) {
-              applyDomainConfig(currentSmtpItem, config);
-            } else {
-              currentSmtpItem.smtp_host = hostValue;
-              currentSmtpItem.smtp_user = userValue;
-              currentSmtpItem.smtp_port = normalizeSmtpPortValue(portPayload);
-              currentSmtpItem.smtp_encryption = encryptionValue;
-              currentSmtpItem.smtp_dsn = dsnValue;
-              if (clearPass) {
-                currentSmtpItem.has_smtp_pass = false;
-              } else if (passPayload !== secretPlaceholder) {
-                currentSmtpItem.has_smtp_pass = passPayload !== '';
-              }
-            }
-            renderDomainTable();
-            notify(transDomainSmtpSaved, 'success');
-            if (domainSmtpFields.pass) {
-              domainSmtpFields.pass.value = '';
-            }
-            if (domainSmtpFields.clear) {
-              domainSmtpFields.clear.checked = false;
-            }
-            if (domainSmtpModal) {
-              domainSmtpModal.hide();
-            }
-          })
-          .catch(err => {
-            notify(err.message || transDomainSmtpError, 'danger');
-          })
-          .finally(() => {
-            toggleSmtpFormDisabled(false);
-          });
-      });
-    }
-
-    if (domainSmtpModalEl && window.UIkit && UIkit.util) {
-      UIkit.util.on(domainSmtpModalEl, 'hidden', () => {
-        currentSmtpItem = null;
-        if (domainSmtpFields?.pass) {
-          domainSmtpFields.pass.value = '';
-        }
-        if (domainSmtpFields?.clear) {
-          domainSmtpFields.clear.checked = false;
-        }
-      });
-    }
-
-    domainStartPageUpdater = payload => {
-      const hasSmtpFields = payload && typeof payload === 'object'
-        && (
-          Object.prototype.hasOwnProperty.call(payload, 'smtp_host')
-          || Object.prototype.hasOwnProperty.call(payload, 'smtp_user')
-          || Object.prototype.hasOwnProperty.call(payload, 'smtp_port')
-          || Object.prototype.hasOwnProperty.call(payload, 'smtp_encryption')
-          || Object.prototype.hasOwnProperty.call(payload, 'smtp_dsn')
-          || Object.prototype.hasOwnProperty.call(payload, 'smtp_pass')
-        );
-      return apiFetch(domainStartPageEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).then(res => {
-        return res
-          .json()
-          .catch(() => ({}))
-          .then(data => {
-            if (!res.ok) {
-              const fallback = res.status === 422
-                ? (hasSmtpFields ? transDomainSmtpInvalid : transDomainStartPageInvalidEmail)
-                : transDomainStartPageError;
-              throw new Error(data.error || fallback);
-            }
-            mergeDomainStartPageOptions(data?.options || {});
-            return data;
-          });
-      });
-    };
-
-    const loadDomainStartPages = () => {
+    const loadDomains = () => {
       if (!tbody) {
         return;
       }
@@ -4607,7 +4149,7 @@ document.addEventListener('DOMContentLoaded', function () {
         renderMessageRow(messages.loading);
       }
 
-      apiFetch(domainStartPageEndpoint)
+      apiFetch(domainEndpoint)
         .then(res => {
           if (!res.ok) {
             return res.json().catch(() => ({})).then(data => {
@@ -4617,25 +4159,8 @@ document.addEventListener('DOMContentLoaded', function () {
           return res.json();
         })
         .then(data => {
-          mergeDomainStartPageOptions(data?.options || {});
-          domainStartPageData = Array.isArray(data?.domains) ? data.domains : [];
-          domainStartPageData = domainStartPageData.map(item => ({
-            ...item,
-            email: typeof item.email === 'string' ? item.email : '',
-            smtp_host: typeof item.smtp_host === 'string' ? item.smtp_host : '',
-            smtp_user: typeof item.smtp_user === 'string' ? item.smtp_user : '',
-            smtp_port: normalizeSmtpPortValue(item.smtp_port ?? ''),
-            smtp_encryption: typeof item.smtp_encryption === 'string' ? item.smtp_encryption : '',
-            smtp_dsn: typeof item.smtp_dsn === 'string' ? item.smtp_dsn : '',
-            has_smtp_pass: Boolean(item.has_smtp_pass),
-          }));
-          mainDomainNormalized = typeof data?.main === 'string' ? data.main : '';
-          const mainEntry = domainStartPageData.find(it => it.type === 'main');
-          if (mainEntry) {
-            settingsInitial.home_page = mainEntry.start_page;
-          }
-          tbody.innerHTML = '';
-          renderDomainTable();
+          domainData = Array.isArray(data?.domains) ? data.domains : [];
+          renderDomains();
         })
         .catch(err => {
           tbody.innerHTML = '';
@@ -4643,8 +4168,69 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    reloadDomainStartPages = loadDomainStartPages;
-    loadDomainStartPages();
+    if (domainForm && domainHostInput) {
+      domainHostInput.addEventListener('input', () => {
+        domainHostInput.classList.remove('uk-form-danger');
+        setFormError('');
+      });
+
+      domainForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const hostValue = domainHostInput.value.trim();
+        if (!domainPattern.test(hostValue)) {
+          domainHostInput.classList.add('uk-form-danger');
+          setFormError(transDomainInvalid);
+          notify(transDomainInvalid, 'warning');
+          domainHostInput.focus();
+          return;
+        }
+
+        const payload = {
+          host: hostValue,
+          label: domainLabelInput ? domainLabelInput.value.trim() || null : null,
+          namespace: domainNamespaceSelect ? domainNamespaceSelect.value.trim() || null : null,
+          is_active: domainActiveInput ? domainActiveInput.checked : true,
+        };
+
+        const id = domainIdInput?.value ? Number(domainIdInput.value) : null;
+        const endpoint = id ? `${domainEndpoint}/${id}` : domainEndpoint;
+        const method = id ? 'PATCH' : 'POST';
+
+        setFormError('');
+        apiFetch(endpoint, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(res => {
+            return res.json().catch(() => ({})).then(data => {
+              if (!res.ok) {
+                throw new Error(data?.error || transDomainError);
+              }
+              return data;
+            });
+          })
+          .then(() => {
+            notify(transDomainSaved, 'success');
+            resetForm();
+            loadDomains();
+          })
+          .catch(err => {
+            const message = err?.message || transDomainError;
+            setFormError(message);
+            notify(message, 'danger');
+          });
+      });
+    }
+
+    if (domainFormCancel) {
+      domainFormCancel.addEventListener('click', () => {
+        resetForm();
+      });
+    }
+
+    resetForm();
+    loadDomains();
   }
 
   const domainChatContainer = document.querySelector('[data-domain-chat]');

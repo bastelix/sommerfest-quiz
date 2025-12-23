@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Support\DomainNameHelper;
 use PDO;
 use PDOException;
 
@@ -13,11 +14,9 @@ use PDOException;
 class DomainContactTemplateService
 {
     private PDO $pdo;
-    private DomainStartPageService $domainService;
 
-    public function __construct(PDO $pdo, ?DomainStartPageService $domainService = null) {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
-        $this->domainService = $domainService ?? new DomainStartPageService($pdo);
     }
 
     /**
@@ -131,7 +130,7 @@ class DomainContactTemplateService
     }
 
     private function normalizeDomain(string $domain): string {
-        return $this->domainService->normalizeDomain($domain);
+        return DomainNameHelper::normalize($domain);
     }
 
     private function normalizeNullable(?string $value, bool $trimWhitespace = true): ?string {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Middleware;
 
 use App\Infrastructure\Database;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -94,37 +94,20 @@ class DomainMiddleware implements MiddlewareInterface
             return $response->withHeader('Content-Type', 'text/html');
         }
 
-        $startPage = null;
-        $contactEmail = null;
         $startPageNamespace = null;
         try {
             $pdo = Database::connectFromEnv();
-            $service = new DomainStartPageService($pdo);
-            $config = $service->getConfigForHost($originalHost);
-            if ($config !== null) {
-                $startPageValue = trim($config['start_page']);
-                if ($startPageValue !== '') {
-                    $parsed = $service->parseStartPageKey($startPageValue);
-                    $startPage = $parsed['slug'];
-                    $startPageNamespace = $parsed['namespace'];
-                }
-
-                $email = $config['email'] ?? null;
-                if (is_string($email)) {
-                    $email = trim($email);
-                    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                        $contactEmail = $email;
-                    }
-                }
+            $service = new DomainService($pdo);
+            $domain = $service->getDomainForHost($originalHost, includeInactive: true);
+            if ($domain !== null && $domain['namespace'] !== null) {
+                $startPageNamespace = $domain['namespace'];
             }
         } catch (Throwable $e) {
             // Ignore errors so the request can continue even if the table is missing.
         }
 
         $request = $request
-            ->withAttribute('domainType', $domainType)
-            ->withAttribute('domainStartPage', $startPage)
-            ->withAttribute('domainContactEmail', $contactEmail);
+            ->withAttribute('domainType', $domainType);
 
         if ($startPageNamespace !== null && $request->getAttribute('pageNamespace') === null) {
             $request = $request->withAttribute('pageNamespace', $startPageNamespace);

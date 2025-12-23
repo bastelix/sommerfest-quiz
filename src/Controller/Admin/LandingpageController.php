@@ -8,7 +8,7 @@ use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
 use App\Domain\PageSeoConfig;
 use App\Infrastructure\Database;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,7 +23,7 @@ class LandingpageController
 {
     private PageSeoConfigService $seoService;
     private PageService $pageService;
-    private DomainStartPageService $domainService;
+    private DomainService $domainService;
     private NamespaceResolver $namespaceResolver;
 
     /** @var string[] */
@@ -32,12 +32,12 @@ class LandingpageController
     public function __construct(
         ?PageSeoConfigService $seoService = null,
         ?PageService $pageService = null,
-        ?DomainStartPageService $domainService = null,
+        ?DomainService $domainService = null,
         ?NamespaceResolver $namespaceResolver = null
     ) {
         $this->seoService = $seoService ?? new PageSeoConfigService();
         $this->pageService = $pageService ?? new PageService();
-        $this->domainService = $domainService ?? new DomainStartPageService(Database::connectFromEnv());
+        $this->domainService = $domainService ?? new DomainService(Database::connectFromEnv());
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
@@ -191,28 +191,18 @@ class LandingpageController
      * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
      */
     private function buildSeoPageList(array $pages, Page $selected, string $host): array {
-        $mappings = $this->domainService->getAllMappings();
-        $domainsBySlug = [];
-        foreach ($mappings as $domain => $config) {
-            $parsed = $this->domainService->parseStartPageKey($config['start_page']);
-            $slug = $parsed['slug'];
-            if ($slug === '') {
-                continue;
-            }
-            $domainsBySlug[$slug][] = $domain;
-        }
-
+        $domainsByNamespace = $this->domainService->listDomainsByNamespace(includeInactive: true);
         $mainDomain = $this->domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
-        if ($mainDomain !== '') {
-            $domainsBySlug['landing'][] = $mainDomain;
-        }
-
         $currentHost = $this->domainService->normalizeDomain($host);
         $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
 
         $result = [];
         foreach ($pages as $page) {
-            $pageDomains = $domainsBySlug[$page->getSlug()] ?? [];
+            $namespace = $page->getNamespace() !== '' ? $page->getNamespace() : PageService::DEFAULT_NAMESPACE;
+            $pageDomains = array_map(
+                static fn (array $domain): string => $domain['normalized_host'],
+                $domainsByNamespace[$namespace] ?? []
+            );
             if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
                 $pageDomains[] = $mainDomain;
             }

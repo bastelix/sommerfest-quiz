@@ -14,12 +14,6 @@ class NewsletterControllerTest extends TestCase
         $token = 'token123';
         $email = 'newsletter@example.com';
 
-        $pdo->prepare('INSERT INTO domain_start_pages(domain, start_page) VALUES(:domain, :start_page)')
-            ->execute([
-                'domain' => 'calserver.test',
-                'start_page' => 'calserver',
-            ]);
-
         $pdo->prepare('INSERT INTO email_confirmations(email, token, confirmed, expires_at) VALUES(:email, :token, 0, :expires)')
             ->execute([
                 'email' => $email,
@@ -47,10 +41,10 @@ class NewsletterControllerTest extends TestCase
             . ' label = excluded.label, url = excluded.url, style = excluded.style'
         )->execute([
             'namespace' => 'default',
-            'slug' => 'calserver',
+            'slug' => 'landing',
             'position' => 0,
             'label' => 'CTA für Test',
-            'url' => '/calserver#kontakt',
+            'url' => '/landing#kontakt',
             'style' => 'primary',
         ]);
 
@@ -63,7 +57,7 @@ class NewsletterControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $body = (string) $response->getBody();
         $this->assertStringContainsString('CTA für Test', $body);
-        $this->assertStringContainsString('href="/calserver#kontakt"', $body);
-        $this->assertStringContainsString('href="/calserver"', $body, 'Fallback link should point to the resolved slug.');
+        $this->assertStringContainsString('href="/landing#kontakt"', $body);
+        $this->assertStringContainsString('href="/landing"', $body, 'Fallback link should point to the resolved slug.');
     }
 }

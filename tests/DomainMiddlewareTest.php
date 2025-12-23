@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use App\Application\Middleware\DomainMiddleware;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
 use PHPUnit\Framework\TestCase;
@@ -255,11 +255,13 @@ class DomainMiddlewareTest extends TestCase
             . 'value TEXT)'
         );
         $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
+            'CREATE TABLE IF NOT EXISTS domains ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
             . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'namespace TEXT, '
             . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
             . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
             . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
@@ -269,9 +271,9 @@ class DomainMiddlewareTest extends TestCase
             $stmt->execute(['main_domain', $mainDomain]);
         }
 
-        $service = new DomainStartPageService($pdo);
+        $service = new DomainService($pdo);
         foreach ($marketingDomains as $domain) {
-            $service->createMarketingDomain($domain);
+            $service->createDomain($domain);
         }
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);

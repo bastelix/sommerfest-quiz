@@ -14,7 +14,6 @@
   {% set active = activeProvider|default('brevo') %}
   {% set providers = providers|default([]) %}
   {% set meta = providerMeta|default({}) %}
-  {% set domainOverrides = domainOverrides|default([]) %}
 
   {% embed 'topbar.twig' %}
     {% block left %}
@@ -63,29 +62,7 @@
         <div class="uk-container">
           <p class="uk-text-meta">{{ t('text_mail_provider_intro') }}</p>
 
-          {% if domainOverrides is not empty %}
-            <div class="uk-alert-primary" uk-alert>
-              <p class="uk-text-small uk-margin-small-bottom">{{ t('text_mail_provider_domain_hint') }}</p>
-              <ul class="uk-list uk-list-bullet uk-margin-remove">
-                {% for override in domainOverrides %}
-                  <li>
-                    <span class="uk-text-bold">{{ override.domain }}</span>
-                    <span class="uk-text-meta">
-                      {% if override.has_dsn and override.has_credentials %}
-                        {{ t('text_mail_provider_domain_override_both') }}
-                      {% elseif override.has_dsn %}
-                        {{ t('text_mail_provider_domain_override_dsn') }}
-                      {% else %}
-                        {{ t('text_mail_provider_domain_override_credentials') }}
-                      {% endif %}
-                    </span>
-                  </li>
-                {% endfor %}
-              </ul>
-            </div>
-          {% else %}
-            <p class="uk-text-meta uk-margin-small">{{ t('text_mail_provider_domain_hint_empty') }}</p>
-          {% endif %}
+          <p class="uk-text-meta uk-margin-small">{{ t('text_mail_provider_domain_hint_empty') }}</p>
 
           {% if errorMessage is not empty %}
             <div class="uk-alert-danger" uk-alert>

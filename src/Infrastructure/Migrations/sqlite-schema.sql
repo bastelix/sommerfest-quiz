@@ -109,17 +109,15 @@ CREATE TABLE IF NOT EXISTS settings (
 INSERT OR IGNORE INTO settings(key, value) VALUES('home_page', 'help');
 INSERT OR IGNORE INTO settings(key, value) VALUES('registration_enabled', '0');
 
--- Domain start pages
-CREATE TABLE IF NOT EXISTS domain_start_pages (
-    domain TEXT PRIMARY KEY,
-    start_page TEXT NOT NULL,
-    email TEXT,
-    smtp_host TEXT,
-    smtp_user TEXT,
-    smtp_pass TEXT,
-    smtp_port INTEGER,
-    smtp_encryption TEXT,
-    smtp_dsn TEXT,
+-- Domains
+CREATE TABLE IF NOT EXISTS domains (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    host TEXT NOT NULL,
+    normalized_host TEXT NOT NULL UNIQUE,
+    namespace TEXT,
+    label TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

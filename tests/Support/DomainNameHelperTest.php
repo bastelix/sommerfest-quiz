@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use App\Support\DomainNameHelper;
-use App\Service\DomainStartPageService;
+use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use PHPUnit\Framework\TestCase;
 use PDO;
@@ -59,17 +59,19 @@ class DomainNameHelperTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
+            'CREATE TABLE IF NOT EXISTS domains ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
             . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'namespace TEXT, '
             . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
             . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
             . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
 
-        $service = new DomainStartPageService($pdo);
-        $service->createMarketingDomain('promo.example.com');
+        $service = new DomainService($pdo);
+        $service->createDomain('promo.example.com');
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
         DomainNameHelper::setMarketingDomainProvider($provider);

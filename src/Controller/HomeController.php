@@ -9,8 +9,8 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
-use App\Service\DomainStartPageService;
 use App\Service\EventService;
+use App\Service\MarketingSlugResolver;
 use App\Service\SettingsService;
 use App\Service\ResultService;
 use App\Infrastructure\Database;
@@ -34,7 +34,6 @@ class HomeController
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
         $settingsSvc = new SettingsService($pdo);
-        $domainStartPageService = new DomainStartPageService($pdo);
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -71,17 +70,12 @@ class HomeController
                 $cfg['event_uid'] = (string) $event['uid'];
             }
             $home = $settingsSvc->get('home_page', 'help');
-            $domainStartPage = $request->getAttribute('domainStartPage');
-            if (is_string($domainStartPage) && $domainStartPage !== '') {
-                $home = $domainStartPage;
-            } else {
-                $parsed = $domainStartPageService->parseStartPageKey((string) $home);
-                if ($parsed['slug'] !== '') {
-                    $home = $parsed['slug'];
-                }
-                if ($parsed['namespace'] !== null && $request->getAttribute('pageNamespace') === null) {
-                    $request = $request->withAttribute('pageNamespace', $parsed['namespace']);
-                }
+            $parsed = $this->parseStartPageKey((string) $home);
+            if ($parsed['slug'] !== '') {
+                $home = $parsed['slug'];
+            }
+            if ($parsed['namespace'] !== null && $request->getAttribute('pageNamespace') === null) {
+                $request = $request->withAttribute('pageNamespace', $parsed['namespace']);
             }
             if ($home === 'events') {
                 $events = $eventSvc->getAll();
@@ -244,5 +238,33 @@ class HomeController
             'csrf_token' => $_SESSION['csrf_token'] ?? '',
             'player_name' => $_SESSION['player_name'] ?? '',
         ]);
+    }
+
+    /**
+     * @return array{slug:string,namespace:?string}
+     */
+    private function parseStartPageKey(string $startPage): array
+    {
+        $startPage = trim($startPage);
+        if ($startPage === '') {
+            return ['slug' => '', 'namespace' => null];
+        }
+
+        $separator = ':';
+        if (str_contains($startPage, $separator)) {
+            [$namespace, $slug] = explode($separator, $startPage, 2);
+            $namespace = strtolower(trim($namespace));
+            $slug = MarketingSlugResolver::resolveBaseSlug($slug);
+
+            return [
+                'slug' => $slug,
+                'namespace' => $namespace !== '' ? $namespace : null,
+            ];
+        }
+
+        return [
+            'slug' => MarketingSlugResolver::resolveBaseSlug($startPage),
+            'namespace' => null,
+        ];
     }
 }
