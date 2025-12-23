@@ -426,7 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     updateEventButtons(uid);
     const urlEventUid = new URLSearchParams(window.location.search).get('event') || '';
-    if (switchPending || lastSwitchFailed) {
+    if (lastSwitchFailed) {
+      resetSwitchState();
+    }
+    if (switchPending) {
       eventSelect.value = currentEventUid;
       updateEventButtons(currentEventUid);
       return;
