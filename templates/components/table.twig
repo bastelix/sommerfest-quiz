@@ -1,3 +1,6 @@
-{% macro qr_rowcards(list_id, sortable=true, list_class='uk-hidden@m uk-list', tag='ul') %}
+{% macro qr_rowcards(list_id, sortable=true, list_class='uk-hidden@m uk-list', tag='ul', empty_text='', empty_error_text='', empty_class='uk-hidden@m uk-text-meta uk-margin-small') %}
 <{{ tag }} class="{{ list_class }}" id="{{ list_id }}"{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}></{{ tag }}>
+{% if empty_text %}
+  <div id="{{ list_id }}Empty" class="{{ empty_class }}"{% if empty_error_text %} data-error-text="{{ empty_error_text }}"{% endif %}>{{ empty_text }}</div>
+{% endif %}
 {% endmacro %}
