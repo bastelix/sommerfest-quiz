@@ -59,11 +59,13 @@ class AdminLogsController
             $availableNamespaces = [];
         }
 
-        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+        if (
+            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -73,10 +75,12 @@ class AdminLogsController
             ];
         }
 
-        if (!array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === $namespace
-        ) && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
+        if (
+            !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === $namespace
+            ) && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => null,
@@ -88,10 +92,12 @@ class AdminLogsController
 
         if ($allowedNamespaces !== []) {
             foreach ($allowedNamespaces as $allowedNamespace) {
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                )) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
                         'label' => 'nicht gespeichert',

@@ -1,7 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Service;
+
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 
 use App\Service\MailProvider\MailProviderInterface;
 use App\Service\MailProvider\MailProviderManager;
@@ -118,8 +121,7 @@ class MailServiceTest extends TestCase
     private function createCollectingManager(
         bool $configured,
         ?CollectingProvider $provider = null
-    ): MailProviderManager
-    {
+    ): MailProviderManager {
         $pdo = $this->getDatabase();
         $settings = new SettingsService($pdo);
         $provider ??= new CollectingProvider($configured);

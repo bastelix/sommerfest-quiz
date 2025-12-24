@@ -71,11 +71,13 @@ class MarketingNewsletterController
             $availableNamespaces = [];
         }
 
-        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+        if (
+            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -89,8 +91,10 @@ class MarketingNewsletterController
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
         );
-        if (!$currentNamespaceExists
-            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
+        if (
+            !$currentNamespaceExists
+            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => 'nicht gespeichert',
@@ -102,10 +106,12 @@ class MarketingNewsletterController
 
         if ($allowedNamespaces !== []) {
             foreach ($allowedNamespaces as $allowedNamespace) {
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                )) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
                         'label' => 'nicht gespeichert',

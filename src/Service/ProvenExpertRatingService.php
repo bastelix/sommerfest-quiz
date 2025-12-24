@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use Throwable;
+
 use function chmod;
 use function curl_close;
 use function curl_error;
@@ -28,7 +30,6 @@ use function touch;
 use function dirname;
 use function getenv;
 
-use Throwable;
 use const CURL_IPRESOLVE_V4;
 use const CURLOPT_CAINFO;
 use const CURLOPT_CAPATH;

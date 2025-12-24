@@ -21,6 +21,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 use Slim\Views\Twig;
+
 use function array_map;
 use function count;
 use function array_sum;
@@ -46,6 +47,7 @@ use function random_bytes;
 use function sprintf;
 use function substr_count;
 use function trim;
+
 use const JSON_UNESCAPED_SLASHES;
 use const JSON_UNESCAPED_UNICODE;
 
@@ -343,11 +345,13 @@ final class UsernameBlocklistController
             $availableNamespaces = [];
         }
 
-        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+        if (
+            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -361,8 +365,10 @@ final class UsernameBlocklistController
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
         );
-        if (!$currentNamespaceExists
-            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
+        if (
+            !$currentNamespaceExists
+            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => 'nicht gespeichert',
@@ -374,10 +380,12 @@ final class UsernameBlocklistController
 
         if ($allowedNamespaces !== []) {
             foreach ($allowedNamespaces as $allowedNamespace) {
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                )) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
                         'label' => 'nicht gespeichert',
@@ -446,7 +454,6 @@ final class UsernameBlocklistController
 
             $rows = [];
             while (($values = fgetcsv($handle, 0, $delimiter)) !== false) {
-
                 $term = isset($values[$termIndex]) ? trim((string) $values[$termIndex]) : '';
                 if ($term === '') {
                     continue;

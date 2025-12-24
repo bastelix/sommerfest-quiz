@@ -44,8 +44,7 @@ class LandingNewsController
         ?LandingNewsService $news = null,
         ?PageService $pages = null,
         ?NamespaceResolver $namespaceResolver = null
-    )
-    {
+    ) {
         $this->news = $news ?? new LandingNewsService();
         $this->pages = $pages ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
@@ -109,7 +108,7 @@ class LandingNewsController
                 $publishedAt,
                 $data['is_published']
             );
-        } catch (InvalidArgumentException|LogicException $exception) {
+        } catch (InvalidArgumentException | LogicException $exception) {
             return $this->renderForm($request, $response, null, $data, $exception->getMessage());
         } catch (Throwable $exception) {
             return $this->renderForm($request, $response, null, $data, $exception->getMessage());
@@ -158,7 +157,7 @@ class LandingNewsController
                 $publishedAt,
                 $data['is_published']
             );
-        } catch (InvalidArgumentException|LogicException $exception) {
+        } catch (InvalidArgumentException | LogicException $exception) {
             return $this->renderForm($request, $response, $entry, $data, $exception->getMessage());
         } catch (Throwable $exception) {
             return $this->renderForm($request, $response, $entry, $data, $exception->getMessage());
@@ -361,11 +360,13 @@ class LandingNewsController
             $availableNamespaces = [];
         }
 
-        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+        if (
+            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -379,8 +380,10 @@ class LandingNewsController
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
         );
-        if (!$currentNamespaceExists
-            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
+        if (
+            !$currentNamespaceExists
+            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => 'nicht gespeichert',
@@ -392,10 +395,12 @@ class LandingNewsController
 
         if ($allowedNamespaces !== []) {
             foreach ($allowedNamespaces as $allowedNamespace) {
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                )) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
                         'label' => 'nicht gespeichert',

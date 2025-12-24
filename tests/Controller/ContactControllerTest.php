@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Controller;
@@ -427,5 +428,4 @@ class ContactControllerTest extends TestCase
             }
         }
     }
-
 }

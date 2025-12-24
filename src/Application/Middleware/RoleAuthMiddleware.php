@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Application\Middleware;
@@ -145,5 +146,4 @@ class RoleAuthMiddleware implements MiddlewareInterface
 
         return $namespaces;
     }
-
 }

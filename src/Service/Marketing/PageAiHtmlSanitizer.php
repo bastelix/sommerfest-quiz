@@ -279,7 +279,8 @@ final class PageAiHtmlSanitizer
         if ($normalized === '') {
             return false;
         }
-        if (str_contains($normalized, 'expression')
+        if (
+            str_contains($normalized, 'expression')
             || str_contains($normalized, 'url(')
             || str_contains($normalized, 'javascript:')
             || str_contains($normalized, 'data:')
@@ -297,7 +298,8 @@ final class PageAiHtmlSanitizer
             return false;
         }
         $lower = strtolower($normalized);
-        if (str_starts_with($lower, 'javascript:')
+        if (
+            str_starts_with($lower, 'javascript:')
             || str_starts_with($lower, 'data:')
             || str_starts_with($lower, 'vbscript:')
         ) {

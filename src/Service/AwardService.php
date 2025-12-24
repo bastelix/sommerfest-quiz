@@ -316,15 +316,15 @@ class AwardService
                 }
 
                   $cmp = $b['points'] <=> $a['points'];
-                  if ($cmp !== 0) {
-                      return $cmp;
-                  }
+                if ($cmp !== 0) {
+                    return $cmp;
+                }
 
                   $aDuration = $a['duration'];
                   $bDuration = $b['duration'];
                   $aHasDuration = $aDuration !== null;
                   $bHasDuration = $bDuration !== null;
-                  if ($aHasDuration && $bHasDuration) {
+                if ($aHasDuration && $bHasDuration) {
                     $cmp = $aDuration <=> $bDuration;
                     if ($cmp !== 0) {
                         return $cmp;
@@ -349,8 +349,8 @@ class AwardService
                 }
 
                   return $a['team'] <=> $b['team'];
-              }
-          );
+            }
+        );
 
         $catalogRanks = [];
         $seenCatalogTeams = [];
