@@ -3990,7 +3990,40 @@ document.addEventListener('DOMContentLoaded', function () {
       return acc;
     }, {});
     const domainPattern = /^(?=.{1,255}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
+    const renewSslButton = managementSection?.querySelector('[data-renew-ssl-main]') || null;
+    const transRenewSuccess = renewSslButton?.dataset.success
+      || window.transDomainSslIssued
+      || 'Certificate request queued.';
+    const transRenewError = renewSslButton?.dataset.error
+      || window.transDomainSslError
+      || 'Certificate request failed.';
     let domainData = [];
+
+    if (renewSslButton) {
+      renewSslButton.addEventListener('click', () => {
+        const originalHtml = renewSslButton.innerHTML;
+        renewSslButton.disabled = true;
+        renewSslButton.innerHTML = `<span class="uk-margin-small-right" uk-spinner></span>${renewSslButton.textContent}`;
+
+        apiFetch('/api/renew-ssl', { method: 'POST' })
+          .then(res => res.json().catch(() => ({})).then(data => {
+            if (!res.ok) {
+              throw new Error(data?.error || transRenewError);
+            }
+            return data;
+          }))
+          .then(data => {
+            notify(data?.status || transRenewSuccess, 'success');
+          })
+          .catch(err => {
+            notify(err?.message || transRenewError, 'danger');
+          })
+          .finally(() => {
+            renewSslButton.disabled = false;
+            renewSslButton.innerHTML = originalHtml;
+          });
+      });
+    }
 
     const setLegend = label => {
       if (domainLegend) {

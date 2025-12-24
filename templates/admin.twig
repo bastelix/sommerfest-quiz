@@ -2121,7 +2121,20 @@
         <h2 class="uk-heading-bullet">{{ t('heading_management') }}</h2>
 
         <div id="domains" class="uk-card uk-card-default uk-card-body uk-margin">
-          <h3 class="uk-heading-bullet">{{ t('heading_domains') }}</h3>
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <h3 class="uk-heading-bullet uk-margin-remove-bottom">{{ t('heading_domains') }}</h3>
+            <div class="uk-margin-small-top@s">
+              <button
+                type="button"
+                class="uk-button uk-button-default"
+                data-renew-ssl-main
+                data-success="{{ t('notify_domain_ssl_issued')|e('html_attr') }}"
+                data-error="{{ t('notify_domain_ssl_error')|e('html_attr') }}"
+              >
+                <span uk-icon="lock" class="uk-margin-small-right"></span>{{ t('action_renew_ssl') }}
+              </button>
+            </div>
+          </div>
           <div class="uk-margin-top">
             <p class="uk-text-meta">{{ t('text_domain_management_hint') }}</p>
             <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
