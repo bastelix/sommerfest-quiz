@@ -68,30 +68,67 @@
 {% set activeNamespace = pageNamespace|default('default') %}
 {% set namespaceQuery = activeNamespace is not empty ? 'namespace=' ~ activeNamespace|url_encode : '' %}
 {% set lockNamespaceSelect = current starts with (basePath ~ '/admin/logins') %}
+{# Web management modules grouped by responsibility for clearer navigation and future extension #}
 {% set projectModules = [
-  { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview'), activePrefixes: [basePath ~ '/admin/projects'] },
   {
-    href: basePath ~ '/admin/pages/content',
-    icon: 'file-edit',
-    text: t('tab_pages'),
-    activePaths: [basePath ~ '/admin/pages'],
-    activePrefixes: [basePath ~ '/admin/pages/content']
+    header: t('menu_web_dashboard'),
+    items: [
+      { href: basePath ~ '/admin/projects', icon: 'grid', text: t('tab_project_overview'), activePrefixes: [basePath ~ '/admin/projects'] },
+    ]
   },
   {
-    href: basePath ~ '/admin/media',
-    icon: 'image',
-    text: t('tab_media'),
-    activePrefixes: [basePath ~ '/admin/media'],
-    roles: ['admin', 'catalog-editor'],
-    noEvent: true
+    header: t('menu_web_content'),
+    items: [
+      {
+        href: basePath ~ '/admin/pages/content',
+        icon: 'file-edit',
+        text: t('tab_pages'),
+        activePaths: [basePath ~ '/admin/pages'],
+        activePrefixes: [basePath ~ '/admin/pages/content']
+      },
+      { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), activePrefixes: [basePath ~ '/admin/pages/wiki'] },
+      { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'] },
+      { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'] },
+    ]
   },
-  { href: basePath ~ '/admin/pages/navigation', icon: 'list', text: t('tab_navigation'), activePrefixes: [basePath ~ '/admin/pages/navigation'] },
-  { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), activePrefixes: [basePath ~ '/admin/pages/seo'] },
-  { href: basePath ~ '/admin/pages/wiki', icon: 'file-text', text: t('tab_wiki'), activePrefixes: [basePath ~ '/admin/pages/wiki'] },
-  { href: basePath ~ '/admin/pages/cookies', icon: 'file-text', text: t('tab_cookies'), activePrefixes: [basePath ~ '/admin/pages/cookies'] },
-  { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'] },
-  { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), activePrefixes: [basePath ~ '/admin/rag-chat'] },
-  { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'] },
+  {
+    header: t('menu_web_media_assets'),
+    items: [
+      {
+        href: basePath ~ '/admin/media',
+        icon: 'image',
+        text: t('tab_media'),
+        activePrefixes: [basePath ~ '/admin/media'],
+        roles: ['admin', 'catalog-editor'],
+        noEvent: true
+      },
+    ]
+  },
+  {
+    header: t('menu_web_structure'),
+    items: [
+      { href: basePath ~ '/admin/pages/navigation', icon: 'list', text: t('tab_navigation'), activePrefixes: [basePath ~ '/admin/pages/navigation'] },
+    ]
+  },
+  {
+    header: t('menu_web_marketing'),
+    items: [
+      { href: basePath ~ '/admin/pages/seo', icon: 'search', text: t('tab_page_seo_base'), activePrefixes: [basePath ~ '/admin/pages/seo'] },
+      { href: basePath ~ '/admin/pages/cookies', icon: 'file-text', text: t('tab_cookies'), activePrefixes: [basePath ~ '/admin/pages/cookies'] },
+    ]
+  },
+  {
+    header: t('menu_web_interaction'),
+    items: [
+      { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), activePrefixes: [basePath ~ '/admin/rag-chat'] },
+    ]
+  },
+  {
+    header: t('menu_web_design'),
+    items: [
+      { href: basePath ~ '/admin/pages/content#design', icon: 'paint-bucket', text: t('tab_design'), activePrefixes: [basePath ~ '/admin/pages/content'] },
+    ]
+  },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
 {% if projectNamespaceOptions is empty %}
@@ -173,23 +210,25 @@
       {% if (group.admin is not defined or role == 'admin') and (group.roles is not defined or role in group.roles) %}
         {% if group.type is defined and group.type == 'projects' %}
           {% set groupActive = false %}
-          {% for module in projectModules %}
-            {% set activePaths = module.activePaths|default([]) %}
-            {% set activePrefixes = module.activePrefixes|default([]) %}
-            {% set moduleActive = false %}
-            {% for path in activePaths %}
-              {% if current == path %}
-                {% set moduleActive = true %}
+          {% for section in projectModules %}
+            {% for module in section.items %}
+              {% set activePaths = module.activePaths|default([]) %}
+              {% set activePrefixes = module.activePrefixes|default([]) %}
+              {% set moduleActive = false %}
+              {% for path in activePaths %}
+                {% if current == path %}
+                  {% set moduleActive = true %}
+                {% endif %}
+              {% endfor %}
+              {% for prefix in activePrefixes %}
+                {% if current starts with prefix %}
+                  {% set moduleActive = true %}
+                {% endif %}
+              {% endfor %}
+              {% if moduleActive %}
+                {% set groupActive = true %}
               {% endif %}
             {% endfor %}
-            {% for prefix in activePrefixes %}
-              {% if current starts with prefix %}
-                {% set moduleActive = true %}
-              {% endif %}
-            {% endfor %}
-            {% if moduleActive %}
-              {% set groupActive = true %}
-            {% endif %}
           {% endfor %}
           <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
             <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
@@ -198,33 +237,44 @@
             </a>
             <div class="uk-accordion-content uk-padding-remove">
               <ul class="uk-nav uk-nav-default qr-nav-sub">
-                {% for module in projectModules %}
-                  {% if module.roles is not defined or role in module.roles %}
-                  {% set activePaths = module.activePaths|default([]) %}
-                  {% set activePrefixes = module.activePrefixes|default([]) %}
-                  {% set isActive = false %}
-                  {% for path in activePaths %}
-                    {% if current == path %}
-                      {% set isActive = true %}
+                {% for section in projectModules %}
+                  {% set hasVisibleModule = false %}
+                  {% for module in section.items %}
+                    {% if module.roles is not defined or role in module.roles %}
+                      {% set hasVisibleModule = true %}
                     {% endif %}
                   {% endfor %}
-                  {% for prefix in activePrefixes %}
-                    {% if current starts with prefix %}
-                      {% set isActive = true %}
-                    {% endif %}
-                  {% endfor %}
-                  {% set moduleQuery = module.query|default('') %}
-                  {% set moduleQueryPrefix = moduleQuery is not empty ? '?' ~ moduleQuery : '' %}
-                  {% set namespaceSuffix = namespaceQuery is not empty ? (moduleQuery is not empty ? '&' : '?') ~ namespaceQuery : '' %}
-                  <li class="{{ isActive ? 'uk-active' : '' }}">
-                    <a
-                      class="qr-nav-link qr-nav-sub-link"
-                      href="{{ module.href }}{{ moduleQueryPrefix }}{{ namespaceSuffix }}{{ module.anchor|default('') }}"
-                    >
-                      <span uk-icon="icon: {{ module.icon }}; ratio: 0.85"></span>
-                      <span class="qr-nav-text">{{ module.text }}</span>
-                    </a>
-                  </li>
+                  {% if hasVisibleModule %}
+                    <li class="uk-nav-header">{{ section.header }}</li>
+                    {% for module in section.items %}
+                      {% if module.roles is not defined or role in module.roles %}
+                        {% set activePaths = module.activePaths|default([]) %}
+                        {% set activePrefixes = module.activePrefixes|default([]) %}
+                        {% set isActive = false %}
+                        {% for path in activePaths %}
+                          {% if current == path %}
+                            {% set isActive = true %}
+                          {% endif %}
+                        {% endfor %}
+                        {% for prefix in activePrefixes %}
+                          {% if current starts with prefix %}
+                            {% set isActive = true %}
+                          {% endif %}
+                        {% endfor %}
+                        {% set moduleQuery = module.query|default('') %}
+                        {% set moduleQueryPrefix = moduleQuery is not empty ? '?' ~ moduleQuery : '' %}
+                        {% set namespaceSuffix = namespaceQuery is not empty ? (moduleQuery is not empty ? '&' : '?') ~ namespaceQuery : '' %}
+                        <li class="{{ isActive ? 'uk-active' : '' }}">
+                          <a
+                            class="qr-nav-link qr-nav-sub-link"
+                            href="{{ module.href }}{{ moduleQueryPrefix }}{{ namespaceSuffix }}{{ module.anchor|default('') }}"
+                          >
+                            <span uk-icon="icon: {{ module.icon }}; ratio: 0.85"></span>
+                            <span class="qr-nav-text">{{ module.text }}</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
                   {% endif %}
                 {% endfor %}
               </ul>
