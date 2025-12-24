@@ -15,6 +15,9 @@ if (container) {
     const pageLabel = container.querySelector('[data-menu-page-label]');
     const pageSelect = document.getElementById('pageContentSelect');
     const localeSelect = document.getElementById('menuLocaleSelect');
+    const previewTree = document.querySelector('[data-menu-preview-tree]');
+    const previewEmpty = document.querySelector('[data-menu-preview-empty]');
+    const previewSummary = document.querySelector('[data-menu-preview-summary]');
 
     const state = {
       pageId: null,
@@ -207,6 +210,109 @@ if (container) {
           state.byId.set(normalizeId(item.id), item);
         }
       });
+    };
+
+    const formatHref = href => {
+      if (!href) {
+        return 'ohne Link';
+      }
+      if (href.length > 42) {
+        return `${href.slice(0, 38)}…`;
+      }
+      return href;
+    };
+
+    const renderPreview = items => {
+      if (!previewTree) {
+        return;
+      }
+
+      const { roots } = buildTree(items);
+      previewTree.innerHTML = '';
+
+      const updateSummary = () => {
+        if (!previewSummary) {
+          return;
+        }
+        if (!state.pageId) {
+          previewSummary.textContent = 'Bitte Marketing-Seite auswählen.';
+          return;
+        }
+        const label = pageLabel?.textContent?.trim() || 'Aktuelle Navigation';
+        previewSummary.textContent = label;
+      };
+
+      const createBadge = (text, className = 'uk-badge') => {
+        const badge = document.createElement('span');
+        badge.className = className;
+        badge.textContent = text;
+        return badge;
+      };
+
+      const renderBranch = (nodes, parent) => {
+        const list = document.createElement('ul');
+        list.className = parent ? 'uk-nav-sub uk-margin-remove-top' : 'uk-nav uk-nav-default';
+
+        nodes.forEach(node => {
+          const item = document.createElement('li');
+
+          const line = document.createElement('div');
+          line.className = 'uk-flex uk-flex-middle uk-flex-between';
+
+          const left = document.createElement('div');
+          left.className = 'uk-flex uk-flex-middle';
+          left.style.gap = '8px';
+
+          const label = document.createElement('span');
+          label.className = 'uk-text-bold';
+          label.textContent = node.label || 'Ohne Label';
+          left.appendChild(label);
+
+          if (node.isStartpage) {
+            left.appendChild(createBadge('Startseite', 'uk-label uk-label-success'));
+          }
+
+          if (node.layout) {
+            left.appendChild(createBadge(node.layout));
+          }
+
+          if (node.isExternal) {
+            left.appendChild(createBadge('Extern', 'uk-label uk-label-warning'));
+          }
+
+          const href = document.createElement('span');
+          href.className = 'uk-text-meta';
+          href.textContent = formatHref(node.href || '');
+
+          line.append(left, href);
+          item.appendChild(line);
+
+          if (node.children?.length) {
+            item.appendChild(renderBranch(node.children, item));
+          }
+
+          list.appendChild(item);
+        });
+
+        return list;
+      };
+
+      if (!roots.length) {
+        if (previewEmpty) {
+          previewEmpty.hidden = false;
+        }
+        previewTree.appendChild(renderBranch([], null));
+        updateSummary();
+        return;
+      }
+
+      if (previewEmpty) {
+        previewEmpty.hidden = true;
+      }
+
+      const tree = renderBranch(roots, null);
+      previewTree.appendChild(tree);
+      updateSummary();
     };
 
     const updateButtons = () => {
@@ -519,6 +625,7 @@ if (container) {
       renderBranch(tree.roots, 0, treeRoot);
       attachDragHandlers();
       updateButtons();
+      renderPreview(state.items);
     };
 
     const updateSelectedPage = () => {

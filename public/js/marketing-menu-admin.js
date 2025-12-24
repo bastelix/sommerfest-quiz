@@ -25,6 +25,9 @@ if (manager) {
     const itemsBody = manager.querySelector('[data-menu-items]');
     const feedback = manager.querySelector('[data-menu-feedback]');
     const loadingRow = manager.querySelector('[data-menu-loading-row]');
+    const previewTree = document.querySelector('[data-menu-preview-tree]');
+    const previewEmpty = document.querySelector('[data-menu-preview-empty]');
+    const previewSummary = document.querySelector('[data-menu-preview-summary]');
     if (loadingRow) {
       loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
     }
@@ -702,6 +705,142 @@ if (manager) {
     return map;
   };
 
+  const formatPreviewHref = href => {
+    if (!href) {
+      return 'ohne Link';
+    }
+    if (href.length > 42) {
+      return `${href.slice(0, 38)}…`;
+    }
+    return href;
+  };
+
+  const renderPreview = items => {
+    if (!previewTree) {
+      return;
+    }
+
+    const { roots } = buildTree(items);
+    previewTree.innerHTML = '';
+
+    const updateSummary = () => {
+      if (!previewSummary) {
+        return;
+      }
+      if (!state.pageId) {
+        previewSummary.textContent = 'Bitte Marketing-Seite auswählen.';
+        return;
+      }
+      const label = pageLabel?.textContent?.trim() || 'Aktuelle Navigation';
+      previewSummary.textContent = label;
+    };
+
+    const createBadge = (text, className = 'uk-badge') => {
+      const badge = document.createElement('span');
+      badge.className = className;
+      badge.textContent = text;
+      return badge;
+    };
+
+    const renderBranch = (nodes, parent) => {
+      const list = document.createElement('ul');
+      list.className = parent ? 'uk-nav-sub uk-margin-remove-top' : 'uk-nav uk-nav-default';
+
+      nodes.forEach(node => {
+        const item = document.createElement('li');
+
+        const line = document.createElement('div');
+        line.className = 'uk-flex uk-flex-middle uk-flex-between';
+
+        const left = document.createElement('div');
+        left.className = 'uk-flex uk-flex-middle';
+        left.style.gap = '8px';
+
+        const label = document.createElement('span');
+        label.className = 'uk-text-bold';
+        label.textContent = node.label || 'Ohne Label';
+        left.appendChild(label);
+
+        if (node.isStartpage) {
+          left.appendChild(createBadge('Startseite', 'uk-label uk-label-success'));
+        }
+
+        if (node.layout) {
+          left.appendChild(createBadge(node.layout));
+        }
+
+        if (node.isExternal) {
+          left.appendChild(createBadge('Extern', 'uk-label uk-label-warning'));
+        }
+
+        const href = document.createElement('span');
+        href.className = 'uk-text-meta';
+        href.textContent = formatPreviewHref(node.href || '');
+
+        line.append(left, href);
+        item.appendChild(line);
+
+        if (node.children?.length) {
+          item.appendChild(renderBranch(node.children, item));
+        }
+
+        list.appendChild(item);
+      });
+
+      return list;
+    };
+
+    if (!roots.length) {
+      if (previewEmpty) {
+        previewEmpty.hidden = false;
+      }
+      previewTree.appendChild(renderBranch([], null));
+      updateSummary();
+      return;
+    }
+
+    if (previewEmpty) {
+      previewEmpty.hidden = true;
+    }
+
+    const tree = renderBranch(roots, null);
+    previewTree.appendChild(tree);
+    updateSummary();
+  };
+
+  const collectPreviewItems = () => {
+    const rows = Array.from(itemsBody?.querySelectorAll('tr[data-menu-row]') || []);
+    return rows.map((row, index) => {
+      const id = row.dataset.id || `tmp-${index}`;
+      const parentSelect = row.querySelector('[data-menu-parent]');
+      const parentValue = parentSelect?.value || row.dataset.parentId || '';
+      const layoutSelect = row.querySelector('[data-menu-layout]');
+      const hrefInput = row.querySelector('[data-menu-href]');
+      const labelInput = row.querySelector('[data-menu-label]');
+      const localeInput = row.querySelector('[data-menu-locale]');
+      const startpageInput = row.querySelector('[data-menu-startpage]');
+      const externalInput = row.querySelector('[data-menu-external]');
+      const activeInput = row.querySelector('[data-menu-active]');
+
+      return {
+        id,
+        parentId: parentValue || null,
+        position: index,
+        label: labelInput?.value || '',
+        href: hrefInput?.value || '',
+        layout: layoutSelect?.value || 'link',
+        locale: localeInput?.value || '',
+        isStartpage: startpageInput?.checked || false,
+        isExternal: externalInput?.checked || false,
+        isActive: activeInput?.checked !== false,
+      };
+    });
+  };
+
+  const updatePreviewFromRows = () => {
+    renderPreview(collectPreviewItems());
+  };
+
   const createIconSelect = selected => {
     const select = document.createElement('select');
     select.className = 'uk-select uk-form-small';
@@ -943,7 +1082,10 @@ if (manager) {
       actionCell
     );
 
-    const markDirty = () => setRowDirty(row, true);
+    const markDirty = () => {
+      setRowDirty(row, true);
+      updatePreviewFromRows();
+    };
     labelInput.addEventListener('input', () => {
       markDirty();
       validateRows();
@@ -1000,6 +1142,7 @@ if (manager) {
     state.tree = tree.roots;
     state.flatItems = flattenTree(tree.roots);
     state.descendants = buildDescendantsMap(tree.roots);
+    renderPreview(items);
 
     itemsBody.innerHTML = '';
     if (!state.flatItems.length) {
@@ -1144,6 +1287,7 @@ if (manager) {
       if (!itemsBody.querySelector('tr[data-menu-row]')) {
         showEmpty('Keine Menüeinträge vorhanden.');
       }
+      updatePreviewFromRows();
       return;
     }
     setRowBusy(row, true);
@@ -1163,6 +1307,7 @@ if (manager) {
         }
         validateRows();
         saveOrder();
+        updatePreviewFromRows();
       })
       .catch(error => {
         console.error('Failed to delete menu item', error);
@@ -1246,6 +1391,7 @@ if (manager) {
       isActive: true
     });
     itemsBody.appendChild(row);
+    updatePreviewFromRows();
     row.querySelector('[data-menu-label]').focus();
   };
 
