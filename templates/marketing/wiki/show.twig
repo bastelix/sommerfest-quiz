@@ -18,6 +18,7 @@
 {% set bodyClasses = themeDefaults.bodyClasses %}
 {% set stylesheets = themeDefaults.stylesheets %}
 {% set colors = themeDefaults.colors %}
+{% set logoUrl = wikiTheme.logoUrl|default(null) %}
 {% if wikiTheme is defined %}
   {% if wikiTheme.bodyClasses is defined and wikiTheme.bodyClasses is iterable %}
     {% set bodyClasses = wikiTheme.bodyClasses %}
@@ -27,6 +28,9 @@
   {% endif %}
   {% if wikiTheme.colors is defined %}
     {% set colors = themeDefaults.colors|merge(wikiTheme.colors) %}
+  {% endif %}
+  {% if wikiTheme.logoUrl is defined %}
+    {% set logoUrl = wikiTheme.logoUrl %}
   {% endif %}
 {% endif %}
 {% set detailClasses = bodyClasses %}
@@ -43,7 +47,8 @@
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   {% for stylesheet in stylesheets %}
-    <link rel="stylesheet" href="{{ basePath }}/css/{{ stylesheet }}">
+    {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
+    <link rel="stylesheet" href="{{ href }}">
   {% endfor %}
   <style>
     .marketing-wiki {
@@ -90,6 +95,11 @@
     }
 
     .wiki-callout strong { display: block; margin-bottom: 8px; }
+
+    .marketing-wiki__logo img {
+      max-height: 64px;
+      width: auto;
+    }
   </style>
 {% endblock %}
 
@@ -109,6 +119,11 @@
           {% endfor %}
         </ul>
       </nav>
+      {% if logoUrl %}
+        <div class="marketing-wiki__logo uk-margin-small">
+          <img src="{{ logoUrl }}" alt="{{ page.getTitle() }} Logo" loading="lazy">
+        </div>
+      {% endif %}
       <h1 class="uk-heading-medium uk-margin-remove">{{ article.getTitle() }}</h1>
       {% set displayDate = article.getUpdatedAt() ?? article.getPublishedAt() %}
       {% if displayDate %}

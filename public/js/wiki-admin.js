@@ -21,6 +21,13 @@ if (manager) {
     const settingsActiveInput = manager.querySelector('[data-wiki-active]');
     const settingsMenuLabelInputs = Array.from(manager.querySelectorAll('[data-wiki-menu-label-locale]'));
     const settingsSubmit = manager.querySelector('[data-wiki-settings-submit]');
+    const themeColorInputs = Array.from(manager.querySelectorAll('[data-wiki-theme-color]'));
+    const themeLogoInput = manager.querySelector('[data-wiki-theme-logo]');
+    const themeBodyClassesInput = manager.querySelector('[data-wiki-theme-body-classes]');
+    const themeStylesheetsInput = manager.querySelector('[data-wiki-theme-stylesheets]');
+    const themeSaveButton = manager.querySelector('[data-wiki-theme-save]');
+    const themeResetButton = manager.querySelector('[data-wiki-theme-reset]');
+    const themeUpdatedLabel = manager.querySelector('[data-wiki-theme-updated]');
     const articlesCard = manager.querySelector('[data-wiki-articles]');
     const articlesTableBody = manager.querySelector('[data-wiki-article-list]');
     const articlesEmpty = manager.querySelector('[data-wiki-articles-empty]');
@@ -72,6 +79,13 @@ if (manager) {
       !settingsActiveInput ||
       settingsMenuLabelInputs.length === 0 ||
       !settingsSubmit ||
+      themeColorInputs.length === 0 ||
+      !themeLogoInput ||
+      !themeBodyClassesInput ||
+      !themeStylesheetsInput ||
+      !themeSaveButton ||
+      !themeResetButton ||
+      !themeUpdatedLabel ||
       !articlesCard ||
       !articlesEmpty ||
       !settingsCard ||
@@ -99,6 +113,18 @@ if (manager) {
       draft: window.transWikiStatusDraft || 'Draft',
       published: window.transWikiStatusPublished || 'Published',
       archived: window.transWikiStatusArchived || 'Archived'
+    };
+
+    const defaultThemeColors = {
+      headerFrom: '#111827',
+      headerTo: '#1f2937',
+      detailHeaderFrom: '#0f172a',
+      detailHeaderTo: '#1d4ed8',
+      headerText: '#ffffff',
+      excerpt: '#4b5563',
+      calloutBorder: '#3b82f6',
+      calloutBackground: '#f9fafb',
+      calloutText: '#0f172a'
     };
 
     const getMenuLabelInputs = () => settingsMenuLabelInputs.filter(input => input.dataset.wikiMenuLabelLocale);
@@ -152,13 +178,22 @@ if (manager) {
       articleImportNoPage: window.transWikiArticleImportNoPage || 'Bitte zuerst eine Marketing-Seite auswählen.',
       articleStartMarked: window.transWikiArticleStartMarked || 'Start document assigned.',
       articleStartRemoved: window.transWikiArticleStartRemoved || 'Start document removed.',
-      startBadge: window.transWikiArticleStartBadge || 'Start'
+      startBadge: window.transWikiArticleStartBadge || 'Start',
+      themeSaved: window.transWikiThemeSaved || 'Theme gespeichert.',
+      themeError: window.transWikiThemeError || 'Theme konnte nicht gespeichert werden.',
+      themeInvalid: window.transWikiThemeInvalid || 'Ungültige Theme-Angaben.'
     };
 
     const state = {
       pageId: Number(manager.dataset.selectedPageId || 0) || null,
       pageSlug: '',
       settings: null,
+      theme: null,
+      themeDefaults: {
+        bodyClasses: ['marketing-wiki'],
+        stylesheets: [],
+        colors: { ...defaultThemeColors }
+      },
       articles: [],
       filterLocale: 'all'
     };
@@ -198,6 +233,128 @@ if (manager) {
         .replace(/^-+|-+$/g, '')
         .replace(/-+/g, '-');
       return slug;
+    }
+
+    function isValidHexColor(value) {
+      return /^#([0-9a-fA-F]{6})$/.test(String(value || ''));
+    }
+
+    function isValidUrl(value) {
+      if (typeof value !== 'string') {
+        return false;
+      }
+      const trimmed = value.trim();
+      if (trimmed === '') {
+        return false;
+      }
+
+      try {
+        const parsed = new URL(trimmed);
+        return Boolean(parsed.protocol && parsed.host);
+      } catch (error) {
+        return trimmed.startsWith('/') || /^[A-Za-z0-9._/-]+$/.test(trimmed);
+      }
+    }
+
+    function parseBodyClassesInput() {
+      const raw = (themeBodyClassesInput.value || '').trim();
+      if (!raw) {
+        return [];
+      }
+      const classes = raw.split(/\s+/).map(item => item.trim()).filter(Boolean);
+      return classes.filter((cls, index) => classes.indexOf(cls) === index);
+    }
+
+    function parseStylesheetsInput() {
+      const raw = (themeStylesheetsInput.value || '').replace(/\r/g, '\n');
+      const entries = raw.split(/\n|,/).map(entry => entry.trim()).filter(Boolean);
+      return entries.filter((entry, index) => entries.indexOf(entry) === index);
+    }
+
+    function getDefaultColors() {
+      const colors = (state.themeDefaults && state.themeDefaults.colors) || {};
+      return { ...defaultThemeColors, ...colors };
+    }
+
+    function resetThemeForm() {
+      updateThemeForm({
+        colors: getDefaultColors(),
+        bodyClasses: [],
+        stylesheets: [],
+        logoUrl: null,
+        updatedAt: null
+      });
+    }
+
+    function updateThemeForm(theme) {
+      const colors = theme?.colors || getDefaultColors();
+      themeColorInputs.forEach(input => {
+        const key = input.dataset.wikiThemeColor;
+        if (!key) {
+          return;
+        }
+        const value = colors[key] || getDefaultColors()[key] || '';
+        if (value && isValidHexColor(value)) {
+          input.value = value;
+        } else {
+          input.value = '#000000';
+        }
+      });
+
+      themeLogoInput.value = theme?.logoUrl || '';
+      const bodyClasses = Array.isArray(theme?.bodyClasses) ? theme.bodyClasses.join(' ') : '';
+      themeBodyClassesInput.value = bodyClasses;
+      const stylesheets = Array.isArray(theme?.stylesheets) ? theme.stylesheets.join('\n') : '';
+      themeStylesheetsInput.value = stylesheets;
+
+      if (themeUpdatedLabel) {
+        themeUpdatedLabel.textContent = theme?.updatedAt ? `Aktualisiert: ${formatDate(theme.updatedAt)}` : '';
+      }
+    }
+
+    function buildThemePayloadFromForm() {
+      const payload = {};
+      const colors = {};
+      themeColorInputs.forEach(input => {
+        const key = input.dataset.wikiThemeColor;
+        const value = (input.value || '').trim();
+        if (!key || value === '') {
+          return;
+        }
+        if (!isValidHexColor(value)) {
+          throw new Error(messages.themeInvalid);
+        }
+        colors[key] = value.toLowerCase();
+      });
+
+      const bodyClasses = parseBodyClassesInput();
+      const stylesheets = parseStylesheetsInput();
+      const logoUrl = (themeLogoInput.value || '').trim();
+
+      stylesheets.forEach(entry => {
+        if (!isValidUrl(entry)) {
+          throw new Error(messages.themeInvalid);
+        }
+      });
+
+      if (logoUrl && !isValidUrl(logoUrl)) {
+        throw new Error(messages.themeInvalid);
+      }
+
+      if (Object.keys(colors).length > 0) {
+        payload.colors = colors;
+      }
+      if (bodyClasses.length > 0) {
+        payload.bodyClasses = bodyClasses;
+      }
+      if (stylesheets.length > 0) {
+        payload.stylesheets = stylesheets;
+      }
+      if (logoUrl) {
+        payload.logoUrl = logoUrl;
+      }
+
+      return payload;
     }
 
     function notify(message, status = 'primary') {
@@ -575,6 +732,7 @@ if (manager) {
       if (settingsUpdated) {
         settingsUpdated.textContent = '';
       }
+      resetThemeForm();
     }
 
     function updateSettingsForm(settings) {
@@ -611,6 +769,7 @@ if (manager) {
       }
       state.pageId = id;
       state.settings = null;
+      state.theme = null;
       state.articles = [];
       hideFeedback();
       toggleLoadingRow(true);
@@ -626,9 +785,19 @@ if (manager) {
         state.pageSlug = data.page && data.page.slug ? data.page.slug : (selectedPage ? selectedPage.slug : '');
         setSelectedSlug(state.pageSlug);
         state.settings = data.settings || null;
+        if (data.themeDefaults && typeof data.themeDefaults === 'object') {
+          state.themeDefaults = {
+            bodyClasses: Array.isArray(data.themeDefaults.bodyClasses) ? data.themeDefaults.bodyClasses : ['marketing-wiki'],
+            stylesheets: Array.isArray(data.themeDefaults.stylesheets) ? data.themeDefaults.stylesheets : [],
+            colors: { ...defaultThemeColors, ...(data.themeDefaults.colors || {}) },
+          };
+        }
+        state.theme = data.theme || null;
         state.articles = Array.isArray(data.articles) ? data.articles.map(normalizeArticle) : [];
         sortArticlesInState();
         updateSettingsForm(state.settings);
+        const effectiveTheme = state.theme || { ...state.themeDefaults };
+        updateThemeForm(effectiveTheme);
         settingsCard.hidden = false;
         articlesCard.hidden = false;
         updateLocaleFilterOptions();
@@ -637,6 +806,7 @@ if (manager) {
         console.error('Failed to load wiki data', error);
         showFeedback('Wiki-Daten konnten nicht geladen werden.', 'danger');
         resetSettingsForm();
+        resetThemeForm();
         articlesTableBody.innerHTML = '';
         articlesEmpty.hidden = false;
       });
@@ -666,6 +836,40 @@ if (manager) {
         notify(messages.settingsError, 'danger');
       }).finally(() => {
         settingsSubmit.disabled = false;
+      });
+    }
+
+    function saveTheme(event) {
+      if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+      }
+      if (!state.pageId) {
+        return;
+      }
+
+      let payload;
+      try {
+        payload = buildThemePayloadFromForm();
+      } catch (error) {
+        notify(error?.message || messages.themeInvalid, 'danger');
+        return;
+      }
+
+      themeSaveButton.disabled = true;
+      fetchJson(`/admin/pages/${state.pageId}/wiki/theme`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(data => {
+        state.theme = data || null;
+        const effectiveTheme = state.theme || { ...state.themeDefaults };
+        updateThemeForm(effectiveTheme);
+        notify(messages.themeSaved, 'success');
+      }).catch(error => {
+        console.error('Failed to save theme', error);
+        notify(messages.themeError, 'danger');
+      }).finally(() => {
+        themeSaveButton.disabled = false;
       });
     }
 
@@ -1070,6 +1274,11 @@ if (manager) {
       loadPage(id);
     });
 
+    themeSaveButton.addEventListener('click', saveTheme);
+    themeResetButton.addEventListener('click', () => {
+      state.theme = null;
+      resetThemeForm();
+    });
     settingsForm.addEventListener('submit', saveSettings);
     createButton.addEventListener('click', () => openArticleModal(null));
     uploadButton.addEventListener('click', () => {

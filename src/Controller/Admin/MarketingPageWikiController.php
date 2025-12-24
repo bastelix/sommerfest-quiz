@@ -7,8 +7,11 @@ namespace App\Controller\Admin;
 use App\Domain\MarketingPageWikiArticle;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
+use App\Service\MarketingWikiThemeConfigService;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\FeatureFlags;
+use App\Support\MarketingWikiThemeResolver;
 use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,14 +26,22 @@ final class MarketingPageWikiController
 
     private PageService $pageService;
 
+    private NamespaceResolver $namespaceResolver;
+
+    private MarketingWikiThemeConfigService $themeConfigService;
+
     public function __construct(
         ?MarketingPageWikiSettingsService $settingsService = null,
         ?MarketingPageWikiArticleService $articleService = null,
-        ?PageService $pageService = null
+        ?PageService $pageService = null,
+        ?NamespaceResolver $namespaceResolver = null,
+        ?MarketingWikiThemeConfigService $themeConfigService = null
     ) {
         $this->settingsService = $settingsService ?? new MarketingPageWikiSettingsService();
         $this->articleService = $articleService ?? new MarketingPageWikiArticleService();
         $this->pageService = $pageService ?? new PageService();
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
     }
 
     public function index(Request $request, Response $response, array $args): Response
@@ -45,8 +56,11 @@ final class MarketingPageWikiController
             return $response->withStatus(404);
         }
 
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $settings = $this->settingsService->getSettingsForPage($pageId);
         $articles = $this->articleService->getArticlesForPage($pageId);
+        $theme = $this->themeConfigService->getThemeForSlug($namespace, $page->getSlug());
+        $themeDefaults = MarketingWikiThemeResolver::resolve();
 
         $payload = [
             'page' => [
@@ -60,10 +74,45 @@ final class MarketingPageWikiController
                 'menuLabels' => $settings->getMenuLabels(),
                 'updatedAt' => $settings->getUpdatedAt()?->format(DateTimeImmutable::ATOM),
             ],
+            'theme' => $theme,
+            'themeDefaults' => $themeDefaults,
             'articles' => array_map(fn (MarketingPageWikiArticle $article): array => $this->serializeArticle($article, false), $articles),
         ];
 
         $response->getBody()->write(json_encode($payload));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function updateTheme(Request $request, Response $response, array $args): Response
+    {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
+        $pageId = (int) ($args['pageId'] ?? 0);
+        $page = $this->pageService->findById($pageId);
+        if ($page === null) {
+            return $response->withStatus(404);
+        }
+
+        $body = $this->parseJsonBody($request);
+        if ($body === null) {
+            return $response->withStatus(400);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+
+        try {
+            $themePayload = $this->normalizeThemePayload($body);
+            $theme = $this->themeConfigService->saveThemeForSlug($namespace, $page->getSlug(), $themePayload);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $response->getBody()->write(json_encode($theme));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -76,15 +125,8 @@ final class MarketingPageWikiController
 
         $pageId = (int) ($args['pageId'] ?? 0);
 
-        $body = $request->getParsedBody();
-        $contentType = strtolower($request->getHeaderLine('Content-Type'));
-        if (str_contains($contentType, 'application/json')) {
-            $body = json_decode((string) $request->getBody(), true);
-            if (!is_array($body)) {
-                return $response->withStatus(400);
-            }
-        }
-        if (!is_array($body)) {
+        $body = $this->parseJsonBody($request);
+        if ($body === null) {
             return $response->withStatus(400);
         }
 
@@ -194,6 +236,125 @@ final class MarketingPageWikiController
         $response->getBody()->write(json_encode($this->serializeArticle($article)));
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function parseJsonBody(Request $request): ?array
+    {
+        $body = $request->getParsedBody();
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
+            $body = json_decode((string) $request->getBody(), true);
+            if (!is_array($body)) {
+                return null;
+            }
+        }
+
+        if (!is_array($body)) {
+            return null;
+        }
+
+        return $body;
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     * @return array<string, mixed>
+     */
+    private function normalizeThemePayload(array $body): array
+    {
+        $colors = [];
+        if (isset($body['colors']) && is_array($body['colors'])) {
+            foreach ($body['colors'] as $key => $value) {
+                if (!is_string($key)) {
+                    continue;
+                }
+                $colorKey = trim($key);
+                $colorValue = trim((string) $value);
+                if ($colorKey === '' || $colorValue === '') {
+                    continue;
+                }
+                if (!preg_match('/^#([0-9a-fA-F]{6})$/', $colorValue)) {
+                    throw new RuntimeException('Ungültiger Farbwert.');
+                }
+                $colors[$colorKey] = strtolower($colorValue);
+            }
+        }
+
+        $bodyClasses = $this->normalizeStringList($body['bodyClasses'] ?? null);
+        $stylesheets = $this->normalizeStringList($body['stylesheets'] ?? null);
+
+        foreach ($stylesheets as $stylesheet) {
+            if (!$this->isValidUrl($stylesheet)) {
+                throw new RuntimeException('Ungültige Stylesheet-URL.');
+            }
+        }
+
+        $logoUrl = null;
+        if (array_key_exists('logoUrl', $body)) {
+            $logoCandidate = trim((string) $body['logoUrl']);
+            if ($logoCandidate !== '') {
+                if (!$this->isValidUrl($logoCandidate)) {
+                    throw new RuntimeException('Ungültige Logo-URL.');
+                }
+                $logoUrl = $logoCandidate;
+            }
+        }
+
+        $payload = [];
+        if ($colors !== []) {
+            $payload['colors'] = $colors;
+        }
+        if ($bodyClasses !== []) {
+            $payload['bodyClasses'] = $bodyClasses;
+        }
+        if ($stylesheets !== []) {
+            $payload['stylesheets'] = $stylesheets;
+        }
+        if ($logoUrl !== null) {
+            $payload['logoUrl'] = $logoUrl;
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function normalizeStringList(mixed $value): array
+    {
+        $candidates = [];
+        if (is_string($value)) {
+            $candidates = preg_split('/[\s,\n\r]+/', $value) ?: [];
+        } elseif (is_array($value)) {
+            $candidates = $value;
+        }
+
+        $normalized = [];
+        foreach ($candidates as $candidate) {
+            if (!is_string($candidate)) {
+                continue;
+            }
+            $trimmed = trim($candidate);
+            if ($trimmed === '' || in_array($trimmed, $normalized, true)) {
+                continue;
+            }
+            $normalized[] = $trimmed;
+        }
+
+        return $normalized;
+    }
+
+    private function isValidUrl(string $value): bool
+    {
+        if (filter_var($value, FILTER_VALIDATE_URL) !== false) {
+            return true;
+        }
+
+        if (str_starts_with($value, '/')) {
+            return true;
+        }
+
+        return (bool) preg_match('/^[A-Za-z0-9._\/-]+$/', $value);
     }
 
     public function updateStartDocument(Request $request, Response $response, array $args): Response

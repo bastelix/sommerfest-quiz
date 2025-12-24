@@ -96,4 +96,24 @@ final class ProjectSettingsRepository
         ]);
         $stmt->closeCursor();
     }
+
+    /**
+     * @param array<string, mixed> $wikiThemes
+     */
+    public function updateWikiThemes(string $namespace, array $wikiThemes): void
+    {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO project_settings (namespace, marketing_wiki_themes) '
+            . 'VALUES (?, ?) '
+            . 'ON CONFLICT (namespace) DO UPDATE SET '
+            . 'marketing_wiki_themes = EXCLUDED.marketing_wiki_themes, '
+            . 'updated_at = CURRENT_TIMESTAMP'
+        );
+
+        $stmt->execute([
+            $namespace,
+            json_encode($wikiThemes, JSON_THROW_ON_ERROR),
+        ]);
+        $stmt->closeCursor();
+    }
 }

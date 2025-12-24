@@ -9,7 +9,11 @@ use App\Service\Marketing\Wiki\EditorJsToMarkdown;
 use App\Service\Marketing\Wiki\WikiPublisher;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
+use App\Service\MarketingWikiThemeConfigService;
+use App\Service\NamespaceResolver;
+use App\Service\NamespaceValidator;
 use App\Service\PageService;
+use App\Repository\ProjectSettingsRepository;
 use PDO;
 use PDOException;
 use RecursiveDirectoryIterator;
@@ -236,6 +240,39 @@ final class MarketingPageWikiControllerTest extends TestCase
         $response = $controller->updateStatus($request, new Response(), ['articleId' => $articleId]);
 
         $this->assertSame(400, $response->getStatusCode());
+    }
+
+    public function testUpdateThemePersistsColorsAndAssets(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/theme', [
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=utf-8',
+        ]);
+        $stream = (new StreamFactory())->createStream(json_encode([
+            'colors' => [
+                'headerFrom' => '#123456',
+                'headerTo' => '#654321',
+            ],
+            'bodyClasses' => ['marketing-wiki', 'custom'],
+            'stylesheets' => ['custom.css', 'https://cdn.example.com/theme.css'],
+            'logoUrl' => 'https://example.com/logo.svg',
+        ], JSON_THROW_ON_ERROR));
+        $request = $request->withBody($stream);
+
+        $response = $controller->updateTheme($request, new Response(), ['pageId' => 1]);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('#123456', $payload['colors']['headerFrom']);
+        $this->assertSame('https://example.com/logo.svg', $payload['logoUrl']);
+
+        $row = $pdo->query("SELECT marketing_wiki_themes FROM project_settings WHERE namespace = 'default'")
+            ?->fetch(PDO::FETCH_ASSOC);
+        $this->assertIsArray($row);
+        $stored = json_decode((string) $row['marketing_wiki_themes'], true, 512, JSON_THROW_ON_ERROR);
+        $this->assertArrayHasKey('page', $stored);
     }
 
     public function testUpdateStartDocumentReassignsFlag(): void
@@ -476,6 +513,7 @@ final class MarketingPageWikiControllerTest extends TestCase
             page_id INTEGER PRIMARY KEY,
             is_active INTEGER NOT NULL DEFAULT 0,
             menu_label TEXT NULL,
+            menu_labels TEXT NULL,
             updated_at TEXT NULL
         )');
         $pdo->exec('CREATE TABLE marketing_page_wiki_articles (
@@ -505,11 +543,33 @@ final class MarketingPageWikiControllerTest extends TestCase
         )');
         $pdo->exec('CREATE TABLE pages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            namespace TEXT NOT NULL DEFAULT "default",
             slug TEXT NOT NULL,
             title TEXT NOT NULL,
-            content TEXT NULL
+            content TEXT NULL,
+            type TEXT NOT NULL DEFAULT "custom",
+            parent_id INTEGER NULL,
+            sort_order INTEGER NULL,
+            status TEXT NULL,
+            language TEXT NULL,
+            content_source TEXT NULL
         )');
-        $pdo->exec("INSERT INTO pages (id, slug, title, content) VALUES (1, 'page', 'Page', '')");
+        $pdo->exec('CREATE TABLE project_settings (
+            namespace TEXT PRIMARY KEY,
+            cookie_consent_enabled INTEGER NOT NULL DEFAULT 0,
+            cookie_storage_key TEXT NULL,
+            cookie_banner_text TEXT NULL,
+            cookie_banner_text_de TEXT NULL,
+            cookie_banner_text_en TEXT NULL,
+            cookie_vendor_flags TEXT NULL,
+            privacy_url TEXT NULL,
+            privacy_url_de TEXT NULL,
+            privacy_url_en TEXT NULL,
+            marketing_wiki_themes TEXT NULL,
+            updated_at TEXT NULL
+        )');
+        $pdo->exec("INSERT INTO pages (id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source) "
+            . "VALUES (1, 'default', 'page', 'Page', '', 'custom', NULL, 0, 'published', 'de', NULL)");
 
         return $pdo;
     }
@@ -525,8 +585,10 @@ final class MarketingPageWikiControllerTest extends TestCase
             new WikiPublisher($contentRoot)
         );
         $pageService = new PageService($pdo);
+        $themeConfig = new MarketingWikiThemeConfigService($pdo, new ProjectSettingsRepository($pdo), new NamespaceValidator());
+        $namespaceResolver = new NamespaceResolver();
 
-        return new MarketingPageWikiController($settingsService, $articleService, $pageService);
+        return new MarketingPageWikiController($settingsService, $articleService, $pageService, $namespaceResolver, $themeConfig);
     }
 
     private function createJsonRequest(array $payload): \Psr\Http\Message\ServerRequestInterface
