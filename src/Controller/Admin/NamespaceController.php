@@ -353,10 +353,12 @@ final class NamespaceController
             $availableNamespaces = [];
         }
 
-        if (!array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-        )) {
+        if (
+            !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,

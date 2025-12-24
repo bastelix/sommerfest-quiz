@@ -50,7 +50,7 @@ final class RagChatServiceTest extends TestCase
     public function testAnswerUsesChatResponderForAnswer(): void
     {
         $path = $this->createIndexFile();
-        $responder = new class('Natürlich!') implements ChatResponderInterface {
+        $responder = new class ('Natürlich!') implements ChatResponderInterface {
             public array $lastMessages = [];
             public array $lastContext = [];
 
@@ -86,7 +86,7 @@ final class RagChatServiceTest extends TestCase
     public function testAnswerUsesEnglishMessages(): void
     {
         $path = $this->createIndexFile();
-        $responder = new class('Sounds good!') implements ChatResponderInterface {
+        $responder = new class ('Sounds good!') implements ChatResponderInterface {
             public array $lastMessages = [];
 
             public function __construct(private string $response)
@@ -166,7 +166,7 @@ final class RagChatServiceTest extends TestCase
     public function testAnswerPrefersDomainResults(): void
     {
         $path = $this->createIndexFile();
-        $responder = new class('Natürlich!') implements ChatResponderInterface {
+        $responder = new class ('Natürlich!') implements ChatResponderInterface {
             public function respond(array $messages, array $context): string
             {
                 return 'Natürlich!';
@@ -192,7 +192,7 @@ final class RagChatServiceTest extends TestCase
     public function testAnswerFallsBackToSubdomainAliasWhenHostIncludesParentDomain(): void
     {
         $path = $this->createIndexFile();
-        $responder = new class('Natürlich!') implements ChatResponderInterface {
+        $responder = new class ('Natürlich!') implements ChatResponderInterface {
             public function respond(array $messages, array $context): string
             {
                 return 'Natürlich!';

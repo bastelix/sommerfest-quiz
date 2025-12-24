@@ -14,6 +14,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
+
 use function preg_match;
 use function sprintf;
 use function strip_tags;
@@ -29,8 +30,7 @@ class LandingNewsController
         ?LandingNewsService $news = null,
         ?PageService $pages = null,
         ?NamespaceResolver $namespaceResolver = null
-    )
-    {
+    ) {
         $this->news = $news ?? new LandingNewsService();
         $this->pages = $pages ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();

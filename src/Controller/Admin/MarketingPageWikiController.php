@@ -323,11 +323,13 @@ final class MarketingPageWikiController
             $locale = 'de';
         }
         $status = isset($body['status']) && is_string($body['status']) ? trim($body['status']) : MarketingPageWikiArticle::STATUS_DRAFT;
-        if (!in_array($status, [
+        if (
+            !in_array($status, [
             MarketingPageWikiArticle::STATUS_DRAFT,
             MarketingPageWikiArticle::STATUS_PUBLISHED,
             MarketingPageWikiArticle::STATUS_ARCHIVED,
-        ], true)) {
+            ], true)
+        ) {
             $status = MarketingPageWikiArticle::STATUS_DRAFT;
         }
 

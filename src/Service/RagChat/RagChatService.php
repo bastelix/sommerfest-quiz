@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service\RagChat;
@@ -101,8 +102,7 @@ final class RagChatService implements RagChatServiceInterface
         ?string $domainIndexBase = null,
         ?ChatResponderInterface $chatResponder = null,
         ?callable $settingsLoader = null
-    )
-    {
+    ) {
         $basePath = dirname(__DIR__, 3);
         $this->indexPath = $indexPath ?? $basePath . '/data/rag-chatbot/index.json';
         $this->domainIndexBase = $domainIndexBase ?? $basePath . '/data/rag-chatbot/domains';
@@ -122,8 +122,7 @@ final class RagChatService implements RagChatServiceInterface
         string $question,
         string $locale = self::DEFAULT_LOCALE,
         ?string $domain = null
-    ): RagChatResponse
-    {
+    ): RagChatResponse {
         $question = trim($question);
         if ($question === '') {
             throw new RuntimeException('Question must not be empty.');
@@ -214,8 +213,7 @@ final class RagChatService implements RagChatServiceInterface
         array $context,
         array $messages,
         ?string $logMessage = null
-    ): string
-    {
+    ): string {
         $lines = [$messages['intro']];
         foreach ($context as $index => $item) {
             $number = $index + 1;

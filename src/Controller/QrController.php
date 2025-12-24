@@ -17,7 +17,7 @@ use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Throwable;
-use const JSON_UNESCAPED_SLASHES;
+
 use function array_flip;
 use function array_intersect_key;
 use function crc32;
@@ -29,6 +29,8 @@ use function is_int;
 use function json_encode;
 use function ksort;
 use function sprintf;
+
+use const JSON_UNESCAPED_SLASHES;
 
 /**
  * Generates QR codes with various customization options.

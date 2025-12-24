@@ -31,6 +31,7 @@ use function min;
 use function preg_replace;
 use function sha1;
 use function trim;
+
 use const DATE_ATOM;
 
 /**
@@ -183,8 +184,7 @@ class TeamNameService
         array $tones = [],
         int $randomNameBuffer = 0,
         ?string $locale = null
-    ): array
-    {
+    ): array {
         return $this->reserveWithBuffer(
             $eventId,
             $domains,
@@ -221,8 +221,7 @@ class TeamNameService
         int $randomNameBuffer = 0,
         ?string $locale = null,
         ?string $strategy = null
-    ): array
-    {
+    ): array {
         $reservations = $this->reserveInternal(
             $eventId,
             1,
@@ -261,8 +260,7 @@ class TeamNameService
         array $tones = [],
         int $randomNameBuffer = 0,
         ?string $locale = null
-    ): array
-    {
+    ): array {
         return $this->reserveBatchWithBuffer(
             $eventId,
             $count,
@@ -301,8 +299,7 @@ class TeamNameService
         int $randomNameBuffer = 0,
         ?string $locale = null,
         ?string $strategy = null
-    ): array
-    {
+    ): array {
         return $this->reserveInternal(
             $eventId,
             $count,
@@ -338,8 +335,7 @@ class TeamNameService
         int $randomNameBuffer,
         ?string $locale,
         ?string $strategy
-    ): array
-    {
+    ): array {
         if ($eventId === '') {
             throw new InvalidArgumentException('eventId must not be empty');
         }
@@ -1438,8 +1434,7 @@ class TeamNameService
         string $token,
         bool $fallback,
         int $totalCombinations
-    ): array
-    {
+    ): array {
         $expiresAt = $this->now()->add(new DateInterval('PT' . $this->reservationTtlSeconds . 'S'));
         $active = $this->countActiveAssignments($eventId);
 

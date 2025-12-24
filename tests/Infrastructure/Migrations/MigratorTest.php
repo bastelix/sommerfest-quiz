@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Infrastructure\Migrations;
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 use App\Infrastructure\Migrations\Migrator;
 use PDO;
 use PDOException;

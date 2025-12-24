@@ -7,7 +7,6 @@ namespace Tests\Stubs;
 use App\Service\RagChat\HttpChatResponder;
 use App\Service\TeamNameAiClient;
 
-use const JSON_THROW_ON_ERROR;
 use function array_keys;
 use function array_shift;
 use function array_values;
@@ -17,6 +16,8 @@ use function json_encode;
 use function max;
 use function min;
 use function trim;
+
+use const JSON_THROW_ON_ERROR;
 
 /**
  * In-memory fake for the team name AI client used in tests.

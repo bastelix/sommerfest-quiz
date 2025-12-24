@@ -105,8 +105,10 @@ class Migrator
         }
 
         $normalizedSql = strtolower($sql);
-        if (str_contains($normalizedSql, 'add column onboarding_state') === false ||
-            str_contains($normalizedSql, 'alter table tenants') === false) {
+        if (
+            str_contains($normalizedSql, 'add column onboarding_state') === false ||
+            str_contains($normalizedSql, 'alter table tenants') === false
+        ) {
             return false;
         }
 
@@ -142,8 +144,10 @@ class Migrator
         }
 
         $normalizedSql = strtolower($sql);
-        if (str_contains($normalizedSql, 'add column onboarding_state') === false ||
-            str_contains($normalizedSql, 'alter table tenants') === false) {
+        if (
+            str_contains($normalizedSql, 'add column onboarding_state') === false ||
+            str_contains($normalizedSql, 'alter table tenants') === false
+        ) {
             return false;
         }
 
@@ -186,8 +190,10 @@ class Migrator
         }
 
         $normalizedSql = strtolower($sql);
-        if (str_contains($normalizedSql, 'insert into pages') === false ||
-            str_contains($normalizedSql, 'on conflict (slug)') === false) {
+        if (
+            str_contains($normalizedSql, 'insert into pages') === false ||
+            str_contains($normalizedSql, 'on conflict (slug)') === false
+        ) {
             return $sql;
         }
 

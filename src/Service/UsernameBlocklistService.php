@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Service;
@@ -10,6 +11,7 @@ use PDO;
 use PDOException;
 use RuntimeException;
 use InvalidArgumentException;
+
 use function array_key_exists;
 use function array_map;
 use function ctype_digit;

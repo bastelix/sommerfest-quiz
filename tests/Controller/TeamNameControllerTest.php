@@ -13,8 +13,9 @@ use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
 
-use const JSON_THROW_ON_ERROR;
 use function json_encode;
+
+use const JSON_THROW_ON_ERROR;
 
 final class TeamNameControllerTest extends TestCase
 {

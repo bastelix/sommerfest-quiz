@@ -3199,7 +3199,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->get(
         '/{slug:[a-z0-9-]+}',
-        function (Request $request, Response $response, array $args) use (
+        function (
+            Request $request,
+            Response $response,
+            array $args
+        ) use (
             $resolveMarketingAccess,
             $marketingPageRouteResolver
         ) {

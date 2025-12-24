@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests;
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use App\Infrastructure\Migrations\MigrationScriptRunner;

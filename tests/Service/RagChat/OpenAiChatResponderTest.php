@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Service\RagChat;
@@ -27,6 +28,7 @@ use function random_bytes;
 use function rmdir;
 use function sys_get_temp_dir;
 use function unlink;
+
 use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_UNICODE;
 

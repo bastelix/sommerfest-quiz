@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Support;
@@ -9,6 +10,7 @@ use App\Support\Censor\UsernameCensor;
 use PDO;
 use PDOException;
 use Throwable;
+
 use function array_filter;
 use function array_fill;
 use function array_map;

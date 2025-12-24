@@ -133,8 +133,10 @@ class MailProviderController
         if ($payload['active']) {
             $required = ['smtp_host', 'smtp_user', 'smtp_pass', 'smtp_port'];
             foreach ($required as $field) {
-                if (trim((string) ($payload[$field] ?? '')) === ''
-                    && $settings['mailer_dsn'] === '') {
+                if (
+                    trim((string) ($payload[$field] ?? '')) === ''
+                    && $settings['mailer_dsn'] === ''
+                ) {
                     return $this->jsonError($response, sprintf('Field %s is required.', $field), 422);
                 }
             }
@@ -296,11 +298,13 @@ class MailProviderController
             $availableNamespaces = [];
         }
 
-        if ($accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+        if (
+            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -314,8 +318,10 @@ class MailProviderController
             $availableNamespaces,
             static fn (array $entry): bool => $entry['namespace'] === $namespace
         );
-        if (!$currentNamespaceExists
-            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
+        if (
+            !$currentNamespaceExists
+            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => 'nicht gespeichert',
@@ -327,10 +333,12 @@ class MailProviderController
 
         if ($allowedNamespaces !== []) {
             foreach ($allowedNamespaces as $allowedNamespace) {
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                )) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
                         'label' => 'nicht gespeichert',
