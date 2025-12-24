@@ -109,17 +109,7 @@ final class MarketingMenuService
      */
     public function resolveStartpageSlug(string $namespace, ?string $locale = null): ?string
     {
-        $normalizedLocale = $this->normalizeLocale($locale);
-        $item = $this->fetchStartpageMenuItem($namespace, $normalizedLocale, true);
-        if ($item === null && $normalizedLocale !== 'de') {
-            $item = $this->fetchStartpageMenuItem($namespace, 'de', true);
-        }
-        if ($item === null) {
-            $item = $this->fetchStartpageMenuItem($namespace, $normalizedLocale, false);
-        }
-        if ($item === null && $normalizedLocale !== 'de') {
-            $item = $this->fetchStartpageMenuItem($namespace, 'de', false);
-        }
+        $item = $this->resolveStartpage($namespace, $locale);
         if ($item === null) {
             return null;
         }
@@ -130,6 +120,78 @@ final class MarketingMenuService
         }
 
         return $page->getSlug();
+    }
+
+    public function resolveStartpage(string $namespace, ?string $locale = null, bool $requireExplicit = false): ?MarketingPageMenuItem
+    {
+        $normalizedNamespace = trim($namespace);
+        if ($normalizedNamespace === '') {
+            return null;
+        }
+
+        $normalizedLocale = $this->normalizeLocale($locale);
+        $item = $this->fetchStartpageMenuItem($normalizedNamespace, $normalizedLocale, true);
+        if ($item === null && $normalizedLocale !== 'de') {
+            $item = $this->fetchStartpageMenuItem($normalizedNamespace, 'de', true);
+        }
+
+        if ($item === null && $requireExplicit) {
+            return null;
+        }
+
+        if ($item === null) {
+            $item = $this->fetchStartpageMenuItem($normalizedNamespace, $normalizedLocale, false);
+        }
+        if ($item === null && $normalizedLocale !== 'de') {
+            $item = $this->fetchStartpageMenuItem($normalizedNamespace, 'de', false);
+        }
+
+        return $item;
+    }
+
+    public function markPageAsStartpage(int $pageId, ?string $locale = null): void
+    {
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            throw new RuntimeException('Page not found.');
+        }
+
+        $this->ensureMenuItemsImported($page);
+        $normalizedLocale = $locale !== null ? $this->normalizeLocale($locale) : null;
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->resetStartpages($page->getNamespace());
+
+            $sql = 'UPDATE marketing_page_menu_items SET is_startpage = TRUE WHERE page_id = ? AND namespace = ?';
+            $params = [$pageId, $page->getNamespace()];
+            if ($normalizedLocale !== null) {
+                $sql .= ' AND locale = ?';
+                $params[] = $normalizedLocale;
+            }
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+
+            if ((int) $stmt->rowCount() === 0) {
+                throw new RuntimeException('No menu item found for the selected startpage.');
+            }
+
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            if ($exception instanceof RuntimeException) {
+                throw $exception;
+            }
+
+            throw new RuntimeException('Setting startpage failed.', 0, $exception);
+        }
+    }
+
+    public function clearStartpagesForNamespace(string $namespace): void
+    {
+        $this->resetStartpages($namespace);
     }
 
     /**
@@ -192,7 +254,7 @@ final class MarketingMenuService
 
         try {
             if ($isStartpage) {
-                $this->resetStartpages($page->getNamespace(), $normalizedLocale);
+                $this->resetStartpages($page->getNamespace());
             }
 
             $stmt = $this->pdo->prepare(
@@ -273,7 +335,7 @@ final class MarketingMenuService
 
         try {
             if ($isStartpage) {
-                $this->resetStartpages($existing->getNamespace(), $normalizedLocale);
+                $this->resetStartpages($existing->getNamespace());
             }
 
             $stmt = $this->pdo->prepare(
@@ -632,12 +694,17 @@ final class MarketingMenuService
         return $parent;
     }
 
-    private function resetStartpages(string $namespace, string $locale): void
+    private function resetStartpages(string $namespace): void
     {
+        $normalizedNamespace = trim($namespace);
+        if ($normalizedNamespace === '') {
+            return;
+        }
+
         $stmt = $this->pdo->prepare(
-            'UPDATE marketing_page_menu_items SET is_startpage = FALSE WHERE namespace = ? AND locale = ?'
+            'UPDATE marketing_page_menu_items SET is_startpage = FALSE WHERE namespace = ?'
         );
-        $stmt->execute([$namespace, $locale]);
+        $stmt->execute([$normalizedNamespace]);
     }
 
     /**

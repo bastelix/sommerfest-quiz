@@ -598,6 +598,10 @@ CREATE TABLE IF NOT EXISTS marketing_page_menu_items (
 CREATE INDEX IF NOT EXISTS marketing_page_menu_items_page_locale_idx
     ON marketing_page_menu_items(page_id, namespace, locale, position, id);
 
+CREATE INDEX IF NOT EXISTS marketing_page_menu_items_start_idx
+    ON marketing_page_menu_items(namespace, locale)
+    WHERE is_startpage = TRUE;
+
 CREATE INDEX IF NOT EXISTS marketing_page_menu_items_parent_idx
     ON marketing_page_menu_items(parent_id);
 

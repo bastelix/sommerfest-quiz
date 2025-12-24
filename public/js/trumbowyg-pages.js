@@ -419,6 +419,109 @@ const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
 
 let pageSelectionState = null;
+let currentStartpagePageId = null;
+
+const getStartpageToggle = () => document.querySelector('[data-startpage-toggle]');
+
+const resolveSelectedPageId = () => {
+  const select = document.getElementById('pageContentSelect');
+  const option = select?.selectedOptions?.[0];
+  const raw = option?.dataset.pageId || '';
+  return raw ? Number(raw) : null;
+};
+
+const refreshStartpageOptionState = startpageId => {
+  const select = document.getElementById('pageContentSelect');
+  if (!select) {
+    return;
+  }
+  Array.from(select.options).forEach(option => {
+    const optionId = option.dataset.pageId ? Number(option.dataset.pageId) : null;
+    option.dataset.startpage = optionId && startpageId === optionId ? '1' : '0';
+  });
+};
+
+const syncStartpageToggle = () => {
+  const toggle = getStartpageToggle();
+  if (!toggle) {
+    return;
+  }
+  const selectedId = resolveSelectedPageId();
+  if (!selectedId) {
+    toggle.checked = false;
+    toggle.disabled = true;
+    return;
+  }
+
+  toggle.disabled = false;
+  toggle.checked = currentStartpagePageId === selectedId;
+};
+
+const loadStartpageState = () => {
+  const manager = document.querySelector('[data-page-namespace-manager]');
+  const rawStartpageId = manager?.dataset.startpagePageId || '';
+  currentStartpagePageId = rawStartpageId ? Number(rawStartpageId) : null;
+  refreshStartpageOptionState(currentStartpagePageId);
+  syncStartpageToggle();
+};
+
+const updateStartpage = async (pageId, enabled) => {
+  const response = await apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(pageId)}/startpage`), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      'X-CSRF-Token': window.csrfToken || ''
+    },
+    body: JSON.stringify({ is_startpage: enabled })
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = payload?.error || 'Startseite konnte nicht gespeichert werden.';
+    throw new Error(message);
+  }
+
+  const updatedId = payload?.startpagePageId ? Number(payload.startpagePageId) : null;
+  currentStartpagePageId = Number.isFinite(updatedId) ? updatedId : null;
+  refreshStartpageOptionState(currentStartpagePageId);
+  syncStartpageToggle();
+};
+
+const bindStartpageToggle = () => {
+  const toggle = getStartpageToggle();
+  if (!toggle || toggle.dataset.bound === '1') {
+    return;
+  }
+
+  toggle.addEventListener('change', () => {
+    const selectedId = resolveSelectedPageId();
+    if (!selectedId) {
+      toggle.checked = false;
+      return;
+    }
+
+    const desired = !!toggle.checked;
+    toggle.disabled = true;
+    updateStartpage(selectedId, desired)
+      .then(() => {
+        const message = desired
+          ? 'Startseite für dieses Projekt gesetzt.'
+          : 'Startseite wurde entfernt.';
+        notify(message, 'success');
+      })
+      .catch(error => {
+        notify(error instanceof Error ? error.message : 'Startseite konnte nicht gespeichert werden.', 'danger');
+        syncStartpageToggle();
+      })
+      .finally(() => {
+        toggle.disabled = false;
+      });
+  });
+
+  toggle.dataset.bound = '1';
+  syncStartpageToggle();
+};
 
 const formatPageLabel = page => {
   const title = (page?.title || '').trim();
@@ -644,6 +747,9 @@ const addPageToInterface = page => {
     pageSelectionState.toggleForms(slug);
   }
 
+  refreshStartpageOptionState(currentStartpagePageId);
+  syncStartpageToggle();
+
   document.dispatchEvent(new CustomEvent('marketing-page:created', { detail: page }));
 };
 
@@ -711,6 +817,8 @@ const removePageFromInterface = slug => {
     return;
   }
 
+  const targetOption = Array.from(select.options).find(option => option.value === normalized);
+  const removedPageId = targetOption?.dataset.pageId ? Number(targetOption.dataset.pageId) : null;
   const optionIndex = Array.from(select.options).findIndex(option => option.value === normalized);
   if (optionIndex >= 0) {
     select.remove(optionIndex);
@@ -753,6 +861,13 @@ const removePageFromInterface = slug => {
       });
     }
   }
+
+  if (removedPageId && currentStartpagePageId === removedPageId) {
+    currentStartpagePageId = null;
+  }
+
+  refreshStartpageOptionState(currentStartpagePageId);
+  syncStartpageToggle();
 
   document.dispatchEvent(new CustomEvent('marketing-page:deleted', { detail: { slug: normalized } }));
 };
@@ -821,9 +936,11 @@ export function initPageSelection() {
     select.value = selected;
   }
   toggleForms(selected);
+  syncStartpageToggle();
 
   select.addEventListener('change', () => {
     toggleForms(select.value);
+    syncStartpageToggle();
   });
 
   const state = { select, refresh, toggleForms };
@@ -1827,8 +1944,10 @@ async function initPageTree() {
 }
 
 const initPagesModule = () => {
+  loadStartpageState();
   initPageEditors();
   initPageSelection();
+  bindStartpageToggle();
   initPageCreation();
   initAiPageCreation();
   initPageTransferModal();
