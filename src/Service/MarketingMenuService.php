@@ -172,14 +172,17 @@ final class MarketingMenuService
             throw new RuntimeException('Page not found.');
         }
 
-        $allowedKeys = ['items', 'namespace', 'page'];
+        $allowedKeys = ['items', 'namespace', 'page', 'allowNamespaceMismatch'];
         $unknownKeys = array_diff(array_keys($payload), $allowedKeys);
         if ($unknownKeys !== []) {
             throw new RuntimeException(sprintf('Unerlaubte Felder im Payload: %s.', implode(', ', $unknownKeys)));
         }
 
         $namespace = isset($payload['namespace']) ? trim((string) $payload['namespace']) : $page->getNamespace();
-        if ($namespace !== '' && $namespace !== $page->getNamespace()) {
+        $allowNamespaceMismatch = isset($payload['allowNamespaceMismatch'])
+            ? (bool) $payload['allowNamespaceMismatch']
+            : false;
+        if ($namespace !== '' && $namespace !== $page->getNamespace() && !$allowNamespaceMismatch) {
             throw new RuntimeException('Namespace des Exports stimmt nicht mit der Seite überein.');
         }
 

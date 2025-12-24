@@ -56,6 +56,7 @@ if (manager) {
       { value: 'column', label: 'Spalte' }
     ];
     const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
+    const NAMESPACE_MISMATCH_ERROR = 'Namespace des Exports stimmt nicht mit der Seite überein.';
 
     if (!itemsBody || !addButton) {
       console.warn('Marketing menu manager requirements missing.');
@@ -183,30 +184,50 @@ if (manager) {
         });
     };
 
-    const submitImportPayload = payload => {
+    const submitImportPayload = (payload, options = {}) => {
+      const { allowNamespaceMismatch = false } = options;
+
       if (!state.pageId) {
         setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
         return;
       }
 
+      const body = allowNamespaceMismatch ? { ...payload, allowNamespaceMismatch: true } : payload;
+
       apiFetch(withNamespace(buildPath(state.pageId, '/menu/import')), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       })
         .then(async response => {
           if (response.ok || response.status === 204) {
             return null;
           }
-          const body = await response.json().catch(() => ({}));
-          const message = body?.error || 'Import fehlgeschlagen.';
-          throw new Error(message);
+          const responseBody = await response.json().catch(() => ({}));
+          const message = responseBody?.error || 'Import fehlgeschlagen.';
+          const error = new Error(message);
+          error.responseStatus = response.status;
+          error.responseBody = responseBody;
+          throw error;
         })
         .then(() => {
           setFeedback('Menü importiert.', 'success');
           loadMenuItems(resolveLocale());
         })
         .catch(error => {
+          if (
+            !allowNamespaceMismatch
+            && (error?.message === NAMESPACE_MISMATCH_ERROR
+              || error?.responseBody?.error === NAMESPACE_MISMATCH_ERROR)
+          ) {
+            const confirmImport = window.confirm(
+              'Namespace des Exports stimmt nicht mit der Seite überein. Trotzdem importieren?'
+            );
+            if (confirmImport) {
+              submitImportPayload(payload, { allowNamespaceMismatch: true });
+              return;
+            }
+          }
           console.error('Failed to import marketing menu', error);
           setFeedback(error.message || 'Import fehlgeschlagen.', 'danger');
         });
