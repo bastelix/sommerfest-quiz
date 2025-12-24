@@ -113,7 +113,7 @@ Die Seed-Daten in `src/Infrastructure/Migrations/sqlite-schema.sql` legen initia
 
 ### Marketing-Menüs exportieren und importieren
 
-Im Tab **Seiten → Navigation** lassen sich komplette Marketing-Menüs als JSON sichern oder in andere Umgebungen übernehmen. Der Export-Button lädt die aktuelle Menüstruktur (inklusive Namespace, Locale und Startpage-Flags) für die ausgewählte Seite herunter. Über **Menü importieren** wird eine JSON-Datei ausgewählt; der Server validiert erlaubte Felder und ersetzt die bestehenden Menüeinträge der Seite in einem Schritt. Startpage-Markierungen werden pro Locale übernommen und bisherige Einträge gelöscht, damit keine veralteten Links übrig bleiben.
+Im Tab **Seiten → Navigation** lassen sich komplette Marketing-Menüs als JSON sichern oder in andere Umgebungen übernehmen. Der Export-Button lädt die aktuelle Menüstruktur (inklusive Namespace und Locale) für die ausgewählte Seite herunter. Über **Menü importieren** wird eine JSON-Datei ausgewählt; der Server validiert erlaubte Felder und ersetzt die bestehenden Menüeinträge der Seite in einem Schritt. Die Startseite wird unabhängig von den Menüeinträgen direkt an der Page gespeichert und nicht mehr über das Menü-JSON verwaltet.
 
 ### Namespace as the standard project identifier
 

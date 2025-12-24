@@ -10,7 +10,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\EventService;
-use App\Service\MarketingMenuService;
+use App\Service\PageService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
 use App\Service\ResultService;
@@ -34,7 +34,7 @@ class HomeController
         }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
-        $menuService = new MarketingMenuService($pdo);
+        $pageService = new PageService($pdo);
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
 
         /** @var array<string, string> $params Query string values */
@@ -73,7 +73,7 @@ class HomeController
             }
 
             $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
-            $startpageSlug = $menuService->resolveStartpageSlug($namespace, $locale);
+            $startpageSlug = $pageService->resolveStartpageSlug($namespace, $locale);
             $startpageBaseSlug = $startpageSlug !== null
                 ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)
                 : '';

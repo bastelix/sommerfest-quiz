@@ -137,7 +137,7 @@ class PageService
      */
     public function getAll(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
             . 'FROM pages ORDER BY title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -167,7 +167,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
             . 'FROM pages WHERE namespace = ? ORDER BY title'
         );
         $stmt->execute([$normalized]);
@@ -192,7 +192,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
             . 'FROM pages WHERE id = ?'
         );
         $stmt->execute([$id]);
@@ -216,7 +216,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
             . 'FROM pages WHERE namespace = ? AND slug = ?'
         );
         $stmt->execute([$normalizedNamespace, $normalized]);
@@ -226,6 +226,76 @@ class PageService
         }
 
         return $this->mapRowToPage($row);
+    }
+
+    public function resolveStartpageSlug(string $namespace, ?string $locale = null): ?string
+    {
+        $page = $this->resolveStartpage($namespace, $locale);
+
+        return $page?->getSlug();
+    }
+
+    public function resolveStartpage(string $namespace, ?string $locale = null): ?Page
+    {
+        $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
+        if ($normalizedNamespace === '') {
+            return null;
+        }
+
+        $normalizedLocale = $this->normalizeLocale($locale);
+        if ($normalizedLocale !== null) {
+            $page = $this->fetchStartpage($normalizedNamespace, $normalizedLocale);
+            if ($page === null && $normalizedLocale !== 'de') {
+                $page = $this->fetchStartpage($normalizedNamespace, 'de');
+            }
+
+            if ($page !== null) {
+                return $page;
+            }
+        }
+
+        return $this->fetchStartpage($normalizedNamespace, null);
+    }
+
+    public function markAsStartpage(int $pageId, ?string $expectedNamespace = null): void
+    {
+        $page = $this->findById($pageId);
+        if ($page === null) {
+            throw new RuntimeException('Page not found.');
+        }
+
+        if ($expectedNamespace !== null && $page->getNamespace() !== $expectedNamespace) {
+            throw new RuntimeException('Startpage namespace does not match current domain.');
+        }
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->clearStartpageForNamespace($page->getNamespace());
+
+            $stmt = $this->pdo->prepare('UPDATE pages SET is_startpage = TRUE WHERE id = ?');
+            $stmt->execute([$pageId]);
+
+            if ((int) $stmt->rowCount() === 0) {
+                throw new RuntimeException('Startseite konnte nicht gesetzt werden.');
+            }
+
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Die Startseite konnte nicht gespeichert werden.', 0, $exception);
+        }
+    }
+
+    public function clearStartpageForNamespace(string $namespace): void
+    {
+        $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
+        if ($normalizedNamespace === '') {
+            return;
+        }
+
+        $stmt = $this->pdo->prepare('UPDATE pages SET is_startpage = FALSE WHERE namespace = ?');
+        $stmt->execute([$normalizedNamespace]);
     }
 
     /**
@@ -466,7 +536,7 @@ class PageService
      */
     public function getAllForTree(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
             . 'FROM pages ORDER BY namespace, parent_id, sort_order, title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -504,6 +574,7 @@ class PageService
         $status = isset($row['status']) ? (string) $row['status'] : null;
         $language = isset($row['language']) ? (string) $row['language'] : null;
         $contentSource = isset($row['content_source']) ? (string) $row['content_source'] : null;
+        $isStartpage = isset($row['is_startpage']) ? (bool) $row['is_startpage'] : false;
 
         if ($type === '') {
             $type = null;
@@ -517,6 +588,9 @@ class PageService
         if ($contentSource === '') {
             $contentSource = null;
         }
+        if (!is_bool($isStartpage)) {
+            $isStartpage = (bool) $isStartpage;
+        }
 
         return new Page(
             $id,
@@ -529,7 +603,8 @@ class PageService
             $sortOrder,
             $status,
             $language,
-            $contentSource
+            $contentSource,
+            $isStartpage
         );
     }
 
@@ -547,6 +622,39 @@ class PageService
         }
 
         return ((int) $stmt->fetchColumn()) + 1;
+    }
+
+    private function fetchStartpage(string $namespace, ?string $locale): ?Page
+    {
+        $sql = 'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source,'
+            . ' is_startpage FROM pages WHERE namespace = ? AND is_startpage = TRUE';
+        $params = [$namespace];
+        if ($locale !== null) {
+            $sql .= ' AND language = ?';
+            $params[] = $locale;
+        }
+
+        $sql .= ' ORDER BY id LIMIT 1';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+
+        return $this->mapRowToPage($row);
+    }
+
+    private function normalizeLocale(?string $locale): ?string
+    {
+        if ($locale === null) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($locale));
+
+        return $normalized !== '' ? $normalized : null;
     }
 
     private function normalizeNamespace(string $namespace): string {

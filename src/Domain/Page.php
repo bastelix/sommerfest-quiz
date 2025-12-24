@@ -33,6 +33,8 @@ class Page implements JsonSerializable
 
     private ?string $contentSource;
 
+    private bool $isStartpage;
+
     public function __construct(
         int $id,
         string $namespace,
@@ -44,7 +46,8 @@ class Page implements JsonSerializable
         int $sortOrder,
         ?string $status,
         ?string $language,
-        ?string $contentSource
+        ?string $contentSource,
+        bool $isStartpage
     ) {
         $this->id = $id;
         $this->namespace = $namespace;
@@ -57,6 +60,7 @@ class Page implements JsonSerializable
         $this->status = $status;
         $this->language = $language;
         $this->contentSource = $contentSource;
+        $this->isStartpage = $isStartpage;
     }
 
     public function getId(): int {
@@ -103,6 +107,11 @@ class Page implements JsonSerializable
         return $this->contentSource;
     }
 
+    public function isStartpage(): bool
+    {
+        return $this->isStartpage;
+    }
+
     #[\ReturnTypeWillChange]
     public function jsonSerialize(): array {
         return [
@@ -117,6 +126,7 @@ class Page implements JsonSerializable
             'status' => $this->status,
             'language' => $this->language,
             'content_source' => $this->contentSource,
+            'is_startpage' => $this->isStartpage,
         ];
     }
 }

@@ -108,7 +108,7 @@ class ProjectPagesController
         );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
         $locale = (string) ($request->getAttribute('lang') ?? 'de');
-        $startpageItem = $this->marketingMenuService->resolveStartpage($namespace, $locale, true);
+        $startpagePage = $this->pageService->resolveStartpage($namespace, $locale);
 
         return $view->render($response, 'admin/pages/content.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -123,7 +123,7 @@ class ProjectPagesController
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),
             'prompt_templates' => $this->promptTemplateService->list(),
-            'startpage_page_id' => $startpageItem?->getPageId(),
+            'startpage_page_id' => $startpagePage?->getId(),
             'domainNamespace' => $domainNamespace,
             'hasDomainNamespace' => $hasDomainNamespace,
         ]);
@@ -248,12 +248,12 @@ class ProjectPagesController
 
         try {
             if ($isStartpage) {
-                $this->marketingMenuService->markPageAsStartpage($pageId, null, $domainNamespace);
+                $this->pageService->markAsStartpage($pageId, $domainNamespace);
             } else {
-                $this->marketingMenuService->clearStartpagesForNamespace($namespace);
+                $this->pageService->clearStartpageForNamespace($namespace);
             }
 
-            $current = $this->marketingMenuService->resolveStartpage($namespace, null, true);
+            $current = $this->pageService->resolveStartpage($namespace, null);
         } catch (\RuntimeException $exception) {
             $response->getBody()->write(json_encode([
                 'error' => $exception->getMessage(),
@@ -265,7 +265,7 @@ class ProjectPagesController
         }
 
         $response->getBody()->write(json_encode([
-            'startpagePageId' => $current?->getPageId(),
+            'startpagePageId' => $current?->getId(),
         ], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
