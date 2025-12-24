@@ -410,6 +410,12 @@ body.uk-padding {
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
+.qr-nav-accordion-title::before {
+  display: none;
+  content: none;
+  padding: 0;
+  margin: 0;
+}
 .qr-nav-accordion-label { font-size: 0.95rem; }
 .qr-nav-accordion-chevron { transition: transform 0.2s ease-in-out; }
 .qr-nav-accordion .uk-accordion-content { padding: 2px 0 10px 0; }
