@@ -20,9 +20,18 @@ class LandingNewsServiceTest extends TestCase
         $pagesTableSql = <<<'SQL'
 CREATE TABLE pages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    namespace TEXT NOT NULL DEFAULT 'default',
     slug TEXT NOT NULL,
     title TEXT NOT NULL,
-    content TEXT NOT NULL
+    content TEXT NOT NULL,
+    type TEXT,
+    parent_id INTEGER,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    status TEXT,
+    language TEXT,
+    content_source TEXT,
+    startpage_domain TEXT,
+    is_startpage INTEGER NOT NULL DEFAULT 0
 );
 SQL;
         $this->pdo->exec($pagesTableSql);

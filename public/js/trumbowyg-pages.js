@@ -420,8 +420,11 @@ const withBase = path => `${basePath}${path}`;
 
 let pageSelectionState = null;
 let currentStartpagePageId = null;
+let startpageMap = {};
+let selectedStartpageDomain = '';
 
 const getStartpageToggle = () => document.querySelector('[data-startpage-toggle]');
+const getDomainSelect = () => document.querySelector('[data-startpage-domain]');
 const isStartpageDisabled = () => getStartpageToggle()?.dataset.startpageDisabled === '1';
 
 const resolveSelectedPageId = () => {
@@ -429,6 +432,34 @@ const resolveSelectedPageId = () => {
   const option = select?.selectedOptions?.[0];
   const raw = option?.dataset.pageId || '';
   return raw ? Number(raw) : null;
+};
+
+const normalizeStartpageMap = raw => {
+  if (typeof raw !== 'string' || raw.trim() === '') {
+    return {};
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') {
+      return {};
+    }
+    return parsed;
+  } catch (error) {
+    if (window.console && typeof window.console.warn === 'function') {
+      window.console.warn('Failed to parse startpage map', error);
+    }
+    return {};
+  }
+};
+
+const resolveStartpageIdForDomain = domain => {
+  const key = typeof domain === 'string' ? domain : '';
+  const value = startpageMap[key];
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : null;
 };
 
 const refreshStartpageOptionState = startpageId => {
@@ -467,12 +498,48 @@ const syncStartpageToggle = () => {
 const loadStartpageState = () => {
   const manager = document.querySelector('[data-page-namespace-manager]');
   const rawStartpageId = manager?.dataset.startpagePageId || '';
-  currentStartpagePageId = rawStartpageId ? Number(rawStartpageId) : null;
+  const rawMap = manager?.dataset.startpageMap || '';
+  startpageMap = normalizeStartpageMap(rawMap);
+  selectedStartpageDomain = manager?.dataset.selectedDomain || '';
+
+  if (startpageMap === null || typeof startpageMap !== 'object') {
+    startpageMap = {};
+  }
+
+  if (!Object.keys(startpageMap).length && rawStartpageId) {
+    const numeric = Number(rawStartpageId);
+    startpageMap[''] = Number.isFinite(numeric) ? numeric : null;
+  }
+
+  currentStartpagePageId = resolveStartpageIdForDomain(selectedStartpageDomain);
+
+  if (currentStartpagePageId === null && rawStartpageId) {
+    const numeric = Number(rawStartpageId);
+    currentStartpagePageId = Number.isFinite(numeric) ? numeric : null;
+  }
+
   refreshStartpageOptionState(currentStartpagePageId);
   syncStartpageToggle();
 };
 
+const bindStartpageDomainSelect = () => {
+  const select = getDomainSelect();
+  if (!select || select.dataset.bound === '1') {
+    return;
+  }
+
+  select.addEventListener('change', () => {
+    selectedStartpageDomain = select.value || '';
+    currentStartpagePageId = resolveStartpageIdForDomain(selectedStartpageDomain);
+    refreshStartpageOptionState(currentStartpagePageId);
+    syncStartpageToggle();
+  });
+
+  select.dataset.bound = '1';
+};
+
 const updateStartpage = async (pageId, enabled) => {
+  const domain = selectedStartpageDomain || '';
   const response = await apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(pageId)}/startpage`), {
     method: 'POST',
     headers: {
@@ -480,7 +547,7 @@ const updateStartpage = async (pageId, enabled) => {
       Accept: 'application/json',
       'X-CSRF-Token': window.csrfToken || ''
     },
-    body: JSON.stringify({ is_startpage: enabled })
+    body: JSON.stringify({ is_startpage: enabled, domain })
   });
 
   const payload = await response.json().catch(() => ({}));
@@ -491,6 +558,7 @@ const updateStartpage = async (pageId, enabled) => {
 
   const updatedId = payload?.startpagePageId ? Number(payload.startpagePageId) : null;
   currentStartpagePageId = Number.isFinite(updatedId) ? updatedId : null;
+  startpageMap[domain] = currentStartpagePageId;
   refreshStartpageOptionState(currentStartpagePageId);
   syncStartpageToggle();
 };
@@ -518,8 +586,8 @@ const bindStartpageToggle = () => {
         notify(message, 'success');
       })
       .catch(error => {
+        toggle.checked = !desired;
         notify(error instanceof Error ? error.message : 'Startseite konnte nicht gespeichert werden.', 'danger');
-        syncStartpageToggle();
       })
       .finally(() => {
         toggle.disabled = false;
@@ -529,7 +597,6 @@ const bindStartpageToggle = () => {
   toggle.dataset.bound = '1';
   syncStartpageToggle();
 };
-
 const formatPageLabel = page => {
   const title = (page?.title || '').trim();
   if (title) {
@@ -1951,6 +2018,7 @@ async function initPageTree() {
 }
 
 const initPagesModule = () => {
+  bindStartpageDomainSelect();
   loadStartpageState();
   initPageEditors();
   initPageSelection();

@@ -35,7 +35,10 @@ class HomeController
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
         $pageService = new PageService($pdo);
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $namespaceResolver = new NamespaceResolver();
+        $namespaceContext = $namespaceResolver->resolve($request);
+        $namespace = $namespaceContext->getNamespace();
+        $host = $namespaceContext->getHost();
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -73,7 +76,7 @@ class HomeController
             }
 
             $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
-            $startpageSlug = $pageService->resolveStartpageSlug($namespace, $locale);
+            $startpageSlug = $pageService->resolveStartpageSlug($namespace, $locale, $host);
             $startpageBaseSlug = $startpageSlug !== null
                 ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)
                 : '';

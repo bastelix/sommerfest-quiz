@@ -205,6 +205,27 @@
               Dieser Bereich ist deaktiviert, weil kein Domain-Namespace erkannt wurde.
             </div>
           {% endif %}
+          <div class="uk-margin-small-top">
+            <label class="uk-form-label" for="startpageDomainSelect">Domain</label>
+            <div class="uk-form-controls">
+              <select id="startpageDomainSelect" class="uk-select" data-startpage-domain {% if not hasDomainNamespace %}disabled{% endif %}>
+                {% for domain in startpage_domain_options|default([]) %}
+                  {% set value = domain.value|default('') %}
+                  {% set label = domain.label|default(value) %}
+                  {% set inactive = domain.is_active is defined and not domain.is_active %}
+                  {% set unassigned = domain.is_unassigned is defined and domain.is_unassigned %}
+                  <option value="{{ value|e('html_attr') }}" {% if value == startpage_selected_domain %}selected{% endif %}>
+                    {{ label }}
+                    {% if inactive %} – inaktiv{% endif %}
+                    {% if unassigned %} – nicht zugewiesen{% endif %}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+            <p class="uk-text-meta uk-margin-small-top">
+              Wähle die Domain, für die diese Startseite gelten soll. Der Namespace-Fallback gilt für alle Domains ohne eigene Startseite.
+            </p>
+          </div>
           <div class="uk-form-controls uk-margin-small-top">
             <label class="uk-flex uk-flex-middle uk-flex-wrap">
               <input
@@ -224,6 +245,8 @@
           data-page-namespace-manager
           data-pages="{{ page_namespace_list|json_encode|e('html_attr') }}"
           data-startpage-page-id="{{ startpage_page_id|default('') }}"
+          data-startpage-map="{{ startpage_map|json_encode|e('html_attr') }}"
+          data-selected-domain="{{ startpage_selected_domain|e('html_attr') }}"
           data-page-select-id="pageContentSelect"
           data-page-select-key="slug"
           data-page-selection-param="pageSlug"

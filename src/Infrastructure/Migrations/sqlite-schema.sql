@@ -485,10 +485,16 @@ CREATE TABLE IF NOT EXISTS pages (
     status TEXT,
     language TEXT,
     content_source TEXT,
+    is_startpage INTEGER NOT NULL DEFAULT 0,
+    startpage_domain TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(namespace, slug)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS pages_namespace_domain_startpage_idx
+    ON pages (namespace, COALESCE(startpage_domain, ''))
+    WHERE is_startpage = TRUE;
 
 CREATE TABLE IF NOT EXISTS page_ai_jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Domain\Page;
 use App\Infrastructure\Database;
+use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use LogicException;
 use PDO;
@@ -137,7 +138,7 @@ class PageService
      */
     public function getAll(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
             . 'FROM pages ORDER BY title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -167,7 +168,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? ORDER BY title'
         );
         $stmt->execute([$normalized]);
@@ -192,7 +193,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
             . 'FROM pages WHERE id = ?'
         );
         $stmt->execute([$id]);
@@ -216,7 +217,7 @@ class PageService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
             . 'FROM pages WHERE namespace = ? AND slug = ?'
         );
         $stmt->execute([$normalizedNamespace, $normalized]);
@@ -228,14 +229,14 @@ class PageService
         return $this->mapRowToPage($row);
     }
 
-    public function resolveStartpageSlug(string $namespace, ?string $locale = null): ?string
+    public function resolveStartpageSlug(string $namespace, ?string $locale = null, ?string $domain = null): ?string
     {
-        $page = $this->resolveStartpage($namespace, $locale);
+        $page = $this->resolveStartpage($namespace, $locale, $domain);
 
         return $page?->getSlug();
     }
 
-    public function resolveStartpage(string $namespace, ?string $locale = null): ?Page
+    public function resolveStartpage(string $namespace, ?string $locale = null, ?string $domain = null): ?Page
     {
         $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
         if ($normalizedNamespace === '') {
@@ -243,10 +244,11 @@ class PageService
         }
 
         $normalizedLocale = $this->normalizeLocale($locale);
+        $normalizedDomain = $this->normalizeStartpageDomain($domain);
         if ($normalizedLocale !== null) {
-            $page = $this->fetchStartpage($normalizedNamespace, $normalizedLocale);
+            $page = $this->fetchStartpage($normalizedNamespace, $normalizedLocale, $normalizedDomain);
             if ($page === null && $normalizedLocale !== 'de') {
-                $page = $this->fetchStartpage($normalizedNamespace, 'de');
+                $page = $this->fetchStartpage($normalizedNamespace, 'de', $normalizedDomain);
             }
 
             if ($page !== null) {
@@ -254,27 +256,33 @@ class PageService
             }
         }
 
-        return $this->fetchStartpage($normalizedNamespace, null);
+        return $this->fetchStartpage($normalizedNamespace, null, $normalizedDomain);
     }
 
-    public function markAsStartpage(int $pageId, ?string $expectedNamespace = null): void
+    public function markAsStartpage(int $pageId, ?string $expectedNamespace = null, ?string $domain = null): void
     {
         $page = $this->findById($pageId);
         if ($page === null) {
             throw new RuntimeException('Page not found.');
         }
 
-        if ($expectedNamespace !== null && $page->getNamespace() !== $expectedNamespace) {
+        $normalizedExpectedNamespace = $expectedNamespace !== null
+            ? $this->normalizeNamespaceInput($expectedNamespace)
+            : null;
+
+        if ($normalizedExpectedNamespace !== null && $page->getNamespace() !== $normalizedExpectedNamespace) {
             throw new RuntimeException('Startpage namespace does not match current domain.');
         }
+
+        $normalizedDomain = $this->normalizeStartpageDomain($domain);
 
         $this->pdo->beginTransaction();
 
         try {
-            $this->clearStartpageForNamespace($page->getNamespace());
+            $this->clearStartpageForNamespace($page->getNamespace(), $normalizedDomain);
 
-            $stmt = $this->pdo->prepare('UPDATE pages SET is_startpage = TRUE WHERE id = ?');
-            $stmt->execute([$pageId]);
+            $stmt = $this->pdo->prepare('UPDATE pages SET is_startpage = TRUE, startpage_domain = ? WHERE id = ?');
+            $stmt->execute([$normalizedDomain, $pageId]);
 
             if ((int) $stmt->rowCount() === 0) {
                 throw new RuntimeException('Startseite konnte nicht gesetzt werden.');
@@ -287,15 +295,27 @@ class PageService
         }
     }
 
-    public function clearStartpageForNamespace(string $namespace): void
+    public function clearStartpageForNamespace(string $namespace, ?string $domain = null): void
     {
         $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
         if ($normalizedNamespace === '') {
             return;
         }
 
-        $stmt = $this->pdo->prepare('UPDATE pages SET is_startpage = FALSE WHERE namespace = ?');
-        $stmt->execute([$normalizedNamespace]);
+        $normalizedDomain = $this->normalizeStartpageDomain($domain);
+
+        $sql = 'UPDATE pages SET is_startpage = FALSE, startpage_domain = NULL WHERE namespace = ?';
+        $params = [$normalizedNamespace];
+
+        if ($normalizedDomain === null) {
+            $sql .= ' AND startpage_domain IS NULL';
+        } else {
+            $sql .= ' AND startpage_domain = ?';
+            $params[] = $normalizedDomain;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
     }
 
     /**
@@ -536,7 +556,7 @@ class PageService
      */
     public function getAllForTree(): array {
         $stmt = $this->pdo->query(
-            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, is_startpage '
+            'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, startpage_domain, is_startpage '
             . 'FROM pages ORDER BY namespace, parent_id, sort_order, title'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -574,6 +594,7 @@ class PageService
         $status = isset($row['status']) ? (string) $row['status'] : null;
         $language = isset($row['language']) ? (string) $row['language'] : null;
         $contentSource = isset($row['content_source']) ? (string) $row['content_source'] : null;
+        $startpageDomain = isset($row['startpage_domain']) ? (string) $row['startpage_domain'] : null;
         $isStartpage = isset($row['is_startpage']) ? (bool) $row['is_startpage'] : false;
 
         if ($type === '') {
@@ -587,6 +608,9 @@ class PageService
         }
         if ($contentSource === '') {
             $contentSource = null;
+        }
+        if ($startpageDomain !== null && trim($startpageDomain) === '') {
+            $startpageDomain = null;
         }
         if (!is_bool($isStartpage)) {
             $isStartpage = (bool) $isStartpage;
@@ -604,6 +628,7 @@ class PageService
             $status,
             $language,
             $contentSource,
+            $startpageDomain,
             $isStartpage
         );
     }
@@ -624,11 +649,32 @@ class PageService
         return ((int) $stmt->fetchColumn()) + 1;
     }
 
-    private function fetchStartpage(string $namespace, ?string $locale): ?Page
+    private function fetchStartpage(string $namespace, ?string $locale, ?string $domain): ?Page
+    {
+        $domains = $this->buildStartpageDomains($domain);
+        foreach ($domains as $candidateDomain) {
+            $page = $this->fetchStartpageForDomain($namespace, $locale, $candidateDomain);
+            if ($page !== null) {
+                return $page;
+            }
+        }
+
+        return null;
+    }
+
+    private function fetchStartpageForDomain(string $namespace, ?string $locale, ?string $domain): ?Page
     {
         $sql = 'SELECT id, namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source,'
-            . ' is_startpage FROM pages WHERE namespace = ? AND is_startpage = TRUE';
+            . ' startpage_domain, is_startpage FROM pages WHERE namespace = ? AND is_startpage = TRUE';
         $params = [$namespace];
+
+        if ($domain === null) {
+            $sql .= ' AND startpage_domain IS NULL';
+        } else {
+            $sql .= ' AND startpage_domain = ?';
+            $params[] = $domain;
+        }
+
         if ($locale !== null) {
             $sql .= ' AND language = ?';
             $params[] = $locale;
@@ -653,6 +699,31 @@ class PageService
         }
 
         $normalized = strtolower(trim($locale));
+
+        return $normalized !== '' ? $normalized : null;
+    }
+
+    /**
+     * @return list<?string>
+     */
+    private function buildStartpageDomains(?string $domain): array
+    {
+        $normalized = $this->normalizeStartpageDomain($domain);
+
+        if ($normalized === null) {
+            return [null];
+        }
+
+        return [$normalized, null];
+    }
+
+    private function normalizeStartpageDomain(?string $domain): ?string
+    {
+        if ($domain === null) {
+            return null;
+        }
+
+        $normalized = DomainNameHelper::normalize((string) $domain, stripAdmin: false);
 
         return $normalized !== '' ? $normalized : null;
     }
