@@ -42,6 +42,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\DomainService;
 use App\Service\DomainContactTemplateService;
+use App\Service\CertificateProvisioningService;
 use App\Service\PromptTemplateService;
 use App\Service\PageService;
 use App\Service\NamespaceService;
@@ -529,6 +530,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             );
             DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
         }
+        $certificateProvisioningService = new CertificateProvisioningService($marketingDomainProvider);
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
@@ -623,7 +625,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute(
                 'domainController',
-                new DomainController($domainService)
+                new DomainController($domainService, $certificateProvisioningService)
             )
             ->withAttribute(
                 'domainContactTemplateController',

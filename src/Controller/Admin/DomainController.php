@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\DomainService;
+use App\Service\CertificateProvisioningService;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -15,10 +16,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DomainController
 {
     private DomainService $domainService;
+    private ?CertificateProvisioningService $certificateProvisioningService;
 
-    public function __construct(DomainService $domainService)
+    public function __construct(
+        DomainService $domainService,
+        ?CertificateProvisioningService $certificateProvisioningService = null
+    )
     {
         $this->domainService = $domainService;
+        $this->certificateProvisioningService = $certificateProvisioningService;
     }
 
     public function index(Request $request, Response $response): Response
@@ -50,6 +56,13 @@ class DomainController
             return $this->jsonError($response, $exception->getMessage(), 422);
         }
 
+        if (
+            $this->certificateProvisioningService !== null
+            && ($domain['is_active'] ?? false)
+        ) {
+            $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
+        }
+
         $response->getBody()->write(json_encode([
             'status' => 'ok',
             'domain' => $domain,
@@ -75,6 +88,11 @@ class DomainController
         $namespace = array_key_exists('namespace', $data) ? (string) $data['namespace'] : null;
         $isActive = $this->normalizeBool($data['is_active'] ?? true);
 
+        $existing = $this->domainService->getDomainById($id);
+        if ($existing === null) {
+            return $response->withStatus(404);
+        }
+
         try {
             $domain = $this->domainService->updateDomain($id, $host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
@@ -83,6 +101,14 @@ class DomainController
 
         if ($domain === null) {
             return $response->withStatus(404);
+        }
+
+        if (
+            $this->certificateProvisioningService !== null
+            && !$existing['is_active']
+            && ($domain['is_active'] ?? false)
+        ) {
+            $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
         }
 
         $response->getBody()->write(json_encode([
