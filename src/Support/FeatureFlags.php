@@ -42,12 +42,12 @@ final class FeatureFlags
     {
         $value = getenv(self::FEATURE_MARKETING_NAV_TREE);
         if ($value === false) {
-            return false;
+            return true;
         }
 
         $normalized = strtolower(trim((string) $value));
         if ($normalized === '') {
-            return false;
+            return true;
         }
 
         $truthy = ['1', 'true', 'on', 'yes'];
@@ -62,6 +62,6 @@ final class FeatureFlags
 
         $parsed = filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
 
-        return $parsed ?? false;
+        return $parsed ?? true;
     }
 }
