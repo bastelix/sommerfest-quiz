@@ -92,13 +92,6 @@
   { href: basePath ~ '/admin/landing-news', icon: 'commenting', text: t('tab_landing_news'), activePrefixes: [basePath ~ '/admin/landing-news'] },
   { href: basePath ~ '/admin/rag-chat', icon: 'comments', text: t('tab_rag_chat'), activePrefixes: [basePath ~ '/admin/rag-chat'] },
   { href: basePath ~ '/admin/newsletter', icon: 'mail', text: t('tab_newsletter'), activePrefixes: [basePath ~ '/admin/newsletter'] },
-  {
-    href: basePath ~ '/admin/management',
-    icon: 'home',
-    text: t('heading_homepage'),
-    anchor: '#domains',
-    activePrefixes: [basePath ~ '/admin/management']
-  },
 ] %}
 {% set projectNamespaceOptions = available_namespaces|default([]) %}
 {% if projectNamespaceOptions is empty %}
