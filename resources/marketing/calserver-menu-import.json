@@ -1,5 +1,6 @@
 {
   "namespace": "default",
+  "allowNamespaceMismatch": true,
   "page": {
     "slug": "calserver",
     "namespace": "default"
