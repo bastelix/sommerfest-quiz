@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Domain;
@@ -28,8 +27,7 @@ final class MarketingPageWikiSettings
         ?string $menuLabel,
         array $menuLabels,
         ?DateTimeImmutable $updatedAt
-    )
-    {
+    ) {
         $this->pageId = $pageId;
         $this->active = $active;
         $this->menuLabel = $menuLabel !== null && $menuLabel !== '' ? $menuLabel : null;

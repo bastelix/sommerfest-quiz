@@ -237,10 +237,12 @@ class ConfigValidator
         );
 
         // puzzleWord
-        $config['puzzleWord'] = trim((string)($data['puzzleWord'] ?? self::DEFAULTS['puzzleWord']));
-        $config['puzzleFeedback'] = trim((string)($data['puzzleFeedback'] ?? self::DEFAULTS['puzzleFeedback']));
+        $config['puzzleWord'] = trim((string) ($data['puzzleWord'] ?? self::DEFAULTS['puzzleWord']));
+        $config['puzzleFeedback'] = trim((string) ($data['puzzleFeedback'] ?? self::DEFAULTS['puzzleFeedback']));
 
-        $config['dashboardModules'] = $this->normalizeDashboardModules($data['dashboardModules'] ?? self::DEFAULTS['dashboardModules']);
+        $config['dashboardModules'] = $this->normalizeDashboardModules(
+            $data['dashboardModules'] ?? self::DEFAULTS['dashboardModules']
+        );
 
         $sponsorModulesRaw = $data['dashboardSponsorModules'] ?? self::DEFAULTS['dashboardSponsorModules'];
         if ($sponsorModulesRaw === null) {
@@ -323,12 +325,14 @@ class ConfigValidator
         }
 
         $dates = [
-            'dashboardVisibilityStart' => $data['dashboardVisibilityStart'] ?? self::DEFAULTS['dashboardVisibilityStart'],
-            'dashboardVisibilityEnd' => $data['dashboardVisibilityEnd'] ?? self::DEFAULTS['dashboardVisibilityEnd'],
+            'dashboardVisibilityStart' => $data['dashboardVisibilityStart']
+                ?? self::DEFAULTS['dashboardVisibilityStart'],
+            'dashboardVisibilityEnd' => $data['dashboardVisibilityEnd']
+                ?? self::DEFAULTS['dashboardVisibilityEnd'],
         ];
         $parsed = [];
         foreach ($dates as $key => $rawValue) {
-            $raw = trim((string)$rawValue);
+            $raw = trim((string) $rawValue);
             if ($raw === '') {
                 $config[$key] = '';
                 $parsed[$key] = null;
@@ -539,7 +543,12 @@ class ConfigValidator
     private function defaultDashboardModules(): array {
         return [
             ['id' => 'header', 'enabled' => true, 'layout' => 'full'],
-            ['id' => 'pointsLeader', 'enabled' => true, 'layout' => 'wide', 'options' => ['title' => 'Platzierungen', 'limit' => 5]],
+            [
+                'id' => 'pointsLeader',
+                'enabled' => true,
+                'layout' => 'wide',
+                'options' => ['title' => 'Platzierungen', 'limit' => 5],
+            ],
             [
                 'id' => 'rankings',
                 'enabled' => true,
@@ -566,11 +575,36 @@ class ConfigValidator
                     'showPlacement' => false,
                 ],
             ],
-            ['id' => 'wrongAnswers', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Falsch beantwortete Fragen']],
-            ['id' => 'infoBanner', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Hinweise']],
-            ['id' => 'rankingQr', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Ranking-QR']],
-            ['id' => 'qrCodes', 'enabled' => false, 'layout' => 'auto', 'options' => ['catalogs' => [], 'title' => 'Katalog-QR-Codes']],
-            ['id' => 'media', 'enabled' => false, 'layout' => 'auto', 'options' => ['title' => 'Highlights']],
+            [
+                'id' => 'wrongAnswers',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Falsch beantwortete Fragen'],
+            ],
+            [
+                'id' => 'infoBanner',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Hinweise'],
+            ],
+            [
+                'id' => 'rankingQr',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Ranking-QR'],
+            ],
+            [
+                'id' => 'qrCodes',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['catalogs' => [], 'title' => 'Katalog-QR-Codes'],
+            ],
+            [
+                'id' => 'media',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => ['title' => 'Highlights'],
+            ],
         ];
     }
 

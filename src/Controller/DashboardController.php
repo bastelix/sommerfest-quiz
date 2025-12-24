@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -59,7 +58,8 @@ class DashboardController
         }
 
         $cfg = $this->config->getConfigForEvent($uid);
-        if (($matchedVariant === 'public' && empty($cfg['dashboardShareEnabled']))
+        if (
+            ($matchedVariant === 'public' && empty($cfg['dashboardShareEnabled']))
             || ($matchedVariant === 'sponsor' && empty($cfg['dashboardSponsorEnabled']))
         ) {
             return $response->withStatus(403);

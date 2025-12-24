@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Controller\Admin;
@@ -21,8 +20,7 @@ class DomainController
     public function __construct(
         DomainService $domainService,
         ?CertificateProvisioningService $certificateProvisioningService = null
-    )
-    {
+    ) {
         $this->domainService = $domainService;
         $this->certificateProvisioningService = $certificateProvisioningService;
     }

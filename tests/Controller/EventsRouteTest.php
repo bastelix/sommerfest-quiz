@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Tests\Controller;
@@ -109,7 +108,8 @@ class EventsRouteTest extends TestCase
         unset($_ENV['MAIN_DOMAIN']);
     }
 
-    public function testEventsListFallsBackToJsonWhenDatabaseFails(): void {
+    public function testEventsListFallsBackToJsonWhenDatabaseFails(): void
+    {
         $pdo = $this->createDatabase();
         $this->setDatabase($pdo);
 
@@ -119,8 +119,9 @@ class EventsRouteTest extends TestCase
         $options = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 
         Database::setFactory(function () use ($dsn, $user, $password, $options) {
-            return new class($dsn, $user, $password, $options) extends \PDO {
-                public function __construct(string $dsn, string $user, string $password, array $options) {
+            return new class ($dsn, $user, $password, $options) extends \PDO {
+                public function __construct(string $dsn, string $user, string $password, array $options)
+                {
                     parent::__construct($dsn, $user, $password, $options);
                 }
 

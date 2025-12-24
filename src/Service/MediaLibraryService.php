@@ -288,8 +288,7 @@ class MediaLibraryService
         string $name,
         ?string $eventUid = null,
         ?string $namespace = null
-    ): array
-    {
+    ): array {
         return $this->convertFile($scope, $name, $eventUid, $namespace);
     }
 

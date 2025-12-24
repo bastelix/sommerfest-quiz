@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace Tests\Service;
@@ -96,7 +95,16 @@ class MailServiceTest extends TestCase
         $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2) . '/templates'));
         $service = new MailService($twig, $manager);
 
-        $service->sendContact('team@example.org', 'Jane', 'jane@example.org', 'Hello there', null, null, null, 'Example Co');
+        $service->sendContact(
+            'team@example.org',
+            'Jane',
+            'jane@example.org',
+            'Hello there',
+            null,
+            null,
+            null,
+            'Example Co'
+        );
 
         $this->assertCount(2, $provider->sentEmails);
         $this->assertSame('team@example.org', $provider->sentEmails[0]->getTo()[0]->getAddress());
@@ -107,7 +115,10 @@ class MailServiceTest extends TestCase
         $this->assertStringContainsString('Example Co', (string) $provider->sentEmails[1]->getHtmlBody());
     }
 
-    private function createCollectingManager(bool $configured, ?CollectingProvider $provider = null): MailProviderManager
+    private function createCollectingManager(
+        bool $configured,
+        ?CollectingProvider $provider = null
+    ): MailProviderManager
     {
         $pdo = $this->getDatabase();
         $settings = new SettingsService($pdo);

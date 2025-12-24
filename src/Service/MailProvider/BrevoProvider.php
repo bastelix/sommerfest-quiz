@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Service\MailProvider;
@@ -46,8 +45,7 @@ class BrevoProvider implements MailProviderInterface
         ?MailerInterface $mailer = null,
         array $configOverride = [],
         ?ClientInterface $httpClient = null
-    )
-    {
+    ) {
         $this->config = self::loadEnvConfig();
         $this->applyOverrides($configOverride);
         $this->configured = $this->determineConfiguration();

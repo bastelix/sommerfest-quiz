@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Service\MailProvider;
@@ -30,8 +29,7 @@ class MailProviderManager
         SettingsService $settings,
         array $factories = [],
         ?MailProviderRepository $repository = null
-    )
-    {
+    ) {
         $this->settings = $settings;
         if ($repository instanceof MailProviderRepository) {
             $this->repository = $repository;

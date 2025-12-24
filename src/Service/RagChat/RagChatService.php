@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace App\Service\RagChat;
@@ -34,19 +33,23 @@ final class RagChatService implements RagChatServiceInterface
     private const MESSAGE_TEMPLATES = [
         'de' => [
             'intro' => 'Basierend auf der Wissensbasis habe ich folgende Hinweise gefunden:',
-            'no_results' => 'Ich konnte keine passenden Informationen in der Dokumentation finden. Bitte formuliere deine Frage anders oder schränke das Thema ein.',
+            'no_results' => 'Ich konnte keine passenden Informationen in der Dokumentation finden. '
+                . 'Bitte formuliere deine Frage anders oder schränke das Thema ein.',
             'question' => 'Frage',
         ],
         'en' => [
             'intro' => 'Based on our knowledge base I found the following hints:',
-            'no_results' => 'I could not find matching information in the documentation. Please rephrase your question or narrow down the topic.',
+            'no_results' => 'I could not find matching information in the documentation. Please rephrase your question '
+                . 'or narrow down the topic.',
             'question' => 'Question',
         ],
     ];
 
     private const SYSTEM_PROMPTS = [
-        'de' => 'Du bist ein hilfreicher Assistent für die QuizRace-Dokumentation. Beantworte Fragen ausschließlich anhand der bereitgestellten Kontexte.',
-        'en' => 'You are a helpful assistant for the QuizRace documentation. Answer questions only by relying on the supplied context snippets.',
+        'de' => 'Du bist ein hilfreicher Assistent für die QuizRace-Dokumentation. '
+            . 'Beantworte Fragen ausschließlich anhand der bereitgestellten Kontexte.',
+        'en' => 'You are a helpful assistant for the QuizRace documentation. '
+            . 'Answer questions only by relying on the supplied context snippets.',
     ];
 
     private const CONTEXT_HEADERS = [
@@ -115,7 +118,11 @@ final class RagChatService implements RagChatServiceInterface
         return $this->chatResponder ?? $this->createDefaultResponder();
     }
 
-    public function answer(string $question, string $locale = self::DEFAULT_LOCALE, ?string $domain = null): RagChatResponse
+    public function answer(
+        string $question,
+        string $locale = self::DEFAULT_LOCALE,
+        ?string $domain = null
+    ): RagChatResponse
     {
         $question = trim($question);
         if ($question === '') {
@@ -202,7 +209,12 @@ final class RagChatService implements RagChatServiceInterface
      * @param array{intro:string,no_results:string,question:string} $messages
      * @param list<RagChatContextItem> $context
      */
-    private function composeFallbackAnswer(string $question, array $context, array $messages, ?string $logMessage = null): string
+    private function composeFallbackAnswer(
+        string $question,
+        array $context,
+        array $messages,
+        ?string $logMessage = null
+    ): string
     {
         $lines = [$messages['intro']];
         foreach ($context as $index => $item) {
@@ -221,7 +233,10 @@ final class RagChatService implements RagChatServiceInterface
     }
 
     /**
-     * @return array{item:RagChatContextItem,payload:array{id:string,text:string,score:float,metadata:array<string,mixed>}}
+     * @return array{
+     *     item:RagChatContextItem,
+     *     payload:array{id:string,text:string,score:float,metadata:array<string,mixed>}
+     * }
      */
     private function buildContextEntry(SearchResult $result, string $locale, ?string $originDomain = null): array
     {
