@@ -380,6 +380,8 @@ if (container) {
     };
 
     const renderNode = (node, depth = 0) => {
+      const safeId = String(normalizeId(node.id)).replace(/[^a-zA-Z0-9_-]/g, '-');
+      const buildFieldId = suffix => `menu-node-${safeId}-${suffix}`;
       const item = document.createElement('div');
       item.className = 'menu-tree__item';
       item.dataset.id = node.id;
@@ -387,6 +389,10 @@ if (container) {
       item.style.setProperty('--menu-depth', String(depth));
       item.setAttribute('role', 'treeitem');
       item.setAttribute('aria-level', String(depth + 1));
+      item.setAttribute('tabindex', '0');
+      if (node.children?.length) {
+        item.setAttribute('aria-expanded', 'true');
+      }
       item.draggable = !!node.id;
 
       const row = document.createElement('div');
@@ -397,7 +403,14 @@ if (container) {
       dragHandle.className = 'uk-icon-button menu-tree__drag';
       dragHandle.setAttribute('uk-icon', 'table');
       dragHandle.setAttribute('aria-label', 'Verschieben');
-      dragHandle.tabIndex = -1;
+      dragHandle.setAttribute('aria-grabbed', 'false');
+      dragHandle.tabIndex = 0;
+
+      const labelFieldId = buildFieldId('label');
+      const labelLabel = document.createElement('label');
+      labelLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      labelLabel.htmlFor = labelFieldId;
+      labelLabel.textContent = 'Label';
 
       const labelInput = document.createElement('input');
       labelInput.type = 'text';
@@ -406,7 +419,13 @@ if (container) {
       labelInput.placeholder = 'Label';
       labelInput.dataset.field = 'label';
       labelInput.setAttribute('aria-label', 'Label bearbeiten');
+      labelInput.id = labelFieldId;
 
+      const hrefFieldId = buildFieldId('href');
+      const hrefLabel = document.createElement('label');
+      hrefLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      hrefLabel.htmlFor = hrefFieldId;
+      hrefLabel.textContent = 'Ziel / Link';
       const hrefInput = document.createElement('input');
       hrefInput.type = 'text';
       hrefInput.className = 'uk-input uk-form-small menu-tree__href-input';
@@ -414,6 +433,7 @@ if (container) {
       hrefInput.placeholder = '/pfad oder Link';
       hrefInput.dataset.field = 'href';
       hrefInput.setAttribute('aria-label', 'Link bearbeiten');
+      hrefInput.id = hrefFieldId;
 
       const errorHint = document.createElement('div');
       errorHint.className = 'uk-text-small uk-text-danger';
@@ -428,6 +448,7 @@ if (container) {
       visibilityBtn.setAttribute('uk-icon', node.isActive === false ? 'ban' : 'eye');
       visibilityBtn.title = 'Sichtbarkeit umschalten';
       visibilityBtn.setAttribute('aria-label', 'Sichtbarkeit umschalten');
+      visibilityBtn.setAttribute('aria-pressed', node.isActive !== false ? 'true' : 'false');
       actions.appendChild(visibilityBtn);
 
       const settingsBtn = document.createElement('button');
@@ -436,16 +457,20 @@ if (container) {
       settingsBtn.setAttribute('uk-icon', 'cog');
       settingsBtn.title = 'Erweitert anzeigen';
       settingsBtn.setAttribute('aria-label', 'Erweitert anzeigen');
+      const advancedId = buildFieldId('advanced');
+      settingsBtn.setAttribute('aria-expanded', 'false');
+      settingsBtn.setAttribute('aria-controls', advancedId);
       actions.appendChild(settingsBtn);
 
       const baseWrapper = document.createElement('div');
       baseWrapper.className = 'menu-tree__base';
-      baseWrapper.append(labelInput, hrefInput, errorHint);
+      baseWrapper.append(labelLabel, labelInput, hrefLabel, hrefInput, errorHint);
 
       row.append(dragHandle, baseWrapper, actions);
       item.appendChild(row);
 
       const advanced = renderAdvancedFields(node, item);
+      advanced.id = advancedId;
 
       const childrenContainer = document.createElement('div');
       childrenContainer.className = 'menu-tree__branch';
@@ -474,6 +499,7 @@ if (container) {
         const next = !(state.byId.get(node.id)?.isActive === true);
         applyInputChange(node, 'isActive', next);
         visibilityBtn.setAttribute('uk-icon', next ? 'eye' : 'ban');
+        visibilityBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
         if (window.UIkit && typeof UIkit.icon === 'function') {
           UIkit.icon(visibilityBtn, { icon: next ? 'eye' : 'ban' });
         }
@@ -774,6 +800,7 @@ if (container) {
           }
           draggingElement = item;
           item.classList.add('is-dragging');
+          dragHandle?.setAttribute('aria-grabbed', 'true');
           event.dataTransfer.effectAllowed = 'move';
           event.dataTransfer.setData('text/plain', item.dataset.id);
         });
@@ -782,6 +809,7 @@ if (container) {
           if (draggingElement) {
             draggingElement.classList.remove('is-dragging');
             draggingElement = null;
+            dragHandle?.setAttribute('aria-grabbed', 'false');
             collectTreeOrder();
           }
         });

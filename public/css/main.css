@@ -1527,6 +1527,16 @@ body.admin-page {
   gap: 6px;
 }
 
+.menu-tree__field-label {
+  margin-bottom: -2px;
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+[data-theme="dark"] .menu-tree__field-label {
+  color: #e5e7eb;
+}
+
 .menu-tree__advanced {
   border-top: 1px dashed #e5e5e5;
   margin-top: 8px;
