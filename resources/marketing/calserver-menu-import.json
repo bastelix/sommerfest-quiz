@@ -1,0 +1,297 @@
+{
+  "namespace": "default",
+  "page": {
+    "slug": "calserver",
+    "namespace": "default"
+  },
+  "items": [
+    {
+      "href": "#trust",
+      "label": "Überblick",
+      "layout": "mega",
+      "position": 0,
+      "locale": "de",
+      "children": [
+        {
+          "href": "#trust",
+          "label": "So fühlt sich calServer im Alltag an",
+          "detailTitle": "calServer im Tagesgeschäft erleben",
+          "detailText": "Timeline, Rollen und Automatisierung zeigen, wie Teams Geräteakten, Fristen und Audits mit calServer steuern.",
+          "detailSubline": "Import, Fristen & Audit im Überblick",
+          "position": 0,
+          "locale": "de"
+        },
+        {
+          "href": "#demo",
+          "label": "Demo & Testzugang",
+          "detailTitle": "Direkt ausprobieren",
+          "detailText": "Demo buchen oder Testumgebung starten – wir führen live durch Workflows oder richten einen Zugang ein.",
+          "detailSubline": "Demo buchen oder Zugang starten",
+          "position": 1,
+          "locale": "de"
+        }
+      ]
+    },
+    {
+      "href": "#features",
+      "label": "Funktionen & Module",
+      "layout": "mega",
+      "position": 1,
+      "locale": "de",
+      "children": [
+        {
+          "href": "#features",
+          "label": "Funktionen entdecken",
+          "detailTitle": "Funktionen im Überblick",
+          "detailText": "Feature-Kacheln zeigen Geräteakten, Kalender, Ticketing, Reporting und Automatisierungen im Detail.",
+          "detailSubline": "Geräte, Termine, Tickets & Reporting",
+          "position": 0,
+          "locale": "de"
+        },
+        {
+          "href": "#modules",
+          "label": "Module & Video-Demos",
+          "detailTitle": "Module vertiefen",
+          "detailText": "Modul-Switcher mit Videos und Beschreibungen erklärt Rollen, Automatisierung und Integrationen.",
+          "detailSubline": "Video-Demos & modulare Pakete",
+          "position": 1,
+          "locale": "de"
+        }
+      ]
+    },
+    {
+      "href": "#usecases",
+      "label": "Lösungen & Integrationen",
+      "layout": "mega",
+      "position": 2,
+      "locale": "de",
+      "children": [
+        {
+          "href": "#usecases",
+          "label": "Use Cases & Branchen",
+          "detailTitle": "Referenzen & Branchen",
+          "detailText": "Kundenstories zeigen, wie Labore, Service-Teams und Hersteller calServer einsetzen – filterbar nach Branche.",
+          "detailSubline": "Filterbare Branchen & Stories",
+          "position": 0,
+          "locale": "de"
+        },
+        {
+          "href": "#metcal",
+          "label": "FLUKE MET/CAL Migration",
+          "detailTitle": "Migration planen",
+          "detailText": "FLUKE MET/CAL Integration erklärt Hybridbetrieb, Datenübernahme und dokumentierte Prozesse ohne Stillstand.",
+          "detailSubline": "Hybridbetrieb, Mapping & Audit-Trails",
+          "position": 1,
+          "locale": "de"
+        }
+      ]
+    },
+    {
+      "href": "#modes",
+      "label": "Betrieb & Pakete",
+      "layout": "mega",
+      "position": 3,
+      "locale": "de",
+      "children": [
+        {
+          "href": "#modes",
+          "label": "Betriebsarten & Sicherheit",
+          "detailTitle": "Cloud oder On-Premise",
+          "detailText": "Vergleiche Hosting in unserer Cloud mit Betrieb in deiner Infrastruktur – inklusive Sicherheit und Betreuung.",
+          "detailSubline": "Cloud, On-Premise, Sicherheit",
+          "position": 0,
+          "locale": "de"
+        },
+        {
+          "href": "#pricing",
+          "label": "Pakete & Preise",
+          "detailTitle": "Pakete vergleichen",
+          "detailText": "Preisstaffelung und Add-ons zeigen, wie Teams calServer skalieren – inklusive Support-Leveln.",
+          "detailSubline": "Pakete, Add-ons & Service-Level",
+          "position": 1,
+          "locale": "de"
+        }
+      ]
+    },
+    {
+      "href": "#calserver-news",
+      "label": "Ressourcen & Support",
+      "layout": "mega",
+      "position": 4,
+      "locale": "de",
+      "children": [
+        {
+          "href": "#calserver-news",
+          "label": "Aktuelle Neuigkeiten",
+          "detailTitle": "Immer auf dem Laufenden",
+          "detailText": "News bündelt Produktupdates, Release-Notizen und Veranstaltungen rund um calServer.",
+          "detailSubline": "Produktupdates & Events",
+          "position": 0,
+          "locale": "de"
+        },
+        {
+          "href": "#faq",
+          "label": "FAQ & Antworten",
+          "detailTitle": "Antworten in Sekunden",
+          "detailText": "FAQ erklärt Finanzierung, Projektablauf und Betriebsvorgaben kompakt.",
+          "detailSubline": "Finanzierung, Ablauf, Betrieb",
+          "position": 1,
+          "locale": "de"
+        },
+        {
+          "href": "#demo",
+          "label": "Kontakt & Demo",
+          "detailTitle": "Direkte Ansprechpartner",
+          "detailText": "Demo buchen, Testzugang starten oder Kontakt aufnehmen – wir reagieren innerhalb eines Werktags.",
+          "detailSubline": "Demo buchen, Testen, Kontakt",
+          "position": 2,
+          "locale": "de"
+        }
+      ]
+    },
+    {
+      "href": "#trust",
+      "label": "Overview",
+      "layout": "mega",
+      "position": 0,
+      "locale": "en",
+      "children": [
+        {
+          "href": "#trust",
+          "label": "See calServer in daily operations",
+          "detailTitle": "Experience calServer in daily operations",
+          "detailText": "Timeline, roles and automation show how teams steer asset records, deadlines and audits with calServer.",
+          "detailSubline": "Imports, deadlines & audits at a glance",
+          "position": 0,
+          "locale": "en"
+        },
+        {
+          "href": "#demo",
+          "label": "Demo & trial access",
+          "detailTitle": "Try it right away",
+          "detailText": "Book a demo or request a trial tenant — we guide you through workflows or set up access for your data.",
+          "detailSubline": "Book a demo or start a trial",
+          "position": 1,
+          "locale": "en"
+        }
+      ]
+    },
+    {
+      "href": "#features",
+      "label": "Features & modules",
+      "layout": "mega",
+      "position": 1,
+      "locale": "en",
+      "children": [
+        {
+          "href": "#features",
+          "label": "Explore features",
+          "detailTitle": "Features at a glance",
+          "detailText": "Feature cards highlight asset records, scheduling, ticketing, reporting and automation in detail.",
+          "detailSubline": "Assets, scheduling, tickets & reporting",
+          "position": 0,
+          "locale": "en"
+        },
+        {
+          "href": "#modules",
+          "label": "Modules & video demos",
+          "detailTitle": "Deep dive into modules",
+          "detailText": "The module switcher with videos and descriptions explains roles, automation and integrations.",
+          "detailSubline": "Video demos & modular packages",
+          "position": 1,
+          "locale": "en"
+        }
+      ]
+    },
+    {
+      "href": "#usecases",
+      "label": "Solutions & integrations",
+      "layout": "mega",
+      "position": 2,
+      "locale": "en",
+      "children": [
+        {
+          "href": "#usecases",
+          "label": "Use cases & industries",
+          "detailTitle": "References & industries",
+          "detailText": "Customer stories show how labs, service teams and manufacturers run calServer — filter by industry.",
+          "detailSubline": "Filterable industries & stories",
+          "position": 0,
+          "locale": "en"
+        },
+        {
+          "href": "#metcal",
+          "label": "FLUKE MET/CAL migration",
+          "detailTitle": "Plan your migration",
+          "detailText": "FLUKE MET/CAL integration covers hybrid operations, data migration and documented processes without downtime.",
+          "detailSubline": "Hybrid operations, mapping & audit trails",
+          "position": 1,
+          "locale": "en"
+        }
+      ]
+    },
+    {
+      "href": "#modes",
+      "label": "Operations & packages",
+      "layout": "mega",
+      "position": 3,
+      "locale": "en",
+      "children": [
+        {
+          "href": "#modes",
+          "label": "Operating models & security",
+          "detailTitle": "Cloud or on-premise",
+          "detailText": "Compare our managed cloud with running calServer in your infrastructure — including security and operations support.",
+          "detailSubline": "Cloud, on-premise, security",
+          "position": 0,
+          "locale": "en"
+        },
+        {
+          "href": "#pricing",
+          "label": "Packages & pricing",
+          "detailTitle": "Compare packages",
+          "detailText": "Pricing tiers and add-ons show how teams scale calServer — including support levels.",
+          "detailSubline": "Packages, add-ons & service levels",
+          "position": 1,
+          "locale": "en"
+        }
+      ]
+    },
+    {
+      "href": "#calserver-news",
+      "label": "Resources & support",
+      "layout": "mega",
+      "position": 4,
+      "locale": "en",
+      "children": [
+        {
+          "href": "#calserver-news",
+          "label": "Latest news",
+          "detailTitle": "Stay up to date",
+          "detailText": "News collects product updates, release notes and events around calServer.",
+          "detailSubline": "Product updates & events",
+          "position": 0,
+          "locale": "en"
+        },
+        {
+          "href": "#faq",
+          "label": "FAQ & answers",
+          "detailTitle": "Answers within seconds",
+          "detailText": "The FAQ summarises financing, project timeline and operational requirements.",
+          "detailSubline": "Financing, timeline, operations",
+          "position": 1,
+          "locale": "en"
+        },
+        {
+          "href": "#demo",
+          "label": "Contact & demo",
+          "detailTitle": "Talk to the team",
+          "detailText": "Book a demo, start a trial or reach out — we reply within one business day.",
+          "detailSubline": "Book a demo, trial, contact",
+          "position": 2,
+          "locale": "en"
+        }
+      ]
+    }
+  ]
+}
