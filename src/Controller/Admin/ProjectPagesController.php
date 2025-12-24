@@ -10,6 +10,7 @@ use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
 use App\Service\Marketing\PageAiPromptTemplateService;
+use App\Service\MarketingMenuService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
@@ -46,6 +47,7 @@ class ProjectPagesController
     private TenantService $tenantService;
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
+    private MarketingMenuService $marketingMenuService;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -57,7 +59,8 @@ class ProjectPagesController
         ?NamespaceService $namespaceService = null,
         ?TenantService $tenantService = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
-        ?ProjectSettingsService $projectSettings = null
+        ?ProjectSettingsService $projectSettings = null,
+        ?MarketingMenuService $marketingMenuService = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -69,6 +72,7 @@ class ProjectPagesController
         $this->tenantService = $tenantService ?? new TenantService($pdo);
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
+        $this->marketingMenuService = $marketingMenuService ?? new MarketingMenuService($pdo, $this->pageService);
     }
 
     public function content(Request $request, Response $response): Response
@@ -97,6 +101,8 @@ class ProjectPagesController
             $pages
         );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
+        $locale = (string) ($request->getAttribute('lang') ?? 'de');
+        $startpageItem = $this->marketingMenuService->resolveStartpage($namespace, $locale, true);
 
         return $view->render($response, 'admin/pages/content.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -111,6 +117,7 @@ class ProjectPagesController
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),
             'prompt_templates' => $this->promptTemplateService->list(),
+            'startpage_page_id' => $startpageItem?->getPageId(),
         ]);
     }
 
@@ -196,6 +203,61 @@ class ProjectPagesController
             'pageTab' => 'navigation',
             'tenant' => $this->resolveTenant($request),
         ]);
+    }
+
+    public function updateStartpage(Request $request, Response $response, array $args): Response
+    {
+        $pageId = (int) ($args['pageId'] ?? 0);
+        if ($pageId <= 0) {
+            return $response->withStatus(400);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $page = $this->pageService->findById($pageId);
+        if ($page === null || $page->getNamespace() !== $namespace) {
+            return $response->withStatus(404);
+        }
+
+        $payload = $request->getParsedBody();
+        if (!is_array($payload)) {
+            $contentType = $request->getHeaderLine('Content-Type');
+            $rawBody = (string) $request->getBody();
+            if (stripos($contentType, 'application/json') !== false && $rawBody !== '') {
+                $payload = json_decode($rawBody, true);
+            }
+        }
+
+        $rawFlag = is_array($payload)
+            ? ($payload['is_startpage'] ?? $payload['isStartpage'] ?? $payload['startpage'] ?? null)
+            : null;
+        $isStartpage = filter_var($rawFlag, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        if ($isStartpage === null) {
+            $isStartpage = $rawFlag === 1 || $rawFlag === '1';
+        }
+
+        try {
+            if ($isStartpage) {
+                $this->marketingMenuService->markPageAsStartpage($pageId);
+            } else {
+                $this->marketingMenuService->clearStartpagesForNamespace($namespace);
+            }
+
+            $current = $this->marketingMenuService->resolveStartpage($namespace, null, true);
+        } catch (\RuntimeException $exception) {
+            $response->getBody()->write(json_encode([
+                'error' => $exception->getMessage(),
+            ], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode([
+            'startpagePageId' => $current?->getPageId(),
+        ], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function wiki(Request $request, Response $response): Response

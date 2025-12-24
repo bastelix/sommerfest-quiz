@@ -173,6 +173,7 @@
                     <option
                       value="{{ page.slug }}"
                       data-page-id="{{ page.id }}"
+                      data-startpage="{{ page.id == startpage_page_id ? '1' : '0' }}"
                       {% if page.slug == selectedSlug %}selected{% endif %}
                     >{{ pageLabel }}</option>
                   {% endfor %}
@@ -194,10 +195,25 @@
             >{{ t('action_ai_page_create') }}</button>
           </div>
         </div>
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <label class="uk-form-label" for="startpageToggle">Startseite dieses Projekts</label>
+          <div class="uk-form-controls uk-margin-small-top">
+            <label class="uk-flex uk-flex-middle uk-flex-wrap">
+              <input
+                id="startpageToggle"
+                class="uk-checkbox"
+                type="checkbox"
+                data-startpage-toggle
+              >
+              <span class="uk-margin-small-left uk-text-meta">Bestimmt, welche Marketing-Seite beim Aufruf des Projekts zuerst geladen wird.</span>
+            </label>
+          </div>
+        </div>
         <div
           class="uk-card uk-card-default uk-card-body uk-margin"
           data-page-namespace-manager
           data-pages="{{ page_namespace_list|json_encode|e('html_attr') }}"
+          data-startpage-page-id="{{ startpage_page_id|default('') }}"
           data-page-select-id="pageContentSelect"
           data-page-select-key="slug"
           data-page-selection-param="pageSlug"
