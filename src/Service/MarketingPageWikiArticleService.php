@@ -115,11 +115,13 @@ final class MarketingPageWikiArticleService
             throw new RuntimeException('Excerpt must not exceed 300 characters.');
         }
 
-        if (!in_array($status, [
+        if (
+            !in_array($status, [
             MarketingPageWikiArticle::STATUS_DRAFT,
             MarketingPageWikiArticle::STATUS_PUBLISHED,
             MarketingPageWikiArticle::STATUS_ARCHIVED,
-        ], true)) {
+            ], true)
+        ) {
             throw new RuntimeException('Invalid article status.');
         }
 
@@ -239,11 +241,13 @@ final class MarketingPageWikiArticleService
 
     public function updateStatus(int $articleId, string $status): MarketingPageWikiArticle
     {
-        if (!in_array($status, [
+        if (
+            !in_array($status, [
             MarketingPageWikiArticle::STATUS_DRAFT,
             MarketingPageWikiArticle::STATUS_PUBLISHED,
             MarketingPageWikiArticle::STATUS_ARCHIVED,
-        ], true)) {
+            ], true)
+        ) {
             throw new RuntimeException('Invalid status');
         }
 

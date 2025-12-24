@@ -189,10 +189,12 @@ class AdminController
             } catch (\RuntimeException $exception) {
                 $availableNamespaces = [];
             }
-            if (!array_filter(
-                $availableNamespaces,
-                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            if (
+                !array_filter(
+                    $availableNamespaces,
+                    static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+                )
+            ) {
                 $availableNamespaces[] = [
                     'namespace' => PageService::DEFAULT_NAMESPACE,
                     'label' => null,
@@ -333,11 +335,13 @@ class AdminController
             $availableNamespaces[$index] = $entry;
         }
 
-        if ($namespaceAccess->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+        if (
+            $namespaceAccess->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
@@ -347,11 +351,13 @@ class AdminController
             ];
         }
 
-        if ($namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        if (
+            $namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
             && !array_filter(
                 $availableNamespaces,
                 static fn (array $entry): bool => $entry['namespace'] === $namespace
-            )) {
+            )
+        ) {
             $availableNamespaces[] = [
                 'namespace' => $namespace,
                 'label' => 'nicht gespeichert',
@@ -363,10 +369,12 @@ class AdminController
 
         if ($allowedNamespaces !== []) {
             foreach ($allowedNamespaces as $allowedNamespace) {
-                if (!array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                )) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
                     $availableNamespaces[] = [
                         'namespace' => $allowedNamespace,
                         'label' => 'nicht gespeichert',

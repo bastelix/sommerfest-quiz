@@ -350,7 +350,8 @@ class ConfigValidator
         }
         $visibilityStart = $parsed['dashboardVisibilityStart'] ?? null;
         $visibilityEnd = $parsed['dashboardVisibilityEnd'] ?? null;
-        if ($visibilityStart instanceof DateTimeImmutable && $visibilityEnd instanceof DateTimeImmutable
+        if (
+            $visibilityStart instanceof DateTimeImmutable && $visibilityEnd instanceof DateTimeImmutable
             && $visibilityStart > $visibilityEnd
         ) {
             $errors['dashboardVisibilityEnd'] = 'Endzeit muss nach der Startzeit liegen.';

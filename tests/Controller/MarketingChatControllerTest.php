@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 use App\Controller\Marketing\MarketingChatController;
 use Tests\TestCase;
 use App\Service\RagChat\RagChatResponse;
 use App\Service\RagChat\RagChatServiceInterface;
 use Slim\Psr7\Factory\ResponseFactory;
+
 use function json_decode;
 use function json_encode;
 

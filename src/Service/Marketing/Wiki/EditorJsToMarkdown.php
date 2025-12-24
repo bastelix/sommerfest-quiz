@@ -61,8 +61,11 @@ final class EditorJsToMarkdown
                         $markdown .= "\n> — " . $caption;
                     }
                     $markdownParts[] = $markdown;
-                    $html = sprintf('<blockquote><p>%s</p>%s</blockquote>', $this->sanitizeInlineHtml($data['text'] ?? ''),
-                        $caption !== '' ? sprintf('<footer>— %s</footer>', htmlspecialchars($caption, ENT_QUOTES)) : '');
+                    $html = sprintf(
+                        '<blockquote><p>%s</p>%s</blockquote>',
+                        $this->sanitizeInlineHtml($data['text'] ?? ''),
+                        $caption !== '' ? sprintf('<footer>— %s</footer>', htmlspecialchars($caption, ENT_QUOTES)) : ''
+                    );
                     $htmlParts[] = $html;
                     break;
                 case 'code':
@@ -82,9 +85,11 @@ final class EditorJsToMarkdown
                     $title = $this->sanitizeInlineText($data['title'] ?? '');
                     $message = $this->sanitizeInlineText($data['message'] ?? '');
                     $markdownParts[] = sprintf('> **%s**\n> %s', $title, $message);
-                    $htmlParts[] = sprintf('<div class="wiki-callout"><strong>%s</strong><p>%s</p></div>',
+                    $htmlParts[] = sprintf(
+                        '<div class="wiki-callout"><strong>%s</strong><p>%s</p></div>',
                         htmlspecialchars($title, ENT_QUOTES),
-                        htmlspecialchars($message, ENT_QUOTES));
+                        htmlspecialchars($message, ENT_QUOTES)
+                    );
                     break;
                 case 'image':
                     $file = isset($data['file']) && is_array($data['file']) ? $data['file'] : [];
@@ -94,10 +99,12 @@ final class EditorJsToMarkdown
                     }
                     $caption = $this->sanitizeInlineText($data['caption'] ?? '');
                     $markdownParts[] = sprintf('![%s](%s)', $caption, $url);
-                    $htmlParts[] = sprintf('<figure><img src="%s" alt="%s" loading="lazy">%s</figure>',
+                    $htmlParts[] = sprintf(
+                        '<figure><img src="%s" alt="%s" loading="lazy">%s</figure>',
                         htmlspecialchars($url, ENT_QUOTES),
                         htmlspecialchars($caption, ENT_QUOTES),
-                        $caption !== '' ? sprintf('<figcaption>%s</figcaption>', htmlspecialchars($caption, ENT_QUOTES)) : '');
+                        $caption !== '' ? sprintf('<figcaption>%s</figcaption>', htmlspecialchars($caption, ENT_QUOTES)) : ''
+                    );
                     break;
                 default:
                     $text = $this->sanitizeInlineText($data['text'] ?? '');

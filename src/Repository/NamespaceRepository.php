@@ -182,12 +182,14 @@ final class NamespaceRepository
         if ($this->hasTable('pages') && $this->hasNamespaceReference('pages', 'namespace', $namespace)) {
             $usage[] = 'pages';
         }
-        if ($this->hasTable('namespace_profile')
+        if (
+            $this->hasTable('namespace_profile')
             && $this->hasNamespaceReference('namespace_profile', 'namespace', $namespace)
         ) {
             $usage[] = 'namespace_profile';
         }
-        if ($this->hasTable('marketing_newsletter_configs')
+        if (
+            $this->hasTable('marketing_newsletter_configs')
             && $this->hasNamespaceReference('marketing_newsletter_configs', 'namespace', $namespace)
         ) {
             $usage[] = 'marketing_newsletter_configs';

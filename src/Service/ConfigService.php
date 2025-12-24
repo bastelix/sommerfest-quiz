@@ -271,13 +271,15 @@ class ConfigService
             return null;
         }
         $tokens = $this->getDashboardTokens($uid);
-        if (($variant === null || $variant === 'public')
+        if (
+            ($variant === null || $variant === 'public')
             && $tokens['public'] !== null
             && hash_equals($tokens['public'], $token)
         ) {
             return 'public';
         }
-        if (($variant === null || $variant === 'sponsor')
+        if (
+            ($variant === null || $variant === 'sponsor')
             && $tokens['sponsor'] !== null
             && hash_equals($tokens['sponsor'], $token)
         ) {
@@ -510,14 +512,14 @@ class ConfigService
                     $stmt->bindValue(':' . $column, null, PDO::PARAM_NULL);
                     continue;
                 }
-            $stmt->bindValue(':' . $column, $value);
+                $stmt->bindValue(':' . $column, $value);
+            }
+            $stmt->execute();
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
-        $stmt->execute();
-        $this->pdo->commit();
-    } catch (Throwable $e) {
-        $this->pdo->rollBack();
-        throw $e;
-    }
 
         if ($randomNameBefore !== null) {
             $candidateValues = [];

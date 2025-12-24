@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -244,5 +245,4 @@ class HomeController
             'player_name' => $_SESSION['player_name'] ?? '',
         ]);
     }
-
 }

@@ -11,10 +11,12 @@ class CalserverMaintenanceControllerTest extends TestCase
     protected function setUp(): void {
         parent::setUp();
         $pdo = $this->getDatabase();
-        foreach ([
+        foreach (
+            [
             ['calserver-maintenance', 'calHelp Wartung'],
             ['calserver-maintenance-en', 'calHelp Maintenance'],
-        ] as [$slug, $title]) {
+            ] as [$slug, $title]
+        ) {
             try {
                 $pdo->exec(
                     sprintf(

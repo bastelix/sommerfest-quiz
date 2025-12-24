@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Exception;
 
 use RuntimeException;
+
 use function sprintf;
 
 final class DuplicateUsernameBlocklistException extends RuntimeException

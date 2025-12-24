@@ -1229,12 +1229,14 @@ class TenantService
             }
             $onboardingState = (string) ($row['onboarding_state'] ?? self::ONBOARDING_COMPLETED);
             $row['onboarding_state'] = $onboardingState;
-            if (in_array($onboardingState, [
+            if (
+                in_array($onboardingState, [
                 self::ONBOARDING_PENDING,
                 self::ONBOARDING_PROVISIONING,
                 self::ONBOARDING_FAILED,
                 self::ONBOARDING_PROVISIONED,
-            ], true)) {
+                ], true)
+            ) {
                 $row['status'] = $onboardingState;
                 continue;
             }

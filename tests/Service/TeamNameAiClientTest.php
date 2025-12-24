@@ -9,7 +9,6 @@ use App\Service\TeamNameAiClient;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-use const JSON_THROW_ON_ERROR;
 use function json_encode;
 use function mb_strtolower;
 use function mb_substr;
@@ -17,6 +16,8 @@ use function preg_match_all;
 use function preg_replace;
 use function preg_split;
 use function trim;
+
+use const JSON_THROW_ON_ERROR;
 
 final class TeamNameAiClientTest extends TestCase
 {
