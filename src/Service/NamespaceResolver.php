@@ -28,7 +28,9 @@ final class NamespaceResolver
 
         $namespace = $candidates[0];
 
-        return new NamespaceContext($namespace, $candidates);
+        $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
+
+        return new NamespaceContext($namespace, $candidates, $host);
     }
 
     /**

@@ -33,6 +33,8 @@ class Page implements JsonSerializable
 
     private ?string $contentSource;
 
+    private ?string $startpageDomain;
+
     private bool $isStartpage;
 
     public function __construct(
@@ -47,6 +49,7 @@ class Page implements JsonSerializable
         ?string $status,
         ?string $language,
         ?string $contentSource,
+        ?string $startpageDomain,
         bool $isStartpage
     ) {
         $this->id = $id;
@@ -60,6 +63,7 @@ class Page implements JsonSerializable
         $this->status = $status;
         $this->language = $language;
         $this->contentSource = $contentSource;
+        $this->startpageDomain = $startpageDomain;
         $this->isStartpage = $isStartpage;
     }
 
@@ -107,6 +111,11 @@ class Page implements JsonSerializable
         return $this->contentSource;
     }
 
+    public function getStartpageDomain(): ?string
+    {
+        return $this->startpageDomain;
+    }
+
     public function isStartpage(): bool
     {
         return $this->isStartpage;
@@ -126,6 +135,7 @@ class Page implements JsonSerializable
             'status' => $this->status,
             'language' => $this->language,
             'content_source' => $this->contentSource,
+            'startpage_domain' => $this->startpageDomain,
             'is_startpage' => $this->isStartpage,
         ];
     }

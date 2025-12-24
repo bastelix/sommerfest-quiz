@@ -21,7 +21,23 @@ class LandingMediaReferenceServiceTest extends TestCase
     public function testCollectAggregatesLandingReferences(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, title TEXT, content TEXT)');
+        $pdo->exec(
+            'CREATE TABLE pages ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . " namespace TEXT NOT NULL DEFAULT 'default',"
+            . ' slug TEXT,'
+            . ' title TEXT,'
+            . ' content TEXT,'
+            . ' type TEXT,'
+            . ' parent_id INTEGER,'
+            . ' sort_order INTEGER NOT NULL DEFAULT 0,'
+            . ' status TEXT,'
+            . ' language TEXT,'
+            . ' content_source TEXT,'
+            . ' startpage_domain TEXT,'
+            . ' is_startpage INTEGER NOT NULL DEFAULT 0'
+            . ')'
+        );
         $pdo->exec(
             'CREATE TABLE landing_news ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
@@ -159,7 +175,23 @@ class LandingMediaReferenceServiceTest extends TestCase
     public function testNormalizeFilePath(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, title TEXT, content TEXT)');
+        $pdo->exec(
+            'CREATE TABLE pages ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+            . " namespace TEXT NOT NULL DEFAULT 'default',"
+            . ' slug TEXT,'
+            . ' title TEXT,'
+            . ' content TEXT,'
+            . ' type TEXT,'
+            . ' parent_id INTEGER,'
+            . ' sort_order INTEGER NOT NULL DEFAULT 0,'
+            . ' status TEXT,'
+            . ' language TEXT,'
+            . ' content_source TEXT,'
+            . ' startpage_domain TEXT,'
+            . ' is_startpage INTEGER NOT NULL DEFAULT 0'
+            . ')'
+        );
         $pdo->exec(
             'CREATE TABLE landing_news (' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER NOT NULL, slug TEXT NOT NULL, title TEXT NOT NULL, ' .

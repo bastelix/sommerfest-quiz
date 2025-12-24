@@ -20,6 +20,7 @@ use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
 use App\Support\BasePathHelper;
+use App\Support\DomainNameHelper;
 use App\Support\FeatureFlags;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -108,7 +109,11 @@ class ProjectPagesController
         );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
         $locale = (string) ($request->getAttribute('lang') ?? 'de');
-        $startpagePage = $this->pageService->resolveStartpage($namespace, $locale);
+        $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
+        $domainOptions = $this->buildDomainOptionsForNamespace($namespace, $host);
+        $startpageMap = $this->buildStartpageLookup($namespace, $locale, $domainOptions['options']);
+        $selectedDomain = $domainOptions['selected'];
+        $startpagePageId = $startpageMap[$selectedDomain] ?? null;
 
         return $view->render($response, 'admin/pages/content.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -123,9 +128,12 @@ class ProjectPagesController
             'pageTab' => 'content',
             'tenant' => $this->resolveTenant($request),
             'prompt_templates' => $this->promptTemplateService->list(),
-            'startpage_page_id' => $startpagePage?->getId(),
+            'startpage_page_id' => $startpagePageId,
             'domainNamespace' => $domainNamespace,
             'hasDomainNamespace' => $hasDomainNamespace,
+            'startpage_domain_options' => $domainOptions['options'],
+            'startpage_selected_domain' => $selectedDomain,
+            'startpage_map' => $startpageMap,
         ]);
     }
 
@@ -246,14 +254,25 @@ class ProjectPagesController
             $isStartpage = $rawFlag === 1 || $rawFlag === '1';
         }
 
+        $rawDomain = is_array($payload)
+            ? ($payload['domain'] ?? $payload['startpage_domain'] ?? null)
+            : null;
+        $normalizedDomain = null;
+        if (is_string($rawDomain) && trim($rawDomain) !== '') {
+            $normalizedDomain = DomainNameHelper::normalize($rawDomain, stripAdmin: false);
+            if ($normalizedDomain === '') {
+                $normalizedDomain = null;
+            }
+        }
+
         try {
             if ($isStartpage) {
-                $this->pageService->markAsStartpage($pageId, $domainNamespace);
+                $this->pageService->markAsStartpage($pageId, $namespace, $normalizedDomain);
             } else {
-                $this->pageService->clearStartpageForNamespace($namespace);
+                $this->pageService->clearStartpageForNamespace($namespace, $normalizedDomain);
             }
 
-            $current = $this->pageService->resolveStartpage($namespace, null);
+            $current = $this->pageService->resolveStartpage($namespace, null, $normalizedDomain);
         } catch (\RuntimeException $exception) {
             $response->getBody()->write(json_encode([
                 'error' => $exception->getMessage(),
@@ -266,6 +285,7 @@ class ProjectPagesController
 
         $response->getBody()->write(json_encode([
             'startpagePageId' => $current?->getId(),
+            'domain' => $normalizedDomain,
         ], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
@@ -319,6 +339,78 @@ class ProjectPagesController
             'pageTab' => 'cookies',
             'tenant' => $this->resolveTenant($request),
         ]);
+    }
+
+    /**
+     * @return array{options: list<array<string, mixed>>, selected: string}
+     */
+    private function buildDomainOptionsForNamespace(string $namespace, string $host): array
+    {
+        $domainsByNamespace = $this->domainService->listDomainsByNamespace(includeInactive: true);
+        $namespaceDomains = $domainsByNamespace[$namespace] ?? [];
+
+        $options = [[
+            'value' => '',
+            'label' => 'Namespace-weit (Fallback)',
+            'is_active' => true,
+            'is_unassigned' => false,
+        ]];
+
+        $selected = '';
+        foreach ($namespaceDomains as $domain) {
+            $value = (string) ($domain['normalized_host'] ?? '');
+            if ($value === '') {
+                continue;
+            }
+
+            $options[] = [
+                'value' => $value,
+                'label' => (string) ($domain['host'] ?? $value),
+                'is_active' => (bool) ($domain['is_active'] ?? false),
+                'is_unassigned' => false,
+            ];
+
+            if ($value === $host) {
+                $selected = $value;
+            }
+        }
+
+        if ($selected === '' && $host !== '') {
+            $options[] = [
+                'value' => $host,
+                'label' => $host,
+                'is_active' => true,
+                'is_unassigned' => true,
+            ];
+            $selected = $host;
+        }
+
+        return [
+            'options' => $options,
+            'selected' => $selected,
+        ];
+    }
+
+    /**
+     * @param list<array<string, mixed>> $domainOptions
+     *
+     * @return array<string, int|null>
+     */
+    private function buildStartpageLookup(string $namespace, string $locale, array $domainOptions): array
+    {
+        $lookup = [];
+        foreach ($domainOptions as $option) {
+            $value = (string) ($option['value'] ?? '');
+            $page = $this->pageService->resolveStartpage($namespace, $locale, $value !== '' ? $value : null);
+            $lookup[$value] = $page?->getId();
+        }
+
+        if (!array_key_exists('', $lookup)) {
+            $page = $this->pageService->resolveStartpage($namespace, $locale, null);
+            $lookup[''] = $page?->getId();
+        }
+
+        return $lookup;
     }
 
     /**

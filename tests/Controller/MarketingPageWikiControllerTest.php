@@ -552,7 +552,9 @@ final class MarketingPageWikiControllerTest extends TestCase
             sort_order INTEGER NULL,
             status TEXT NULL,
             language TEXT NULL,
-            content_source TEXT NULL
+            content_source TEXT NULL,
+            startpage_domain TEXT NULL,
+            is_startpage INTEGER NOT NULL DEFAULT 0
         )');
         $pdo->exec('CREATE TABLE project_settings (
             namespace TEXT PRIMARY KEY,
