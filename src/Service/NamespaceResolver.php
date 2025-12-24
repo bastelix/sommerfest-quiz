@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Support\DomainNameHelper;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
+use RuntimeException;
 
 final class NamespaceResolver
 {
@@ -63,7 +64,11 @@ final class NamespaceResolver
 
     private function resolveRouteNamespace(Request $request): ?string
     {
-        $route = RouteContext::fromRequest($request)->getRoute();
+        try {
+            $route = RouteContext::fromRequest($request)->getRoute();
+        } catch (RuntimeException) {
+            return null;
+        }
         if ($route === null) {
             return null;
         }

@@ -218,6 +218,83 @@
                   </ul>
                   <p class="uk-text-meta uk-margin-small-top">Optional – Standard ist „Dokumentation“.</p>
                 </div>
+                <div class="uk-margin">
+                  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+                    <label class="uk-form-label uk-margin-remove">Theme-Optionen</label>
+                    <span class="uk-text-meta" data-wiki-theme-updated></span>
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-bottom">Farben und Assets gelten pro ausgewähltem Slug.</p>
+                  <div class="uk-grid-small uk-child-width-1-2@m" uk-grid>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeHeaderFrom">Primärfarbe Header (Liste)</label>
+                      <input class="uk-input" type="color" id="wikiThemeHeaderFrom" data-wiki-theme-color="headerFrom">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeHeaderTo">Akzentfarbe Header (Liste)</label>
+                      <input class="uk-input" type="color" id="wikiThemeHeaderTo" data-wiki-theme-color="headerTo">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeDetailFrom">Primärfarbe Header (Detail)</label>
+                      <input class="uk-input" type="color" id="wikiThemeDetailFrom" data-wiki-theme-color="detailHeaderFrom">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeDetailTo">Akzentfarbe Header (Detail)</label>
+                      <input class="uk-input" type="color" id="wikiThemeDetailTo" data-wiki-theme-color="detailHeaderTo">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeHeaderText">Textfarbe Header</label>
+                      <input class="uk-input" type="color" id="wikiThemeHeaderText" data-wiki-theme-color="headerText">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeExcerpt">Farbe Kurzbeschreibung</label>
+                      <input class="uk-input" type="color" id="wikiThemeExcerpt" data-wiki-theme-color="excerpt">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeCalloutBorder">Akzentfarbe Callouts</label>
+                      <input class="uk-input" type="color" id="wikiThemeCalloutBorder" data-wiki-theme-color="calloutBorder">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeCalloutBackground">Hintergrund Callouts</label>
+                      <input class="uk-input" type="color" id="wikiThemeCalloutBackground" data-wiki-theme-color="calloutBackground">
+                    </div>
+                    <div>
+                      <label class="uk-form-label" for="wikiThemeCalloutText">Textfarbe Callouts</label>
+                      <input class="uk-input" type="color" id="wikiThemeCalloutText" data-wiki-theme-color="calloutText">
+                    </div>
+                  </div>
+                  <div class="uk-grid-small uk-margin-small-top" uk-grid>
+                    <div class="uk-width-1-2@m">
+                      <label class="uk-form-label" for="wikiThemeLogo">Logo-URL (optional)</label>
+                      <input class="uk-input" id="wikiThemeLogo" type="url" data-wiki-theme-logo placeholder="https://...">
+                    </div>
+                    <div class="uk-width-1-2@m">
+                      <label class="uk-form-label" for="wikiThemeBodyClasses">Body-Klassen</label>
+                      <input
+                        class="uk-input"
+                        id="wikiThemeBodyClasses"
+                        type="text"
+                        data-wiki-theme-body-classes
+                        placeholder="class-one class-two"
+                      >
+                      <p class="uk-text-meta uk-margin-small-top">Mehrere Klassen mit Leerzeichen trennen.</p>
+                    </div>
+                  </div>
+                  <div class="uk-margin">
+                    <label class="uk-form-label" for="wikiThemeStylesheets">Zusätzliche Stylesheet-URLs</label>
+                    <textarea
+                      class="uk-textarea"
+                      id="wikiThemeStylesheets"
+                      rows="2"
+                      data-wiki-theme-stylesheets
+                      placeholder="https://cdn.example.com/wiki.css&#10;marketing-wiki.css"
+                    ></textarea>
+                    <p class="uk-text-meta uk-margin-small-top">Eine URL pro Zeile; relative Pfade werden unter /css/ geladen.</p>
+                  </div>
+                  <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 8px;">
+                    <button type="button" class="uk-button uk-button-default" data-wiki-theme-reset>Felder zurücksetzen</button>
+                    <button type="button" class="uk-button uk-button-primary" data-wiki-theme-save>Theme speichern</button>
+                  </div>
+                </div>
                 <div class="uk-flex uk-flex-right uk-flex-middle" style="gap: 12px;">
                   <button type="submit" class="uk-button uk-button-primary" data-wiki-settings-submit>Einstellungen speichern</button>
                 </div>
@@ -370,6 +447,9 @@
     window.transWikiArticleStartMarked = 'Startdokument gespeichert.';
     window.transWikiArticleStartRemoved = 'Startdokument entfernt.';
     window.transWikiArticleStartBadge = 'Start';
+    window.transWikiThemeSaved = 'Theme gespeichert.';
+    window.transWikiThemeError = 'Theme konnte nicht gespeichert werden.';
+    window.transWikiThemeInvalid = 'Ungültige Theme-Angaben.';
   </script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
   <script type="module" src="{{ basePath }}/js/wiki-admin.js"></script>

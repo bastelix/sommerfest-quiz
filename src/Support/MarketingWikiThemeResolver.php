@@ -16,7 +16,7 @@ final class MarketingWikiThemeResolver
      *
      * @return array<string, string>
      */
-    private static function defaultColors(): array
+    public static function defaultColors(): array
     {
         return [
             'headerFrom' => '#111827',
@@ -37,13 +37,15 @@ final class MarketingWikiThemeResolver
      * @param array{
      *     bodyClasses?: list<string>,
      *     stylesheets?: list<string>,
-     *     colors?: array<string, string>
+     *     colors?: array<string, string>,
+     *     logoUrl?: string|null
      * }|null $theme Theme overrides from configuration storage.
      *
      * @return array{
      *     bodyClasses: list<string>,
      *     stylesheets: list<string>,
-     *     colors: array<string, string>
+     *     colors: array<string, string>,
+     *     logoUrl: string|null
      * }
      */
     public static function resolve(?array $theme = null): array
@@ -87,10 +89,20 @@ final class MarketingWikiThemeResolver
             }
         }
 
+        $logoUrl = null;
+        if ($theme !== null && array_key_exists('logoUrl', $theme)) {
+            $logo = $theme['logoUrl'];
+            if (is_string($logo)) {
+                $trimmed = trim($logo);
+                $logoUrl = $trimmed !== '' ? $trimmed : null;
+            }
+        }
+
         return [
             'bodyClasses' => $bodyClasses,
             'stylesheets' => $stylesheets,
             'colors' => $colors,
+            'logoUrl' => $logoUrl,
         ];
     }
 }
