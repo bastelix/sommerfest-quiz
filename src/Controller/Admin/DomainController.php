@@ -144,6 +144,13 @@ class DomainController
             return $parsed;
         }
 
+        if (is_object($parsed)) {
+            $data = json_decode((string) json_encode($parsed), true);
+            if (is_array($data)) {
+                return $data;
+            }
+        }
+
         $contentType = strtolower(trim($request->getHeaderLine('Content-Type')));
         if ($contentType !== '' && str_starts_with($contentType, 'application/json')) {
             $data = json_decode((string) $request->getBody(), true);
