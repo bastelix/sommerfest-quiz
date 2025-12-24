@@ -874,6 +874,7 @@ return [
     'heading_domains' => 'Domains',
     'text_domain_management_hint' => 'Maintain the domains that should point to a specific namespace.',
     'heading_domain_add' => 'Add domain',
+    'heading_domain_edit' => 'Edit domain',
     'label_domain_host' => 'Domain',
     'placeholder_domain_host' => 'e.g. promo.example.org',
     'text_domain_host_hint' => 'Use fully qualified domains only, without protocol or path.',

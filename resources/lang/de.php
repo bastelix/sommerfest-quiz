@@ -874,6 +874,7 @@ return [
     'heading_domains' => 'Domains',
     'text_domain_management_hint' => 'Verwalte Domains und ordne sie einem Namespace zu.',
     'heading_domain_add' => 'Domain hinzufügen',
+    'heading_domain_edit' => 'Domain bearbeiten',
     'label_domain_host' => 'Domain',
     'placeholder_domain_host' => 'z. B. promo.example.org',
     'text_domain_host_hint' => 'Nur vollständige Domains ohne Protokoll oder Pfad verwenden.',
