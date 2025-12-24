@@ -20,6 +20,7 @@ use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
 use App\Support\BasePathHelper;
+use App\Support\FeatureFlags;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -209,6 +210,7 @@ class ProjectPagesController
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'navigation',
             'tenant' => $this->resolveTenant($request),
+            'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
         ]);
     }
 
