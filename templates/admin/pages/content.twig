@@ -105,7 +105,9 @@
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        {% set hasDomainNamespace = domainNamespace is defined and domainNamespace is not empty %}
+        {% set hasDomainNamespace = hasDomainNamespace is defined
+          ? hasDomainNamespace
+          : domainNamespace is defined and domainNamespace is not empty %}
         {% if pageNamespaceOptions is empty %}
           {% set pageNamespaceOptions = [{
             namespace: activePageNamespace,
