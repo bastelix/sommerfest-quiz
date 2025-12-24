@@ -1,5 +1,7 @@
 {% extends 'layout.twig' %}
 
+{% set useNavigationTree = use_navigation_tree|default(false) %}
+
 {% block config_color_styles %}{% endblock %}
 
 {% block title %}{{ t('tab_navigation') }}{% endblock %}
@@ -140,127 +142,185 @@
         {% set marketingLocaleOptions = ['de', 'en'] %}
         {% set selectedMenuLocale = locale()|default('de') %}
         {% set menuPagesData = hasPages ? menu_pages|default([]) : [] %}
-        <div
-          class="uk-card uk-card-default uk-card-body uk-margin"
-          data-marketing-menu-manager
-          data-base-path="{{ basePath }}"
-          data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
-          data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
-          data-namespace="{{ activePageNamespace|e('html_attr') }}"
-          data-locale="{{ selectedMenuLocale|e('html_attr') }}"
-        >
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-            <div>
-              <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
-              <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
-            </div>
-            <div class="uk-flex uk-flex-middle" style="gap: 8px; flex-wrap: wrap;">
-              <div class="uk-button-group">
-                <button
-                  type="button"
-                  class="uk-button uk-button-default"
-                  data-menu-export
-                  {% if selectedSlug == '' %}disabled{% endif %}
-                >Menü exportieren</button>
-                <button
-                  type="button"
-                  class="uk-button uk-button-default"
-                  data-menu-import
-                  {% if selectedSlug == '' %}disabled{% endif %}
-                >Menü importieren</button>
+        {% if useNavigationTree %}
+          <div
+            class="uk-card uk-card-default uk-card-body uk-margin"
+            data-marketing-menu-tree
+            data-base-path="{{ basePath }}"
+            data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+            data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+            data-namespace="{{ activePageNamespace|e('html_attr') }}"
+            data-locale="{{ selectedMenuLocale|e('html_attr') }}"
+          >
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+              <div>
+                <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+                <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
               </div>
-              <input type="file" accept="application/json" data-menu-import-input hidden>
-              <button
-                type="button"
-                class="uk-button uk-button-default"
-                data-menu-add
-                {% if selectedSlug == '' %}disabled{% endif %}
-              >Eintrag hinzufügen</button>
+              <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
+                <div class="uk-button-group">
+                  <button
+                    type="button"
+                    class="uk-button uk-button-primary"
+                    data-menu-save-all
+                    disabled
+                    aria-label="Änderungen speichern"
+                  >Speichern</button>
+                  <button
+                    type="button"
+                    class="uk-button uk-button-default"
+                    data-menu-cancel
+                    aria-label="Änderungen verwerfen"
+                  >Abbrechen</button>
+                </div>
+                <div class="uk-button-group">
+                  <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedSlug == '' %}disabled{% endif %}>Menü exportieren</button>
+                  <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedSlug == '' %}disabled{% endif %}>Menü importieren</button>
+                </div>
+                <input type="file" accept="application/json" data-menu-import-input hidden>
+                <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedSlug == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
+              </div>
             </div>
+            {% if not hasPages %}
+              <div class="uk-alert uk-alert-warning uk-margin-small-top">
+                Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+              </div>
+            {% endif %}
+            <p class="uk-text-meta uk-margin-small-top">
+              Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop pro Ebene passt die Reihenfolge an.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top">
+              Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top">
+              Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+            </p>
+            <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
+            <div class="menu-tree" role="tree" aria-label="Navigation" tabindex="0" data-menu-tree></div>
           </div>
-          {% if not hasPages %}
-            <div class="uk-alert uk-alert-warning uk-margin-small-top">
-              Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+        {% else %}
+          <div
+            class="uk-card uk-card-default uk-card-body uk-margin"
+            data-marketing-menu-manager
+            data-base-path="{{ basePath }}"
+            data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+            data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+            data-namespace="{{ activePageNamespace|e('html_attr') }}"
+            data-locale="{{ selectedMenuLocale|e('html_attr') }}"
+          >
+            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+              <div>
+                <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+                <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
+              </div>
+              <div class="uk-flex uk-flex-middle" style="gap: 8px; flex-wrap: wrap;">
+                <div class="uk-button-group">
+                  <button
+                    type="button"
+                    class="uk-button uk-button-default"
+                    data-menu-export
+                    {% if selectedSlug == '' %}disabled{% endif %}
+                  >Menü exportieren</button>
+                  <button
+                    type="button"
+                    class="uk-button uk-button-default"
+                    data-menu-import
+                    {% if selectedSlug == '' %}disabled{% endif %}
+                  >Menü importieren</button>
+                </div>
+                <input type="file" accept="application/json" data-menu-import-input hidden>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default"
+                  data-menu-add
+                  {% if selectedSlug == '' %}disabled{% endif %}
+                >Eintrag hinzufügen</button>
+              </div>
             </div>
-          {% endif %}
-          <p class="uk-text-meta uk-margin-small-top">
-            Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
-          </p>
-          <p class="uk-text-meta uk-margin-small-top">
-            Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
-          </p>
-          <p class="uk-text-meta uk-margin-small-top">
-            Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
-          </p>
-          <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
-          <div class="uk-overflow-auto admin-table-wrapper">
-            <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
-              <thead>
-                <tr>
-                  <th class="uk-table-shrink"></th>
-                  <th>Label</th>
-                  <th>Link</th>
-                  <th class="uk-table-shrink">Parent</th>
-                  <th class="uk-table-shrink">Layout</th>
-                  <th class="uk-table-shrink">Icon</th>
-                  <th class="uk-table-shrink">Locale</th>
-                  <th class="uk-table-shrink uk-text-center">Startpage</th>
-                  <th class="uk-table-shrink uk-text-center">Extern</th>
-                  <th class="uk-table-shrink uk-text-center">Aktiv</th>
-                  <th>Erklärung</th>
-                  <th class="uk-table-shrink uk-text-right">Aktionen</th>
-                </tr>
-              </thead>
-              <tbody data-menu-items>
-                <tr data-menu-loading-row>
-                  <td colspan="12">Lädt…</td>
-                </tr>
-              </tbody>
-            </table>
+            {% if not hasPages %}
+              <div class="uk-alert uk-alert-warning uk-margin-small-top">
+                Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+              </div>
+            {% endif %}
+            <p class="uk-text-meta uk-margin-small-top">
+              Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top">
+              Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top">
+              Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+            </p>
+            <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
+            <div class="uk-overflow-auto admin-table-wrapper">
+              <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
+                <thead>
+                  <tr>
+                    <th class="uk-table-shrink"></th>
+                    <th>Label</th>
+                    <th>Link</th>
+                    <th class="uk-table-shrink">Parent</th>
+                    <th class="uk-table-shrink">Layout</th>
+                    <th class="uk-table-shrink">Icon</th>
+                    <th class="uk-table-shrink">Locale</th>
+                    <th class="uk-table-shrink uk-text-center">Startpage</th>
+                    <th class="uk-table-shrink uk-text-center">Extern</th>
+                    <th class="uk-table-shrink uk-text-center">Aktiv</th>
+                    <th>Erklärung</th>
+                    <th class="uk-table-shrink uk-text-right">Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody data-menu-items>
+                  <tr data-menu-loading-row>
+                    <td colspan="12">Lädt…</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <script>
+              (() => {
+                const container = document.querySelector('[data-marketing-menu-manager]');
+                if (!container) {
+                  return;
+                }
+
+                const getLoadingRow = () => container.querySelector('[data-menu-loading-row]');
+                const showError = () => {
+                  if (container.dataset.menuInitialized === 'true') {
+                    return;
+                  }
+                  const loadingRow = getLoadingRow();
+                  if (!loadingRow) {
+                    return;
+                  }
+                  loadingRow.dataset.menuFallbackShown = 'true';
+                  loadingRow.innerHTML = '<td colspan="12" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
+                };
+
+                const clearErrorIfReady = () => {
+                  const loadingRow = getLoadingRow();
+                  if (!loadingRow || loadingRow.dataset.menuFallbackShown !== 'true') {
+                    return;
+                  }
+                  loadingRow.dataset.menuFallbackShown = 'false';
+                  loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
+                };
+
+                window.addEventListener('load', () => {
+                  window.setTimeout(showError, 2500);
+                }, { once: true });
+
+                const observer = new MutationObserver(() => {
+                  if (container.dataset.menuInitialized === 'true') {
+                    clearErrorIfReady();
+                    observer.disconnect();
+                  }
+                });
+                observer.observe(container, { attributes: true, attributeFilter: ['data-menu-initialized'] });
+              })();
+            </script>
           </div>
-          <script>
-            (() => {
-              const container = document.querySelector('[data-marketing-menu-manager]');
-              if (!container) {
-                return;
-              }
-
-              const getLoadingRow = () => container.querySelector('[data-menu-loading-row]');
-              const showError = () => {
-                if (container.dataset.menuInitialized === 'true') {
-                  return;
-                }
-                const loadingRow = getLoadingRow();
-                if (!loadingRow) {
-                  return;
-                }
-                loadingRow.dataset.menuFallbackShown = 'true';
-                loadingRow.innerHTML = '<td colspan="12" class="uk-text-danger">Menü-Editor konnte nicht geladen werden. Bitte Seite neu laden oder Console prüfen.</td>';
-              };
-
-              const clearErrorIfReady = () => {
-                const loadingRow = getLoadingRow();
-                if (!loadingRow || loadingRow.dataset.menuFallbackShown !== 'true') {
-                  return;
-                }
-                loadingRow.dataset.menuFallbackShown = 'false';
-                loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
-              };
-
-              window.addEventListener('load', () => {
-                window.setTimeout(showError, 2500);
-              }, { once: true });
-
-              const observer = new MutationObserver(() => {
-                if (container.dataset.menuInitialized === 'true') {
-                  clearErrorIfReady();
-                  observer.disconnect();
-                }
-              });
-              observer.observe(container, { attributes: true, attributeFilter: ['data-menu-initialized'] });
-            })();
-          </script>
-        </div>
+        {% endif %}
 
         <div class="uk-margin">
           <ul class="uk-accordion" uk-accordion="collapsible: true">
@@ -330,6 +390,10 @@
 
 {% block scripts %}
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
-  <script type="module" src="{{ basePath }}/js/marketing-menu-admin.js"></script>
+  {% if useNavigationTree %}
+    <script type="module" src="{{ basePath }}/js/marketing-menu-tree.js"></script>
+  {% else %}
+    <script type="module" src="{{ basePath }}/js/marketing-menu-admin.js"></script>
+  {% endif %}
   <script type="module" src="{{ basePath }}/js/trumbowyg-pages.js"></script>
 {% endblock %}
