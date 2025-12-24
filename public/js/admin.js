@@ -3966,6 +3966,7 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     const domainEndpoint = '/admin/domains';
     const domainForm = managementSection?.querySelector('#domainForm') || null;
+    const domainLegend = managementSection?.querySelector('#domainLegend') || null;
     const domainFormError = managementSection?.querySelector('#domainFormError') || null;
     const domainIdInput = managementSection?.querySelector('#domainId') || null;
     const domainHostInput = managementSection?.querySelector('#domainHost') || null;
@@ -3990,6 +3991,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }, {});
     const domainPattern = /^(?=.{1,255}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
     let domainData = [];
+
+    const setLegend = label => {
+      if (domainLegend) {
+        const addLabel = domainLegend.dataset.addLabel || domainLegend.textContent || '';
+        domainLegend.textContent = label || addLabel;
+      }
+    };
 
     const setFormError = message => {
       if (!domainFormError) {
@@ -4024,6 +4032,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (domainFormCancel) {
         domainFormCancel.hidden = true;
       }
+      setLegend(domainLegend?.dataset.addLabel || '');
       setFormError('');
     };
 
@@ -4050,6 +4059,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       if (domainFormCancel) {
         domainFormCancel.hidden = false;
+      }
+      setLegend(domainLegend?.dataset.editLabel || '');
+      if (domainHostInput) {
+        domainHostInput.focus();
       }
       setFormError('');
     };

@@ -2134,7 +2134,14 @@
                 data-success="{{ t('notify_domain_saved') }}"
               >
                 <fieldset class="uk-fieldset">
-                  <legend id="domain-add" class="uk-legend">{{ t('heading_domain_add') }}</legend>
+                  <legend
+                    id="domainLegend"
+                    class="uk-legend"
+                    data-add-label="{{ t('heading_domain_add') }}"
+                    data-edit-label="{{ t('heading_domain_edit') }}"
+                  >
+                    {{ t('heading_domain_add') }}
+                  </legend>
                   <input type="hidden" id="domainId" name="id">
                   <div class="uk-alert uk-alert-danger uk-margin-small-bottom" id="domainFormError" hidden role="alert"></div>
                   <div class="uk-grid-small" uk-grid>
