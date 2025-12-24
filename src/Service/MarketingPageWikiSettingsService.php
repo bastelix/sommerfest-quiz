@@ -21,7 +21,10 @@ final class MarketingPageWikiSettingsService
 
     public function getSettingsForPage(int $pageId): MarketingPageWikiSettings
     {
-        $stmt = $this->pdo->prepare('SELECT page_id, is_active, menu_label, menu_labels, updated_at FROM marketing_page_wiki_settings WHERE page_id = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT page_id, is_active, menu_label, menu_labels, updated_at '
+            . 'FROM marketing_page_wiki_settings WHERE page_id = ?'
+        );
         $stmt->execute([$pageId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -67,7 +70,8 @@ final class MarketingPageWikiSettingsService
 
         if ($exists) {
             $update = $this->pdo->prepare(
-                'UPDATE marketing_page_wiki_settings SET is_active = ?, menu_label = ?, menu_labels = ?, updated_at = CURRENT_TIMESTAMP WHERE page_id = ?'
+                'UPDATE marketing_page_wiki_settings SET is_active = ?, menu_label = ?, menu_labels = ?, '
+                . 'updated_at = CURRENT_TIMESTAMP WHERE page_id = ?'
             );
             $update->execute([
                 $isActive ? 1 : 0,
@@ -77,7 +81,8 @@ final class MarketingPageWikiSettingsService
             ]);
         } else {
             $insert = $this->pdo->prepare(
-                'INSERT INTO marketing_page_wiki_settings (page_id, is_active, menu_label, menu_labels) VALUES (?, ?, ?, ?)'
+                'INSERT INTO marketing_page_wiki_settings (page_id, is_active, menu_label, menu_labels) '
+                . 'VALUES (?, ?, ?, ?)'
             );
             $insert->execute([
                 $pageId,

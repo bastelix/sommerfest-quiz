@@ -669,7 +669,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
             ->withAttribute('rankingController', new RankingController($configService, $eventService))
-            ->withAttribute('playerContactController', new PlayerContactController($playerContactOptInService, $eventService))
+            ->withAttribute(
+                'playerContactController',
+                new PlayerContactController($playerContactOptInService, $eventService)
+            )
             ->withAttribute('mailProviderManager', $mailProviderManager)
             ->withAttribute('mailProviderController', new MailProviderController(
                 $mailProviderRepository,
@@ -839,7 +842,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->index($request, $response, ['landingSlug' => 'landing']);
     });
-    $app->get('/landing/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/landing/news/{newsSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -848,7 +855,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $args['landingSlug'] = 'landing';
         return $controller->show($request, $response, $args);
     });
-    $app->get('/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/{landingSlug:[a-z0-9-]+}/news', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -856,7 +867,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->index($request, $response, $args);
     });
-    $app->get('/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -864,7 +879,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, $args);
     });
-    $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -874,7 +893,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller($request, $response, $args);
     });
-    $app->get('/pages/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/pages/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -884,7 +907,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller($request, $response, $args);
     });
-    $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -892,7 +919,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingLandingNewsController();
         return $controller->index($request, $response, $args);
     });
-    $app->get('/m/{slug:[a-z0-9-]+}/wiki', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/m/{slug:[a-z0-9-]+}/wiki', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -902,7 +933,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller($request, $response, $args);
     });
-    $app->get('/m/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/m/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -912,7 +947,11 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller($request, $response, $args);
     });
-    $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+    $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
             return $response->withStatus(404);
@@ -974,7 +1013,14 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post(
         '/m/{marketingSlug:[a-z0-9-]+}/chat',
-        function (Request $request, Response $response, array $args) use ($createChatHandler, $resolveMarketingAccess): Response {
+        function (
+            Request $request,
+            Response $response,
+            array $args
+        ) use (
+            $createChatHandler,
+            $resolveMarketingAccess
+        ): Response {
             [$request, $allowed] = $resolveMarketingAccess($request);
             if (!$allowed) {
                 return $response->withStatus(404);
@@ -1376,7 +1422,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))
         ->add(new CsrfMiddleware());
     $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
-    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/subscription/portal', SubscriptionController::class)
+        ->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/subscription/status', function (Request $request, Response $response) {
         $domainType = (string) $request->getAttribute('domainType');
         $base = Database::connectFromEnv();
@@ -1604,55 +1651,91 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->updateStartpage($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/settings', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/settings', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->updateSettings($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->saveArticle($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/status', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/status', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->updateStatus($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/start', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/start', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->updateStartDocument($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/duplicate', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/duplicate', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->duplicate($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (Request $request, Response $response, array $args) {
+    $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->showArticle($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
-    $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/download', function (Request $request, Response $response, array $args) {
+    $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/download', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->download($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
-    $app->delete('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (Request $request, Response $response, array $args) {
+    $app->delete('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
-    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/sort', function (Request $request, Response $response, array $args) {
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/sort', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
         $controller = new MarketingPageWikiController();
 
         return $controller->sort($request, $response, $args);
@@ -2786,7 +2869,11 @@ return function (\Slim\App $app, TranslationService $translator) {
                     mkdir(dirname($logPath), 0775, true);
                 }
 
-                $message = sprintf('[%s] Missing wildcard certificate for "%s" – provisioning via script.', date('c'), $baseDomain);
+                $message = sprintf(
+                    '[%s] Missing wildcard certificate for "%s" – provisioning via script.',
+                    date('c'),
+                    $baseDomain
+                );
                 file_put_contents($logPath, $message . PHP_EOL, FILE_APPEND);
                 $log = (string) file_get_contents($logPath);
 
@@ -2860,7 +2947,11 @@ return function (\Slim\App $app, TranslationService $translator) {
                     ->withStatus(500);
             }
 
-            $message = sprintf('[%s] Single container mode active – skipped docker onboarding for "%s".', date('c'), $slug);
+            $message = sprintf(
+                '[%s] Single container mode active – skipped docker onboarding for "%s".',
+                date('c'),
+                $slug
+            );
             if (!is_dir(dirname($logPath))) {
                 mkdir(dirname($logPath), 0775, true);
             }
