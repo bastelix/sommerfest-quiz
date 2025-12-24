@@ -1645,6 +1645,18 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->sort($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->get('/admin/pages/{pageId:[0-9]+}/menu/export', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuController();
+
+        return $controller->export($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/menu/import', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuController();
+
+        return $controller->import($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/{pageId:[0-9]+}/startpage', function (Request $request, Response $response, array $args) {
         $controller = new ProjectPagesController();
 

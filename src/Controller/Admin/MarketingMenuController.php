@@ -190,6 +190,60 @@ final class MarketingMenuController
         return $response->withStatus(204);
     }
 
+    public function export(Request $request, Response $response, array $args): Response
+    {
+        $pageId = (int) ($args['pageId'] ?? 0);
+        $page = $this->pageService->findById($pageId);
+        if ($page === null) {
+            return $this->jsonError($response, 'Page not found.', 404);
+        }
+
+        $params = $request->getQueryParams();
+        $locale = null;
+        if (isset($params['locale']) && is_string($params['locale'])) {
+            $localeCandidate = strtolower(trim($params['locale']));
+            if ($localeCandidate !== '') {
+                $locale = $localeCandidate;
+            }
+        }
+
+        try {
+            $payload = $this->menuService->serializeMenuExport($pageId, $locale);
+        } catch (RuntimeException $exception) {
+            return $this->jsonError($response, $exception->getMessage(), 400);
+        }
+
+        $json = json_encode($payload, JSON_PRETTY_PRINT);
+        $response->getBody()->write((string) $json);
+
+        $filename = sprintf('marketing-menu-%s-%s.json', $page->getSlug(), date('Ymd-His'));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function import(Request $request, Response $response, array $args): Response
+    {
+        $pageId = (int) ($args['pageId'] ?? 0);
+        if ($this->pageService->findById($pageId) === null) {
+            return $this->jsonError($response, 'Page not found.', 404);
+        }
+
+        $payload = $this->parseJsonBody($request);
+        if ($payload === null) {
+            return $this->jsonError($response, 'Invalid payload.', 400);
+        }
+
+        try {
+            $this->menuService->importMenuPayload($pageId, $payload);
+        } catch (RuntimeException $exception) {
+            return $this->jsonError($response, $exception->getMessage(), 422);
+        }
+
+        return $response->withStatus(204);
+    }
+
     /**
      * @return array{array<string, mixed>, array<string, string>}
      */

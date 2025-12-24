@@ -154,12 +154,29 @@
               <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
               <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
             </div>
-            <button
-              type="button"
-              class="uk-button uk-button-default"
-              data-menu-add
-              {% if selectedSlug == '' %}disabled{% endif %}
-            >Eintrag hinzufügen</button>
+            <div class="uk-flex uk-flex-middle" style="gap: 8px; flex-wrap: wrap;">
+              <div class="uk-button-group">
+                <button
+                  type="button"
+                  class="uk-button uk-button-default"
+                  data-menu-export
+                  {% if selectedSlug == '' %}disabled{% endif %}
+                >Menü exportieren</button>
+                <button
+                  type="button"
+                  class="uk-button uk-button-default"
+                  data-menu-import
+                  {% if selectedSlug == '' %}disabled{% endif %}
+                >Menü importieren</button>
+              </div>
+              <input type="file" accept="application/json" data-menu-import-input hidden>
+              <button
+                type="button"
+                class="uk-button uk-button-default"
+                data-menu-add
+                {% if selectedSlug == '' %}disabled{% endif %}
+              >Eintrag hinzufügen</button>
+            </div>
           </div>
           {% if not hasPages %}
             <div class="uk-alert uk-alert-warning uk-margin-small-top">

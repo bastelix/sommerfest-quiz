@@ -19,6 +19,9 @@ if (manager) {
     const localeSelect = document.getElementById('menuLocaleSelect');
     const pageLabel = manager.querySelector('[data-menu-page-label]');
     const addButton = manager.querySelector('[data-menu-add]');
+    const exportButton = manager.querySelector('[data-menu-export]');
+    const importButton = manager.querySelector('[data-menu-import]');
+    const importInput = manager.querySelector('[data-menu-import-input]');
     const itemsBody = manager.querySelector('[data-menu-items]');
     const feedback = manager.querySelector('[data-menu-feedback]');
     const loadingRow = manager.querySelector('[data-menu-loading-row]');
@@ -119,28 +122,120 @@ if (manager) {
       return `${basePath}${path}`;
     };
 
-  const setFeedback = (message, status = 'primary') => {
-    if (!feedback) {
-      return;
-    }
-    feedback.textContent = message;
-    feedback.classList.remove('uk-alert-primary', 'uk-alert-success', 'uk-alert-danger', 'uk-alert-warning');
-    const cls = status === 'danger'
-      ? 'uk-alert-danger'
-      : status === 'success'
-        ? 'uk-alert-success'
-        : status === 'warning'
-          ? 'uk-alert-warning'
-          : 'uk-alert-primary';
-    feedback.classList.add(cls);
-    feedback.hidden = false;
-  };
+    const setFeedback = (message, status = 'primary') => {
+      if (!feedback) {
+        return;
+      }
+      feedback.textContent = message;
+      feedback.classList.remove('uk-alert-primary', 'uk-alert-success', 'uk-alert-danger', 'uk-alert-warning');
+      const cls = status === 'danger'
+        ? 'uk-alert-danger'
+        : status === 'success'
+          ? 'uk-alert-success'
+          : status === 'warning'
+            ? 'uk-alert-warning'
+            : 'uk-alert-primary';
+      feedback.classList.add(cls);
+      feedback.hidden = false;
+    };
 
-  const hideFeedback = () => {
-    if (feedback) {
-      feedback.hidden = true;
-    }
-  };
+    const hideFeedback = () => {
+      if (feedback) {
+        feedback.hidden = true;
+      }
+    };
+
+    const downloadMenu = () => {
+      if (!state.pageId) {
+        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        return;
+      }
+
+      const path = appendQueryParam(withNamespace(buildPath(state.pageId, '/menu/export')), 'locale', resolveLocale());
+      apiFetch(path, { headers: { Accept: 'application/json' } })
+        .then(async response => {
+          if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            const message = body?.error || 'Export fehlgeschlagen.';
+            throw new Error(message);
+          }
+          const data = await response.json();
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const slug = state.pageSlug || 'menu';
+          const namespace = resolveNamespace() || 'default';
+          const locale = resolveLocale() || 'all';
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const filename = `marketing-menu-${slug}-${namespace}-${locale}-${timestamp}.json`;
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+          setFeedback('Menü exportiert.', 'success');
+        })
+        .catch(error => {
+          console.error('Failed to export marketing menu', error);
+          setFeedback(error.message || 'Export fehlgeschlagen.', 'danger');
+        });
+    };
+
+    const submitImportPayload = payload => {
+      if (!state.pageId) {
+        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        return;
+      }
+
+      apiFetch(withNamespace(buildPath(state.pageId, '/menu/import')), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(async response => {
+          if (response.ok || response.status === 204) {
+            return null;
+          }
+          const body = await response.json().catch(() => ({}));
+          const message = body?.error || 'Import fehlgeschlagen.';
+          throw new Error(message);
+        })
+        .then(() => {
+          setFeedback('Menü importiert.', 'success');
+          loadMenuItems(resolveLocale());
+        })
+        .catch(error => {
+          console.error('Failed to import marketing menu', error);
+          setFeedback(error.message || 'Import fehlgeschlagen.', 'danger');
+        });
+    };
+
+    const handleImportFile = file => {
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const content = event?.target?.result || '';
+          const payload = JSON.parse(content);
+          submitImportPayload(payload);
+        } catch (error) {
+          console.error('Invalid marketing menu import file', error);
+          setFeedback('Die Datei konnte nicht gelesen werden. Bitte gültiges JSON hochladen.', 'danger');
+        } finally {
+          if (importInput) {
+            importInput.value = '';
+          }
+        }
+      };
+      reader.onerror = () => {
+        setFeedback('Datei konnte nicht geladen werden.', 'danger');
+        if (importInput) {
+          importInput.value = '';
+        }
+      };
+      reader.readAsText(file);
+    };
 
   const formatPageLabel = page => {
     const title = (page?.title || '').trim();
@@ -981,10 +1076,32 @@ if (manager) {
     state.pageId = page ? Number(page.id) : null;
     setPageLabel(page);
     addButton.disabled = !state.pageId;
+    if (exportButton) {
+      exportButton.disabled = !state.pageId;
+    }
+    if (importButton) {
+      importButton.disabled = !state.pageId;
+    }
     loadMenuItems(resolveLocale());
   };
 
   addButton.addEventListener('click', addRow);
+
+  exportButton?.addEventListener('click', downloadMenu);
+  importButton?.addEventListener('click', () => {
+    if (!state.pageId) {
+      setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+      return;
+    }
+    importInput?.click();
+  });
+  importInput?.addEventListener('change', event => {
+    const file = event.target?.files?.[0];
+    if (!file) {
+      return;
+    }
+    handleImportFile(file);
+  });
 
   pageSelect?.addEventListener('change', () => {
     updateSelectedPage();
