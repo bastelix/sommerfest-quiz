@@ -56,6 +56,7 @@ if (manager) {
       { value: 'column', label: 'Spalte' }
     ];
     const allowedSchemes = ['http', 'https', 'mailto', 'tel'];
+    const namespaceMismatchMessage = 'Namespace/Locale von Eltern- und Kindelement müssen übereinstimmen.';
     const NAMESPACE_MISMATCH_ERROR = 'Namespace des Exports stimmt nicht mit der Seite überein.';
 
     if (!itemsBody || !addButton) {
@@ -352,6 +353,18 @@ if (manager) {
       if (!allowedSchemes.includes(scheme)) {
         return 'URL-Schema ist nicht erlaubt.';
       }
+      try {
+        // eslint-disable-next-line no-new
+        new URL(href);
+      } catch (error) {
+        return 'Ungültige URL.';
+      }
+      if (scheme === 'mailto' && !href.includes('@')) {
+        return 'Mailto-Links benötigen eine Empfänger-Adresse.';
+      }
+      if (scheme === 'tel' && !href.replace(/[^0-9+]/g, '').length) {
+        return 'Telefon-Links benötigen eine Rufnummer.';
+      }
       return null;
     }
     const firstChar = href[0] || '';
@@ -371,6 +384,14 @@ if (manager) {
       return 'Link muss mit dem BasePath beginnen.';
     }
     return null;
+  };
+
+  const normalizeSlug = href => {
+    const clean = (href || '').split(/[?#]/)[0];
+    const withoutBase = basePath && clean.startsWith(`${basePath}/`)
+      ? clean.slice(basePath.length)
+      : clean;
+    return withoutBase.replace(/^\//, '').replace(/\/$/, '').toLowerCase();
   };
 
   const resolveRowData = row => {
@@ -440,6 +461,184 @@ if (manager) {
     const error = hrefValue ? validateHref(hrefValue) : 'Link ist erforderlich.';
     setValidationState(hrefInput, hrefError, error);
     return !error;
+  };
+
+  const updateStartpageBadge = row => {
+    const badge = row.querySelector('[data-menu-startpage-badge]');
+    const startpageInput = row.querySelector('[data-menu-startpage]');
+    const localeInput = row.querySelector('[data-menu-locale]');
+    if (!badge) {
+      return;
+    }
+    const locale = localeInput?.value?.trim();
+    badge.hidden = !startpageInput?.checked;
+    badge.textContent = locale ? `Startseite (${locale})` : 'Startseite';
+  };
+
+  const ensureRowIdentifier = row => {
+    if (row.dataset.id) {
+      return row.dataset.id;
+    }
+    if (!row.dataset.tempId) {
+      row.dataset.tempId = `tmp-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+    return row.dataset.tempId;
+  };
+
+  const appendMessage = (currentMessage, message) => {
+    if (!currentMessage) {
+      return message;
+    }
+    if (currentMessage.includes(message)) {
+      return currentMessage;
+    }
+    return `${currentMessage} ${message}`;
+  };
+
+  const validateRows = () => {
+    const result = { errors: [], warnings: [] };
+    const rows = Array.from(itemsBody.querySelectorAll('tr[data-menu-row]'))
+      .map(row => ({ id: ensureRowIdentifier(row), row, data: resolveRowData(row) }));
+
+    const labelCounts = new Map();
+    const slugCounts = new Map();
+    const rowById = new Map();
+
+    rows.forEach(entry => {
+      const labelKey = `${normalizeLocaleValue(entry.data.locale)}|${(entry.data.label || '').trim().toLowerCase()}`;
+      const slugValue = normalizeSlug(entry.data.href);
+      const slugKey = `${normalizeLocaleValue(entry.data.locale)}|${slugValue}`;
+      rowById.set(entry.id, entry);
+      labelCounts.set(labelKey, (labelCounts.get(labelKey) || 0) + (entry.data.label ? 1 : 0));
+      if (slugValue) {
+        slugCounts.set(slugKey, (slugCounts.get(slugKey) || 0) + 1);
+      }
+    });
+
+    const parentMap = new Map();
+    rows.forEach(entry => {
+      if (entry.data.parentId) {
+        parentMap.set(entry.id, String(entry.data.parentId));
+      }
+    });
+
+    const visited = new Set();
+    const stack = new Set();
+    const cycleNodes = new Set();
+    const detectCycle = id => {
+      if (!id || visited.has(id)) {
+        return;
+      }
+      visited.add(id);
+      stack.add(id);
+      const parentId = parentMap.get(id);
+      if (parentId) {
+        if (stack.has(parentId)) {
+          cycleNodes.add(id);
+          cycleNodes.add(parentId);
+        } else {
+          detectCycle(parentId);
+        }
+      }
+      stack.delete(id);
+    };
+    rows.forEach(entry => detectCycle(entry.id));
+
+    const startpageLocales = new Map();
+
+    rows.forEach(entry => {
+      const { row, data } = entry;
+      const labelInput = row.querySelector('[data-menu-label]');
+      const labelError = row.querySelector('[data-menu-label-error]');
+      const hrefInput = row.querySelector('[data-menu-href]');
+      const hrefError = row.querySelector('[data-menu-link-error]');
+      const parentSelect = row.querySelector('[data-menu-parent]');
+      const parentError = row.querySelector('[data-menu-parent-error]');
+      const startpageInput = row.querySelector('[data-menu-startpage]');
+      const localeInput = row.querySelector('[data-menu-locale]');
+
+      const labelMessage = data.label ? '' : 'Label ist erforderlich.';
+      setValidationState(labelInput, labelError, labelMessage);
+
+      const hrefMessage = data.href ? validateHref(data.href) : 'Link ist erforderlich.';
+      setValidationState(hrefInput, hrefError, hrefMessage);
+
+      setValidationState(parentSelect, parentError, '');
+
+      if (labelMessage) {
+        result.errors.push(labelMessage);
+      }
+      if (hrefMessage) {
+        result.errors.push(hrefMessage);
+      }
+
+      const labelKey = `${normalizeLocaleValue(data.locale)}|${(data.label || '').trim().toLowerCase()}`;
+      if (data.label && labelCounts.get(labelKey) > 1) {
+        const message = 'Label ist mehrfach vergeben.';
+        setValidationState(labelInput, labelError, appendMessage(labelError?.textContent, message));
+        result.errors.push(message);
+      }
+
+      const slug = normalizeSlug(data.href);
+      if (slug && slugCounts.get(`${normalizeLocaleValue(data.locale)}|${slug}`) > 1) {
+        const message = 'Slug/Link ist mehrfach vergeben.';
+        setValidationState(hrefInput, hrefError, appendMessage(hrefError?.textContent, message));
+        result.errors.push(message);
+      }
+
+      if (cycleNodes.has(entry.id)) {
+        const message = 'Zyklische Eltern-Relation erkannt.';
+        setValidationState(parentSelect, parentError, appendMessage(parentError?.textContent, message));
+        result.errors.push(message);
+      }
+
+      if (data.parentId) {
+        const parentEntry = rowById.get(String(data.parentId));
+        if (!parentEntry) {
+          const message = 'Ausgewählter Elternknoten existiert nicht.';
+          setValidationState(parentSelect, parentError, appendMessage(parentError?.textContent, message));
+          result.errors.push(message);
+        } else {
+          const parentLocale = normalizeLocaleValue(parentEntry.data.locale);
+          const locale = normalizeLocaleValue(data.locale);
+          if (parentLocale && locale && parentLocale !== locale) {
+            setValidationState(
+              parentSelect,
+              parentError,
+              appendMessage(parentError?.textContent, namespaceMismatchMessage)
+            );
+            result.errors.push(namespaceMismatchMessage);
+          }
+        }
+      }
+
+      if (startpageInput?.checked) {
+        const localeKey = normalizeLocaleValue(localeInput?.value || '');
+        const entries = startpageLocales.get(localeKey) || [];
+        entries.push(row);
+        startpageLocales.set(localeKey, entries);
+      }
+
+      updateStartpageBadge(row);
+    });
+
+    startpageLocales.forEach((list, locale) => {
+      if (list.length > 1) {
+        const localeLabel = locale || 'alle Locales';
+        result.warnings.push(`Mehrere Startseiten für ${localeLabel} gesetzt.`);
+      }
+    });
+
+    const messageList = result.errors.length
+      ? [...new Set(result.errors)]
+      : [...new Set(result.warnings)];
+    if (messageList.length) {
+      setFeedback(messageList.join(' '), result.errors.length ? 'danger' : 'warning');
+    } else {
+      hideFeedback();
+    }
+
+    return result;
   };
 
   const buildTree = items => {
@@ -589,8 +788,21 @@ if (manager) {
     labelInput.placeholder = 'Menütitel';
     labelInput.value = item?.label || '';
     labelInput.dataset.menuLabel = 'true';
+    const labelError = document.createElement('div');
+    labelError.className = 'uk-text-danger uk-text-small';
+    labelError.dataset.menuLabelError = 'true';
+    labelError.hidden = true;
+    const startpageBadge = document.createElement('span');
+    startpageBadge.className = 'uk-label uk-label-success uk-margin-small-right';
+    startpageBadge.dataset.menuStartpageBadge = 'true';
+    startpageBadge.hidden = item?.isStartpage !== true;
+    startpageBadge.textContent = item?.locale
+      ? `Startseite (${item.locale})`
+      : 'Startseite';
     labelWrapper.style.paddingLeft = `${Math.max(0, Number(item?.depth || 0)) * 16}px`;
+    labelWrapper.appendChild(startpageBadge);
     labelWrapper.appendChild(labelInput);
+    labelWrapper.appendChild(labelError);
     labelCell.appendChild(labelWrapper);
 
     const hrefCell = document.createElement('td');
@@ -610,7 +822,12 @@ if (manager) {
     const parentCell = document.createElement('td');
     parentCell.className = 'uk-table-shrink';
     const parentSelect = createParentSelect(item);
+    const parentError = document.createElement('div');
+    parentError.className = 'uk-text-danger uk-text-small';
+    parentError.dataset.menuParentError = 'true';
+    parentError.hidden = true;
     parentCell.appendChild(parentSelect);
+    parentCell.appendChild(parentError);
 
     const layoutCell = document.createElement('td');
     layoutCell.className = 'uk-table-shrink';
@@ -727,10 +944,14 @@ if (manager) {
     );
 
     const markDirty = () => setRowDirty(row, true);
-    labelInput.addEventListener('input', markDirty);
+    labelInput.addEventListener('input', () => {
+      markDirty();
+      validateRows();
+    });
     hrefInput.addEventListener('input', () => {
       markDirty();
       refreshRowValidation(row);
+      validateRows();
     });
     iconSelect.addEventListener('change', event => {
       markDirty();
@@ -739,14 +960,20 @@ if (manager) {
     parentSelect.addEventListener('change', event => {
       markDirty();
       row.dataset.parentId = event.target.value || '';
+      validateRows();
     });
     layoutSelect.addEventListener('change', markDirty);
-    localeInput.addEventListener('input', markDirty);
+    localeInput.addEventListener('input', () => {
+      markDirty();
+      validateRows();
+    });
     startpageInput.addEventListener('change', () => {
       if (startpageInput.checked) {
         enforceSingleStartpage(row);
       }
       markDirty();
+      updateStartpageBadge(row);
+      validateRows();
     });
     externalInput.addEventListener('change', markDirty);
     activeInput.addEventListener('change', markDirty);
@@ -759,6 +986,7 @@ if (manager) {
 
     setRowDirty(row, !item?.id);
     refreshRowValidation(row);
+    validateRows();
 
     if (item?.id) {
       row.draggable = true;
@@ -781,6 +1009,7 @@ if (manager) {
     state.flatItems.forEach(item => {
       itemsBody.appendChild(createRow(item));
     });
+    validateRows();
   };
 
   const loadMenuItems = locale => {
@@ -815,23 +1044,12 @@ if (manager) {
     if (!state.pageId) {
       return;
     }
-    const data = resolveRowData(row);
-    const labelInput = row.querySelector('[data-menu-label]');
-    const hrefInput = row.querySelector('[data-menu-href]');
-    const hrefError = row.querySelector('[data-menu-link-error]');
-
-    const labelError = data.label ? '' : 'Label ist erforderlich.';
-    labelInput.classList.toggle('uk-form-danger', !!labelError);
-    const hrefValid = refreshRowValidation(row);
-
-    if (labelError || !hrefValid) {
-      if (labelError) {
-        setFeedback(labelError, 'danger');
-      } else if (hrefError?.textContent) {
-        setFeedback(hrefError.textContent, 'danger');
-      }
+    const validation = validateRows();
+    if (validation.errors.length) {
+      setFeedback([...new Set(validation.errors)].join(' '), 'danger');
       return;
     }
+    const data = resolveRowData(row);
 
     setRowBusy(row, true);
 
@@ -922,6 +1140,7 @@ if (manager) {
     const id = row.dataset.id ? Number(row.dataset.id) : null;
     if (!id) {
       row.remove();
+      validateRows();
       if (!itemsBody.querySelector('tr[data-menu-row]')) {
         showEmpty('Keine Menüeinträge vorhanden.');
       }
@@ -942,6 +1161,7 @@ if (manager) {
         if (!itemsBody.querySelector('tr[data-menu-row]')) {
           showEmpty('Keine Menüeinträge vorhanden.');
         }
+        validateRows();
         saveOrder();
       })
       .catch(error => {
