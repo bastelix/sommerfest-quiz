@@ -375,6 +375,13 @@ body.uk-padding {
   margin-left: 0;
   padding-left: 0;
 }
+.qr-nav-link > [uk-icon],
+.qr-nav-accordion-title > [uk-icon]:not(.qr-nav-accordion-chevron) {
+  width: 22px;
+  display: inline-flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
 .qr-nav-link {
   display: flex;
   align-items: center;
@@ -399,7 +406,7 @@ body.uk-padding {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 6px;
+  padding: 8px 6px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
