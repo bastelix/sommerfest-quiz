@@ -284,7 +284,7 @@ body.uk-padding {
   top: 0;
   left: 0;
   right: 0;
-  min-height: 56px;
+  min-height: var(--topbar-height, 48px);
   padding: 0 0.5rem;
   box-sizing: border-box;
   z-index: 1000;
@@ -324,7 +324,7 @@ body.uk-padding {
 .topbar .uk-navbar-item,
 .topbar .uk-navbar-nav > li > a,
 .topbar .uk-navbar-toggle:not(.git-btn) {
-  height: 56px;
+  height: var(--topbar-height, 48px);
   padding-left: 0.5rem;
   padding-right: 0.5rem;
   padding-top: 0;
@@ -332,14 +332,14 @@ body.uk-padding {
 }
 
 .topbar .uk-navbar-toggle.git-btn {
-  width: 40px;
-  height: 40px;
+  width: var(--topbar-height, 48px);
+  height: var(--topbar-height, 48px);
   padding: 0;
 }
 
 .uk-navbar-toggle.git-btn {
-  width: 40px;
-  height: 40px;
+  width: var(--topbar-height, 48px);
+  height: var(--topbar-height, 48px);
   padding: 0;
 }
 .topbar .uk-navbar-center {
@@ -361,7 +361,7 @@ body.uk-padding {
 }
 
 /* Admin sidebar navigation */
-.qr-sidebar { min-height: calc(100vh - 56px); }
+.qr-sidebar { min-height: calc(100vh - var(--topbar-height, 48px)); }
 .qr-sidebar-card { height: 100%; overflow-y: auto; }
 .admin-page.sidebar-collapsed #adminSidebar {
   display: none !important;
@@ -466,7 +466,7 @@ a.uk-accordion-title {
 /* Fester Bedienbereich im Admin-Editor */
 .sticky-actions {
   position: sticky;
-  bottom: calc(56px + 1rem);
+  bottom: calc(var(--topbar-height, 48px) + 1rem);
   z-index: 900;
   background: rgba(255, 255, 255, 0.95);
   padding-top: 8px;
@@ -783,7 +783,7 @@ body.admin-page {
     padding-top: 0;
   }
   .admin-page .topbar {
-    height: 56px;
+    height: var(--topbar-height, 48px);
   }
   .admin-page .topbar .uk-navbar-left,
   .admin-page .topbar .uk-navbar-right,

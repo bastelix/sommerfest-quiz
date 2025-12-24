@@ -38,7 +38,7 @@ body[data-theme="dark"].high-contrast{
 }
 
 .topbar{
-  --topbar-height: 40px;
+  --topbar-height: 48px;
 }
 
 .admin-page .topbar{
