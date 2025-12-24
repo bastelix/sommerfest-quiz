@@ -139,15 +139,20 @@ class DomainController
      */
     private function parseRequest(Request $request): ?array
     {
-        $data = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
-            $data = json_decode((string) $request->getBody(), true);
-        }
-        if (!is_array($data)) {
-            return null;
+        $parsed = $request->getParsedBody();
+        if (is_array($parsed)) {
+            return $parsed;
         }
 
-        return $data;
+        $contentType = strtolower(trim($request->getHeaderLine('Content-Type')));
+        if ($contentType !== '' && str_starts_with($contentType, 'application/json')) {
+            $data = json_decode((string) $request->getBody(), true);
+            if (is_array($data)) {
+                return $data;
+            }
+        }
+
+        return null;
     }
 
     private function jsonError(Response $response, string $message, int $status): Response
