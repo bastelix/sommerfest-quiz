@@ -14,6 +14,7 @@ use App\Service\MarketingMenuService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
+use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Service\ProjectSettingsService;
@@ -78,7 +79,9 @@ class ProjectPagesController
     public function content(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $namespaceValidator = new NamespaceValidator();
+        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request, $domainNamespace);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $pages = $this->pageService->getAllForNamespace($namespace);
         $pageList = array_map(
@@ -118,6 +121,7 @@ class ProjectPagesController
             'tenant' => $this->resolveTenant($request),
             'prompt_templates' => $this->promptTemplateService->list(),
             'startpage_page_id' => $startpageItem?->getPageId(),
+            'domainNamespace' => $domainNamespace,
         ]);
     }
 
@@ -212,7 +216,9 @@ class ProjectPagesController
             return $response->withStatus(400);
         }
 
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespaceValidator = new NamespaceValidator();
+        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
+        $namespace = $domainNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
         $page = $this->pageService->findById($pageId);
         if ($page === null || $page->getNamespace() !== $namespace) {
             return $response->withStatus(404);
@@ -237,7 +243,7 @@ class ProjectPagesController
 
         try {
             if ($isStartpage) {
-                $this->marketingMenuService->markPageAsStartpage($pageId);
+                $this->marketingMenuService->markPageAsStartpage($pageId, null, $domainNamespace);
             } else {
                 $this->marketingMenuService->clearStartpagesForNamespace($namespace);
             }
@@ -313,9 +319,9 @@ class ProjectPagesController
     /**
      * @return array{0: list<array<string, mixed>>, 1: string}
      */
-    private function loadNamespaces(Request $request): array
+    private function loadNamespaces(Request $request, ?string $preferredNamespace = null): array
     {
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespace = $preferredNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
         $role = $_SESSION['user']['role'] ?? null;
         $accessService = new NamespaceAccessService();
         $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);

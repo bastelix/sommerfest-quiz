@@ -105,6 +105,7 @@
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% set hasDomainNamespace = domainNamespace is defined and domainNamespace is not empty %}
         {% if pageNamespaceOptions is empty %}
           {% set pageNamespaceOptions = [{
             namespace: activePageNamespace,
@@ -197,6 +198,11 @@
         </div>
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <label class="uk-form-label" for="startpageToggle">Startseite dieses Projekts</label>
+          {% if not hasDomainNamespace %}
+            <div class="uk-alert uk-alert-warning uk-margin-small-top" role="alert">
+              Dieser Bereich ist deaktiviert, weil kein Domain-Namespace erkannt wurde.
+            </div>
+          {% endif %}
           <div class="uk-form-controls uk-margin-small-top">
             <label class="uk-flex uk-flex-middle uk-flex-wrap">
               <input
@@ -204,6 +210,8 @@
                 class="uk-checkbox"
                 type="checkbox"
                 data-startpage-toggle
+                data-startpage-disabled="{{ hasDomainNamespace ? '0' : '1' }}"
+                {% if not hasDomainNamespace %}disabled{% endif %}
               >
               <span class="uk-margin-small-left uk-text-meta">Bestimmt, welche Marketing-Seite beim Aufruf des Projekts zuerst geladen wird.</span>
             </label>
