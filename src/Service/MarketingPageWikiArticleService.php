@@ -23,8 +23,11 @@ final class MarketingPageWikiArticleService
 
     private WikiPublisher $publisher;
 
-    public function __construct(?PDO $pdo = null, ?EditorJsToMarkdown $converter = null, ?WikiPublisher $publisher = null)
-    {
+    public function __construct(
+        ?PDO $pdo = null,
+        ?EditorJsToMarkdown $converter = null,
+        ?WikiPublisher $publisher = null
+    ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->converter = $converter ?? new EditorJsToMarkdown();
         $this->publisher = $publisher ?? new WikiPublisher();
@@ -35,7 +38,10 @@ final class MarketingPageWikiArticleService
      */
     public function getArticlesForPage(int $pageId): array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? ORDER BY locale, is_start_document DESC, sort_index ASC, id ASC');
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? '
+            . 'ORDER BY locale, is_start_document DESC, sort_index ASC, id ASC'
+        );
         $stmt->execute([$pageId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -64,7 +70,10 @@ final class MarketingPageWikiArticleService
             $locale = 'de';
         }
 
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND status = ? ORDER BY is_start_document DESC, sort_index ASC, (published_at IS NULL), published_at DESC, id ASC');
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND status = ? '
+            . 'ORDER BY is_start_document DESC, sort_index ASC, (published_at IS NULL), published_at DESC, id ASC'
+        );
         $stmt->execute([$pageId, $locale, MarketingPageWikiArticle::STATUS_PUBLISHED]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -73,7 +82,9 @@ final class MarketingPageWikiArticleService
 
     public function findPublishedArticle(int $pageId, string $locale, string $slug): ?MarketingPageWikiArticle
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND slug = ? AND status = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND slug = ? AND status = ?'
+        );
         $stmt->execute([$pageId, strtolower($locale), strtolower($slug), MarketingPageWikiArticle::STATUS_PUBLISHED]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -147,7 +158,13 @@ final class MarketingPageWikiArticleService
         $this->pdo->beginTransaction();
         try {
             if ($articleId !== null) {
-                $update = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET slug = ?, locale = ?, title = ?, excerpt = ?, editor_json = ?, content_md = ?, content_html = ?, status = ?, sort_index = COALESCE(?, sort_index), published_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+                $update = $this->pdo->prepare(
+                    'UPDATE marketing_page_wiki_articles '
+                    . 'SET slug = ?, locale = ?, title = ?, excerpt = ?, editor_json = ?, '
+                    . 'content_md = ?, content_html = ?, status = ?, '
+                    . 'sort_index = COALESCE(?, sort_index), published_at = ?, '
+                    . 'updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+                );
                 $update->execute([
                     $normalizedSlug,
                     $normalizedLocale,
@@ -163,7 +180,11 @@ final class MarketingPageWikiArticleService
                 ]);
                 $id = $articleId;
             } else {
-                $insert = $this->pdo->prepare('INSERT INTO marketing_page_wiki_articles (page_id, slug, locale, title, excerpt, editor_json, content_md, content_html, status, sort_index, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                $insert = $this->pdo->prepare(
+                    'INSERT INTO marketing_page_wiki_articles '
+                    . '(page_id, slug, locale, title, excerpt, editor_json, content_md, '
+                    . 'content_html, status, sort_index, published_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                );
                 $insert->execute([
                     $pageId,
                     $normalizedSlug,
@@ -180,7 +201,10 @@ final class MarketingPageWikiArticleService
                 $id = (int) $this->pdo->lastInsertId();
             }
 
-            $versionInsert = $this->pdo->prepare('INSERT INTO marketing_page_wiki_versions (article_id, editor_json, content_md, created_at) VALUES (?, ?, ?, CURRENT_TIMESTAMP)');
+            $versionInsert = $this->pdo->prepare(
+                'INSERT INTO marketing_page_wiki_versions (article_id, editor_json, content_md, created_at) '
+                . 'VALUES (?, ?, ?, CURRENT_TIMESTAMP)'
+            );
             $versionInsert->execute([
                 $id,
                 $this->encodeEditorState($editorState),
@@ -264,7 +288,10 @@ final class MarketingPageWikiArticleService
             $publishedAt = null;
         }
 
-        $stmt = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET status = ?, published_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?');
+        $stmt = $this->pdo->prepare(
+            'UPDATE marketing_page_wiki_articles SET status = ?, published_at = ?, '
+            . 'updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+        );
         $stmt->execute([
             $status,
             $publishedAt?->format('c'),
@@ -405,7 +432,9 @@ final class MarketingPageWikiArticleService
         $this->pdo->beginTransaction();
 
         try {
-            $update = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET sort_index = ? WHERE page_id = ? AND id = ?');
+                $update = $this->pdo->prepare(
+                    'UPDATE marketing_page_wiki_articles SET sort_index = ? WHERE page_id = ? AND id = ?'
+                );
             $position = 0;
 
             foreach ($orderedIds as $orderedId) {
@@ -434,7 +463,10 @@ final class MarketingPageWikiArticleService
      */
     public function getVersions(int $articleId, int $limit = 10): array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_versions WHERE article_id = ? ORDER BY created_at DESC, id DESC LIMIT ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM marketing_page_wiki_versions WHERE article_id = ? '
+            . 'ORDER BY created_at DESC, id DESC LIMIT ?'
+        );
         $stmt->bindValue(1, $articleId, PDO::PARAM_INT);
         $stmt->bindValue(2, $limit, PDO::PARAM_INT);
         $stmt->execute();
@@ -445,7 +477,9 @@ final class MarketingPageWikiArticleService
 
     private function determineNextSortIndex(int $pageId, string $locale): int
     {
-        $stmt = $this->pdo->prepare('SELECT MAX(sort_index) FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ?');
+        $stmt = $this->pdo->prepare(
+            'SELECT MAX(sort_index) FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ?'
+        );
         $stmt->execute([$pageId, strtolower($locale)]);
         $max = $stmt->fetchColumn();
 
@@ -497,7 +531,9 @@ final class MarketingPageWikiArticleService
      */
     private function getArticleIdsForPage(int $pageId): array
     {
-        $stmt = $this->pdo->prepare('SELECT id FROM marketing_page_wiki_articles WHERE page_id = ? ORDER BY sort_index ASC, id ASC');
+        $stmt = $this->pdo->prepare(
+            'SELECT id FROM marketing_page_wiki_articles WHERE page_id = ? ORDER BY sort_index ASC, id ASC'
+        );
         $stmt->execute([$pageId]);
         $ids = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
 
@@ -573,16 +609,23 @@ final class MarketingPageWikiArticleService
         }
 
         if ($isStartDocument) {
-            $clear = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = FALSE WHERE page_id = ? AND locale = ? AND id <> ?');
+            $clear = $this->pdo->prepare(
+                'UPDATE marketing_page_wiki_articles SET is_start_document = FALSE '
+                . 'WHERE page_id = ? AND locale = ? AND id <> ?'
+            );
             $clear->execute([$pageId, $normalizedLocale, $articleId]);
 
-            $set = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = TRUE WHERE id = ?');
+            $set = $this->pdo->prepare(
+                'UPDATE marketing_page_wiki_articles SET is_start_document = TRUE WHERE id = ?'
+            );
             $set->execute([$articleId]);
 
             return;
         }
 
-        $reset = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET is_start_document = FALSE WHERE id = ?');
+        $reset = $this->pdo->prepare(
+            'UPDATE marketing_page_wiki_articles SET is_start_document = FALSE WHERE id = ?'
+        );
         $reset->execute([$articleId]);
     }
 
@@ -823,8 +866,11 @@ final class MarketingPageWikiArticleService
         $quoteLines = [];
     }
 
-    private function renderInlineContent(string $text, bool $preserveLineBreaks = false, bool $allowLinks = true): string
-    {
+    private function renderInlineContent(
+        string $text,
+        bool $preserveLineBreaks = false,
+        bool $allowLinks = true
+    ): string {
         $html = $this->parseInlineMarkdown($text, $allowLinks);
 
         if ($preserveLineBreaks) {
@@ -845,7 +891,10 @@ final class MarketingPageWikiArticleService
             '/`([^`]+)`/',
             function (array $matches) use (&$codePlaceholders): string {
                 $key = sprintf('<<CODE-%d>>', count($codePlaceholders));
-                $codePlaceholders[$key] = '<code>' . htmlspecialchars($matches[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5) . '</code>';
+                $codePlaceholders[$key] = sprintf(
+                    '<code>%s</code>',
+                    htmlspecialchars($matches[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5)
+                );
 
                 return $key;
             },
@@ -899,11 +948,19 @@ final class MarketingPageWikiArticleService
         }
 
         foreach ($codePlaceholders as $placeholder => $html) {
-            $escaped = str_replace(htmlspecialchars($placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), $html, $escaped);
+            $escaped = str_replace(
+                htmlspecialchars($placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                $html,
+                $escaped
+            );
         }
 
         foreach ($linkPlaceholders as $placeholder => $html) {
-            $escaped = str_replace(htmlspecialchars($placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5), $html, $escaped);
+            $escaped = str_replace(
+                htmlspecialchars($placeholder, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
+                $html,
+                $escaped
+            );
         }
 
         return $escaped;

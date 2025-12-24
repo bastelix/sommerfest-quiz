@@ -86,7 +86,8 @@ class MigrationScriptRunner
         }
 
         throw new RuntimeException(sprintf(
-            'Refusing to run production migrations with "%s". Use a PostgreSQL DSN or set ALLOW_SQLITE_MIGRATIONS=1 explicitly.',
+            'Refusing to run production migrations with "%s". '
+            . 'Use a PostgreSQL DSN or set ALLOW_SQLITE_MIGRATIONS=1 explicitly.',
             $driver
         ));
     }
@@ -106,7 +107,8 @@ class MigrationScriptRunner
 
         if ($driver !== 'unknown' && !in_array($driver, $availableDrivers, true) && $e instanceof PDOException) {
             $message = sprintf(
-                "PDO driver '%s' is not available. Enable the extension for this driver or adjust POSTGRES_DSN (current: %s).",
+                "PDO driver '%s' is not available. "
+                . 'Enable the extension for this driver or adjust POSTGRES_DSN (current: %s).',
                 $driver,
                 $dsn === '' ? '[empty]' : $dsn
             );
