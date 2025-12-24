@@ -82,6 +82,8 @@ class ProjectPagesController
         $namespaceValidator = new NamespaceValidator();
         $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request, $domainNamespace);
+        $domainNamespace = $domainNamespace ?? $this->resolveNamespaceFromDomains($namespace);
+        $hasDomainNamespace = $domainNamespace !== null;
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $pages = $this->pageService->getAllForNamespace($namespace);
         $pageList = array_map(
@@ -122,6 +124,7 @@ class ProjectPagesController
             'prompt_templates' => $this->promptTemplateService->list(),
             'startpage_page_id' => $startpageItem?->getPageId(),
             'domainNamespace' => $domainNamespace,
+            'hasDomainNamespace' => $hasDomainNamespace,
         ]);
     }
 
@@ -387,6 +390,22 @@ class ProjectPagesController
         $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         return [$availableNamespaces, $namespace];
+    }
+
+    private function resolveNamespaceFromDomains(string $namespace): ?string
+    {
+        if ($namespace === '') {
+            return null;
+        }
+
+        $domains = $this->domainService->listDomainsByNamespace(includeInactive: true);
+        $namespaceDomains = $domains[$namespace] ?? [];
+
+        if ($namespaceDomains !== []) {
+            return $namespace;
+        }
+
+        return null;
     }
 
     /**
