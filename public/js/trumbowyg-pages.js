@@ -422,6 +422,7 @@ let pageSelectionState = null;
 let currentStartpagePageId = null;
 
 const getStartpageToggle = () => document.querySelector('[data-startpage-toggle]');
+const isStartpageDisabled = () => getStartpageToggle()?.dataset.startpageDisabled === '1';
 
 const resolveSelectedPageId = () => {
   const select = document.getElementById('pageContentSelect');
@@ -444,6 +445,12 @@ const refreshStartpageOptionState = startpageId => {
 const syncStartpageToggle = () => {
   const toggle = getStartpageToggle();
   if (!toggle) {
+    return;
+  }
+
+  if (isStartpageDisabled()) {
+    toggle.checked = false;
+    toggle.disabled = true;
     return;
   }
   const selectedId = resolveSelectedPageId();
@@ -490,7 +497,7 @@ const updateStartpage = async (pageId, enabled) => {
 
 const bindStartpageToggle = () => {
   const toggle = getStartpageToggle();
-  if (!toggle || toggle.dataset.bound === '1') {
+  if (!toggle || toggle.dataset.bound === '1' || isStartpageDisabled()) {
     return;
   }
 

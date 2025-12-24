@@ -149,11 +149,15 @@ final class MarketingMenuService
         return $item;
     }
 
-    public function markPageAsStartpage(int $pageId, ?string $locale = null): void
+    public function markPageAsStartpage(int $pageId, ?string $locale = null, ?string $expectedNamespace = null): void
     {
         $page = $this->pages->findById($pageId);
         if ($page === null) {
             throw new RuntimeException('Page not found.');
+        }
+
+        if ($expectedNamespace !== null && $page->getNamespace() !== $expectedNamespace) {
+            throw new RuntimeException('Startpage namespace does not match current domain.');
         }
 
         $this->ensureMenuItemsImported($page);
