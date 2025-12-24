@@ -102,7 +102,7 @@ class DomainService
         );
         $stmt->execute([$displayHost, $normalizedHost, $namespaceValue, $labelValue, $isActive, $id]);
 
-        return $this->getDomainById($id);
+        return $this->fetchDomainById($id);
     }
 
     public function deleteDomain(int $id): void
@@ -169,6 +169,14 @@ class DomainService
     /**
      * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
      */
+    public function getDomainById(int $id): ?array
+    {
+        return $this->fetchDomainById($id);
+    }
+
+    /**
+     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     */
     private function getDomainByNormalized(string $normalizedHost, bool $includeInactive = false): ?array
     {
         if ($normalizedHost === '') {
@@ -189,7 +197,7 @@ class DomainService
     /**
      * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
      */
-    private function getDomainById(int $id): ?array
+    private function fetchDomainById(int $id): ?array
     {
         $stmt = $this->pdo->prepare(
             'SELECT id, host, normalized_host, namespace, label, is_active FROM domains WHERE id = ?'

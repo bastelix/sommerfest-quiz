@@ -16,11 +16,11 @@ use function App\runBackgroundProcess;
  */
 final class CertificateProvisioningService
 {
-    private DomainService $domainService;
+    private MarketingDomainProvider $marketingDomainProvider;
 
-    public function __construct(DomainService $domainService)
+    public function __construct(MarketingDomainProvider $marketingDomainProvider)
     {
-        $this->domainService = $domainService;
+        $this->marketingDomainProvider = $marketingDomainProvider;
     }
 
     /**
@@ -58,21 +58,10 @@ final class CertificateProvisioningService
     {
         $domains = [];
 
-        foreach ($this->domainService->listDomains() as $entry) {
-            $host = $entry['host'] !== '' ? $entry['host'] : $entry['normalized_host'];
-            $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+        foreach ($this->marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $entry) {
+            $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
             if ($normalized !== '') {
                 $domains[] = $normalized;
-            }
-        }
-
-        if ($domains === []) {
-            $env = getenv('MARKETING_DOMAINS') ?: '';
-            foreach (preg_split('/[\s,]+/', $env) ?: [] as $entry) {
-                $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
-                if ($normalized !== '') {
-                    $domains[] = $normalized;
-                }
             }
         }
 

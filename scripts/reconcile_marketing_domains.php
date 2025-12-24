@@ -6,19 +6,21 @@ require __DIR__ . '/../vendor/autoload.php';
 
 use App\Infrastructure\Database;
 use App\Service\CertificateProvisioningService;
-use App\Service\DomainService;
+use App\Service\MarketingDomainProvider;
 use App\Support\EnvLoader;
 use PDO;
 
 EnvLoader::loadAndSet(__DIR__ . '/../.env');
 
 $pdo = Database::connectFromEnv();
-$domainService = new DomainService($pdo);
-$certificateProvisioner = new CertificateProvisioningService($domainService);
+$marketingDomainProvider = new MarketingDomainProvider(static function () use ($pdo): PDO {
+    return $pdo;
+});
+$certificateProvisioner = new CertificateProvisioningService($marketingDomainProvider);
 
 $provisioned = [];
-foreach ($domainService->listDomains() as $domain) {
-    $host = $domain['host'] !== '' ? $domain['host'] : $domain['normalized_host'];
+foreach ($marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $host) {
+    $host = strtolower(trim((string) $host));
     if ($host === '') {
         continue;
     }
