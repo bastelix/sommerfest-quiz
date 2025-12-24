@@ -16,6 +16,21 @@ final class MarketingMenuService
 {
     private const DEFAULT_LAYOUT = 'link';
     private const ALLOWED_LAYOUTS = ['link', 'dropdown', 'mega', 'column'];
+    private const ALLOWED_IMPORT_FIELDS = [
+        'label',
+        'href',
+        'icon',
+        'layout',
+        'detailTitle',
+        'detailText',
+        'detailSubline',
+        'position',
+        'isExternal',
+        'locale',
+        'isActive',
+        'isStartpage',
+        'children',
+    ];
 
     private PDO $pdo;
 
@@ -86,6 +101,107 @@ final class MarketingMenuService
         $this->ensureMenuItemsImported($page);
 
         return $this->fetchItemsForPageId($pageId, $page->getNamespace(), $locale, $onlyActive);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     * @return array<string, mixed>
+     */
+    private function serializeExportNode(array $item): array
+    {
+        $children = [];
+        foreach ($item['children'] ?? [] as $child) {
+            if (!is_array($child)) {
+                continue;
+            }
+            $children[] = $this->serializeExportNode($child);
+        }
+
+        return [
+            'label' => (string) ($item['label'] ?? ''),
+            'href' => (string) ($item['href'] ?? ''),
+            'icon' => $this->normalizeIcon($item['icon'] ?? null),
+            'layout' => isset($item['layout']) ? $this->normalizeLayout((string) $item['layout']) : self::DEFAULT_LAYOUT,
+            'detailTitle' => $this->normalizeDetail($item['detailTitle'] ?? null),
+            'detailText' => $this->normalizeDetail($item['detailText'] ?? null),
+            'detailSubline' => $this->normalizeDetail($item['detailSubline'] ?? null),
+            'position' => isset($item['position']) ? (int) $item['position'] : 0,
+            'isExternal' => isset($item['isExternal']) ? $this->normalizeBoolean($item['isExternal']) : false,
+            'locale' => isset($item['locale']) ? $this->normalizeLocale((string) $item['locale']) : 'de',
+            'isActive' => isset($item['isActive']) ? $this->normalizeBoolean($item['isActive']) : true,
+            'isStartpage' => isset($item['isStartpage']) ? $this->normalizeBoolean($item['isStartpage']) : false,
+            'children' => $children,
+        ];
+    }
+
+    /**
+     * Export a page menu with nested children.
+     *
+     * @return array<string, mixed>
+     */
+    public function serializeMenuExport(int $pageId, ?string $locale = null): array
+    {
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            throw new RuntimeException('Page not found.');
+        }
+
+        $items = $this->getMenuItemsForPage($pageId, $locale, false);
+        $tree = $this->buildMenuTree($items, false);
+
+        return [
+            'page' => [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'namespace' => $page->getNamespace(),
+            ],
+            'namespace' => $page->getNamespace(),
+            'items' => array_map(fn (array $item): array => $this->serializeExportNode($item), $tree),
+        ];
+    }
+
+    /**
+     * Import menu items from a serialized payload.
+     *
+     * @param array<string, mixed> $payload
+     */
+    public function importMenuPayload(int $pageId, array $payload): void
+    {
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            throw new RuntimeException('Page not found.');
+        }
+
+        $allowedKeys = ['items', 'namespace', 'page'];
+        $unknownKeys = array_diff(array_keys($payload), $allowedKeys);
+        if ($unknownKeys !== []) {
+            throw new RuntimeException(sprintf('Unerlaubte Felder im Payload: %s.', implode(', ', $unknownKeys)));
+        }
+
+        $namespace = isset($payload['namespace']) ? trim((string) $payload['namespace']) : $page->getNamespace();
+        if ($namespace !== '' && $namespace !== $page->getNamespace()) {
+            throw new RuntimeException('Namespace des Exports stimmt nicht mit der Seite überein.');
+        }
+
+        if (!isset($payload['items']) || !is_array($payload['items'])) {
+            throw new RuntimeException('items muss ein Array sein.');
+        }
+
+        $startpageLocales = [];
+        $items = $this->normalizeImportItems($payload['items'], $startpageLocales);
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $this->resetStartpages($page->getNamespace());
+            $this->deleteMenuItemsForPage($pageId);
+            $this->persistImportedItems($pageId, $items, null);
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+
+            throw new RuntimeException('Menu import failed.', 0, $exception);
+        }
     }
 
     /**
@@ -623,6 +739,24 @@ final class MarketingMenuService
         return $normalized;
     }
 
+    /**
+     * @param mixed $value
+     */
+    private function normalizeBoolean($value): bool
+    {
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if ($normalized === 'false' || $normalized === '0') {
+                return false;
+            }
+            if ($normalized === 'true' || $normalized === '1') {
+                return true;
+            }
+        }
+
+        return (bool) $value;
+    }
+
     private function normalizeHref(string $href): string
     {
         $normalized = trim($href);
@@ -714,6 +848,12 @@ final class MarketingMenuService
         $stmt->execute([$normalizedNamespace]);
     }
 
+    private function deleteMenuItemsForPage(int $pageId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM marketing_page_menu_items WHERE page_id = ?');
+        $stmt->execute([$pageId]);
+    }
+
     /**
      * @param MarketingPageMenuItem[] $items
      * @return array<int, array<string, mixed>>
@@ -774,6 +914,104 @@ final class MarketingMenuService
         };
 
         return $build(0);
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     * @param array<string, bool> $startpageLocales
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeImportItems(array $items, array &$startpageLocales, string $path = 'items'): array
+    {
+        $normalized = [];
+        $positionCounter = 0;
+
+        foreach ($items as $index => $item) {
+            $currentPath = sprintf('%s[%d]', $path, $index);
+            if (!is_array($item)) {
+                throw new RuntimeException(sprintf('Ungültiger Menüeintrag bei %s.', $currentPath));
+            }
+
+            $unknownFields = array_diff(array_keys($item), self::ALLOWED_IMPORT_FIELDS);
+            if ($unknownFields !== []) {
+                throw new RuntimeException(sprintf(
+                    'Unerlaubte Felder (%s) in %s.',
+                    implode(', ', $unknownFields),
+                    $currentPath
+                ));
+            }
+
+            $position = isset($item['position']) && is_numeric($item['position'])
+                ? (int) $item['position']
+                : $positionCounter;
+            $positionCounter = max($positionCounter, $position + 1);
+
+            $locale = isset($item['locale']) ? $this->normalizeLocale((string) $item['locale']) : 'de';
+            $isStartpage = isset($item['isStartpage']) ? $this->normalizeBoolean($item['isStartpage']) : false;
+            if ($isStartpage) {
+                if (isset($startpageLocales[$locale])) {
+                    throw new RuntimeException(sprintf('Mehr als eine Startpage für Locale %s.', $locale));
+                }
+                $startpageLocales[$locale] = true;
+            }
+
+            $children = [];
+            if (array_key_exists('children', $item)) {
+                if (!is_array($item['children'])) {
+                    throw new RuntimeException(sprintf('children muss ein Array sein (%s).', $currentPath));
+                }
+                $children = $this->normalizeImportItems($item['children'], $startpageLocales, $currentPath . '.children');
+            }
+
+            $normalized[] = [
+                'label' => $this->normalizeLabel((string) ($item['label'] ?? '')),
+                'href' => $this->normalizeHref((string) ($item['href'] ?? '')),
+                'icon' => array_key_exists('icon', $item)
+                    ? $this->normalizeIcon($item['icon'] !== null ? (string) $item['icon'] : null)
+                    : null,
+                'layout' => isset($item['layout']) ? $this->normalizeLayout((string) $item['layout']) : self::DEFAULT_LAYOUT,
+                'detailTitle' => $this->normalizeDetail($item['detailTitle'] ?? null),
+                'detailText' => $this->normalizeDetail($item['detailText'] ?? null),
+                'detailSubline' => $this->normalizeDetail($item['detailSubline'] ?? null),
+                'position' => $position,
+                'isExternal' => isset($item['isExternal']) ? $this->normalizeBoolean($item['isExternal']) : false,
+                'locale' => $locale,
+                'isActive' => isset($item['isActive']) ? $this->normalizeBoolean($item['isActive']) : true,
+                'isStartpage' => $isStartpage,
+                'children' => $children,
+            ];
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     */
+    private function persistImportedItems(int $pageId, array $items, ?int $parentId): void
+    {
+        foreach ($items as $item) {
+            $entity = $this->createMenuItem(
+                $pageId,
+                $item['label'],
+                $item['href'],
+                $item['icon'],
+                $parentId,
+                $item['layout'],
+                $item['detailTitle'],
+                $item['detailText'],
+                $item['detailSubline'],
+                $item['position'],
+                $item['isExternal'],
+                $item['locale'],
+                $item['isActive'],
+                $item['isStartpage']
+            );
+
+            if ($item['children'] !== []) {
+                $this->persistImportedItems($pageId, $item['children'], $entity->getId());
+            }
+        }
     }
 
     /**

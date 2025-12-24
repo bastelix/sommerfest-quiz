@@ -111,6 +111,10 @@ Wenn eine Marketing-Seite in dem aufgelösten Namespace fehlt, wird automatisch 
 
 Die Seed-Daten in `src/Infrastructure/Migrations/sqlite-schema.sql` legen initiale Marketing-Seiten immer im `default`-Namespace an. Der Ziel-Namespace für die Laufzeit wird daher durch die Auflösung im `NamespaceResolver` bestimmt (z. B. über Query-Parameter `namespace`, Route-Argumente oder Tenant-Subdomain). Eigene Projekt-Namespaces werden anschließend über die Admin-Oberfläche gepflegt oder per Datenbank-Import ergänzt.
 
+### Marketing-Menüs exportieren und importieren
+
+Im Tab **Seiten → Navigation** lassen sich komplette Marketing-Menüs als JSON sichern oder in andere Umgebungen übernehmen. Der Export-Button lädt die aktuelle Menüstruktur (inklusive Namespace, Locale und Startpage-Flags) für die ausgewählte Seite herunter. Über **Menü importieren** wird eine JSON-Datei ausgewählt; der Server validiert erlaubte Felder und ersetzt die bestehenden Menüeinträge der Seite in einem Schritt. Startpage-Markierungen werden pro Locale übernommen und bisherige Einträge gelöscht, damit keine veralteten Links übrig bleiben.
+
 ### Namespace as the standard project identifier
 
 Namespaces are the canonical project identifier in the admin UI. Any legacy "project" labels should be treated as
