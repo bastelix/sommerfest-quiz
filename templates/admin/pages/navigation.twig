@@ -143,60 +143,80 @@
         {% set selectedMenuLocale = locale()|default('de') %}
         {% set menuPagesData = hasPages ? menu_pages|default([]) : [] %}
         {% if useNavigationTree %}
-          <div
-            class="uk-card uk-card-default uk-card-body uk-margin"
-            data-marketing-menu-tree
-            data-base-path="{{ basePath }}"
-            data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
-            data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
-            data-namespace="{{ activePageNamespace|e('html_attr') }}"
-            data-locale="{{ selectedMenuLocale|e('html_attr') }}"
-          >
-            <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
-              <div>
-                <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
-                <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
-              </div>
-              <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
-                <div class="uk-button-group">
-                  <button
-                    type="button"
-                    class="uk-button uk-button-primary"
-                    data-menu-save-all
-                    disabled
-                    aria-label="Änderungen speichern"
-                  >Speichern</button>
-                  <button
-                    type="button"
-                    class="uk-button uk-button-default"
-                    data-menu-cancel
-                    aria-label="Änderungen verwerfen"
-                  >Abbrechen</button>
+          <div class="uk-grid-medium" uk-grid>
+            <div class="uk-width-expand@m">
+              <div
+                class="uk-card uk-card-default uk-card-body uk-margin"
+                data-marketing-menu-tree
+                data-base-path="{{ basePath }}"
+                data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+                data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+                data-namespace="{{ activePageNamespace|e('html_attr') }}"
+                data-locale="{{ selectedMenuLocale|e('html_attr') }}"
+              >
+                <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+                  <div>
+                    <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+                    <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
+                  </div>
+                  <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
+                    <div class="uk-button-group">
+                      <button
+                        type="button"
+                        class="uk-button uk-button-primary"
+                        data-menu-save-all
+                        disabled
+                        aria-label="Änderungen speichern"
+                      >Speichern</button>
+                      <button
+                        type="button"
+                        class="uk-button uk-button-default"
+                        data-menu-cancel
+                        aria-label="Änderungen verwerfen"
+                      >Abbrechen</button>
+                    </div>
+                    <div class="uk-button-group">
+                      <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedSlug == '' %}disabled{% endif %}>Menü exportieren</button>
+                      <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedSlug == '' %}disabled{% endif %}>Menü importieren</button>
+                    </div>
+                    <input type="file" accept="application/json" data-menu-import-input hidden>
+                    <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedSlug == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
+                  </div>
                 </div>
-                <div class="uk-button-group">
-                  <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedSlug == '' %}disabled{% endif %}>Menü exportieren</button>
-                  <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedSlug == '' %}disabled{% endif %}>Menü importieren</button>
-                </div>
-                <input type="file" accept="application/json" data-menu-import-input hidden>
-                <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedSlug == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
+                {% if not hasPages %}
+                  <div class="uk-alert uk-alert-warning uk-margin-small-top">
+                    Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+                  </div>
+                {% endif %}
+                <p class="uk-text-meta uk-margin-small-top">
+                  Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop pro Ebene passt die Reihenfolgen an.
+                </p>
+                <p class="uk-text-meta uk-margin-small-top">
+                  Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
+                </p>
+                <p class="uk-text-meta uk-margin-small-top">
+                  Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
+                </p>
+                <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
+                <div class="menu-tree" role="tree" aria-label="Navigation" tabindex="0" data-menu-tree></div>
               </div>
             </div>
-            {% if not hasPages %}
-              <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+            <aside class="uk-width-1-3@m uk-width-1-4@l">
+              <div class="uk-card uk-card-default uk-card-body uk-margin">
+                <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+                  <div>
+                    <div class="uk-text-meta uk-text-uppercase">Preview</div>
+                    <h4 class="uk-heading-line uk-margin-remove"><span>Navigation</span></h4>
+                  </div>
+                  <span class="uk-label">Beta</span>
+                </div>
+                <div class="uk-text-meta uk-margin-small-bottom" data-menu-preview-summary>Aktuelle Navigation</div>
+                <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-preview-empty hidden>
+                  Noch keine Menüeinträge vorhanden.
+                </div>
+                <ul class="uk-nav uk-nav-default" data-menu-preview-tree></ul>
               </div>
-            {% endif %}
-            <p class="uk-text-meta uk-margin-small-top">
-              Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop pro Ebene passt die Reihenfolge an.
-            </p>
-            <p class="uk-text-meta uk-margin-small-top">
-              Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
-            </p>
-            <p class="uk-text-meta uk-margin-small-top">
-              Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
-            </p>
-            <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-feedback hidden role="status"></div>
-            <div class="menu-tree" role="tree" aria-label="Navigation" tabindex="0" data-menu-tree></div>
+            </aside>
           </div>
         {% else %}
           <div
