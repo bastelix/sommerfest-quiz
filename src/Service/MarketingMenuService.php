@@ -122,8 +122,11 @@ final class MarketingMenuService
         return $page->getSlug();
     }
 
-    public function resolveStartpage(string $namespace, ?string $locale = null, bool $requireExplicit = false): ?MarketingPageMenuItem
-    {
+    public function resolveStartpage(
+        string $namespace,
+        ?string $locale = null,
+        bool $requireExplicit = false
+    ): ?MarketingPageMenuItem {
         $normalizedNamespace = trim($namespace);
         if ($normalizedNamespace === '') {
             return null;
