@@ -1208,8 +1208,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
   const planSelect = document.getElementById('planSelect');
-  const managementSection = document.querySelector('[data-admin-section="management"]');
-  const domainTable = managementSection?.querySelector('#domainTable') || null;
+  const domainTableRoot = document.querySelector('#domainTable');
+  const managementSection = document.querySelector('[data-admin-section="management"]')
+    || domainTableRoot?.closest('[data-admin-section]')
+    || domainTableRoot?.closest('.uk-container')
+    || null;
+  const domainTable = managementSection?.querySelector('#domainTable') || domainTableRoot || null;
   const marketingNewsletterSection = document.getElementById('marketingNewsletterConfigSection');
   const marketingNewsletterSlugInput = document.getElementById('marketingNewsletterSlug');
   const marketingNewsletterSlugOptions = document.getElementById('marketingNewsletterSlugOptions');
