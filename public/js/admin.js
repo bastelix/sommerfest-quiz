@@ -3965,15 +3965,16 @@ document.addEventListener('DOMContentLoaded', function () {
       error: domainTable.dataset.error || window.transDomainError || 'Domain load failed.'
     };
     const domainEndpoint = '/admin/domains';
-    const domainForm = managementSection?.querySelector('#domainForm') || null;
-    const domainLegend = managementSection?.querySelector('#domainLegend') || null;
-    const domainFormError = managementSection?.querySelector('#domainFormError') || null;
-    const domainIdInput = managementSection?.querySelector('#domainId') || null;
-    const domainHostInput = managementSection?.querySelector('#domainHost') || null;
-    const domainLabelInput = managementSection?.querySelector('#domainLabel') || null;
-    const domainNamespaceSelect = managementSection?.querySelector('#domainNamespace') || null;
-    const domainActiveInput = managementSection?.querySelector('#domainActive') || null;
-    const domainFormCancel = managementSection?.querySelector('#domainFormCancel') || null;
+    const resolveDomainElement = (id) => managementSection?.querySelector(`#${id}`) || document.getElementById(id);
+    const domainForm = resolveDomainElement('domainForm');
+    const domainLegend = resolveDomainElement('domainLegend');
+    const domainFormError = resolveDomainElement('domainFormError');
+    const domainIdInput = resolveDomainElement('domainId');
+    const domainHostInput = resolveDomainElement('domainHost');
+    const domainLabelInput = resolveDomainElement('domainLabel');
+    const domainNamespaceSelect = resolveDomainElement('domainNamespace');
+    const domainActiveInput = resolveDomainElement('domainActive');
+    const domainFormCancel = resolveDomainElement('domainFormCancel');
     const transDomainSaved = window.transDomainSaved || 'Domain saved.';
     const transDomainError = window.transDomainError || 'Domain save failed.';
     const transDomainInvalid = window.transDomainInvalid || transDomainError;
@@ -4025,200 +4026,214 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
 
-    const setLegend = label => {
-      if (domainLegend) {
-        const addLabel = domainLegend.dataset.addLabel || domainLegend.textContent || '';
-        domainLegend.textContent = label || addLabel;
-      }
+    const requiredDomainSelectors = {
+      '#domainForm': domainForm,
+      '#domainHost': domainHostInput,
+      '#domainLabel': domainLabelInput,
+      '#domainNamespace': domainNamespaceSelect,
+      '#domainActive': domainActiveInput,
+      '#domainFormCancel': domainFormCancel,
     };
+    const missingDomainSelectors = Object.entries(requiredDomainSelectors)
+      .filter(([, element]) => !element)
+      .map(([selector]) => selector);
 
-    const setFormError = message => {
-      if (!domainFormError) {
-        return;
-      }
-      if (message) {
-        domainFormError.textContent = message;
-        domainFormError.hidden = false;
-      } else {
-        domainFormError.textContent = '';
-        domainFormError.hidden = true;
-      }
-    };
-
-    const resetForm = () => {
-      if (domainIdInput) {
-        domainIdInput.value = '';
-      }
-      if (domainHostInput) {
-        domainHostInput.value = '';
-        domainHostInput.classList.remove('uk-form-danger');
-      }
-      if (domainLabelInput) {
-        domainLabelInput.value = '';
-      }
-      if (domainNamespaceSelect) {
-        domainNamespaceSelect.value = '';
-      }
-      if (domainActiveInput) {
-        domainActiveInput.checked = true;
-      }
-      if (domainFormCancel) {
-        domainFormCancel.hidden = true;
-      }
-      setLegend(domainLegend?.dataset.addLabel || '');
-      setFormError('');
-    };
-
-    const applyForm = domain => {
-      if (!domain) {
-        resetForm();
-        return;
-      }
-      if (domainIdInput) {
-        domainIdInput.value = String(domain.id || '');
-      }
-      if (domainHostInput) {
-        domainHostInput.value = domain.host || domain.normalized_host || '';
-        domainHostInput.classList.remove('uk-form-danger');
-      }
-      if (domainLabelInput) {
-        domainLabelInput.value = domain.label || '';
-      }
-      if (domainNamespaceSelect) {
-        domainNamespaceSelect.value = domain.namespace || '';
-      }
-      if (domainActiveInput) {
-        domainActiveInput.checked = Boolean(domain.is_active);
-      }
-      if (domainFormCancel) {
-        domainFormCancel.hidden = false;
-      }
-      setLegend(domainLegend?.dataset.editLabel || '');
-      if (domainHostInput) {
-        domainHostInput.focus();
-      }
-      setFormError('');
-    };
-
-    const renderMessageRow = message => {
-      if (!tbody) return;
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = columnCount;
-      td.textContent = message;
-      tr.appendChild(td);
-      tbody.appendChild(tr);
-    };
-
-    const renderDomains = () => {
-      if (!tbody) return;
-      tbody.innerHTML = '';
-      if (!domainData.length) {
-        if (messages.empty) {
-          renderMessageRow(messages.empty);
+    if (missingDomainSelectors.length) {
+      console.warn('Domain management form not fully initialized. Missing element(s):', missingDomainSelectors.join(', '));
+    } else {
+      const setLegend = label => {
+        if (domainLegend) {
+          const addLabel = domainLegend.dataset.addLabel || domainLegend.textContent || '';
+          domainLegend.textContent = label || addLabel;
         }
-        return;
-      }
+      };
 
-      domainData.forEach(item => {
-        const tr = document.createElement('tr');
-
-        const domainCell = document.createElement('td');
-        domainCell.textContent = item.host || item.normalized_host;
-        tr.appendChild(domainCell);
-
-        const labelCell = document.createElement('td');
-        labelCell.textContent = item.label || '';
-        tr.appendChild(labelCell);
-
-        const namespaceCell = document.createElement('td');
-        if (item.namespace && namespaceLabels[item.namespace]) {
-          namespaceCell.textContent = namespaceLabels[item.namespace];
+      const setFormError = message => {
+        if (!domainFormError) {
+          return;
+        }
+        if (message) {
+          domainFormError.textContent = message;
+          domainFormError.hidden = false;
         } else {
-          namespaceCell.textContent = item.namespace || window.transNamespaceNone || '';
+          domainFormError.textContent = '';
+          domainFormError.hidden = true;
         }
-        tr.appendChild(namespaceCell);
+      };
 
-        const statusCell = document.createElement('td');
-        statusCell.textContent = item.is_active ? transDomainStatusActive : transDomainStatusInactive;
-        tr.appendChild(statusCell);
+      const resetForm = () => {
+        if (domainIdInput) {
+          domainIdInput.value = '';
+        }
+        if (domainHostInput) {
+          domainHostInput.value = '';
+          domainHostInput.classList.remove('uk-form-danger');
+        }
+        if (domainLabelInput) {
+          domainLabelInput.value = '';
+        }
+        if (domainNamespaceSelect) {
+          domainNamespaceSelect.value = '';
+        }
+        if (domainActiveInput) {
+          domainActiveInput.checked = true;
+        }
+        if (domainFormCancel) {
+          domainFormCancel.hidden = true;
+        }
+        setLegend(domainLegend?.dataset.addLabel || '');
+        setFormError('');
+      };
 
-        const actionsCell = document.createElement('td');
-        actionsCell.className = 'uk-table-shrink uk-text-center';
-        const editButton = document.createElement('button');
-        editButton.type = 'button';
-        editButton.className = 'uk-button uk-button-default uk-button-small';
-        editButton.textContent = window.transEdit || 'Edit';
-        editButton.addEventListener('click', () => {
-          applyForm(item);
-        });
-        actionsCell.appendChild(editButton);
+      const applyForm = domain => {
+        if (!domain) {
+          resetForm();
+          return;
+        }
+        if (domainIdInput) {
+          domainIdInput.value = String(domain.id || '');
+        }
+        if (domainHostInput) {
+          domainHostInput.value = domain.host || domain.normalized_host || '';
+          domainHostInput.classList.remove('uk-form-danger');
+        }
+        if (domainLabelInput) {
+          domainLabelInput.value = domain.label || '';
+        }
+        if (domainNamespaceSelect) {
+          domainNamespaceSelect.value = domain.namespace || '';
+        }
+        if (domainActiveInput) {
+          domainActiveInput.checked = Boolean(domain.is_active);
+        }
+        if (domainFormCancel) {
+          domainFormCancel.hidden = false;
+        }
+        setLegend(domainLegend?.dataset.editLabel || '');
+        if (domainHostInput) {
+          domainHostInput.focus();
+        }
+        setFormError('');
+      };
 
-        const deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.className = 'uk-button uk-button-danger uk-button-small uk-margin-small-left';
-        deleteButton.textContent = window.transDelete || 'Delete';
-        deleteButton.addEventListener('click', () => {
-          if (!window.confirm(transDomainDeleteConfirm)) {
-            return;
-          }
-          deleteButton.disabled = true;
-          apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
-            .then(res => {
-              if (!res.ok) {
-                return res.json().catch(() => ({})).then(data => {
-                  throw new Error(data?.error || transDomainError);
-                });
-              }
-              return res.json();
-            })
-            .then(() => {
-              notify(transDomainDeleted, 'success');
-              loadDomains();
-            })
-            .catch(err => {
-              notify(err?.message || transDomainError, 'danger');
-            })
-            .finally(() => {
-              deleteButton.disabled = false;
-            });
-        });
-        actionsCell.appendChild(deleteButton);
-
-        tr.appendChild(actionsCell);
+      const renderMessageRow = message => {
+        if (!tbody) return;
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = columnCount;
+        td.textContent = message;
+        tr.appendChild(td);
         tbody.appendChild(tr);
-      });
-    };
+      };
 
-    const loadDomains = () => {
-      if (!tbody) {
-        return;
-      }
-      tbody.innerHTML = '';
-      if (messages.loading) {
-        renderMessageRow(messages.loading);
-      }
-
-      apiFetch(domainEndpoint)
-        .then(res => {
-          if (!res.ok) {
-            return res.json().catch(() => ({})).then(data => {
-              throw new Error(data.error || messages.error);
-            });
+      const renderDomains = () => {
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!domainData.length) {
+          if (messages.empty) {
+            renderMessageRow(messages.empty);
           }
-          return res.json();
-        })
-        .then(data => {
-          domainData = Array.isArray(data?.domains) ? data.domains : [];
-          renderDomains();
-        })
-        .catch(err => {
-          tbody.innerHTML = '';
-          renderMessageRow(err.message || messages.error);
-        });
-    };
+          return;
+        }
 
-    if (domainForm && domainHostInput) {
+        domainData.forEach(item => {
+          const tr = document.createElement('tr');
+
+          const domainCell = document.createElement('td');
+          domainCell.textContent = item.host || item.normalized_host;
+          tr.appendChild(domainCell);
+
+          const labelCell = document.createElement('td');
+          labelCell.textContent = item.label || '';
+          tr.appendChild(labelCell);
+
+          const namespaceCell = document.createElement('td');
+          if (item.namespace && namespaceLabels[item.namespace]) {
+            namespaceCell.textContent = namespaceLabels[item.namespace];
+          } else {
+            namespaceCell.textContent = item.namespace || window.transNamespaceNone || '';
+          }
+          tr.appendChild(namespaceCell);
+
+          const statusCell = document.createElement('td');
+          statusCell.textContent = item.is_active ? transDomainStatusActive : transDomainStatusInactive;
+          tr.appendChild(statusCell);
+
+          const actionsCell = document.createElement('td');
+          actionsCell.className = 'uk-table-shrink uk-text-center';
+          const editButton = document.createElement('button');
+          editButton.type = 'button';
+          editButton.className = 'uk-button uk-button-default uk-button-small';
+          editButton.textContent = window.transEdit || 'Edit';
+          editButton.addEventListener('click', () => {
+            applyForm(item);
+          });
+          actionsCell.appendChild(editButton);
+
+          const deleteButton = document.createElement('button');
+          deleteButton.type = 'button';
+          deleteButton.className = 'uk-button uk-button-danger uk-button-small uk-margin-small-left';
+          deleteButton.textContent = window.transDelete || 'Delete';
+          deleteButton.addEventListener('click', () => {
+            if (!window.confirm(transDomainDeleteConfirm)) {
+              return;
+            }
+            deleteButton.disabled = true;
+            apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
+              .then(res => {
+                if (!res.ok) {
+                  return res.json().catch(() => ({})).then(data => {
+                    throw new Error(data?.error || transDomainError);
+                  });
+                }
+                return res.json();
+              })
+              .then(() => {
+                notify(transDomainDeleted, 'success');
+                loadDomains();
+              })
+              .catch(err => {
+                notify(err?.message || transDomainError, 'danger');
+              })
+              .finally(() => {
+                deleteButton.disabled = false;
+              });
+          });
+          actionsCell.appendChild(deleteButton);
+
+          tr.appendChild(actionsCell);
+          tbody.appendChild(tr);
+        });
+      };
+
+      const loadDomains = () => {
+        if (!tbody) {
+          return;
+        }
+        tbody.innerHTML = '';
+        if (messages.loading) {
+          renderMessageRow(messages.loading);
+        }
+
+        apiFetch(domainEndpoint)
+          .then(res => {
+            if (!res.ok) {
+              return res.json().catch(() => ({})).then(data => {
+                throw new Error(data.error || messages.error);
+              });
+            }
+            return res.json();
+          })
+          .then(data => {
+            domainData = Array.isArray(data?.domains) ? data.domains : [];
+            renderDomains();
+          })
+          .catch(err => {
+            tbody.innerHTML = '';
+            renderMessageRow(err.message || messages.error);
+          });
+      };
+
       domainHostInput.addEventListener('input', () => {
         domainHostInput.classList.remove('uk-form-danger');
         setFormError('');
@@ -4271,16 +4286,14 @@ document.addEventListener('DOMContentLoaded', function () {
             notify(message, 'danger');
           });
       });
-    }
 
-    if (domainFormCancel) {
       domainFormCancel.addEventListener('click', () => {
         resetForm();
       });
-    }
 
-    resetForm();
-    loadDomains();
+      resetForm();
+      loadDomains();
+    }
   }
 
   const domainChatContainer = document.querySelector('[data-domain-chat]');
