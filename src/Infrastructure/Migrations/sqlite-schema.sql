@@ -511,6 +511,14 @@ CREATE TABLE IF NOT EXISTS page_ai_jobs (
 
 CREATE INDEX IF NOT EXISTS idx_page_ai_jobs_status ON page_ai_jobs(status);
 
+CREATE TABLE IF NOT EXISTS marketing_ai_prompts (
+    id TEXT PRIMARY KEY,
+    label TEXT NOT NULL,
+    template TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS page_modules (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
