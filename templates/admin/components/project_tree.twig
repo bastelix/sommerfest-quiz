@@ -19,6 +19,7 @@
     data-project-tree
     data-endpoint="{{ basePath }}/admin/projects/tree"
     data-base-url="{{ basePath }}"
+    data-initial-payload="{{ project_tree_payload|default([])|json_encode|e('html_attr') }}"
     data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
     data-empty="Keine Namespace-Daten vorhanden."
     data-error="Namespace-Übersicht konnte nicht geladen werden."
