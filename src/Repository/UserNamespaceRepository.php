@@ -199,7 +199,12 @@ final class UserNamespaceRepository
             'INSERT INTO user_namespaces (user_id, namespace, is_default) VALUES (?, ?, ?)'
         );
         foreach ($normalized as $namespace) {
-            $insert->execute([$userId, $namespace, $default !== null && $namespace === $default]);
+            $isDefault = $default !== null && $namespace === $default;
+
+            $insert->bindValue(1, $userId, PDO::PARAM_INT);
+            $insert->bindValue(2, $namespace, PDO::PARAM_STR);
+            $insert->bindValue(3, $isDefault, PDO::PARAM_BOOL);
+            $insert->execute();
         }
         $insert->closeCursor();
     }
