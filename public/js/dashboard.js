@@ -15,9 +15,28 @@
   function firstOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
   function lastOfMonth(d){ return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
 
+  function resolveActiveNamespace() {
+    const params = new URLSearchParams(window.location.search);
+    const queryNamespace = (params.get('namespace') || '').trim();
+    if (queryNamespace) {
+      return queryNamespace;
+    }
+
+    const select = document.querySelector('[data-namespace-select], #projectNamespaceSelect, #pageNamespaceSelect, #namespaceSelect');
+    const candidate = (select?.value || '').trim();
+
+    return candidate;
+  }
+
   async function load() {
     const ym = fmtYm(state.ym);
-    const r = await fetch(withBase(`/admin/dashboard.json?month=${ym}`));
+    const namespace = resolveActiveNamespace();
+    const searchParams = new URLSearchParams({ month: ym });
+    if (namespace) {
+      searchParams.set('namespace', namespace);
+    }
+
+    const r = await fetch(withBase(`/admin/dashboard.json?${searchParams.toString()}`));
     const data = await r.json();
     Object.assign(state, data);
     renderCalendar();
@@ -145,15 +164,16 @@
 
   function renderBadges() {
     const s = state.stats || {};
-    const total = s.eventCount || 0;
-    const upcoming = s.upcomingCount || 0;
-    const past = s.pastCount || 0;
-    const e = document.getElementById('badge-events');
-    const u = document.getElementById('badge-upcoming');
-    const p = document.getElementById('badge-past');
-    if (e) e.textContent = `${total} Veranstaltungen`;
-    if (u) u.textContent = `${upcoming} kommende`;
-    if (p) p.textContent = `${past} vergangene`;
+    const e = document.getElementById('badge-pages');
+    const w = document.getElementById('badge-wiki');
+    const n = document.getElementById('badge-news');
+    const nl = document.getElementById('badge-newsletter');
+    const m = document.getElementById('badge-media');
+    if (e) e.textContent = `${s.pages || 0} Seiten`;
+    if (w) w.textContent = `${s.wiki || 0} Wiki-Artikel`;
+    if (n) n.textContent = `${s.news || 0} News-Einträge`;
+    if (nl) nl.textContent = `${s.newsletter || 0} Newsletter-Slugs`;
+    if (m) m.textContent = `${s.media || 0} Medien-Referenzen`;
   }
 
   function renderSubscription() {
