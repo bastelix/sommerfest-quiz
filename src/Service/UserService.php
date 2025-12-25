@@ -347,16 +347,26 @@ class UserService
     }
 
     /**
+     * Normalise namespace payloads from the UI.
+     *
      * @return array{namespaces:list<string>,default:?string}|null
      */
     private function extractNamespacePayload(mixed $payload): ?array
     {
+        $default = null;
+
+        if (is_string($payload)) {
+            $payload = [$payload];
+        } elseif (is_array($payload) && !array_is_list($payload) && isset($payload['namespaces'])) {
+            $default = $payload['default'] ?? $payload['active'] ?? null;
+            $payload = $payload['namespaces'];
+        }
+
         if (!is_array($payload)) {
             return null;
         }
 
         $namespaces = [];
-        $default = null;
         foreach ($payload as $entry) {
             if (is_array($entry)) {
                 $namespace = (string) ($entry['namespace'] ?? '');

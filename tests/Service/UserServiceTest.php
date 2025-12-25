@@ -53,4 +53,58 @@ class UserServiceTest extends TestCase
             ['username' => 'support', 'role' => Roles::ADMIN],
         ]);
     }
+
+    public function testSaveAllAcceptsNamespaceObjects(): void
+    {
+        $pdo = $this->createDatabase();
+        $svc = new UserService($pdo);
+
+        $svc->saveAll([
+            [
+                'username' => 'admin',
+                'role' => Roles::ADMIN,
+                'namespaces' => [
+                    ['namespace' => 'default', 'is_default' => true],
+                    ['namespace' => 'preview', 'is_default' => false],
+                ],
+            ],
+        ]);
+
+        $users = $svc->getAll();
+
+        $this->assertSame(
+            [
+                ['namespace' => 'default', 'is_default' => true],
+                ['namespace' => 'preview', 'is_default' => false],
+            ],
+            $users[0]['namespaces']
+        );
+    }
+
+    public function testSaveAllAcceptsNamespacePayloadHash(): void
+    {
+        $pdo = $this->createDatabase();
+        $svc = new UserService($pdo);
+
+        $svc->saveAll([
+            [
+                'username' => 'admin',
+                'role' => Roles::ADMIN,
+                'namespaces' => [
+                    'namespaces' => ['preview', 'beta'],
+                    'default' => 'beta',
+                ],
+            ],
+        ]);
+
+        $users = $svc->getAll();
+
+        $this->assertSame(
+            [
+                ['namespace' => 'beta', 'is_default' => true],
+                ['namespace' => 'preview', 'is_default' => false],
+            ],
+            $users[0]['namespaces']
+        );
+    }
 }
