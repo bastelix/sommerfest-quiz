@@ -83,7 +83,7 @@ export default class TableManager {
     if (this.mobileCards?.container) {
       this.mobileCards.container.innerHTML = '';
     }
-    this.filteredData.forEach(item => this.addRow(item));
+    this.filteredData.forEach(item => this.addRow(item, { skipPaginationUpdate: true }));
     if (this.pagination) {
       this.#updatePagination();
     }
@@ -97,7 +97,7 @@ export default class TableManager {
     }
   }
 
-  addRow(item) {
+  addRow(item, { skipPaginationUpdate = false } = {}) {
     if (!this.tbody) return;
     const row = document.createElement('tr');
     row.setAttribute('role', 'row');
@@ -196,7 +196,7 @@ export default class TableManager {
       }
     }
 
-    if (this.pagination) {
+    if (this.pagination && !skipPaginationUpdate) {
       this.#updatePagination();
     }
   }
