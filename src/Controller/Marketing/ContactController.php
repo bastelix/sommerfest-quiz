@@ -108,10 +108,11 @@ class ContactController
             return $response->withStatus(500);
         }
 
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $manager = $request->getAttribute('mailProviderManager');
         if (!$manager instanceof MailProviderManager) {
             $pdo = Database::connectFromEnv();
-            $manager = new MailProviderManager(new SettingsService($pdo));
+            $manager = new MailProviderManager(new SettingsService($pdo), [], null, $namespace);
         }
 
         $mailer = $request->getAttribute('mailService');
@@ -145,7 +146,6 @@ class ContactController
         $shouldUnsubscribe = $newsletterAction === 'unsubscribe';
 
         if ($shouldSubscribe || $shouldUnsubscribe) {
-            $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
             $newsletterService = new NewsletterSubscriptionService(
                 $manager,
                 $namespace,

@@ -9,6 +9,7 @@ use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Service\SettingsService;
+use App\Service\NamespaceResolver;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteContext;
@@ -46,10 +47,11 @@ class OnboardingEmailController
             ->withPath($base . '/onboarding/email/confirm')
             ->withQuery('token=' . urlencode($token));
 
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $manager = $request->getAttribute('mailProviderManager');
         if (!$manager instanceof MailProviderManager) {
             $pdo = Database::connectFromEnv();
-            $manager = new MailProviderManager(new SettingsService($pdo));
+            $manager = new MailProviderManager(new SettingsService($pdo), [], null, $namespace);
         }
 
         $mailer = $request->getAttribute('mailService');

@@ -72,6 +72,7 @@ use App\Service\MarketingDomainProvider;
 use App\Service\UsernameBlocklistService;
 use App\Service\MarketingPageRouteResolver;
 use App\Service\NamespaceValidator;
+use App\Service\NamespaceResolver;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
 use App\Infrastructure\Migrations\MigrationRuntime;
@@ -572,7 +573,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         } catch (\RuntimeException $exception) {
             $mailProviderRepository = null;
         }
-        $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository);
+        $namespaceResolver = new NamespaceResolver();
+        $mailNamespace = $namespaceResolver->resolve($request)->getNamespace();
+        $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository, $mailNamespace);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -1656,7 +1659,13 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $providerManager = $request->getAttribute('mailProviderManager');
         if (!$providerManager instanceof MailProviderManager) {
-            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+            $providerNamespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            $providerManager = new MailProviderManager(
+                new SettingsService(Database::connectFromEnv()),
+                [],
+                null,
+                $providerNamespace
+            );
         }
 
         $mailer = $request->getAttribute('mailService');
@@ -2525,7 +2534,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         $twig = Twig::fromRequest($request)->getEnvironment();
         $providerManager = $request->getAttribute('mailProviderManager');
         if (!$providerManager instanceof MailProviderManager) {
-            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+            $providerNamespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            $providerManager = new MailProviderManager(
+                new SettingsService(Database::connectFromEnv()),
+                [],
+                null,
+                $providerNamespace
+            );
         }
         if (!$providerManager->isConfigured()) {
             return $response->withStatus(503);
@@ -2625,7 +2640,13 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $providerManager = $request->getAttribute('mailProviderManager');
         if (!$providerManager instanceof MailProviderManager) {
-            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+            $providerNamespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            $providerManager = new MailProviderManager(
+                new SettingsService(Database::connectFromEnv()),
+                [],
+                null,
+                $providerNamespace
+            );
         }
 
         $mailer = $request->getAttribute('mailService');
@@ -2716,7 +2737,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         $twig = Twig::fromRequest($request)->getEnvironment();
         $providerManager = $request->getAttribute('mailProviderManager');
         if (!$providerManager instanceof MailProviderManager) {
-            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+            $providerNamespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            $providerManager = new MailProviderManager(
+                new SettingsService(Database::connectFromEnv()),
+                [],
+                null,
+                $providerNamespace
+            );
         }
         if (!$providerManager->isConfigured()) {
             return $response->withStatus(503);

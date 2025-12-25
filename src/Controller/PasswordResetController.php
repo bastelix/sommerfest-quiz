@@ -12,6 +12,7 @@ use App\Service\PasswordResetService;
 use App\Service\UserService;
 use App\Service\SessionService;
 use App\Service\SettingsService;
+use App\Service\NamespaceResolver;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -84,10 +85,11 @@ class PasswordResetController
             ->withPath('/password/reset')
             ->withQuery('token=' . urlencode($token));
 
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $manager = $request->getAttribute('mailProviderManager');
         if (!$manager instanceof MailProviderManager) {
             $pdo = Database::connectFromEnv();
-            $manager = new MailProviderManager(new SettingsService($pdo));
+            $manager = new MailProviderManager(new SettingsService($pdo), [], null, $namespace);
         }
 
         $mailer = $request->getAttribute('mailService');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure;
 
+use App\Service\PageService;
 use PDO;
 use PDOException;
 use RuntimeException;
@@ -21,6 +22,8 @@ class MailProviderRepository
 
     private int $ivLength;
 
+    private string $namespace;
+
     public function __construct(PDO $pdo, ?string $secret = null)
     {
         $secret ??= (string) (getenv('MAIL_PROVIDER_SECRET') ?: getenv('PASSWORD_RESET_SECRET') ?: '');
@@ -37,6 +40,7 @@ class MailProviderRepository
         $this->pdo = $pdo;
         $this->key = $binaryKey;
         $this->ivLength = $ivLength;
+        $this->namespace = PageService::DEFAULT_NAMESPACE;
     }
 
     /**
@@ -44,9 +48,10 @@ class MailProviderRepository
      *
      * @return array<int,array<string,mixed>>
      */
-    public function all(): array
+    public function all(?string $namespace = null): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM mail_providers ORDER BY provider_name');
+        $stmt = $this->pdo->prepare('SELECT * FROM mail_providers WHERE namespace = :namespace ORDER BY provider_name');
+        $stmt->execute(['namespace' => $this->normalizeNamespace($namespace)]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return array_map([$this, 'mapRow'], $rows ?: []);
@@ -57,10 +62,15 @@ class MailProviderRepository
      *
      * @return array<string,mixed>|null
      */
-    public function find(string $provider): ?array
+    public function find(string $provider, ?string $namespace = null): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT * FROM mail_providers WHERE provider_name = :name');
-        $stmt->execute(['name' => $provider]);
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM mail_providers WHERE provider_name = :name AND namespace = :namespace'
+        );
+        $stmt->execute([
+            'name' => $provider,
+            'namespace' => $this->normalizeNamespace($namespace),
+        ]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
@@ -74,9 +84,12 @@ class MailProviderRepository
      *
      * @return array<string,mixed>|null
      */
-    public function findActive(): ?array
+    public function findActive(?string $namespace = null): ?array
     {
-        $stmt = $this->pdo->query('SELECT * FROM mail_providers WHERE active = TRUE LIMIT 1');
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM mail_providers WHERE namespace = :namespace AND active = TRUE LIMIT 1'
+        );
+        $stmt->execute(['namespace' => $this->normalizeNamespace($namespace)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
@@ -90,15 +103,18 @@ class MailProviderRepository
      *
      * @param array<string,mixed> $data
      */
-    public function save(string $provider, array $data): void
+    public function save(string $provider, array $data, ?string $namespace = null): void
     {
         $settings = $data['settings'] ?? [];
         if (!is_array($settings)) {
             $settings = [];
         }
 
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
+
         $payload = [
             'provider_name' => $provider,
+            'namespace' => $normalizedNamespace,
             'api_key' => $this->encrypt($this->normalizeString($data['api_key'] ?? null)),
             'list_id' => $this->normalizeString($data['list_id'] ?? null),
             'smtp_host' => $this->normalizeString($data['smtp_host'] ?? null),
@@ -121,9 +137,9 @@ class MailProviderRepository
         try {
             $stmt = $this->pdo->prepare(
                 'INSERT INTO mail_providers '
-                . '(provider_name, api_key, list_id, smtp_host, smtp_user, smtp_pass, smtp_port, smtp_encryption, active, settings) '
-                . 'VALUES (:provider_name, :api_key, :list_id, :smtp_host, :smtp_user, :smtp_pass, :smtp_port, :smtp_encryption, :active, :settings) '
-                . 'ON CONFLICT (provider_name) DO UPDATE SET '
+                . '(provider_name, namespace, api_key, list_id, smtp_host, smtp_user, smtp_pass, smtp_port, smtp_encryption, active, settings) '
+                . 'VALUES (:provider_name, :namespace, :api_key, :list_id, :smtp_host, :smtp_user, :smtp_pass, :smtp_port, :smtp_encryption, :active, :settings) '
+                . 'ON CONFLICT (namespace, provider_name) DO UPDATE SET '
                 . 'api_key = EXCLUDED.api_key, '
                 . 'list_id = EXCLUDED.list_id, '
                 . 'smtp_host = EXCLUDED.smtp_host, '
@@ -149,14 +165,18 @@ class MailProviderRepository
         }
     }
 
-    public function activate(string $provider): void
+    public function activate(string $provider, ?string $namespace = null): void
     {
+        $normalizedNamespace = $this->normalizeNamespace($namespace);
         $this->pdo->beginTransaction();
 
         try {
-            $this->pdo->exec('UPDATE mail_providers SET active = FALSE');
-            $stmt = $this->pdo->prepare('UPDATE mail_providers SET active = TRUE WHERE provider_name = :name');
-            $stmt->execute(['name' => $provider]);
+            $stmt = $this->pdo->prepare('UPDATE mail_providers SET active = FALSE WHERE namespace = :namespace');
+            $stmt->execute(['namespace' => $normalizedNamespace]);
+            $stmt = $this->pdo->prepare(
+                'UPDATE mail_providers SET active = TRUE WHERE provider_name = :name AND namespace = :namespace'
+            );
+            $stmt->execute(['name' => $provider, 'namespace' => $normalizedNamespace]);
             $this->pdo->commit();
         } catch (PDOException $exception) {
             $this->pdo->rollBack();
@@ -164,10 +184,15 @@ class MailProviderRepository
         }
     }
 
-    public function deactivate(string $provider): void
+    public function deactivate(string $provider, ?string $namespace = null): void
     {
-        $stmt = $this->pdo->prepare('UPDATE mail_providers SET active = FALSE WHERE provider_name = :name');
-        $stmt->execute(['name' => $provider]);
+        $stmt = $this->pdo->prepare(
+            'UPDATE mail_providers SET active = FALSE WHERE provider_name = :name AND namespace = :namespace'
+        );
+        $stmt->execute([
+            'name' => $provider,
+            'namespace' => $this->normalizeNamespace($namespace),
+        ]);
     }
 
     /**
@@ -187,6 +212,7 @@ class MailProviderRepository
         return [
             'id' => isset($row['id']) ? (int) $row['id'] : null,
             'provider_name' => (string) ($row['provider_name'] ?? ''),
+            'namespace' => $this->normalizeNamespace($row['namespace'] ?? null),
             'api_key' => $this->decrypt($row['api_key'] ?? null),
             'list_id' => $this->normalizeString($row['list_id'] ?? null),
             'smtp_host' => $this->normalizeString($row['smtp_host'] ?? null),
@@ -197,6 +223,13 @@ class MailProviderRepository
             'active' => (bool) ($row['active'] ?? false),
             'settings' => $settings,
         ];
+    }
+
+    private function normalizeNamespace(mixed $namespace): string
+    {
+        $candidate = is_string($namespace) ? strtolower(trim($namespace)) : '';
+
+        return $candidate !== '' ? $candidate : $this->namespace;
     }
 
     private function normalizeString(?string $value): ?string

@@ -303,6 +303,13 @@
     const toggleLabel = toggle?.querySelector('[data-mail-provider-label]') || null;
     const feedback = document.querySelector('[data-mail-provider-feedback]');
     const csrf = '{{ csrfToken|e('js') }}';
+    const namespaceParam = '{{ pageNamespace|e('js') }}';
+    const providerBaseEndpoint = '{{ basePath }}/admin/mail-providers';
+    const namespaceQuery = namespaceParam
+      ? `?namespace=${encodeURIComponent(namespaceParam)}`
+      : '';
+    const providerEndpoint = `${providerBaseEndpoint}${namespaceQuery}`;
+    const providerTestEndpoint = `${providerBaseEndpoint}/test${namespaceQuery}`;
 
     function showFeedback(message, type = 'success') {
       if (!feedback) {
@@ -402,7 +409,7 @@
       clearFeedback();
       const payload = serialize(form);
       try {
-        const response = await fetch('{{ basePath }}/admin/mail-providers', {
+        const response = await fetch(providerEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -427,7 +434,7 @@
       clearFeedback();
       const payload = serialize(form);
       try {
-        const response = await fetch('{{ basePath }}/admin/mail-providers/test', {
+        const response = await fetch(providerTestEndpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

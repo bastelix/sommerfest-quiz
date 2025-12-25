@@ -11,6 +11,7 @@ use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Service\PlayerContactOptInService;
 use App\Service\SettingsService;
+use App\Service\NamespaceResolver;
 use InvalidArgumentException;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -191,12 +192,13 @@ class PlayerContactController
             return $providerManager;
         }
 
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
         }
 
-        return new MailProviderManager(new SettingsService($pdo));
+        return new MailProviderManager(new SettingsService($pdo), [], null, $namespace);
     }
 
     private function resolveMailer(Request $request, MailProviderManager $providerManager): ?MailService

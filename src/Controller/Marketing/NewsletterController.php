@@ -38,12 +38,16 @@ class NewsletterController
             return $response->withStatus(400);
         }
 
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $manager = $request->getAttribute('mailProviderManager');
         if (!$manager instanceof MailProviderManager) {
-            $manager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+            $manager = new MailProviderManager(
+                new SettingsService(Database::connectFromEnv()),
+                [],
+                null,
+                $namespace
+            );
         }
-
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $service = new NewsletterSubscriptionService($manager, $namespace);
 
         $serverParams = $request->getServerParams();
