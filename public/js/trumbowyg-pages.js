@@ -43,7 +43,10 @@ const withNamespace = (url) => {
   return `${url}${separator}namespace=${encodeURIComponent(namespace)}`;
 };
 
-const apiFetch = window.apiFetch || ((path, options = {}) => fetch(path, options));
+const apiFetch = (path, options = {}) => {
+  const fetcher = window.apiFetch || ((url, opts = {}) => fetch(url, opts));
+  return fetcher(path, options);
+};
 $.extend(true, $.trumbowyg, {
   langs: { de: { template: 'Vorlage', variable: 'Variable' } },
   plugins: {
