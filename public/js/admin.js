@@ -3976,7 +3976,7 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainTable.dataset.empty || '',
       error: domainTable.dataset.error || window.transDomainError || 'Domain load failed.'
     };
-    const domainEndpoint = '/admin/domains';
+    const domainEndpoint = '/admin/domains/api';
     const resolveDomainElement = (id) => managementSection?.querySelector(`#${id}`) || document.getElementById(id);
     const domainForm = resolveDomainElement('domainForm');
     const domainLegend = resolveDomainElement('domainLegend');

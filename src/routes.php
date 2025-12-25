@@ -2250,25 +2250,25 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('settingsController')->post($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->get('/admin/domains', function (Request $request, Response $response) {
+    $app->get('/admin/domains/api', function (Request $request, Response $response) {
         /** @var DomainController $controller */
         $controller = $request->getAttribute('domainController');
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->post('/admin/domains', function (Request $request, Response $response) {
+    $app->post('/admin/domains/api', function (Request $request, Response $response) {
         /** @var DomainController $controller */
         $controller = $request->getAttribute('domainController');
         return $controller->create($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->patch('/admin/domains/{id}', function (Request $request, Response $response, array $args) {
+    $app->patch('/admin/domains/api/{id}', function (Request $request, Response $response, array $args) {
         /** @var DomainController $controller */
         $controller = $request->getAttribute('domainController');
         return $controller->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->delete('/admin/domains/{id}', function (Request $request, Response $response, array $args) {
+    $app->delete('/admin/domains/api/{id}', function (Request $request, Response $response, array $args) {
         /** @var DomainController $controller */
         $controller = $request->getAttribute('domainController');
         return $controller->delete($request, $response, $args);
