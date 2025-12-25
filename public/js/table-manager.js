@@ -1,5 +1,18 @@
 export default class TableManager {
-  constructor({ tbody, columns = [], sortable = false, mobileCards = null, onEdit = null, onDelete = null, onReorder = null } = {}) {
+  constructor({
+    tbody,
+    columns = [],
+    sortable = false,
+    mobileCards = null,
+    onEdit = null,
+    onDelete = null,
+    onReorder = null,
+    tableClasses = null,
+    tableWrapperClasses = null,
+    tbodyClasses = null,
+    tableAttributes = null,
+    tbodyAttributes = null
+  } = {}) {
     this.tbody = tbody;
     this.columns = columns;
     this.sortable = sortable;
@@ -7,13 +20,42 @@ export default class TableManager {
     this.onEdit = onEdit;
     this.onDelete = onDelete;
     this.onReorder = onReorder;
-    this.thead = this.tbody?.closest('table')?.querySelector('thead');
+    this.table = this.tbody?.closest('table') || null;
+    this.tableWrapper = this.table?.parentElement || null;
+    this.thead = this.table?.querySelector('thead');
     this.columnLabelCache = new Map();
     this.data = [];
     this.filteredData = [];
     this.filterFn = null;
+
+    this.#applyTableStructure({ tableClasses, tableWrapperClasses, tbodyClasses, tableAttributes, tbodyAttributes });
+
     if (this.sortable) {
       this.#initSortable();
+    }
+  }
+
+  #applyTableStructure({ tableClasses, tableWrapperClasses, tbodyClasses, tableAttributes, tbodyAttributes }) {
+    if (Array.isArray(tableClasses) && this.table?.classList) {
+      tableClasses.filter(Boolean).forEach(cls => this.table.classList.add(cls));
+    }
+    if (Array.isArray(tableWrapperClasses) && this.tableWrapper?.classList) {
+      tableWrapperClasses.filter(Boolean).forEach(cls => this.tableWrapper.classList.add(cls));
+    }
+    if (Array.isArray(tbodyClasses) && this.tbody?.classList) {
+      tbodyClasses.filter(Boolean).forEach(cls => this.tbody.classList.add(cls));
+    }
+    if (tableAttributes && this.table) {
+      Object.entries(tableAttributes).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === false) return;
+        this.table.setAttribute(key, value === true ? '' : value);
+      });
+    }
+    if (tbodyAttributes && this.tbody) {
+      Object.entries(tbodyAttributes).forEach(([key, value]) => {
+        if (value === null || value === undefined || value === false) return;
+        this.tbody.setAttribute(key, value === true ? '' : value);
+      });
     }
   }
 

@@ -4369,7 +4369,12 @@ document.addEventListener('DOMContentLoaded', function () {
       ];
 
       const domainTableManager = domainTableBody
-        ? new TableManager({ tbody: domainTableBody, columns: domainColumns })
+        ? new TableManager({
+          tbody: domainTableBody,
+          columns: domainColumns,
+          tableClasses: ['uk-table', 'uk-table-divider', 'uk-table-small', 'uk-table-hover'],
+          tableWrapperClasses: ['uk-overflow-auto']
+        })
         : null;
 
       const renderDomains = (list = domainData) => {
