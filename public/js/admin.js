@@ -10263,16 +10263,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const defaultNamespace = namespaceManager.dataset.defaultNamespace || 'default';
     const columnCount = Number.parseInt(namespaceManager.dataset.columnCount || '3', 10) || 3;
     const tableBody = namespaceManager.querySelector('[data-namespace-table-body]');
+    const cards = document.getElementById('namespaceCards');
+    const cardsEmpty = document.getElementById('namespaceCardsEmpty');
     const form = namespaceManager.querySelector('[data-namespace-form]');
     const input = namespaceManager.querySelector('[data-namespace-input]');
     const labelInput = namespaceManager.querySelector('[data-namespace-label-input]');
     const formError = namespaceManager.querySelector('[data-namespace-error]');
-    const labelSave = namespaceManager.dataset.labelSave || 'Save';
-    const labelDelete = namespaceManager.dataset.labelDelete || 'Delete';
+    const editModalEl = document.getElementById('namespaceEditModal');
+    const editModal = editModalEl ? UIkit.modal(editModalEl) : null;
+    const editTitle = editModalEl?.querySelector('[data-namespace-edit-title]') || null;
+    const editLabel = editModalEl?.querySelector('[data-namespace-edit-label]') || null;
+    const editInput = document.getElementById('namespaceEditInput');
+    const editError = editModalEl?.querySelector('[data-namespace-edit-error]') || null;
+    const editSave = document.getElementById('namespaceEditSave');
+    const editCancel = document.getElementById('namespaceEditCancel');
     const labelDefault = namespaceManager.dataset.labelDefault || 'Default';
     const labelInactive = namespaceManager.dataset.labelInactive || 'Inactive';
     const namespacePattern = namespaceManager.dataset.namespacePattern || '^[a-z0-9][a-z0-9-]*$';
     const namespaceMaxLength = Number.parseInt(namespaceManager.dataset.namespaceMaxLength || '100', 10) || 100;
+    const columnNamespace = namespaceManager.dataset.columnNamespace || 'Namespace';
+    const columnLabel = namespaceManager.dataset.columnLabel || 'Label';
+    const columnStatus = namespaceManager.dataset.columnStatus || 'Status';
     const messages = {
       created: namespaceManager.dataset.messageCreated || 'Namespace created.',
       updated: namespaceManager.dataset.messageUpdated || 'Namespace updated.',
@@ -10292,6 +10303,34 @@ document.addEventListener('DOMContentLoaded', function () {
       confirmDelete: namespaceManager.dataset.confirmDelete || 'Delete namespace?'
     };
 
+    const namespaceColumns = [
+      { key: 'namespace', label: columnNamespace, editable: true, ariaDesc: columnNamespace },
+      { key: 'label', label: columnLabel, editable: true, ariaDesc: columnLabel, render: item => item.label || '-' },
+      {
+        key: 'status',
+        label: columnStatus,
+        render: item => {
+          if (item.is_default) {
+            return labelDefault;
+          }
+          if (item.is_active === false) {
+            return labelInactive;
+          }
+          return '-';
+        }
+      }
+    ];
+
+    const namespaceTable = new TableManager({
+      tbody: tableBody,
+      columns: namespaceColumns,
+      mobileCards: cards ? { container: cards } : null,
+      onEdit: cell => openNamespaceEditor(cell),
+      onDelete: id => handleNamespaceDelete(id)
+    });
+
+    const namespaceEditState = { id: null, key: null };
+
     const normalizeNamespace = value => String(value || '').trim().toLowerCase();
     const normalizeLabel = value => {
       const normalized = String(value ?? '').trim();
@@ -10310,232 +10349,228 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       return null;
     };
+
     const buildUrl = (template, namespace) => template.replace('{namespace}', encodeURIComponent(namespace));
-    const buildErrorElement = element => {
-      if (!element?.parentElement) {
-        return null;
-      }
-      let error = element.parentElement.querySelector('[data-namespace-error]');
-      if (!error) {
-        error = document.createElement('p');
-        error.className = 'uk-text-danger uk-margin-small-top uk-hidden';
-        error.dataset.namespaceError = '';
-        element.parentElement.appendChild(error);
-      }
-      if (!error.id) {
-        error.id = `namespace-error-${Math.random().toString(36).slice(2, 10)}`;
-      }
-      return error;
-    };
-    const showNamespaceError = (element, message) => {
-      if (!element) {
-        return;
-      }
-      const error = element === input ? formError || buildErrorElement(element) : buildErrorElement(element);
-      if (error) {
-        error.textContent = message;
-        error.classList.remove('uk-hidden');
+
+    const showFormError = (element, message) => {
+      if (!element) return;
+      const target = element === input ? formError : editError;
+      if (target) {
+        target.textContent = message;
+        target.classList.remove('uk-hidden');
       }
       element.classList.add('uk-form-danger');
       element.setAttribute('aria-invalid', 'true');
-      if (error?.id) {
-        element.setAttribute('aria-describedby', error.id);
-      }
     };
-    const clearNamespaceError = element => {
-      if (!element) {
-        return;
-      }
-      const error = element.parentElement?.querySelector('[data-namespace-error]');
-      if (error) {
-        error.textContent = '';
-        error.classList.add('uk-hidden');
+
+    const clearFormError = element => {
+      if (!element) return;
+      const target = element === input ? formError : editError;
+      if (target) {
+        target.textContent = '';
+        target.classList.add('uk-hidden');
       }
       element.classList.remove('uk-form-danger');
       element.removeAttribute('aria-invalid');
-      element.removeAttribute('aria-describedby');
     };
 
-    const renderMessageRow = message => {
-      if (!tableBody) {
-        return;
+    const renderNamespaceMessage = message => {
+      if (tableBody) {
+        tableBody.innerHTML = '';
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = columnCount;
+        td.textContent = message;
+        tr.appendChild(td);
+        tableBody.appendChild(tr);
       }
-      const tr = document.createElement('tr');
-      const td = document.createElement('td');
-      td.colSpan = columnCount;
-      td.textContent = message;
-      tr.appendChild(td);
-      tableBody.appendChild(tr);
+      if (cardsEmpty) {
+        cardsEmpty.hidden = false;
+        if (message) {
+          cardsEmpty.textContent = message;
+        }
+      }
     };
 
-    const parseJsonResponse = res => {
-      return res
-        .json()
-        .catch(() => ({}))
-        .then(data => {
-          if (!res.ok) {
-            throw new Error(data?.error || messages.error);
-          }
-          return data;
-        });
+    const clearNamespaceMessage = () => {
+      if (cardsEmpty) {
+        cardsEmpty.hidden = true;
+        cardsEmpty.textContent = cardsEmpty.dataset.errorText || '';
+      }
     };
+
+    const parseJsonResponse = res => res
+      .json()
+      .catch(() => ({}))
+      .then(data => {
+        if (!res.ok) {
+          throw new Error(data?.error || messages.error);
+        }
+        return data;
+      });
+
+    const mapNamespaces = entries => entries
+      .map(item => {
+        const namespaceValue = normalizeNamespace(item.namespace);
+        return {
+          id: namespaceValue,
+          namespace: namespaceValue,
+          label: typeof item.label === 'string' ? item.label : '',
+          is_default: Boolean(item.is_default) || namespaceValue === defaultNamespace,
+          is_active: item.is_active !== false
+        };
+      })
+      .filter(item => item.namespace);
 
     const loadNamespaces = () => {
-      if (!tableBody) {
-        return;
-      }
-      tableBody.innerHTML = '';
-      if (messages.loading) {
-        renderMessageRow(messages.loading);
-      }
+      namespaceTable.setColumnLoading('namespace', true);
+      renderNamespaceMessage(messages.loading);
       apiFetch(listUrl)
         .then(parseJsonResponse)
         .then(data => {
           const entries = Array.isArray(data?.namespaces) ? data.namespaces : [];
-          tableBody.innerHTML = '';
-          if (!entries.length) {
-            renderMessageRow(messages.empty);
+          const normalized = mapNamespaces(entries);
+          if (!normalized.length) {
+            namespaceTable.render([]);
+            renderNamespaceMessage(messages.empty);
             return;
           }
-          entries.forEach(item => {
-            const namespaceValue = typeof item.namespace === 'string' ? item.namespace : '';
-            const labelValue = typeof item.label === 'string' ? item.label : '';
-            const isDefault = Boolean(item.is_default) || namespaceValue === defaultNamespace;
-            const isActive = item.is_active !== false;
-            const isInactive = !isActive;
-
-            const tr = document.createElement('tr');
-            if (isInactive) {
-              tr.classList.add('uk-text-muted');
-            }
-
-            const nameCell = document.createElement('td');
-            const nameInput = document.createElement('input');
-            nameInput.type = 'text';
-            nameInput.className = 'uk-input';
-            nameInput.value = namespaceValue;
-            nameInput.dataset.original = namespaceValue;
-            nameInput.disabled = isDefault;
-            nameInput.maxLength = namespaceMaxLength;
-            nameCell.appendChild(nameInput);
-            tr.appendChild(nameCell);
-
-            const labelCell = document.createElement('td');
-            const labelInput = document.createElement('input');
-            labelInput.type = 'text';
-            labelInput.className = 'uk-input';
-            labelInput.value = labelValue;
-            labelInput.dataset.original = normalizeLabel(labelValue) ?? '';
-            labelInput.disabled = isDefault;
-            labelCell.appendChild(labelInput);
-            tr.appendChild(labelCell);
-
-            const statusCell = document.createElement('td');
-            statusCell.textContent = isDefault ? labelDefault : (isInactive ? labelInactive : '-');
-            tr.appendChild(statusCell);
-
-            const actionCell = document.createElement('td');
-            actionCell.className = 'uk-text-center';
-
-            const saveButton = document.createElement('button');
-            saveButton.type = 'button';
-            saveButton.className = 'uk-button uk-button-primary uk-button-small uk-margin-small-right';
-            saveButton.textContent = labelSave;
-            saveButton.disabled = isDefault;
-            actionCell.appendChild(saveButton);
-
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
-            deleteButton.className = 'uk-button uk-button-danger uk-button-small';
-            deleteButton.textContent = labelDelete;
-            deleteButton.disabled = isDefault || isInactive;
-            actionCell.appendChild(deleteButton);
-
-            saveButton.addEventListener('click', () => {
-              const nextValue = normalizeNamespace(nameInput.value);
-              const nextLabel = normalizeLabel(labelInput.value);
-              const validationMessage = getNamespaceError(nextValue);
-              if (validationMessage) {
-                showNamespaceError(nameInput, validationMessage);
-                notify(validationMessage, 'warning');
-                nameInput.focus();
-                return;
-              }
-              clearNamespaceError(nameInput);
-              if (nextValue === nameInput.dataset.original && (nextLabel ?? '') === labelInput.dataset.original) {
-                return;
-              }
-              saveButton.disabled = true;
-              nameInput.disabled = true;
-              labelInput.disabled = true;
-              apiFetch(buildUrl(updateUrlTemplate, namespaceValue), {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ namespace: nextValue, label: nextLabel })
-              })
-                .then(parseJsonResponse)
-                .then(() => {
-                  notify(messages.updated, 'success');
-                  loadNamespaces();
-                })
-                .catch(err => {
-                  const message = err?.message || messages.error;
-                  if (message === messages.defaultLocked || message === messages.inUse) {
-                    notify(message, 'warning');
-                  } else {
-                    notify(message, 'danger');
-                  }
-                })
-                .finally(() => {
-                  saveButton.disabled = isDefault;
-                  nameInput.disabled = isDefault;
-                  labelInput.disabled = isDefault;
-                });
-            });
-
-            deleteButton.addEventListener('click', () => {
-              if (!window.confirm(messages.confirmDelete)) {
-                return;
-              }
-              deleteButton.disabled = true;
-              apiFetch(buildUrl(deleteUrlTemplate, namespaceValue), { method: 'DELETE' })
-                .then(parseJsonResponse)
-                .then(() => {
-                  notify(messages.deleted, 'success');
-                  loadNamespaces();
-                })
-                .catch(err => {
-                  const message = err?.message || messages.error;
-                  if (message === messages.defaultLocked || message === messages.inUse) {
-                    notify(message, 'warning');
-                  } else {
-                    notify(message, 'danger');
-                  }
-                })
-                .finally(() => {
-                  deleteButton.disabled = isDefault || isInactive;
-                });
-            });
-
-            tr.appendChild(actionCell);
-            tableBody.appendChild(tr);
-
-            nameInput.addEventListener('input', () => {
-              clearNamespaceError(nameInput);
-            });
-            labelInput.addEventListener('input', () => {
-              clearNamespaceError(labelInput);
-            });
-          });
+          clearNamespaceMessage();
+          namespaceTable.render(normalized);
         })
         .catch(err => {
-          tableBody.innerHTML = '';
           const message = err?.message || messages.error;
-          if (message === messages.error && messages.tableMissing) {
-            renderMessageRow(messages.tableMissing);
-            return;
+          const finalMessage = message === messages.error && messages.tableMissing
+            ? messages.tableMissing
+            : message;
+          namespaceTable.render([]);
+          renderNamespaceMessage(finalMessage);
+        })
+        .finally(() => {
+          namespaceTable.setColumnLoading('namespace', false);
+        });
+    };
+
+    const persistNamespaceUpdate = (originalId, next) => {
+      const payload = {
+        namespace: normalizeNamespace(next.namespace),
+        label: normalizeLabel(next.label)
+      };
+      return apiFetch(buildUrl(updateUrlTemplate, originalId), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(parseJsonResponse)
+        .then(() => {
+          notify(messages.updated, 'success');
+          loadNamespaces();
+        })
+        .catch(err => {
+          const message = err?.message || messages.error;
+          if (message === messages.defaultLocked || message === messages.inUse) {
+            notify(message, 'warning');
+          } else {
+            notify(message, 'danger');
           }
-          renderMessageRow(message);
+          throw err;
+        });
+    };
+
+    const openNamespaceEditor = (cell) => {
+      const key = cell?.dataset.key;
+      const id = cell?.dataset.id;
+      const item = namespaceTable.getData().find(entry => entry.id === id);
+      if (!item || !key) {
+        return;
+      }
+      if (!editModal || !editInput) {
+        return;
+      }
+      if (item.is_default) {
+        notify(messages.defaultLocked, 'warning');
+        return;
+      }
+      namespaceEditState.id = id;
+      namespaceEditState.key = key;
+      clearFormError(editInput);
+      if (editTitle) {
+        editTitle.textContent = key === 'label' ? columnLabel : columnNamespace;
+      }
+      if (editLabel) {
+        editLabel.textContent = key === 'label' ? columnLabel : columnNamespace;
+      }
+      editInput.maxLength = key === 'namespace' ? namespaceMaxLength : 255;
+      editInput.value = item[key] || '';
+      editModal.show();
+    };
+
+    const resetEditState = () => {
+      namespaceEditState.id = null;
+      namespaceEditState.key = null;
+      clearFormError(editInput);
+      if (editInput) {
+        editInput.value = '';
+      }
+    };
+
+    const saveNamespaceEdit = () => {
+      const { id, key } = namespaceEditState;
+      if (!id || !key || !editInput) {
+        return;
+      }
+      const nextValue = key === 'namespace'
+        ? normalizeNamespace(editInput.value)
+        : editInput.value.trim();
+
+      if (key === 'namespace') {
+        const validationMessage = getNamespaceError(nextValue);
+        if (validationMessage) {
+          showFormError(editInput, validationMessage);
+          notify(validationMessage, 'warning');
+          return;
+        }
+      }
+
+      const current = namespaceTable.getData().find(entry => entry.id === id);
+      if (!current) {
+        return;
+      }
+
+      const updated = { ...current, [key]: key === 'label' ? normalizeLabel(nextValue) : nextValue };
+      persistNamespaceUpdate(current.id, updated)
+        .then(() => {
+          resetEditState();
+          if (editModal) {
+            editModal.hide();
+          }
+        })
+        .catch(() => {});
+    };
+
+    const handleNamespaceDelete = id => {
+      const item = namespaceTable.getData().find(entry => entry.id === id);
+      if (!item) return;
+      if (item.is_default || item.is_active === false) {
+        notify(item.is_default ? messages.defaultLocked : messages.inUse, 'warning');
+        return;
+      }
+      if (!window.confirm(messages.confirmDelete)) {
+        return;
+      }
+      apiFetch(buildUrl(deleteUrlTemplate, item.id), { method: 'DELETE' })
+        .then(parseJsonResponse)
+        .then(() => {
+          notify(messages.deleted, 'success');
+          loadNamespaces();
+        })
+        .catch(err => {
+          const message = err?.message || messages.error;
+          if (message === messages.defaultLocked || message === messages.inUse) {
+            notify(message, 'warning');
+          } else {
+            notify(message, 'danger');
+          }
         });
     };
 
@@ -10547,12 +10582,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const labelValue = normalizeLabel(labelInput?.value);
         const validationMessage = getNamespaceError(value);
         if (validationMessage) {
-          showNamespaceError(input, validationMessage);
+          showFormError(input, validationMessage);
           notify(validationMessage, 'warning');
           input.focus();
           return;
         }
-        clearNamespaceError(input);
+        clearFormError(input);
         input.disabled = true;
         if (labelInput) {
           labelInput.disabled = true;
@@ -10589,9 +10624,15 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
       input.addEventListener('input', () => {
-        clearNamespaceError(input);
+        clearFormError(input);
       });
     }
+
+    editSave?.addEventListener('click', saveNamespaceEdit);
+    editCancel?.addEventListener('click', () => {
+      resetEditState();
+      clearFormError(editInput);
+    });
 
     loadNamespaces();
   }
