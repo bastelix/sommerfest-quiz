@@ -1,0 +1,11 @@
+{% set activeNamespace = pageNamespace|default('default') %}
+
+{% if activeNamespace is not empty %}
+  <span
+    class="uk-label uk-label-success"
+    aria-label="{{ t('label_project_namespace') }}"
+    title="{{ t('label_project_namespace') }}"
+  >
+    {{ activeNamespace }}
+  </span>
+{% endif %}
