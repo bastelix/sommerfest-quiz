@@ -62,6 +62,7 @@ class MailProviderController
         $_SESSION['csrf_token'] = $csrf;
 
         $role = (string) ($_SESSION['user']['role'] ?? '');
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
 
         $providers = [];
         $active = null;
@@ -71,16 +72,14 @@ class MailProviderController
             $error = $error;
         } else {
             try {
-                $stored = $this->repository->all();
-                $activeRow = $this->repository->findActive();
-                $active = $activeRow['provider_name'] ?? (string) $this->settings->get('mail_provider', 'brevo');
+                $stored = $this->repository->all($namespace);
+                $activeRow = $this->repository->findActive($namespace);
+                $active = $activeRow['provider_name'] ?? 'brevo';
                 $providers = $this->mergeWithDefaults($stored);
             } catch (RuntimeException $exception) {
                 $error = $exception->getMessage();
             }
         }
-
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
 
         return $view->render($response, 'admin/mail_providers.twig', [
             'providers' => $providers,
@@ -101,6 +100,8 @@ class MailProviderController
         if ($this->repository === null) {
             return $this->jsonError($response, 'Mail provider repository is not available.', 500);
         }
+
+        $namespace = $this->resolveNamespace($request);
 
         $data = $this->parseJsonBody($request);
         if (!is_array($data)) {
@@ -146,14 +147,14 @@ class MailProviderController
         }
 
         try {
-            $this->repository->save($provider, $payload);
+            $this->repository->save($provider, $payload, $namespace);
             if ($payload['active']) {
-                $this->repository->activate($provider);
+                $this->repository->activate($provider, $namespace);
                 $this->settings->save(['mail_provider' => $provider]);
             } else {
-                $this->repository->deactivate($provider);
+                $this->repository->deactivate($provider, $namespace);
             }
-            $this->manager->refresh();
+            $this->resolveManager($namespace)->refresh();
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 500);
         }
@@ -170,6 +171,8 @@ class MailProviderController
             return $this->jsonError($response, 'Mail provider repository is not available.', 500);
         }
 
+        $namespace = $this->resolveNamespace($request);
+
         $data = $this->parseJsonBody($request);
         if (!is_array($data)) {
             return $this->jsonError($response, 'Invalid payload.', 400);
@@ -180,10 +183,10 @@ class MailProviderController
 
         try {
             if ($provider !== '') {
-                $config = $this->repository->find($provider);
+                $config = $this->repository->find($provider, $namespace);
             }
             if ($config === null) {
-                $config = $this->repository->findActive();
+                $config = $this->repository->findActive($namespace);
             }
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 500);
@@ -195,7 +198,7 @@ class MailProviderController
 
         $name = (string) ($config['provider_name'] ?? $provider);
         try {
-            $providerInstance = $this->manager->createProvider($name, $config);
+            $providerInstance = $this->resolveManager($namespace)->createProvider($name, $config);
             $status = $providerInstance->getStatus();
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 500);
@@ -353,6 +356,20 @@ class MailProviderController
         $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         return [$availableNamespaces, $namespace];
+    }
+
+    private function resolveNamespace(Request $request): string
+    {
+        return (new NamespaceResolver())->resolve($request)->getNamespace();
+    }
+
+    private function resolveManager(string $namespace): MailProviderManager
+    {
+        if ($this->repository instanceof MailProviderRepository) {
+            return new MailProviderManager($this->settings, [], $this->repository, $namespace);
+        }
+
+        return $this->manager;
     }
 
     /**

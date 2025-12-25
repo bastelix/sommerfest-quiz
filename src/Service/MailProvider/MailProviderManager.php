@@ -6,6 +6,7 @@ namespace App\Service\MailProvider;
 
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
+use App\Service\PageService;
 use App\Service\SettingsService;
 use RuntimeException;
 use Symfony\Component\Mime\Email;
@@ -26,12 +27,16 @@ class MailProviderManager
     /** @var array<string,mixed>|null */
     private ?array $activeConfig = null;
 
+    private string $namespace;
+
     public function __construct(
         SettingsService $settings,
         array $factories = [],
-        ?MailProviderRepository $repository = null
+        ?MailProviderRepository $repository = null,
+        ?string $namespace = null
     ) {
         $this->settings = $settings;
+        $this->namespace = $this->normalizeNamespace($namespace);
         if ($repository instanceof MailProviderRepository) {
             $this->repository = $repository;
         } else {
@@ -70,7 +75,11 @@ class MailProviderManager
 
     public function isConfigured(): bool
     {
-        $status = $this->getStatus();
+        try {
+            $status = $this->getStatus();
+        } catch (RuntimeException $exception) {
+            return false;
+        }
 
         return (bool) ($status['configured'] ?? false);
     }
@@ -116,14 +125,13 @@ class MailProviderManager
         $config = $this->activeConfig;
         if ($config === null) {
             if ($this->repository instanceof MailProviderRepository) {
-                $config = $this->repository->findActive();
-                if ($config === null) {
-                    $fallback = strtolower((string) $this->settings->get('mail_provider', 'brevo'));
-                    $config = $this->repository->find($fallback) ?? ['provider_name' => $fallback];
-                }
-            } else {
-                $fallback = strtolower((string) $this->settings->get('mail_provider', 'brevo'));
-                $config = ['provider_name' => $fallback];
+                $config = $this->repository->findActive($this->namespace)
+                    ?? $this->repository->find('brevo', $this->namespace);
+            }
+            if ($config === null) {
+                throw new RuntimeException(
+                    sprintf('No mail provider configured for namespace "%s".', $this->namespace)
+                );
             }
             $this->activeConfig = $config;
         }
@@ -158,5 +166,12 @@ class MailProviderManager
             'api_key' => (string) ($config['api_key'] ?? ''),
             'list_id' => (string) ($config['list_id'] ?? ''),
         ];
+    }
+
+    private function normalizeNamespace(?string $namespace): string
+    {
+        $normalized = is_string($namespace) ? strtolower(trim($namespace)) : '';
+
+        return $normalized !== '' ? $normalized : PageService::DEFAULT_NAMESPACE;
     }
 }
