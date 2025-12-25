@@ -58,7 +58,7 @@ class DomainController
 
         if (
             $this->certificateProvisioningService !== null
-            && ($domain['is_active'] ?? false)
+            && $domain['is_active']
         ) {
             $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
         }
@@ -106,7 +106,7 @@ class DomainController
         if (
             $this->certificateProvisioningService !== null
             && !$existing['is_active']
-            && ($domain['is_active'] ?? false)
+            && $domain['is_active']
         ) {
             $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
         }

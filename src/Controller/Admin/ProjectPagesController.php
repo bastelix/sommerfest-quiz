@@ -10,7 +10,6 @@ use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
 use App\Service\Marketing\PageAiPromptTemplateService;
-use App\Service\MarketingMenuService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
@@ -50,7 +49,6 @@ class ProjectPagesController
     private TenantService $tenantService;
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
-    private MarketingMenuService $marketingMenuService;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -62,8 +60,7 @@ class ProjectPagesController
         ?NamespaceService $namespaceService = null,
         ?TenantService $tenantService = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
-        ?ProjectSettingsService $projectSettings = null,
-        ?MarketingMenuService $marketingMenuService = null
+        ?ProjectSettingsService $projectSettings = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -75,7 +72,6 @@ class ProjectPagesController
         $this->tenantService = $tenantService ?? new TenantService($pdo);
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
-        $this->marketingMenuService = $marketingMenuService ?? new MarketingMenuService($pdo, $this->pageService);
     }
 
     public function content(Request $request, Response $response): Response
@@ -358,15 +354,15 @@ class ProjectPagesController
 
         $selected = '';
         foreach ($namespaceDomains as $domain) {
-            $value = (string) ($domain['normalized_host'] ?? '');
+            $value = (string) $domain['normalized_host'];
             if ($value === '') {
                 continue;
             }
 
             $options[] = [
                 'value' => $value,
-                'label' => (string) ($domain['host'] ?? $value),
-                'is_active' => (bool) ($domain['is_active'] ?? false),
+                'label' => (string) $domain['host'],
+                'is_active' => (bool) $domain['is_active'],
                 'is_unassigned' => false,
             ];
 
@@ -607,11 +603,7 @@ class ProjectPagesController
             if ($pageDomains === [] && $fallbackHost !== '') {
                 $pageDomains[] = $fallbackHost;
             }
-            $pageDomains = array_values(
-                array_unique(
-                    array_filter($pageDomains, static fn ($value): bool => $value !== '')
-                )
-            );
+            $pageDomains = array_values(array_unique(array_filter($pageDomains)));
 
             $config = $service->load($page->getId());
             $configData = $config ? $config->jsonSerialize() : $service->defaultConfig($page->getId());

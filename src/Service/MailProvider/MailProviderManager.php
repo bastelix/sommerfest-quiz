@@ -13,7 +13,6 @@ use Symfony\Component\Mime\Email;
 
 class MailProviderManager
 {
-    private SettingsService $settings;
 
     /**
      * @var array<string,callable(array<string,mixed>):MailProviderInterface>
@@ -35,7 +34,6 @@ class MailProviderManager
         ?MailProviderRepository $repository = null,
         ?string $namespace = null
     ) {
-        $this->settings = $settings;
         $this->namespace = $this->normalizeNamespace($namespace);
         if ($repository instanceof MailProviderRepository) {
             $this->repository = $repository;

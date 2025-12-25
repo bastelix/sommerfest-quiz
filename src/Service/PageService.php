@@ -612,9 +612,7 @@ class PageService
         if ($startpageDomain !== null && trim($startpageDomain) === '') {
             $startpageDomain = null;
         }
-        if (!is_bool($isStartpage)) {
-            $isStartpage = (bool) $isStartpage;
-        }
+        $isStartpage = (bool) $isStartpage;
 
         return new Page(
             $id,

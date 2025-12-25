@@ -515,7 +515,7 @@ final class MarketingMenuService
     }
 
     /**
-     * @param int[] $orderedIds
+     * @param list<int|array<string, mixed>> $orderedIds
      */
     public function reorderMenuItems(int $pageId, array $orderedIds): void
     {
@@ -529,9 +529,9 @@ final class MarketingMenuService
         }
 
         $orderedIds = array_values($orderedIds);
-        $itemsPayload = is_int($orderedIds[0]) ? null : $orderedIds;
+        $firstEntry = $orderedIds[0] ?? null;
 
-        if ($itemsPayload === null) {
+        if (is_int($firstEntry)) {
             $orderedIds = array_values(array_unique(array_map('intval', $orderedIds)));
             $existingIds = $this->getMenuItemIdsForPage($pageId);
 
@@ -572,11 +572,10 @@ final class MarketingMenuService
                 throw new RuntimeException('Updating menu order failed: ' . $exception->getMessage(), 0, $exception);
             }
 
-            return;
         }
 
         $normalizedItems = [];
-        foreach ($itemsPayload as $entry) {
+        foreach ($orderedIds as $entry) {
             if (!is_array($entry)) {
                 continue;
             }
@@ -617,6 +616,8 @@ final class MarketingMenuService
             $this->pdo->rollBack();
             throw new RuntimeException('Updating menu order failed: ' . $exception->getMessage(), 0, $exception);
         }
+
+        return;
     }
 
     /**
@@ -920,7 +921,7 @@ final class MarketingMenuService
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
+     * @param array<int, mixed> $items
      * @param array<string, bool> $startpageLocales
      * @return array<int, array<string, mixed>>
      */
@@ -1066,7 +1067,7 @@ final class MarketingMenuService
             }
         }
 
-        return $candidate?->getId();
+        return $candidate->getId();
     }
 
     private function fetchStartpageMenuItem(
@@ -1144,7 +1145,7 @@ final class MarketingMenuService
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
+     * @param array<int, mixed> $items
      */
     private function importMenuItemsRecursive(
         Page $page,
