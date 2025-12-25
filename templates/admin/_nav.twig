@@ -10,43 +10,45 @@
     ]
   },
   {
-    header: t('menu_event_setup'),
+    header: t('menu_event_management'),
     icon: 'calendar',
-    items: [
-      { href: basePath ~ '/admin/events', icon: 'calendar', text: t('tab_events'), activePrefixes: [basePath ~ '/admin/events'] },
-      { href: basePath ~ '/admin/event/settings', icon: 'cog', text: t('tab_event_settings'), activePrefixes: [basePath ~ '/admin/event/settings'] },
+    sections: [
       {
-        href: basePath ~ '/admin/username-blocklist',
-        icon: 'lock',
-        text: t('tab_username_settings'),
-        admin: true,
-        activePrefixes: [basePath ~ '/admin/username-blocklist']
+        header: t('menu_event_setup'),
+        items: [
+          { href: basePath ~ '/admin/events', icon: 'calendar', text: t('tab_events'), activePrefixes: [basePath ~ '/admin/events'] },
+          { href: basePath ~ '/admin/event/settings', icon: 'cog', text: t('tab_event_settings'), activePrefixes: [basePath ~ '/admin/event/settings'] },
+          {
+            href: basePath ~ '/admin/username-blocklist',
+            icon: 'lock',
+            text: t('tab_username_settings'),
+            admin: true,
+            activePrefixes: [basePath ~ '/admin/username-blocklist']
+          },
+        ]
       },
-    ]
-  },
-  {
-    header: t('menu_event_content'),
-    icon: 'database',
-    items: [
-      { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor'], activePrefixes: [basePath ~ '/admin/catalogs'] },
-      { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions'), activePrefixes: [basePath ~ '/admin/questions'] },
-    ]
-  },
-  {
-    header: t('menu_event_live'),
-    icon: 'tv',
-    items: [
-      { href: basePath ~ '/admin/event/dashboard', icon: 'tv', text: t('tab_event_dashboard'), activePrefixes: [basePath ~ '/admin/event/dashboard'] },
-      { href: basePath ~ '/admin/teams', icon: 'users', text: t('tab_teams'), activePrefixes: [basePath ~ '/admin/teams'] },
-    ]
-  },
-  {
-    header: t('menu_event_evaluation'),
-    icon: 'signal',
-    items: [
-      { href: basePath ~ '/admin/summary', icon: 'table', text: t('tab_summary'), activePrefixes: [basePath ~ '/admin/summary'] },
-      { href: basePath ~ '/admin/results', icon: 'list', text: t('tab_results'), activePrefixes: [basePath ~ '/admin/results'] },
-      { href: basePath ~ '/admin/statistics', icon: 'signal', text: t('tab_statistics'), activePrefixes: [basePath ~ '/admin/statistics'] },
+      {
+        header: t('menu_event_content'),
+        items: [
+          { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor'], activePrefixes: [basePath ~ '/admin/catalogs'] },
+          { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions'), activePrefixes: [basePath ~ '/admin/questions'] },
+        ]
+      },
+      {
+        header: t('menu_event_live'),
+        items: [
+          { href: basePath ~ '/admin/event/dashboard', icon: 'tv', text: t('tab_event_dashboard'), activePrefixes: [basePath ~ '/admin/event/dashboard'] },
+          { href: basePath ~ '/admin/teams', icon: 'users', text: t('tab_teams'), activePrefixes: [basePath ~ '/admin/teams'] },
+        ]
+      },
+      {
+        header: t('menu_event_evaluation'),
+        items: [
+          { href: basePath ~ '/admin/summary', icon: 'table', text: t('tab_summary'), activePrefixes: [basePath ~ '/admin/summary'] },
+          { href: basePath ~ '/admin/results', icon: 'list', text: t('tab_results'), activePrefixes: [basePath ~ '/admin/results'] },
+          { href: basePath ~ '/admin/statistics', icon: 'signal', text: t('tab_statistics'), activePrefixes: [basePath ~ '/admin/statistics'] },
+        ]
+      },
     ]
   },
   {
@@ -330,78 +332,169 @@
             </div>
           </div>
         {% else %}
-          {% set groupActive = false %}
-          {% set hasItems = false %}
-          {% for it in group.items %}
-            {% if (it.roles is not defined or role in it.roles)
-                and (it.admin is not defined or role == 'admin')
-                and (it.domain is not defined or it.domain == domainType) %}
-              {% set hasItems = true %}
-              {% set itemActivePaths = it.activePaths|default([]) %}
-              {% set itemActivePrefixes = it.activePrefixes|default([]) %}
-              {% set itemActive = current starts with it.href %}
-              {% for path in itemActivePaths %}
-                {% if current == path %}
-                  {% set itemActive = true %}
-                {% endif %}
-              {% endfor %}
-              {% for prefix in itemActivePrefixes %}
-                {% if current starts with prefix %}
-                  {% set itemActive = true %}
-                {% endif %}
-              {% endfor %}
-              {% if itemActive %}
-                {% set groupActive = true %}
-              {% endif %}
-            {% endif %}
-          {% endfor %}
-          {% if hasItems %}
-            {% set groupIcon = group.icon|default('folder') %}
-            <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
-              <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
-                <span uk-icon="icon: {{ groupIcon }}; ratio: 0.95"></span>
-                <span class="qr-nav-accordion-label">{{ group.header|upper }}</span>
-                <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
-              </a>
-              <div class="uk-accordion-content uk-padding-remove">
-                <ul class="uk-nav uk-nav-default qr-nav-sub">
-                  {% for it in group.items %}
-                    {% if (it.roles is not defined or role in it.roles)
-                        and (it.admin is not defined or role == 'admin')
-                        and (it.domain is not defined or it.domain == domainType) %}
-                      {% set itemActivePaths = it.activePaths|default([]) %}
-                      {% set itemActivePrefixes = it.activePrefixes|default([]) %}
-                      {% set isActive = current starts with it.href %}
-                      {% for path in itemActivePaths %}
-                        {% if current == path %}
-                          {% set isActive = true %}
-                        {% endif %}
-                      {% endfor %}
-                      {% for prefix in itemActivePrefixes %}
-                        {% if current starts with prefix %}
-                          {% set isActive = true %}
-                        {% endif %}
-                      {% endfor %}
-                      {% set active = isActive ? 'uk-active' : '' %}
-                      {% set hrefParts = it.href|split('#', 2) %}
-                      {% set hrefBase = hrefParts[0] %}
-                      {% set hrefAnchor = hrefParts|length > 1 ? '#' ~ hrefParts[1] : '' %}
-                      {% set namespaceSuffix = '' %}
-                      {% if namespaceQuery is not empty %}
-                        {% set namespaceSuffix = ('?' in hrefBase) ? '&' ~ namespaceQuery : '?' ~ namespaceQuery %}
-                      {% endif %}
-                      {% set href = hrefBase ~ namespaceSuffix ~ hrefAnchor %}
-                      <li class="{{ active }}">
-                        <a class="qr-nav-link qr-nav-sub-link" href="{{ href }}">
-                          <span uk-icon="icon: {{ it.icon }}; ratio: 0.85"></span>
-                          <span class="qr-nav-text">{{ it.text }}</span>
-                        </a>
-                      </li>
+          {% if group.sections is defined %}
+            {% set groupActive = false %}
+            {% set hasItems = false %}
+            {% for section in group.sections %}
+              {% for it in section.items %}
+                {% if (it.roles is not defined or role in it.roles)
+                    and (it.admin is not defined or role == 'admin')
+                    and (it.domain is not defined or it.domain == domainType) %}
+                  {% set hasItems = true %}
+                  {% set itemActivePaths = it.activePaths|default([]) %}
+                  {% set itemActivePrefixes = it.activePrefixes|default([]) %}
+                  {% set itemActive = current starts with it.href %}
+                  {% for path in itemActivePaths %}
+                    {% if current == path %}
+                      {% set itemActive = true %}
                     {% endif %}
                   {% endfor %}
-                </ul>
+                  {% for prefix in itemActivePrefixes %}
+                    {% if current starts with prefix %}
+                      {% set itemActive = true %}
+                    {% endif %}
+                  {% endfor %}
+                  {% if itemActive %}
+                    {% set groupActive = true %}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            {% endfor %}
+            {% if hasItems %}
+              {% set groupIcon = group.icon|default('folder') %}
+              <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
+                <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
+                  <span uk-icon="icon: {{ groupIcon }}; ratio: 0.95"></span>
+                  <span class="qr-nav-accordion-label">{{ group.header|upper }}</span>
+                  <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                </a>
+                <div class="uk-accordion-content uk-padding-remove">
+                  <ul class="uk-nav uk-nav-default qr-nav-sub">
+                    {% for section in group.sections %}
+                      {% set sectionHasItems = false %}
+                      {% for it in section.items %}
+                        {% if (it.roles is not defined or role in it.roles)
+                            and (it.admin is not defined or role == 'admin')
+                            and (it.domain is not defined or it.domain == domainType) %}
+                          {% set sectionHasItems = true %}
+                        {% endif %}
+                      {% endfor %}
+                      {% if sectionHasItems %}
+                        <li class="uk-nav-header">{{ section.header }}</li>
+                        {% for it in section.items %}
+                          {% if (it.roles is not defined or role in it.roles)
+                              and (it.admin is not defined or role == 'admin')
+                              and (it.domain is not defined or it.domain == domainType) %}
+                            {% set itemActivePaths = it.activePaths|default([]) %}
+                            {% set itemActivePrefixes = it.activePrefixes|default([]) %}
+                            {% set isActive = current starts with it.href %}
+                            {% for path in itemActivePaths %}
+                              {% if current == path %}
+                                {% set isActive = true %}
+                              {% endif %}
+                            {% endfor %}
+                            {% for prefix in itemActivePrefixes %}
+                              {% if current starts with prefix %}
+                                {% set isActive = true %}
+                              {% endif %}
+                            {% endfor %}
+                            {% set active = isActive ? 'uk-active' : '' %}
+                            {% set hrefParts = it.href|split('#', 2) %}
+                            {% set hrefBase = hrefParts[0] %}
+                            {% set hrefAnchor = hrefParts|length > 1 ? '#' ~ hrefParts[1] : '' %}
+                            {% set namespaceSuffix = '' %}
+                            {% if namespaceQuery is not empty %}
+                              {% set namespaceSuffix = ('?' in hrefBase) ? '&' ~ namespaceQuery : '?' ~ namespaceQuery %}
+                            {% endif %}
+                            {% set href = hrefBase ~ namespaceSuffix ~ hrefAnchor %}
+                            <li class="{{ active }}">
+                              <a class="qr-nav-link qr-nav-sub-link" href="{{ href }}">
+                                <span uk-icon="icon: {{ it.icon }}; ratio: 0.85"></span>
+                                <span class="qr-nav-text">{{ it.text }}</span>
+                              </a>
+                            </li>
+                          {% endif %}
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
               </div>
-            </div>
+            {% endif %}
+          {% else %}
+            {% set groupActive = false %}
+            {% set hasItems = false %}
+            {% for it in group.items %}
+              {% if (it.roles is not defined or role in it.roles)
+                  and (it.admin is not defined or role == 'admin')
+                  and (it.domain is not defined or it.domain == domainType) %}
+                {% set hasItems = true %}
+                {% set itemActivePaths = it.activePaths|default([]) %}
+                {% set itemActivePrefixes = it.activePrefixes|default([]) %}
+                {% set itemActive = current starts with it.href %}
+                {% for path in itemActivePaths %}
+                  {% if current == path %}
+                    {% set itemActive = true %}
+                  {% endif %}
+                {% endfor %}
+                {% for prefix in itemActivePrefixes %}
+                  {% if current starts with prefix %}
+                    {% set itemActive = true %}
+                  {% endif %}
+                {% endfor %}
+                {% if itemActive %}
+                  {% set groupActive = true %}
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+            {% if hasItems %}
+              {% set groupIcon = group.icon|default('folder') %}
+              <div class="qr-nav-accordion-item {{ groupActive ? 'uk-open' }}">
+                <a class="uk-accordion-title qr-nav-accordion-title uk-text-bold" href="#">
+                  <span uk-icon="icon: {{ groupIcon }}; ratio: 0.95"></span>
+                  <span class="qr-nav-accordion-label">{{ group.header|upper }}</span>
+                  <span class="uk-margin-auto-left qr-nav-accordion-chevron" uk-icon="icon: chevron-down; ratio: 0.8"></span>
+                </a>
+                <div class="uk-accordion-content uk-padding-remove">
+                  <ul class="uk-nav uk-nav-default qr-nav-sub">
+                    {% for it in group.items %}
+                      {% if (it.roles is not defined or role in it.roles)
+                          and (it.admin is not defined or role == 'admin')
+                          and (it.domain is not defined or it.domain == domainType) %}
+                        {% set itemActivePaths = it.activePaths|default([]) %}
+                        {% set itemActivePrefixes = it.activePrefixes|default([]) %}
+                        {% set isActive = current starts with it.href %}
+                        {% for path in itemActivePaths %}
+                          {% if current == path %}
+                            {% set isActive = true %}
+                          {% endif %}
+                        {% endfor %}
+                        {% for prefix in itemActivePrefixes %}
+                          {% if current starts with prefix %}
+                            {% set isActive = true %}
+                          {% endif %}
+                        {% endfor %}
+                        {% set active = isActive ? 'uk-active' : '' %}
+                        {% set hrefParts = it.href|split('#', 2) %}
+                        {% set hrefBase = hrefParts[0] %}
+                        {% set hrefAnchor = hrefParts|length > 1 ? '#' ~ hrefParts[1] : '' %}
+                        {% set namespaceSuffix = '' %}
+                        {% if namespaceQuery is not empty %}
+                          {% set namespaceSuffix = ('?' in hrefBase) ? '&' ~ namespaceQuery : '?' ~ namespaceQuery %}
+                        {% endif %}
+                        {% set href = hrefBase ~ namespaceSuffix ~ hrefAnchor %}
+                        <li class="{{ active }}">
+                          <a class="qr-nav-link qr-nav-sub-link" href="{{ href }}">
+                            <span uk-icon="icon: {{ it.icon }}; ratio: 0.85"></span>
+                            <span class="qr-nav-text">{{ it.text }}</span>
+                          </a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            {% endif %}
           {% endif %}
         {% endif %}
       {% endif %}
