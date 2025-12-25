@@ -1,3 +1,5 @@
+{% import 'components/standard_table.twig' as standard_table %}
+
 <div id="domains" class="uk-card uk-card-default uk-card-body uk-margin">
   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
     <h3 class="uk-heading-bullet uk-margin-remove-bottom">{{ t('heading_domains') }}</h3>
@@ -103,55 +105,56 @@
         </fieldset>
       </form>
     </div>
-    <div class="uk-overflow-auto">
-      <table
-        id="domainTable"
-        class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive"
-        data-loading="{{ t('text_domains_loading') }}"
-        data-empty="{{ t('text_domains_empty') }}"
-        data-error="{{ t('text_domains_error') }}"
-      >
-        <thead>
-          <tr>
-            <th>{{ t('column_domain') }}</th>
-            <th>{{ t('column_domain_label') }}</th>
-            <th>{{ t('column_domain_namespace') }}</th>
-            <th>{{ t('column_domain_status') }}</th>
-            <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% set domainNamespaceLabels = {} %}
-          {% for entry in available_namespaces|default([]) %}
-            {% set ns = entry.namespace|default('') %}
-            {% if ns is not empty %}
-              {% set domainNamespaceLabels = domainNamespaceLabels|merge({ (ns): entry.label|default(ns) }) %}
-            {% endif %}
-          {% endfor %}
+    {% set domainNamespaceLabels = {} %}
+    {% for entry in available_namespaces|default([]) %}
+      {% set ns = entry.namespace|default('') %}
+      {% if ns is not empty %}
+        {% set domainNamespaceLabels = domainNamespaceLabels|merge({ (ns): entry.label|default(ns) }) %}
+      {% endif %}
+    {% endfor %}
 
-          {% set domainList = domains|default(null) %}
-          {% if domainList is iterable and domainList|length > 0 %}
-            {% for domain in domainList %}
-              {% set namespaceLabel = domainNamespaceLabels[domain.namespace] ?? (domain.namespace ?? t('text_domain_namespace_none')) %}
-              <tr>
-                <td>{{ domain.host|default(domain.normalized_host)|e }}</td>
-                <td>{{ domain.label|default('')|e }}</td>
-                <td>{{ namespaceLabel|e }}</td>
-                <td>{{ domain.is_active ? t('label_namespace_active') : t('label_namespace_inactive') }}</td>
-                <td class="uk-table-shrink uk-text-center">&mdash;</td>
-              </tr>
-            {% endfor %}
-          {% elseif domainList is iterable %}
-            <tr>
-              <td colspan="5">{{ t('text_domains_empty') }}</td>
-            </tr>
-          {% else %}
-            <tr>
-              <td colspan="5">{{ t('text_domains_loading') }}</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
+    {% set domainHeadings = [
+      { label: t('column_domain') },
+      { label: t('column_domain_label') },
+      { label: t('column_domain_namespace') },
+      { label: t('column_domain_status') },
+      { label: t('column_actions'), class: 'uk-table-shrink uk-text-center' },
+    ] %}
+
+    {% set domainBody %}
+      {% set domainList = domains|default(null) %}
+      {% if domainList is iterable and domainList|length > 0 %}
+        {% for domain in domainList %}
+          {% set namespaceLabel = domainNamespaceLabels[domain.namespace] ?? (domain.namespace ?? t('text_domain_namespace_none')) %}
+          <tr>
+            <td>{{ domain.host|default(domain.normalized_host)|e }}</td>
+            <td>{{ domain.label|default('')|e }}</td>
+            <td>{{ namespaceLabel|e }}</td>
+            <td>{{ domain.is_active ? t('label_namespace_active') : t('label_namespace_inactive') }}</td>
+            <td class="uk-table-shrink uk-text-center">&mdash;</td>
+          </tr>
+        {% endfor %}
+      {% elseif domainList is iterable %}
+        <tr>
+          <td colspan="5">{{ t('text_domains_empty') }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="5">{{ t('text_domains_loading') }}</td>
+        </tr>
+      {% endif %}
+    {% endset %}
+
+    <div
+      id="domainTable"
+      data-domain-table
+      data-loading="{{ t('text_domains_loading') }}"
+      data-empty="{{ t('text_domains_empty') }}"
+      data-error="{{ t('text_domains_error') }}"
+      data-column-count="5"
+      data-ignore-global-filters="true"
+    >
+      {{ standard_table.render(domainHeadings, 'domainTableBody', domainBody) }}
     </div>
   </div>
 </div>
