@@ -17,6 +17,18 @@ import { applyLazyImage } from './lazy-images.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
+const resolveWithBase = (path) => {
+  if (typeof path !== 'string') {
+    return withBase(String(path));
+  }
+  if (basePath && path.startsWith(basePath + '/')) {
+    return path;
+  }
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  return withBase(path);
+};
 const escape = url => encodeURI(url);
 const transEventsFetchError = window.transEventsFetchError || 'Veranstaltungen konnten nicht geladen werden';
 const transDashboardLinkCopied = window.transDashboardLinkCopied || 'Link kopiert';
@@ -183,7 +195,7 @@ window.apiFetch = (path, options = {}) => {
     signal: controller.signal
   };
 
-  return fetch(withBase(path), opts)
+  return fetch(resolveWithBase(path), opts)
     .then(res => {
       if (res.status === 402) {
         showUpgradeModal();
@@ -4017,7 +4029,7 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainTable.dataset.empty || '',
       error: domainTable.dataset.error || window.transDomainError || 'Domain load failed.'
     };
-    const domainEndpoint = '/admin/domains/api';
+    const domainEndpoint = withBase('/admin/domains/api');
     const resolveDomainElement = (id) => managementSection?.querySelector(`#${id}`) || document.getElementById(id);
     const domainForm = resolveDomainElement('domainForm');
     const domainLegend = resolveDomainElement('domainLegend');
