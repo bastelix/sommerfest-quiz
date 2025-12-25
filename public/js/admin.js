@@ -4177,6 +4177,89 @@ document.addEventListener('DOMContentLoaded', function () {
         return span;
       };
 
+      const formatDomainLabel = item => item.host || item.normalized_host || '';
+
+      const setActionLoading = (link, loading) => {
+        if (!link) {
+          return () => {};
+        }
+        if (!link.dataset.originalLabel) {
+          link.dataset.originalLabel = link.textContent || '';
+        }
+        if (!link.dataset.originalHtml) {
+          link.dataset.originalHtml = link.innerHTML;
+        }
+
+        if (loading) {
+          const label = link.dataset.originalLabel || '';
+          link.classList.add('uk-disabled');
+          link.innerHTML = `<span uk-spinner class="uk-margin-small-right"></span>${label}`;
+          return () => setActionLoading(link, false);
+        }
+
+        link.classList.remove('uk-disabled');
+        if (link.dataset.originalHtml) {
+          link.innerHTML = link.dataset.originalHtml;
+        }
+
+        return () => {};
+      };
+
+      const renewDomainCertificate = (domain, trigger) => {
+        if (!domain?.id) {
+          return;
+        }
+
+        const reset = setActionLoading(trigger, true);
+        const url = `${domainEndpoint}/${domain.id}/renew-ssl`;
+        const hostLabel = formatDomainLabel(domain);
+        const successMessage = hostLabel
+          ? `${hostLabel}: ${transRenewSuccess}`
+          : transRenewSuccess;
+
+        apiFetch(url, { method: 'POST' })
+          .then(res => res.json().catch(() => ({})).then(data => {
+            if (!res.ok) {
+              throw new Error(data?.error || transRenewError);
+            }
+            return data;
+          }))
+          .then(data => {
+            const message = data?.status || successMessage;
+            notify(message, 'success');
+          })
+          .catch(err => {
+            notify(err?.message || transRenewError, 'danger');
+          })
+          .finally(() => {
+            reset();
+          });
+      };
+
+      const createActionLink = ({ label, icon, className = '', onClick }) => {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.className = `uk-flex uk-flex-middle ${className}`.trim();
+        if (icon) {
+          const iconEl = document.createElement('span');
+          iconEl.setAttribute('uk-icon', icon);
+          iconEl.className = 'uk-margin-small-right';
+          link.appendChild(iconEl);
+        }
+        const textEl = document.createElement('span');
+        textEl.textContent = label;
+        link.appendChild(textEl);
+
+        if (typeof onClick === 'function') {
+          link.addEventListener('click', event => {
+            event.preventDefault();
+            onClick(link, event);
+          });
+        }
+
+        return link;
+      };
+
       const domainColumns = [
         { key: 'host', render: item => createTextCell(item.host || item.normalized_host || '') },
         { key: 'label', render: item => createTextCell(item.label || '') },
@@ -4195,47 +4278,80 @@ document.addEventListener('DOMContentLoaded', function () {
           className: 'uk-table-shrink uk-text-center',
           render: item => {
             const wrapper = document.createElement('div');
-            wrapper.className = 'uk-flex uk-flex-middle uk-flex-center';
+            wrapper.className = 'uk-inline';
 
-            const editButton = document.createElement('button');
-            editButton.type = 'button';
-            editButton.className = 'uk-button uk-button-default uk-button-small';
-            editButton.textContent = window.transEdit || 'Edit';
-            editButton.addEventListener('click', () => {
-              applyForm(item);
-            });
-            wrapper.appendChild(editButton);
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'uk-icon-button';
+            toggle.setAttribute('uk-icon', 'more-vertical');
+            wrapper.appendChild(toggle);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
-            deleteButton.className = 'uk-button uk-button-danger uk-button-small uk-margin-small-left';
-            deleteButton.textContent = window.transDelete || 'Delete';
-            deleteButton.addEventListener('click', () => {
-              if (!window.confirm(transDomainDeleteConfirm)) {
-                return;
-              }
-              deleteButton.disabled = true;
-              apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
-                .then(res => {
-                  if (!res.ok) {
-                    return res.json().catch(() => ({})).then(data => {
-                      throw new Error(data?.error || transDomainError);
-                    });
-                  }
-                  return res.json();
-                })
-                .then(() => {
-                  notify(transDomainDeleted, 'success');
-                  loadDomains();
-                })
-                .catch(err => {
-                  notify(err?.message || transDomainError, 'danger');
-                })
-                .finally(() => {
-                  deleteButton.disabled = false;
-                });
-            });
-            wrapper.appendChild(deleteButton);
+            const dropdown = document.createElement('div');
+            dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right; container: body');
+
+            const list = document.createElement('ul');
+            list.className = 'uk-nav uk-dropdown-nav';
+
+            const header = document.createElement('li');
+            header.className = 'uk-nav-header';
+            header.textContent = window.transActions || (window.transActionsLabel ?? 'Aktionen');
+            list.appendChild(header);
+
+            const editItem = document.createElement('li');
+            editItem.appendChild(createActionLink({
+              label: window.transEdit || 'Edit',
+              icon: 'pencil',
+              onClick: () => applyForm(item),
+            }));
+            list.appendChild(editItem);
+
+            const renewItem = document.createElement('li');
+            renewItem.appendChild(createActionLink({
+              label: window.transRenewSsl || window.transDomainRenew || window.transDomainRenewSsl || 'SSL erneuern',
+              icon: 'lock',
+              onClick: link => renewDomainCertificate(item, link),
+            }));
+            list.appendChild(renewItem);
+
+            const divider = document.createElement('li');
+            divider.className = 'uk-nav-divider';
+            list.appendChild(divider);
+
+            const deleteItem = document.createElement('li');
+            deleteItem.appendChild(createActionLink({
+              label: window.transDelete || 'Delete',
+              icon: 'trash',
+              className: 'uk-text-danger',
+              onClick: link => {
+                if (!window.confirm(transDomainDeleteConfirm)) {
+                  return;
+                }
+                const reset = setActionLoading(link, true);
+                apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
+                  .then(res => {
+                    if (!res.ok) {
+                      return res.json().catch(() => ({})).then(data => {
+                        throw new Error(data?.error || transDomainError);
+                      });
+                    }
+                    return res.json();
+                  })
+                  .then(() => {
+                    notify(transDomainDeleted, 'success');
+                    loadDomains();
+                  })
+                  .catch(err => {
+                    notify(err?.message || transDomainError, 'danger');
+                  })
+                  .finally(() => {
+                    reset();
+                  });
+              },
+            }));
+            list.appendChild(deleteItem);
+
+            dropdown.appendChild(list);
+            wrapper.appendChild(dropdown);
 
             return wrapper;
           }

@@ -131,7 +131,37 @@
             <td>{{ domain.label|default('')|e }}</td>
             <td>{{ namespaceLabel|e }}</td>
             <td>{{ domain.is_active ? t('label_namespace_active') : t('label_namespace_inactive') }}</td>
-            <td class="uk-table-shrink uk-text-center">&mdash;</td>
+            <td class="uk-table-shrink uk-text-center">
+              <div class="uk-inline">
+                <button class="uk-icon-button" type="button" uk-icon="more-vertical"></button>
+                <div uk-dropdown="mode: click; pos: bottom-right; container: body">
+                  <ul class="uk-nav uk-dropdown-nav">
+                    <li class="uk-nav-header">{{ t('column_actions') }}</li>
+                    <li>
+                      <a href="#" data-domain-id="{{ domain.id }}" data-domain-action="edit">
+                        <span uk-icon="pencil" class="uk-margin-small-right"></span>{{ t('action_edit') }}
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#" data-domain-id="{{ domain.id }}" data-domain-action="renew-ssl">
+                        <span uk-icon="lock" class="uk-margin-small-right"></span>{{ t('action_renew_ssl') }}
+                      </a>
+                    </li>
+                    <li class="uk-nav-divider"></li>
+                    <li>
+                      <a
+                        href="#"
+                        class="uk-text-danger"
+                        data-domain-id="{{ domain.id }}"
+                        data-domain-action="delete"
+                      >
+                        <span uk-icon="trash" class="uk-margin-small-right"></span>{{ t('action_delete') }}
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </td>
           </tr>
         {% endfor %}
       {% elseif domainList is iterable %}

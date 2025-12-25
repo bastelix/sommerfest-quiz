@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Service\DomainService;
 use App\Service\CertificateProvisioningService;
 use InvalidArgumentException;
+use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -130,6 +131,38 @@ class DomainController
         $response->getBody()->write(json_encode([
             'status' => 'ok',
         ]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function renewSsl(Request $request, Response $response, array $args): Response
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return $response->withStatus(400);
+        }
+
+        $domain = $this->domainService->getDomainById($id);
+        if ($domain === null) {
+            return $response->withStatus(404);
+        }
+
+        if ($this->certificateProvisioningService === null) {
+            return $this->jsonError($response, 'Certificate provisioning unavailable.', 503);
+        }
+
+        try {
+            $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
+        } catch (InvalidArgumentException | RuntimeException $exception) {
+            return $this->jsonError($response, $exception->getMessage(), 422);
+        }
+
+        $payload = [
+            'status' => 'Certificate renewal queued.',
+            'domain' => $domain['host'],
+        ];
+
+        $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json');
     }

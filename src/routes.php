@@ -2302,6 +2302,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->post('/admin/domains/api/{id}/renew-ssl', function (Request $request, Response $response, array $args) {
+        /** @var DomainController $controller */
+        $controller = $request->getAttribute('domainController');
+        return $controller->renewSsl($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
