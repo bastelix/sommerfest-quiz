@@ -169,6 +169,25 @@ CREATE TABLE IF NOT EXISTS users (
     role user_role NOT NULL DEFAULT 'catalog-editor'
 );
 
+-- User namespaces
+CREATE TABLE IF NOT EXISTS user_namespaces (
+    user_id INTEGER NOT NULL,
+    namespace TEXT NOT NULL,
+    is_default BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, namespace),
+    CONSTRAINT fk_user_namespaces_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_user_namespaces_user ON user_namespaces (user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_namespaces_default
+    ON user_namespaces (user_id)
+    WHERE is_default;
+
+INSERT INTO user_namespaces (user_id, namespace, is_default)
+SELECT id, 'default', TRUE
+FROM users
+ON CONFLICT (user_id, namespace) DO NOTHING;
+
 -- Tenant definitions
 CREATE TABLE IF NOT EXISTS tenants (
     uid TEXT PRIMARY KEY,
@@ -183,3 +202,67 @@ CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,
     CONSTRAINT fk_active_event FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
+
+-- Namespace imprint profiles
+CREATE TABLE IF NOT EXISTS namespace_profile (
+    namespace TEXT PRIMARY KEY,
+    imprint_name TEXT,
+    imprint_street TEXT,
+    imprint_zip TEXT,
+    imprint_city TEXT,
+    imprint_email TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO namespace_profile (
+    namespace,
+    imprint_name,
+    imprint_street,
+    imprint_zip,
+    imprint_city,
+    imprint_email
+)
+SELECT
+    'default',
+    imprint_name,
+    imprint_street,
+    imprint_zip,
+    imprint_city,
+    imprint_email
+FROM tenants
+WHERE subdomain = 'main'
+ON CONFLICT (namespace) DO NOTHING;
+
+-- Namespaces registry
+CREATE TABLE IF NOT EXISTS namespaces (
+    namespace TEXT PRIMARY KEY,
+    label TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION trg_namespaces_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_namespaces_updated_at ON namespaces;
+CREATE TRIGGER trg_namespaces_updated_at
+    BEFORE UPDATE ON namespaces
+    FOR EACH ROW
+    EXECUTE FUNCTION trg_namespaces_updated_at();
+
+INSERT INTO namespaces (namespace, is_active)
+SELECT DISTINCT namespace, TRUE
+FROM (
+    SELECT namespace FROM namespace_profile
+    UNION
+    SELECT namespace FROM user_namespaces
+    UNION
+    SELECT 'default' AS namespace
+) AS entries
+ON CONFLICT (namespace) DO NOTHING;
