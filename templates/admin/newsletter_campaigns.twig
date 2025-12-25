@@ -30,15 +30,35 @@
       >
         <span uk-navbar-toggle-icon></span>
       </button>
+      <button
+        id="adminOffcanvasToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@s uk-hidden@m uk-margin-small-right git-btn"
+        uk-navbar-toggle-icon
+        uk-toggle="target: #qr-offcanvas"
+        aria-controls="qr-offcanvas"
+        aria-expanded="false"
+        aria-haspopup="true"
+        aria-label="{{ t('menu') }}"
+      ></button>
       <a class="uk-navbar-item uk-logo" href="{{ basePath }}/admin">QuizRace</a>
     {% endblock %}
     {% block center %}
       <span class="uk-navbar-item uk-text-center">{{ t('tab_newsletter_campaigns') }}</span>
     {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace Admin</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
   {% endembed %}
 
   <div class="admin uk-flex">
-    <aside id="adminSidebar" class="admin__sidebar" aria-label="{{ t('menu') }}">
+    <aside id="adminSidebar" class="admin__sidebar uk-hidden@s" aria-label="{{ t('menu') }}">
       {% include 'admin/_nav.twig' %}
     </aside>
     <main class="admin__content" id="adminContent">
