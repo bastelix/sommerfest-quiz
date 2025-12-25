@@ -982,11 +982,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/calserver/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
-    $app->get('/newsletter/confirm', function (Request $request, Response $response): Response {
-        $controller = new NewsletterController();
-
-        return $controller->confirm($request, $response);
-    });
     $app->post('/newsletter/unsubscribe', function (Request $request, Response $response): Response {
         $controller = new NewsletterController();
 
