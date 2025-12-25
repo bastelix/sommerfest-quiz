@@ -4051,7 +4051,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const transRenewError = renewSslButton?.dataset.error
       || window.transDomainSslError
       || 'Certificate request failed.';
-    let domainData = [];
+    const initialDomainData = (() => {
+      if (Array.isArray(window.domains)) {
+        return window.domains;
+      }
+      const datasetDomains = domainTable?.dataset?.initialDomains;
+      if (datasetDomains) {
+        try {
+          const parsedDomains = JSON.parse(datasetDomains);
+          if (Array.isArray(parsedDomains)) {
+            return parsedDomains;
+          }
+        } catch (err) {
+          console.warn('Failed to parse initial domain data:', err);
+        }
+      }
+      return [];
+    })();
+    let domainData = initialDomainData.slice();
 
     if (renewSslButton) {
       renewSslButton.addEventListener('click', () => {
@@ -4246,6 +4263,37 @@ document.addEventListener('DOMContentLoaded', function () {
           });
       };
 
+      const deleteDomain = (domain, trigger) => {
+        if (!domain?.id) {
+          return;
+        }
+
+        if (!window.confirm(transDomainDeleteConfirm)) {
+          return;
+        }
+
+        const reset = setActionLoading(trigger, true);
+        apiFetch(`${domainEndpoint}/${domain.id}`, { method: 'DELETE' })
+          .then(res => {
+            if (!res.ok) {
+              return res.json().catch(() => ({})).then(data => {
+                throw new Error(data?.error || transDomainError);
+              });
+            }
+            return res.json();
+          })
+          .then(() => {
+            notify(transDomainDeleted, 'success');
+            loadDomains();
+          })
+          .catch(err => {
+            notify(err?.message || transDomainError, 'danger');
+          })
+          .finally(() => {
+            reset();
+          });
+      };
+
       const createActionLink = ({ label, icon, className = '', onClick }) => {
         const link = document.createElement('a');
         link.href = '#';
@@ -4332,31 +4380,7 @@ document.addEventListener('DOMContentLoaded', function () {
               label: window.transDelete || 'Delete',
               icon: 'trash',
               className: 'uk-text-danger',
-              onClick: link => {
-                if (!window.confirm(transDomainDeleteConfirm)) {
-                  return;
-                }
-                const reset = setActionLoading(link, true);
-                apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
-                  .then(res => {
-                    if (!res.ok) {
-                      return res.json().catch(() => ({})).then(data => {
-                        throw new Error(data?.error || transDomainError);
-                      });
-                    }
-                    return res.json();
-                  })
-                  .then(() => {
-                    notify(transDomainDeleted, 'success');
-                    loadDomains();
-                  })
-                  .catch(err => {
-                    notify(err?.message || transDomainError, 'danger');
-                  })
-                  .finally(() => {
-                    reset();
-                  });
-              },
+              onClick: link => deleteDomain(item, link),
             }));
             list.appendChild(deleteItem);
 
@@ -4367,6 +4391,50 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
       ];
+
+      const findDomainById = domainId => {
+        if (domainId === undefined || domainId === null) {
+          return null;
+        }
+        const matches = entry => String(entry?.id ?? '') === String(domainId);
+        return domainData.find(matches) || initialDomainData.find(matches) || null;
+      };
+
+      const handleDomainAction = event => {
+        if (!domainTable) {
+          return;
+        }
+        const actionTarget = event.target.closest('[data-domain-action]');
+        if (!actionTarget || !domainTable.contains(actionTarget)) {
+          return;
+        }
+
+        const action = actionTarget.dataset.domainAction;
+        const domainId = actionTarget.dataset.domainId;
+        const domain = findDomainById(domainId);
+
+        if (!action || !domain) {
+          return;
+        }
+
+        event.preventDefault();
+
+        if (action === 'edit') {
+          applyForm(domain);
+          return;
+        }
+
+        if (action === 'renew-ssl') {
+          renewDomainCertificate(domain, actionTarget);
+          return;
+        }
+
+        if (action === 'delete') {
+          deleteDomain(domain, actionTarget);
+        }
+      };
+
+      domainTable.addEventListener('click', handleDomainAction);
 
       const domainTableManager = domainTableBody
         ? new TableManager({
