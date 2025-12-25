@@ -179,6 +179,20 @@ class ProjectController
         if (isset($queryParams['namespace']) && trim((string) $queryParams['namespace']) !== '') {
             $requestedNamespace = $this->normalizeNamespace($queryParams['namespace']);
         }
+        $payload = $this->buildTreePayloadForNamespace($requestedNamespace, $basePath);
+        if ($requestedNamespace !== '' && $payload === []) {
+            $payload = $this->buildTreePayloadForNamespace('', $basePath);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function buildTreePayloadForNamespace(string $requestedNamespace, string $basePath): array
+    {
+        $requestedNamespace = $this->normalizeNamespace($requestedNamespace);
         $pageTree = $this->pageService->getTree();
         $treeByNamespace = [];
         $knownNamespaces = [];
