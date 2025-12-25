@@ -1,0 +1,26 @@
+<div id="backups" class="uk-card uk-card-default uk-card-body uk-margin">
+  <h3 class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
+  <div class="uk-margin uk-child-width-1-1 uk-child-width-auto@s uk-grid-small uk-flex-right@s" uk-grid>
+    <div>
+      <button id="exportJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">{{ t('action_create_backup') }}</button>
+    </div>
+    <div>
+      <button id="importJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_import') }}; pos: right">{{ t('action_restore_demo') }}</button>
+    </div>
+    <div>
+      <button id="saveDemoBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_save') }}; pos: right">{{ t('action_save_demo') }}</button>
+    </div>
+  </div>
+  {% set backupRows %}{% include 'admin/_backup_table.twig' %}{% endset %}
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+      <thead>
+        <tr>
+          <th class="uk-table-expand">{{ t('column_folder') }}</th>
+          <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
+        </tr>
+      </thead>
+      <tbody id="backupTableBody">{{ backupRows|raw }}</tbody>
+    </table>
+  </div>
+</div>
