@@ -115,6 +115,7 @@ use App\Controller\Admin\PromptTemplateController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
+use App\Controller\Admin\NewsletterCampaignController;
 use App\Controller\Admin\MarketingMenuController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
@@ -183,6 +184,8 @@ require_once __DIR__ . '/Controller/Admin/ProjectController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingNewsletterController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingNewsletterConfigController.php';
+require_once __DIR__ . '/Controller/Admin/NewsletterCampaignController.php';
 require_once __DIR__ . '/Controller/Admin/DomainController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingPageWikiController.php';
@@ -644,6 +647,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute(
                 'marketingNewsletterConfigController',
                 new MarketingNewsletterConfigController($marketingNewsletterConfigService)
+            )
+            ->withAttribute(
+                'newsletterCampaignController',
+                new NewsletterCampaignController()
             )
             ->withAttribute(
                 'domainChatController',
@@ -1503,6 +1510,21 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingNewsletterController();
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/newsletter-campaigns', function (Request $request, Response $response) {
+        /** @var NewsletterCampaignController $controller */
+        $controller = $request->getAttribute('newsletterCampaignController');
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->post('/admin/newsletter-campaigns', function (Request $request, Response $response) {
+        /** @var NewsletterCampaignController $controller */
+        $controller = $request->getAttribute('newsletterCampaignController');
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    $app->post('/admin/newsletter-campaigns/{id}/send', function (Request $request, Response $response, array $args) {
+        /** @var NewsletterCampaignController $controller */
+        $controller = $request->getAttribute('newsletterCampaignController');
+        return $controller->send($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->get('/admin/logins', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', function (Request $request, Response $response) {
         return $response

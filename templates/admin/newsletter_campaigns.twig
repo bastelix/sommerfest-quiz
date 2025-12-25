@@ -1,0 +1,195 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_newsletter_campaigns') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% set activePageNamespace = pageNamespace|default('default') %}
+  {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+  {% set editCampaign = activeCampaign is defined and activeCampaign ? activeCampaign : null %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a class="uk-navbar-item uk-logo" href="{{ basePath }}/admin">QuizRace</a>
+    {% endblock %}
+    {% block center %}
+      <span class="uk-navbar-item uk-text-center">{{ t('tab_newsletter_campaigns') }}</span>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="admin uk-flex">
+    <aside id="adminSidebar" class="admin__sidebar" aria-label="{{ t('menu') }}">
+      {% include 'admin/_nav.twig' %}
+    </aside>
+    <main class="admin__content" id="adminContent">
+      <div class="uk-container">
+        <div class="uk-flex uk-flex-middle uk-flex-between uk-margin">
+          <h1 class="uk-heading-bullet">{{ t('heading_newsletter_campaigns') }}</h1>
+          <div class="uk-flex uk-flex-middle uk-margin-small-left">
+            {% include 'admin/partials/namespace_badge.twig' with { pageNamespace: activePageNamespace } %}
+          </div>
+        </div>
+
+        {% if error_message is defined and error_message %}
+          <div class="uk-alert-danger" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <p>{{ error_message }}</p>
+          </div>
+        {% endif %}
+
+        <div class="uk-grid uk-grid-large" data-uk-grid>
+          <div class="uk-width-2-3@m">
+            <div class="uk-card uk-card-default uk-card-body">
+              <h2 class="uk-card-title">{{ t('heading_newsletter_campaign_list') }}</h2>
+              <p class="uk-text-meta">{{ t('text_newsletter_campaign_intro') }}</p>
+              <div class="uk-overflow-auto">
+                <table class="uk-table uk-table-divider uk-table-middle">
+                  <thead>
+                    <tr>
+                      <th>{{ t('label_campaign_name') }}</th>
+                      <th class="uk-table-expand">{{ t('label_campaign_news') }}</th>
+                      <th>{{ t('label_campaign_status') }}</th>
+                      <th>{{ t('label_campaign_sent_at') }}</th>
+                      <th class="uk-table-shrink">{{ t('actions') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for campaign in campaigns %}
+                      <tr>
+                        <td>{{ campaign.name }}</td>
+                        <td>
+                          {% if campaign.newsIds %}
+                            <ul class="uk-list uk-list-collapse">
+                              {% for newsId in campaign.newsIds %}
+                                {% set newsEntry = (newsEntries|filter(n => n.id == newsId)|first) %}
+                                <li>{{ newsEntry ? newsEntry.title : '#' ~ newsId }}</li>
+                              {% endfor %}
+                            </ul>
+                          {% else %}
+                            <span class="uk-text-muted">{{ t('text_campaign_no_news') }}</span>
+                          {% endif %}
+                        </td>
+                        <td>
+                          <span class="uk-label">{{ campaign.status }}</span><br>
+                          {% if campaign.providerCampaignId %}
+                            <small>{{ t('label_campaign_provider_id') }}: {{ campaign.providerCampaignId }}</small>
+                          {% endif %}
+                        </td>
+                        <td>
+                          {% if campaign.sentAt %}
+                            {{ campaign.sentAt|date('d.m.Y H:i') }}
+                          {% else %}
+                            <span class="uk-text-muted">{{ t('text_campaign_not_sent') }}</span>
+                          {% endif %}
+                        </td>
+                        <td class="uk-text-nowrap">
+                          {% set editBase = basePath ~ '/admin/newsletter-campaigns' ~ pageNamespaceQuery %}
+                          {% set editLink = editBase ~ (pageNamespaceQuery ? '&' : '?') ~ 'edit=' ~ campaign.id %}
+                          <a class="uk-button uk-button-text" href="{{ editLink }}">{{ t('button_edit') }}</a>
+                          <form class="uk-display-inline" method="post" action="{{ basePath }}/admin/newsletter-campaigns/{{ campaign.id }}/send{{ pageNamespaceQuery }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button class="uk-button uk-button-primary uk-button-small" type="submit">{{ t('button_send_campaign') }}</button>
+                          </form>
+                        </td>
+                      </tr>
+                    {% else %}
+                      <tr>
+                        <td colspan="5" class="uk-text-center uk-text-muted">{{ t('text_campaigns_empty') }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="uk-width-1-3@m">
+            <div class="uk-card uk-card-default uk-card-body">
+              <h2 class="uk-card-title">{{ editCampaign ? t('heading_edit_campaign') : t('heading_create_campaign') }}</h2>
+              <form method="post" action="{{ basePath }}/admin/newsletter-campaigns{{ pageNamespaceQuery }}" class="uk-form-stacked">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                {% if editCampaign %}
+                  <input type="hidden" name="id" value="{{ editCampaign.id }}">
+                {% endif %}
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="campaignName">{{ t('label_campaign_name') }}</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="campaignName" name="name" type="text" value="{{ editCampaign ? editCampaign.name : '' }}" required>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="campaignNews">{{ t('label_campaign_news') }}</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="campaignNews" name="news_ids[]" multiple size="6">
+                      {% for entry in newsEntries %}
+                        {% set selected = editCampaign and entry.id in editCampaign.newsIds %}
+                        <option value="{{ entry.id }}" {% if selected %}selected{% endif %}>
+                          {{ entry.title }} ({{ entry.pageSlug }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                    <p class="uk-text-meta uk-margin-small-top">{{ t('text_campaign_news_hint') }}</p>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="campaignTemplate">{{ t('label_campaign_template') }}</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="campaignTemplate" name="template_id" type="text" value="{{ editCampaign ? editCampaign.templateId : '' }}">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="campaignAudience">{{ t('label_campaign_audience') }}</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="campaignAudience" name="audience_id" type="text" value="{{ editCampaign ? editCampaign.audienceId : '' }}">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="campaignStatus">{{ t('label_campaign_status') }}</label>
+                  <div class="uk-form-controls">
+                    <select class="uk-select" id="campaignStatus" name="status">
+                      {% set currentStatus = editCampaign ? editCampaign.status : 'draft' %}
+                      <option value="draft" {% if currentStatus == 'draft' %}selected{% endif %}>{{ t('label_status_draft') }}</option>
+                      <option value="ready" {% if currentStatus == 'ready' %}selected{% endif %}>{{ t('label_status_ready') }}</option>
+                      <option value="sent" {% if currentStatus == 'sent' %}selected{% endif %}>{{ t('label_status_sent') }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="campaignSchedule">{{ t('label_campaign_scheduled_for') }}</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" id="campaignSchedule" name="scheduled_for" type="datetime-local" value="{{ editCampaign and editCampaign.scheduledFor ? editCampaign.scheduledFor|date('Y-m-d\\TH:i') : '' }}">
+                  </div>
+                </div>
+                <div class="uk-margin">
+                  <button class="uk-button uk-button-primary" type="submit">
+                    {{ editCampaign ? t('button_save_campaign') : t('button_create_campaign') }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}

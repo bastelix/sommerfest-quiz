@@ -588,6 +588,23 @@ ON CONFLICT(namespace, slug, position) DO UPDATE SET
     url = excluded.url,
     style = excluded.style;
 
+CREATE TABLE IF NOT EXISTS newsletter_campaigns (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    namespace TEXT NOT NULL DEFAULT 'default',
+    name TEXT NOT NULL,
+    news_ids TEXT NOT NULL DEFAULT '[]',
+    template_id TEXT,
+    audience_id TEXT,
+    status TEXT NOT NULL DEFAULT 'draft',
+    provider_campaign_id TEXT,
+    provider_message_id TEXT,
+    scheduled_for TEXT,
+    sent_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_newsletter_campaigns_namespace ON newsletter_campaigns(namespace);
+
 CREATE TABLE IF NOT EXISTS marketing_page_menu_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
