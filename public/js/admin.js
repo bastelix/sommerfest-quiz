@@ -4294,10 +4294,16 @@ document.addEventListener('DOMContentLoaded', function () {
           });
       };
 
-      const createActionLink = ({ label, icon, className = '', onClick }) => {
+      const createActionLink = ({ label, icon, className = '', action, domainId = null, onClick }) => {
         const link = document.createElement('a');
         link.href = '#';
         link.className = `uk-flex uk-flex-middle ${className}`.trim();
+        if (action) {
+          link.dataset.domainAction = action;
+        }
+        if (domainId !== null && domainId !== undefined) {
+          link.dataset.domainId = String(domainId);
+        }
         if (icon) {
           const iconEl = document.createElement('span');
           iconEl.setAttribute('uk-icon', icon);
@@ -4359,6 +4365,8 @@ document.addEventListener('DOMContentLoaded', function () {
             editItem.appendChild(createActionLink({
               label: window.transEdit || 'Edit',
               icon: 'pencil',
+              action: 'edit',
+              domainId: item.id,
               onClick: () => applyForm(item),
             }));
             list.appendChild(editItem);
@@ -4367,6 +4375,8 @@ document.addEventListener('DOMContentLoaded', function () {
             renewItem.appendChild(createActionLink({
               label: window.transRenewSsl || window.transDomainRenew || window.transDomainRenewSsl || 'SSL erneuern',
               icon: 'lock',
+              action: 'renew-ssl',
+              domainId: item.id,
               onClick: link => renewDomainCertificate(item, link),
             }));
             list.appendChild(renewItem);
@@ -4380,6 +4390,8 @@ document.addEventListener('DOMContentLoaded', function () {
               label: window.transDelete || 'Delete',
               icon: 'trash',
               className: 'uk-text-danger',
+              action: 'delete',
+              domainId: item.id,
               onClick: link => deleteDomain(item, link),
             }));
             list.appendChild(deleteItem);
