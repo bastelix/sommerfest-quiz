@@ -4405,16 +4405,26 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         const actionTarget = event.target.closest('[data-domain-action]');
-        if (!actionTarget || !domainTable.contains(actionTarget)) {
+        if (!actionTarget) {
           return;
         }
 
+        const withinTable = domainTable.contains(actionTarget);
         const action = actionTarget.dataset.domainAction;
         const domainId = actionTarget.dataset.domainId;
         const domain = findDomainById(domainId);
 
         if (!action || !domain) {
           return;
+        }
+        if (!withinTable) {
+          // Fallback for dropdowns rendered outside of the table (e.g., UIkit container: body).
+          // Ensure we only react to dropdowns related to the domain management table.
+          const relatedDropdown = actionTarget.closest('.uk-dropdown,[uk-dropdown]');
+          const scopedToTable = actionTarget.closest('[data-domain-table]') === domainTable;
+          if (!relatedDropdown && !scopedToTable) {
+            return;
+          }
         }
 
         event.preventDefault();
@@ -4434,7 +4444,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       };
 
-      domainTable.addEventListener('click', handleDomainAction);
+      document.addEventListener('click', handleDomainAction);
 
       const domainTableManager = domainTableBody
         ? new TableManager({
