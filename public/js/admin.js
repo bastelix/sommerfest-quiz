@@ -803,6 +803,22 @@ const resolveNamespaceQuery = () => {
   return (params.get('namespace') || '').trim();
 };
 
+const getNamespaceSelects = () => {
+  const elements = Array.from(document.querySelectorAll('[data-namespace-select]'));
+  if (elements.length) {
+    return elements;
+  }
+  const legacy = document.getElementById('namespaceSelect');
+  return legacy ? [legacy] : [];
+};
+
+const getPrimaryNamespaceSelect = () => {
+  const [firstNamespaceSelect] = getNamespaceSelects();
+  return firstNamespaceSelect
+    || document.getElementById('projectNamespaceSelect')
+    || document.getElementById('pageNamespaceSelect');
+};
+
 const withProjectNamespace = (endpoint, namespace) => {
   if (!namespace) {
     return endpoint;
@@ -820,9 +836,7 @@ const initProjectTree = () => {
   const emptyMessage = container.dataset.empty || 'Keine Namespace-Daten vorhanden.';
   const errorMessage = container.dataset.error || 'Namespace-Übersicht konnte nicht geladen werden.';
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
-  const namespaceSelect = document.getElementById('namespaceSelect')
-    || document.getElementById('projectNamespaceSelect')
-    || document.getElementById('pageNamespaceSelect');
+  const namespaceSelect = getPrimaryNamespaceSelect();
   const selectedNamespace = namespaceSelect?.value || '';
   const activeNamespace = (selectedNamespace || resolveProjectNamespace(container)).trim();
   const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
@@ -869,9 +883,7 @@ const initProjectSettings = () => {
   const status = wrapper ? wrapper.querySelector('[data-project-settings-status]') : null;
   const updatedLabel = wrapper ? wrapper.querySelector('[data-project-settings-updated]') : null;
   const endpoint = wrapper?.dataset.endpoint || '/admin/projects/settings';
-  const namespaceSelect = document.getElementById('namespaceSelect')
-    || document.getElementById('projectNamespaceSelect')
-    || document.getElementById('pageNamespaceSelect');
+  const namespaceSelect = getPrimaryNamespaceSelect();
 
   const setStatus = (message, isError) => {
     if (!status) {
@@ -1137,7 +1149,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
   const pageNamespaceSelect = document.getElementById('pageNamespaceSelect');
-  const namespaceSelect = document.getElementById('namespaceSelect');
+  const namespaceSelects = getNamespaceSelects();
   const pageTabs = document.getElementById('pageTabs');
 
   if (window.domainType !== 'main') {
@@ -1165,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.assign(url.toString());
     });
   }
-  if (namespaceSelect) {
+  namespaceSelects.forEach((namespaceSelect) => {
     const currentNamespace = namespaceSelect.dataset.namespace || namespaceSelect.value || '';
     if (currentNamespace && namespaceSelect.value !== currentNamespace) {
       namespaceSelect.value = currentNamespace;
@@ -1183,7 +1195,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       window.location.assign(url.toString());
     });
-  }
+  });
 
   initProjectSettings();
   initPageNamespaceManager();
