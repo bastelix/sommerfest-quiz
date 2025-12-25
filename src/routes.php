@@ -1504,7 +1504,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/logins', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/management', function (Request $request, Response $response) {
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/domains')
+            ->withStatus(302);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/domains', Admin\DomainPageController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/backups', Admin\BackupController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/admin/profile', AdminController::class)
