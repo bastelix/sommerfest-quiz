@@ -181,6 +181,7 @@
       data-loading="{{ t('text_domains_loading') }}"
       data-empty="{{ t('text_domains_empty') }}"
       data-error="{{ t('text_domains_error') }}"
+      data-initial-domains="{{ domains|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }}"
       data-column-count="5"
       data-ignore-global-filters="true"
     >
