@@ -1,0 +1,133 @@
+{
+  "namespace": "default",
+  "items": [
+    {
+      "label": "Überblick",
+      "href": "#trust",
+      "layout": "mega",
+      "children": [
+        {
+          "label": "So fühlt sich calServer im Alltag an",
+          "href": "#trust",
+          "detailTitle": "So fühlt sich calServer im Alltag an",
+          "detailText": "Kurzer Rundgang durch Dashboards, Wartungstermine und Prüfmittelübersichten.",
+          "detailSubline": "Feature-Highlights kompakt",
+          "position": 0
+        },
+        {
+          "label": "Demo & Testzugang",
+          "href": "#demo",
+          "detailTitle": "Demo & Testzugang",
+          "detailText": "Live-Demo vereinbaren oder sofort einen Testzugang freischalten lassen.",
+          "detailSubline": "Termin oder Self-Service",
+          "position": 1
+        }
+      ],
+      "position": 0
+    },
+    {
+      "label": "Funktionen & Module",
+      "href": "#features",
+      "layout": "mega",
+      "children": [
+        {
+          "label": "Feature-Übersicht",
+          "href": "#features",
+          "detailTitle": "Feature-Übersicht",
+          "detailText": "Alle Kernfunktionen von Prüflingsverwaltung über Workflowsteuerung bis Reporting.",
+          "detailSubline": "Produkt-Highlights",
+          "position": 0
+        },
+        {
+          "label": "Modul-Videos",
+          "href": "#modules",
+          "detailTitle": "Modul-Videos",
+          "detailText": "Kurze Video-Einblicke in Labor-, Vor-Ort- und Kundenportal-Module.",
+          "detailSubline": "Use Cases im Video",
+          "position": 1
+        }
+      ],
+      "position": 1
+    },
+    {
+      "label": "Lösungen & Integrationen",
+      "href": "#usecases",
+      "layout": "mega",
+      "children": [
+        {
+          "label": "Use Cases & Branchen",
+          "href": "#usecases",
+          "detailTitle": "Use Cases & Branchen",
+          "detailText": "Praxisbeispiele für Kalibrierlabore, Fertigung, Außendienst und Partner.",
+          "detailSubline": "Industrie, Labor, Außendienst",
+          "position": 0
+        },
+        {
+          "label": "FLUKE MET/CAL-Migration",
+          "href": "#metcal",
+          "detailTitle": "FLUKE MET/CAL-Migration",
+          "detailText": "Anbindung und Migration von FLUKE MET/CAL inkl. Datenübernahme.",
+          "detailSubline": "Integrationen & Migration",
+          "position": 1
+        }
+      ],
+      "position": 2
+    },
+    {
+      "label": "Betrieb & Pakete",
+      "href": "#modes",
+      "layout": "mega",
+      "children": [
+        {
+          "label": "Betriebsmodelle",
+          "href": "#modes",
+          "detailTitle": "Betriebsmodelle",
+          "detailText": "Cloud, On-Premises oder Hybrid mit passenden Sicherheits- und Updatepfaden.",
+          "detailSubline": "Cloud, On-Prem, Hybrid",
+          "position": 0
+        },
+        {
+          "label": "Preise & Pakete",
+          "href": "#pricing",
+          "detailTitle": "Preise & Pakete",
+          "detailText": "Paketübersicht mit Funktionsumfang und Services für jede Teamgröße.",
+          "detailSubline": "Transparente Preisstaffeln",
+          "position": 1
+        }
+      ],
+      "position": 3
+    },
+    {
+      "label": "Ressourcen & Support",
+      "href": "#calserver-news",
+      "layout": "mega",
+      "children": [
+        {
+          "label": "News & Updates",
+          "href": "#calserver-news",
+          "detailTitle": "News & Updates",
+          "detailText": "Aktuelle Releases, Roadmap-Highlights und Erfolgsgeschichten.",
+          "detailSubline": "Release Notes & Stories",
+          "position": 0
+        },
+        {
+          "label": "FAQ & Hilfe",
+          "href": "#faq",
+          "detailTitle": "FAQ & Hilfe",
+          "detailText": "Antworten zu Einrichtung, Betrieb, Lizenzierung und Support-Kanälen.",
+          "detailSubline": "Self-Service & Dokus",
+          "position": 1
+        },
+        {
+          "label": "Kontakt & Demo",
+          "href": "#demo",
+          "detailTitle": "Kontakt & Demo",
+          "detailText": "Direkter Kontakt zum Team, Demo buchen oder Support anfragen.",
+          "detailSubline": "Ansprechpartner & Termine",
+          "position": 2
+        }
+      ],
+      "position": 4
+    }
+  ]
+}

@@ -174,18 +174,19 @@ final class MarketingMenuService
             throw new RuntimeException('Page not found.');
         }
 
-        $allowedKeys = ['items', 'namespace', 'page', 'allowNamespaceMismatch'];
+        $pageNamespace = $page->getNamespace();
+
+        $allowedKeys = ['items', 'namespace', 'page'];
         $unknownKeys = array_diff(array_keys($payload), $allowedKeys);
         if ($unknownKeys !== []) {
             throw new RuntimeException(sprintf('Unerlaubte Felder im Payload: %s.', implode(', ', $unknownKeys)));
         }
 
-        $namespace = isset($payload['namespace']) ? trim((string) $payload['namespace']) : $page->getNamespace();
-        $allowNamespaceMismatch = isset($payload['allowNamespaceMismatch'])
-            ? (bool) $payload['allowNamespaceMismatch']
-            : false;
-        if ($namespace !== '' && $namespace !== $page->getNamespace() && !$allowNamespaceMismatch) {
-            throw new RuntimeException('Namespace des Exports stimmt nicht mit der Seite überein.');
+        if (isset($payload['namespace'])) {
+            $importNamespace = trim((string) $payload['namespace']);
+            if ($importNamespace !== '' && $importNamespace !== $pageNamespace) {
+                unset($payload['namespace']);
+            }
         }
 
         if (!isset($payload['items']) || !is_array($payload['items'])) {
@@ -198,7 +199,7 @@ final class MarketingMenuService
         $this->pdo->beginTransaction();
 
         try {
-            $this->resetStartpages($page->getNamespace());
+            $this->resetStartpages($pageNamespace);
             $this->deleteMenuItemsForPage($pageId);
             $this->persistImportedItems($pageId, $items, null);
             $this->pdo->commit();
