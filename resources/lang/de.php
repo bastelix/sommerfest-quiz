@@ -708,6 +708,7 @@ return [
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe-Zahlungsbedingungen</a>.',
       'action_delete' => 'Löschen',
+      'action_edit' => 'Bearbeiten',
       'action_cancel' => 'Abbrechen',
     'label_rag_chat_url' => 'Service-URL',
     'label_rag_chat_driver' => 'Treiber',

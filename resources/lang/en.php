@@ -707,6 +707,7 @@ return [
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe payment terms</a> apply.',
       'action_delete' => 'Delete',
+      'action_edit' => 'Edit',
       'action_cancel' => 'Cancel',
     'label_rag_chat_url' => 'Service URL',
     'label_rag_chat_driver' => 'Driver',
