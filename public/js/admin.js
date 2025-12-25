@@ -3998,8 +3998,10 @@ document.addEventListener('DOMContentLoaded', function () {
   renderRagChatSettings();
 
   if (domainTable) {
-    const tbody = domainTable.querySelector('tbody');
-    const columnCount = domainTable.querySelectorAll('thead th').length || 4;
+    const domainTableBody = domainTable.querySelector('#domainTableBody') || domainTable.querySelector('tbody');
+    const columnCount = Number.parseInt(domainTable.dataset.columnCount || '4', 10)
+      || domainTable.querySelectorAll('thead th').length
+      || 4;
     const messages = {
       loading: domainTable.dataset.loading || '',
       empty: domainTable.dataset.empty || '',
@@ -4157,104 +4159,109 @@ document.addEventListener('DOMContentLoaded', function () {
         setFormError('');
       };
 
-      const renderMessageRow = message => {
-        if (!tbody) return;
+      const renderDomainMessage = message => {
+        if (!domainTableBody) return;
+        domainTableBody.innerHTML = '';
+        if (!message) return;
         const tr = document.createElement('tr');
         const td = document.createElement('td');
         td.colSpan = columnCount;
         td.textContent = message;
         tr.appendChild(td);
-        tbody.appendChild(tr);
+        domainTableBody.appendChild(tr);
       };
 
-      const renderDomains = () => {
-        if (!tbody) return;
-        tbody.innerHTML = '';
-        if (!domainData.length) {
-          if (messages.empty) {
-            renderMessageRow(messages.empty);
+      const createTextCell = value => {
+        const span = document.createElement('span');
+        span.textContent = value || '';
+        return span;
+      };
+
+      const domainColumns = [
+        { key: 'host', render: item => createTextCell(item.host || item.normalized_host || '') },
+        { key: 'label', render: item => createTextCell(item.label || '') },
+        {
+          key: 'namespace',
+          render: item => {
+            const label = item.namespace && namespaceLabels[item.namespace]
+              ? namespaceLabels[item.namespace]
+              : (item.namespace || window.transNamespaceNone || '');
+            return createTextCell(label);
           }
+        },
+        { key: 'status', render: item => createTextCell(item.is_active ? transDomainStatusActive : transDomainStatusInactive) },
+        {
+          key: 'actions',
+          className: 'uk-table-shrink uk-text-center',
+          render: item => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'uk-flex uk-flex-middle uk-flex-center';
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'uk-button uk-button-default uk-button-small';
+            editButton.textContent = window.transEdit || 'Edit';
+            editButton.addEventListener('click', () => {
+              applyForm(item);
+            });
+            wrapper.appendChild(editButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'uk-button uk-button-danger uk-button-small uk-margin-small-left';
+            deleteButton.textContent = window.transDelete || 'Delete';
+            deleteButton.addEventListener('click', () => {
+              if (!window.confirm(transDomainDeleteConfirm)) {
+                return;
+              }
+              deleteButton.disabled = true;
+              apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
+                .then(res => {
+                  if (!res.ok) {
+                    return res.json().catch(() => ({})).then(data => {
+                      throw new Error(data?.error || transDomainError);
+                    });
+                  }
+                  return res.json();
+                })
+                .then(() => {
+                  notify(transDomainDeleted, 'success');
+                  loadDomains();
+                })
+                .catch(err => {
+                  notify(err?.message || transDomainError, 'danger');
+                })
+                .finally(() => {
+                  deleteButton.disabled = false;
+                });
+            });
+            wrapper.appendChild(deleteButton);
+
+            return wrapper;
+          }
+        }
+      ];
+
+      const domainTableManager = domainTableBody
+        ? new TableManager({ tbody: domainTableBody, columns: domainColumns })
+        : null;
+
+      const renderDomains = (list = domainData) => {
+        if (!domainTableManager || !domainTableBody) {
+          renderDomainMessage(messages.empty);
           return;
         }
-
-        domainData.forEach(item => {
-          const tr = document.createElement('tr');
-
-          const domainCell = document.createElement('td');
-          domainCell.textContent = item.host || item.normalized_host;
-          tr.appendChild(domainCell);
-
-          const labelCell = document.createElement('td');
-          labelCell.textContent = item.label || '';
-          tr.appendChild(labelCell);
-
-          const namespaceCell = document.createElement('td');
-          if (item.namespace && namespaceLabels[item.namespace]) {
-            namespaceCell.textContent = namespaceLabels[item.namespace];
-          } else {
-            namespaceCell.textContent = item.namespace || window.transNamespaceNone || '';
-          }
-          tr.appendChild(namespaceCell);
-
-          const statusCell = document.createElement('td');
-          statusCell.textContent = item.is_active ? transDomainStatusActive : transDomainStatusInactive;
-          tr.appendChild(statusCell);
-
-          const actionsCell = document.createElement('td');
-          actionsCell.className = 'uk-table-shrink uk-text-center';
-          const editButton = document.createElement('button');
-          editButton.type = 'button';
-          editButton.className = 'uk-button uk-button-default uk-button-small';
-          editButton.textContent = window.transEdit || 'Edit';
-          editButton.addEventListener('click', () => {
-            applyForm(item);
-          });
-          actionsCell.appendChild(editButton);
-
-          const deleteButton = document.createElement('button');
-          deleteButton.type = 'button';
-          deleteButton.className = 'uk-button uk-button-danger uk-button-small uk-margin-small-left';
-          deleteButton.textContent = window.transDelete || 'Delete';
-          deleteButton.addEventListener('click', () => {
-            if (!window.confirm(transDomainDeleteConfirm)) {
-              return;
-            }
-            deleteButton.disabled = true;
-            apiFetch(`${domainEndpoint}/${item.id}`, { method: 'DELETE' })
-              .then(res => {
-                if (!res.ok) {
-                  return res.json().catch(() => ({})).then(data => {
-                    throw new Error(data?.error || transDomainError);
-                  });
-                }
-                return res.json();
-              })
-              .then(() => {
-                notify(transDomainDeleted, 'success');
-                loadDomains();
-              })
-              .catch(err => {
-                notify(err?.message || transDomainError, 'danger');
-              })
-              .finally(() => {
-                deleteButton.disabled = false;
-              });
-          });
-          actionsCell.appendChild(deleteButton);
-
-          tr.appendChild(actionsCell);
-          tbody.appendChild(tr);
-        });
+        domainTableManager.render(list);
+        if (!domainTableManager.getViewData().length) {
+          renderDomainMessage(messages.empty);
+        }
       };
 
       const loadDomains = () => {
-        if (!tbody) {
+        if (!domainTableBody) {
           return;
         }
-        tbody.innerHTML = '';
-        if (messages.loading) {
-          renderMessageRow(messages.loading);
-        }
+        renderDomainMessage(messages.loading);
 
         apiFetch(domainEndpoint)
           .then(res => {
@@ -4267,11 +4274,10 @@ document.addEventListener('DOMContentLoaded', function () {
           })
           .then(data => {
             domainData = Array.isArray(data?.domains) ? data.domains : [];
-            renderDomains();
+            renderDomains(domainData);
           })
           .catch(err => {
-            tbody.innerHTML = '';
-            renderMessageRow(err.message || messages.error);
+            renderDomainMessage(err.message || messages.error);
           });
       };
 
