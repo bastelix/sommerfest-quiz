@@ -71,6 +71,7 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingDomainProvider;
 use App\Service\UsernameBlocklistService;
 use App\Service\MarketingPageRouteResolver;
+use App\Service\NamespaceValidator;
 use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
 use App\Infrastructure\Migrations\MigrationRuntime;
@@ -1265,7 +1266,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->delete($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
     $app->get('/admin/dashboard.json', function (Request $request, Response $response) {
-        $month = (string)($request->getQueryParams()['month'] ?? (new DateTimeImmutable('now'))->format('Y-m'));
+        $params = $request->getQueryParams();
+        $month = (string)($params['month'] ?? (new DateTimeImmutable('now'))->format('Y-m'));
+        $namespaceValidator = new NamespaceValidator();
+        $namespaceQuery = $params['namespace'] ?? '';
+        $namespace = '';
+        if (is_string($namespaceQuery) && trim($namespaceQuery) !== '') {
+            $namespace = $namespaceValidator->normalizeCandidate($namespaceQuery) ?? PageService::DEFAULT_NAMESPACE;
+        }
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
@@ -1274,6 +1282,16 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$configService instanceof ConfigService) {
             $configService = new ConfigService($pdo);
         }
+        $pageService = new PageService($pdo);
+        $newsletterService = new MarketingNewsletterConfigService($pdo);
+        $wikiService = new MarketingPageWikiArticleService($pdo);
+        $landingNewsService = new LandingNewsService($pdo);
+        $mediaReferenceService = new LandingMediaReferenceService(
+            $pageService,
+            new PageSeoConfigService($pdo),
+            $configService,
+            $landingNewsService
+        );
         $eventService = new EventService($pdo, $configService);
         $start = DateTimeImmutable::createFromFormat('Y-m-d', $month . '-01')
             ?: new DateTimeImmutable('first day of this month');
@@ -1336,17 +1354,88 @@ return function (\Slim\App $app, TranslationService $translator) {
             }
         }
 
-        $totalCount = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
-        $upcomingCount = (int) $pdo->query('SELECT COUNT(*) FROM events WHERE start_date > NOW()')->fetchColumn();
-        $pastCount = (int) $pdo->query('SELECT COUNT(*) FROM events WHERE end_date < NOW()')->fetchColumn();
+        $pageTree = $pageService->getTree();
+        $pagesByNamespace = [];
+        $treeByNamespace = [];
+        $knownNamespaces = [];
+        $countPages = static function (array $nodes) use (&$countPages): int {
+            $total = 0;
+            foreach ($nodes as $node) {
+                $children = $node['children'] ?? [];
+                $total += 1;
+                if (is_array($children) && $children !== []) {
+                    $total += $countPages($children);
+                }
+            }
+
+            return $total;
+        };
+
+        foreach ($pageTree as $section) {
+            $normalized = $namespaceValidator->normalizeCandidate($section['namespace'] ?? null)
+                ?? PageService::DEFAULT_NAMESPACE;
+            if ($namespace !== '' && $normalized !== $namespace) {
+                continue;
+            }
+            $treeByNamespace[$normalized] = $section['pages'] ?? [];
+            $knownNamespaces[$normalized] = true;
+        }
+
+        $pages = $pageService->getAll();
+        foreach ($pages as $page) {
+            $normalized = $namespaceValidator->normalizeCandidate($page->getNamespace())
+                ?? PageService::DEFAULT_NAMESPACE;
+            if ($namespace !== '' && $normalized !== $namespace) {
+                continue;
+            }
+            $pagesByNamespace[$normalized][] = $page;
+            $knownNamespaces[$normalized] = true;
+        }
+
+        foreach ($newsletterService->getNamespaces() as $newsletterNamespace) {
+            $normalized = $namespaceValidator->normalizeCandidate($newsletterNamespace)
+                ?? PageService::DEFAULT_NAMESPACE;
+            if ($namespace !== '' && $normalized !== $namespace) {
+                continue;
+            }
+            $knownNamespaces[$normalized] = true;
+        }
+
+        $namespaceRepository = new NamespaceRepository($pdo);
+        foreach ($namespaceRepository->list() as $namespaceEntry) {
+            $normalized = $namespaceValidator->normalizeCandidate($namespaceEntry['namespace'] ?? null)
+                ?? PageService::DEFAULT_NAMESPACE;
+            if ($namespace !== '' && $normalized !== $namespace) {
+                continue;
+            }
+            $knownNamespaces[$normalized] = true;
+        }
+
+        $namespaces = $namespace !== '' ? [$namespace] : array_keys($knownNamespaces);
+        sort($namespaces);
 
         $stats = [
-            'eventCount' => $totalCount,
-            'upcomingCount' => $upcomingCount,
-            'pastCount' => $pastCount,
-            'teamsWithoutQr' => 0,
-            'resultsAwaitingReview' => 0,
+            'pages' => 0,
+            'wiki' => 0,
+            'news' => 0,
+            'newsletter' => 0,
+            'media' => 0,
         ];
+
+        foreach ($namespaces as $ns) {
+            $stats['pages'] += $countPages($treeByNamespace[$ns] ?? []);
+            $namespacePages = $pagesByNamespace[$ns] ?? [];
+            foreach ($namespacePages as $page) {
+                $stats['wiki'] += count($wikiService->getArticlesForPage($page->getId()));
+                $stats['news'] += count($landingNewsService->getAll($page->getId()));
+            }
+
+            $newsletterConfigs = $newsletterService->getAllGrouped($ns);
+            $stats['newsletter'] += count(array_keys($newsletterConfigs));
+
+            $mediaReferences = $mediaReferenceService->collect($ns);
+            $stats['media'] += count($mediaReferences['files']) + count($mediaReferences['missing']);
+        }
 
         $usageStmt = $pdo->query('SELECT COUNT(*) FROM events');
         $eventCount = (int) $usageStmt->fetchColumn();
