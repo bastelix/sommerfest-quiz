@@ -325,7 +325,7 @@ const createProjectEmptyStateWithActions = namespace => {
       url: buildProjectAdminUrl('/admin/pages/wiki', namespace)
     },
     {
-      label: 'Jetzt Inhalte anlegen (Landing-News)',
+      label: 'Jetzt Inhalte anlegen (News-Artikel)',
       url: buildProjectAdminUrl('/admin/landing-news/create', namespace)
     },
     {
@@ -772,8 +772,8 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     const newsEntries = Array.isArray(section.landingNews) ? section.landingNews : [];
     appendProjectBlock(
       wrapper,
-      'Landing-News',
-      newsEntries.length ? buildProjectNewsList(newsEntries) : createProjectEmptyState('Keine Landing-News vorhanden.')
+      'News-Artikel',
+      newsEntries.length ? buildProjectNewsList(newsEntries) : createProjectEmptyState('Keine News-Artikel vorhanden.')
     );
 
     const newsletterSlugs = Array.isArray(section.newsletterSlugs) ? section.newsletterSlugs : [];

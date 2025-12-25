@@ -797,7 +797,7 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 6. **Ergebnisse** – Spielstände einsehen und herunterladen.
 7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-8. **Landing-News** – News-Beiträge einzelnen Landingpages zuordnen, inklusive Veröffentlichungstermin und Sichtbarkeitsstatus.
+8. **News-Artikel** – News-Beiträge einzelnen Landingpages zuordnen, inklusive Veröffentlichungstermin und Sichtbarkeitsstatus.
 9. **Administration** – Benutzer und Backups verwalten.
 
 ### Fragenkataloge
