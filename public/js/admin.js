@@ -841,6 +841,20 @@ const initProjectTree = () => {
   const selectedNamespace = namespaceSelect?.value || '';
   const activeNamespace = (selectedNamespace || resolveProjectNamespace(container) || resolveNamespaceQuery()).trim();
   const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
+  const resolveNamespaces = namespaces => {
+    if (!Array.isArray(namespaces)) {
+      return [];
+    }
+    if (!activeNamespace) {
+      return namespaces;
+    }
+    const filtered = namespaces.filter(section => (section.namespace || '').trim() === activeNamespace);
+    return filtered.length > 0 ? filtered : namespaces;
+  };
+  const renderNamespaces = namespaces => {
+    renderProjectTree(container, namespaces, emptyMessage);
+    updateProjectKpis(namespaces);
+  };
 
   if (loading) {
     loading.textContent = loading.textContent || 'Namespace-Übersicht wird geladen…';
@@ -859,15 +873,21 @@ const initProjectTree = () => {
       return response.json();
     })
     .then(payload => {
-      const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
-      let filtered = activeNamespace
-        ? namespaces.filter(section => (section.namespace || '').trim() === activeNamespace)
-        : namespaces;
-      if (filtered.length === 0 && activeNamespace) {
-        filtered = namespaces;
+      const namespaces = resolveNamespaces(payload?.namespaces);
+      if (namespaces.length === 0 && activeNamespace) {
+        return apiFetch(endpoint)
+          .then(secondResponse => {
+            if (!secondResponse.ok) {
+              throw new Error('project-tree-fallback-request-failed');
+            }
+            return secondResponse.json();
+          })
+          .then(fallbackPayload => {
+            const fallbackNamespaces = resolveNamespaces(fallbackPayload?.namespaces);
+            renderNamespaces(fallbackNamespaces.length ? fallbackNamespaces : namespaces);
+          });
       }
-      renderProjectTree(container, filtered, emptyMessage);
-      updateProjectKpis(filtered);
+      renderNamespaces(namespaces);
     })
     .catch(() => {
       if (loading) {
