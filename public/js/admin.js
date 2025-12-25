@@ -3999,6 +3999,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (domainTable) {
     const domainTableBody = domainTable.querySelector('#domainTableBody') || domainTable.querySelector('tbody');
+    const initDomainDropdowns = root => {
+      if (!root || typeof UIkit === 'undefined' || typeof UIkit.dropdown !== 'function') {
+        return;
+      }
+      root.querySelectorAll('[uk-dropdown]').forEach(el => {
+        UIkit.dropdown(el);
+      });
+    };
+    window.initDomainDropdowns = initDomainDropdowns;
+    initDomainDropdowns(domainTableBody);
     const columnCount = Number.parseInt(domainTable.dataset.columnCount || '4', 10)
       || domainTable.querySelectorAll('thead th').length
       || 4;
@@ -4042,15 +4052,6 @@ document.addEventListener('DOMContentLoaded', function () {
       || window.transDomainSslError
       || 'Certificate request failed.';
     let domainData = [];
-
-    const initDomainDropdowns = root => {
-      if (!root || typeof UIkit === 'undefined' || typeof UIkit.dropdown !== 'function') {
-        return;
-      }
-      root.querySelectorAll('[uk-dropdown]').forEach(el => {
-        UIkit.dropdown(el);
-      });
-    };
 
     if (renewSslButton) {
       renewSslButton.addEventListener('click', () => {

@@ -186,5 +186,16 @@
     >
       {{ standard_table.render(domainHeadings, 'domainTableBody', domainBody) }}
     </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const domainTableElement = document.getElementById('domainTable');
+        const domainTableBody = domainTableElement
+          ? domainTableElement.querySelector('#domainTableBody') || domainTableElement.querySelector('tbody')
+          : null;
+        if (typeof window.initDomainDropdowns === 'function') {
+          window.initDomainDropdowns(domainTableBody);
+        }
+      });
+    </script>
   </div>
 </div>
