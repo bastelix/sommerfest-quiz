@@ -157,15 +157,17 @@
 {% endif %}
 {% set startGroup = groups|first %}
 {% set accordionGroups = groups|slice(1) %}
+{% set namespaceSelectId = namespaceSelectId|default('namespaceSelect-' ~ random()) %}
 
 <div class="qr-sidebar-nav">
   <div class="uk-margin-small">
-    <label class="uk-form-label" for="namespaceSelect">{{ t('label_project_namespace') }}</label>
+    <label class="uk-form-label" for="{{ namespaceSelectId }}">{{ t('label_project_namespace') }}</label>
     <div class="uk-form-controls">
       <select
-        id="namespaceSelect"
+        id="{{ namespaceSelectId }}"
         class="uk-select"
         data-namespace="{{ activeNamespace|e('html_attr') }}"
+        data-namespace-select
         {% if lockNamespaceSelect %}disabled{% endif %}
       >
         {% for entry in projectNamespaceOptions %}
