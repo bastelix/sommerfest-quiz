@@ -121,7 +121,9 @@ final class MarketingMenuService
             'label' => (string) ($item['label'] ?? ''),
             'href' => (string) ($item['href'] ?? ''),
             'icon' => $this->normalizeIcon($item['icon'] ?? null),
-            'layout' => isset($item['layout']) ? $this->normalizeLayout((string) $item['layout']) : self::DEFAULT_LAYOUT,
+            'layout' => isset($item['layout'])
+                ? $this->normalizeLayout((string) $item['layout'])
+                : self::DEFAULT_LAYOUT,
             'detailTitle' => $this->normalizeDetail($item['detailTitle'] ?? null),
             'detailText' => $this->normalizeDetail($item['detailText'] ?? null),
             'detailSubline' => $this->normalizeDetail($item['detailSubline'] ?? null),
@@ -964,7 +966,11 @@ final class MarketingMenuService
                 if (!is_array($item['children'])) {
                     throw new RuntimeException(sprintf('children muss ein Array sein (%s).', $currentPath));
                 }
-                $children = $this->normalizeImportItems($item['children'], $startpageLocales, $currentPath . '.children');
+                $children = $this->normalizeImportItems(
+                    $item['children'],
+                    $startpageLocales,
+                    $currentPath . '.children'
+                );
             }
 
             $normalized[] = [
@@ -973,7 +979,9 @@ final class MarketingMenuService
                 'icon' => array_key_exists('icon', $item)
                     ? $this->normalizeIcon($item['icon'] !== null ? (string) $item['icon'] : null)
                     : null,
-                'layout' => isset($item['layout']) ? $this->normalizeLayout((string) $item['layout']) : self::DEFAULT_LAYOUT,
+                'layout' => isset($item['layout'])
+                    ? $this->normalizeLayout((string) $item['layout'])
+                    : self::DEFAULT_LAYOUT,
                 'detailTitle' => $this->normalizeDetail($item['detailTitle'] ?? null),
                 'detailText' => $this->normalizeDetail($item['detailText'] ?? null),
                 'detailSubline' => $this->normalizeDetail($item['detailSubline'] ?? null),
