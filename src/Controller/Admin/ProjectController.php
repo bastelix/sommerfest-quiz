@@ -79,6 +79,8 @@ class ProjectController
 
         $projectSettings = $this->projectSettings->getCookieConsentSettings($namespace);
 
+        $projectTree = $this->buildTreePayload($request);
+
         return $view->render($response, 'admin/projects.twig', [
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
@@ -87,6 +89,7 @@ class ProjectController
             'pageNamespace' => $namespace,
             'csrf_token' => $this->ensureCsrfToken(),
             'project_settings' => $projectSettings,
+            'project_tree_payload' => $projectTree,
         ]);
     }
 
@@ -157,6 +160,18 @@ class ProjectController
      * Return structured project content data grouped by namespace for admin UI use.
      */
     public function tree(Request $request, Response $response): Response
+    {
+        $payload = $this->buildTreePayload($request);
+
+        $response->getBody()->write(json_encode(['namespaces' => $payload], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function buildTreePayload(Request $request): array
     {
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $queryParams = $request->getQueryParams();
@@ -245,9 +260,7 @@ class ProjectController
             ];
         }
 
-        $response->getBody()->write(json_encode(['namespaces' => $payload], JSON_PRETTY_PRINT));
-
-        return $response->withHeader('Content-Type', 'application/json');
+        return $payload;
     }
 
     /**
