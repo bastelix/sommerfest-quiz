@@ -529,7 +529,7 @@ final class MarketingMenuService
         }
 
         $orderedIds = array_values($orderedIds);
-        $firstEntry = $orderedIds[0] ?? null;
+        $firstEntry = $orderedIds[0];
 
         if (is_int($firstEntry)) {
             $orderedIds = array_values(array_unique(array_map('intval', $orderedIds)));
@@ -1104,14 +1104,8 @@ final class MarketingMenuService
             return;
         }
 
-        $definition = LegacyMarketingMenuDefinition::getDefinitionForSlug($page->getSlug());
-        if ($definition === null) {
-            $definition = LegacyMarketingMenuDefinition::getDefaultDefinition();
-        }
-
-        if ($definition === null) {
-            return;
-        }
+        $definition = LegacyMarketingMenuDefinition::getDefinitionForSlug($page->getSlug())
+            ?? LegacyMarketingMenuDefinition::getDefaultDefinition();
 
         $this->importMenuDefinition($page, $definition);
     }

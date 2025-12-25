@@ -1411,7 +1411,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $namespaceRepository = new NamespaceRepository($pdo);
         foreach ($namespaceRepository->list() as $namespaceEntry) {
-            $normalized = $namespaceValidator->normalizeCandidate($namespaceEntry['namespace'] ?? null)
+            $normalized = $namespaceValidator->normalizeCandidate($namespaceEntry['namespace'])
                 ?? PageService::DEFAULT_NAMESPACE;
             if ($namespace !== '' && $normalized !== $namespace) {
                 continue;
