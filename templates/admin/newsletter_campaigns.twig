@@ -82,8 +82,8 @@
             <div class="uk-card uk-card-default uk-card-body">
               <h2 class="uk-card-title">{{ t('heading_newsletter_campaign_list') }}</h2>
               <p class="uk-text-meta">{{ t('text_newsletter_campaign_intro') }}</p>
-              <div class="uk-overflow-auto">
-                <table class="uk-table uk-table-divider uk-table-middle">
+              <div>
+                <table class="uk-table uk-table-divider uk-table-middle uk-table-responsive">
                   <thead>
                     <tr>
                       <th>{{ t('label_campaign_name') }}</th>
@@ -96,8 +96,8 @@
                   <tbody>
                     {% for campaign in campaigns %}
                       <tr>
-                        <td>{{ campaign.name }}</td>
-                        <td>
+                        <td data-title="{{ t('label_campaign_name') }}">{{ campaign.name }}</td>
+                        <td data-title="{{ t('label_campaign_news') }}">
                           {% if campaign.newsIds %}
                             <ul class="uk-list uk-list-collapse">
                               {% for newsId in campaign.newsIds %}
@@ -109,27 +109,29 @@
                             <span class="uk-text-muted">{{ t('text_campaign_no_news') }}</span>
                           {% endif %}
                         </td>
-                        <td>
+                        <td data-title="{{ t('label_campaign_status') }}">
                           <span class="uk-label">{{ campaign.status }}</span><br>
                           {% if campaign.providerCampaignId %}
                             <small>{{ t('label_campaign_provider_id') }}: {{ campaign.providerCampaignId }}</small>
                           {% endif %}
                         </td>
-                        <td>
+                        <td data-title="{{ t('label_campaign_sent_at') }}">
                           {% if campaign.sentAt %}
                             {{ campaign.sentAt|date('d.m.Y H:i') }}
                           {% else %}
                             <span class="uk-text-muted">{{ t('text_campaign_not_sent') }}</span>
                           {% endif %}
                         </td>
-                        <td class="uk-text-nowrap">
+                        <td data-title="{{ t('actions') }}">
                           {% set editBase = basePath ~ '/admin/newsletter-campaigns' ~ pageNamespaceQuery %}
                           {% set editLink = editBase ~ (pageNamespaceQuery ? '&' : '?') ~ 'edit=' ~ campaign.id %}
-                          <a class="uk-button uk-button-text" href="{{ editLink }}">{{ t('button_edit') }}</a>
-                          <form class="uk-display-inline" method="post" action="{{ basePath }}/admin/newsletter-campaigns/{{ campaign.id }}/send{{ pageNamespaceQuery }}">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                            <button class="uk-button uk-button-primary uk-button-small" type="submit">{{ t('button_send_campaign') }}</button>
-                          </form>
+                          <div class="uk-flex uk-flex-column uk-margin-small-top">
+                            <a class="uk-button uk-button-text uk-margin-small-bottom" href="{{ editLink }}">{{ t('button_edit') }}</a>
+                            <form method="post" action="{{ basePath }}/admin/newsletter-campaigns/{{ campaign.id }}/send{{ pageNamespaceQuery }}">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                              <button class="uk-button uk-button-primary uk-button-small uk-width-1-1" type="submit">{{ t('button_send_campaign') }}</button>
+                            </form>
+                          </div>
                         </td>
                       </tr>
                     {% else %}
