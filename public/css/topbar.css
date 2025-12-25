@@ -97,11 +97,11 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 }
 .git-btn{
   width:var(--topbar-height);
-  height:calc(var(--topbar-height) - 2px);
+  height:var(--topbar-height);
   max-width:var(--topbar-height);
-  max-height:calc(var(--topbar-height) - 2px);
+  max-height:var(--topbar-height);
   min-width:var(--topbar-height);
-  min-height:calc(var(--topbar-height) - 2px);
+  min-height:var(--topbar-height);
   padding:0;
   border-radius:6px;
   border:1px solid var(--topbar-btn-border);
@@ -132,9 +132,9 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 
 .admin-page .topbar .config-menu #configMenuToggle.git-btn{
   width:var(--topbar-height);
-  height:calc(var(--topbar-height) - 2px);
+  height:var(--topbar-height);
   min-width:var(--topbar-height);
-  min-height:calc(var(--topbar-height) - 2px);
+  min-height:var(--topbar-height);
   line-height:1;
   padding:0;
 }
@@ -149,9 +149,9 @@ body:not([data-theme="dark"]) .uk-offcanvas-bar{
 .git-btn svg{width:24px;height:24px;}
 .uk-navbar-toggle.git-btn{
   width:var(--topbar-height);
-  height:calc(var(--topbar-height) - 2px);
-  max-height:calc(var(--topbar-height) - 2px);
-  min-height:calc(var(--topbar-height) - 2px);
+  height:var(--topbar-height);
+  max-height:var(--topbar-height);
+  min-height:var(--topbar-height);
   padding:0;
   aspect-ratio:1/1;
 }
