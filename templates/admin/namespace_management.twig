@@ -64,6 +64,7 @@
               <p>{{ namespaceFlash }}</p>
             </div>
           {% endif %}
+          {% from 'components/table.twig' import qr_rowcards %}
           <div
             class="uk-card uk-card-default uk-card-body uk-card-small"
             data-namespace-management
@@ -75,6 +76,9 @@
             data-namespace-pattern="{{ namespacePattern|e('html_attr') }}"
             data-namespace-max-length="{{ namespaceMaxLength|e('html_attr') }}"
             data-column-count="4"
+            data-column-namespace="{{ t('column_namespace')|e('html_attr') }}"
+            data-column-label="{{ t('column_namespace_label')|e('html_attr') }}"
+            data-column-status="{{ t('column_namespace_status')|e('html_attr') }}"
             data-message-created="{{ t('message_namespace_created')|e('html_attr') }}"
             data-message-updated="{{ t('message_namespace_updated')|e('html_attr') }}"
             data-message-deleted="{{ t('message_namespace_deleted')|e('html_attr') }}"
@@ -137,46 +141,51 @@
             <hr class="admin-divider-line">
 
             <h3 class="uk-heading-bullet uk-margin-small-bottom">{{ t('heading_namespace_list') }}</h3>
-            <div class="uk-overflow-auto">
-              <table class="uk-table uk-table-divider uk-table-middle">
+            <div class="uk-overflow-auto uk-visible@m">
+              <table class="uk-table uk-table-divider uk-table-middle uk-table-responsive">
                 <thead>
                   <tr>
-                    <th>{{ t('column_namespace') }}</th>
-                    <th>{{ t('column_namespace_label') }}</th>
-                    <th>{{ t('column_namespace_status') }}</th>
+                    <th data-key="namespace">{{ t('column_namespace') }}</th>
+                    <th data-key="label">{{ t('column_namespace_label') }}</th>
+                    <th data-key="status">{{ t('column_namespace_status') }}</th>
                     <th class="uk-text-center">{{ t('column_namespace_actions') }}</th>
                   </tr>
                 </thead>
-                <tbody data-namespace-table-body>
-                  {% if available_namespaces is defined and available_namespaces|length > 0 %}
-                    {% for entry in available_namespaces %}
-                      <tr{% if entry.is_active is defined and not entry.is_active %} class="uk-text-muted"{% endif %}>
-                        <td>{{ entry.namespace }}</td>
-                        <td>{{ entry.label ?? '-' }}</td>
-                        <td>
-                          {% if entry.namespace == defaultNamespace %}
-                            {{ t('label_namespace_default') }}
-                          {% elseif entry.is_active is defined and not entry.is_active %}
-                            {{ t('label_namespace_inactive') }}
-                          {% else %}
-                            -
-                          {% endif %}
-                        </td>
-                        <td class="uk-text-center">—</td>
-                      </tr>
-                    {% endfor %}
-                  {% else %}
-                    <tr>
-                      <td colspan="4">{{ t('text_namespace_loading') }}</td>
-                    </tr>
-                  {% endif %}
-                </tbody>
+                <tbody data-namespace-table-body></tbody>
               </table>
             </div>
+            {{ qr_rowcards(
+              'namespaceCards',
+              false,
+              'uk-hidden@m uk-list uk-list-divider',
+              'ul',
+              t('text_namespace_loading'),
+              t('error_namespace_unknown')
+            ) }}
           </div>
         </div>
       </div>
     </main>
+  </div>
+
+  <div id="namespaceEditModal" class="uk-flex-top" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+      <button class="uk-modal-close-default" type="button" uk-close aria-label="{{ t('action_close') }}"></button>
+      <h3 class="uk-modal-title" data-namespace-edit-title>{{ t('action_edit') }}</h3>
+      <form class="uk-form-stacked">
+        <div class="uk-margin">
+          <label class="uk-form-label" for="namespaceEditInput" data-namespace-edit-label>{{ t('column_namespace') }}</label>
+          <div class="uk-form-controls">
+            <input id="namespaceEditInput" class="uk-input" type="text" autocomplete="off">
+          </div>
+          <p class="uk-text-danger uk-margin-small-top uk-hidden" data-namespace-edit-error></p>
+        </div>
+        <div class="uk-margin uk-text-right">
+          <button id="namespaceEditCancel" class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+          <button id="namespaceEditSave" class="uk-button uk-button-primary" type="button">{{ t('action_save') }}</button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
