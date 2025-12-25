@@ -35,7 +35,7 @@ class DomainControllerTest extends TestCase
 
         $request = $this->createRequest(
             'PATCH',
-            '/admin/domains/' . $domain['id'],
+            '/admin/domains/api/' . $domain['id'],
             [
                 'Content-Type' => 'application/json; charset=utf-8',
                 'HTTP_ACCEPT' => 'application/json',
@@ -90,7 +90,7 @@ class DomainControllerTest extends TestCase
 
         $request = $this->createRequest(
             'PATCH',
-            '/admin/domains/' . $domain['id'],
+            '/admin/domains/api/' . $domain['id'],
             [
                 'Content-Type' => 'application/json',
                 'HTTP_ACCEPT' => 'application/json',
