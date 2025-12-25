@@ -4488,17 +4488,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
       domainForm.addEventListener('submit', event => {
         event.preventDefault();
+        const normalizeHostInput = (value) => {
+          let normalized = value.trim();
+          normalized = normalized.replace(/^https?:\/\//i, '');
+          normalized = normalized.replace(/\/$/, '');
+          return normalized;
+        };
+
         const hostValue = domainHostInput.value.trim();
-        if (!domainPattern.test(hostValue)) {
+        const normalizedHost = normalizeHostInput(hostValue);
+        if (!domainPattern.test(normalizedHost)) {
           domainHostInput.classList.add('uk-form-danger');
           setFormError(transDomainInvalid);
           notify(transDomainInvalid, 'warning');
           domainHostInput.focus();
           return;
         }
+        domainHostInput.value = normalizedHost;
 
         const payload = {
-          host: hostValue,
+          host: normalizedHost,
           label: domainLabelInput ? domainLabelInput.value.trim() || null : null,
           namespace: domainNamespaceSelect ? domainNamespaceSelect.value.trim() || null : null,
           is_active: domainActiveInput ? domainActiveInput.checked : true,
