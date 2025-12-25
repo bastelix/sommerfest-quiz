@@ -58,6 +58,7 @@ use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\HttpChatResponder;
+use App\Repository\NamespaceRepository;
 use App\Service\RagChat\OpenAiChatResponder;
 use App\Service\RagChat\DomainIndexManager;
 use App\Service\RagChat\DomainWikiSelectionService;

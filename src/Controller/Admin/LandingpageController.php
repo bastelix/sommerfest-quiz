@@ -176,9 +176,15 @@ class LandingpageController
     /**
      * @param Page[] $pages
      */
-    private function determineSelectedPage(array $pages, string $slug): Page {
+    private function determineSelectedPage(array $pages, ?string $slug): Page {
+        $normalizedSlug = $slug !== null ? trim($slug) : '';
+
+        if ($normalizedSlug === '') {
+            return $pages[0];
+        }
+
         foreach ($pages as $page) {
-            if ($slug !== '' && $page->getSlug() === $slug) {
+            if ($page->getSlug() === $normalizedSlug) {
                 return $page;
             }
         }
@@ -204,11 +210,7 @@ class LandingpageController
             if ($pageDomains === [] && $fallbackHost !== '') {
                 $pageDomains[] = $fallbackHost;
             }
-            $pageDomains = array_values(
-                array_unique(
-                    array_filter($pageDomains, static fn ($value): bool => $value !== '')
-                )
-            );
+            $pageDomains = array_values(array_unique(array_filter($pageDomains)));
 
             $config = $this->seoService->load($page->getId());
             $configData = $config ? $config->jsonSerialize() : $this->seoService->defaultConfig($page->getId());
@@ -239,11 +241,7 @@ class LandingpageController
             if ($pageDomains === [] && $fallbackHost !== '') {
                 $pageDomains[] = $fallbackHost;
             }
-            $pageDomains = array_values(
-                array_unique(
-                    array_filter($pageDomains, static fn ($value): bool => $value !== '')
-                )
-            );
+            $pageDomains = array_values(array_unique(array_filter($pageDomains)));
 
             $configData = $this->seoService->defaultConfig($selected->getId());
             if (($configData['domain'] ?? null) === null && $pageDomains !== []) {

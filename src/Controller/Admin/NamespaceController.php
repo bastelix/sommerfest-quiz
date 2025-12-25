@@ -20,6 +20,7 @@ use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
+use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
@@ -124,7 +125,8 @@ final class NamespaceController
         }
 
         if ($this->prefersHtml($request)) {
-            $location = rtrim($request->getUri()->getBasePath(), '/') . '/admin/namespaces?namespace_status=created';
+            $basePath = RouteContext::fromRequest($request)->getBasePath();
+            $location = rtrim($basePath, '/') . '/admin/namespaces?namespace_status=created';
 
             return $response
                 ->withHeader('Location', $location)

@@ -590,11 +590,7 @@ class AdminController
             if ($pageDomains === [] && $fallbackHost !== '') {
                 $pageDomains[] = $fallbackHost;
             }
-            $pageDomains = array_values(
-                array_unique(
-                    array_filter($pageDomains, static fn ($value): bool => $value !== '')
-                )
-            );
+            $pageDomains = array_values(array_unique(array_filter($pageDomains)));
 
             $config = $service->load($page->getId());
             $configData = $config ? $config->jsonSerialize() : $service->defaultConfig($page->getId());
