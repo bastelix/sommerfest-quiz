@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Domain\LandingNews;
 use App\Infrastructure\Database;
+use App\Service\PageService;
 use DateTimeImmutable;
 use DateTimeZone;
 use InvalidArgumentException;
@@ -83,6 +84,23 @@ class LandingNewsService
     }
 
     /**
+     * Fetch all news entries for a namespace.
+     *
+     * @return LandingNews[]
+     */
+    public function getAllForNamespace(string $namespace): array
+    {
+        $stmt = $this->pdo->prepare($this->baseSelect(
+            'WHERE p.namespace = :namespace ORDER BY ln.is_published DESC, '
+            . 'CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END, '
+            . 'ln.published_at DESC, ln.id DESC'
+        ));
+        $stmt->execute(['namespace' => trim($namespace) !== '' ? strtolower($namespace) : PageService::DEFAULT_NAMESPACE]);
+
+        return array_map([$this, 'hydrate'], $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
+    }
+
+    /**
      * Fetch all news entries optionally filtered by landing page.
      *
      * @return LandingNews[]
@@ -102,6 +120,31 @@ class LandingNewsService
             . 'ln.published_at DESC, ln.id DESC'
         ));
         $stmt->execute($params);
+
+        return array_map([$this, 'hydrate'], $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
+    }
+
+    /**
+     * Fetch news entries by IDs.
+     *
+     * @param int[] $ids
+     * @return LandingNews[]
+     */
+    public function getByIds(array $ids): array
+    {
+        $normalized = array_values(array_unique(array_filter(array_map('intval', $ids), static fn (int $id): bool => $id > 0)));
+        if ($normalized === []) {
+            return [];
+        }
+
+        $placeholders = implode(', ', array_fill(0, count($normalized), '?'));
+        $stmt = $this->pdo->prepare($this->baseSelect(
+            sprintf('WHERE ln.id IN (%s) ORDER BY ln.published_at DESC, ln.id DESC', $placeholders)
+        ));
+        foreach ($normalized as $index => $id) {
+            $stmt->bindValue($index + 1, $id, PDO::PARAM_INT);
+        }
+        $stmt->execute();
 
         return array_map([$this, 'hydrate'], $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
     }
