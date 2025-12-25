@@ -10,19 +10,43 @@
     ]
   },
   {
-    header: t('menu_event_management'),
+    header: t('menu_event_setup'),
     icon: 'calendar',
     items: [
-      { href: basePath ~ '/admin/events', icon: 'calendar', text: t('tab_events') },
-      { href: basePath ~ '/admin/event/dashboard', icon: 'tv', text: t('tab_event_dashboard') },
-      { href: basePath ~ '/admin/event/settings', icon: 'cog', text: t('tab_event_settings') },
-      { href: basePath ~ '/admin/username-blocklist', icon: 'lock', text: t('tab_username_settings'), admin: true },
-      { href: basePath ~ '/admin/summary', icon: 'table', text: t('tab_summary') },
-      { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor'] },
-      { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions') },
-      { href: basePath ~ '/admin/teams', icon: 'users', text: t('tab_teams') },
-      { href: basePath ~ '/admin/results', icon: 'list', text: t('tab_results') },
-      { href: basePath ~ '/admin/statistics', icon: 'signal', text: t('tab_statistics') },
+      { href: basePath ~ '/admin/events', icon: 'calendar', text: t('tab_events'), activePrefixes: [basePath ~ '/admin/events'] },
+      { href: basePath ~ '/admin/event/settings', icon: 'cog', text: t('tab_event_settings'), activePrefixes: [basePath ~ '/admin/event/settings'] },
+      {
+        href: basePath ~ '/admin/username-blocklist',
+        icon: 'lock',
+        text: t('tab_username_settings'),
+        admin: true,
+        activePrefixes: [basePath ~ '/admin/username-blocklist']
+      },
+    ]
+  },
+  {
+    header: t('menu_event_content'),
+    icon: 'database',
+    items: [
+      { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs'), roles: ['admin', 'catalog-editor'], activePrefixes: [basePath ~ '/admin/catalogs'] },
+      { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions'), activePrefixes: [basePath ~ '/admin/questions'] },
+    ]
+  },
+  {
+    header: t('menu_event_live'),
+    icon: 'tv',
+    items: [
+      { href: basePath ~ '/admin/event/dashboard', icon: 'tv', text: t('tab_event_dashboard'), activePrefixes: [basePath ~ '/admin/event/dashboard'] },
+      { href: basePath ~ '/admin/teams', icon: 'users', text: t('tab_teams'), activePrefixes: [basePath ~ '/admin/teams'] },
+    ]
+  },
+  {
+    header: t('menu_event_evaluation'),
+    icon: 'signal',
+    items: [
+      { href: basePath ~ '/admin/summary', icon: 'table', text: t('tab_summary'), activePrefixes: [basePath ~ '/admin/summary'] },
+      { href: basePath ~ '/admin/results', icon: 'list', text: t('tab_results'), activePrefixes: [basePath ~ '/admin/results'] },
+      { href: basePath ~ '/admin/statistics', icon: 'signal', text: t('tab_statistics'), activePrefixes: [basePath ~ '/admin/statistics'] },
     ]
   },
   {
@@ -313,7 +337,20 @@
                 and (it.admin is not defined or role == 'admin')
                 and (it.domain is not defined or it.domain == domainType) %}
               {% set hasItems = true %}
-              {% if current starts with it.href %}
+              {% set itemActivePaths = it.activePaths|default([]) %}
+              {% set itemActivePrefixes = it.activePrefixes|default([]) %}
+              {% set itemActive = current starts with it.href %}
+              {% for path in itemActivePaths %}
+                {% if current == path %}
+                  {% set itemActive = true %}
+                {% endif %}
+              {% endfor %}
+              {% for prefix in itemActivePrefixes %}
+                {% if current starts with prefix %}
+                  {% set itemActive = true %}
+                {% endif %}
+              {% endfor %}
+              {% if itemActive %}
                 {% set groupActive = true %}
               {% endif %}
             {% endif %}
@@ -332,7 +369,20 @@
                     {% if (it.roles is not defined or role in it.roles)
                         and (it.admin is not defined or role == 'admin')
                         and (it.domain is not defined or it.domain == domainType) %}
-                      {% set active = current starts with it.href ? 'uk-active' : '' %}
+                      {% set itemActivePaths = it.activePaths|default([]) %}
+                      {% set itemActivePrefixes = it.activePrefixes|default([]) %}
+                      {% set isActive = current starts with it.href %}
+                      {% for path in itemActivePaths %}
+                        {% if current == path %}
+                          {% set isActive = true %}
+                        {% endif %}
+                      {% endfor %}
+                      {% for prefix in itemActivePrefixes %}
+                        {% if current starts with prefix %}
+                          {% set isActive = true %}
+                        {% endif %}
+                      {% endfor %}
+                      {% set active = isActive ? 'uk-active' : '' %}
                       {% set hrefParts = it.href|split('#', 2) %}
                       {% set hrefBase = hrefParts[0] %}
                       {% set hrefAnchor = hrefParts|length > 1 ? '#' ~ hrefParts[1] : '' %}
