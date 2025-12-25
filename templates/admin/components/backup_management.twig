@@ -1,3 +1,5 @@
+{% import 'components/standard_table.twig' as tables %}
+
 <div id="backups" class="uk-card uk-card-default uk-card-body uk-margin">
   <h3 class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
   <div class="uk-margin uk-child-width-1-1 uk-child-width-auto@s uk-grid-small uk-flex-right@s" uk-grid>
@@ -12,15 +14,9 @@
     </div>
   </div>
   {% set backupRows %}{% include 'admin/_backup_table.twig' %}{% endset %}
-  <div class="uk-overflow-auto">
-    <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
-      <thead>
-        <tr>
-          <th class="uk-table-expand">{{ t('column_folder') }}</th>
-          <th class="uk-table-shrink uk-text-center">{{ t('column_actions') }}</th>
-        </tr>
-      </thead>
-      <tbody id="backupTableBody">{{ backupRows|raw }}</tbody>
-    </table>
-  </div>
+  {% set headings = [
+    { label: t('column_folder'), class: 'uk-table-expand' },
+    { label: t('column_actions'), class: 'uk-table-shrink uk-text-right' },
+  ] %}
+  {{ tables.render(headings, 'backupTableBody', backupRows) }}
 </div>

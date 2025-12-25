@@ -1,13 +1,62 @@
+{% set backupBase = basePath|default('') %}
+
 {% if backups is empty %}
   <tr><td colspan="2">{{ t('text_no_backups') }}</td></tr>
 {% else %}
   {% for name in backups %}
+    {% set deleteAction = backupBase ~ '/backups/' ~ name ~ '/delete' %}
     <tr>
       <td>{{ name }}</td>
-      <td>
-        <button class="uk-button uk-button-primary uk-margin-small-right" data-action="restore" data-name="{{ name }}">{{ t('action_restore') }}</button>
-        <button class="uk-button uk-button-default uk-margin-small-right" data-action="download" data-name="{{ name }}">{{ t('action_download') }}</button>
-        <button class="uk-button uk-button-danger" data-action="delete" data-name="{{ name }}">{{ t('action_delete') }}</button>
+      <td class="uk-table-shrink uk-text-right">
+        <div class="uk-inline">
+          <button
+            class="uk-button uk-button-default uk-button-small"
+            type="button"
+            uk-icon="icon: more; ratio: 0.9"
+            aria-label="{{ t('column_actions') }}"
+          >
+            <span class="uk-hidden">{{ t('column_actions') }}</span>
+          </button>
+          <div uk-dropdown="mode: click; pos: bottom-right; offset: 0; container: .admin-page">
+            <ul class="uk-nav uk-dropdown-nav">
+              <li>
+                <form method="post" action="{{ backupBase }}/backups/{{ name }}/restore">
+                  <button
+                    class="uk-button uk-button-link uk-width-1-1 uk-text-left"
+                    type="submit"
+                    data-action="restore"
+                    data-name="{{ name }}"
+                  >
+                    {{ t('action_restore') }}
+                  </button>
+                </form>
+              </li>
+              <li>
+                <a
+                  class="uk-button uk-button-link uk-width-1-1 uk-text-left"
+                  href="{{ backupBase }}/backups/{{ name }}/download"
+                  data-action="download"
+                  data-name="{{ name }}"
+                >
+                  {{ t('action_download') }}
+                </a>
+              </li>
+              <li class="uk-nav-divider"></li>
+              <li>
+                <form method="post" action="{{ deleteAction }}" onsubmit="return confirm('{{ t('confirm_delete_backup') }}');">
+                  <button
+                    class="uk-button uk-button-link uk-text-danger uk-width-1-1 uk-text-left"
+                    type="submit"
+                    data-action="delete"
+                    data-name="{{ name }}"
+                  >
+                    {{ t('action_delete') }}
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
       </td>
     </tr>
   {% endfor %}

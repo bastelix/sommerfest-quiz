@@ -2798,6 +2798,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/backups/{name}/restore', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('backupController')->restore($request, $response, $args);
     })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/backups/{name}/delete', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('backupController')->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware('admin'));
     $app->delete('/backups/{name}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('backupController')->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware('admin'));

@@ -418,6 +418,7 @@ return [
     'prompt_media_rename' => 'Enter a new filename:',
     'confirm_media_delete' => 'Delete this file?',
     'confirm_news_delete' => 'Delete this news entry?',
+    'confirm_delete_backup' => 'Delete this backup?',
     'message_media_uploaded' => 'File uploaded.',
     'message_media_replaced' => 'File replaced.',
     'message_media_renamed' => 'File renamed.',
