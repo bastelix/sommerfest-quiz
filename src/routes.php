@@ -150,6 +150,7 @@ use Slim\Psr7\Response as SlimResponse;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
+use App\Controller\AdminBackupsController;
 use App\Domain\Roles;
 use App\Domain\Plan;
 
@@ -162,6 +163,7 @@ require_once __DIR__ . '/Controller/DatenschutzController.php';
 require_once __DIR__ . '/Controller/ImpressumController.php';
 require_once __DIR__ . '/Controller/LizenzController.php';
 require_once __DIR__ . '/Controller/AdminController.php';
+require_once __DIR__ . '/Controller/AdminBackupsController.php';
 require_once __DIR__ . '/Controller/LoginController.php';
 require_once __DIR__ . '/Controller/LogoutController.php';
 require_once __DIR__ . '/Controller/ConfigController.php';
@@ -1504,6 +1506,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->index($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/logins', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/backups', AdminBackupsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
