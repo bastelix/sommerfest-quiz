@@ -838,7 +838,7 @@ const initProjectTree = () => {
   const endpoint = container.dataset.endpoint || '/admin/projects/tree';
   const namespaceSelect = getPrimaryNamespaceSelect();
   const selectedNamespace = namespaceSelect?.value || '';
-  const activeNamespace = (selectedNamespace || resolveProjectNamespace(container)).trim();
+  const activeNamespace = (selectedNamespace || resolveProjectNamespace(container) || resolveNamespaceQuery()).trim();
   const endpointWithNamespace = withProjectNamespace(endpoint, activeNamespace);
 
   if (loading) {
@@ -854,9 +854,12 @@ const initProjectTree = () => {
     })
     .then(payload => {
       const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
-      const filtered = activeNamespace
+      let filtered = activeNamespace
         ? namespaces.filter(section => (section.namespace || '').trim() === activeNamespace)
         : namespaces;
+      if (filtered.length === 0 && activeNamespace) {
+        filtered = namespaces;
+      }
       renderProjectTree(container, filtered, emptyMessage);
       updateProjectKpis(filtered);
     })
