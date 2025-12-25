@@ -514,6 +514,9 @@ body.marketing-page[data-theme="dark"] .uk-text-muted {
   top: 0;
   z-index: 1000;
 }
+.qr-landing .qr-topbar nav.topbar{
+  --topbar-height: 64px;
+}
 .qr-landing .qr-topbar .uk-navbar,
 .qr-landing .qr-topbar .uk-navbar-container{
   background: transparent;
@@ -522,6 +525,9 @@ body.marketing-page[data-theme="dark"] .uk-text-muted {
   .qr-landing .qr-topbar{
     min-height:56px;
     height:56px;
+  }
+  .qr-landing .qr-topbar nav.topbar{
+    --topbar-height: 56px;
   }
 }
 body.dark-mode .qr-landing .qr-topbar{
