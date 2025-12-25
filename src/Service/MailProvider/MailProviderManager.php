@@ -13,7 +13,6 @@ use Symfony\Component\Mime\Email;
 
 class MailProviderManager
 {
-
     /**
      * @var array<string,callable(array<string,mixed>):MailProviderInterface>
      */
