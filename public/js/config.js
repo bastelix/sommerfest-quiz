@@ -12,6 +12,18 @@ window.quizConfig = {
   // Farbschema der Anwendung
   backgroundColor: '#ffffff',
   buttonColor: '#1e87f0',
+  colors: {
+    primary: '#1e87f0',
+    accent: '#222222',
+    light: {
+      primary: '#1e87f0',
+      secondary: '#222222'
+    },
+    dark: {
+      primary: '#0f172a',
+      secondary: '#93c5fd'
+    }
+  },
   startTheme: 'light',
 
   // Falls "no", wird der Button "Antwort prüfen" ausgeblendet
