@@ -8,12 +8,28 @@ export default class TableManager {
     this.onDelete = onDelete;
     this.onReorder = onReorder;
     this.thead = this.tbody?.closest('table')?.querySelector('thead');
+    this.columnLabelCache = new Map();
     this.data = [];
     this.filteredData = [];
     this.filterFn = null;
     if (this.sortable) {
       this.#initSortable();
     }
+  }
+
+  #getColumnLabel(col) {
+    if (col.label) {
+      return col.label;
+    }
+    if (!col.key) {
+      return '';
+    }
+    if (this.columnLabelCache.has(col.key)) {
+      return this.columnLabelCache.get(col.key);
+    }
+    const label = this.thead?.querySelector(`th[data-key="${col.key}"]`)?.textContent || '';
+    this.columnLabelCache.set(col.key, label);
+    return label;
   }
 
   #initSortable() {
@@ -228,7 +244,7 @@ export default class TableManager {
       } else if (col.key) {
         c = item[col.key];
       }
-      const labelText = col.label || this.thead?.querySelector(`th[data-key="${col.key}"]`)?.textContent;
+      const labelText = this.#getColumnLabel(col);
       let lbl = null;
       if (labelText) {
         lbl = document.createElement('span');
