@@ -420,6 +420,7 @@ return [
     'prompt_media_rename' => 'Neuen Dateinamen eingeben:',
     'confirm_media_delete' => 'Datei wirklich löschen?',
     'confirm_news_delete' => 'Diesen News-Eintrag löschen?',
+    'confirm_delete_backup' => 'Backup wirklich löschen?',
     'message_media_uploaded' => 'Datei gespeichert.',
     'message_media_replaced' => 'Datei ersetzt.',
     'message_media_renamed' => 'Datei umbenannt.',

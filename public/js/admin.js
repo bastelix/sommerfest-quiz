@@ -8640,10 +8640,17 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
+  backupTableBody?.addEventListener('submit', e => {
+    const target = e.target instanceof HTMLFormElement ? e.target.querySelector('[data-action][data-name]') : null;
+    if (!target) return;
+    e.preventDefault();
+  });
+
   backupTableBody?.addEventListener('click', e => {
-    const btn = e.target.closest('button[data-action][data-name]');
-    if (!btn) return;
-    const { action, name } = btn.dataset;
+    const actionEl = e.target instanceof HTMLElement ? e.target.closest('[data-action][data-name]') : null;
+    if (!actionEl) return;
+    e.preventDefault();
+    const { action, name } = actionEl.dataset;
     if (!name) return;
     if (action === 'restore') {
       apiFetch('/backups/' + encodeURIComponent(name) + '/restore', { method: 'POST' })
