@@ -4043,6 +4043,15 @@ document.addEventListener('DOMContentLoaded', function () {
       || 'Certificate request failed.';
     let domainData = [];
 
+    const initDomainDropdowns = root => {
+      if (!root || typeof UIkit === 'undefined' || typeof UIkit.dropdown !== 'function') {
+        return;
+      }
+      root.querySelectorAll('[uk-dropdown]').forEach(el => {
+        UIkit.dropdown(el);
+      });
+    };
+
     if (renewSslButton) {
       renewSslButton.addEventListener('click', () => {
         const originalHtml = renewSslButton.innerHTML;
@@ -4368,6 +4377,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         domainTableManager.render(list);
+        initDomainDropdowns(domainTableBody);
         if (!domainTableManager.getViewData().length) {
           renderDomainMessage(messages.empty);
         }
