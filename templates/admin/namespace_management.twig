@@ -58,6 +58,12 @@
       <div class="uk-section uk-section-small">
         <div class="uk-container">
           <p class="uk-text-meta">{{ t('text_namespace_intro') }}</p>
+          {% if namespaceFlash %}
+            <div class="uk-alert-success" uk-alert>
+              <a class="uk-alert-close" uk-close aria-label="{{ t('action_close') }}"></a>
+              <p>{{ namespaceFlash }}</p>
+            </div>
+          {% endif %}
           <div
             class="uk-card uk-card-default uk-card-body uk-card-small"
             data-namespace-management

@@ -43,6 +43,7 @@ final class NamespaceController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $flashMessage = $this->resolveFlashMessage($request);
 
         return $view->render($response, 'admin/namespace_management.twig', [
             'csrfToken' => $csrf,
@@ -54,6 +55,7 @@ final class NamespaceController
             'namespaceMaxLength' => $this->validator->getMaxLength(),
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
+            'namespaceFlash' => $flashMessage,
         ]);
     }
 
@@ -119,6 +121,14 @@ final class NamespaceController
             return $this->jsonError($response, $this->resolveNamespaceError($request, $exception), 422);
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 500);
+        }
+
+        if ($this->prefersHtml($request)) {
+            $location = rtrim($request->getUri()->getBasePath(), '/') . '/admin/namespaces?namespace_status=created';
+
+            return $response
+                ->withHeader('Location', $location)
+                ->withStatus(303);
         }
 
         return $this->json($response, [
@@ -292,6 +302,28 @@ final class NamespaceController
         }
 
         return $fallback;
+    }
+
+    private function resolveFlashMessage(Request $request): ?string
+    {
+        $status = $request->getQueryParams()['namespace_status'] ?? null;
+
+        return match ($status) {
+            'created' => $this->translate($request, 'message_namespace_created', 'Namespace created.'),
+            default => null,
+        };
+    }
+
+    private function prefersHtml(Request $request): bool
+    {
+        $requestedWith = strtolower($request->getHeaderLine('X-Requested-With'));
+        if ($requestedWith === 'fetch' || $requestedWith === 'xmlhttprequest') {
+            return false;
+        }
+
+        $accept = strtolower($request->getHeaderLine('Accept'));
+
+        return $accept === '' || str_contains($accept, 'text/html');
     }
 
     private function grantUserNamespaceAccess(Request $request, string $namespace): void
