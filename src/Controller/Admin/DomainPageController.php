@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\NamespaceResolver;
+use App\Service\DomainService;
 use App\Service\PageService;
 use App\Service\UrlService;
 use PDO;
@@ -29,7 +30,13 @@ final class DomainPageController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
 
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request, $pdo);
+        $domains = $this->loadDomains($pdo);
 
         $baseUrl = UrlService::determineBaseUrl($request);
         $mainDomain = getenv('MAIN_DOMAIN')
@@ -44,6 +51,7 @@ final class DomainPageController
             'available_namespaces' => $availableNamespaces,
             'default_namespace' => PageService::DEFAULT_NAMESPACE,
             'pageNamespace' => $namespace,
+            'domains' => $domains,
             'baseUrl' => $baseUrl,
             'main_domain' => $mainDomain,
         ]);
@@ -54,13 +62,9 @@ final class DomainPageController
      *
      * @return array{0: list<array<string,mixed>>, 1: string}
      */
-    private function loadNamespaces(Request $request): array
+    private function loadNamespaces(Request $request, PDO $pdo): array
     {
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $pdo = $request->getAttribute('pdo');
-        if (!$pdo instanceof PDO) {
-            $pdo = Database::connectFromEnv();
-        }
         $repository = new NamespaceRepository($pdo);
         try {
             $availableNamespaces = $repository->list();
@@ -97,5 +101,21 @@ final class DomainPageController
         }
 
         return [$availableNamespaces, $namespace];
+    }
+
+    /**
+     * Load existing domains so the view can render a server-side fallback table.
+     *
+     * @return list<array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}>
+     */
+    private function loadDomains(PDO $pdo): array
+    {
+        try {
+            $domainService = new DomainService($pdo);
+
+            return $domainService->listDomains(includeInactive: true);
+        } catch (\Throwable) {
+            return [];
+        }
     }
 }

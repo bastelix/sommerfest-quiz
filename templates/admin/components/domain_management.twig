@@ -121,9 +121,35 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td colspan="5">{{ t('text_domains_loading') }}</td>
-          </tr>
+          {% set domainNamespaceLabels = {} %}
+          {% for entry in available_namespaces|default([]) %}
+            {% set ns = entry.namespace|default('') %}
+            {% if ns is not empty %}
+              {% set domainNamespaceLabels = domainNamespaceLabels|merge({ (ns): entry.label|default(ns) }) %}
+            {% endif %}
+          {% endfor %}
+
+          {% set domainList = domains|default(null) %}
+          {% if domainList is iterable and domainList|length > 0 %}
+            {% for domain in domainList %}
+              {% set namespaceLabel = domainNamespaceLabels[domain.namespace] ?? (domain.namespace ?? t('text_domain_namespace_none')) %}
+              <tr>
+                <td>{{ domain.host|default(domain.normalized_host)|e }}</td>
+                <td>{{ domain.label|default('')|e }}</td>
+                <td>{{ namespaceLabel|e }}</td>
+                <td>{{ domain.is_active ? t('label_namespace_active') : t('label_namespace_inactive') }}</td>
+                <td class="uk-table-shrink uk-text-center">&mdash;</td>
+              </tr>
+            {% endfor %}
+          {% elseif domainList is iterable %}
+            <tr>
+              <td colspan="5">{{ t('text_domains_empty') }}</td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5">{{ t('text_domains_loading') }}</td>
+            </tr>
+          {% endif %}
         </tbody>
       </table>
     </div>
