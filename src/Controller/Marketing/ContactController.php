@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Service\DomainContactTemplateService;
-use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Service\NamespaceResolver;
@@ -17,7 +16,6 @@ use App\Service\TurnstileVerificationService;
 use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use RuntimeException;
 
@@ -147,14 +145,10 @@ class ContactController
         $shouldUnsubscribe = $newsletterAction === 'unsubscribe';
 
         if ($shouldSubscribe || $shouldUnsubscribe) {
-            $confirmationService = new EmailConfirmationService($pdo);
             $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
             $newsletterService = new NewsletterSubscriptionService(
-                $pdo,
-                $confirmationService,
                 $manager,
                 $namespace,
-                $mailer
             );
 
             $serverParams = $request->getServerParams();
@@ -170,9 +164,7 @@ class ContactController
                     $attributes = ['FIRSTNAME' => $name];
                     $attributes['SOURCE'] = 'marketing-contact';
 
-                    $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
-                    $confirmUri = $request->getUri()->withPath($base . '/newsletter/confirm')->withQuery('');
-                    $newsletterService->requestSubscription($email, (string) $confirmUri, $metadata, $attributes);
+                    $newsletterService->subscribe($email, $metadata, $attributes);
                 } else {
                     $newsletterService->unsubscribe($email, $metadata);
                 }

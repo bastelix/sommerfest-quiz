@@ -5,64 +5,19 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Infrastructure\Database;
-use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
-use App\Service\MarketingNewsletterConfigService;
 use App\Service\NamespaceResolver;
 use App\Service\NewsletterSubscriptionService;
 use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
-use Slim\Views\Twig;
 
 use function is_array;
 use function json_decode;
-use function trim;
 
 class NewsletterController
 {
-    public function confirm(Request $request, Response $response): Response
-    {
-        $token = trim((string) ($request->getQueryParams()['token'] ?? ''));
-        if ($token === '') {
-            return $this->renderStatus($request, $response, false, 'confirm');
-        }
-
-        $pdo = Database::connectFromEnv();
-        $confirmationService = new EmailConfirmationService($pdo);
-
-        $manager = $request->getAttribute('mailProviderManager');
-        if (!$manager instanceof MailProviderManager) {
-            $manager = new MailProviderManager(new SettingsService($pdo));
-        }
-
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $namespace);
-        $configService = new MarketingNewsletterConfigService($pdo);
-
-        $success = false;
-        $marketingSlug = null;
-        $ctas = [];
-        try {
-            $result = $service->confirmSubscription($token);
-            $success = $result->isSuccess();
-            if ($success) {
-                $marketingSlug = 'landing';
-
-                $ctas = $configService->getCtasForSlug($marketingSlug, $namespace);
-                if ($ctas === [] && $marketingSlug !== 'landing') {
-                    $ctas = $configService->getCtasForSlug('landing', $namespace);
-                }
-            }
-        } catch (RuntimeException $exception) {
-            error_log('Newsletter confirmation failed: ' . $exception->getMessage());
-            $success = false;
-        }
-
-        return $this->renderStatus($request, $response, $success, 'confirm', $marketingSlug, $ctas);
-    }
-
     public function unsubscribe(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
@@ -83,16 +38,13 @@ class NewsletterController
             return $response->withStatus(400);
         }
 
-        $pdo = Database::connectFromEnv();
-        $confirmationService = new EmailConfirmationService($pdo);
-
         $manager = $request->getAttribute('mailProviderManager');
         if (!$manager instanceof MailProviderManager) {
-            $manager = new MailProviderManager(new SettingsService($pdo));
+            $manager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
         }
 
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $service = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $namespace);
+        $service = new NewsletterSubscriptionService($manager, $namespace);
 
         $serverParams = $request->getServerParams();
         $metadata = [
@@ -112,24 +64,4 @@ class NewsletterController
         return $success ? $response->withStatus(204) : $response->withStatus(400);
     }
 
-    /**
-     * @param list<array{label:string,url:string,style:string}> $ctas
-     */
-    private function renderStatus(
-        Request $request,
-        Response $response,
-        bool $success,
-        string $mode,
-        ?string $marketingSlug = null,
-        array $ctas = []
-    ): Response {
-        $twig = Twig::fromRequest($request);
-
-        return $twig->render($response, 'marketing/newsletter_status.twig', [
-            'success' => $success,
-            'mode' => $mode,
-            'marketingSlug' => $marketingSlug,
-            'ctas' => $ctas,
-        ]);
-    }
 }

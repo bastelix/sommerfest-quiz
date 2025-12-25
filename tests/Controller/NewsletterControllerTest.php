@@ -4,60 +4,25 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Service\MailProvider\MailProviderManager;
 use Tests\TestCase;
 
 class NewsletterControllerTest extends TestCase
 {
-    public function testConfirmDisplaysSlugSpecificCtas(): void
+    public function testUnsubscribeEndpointValidatesPayload(): void
     {
-        $pdo = $this->getDatabase();
-        $token = 'token123';
-        $email = 'newsletter@example.com';
-
-        $pdo->prepare('INSERT INTO email_confirmations(email, token, confirmed, expires_at) VALUES(:email, :token, 0, :expires)')
-            ->execute([
-                'email' => $email,
-                'token' => $token,
-                'expires' => date('Y-m-d H:i:s', time() + 3600),
-            ]);
-
-        $pdo->prepare(
-            'INSERT INTO newsletter_subscriptions('
-            . 'namespace, email, status, consent_requested_at, consent_metadata, attributes'
-            . ') VALUES (:namespace, :email, :status, :requested, :metadata, :attributes)'
-        )->execute([
-            'namespace' => 'default',
-            'email' => $email,
-            'status' => 'pending',
-            'requested' => date('Y-m-d H:i:s'),
-            'metadata' => json_encode(['landing' => 'calserver.test'], JSON_THROW_ON_ERROR),
-            'attributes' => json_encode(['SOURCE' => 'marketing-test'], JSON_THROW_ON_ERROR),
-        ]);
-
-        $pdo->prepare(
-            'INSERT INTO marketing_newsletter_configs (namespace, slug, position, label, url, style)'
-            . ' VALUES (:namespace, :slug, :position, :label, :url, :style)'
-            . ' ON CONFLICT(namespace, slug, position) DO UPDATE SET'
-            . ' label = excluded.label, url = excluded.url, style = excluded.style'
-        )->execute([
-            'namespace' => 'default',
-            'slug' => 'landing',
-            'position' => 0,
-            'label' => 'CTA für Test',
-            'url' => '/landing#kontakt',
-            'style' => 'primary',
-        ]);
-
-        $request = $this->createRequest('GET', '/newsletter/confirm?token=' . $token);
-        $request = $request->withUri($request->getUri()->withHost('marketing.example')); // host irrelevant, metadata used
-
         $app = $this->getAppInstance();
+        $manager = $this->createMock(MailProviderManager::class);
+        $manager->method('isConfigured')->willReturn(true);
+        $manager->expects($this->once())
+            ->method('unsubscribe')
+            ->with('user@example.com');
+
+        $request = $this->createJsonRequest('POST', '/newsletter/unsubscribe', ['email' => 'user@example.com'])
+            ->withAttribute('mailProviderManager', $manager);
+
         $response = $app->handle($request);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $body = (string) $response->getBody();
-        $this->assertStringContainsString('CTA für Test', $body);
-        $this->assertStringContainsString('href="/landing#kontakt"', $body);
-        $this->assertStringContainsString('href="/landing"', $body, 'Fallback link should point to the resolved slug.');
+        $this->assertSame(204, $response->getStatusCode());
     }
 }
