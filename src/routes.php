@@ -116,6 +116,8 @@ use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
 use App\Controller\Admin\MarketingMenuController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
+use App\Controller\Admin\DomainPageController;
+use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\MarketingPageWikiArticleController;
@@ -1509,8 +1511,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withHeader('Location', $request->getAttribute('basePath') . '/admin/domains')
             ->withStatus(302);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/domains', Admin\DomainPageController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/backups', Admin\BackupController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/domains', DomainPageController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/backups', AdminBackupController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/rag-chat', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/admin/profile', AdminController::class)
