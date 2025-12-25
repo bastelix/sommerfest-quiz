@@ -906,6 +906,7 @@ if (manager) {
     if (item?.id) {
       row.dataset.id = String(item.id);
     }
+    ensureRowIdentifier(row);
     row.dataset.parentId = item?.parentId ? String(item.parentId) : '';
 
     const handleCell = document.createElement('td');
@@ -916,7 +917,6 @@ if (manager) {
     handleButton.setAttribute('uk-icon', 'icon: menu');
     handleButton.setAttribute('aria-label', 'Sortieren');
     handleButton.dataset.menuDragHandle = 'true';
-    handleButton.disabled = !item?.id;
     handleCell.appendChild(handleButton);
 
     const labelCell = document.createElement('td');
@@ -1130,9 +1130,7 @@ if (manager) {
     refreshRowValidation(row);
     validateRows();
 
-    if (item?.id) {
-      row.draggable = true;
-    }
+    row.draggable = true;
 
     return row;
   };
@@ -1237,6 +1235,7 @@ if (manager) {
         const item = data?.item || {};
         if (item.id) {
           row.dataset.id = String(item.id);
+          delete row.dataset.tempId;
           row.draggable = true;
           const dragHandle = row.querySelector('[data-menu-drag-handle]');
           if (dragHandle) {
@@ -1322,13 +1321,12 @@ if (manager) {
     const orderedItems = [];
 
     rows.forEach(row => {
+      const identifier = ensureRowIdentifier(row);
       const id = row.dataset.id ? Number(row.dataset.id) : null;
-      if (!id) {
-        return;
-      }
+      const tempId = row.dataset.tempId || null;
       const parentKey = row.dataset.parentId || 'root';
       const current = parentPositions.get(parentKey) ?? 0;
-      orderedItems.push({ id, position: current });
+      orderedItems.push({ identifier, id, tempId, position: current, parentId: parentKey });
       parentPositions.set(parentKey, current + 1);
     });
 
@@ -1340,19 +1338,26 @@ if (manager) {
       return;
     }
     const orderedItems = buildOrderPayload();
+    const signature = JSON.stringify(orderedItems);
     if (orderedItems.length < 2) {
-      state.orderSignature = JSON.stringify(orderedItems);
+      state.orderSignature = signature;
       return;
     }
-    const signature = JSON.stringify(orderedItems);
     const hasChanged = signature !== state.orderSignature;
     if (!hasChanged) {
+      return;
+    }
+    const persistedItems = orderedItems
+      .filter(item => item.id)
+      .map(item => ({ id: item.id, position: item.position }));
+    if (persistedItems.length < 2) {
+      state.orderSignature = signature;
       return;
     }
     apiFetch(withNamespace(buildPath(state.pageId, '/menu/sort')), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderedItems })
+      body: JSON.stringify({ orderedItems: persistedItems })
     })
       .then(response => {
         if (!response.ok && response.status !== 204) {
@@ -1413,7 +1418,7 @@ if (manager) {
 
     itemsBody.addEventListener('dragstart', event => {
       const row = event.target.closest('tr[data-menu-row]');
-      if (!row || !row.dataset.id) {
+      if (!row) {
         event.preventDefault();
         return;
       }
@@ -1422,11 +1427,12 @@ if (manager) {
         event.preventDefault();
         return;
       }
+      const identifier = ensureRowIdentifier(row);
       draggingRow = row;
       draggingParentId = row.dataset.parentId || '';
       row.classList.add('is-dragging');
       event.dataTransfer.effectAllowed = 'move';
-      event.dataTransfer.setData('text/plain', row.dataset.id);
+      event.dataTransfer.setData('text/plain', identifier);
     });
 
     itemsBody.addEventListener('dragover', event => {
