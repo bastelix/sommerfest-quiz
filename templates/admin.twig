@@ -91,106 +91,108 @@
       </div>
     </div>
   {% endif %}
-  <div class="uk-grid-collapse" uk-grid>
-    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
-      <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
-      {% set activeRoute = currentPath|split('/admin/')|last %}
-      {% if activeRoute == '' %}
-        {% set activeRoute = 'dashboard' %}
-      {% endif %}
-      <ul id="adminSwitcher" class="uk-switcher uk-margin">
-      <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
-        <div class="uk-container uk-container-large dashboard-container">
-          <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
-          <div id="dashboard" class="uk-margin-large-top">
-            <div class="uk-grid-large" uk-grid>
-              <!-- Spalte 2–3: Inhalt -->
-            <div class="uk-width-1-1 uk-width-2-3@m">
-              <div class="uk-card qr-card uk-card-body uk-margin-small">
-                <div class="uk-flex uk-flex-between uk-flex-middle">
-                  <h3 class="uk-card-title uk-margin-remove">Für heute geplant</h3>
-                  <div>
-                    <a
-                      href="{{ basePath }}/admin/events"
-                      class="uk-button uk-button-primary uk-button-small"
-                      aria-label="{{ t('tip_event_add') }}"
-                    >
-                      <span uk-icon="plus"></span>
-                      <span class="button-text uk-visible@s uk-margin-small-left">{{ t('tip_event_add') }}</span>
-                    </a>
-                  </div>
-                </div>
-                <div id="today-empty" class="uk-text-meta uk-margin-small">Für heute nichts geplant</div>
-                <ul id="upcoming-list" class="uk-list uk-list-divider uk-margin-small-top"></ul>
-              </div>
-              <div class="uk-margin-small">
-                <span class="uk-badge" id="badge-pages">0 Seiten</span>
-                <span class="uk-badge" id="badge-wiki">0 Wiki-Artikel</span>
-                <span class="uk-badge" id="badge-news">0 News-Einträge</span>
-                <span class="uk-badge" id="badge-newsletter">0 Newsletter-Slugs</span>
-                <span class="uk-badge" id="badge-media">0 Medien-Referenzen</span>
-              </div>
-
-              <div class="dashboard-grid uk-margin-small">
-                <div class="dashboard-tile">
-                  <div class="uk-card qr-card uk-card-body">
-                    <h4 class="uk-margin-remove-bottom">Teams anlegen & organisieren</h4>
-                    <p class="uk-text-meta uk-margin-small-top">Erstelle Teams, generiere QR-Codes und teile Einladungen.</p>
-                    <a href="{{ basePath }}/admin/teams" class="uk-link-reset uk-text-bold">Teams verwalten →</a>
-                  </div>
-                </div>
-                <div class="dashboard-tile">
-                  <div class="uk-card qr-card uk-card-body">
-                    <h4 class="uk-margin-remove-bottom">Auswertung & Ergebnisse</h4>
-                    <p class="uk-text-meta uk-margin-small-top">Live-Ergebnisse prüfen und PDF-Berichte exportieren.</p>
-                    <a href="{{ basePath }}/admin/results" class="uk-link-reset uk-text-bold">Zur Auswertung →</a>
-                  </div>
-                </div>
-              </div>
-
-              <div class="uk-card qr-card uk-card-body uk-margin-small">
-                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_subscription_usage') }}</h3>
-                <div data-subscription
-                     data-label-plan="{{ t('label_plan') }}"
-                     data-label-events="{{ t('label_events') }}"
-                     data-label-catalogs="{{ t('label_catalogs') }}"
-                     data-label-questions="{{ t('label_questions') }}"
-                     data-label-of="{{ t('word_of') }}"
-                     data-plan-starter="{{ t('plan_starter') }}"
-                     data-plan-standard="{{ t('plan_standard') }}"
-                     data-plan-professional="{{ t('plan_professional') }}"></div>
-                <label for="planSelect" class="uk-form-label uk-margin-small-top">{{ t('label_plan') }}</label>
-                <select id="planSelect" class="uk-select">
-                  <option value="">{{ t('plan_none') }}</option>
-                  <option value="starter">{{ t('plan_starter') }}</option>
-                  <option value="standard">{{ t('plan_standard') }}</option>
-                  <option value="professional">{{ t('plan_professional') }}</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Spalte 1: Kalender -->
-            <div class="uk-width-1-1 uk-width-1-3@m">
-              <div class="uk-card qr-card uk-card-small uk-card-body uk-margin-small">
-                <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
-                  <h3 class="uk-card-title uk-margin-remove">August 2025</h3>
-                  <div>
-                    <button class="uk-button uk-button-default uk-button-small" id="cal-prev" aria-label="Vorheriger Monat">‹</button>
-                    <button class="uk-button uk-button-default uk-button-small" id="cal-next" aria-label="Nächster Monat">›</button>
-                  </div>
-                </div>
-                <div id="calendar"></div>
-              </div>
-            </div>
-          </div>
+  <div class="uk-container uk-container-expand admin-layout-container">
+    <div class="uk-grid-large" uk-grid>
+      <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+        <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+          {% include 'admin/_nav.twig' %}
         </div>
-      </div>
-    </li>
+      </aside>
+      <main class="uk-width-expand uk-padding-small@xs uk-padding">
+        <div class="uk-container uk-container-large admin-main-container">
+          <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
+          {% set activeRoute = currentPath|split('/admin/')|last %}
+          {% if activeRoute == '' %}
+            {% set activeRoute = 'dashboard' %}
+          {% endif %}
+          <ul id="adminSwitcher" class="uk-switcher uk-margin">
+            <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
+              <div class="uk-container uk-container-large dashboard-container">
+                <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
+                <div id="dashboard" class="uk-margin-large-top">
+                  <div class="uk-grid-large" uk-grid>
+                    <!-- Spalte 2–3: Inhalt -->
+                    <div class="uk-width-1-1 uk-width-2-3@m">
+                      <div class="uk-card qr-card uk-card-body uk-margin-small">
+                        <div class="uk-flex uk-flex-between uk-flex-middle">
+                          <h3 class="uk-card-title uk-margin-remove">Für heute geplant</h3>
+                          <div>
+                            <a
+                              href="{{ basePath }}/admin/events"
+                              class="uk-button uk-button-primary uk-button-small"
+                              aria-label="{{ t('tip_event_add') }}"
+                            >
+                              <span uk-icon="plus"></span>
+                              <span class="button-text uk-visible@s uk-margin-small-left">{{ t('tip_event_add') }}</span>
+                            </a>
+                          </div>
+                        </div>
+                        <div id="today-empty" class="uk-text-meta uk-margin-small">Für heute nichts geplant</div>
+                        <ul id="upcoming-list" class="uk-list uk-list-divider uk-margin-small-top"></ul>
+                      </div>
+                      <div class="uk-margin-small">
+                        <span class="uk-badge" id="badge-pages">0 Seiten</span>
+                        <span class="uk-badge" id="badge-wiki">0 Wiki-Artikel</span>
+                        <span class="uk-badge" id="badge-news">0 News-Einträge</span>
+                        <span class="uk-badge" id="badge-newsletter">0 Newsletter-Slugs</span>
+                        <span class="uk-badge" id="badge-media">0 Medien-Referenzen</span>
+                      </div>
+
+                      <div class="dashboard-grid uk-margin-small">
+                        <div class="dashboard-tile">
+                          <div class="uk-card qr-card uk-card-body">
+                            <h4 class="uk-margin-remove-bottom">Teams anlegen & organisieren</h4>
+                            <p class="uk-text-meta uk-margin-small-top">Erstelle Teams, generiere QR-Codes und teile Einladungen.</p>
+                            <a href="{{ basePath }}/admin/teams" class="uk-link-reset uk-text-bold">Teams verwalten →</a>
+                          </div>
+                        </div>
+                        <div class="dashboard-tile">
+                          <div class="uk-card qr-card uk-card-body">
+                            <h4 class="uk-margin-remove-bottom">Auswertung & Ergebnisse</h4>
+                            <p class="uk-text-meta uk-margin-small-top">Live-Ergebnisse prüfen und PDF-Berichte exportieren.</p>
+                            <a href="{{ basePath }}/admin/results" class="uk-link-reset uk-text-bold">Zur Auswertung →</a>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="uk-card qr-card uk-card-body uk-margin-small">
+                        <h3 class="uk-card-title uk-margin-remove">{{ t('heading_subscription_usage') }}</h3>
+                        <div data-subscription
+                             data-label-plan="{{ t('label_plan') }}"
+                             data-label-events="{{ t('label_events') }}"
+                             data-label-catalogs="{{ t('label_catalogs') }}"
+                             data-label-questions="{{ t('label_questions') }}"
+                             data-label-of="{{ t('word_of') }}"
+                             data-plan-starter="{{ t('plan_starter') }}"
+                             data-plan-standard="{{ t('plan_standard') }}"
+                             data-plan-professional="{{ t('plan_professional') }}"></div>
+                        <label for="planSelect" class="uk-form-label uk-margin-small-top">{{ t('label_plan') }}</label>
+                        <select id="planSelect" class="uk-select">
+                          <option value="">{{ t('plan_none') }}</option>
+                          <option value="starter">{{ t('plan_starter') }}</option>
+                          <option value="standard">{{ t('plan_standard') }}</option>
+                          <option value="professional">{{ t('plan_professional') }}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Spalte 1: Kalender -->
+                    <div class="uk-width-1-1 uk-width-1-3@m">
+                      <div class="uk-card qr-card uk-card-small uk-card-body uk-margin-small">
+                        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+                          <h3 class="uk-card-title uk-margin-remove">August 2025</h3>
+                          <div>
+                            <button class="uk-button uk-button-default uk-button-small" id="cal-prev" aria-label="Vorheriger Monat">‹</button>
+                            <button class="uk-button uk-button-default uk-button-small" id="cal-next" aria-label="Nächster Monat">›</button>
+                          </div>
+                        </div>
+                        <div id="calendar"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
     <li class="{{ activeRoute == 'events' ? 'uk-active' }}">
       <div class="uk-container uk-container-large" data-admin-section="management">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
@@ -2388,9 +2390,11 @@
           window.upgradeUrl = '{{ basePath }}/admin/subscription';
         </script>
       </div>
-    </li>
-      </ul>
-    </main>
+            </li>
+          </ul>
+        </div>
+      </main>
+    </div>
   </div>
   <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
     <div class="uk-offcanvas-bar uk-width-medium">
