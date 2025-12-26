@@ -236,7 +236,14 @@ class ProjectController
             $knownNamespaces[$normalizedNamespace] = true;
         }
 
+        if ($requestedNamespace !== '') {
+            $knownNamespaces[$requestedNamespace] = true;
+        }
+
         $namespaces = $requestedNamespace !== '' ? [$requestedNamespace] : array_keys($knownNamespaces);
+        if ($namespaces === []) {
+            $namespaces[] = PageService::DEFAULT_NAMESPACE;
+        }
         sort($namespaces);
 
         $namespaceInfo = [];
@@ -252,6 +259,14 @@ class ProjectController
                 'label' => $entry['label'] ?? null,
                 'is_active' => (bool) $entry['is_active'],
                 'is_default' => $entryNamespace === PageService::DEFAULT_NAMESPACE,
+            ];
+        }
+
+        if ($requestedNamespace !== '' && !isset($namespaceInfo[$requestedNamespace])) {
+            $namespaceInfo[$requestedNamespace] = [
+                'label' => null,
+                'is_active' => true,
+                'is_default' => $requestedNamespace === PageService::DEFAULT_NAMESPACE,
             ];
         }
 
