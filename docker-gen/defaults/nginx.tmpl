@@ -302,6 +302,10 @@
         {{ $proto := $vpath.proto }}
         {{ $upstream := $vpath.upstream }}
         {{ $dest := $vpath.dest }}
+
+        {{- if and (hasPrefix .Path "/admin/pages/") (hasSuffix .Path "/menu/ai") }}
+        proxy_read_timeout 70s;
+        {{- end }}
         {{- if eq $proto "uwsgi" }}
         include uwsgi_params;
         uwsgi_pass {{ trim $proto }}://{{ trim $upstream }};
