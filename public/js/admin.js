@@ -4434,9 +4434,16 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        const normalizedTarget = event.target instanceof Element
-          ? event.target
-          : event.target?.parentElement;
+        const composedPath = typeof event.composedPath === 'function'
+          ? event.composedPath()
+          : null;
+        const composedElement = Array.isArray(composedPath)
+          ? composedPath.find(node => node instanceof Element)
+          : null;
+        const normalizedTarget = composedElement
+          || (event.target instanceof Element
+            ? event.target
+            : event.target?.parentElement);
 
         if (!normalizedTarget) {
           return;
