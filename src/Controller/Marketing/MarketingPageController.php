@@ -413,10 +413,10 @@ class MarketingPageController
      */
     private function renderHeaderLogo(array $headerLogo): string
     {
-        $label = htmlspecialchars((string) ($headerLogo['label'] ?? 'QuizRace'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $alt = htmlspecialchars((string) ($headerLogo['alt'] ?? $label), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $mode = $headerLogo['mode'] ?? 'text';
-        $src = $headerLogo['src'] ?? null;
+        $label = htmlspecialchars((string) $headerLogo['label'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $alt = htmlspecialchars((string) $headerLogo['alt'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $mode = $headerLogo['mode'];
+        $src = $headerLogo['src'];
 
         if ($mode === 'image' && is_string($src) && $src !== '') {
             $safeSrc = htmlspecialchars($src, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
