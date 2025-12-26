@@ -7,6 +7,7 @@ namespace App\Service\RagChat;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Throwable;
 
@@ -74,6 +75,8 @@ class HttpChatResponder implements ChatResponderInterface
         }
 
         $attempt = 0;
+        /** @var ResponseInterface|null $response */
+        $response = null;
         while (true) {
             try {
                 $response = $this->httpClient->request('POST', $this->endpoint, [
@@ -90,6 +93,10 @@ class HttpChatResponder implements ChatResponderInterface
 
                 usleep((int) (self::RETRY_BACKOFF_SECONDS * 1_000_000 * $attempt));
             }
+        }
+
+        if ($response === null) {
+            throw new RuntimeException('Failed to contact chat service after retry attempts.');
         }
 
         $body = (string) $response->getBody();
