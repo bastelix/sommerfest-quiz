@@ -1,4 +1,79 @@
 <!-- QuizRace landing page export (legacy version) captured from content/landing.html -->
+
+<!-- Header / Hero -->
+<nav class="uk-navbar-container uk-padding-small topbar" role="navigation" aria-label="Hauptnavigation" uk-navbar>
+  <div class="uk-navbar-left">
+    <div class="uk-navbar-item">
+      <button id="offcanvas-toggle"
+              class="uk-navbar-toggle uk-hidden@m git-btn"
+              uk-navbar-toggle-icon
+              uk-toggle="target: #qr-offcanvas"
+              aria-controls="qr-offcanvas"
+              aria-expanded="false"
+              aria-label="Menü"></button>
+      <a class="uk-logo" href="/landing">QuizRace</a>
+    </div>
+  </div>
+  <div class="uk-navbar-right">
+    {{ marketing_menu }}
+    <a class="uk-navbar-item btn btn-black top-cta uk-visible@m"
+       href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ"
+       target="_blank"
+       rel="noopener">
+      <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+    </a>
+    {{ config_menu }}
+  </div>
+</nav>
+
+<section id="hero" class="qr-hero uk-section uk-section-large" data-inline-editable="true">
+  <div class="qr-hero-bg hero-bg-quizrace" aria-hidden="true"></div>
+  <div class="uk-container">
+    <div class="uk-grid uk-grid-large uk-flex-middle uk-child-width-1-2@m" uk-grid>
+      <div>
+        <span class="qr-badge pill pill--soft">Digitale Rallyes &amp; Team-Quizze</span>
+        <h1 class="qr-h1">QuizRace für Events, Schulen &amp; Firmen</h1>
+        <p class="qr-sub">QR-Codes scannen, Aufgaben lösen, Punkte sammeln &ndash; ohne App, sofort startklar.</p>
+        <ul class="uk-list uk-list-bullet hero-list">
+          <li>Individuelle Stationen, Fotos &amp; kreative Aufgaben</li>
+          <li>Live-Ranking und Moderations-Dashboard</li>
+          <li>DSGVO-konform, Hosting in Deutschland</li>
+        </ul>
+        <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap: 12px;">
+          <a class="uk-button uk-button-primary uk-button-large onboarding-btn" href="{{ basePath }}/onboarding">
+            <span class="uk-margin-small-right" uk-icon="icon: play"></span>Event starten
+          </a>
+          <a class="btn btn-transparent" href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ"
+             target="_blank"
+             rel="noopener">
+            <span class="uk-margin-small-right" uk-icon="icon: play"></span>Demo ansehen
+          </a>
+        </div>
+        <div class="qr-proof uk-margin-top">Keine App notwendig · funktioniert indoor &amp; outdoor</div>
+      </div>
+      <div>
+        <div class="qr-hero-gallery" role="presentation">
+          <div class="qr-hero-gallery__item">
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <p class="uk-margin-remove">Planen, starten, auswerten – alles in einem Tool.</p>
+            </div>
+          </div>
+          <div class="qr-hero-gallery__item">
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <p class="uk-margin-remove">Live-Ranking und Foto-Uploads Ihrer Teams im Blick.</p>
+            </div>
+          </div>
+          <div class="qr-hero-gallery__item">
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <p class="uk-margin-remove">Punktevergabe und Hinweise per Klick steuern.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Social Proof -->
 <section id="social-proof" class="uk-section" data-inline-editable="true">
   <div class="uk-container">
