@@ -1,44 +1,115 @@
 {% extends 'layout.twig' %}
 
+{% block config_color_styles %}{% endblock %}
+
 {% block title %}{{ t('tab_design') }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
 {% endblock %}
 
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
 {% block body %}
-  <div class="uk-container uk-margin-large-top uk-margin-large-bottom">
-    <div class="uk-grid uk-grid-large" uk-grid>
-      <div class="uk-width-1-4@m">
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_design') }}</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
         {% include 'admin/_nav.twig' %}
       </div>
-      <div class="uk-width-3-4@m">
-        <h1 class="uk-heading-small uk-margin-remove">{{ t('tab_design') }}</h1>
-        {% include 'admin/components/namespace_breadcrumb.twig' %}
-        {% if flash is defined and flash %}
-          <div class="uk-alert-{{ flash.type == 'success' ? 'success' : 'danger' }}" uk-alert>
-            <p>{{ flash.message }}</p>
-          </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
         {% endif %}
-        <div class="uk-card uk-card-default uk-card-body">
-          <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-            <div class="uk-margin">
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
               <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
               <div class="uk-form-controls">
-                <select id="pageNamespaceSelect" class="uk-select" name="namespace" required>
-                  {% for entry in available_namespaces|default([]) %}
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
                     {% set entryNamespace = entry.namespace|default('') %}
-                    <option value="{{ entryNamespace|e('html_attr') }}" {% if entryNamespace == pageNamespace %}selected{% endif %}>
-                      {{ entry.label is not null ? entry.label ~ ' (' ~ entryNamespace ~ ')' : entryNamespace }}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
                     </option>
                   {% endfor %}
                 </select>
               </div>
             </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
+          </div>
+        </div>
 
-            {% set existingColors = config.colors|default({}) %}
+        {% if flash is defined and flash %}
+          <div class="uk-alert-{{ flash.type == 'success' ? 'success' : 'danger' }} uk-margin-small" uk-alert>
+            <p class="uk-margin-remove">{{ flash.message }}</p>
+          </div>
+        {% endif %}
+
+        {% set existingColors = config.colors|default({}) %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+
             <div class="uk-grid-small" uk-grid>
               <div class="uk-width-1-3@s">
                 <label class="uk-form-label" for="primaryColor">{{ t('label_primary_color') }}</label>
@@ -49,7 +120,7 @@
               <div class="uk-width-1-3@s">
                 <label class="uk-form-label" for="backgroundColor">{{ t('label_background_color') }}</label>
                 <div class="uk-form-controls">
-                  <input id="backgroundColor" class="uk-input" type="text" name="backgroundColor" value="{{ existingColors.background|default('') }}" placeholder="#ffffff" pattern="#?[0-9a-fA-F]{3,6}">
+                  <input id="backgroundColor" class="uk-input" type="text" name="backgroundColor" value="{{ existingColors.background|default(existingColors.primary|default('')) }}" placeholder="#ffffff" pattern="#?[0-9a-fA-F]{3,6}">
                 </div>
               </div>
               <div class="uk-width-1-3@s">
@@ -81,7 +152,7 @@
           </form>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 {% endblock %}
 
