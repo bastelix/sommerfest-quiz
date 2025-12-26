@@ -41,6 +41,8 @@ class PagesDesignController
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $config = $this->configService->getConfigForEvent($namespace);
 
+        $config['colors'] = $this->mergeColorConfig($config);
+
         $flash = $_SESSION['page_design_flash'] ?? null;
         unset($_SESSION['page_design_flash']);
 
@@ -195,8 +197,38 @@ class PagesDesignController
 
             if (!preg_match($pattern, $color)) {
                 throw new \RuntimeException('Ungültiges Farbformat. Nutze Hex-Werte wie #336699.');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     * @return array<string, string>
+     */
+    private function mergeColorConfig(array $config): array
+    {
+        $colors = [];
+
+        if (isset($config['colors']) && is_array($config['colors'])) {
+            foreach ($config['colors'] as $key => $value) {
+                if (is_string($value) && $value !== '') {
+                    $colors[$key] = $value;
+                }
             }
         }
+
+        if (isset($config['backgroundColor']) && !isset($colors['background']) && is_string($config['backgroundColor'])) {
+            $colors['background'] = $config['backgroundColor'];
+        }
+
+        if (isset($config['backgroundColor']) && !isset($colors['primary']) && is_string($config['backgroundColor'])) {
+            $colors['primary'] = $config['backgroundColor'];
+        }
+
+        if (isset($config['buttonColor']) && !isset($colors['accent']) && is_string($config['buttonColor'])) {
+            $colors['accent'] = $config['buttonColor'];
+        }
+
+        return $colors;
     }
 
     private function buildRedirectUrl(Request $request, string $namespace): string
