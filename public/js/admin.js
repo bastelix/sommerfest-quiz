@@ -4438,7 +4438,6 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
 
-        const withinTable = domainTable.contains(actionTarget);
         const action = actionTarget.dataset.domainAction;
         const domainId = actionTarget.dataset.domainId;
         const domain = findDomainById(domainId);
@@ -4446,12 +4445,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!action || !domain) {
           return;
         }
-        if (!withinTable) {
+        if (!domainTable.contains(actionTarget)) {
           // Fallback for dropdowns rendered outside of the table (e.g., UIkit container: body).
-          // Ensure we only react to dropdowns related to the domain management table.
+          // Accept actions that carry a domain id even when they are teleported to <body>.
           const relatedDropdown = actionTarget.closest('.uk-dropdown,[uk-dropdown]');
           const scopedToTable = actionTarget.closest('[data-domain-table]') === domainTable;
-          if (!relatedDropdown && !scopedToTable) {
+          const hasDomainContext = Boolean(domainId);
+          if (!relatedDropdown && !scopedToTable && !hasDomainContext) {
             return;
           }
         }
