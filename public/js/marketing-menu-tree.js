@@ -18,6 +18,7 @@ if (container) {
     const previewTree = document.querySelector('[data-menu-preview-tree]');
     const previewEmpty = document.querySelector('[data-menu-preview-empty]');
     const previewSummary = document.querySelector('[data-menu-preview-summary]');
+    const generateButton = container.querySelector('[data-menu-generate-ai]');
 
     const state = {
       pageId: null,
@@ -663,6 +664,9 @@ if (container) {
       addButton.disabled = !state.pageId;
       exportButton.disabled = !state.pageId;
       importButton.disabled = !state.pageId;
+      if (generateButton) {
+        generateButton.disabled = !state.pageId;
+      }
       state.dirty.clear();
       updateButtons();
       loadMenuItems(state.locale);
@@ -693,6 +697,38 @@ if (container) {
           console.error('Failed to load marketing menu', error);
           setFeedback('Menüeinträge konnten nicht geladen werden.', 'danger');
           treeRoot.textContent = 'Menüeinträge konnten nicht geladen werden.';
+        });
+    };
+
+    const triggerAutoGeneration = overwrite => {
+      if (!state.pageId) {
+        return;
+      }
+
+      setFeedback('Menü wird automatisch generiert…', 'primary');
+      apiFetch(withNamespace(buildPath(state.pageId, '/menu/ai')), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          locale: state.locale || null,
+          overwrite
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().catch(() => ({})).then(err => {
+              throw new Error(err?.error || 'menu-ai-failed');
+            });
+          }
+          return response.json();
+        })
+        .then(() => {
+          setFeedback('Navigation aktualisiert.', 'success');
+          loadMenuItems(state.locale);
+        })
+        .catch(error => {
+          console.error('AI menu generation failed', error);
+          setFeedback('Navigation konnte nicht automatisch generiert werden.', 'danger');
         });
     };
 
@@ -975,6 +1011,12 @@ if (container) {
     localeSelect?.addEventListener('change', () => {
       state.locale = localeSelect?.value || '';
       loadMenuItems(state.locale);
+    });
+    generateButton?.addEventListener('click', () => {
+      const overwrite = window.confirm(
+        'Menü automatisch generieren? OK überschreibt vorhandene Einträge, Abbrechen ergänzt nur fehlende.'
+      );
+      triggerAutoGeneration(overwrite);
     });
 
     parsePages();

@@ -171,12 +171,18 @@
                 data-namespace="{{ activePageNamespace|e('html_attr') }}"
                 data-locale="{{ selectedMenuLocale|e('html_attr') }}"
               >
-                <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
+                  <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
                   <div>
                     <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
                     <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
                   </div>
                   <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
+                    <button
+                      type="button"
+                      class="uk-button uk-button-default"
+                      data-menu-generate-ai
+                      {% if selectedSlug == '' %}disabled{% endif %}
+                    >Menü automatisch generieren/aktualisieren</button>
                     <div class="uk-button-group">
                       <button
                         type="button"
@@ -210,6 +216,9 @@
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
                   Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
+                </p>
+                <p class="uk-text-meta uk-margin-small-top">
+                  KI-Helfer: Lädt den Seiten-HTML-Inhalt, extrahiert Abschnitte/Anker und schreibt Menüeinträge. Optional bestehende Navigation ersetzen oder ergänzen, danach wird der Baum neu geladen.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
                   Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
@@ -251,6 +260,12 @@
                 <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
               </div>
               <div class="uk-flex uk-flex-middle" style="gap: 8px; flex-wrap: wrap;">
+                <button
+                  type="button"
+                  class="uk-button uk-button-default"
+                  data-menu-generate-ai
+                  {% if selectedSlug == '' %}disabled{% endif %}
+                >Menü automatisch generieren/aktualisieren</button>
                 <div class="uk-button-group">
                   <button
                     type="button"
@@ -284,6 +299,9 @@
             </p>
             <p class="uk-text-meta uk-margin-small-top">
               Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
+            </p>
+            <p class="uk-text-meta uk-margin-small-top">
+              KI-Helfer: Lädt den Seiten-HTML-Inhalt, extrahiert Abschnitte/Anker und schreibt Menüeinträge. Optional bestehende Navigation ersetzen oder ergänzen, danach wird der Baum neu geladen.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
               Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.

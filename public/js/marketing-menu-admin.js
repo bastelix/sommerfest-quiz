@@ -28,6 +28,7 @@ if (manager) {
     const previewTree = document.querySelector('[data-menu-preview-tree]');
     const previewEmpty = document.querySelector('[data-menu-preview-empty]');
     const previewSummary = document.querySelector('[data-menu-preview-summary]');
+    const generateButton = manager.querySelector('[data-menu-generate-ai]');
     if (loadingRow) {
       loadingRow.innerHTML = '<td colspan="12">Lädt…</td>';
     }
@@ -1181,6 +1182,39 @@ if (manager) {
       });
   };
 
+  const triggerAutoGeneration = overwrite => {
+    if (!state.pageId) {
+      setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+      return;
+    }
+
+    setFeedback('Menü wird automatisch generiert…', 'primary');
+    apiFetch(withNamespace(buildPath(state.pageId, '/menu/ai')), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        locale: resolveLocale() || null,
+        overwrite
+      })
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().catch(() => ({})).then(err => {
+            throw new Error(err?.error || 'menu-ai-failed');
+          });
+        }
+        return response.json();
+      })
+      .then(() => {
+        setFeedback('Navigation aktualisiert.', 'success');
+        loadMenuItems(resolveLocale());
+      })
+      .catch(error => {
+        console.error('AI menu generation failed', error);
+        setFeedback('Navigation konnte nicht automatisch generiert werden.', 'danger');
+      });
+  };
+
   const saveRow = row => {
     if (!state.pageId) {
       return;
@@ -1475,6 +1509,9 @@ if (manager) {
     if (importButton) {
       importButton.disabled = !state.pageId;
     }
+    if (generateButton) {
+      generateButton.disabled = !state.pageId;
+    }
     loadMenuItems(resolveLocale());
   };
 
@@ -1494,6 +1531,13 @@ if (manager) {
       return;
     }
     handleImportFile(file);
+  });
+
+  generateButton?.addEventListener('click', () => {
+    const overwrite = window.confirm(
+      'Menü automatisch generieren? OK überschreibt vorhandene Einträge, Abbrechen ergänzt nur fehlende.'
+    );
+    triggerAutoGeneration(overwrite);
   });
 
   pageSelect?.addEventListener('change', () => {

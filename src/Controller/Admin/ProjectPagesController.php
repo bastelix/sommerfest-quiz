@@ -6,10 +6,13 @@ namespace App\Controller\Admin;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
+use App\Domain\MarketingPageMenuItem;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
+use App\Service\Marketing\MarketingMenuAiErrorMapper;
 use App\Service\Marketing\PageAiPromptTemplateService;
+use App\Service\MarketingMenuService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
@@ -49,6 +52,7 @@ class ProjectPagesController
     private TenantService $tenantService;
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
+    private MarketingMenuService $marketingMenu;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -60,7 +64,8 @@ class ProjectPagesController
         ?NamespaceService $namespaceService = null,
         ?TenantService $tenantService = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
-        ?ProjectSettingsService $projectSettings = null
+        ?ProjectSettingsService $projectSettings = null,
+        ?MarketingMenuService $marketingMenu = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -72,6 +77,7 @@ class ProjectPagesController
         $this->tenantService = $tenantService ?? new TenantService($pdo);
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
+        $this->marketingMenu = $marketingMenu ?? new MarketingMenuService($pdo, $this->pageService);
     }
 
     public function content(Request $request, Response $response): Response
@@ -216,6 +222,45 @@ class ProjectPagesController
             'tenant' => $this->resolveTenant($request),
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
         ]);
+    }
+
+    public function generateMenu(Request $request, Response $response, array $args): Response
+    {
+        $pageId = (int) ($args['pageId'] ?? 0);
+        $namespaceValidator = new NamespaceValidator();
+        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
+        $namespace = $domainNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
+
+        $page = $this->pageService->findById($pageId);
+        if ($page === null || $page->getNamespace() !== $namespace) {
+            return $response->withStatus(404);
+        }
+
+        $payload = $this->parseJsonBody($request) ?? [];
+        $locale = isset($payload['locale']) && is_string($payload['locale']) ? $payload['locale'] : null;
+        $overwrite = $this->parseBooleanFlag($payload['overwrite'] ?? false);
+
+        try {
+            $items = $this->marketingMenu->generateMenuFromPage($page, $locale, $overwrite);
+        } catch (\RuntimeException $exception) {
+            $mapper = new MarketingMenuAiErrorMapper();
+            $mapped = $mapper->map($exception);
+
+            $response->getBody()->write(json_encode([
+                'error' => $mapped['message'],
+                'error_code' => $mapped['error_code'],
+            ], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode([
+            'items' => array_map(fn (MarketingPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
+        ], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function updateStartpage(Request $request, Response $response, array $args): Response
@@ -518,6 +563,67 @@ class ProjectPagesController
         }
 
         return $pageSlugs[0] ?? '';
+    }
+
+    private function parseJsonBody(Request $request): ?array
+    {
+        $contentType = $request->getHeaderLine('Content-Type');
+        if (stripos($contentType, 'application/json') === false) {
+            return null;
+        }
+
+        $rawBody = (string) $request->getBody();
+        if ($rawBody === '') {
+            return null;
+        }
+
+        $decoded = json_decode($rawBody, true);
+        if (!is_array($decoded)) {
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    private function parseBooleanFlag(mixed $value): bool
+    {
+        if (is_string($value)) {
+            $normalized = strtolower(trim($value));
+            if ($normalized === 'true' || $normalized === '1' || $normalized === 'yes') {
+                return true;
+            }
+            if ($normalized === 'false' || $normalized === '0' || $normalized === 'no') {
+                return false;
+            }
+        }
+
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        return (bool) $value;
+    }
+
+    private function serializeMenuItem(MarketingPageMenuItem $item): array
+    {
+        return [
+            'id' => $item->getId(),
+            'pageId' => $item->getPageId(),
+            'namespace' => $item->getNamespace(),
+            'parentId' => $item->getParentId(),
+            'label' => $item->getLabel(),
+            'href' => $item->getHref(),
+            'icon' => $item->getIcon(),
+            'layout' => $item->getLayout(),
+            'detailTitle' => $item->getDetailTitle(),
+            'detailText' => $item->getDetailText(),
+            'detailSubline' => $item->getDetailSubline(),
+            'position' => $item->getPosition(),
+            'isExternal' => $item->isExternal(),
+            'locale' => $item->getLocale(),
+            'isActive' => $item->isActive(),
+            'isStartpage' => $item->isStartpage(),
+        ];
     }
 
     /**
