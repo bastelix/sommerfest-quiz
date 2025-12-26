@@ -239,12 +239,16 @@ PROMPT;
             }
 
             $id = '';
-            if ($node->attributes !== null && $node->attributes->getNamedItem('id') !== null) {
-                $id = trim((string) $node->attributes->getNamedItem('id')?->nodeValue);
+            if ($node->attributes !== null) {
+                $idAttribute = $node->attributes->getNamedItem('id');
+                if ($idAttribute !== null) {
+                    $id = trim((string) $idAttribute->nodeValue);
+                }
             }
 
             if ($id === '' && $node->nodeName === 'a' && $node->attributes !== null) {
-                $href = trim((string) $node->attributes->getNamedItem('href')?->nodeValue);
+                $hrefAttribute = $node->attributes->getNamedItem('href');
+                $href = $hrefAttribute !== null ? trim((string) $hrefAttribute->nodeValue) : '';
                 if ($href !== '') {
                     $id = $href;
                 }

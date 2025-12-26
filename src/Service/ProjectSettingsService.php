@@ -8,6 +8,23 @@ use App\Repository\ProjectSettingsRepository;
 use PDO;
 use RuntimeException;
 
+/**
+ * @phpstan-type CookieConsentSettings array{
+ *     namespace:string,
+ *     cookie_consent_enabled:bool,
+ *     cookie_storage_key:string,
+ *     cookie_banner_text_de:string,
+ *     cookie_banner_text_en:string,
+ *     cookie_vendor_flags:array<array-key, mixed>,
+ *     privacy_url:string,
+ *     privacy_url_de:string,
+ *     privacy_url_en:string,
+ *     show_language_toggle:bool,
+ *     show_theme_toggle:bool,
+ *     show_contrast_toggle:bool,
+ *     updated_at:?string
+ * }
+ */
 final class ProjectSettingsService
 {
     private const DEFAULT_STORAGE_KEY = 'calserverCookieChoices';
@@ -28,25 +45,12 @@ final class ProjectSettingsService
     }
 
     /**
-     * @return array{
-     *     namespace:string,
-     *     cookie_consent_enabled:bool,
-     *     cookie_storage_key:string,
-     *     cookie_banner_text_de:string,
-     *     cookie_banner_text_en:string,
-     *     cookie_vendor_flags:array<array-key, mixed>,
-     *     privacy_url:string,
-     *     privacy_url_de:string,
-     *     privacy_url_en:string,
-     *     show_language_toggle:bool,
-     *     show_theme_toggle:bool,
-     *     show_contrast_toggle:bool,
-     *     updated_at:?string
-     * }
+     * @phpstan-return CookieConsentSettings
      */
     public function getCookieConsentSettings(string $namespace): array
     {
         $normalized = $this->normalizeNamespace($namespace);
+        /** @var CookieConsentSettings $defaults */
         $defaults = $this->getDefaultSettings($normalized);
 
         if (!$this->repository->hasTable()) {
@@ -171,21 +175,7 @@ final class ProjectSettingsService
     }
 
     /**
-     * @return array{
-     *     namespace:string,
-     *     cookie_consent_enabled:bool,
-     *     cookie_storage_key:string,
-     *     cookie_banner_text_de:string,
-     *     cookie_banner_text_en:string,
-     *     cookie_vendor_flags:array<array-key, mixed>,
-     *     privacy_url:string,
-     *     privacy_url_de:string,
-     *     privacy_url_en:string,
-     *     show_language_toggle:bool,
-     *     show_theme_toggle:bool,
-     *     show_contrast_toggle:bool,
-     *     updated_at:?string
-     * }
+     * @phpstan-return CookieConsentSettings
      */
     private function getDefaultSettings(string $namespace): array
     {
