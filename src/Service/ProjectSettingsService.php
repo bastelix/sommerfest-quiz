@@ -22,6 +22,9 @@ use RuntimeException;
  *     show_language_toggle:bool,
  *     show_theme_toggle:bool,
  *     show_contrast_toggle:bool,
+ *     header_logo_mode:string,
+ *     header_logo_path:string,
+ *     header_logo_alt:string,
  *     updated_at:?string
  * }
  */
@@ -151,7 +154,10 @@ final class ProjectSettingsService
         ?string $privacyUrlEn,
         bool $showLanguageToggle,
         bool $showThemeToggle,
-        bool $showContrastToggle
+        bool $showContrastToggle,
+        ?string $headerLogoMode,
+        ?string $headerLogoPath,
+        ?string $headerLogoAlt
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
         $this->assertTableExists();
