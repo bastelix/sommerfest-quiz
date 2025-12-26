@@ -79,6 +79,7 @@ use App\Infrastructure\Database;
 use App\Infrastructure\MailProviderRepository;
 use App\Infrastructure\Migrations\MigrationRuntime;
 use App\Support\DomainNameHelper;
+use Slim\Routing\RouteContext;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\AdminAuthMiddleware;
@@ -2856,14 +2857,24 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->get('/uploads/projects/{namespace}/{file:.+}', function (Request $request, Response $response, array $args) {
         $req = $request
-            ->withAttribute('namespace', $args['namespace'])
+            ->withAttribute('requestedNamespace', $args['namespace'])
             ->withAttribute('file', $args['file']);
         return $request->getAttribute('projectMediaController')->get($req, $response);
     });
 
-    $app->get('/uploads/{file:.+}', function (Request $request, Response $response, array $args) {
-        $req = $request->withAttribute('file', $args['file']);
+    $app->get('/uploads/{namespace}/{file:.+}', function (Request $request, Response $response, array $args) {
+        $req = $request
+            ->withAttribute('requestedNamespace', $args['namespace'])
+            ->withAttribute('file', $args['file']);
         return $request->getAttribute('globalMediaController')->get($req, $response);
+    });
+
+    $app->get('/uploads/{file:.+}', function (Request $request, Response $response, array $args) {
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $base = RouteContext::fromRequest($request)->getBasePath();
+        $target = $base . '/uploads/' . $namespace . '/' . ltrim($args['file'], '/');
+
+        return $response->withHeader('Location', $target)->withStatus(308);
     });
 
     $app->get('/events/{uid}/images/{file}', function (Request $request, Response $response, array $args) {
