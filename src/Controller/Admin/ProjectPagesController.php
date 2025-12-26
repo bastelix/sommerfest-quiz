@@ -265,6 +265,56 @@ class ProjectPagesController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function translateMenu(Request $request, Response $response, array $args): Response
+    {
+        $pageId = (int) ($args['pageId'] ?? 0);
+        $namespaceValidator = new NamespaceValidator();
+        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
+        $namespace = $domainNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
+
+        $page = $this->pageService->findById($pageId);
+        if ($page === null || $page->getNamespace() !== $namespace) {
+            return $response->withStatus(404);
+        }
+
+        $payload = $this->parseJsonBody($request) ?? [];
+        $sourceLocale = isset($payload['sourceLocale']) && is_string($payload['sourceLocale'])
+            ? $payload['sourceLocale']
+            : 'de';
+        $targetLocale = isset($payload['targetLocale']) && is_string($payload['targetLocale'])
+            ? $payload['targetLocale']
+            : '';
+
+        if (trim($targetLocale) === '') {
+            return $response->withStatus(422);
+        }
+
+        $overwrite = $this->parseBooleanFlag($payload['overwrite'] ?? true);
+
+        try {
+            $items = $this->marketingMenu->translateMenuFromLocale($page, $sourceLocale, $targetLocale, $overwrite);
+        } catch (\RuntimeException $exception) {
+            $mapper = new MarketingMenuAiErrorMapper();
+            $mapped = $mapper->map($exception);
+
+            $response->getBody()->write(json_encode([
+                'error' => $mapped['message'],
+                'error_code' => $mapped['error_code'],
+                'items' => [],
+            ], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus($mapped['status']);
+        }
+
+        $response->getBody()->write(json_encode([
+            'items' => array_map(fn (MarketingPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
+        ], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     public function updateStartpage(Request $request, Response $response, array $args): Response
     {
         $pageId = (int) ($args['pageId'] ?? 0);

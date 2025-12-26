@@ -1797,6 +1797,16 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->generateMenu($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->post('/admin/pages/{pageId:[0-9]+}/menu/translate', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
+        $controller = new ProjectPagesController();
+
+        return $controller->translateMenu($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/{pageId:[0-9]+}/startpage', function (Request $request, Response $response, array $args) {
         $controller = new ProjectPagesController();
 
