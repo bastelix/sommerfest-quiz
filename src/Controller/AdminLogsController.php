@@ -24,6 +24,7 @@ class AdminLogsController
         $appLog = LogService::tail('app');
         $stripeLog = LogService::tail('stripe');
         $slimLog = LogService::tailDocker('slim-1');
+        $onboardingLog = LogService::tail('onboarding');
         $view = Twig::fromRequest($request);
         $role = $_SESSION['user']['role'] ?? '';
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
@@ -31,6 +32,7 @@ class AdminLogsController
             'appLog' => $appLog,
             'stripeLog' => $stripeLog,
             'slimLog' => $slimLog,
+            'onboardingLog' => $onboardingLog,
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
