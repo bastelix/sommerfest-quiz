@@ -4433,7 +4433,16 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!domainTable) {
           return;
         }
-        const actionTarget = event.target.closest('[data-domain-action]');
+
+        const normalizedTarget = event.target instanceof Element
+          ? event.target
+          : event.target?.parentElement;
+
+        if (!normalizedTarget) {
+          return;
+        }
+
+        const actionTarget = normalizedTarget.closest('[data-domain-action]');
         if (!actionTarget) {
           return;
         }
