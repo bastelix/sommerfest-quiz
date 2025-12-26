@@ -74,7 +74,7 @@ class HttpChatResponder implements ChatResponderInterface
         }
 
         $attempt = 0;
-        do {
+        while (true) {
             try {
                 $response = $this->httpClient->request('POST', $this->endpoint, [
                     'json' => $this->buildRequestPayload($messages, $context),
@@ -90,7 +90,7 @@ class HttpChatResponder implements ChatResponderInterface
 
                 usleep((int) (self::RETRY_BACKOFF_SECONDS * 1_000_000 * $attempt));
             }
-        } while ($attempt < self::MAX_RETRIES);
+        }
 
         $body = (string) $response->getBody();
         $status = $response->getStatusCode();
