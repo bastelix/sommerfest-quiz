@@ -31,6 +31,17 @@
       >
         <span uk-navbar-toggle-icon></span>
       </button>
+      <button
+        id="adminOffcanvasToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@s uk-hidden@m uk-margin-small-right git-btn"
+        uk-navbar-toggle-icon
+        uk-toggle="target: #qr-offcanvas"
+        aria-controls="qr-offcanvas"
+        aria-expanded="false"
+        aria-haspopup="true"
+        aria-label="{{ t('menu') }}"
+      ></button>
       <a class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s" href="{{ basePath }}/admin/dashboard">QuizRace Admin</a>
     {% endblock %}
     {% block center %}
