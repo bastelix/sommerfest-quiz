@@ -31,6 +31,89 @@ const hasValidSrcsetDescriptor = descriptor => {
   return /^[0-9]+(?:\.[0-9]+)?[wx]$/.test(lastToken);
 };
 
+const QUIZ_LINKS_BUTTON = 'quizlinks';
+const QUIZ_LINKS_EMPTY_BUTTON = 'quizlinks-empty';
+let quizLinksPromise = null;
+let quizLinksCache = null;
+
+const normalizeQuizLink = entry => {
+  if (!entry || typeof entry !== 'object') {
+    return null;
+  }
+  const slug = typeof entry.slug === 'string' ? entry.slug.trim() : '';
+  if (!slug) {
+    return null;
+  }
+  return {
+    slug,
+    name: typeof entry.name === 'string' ? entry.name.trim() : '',
+    description: typeof entry.description === 'string' ? entry.description.trim() : ''
+  };
+};
+
+const fetchQuizLinks = async () => {
+  if (quizLinksCache) {
+    return quizLinksCache;
+  }
+  if (!quizLinksPromise) {
+    quizLinksPromise = apiFetch('/kataloge/catalogs.json', { headers: { Accept: 'application/json' } })
+      .then(response => (response.ok ? response.json() : []))
+      .catch(() => [])
+      .then(rows => (Array.isArray(rows) ? rows.map(normalizeQuizLink).filter(Boolean) : []));
+  }
+
+  const links = await quizLinksPromise;
+  quizLinksCache = links;
+  quizLinksPromise = null;
+  return links;
+};
+
+const prefetchQuizLinks = () => fetchQuizLinks().catch(() => []);
+
+const createQuizLinkHtml = (slug, label) => {
+  const base = (window.basePath || '').replace(/\/$/, '');
+  const href = `${base}/?katalog=${encodeURIComponent(slug)}`;
+  const anchor = document.createElement('a');
+  anchor.className = 'uk-button uk-button-primary';
+  anchor.href = href;
+  anchor.textContent = label || slug;
+  return anchor.outerHTML;
+};
+
+const buildQuizLinkButtons = (trumbowyg, links) => {
+  const dropdown = [];
+
+  if (!Array.isArray(links) || links.length === 0) {
+    trumbowyg.addBtnDef(QUIZ_LINKS_EMPTY_BUTTON, {
+      text: 'Keine Quiz-Links gefunden',
+      hasIcon: false,
+      fn: () => {}
+    });
+    dropdown.push(QUIZ_LINKS_EMPTY_BUTTON);
+  } else {
+    links.forEach(link => {
+      const buttonName = `${QUIZ_LINKS_BUTTON}-${link.slug}`;
+      dropdown.push(buttonName);
+      trumbowyg.addBtnDef(buttonName, {
+        text: link.name || link.slug,
+        title: link.description || link.name || link.slug,
+        hasIcon: false,
+        fn: () => {
+          const html = createQuizLinkHtml(link.slug, link.name || link.slug);
+          trumbowyg.execCmd('insertHTML', html);
+        }
+      });
+    });
+  }
+
+  trumbowyg.addBtnDef(QUIZ_LINKS_BUTTON, {
+    text: 'Quiz-Link',
+    title: 'Quiz-Link einfügen',
+    hasIcon: false,
+    dropdown
+  });
+};
+
 const hasValidSrcset = srcset => {
   if (!srcset) {
     return true;
@@ -148,6 +231,13 @@ $.extend(true, $.trumbowyg, {
             title: `${k}${vars[k] ? ' (' + vars[k] + ')' : ''}`
           });
         });
+      }
+    },
+    quizlinks: {
+      init: function (trumbowyg) {
+        prefetchQuizLinks()
+          .then(links => buildQuizLinkButtons(trumbowyg, links))
+          .catch(() => buildQuizLinkButtons(trumbowyg, []));
       }
     }
   }
@@ -378,7 +468,7 @@ const PAGE_EDITOR_BUTTON_GROUPS = [
   ['viewHTML'],
   ['formatting'],
   ['bold', 'italic', 'underline'],
-  ['link'],
+  ['link', QUIZ_LINKS_BUTTON],
   ['insertImage'],
   ['unorderedList', 'orderedList'],
   ['variable'],
@@ -398,7 +488,7 @@ const resetLandingStyling = element => {
 
 const ensurePageEditorInitialized = form => {
   const editorEl = getEditorElement(form);
-  if (!editorEl || editorEl.dataset.editorInitialized === '1') {
+  if (!editorEl || editorEl.dataset.editorInitialized === '1' || editorEl.dataset.editorInitializing === '1') {
     return editorEl;
   }
 
@@ -413,12 +503,20 @@ const ensurePageEditorInitialized = form => {
     resetLandingStyling(editorEl);
   }
 
-  $(editorEl).trumbowyg({
-    lang: 'de',
-    btns: PAGE_EDITOR_BUTTON_GROUPS,
-    plugins: { template: true, variable: true }
-  });
-  editorEl.dataset.editorInitialized = '1';
+  const initEditor = () => {
+    $(editorEl).trumbowyg({
+      lang: 'de',
+      btns: PAGE_EDITOR_BUTTON_GROUPS,
+      plugins: { template: true, variable: true, quizlinks: true }
+    });
+    editorEl.dataset.editorInitialized = '1';
+    delete editorEl.dataset.editorInitializing;
+  };
+
+  editorEl.dataset.editorInitializing = '1';
+  prefetchQuizLinks()
+    .catch(() => [])
+    .finally(initEditor);
   return editorEl;
 };
 
