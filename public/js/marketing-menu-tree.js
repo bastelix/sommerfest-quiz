@@ -900,6 +900,8 @@ if (container) {
     const attachDragHandlers = () => {
       let draggingElement = null;
       treeRoot.querySelectorAll('.menu-tree__item').forEach(item => {
+        const handle = item.querySelector('.menu-tree__drag');
+
         item.addEventListener('dragstart', event => {
           if (event.target !== item && !event.target.closest('.menu-tree__drag')) {
             event.preventDefault();
@@ -907,7 +909,7 @@ if (container) {
           }
           draggingElement = item;
           item.classList.add('is-dragging');
-          dragHandle?.setAttribute('aria-grabbed', 'true');
+          handle?.setAttribute('aria-grabbed', 'true');
           event.dataTransfer.effectAllowed = 'move';
           event.dataTransfer.setData('text/plain', item.dataset.id);
         });
@@ -916,9 +918,9 @@ if (container) {
           if (draggingElement) {
             draggingElement.classList.remove('is-dragging');
             draggingElement = null;
-            dragHandle?.setAttribute('aria-grabbed', 'false');
             collectTreeOrder();
           }
+          handle?.setAttribute('aria-grabbed', 'false');
         });
       });
 
