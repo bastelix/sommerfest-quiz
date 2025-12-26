@@ -1152,6 +1152,14 @@ const initAiPageCreation = () => {
   const promptTemplateSelect = form.querySelector('#aiPagePromptTemplate');
   const slugInput = form.querySelector('#aiPageSlug');
   const titleInput = form.querySelector('#aiPageTitle');
+  const primaryColorInput = form.querySelector('#aiPagePrimaryColor');
+  const backgroundColorInput = form.querySelector('#aiPageBackgroundColor');
+  const accentColorInput = form.querySelector('#aiPageAccentColor');
+  const colorValueDisplays = {
+    primary: form.querySelector('[data-ai-color-value="aiPagePrimaryColor"]'),
+    background: form.querySelector('[data-ai-color-value="aiPageBackgroundColor"]'),
+    accent: form.querySelector('[data-ai-color-value="aiPageAccentColor"]')
+  };
   const createMenuItemCheckbox = form.querySelector('#aiPageCreateMenuItem');
   const menuLabelInput = form.querySelector('#aiPageMenuLabel');
   const menuLabelWrapper = form.querySelector('[data-ai-page-menu-label]');
@@ -1169,6 +1177,11 @@ const initAiPageCreation = () => {
   const timeoutMessage = window.transAiPageTimeout || 'Server antwortet nicht rechtzeitig.';
   const pendingMessage = window.transAiPagePending || 'Die KI-Seite wird erstellt…';
   const createdMessage = window.transAiPageCreated || 'KI-Seite erstellt';
+  const defaultColorTokens = {
+    primary: primaryColorInput?.dataset.default || '#1e87f0',
+    background: backgroundColorInput?.dataset.default || '#0f172a',
+    accent: accentColorInput?.dataset.default || '#f59e0b'
+  };
   const errorMessageMap = {
     missing_fields: missingFieldsMessage,
     invalid_payload: createErrorMessage,
@@ -1230,6 +1243,37 @@ const initAiPageCreation = () => {
     createMenuItemCheckbox.addEventListener('change', updateMenuLabelVisibility);
   }
   updateMenuLabelVisibility();
+
+  const normaliseColorValue = (value, fallback) => {
+    const candidate = (value || '').trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(candidate)) {
+      return candidate;
+    }
+    if (/^[0-9a-fA-F]{6}$/.test(candidate)) {
+      return `#${candidate}`;
+    }
+    return fallback;
+  };
+
+  const syncColorDisplay = (input, display, fallback) => {
+    if (!input) {
+      return;
+    }
+    const updateDisplay = () => {
+      const value = normaliseColorValue(input.value, fallback);
+      input.value = value;
+      if (display) {
+        display.textContent = value;
+      }
+    };
+    updateDisplay();
+    input.addEventListener('input', updateDisplay);
+    input.addEventListener('change', updateDisplay);
+  };
+
+  syncColorDisplay(primaryColorInput, colorValueDisplays.primary, defaultColorTokens.primary);
+  syncColorDisplay(backgroundColorInput, colorValueDisplays.background, defaultColorTokens.background);
+  syncColorDisplay(accentColorInput, colorValueDisplays.accent, defaultColorTokens.accent);
 
   const setFeedback = message => {
     if (!feedback) {
@@ -1324,6 +1368,16 @@ const initAiPageCreation = () => {
     const themeValue = (themeInput?.value || '').trim();
     const colorSchemeValue = (colorSchemeInput?.value || '').trim();
     const problemValue = (problemInput?.value || '').trim();
+    const colorTokens = {
+      primary: normaliseColorValue(primaryColorInput?.value, defaultColorTokens.primary),
+      background: normaliseColorValue(backgroundColorInput?.value, defaultColorTokens.background),
+      accent: normaliseColorValue(accentColorInput?.value, defaultColorTokens.accent)
+    };
+    const colorTokensText = Object.entries(colorTokens)
+      .filter(([, value]) => Boolean(value))
+      .map(([key, value]) => `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${value}`)
+      .join('; ');
+    const colorSchemeWithTokens = [colorSchemeValue, colorTokensText].filter(Boolean).join(' ').trim();
     const promptTemplateId = (promptTemplateSelect?.value || '').trim();
     const shouldCreateMenuItem = Boolean(createMenuItemCheckbox?.checked);
     const menuLabelValue = (menuLabelInput?.value || '').trim();
@@ -1375,7 +1429,7 @@ const initAiPageCreation = () => {
           slug: slugValue,
           title: titleValue,
           theme: themeValue,
-          colorScheme: colorSchemeValue,
+          colorScheme: colorSchemeWithTokens,
           problem: problemValue,
           promptTemplateId: promptTemplateId || undefined
         })

@@ -359,6 +359,66 @@
                 </div>
               </div>
               <div class="uk-margin">
+                <div class="uk-form-label">{{ t('label_ai_page_color_tokens') }}</div>
+                <div class="uk-text-meta uk-margin-small-bottom">{{ t('text_ai_page_color_tokens_hint') }}</div>
+                <div class="uk-grid uk-grid-small uk-child-width-1-3@m" uk-grid>
+                  <div>
+                    <label class="uk-form-label" for="aiPagePrimaryColor">{{ t('label_ai_page_primary_color') }}</label>
+                    <div class="uk-form-controls uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                      <div class="uk-width-auto">
+                        <input
+                          class="uk-input uk-form-width-small"
+                          id="aiPagePrimaryColor"
+                          name="primary_color"
+                          type="color"
+                          value="#1e87f0"
+                          data-default="#1e87f0"
+                        >
+                      </div>
+                      <div class="uk-width-expand">
+                        <div class="uk-text-meta" data-ai-color-value="aiPagePrimaryColor">#1e87f0</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="uk-form-label" for="aiPageBackgroundColor">{{ t('label_ai_page_background_color') }}</label>
+                    <div class="uk-form-controls uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                      <div class="uk-width-auto">
+                        <input
+                          class="uk-input uk-form-width-small"
+                          id="aiPageBackgroundColor"
+                          name="background_color"
+                          type="color"
+                          value="#0f172a"
+                          data-default="#0f172a"
+                        >
+                      </div>
+                      <div class="uk-width-expand">
+                        <div class="uk-text-meta" data-ai-color-value="aiPageBackgroundColor">#0f172a</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="uk-form-label" for="aiPageAccentColor">{{ t('label_ai_page_accent_color') }}</label>
+                    <div class="uk-form-controls uk-flex uk-flex-middle uk-grid-small" uk-grid>
+                      <div class="uk-width-auto">
+                        <input
+                          class="uk-input uk-form-width-small"
+                          id="aiPageAccentColor"
+                          name="accent_color"
+                          type="color"
+                          value="#f59e0b"
+                          data-default="#f59e0b"
+                        >
+                      </div>
+                      <div class="uk-width-expand">
+                        <div class="uk-text-meta" data-ai-color-value="aiPageAccentColor">#f59e0b</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="uk-margin">
                 <label class="uk-form-label" for="aiPageProblem">{{ t('label_ai_page_problem') }}</label>
                 <div class="uk-form-controls">
                   <textarea
