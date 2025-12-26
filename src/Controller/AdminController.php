@@ -30,6 +30,7 @@ use App\Service\LandingNewsService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceValidator;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -153,12 +154,30 @@ class AdminController
             $users = (new UserService($pdo))->getAll();
         }
 
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $namespaceResolver = new NamespaceResolver();
+        $namespace = $namespaceResolver->resolve($request)->getNamespace();
         $requestedScope = trim((string) ($request->getQueryParams()['scope'] ?? ''));
-        $mediaScope = $role === Roles::ADMIN && $requestedScope === MediaLibraryService::SCOPE_PROJECT
-            ? MediaLibraryService::SCOPE_PROJECT
-            : ($role === Roles::ADMIN ? MediaLibraryService::SCOPE_GLOBAL : MediaLibraryService::SCOPE_PROJECT);
-        $mediaNamespace = $mediaScope === MediaLibraryService::SCOPE_PROJECT ? $namespace : '';
+        $requestedNamespace = trim((string) ($request->getQueryParams()['namespace'] ?? ''));
+
+        $namespaceAccess = new NamespaceAccessService();
+        $allowedNamespaces = $namespaceAccess->resolveAllowedNamespaces(is_string($role) ? $role : null);
+        $namespaceAllowed = $namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role);
+
+        if ($namespaceAllowed && $requestedNamespace !== '') {
+            $normalized = (new NamespaceValidator())->normalizeCandidate($requestedNamespace);
+            if ($normalized !== null && $namespaceAccess->shouldExposeNamespace($normalized, $allowedNamespaces, $role)) {
+                $namespace = $normalized;
+            }
+        }
+
+        $mediaScope = $namespaceAllowed ? MediaLibraryService::SCOPE_PROJECT : MediaLibraryService::SCOPE_GLOBAL;
+        if ($role === Roles::ADMIN && $requestedScope === MediaLibraryService::SCOPE_GLOBAL) {
+            $mediaScope = MediaLibraryService::SCOPE_GLOBAL;
+        }
+
+        $mediaNamespace = $mediaScope === MediaLibraryService::SCOPE_PROJECT && $namespaceAllowed
+            ? $namespace
+            : '';
         $uri = $request->getUri();
         $mainDomain = getenv('MAIN_DOMAIN')
             ?: getenv('DOMAIN')
@@ -319,8 +338,6 @@ class AdminController
             }
         }
 
-        $namespaceAccess = new NamespaceAccessService();
-        $allowedNamespaces = $namespaceAccess->resolveAllowedNamespaces(is_string($role) ? $role : null);
         if ($availableNamespaces === []) {
             $namespaceRepository = new NamespaceRepository($pdo);
             try {

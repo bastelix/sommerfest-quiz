@@ -1105,6 +1105,9 @@ ready(() => {
       }
       try {
         const data = await fetchJson(`/admin/media/files?${params.toString()}`);
+        if (typeof data.namespace === 'string' && data.namespace.trim()) {
+          state.namespace = data.namespace.trim();
+        }
         state.files = Array.isArray(data.files) ? data.files : [];
         const pagination = data.pagination || {};
         state.page = Number(pagination.page) || 1;
@@ -1116,6 +1119,9 @@ ready(() => {
         const activeFilters = filters.active || {};
         state.filters.tags = Array.isArray(activeFilters.tags) ? uniqueTags(activeFilters.tags) : [];
         state.filters.folder = typeof activeFilters.folder === 'string' ? activeFilters.folder : '';
+        if (typeof activeFilters.namespace === 'string' && activeFilters.namespace.trim()) {
+          state.namespace = activeFilters.namespace.trim();
+        }
         const landing = data.landing || {};
         if (Array.isArray(landing.slugs)) {
           state.landing.slugs = landing.slugs;
