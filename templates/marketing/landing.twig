@@ -14,6 +14,25 @@
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
 {% endblock %}
 
+{% block config_color_styles %}
+  {{ parent() }}
+  {% set designColors = config.colors|default({}) %}
+  {% set topbarLight = designColors.topbar_light|default(
+    designColors.topbarLight|default(designColors.background|default(null))
+  ) %}
+  {% set topbarDark = designColors.topbar_dark|default(
+    designColors.topbarDark|default(designColors.primary|default(designColors.background|default(null)))
+  ) %}
+  {% if topbarLight or topbarDark %}
+    <style>
+      :root {
+        {% if topbarLight %}--qr-landing-topbar-bg-light: {{ topbarLight|e('css') }};{% endif %}
+        {% if topbarDark %}--qr-landing-topbar-bg-dark: {{ topbarDark|e('css') }};{% endif %}
+      }
+    </style>
+  {% endif %}
+{% endblock %}
+
 {% block body_theme %}dark{% endblock %}
 
 {% block body_class %}qr-landing dark-mode{% endblock %}
