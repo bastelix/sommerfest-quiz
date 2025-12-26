@@ -3840,6 +3840,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
+    const hasCfgFields = Object.values(cfgFields).some(field => {
+      if (Array.isArray(field)) {
+        return field.length > 0;
+      }
+      return !!field;
+    });
+    if (!hasCfgFields) {
+      return;
+    }
     if (cfgFields.logoPreview) {
       cfgFields.logoPreview.src = data.logoPath ? data.logoPath + '?' + Date.now() : '';
     }
