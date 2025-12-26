@@ -145,14 +145,14 @@ final class DomainNameHelper
         }
 
         try {
-            $domains = self::$marketingDomainProvider->getMarketingDomains();
+            $domains = self::$marketingDomainProvider->getMarketingDomains(stripAdmin: false);
             if ($domains === [] && !self::$marketingProviderIsLazy) {
                 return [];
             }
 
             $map = [];
             foreach ($domains as $domain) {
-                $domain = strtolower(trim((string) $domain));
+                $domain = self::normalize((string) $domain, stripAdmin: false);
                 if ($domain === '') {
                     continue;
                 }
@@ -176,7 +176,7 @@ final class DomainNameHelper
         $domains = [];
 
         foreach ($entries as $entry) {
-            $normalized = self::normalize($entry);
+            $normalized = self::normalize($entry, stripAdmin: false);
             if ($normalized === '') {
                 continue;
             }

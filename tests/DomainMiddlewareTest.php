@@ -211,6 +211,55 @@ class DomainMiddlewareTest extends TestCase
         $this->assertSame('marketing', $handler->request->getAttribute('domainType'));
     }
 
+    public function testDomainNamespaceResolvesFromDatabase(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS settings ('
+            . 'key TEXT PRIMARY KEY, '
+            . 'value TEXT)'
+        );
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS domains ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'host TEXT NOT NULL, '
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'namespace TEXT, '
+            . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+        );
+
+        $service = new DomainService($pdo);
+        $service->createDomain('promo.example.com', namespace: 'promo');
+
+        $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
+        DomainNameHelper::setMarketingDomainProvider($provider);
+
+        $middleware = new DomainMiddleware($provider);
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('GET', 'https://promo.example.com/');
+
+        $handler = new class implements RequestHandlerInterface {
+            public ?Request $request = null;
+
+            public function handle(Request $request): ResponseInterface
+            {
+                $this->request = $request;
+
+                return new Response();
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('marketing', $handler->request->getAttribute('domainType'));
+        $this->assertSame('promo', $handler->request->getAttribute('domainNamespace'));
+    }
+
     public function testEnvMarketingDomainsUsedWhenDatabaseEmpty(): void {
         putenv('MARKETING_DOMAINS=marketing-domain.tld');
 

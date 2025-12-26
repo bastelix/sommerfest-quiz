@@ -119,11 +119,25 @@ class DomainNameHelperTest extends TestCase
         $provider = $this->createMock(MarketingDomainProvider::class);
         $provider->expects(self::once())
             ->method('getMarketingDomains')
+            ->with(stripAdmin: false)
             ->willReturn(['custom.example.com']);
 
         DomainNameHelper::setMarketingDomainProvider($provider);
 
         self::assertSame('custom', DomainNameHelper::canonicalizeSlug('custom.example.com'));
+    }
+
+    public function testCanonicalizationUsesFullMarketingHosts(): void
+    {
+        $provider = $this->createMock(MarketingDomainProvider::class);
+        $provider->expects(self::once())
+            ->method('getMarketingDomains')
+            ->with(stripAdmin: false)
+            ->willReturn(['promo.example.com']);
+
+        DomainNameHelper::setMarketingDomainProvider($provider);
+
+        self::assertSame('promo', DomainNameHelper::canonicalizeSlug('promo.example.com'));
     }
 
     private function createDomainDatabase(): PDO
