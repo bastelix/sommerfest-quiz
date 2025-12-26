@@ -243,15 +243,38 @@ $.extend(true, $.trumbowyg, {
   }
 });
 
-const LANDING_STYLE_FILES = [
-  '/css/landing.css',
-  '/css/onboarding.css',
-  '/css/topbar.landing.css'
+const LANDING_STYLE_FILENAMES = [
+  'landing.css',
+  'onboarding.css',
+  'topbar.landing.css'
 ];
 
 const LANDING_FONT_URL = 'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap';
 
 const landingStylesPromises = {};
+
+const fetchCssWithFallback = paths => {
+  const candidates = Array.isArray(paths) ? paths.filter(Boolean) : [paths].filter(Boolean);
+  if (!candidates.length) {
+    return Promise.resolve('');
+  }
+  const tryFetch = index => {
+    const target = candidates[index];
+    if (!target) {
+      return Promise.resolve('');
+    }
+    return fetch(target)
+      .then(resp => (resp.ok ? resp.text() : ''))
+      .catch(() => '')
+      .then(result => {
+        if (result || index >= candidates.length - 1) {
+          return result;
+        }
+        return tryFetch(index + 1);
+      });
+  };
+  return tryFetch(0);
+};
 
 function ensureLandingFont() {
   if (document.getElementById('landing-font')) {
@@ -264,19 +287,34 @@ function ensureLandingFont() {
   document.head.appendChild(fontLink);
 }
 
+const buildLandingStyleSources = () => {
+  const namespace = resolvePageNamespace();
+  const normalized = (namespace || '').trim();
+  const hasCustomNamespace = normalized && normalized !== 'default';
+  return LANDING_STYLE_FILENAMES.map(file => {
+    const defaultPath = withBase(`/css/${file}`);
+    if (!hasCustomNamespace) {
+      return [defaultPath];
+    }
+    return [withBase(`/css/${encodeURIComponent(normalized)}/${file}`), defaultPath];
+  });
+};
+
 function ensureScopedLandingStyles(styleId, scopeSelector) {
-  if (document.getElementById(styleId)) {
+  const namespace = resolvePageNamespace() || 'default';
+  const existingStyle = document.getElementById(styleId);
+  if (existingStyle && existingStyle.dataset.namespace === namespace) {
     return Promise.resolve();
   }
-  if (landingStylesPromises[styleId]) {
-    return landingStylesPromises[styleId];
+  if (existingStyle && existingStyle.dataset.namespace !== namespace) {
+    existingStyle.remove();
   }
-  const base = window.basePath || '';
-  const requests = LANDING_STYLE_FILES.map(path => {
-    const url = base.replace(/\/$/, '') + path;
-    return fetch(url).then(resp => (resp.ok ? resp.text() : '')).catch(() => '');
-  });
-  landingStylesPromises[styleId] = Promise.all(requests).then(chunks => {
+  const cacheKey = `${styleId}-${namespace}`;
+  if (landingStylesPromises[cacheKey]) {
+    return landingStylesPromises[cacheKey];
+  }
+  const requests = buildLandingStyleSources().map(paths => fetchCssWithFallback(paths));
+  landingStylesPromises[cacheKey] = Promise.all(requests).then(chunks => {
     const scoped = chunks
       .map(chunk => scopeLandingCss(chunk, scopeSelector))
       .filter(Boolean)
@@ -284,6 +322,7 @@ function ensureScopedLandingStyles(styleId, scopeSelector) {
     if (scoped) {
       const styleEl = document.createElement('style');
       styleEl.id = styleId;
+      styleEl.dataset.namespace = namespace;
       styleEl.textContent = scoped;
       document.head.appendChild(styleEl);
     }
@@ -293,7 +332,7 @@ function ensureScopedLandingStyles(styleId, scopeSelector) {
       window.console.warn('Failed to load landing styles', err);
     }
   });
-  return landingStylesPromises[styleId];
+  return landingStylesPromises[cacheKey];
 }
 
 function ensureLandingEditorStyles() {
@@ -1693,6 +1732,61 @@ const ensureStylesheetLoaded = (id, href, options = {}) => {
   document.head.appendChild(link);
 };
 
+const loadStylesheet = (id, href, options = {}) => new Promise(resolve => {
+  const absoluteHref = assetUrlToAbsolute(href);
+  let link = document.getElementById(id);
+  if (!link) {
+    link = document.createElement('link');
+    link.id = id;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
+  if (options.media) {
+    link.media = options.media;
+  }
+  if (options.dataset) {
+    Object.entries(options.dataset).forEach(([key, value]) => {
+      link.dataset[key] = value;
+    });
+  }
+  const matchesHref = link.href === absoluteHref;
+  if (matchesHref && (link.dataset.loaded === '1' || link.sheet)) {
+    resolve(true);
+    return;
+  }
+  const cleanup = () => {
+    link.removeEventListener('load', onLoad);
+    link.removeEventListener('error', onError);
+  };
+  const onLoad = () => {
+    cleanup();
+    link.dataset.loaded = '1';
+    resolve(true);
+  };
+  const onError = () => {
+    cleanup();
+    link.dataset.loaded = '0';
+    resolve(false);
+  };
+  link.addEventListener('load', onLoad);
+  link.addEventListener('error', onError);
+  link.dataset.loaded = '0';
+  link.href = href;
+});
+
+const ensureStylesheetWithFallback = (id, hrefs, options = {}) => {
+  const candidates = Array.isArray(hrefs) ? hrefs.filter(Boolean) : [hrefs].filter(Boolean);
+  if (!candidates.length) {
+    return Promise.resolve();
+  }
+  return candidates
+    .reduce(
+      (promise, href) => promise.then(loaded => (loaded ? loaded : loadStylesheet(id, href, options))),
+      Promise.resolve(false)
+    )
+    .then(() => undefined);
+};
+
 const ensureScriptLoaded = (id, src) => new Promise(resolve => {
   if (document.getElementById(id)) {
     resolve();
@@ -1714,45 +1808,57 @@ const ensureScriptLoaded = (id, src) => new Promise(resolve => {
   document.body.appendChild(script);
 });
 
-let previewAssetsPromise;
+const buildNamespacedCssCandidates = filename => {
+  const namespace = resolvePageNamespace();
+  const normalized = (namespace || '').trim();
+  const candidates = [];
+  if (normalized && normalized !== 'default') {
+    candidates.push(withBase(`/css/${encodeURIComponent(normalized)}/${filename}`));
+  }
+  candidates.push(withBase(`/css/${filename}`));
+  return candidates;
+};
+
+let previewAssetsPromises = {};
 
 const ensurePreviewAssets = () => {
-  if (previewAssetsPromise) {
-    return previewAssetsPromise;
+  const namespace = resolvePageNamespace();
+  const cacheKey = namespace || 'default';
+  if (previewAssetsPromises[cacheKey]) {
+    return previewAssetsPromises[cacheKey];
   }
   const uikitCss = withBase('/css/uikit.min.css');
   const uikitJs = withBase('/js/uikit.min.js');
   const uikitIconsJs = withBase('/js/uikit-icons.min.js');
-  const landingCss = withBase('/css/landing.css');
-  const landingTopbarCss = withBase('/css/topbar.landing.css');
-  const landingOnboardingCss = withBase('/css/onboarding.css');
   const landingHighcontrastCss = withBase('/css/highcontrast.css');
 
-  ensureStylesheetLoaded('preview-uikit-css', uikitCss);
-  ensureStylesheetLoaded('preview-landing-css', landingCss, {
-    media: 'print',
-    dataset: { previewAsset: 'landing' }
-  });
-  ensureStylesheetLoaded('preview-landing-topbar-css', landingTopbarCss, {
-    media: 'print',
-    dataset: { previewAsset: 'landing' }
-  });
-  ensureStylesheetLoaded('preview-landing-onboarding-css', landingOnboardingCss, {
-    media: 'print',
-    dataset: { previewAsset: 'landing' }
-  });
-  ensureStylesheetLoaded('preview-landing-highcontrast-css', landingHighcontrastCss, {
-    media: 'print',
-    dataset: { previewAsset: 'landing' }
-  });
+  const styles = [
+    ensureStylesheetWithFallback('preview-uikit-css', uikitCss),
+    ensureStylesheetWithFallback('preview-landing-css', buildNamespacedCssCandidates('landing.css'), {
+      media: 'print',
+      dataset: { previewAsset: 'landing' }
+    }),
+    ensureStylesheetWithFallback('preview-landing-topbar-css', buildNamespacedCssCandidates('topbar.landing.css'), {
+      media: 'print',
+      dataset: { previewAsset: 'landing' }
+    }),
+    ensureStylesheetWithFallback('preview-landing-onboarding-css', buildNamespacedCssCandidates('onboarding.css'), {
+      media: 'print',
+      dataset: { previewAsset: 'landing' }
+    }),
+    ensureStylesheetWithFallback('preview-landing-highcontrast-css', landingHighcontrastCss, {
+      media: 'print',
+      dataset: { previewAsset: 'landing' }
+    })
+  ];
 
   const scripts = [];
   if (!window.UIkit) {
     scripts.push(ensureScriptLoaded('preview-uikit-js', uikitJs));
   }
   scripts.push(ensureScriptLoaded('preview-uikit-icons-js', uikitIconsJs));
-  previewAssetsPromise = Promise.all(scripts).then(() => undefined);
-  return previewAssetsPromise;
+  previewAssetsPromises[cacheKey] = Promise.all([...styles, ...scripts]).then(() => undefined);
+  return previewAssetsPromises[cacheKey];
 };
 
 const setLandingPreviewMedia = enabled => {
@@ -1780,6 +1886,7 @@ export async function showPreview() {
   const html = sanitize($(editor).trumbowyg('html'));
   const target = document.getElementById('preview-content');
   const isLandingPreview = activeForm?.dataset.landing === 'true';
+  await ensurePreviewAssets();
   if (target) {
     target.innerHTML = html;
     if (isLandingPreview) {
@@ -1787,7 +1894,6 @@ export async function showPreview() {
     } else {
       resetLandingPreviewStyling(target);
     }
-    await ensurePreviewAssets();
     setLandingPreviewMedia(isLandingPreview);
     if (window.UIkit && typeof window.UIkit.update === 'function') {
       window.UIkit.update(target, 'mutation');
