@@ -29,7 +29,7 @@ use function usleep;
  */
 class HttpChatResponder implements ChatResponderInterface
 {
-    private const DEFAULT_TIMEOUT = 10.0;
+    private const DEFAULT_TIMEOUT = 60.0;
     private const MIN_TIMEOUT = 1.0;
     private const MAX_RETRIES = 2;
     private const RETRY_BACKOFF_SECONDS = 0.25;
