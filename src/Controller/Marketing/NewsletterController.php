@@ -67,6 +67,4 @@ class NewsletterController
 
         return $success ? $response->withStatus(204) : $response->withStatus(400);
     }
-
-
 }

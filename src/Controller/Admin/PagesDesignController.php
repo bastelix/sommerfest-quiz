@@ -217,7 +217,11 @@ class PagesDesignController
             }
         }
 
-        if (isset($config['backgroundColor']) && !isset($colors['background']) && is_string($config['backgroundColor'])) {
+        if (
+            isset($config['backgroundColor'])
+            && !isset($colors['background'])
+            && is_string($config['backgroundColor'])
+        ) {
             $colors['background'] = $config['backgroundColor'];
         }
 

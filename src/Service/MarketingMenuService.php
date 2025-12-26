@@ -313,7 +313,11 @@ final class MarketingMenuService
                 throw $exception;
             }
 
-            throw new RuntimeException('Setting startpage failed.', 0, $exception);
+            throw new RuntimeException(
+                'Setting startpage failed.',
+                0,
+                $exception
+            );
         }
     }
 
@@ -570,11 +574,14 @@ final class MarketingMenuService
 
                 $this->pdo->commit();
             } catch (PDOException $exception) {
-                $this->pdo->rollBack();
-                throw new RuntimeException('Updating menu order failed: ' . $exception->getMessage(), 0, $exception);
-            }
-
+            $this->pdo->rollBack();
+            throw new RuntimeException(
+                'Updating menu order failed: ' . $exception->getMessage(),
+                0,
+                $exception
+            );
         }
+    }
 
         $normalizedItems = [];
         foreach ($orderedIds as $entry) {
