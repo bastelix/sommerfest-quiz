@@ -15,7 +15,8 @@ load_env_defaults() {
     fallback="$2"
     shift 2
 
-    if [ -n "${!var+x}" ]; then
+    eval "is_set=\${$var+x}"
+    if [ -n "$is_set" ]; then
       continue
     fi
 
