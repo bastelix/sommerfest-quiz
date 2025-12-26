@@ -6,8 +6,8 @@
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" id="admin-dark-css" data-theme-style="dark" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css" id="admin-highcontrast-css" data-theme-style="high-contrast">
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css" id="preview-uikit-css" data-preview-asset="landing" media="print">
   {% set activeNamespace = pageNamespace|default('default') %}
   {% set hasNamespaceStyles = activeNamespace is not empty and activeNamespace != 'default' %}
@@ -55,7 +55,17 @@
 
 {% block body %}
   <div class="uk-container uk-container-expand">
-    <h1 class="uk-heading-bullet">Seite bearbeiten: {{ slug }}</h1>
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-bottom">
+      <h1 class="uk-heading-bullet uk-margin-remove">Seite bearbeiten: {{ slug }}</h1>
+      <div class="uk-flex uk-flex-middle" role="group" aria-label="Ansicht umschalten">
+        <span class="uk-margin-small-right uk-text-meta" aria-hidden="true">Darstellung:</span>
+        <div class="uk-button-group" data-theme-toggle>
+          <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Hell</button>
+          <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dunkel</button>
+          <button type="button" class="uk-button uk-button-default" data-theme-choice="high-contrast" aria-pressed="false">High-Contrast</button>
+        </div>
+      </div>
+    </div>
     <form
       method="post"
       class="uk-form-stacked page-form"
