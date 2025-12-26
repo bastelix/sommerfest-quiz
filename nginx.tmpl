@@ -310,6 +310,10 @@
         proxy_read_timeout 35s;
         {{- end }}
 
+        {{- if and (hasPrefix .Path "/admin/pages/") (hasSuffix .Path "/menu/ai") }}
+        proxy_read_timeout 70s;
+        {{- end }}
+
         {{ $proto := $vpath.proto }}
         {{ $upstream := $vpath.upstream }}
         {{ $dest := $vpath.dest }}
