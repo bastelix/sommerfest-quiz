@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\LandingMediaReferenceService;
 use App\Service\MediaLibraryService;
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceAccessService;
 use App\Service\NamespaceValidator;
 use App\Domain\Roles;
 use JsonException;
@@ -78,14 +79,14 @@ class AdminMediaController
         }
 
         $landingFilter = '';
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $landingNamespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $landingData = [
-            'slugs' => $this->landing->getLandingSlugs($namespace),
+            'slugs' => $this->landing->getLandingSlugs($landingNamespace),
             'missing' => [],
             'active' => '',
         ];
 
-        $landingReferences = $this->landing->collect($namespace);
+        $landingReferences = $this->landing->collect($landingNamespace);
         $landingData['slugs'] = $landingReferences['slugs'];
         $landingData['missing'] = $landingReferences['missing'];
 
@@ -214,9 +215,11 @@ class AdminMediaController
                     'tags' => $rawTagFilters,
                     'folder' => $withoutFolder ? self::FOLDER_NONE : $rawFolderFilter,
                     'landing' => $landingFilter,
+                    'namespace' => (string) ($namespace ?? ''),
                 ],
             ],
             'landing' => $landingData,
+            'namespace' => (string) ($namespace ?? ''),
         ];
 
         return $this->json($response, $payload);
@@ -623,23 +626,33 @@ class AdminMediaController
         $role = (string) ($_SESSION['user']['role'] ?? '');
         $isAdmin = $role === Roles::ADMIN;
         [$requestedScope, $requestedNamespace] = $this->extractScopeParams($request, $body);
+        $resolver = new NamespaceResolver();
+        $namespace = $this->normalizeNamespace($resolver->resolve($request)->getNamespace());
+
+        $access = new NamespaceAccessService();
+        $allowed = $access->resolveAllowedNamespaces($role);
+
+        if (!$access->shouldExposeNamespace($namespace, $allowed, $role)) {
+            throw new RuntimeException('namespace not allowed');
+        }
 
         if (!$isAdmin) {
-            $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
             return [MediaLibraryService::SCOPE_PROJECT, $namespace];
         }
 
-        if ($requestedScope === MediaLibraryService::SCOPE_PROJECT) {
-            $namespaceValue = $requestedNamespace !== ''
-                ? $this->normalizeNamespace($requestedNamespace)
-                : (new NamespaceResolver())->resolve($request)->getNamespace();
-            if ($namespaceValue === '') {
-                throw new RuntimeException('namespace required');
-            }
-            return [MediaLibraryService::SCOPE_PROJECT, $namespaceValue];
+        if ($requestedScope === MediaLibraryService::SCOPE_GLOBAL) {
+            return [MediaLibraryService::SCOPE_GLOBAL, null];
         }
 
-        return [MediaLibraryService::SCOPE_GLOBAL, null];
+        $namespaceValue = $requestedNamespace !== ''
+            ? $this->normalizeNamespace($requestedNamespace)
+            : $namespace;
+
+        if (!$access->shouldExposeNamespace($namespaceValue, $allowed, $role)) {
+            throw new RuntimeException('namespace not allowed');
+        }
+
+        return [MediaLibraryService::SCOPE_PROJECT, $namespaceValue];
     }
 
     /**

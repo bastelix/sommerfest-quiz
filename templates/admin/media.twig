@@ -5,7 +5,7 @@
 {% set sizeMb = (limits.maxSize|default(0) / 1048576)|number_format(1, '.', '') %}
 {% set limitText = t('text_media_limits')|format(sizeMb, allowedExtensions|join(', ')) %}
 {% set landingSlugs = mediaLandingSlugs|default([]) %}
-{% set mediaScope = mediaScope|default(role == 'admin' ? 'global' : 'project') %}
+{% set mediaScope = mediaScope|default('project') %}
 {% set mediaNamespace = mediaNamespace|default(pageNamespace|default('')) %}
 {% set landingTitleCounts = {} %}
 {% for landing in landingSlugs %}
