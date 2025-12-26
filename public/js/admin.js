@@ -976,6 +976,7 @@ const initProjectSettings = () => {
     const showContrastInput = form.querySelector('#showContrastToggle');
     const logoModeInput = form.querySelector('input[name="header_logo_mode"]:checked');
     const logoAltInput = form.querySelector('#headerLogoAlt');
+    const logoLabelInput = form.querySelector('#headerLogoLabel');
     const logoPathInput = form.querySelector('input[name="header_logo_path"]');
     const logoFileInput = form.querySelector('#headerLogoFile');
 
@@ -1017,6 +1018,9 @@ const initProjectSettings = () => {
     }
     if (logoAltInput) {
       payload.append('headerLogoAlt', logoAltInput.value || '');
+    }
+    if (logoLabelInput) {
+      payload.append('headerLogoLabel', logoLabelInput.value || '');
     }
     if (logoPathInput) {
       payload.append('headerLogoPath', logoPathInput.value || '');
@@ -1096,6 +1100,9 @@ const initProjectSettings = () => {
       }
       if (logoAltInput && typeof settings.header_logo_alt === 'string') {
         logoAltInput.value = settings.header_logo_alt;
+      }
+      if (logoLabelInput && typeof settings.header_logo_label === 'string') {
+        logoLabelInput.value = settings.header_logo_label;
       }
       if (logoPathInput && typeof settings.header_logo_path === 'string') {
         logoPathInput.value = settings.header_logo_path;

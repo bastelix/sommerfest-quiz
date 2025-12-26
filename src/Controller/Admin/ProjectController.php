@@ -167,6 +167,9 @@ class ProjectController
         $headerLogoAlt = array_key_exists('headerLogoAlt', $payload)
             ? (string) $payload['headerLogoAlt']
             : ((string) ($payload['header_logo_alt'] ?? $currentSettings['header_logo_alt']));
+        $headerLogoLabel = array_key_exists('headerLogoLabel', $payload)
+            ? (string) $payload['headerLogoLabel']
+            : ((string) ($payload['header_logo_label'] ?? $currentSettings['header_logo_label']));
 
         $headerLogoFile = $uploadedFiles['headerLogoFile'] ?? null;
         if ($headerLogoFile instanceof \Psr\Http\Message\UploadedFileInterface && $headerLogoFile->getError() !== UPLOAD_ERR_NO_FILE) {
@@ -208,7 +211,8 @@ class ProjectController
             $showContrastToggle,
             $headerLogoMode,
             $headerLogoPath,
-            $headerLogoAlt
+            $headerLogoAlt,
+            $headerLogoLabel
         );
 
         $response->getBody()->write(json_encode([
