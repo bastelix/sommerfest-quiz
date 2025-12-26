@@ -434,6 +434,9 @@ CREATE TABLE IF NOT EXISTS project_settings (
     privacy_url TEXT,
     privacy_url_de TEXT,
     privacy_url_en TEXT,
+    navigation_logo_mode TEXT DEFAULT 'text',
+    navigation_logo_image TEXT,
+    navigation_logo_alt TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );

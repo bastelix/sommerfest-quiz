@@ -18,9 +18,11 @@ use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
+use App\Service\NavigationSettingsService;
 use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
+use App\Service\ImageUploadService;
 use App\Support\BasePathHelper;
 use App\Support\DomainNameHelper;
 use App\Support\FeatureFlags;
@@ -53,6 +55,8 @@ class ProjectPagesController
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
     private MarketingMenuService $marketingMenu;
+    private NavigationSettingsService $navigationSettings;
+    private ImageUploadService $imageUploadService;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -65,7 +69,9 @@ class ProjectPagesController
         ?TenantService $tenantService = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
         ?ProjectSettingsService $projectSettings = null,
-        ?MarketingMenuService $marketingMenu = null
+        ?MarketingMenuService $marketingMenu = null,
+        ?NavigationSettingsService $navigationSettings = null,
+        ?ImageUploadService $imageUploadService = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -78,6 +84,8 @@ class ProjectPagesController
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->marketingMenu = $marketingMenu ?? new MarketingMenuService($pdo, $this->pageService);
+        $this->navigationSettings = $navigationSettings ?? new NavigationSettingsService();
+        $this->imageUploadService = $imageUploadService ?? new ImageUploadService();
     }
 
     public function content(Request $request, Response $response): Response
@@ -177,6 +185,7 @@ class ProjectPagesController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $pages = $this->pageService->getAllForNamespace($namespace);
         $pageList = array_map(
             static fn (Page $page): array => [
@@ -206,6 +215,14 @@ class ProjectPagesController
             $pages
         );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
+        $navigationSettings = $this->navigationSettings->getSettings($namespace);
+        $navigationLogoUrl = $navigationSettings['logo_image'] ?? null;
+        if ($navigationLogoUrl !== null && !preg_match('#^https?://#', $navigationLogoUrl)) {
+            $navigationLogoUrl = $basePath . $navigationLogoUrl;
+        }
+
+        $navigationFlash = $_SESSION['navigation_flash'] ?? null;
+        unset($_SESSION['navigation_flash']);
 
         return $view->render($response, 'admin/pages/navigation.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -221,7 +238,69 @@ class ProjectPagesController
             'pageTab' => 'navigation',
             'tenant' => $this->resolveTenant($request),
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
+            'navigation_settings' => $navigationSettings,
+            'navigation_logo_url' => $navigationLogoUrl,
+            'navigation_flash' => $navigationFlash,
+            'basePath' => $basePath,
         ]);
+    }
+
+    public function saveNavigationSettings(Request $request, Response $response): Response
+    {
+        $parsedBody = $request->getParsedBody();
+        $uploads = $request->getUploadedFiles();
+
+        if (!is_array($parsedBody)) {
+            return $response->withStatus(400);
+        }
+
+        $namespaceValidator = new NamespaceValidator();
+        $namespace = $namespaceValidator->normalizeCandidate((string) ($parsedBody['namespace'] ?? ''));
+        if ($namespace === null) {
+            return $response->withStatus(400);
+        }
+
+        $logoMode = (string) ($parsedBody['navigationLogoMode'] ?? NavigationSettingsService::MODE_TEXT);
+        $logoAlt = array_key_exists('navigationLogoAlt', $parsedBody)
+            ? (string) $parsedBody['navigationLogoAlt']
+            : null;
+        $logoPath = $this->navigationSettings->getSettings($namespace)['logo_image'] ?? null;
+        $uploadedLogo = $uploads['navigationLogoImage'] ?? null;
+
+        try {
+            if ($uploadedLogo !== null && $uploadedLogo->getError() !== UPLOAD_ERR_NO_FILE) {
+                $this->imageUploadService->validate(
+                    $uploadedLogo,
+                    5 * 1024 * 1024,
+                    ['png', 'jpg', 'jpeg', 'webp', 'svg'],
+                    ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+                );
+                $logoPath = $this->imageUploadService->saveUploadedFile(
+                    $uploadedLogo,
+                    'uploads',
+                    'navigation-logo-' . $namespace,
+                    512,
+                    512,
+                    ImageUploadService::QUALITY_LOGO,
+                    true
+                );
+            }
+
+            $this->navigationSettings->saveSettings($namespace, $logoMode, $logoPath, $logoAlt);
+            $_SESSION['navigation_flash'] = [
+                'type' => 'success',
+                'message' => 'Navigation-Logo gespeichert.',
+            ];
+        } catch (\RuntimeException $exception) {
+            $_SESSION['navigation_flash'] = [
+                'type' => 'error',
+                'message' => $exception->getMessage(),
+            ];
+        }
+
+        return $response
+            ->withHeader('Location', $this->buildNavigationRedirectUrl($request, $namespace))
+            ->withStatus(303);
     }
 
     public function generateMenu(Request $request, Response $response, array $args): Response
@@ -452,6 +531,14 @@ class ProjectPagesController
         }
 
         return $lookup;
+    }
+
+    private function buildNavigationRedirectUrl(Request $request, string $namespace): string
+    {
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
+        $query = http_build_query(['namespace' => $namespace]);
+
+        return $basePath . '/admin/pages/navigation' . ($query !== '' ? '?' . $query : '');
     }
 
     /**

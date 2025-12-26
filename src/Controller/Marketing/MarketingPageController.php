@@ -13,6 +13,7 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
+use App\Service\NavigationSettingsService;
 use App\Service\ConfigService;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
@@ -36,6 +37,7 @@ use function dirname;
 use function file_get_contents;
 use function html_entity_decode;
 use function htmlspecialchars;
+use function preg_match;
 use function is_readable;
 use function max;
 use function preg_replace;
@@ -71,6 +73,7 @@ class MarketingPageController
     private NamespaceResolver $namespaceResolver;
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
+    private NavigationSettingsService $navigationSettings;
 
     public function __construct(
         ?string $slug = null,
@@ -86,7 +89,8 @@ class MarketingPageController
         ?PageModuleService $pageModules = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?ProjectSettingsService $projectSettings = null,
-        ?ConfigService $configService = null
+        ?ConfigService $configService = null,
+        ?NavigationSettingsService $navigationSettings = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -103,6 +107,7 @@ class MarketingPageController
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
         $pdo = Database::connectFromEnv();
         $this->configService = $configService ?? new ConfigService($pdo);
+        $this->navigationSettings = $navigationSettings ?? new NavigationSettingsService();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -237,6 +242,9 @@ class MarketingPageController
             $locale,
             true
         );
+        $navigationSettings = $this->navigationSettings->getSettings($namespace);
+        $navigationLogoUrl = $this->resolveNavigationLogoUrl($navigationSettings['logo_image'] ?? null, $basePath);
+        $navigationLogoMarkup = $this->renderNavigationLogo($view, $navigationSettings, $basePath, $navigationLogoUrl);
 
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
@@ -268,13 +276,9 @@ class MarketingPageController
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
             'config' => $designConfig,
+            'navigationSettings' => $navigationSettings,
+            'navigationLogo' => $navigationLogoMarkup,
         ];
-        if ($templateSlug === 'landing') {
-            $data['headerContent'] = $headerContent;
-            $data['isAdmin'] = $isAdmin;
-            $data['marketingNamespace'] = $page->getNamespace();
-        }
-
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
         }
@@ -317,7 +321,10 @@ class MarketingPageController
 
         if ($templateSlug === 'landing') {
             $menuMarkup = $this->renderMarketingMenuMarkup($view, $marketingMenuItems, 'uk-navbar-nav uk-visible@m');
-            $headerContent = $this->loadHeaderContent($view, $menuMarkup);
+            $headerContent = $this->loadHeaderContent($view, $menuMarkup, $navigationLogoMarkup);
+            $data['headerContent'] = $headerContent;
+            $data['isAdmin'] = $isAdmin;
+            $data['marketingNamespace'] = $page->getNamespace();
         }
 
         $data['marketingMenuItems'] = $marketingMenuItems;
@@ -375,7 +382,7 @@ class MarketingPageController
         return sprintf('%s–%s', $startLabel, $endLabel);
     }
 
-    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup): string
+    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup, string $navigationLogoMarkup): string
     {
         $filePath = dirname(__DIR__, 3) . '/content/header.html';
         if (!is_readable($filePath)) {
@@ -390,8 +397,41 @@ class MarketingPageController
         $configMenu = $view->fetch('components/config-menu.twig', ['show_help' => false]);
         $lockedMenu = '<div class="qr-header-config-menu" contenteditable="false">' . $configMenu . '</div>';
         $fileContent = str_replace('{{ marketing_menu }}', $marketingMenuMarkup, $fileContent);
+        $fileContent = str_replace('{{ marketing_logo }}', $navigationLogoMarkup, $fileContent);
 
         return str_replace('{{ config_menu }}', $lockedMenu, $fileContent);
+    }
+
+    /**
+     * @param array{logo_mode: string, logo_image: ?string, logo_alt: ?string} $settings
+     */
+    private function renderNavigationLogo(Twig $view, array $settings, string $basePath, ?string $logoUrl): string
+    {
+        return $view->fetch('marketing/partials/navigation-logo.twig', [
+            'logoMode' => $settings['logo_mode'] ?? NavigationSettingsService::MODE_TEXT,
+            'logoImage' => $logoUrl,
+            'logoAlt' => $settings['logo_alt'] ?? null,
+            'brandLabel' => self::DEFAULT_NEWSLETTER_BRAND,
+            'basePath' => $basePath,
+        ]);
+    }
+
+    private function resolveNavigationLogoUrl(?string $path, string $basePath): ?string
+    {
+        if ($path === null || $path === '') {
+            return null;
+        }
+
+        if (preg_match('#^https?://#', $path)) {
+            return $path;
+        }
+
+        $normalizedBase = rtrim($basePath, '/');
+        if ($normalizedBase === '') {
+            return $path;
+        }
+
+        return $normalizedBase . $path;
     }
 
     private function renderMarketingMenuMarkup(Twig $view, array $menuItems, string $navClass): string

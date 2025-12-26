@@ -85,6 +85,13 @@
             is_active: true
           }] %}
         {% endif %}
+        {% set navigationSettings = navigation_settings|default({
+          logo_mode: 'text',
+          logo_image: null,
+          logo_alt: null
+        }) %}
+        {% set navigationFlash = navigation_flash|default(null) %}
+        {% set navigationLogoPreview = navigation_logo_url|default(null) %}
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <div class="uk-grid-small uk-flex-middle" uk-grid>
             <div class="uk-width-1-1 uk-width-expand@m">
@@ -112,6 +119,97 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <div>
+              <div class="uk-text-meta uk-text-uppercase">Logo</div>
+              <h3 class="uk-card-title uk-margin-remove">Navigation-Branding</h3>
+            </div>
+            {% if navigationFlash %}
+              <div
+                class="uk-alert uk-alert-{{ navigationFlash.type == 'success' ? 'success' : 'danger' }} uk-margin-remove"
+                role="status"
+              >
+                {{ navigationFlash.message }}
+              </div>
+            {% endif %}
+          </div>
+          <form
+            class="uk-form-stacked uk-margin-top"
+            method="post"
+            enctype="multipart/form-data"
+            action="{{ basePath }}/admin/pages/navigation/logo"
+          >
+            <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token|e('html_attr') }}">
+            <div class="uk-margin">
+              <label class="uk-form-label">Logo-Variante</label>
+              <div class="uk-form-controls uk-form-controls-text uk-flex uk-flex-wrap" style="gap: 12px;">
+                <label>
+                  <input
+                    class="uk-radio"
+                    type="radio"
+                    name="navigationLogoMode"
+                    value="text"
+                    {% if navigationSettings.logo_mode != 'image' %}checked{% endif %}
+                  >
+                  <span>Schriftzug</span>
+                </label>
+                <label>
+                  <input
+                    class="uk-radio"
+                    type="radio"
+                    name="navigationLogoMode"
+                    value="image"
+                    {% if navigationSettings.logo_mode == 'image' %}checked{% endif %}
+                  >
+                  <span>Bild</span>
+                </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="navigationLogoImage">Logo-Bild</label>
+              <div class="uk-form-controls">
+                <input
+                  class="uk-input"
+                  type="file"
+                  id="navigationLogoImage"
+                  name="navigationLogoImage"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                >
+              </div>
+              <div class="uk-text-meta uk-margin-small-top">
+                PNG, JPG, WEBP oder SVG, max. 5&nbsp;MB.
+              </div>
+              {% if navigationLogoPreview %}
+                <div class="uk-flex uk-flex-middle uk-margin-small-top" style="gap: 8px;">
+                  <img src="{{ navigationLogoPreview }}" alt="{{ navigationSettings.logo_alt|default('')|e }}" style="max-height: 48px;">
+                  <span class="uk-text-meta">Aktuelles Logo</span>
+                </div>
+              {% endif %}
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="navigationLogoAlt">Alternativtext</label>
+              <div class="uk-form-controls">
+                <input
+                  id="navigationLogoAlt"
+                  name="navigationLogoAlt"
+                  class="uk-input"
+                  type="text"
+                  maxlength="200"
+                  value="{{ navigationSettings.logo_alt|default('')|e('html_attr') }}"
+                >
+              </div>
+              <div class="uk-text-meta uk-margin-small-top">
+                Optional: Wird für das Bildlogo genutzt.
+              </div>
+            </div>
+            <div class="uk-margin">
+              <button class="uk-button uk-button-primary" type="submit">Logo speichern</button>
+            </div>
+          </form>
         </div>
 
         {% set pagesList = pages|default([]) %}

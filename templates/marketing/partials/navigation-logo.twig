@@ -1,0 +1,10 @@
+{% set logoMode = logoMode|default('text') %}
+{% set brandLabel = brandLabel|default('QuizRace') %}
+{% set logoHref = basePath|default('') ~ '/landing' %}
+<a class="uk-logo" href="{{ logoHref }}">
+  {% if logoMode == 'image' and logoImage %}
+    <img src="{{ logoImage }}" alt="{{ logoAlt|default(brandLabel)|e }}" loading="lazy" decoding="async">
+  {% else %}
+    {{ brandLabel }}
+  {% endif %}
+</a>

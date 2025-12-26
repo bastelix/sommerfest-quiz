@@ -38,7 +38,8 @@ final class ProjectSettingsRepository
         $stmt = $this->pdo->prepare(
             'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
-            . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, updated_at '
+            . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
+            . 'navigation_logo_mode, navigation_logo_image, navigation_logo_alt, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
@@ -93,6 +94,31 @@ final class ProjectSettingsRepository
             $privacyUrl,
             $privacyUrlDe,
             $privacyUrlEn,
+        ]);
+        $stmt->closeCursor();
+    }
+
+    public function upsertNavigationSettings(
+        string $namespace,
+        string $logoMode,
+        ?string $logoImage,
+        ?string $logoAlt
+    ): void {
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO project_settings (namespace, navigation_logo_mode, navigation_logo_image, navigation_logo_alt) '
+            . 'VALUES (?, ?, ?, ?) '
+            . 'ON CONFLICT (namespace) DO UPDATE SET '
+            . 'navigation_logo_mode = EXCLUDED.navigation_logo_mode, '
+            . 'navigation_logo_image = EXCLUDED.navigation_logo_image, '
+            . 'navigation_logo_alt = EXCLUDED.navigation_logo_alt, '
+            . 'updated_at = CURRENT_TIMESTAMP'
+        );
+
+        $stmt->execute([
+            $namespace,
+            $logoMode,
+            $logoImage,
+            $logoAlt,
         ]);
         $stmt->closeCursor();
     }
