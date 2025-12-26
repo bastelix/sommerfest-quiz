@@ -2385,7 +2385,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         return $controller->index($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
 
     $app->post('/admin/mail-providers', function (Request $request, Response $response) {
         $controller = $request->getAttribute('mailProviderController');
@@ -2394,7 +2394,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         return $controller->save($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
 
     $app->post('/admin/mail-providers/test', function (Request $request, Response $response) {
         $controller = $request->getAttribute('mailProviderController');
@@ -2403,7 +2403,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
 
         return $controller->testConnection($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI))->add(new CsrfMiddleware());
 
     $app->get('/admin/prompt-templates', function (Request $request, Response $response) {
         $controller = $request->getAttribute('promptTemplateController');
