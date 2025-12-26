@@ -15,7 +15,25 @@ import {
 } from './event-switcher.js';
 import { applyLazyImage } from './lazy-images.js';
 
-const basePath = window.basePath || '';
+const normalizeBasePath = (candidate = '') => {
+  const trimmed = String(candidate || '').trim();
+  if (trimmed === '') {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return parsed.pathname.replace(/\/$/, '');
+    }
+  } catch (error) {
+    // Fall back to the raw path if parsing fails (e.g. relative paths)
+  }
+
+  return trimmed.replace(/\/$/, '');
+};
+
+const basePath = normalizeBasePath(window.basePath || '');
 const withBase = path => basePath + path;
 const resolveWithBase = (path) => {
   if (typeof path !== 'string') {
