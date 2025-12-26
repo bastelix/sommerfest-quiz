@@ -8873,6 +8873,15 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshTenantList();
   });
 
+  const initBackupDropdowns = (root) => {
+    if (!root || typeof UIkit === 'undefined' || typeof UIkit.dropdown !== 'function') {
+      return;
+    }
+    root.querySelectorAll('[uk-dropdown]').forEach(el => {
+      UIkit.dropdown(el);
+    });
+  };
+
   function loadBackups() {
     if (!backupTableBody) return;
     apiFetch('/backups')
@@ -8887,6 +8896,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .then(html => {
         backupTableBody.innerHTML = html;
+        initBackupDropdowns(backupTableBody);
       })
       .catch(err => {
         backupTableBody.innerHTML = '<tr><td colspan="2">Fehler</td></tr>';
@@ -10974,6 +10984,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   initProjectTree();
+  initBackupDropdowns(backupTableBody);
   loadBackups();
   const path = window.location.pathname.replace(basePath + '/admin', '');
   const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
