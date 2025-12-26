@@ -398,7 +398,7 @@
               {% endif %}
             </span>
           </div>
-          <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form>
+          <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form enctype="multipart/form-data">
             <div class="uk-margin">
               <label class="uk-form-label" for="showLanguageToggle">Sprachmenü anzeigen</label>
               <div class="uk-form-controls">
@@ -442,6 +442,71 @@
                   >
                   High-Contrast-Umschalter sichtbar
                 </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label">Logo-Einstellungen</label>
+              <div class="uk-form-controls">
+                <div class="uk-grid-small uk-child-width-auto uk-flex-middle" uk-grid>
+                  {% set logoMode = navSettings.header_logo_mode|default('text') %}
+                  <label>
+                    <input
+                      class="uk-radio"
+                      type="radio"
+                      name="header_logo_mode"
+                      value="text"
+                      {% if logoMode != 'image' %}checked{% endif %}
+                    >
+                    Schriftzug verwenden
+                  </label>
+                  <label>
+                    <input
+                      class="uk-radio"
+                      type="radio"
+                      name="header_logo_mode"
+                      value="image"
+                      {% if logoMode == 'image' %}checked{% endif %}
+                    >
+                    Bildlogo anzeigen
+                  </label>
+                </div>
+              </div>
+              <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-2@s uk-margin-small-top" uk-grid>
+                <div>
+                  <label class="uk-form-label" for="headerLogoFile">Logo-Datei</label>
+                  <div class="uk-form-controls">
+                    <input
+                      class="uk-input"
+                      type="file"
+                      id="headerLogoFile"
+                      name="headerLogoFile"
+                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    >
+                  </div>
+                  <div class="uk-text-meta uk-margin-small-top">PNG, JPG, WEBP oder SVG, max. 5 MB.</div>
+                  <div class="uk-text-meta uk-margin-small-top" data-current-logo-path {% if not navSettings.header_logo_path %}hidden{% endif %}>
+                    Aktuelles Logo: <span data-current-logo-path-value>{{ navSettings.header_logo_path|default('') }}</span>
+                  </div>
+                  <input
+                    type="hidden"
+                    name="header_logo_path"
+                    value="{{ navSettings.header_logo_path|default('')|e('html_attr') }}"
+                  >
+                </div>
+                <div>
+                  <label class="uk-form-label" for="headerLogoAlt">Alternativtext (optional)</label>
+                  <div class="uk-form-controls">
+                    <input
+                      class="uk-input"
+                      type="text"
+                      id="headerLogoAlt"
+                      name="header_logo_alt"
+                      value="{{ navSettings.header_logo_alt|default('')|e('html_attr') }}"
+                      maxlength="255"
+                      placeholder="QuizRace Logo"
+                    >
+                  </div>
+                </div>
               </div>
             </div>
             <div class="uk-margin">

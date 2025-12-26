@@ -37,6 +37,17 @@
     <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
+        {% if headerLogo is defined %}
+          <div class="uk-margin-small-bottom">
+            <a class="uk-logo" href="landing">
+              {% if headerLogo.mode == 'image' and headerLogo.src %}
+                <img src="{{ headerLogo.src }}" alt="{{ headerLogo.alt }}">
+              {% else %}
+                {{ headerLogo.label }}
+              {% endif %}
+            </a>
+          </div>
+        {% endif %}
         {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default') }}
         <a class="uk-button uk-button-default git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ" target="_blank" rel="noopener">
           <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten

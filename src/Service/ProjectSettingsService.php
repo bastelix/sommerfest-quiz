@@ -41,6 +41,9 @@ final class ProjectSettingsService
      *     show_language_toggle:bool,
      *     show_theme_toggle:bool,
      *     show_contrast_toggle:bool,
+     *     header_logo_mode:string,
+     *     header_logo_path:string,
+     *     header_logo_alt:string,
      *     updated_at:?string
      * }
      */
@@ -73,6 +76,9 @@ final class ProjectSettingsService
         $showLanguageToggle = $this->normalizeBoolean($row['show_language_toggle'] ?? null, $defaults['show_language_toggle']);
         $showThemeToggle = $this->normalizeBoolean($row['show_theme_toggle'] ?? null, $defaults['show_theme_toggle']);
         $showContrastToggle = $this->normalizeBoolean($row['show_contrast_toggle'] ?? null, $defaults['show_contrast_toggle']);
+        $headerLogoMode = $this->normalizeLogoMode($row['header_logo_mode'] ?? null, $defaults['header_logo_mode']);
+        $headerLogoPath = isset($row['header_logo_path']) ? trim((string) $row['header_logo_path']) : '';
+        $headerLogoAlt = isset($row['header_logo_alt']) ? trim((string) $row['header_logo_alt']) : '';
 
         return [
             'namespace' => $normalized,
@@ -87,6 +93,9 @@ final class ProjectSettingsService
             'show_language_toggle' => $showLanguageToggle,
             'show_theme_toggle' => $showThemeToggle,
             'show_contrast_toggle' => $showContrastToggle,
+            'header_logo_mode' => $headerLogoMode,
+            'header_logo_path' => $headerLogoPath,
+            'header_logo_alt' => $headerLogoAlt,
             'updated_at' => isset($row['updated_at']) ? (string) $row['updated_at'] : null,
         ];
     }
@@ -105,6 +114,9 @@ final class ProjectSettingsService
      *     show_language_toggle:bool,
      *     show_theme_toggle:bool,
      *     show_contrast_toggle:bool,
+     *     header_logo_mode:string,
+     *     header_logo_path:string,
+     *     header_logo_alt:string,
      *     updated_at:?string
      * }
      */
@@ -148,6 +160,15 @@ final class ProjectSettingsService
         $normalizedPrivacyUrl = $this->normalizePrivacyUrl($privacyUrl);
         $normalizedPrivacyUrlDe = $this->normalizePrivacyUrl($privacyUrlDe);
         $normalizedPrivacyUrlEn = $this->normalizePrivacyUrl($privacyUrlEn);
+        $normalizedLogoMode = $this->normalizeLogoMode($headerLogoMode, 'text');
+        $normalizedLogoPath = $headerLogoPath !== null ? trim($headerLogoPath) : null;
+        $normalizedLogoAlt = $headerLogoAlt !== null ? trim($headerLogoAlt) : null;
+        if ($normalizedLogoPath !== null && mb_strlen($normalizedLogoPath) > self::MAX_PRIVACY_URL_LENGTH) {
+            throw new RuntimeException('Logo path is too long.');
+        }
+        if ($normalizedLogoAlt !== null && mb_strlen($normalizedLogoAlt) > 255) {
+            throw new RuntimeException('Logo alt text is too long.');
+        }
 
         $legacyBannerText = $normalizedBannerTextDe !== '' ? $normalizedBannerTextDe : null;
 
@@ -164,7 +185,10 @@ final class ProjectSettingsService
             $normalizedPrivacyUrlEn !== '' ? $normalizedPrivacyUrlEn : null,
             $showLanguageToggle,
             $showThemeToggle,
-            $showContrastToggle
+            $showContrastToggle,
+            $normalizedLogoMode,
+            $normalizedLogoPath !== '' ? $normalizedLogoPath : null,
+            $normalizedLogoAlt !== '' ? $normalizedLogoAlt : null
         );
 
         return $this->getCookieConsentSettings($normalized);
@@ -181,6 +205,12 @@ final class ProjectSettingsService
      *     privacy_url:string,
      *     privacy_url_de:string,
      *     privacy_url_en:string,
+     *     show_language_toggle:bool,
+     *     show_theme_toggle:bool,
+     *     show_contrast_toggle:bool,
+     *     header_logo_mode:string,
+     *     header_logo_path:string,
+     *     header_logo_alt:string,
      *     updated_at:?string
      * }
      */
@@ -199,6 +229,9 @@ final class ProjectSettingsService
             'show_language_toggle' => true,
             'show_theme_toggle' => true,
             'show_contrast_toggle' => true,
+            'header_logo_mode' => 'text',
+            'header_logo_path' => '',
+            'header_logo_alt' => '',
             'updated_at' => null,
         ];
     }
@@ -228,6 +261,16 @@ final class ProjectSettingsService
             if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
                 return false;
             }
+        }
+
+        return $fallback;
+    }
+
+    private function normalizeLogoMode(mixed $value, string $fallback): string
+    {
+        $mode = is_string($value) ? strtolower(trim($value)) : '';
+        if (in_array($mode, ['text', 'image'], true)) {
+            return $mode;
         }
 
         return $fallback;
