@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Domain\MarketingPageMenuItem;
 use App\Domain\Page;
 use App\Infrastructure\Database;
+use App\Service\Marketing\MarketingMenuAiGenerator;
 use DateTimeImmutable;
 use PDO;
 use PDOException;
@@ -36,10 +37,16 @@ final class MarketingMenuService
 
     private PageService $pages;
 
-    public function __construct(?PDO $pdo = null, ?PageService $pages = null)
-    {
+    private MarketingMenuAiGenerator $menuAiGenerator;
+
+    public function __construct(
+        ?PDO $pdo = null,
+        ?PageService $pages = null,
+        ?MarketingMenuAiGenerator $menuAiGenerator = null
+    ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->pages = $pages ?? new PageService($this->pdo);
+        $this->menuAiGenerator = $menuAiGenerator ?? new MarketingMenuAiGenerator();
     }
 
     /**
@@ -207,6 +214,44 @@ final class MarketingMenuService
 
             throw new RuntimeException('Menu import failed.', 0, $exception);
         }
+    }
+
+    /**
+     * Generate menu entries from page HTML via AI and persist them.
+     *
+     * @return MarketingPageMenuItem[]
+     */
+    public function generateMenuFromPage(Page $page, ?string $locale, bool $overwrite): array
+    {
+        $normalizedLocale = $locale !== null ? $this->normalizeLocale($locale) : null;
+        $startpageLocales = $overwrite ? [] : $this->collectStartpageLocales($page, $normalizedLocale);
+
+        $items = $this->menuAiGenerator->generate($page, $normalizedLocale);
+        $normalizedItems = $this->normalizeImportItems($items, $startpageLocales);
+
+        $this->pdo->beginTransaction();
+
+        try {
+            if ($overwrite) {
+                $this->resetStartpages($page->getNamespace());
+                $this->deleteMenuItemsForPage($page->getId());
+            }
+
+            $positionOffset = $overwrite
+                ? 0
+                : $this->determineNextRootPosition($page->getId(), $normalizedLocale);
+
+            $itemsWithLocale = $this->applyLocaleAndPositions($normalizedItems, $normalizedLocale, $positionOffset);
+
+            $this->persistImportedItems($page->getId(), $itemsWithLocale, null);
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+
+            throw new RuntimeException('Menu generation failed.', 0, $exception);
+        }
+
+        return $this->getMenuItemsForPage($page->getId(), $normalizedLocale, false);
     }
 
     /**
@@ -742,6 +787,33 @@ final class MarketingMenuService
         return ((int) $max) + 1;
     }
 
+    private function determineNextRootPosition(int $pageId, ?string $locale): int
+    {
+        $items = $this->getMenuItemsForPage($pageId, $locale, false);
+        $max = -1;
+        foreach ($items as $item) {
+            if ($item->getParentId() === null) {
+                $max = max($max, $item->getPosition());
+            }
+        }
+
+        return $max + 1;
+    }
+
+    private function collectStartpageLocales(Page $page, ?string $locale): array
+    {
+        $items = $this->getMenuItemsForPage($page->getId(), $locale, false);
+        $locales = [];
+
+        foreach ($items as $item) {
+            if ($item->isStartpage()) {
+                $locales[$item->getLocale()] = true;
+            }
+        }
+
+        return $locales;
+    }
+
     private function normalizeLabel(string $label): string
     {
         $normalized = trim($label);
@@ -999,6 +1071,34 @@ final class MarketingMenuService
                 'isStartpage' => $isStartpage,
                 'children' => $children,
             ];
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function applyLocaleAndPositions(array $items, ?string $locale, int $rootOffset): array
+    {
+        $position = $rootOffset;
+        $normalized = [];
+
+        foreach ($items as $item) {
+            $current = $item;
+            if ($locale !== null) {
+                $current['locale'] = $locale;
+            }
+
+            $current['position'] = ($item['position'] ?? 0) + $position;
+            $position = $current['position'] + 1;
+
+            if (isset($item['children']) && is_array($item['children'])) {
+                $current['children'] = $this->applyLocaleAndPositions($item['children'], $locale, 0);
+            }
+
+            $normalized[] = $current;
         }
 
         return $normalized;
