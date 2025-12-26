@@ -746,7 +746,11 @@ if (container) {
         })
         .catch(error => {
           console.error('AI menu generation failed', error);
-          setFeedback('Navigation konnte nicht automatisch generiert werden.', 'danger');
+          const details = (error?.message || '').trim();
+          const message = details && details !== 'menu-ai-failed'
+            ? `Navigation konnte nicht automatisch generiert werden: ${details}`
+            : 'Navigation konnte nicht automatisch generiert werden.';
+          setFeedback(message, 'danger');
         });
     };
 
