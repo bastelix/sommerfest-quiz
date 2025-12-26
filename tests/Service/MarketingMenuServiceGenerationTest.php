@@ -117,7 +117,8 @@ final class MarketingMenuServiceGenerationTest extends TestCase
             'INSERT INTO pages (namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, '
             . 'startpage_domain, is_startpage) VALUES (?, ?, ?, ?, NULL, NULL, 0, NULL, ?, NULL, NULL, 0)'
         );
-        $stmt->execute(['default', $slug, ucfirst($slug), '<h1>' . $slug . '</h1>', 'de']);
+        $content = '<h1 id="' . $slug . '">' . ucfirst($slug) . '</h1><section id="neu">Neu</section>';
+        $stmt->execute(['default', $slug, ucfirst($slug), $content, 'de']);
 
         return $this->pageService->findById((int) $this->pdo->lastInsertId());
     }

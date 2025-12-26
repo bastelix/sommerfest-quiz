@@ -64,6 +64,14 @@ final class MarketingMenuAiErrorMapper
             ];
         }
 
+        if ($message === MarketingMenuAiGenerator::ERROR_INVALID_LINKS) {
+            return [
+                'error_code' => 'ai_invalid_links',
+                'message' => 'The AI responder returned links that are not present in the page content.',
+                'status' => 422,
+            ];
+        }
+
         if ($message !== '' && str_starts_with($message, MarketingMenuAiGenerator::ERROR_RESPONDER_FAILED . ':')) {
             $details = trim(substr($message, strlen(MarketingMenuAiGenerator::ERROR_RESPONDER_FAILED . ':')));
             if ($this->isTimeout($exception)) {
