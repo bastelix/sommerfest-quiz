@@ -83,34 +83,28 @@ Run the following commands before every pull request. They are the same checks e
 * `vendor/bin/phpunit` – executes the PHP unit test suite.
 * `python3 tests/test_html_validity.py` – validates our Twig templates for correct HTML nesting.
 * `python3 tests/test_json_validity.py` – ensures JSON catalogues remain well-formed.
-* JavaScript behaviour tests:
+* JavaScript behaviour tests (Node.js 20 LTS):
   ```bash
+  node tests/test_competition_mode.js
+  node tests/test_results_rankings.js
+  node tests/test_random_name_prompt.js
+  node tests/test_onboarding_plan.js
+  node tests/test_onboarding_flow.js
+  node tests/test_login_free_catalog.js
   node tests/test_catalog_smoke.js
   node tests/test_catalog_autostart_path.js
+  node tests/test_shuffle_questions.js
+  node tests/test_team_name_suggestion.js
   node tests/test_catalog_prevent_repeat.js
-  node tests/test_catalog_slug_no_select.js
-  node tests/test_catalog_slug_param.js
-  node tests/test_competition_mode.js
-  node tests/test_competition_prevent_replay.js
-  node tests/test_event_search_visibility.js
   node tests/test_event_summary_switch.js
-  node tests/test_login_free_catalog.js
+  node tests/test_sticker_editor_save_events.js
   node tests/test_media_filters.js
   node tests/test_media_preview.js
-  node tests/test_onboarding_flow.js
-  node tests/test_onboarding_plan.js
-  node tests/test_profile_flow.js
-  node tests/test_profile_return_url.js
-  node tests/test_random_name_prompt.js
-  node tests/test_results_rankings.js
-  node tests/test_shuffle_questions.js
-  node tests/test_sticker_editor_save_events.js
-  node tests/test_team_name_suggestion.js
-  node tests/test_team_restrict.js
   ```
 
-You can run the complete pipeline via `composer test`, but executing the commands individually often
-produces faster feedback while you iterate.
+You can run the complete pipeline via `composer test`, which executes the PHP,
+Python, and JavaScript checks in the order listed above. Running the commands
+individually often produces faster feedback while you iterate.
 
 ## Pull request checklist
 
