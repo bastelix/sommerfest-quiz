@@ -10619,6 +10619,20 @@ document.addEventListener('DOMContentLoaded', function () {
       return normalized === '' ? null : normalized;
     };
     const namespaceRegex = new RegExp(namespacePattern);
+    const resolveErrorMessage = (error) => {
+      const candidate = error?.message || '';
+      if (typeof candidate === 'string' && candidate.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(candidate);
+          if (parsed && typeof parsed.error === 'string') {
+            return parsed.error;
+          }
+        } catch (_) {}
+      }
+
+      return candidate || messages.error;
+    };
+
     const getNamespaceError = value => {
       if (value === '') {
         return messages.invalidEmpty || messages.invalid;
@@ -10721,7 +10735,7 @@ document.addEventListener('DOMContentLoaded', function () {
           namespaceTable.render(normalized);
         })
         .catch(err => {
-          const message = err?.message || messages.error;
+          const message = resolveErrorMessage(err);
           const finalMessage = message === messages.error && messages.tableMissing
             ? messages.tableMissing
             : message;
@@ -10749,7 +10763,7 @@ document.addEventListener('DOMContentLoaded', function () {
           loadNamespaces();
         })
         .catch(err => {
-          const message = err?.message || messages.error;
+          const message = resolveErrorMessage(err);
           if (message === messages.defaultLocked || message === messages.inUse) {
             notify(message, 'warning');
           } else {
@@ -10847,7 +10861,7 @@ document.addEventListener('DOMContentLoaded', function () {
           loadNamespaces();
         })
         .catch(err => {
-          const message = err?.message || messages.error;
+          const message = resolveErrorMessage(err);
           if (message === messages.defaultLocked || message === messages.inUse) {
             notify(message, 'warning');
           } else {
@@ -10890,7 +10904,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadNamespaces();
           })
           .catch(err => {
-            const message = err?.message || messages.error;
+            const message = resolveErrorMessage(err);
             if (message === messages.duplicate) {
               notify(messages.duplicate, 'warning');
             } else {
