@@ -6049,6 +6049,7 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.appendChild(opt);
       });
     }
+    if (!catalogManager) return;
     catalogManager.render(catalogs);
     if (!catalogs.length) {
       if (catSelect) {
@@ -6973,27 +6974,32 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Fügt eine neue leere Frage hinzu
-  addBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    container.appendChild(
-      createCard({ type: 'mc', prompt: '', points: 1, options: ['', ''], answers: [0] }, -1)
-    );
-  });
+  if (addBtn && container) {
+    addBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      container.appendChild(
+        createCard({ type: 'mc', prompt: '', points: 1, options: ['', ''], answers: [0] }, -1)
+      );
+    });
+  }
 
-  newCatBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    const id = crypto.randomUUID();
-    const item = { id, slug: '', file: '', name: '', description: '', raetsel_buchstabe: '', comment: '', new: true };
-    const list = catalogManager.getData();
-    list.push(item);
-    catalogManager.render(list);
-    saveCatalogs(list, true);
-    const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
-    if (cell) {
-      catalogEditError.hidden = true;
-      catalogEditor.open(cell);
-    }
-  });
+  if (newCatBtn) {
+    newCatBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!catalogManager) return;
+      const id = crypto.randomUUID();
+      const item = { id, slug: '', file: '', name: '', description: '', raetsel_buchstabe: '', comment: '', new: true };
+      const list = catalogManager.getData();
+      list.push(item);
+      catalogManager.render(list);
+      saveCatalogs(list, true);
+      const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
+      if (cell) {
+        catalogEditError.hidden = true;
+        catalogEditor.open(cell);
+      }
+    });
+  }
 
 
   const resultsResetBtn = document.getElementById('resultsResetBtn');
