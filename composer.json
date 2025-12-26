@@ -28,6 +28,11 @@
             "src/process_helpers.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "require-dev": {
         "phpunit/phpunit": "^10.0",
         "phpstan/phpstan": "^2.1",
