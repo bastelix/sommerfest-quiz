@@ -961,7 +961,8 @@ const initProjectSettings = () => {
       return;
     }
 
-    const payload = { namespace };
+    const payload = new FormData();
+    payload.append('namespace', namespace);
     const consentInput = form.querySelector('#cookieConsentEnabled');
     const storageInput = form.querySelector('#cookieStorageKey');
     const bannerDeInput = form.querySelector('#cookieBannerTextDe');
@@ -973,39 +974,55 @@ const initProjectSettings = () => {
     const showLanguageInput = form.querySelector('#showLanguageToggle');
     const showThemeInput = form.querySelector('#showThemeToggle');
     const showContrastInput = form.querySelector('#showContrastToggle');
+    const logoModeInput = form.querySelector('input[name="header_logo_mode"]:checked');
+    const logoAltInput = form.querySelector('#headerLogoAlt');
+    const logoPathInput = form.querySelector('input[name="header_logo_path"]');
+    const logoFileInput = form.querySelector('#headerLogoFile');
 
     if (consentInput) {
-      payload.cookieConsentEnabled = Boolean(consentInput.checked);
+      payload.append('cookieConsentEnabled', consentInput.checked ? '1' : '0');
     }
     if (storageInput) {
-      payload.cookieStorageKey = storageInput.value || '';
+      payload.append('cookieStorageKey', storageInput.value || '');
     }
     if (bannerDeInput) {
-      payload.cookieBannerTextDe = bannerDeInput.value || '';
+      payload.append('cookieBannerTextDe', bannerDeInput.value || '');
     }
     if (bannerEnInput) {
-      payload.cookieBannerTextEn = bannerEnInput.value || '';
+      payload.append('cookieBannerTextEn', bannerEnInput.value || '');
     }
     if (vendorFlagsInput) {
-      payload.cookieVendorFlags = vendorFlagsInput.value || '';
+      payload.append('cookieVendorFlags', vendorFlagsInput.value || '');
     }
     if (privacyInput) {
-      payload.privacyUrl = privacyInput.value || '';
+      payload.append('privacyUrl', privacyInput.value || '');
     }
     if (privacyDeInput) {
-      payload.privacyUrlDe = privacyDeInput.value || '';
+      payload.append('privacyUrlDe', privacyDeInput.value || '');
     }
     if (privacyEnInput) {
-      payload.privacyUrlEn = privacyEnInput.value || '';
+      payload.append('privacyUrlEn', privacyEnInput.value || '');
     }
     if (showLanguageInput) {
-      payload.showLanguageToggle = Boolean(showLanguageInput.checked);
+      payload.append('showLanguageToggle', showLanguageInput.checked ? '1' : '0');
     }
     if (showThemeInput) {
-      payload.showThemeToggle = Boolean(showThemeInput.checked);
+      payload.append('showThemeToggle', showThemeInput.checked ? '1' : '0');
     }
     if (showContrastInput) {
-      payload.showContrastToggle = Boolean(showContrastInput.checked);
+      payload.append('showContrastToggle', showContrastInput.checked ? '1' : '0');
+    }
+    if (logoModeInput) {
+      payload.append('headerLogoMode', logoModeInput.value);
+    }
+    if (logoAltInput) {
+      payload.append('headerLogoAlt', logoAltInput.value || '');
+    }
+    if (logoPathInput) {
+      payload.append('headerLogoPath', logoPathInput.value || '');
+    }
+    if (logoFileInput && logoFileInput.files && logoFileInput.files[0]) {
+      payload.append('headerLogoFile', logoFileInput.files[0]);
     }
 
     setStatus('Speichert…', false);
@@ -1014,10 +1031,9 @@ const initProjectSettings = () => {
       const response = await apiFetch(endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'X-CSRF-Token': getCsrfToken()
         },
-        body: JSON.stringify(payload)
+        body: payload
       });
 
       if (!response.ok) {
@@ -1077,6 +1093,29 @@ const initProjectSettings = () => {
       }
       if (showContrastInput && typeof settings.show_contrast_toggle === 'boolean') {
         showContrastInput.checked = settings.show_contrast_toggle;
+      }
+      if (logoAltInput && typeof settings.header_logo_alt === 'string') {
+        logoAltInput.value = settings.header_logo_alt;
+      }
+      if (logoPathInput && typeof settings.header_logo_path === 'string') {
+        logoPathInput.value = settings.header_logo_path;
+        const logoPathLabel = form.querySelector('[data-current-logo-path]');
+        const logoPathValue = form.querySelector('[data-current-logo-path-value]');
+        if (logoPathValue) {
+          logoPathValue.textContent = settings.header_logo_path;
+        }
+        if (logoPathLabel) {
+          logoPathLabel.hidden = !settings.header_logo_path;
+        }
+      }
+      if (settings.header_logo_mode) {
+        const modeValue = settings.header_logo_mode === 'image' ? 'image' : 'text';
+        const modeInputs = form.querySelectorAll('input[name="header_logo_mode"]');
+        modeInputs.forEach(input => {
+          if (input instanceof HTMLInputElement) {
+            input.checked = input.value === modeValue;
+          }
+        });
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

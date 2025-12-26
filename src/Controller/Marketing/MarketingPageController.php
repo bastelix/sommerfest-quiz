@@ -242,6 +242,7 @@ class MarketingPageController
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
+        $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
         $designConfig = $this->configService->getConfigForEvent($namespace);
         if ($designConfig === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
@@ -271,12 +272,6 @@ class MarketingPageController
             'config' => $designConfig,
             'headerConfig' => $headerConfig,
         ];
-        if ($templateSlug === 'landing') {
-            $data['headerContent'] = $headerContent;
-            $data['isAdmin'] = $isAdmin;
-            $data['marketingNamespace'] = $page->getNamespace();
-        }
-
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
         }
@@ -319,7 +314,14 @@ class MarketingPageController
 
         if ($templateSlug === 'landing') {
             $menuMarkup = $this->renderMarketingMenuMarkup($view, $marketingMenuItems, 'uk-navbar-nav uk-visible@m');
-            $headerContent = $this->loadHeaderContent($view, $menuMarkup, $headerConfig);
+            $headerContent = $this->loadHeaderContent($view, $menuMarkup, $headerConfig, $headerLogo);
+        }
+
+        if ($templateSlug === 'landing') {
+            $data['headerContent'] = $headerContent;
+            $data['isAdmin'] = $isAdmin;
+            $data['marketingNamespace'] = $page->getNamespace();
+            $data['headerLogo'] = $headerLogo;
         }
 
         $data['marketingMenuItems'] = $marketingMenuItems;
@@ -379,8 +381,9 @@ class MarketingPageController
 
     /**
      * @param array<string, bool> $headerConfig
+     * @param array<string, mixed> $headerLogo
      */
-    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup, array $headerConfig): string
+    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup, array $headerConfig, array $headerLogo): string
     {
         $filePath = dirname(__DIR__, 3) . '/content/header.html';
         if (!is_readable($filePath)) {
@@ -400,8 +403,28 @@ class MarketingPageController
         ]);
         $lockedMenu = '<div class="qr-header-config-menu" contenteditable="false">' . $configMenu . '</div>';
         $fileContent = str_replace('{{ marketing_menu }}', $marketingMenuMarkup, $fileContent);
+        $fileContent = str_replace('{{ header_logo }}', $this->renderHeaderLogo($headerLogo), $fileContent);
 
         return str_replace('{{ config_menu }}', $lockedMenu, $fileContent);
+    }
+
+    /**
+     * @param array{mode:string,src:?string,alt:string,label:string} $headerLogo
+     */
+    private function renderHeaderLogo(array $headerLogo): string
+    {
+        $label = htmlspecialchars((string) ($headerLogo['label'] ?? 'QuizRace'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $alt = htmlspecialchars((string) ($headerLogo['alt'] ?? $label), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $mode = $headerLogo['mode'] ?? 'text';
+        $src = $headerLogo['src'] ?? null;
+
+        if ($mode === 'image' && is_string($src) && $src !== '') {
+            $safeSrc = htmlspecialchars($src, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+            return sprintf('<a class="uk-logo" href="landing"><img src="%s" alt="%s"></a>', $safeSrc, $alt);
+        }
+
+        return sprintf('<a class="uk-logo" href="landing">%s</a>', $label);
     }
 
     /**
@@ -415,6 +438,57 @@ class MarketingPageController
             'show_theme_toggle' => (bool) ($settings['show_theme_toggle'] ?? true),
             'show_contrast_toggle' => (bool) ($settings['show_contrast_toggle'] ?? true),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     * @return array{mode:string,src:?string,alt:string,label:string,path:string}
+     */
+    private function buildHeaderLogoSettings(array $settings, string $basePath): array
+    {
+        $mode = is_string($settings['header_logo_mode'] ?? null)
+            ? strtolower(trim((string) $settings['header_logo_mode']))
+            : 'text';
+        $path = is_string($settings['header_logo_path'] ?? null)
+            ? trim((string) $settings['header_logo_path'])
+            : '';
+        $alt = is_string($settings['header_logo_alt'] ?? null)
+            ? trim((string) $settings['header_logo_alt'])
+            : '';
+        $label = 'QuizRace';
+        $src = $this->resolveHeaderLogoPath($path, $basePath);
+
+        if ($mode !== 'image' || $src === null) {
+            $mode = 'text';
+        }
+
+        return [
+            'mode' => $mode,
+            'src' => $src,
+            'alt' => $alt !== '' ? $alt : $label,
+            'label' => $label,
+            'path' => $path,
+        ];
+    }
+
+    private function resolveHeaderLogoPath(?string $path, string $basePath): ?string
+    {
+        if (!is_string($path)) {
+            return null;
+        }
+
+        $normalized = trim($path);
+        if ($normalized === '') {
+            return null;
+        }
+
+        if (str_starts_with($normalized, 'http://') || str_starts_with($normalized, 'https://')) {
+            return $normalized;
+        }
+
+        $normalizedBase = rtrim($basePath, '/');
+
+        return ($normalizedBase !== '' ? $normalizedBase : '') . '/' . ltrim($normalized, '/');
     }
 
     private function renderMarketingMenuMarkup(Twig $view, array $menuItems, string $navClass): string

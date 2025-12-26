@@ -13,6 +13,7 @@ use App\Repository\NamespaceRepository;
 use App\Service\ConfigService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
+use App\Service\ImageUploadService;
 use App\Service\MarketingNewsletterConfigService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\NamespaceAccessService;
@@ -42,6 +43,7 @@ class ProjectController
     private LandingMediaReferenceService $mediaReferenceService;
     private NamespaceRepository $namespaceRepository;
     private ProjectSettingsService $projectSettings;
+    private ImageUploadService $imageUploadService;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -51,7 +53,8 @@ class ProjectController
         ?LandingNewsService $landingNewsService = null,
         ?LandingMediaReferenceService $mediaReferenceService = null,
         ?NamespaceRepository $namespaceRepository = null,
-        ?ProjectSettingsService $projectSettings = null
+        ?ProjectSettingsService $projectSettings = null,
+        ?ImageUploadService $imageUploadService = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -66,6 +69,7 @@ class ProjectController
         );
         $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
+        $this->imageUploadService = $imageUploadService ?? new ImageUploadService();
     }
 
     /**
@@ -95,10 +99,20 @@ class ProjectController
 
     public function updateSettings(Request $request, Response $response): Response
     {
-        $payload = json_decode((string) $request->getBody(), true);
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        $payload = [];
+        if (str_starts_with($contentType, 'application/json')) {
+            $payload = json_decode((string) $request->getBody(), true);
+        } else {
+            $parsedBody = $request->getParsedBody();
+            if (is_array($parsedBody)) {
+                $payload = $parsedBody;
+            }
+        }
         if (!is_array($payload)) {
             return $response->withStatus(400);
         }
+        $uploadedFiles = $request->getUploadedFiles();
 
         $validator = new NamespaceValidator();
         $namespace = $validator->normalizeCandidate((string) ($payload['namespace'] ?? ''));
@@ -144,6 +158,40 @@ class ProjectController
         $showContrastToggle = array_key_exists('showContrastToggle', $payload)
             ? filter_var($payload['showContrastToggle'], FILTER_VALIDATE_BOOLEAN)
             : $currentSettings['show_contrast_toggle'];
+        $headerLogoMode = array_key_exists('headerLogoMode', $payload)
+            ? (string) $payload['headerLogoMode']
+            : ((string) ($payload['header_logo_mode'] ?? $currentSettings['header_logo_mode']));
+        $headerLogoPath = array_key_exists('headerLogoPath', $payload)
+            ? (string) $payload['headerLogoPath']
+            : ((string) ($payload['header_logo_path'] ?? $currentSettings['header_logo_path']));
+        $headerLogoAlt = array_key_exists('headerLogoAlt', $payload)
+            ? (string) $payload['headerLogoAlt']
+            : ((string) ($payload['header_logo_alt'] ?? $currentSettings['header_logo_alt']));
+
+        $headerLogoFile = $uploadedFiles['headerLogoFile'] ?? null;
+        if ($headerLogoFile instanceof \Psr\Http\Message\UploadedFileInterface && $headerLogoFile->getError() !== UPLOAD_ERR_NO_FILE) {
+            try {
+                $this->imageUploadService->validate(
+                    $headerLogoFile,
+                    5 * 1024 * 1024,
+                    ['png', 'jpg', 'jpeg', 'webp', 'svg'],
+                    ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+                );
+                $headerLogoPath = $this->imageUploadService->saveUploadedFile(
+                    $headerLogoFile,
+                    'uploads',
+                    'navigation-logo-' . $namespace,
+                    512,
+                    512,
+                    ImageUploadService::QUALITY_LOGO,
+                    true
+                );
+            } catch (\RuntimeException $exception) {
+                $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+
+                return $response->withStatus(400)->withHeader('Content-Type', 'application/json');
+            }
+        }
 
         $settings = $this->projectSettings->saveCookieConsentSettings(
             $namespace,
@@ -157,7 +205,10 @@ class ProjectController
             $privacyUrlEn,
             $showLanguageToggle,
             $showThemeToggle,
-            $showContrastToggle
+            $showContrastToggle,
+            $headerLogoMode,
+            $headerLogoPath,
+            $headerLogoAlt
         );
 
         $response->getBody()->write(json_encode([
