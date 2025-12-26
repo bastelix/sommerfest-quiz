@@ -13,12 +13,14 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
+use App\Service\ConfigService;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
 use App\Service\TurnstileConfig;
+use App\Infrastructure\Database;
 use App\Support\BasePathHelper;
 use App\Support\FeatureFlags;
 use DateTimeImmutable;
@@ -68,6 +70,7 @@ class MarketingPageController
     private PageModuleService $pageModules;
     private NamespaceResolver $namespaceResolver;
     private ProjectSettingsService $projectSettings;
+    private ConfigService $configService;
 
     public function __construct(
         ?string $slug = null,
@@ -82,7 +85,8 @@ class MarketingPageController
         ?PageContentLoader $contentLoader = null,
         ?PageModuleService $pageModules = null,
         ?NamespaceResolver $namespaceResolver = null,
-        ?ProjectSettingsService $projectSettings = null
+        ?ProjectSettingsService $projectSettings = null,
+        ?ConfigService $configService = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -97,6 +101,8 @@ class MarketingPageController
         $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
+        $pdo = Database::connectFromEnv();
+        $this->configService = $configService ?? new ConfigService($pdo);
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -236,6 +242,11 @@ class MarketingPageController
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
 
+        $designConfig = $this->configService->getConfigForEvent($namespace);
+        if ($designConfig === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
+            $designConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+        }
+
         $data = [
             'content' => $html,
             'pageFavicon' => $config?->getFaviconPath(),
@@ -256,6 +267,7 @@ class MarketingPageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
+            'config' => $designConfig,
         ];
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;

@@ -12,6 +12,7 @@ use App\Controller\AdminController;
 use App\Controller\AdminCatalogController;
 use App\Controller\AdminMediaController;
 use App\Controller\AdminLogsController;
+use App\Controller\Admin\PagesDesignController;
 use App\Controller\Admin\MarketingPageWikiController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
@@ -1507,6 +1508,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectPagesController();
         return $controller->wiki($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages/design', function (Request $request, Response $response) {
+        $controller = new PagesDesignController();
+        return $controller->show($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->post('/admin/pages/design', function (Request $request, Response $response) {
+        $controller = new PagesDesignController();
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->get('/admin/newsletter', function (Request $request, Response $response) {
         $controller = new MarketingNewsletterController();
         return $controller->index($request, $response);

@@ -1,0 +1,87 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ t('tab_design') }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body %}
+  <div class="uk-container uk-margin-large-top uk-margin-large-bottom">
+    <div class="uk-grid uk-grid-large" uk-grid>
+      <div class="uk-width-1-4@m">
+        {% include 'admin/_nav.twig' %}
+      </div>
+      <div class="uk-width-3-4@m">
+        <h1 class="uk-heading-small uk-margin-remove">{{ t('tab_design') }}</h1>
+        {% include 'admin/components/namespace_breadcrumb.twig' %}
+        {% if flash is defined and flash %}
+          <div class="uk-alert-{{ flash.type == 'success' ? 'success' : 'danger' }}" uk-alert>
+            <p>{{ flash.message }}</p>
+          </div>
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body">
+          <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="uk-margin">
+              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+              <div class="uk-form-controls">
+                <select id="pageNamespaceSelect" class="uk-select" name="namespace" required>
+                  {% for entry in available_namespaces|default([]) %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    <option value="{{ entryNamespace|e('html_attr') }}" {% if entryNamespace == pageNamespace %}selected{% endif %}>
+                      {{ entry.label is not null ? entry.label ~ ' (' ~ entryNamespace ~ ')' : entryNamespace }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            {% set existingColors = config.colors|default({}) %}
+            <div class="uk-grid-small" uk-grid>
+              <div class="uk-width-1-3@s">
+                <label class="uk-form-label" for="primaryColor">{{ t('label_primary_color') }}</label>
+                <div class="uk-form-controls">
+                  <input id="primaryColor" class="uk-input" type="text" name="primaryColor" value="{{ existingColors.primary|default('') }}" placeholder="#1b6ac9" pattern="#?[0-9a-fA-F]{3,6}">
+                </div>
+              </div>
+              <div class="uk-width-1-3@s">
+                <label class="uk-form-label" for="backgroundColor">{{ t('label_background_color') }}</label>
+                <div class="uk-form-controls">
+                  <input id="backgroundColor" class="uk-input" type="text" name="backgroundColor" value="{{ existingColors.background|default('') }}" placeholder="#ffffff" pattern="#?[0-9a-fA-F]{3,6}">
+                </div>
+              </div>
+              <div class="uk-width-1-3@s">
+                <label class="uk-form-label" for="accentColor">{{ t('label_accent_color') }}</label>
+                <div class="uk-form-controls">
+                  <input id="accentColor" class="uk-input" type="text" name="accentColor" value="{{ existingColors.accent|default('') }}" placeholder="#ff9500" pattern="#?[0-9a-fA-F]{3,6}">
+                </div>
+              </div>
+            </div>
+
+            <div class="uk-margin">
+              <label class="uk-form-label" for="logo">{{ t('label_logo_upload') }}</label>
+              <div class="uk-form-controls">
+                <input id="logo" class="uk-input" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+              </div>
+              <p class="uk-text-meta uk-margin-small-top">{{ t('text_logo_upload_hint') }}</p>
+            </div>
+
+            <div class="uk-margin">
+              <label class="uk-form-label" for="logoUrl">{{ t('label_logo_url') }}</label>
+              <div class="uk-form-controls">
+                <input id="logoUrl" class="uk-input" type="url" name="logoUrl" value="{{ config.logoPath|default('') }}" placeholder="https://example.com/logo.svg">
+              </div>
+            </div>
+
+            <div class="uk-margin">
+              <button class="uk-button uk-button-primary" type="submit">{{ t('save') }}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
