@@ -81,6 +81,95 @@ final class MarketingMenuAiRouteTest extends TestCase
         $this->assertContains('Neu', $labels);
     }
 
+    public function testRouteRejectsUnknownAnchors(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createSchema($pdo);
+
+        $pageService = new PageService($pdo);
+        $page = $this->seedPage($pdo, $pageService, 'landing');
+
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Unbekannt', 'href' => '#unbekannt', 'layout' => 'link'],
+            ],
+        ])), '{{slug}}');
+        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $controller = new ProjectPagesController(
+            $pdo,
+            $pageService,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $menuService
+        );
+
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
+            ->withHeader('Content-Type', 'application/json')
+            ->withParsedBody(null)
+            ->withAttribute('domainNamespace', $page->getNamespace());
+        $response = new Response();
+
+        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
+
+        $this->assertSame(422, $result->getStatusCode());
+        $payload = json_decode((string) $result->getBody(), true);
+        $this->assertSame('ai_invalid_links', $payload['error_code']);
+        $this->assertSame([], $payload['items']);
+    }
+
+    public function testRouteAutoCorrectsAnchorSlugs(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createSchema($pdo);
+
+        $pageService = new PageService($pdo);
+        $page = $this->seedPage($pdo, $pageService, 'landing');
+
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Neu', 'href' => 'neu', 'layout' => 'link'],
+            ],
+        ])), '{{slug}}');
+        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $controller = new ProjectPagesController(
+            $pdo,
+            $pageService,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $menuService
+        );
+
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
+            ->withHeader('Content-Type', 'application/json')
+            ->withParsedBody(null)
+            ->withAttribute('domainNamespace', $page->getNamespace());
+        $body = $request->getBody();
+        $body->write(json_encode(['locale' => 'de', 'overwrite' => true]));
+        $body->rewind();
+        $request = $request->withBody($body);
+        $response = new Response();
+
+        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
+
+        $this->assertSame(200, $result->getStatusCode());
+        $payload = json_decode((string) $result->getBody(), true);
+        $this->assertSame('#neu', $payload['items'][0]['href']);
+    }
+
     public function testTimeoutReturnsEmptyItemsAndGatewayTimeout(): void
     {
         $pdo = new PDO('sqlite::memory:');
@@ -181,7 +270,8 @@ final class MarketingMenuAiRouteTest extends TestCase
             'INSERT INTO pages (namespace, slug, title, content, type, parent_id, sort_order, status, language, content_source, '
             . 'startpage_domain, is_startpage) VALUES (?, ?, ?, ?, NULL, NULL, 0, NULL, ?, NULL, NULL, 0)'
         );
-        $stmt->execute(['default', $slug, ucfirst($slug), '<h1>' . $slug . '</h1>', 'de']);
+        $content = '<h1 id="' . $slug . '">' . ucfirst($slug) . '</h1><section id="neu">Neu</section>';
+        $stmt->execute(['default', $slug, ucfirst($slug), $content, 'de']);
 
         return $pageService->findById((int) $pdo->lastInsertId());
     }

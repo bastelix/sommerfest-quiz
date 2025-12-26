@@ -32,6 +32,7 @@ final class MarketingMenuAiGenerator
     public const ERROR_EMPTY_RESPONSE = 'empty-response';
     public const ERROR_INVALID_JSON = 'invalid-json';
     public const ERROR_INVALID_ITEMS = 'invalid-items';
+    public const ERROR_INVALID_LINKS = 'invalid-links';
 
     private const MAX_HTML_LENGTH = 8000;
 
@@ -63,6 +64,15 @@ PROMPT;
     private ?ChatResponderInterface $chatResponder;
 
     private string $promptTemplate;
+
+    /** @var array<int, string> */
+    private array $knownAnchors = [];
+
+    /** @var array<int, string> */
+    private array $knownAnchorIds = [];
+
+    /** @var array<int, string> */
+    private array $knownHrefs = [];
 
     public function __construct(
         ?RagChatService $ragChatService = null,
@@ -110,7 +120,9 @@ PROMPT;
             throw new RuntimeException(self::ERROR_EMPTY_RESPONSE);
         }
 
-        return $this->decodeItems($normalized);
+        $items = $this->decodeItems($normalized);
+
+        return $this->validateItems($items, $page);
     }
 
     private function buildPrompt(Page $page, ?string $locale, ?string $promptTemplate = null): string
@@ -163,6 +175,8 @@ PROMPT;
                 'namespace' => $page->getNamespace(),
                 'slug' => $page->getSlug(),
                 'locale' => $locale ?? $page->getLanguage(),
+                'anchors' => $this->knownAnchors,
+                'hrefs' => $this->knownHrefs,
             ],
         ];
     }
@@ -180,12 +194,16 @@ PROMPT;
 
     private function prepareHtmlSnippet(string $html): string
     {
+        $this->knownAnchors = [];
+        $this->knownAnchorIds = [];
+        $this->knownHrefs = [];
+
         $cleaned = $this->stripScriptsAndStyles($html);
         $cleaned = $this->stripDataUris($cleaned);
 
         $structured = $this->extractStructureSummary($cleaned);
-        if ($structured !== '') {
-            return $this->truncate($structured, self::MAX_HTML_LENGTH);
+        if ($structured['summary'] !== '') {
+            return $this->truncate($structured['summary'], self::MAX_HTML_LENGTH);
         }
 
         $plain = trim(strip_tags($cleaned));
@@ -208,7 +226,10 @@ PROMPT;
         return preg_replace('#data:[^\"\s>]+#i', '[data-uri]', $html) ?? $html;
     }
 
-    private function extractStructureSummary(string $html): string
+    /**
+     * @return array{summary:string,anchors:array<int,string>,anchorIds:array<int,string>,hrefs:array<int,string>}
+     */
+    private function extractStructureSummary(string $html): array
     {
         $document = new DOMDocument();
         $useInternalErrors = libxml_use_internal_errors(true);
@@ -221,16 +242,19 @@ PROMPT;
         }
 
         if ($loaded === false) {
-            return '';
+            return ['summary' => '', 'anchors' => [], 'anchorIds' => [], 'hrefs' => []];
         }
 
         $xpath = new DOMXPath($document);
         $nodes = $xpath->query('//h1 | //h2 | //h3 | //section | //article | //a[@href]');
         if ($nodes === false) {
-            return '';
+            return ['summary' => '', 'anchors' => [], 'anchorIds' => [], 'hrefs' => []];
         }
 
         $lines = [];
+        $anchors = [];
+        $anchorIds = [];
+        $hrefs = [];
         /** @var DOMNode $node */
         foreach ($nodes as $node) {
             $text = trim($node->textContent ?? '');
@@ -239,6 +263,7 @@ PROMPT;
             }
 
             $id = '';
+            $href = '';
             if ($node->attributes !== null) {
                 $idAttribute = $node->attributes->getNamedItem('id');
                 if ($idAttribute !== null) {
@@ -254,6 +279,15 @@ PROMPT;
                 }
             }
 
+            if ($id !== '') {
+                $anchorIds[] = ltrim($id, '#');
+                $anchors[] = '#' . ltrim($id, '#');
+            }
+
+            if ($node->nodeName === 'a' && $href !== '') {
+                $hrefs[] = $href;
+            }
+
             $label = strtoupper($node->nodeName);
             $lines[] = $id !== ''
                 ? sprintf('%s: %s (%s)', $label, $text, $id)
@@ -264,7 +298,11 @@ PROMPT;
             }
         }
 
-        return trim(implode("\n", $lines));
+        $this->knownAnchors = array_values(array_unique($anchors));
+        $this->knownAnchorIds = array_values(array_unique($anchorIds));
+        $this->knownHrefs = array_values(array_unique($hrefs));
+
+        return ['summary' => trim(implode("\n", $lines)), 'anchors' => $this->knownAnchors, 'anchorIds' => $this->knownAnchorIds, 'hrefs' => $this->knownHrefs];
     }
 
     private function truncate(string $content, int $maxLength): string
@@ -292,5 +330,132 @@ PROMPT;
         }
 
         return $items;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function validateItems(array $items, Page $page): array
+    {
+        $validated = [];
+
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                throw new RuntimeException(self::ERROR_INVALID_ITEMS);
+            }
+
+            $validated[] = $this->validateItem($item, $page);
+        }
+
+        return $validated;
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     * @return array<string, mixed>
+     */
+    private function validateItem(array $item, Page $page): array
+    {
+        $href = isset($item['href']) ? (string) $item['href'] : '';
+        $item['href'] = $this->normalizeHref($href, $page);
+
+        if (isset($item['children']) && is_array($item['children'])) {
+            $children = [];
+            foreach ($item['children'] as $child) {
+                if (!is_array($child)) {
+                    continue;
+                }
+                $children[] = $this->validateItem($child, $page);
+            }
+
+            $item['children'] = $children;
+        }
+
+        return $item;
+    }
+
+    private function normalizeHref(string $href, Page $page): string
+    {
+        $candidate = trim($href);
+        if ($candidate === '') {
+            throw new RuntimeException(self::ERROR_INVALID_LINKS);
+        }
+
+        $slug = '/' . ltrim($page->getSlug(), '/');
+
+        $anchorMatch = $this->matchAnchorHref($candidate, $slug);
+        if ($anchorMatch !== null) {
+            return $anchorMatch;
+        }
+
+        if ($this->isAllowedHref($candidate, $slug)) {
+            return $this->canonicalizeSlugHref($candidate, $slug);
+        }
+
+        throw new RuntimeException(self::ERROR_INVALID_LINKS);
+    }
+
+    private function matchAnchorHref(string $href, string $slug): ?string
+    {
+        if (in_array($href, $this->knownAnchors, true)) {
+            return $href;
+        }
+
+        $anchorId = ltrim($href, '#');
+        if ($anchorId !== '' && in_array($anchorId, $this->knownAnchorIds, true)) {
+            return '#' . $anchorId;
+        }
+
+        if (str_starts_with($href, $slug . '#')) {
+            $id = substr($href, strlen($slug) + 1);
+            if (in_array($id, $this->knownAnchorIds, true)) {
+                return $slug . '#' . $id;
+            }
+        }
+
+        $slugWithoutSlash = ltrim($slug, '/');
+        if (str_starts_with($href, $slugWithoutSlash . '#')) {
+            $id = substr($href, strlen($slugWithoutSlash) + 1);
+            if (in_array($id, $this->knownAnchorIds, true)) {
+                return $slug . '#' . $id;
+            }
+        }
+
+        return null;
+    }
+
+    private function isAllowedHref(string $href, string $slug): bool
+    {
+        if (in_array($href, $this->knownHrefs, true)) {
+            return true;
+        }
+
+        if ($href === $slug || $href === ltrim($slug, '/')) {
+            return true;
+        }
+
+        foreach ($this->knownAnchorIds as $anchorId) {
+            if ($href === $slug . '#' . $anchorId || $href === ltrim($slug, '/') . '#' . $anchorId) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function canonicalizeSlugHref(string $href, string $slug): string
+    {
+        if ($href === ltrim($slug, '/')) {
+            return $slug;
+        }
+
+        foreach ($this->knownAnchorIds as $anchorId) {
+            if ($href === ltrim($slug, '/') . '#' . $anchorId) {
+                return $slug . '#' . $anchorId;
+            }
+        }
+
+        return $href;
     }
 }

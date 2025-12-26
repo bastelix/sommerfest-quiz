@@ -80,6 +80,20 @@ final class MarketingMenuAiGeneratorTest extends TestCase
         $this->assertLessThan(9000, strlen($prompt));
     }
 
+    public function testThrowsOnUnknownAnchors(): void
+    {
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Invalid', 'href' => '#missing', 'layout' => 'link'],
+            ],
+        ])), '{{slug}}');
+        $page = $this->createPage('default', 'landing', '<h1 id="intro">Intro</h1>');
+
+        $this->expectExceptionMessage(MarketingMenuAiGenerator::ERROR_INVALID_LINKS);
+
+        $generator->generate($page, 'de');
+    }
+
     private function createPage(string $namespace, string $slug, string $content): Page
     {
         return new Page(1, $namespace, $slug, ucfirst($slug), $content, null, null, 0, null, 'de', null, null, false);
