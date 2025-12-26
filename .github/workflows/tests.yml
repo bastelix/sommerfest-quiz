@@ -10,6 +10,10 @@ jobs:
         name: Tests PHP ${{ matrix.php }}
         runs-on: ubuntu-latest
         continue-on-error: ${{ matrix.experimental }}
+        env:
+            POSTGRES_DSN: pgsql:host=127.0.0.1;port=5432;dbname=quiz
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
         services:
             postgres:
                 image: postgres:16

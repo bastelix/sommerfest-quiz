@@ -253,21 +253,24 @@ Jede Zeile bzw. jedes JSON-Objekt muss die Felder `term` (mindestens drei Zeiche
 
 ## Testing
 
-Die automatisierten Tests werden mit PHPUnit ausgeführt. Ist keine Umgebung
-`POSTGRES_DSN` gesetzt, erstellt der Test-Harness eine gemeinsam genutzte
-SQLite-Datenbank im Speicher und wendet alle Migrationen automatisch an. So
-können die Tests ohne lokale PostgreSQL-Instanz gestartet werden.
+Die automatisierten Tests werden mit PHPUnit ausgeführt und benötigen eine
+laufende PostgreSQL-Instanz. Der Test-Harness liest dazu `.env.test` aus und
+verwendet die dort hinterlegten Variablen `POSTGRES_DSN`, `POSTGRES_USER` und
+`POSTGRES_PASSWORD`. Alternativ lassen sich die Variablen direkt in der
+Umgebung setzen. Das DSN kann sowohl das `pgsql:`-Format als auch
+`postgres://` verwenden.
 
-Wer die Tests gegen PostgreSQL ausführen möchte, setzt `POSTGRES_DSN`,
-`POSTGRES_USER` und `POSTGRES_PASSWORD` auf die gewünschten Verbindungsdaten.
-Alternativ lässt sich über `Tests\TestCase::setDatabase()` eine eigene
-`PDO`-Instanz einspeisen.
+Wer eine eigene Verbindung bereitstellen möchte, kann über
+`Tests\TestCase::setDatabase()` eine vorbereitete `PDO`-Instanz einspeisen.
 
 Tests starten mit:
 
 ```bash
 vendor/bin/phpunit
 ```
+
+Für eine lokale PostgreSQL-Instanz liefert `docker-compose.test.yml` einen
+kleinen Datenbank-Container mit den in `.env.test` hinterlegten Zugangsdaten.
 
 ### KI-gestützte Teamnamen und RAG-Endpoint
 
