@@ -9,6 +9,7 @@ use App\Exception\NamespaceInUseException;
 use App\Exception\NamespaceNotFoundException;
 use App\Repository\NamespaceRepository;
 use InvalidArgumentException;
+use RuntimeException;
 
 final class NamespaceService
 {
@@ -24,7 +25,11 @@ final class NamespaceService
      */
     public function all(): array
     {
-        $entries = $this->repository->list();
+        try {
+            $entries = $this->repository->list();
+        } catch (RuntimeException) {
+            $entries = [];
+        }
         $existing = [];
         foreach ($entries as $entry) {
             $existing[$entry['namespace']] = true;
