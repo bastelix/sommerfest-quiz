@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Infrastructure\Database;
 use App\Service\MarketingDomainProvider;
 use Throwable;
 
@@ -13,6 +14,7 @@ use Throwable;
 final class DomainNameHelper
 {
     private static ?MarketingDomainProvider $marketingDomainProvider = null;
+    private static bool $marketingProviderIsLazy = false;
 
     private function __construct()
     {
@@ -21,6 +23,7 @@ final class DomainNameHelper
     public static function setMarketingDomainProvider(?MarketingDomainProvider $provider): void
     {
         self::$marketingDomainProvider = $provider;
+        self::$marketingProviderIsLazy = false;
     }
 
     public static function getMarketingDomainProvider(): ?MarketingDomainProvider
@@ -134,10 +137,17 @@ final class DomainNameHelper
      */
     private static function getMarketingDomains(): array
     {
+        if (self::$marketingDomainProvider === null) {
+            self::$marketingDomainProvider = new MarketingDomainProvider(
+                static fn () => Database::connectFromEnv()
+            );
+            self::$marketingProviderIsLazy = true;
+        }
+
         if (self::$marketingDomainProvider !== null) {
             try {
                 $domains = self::$marketingDomainProvider->getMarketingDomains();
-                if ($domains === []) {
+                if ($domains === [] && !self::$marketingProviderIsLazy) {
                     return [];
                 }
 
