@@ -4,16 +4,33 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Infrastructure\Database;
 use App\Support\DomainNameHelper;
 use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
-use PHPUnit\Framework\TestCase;
 use PDO;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class DomainNameHelperTest extends TestCase
 {
+    private string|false $marketingDomainsEnv = false;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->marketingDomainsEnv = getenv('MARKETING_DOMAINS');
+    }
+
     protected function tearDown(): void
     {
+        if ($this->marketingDomainsEnv === false) {
+            putenv('MARKETING_DOMAINS');
+        } else {
+            putenv('MARKETING_DOMAINS=' . $this->marketingDomainsEnv);
+        }
+
+        Database::setFactory(null);
         DomainNameHelper::setMarketingDomainProvider(null);
         parent::tearDown();
     }
@@ -78,5 +95,53 @@ class DomainNameHelperTest extends TestCase
 
         self::assertSame('promo', DomainNameHelper::canonicalizeSlug('promo.example.com'));
         self::assertSame('promo', DomainNameHelper::canonicalizeSlug('HTTPS://Promo.Example.com'));
+    }
+
+    public function testMarketingDomainsResolveFromDatabaseWithoutEnv(): void
+    {
+        putenv('MARKETING_DOMAINS');
+
+        $pdo = $this->createDomainDatabase();
+        $service = new DomainService($pdo);
+        $service->createDomain('promo.example.com');
+
+        Database::setFactory(static fn (): PDO => $pdo);
+
+        self::assertSame('promo', DomainNameHelper::canonicalizeSlug('promo.example.com'));
+    }
+
+    public function testExistingMarketingProviderPathIsPreserved(): void
+    {
+        Database::setFactory(static function (): PDO {
+            throw new RuntimeException('Database factory must not be used when provider is set.');
+        });
+
+        $provider = $this->createMock(MarketingDomainProvider::class);
+        $provider->expects(self::once())
+            ->method('getMarketingDomains')
+            ->willReturn(['custom.example.com']);
+
+        DomainNameHelper::setMarketingDomainProvider($provider);
+
+        self::assertSame('custom', DomainNameHelper::canonicalizeSlug('custom.example.com'));
+    }
+
+    private function createDomainDatabase(): PDO
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS domains ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'host TEXT NOT NULL, '
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'namespace TEXT, '
+            . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+        );
+
+        return $pdo;
     }
 }
