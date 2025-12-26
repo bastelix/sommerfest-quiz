@@ -25,6 +25,7 @@ use RuntimeException;
  *     header_logo_mode:string,
  *     header_logo_path:string,
  *     header_logo_alt:string,
+ *     header_logo_label:string,
  *     updated_at:?string
  * }
  */
@@ -64,6 +65,7 @@ final class ProjectSettingsService
      *     header_logo_mode:string,
      *     header_logo_path:string,
      *     header_logo_alt:string,
+     *     header_logo_label:string,
      *     updated_at:?string
      * }
      * @phpstan-return CookieConsentSettings
@@ -101,6 +103,7 @@ final class ProjectSettingsService
         $headerLogoMode = $this->normalizeLogoMode($row['header_logo_mode'] ?? null, $defaults['header_logo_mode']);
         $headerLogoPath = isset($row['header_logo_path']) ? trim((string) $row['header_logo_path']) : '';
         $headerLogoAlt = isset($row['header_logo_alt']) ? trim((string) $row['header_logo_alt']) : '';
+        $headerLogoLabel = isset($row['header_logo_label']) ? trim((string) $row['header_logo_label']) : '';
 
         return [
             'namespace' => $normalized,
@@ -118,6 +121,7 @@ final class ProjectSettingsService
             'header_logo_mode' => $headerLogoMode,
             'header_logo_path' => $headerLogoPath,
             'header_logo_alt' => $headerLogoAlt,
+            'header_logo_label' => $headerLogoLabel !== '' ? $headerLogoLabel : $defaults['header_logo_label'],
             'updated_at' => isset($row['updated_at']) ? (string) $row['updated_at'] : null,
         ];
     }
@@ -139,6 +143,7 @@ final class ProjectSettingsService
      *     header_logo_mode:string,
      *     header_logo_path:string,
      *     header_logo_alt:string,
+     *     header_logo_label:string,
      *     updated_at:?string
      * }
      */
@@ -157,7 +162,8 @@ final class ProjectSettingsService
         bool $showContrastToggle,
         ?string $headerLogoMode,
         ?string $headerLogoPath,
-        ?string $headerLogoAlt
+        ?string $headerLogoAlt,
+        ?string $headerLogoLabel
     ): array {
         $normalized = $this->normalizeNamespace($namespace);
         $this->assertTableExists();
@@ -188,11 +194,15 @@ final class ProjectSettingsService
         $normalizedLogoMode = $this->normalizeLogoMode($headerLogoMode, 'text');
         $normalizedLogoPath = $headerLogoPath !== null ? trim($headerLogoPath) : null;
         $normalizedLogoAlt = $headerLogoAlt !== null ? trim($headerLogoAlt) : null;
+        $normalizedLogoLabel = $headerLogoLabel !== null ? trim($headerLogoLabel) : null;
         if ($normalizedLogoPath !== null && mb_strlen($normalizedLogoPath) > self::MAX_PRIVACY_URL_LENGTH) {
             throw new RuntimeException('Logo path is too long.');
         }
         if ($normalizedLogoAlt !== null && mb_strlen($normalizedLogoAlt) > 255) {
             throw new RuntimeException('Logo alt text is too long.');
+        }
+        if ($normalizedLogoLabel !== null && mb_strlen($normalizedLogoLabel) > 255) {
+            throw new RuntimeException('Logo label is too long.');
         }
 
         $legacyBannerText = $normalizedBannerTextDe !== '' ? $normalizedBannerTextDe : null;
@@ -213,7 +223,8 @@ final class ProjectSettingsService
             $showContrastToggle,
             $normalizedLogoMode,
             $normalizedLogoPath !== '' ? $normalizedLogoPath : null,
-            $normalizedLogoAlt !== '' ? $normalizedLogoAlt : null
+            $normalizedLogoAlt !== '' ? $normalizedLogoAlt : null,
+            $normalizedLogoLabel !== '' ? $normalizedLogoLabel : null
         );
 
         return $this->getCookieConsentSettings($normalized);
@@ -258,6 +269,7 @@ final class ProjectSettingsService
             'header_logo_mode' => 'text',
             'header_logo_path' => '',
             'header_logo_alt' => '',
+            'header_logo_label' => 'QuizRace',
             'updated_at' => null,
         ];
     }

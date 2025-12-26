@@ -40,7 +40,7 @@ final class ProjectSettingsRepository
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
             . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
             . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, '
-            . 'header_logo_mode, header_logo_path, header_logo_alt, updated_at '
+            . 'header_logo_mode, header_logo_path, header_logo_alt, header_logo_label, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
@@ -70,7 +70,8 @@ final class ProjectSettingsRepository
         bool $showContrastToggle,
         string $headerLogoMode,
         ?string $headerLogoPath,
-        ?string $headerLogoAlt
+        ?string $headerLogoAlt,
+        ?string $headerLogoLabel
     ): void {
         $stmt = $this->pdo->prepare(
             'INSERT INTO project_settings ('
@@ -78,8 +79,8 @@ final class ProjectSettingsRepository
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
             . 'privacy_url, privacy_url_de, privacy_url_en, show_language_toggle, '
             . 'show_theme_toggle, show_contrast_toggle, header_logo_mode, header_logo_path, '
-            . 'header_logo_alt, updated_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
+            . 'header_logo_alt, header_logo_label, updated_at'
+            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
             . 'ON CONFLICT (namespace) DO UPDATE SET '
             . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
             . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
@@ -96,6 +97,7 @@ final class ProjectSettingsRepository
             . 'header_logo_mode = EXCLUDED.header_logo_mode, '
             . 'header_logo_path = EXCLUDED.header_logo_path, '
             . 'header_logo_alt = EXCLUDED.header_logo_alt, '
+            . 'header_logo_label = EXCLUDED.header_logo_label, '
             . 'updated_at = CURRENT_TIMESTAMP'
         );
         $stmt->execute([
@@ -115,6 +117,7 @@ final class ProjectSettingsRepository
             $headerLogoMode,
             $headerLogoPath,
             $headerLogoAlt,
+            $headerLogoLabel,
         ]);
         $stmt->closeCursor();
     }

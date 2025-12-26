@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Service\ProjectSettingsService;
 use Tests\TestCase;
 
 class LandingControllerTest extends TestCase
@@ -169,5 +170,38 @@ HTML;
         } else {
             putenv('MAIN_DOMAIN=' . $old);
         }
+    }
+
+    public function testLandingHeaderUsesCustomLogoLabel(): void {
+        $pdo = $this->getDatabase();
+        $settingsService = new ProjectSettingsService($pdo);
+        $defaults = $settingsService->getCookieConsentSettings('default');
+
+        $settingsService->saveCookieConsentSettings(
+            'default',
+            $defaults['cookie_consent_enabled'],
+            $defaults['cookie_storage_key'],
+            $defaults['cookie_banner_text_de'],
+            $defaults['cookie_banner_text_en'],
+            json_encode($defaults['cookie_vendor_flags']),
+            $defaults['privacy_url'],
+            $defaults['privacy_url_de'],
+            $defaults['privacy_url_en'],
+            $defaults['show_language_toggle'],
+            $defaults['show_theme_toggle'],
+            $defaults['show_contrast_toggle'],
+            'image',
+            '/logo.svg',
+            '',
+            'Mein Quiz'
+        );
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/landing');
+        $response = $app->handle($request);
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('alt="Mein Quiz"', $body);
     }
 }

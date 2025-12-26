@@ -455,7 +455,15 @@ class MarketingPageController
         $alt = is_string($settings['header_logo_alt'] ?? null)
             ? trim((string) $settings['header_logo_alt'])
             : '';
-        $label = 'QuizRace';
+        $label = is_string($settings['header_logo_label'] ?? null)
+            ? trim((string) $settings['header_logo_label'])
+            : '';
+        if ($label === '') {
+            $label = $alt !== '' ? $alt : 'QuizRace';
+        }
+        if ($alt === '') {
+            $alt = $label;
+        }
         $src = $this->resolveHeaderLogoPath($path, $basePath);
 
         if ($mode !== 'image' || $src === null) {
