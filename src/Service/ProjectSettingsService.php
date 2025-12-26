@@ -181,6 +181,9 @@ final class ProjectSettingsService
      *     privacy_url:string,
      *     privacy_url_de:string,
      *     privacy_url_en:string,
+     *     show_language_toggle:bool,
+     *     show_theme_toggle:bool,
+     *     show_contrast_toggle:bool,
      *     updated_at:?string
      * }
      */
