@@ -38,7 +38,8 @@ final class ProjectSettingsRepository
         $stmt = $this->pdo->prepare(
             'SELECT namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
-            . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, updated_at '
+            . 'privacy_url, privacy_url_de, privacy_url_en, marketing_wiki_themes, '
+            . 'show_language_toggle, show_theme_toggle, show_contrast_toggle, updated_at '
             . 'FROM project_settings WHERE namespace = ?'
         );
         $stmt->execute([$namespace]);
@@ -62,14 +63,18 @@ final class ProjectSettingsRepository
         ?string $cookieVendorFlags,
         ?string $privacyUrl,
         ?string $privacyUrlDe,
-        ?string $privacyUrlEn
+        ?string $privacyUrlEn,
+        bool $showLanguageToggle,
+        bool $showThemeToggle,
+        bool $showContrastToggle
     ): void {
         $stmt = $this->pdo->prepare(
             'INSERT INTO project_settings ('
             . 'namespace, cookie_consent_enabled, cookie_storage_key, cookie_banner_text, '
             . 'cookie_banner_text_de, cookie_banner_text_en, cookie_vendor_flags, '
-            . 'privacy_url, privacy_url_de, privacy_url_en, updated_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
+            . 'privacy_url, privacy_url_de, privacy_url_en, show_language_toggle, '
+            . 'show_theme_toggle, show_contrast_toggle, updated_at'
+            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
             . 'ON CONFLICT (namespace) DO UPDATE SET '
             . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
             . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
@@ -80,6 +85,9 @@ final class ProjectSettingsRepository
             . 'privacy_url = EXCLUDED.privacy_url, '
             . 'privacy_url_de = EXCLUDED.privacy_url_de, '
             . 'privacy_url_en = EXCLUDED.privacy_url_en, '
+            . 'show_language_toggle = EXCLUDED.show_language_toggle, '
+            . 'show_theme_toggle = EXCLUDED.show_theme_toggle, '
+            . 'show_contrast_toggle = EXCLUDED.show_contrast_toggle, '
             . 'updated_at = CURRENT_TIMESTAMP'
         );
         $stmt->execute([
@@ -93,6 +101,9 @@ final class ProjectSettingsRepository
             $privacyUrl,
             $privacyUrlDe,
             $privacyUrlEn,
+            $showLanguageToggle ? 1 : 0,
+            $showThemeToggle ? 1 : 0,
+            $showContrastToggle ? 1 : 0,
         ]);
         $stmt->closeCursor();
     }

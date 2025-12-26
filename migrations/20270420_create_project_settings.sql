@@ -4,6 +4,9 @@ CREATE TABLE IF NOT EXISTS project_settings (
     cookie_consent_enabled BOOLEAN NOT NULL DEFAULT FALSE,
     cookie_storage_key TEXT,
     cookie_banner_text TEXT,
+    show_language_toggle BOOLEAN NOT NULL DEFAULT TRUE,
+    show_theme_toggle BOOLEAN NOT NULL DEFAULT TRUE,
+    show_contrast_toggle BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
