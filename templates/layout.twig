@@ -119,16 +119,30 @@
     {% endif %}
   {% endif %}
   {% set colors = rawConfig.colors is defined and rawConfig.colors ? rawConfig.colors : {} %}
-  {% set primaryColor = colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null)) %}
-  {% set accentColor = colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null)) %}
-  {% set backgroundColor = attribute(rawConfig, 'backgroundColor')|default(null) ?: (colors.primary is defined and colors.primary ? colors.primary : null) %}
+  {% set lightPalette = colors.light is defined and colors.light ? colors.light : {} %}
+  {% set darkPalette = colors.dark is defined and colors.dark ? colors.dark : {} %}
+  {% set lightPrimary = lightPalette.primary is defined and lightPalette.primary ? lightPalette.primary : (colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null))) %}
+  {% set lightAccent = lightPalette.secondary is defined and lightPalette.secondary ? lightPalette.secondary : (colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null))) %}
+  {% set darkPrimary = darkPalette.primary is defined and darkPalette.primary ? darkPalette.primary : lightPrimary %}
+  {% set darkAccent = darkPalette.secondary is defined and darkPalette.secondary ? darkPalette.secondary : lightAccent %}
+  {% set backgroundColor = attribute(rawConfig, 'backgroundColor')|default(null) ?: (lightPrimary ? lightPrimary : null) %}
   {% block config_color_styles %}
-    {% if primaryColor or accentColor or (allowConfigBackground and backgroundColor) %}
+    {% if lightPrimary or lightAccent or darkPrimary or darkAccent or (allowConfigBackground and backgroundColor) %}
     <style>
       :root {
-        {% if primaryColor %}--primary-color: {{ primaryColor }};{% endif %}
-        {% if accentColor %}--accent-color: {{ accentColor }};{% endif %}
+        {% if lightPrimary %}--primary-color: {{ lightPrimary }};{% endif %}
+        {% if lightAccent %}--accent-color: {{ lightAccent }};{% endif %}
         {% if allowConfigBackground and backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
+      }
+      body[data-theme='light'] {
+        {% if lightPrimary %}--primary-color: {{ lightPrimary }};{% endif %}
+        {% if lightAccent %}--accent-color: {{ lightAccent }};{% endif %}
+        {% if allowConfigBackground and backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
+      }
+      body[data-theme='dark'] {
+        {% if darkPrimary %}--primary-color: {{ darkPrimary }};{% endif %}
+        {% if darkAccent %}--accent-color: {{ darkAccent }};{% endif %}
+        {% if allowConfigBackground %}--color-bg: {{ darkPrimary ?: backgroundColor }};{% endif %}
       }
     </style>
     {% endif %}

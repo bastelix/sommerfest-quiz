@@ -1,0 +1,181 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_design') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_design') }}</h1>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% if saved %}
+          <div class="uk-alert uk-alert-success">{{ t('message_settings_saved')|default('Einstellungen gespeichert.') }}</div>
+        {% endif %}
+
+        {% set lightPalette = design.colors.light|default({}) %}
+        {% set darkPalette = design.colors.dark|default({}) %}
+
+        <div class="uk-card uk-card-default uk-card-body uk-margin">
+          <h3 class="uk-card-title">Theme-Farben</h3>
+          <form class="uk-form-stacked" method="post" enctype="multipart/form-data" action="{{ basePath }}/admin/pages/design">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="uk-grid-small uk-child-width-1-2@m" uk-grid>
+              <div>
+                <h4 class="uk-heading-bullet uk-margin-remove">Light</h4>
+                <div class="uk-margin-small">
+                  <label class="uk-form-label" for="colorLightPrimary">Primäre Farbe</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" type="color" id="colorLightPrimary" name="color_light_primary" value="{{ lightPalette.primary|default('#1e87f0') }}">
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <label class="uk-form-label" for="colorLightSecondary">Sekundäre Farbe</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" type="color" id="colorLightSecondary" name="color_light_secondary" value="{{ lightPalette.secondary|default('#222222') }}">
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h4 class="uk-heading-bullet uk-margin-remove">Dark</h4>
+                <div class="uk-margin-small">
+                  <label class="uk-form-label" for="colorDarkPrimary">Primäre Farbe</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" type="color" id="colorDarkPrimary" name="color_dark_primary" value="{{ darkPalette.primary|default('#0f172a') }}">
+                  </div>
+                </div>
+                <div class="uk-margin-small">
+                  <label class="uk-form-label" for="colorDarkSecondary">Sekundäre Farbe</label>
+                  <div class="uk-form-controls">
+                    <input class="uk-input" type="color" id="colorDarkSecondary" name="color_dark_secondary" value="{{ darkPalette.secondary|default('#93c5fd') }}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="startTheme">Standard-Theme</label>
+              <div class="uk-form-controls">
+                <select id="startTheme" name="startTheme" class="uk-select">
+                  <option value="light" {% if design.startTheme|default('light') != 'dark' %}selected{% endif %}>Light</option>
+                  <option value="dark" {% if design.startTheme|default('light') == 'dark' %}selected{% endif %}>Dark</option>
+                </select>
+              </div>
+            </div>
+            <hr class="admin-divider-line">
+            <h3 class="uk-card-title">Logo</h3>
+            <div class="uk-grid-small uk-child-width-1-2@m uk-flex-middle" uk-grid>
+              <div>
+                <label class="uk-form-label" for="logoUpload">Logo-Datei (PNG, WEBP oder SVG, max. 5 MB)</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="file" name="logo" id="logoUpload" accept="image/png,image/webp,image/svg+xml">
+                </div>
+              </div>
+              <div>
+                <div class="uk-flex uk-flex-middle" style="gap: 12px;">
+                  <div class="uk-text-bold">Aktuelles Logo:</div>
+                  <div>
+                    {% if design.logoPath %}
+                      <img src="{{ basePath ~ design.logoPath }}" alt="Aktuelles Logo" class="uk-border-circle" style="max-height: 64px; max-width: 160px;">
+                    {% else %}
+                      <span class="uk-text-meta">Kein eigenes Logo hinterlegt.</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <button class="uk-button uk-button-primary" type="submit">Speichern</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}

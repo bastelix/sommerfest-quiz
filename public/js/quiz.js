@@ -666,13 +666,41 @@ async function runQuiz(questions, skipIntro){
   const showCheck = cfg.CheckAnswerButton !== 'no';
   const SCORE_ALPHA = 1.0;
   const SCORE_FLOOR = 0.0;
-  if(cfg.colors){
-    if(cfg.colors.primary){
-      document.documentElement.style.setProperty('--primary-color', cfg.colors.primary);
-      document.documentElement.style.setProperty('--color-bg', cfg.colors.primary);
+  const colorTheme = document.body.dataset.theme === 'dark' ? 'dark' : 'light';
+  applyThemePalette(cfg.colors || {}, colorTheme, cfg);
+  const themeObserver = new MutationObserver(() => {
+    const currentTheme = document.body.dataset.theme === 'dark' ? 'dark' : 'light';
+    applyThemePalette(cfg.colors || {}, currentTheme, cfg);
+  });
+  themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+
+  function resolveThemePalette(colors, theme, config) {
+    const paletteKey = theme === 'dark' ? 'dark' : 'light';
+    const palette = typeof colors[paletteKey] === 'object' && colors[paletteKey] !== null ? colors[paletteKey] : {};
+    const primary = normalizeColorValue(palette.primary || colors.primary || config.backgroundColor || '');
+    const accent = normalizeColorValue(palette.secondary || colors.accent || config.buttonColor || '');
+
+    return { primary, accent };
+  }
+
+  function normalizeColorValue(value) {
+    if (typeof value !== 'string') {
+      return '';
     }
-    if(cfg.colors.accent){
-      document.documentElement.style.setProperty('--accent-color', cfg.colors.accent);
+
+    const normalized = value.trim();
+
+    return normalized;
+  }
+
+  function applyThemePalette(colors, theme, config) {
+    const palette = resolveThemePalette(colors, theme, config);
+    if (palette.primary) {
+      document.body.style.setProperty('--primary-color', palette.primary);
+      document.body.style.setProperty('--color-bg', palette.primary);
+    }
+    if (palette.accent) {
+      document.body.style.setProperty('--accent-color', palette.accent);
     }
   }
 

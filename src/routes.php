@@ -117,6 +117,7 @@ use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
 use App\Controller\Admin\NewsletterCampaignController;
+use App\Controller\Admin\DesignController;
 use App\Controller\Admin\MarketingMenuController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
@@ -1499,6 +1500,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectPagesController();
         return $controller->navigation($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/pages/design', function (Request $request, Response $response) {
+        $controller = new DesignController();
+        return $controller->show($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->post('/admin/pages/design', function (Request $request, Response $response) {
+        $controller = new DesignController();
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->get('/admin/pages/seo', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->seo($request, $response);
