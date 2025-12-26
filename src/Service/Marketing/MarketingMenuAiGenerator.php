@@ -333,7 +333,7 @@ PROMPT;
     }
 
     /**
-     * @param array<int, array<string, mixed>> $items
+     * @param array<int, mixed> $items
      * @return array<int, array<string, mixed>>
      */
     private function validateItems(array $items, Page $page): array
