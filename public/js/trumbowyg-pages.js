@@ -17,15 +17,56 @@ const DOMPURIFY_PAGE_EDITOR_CONFIG = {
   ALLOW_DATA_ATTR: true
 };
 
+const hasValidSrcsetDescriptor = descriptor => {
+  const trimmed = descriptor.trim();
+  if (trimmed === '' || /[{}/]/.test(trimmed)) {
+    return false;
+  }
+
+  const lastToken = trimmed.split(/\s+/).pop();
+  if (!lastToken) {
+    return false;
+  }
+
+  return /^[0-9]+(?:\.[0-9]+)?[wx]$/.test(lastToken);
+};
+
+const hasValidSrcset = srcset => {
+  if (!srcset) {
+    return true;
+  }
+
+  return srcset.split(',').every(hasValidSrcsetDescriptor);
+};
+
+const scrubInvalidSrcsetAttributes = html => {
+  const container = document.createElement('div');
+  container.innerHTML = html;
+
+  container.querySelectorAll('img, source').forEach(el => {
+    const srcset = el.getAttribute('srcset');
+    if (!srcset) {
+      return;
+    }
+
+    if (!hasValidSrcset(srcset)) {
+      el.removeAttribute('srcset');
+    }
+  });
+
+  return container.innerHTML;
+};
+
 const sanitize = str => {
   const value = typeof str === 'string' ? str : String(str ?? '');
+  let sanitized = value;
   if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-    return window.DOMPurify.sanitize(value, DOMPURIFY_PAGE_EDITOR_CONFIG);
-  }
-  if (window.console && typeof window.console.warn === 'function') {
+    sanitized = window.DOMPurify.sanitize(value, DOMPURIFY_PAGE_EDITOR_CONFIG);
+  } else if (window.console && typeof window.console.warn === 'function') {
     window.console.warn('DOMPurify not available, skipping HTML sanitization for page editor content.');
   }
-  return value;
+
+  return scrubInvalidSrcsetAttributes(sanitized);
 };
 
 const resolvePageNamespace = () => {
