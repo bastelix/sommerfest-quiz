@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Roles;
 use App\Service\ConfigService;
 use App\Service\LogService;
+use App\Service\NamespaceResolver;
+use App\Service\NamespaceValidator;
 use App\Support\HttpCacheHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -18,10 +21,15 @@ class GlobalMediaController
     }
 
     public function get(Request $request, Response $response): Response {
+        $namespace = (string) ($request->getAttribute('namespace') ?? $request->getAttribute('requestedNamespace'));
         $file = (string) $request->getAttribute('file');
         $file = basename($file);
-        if ($file === '') {
+        if ($namespace === '' || $file === '') {
             return $response->withStatus(404);
+        }
+
+        if (!$this->isNamespaceAllowed($namespace, $request)) {
+            return $response->withStatus(403);
         }
 
         $dir = $this->config->getGlobalUploadsDir();
@@ -46,7 +54,7 @@ class GlobalMediaController
         return HttpCacheHelper::apply(
             $request,
             $response,
-            'public, max-age=31536000, immutable',
+            'private, no-cache, must-revalidate',
             $etag,
             $lastModified
         );
@@ -68,5 +76,43 @@ class GlobalMediaController
             'file' => $file,
             'path' => $path,
         ]);
+    }
+
+    private function isNamespaceAllowed(string $requestedNamespace, Request $request): bool
+    {
+        $validator = new NamespaceValidator();
+        $normalizedRequested = $validator->normalizeCandidate($requestedNamespace);
+        if ($normalizedRequested === null) {
+            return false;
+        }
+
+        $sessionNamespace = $this->normalizeSessionNamespace($validator);
+        if ($sessionNamespace !== null) {
+            return $sessionNamespace === $normalizedRequested || $this->isAdmin();
+        }
+
+        $context = (new NamespaceResolver())->resolve($request->withAttribute('namespace', null));
+        $resolved = $context->getNamespace();
+
+        if ($resolved === $normalizedRequested) {
+            return true;
+        }
+
+        return $this->isAdmin();
+    }
+
+    private function normalizeSessionNamespace(NamespaceValidator $validator): ?string
+    {
+        $sessionNamespace = $_SESSION['user']['active_namespace'] ?? null;
+        if (!is_string($sessionNamespace)) {
+            return null;
+        }
+
+        return $validator->normalizeCandidate($sessionNamespace);
+    }
+
+    private function isAdmin(): bool
+    {
+        return ($_SESSION['user']['role'] ?? null) === Roles::ADMIN;
     }
 }
