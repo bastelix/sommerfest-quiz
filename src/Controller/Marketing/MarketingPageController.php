@@ -473,7 +473,7 @@ class MarketingPageController
         return [
             'mode' => $mode,
             'src' => $src,
-            'alt' => $alt !== '' ? $alt : $label,
+            'alt' => $alt,
             'label' => $label,
             'path' => $path,
         ];
