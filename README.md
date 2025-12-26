@@ -648,8 +648,32 @@ Alle Tests lassen sich komfortabel über Composer starten:
 composer test
 ```
 
-Dabei führt der Befehl zunächst PHPUnit aus und ruft anschließend die beiden
-Python-Skripte zur Prüfung der HTML- bzw. JSON-Dateien auf.
+Der Befehl führt zunächst PHPUnit aus, ruft anschließend die beiden
+Python-Skripte zur Prüfung der HTML- bzw. JSON-Dateien auf und startet danach
+folgende JavaScript-Tests mit Node.js:
+
+```
+node tests/test_competition_mode.js
+node tests/test_results_rankings.js
+node tests/test_random_name_prompt.js
+node tests/test_onboarding_plan.js
+node tests/test_onboarding_flow.js
+node tests/test_login_free_catalog.js
+node tests/test_catalog_smoke.js
+node tests/test_catalog_autostart_path.js
+node tests/test_shuffle_questions.js
+node tests/test_team_name_suggestion.js
+node tests/test_catalog_prevent_repeat.js
+node tests/test_event_summary_switch.js
+node tests/test_sticker_editor_save_events.js
+node tests/test_media_filters.js
+node tests/test_media_preview.js
+```
+
+Für die JavaScript-Tests wird Node.js **20 LTS** benötigt. Zusätzliche
+Abhängigkeiten sind nicht erforderlich; falls du npm- oder pnpm-Workflows
+nutzt, reicht ein minimaler `package.json`-Stub wie `{ "type": "commonjs" }`,
+damit die Skripte ohne weitere Pakete lauffähig bleiben.
 
 ## Teams/Personen
 
