@@ -12,6 +12,7 @@ use Slim\Factory\AppFactory;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Headers;
 use Slim\Psr7\Request as SlimRequest;
+use Slim\Psr7\Uri;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
@@ -21,6 +22,7 @@ use App\Application\Middleware\DomainMiddleware;
 use App\Infrastructure\Migrations\Migrator;
 use App\Infrastructure\Migrations\MigrationRuntime;
 use PDO;
+use RuntimeException;
 use App\Twig\DateTimeFormatExtension;
 use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
@@ -28,6 +30,7 @@ use App\Support\DomainNameHelper;
 class TestCase extends PHPUnit_TestCase
 {
     private ?PDO $pdo = null;
+    private bool $testEnvLoaded = false;
 
     /**
      * Inject a custom PDO instance for tests that require a specific connection.
@@ -143,27 +146,68 @@ class TestCase extends PHPUnit_TestCase
      * Create a database with the current schema applied.
      */
     protected function createDatabase(): \PDO {
-        $dsn = getenv('POSTGRES_DSN') ?: '';
-        $user = getenv('POSTGRES_USER') ?: 'postgres';
-        $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
-
-        if ($dsn === '') {
-            $dsn = 'sqlite:file:' . uniqid('test', true) . '?mode=memory&cache=shared';
-            $user = '';
-            $password = '';
-            putenv('POSTGRES_DSN=' . $dsn);
-            putenv('POSTGRES_USER=' . $user);
-            putenv('POSTGRES_PASSWORD=' . $password);
-            $_ENV['POSTGRES_DSN'] = $dsn;
-            $_ENV['POSTGRES_USER'] = $user;
-            $_ENV['POSTGRES_PASSWORD'] = $password;
-        }
+        [$dsn, $user, $password] = $this->resolveDatabaseConfig();
 
         $pdo = new PDO($dsn, $user, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         Migrator::migrate($pdo, __DIR__ . '/../migrations');
 
         return $pdo;
+    }
+
+    private function resolveDatabaseConfig(): array {
+        if ($this->testEnvLoaded === false && file_exists(__DIR__ . '/../.env.test')) {
+            $this->loadTestEnv(__DIR__ . '/../.env.test');
+        }
+
+        $dsn = getenv('POSTGRES_DSN') ?: '';
+        $user = getenv('POSTGRES_USER') ?: '';
+        $password = getenv('POSTGRES_PASSWORD') ?: '';
+
+        if (str_starts_with($dsn, 'postgres://')) {
+            [$dsn, $user, $password] = $this->convertPostgresUrl($dsn, $user, $password);
+        }
+
+        if ($dsn === '') {
+            throw new RuntimeException(
+                'POSTGRES_DSN must be configured for tests. Provide a PostgreSQL DSN in .env.test or the environment.'
+            );
+        }
+
+        return [$dsn, $user, $password];
+    }
+
+    private function convertPostgresUrl(string $dsn, string $user, string $password): array {
+        $parts = parse_url($dsn) ?: [];
+        $host = $parts['host'] ?? '127.0.0.1';
+        $port = (string)($parts['port'] ?? '5432');
+        $database = ltrim($parts['path'] ?? '', '/');
+        $pdoDsn = sprintf('pgsql:host=%s;port=%s;dbname=%s', $host, $port, $database);
+
+        $user = $user !== '' ? $user : ($parts['user'] ?? '');
+        $password = $password !== '' ? $password : ($parts['pass'] ?? '');
+
+        return [$pdoDsn, $user, $password];
+    }
+
+    private function loadTestEnv(string $path): void {
+        $this->testEnvLoaded = true;
+
+        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return;
+        }
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '' || str_starts_with($line, '#')) {
+                continue;
+            }
+
+            [$key, $value] = array_map('trim', explode('=', $line, 2));
+            putenv($key . '=' . $value);
+            $_ENV[$key] = $value;
+        }
     }
 
     protected function tearDown(): void {

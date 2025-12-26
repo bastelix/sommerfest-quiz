@@ -6,3 +6,17 @@ services:
       dockerfile: Dockerfile.test
     volumes:
       - ./:/var/www
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: quiz
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "quiz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
