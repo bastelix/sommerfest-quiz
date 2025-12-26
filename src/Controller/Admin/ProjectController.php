@@ -135,6 +135,15 @@ class ProjectController
         $privacyUrlEn = array_key_exists('privacyUrlEn', $payload)
             ? (string) $payload['privacyUrlEn']
             : $currentSettings['privacy_url_en'];
+        $showLanguageToggle = array_key_exists('showLanguageToggle', $payload)
+            ? filter_var($payload['showLanguageToggle'], FILTER_VALIDATE_BOOLEAN)
+            : $currentSettings['show_language_toggle'];
+        $showThemeToggle = array_key_exists('showThemeToggle', $payload)
+            ? filter_var($payload['showThemeToggle'], FILTER_VALIDATE_BOOLEAN)
+            : $currentSettings['show_theme_toggle'];
+        $showContrastToggle = array_key_exists('showContrastToggle', $payload)
+            ? filter_var($payload['showContrastToggle'], FILTER_VALIDATE_BOOLEAN)
+            : $currentSettings['show_contrast_toggle'];
 
         $settings = $this->projectSettings->saveCookieConsentSettings(
             $namespace,
@@ -145,7 +154,10 @@ class ProjectController
             $vendorFlags,
             $privacyUrl,
             $privacyUrlDe,
-            $privacyUrlEn
+            $privacyUrlEn,
+            $showLanguageToggle,
+            $showThemeToggle,
+            $showContrastToggle
         );
 
         $response->getBody()->write(json_encode([

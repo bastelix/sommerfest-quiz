@@ -241,6 +241,7 @@ class MarketingPageController
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
+        $headerConfig = $this->buildHeaderConfig($cookieSettings);
 
         $designConfig = $this->configService->getConfigForEvent($namespace);
         if ($designConfig === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
@@ -268,6 +269,7 @@ class MarketingPageController
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
             'config' => $designConfig,
+            'headerConfig' => $headerConfig,
         ];
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
@@ -317,7 +319,7 @@ class MarketingPageController
 
         if ($templateSlug === 'landing') {
             $menuMarkup = $this->renderMarketingMenuMarkup($view, $marketingMenuItems, 'uk-navbar-nav uk-visible@m');
-            $headerContent = $this->loadHeaderContent($view, $menuMarkup);
+            $headerContent = $this->loadHeaderContent($view, $menuMarkup, $headerConfig);
         }
 
         $data['marketingMenuItems'] = $marketingMenuItems;
@@ -375,7 +377,10 @@ class MarketingPageController
         return sprintf('%s–%s', $startLabel, $endLabel);
     }
 
-    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup): string
+    /**
+     * @param array<string, bool> $headerConfig
+     */
+    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup, array $headerConfig): string
     {
         $filePath = dirname(__DIR__, 3) . '/content/header.html';
         if (!is_readable($filePath)) {
@@ -387,11 +392,29 @@ class MarketingPageController
             return '';
         }
 
-        $configMenu = $view->fetch('components/config-menu.twig', ['show_help' => false]);
+        $configMenu = $view->fetch('components/config-menu.twig', [
+            'show_help' => false,
+            'show_language' => $headerConfig['show_language'] ?? true,
+            'show_theme_toggle' => $headerConfig['show_theme_toggle'] ?? true,
+            'show_contrast_toggle' => $headerConfig['show_contrast_toggle'] ?? true,
+        ]);
         $lockedMenu = '<div class="qr-header-config-menu" contenteditable="false">' . $configMenu . '</div>';
         $fileContent = str_replace('{{ marketing_menu }}', $marketingMenuMarkup, $fileContent);
 
         return str_replace('{{ config_menu }}', $lockedMenu, $fileContent);
+    }
+
+    /**
+     * @param array<string, mixed> $settings
+     * @return array<string, bool>
+     */
+    private function buildHeaderConfig(array $settings): array
+    {
+        return [
+            'show_language' => (bool) ($settings['show_language_toggle'] ?? true),
+            'show_theme_toggle' => (bool) ($settings['show_theme_toggle'] ?? true),
+            'show_contrast_toggle' => (bool) ($settings['show_contrast_toggle'] ?? true),
+        ];
     }
 
     private function renderMarketingMenuMarkup(Twig $view, array $menuItems, string $navClass): string

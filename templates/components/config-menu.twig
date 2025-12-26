@@ -1,5 +1,7 @@
 {% set show_help = show_help is defined ? show_help : true %}
 {% set show_language = show_language is defined ? show_language : true %}
+{% set show_theme_toggle = show_theme_toggle is defined ? show_theme_toggle : true %}
+{% set show_contrast_toggle = show_contrast_toggle is defined ? show_contrast_toggle : true %}
 <div class="uk-navbar-item config-menu uk-inline">
   <button id="configMenuToggle"
           type="button"
@@ -17,24 +19,28 @@
        hidden
        uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
     <ul class="uk-nav uk-dropdown-nav" role="menu">
-      <li>
-        <button id="themeToggle"
-                class="uk-button uk-button-default git-btn theme-toggle"
-                aria-label="{{ t('design_toggle') }}"
-                role="menuitem"
-                aria-pressed="false">
-          <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
-        </button>
-      </li>
-      <li>
-        <button id="accessibilityToggle"
-                class="uk-button uk-button-default git-btn accessibility-toggle"
-                aria-label="{{ t('contrast_toggle') }}"
-                role="menuitem"
-                aria-pressed="false">
-          <span id="accessibilityIcon" class="accessibility-icon" aria-hidden="true"></span>
-        </button>
-      </li>
+      {% if show_theme_toggle %}
+        <li>
+          <button id="themeToggle"
+                  class="uk-button uk-button-default git-btn theme-toggle"
+                  aria-label="{{ t('design_toggle') }}"
+                  role="menuitem"
+                  aria-pressed="false">
+            <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
+          </button>
+        </li>
+      {% endif %}
+      {% if show_contrast_toggle %}
+        <li>
+          <button id="accessibilityToggle"
+                  class="uk-button uk-button-default git-btn accessibility-toggle"
+                  aria-label="{{ t('contrast_toggle') }}"
+                  role="menuitem"
+                  aria-pressed="false">
+            <span id="accessibilityIcon" class="accessibility-icon" aria-hidden="true"></span>
+          </button>
+        </li>
+      {% endif %}
       {% if show_help %}
       <li>
         <button id="helpBtn"

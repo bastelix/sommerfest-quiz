@@ -952,6 +952,9 @@ const initProjectSettings = () => {
     const privacyInput = form.querySelector('#privacyUrl');
     const privacyDeInput = form.querySelector('#privacyUrlDe');
     const privacyEnInput = form.querySelector('#privacyUrlEn');
+    const showLanguageInput = form.querySelector('#showLanguageToggle');
+    const showThemeInput = form.querySelector('#showThemeToggle');
+    const showContrastInput = form.querySelector('#showContrastToggle');
 
     if (consentInput) {
       payload.cookieConsentEnabled = Boolean(consentInput.checked);
@@ -976,6 +979,15 @@ const initProjectSettings = () => {
     }
     if (privacyEnInput) {
       payload.privacyUrlEn = privacyEnInput.value || '';
+    }
+    if (showLanguageInput) {
+      payload.showLanguageToggle = Boolean(showLanguageInput.checked);
+    }
+    if (showThemeInput) {
+      payload.showThemeToggle = Boolean(showThemeInput.checked);
+    }
+    if (showContrastInput) {
+      payload.showContrastToggle = Boolean(showContrastInput.checked);
     }
 
     setStatus('Speichert…', false);
@@ -1004,6 +1016,9 @@ const initProjectSettings = () => {
       const privacyInput = form.querySelector('#privacyUrl');
       const privacyDeInput = form.querySelector('#privacyUrlDe');
       const privacyEnInput = form.querySelector('#privacyUrlEn');
+      const showLanguageInput = form.querySelector('#showLanguageToggle');
+      const showThemeInput = form.querySelector('#showThemeToggle');
+      const showContrastInput = form.querySelector('#showContrastToggle');
       if (storageInput && typeof settings.cookie_storage_key === 'string') {
         storageInput.value = settings.cookie_storage_key;
       }
@@ -1035,6 +1050,15 @@ const initProjectSettings = () => {
       }
       if (privacyEnInput && typeof settings.privacy_url_en === 'string') {
         privacyEnInput.value = settings.privacy_url_en;
+      }
+      if (showLanguageInput && typeof settings.show_language_toggle === 'boolean') {
+        showLanguageInput.checked = settings.show_language_toggle;
+      }
+      if (showThemeInput && typeof settings.show_theme_toggle === 'boolean') {
+        showThemeInput.checked = settings.show_theme_toggle;
+      }
+      if (showContrastInput && typeof settings.show_contrast_toggle === 'boolean') {
+        showContrastInput.checked = settings.show_contrast_toggle;
       }
       const updatedAt = result?.settings?.updated_at || result?.settings?.updatedAt;
       if (updatedLabel) {

@@ -221,6 +221,7 @@ class ProjectPagesController
             'pageTab' => 'navigation',
             'tenant' => $this->resolveTenant($request),
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
+            'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
         ]);
     }
 

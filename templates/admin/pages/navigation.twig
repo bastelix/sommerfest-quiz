@@ -381,6 +381,76 @@
           </div>
         {% endif %}
 
+        {% set navSettings = navigation_settings|default({}) %}
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin"
+          data-project-settings
+          data-endpoint="{{ basePath }}/admin/projects/settings"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <div>
+              <div class="uk-text-meta uk-text-uppercase">Header</div>
+              <h3 class="uk-card-title uk-margin-remove">Navigation &amp; Schalter</h3>
+            </div>
+            <span class="uk-text-meta" data-project-settings-updated>
+              {% if navSettings.updated_at %}
+                Zuletzt gespeichert: {{ navSettings.updated_at }}
+              {% endif %}
+            </span>
+          </div>
+          <form class="uk-form-stacked uk-margin-small-top" data-project-settings-form>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="showLanguageToggle">Sprachmenü anzeigen</label>
+              <div class="uk-form-controls">
+                <label>
+                  <input
+                    class="uk-checkbox"
+                    type="checkbox"
+                    id="showLanguageToggle"
+                    name="show_language_toggle"
+                    {% if navSettings.show_language_toggle|default(true) %}checked{% endif %}
+                  >
+                  Sprache-Umschalter im Header einblenden
+                </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="showThemeToggle">Theme-Button anzeigen</label>
+              <div class="uk-form-controls">
+                <label>
+                  <input
+                    class="uk-checkbox"
+                    type="checkbox"
+                    id="showThemeToggle"
+                    name="show_theme_toggle"
+                    {% if navSettings.show_theme_toggle|default(true) %}checked{% endif %}
+                  >
+                  Light/Dark-Umschalter sichtbar
+                </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="showContrastToggle">Kontrast-Button anzeigen</label>
+              <div class="uk-form-controls">
+                <label>
+                  <input
+                    class="uk-checkbox"
+                    type="checkbox"
+                    id="showContrastToggle"
+                    name="show_contrast_toggle"
+                    {% if navSettings.show_contrast_toggle|default(true) %}checked{% endif %}
+                  >
+                  High-Contrast-Umschalter sichtbar
+                </label>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <button type="submit" class="uk-button uk-button-primary">Speichern</button>
+              <span class="uk-text-meta uk-margin-small-left" data-project-settings-status></span>
+            </div>
+          </form>
+        </div>
+
         <div class="uk-margin">
           <ul class="uk-accordion" uk-accordion="collapsible: true">
             <li>
