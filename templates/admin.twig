@@ -77,14 +77,14 @@
     {% block right %}{% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
-    <div class="uk-container uk-container-large">
+    <div class="admin-section">
       <div class="uk-alert-danger uk-margin" uk-alert>
         {{ t('text_stripe_config_missing') }}
       </div>
     </div>
   {% endif %}
   {% if tenant and tenant.stripe_status == 'trialing' and tenant.stripe_current_period_end %}
-    <div class="uk-container uk-container-large">
+    <div class="admin-section">
       <div class="uk-alert-primary uk-margin" uk-alert>
         {{ t('text_trial_banner_prefix') }} {{ tenant.stripe_current_period_end|date('d.m.Y') }}.
         {{ t('text_trial_banner_suffix') }} <a href="{{ basePath }}/admin/subscription/portal">{{ t('action_setup_payment_method') }}</a>
@@ -99,16 +99,16 @@
         </div>
       </aside>
       <main class="uk-width-expand uk-padding-small@xs uk-padding">
-        <div class="uk-container uk-container-large admin-main-container">
+        <div class="admin-main-container">
           <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
           {% set activeRoute = currentPath|split('/admin/')|last %}
           {% if activeRoute == '' %}
             {% set activeRoute = 'dashboard' %}
           {% endif %}
-          <ul id="adminSwitcher" class="uk-switcher uk-margin">
-            <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
-              <div class="uk-container uk-container-large dashboard-container">
-                <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
+            <ul id="adminSwitcher" class="uk-switcher uk-margin">
+              <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
+                <div class="admin-section dashboard-container">
+                  <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
                 <div id="dashboard" class="uk-margin-large-top">
                   <div class="uk-grid-large" uk-grid>
                     <!-- Spalte 2–3: Inhalt -->
@@ -193,8 +193,8 @@
                 </div>
               </div>
             </li>
-    <li class="{{ activeRoute == 'events' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large" data-admin-section="management">
+      <li class="{{ activeRoute == 'events' ? 'uk-active' }}">
+        <div class="admin-section" data-admin-section="management">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
         <p class="uk-hidden">Professionelles Quiz-Hosting</p>
         <div class="uk-overflow-auto uk-visible@m">
@@ -237,8 +237,8 @@
     <li class="{{ activeRoute == 'event/dashboard' ? 'uk-active' }}">
       {% include 'admin/components/event_dashboard.twig' %}
     </li>
-    <li class="{{ activeRoute == 'event/settings' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'event/settings' ? 'uk-active' }}">
+        <div class="admin-section">
         {% set eventName = event.name|default('') %}
         <h2
           id="eventSettingsHeading"
@@ -688,8 +688,8 @@
 
       </div>
     </li>
-    <li class="{{ activeRoute == 'catalogs' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'catalogs' ? 'uk-active' }}">
+        <div class="admin-section">
         <div>
           {% set eventName = event.name|default('') %}
           <h2
@@ -733,8 +733,8 @@
         </div>
       </div>
     </li>
-    <li class="{{ activeRoute == 'questions' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'questions' ? 'uk-active' }}">
+        <div class="admin-section">
         {% set eventName = event.name|default('') %}
         <h2
           id="questionsHeading"
@@ -768,8 +768,8 @@
     <li class="{{ activeRoute == 'media' ? 'uk-active' }}" data-media-tab>
       {% include 'admin/media.twig' %}
     </li>
-    <li class="{{ activeRoute == 'rag-chat' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'rag-chat' ? 'uk-active' }}">
+        <div class="admin-section">
         <h2 class="uk-heading-bullet">{{ t('heading_rag_chat') }}</h2>
         <ul uk-tab>
           <li><a href="#">{{ t('tab_domain_chat') }}</a></li>
@@ -949,8 +949,8 @@
         </ul>
       </div>
     </li>
-    <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
+        <div class="admin-section">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
         {% include 'admin/components/event_controls.twig' with {
           currentEventUid: config.event_uid|default(''),
@@ -1016,8 +1016,8 @@
         </div>
       </div>
     </li>
-    <li class="{{ activeRoute == 'summary' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'summary' ? 'uk-active' }}">
+        <div class="admin-section">
         {% include 'admin/components/event_controls.twig' with {
           currentEventUid: config.event_uid|default(''),
           currentEventName: event.name|default('')
@@ -1371,8 +1371,8 @@
         </div>
         </div>
       </li>
-    <li class="{{ activeRoute == 'results' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'results' ? 'uk-active' }}">
+        <div class="admin-section">
         {% include 'admin/components/event_controls.twig' with {
           currentEventUid: config.event_uid|default(''),
           currentEventName: event.name|default('')
@@ -1467,8 +1467,8 @@
         {% endif %}
       </div>
     </li>
-    <li class="{{ activeRoute == 'statistics' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
+      <li class="{{ activeRoute == 'statistics' ? 'uk-active' }}">
+        <div class="admin-section">
         {% include 'admin/components/event_controls.twig' with {
           currentEventUid: config.event_uid|default(''),
           currentEventName: event.name|default('')
@@ -1515,59 +1515,59 @@
         <ul id="statsPagination" class="uk-pagination uk-flex-center"></ul>
       </div>
     </li>
-      {% if role == 'admin' %}
-      <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
-        <div class="uk-container uk-container-large">
-          <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
-          {% set activePageNamespace = pageNamespace|default('default') %}
-          {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
-          {% set pageNamespaceOptions = available_namespaces|default([]) %}
-          {% if pageNamespaceOptions is empty %}
-            {% set pageNamespaceOptions = [{
-              namespace: activePageNamespace,
-              label: null,
-              is_active: true
-            }] %}
-          {% endif %}
-          <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-            <div class="uk-grid-small uk-flex-middle" uk-grid>
-              <div class="uk-width-1-1 uk-width-expand@m">
-                <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
-                <div class="uk-form-controls">
-                  <select
-                    id="pageNamespaceSelect"
-                    class="uk-select"
-                    data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                  >
-                    {% for entry in pageNamespaceOptions %}
-                      {% set entryNamespace = entry.namespace|default('') %}
-                      {% set entryLabel = entry.label|default('') %}
-                      {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                      <option
-                        value="{{ entryNamespace|e('html_attr') }}"
-                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                      >
-                        {{ entryNamespace }}
-                        {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                        {% if entryIsInactive %} – inaktiv{% endif %}
-                      </option>
-                    {% endfor %}
-                  </select>
-                </div>
-              </div>
-              <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-                Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+    {% if role == 'admin' %}
+    <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
+      <div class="admin-section">
+        <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
+            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
+              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
+            </div>
           </div>
-          {% include 'admin/components/project_tree.twig' %}
-          {% set currentPageTab = pageTab|default('seo') %}
-          <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
-            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}" data-page-tab="seo"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
-            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}" data-page-tab="content"><a href="#">{{ t('tab_landingpage_content') }}</a></li>
-            <li class="{{ currentPageTab == 'wiki' ? 'uk-active' }}" data-page-tab="wiki"><a href="#">Wiki</a></li>
-            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}" data-page-tab="landing-news"><a href="#">{{ t('tab_landing_news') }}</a></li>
-          </ul>
+        </div>
+        {% include 'admin/components/project_tree.twig' %}
+        {% set currentPageTab = pageTab|default('seo') %}
+        <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
+          <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}" data-page-tab="seo"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
+          <li class="{{ currentPageTab == 'content' ? 'uk-active' }}" data-page-tab="content"><a href="#">{{ t('tab_landingpage_content') }}</a></li>
+          <li class="{{ currentPageTab == 'wiki' ? 'uk-active' }}" data-page-tab="wiki"><a href="#">Wiki</a></li>
+          <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}" data-page-tab="landing-news"><a href="#">{{ t('tab_landing_news') }}</a></li>
+        </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
             <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}">
               {% if seo_pages|default([]) is empty %}
@@ -2003,10 +2003,10 @@
             </li>
           </ul>
         </div>
-      </li>
-      <li class="{{ activeRoute == 'logins' ? 'uk-active' }}">
-        <div class="uk-container uk-container-large">
-          <h2 class="uk-heading-bullet">{{ t('menu_admin_logins') }}</h2>
+        </li>
+        <li class="{{ activeRoute == 'logins' ? 'uk-active' }}">
+          <div class="admin-section">
+            <h2 class="uk-heading-bullet">{{ t('menu_admin_logins') }}</h2>
 
           <h3 id="registration" class="uk-heading-bullet">{{ t('heading_registration') }}</h3>
           <div class="uk-margin uk-flex uk-flex-middle">
@@ -2120,116 +2120,116 @@
           </div>
         </div>
       </li>
-    {% if domainType == 'main' %}
-    <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
+      {% if domainType == 'main' %}
+      <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
+        <div class="admin-section">
+          <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
 
-        <!-- FILTER / TOOLBAR -->
-        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
-          <div class="uk-width-auto uk-flex uk-flex-middle">
-            <select id="tenantStatusFilter" class="uk-select" aria-label="Status filtern">
-              <option value="">{{ t('tenant_status_filter_all') }}</option>
-              <option value="active">{{ t('tenant_status_active') }}</option>
-              <option value="canceled">{{ t('tenant_status_canceled') }}</option>
-              <option value="simulated">{{ t('tenant_status_simulated') }}</option>
-              <option value="pending">{{ t('tenant_status_pending') }}</option>
-              <option value="provisioning">{{ t('tenant_status_provisioning') }}</option>
-              <option value="provisioned">{{ t('tenant_status_provisioned') }}</option>
-              <option value="failed">{{ t('tenant_status_failed') }}</option>
-            </select>
-          </div>
+          <!-- FILTER / TOOLBAR -->
+          <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+            <div class="uk-width-auto uk-flex uk-flex-middle">
+              <select id="tenantStatusFilter" class="uk-select" aria-label="Status filtern">
+                <option value="">{{ t('tenant_status_filter_all') }}</option>
+                <option value="active">{{ t('tenant_status_active') }}</option>
+                <option value="canceled">{{ t('tenant_status_canceled') }}</option>
+                <option value="simulated">{{ t('tenant_status_simulated') }}</option>
+                <option value="pending">{{ t('tenant_status_pending') }}</option>
+                <option value="provisioning">{{ t('tenant_status_provisioning') }}</option>
+                <option value="provisioned">{{ t('tenant_status_provisioned') }}</option>
+                <option value="failed">{{ t('tenant_status_failed') }}</option>
+              </select>
+            </div>
 
-          <div class="uk-width-expand uk-flex uk-flex-middle">
-            <div class="uk-inline uk-width-1-1">
-              <span class="uk-form-icon" uk-icon="icon: search"></span>
-              <input id="tenantSearchInput" class="uk-input" type="search" placeholder="Suchen (Subdomain, Kunde, E-Mail)">
+            <div class="uk-width-expand uk-flex uk-flex-middle">
+              <div class="uk-inline uk-width-1-1">
+                <span class="uk-form-icon" uk-icon="icon: search"></span>
+                <input id="tenantSearchInput" class="uk-input" type="search" placeholder="Suchen (Subdomain, Kunde, E-Mail)">
+              </div>
+            </div>
+            <div class="uk-width-auto uk-flex uk-flex-wrap uk-margin-small-top@s">
+              <button
+                class="uk-icon-button uk-margin-small-right"
+                uk-icon="icon: more"
+                uk-tooltip="title: {{ t('menu') }}; pos: bottom"
+                aria-label="{{ t('menu') }}"
+                type="button"></button>
+              <div uk-dropdown="mode: click; pos: bottom-right">
+                <ul class="uk-nav uk-dropdown-nav">
+                  <li>
+                    <button
+                      id="tenantExportBtn"
+                      type="button"
+                      class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                      aria-label="Exportieren">Exportieren</button>
+                  </li>
+                  <li>
+                    <button
+                      id="tenantReportBtn"
+                      type="button"
+                      class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                      aria-label="Auswertung">Auswertung</button>
+                  </li>
+                  <li>
+                    <button
+                      id="tenantColumnBtn"
+                      type="button"
+                      class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                      aria-label="Spalten">Spalten</button>
+                  </li>
+                  <li>
+                    <button
+                      id="tenantSyncBtn"
+                      type="button"
+                      class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                      aria-label="Sync">
+                      Sync
+                      <span class="uk-badge uk-margin-small-left uk-hidden" id="tenantSyncBadge">–</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      type="button"
+                      class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                      data-action="build-docker"
+                      aria-label="{{ t('action_build_image') }}">{{ t('action_build_image') }}</button>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div class="uk-width-auto uk-flex uk-flex-wrap uk-margin-small-top@s">
-            <button
-              class="uk-icon-button uk-margin-small-right"
-              uk-icon="icon: more"
-              uk-tooltip="title: {{ t('menu') }}; pos: bottom"
-              aria-label="{{ t('menu') }}"
-              type="button"></button>
-            <div uk-dropdown="mode: click; pos: bottom-right">
-              <ul class="uk-nav uk-dropdown-nav">
-                <li>
-                  <button
-                    id="tenantExportBtn"
-                    type="button"
-                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
-                    aria-label="Exportieren">Exportieren</button>
-                </li>
-                <li>
-                  <button
-                    id="tenantReportBtn"
-                    type="button"
-                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
-                    aria-label="Auswertung">Auswertung</button>
-                </li>
-                <li>
-                  <button
-                    id="tenantColumnBtn"
-                    type="button"
-                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
-                    aria-label="Spalten">Spalten</button>
-                </li>
-                <li>
-                  <button
-                    id="tenantSyncBtn"
-                    type="button"
-                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
-                    aria-label="Sync">
-                    Sync
-                    <span class="uk-badge uk-margin-small-left uk-hidden" id="tenantSyncBadge">–</span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
-                    data-action="build-docker"
-                    aria-label="{{ t('action_build_image') }}">{{ t('action_build_image') }}</button>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
 
-        {% from 'components/table.twig' import qr_rowcards %}
-        <div class="uk-visible@s uk-overflow-auto">
-          <table class="uk-table uk-table-middle uk-table-striped">
-            <thead>
-              <tr>
-                <th class="sticky">{{ t('column_subdomain') }}</th>
-                <th>{{ t('column_plan') }}</th>
-                <th>{{ t('column_billing') }}</th>
-                <th>{{ t('column_created') }}</th>
-                <th class="uk-text-right">{{ t('column_actions') }}</th>
-              </tr>
-            </thead>
-            <tbody id="tenantTableBody"></tbody>
-          </table>
+          {% from 'components/table.twig' import qr_rowcards %}
+          <div class="uk-visible@s uk-overflow-auto">
+            <table class="uk-table uk-table-middle uk-table-striped">
+              <thead>
+                <tr>
+                  <th class="sticky">{{ t('column_subdomain') }}</th>
+                  <th>{{ t('column_plan') }}</th>
+                  <th>{{ t('column_billing') }}</th>
+                  <th>{{ t('column_created') }}</th>
+                  <th class="uk-text-right">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody id="tenantTableBody"></tbody>
+            </table>
+          </div>
+          {{ qr_rowcards('tenantCards', false, 'uk-hidden@s', 'div') }}
         </div>
-        {{ qr_rowcards('tenantCards', false, 'uk-hidden@s', 'div') }}
-      </div>
-    </li>
-    {% else %}
-    <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
-        <div class="uk-alert-warning" uk-alert>MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen</div>
-      </div>
-    </li>
-    {% endif %}
-    {% endif %}
-    {% if activeRoute == 'profile' %}
-    <li class="{{ activeRoute == 'profile' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_profile') }}</h2>
-        {% if tenant %}
+      </li>
+      {% else %}
+      <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
+        <div class="admin-section">
+          <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
+          <div class="uk-alert-warning" uk-alert>MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen</div>
+        </div>
+      </li>
+      {% endif %}
+      {% endif %}
+      {% if activeRoute == 'profile' %}
+      <li class="{{ activeRoute == 'profile' ? 'uk-active' }}">
+        <div class="admin-section">
+          <h2 class="uk-heading-bullet">{{ t('heading_profile') }}</h2>
+          {% if tenant %}
         <form id="profileForm" class="uk-form-stacked">
           <div class="uk-grid-small" uk-grid>
             <div class="uk-width-1-2@s">
@@ -2280,10 +2280,10 @@
         {% endif %}
       </div>
     </li>
-    {% endif %}
-    <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
+      {% endif %}
+      <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
+        <div class="admin-section">
+          <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
         {% set hasCustomer = tenant and tenant.stripe_customer_id %}
         <div class="uk-card qr-card uk-card-body uk-margin-small" id="subscription-card">
           <div id="subscription-details"

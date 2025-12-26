@@ -754,6 +754,12 @@ body.admin-page {
   overflow-y: visible !important;
 }
 
+.admin-page .admin-main-container,
+.admin-page .admin-section {
+  width: 100%;
+  max-width: none;
+}
+
 /* Ensure action dropdowns inside admin tables are not clipped by card or background layers */
 .admin-page .uk-card,
 .admin-page .uk-card > :first-child {
