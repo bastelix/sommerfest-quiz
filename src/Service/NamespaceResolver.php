@@ -43,6 +43,9 @@ final class NamespaceResolver
         $queryNamespace = $this->normalizeNamespace($request->getQueryParams()['namespace'] ?? null);
         $this->pushCandidate($candidates, $queryNamespace);
 
+        $sessionNamespace = $this->normalizeNamespace($request->getAttribute('active_namespace'));
+        $this->pushCandidate($candidates, $sessionNamespace);
+
         $explicit = $this->normalizeNamespace(
             $request->getAttribute('legalPageNamespace')
                 ?? $request->getAttribute('pageNamespace')
