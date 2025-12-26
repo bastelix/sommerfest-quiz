@@ -735,7 +735,9 @@ if (container) {
         .then(response => {
           if (!response.ok) {
             return response.json().catch(() => ({})).then(err => {
-              throw new Error(err?.error || 'menu-ai-failed');
+              const error = new Error(err?.error || 'menu-ai-failed');
+              error.responseStatus = response.status;
+              return Promise.reject(error);
             });
           }
           return response.json();
@@ -747,9 +749,11 @@ if (container) {
         .catch(error => {
           console.error('AI menu generation failed', error);
           const details = (error?.message || '').trim();
-          const message = details && details !== 'menu-ai-failed'
-            ? `Navigation konnte nicht automatisch generiert werden: ${details}`
-            : 'Navigation konnte nicht automatisch generiert werden.';
+          const message = error?.responseStatus === 504
+            ? 'Die KI konnte nicht rechtzeitig antworten. Bitte erneut versuchen.'
+            : details && details !== 'menu-ai-failed'
+              ? `Navigation konnte nicht automatisch generiert werden: ${details}`
+              : 'Navigation konnte nicht automatisch generiert werden.';
           setFeedback(message, 'danger');
         });
     };
@@ -903,28 +907,55 @@ if (container) {
         });
     };
 
-    const submitImportPayload = payload => {
+    const NAMESPACE_MISMATCH_ERROR = 'Namespace des Exports stimmt nicht mit der Seite überein.';
+
+    const submitImportPayload = (payload, options = { allowNamespaceMismatch: false }) => {
+      const { allowNamespaceMismatch = false } = options;
+
       if (!state.pageId) {
         setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
         return;
       }
+
+      const body = allowNamespaceMismatch
+        ? { ...payload, allowNamespaceMismatch: true }
+        : { ...payload, allowNamespaceMismatch: false };
+
       apiFetch(withNamespace(buildPath(state.pageId, '/menu/import')), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(body)
       })
         .then(async response => {
-          if (!response.ok && response.status !== 204) {
-            const body = await response.json().catch(() => ({}));
-            throw new Error(body?.error || 'Import fehlgeschlagen.');
+          if (response.ok || response.status === 204) {
+            return null;
           }
-          return null;
+          const responseBody = await response.json().catch(() => ({}));
+          const message = responseBody?.error || 'Import fehlgeschlagen.';
+          const error = new Error(message);
+          error.responseStatus = response.status;
+          error.responseBody = responseBody;
+          throw error;
         })
         .then(() => {
           setFeedback('Menü importiert.', 'success');
           loadMenuItems(state.locale);
         })
         .catch(error => {
+          if (
+            !allowNamespaceMismatch
+            && (error?.message === NAMESPACE_MISMATCH_ERROR
+              || error?.responseBody?.error === NAMESPACE_MISMATCH_ERROR)
+          ) {
+            const confirmImport = window.confirm(
+              'Namespace des Exports stimmt nicht mit der Seite überein. Trotzdem importieren?'
+            );
+            if (confirmImport) {
+              submitImportPayload(payload, { allowNamespaceMismatch: true });
+              return;
+            }
+          }
+
           console.error('Failed to import marketing menu', error);
           setFeedback(error.message || 'Import fehlgeschlagen.', 'danger');
         });
