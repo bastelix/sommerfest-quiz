@@ -4029,7 +4029,8 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainTable.dataset.empty || '',
       error: domainTable.dataset.error || window.transDomainError || 'Domain load failed.'
     };
-    const domainEndpoint = withBase('/admin/domains/api');
+    const domainEndpoint = resolveWithBase(domainTable?.dataset?.api || '/admin/domains/api');
+    const renewSslEndpoint = resolveWithBase('/api/renew-ssl');
     const resolveDomainElement = (id) => managementSection?.querySelector(`#${id}`) || document.getElementById(id);
     const domainForm = resolveDomainElement('domainForm');
     const domainLegend = resolveDomainElement('domainLegend');
@@ -4088,7 +4089,7 @@ document.addEventListener('DOMContentLoaded', function () {
         renewSslButton.disabled = true;
         renewSslButton.innerHTML = `<span class="uk-margin-small-right" uk-spinner></span>${renewSslButton.textContent}`;
 
-        apiFetch('/api/renew-ssl', { method: 'POST' })
+        apiFetch(renewSslEndpoint, { method: 'POST' })
           .then(res => res.json().catch(() => ({})).then(data => {
             if (!res.ok) {
               throw new Error(data?.error || transRenewError);
