@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
+use Throwable;
 
 use function array_key_exists;
 use function getenv;
@@ -17,15 +18,20 @@ use function is_int;
 use function is_string;
 use function json_decode;
 use function sprintf;
+use function str_contains;
+use function strtolower;
 use function trim;
+use function usleep;
 
 /**
  * Sends chat prompts to the configured HTTP endpoint.
  */
 class HttpChatResponder implements ChatResponderInterface
 {
-    private const DEFAULT_TIMEOUT = 25.0;
+    private const DEFAULT_TIMEOUT = 10.0;
     private const MIN_TIMEOUT = 1.0;
+    private const MAX_RETRIES = 2;
+    private const RETRY_BACKOFF_SECONDS = 0.25;
 
     private ClientInterface $httpClient;
 
@@ -67,15 +73,24 @@ class HttpChatResponder implements ChatResponderInterface
             throw new RuntimeException('Chat responder requires context to build an answer.');
         }
 
-        try {
-            $response = $this->httpClient->request('POST', $this->endpoint, [
-                'json' => $this->buildRequestPayload($messages, $context),
-                'headers' => $this->buildHeaders(),
-                'timeout' => $this->timeout,
-            ]);
-        } catch (GuzzleException $exception) {
-            throw new RuntimeException('Failed to contact chat service: ' . $exception->getMessage(), 0, $exception);
-        }
+        $attempt = 0;
+        do {
+            try {
+                $response = $this->httpClient->request('POST', $this->endpoint, [
+                    'json' => $this->buildRequestPayload($messages, $context),
+                    'headers' => $this->buildHeaders(),
+                    'timeout' => $this->timeout,
+                ]);
+                break;
+            } catch (GuzzleException $exception) {
+                $attempt++;
+                if ($attempt >= self::MAX_RETRIES || !$this->isTimeoutException($exception)) {
+                    throw new RuntimeException('Failed to contact chat service: ' . $exception->getMessage(), 0, $exception);
+                }
+
+                usleep((int) (self::RETRY_BACKOFF_SECONDS * 1_000_000 * $attempt));
+            }
+        } while ($attempt < self::MAX_RETRIES);
 
         $body = (string) $response->getBody();
         $status = $response->getStatusCode();
@@ -298,6 +313,21 @@ class HttpChatResponder implements ChatResponderInterface
 
         $value = trim((string) $value);
         return $value === '' ? null : $value;
+    }
+
+    private function isTimeoutException(Throwable $exception): bool
+    {
+        $message = strtolower($exception->getMessage());
+        if (str_contains($message, 'timeout') || str_contains($message, 'timed out') || str_contains($message, 'curl error 28')) {
+            return true;
+        }
+
+        $previous = $exception->getPrevious();
+        if ($previous instanceof Throwable) {
+            return $this->isTimeoutException($previous);
+        }
+
+        return false;
     }
 
     /**

@@ -18,7 +18,7 @@ use function trim;
 final class MarketingMenuAiErrorMapper
 {
     /**
-     * @return array{error_code:string,message:string}
+     * @return array{error_code:string,message:string,status:int}
      */
     public function map(Throwable $exception): array
     {
@@ -28,6 +28,7 @@ final class MarketingMenuAiErrorMapper
             return [
                 'error_code' => 'prompt_missing',
                 'message' => 'The AI prompt template is not configured.',
+                'status' => 500,
             ];
         }
 
@@ -35,6 +36,7 @@ final class MarketingMenuAiErrorMapper
             return [
                 'error_code' => 'ai_unavailable',
                 'message' => 'The AI responder is not configured. Check RAG_CHAT_SERVICE_* variables in your environment.',
+                'status' => 500,
             ];
         }
 
@@ -42,6 +44,7 @@ final class MarketingMenuAiErrorMapper
             return [
                 'error_code' => 'ai_empty',
                 'message' => 'The AI responder returned an empty response.',
+                'status' => 500,
             ];
         }
 
@@ -49,6 +52,7 @@ final class MarketingMenuAiErrorMapper
             return [
                 'error_code' => 'ai_invalid_json',
                 'message' => 'The AI responder did not return valid JSON.',
+                'status' => 500,
             ];
         }
 
@@ -56,6 +60,7 @@ final class MarketingMenuAiErrorMapper
             return [
                 'error_code' => 'ai_invalid_items',
                 'message' => 'The AI responder did not return a valid items structure.',
+                'status' => 500,
             ];
         }
 
@@ -67,6 +72,17 @@ final class MarketingMenuAiErrorMapper
                     'message' => $details !== ''
                         ? sprintf('The AI responder did not respond in time. %s', $details)
                         : 'The AI responder did not respond in time.',
+                    'status' => 504,
+                ];
+            }
+
+            if ($this->isRateLimit($exception)) {
+                return [
+                    'error_code' => 'ai_rate_limited',
+                    'message' => $details !== ''
+                        ? sprintf('The AI responder is temporarily rate limited. %s', $details)
+                        : 'The AI responder is temporarily rate limited.',
+                    'status' => 429,
                 ];
             }
 
@@ -75,12 +91,14 @@ final class MarketingMenuAiErrorMapper
                 'message' => $details !== ''
                     ? sprintf('The AI responder failed to generate navigation. %s', $details)
                     : 'The AI responder failed to generate navigation.',
+                'status' => 500,
             ];
         }
 
         return [
             'error_code' => 'ai_error',
             'message' => 'The AI responder failed to generate navigation.',
+            'status' => 500,
         ];
     }
 
@@ -94,6 +112,21 @@ final class MarketingMenuAiErrorMapper
         $previous = $exception->getPrevious();
         if ($previous instanceof Throwable) {
             return $this->isTimeout($previous);
+        }
+
+        return false;
+    }
+
+    private function isRateLimit(Throwable $exception): bool
+    {
+        $message = strtolower($exception->getMessage());
+        if (str_contains($message, '429') || str_contains($message, 'too many requests') || str_contains($message, 'rate limit')) {
+            return true;
+        }
+
+        $previous = $exception->getPrevious();
+        if ($previous instanceof Throwable) {
+            return $this->isRateLimit($previous);
         }
 
         return false;
