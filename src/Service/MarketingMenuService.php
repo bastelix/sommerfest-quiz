@@ -190,7 +190,7 @@ final class MarketingMenuService
         $namespace = isset($payload['namespace']) ? trim((string) $payload['namespace']) : $page->getNamespace();
         $allowNamespaceMismatch = isset($payload['allowNamespaceMismatch'])
             ? (bool) $payload['allowNamespaceMismatch']
-            : false;
+            : true;
         if ($namespace !== '' && $namespace !== $page->getNamespace() && !$allowNamespaceMismatch) {
             throw new RuntimeException('Namespace des Exports stimmt nicht mit der Seite überein.');
         }

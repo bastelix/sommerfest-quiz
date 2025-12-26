@@ -20,6 +20,24 @@ if (container) {
     const previewSummary = document.querySelector('[data-menu-preview-summary]');
     const generateButton = container.querySelector('[data-menu-generate-ai]');
 
+    const normalizeBasePath = (candidate = '') => {
+      const trimmed = String(candidate || '').trim();
+      if (trimmed === '') {
+        return '';
+      }
+
+      try {
+        const parsed = new URL(trimmed, window.location.origin);
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+          return parsed.pathname.replace(/\/$/, '');
+        }
+      } catch (error) {
+        // Fall back to raw value on parse errors
+      }
+
+      return trimmed.replace(/\/$/, '');
+    };
+
     const state = {
       pageId: null,
       pageSlug: '',
@@ -29,7 +47,7 @@ if (container) {
       pages: [],
       dirty: new Set(),
       dragging: null,
-      basePath: container.dataset.basePath || window.basePath || '',
+      basePath: normalizeBasePath(container.dataset.basePath || window.basePath || ''),
       namespace: container.dataset.namespace || '',
       locale: container.dataset.locale || '',
     };

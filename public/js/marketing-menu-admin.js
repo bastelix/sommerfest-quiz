@@ -189,8 +189,8 @@ if (manager) {
         });
     };
 
-    const submitImportPayload = (payload, options = {}) => {
-      const { allowNamespaceMismatch = false } = options;
+    const submitImportPayload = (payload, options = { allowNamespaceMismatch: true }) => {
+      const { allowNamespaceMismatch = true } = options;
 
       if (!state.pageId) {
         setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
