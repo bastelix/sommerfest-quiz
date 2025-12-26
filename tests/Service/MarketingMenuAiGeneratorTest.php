@@ -6,6 +6,7 @@ namespace Tests\Service;
 
 use App\Domain\Page;
 use App\Service\Marketing\MarketingMenuAiGenerator;
+use App\Service\RagChat\ChatResponderInterface;
 use PHPUnit\Framework\TestCase;
 use Tests\Stubs\StaticChatResponder;
 
@@ -49,6 +50,34 @@ final class MarketingMenuAiGeneratorTest extends TestCase
         $this->expectExceptionMessage(MarketingMenuAiGenerator::ERROR_INVALID_JSON);
 
         $generator->generate($page, 'de');
+    }
+
+    public function testStripsLargeDataUrisAndScriptsFromPrompt(): void
+    {
+        $capturingResponder = new class implements ChatResponderInterface {
+            public array $messages = [];
+
+            public function respond(array $messages, array $context = []): string
+            {
+                $this->messages = $messages;
+
+                return json_encode(['items' => []]);
+            }
+        };
+
+        $generator = new MarketingMenuAiGenerator(null, $capturingResponder, '{{html}}');
+        $image = '<img src="data:image/png;base64,' . str_repeat('A', 5000) . '">';
+        $script = '<script>console.log("should be removed");</script>';
+        $page = $this->createPage('default', 'hero', '<h1 id="hero">Hero</h1>' . $image . $script . '<h2 id="faq">FAQ</h2>');
+
+        $generator->generate($page, 'de');
+
+        $prompt = $capturingResponder->messages[1]['content'] ?? '';
+        $this->assertStringContainsString('H1: Hero (hero)', $prompt);
+        $this->assertStringContainsString('H2: FAQ (faq)', $prompt);
+        $this->assertStringNotContainsString('data:image/png', $prompt);
+        $this->assertStringNotContainsString('script', $prompt);
+        $this->assertLessThan(9000, strlen($prompt));
     }
 
     private function createPage(string $namespace, string $slug, string $content): Page

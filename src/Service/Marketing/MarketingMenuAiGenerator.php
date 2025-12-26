@@ -4,14 +4,22 @@ declare(strict_types=1);
 
 namespace App\Service\Marketing;
 
+use DOMDocument;
+use DOMNode;
+use DOMXPath;
 use App\Domain\Page;
 use App\Service\RagChat\ChatResponderInterface;
 use App\Service\RagChat\RagChatService;
 use RuntimeException;
 
 use function json_decode;
+use function libxml_clear_errors;
+use function libxml_use_internal_errors;
+use function mb_strlen;
+use function mb_substr;
 use function preg_replace;
 use function sprintf;
+use function strip_tags;
 use function str_replace;
 use function str_starts_with;
 use function trim;
@@ -24,6 +32,8 @@ final class MarketingMenuAiGenerator
     public const ERROR_EMPTY_RESPONSE = 'empty-response';
     public const ERROR_INVALID_JSON = 'invalid-json';
     public const ERROR_INVALID_ITEMS = 'invalid-items';
+
+    private const MAX_HTML_LENGTH = 8000;
 
     private const SYSTEM_PROMPT = 'You turn QuizRace marketing page HTML into structured navigation menus.';
 
@@ -116,7 +126,7 @@ PROMPT;
                 trim($page->getSlug()),
                 trim($locale ?? $page->getLanguage() ?? 'de'),
                 trim($page->getTitle()),
-                trim($page->getContent()),
+                $this->prepareHtmlSnippet($page->getContent()),
             ],
             $template
         );
@@ -166,6 +176,100 @@ PROMPT;
         }
 
         return trim($normalized);
+    }
+
+    private function prepareHtmlSnippet(string $html): string
+    {
+        $cleaned = $this->stripScriptsAndStyles($html);
+        $cleaned = $this->stripDataUris($cleaned);
+
+        $structured = $this->extractStructureSummary($cleaned);
+        if ($structured !== '') {
+            return $this->truncate($structured, self::MAX_HTML_LENGTH);
+        }
+
+        $plain = trim(strip_tags($cleaned));
+        if ($plain === '') {
+            $plain = trim($cleaned);
+        }
+
+        return $this->truncate($plain, self::MAX_HTML_LENGTH);
+    }
+
+    private function stripScriptsAndStyles(string $html): string
+    {
+        $html = preg_replace('#<script[^>]*>.*?</script>#si', '', $html) ?? $html;
+
+        return preg_replace('#<style[^>]*>.*?</style>#si', '', $html) ?? $html;
+    }
+
+    private function stripDataUris(string $html): string
+    {
+        return preg_replace('#data:[^\"\s>]+#i', '[data-uri]', $html) ?? $html;
+    }
+
+    private function extractStructureSummary(string $html): string
+    {
+        $document = new DOMDocument();
+        $useInternalErrors = libxml_use_internal_errors(true);
+
+        try {
+            $loaded = $document->loadHTML('<?xml encoding="utf-8"?>' . $html);
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($useInternalErrors);
+        }
+
+        if ($loaded === false) {
+            return '';
+        }
+
+        $xpath = new DOMXPath($document);
+        $nodes = $xpath->query('//h1 | //h2 | //h3 | //section | //article | //a[@href]');
+        if ($nodes === false) {
+            return '';
+        }
+
+        $lines = [];
+        /** @var DOMNode $node */
+        foreach ($nodes as $node) {
+            $text = trim($node->textContent ?? '');
+            if ($text === '') {
+                continue;
+            }
+
+            $id = '';
+            if ($node->attributes !== null && $node->attributes->getNamedItem('id') !== null) {
+                $id = trim((string) $node->attributes->getNamedItem('id')?->nodeValue);
+            }
+
+            if ($id === '' && $node->nodeName === 'a' && $node->attributes !== null) {
+                $href = trim((string) $node->attributes->getNamedItem('href')?->nodeValue);
+                if ($href !== '') {
+                    $id = $href;
+                }
+            }
+
+            $label = strtoupper($node->nodeName);
+            $lines[] = $id !== ''
+                ? sprintf('%s: %s (%s)', $label, $text, $id)
+                : sprintf('%s: %s', $label, $text);
+
+            if (mb_strlen(implode("\n", $lines)) >= self::MAX_HTML_LENGTH) {
+                break;
+            }
+        }
+
+        return trim(implode("\n", $lines));
+    }
+
+    private function truncate(string $content, int $maxLength): string
+    {
+        if (mb_strlen($content) <= $maxLength) {
+            return $content;
+        }
+
+        return trim(mb_substr($content, 0, $maxLength)) . ' … [truncated]';
     }
 
     /**
