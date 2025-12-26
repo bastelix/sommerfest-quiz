@@ -587,6 +587,14 @@ if (container) {
       settingsBtn.setAttribute('aria-controls', advancedId);
       actions.appendChild(settingsBtn);
 
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'uk-icon-button uk-button-danger';
+      deleteBtn.setAttribute('uk-icon', 'trash');
+      deleteBtn.title = 'Eintrag entfernen';
+      deleteBtn.setAttribute('aria-label', 'Eintrag entfernen');
+      actions.appendChild(deleteBtn);
+
       const baseWrapper = document.createElement('div');
       baseWrapper.className = 'menu-tree__base';
       baseWrapper.append(labelLabel, labelInput, hrefLabel, hrefInput, errorHint);
@@ -621,10 +629,15 @@ if (container) {
       });
 
       visibilityBtn.addEventListener('click', () => {
-        const next = !(state.byId.get(node.id)?.isActive === true);
+        const current = state.byId.get(normalizeId(node.id))?.isActive !== false;
+        const next = !current;
         applyInputChange(node, 'isActive', next);
         visibilityBtn.setAttribute('uk-icon', next ? 'eye' : 'ban');
         visibilityBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+        const activeCheckbox = advanced.querySelector('input[data-field="isActive"]');
+        if (activeCheckbox) {
+          activeCheckbox.checked = next;
+        }
         if (window.UIkit && typeof UIkit.icon === 'function') {
           UIkit.icon(visibilityBtn, { icon: next ? 'eye' : 'ban' });
         }
@@ -641,7 +654,89 @@ if (container) {
         });
       });
 
+      deleteBtn.addEventListener('click', () => deleteNode(node, deleteBtn));
+
       return item;
+    };
+
+    const collectDescendantIds = rootId => {
+      const target = normalizeId(rootId);
+      const ids = new Set([target]);
+      let changed = true;
+
+      while (changed) {
+        changed = false;
+        state.items.forEach(item => {
+          const itemId = normalizeId(item.id);
+          if (ids.has(itemId)) {
+            return;
+          }
+          const parentValue = item.parentId === null || item.parentId === undefined
+            ? null
+            : normalizeId(item.parentId);
+          if (parentValue !== null && ids.has(parentValue)) {
+            ids.add(itemId);
+            changed = true;
+          }
+        });
+      }
+
+      return Array.from(ids);
+    };
+
+    const removeNodesFromState = ids => {
+      const removeSet = new Set(ids.map(normalizeId));
+      state.items = state.items.filter(item => !removeSet.has(normalizeId(item.id)));
+      removeSet.forEach(id => {
+        state.byId.delete(id);
+        state.dirty.delete(id);
+      });
+    };
+
+    const deleteNode = (node, button) => {
+      if (!window.confirm('Eintrag entfernen?')) {
+        return;
+      }
+      if (!state.pageId) {
+        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        return;
+      }
+
+      const idsToRemove = collectDescendantIds(node.id);
+      const numericId = Number(node.id);
+      const isPersisted = Number.isFinite(numericId);
+
+      if (!isPersisted) {
+        removeNodesFromState(idsToRemove);
+        renderTree();
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+      }
+
+      apiFetch(withNamespace(buildPath(state.pageId, '/menu')), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: numericId })
+      })
+        .then(response => {
+          if (!response.ok && response.status !== 204) {
+            throw new Error('menu-delete-failed');
+          }
+          removeNodesFromState(idsToRemove);
+          state.originalItems = JSON.parse(JSON.stringify(state.items));
+          renderTree();
+          setFeedback('Eintrag entfernt.', 'success');
+        })
+        .catch(error => {
+          console.error('Failed to delete menu item', error);
+          setFeedback('Löschen fehlgeschlagen.', 'danger');
+          if (button) {
+            button.disabled = false;
+          }
+        });
     };
 
     const renderBranch = (nodes, depth = 0, branch) => {
