@@ -3840,18 +3840,37 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
+    const hasCfgFields = Object.values(cfgFields).some(field => {
+      if (Array.isArray(field)) {
+        return field.length > 0;
+      }
+      return !!field;
+    });
+    if (!hasCfgFields) {
+      return;
+    }
     if (cfgFields.logoPreview) {
       cfgFields.logoPreview.src = data.logoPath ? data.logoPath + '?' + Date.now() : '';
     }
-    cfgFields.pageTitle.value = data.pageTitle || '';
-    cfgFields.backgroundColor.value = data.backgroundColor || '';
-    cfgFields.buttonColor.value = data.buttonColor || '';
+    if (cfgFields.pageTitle) {
+      cfgFields.pageTitle.value = data.pageTitle || '';
+    }
+    if (cfgFields.backgroundColor) {
+      cfgFields.backgroundColor.value = data.backgroundColor || '';
+    }
+    if (cfgFields.buttonColor) {
+      cfgFields.buttonColor.value = data.buttonColor || '';
+    }
     if (cfgFields.startTheme) {
       const normalizedTheme = (data.startTheme || '').toLowerCase();
       cfgFields.startTheme.value = normalizedTheme === 'dark' ? 'dark' : 'light';
     }
-    cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
-    cfgFields.qrUser.checked = !!data.QRUser;
+    if (cfgFields.checkAnswerButton) {
+      cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
+    }
+    if (cfgFields.qrUser) {
+      cfgFields.qrUser.checked = !!data.QRUser;
+    }
     if (cfgFields.randomNames) {
       cfgFields.randomNames.checked = data.randomNames !== false;
     }
