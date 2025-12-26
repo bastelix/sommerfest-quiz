@@ -250,11 +250,12 @@ class ProjectPagesController
             $response->getBody()->write(json_encode([
                 'error' => $mapped['message'],
                 'error_code' => $mapped['error_code'],
+                'items' => [],
             ], JSON_PRETTY_PRINT));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
+                ->withStatus($mapped['status']);
         }
 
         $response->getBody()->write(json_encode([

@@ -8,6 +8,7 @@ use App\Controller\Admin\ProjectPagesController;
 use App\Service\Marketing\MarketingMenuAiGenerator;
 use App\Service\MarketingMenuService;
 use App\Service\PageService;
+use App\Service\RagChat\ChatResponderInterface;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
@@ -78,6 +79,57 @@ final class MarketingMenuAiRouteTest extends TestCase
         $payloadAppend = json_decode((string) $resultAppend->getBody(), true);
         $labels = array_map(static fn (array $item): string => $item['label'] ?? '', $payloadAppend['items'] ?? []);
         $this->assertContains('Neu', $labels);
+    }
+
+    public function testTimeoutReturnsEmptyItemsAndGatewayTimeout(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createSchema($pdo);
+
+        $pageService = new PageService($pdo);
+        $page = $this->seedPage($pdo, $pageService, 'landing');
+        $this->insertMenuItem($pdo, $page->getId(), 'Alt', '#alt', 0);
+
+        $timeoutResponder = new class () implements ChatResponderInterface {
+            public function respond(array $messages, array $context): string
+            {
+                throw new \RuntimeException('Failed to contact chat service: cURL error 28: Operation timed out');
+            }
+        };
+
+        $generator = new MarketingMenuAiGenerator(null, $timeoutResponder, '{{slug}}');
+        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $controller = new ProjectPagesController(
+            $pdo,
+            $pageService,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $menuService
+        );
+
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
+            ->withHeader('Content-Type', 'application/json')
+            ->withParsedBody(null)
+            ->withAttribute('domainNamespace', $page->getNamespace());
+
+        $response = new Response();
+        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
+
+        $this->assertSame(504, $result->getStatusCode());
+        $payload = json_decode((string) $result->getBody(), true);
+        $this->assertSame([], $payload['items']);
+        $this->assertSame('ai_timeout', $payload['error_code']);
+
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM marketing_page_menu_items WHERE page_id = ?');
+        $stmt->execute([$page->getId()]);
+        $this->assertSame(1, (int) $stmt->fetchColumn());
     }
 
     private function createSchema(PDO $pdo): void
