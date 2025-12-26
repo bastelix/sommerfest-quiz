@@ -79,7 +79,7 @@ final class ProjectSettingsRepository
             . 'privacy_url, privacy_url_de, privacy_url_en, show_language_toggle, '
             . 'show_theme_toggle, show_contrast_toggle, header_logo_mode, header_logo_path, '
             . 'header_logo_alt, updated_at'
-            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
+            . ') VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP) '
             . 'ON CONFLICT (namespace) DO UPDATE SET '
             . 'cookie_consent_enabled = EXCLUDED.cookie_consent_enabled, '
             . 'cookie_storage_key = EXCLUDED.cookie_storage_key, '
