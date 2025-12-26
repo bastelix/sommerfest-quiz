@@ -197,6 +197,7 @@ class PagesDesignController
 
             if (!preg_match($pattern, $color)) {
                 throw new \RuntimeException('Ungültiges Farbformat. Nutze Hex-Werte wie #336699.');
+            }
         }
     }
 
