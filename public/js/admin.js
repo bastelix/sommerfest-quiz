@@ -1271,7 +1271,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const marketingNewsletterSlugInput = document.getElementById('marketingNewsletterSlug');
   const marketingNewsletterSlugOptions = document.getElementById('marketingNewsletterSlugOptions');
   const marketingNewsletterTable = document.getElementById('marketingNewsletterConfigTable');
-  const marketingNewsletterTableBody = marketingNewsletterTable ? marketingNewsletterTable.querySelector('tbody') : null;
+  let marketingNewsletterTableBody = marketingNewsletterTable ? marketingNewsletterTable.querySelector('tbody') : null;
+  if (marketingNewsletterTable && !marketingNewsletterTableBody) {
+    marketingNewsletterTableBody = document.createElement('tbody');
+    marketingNewsletterTable.appendChild(marketingNewsletterTableBody);
+  }
   const marketingNewsletterAddBtn = document.getElementById('marketingNewsletterAddRow');
   const marketingNewsletterSaveBtn = document.getElementById('marketingNewsletterSave');
   const marketingNewsletterResetBtn = document.getElementById('marketingNewsletterReset');
