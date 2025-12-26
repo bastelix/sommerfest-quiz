@@ -144,29 +144,27 @@ final class DomainNameHelper
             self::$marketingProviderIsLazy = true;
         }
 
-        if (self::$marketingDomainProvider !== null) {
-            try {
-                $domains = self::$marketingDomainProvider->getMarketingDomains();
-                if ($domains === [] && !self::$marketingProviderIsLazy) {
-                    return [];
-                }
-
-                $map = [];
-                foreach ($domains as $domain) {
-                    $domain = strtolower(trim((string) $domain));
-                    if ($domain === '') {
-                        continue;
-                    }
-
-                    $map[$domain] = true;
-                }
-
-                if ($map !== []) {
-                    return $map;
-                }
-            } catch (Throwable $exception) {
-                // Ignore provider failures and fall back to environment configuration.
+        try {
+            $domains = self::$marketingDomainProvider->getMarketingDomains();
+            if ($domains === [] && !self::$marketingProviderIsLazy) {
+                return [];
             }
+
+            $map = [];
+            foreach ($domains as $domain) {
+                $domain = strtolower(trim((string) $domain));
+                if ($domain === '') {
+                    continue;
+                }
+
+                $map[$domain] = true;
+            }
+
+            if ($map !== []) {
+                return $map;
+            }
+        } catch (Throwable $exception) {
+            // Ignore provider failures and fall back to environment configuration.
         }
 
         $config = getenv('MARKETING_DOMAINS');
