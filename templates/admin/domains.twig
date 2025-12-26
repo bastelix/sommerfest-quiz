@@ -63,18 +63,19 @@
     </main>
   </div>
 
-  <script>
-    window.availableNamespaces = {{ available_namespaces|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
-    window.defaultNamespace = '{{ default_namespace|default('default')|e('js') }}';
-    window.pageNamespace = '{{ pageNamespace|default('default')|e('js') }}';
-    window.domainType = '{{ domainType }}';
-    window.baseUrl = '{{ baseUrl }}';
-    window.mainDomain = '{{ main_domain }}';
-    window.transNamespaceActiveLabel = '{{ t('label_namespace_active')|e('js') }}';
-    window.transNamespaceInactiveLabel = '{{ t('label_namespace_inactive')|e('js') }}';
-    window.transDomainSaved = '{{ t('notify_domain_saved')|e('js') }}';
-    window.transDomainError = '{{ t('notify_domain_error')|e('js') }}';
-    window.transDomainInvalid = '{{ t('notify_domain_invalid')|e('js') }}';
+    <script>
+      window.availableNamespaces = {{ available_namespaces|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+      window.defaultNamespace = '{{ default_namespace|default('default')|e('js') }}';
+      window.pageNamespace = '{{ pageNamespace|default('default')|e('js') }}';
+      window.domainType = '{{ domainType }}';
+      window.baseUrl = '{{ baseUrl }}';
+      window.mainDomain = '{{ main_domain }}';
+      window.domains = {{ domains|default([])|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_QUOT'))|raw }};
+      window.transNamespaceActiveLabel = '{{ t('label_namespace_active')|e('js') }}';
+      window.transNamespaceInactiveLabel = '{{ t('label_namespace_inactive')|e('js') }}';
+      window.transDomainSaved = '{{ t('notify_domain_saved')|e('js') }}';
+      window.transDomainError = '{{ t('notify_domain_error')|e('js') }}';
+      window.transDomainInvalid = '{{ t('notify_domain_invalid')|e('js') }}';
     window.transDomainDeleted = '{{ t('notify_domain_deleted')|e('js') }}';
     window.transDomainDeleteConfirm = '{{ t('confirm_domain_delete')|e('js') }}';
     window.transEdit = '{{ t('action_edit')|e('js') }}';
