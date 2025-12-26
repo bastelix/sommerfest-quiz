@@ -47,6 +47,37 @@ const resolveWithBase = (path) => {
   }
   return withBase(path);
 };
+const normalizeEndpointToSameOrigin = (endpoint) => {
+  const ensureString = value => (value === null || value === undefined ? '' : String(value));
+  const trimmed = ensureString(endpoint).trim();
+  if (trimmed === '') {
+    return { endpoint: '', external: false, externalHost: null };
+  }
+
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    const isAbsolute = /^https?:\/\//i.test(trimmed) || trimmed.startsWith('//');
+    if (parsed.origin !== window.location.origin && isAbsolute) {
+      return { endpoint: trimmed, external: true, externalHost: parsed.origin };
+    }
+    return {
+      endpoint: parsed.pathname + parsed.search + parsed.hash,
+      external: false,
+      externalHost: null
+    };
+  } catch (error) {
+    return { endpoint: trimmed, external: false, externalHost: null };
+  }
+};
+const warnExternalEndpoint = (host) => {
+  const message = `External endpoint blocked: ${host || 'unknown origin'}`;
+  if (typeof UIkit !== 'undefined' && UIkit.notification) {
+    UIkit.notification({ message, status: 'warning', pos: 'top-center', timeout: 4000 });
+  }
+  if (typeof console !== 'undefined' && console.warn) {
+    console.warn(message);
+  }
+};
 const escape = url => encodeURI(url);
 const transEventsFetchError = window.transEventsFetchError || 'Veranstaltungen konnten nicht geladen werden';
 const transDashboardLinkCopied = window.transDashboardLinkCopied || 'Link kopiert';
@@ -213,7 +244,17 @@ window.apiFetch = (path, options = {}) => {
     signal: controller.signal
   };
 
-  return fetch(resolveWithBase(path), opts)
+  const { endpoint: normalizedEndpoint, external, externalHost } = normalizeEndpointToSameOrigin(path);
+  if (external) {
+    warnExternalEndpoint(externalHost);
+    controller.abort();
+    cleanup();
+    const err = new Error('External endpoint blocked');
+    err.code = 'external-endpoint-blocked';
+    return Promise.reject(err);
+  }
+
+  return fetch(resolveWithBase(normalizedEndpoint), opts)
     .then(res => {
       if (res.status === 402) {
         showUpgradeModal();
