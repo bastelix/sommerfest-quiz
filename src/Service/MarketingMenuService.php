@@ -8,6 +8,7 @@ use App\Domain\MarketingPageMenuItem;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Service\Marketing\MarketingMenuAiGenerator;
+use App\Service\Marketing\MarketingMenuAiTranslator;
 use DateTimeImmutable;
 use PDO;
 use PDOException;
@@ -39,14 +40,18 @@ final class MarketingMenuService
 
     private MarketingMenuAiGenerator $menuAiGenerator;
 
+    private MarketingMenuAiTranslator $menuAiTranslator;
+
     public function __construct(
         ?PDO $pdo = null,
         ?PageService $pages = null,
-        ?MarketingMenuAiGenerator $menuAiGenerator = null
+        ?MarketingMenuAiGenerator $menuAiGenerator = null,
+        ?MarketingMenuAiTranslator $menuAiTranslator = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->pages = $pages ?? new PageService($this->pdo);
         $this->menuAiGenerator = $menuAiGenerator ?? new MarketingMenuAiGenerator();
+        $this->menuAiTranslator = $menuAiTranslator ?? new MarketingMenuAiTranslator();
     }
 
     /**
@@ -252,6 +257,67 @@ final class MarketingMenuService
         }
 
         return $this->getMenuItemsForPage($page->getId(), $normalizedLocale, false);
+    }
+
+    /**
+     * Translate an existing menu into another locale via AI and persist the result.
+     *
+     * @return MarketingPageMenuItem[]
+     */
+    public function translateMenuFromLocale(
+        Page $page,
+        string $sourceLocale,
+        string $targetLocale,
+        bool $overwrite
+    ): array {
+        $normalizedSourceLocale = $this->normalizeLocale($sourceLocale);
+        $normalizedTargetLocale = $this->normalizeLocale($targetLocale);
+
+        if ($normalizedSourceLocale === $normalizedTargetLocale) {
+            throw new RuntimeException('Source and target locale must differ.');
+        }
+
+        $export = $this->serializeMenuExport($page->getId(), $normalizedSourceLocale);
+        $items = $export['items'] ?? [];
+        if (!is_array($items) || $items === []) {
+            throw new RuntimeException('No menu items available for translation.');
+        }
+
+        $translatedItems = $this->menuAiTranslator->translate(
+            $items,
+            $normalizedSourceLocale,
+            $normalizedTargetLocale
+        );
+
+        $startpageLocales = $overwrite ? [] : $this->collectStartpageLocales($page, $normalizedTargetLocale);
+        $normalizedItems = $this->normalizeImportItems($translatedItems, $startpageLocales);
+
+        $this->pdo->beginTransaction();
+
+        try {
+            if ($overwrite) {
+                $this->deleteMenuItemsForPageAndLocale($page->getId(), $normalizedTargetLocale);
+            }
+
+            $positionOffset = $overwrite
+                ? 0
+                : $this->determineNextRootPosition($page->getId(), $normalizedTargetLocale);
+
+            $itemsWithLocale = $this->applyLocaleAndPositions(
+                $normalizedItems,
+                $normalizedTargetLocale,
+                $positionOffset
+            );
+
+            $this->persistImportedItems($page->getId(), $itemsWithLocale, null);
+            $this->pdo->commit();
+        } catch (\Throwable $exception) {
+            $this->pdo->rollBack();
+
+            throw new RuntimeException('Menu translation failed.', 0, $exception);
+        }
+
+        return $this->getMenuItemsForPage($page->getId(), $normalizedTargetLocale, false);
     }
 
     /**
@@ -931,6 +997,14 @@ final class MarketingMenuService
             'UPDATE marketing_page_menu_items SET is_startpage = FALSE WHERE namespace = ?'
         );
         $stmt->execute([$normalizedNamespace]);
+    }
+
+    private function deleteMenuItemsForPageAndLocale(int $pageId, string $locale): void
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM marketing_page_menu_items WHERE page_id = ? AND locale = ?'
+        );
+        $stmt->execute([$pageId, $locale]);
     }
 
     private function deleteMenuItemsForPage(int $pageId): void
