@@ -59,13 +59,6 @@
         </div>
       </div>
     {% endblock %}
-    {% block headerbar %}
-      <div class="uk-container uk-container-large">
-        <div class="uk-padding-small uk-padding-remove-horizontal">
-          <h1 class="uk-heading-bullet uk-margin-remove">{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}</h1>
-        </div>
-      </div>
-    {% endblock %}
   {% endembed %}
 
   <div class="uk-grid-collapse" uk-grid>
@@ -75,6 +68,11 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <div class="uk-padding-small uk-padding-remove-horizontal">
+          <h1 class="uk-heading-bullet uk-margin-remove">{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}</h1>
+        </div>
+      </div>
       <div class="uk-container uk-container-expand">
         <form method="post" action="{{ formAction }}" class="uk-form-stacked uk-grid-small" uk-grid>
           <input type="hidden" name="_token" value="{{ csrfToken }}">
