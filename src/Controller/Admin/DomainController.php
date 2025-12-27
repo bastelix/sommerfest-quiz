@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Service\CertificateProvisionerInterface;
 use App\Service\DomainService;
+use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -60,6 +61,7 @@ class DomainController
             $this->certificateProvisioningService !== null
             && $domain['is_active']
         ) {
+            $this->clearMarketingDomainCache();
             $this->certificateProvisioningService->provisionAllDomains();
         }
 
@@ -108,6 +110,7 @@ class DomainController
             && !$existing['is_active']
             && $domain['is_active']
         ) {
+            $this->clearMarketingDomainCache();
             $this->certificateProvisioningService->provisionAllDomains();
         }
 
@@ -117,6 +120,16 @@ class DomainController
         ]));
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function clearMarketingDomainCache(): void
+    {
+        $provider = DomainNameHelper::getMarketingDomainProvider();
+        if ($provider === null) {
+            return;
+        }
+
+        $provider->clearCache();
     }
 
     public function delete(Request $request, Response $response, array $args): Response
