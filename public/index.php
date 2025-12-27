@@ -83,6 +83,11 @@ $twig->addExtension(new UikitExtension());
 $twig->addExtension(new DateTimeFormatExtension());
 $twig->addExtension(new TranslationExtension($translator));
 $twig->getEnvironment()->addGlobal('basePath', $basePath);
+$pageEditorDriver = strtolower((string) (getenv('PAGE_EDITOR_DRIVER') ?: 'tiptap'));
+if (!in_array($pageEditorDriver, ['tiptap', 'trumbowyg'], true)) {
+    $pageEditorDriver = 'tiptap';
+}
+$twig->getEnvironment()->addGlobal('pageEditorDriver', $pageEditorDriver);
 $marketingDomainProvider = new MarketingDomainProvider(
     static function (): \PDO {
         return Database::connectFromEnv();

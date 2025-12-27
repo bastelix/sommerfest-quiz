@@ -43,7 +43,12 @@
   <script>
     window.pageNamespace = '{{ activeNamespace|e('js') }}';
   </script>
-  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
+  {% set editorDriver = pageEditorDriver|default('tiptap') %}
+  {% if editorDriver == 'trumbowyg' %}
+    <script src="{{ basePath }}/js/trumbowyg-pages.js"></script>
+  {% else %}
+    <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
+  {% endif %}
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}

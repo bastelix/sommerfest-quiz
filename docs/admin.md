@@ -113,6 +113,35 @@ Fehlt zusätzlich eine Twig-Datei für den Slug unter `templates/marketing/<slug
 
 Die Seed-Daten in `src/Infrastructure/Migrations/sqlite-schema.sql` legen initiale Marketing-Seiten immer im `default`-Namespace an. Der Ziel-Namespace für die Laufzeit wird daher durch die Auflösung im `NamespaceResolver` bestimmt (z. B. über Query-Parameter `namespace`, Route-Argumente oder Tenant-Subdomain). Eigene Projekt-Namespaces werden anschließend über die Admin-Oberfläche gepflegt oder per Datenbank-Import ergänzt.
 
+### Manuelle Tests für statische Seiten
+
+Diese Checks decken den Editor vollständig ab und sollten nach jedem Update oder Import durchgeführt werden:
+
+1. **CRUD auf landing/impressum/datenschutz/faq**
+   * Öffne `/admin/pages` und lege für jede der vier Seiten einen Entwurf mit eindeutiger Überschrift an.
+   * Speichere die Änderungen, lade die Admin-Seite neu und prüfe, ob die Inhalte wieder erscheinen.
+   * Lösche einen Entwurf (z. B. `faq`), bestätige den Hinweisdialog, kontrolliere die ausgeblendeten Formularfelder und stelle den Eintrag über **Seite erstellen** wieder her.
+2. **Quiz-Link-Validierung**
+   * Klicke im Toolbar-Button **Quiz-Link**, warte auf die geladenen Katalog-Slugs und füge einen Link ein.
+   * Prüfe im Quelltext (`href`), dass der Slug URL-kodiert wird (`/?katalog=<slug>`) und keine leeren Slugs gespeichert werden.
+3. **Medien mit srcset**
+   * Füge ein `<img>` mit `srcset` hinzu, das sowohl gültige (`320w`, `2x`) als auch absichtlich fehlerhafte Deskriptoren enthält.
+   * Speichere den Inhalt, öffne die Vorschau und verifiziere, dass ungültige `srcset`-Attribute entfernt wurden, gültige Angaben aber bestehen bleiben.
+4. **Theme-Wechsel**
+   * Wechsle über **Hell/Dunkel/High-Contrast** die Darstellung und beobachte die `data-theme`-Attribute auf `<body>`, `.page-editor` und `#preview-content`.
+   * Bestätige, dass das gespeicherte Theme auch nach einem Neuladen aktiv bleibt (LocalStorage wird gesetzt).
+5. **Vorschau**
+   * Öffne die Vorschau aus der Toolbar, prüfe die Darstellung von Buttons, Cards und Medien sowie die Namespace-spezifischen Styles (Landing-Assets werden mitgeladen).
+   * Bei Landing-Seiten müssen Hero- und Alternativabschnitte sichtbar sein; für `impressum`, `datenschutz` und `faq` gilt die Standard-Hintergrundfarbe ohne Landing-Styles.
+
+### Feature-Flag-Fallback für den Editor
+
+Standardmäßig verwendet das Admin-Frontend den Tiptap-Editor. Für Notfälle (z. B. CDN-Ausfälle) steht ein Fallback auf Trumbowyg bereit:
+
+* Setze in `.env` oder der Container-Umgebung `PAGE_EDITOR_DRIVER=trumbowyg` und starte den PHP-Container neu.
+* Das Admin-Layout lädt danach `trumbowyg-pages.js` statt `tiptap-pages.js`. Die Toolbar enthält weiterhin die Quiz-Link-Dropdowns und UIkit-Templates; Theme-Toggles bleiben erhalten.
+* Nach Entstörung den Wert wieder entfernen oder auf `tiptap` setzen und erneut neustarten. Führe anschließend die manuellen Tests oben aus, um sicherzustellen, dass beide Editoren identisch speichern.
+
 ### Marketing-Menüs exportieren und importieren
 
 Im Tab **Seiten → Navigation** lassen sich komplette Marketing-Menüs als JSON sichern oder in andere Umgebungen übernehmen. Der Export-Button lädt die aktuelle Menüstruktur (inklusive Namespace und Locale) für die ausgewählte Seite herunter. Über **Menü importieren** wird eine JSON-Datei ausgewählt; der Server validiert erlaubte Felder und ersetzt die bestehenden Menüeinträge der Seite in einem Schritt. Die Startseite wird unabhängig von den Menüeinträgen direkt an der Page gespeichert und nicht mehr über das Menü-JSON verwaltet.
