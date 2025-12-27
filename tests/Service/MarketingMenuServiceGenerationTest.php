@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Domain\Page;
+use App\Service\Marketing\MarketingMenuAiException;
 use App\Service\Marketing\MarketingMenuAiGenerator;
 use App\Service\MarketingMenuService;
 use App\Service\PageService;
@@ -66,6 +67,31 @@ final class MarketingMenuServiceGenerationTest extends TestCase
         $this->assertSame(['Alt', 'Neu'], $labels);
         $positions = array_map(static fn ($item) => $item->getPosition(), $items);
         $this->assertSame([0, 1], $positions);
+    }
+
+    public function testPersistFailurePropagatesDetailedMessage(): void
+    {
+        $this->pdo->exec('CREATE UNIQUE INDEX marketing_menu_label_unique ON marketing_page_menu_items(page_id, label)');
+
+        $page = $this->seedPage('landing');
+        $this->insertMenuItem($page->getId(), 'Alt', '#alt', 0);
+
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Alt', 'href' => '#duplicate', 'layout' => 'link', 'children' => []],
+            ],
+        ])), '{{slug}}');
+
+        $service = new MarketingMenuService($this->pdo, $this->pageService, $generator);
+
+        try {
+            $service->generateMenuFromPage($page, 'de', false);
+            $this->fail('Expected a MarketingMenuAiException due to constraint violation.');
+        } catch (MarketingMenuAiException $exception) {
+            $this->assertStringContainsString('UNIQUE constraint failed', $exception->getMessage());
+            $this->assertSame('persistence_failed', $exception->getErrorCode());
+            $this->assertSame(500, $exception->getStatus());
+        }
     }
 
     private function createSchema(): void

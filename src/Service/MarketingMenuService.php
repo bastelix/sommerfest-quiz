@@ -8,6 +8,7 @@ use App\Domain\MarketingPageMenuItem;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Service\Marketing\MarketingMenuAiGenerator;
+use App\Service\Marketing\MarketingMenuAiException;
 use App\Service\Marketing\MarketingMenuAiTranslator;
 use DateTimeImmutable;
 use PDO;
@@ -253,7 +254,13 @@ final class MarketingMenuService
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
 
-            throw new RuntimeException('Menu generation failed.', 0, $exception);
+            $errorMessage = $exception->getMessage() !== ''
+                ? $exception->getMessage()
+                : 'Menu generation failed.';
+            $errorCode = $exception instanceof PDOException ? 'persistence_failed' : 'menu_generation_failed';
+            $status = $exception instanceof PDOException ? 500 : 500;
+
+            throw new MarketingMenuAiException($errorMessage, $errorCode, $status, $exception);
         }
 
         return $this->getMenuItemsForPage($page->getId(), $normalizedLocale, false);

@@ -1191,8 +1191,11 @@ if (manager) {
         : typeof payload?.error === 'string'
           ? payload.error.trim()
           : '';
+      const errorCode = typeof payload?.error_code === 'string'
+        ? payload.error_code.trim()
+        : '';
 
-      return { message, status: response.status };
+      return { message: message || errorCode, status: response.status };
     })
     .catch(() => ({ message: '', status: response.status }));
 

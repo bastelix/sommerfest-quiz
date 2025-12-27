@@ -221,6 +221,57 @@ final class MarketingMenuAiRouteTest extends TestCase
         $this->assertSame(1, (int) $stmt->fetchColumn());
     }
 
+    public function testPersistenceFailureReturnsDetailedError(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createSchema($pdo);
+        $pdo->exec('CREATE UNIQUE INDEX marketing_menu_label_unique ON marketing_page_menu_items(page_id, label)');
+
+        $pageService = new PageService($pdo);
+        $page = $this->seedPage($pdo, $pageService, 'landing');
+        $this->insertMenuItem($pdo, $page->getId(), 'Alt', '#alt', 0);
+
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Alt', 'href' => '#duplicate', 'layout' => 'link'],
+            ],
+        ])), '{{slug}}');
+
+        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $controller = new ProjectPagesController(
+            $pdo,
+            $pageService,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $menuService
+        );
+
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('POST', '/admin/pages/' . $page->getId() . '/menu/ai')
+            ->withHeader('Content-Type', 'application/json')
+            ->withParsedBody(null)
+            ->withAttribute('domainNamespace', $page->getNamespace());
+        $body = $request->getBody();
+        $body->write(json_encode(['overwrite' => false]));
+        $body->rewind();
+        $request = $request->withBody($body);
+        $response = new Response();
+
+        $result = $controller->generateMenu($request, $response, ['pageId' => $page->getId()]);
+
+        $this->assertSame(500, $result->getStatusCode());
+        $payload = json_decode((string) $result->getBody(), true);
+        $this->assertStringContainsString('UNIQUE constraint failed', $payload['error'] ?? '');
+        $this->assertSame('persistence_failed', $payload['error_code'] ?? '');
+        $this->assertSame([], $payload['items'] ?? []);
+    }
+
     private function createSchema(PDO $pdo): void
     {
         $pdo->exec(
