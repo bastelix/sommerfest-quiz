@@ -1642,3 +1642,56 @@ body.admin-page {
   cursor: pointer;
 }
 
+
+/* Block editor live preview */
+.page-editor-preview-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.page-editor-preview-layout [data-editor-pane="true"],
+.page-editor-preview-layout .page-preview-pane {
+  flex: 1 1 360px;
+  min-width: 320px;
+}
+
+.page-preview-pane {
+  background: #f7f9fb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.page-preview-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2933;
+}
+
+.page-preview-canvas {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 80vh;
+  overflow: auto;
+}
+
+.page-preview-surface [data-block-id] {
+  outline: 1px dashed transparent;
+  transition: outline-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.page-preview-surface [data-block-id]:hover {
+  outline-color: #cbd2d9;
+  background-color: #f8fafc;
+}
+
+.page-preview-surface [data-preview-selected="true"] {
+  outline-color: #1e87f0;
+  box-shadow: 0 0 0 2px #1e87f0, 0 6px 14px rgba(30, 135, 240, 0.15);
+  background-color: #f0f7ff;
+}
