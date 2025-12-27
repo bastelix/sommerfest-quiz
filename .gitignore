@@ -2,6 +2,8 @@
 __pycache__/
 
 vendor/
+!public/js/vendor/
+!public/js/vendor/**
 .phpunit.result.cache
 
 .env
