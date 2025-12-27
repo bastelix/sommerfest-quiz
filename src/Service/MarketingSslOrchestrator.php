@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 
 class MarketingSslOrchestrator
 {
-    private const DEFAULT_SCRIPT = '/usr/local/bin/marketing_ssl_orchestrator.sh';
+    private const DEFAULT_SCRIPT = __DIR__ . '/../../scripts/marketing_ssl_orchestrator.sh';
     private const DEFAULT_USER = 'www-data';
 
     public function __construct(

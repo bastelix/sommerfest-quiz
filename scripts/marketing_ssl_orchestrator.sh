@@ -20,15 +20,10 @@ Options:
 
 Environment variables:
   MARKETING_SSL_API_URL      Base URL for the marketing domains endpoint (default: http://localhost:8080/api/admin/marketing-domains)
-  MARKETING_SSL_API_TOKEN    Bearer token for the API request (required)
+  MARKETING_SSL_API_TOKEN    Bearer token for the API request (required unless using --host)
   MARKETING_SSL_CONTACT_EMAIL Contact email for LetsEncrypt (default: admin@calhelp.de)
 USAGE
 }
-
-if [[ -z "$API_TOKEN" ]]; then
-  printf 'API token is required (set MARKETING_SSL_API_TOKEN)\n' >&2
-  exit 1
-fi
 
 namespaces=()
 host=""
@@ -128,7 +123,9 @@ fetch_domains_for_namespace() {
 collect_domains() {
   local aggregated=()
 
-  if [[ ${#namespaces[@]} -eq 0 ]]; then
+  if [[ ${#hosts[@]} -gt 0 ]]; then
+    aggregated=("${hosts[@]}")
+  elif [[ ${#namespaces[@]} -eq 0 ]]; then
     while IFS= read -r domain; do
       aggregated+=("$domain")
     done < <(fetch_domains_for_namespace "")
