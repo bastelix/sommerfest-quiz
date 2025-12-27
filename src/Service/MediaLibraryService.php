@@ -647,6 +647,8 @@ class MediaLibraryService
         string $baseName,
         string $extension
     ): string {
+        $this->prepareTargetDir($targetDir);
+
         $filename = $baseName . '.' . $extension;
         $path = $targetDir . DIRECTORY_SEPARATOR . $filename;
 
@@ -659,6 +661,16 @@ class MediaLibraryService
         $relativePath = $relativeDir !== '' ? '/' . $relativeDir . '/' . $filename : '/' . $filename;
 
         return $relativePath;
+    }
+
+    private function prepareTargetDir(string $targetDir): void
+    {
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+            throw new RuntimeException('unable to create directory');
+        }
+        @chown($targetDir, 'www-data');
+        @chgrp($targetDir, 'www-data');
+        @chmod($targetDir, 0775);
     }
 
     /**
