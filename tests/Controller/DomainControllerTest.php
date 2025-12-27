@@ -6,6 +6,8 @@ namespace Tests\Controller;
 
 use App\Service\CertificateProvisionerInterface;
 use App\Service\DomainService;
+use App\Service\MarketingDomainProvider;
+use App\Support\DomainNameHelper;
 use Tests\TestCase;
 
 class DomainControllerTest extends TestCase
@@ -172,5 +174,83 @@ class DomainControllerTest extends TestCase
         $this->assertIsArray($payload);
         $this->assertSame('Certificate renewal queued.', $payload['status'] ?? null);
         $this->assertSame('example.com', $payload['domain'] ?? null);
+    }
+
+    public function testProvisioningUsesFreshMarketingDomains(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domains (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                host TEXT NOT NULL,
+                normalized_host TEXT NOT NULL UNIQUE,
+                namespace TEXT,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+        SQL);
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+
+        $this->setDatabase($pdo);
+
+        $service = new DomainService($pdo);
+
+        $provider = new class (static fn (): \PDO => $pdo) extends MarketingDomainProvider {
+            public bool $cleared = false;
+
+            public function clearCache(): void
+            {
+                $this->cleared = true;
+                parent::clearCache();
+            }
+        };
+
+        $previousProvider = DomainNameHelper::getMarketingDomainProvider();
+        DomainNameHelper::setMarketingDomainProvider($provider);
+
+        $provisioning = new class ($provider) implements CertificateProvisionerInterface {
+            public bool $provisionAllCalled = false;
+            public bool $marketingCleared = false;
+            private MarketingDomainProvider $provider;
+
+            public function __construct(MarketingDomainProvider $provider)
+            {
+                $this->provider = $provider;
+            }
+
+            public function provisionAllDomains(): void
+            {
+                $this->provisionAllCalled = true;
+                $this->marketingCleared = $this->provider->cleared;
+            }
+
+            public function provisionMarketingDomain(string $domain): void
+            {
+            }
+        };
+
+        try {
+            $controller = new \App\Controller\Admin\DomainController($service, $provisioning);
+
+            $request = $this->createRequest(
+                'POST',
+                '/admin/domains/api',
+                [
+                    'HTTP_ACCEPT' => 'application/json',
+                ]
+            )->withParsedBody([
+                'host' => 'fresh.example.com',
+                'is_active' => true,
+            ]);
+
+            $response = $controller->create($request, new \Slim\Psr7\Response());
+
+            $this->assertSame(201, $response->getStatusCode());
+            $this->assertTrue($provisioning->provisionAllCalled);
+            $this->assertTrue($provisioning->marketingCleared);
+        } finally {
+            DomainNameHelper::setMarketingDomainProvider($previousProvider);
+        }
     }
 }
