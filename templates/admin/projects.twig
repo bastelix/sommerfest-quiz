@@ -43,11 +43,6 @@
         </div>
       </div>
     {% endblock %}
-    {% block headerbar %}
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">Namespace-Übersicht</h2>
-      </div>
-    {% endblock %}
   {% endembed %}
   <div class="uk-grid-collapse" uk-grid>
     <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
@@ -56,6 +51,9 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Namespace-Übersicht</h2>
+      </div>
       <div class="uk-container uk-container-large">
         {% set projectKpis = [
           { key: 'pages', label: 'Seiten' },

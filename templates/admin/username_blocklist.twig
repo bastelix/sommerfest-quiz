@@ -43,11 +43,6 @@
         </div>
       </div>
     {% endblock %}
-    {% block headerbar %}
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_username_settings') }}</h2>
-      </div>
-    {% endblock %}
   {% endembed %}
 
   <div class="uk-grid-collapse" uk-grid>
@@ -57,6 +52,9 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_username_settings') }}</h2>
+      </div>
       <div class="uk-section uk-section-small uk-padding-remove-top">
         <div class="uk-container">
           {% include 'admin/components/event_controls.twig' with {

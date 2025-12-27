@@ -55,11 +55,6 @@
         </div>
       </div>
     {% endblock %}
-    {% block headerbar %}
-      <div class="uk-container uk-container-large">
-        <h1 class="uk-heading-bullet">{{ t('tab_cookies') }}</h1>
-      </div>
-    {% endblock %}
   {% endembed %}
 
   <div class="uk-grid-collapse" uk-grid>
@@ -69,6 +64,9 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_cookies') }}</h1>
+      </div>
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceOptions = available_namespaces|default([]) %}

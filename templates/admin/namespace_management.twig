@@ -41,11 +41,6 @@
         </div>
       </div>
     {% endblock %}
-    {% block headerbar %}
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_namespace_management') }}</h2>
-      </div>
-    {% endblock %}
   {% endembed %}
 
   <div class="uk-grid-collapse" uk-grid>
@@ -55,6 +50,9 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_namespace_management') }}</h2>
+      </div>
       <div class="uk-section uk-section-small">
         <div class="uk-container">
           <p class="uk-text-meta">{{ t('text_namespace_intro') }}</p>
