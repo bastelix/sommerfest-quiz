@@ -9,12 +9,21 @@ use App\Domain\Page;
 use App\Domain\PageSeoConfig;
 use App\Infrastructure\Database;
 use App\Service\DomainService;
+use App\Service\Marketing\PageSeoAiErrorMapper;
+use App\Service\Marketing\PageSeoAiGenerator;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
+use RuntimeException;
+
+use function in_array;
+use function is_array;
+use function json_decode;
+use function json_encode;
+use function trim;
 
 /**
  * Handles admin actions for the marketing landing page.
@@ -161,6 +170,61 @@ class LandingpageController
             ->withStatus(303);
     }
 
+    public function importFromAi(Request $request, Response $response): Response
+    {
+        $payload = $this->parseJsonBody($request);
+        if ($payload === null) {
+            return $response->withStatus(400);
+        }
+
+        $pageId = (int) ($payload['pageId'] ?? $payload['page_id'] ?? 0);
+        if ($pageId <= 0) {
+            return $response->withStatus(422);
+        }
+
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $page = $this->pageService->findById($pageId);
+        if (
+            $page === null
+            || $page->getNamespace() !== $namespace
+            || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)
+        ) {
+            return $response->withStatus(404);
+        }
+
+        $domain = $this->domainService->normalizeDomain(isset($payload['domain']) ? (string) $payload['domain'] : '');
+        if ($domain === '') {
+            $domain = $this->domainService->normalizeDomain($request->getUri()->getHost())
+                ?: $this->domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'))
+                ?: '';
+        }
+
+        $promptTemplate = isset($payload['promptTemplate']) && is_string($payload['promptTemplate'])
+            ? trim($payload['promptTemplate'])
+            : null;
+
+        try {
+            $generator = new PageSeoAiGenerator();
+            $config = $generator->generate($page, $domain, $promptTemplate);
+        } catch (RuntimeException $exception) {
+            $mapper = new PageSeoAiErrorMapper();
+            $mapped = $mapper->map($exception);
+
+            $response->getBody()->write(json_encode([
+                'error' => $mapped['message'],
+                'error_code' => $mapped['error_code'],
+            ], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus($mapped['status']);
+        }
+
+        $response->getBody()->write(json_encode(['config' => $config], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
     /**
      * @return Page[]
      */
@@ -258,5 +322,27 @@ class LandingpageController
         }
 
         return $result;
+    }
+
+    private function parseJsonBody(Request $request): ?array
+    {
+        $data = $request->getParsedBody();
+        if (is_array($data)) {
+            return $data;
+        }
+
+        $body = $request->getBody();
+        if ($body->isSeekable()) {
+            $body->rewind();
+        }
+
+        $raw = (string) $body;
+        if ($raw === '') {
+            return null;
+        }
+
+        $decoded = json_decode($raw, true);
+
+        return is_array($decoded) ? $decoded : null;
     }
 }

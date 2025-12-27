@@ -39,6 +39,25 @@ export function initSeoForm() {
   const pageConfigs = {};
   const pageMeta = {};
 
+  const aiMessages = {
+    pending: window.transSeoAiPending || 'KI erstellt SEO-Vorschläge…',
+    success: window.transSeoAiSuccess || 'KI-Vorschläge übernommen',
+    error: window.transSeoAiError || 'Die KI konnte keine SEO-Daten liefern.'
+  };
+
+  const aiButton = form.querySelector('.import-seo-ai');
+  const aiSpinner = form.querySelector('[data-seo-ai-spinner]');
+  let aiAbortController = null;
+
+  const setAiLoading = state => {
+    if (aiButton) {
+      aiButton.disabled = state;
+    }
+    if (aiSpinner) {
+      aiSpinner.hidden = !state;
+    }
+  };
+
   const buildOptionLabel = (slug, title) => {
     const trimmedTitle = (title || '').trim();
     if (trimmedTitle) {
@@ -609,6 +628,70 @@ export function initSeoForm() {
       }
       if (normalized) {
         ensureMetaDomains(activeId, normalized);
+      }
+    });
+  }
+
+  if (aiButton) {
+    aiButton.addEventListener('click', async () => {
+      const activeId = getActivePageId();
+      if (!activeId) return;
+
+      if (aiAbortController) {
+        aiAbortController.abort();
+      }
+      aiAbortController = new AbortController();
+      setAiLoading(true);
+
+      const slug = pageMeta[activeId]?.slug || pageConfigs[activeId]?.slug || '';
+      const title = pageMeta[activeId]?.title || '';
+      const domain = determinePrimaryDomain(activeId);
+
+      try {
+        const response = await apiFetch('/admin/landingpage/seo/ai-import', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          },
+          body: JSON.stringify({
+            pageId: Number(activeId),
+            slug,
+            title,
+            domain
+          }),
+          signal: aiAbortController.signal
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload || !payload.config) {
+          notify(payload?.error || aiMessages.error, 'danger');
+          return;
+        }
+
+        const config = payload.config;
+        const merged = {
+          ...pageConfigs[activeId],
+          ...config,
+          pageId: Number(activeId)
+        };
+
+        const normalizedDomain = normalizeDomainValue(merged.domain || domain);
+        if (normalizedDomain) {
+          merged.domain = normalizedDomain;
+          ensureMetaDomains(activeId, normalizedDomain);
+        }
+
+        pageConfigs[activeId] = merged;
+        applyConfig(merged);
+        notify(aiMessages.success, 'success');
+      } catch (error) {
+        if (error?.name !== 'AbortError') {
+          notify(aiMessages.error, 'danger');
+        }
+      } finally {
+        setAiLoading(false);
+        aiAbortController = null;
       }
     });
   }

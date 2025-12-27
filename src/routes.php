@@ -1994,6 +1994,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->post('/admin/landingpage/seo/ai-import', function (Request $request, Response $response) {
+        $controller = new LandingpageController();
+
+        return $controller->importFromAi($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
