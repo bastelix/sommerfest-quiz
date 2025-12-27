@@ -208,7 +208,17 @@ filter_resolvable_hosts() {
         return
     fi
 
+    skip_dns_prefilter=$(printf '%s' "${LE_SKIP_DNS_PREFILTER:-}" | tr '[:upper:]' '[:lower:]')
+    case "$skip_dns_prefilter" in
+        1|true|yes|on)
+            ssl_log "LE_SKIP_DNS_PREFILTER enabled; skipping DNS resolution for LETSENCRYPT_HOST entries"
+            printf '%s' "$sanitized"
+            return
+            ;;
+    esac
+
     filtered=""
+    skipped_hosts=""
     old_ifs=$IFS
     IFS=','
     for host in $sanitized; do
@@ -224,11 +234,19 @@ filter_resolvable_hosts() {
 
             filtered="$filtered,$host"
         else
-            echo "Warning: LETSENCRYPT_HOST entry '$host' does not resolve; skipping" >&2
-            ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entry '$host'"
+            if [ -z "$skipped_hosts" ]; then
+                skipped_hosts="$host"
+            else
+                skipped_hosts="$skipped_hosts,$host"
+            fi
         fi
     done
     IFS=$old_ifs
+
+    if [ -n "$skipped_hosts" ]; then
+        echo "Warning: LETSENCRYPT_HOST entries skipped for failed DNS resolution: $skipped_hosts" >&2
+        ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entries: ${skipped_hosts}"
+    fi
 
     printf '%s' "$filtered"
 }
