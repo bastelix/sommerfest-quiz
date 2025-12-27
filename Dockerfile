@@ -5,12 +5,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache \
     curl \
-    libpng libjpeg-turbo freetype libwebp postgresql-client imagemagick \
+    libpng libjpeg-turbo freetype libwebp libzip postgresql-client imagemagick \
     python3 py3-pip \
     && apk add --no-cache --virtual .build-deps \
-       libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev postgresql-dev imagemagick-dev $PHPIZE_DEPS \
+       libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev libzip-dev postgresql-dev imagemagick-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install -j$(nproc) gd pdo_pgsql exif \
+    && docker-php-ext-install -j$(nproc) gd pdo_pgsql exif zip \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
     && apk del .build-deps
