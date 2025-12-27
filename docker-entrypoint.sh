@@ -208,11 +208,11 @@ filter_resolvable_hosts() {
         return
     fi
 
-    skip_dns_prefilter=$(printf '%s' "${LE_SKIP_DNS_PREFILTER:-}" | tr '[:upper:]' '[:lower:]')
-    warn_only=0
-    case "$skip_dns_prefilter" in
-        1|true|yes|on)
-            warn_only=1
+    dns_prefilter_mode=$(printf '%s' "${LE_SKIP_DNS_PREFILTER:-warn}" | tr '[:upper:]' '[:lower:]')
+    warn_only=1
+    case "$dns_prefilter_mode" in
+        0|false|no|off|strict)
+            warn_only=0
             ;;
     esac
 
@@ -244,16 +244,14 @@ filter_resolvable_hosts() {
 
     if [ -n "$skipped_hosts" ]; then
         if [ "$warn_only" -eq 1 ]; then
-            echo "Warning: LE_SKIP_DNS_PREFILTER active; preserving non-resolvable LETSENCRYPT_HOST entries: $skipped_hosts" >&2
-            ssl_log "DNS prefilter disabled; non-resolvable LETSENCRYPT_HOST entries retained: ${skipped_hosts}"
-            printf '%s' "$sanitized"
-            return
+            echo "Warning: DNS prefilter in warning-only mode; preserving non-resolvable LETSENCRYPT_HOST entries: $skipped_hosts" >&2
+            ssl_log "DNS prefilter warning-only; non-resolvable LETSENCRYPT_HOST entries retained: ${skipped_hosts}"
+        else
+            echo "Warning: LETSENCRYPT_HOST entries skipped for failed DNS resolution: $skipped_hosts" >&2
+            ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entries: ${skipped_hosts}"
         fi
-
-        echo "Warning: LETSENCRYPT_HOST entries skipped for failed DNS resolution: $skipped_hosts" >&2
-        ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entries: ${skipped_hosts}"
     elif [ "$warn_only" -eq 1 ]; then
-        ssl_log "LE_SKIP_DNS_PREFILTER enabled; DNS prefilter running in warning-only mode"
+        ssl_log "DNS prefilter running in warning-only mode (LE_SKIP_DNS_PREFILTER=${dns_prefilter_mode:-<empty>})"
     fi
 
     if [ "$warn_only" -eq 1 ]; then
