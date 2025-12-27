@@ -14,7 +14,6 @@ use Throwable;
 final class DomainNameHelper
 {
     private static ?MarketingDomainProvider $marketingDomainProvider = null;
-    private static bool $marketingProviderIsLazy = false;
 
     private function __construct()
     {
@@ -23,7 +22,6 @@ final class DomainNameHelper
     public static function setMarketingDomainProvider(?MarketingDomainProvider $provider): void
     {
         self::$marketingDomainProvider = $provider;
-        self::$marketingProviderIsLazy = false;
     }
 
     public static function getMarketingDomainProvider(): ?MarketingDomainProvider
@@ -141,14 +139,10 @@ final class DomainNameHelper
             self::$marketingDomainProvider = new MarketingDomainProvider(
                 static fn () => Database::connectFromEnv()
             );
-            self::$marketingProviderIsLazy = true;
         }
 
         try {
             $domains = self::$marketingDomainProvider->getMarketingDomains(stripAdmin: false);
-            if ($domains === [] && !self::$marketingProviderIsLazy) {
-                return [];
-            }
 
             $map = [];
             foreach ($domains as $domain) {
@@ -164,27 +158,10 @@ final class DomainNameHelper
                 return $map;
             }
         } catch (Throwable $exception) {
-            // Ignore provider failures and fall back to environment configuration.
+            // Ignore provider failures.
         }
 
-        $config = getenv('MARKETING_DOMAINS');
-        if ($config === false || trim((string) $config) === '') {
-            return [];
-        }
-
-        $entries = preg_split('/[\s,]+/', strtolower((string) $config)) ?: [];
-        $domains = [];
-
-        foreach ($entries as $entry) {
-            $normalized = self::normalize($entry, stripAdmin: false);
-            if ($normalized === '') {
-                continue;
-            }
-
-            $domains[$normalized] = true;
-        }
-
-        return $domains;
+        return [];
     }
 
     private static function stripMarketingSuffix(string $domain): string

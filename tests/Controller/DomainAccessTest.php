@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Service\DomainService;
 use Tests\TestCase;
 
 class DomainAccessTest extends TestCase
@@ -90,11 +91,10 @@ class DomainAccessTest extends TestCase
 
     public function testMarketingSlugOnMarketingDomain(): void {
         $oldMain = getenv('MAIN_DOMAIN');
-        $oldMarketing = getenv('MARKETING_DOMAINS');
         putenv('MAIN_DOMAIN=main.test');
-        putenv('MARKETING_DOMAINS=marketing.test');
-        $_ENV['MARKETING_DOMAINS'] = 'marketing.test';
         $pdo = $this->getDatabase();
+        $domainService = new DomainService($pdo);
+        $domainService->createDomain('marketing.test');
         try {
             $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('landing','Landing','<p>Landing</p>')");
         } catch (\PDOException $e) {
@@ -112,21 +112,14 @@ class DomainAccessTest extends TestCase
         } else {
             putenv('MAIN_DOMAIN=' . $oldMain);
         }
-        if ($oldMarketing === false) {
-            putenv('MARKETING_DOMAINS');
-            unset($_ENV['MARKETING_DOMAINS']);
-        } else {
-            putenv('MARKETING_DOMAINS=' . $oldMarketing);
-            $_ENV['MARKETING_DOMAINS'] = $oldMarketing;
-        }
     }
 
     public function testUnknownSlugOnMarketingDomainReturns404(): void {
         $oldMain = getenv('MAIN_DOMAIN');
-        $oldMarketing = getenv('MARKETING_DOMAINS');
         putenv('MAIN_DOMAIN=main.test');
-        putenv('MARKETING_DOMAINS=marketing.test');
-        $_ENV['MARKETING_DOMAINS'] = 'marketing.test';
+        $pdo = $this->getDatabase();
+        $domainService = new DomainService($pdo);
+        $domainService->createDomain('marketing.test');
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/does-not-exist');
         $request = $request->withUri($request->getUri()->withHost('marketing.test'));
@@ -136,13 +129,6 @@ class DomainAccessTest extends TestCase
             putenv('MAIN_DOMAIN');
         } else {
             putenv('MAIN_DOMAIN=' . $oldMain);
-        }
-        if ($oldMarketing === false) {
-            putenv('MARKETING_DOMAINS');
-            unset($_ENV['MARKETING_DOMAINS']);
-        } else {
-            putenv('MARKETING_DOMAINS=' . $oldMarketing);
-            $_ENV['MARKETING_DOMAINS'] = $oldMarketing;
         }
     }
 }

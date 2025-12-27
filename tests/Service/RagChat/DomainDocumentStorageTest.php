@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Service\RagChat;
 
+use App\Service\DomainService;
+use App\Service\MarketingDomainProvider;
+use App\Support\DomainNameHelper;
 use App\Service\RagChat\DomainDocumentStorage;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -12,16 +15,19 @@ use Slim\Psr7\UploadedFile;
 final class DomainDocumentStorageTest extends TestCase
 {
     private string $basePath;
+    private ?MarketingDomainProvider $marketingProviderBackup = null;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->marketingProviderBackup = DomainNameHelper::getMarketingDomainProvider();
         $this->basePath = sys_get_temp_dir() . '/domain-docs-' . bin2hex(random_bytes(4));
         mkdir($this->basePath, 0775, true);
     }
 
     protected function tearDown(): void
     {
+        DomainNameHelper::setMarketingDomainProvider($this->marketingProviderBackup);
         $this->removeDirectory($this->basePath);
     }
 
@@ -80,36 +86,22 @@ final class DomainDocumentStorageTest extends TestCase
 
     public function testMarketingDomainIsCanonicalisedToSlug(): void
     {
-        $previous = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
 
-        try {
-            $storage = new DomainDocumentStorage($this->basePath);
-            $file = $this->createUpload('Guide.md', '## Calserver uptime');
+        $storage = new DomainDocumentStorage($this->basePath);
+        $file = $this->createUpload('Guide.md', '## Calserver uptime');
 
-            $storage->storeDocument('calserver.com', $file);
+        $storage->storeDocument('calserver.com', $file);
 
-            $documents = $storage->listDocuments('calserver');
+        $documents = $storage->listDocuments('calserver');
 
-            self::assertCount(1, $documents);
-            self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
-        } finally {
-            if ($previous === false) {
-                putenv('MARKETING_DOMAINS');
-                unset($_ENV['MARKETING_DOMAINS']);
-            } else {
-                putenv('MARKETING_DOMAINS=' . $previous);
-                $_ENV['MARKETING_DOMAINS'] = $previous;
-            }
-        }
+        self::assertCount(1, $documents);
+        self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
     }
 
     public function testLegacyMarketingDirectoryMigratesToSlug(): void
     {
-        $previous = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
 
         $legacyDir = $this->basePath . DIRECTORY_SEPARATOR . 'calserver.com';
         $uploadsDir = $legacyDir . DIRECTORY_SEPARATOR . 'uploads';
@@ -133,33 +125,21 @@ final class DomainDocumentStorageTest extends TestCase
             json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
 
-        try {
-            $storage = new DomainDocumentStorage($this->basePath);
+        $storage = new DomainDocumentStorage($this->basePath);
 
-            $documents = $storage->listDocuments('calserver.com');
+        $documents = $storage->listDocuments('calserver.com');
 
-            self::assertCount(1, $documents);
-            self::assertSame('Guide.md', $documents[0]['name']);
-            self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
+        self::assertCount(1, $documents);
+        self::assertSame('Guide.md', $documents[0]['name']);
+        self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
 
-            $documentsBySlug = $storage->listDocuments('calserver');
-            self::assertCount(1, $documentsBySlug);
-        } finally {
-            if ($previous === false) {
-                putenv('MARKETING_DOMAINS');
-                unset($_ENV['MARKETING_DOMAINS']);
-            } else {
-                putenv('MARKETING_DOMAINS=' . $previous);
-                $_ENV['MARKETING_DOMAINS'] = $previous;
-            }
-        }
+        $documentsBySlug = $storage->listDocuments('calserver');
+        self::assertCount(1, $documentsBySlug);
     }
 
     public function testSlugLookupMigratesLegacyMarketingDirectory(): void
     {
-        $previous = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
 
         $legacyDir = $this->basePath . DIRECTORY_SEPARATOR . 'calserver.com';
         $uploadsDir = $legacyDir . DIRECTORY_SEPARATOR . 'uploads';
@@ -184,23 +164,40 @@ final class DomainDocumentStorageTest extends TestCase
             json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
 
-        try {
-            $storage = new DomainDocumentStorage($this->basePath);
+        $storage = new DomainDocumentStorage($this->basePath);
 
-            $documents = $storage->listDocuments('calserver');
+        $documents = $storage->listDocuments('calserver');
 
-            self::assertCount(1, $documents);
-            self::assertSame('Guide.md', $documents[0]['name']);
-            self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
-        } finally {
-            if ($previous === false) {
-                putenv('MARKETING_DOMAINS');
-                unset($_ENV['MARKETING_DOMAINS']);
-            } else {
-                putenv('MARKETING_DOMAINS=' . $previous);
-                $_ENV['MARKETING_DOMAINS'] = $previous;
-            }
+        self::assertCount(1, $documents);
+        self::assertSame('Guide.md', $documents[0]['name']);
+        self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
+    }
+
+    /**
+     * @param list<string> $domains
+     */
+    private function createMarketingProvider(array $domains): MarketingDomainProvider
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS domains ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'host TEXT NOT NULL, '
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'namespace TEXT, '
+            . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+        );
+
+        $service = new DomainService($pdo);
+        foreach ($domains as $domain) {
+            $service->createDomain($domain);
         }
+
+        return new MarketingDomainProvider(static fn (): \PDO => $pdo, 0);
     }
 
     private function createUpload(string $name, string $content): UploadedFile

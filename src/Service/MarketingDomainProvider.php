@@ -138,16 +138,7 @@ class MarketingDomainProvider
                 return $this->marketingCache;
             }
 
-            $domains = $this->loadMarketingDomainsFromEnv();
-        }
-
-        if ($domains === []) {
-            $domains = $this->loadMarketingDomainsFromEnv();
-        } else {
-            $domains = $this->deduplicateMarketingEntries(array_merge(
-                $domains,
-                $this->loadMarketingDomainsFromEnv()
-            ));
+            $domains = [];
         }
 
         $this->marketingCache = $domains;
@@ -240,44 +231,6 @@ class MarketingDomainProvider
         }
 
         return $unique;
-    }
-
-    /**
-     * @return list<array{host:string,normalized:string}>
-     */
-    private function loadMarketingDomainsFromEnv(): array
-    {
-        $env = getenv('MARKETING_DOMAINS');
-        if ($env === false || trim((string) $env) === '') {
-            return [];
-        }
-
-        $entries = preg_split('/[\s,]+/', (string) $env) ?: [];
-        $domains = [];
-
-        foreach ($entries as $entry) {
-            $entry = strtolower(trim((string) $entry));
-            if ($entry === '') {
-                continue;
-            }
-
-            $normalized = DomainNameHelper::normalize($entry);
-            if ($normalized === '') {
-                continue;
-            }
-
-            $host = DomainNameHelper::normalize($entry, stripAdmin: false);
-            if ($host === '') {
-                $host = $normalized;
-            }
-
-            $domains[] = [
-                'host' => $host,
-                'normalized' => $normalized,
-            ];
-        }
-
-        return $this->deduplicateMarketingEntries($domains);
     }
 
     private function isFresh(?int $timestamp, int $now): bool
