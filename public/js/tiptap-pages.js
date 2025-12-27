@@ -1,5 +1,5 @@
-import { Editor, Extension, Mark } from 'https://cdn.jsdelivr.net/npm/@tiptap/core@2.4.0/dist/tiptap-core.esm.js';
-import StarterKit from 'https://cdn.jsdelivr.net/npm/@tiptap/starter-kit@2.4.0/dist/tiptap-starter-kit.esm.js';
+import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
+import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 
 /* global notify */
 
