@@ -39,14 +39,11 @@
     media="print"
     onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
   >
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
     window.pageNamespace = '{{ activeNamespace|e('js') }}';
   </script>
-  <script type="module" src="{{ basePath }}/js/trumbowyg-pages.js"></script>
+  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -89,5 +86,5 @@
       </div>
     </div>
   </div>
-  {# Page editor initialization handled by trumbowyg-pages.js #}
+  {# Page editor initialization handled by tiptap-pages.js #}
 {% endblock %}
