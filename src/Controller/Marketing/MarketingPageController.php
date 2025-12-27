@@ -212,7 +212,12 @@ class MarketingPageController
         $template = sprintf('marketing/%s.twig', $templateSlug);
         $loader = $view->getEnvironment()->getLoader();
         if (!$loader->exists($template)) {
-            return $response->withStatus(404);
+            $defaultTemplate = 'marketing/default.twig';
+            if ($template !== $defaultTemplate && $loader->exists($defaultTemplate)) {
+                $template = $defaultTemplate;
+            } else {
+                return $response->withStatus(404);
+            }
         }
 
         $headerContent = '';
