@@ -42,14 +42,39 @@ final class MarketingMenuAiGenerator
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Nutze den folgenden HTML-Inhalt einer Marketing-Seite, um Navigationspunkte zu erzeugen.
 
+- Nutze ausschließlich die Felder aus ALLOWED_IMPORT_FIELDS: label, href, layout, isActive, isExternal, icon, detailTitle, detailText, detailSubline, children. Optional: locale, isStartpage, position. Keine weiteren Felder.
 - Ziehe H1/H2-Überschriften, Abschnittstitel und Anker-IDs (#id) heran, um Labels und Links zu bauen.
-- Hauptbereiche werden zu Haupteinträgen. Unterüberschriften oder Listenpunkte innerhalb eines Bereichs werden
-  zu children des jeweiligen Haupteintrags.
-- Links sollen relative Anker (#faq), bestehende Hrefs im Dokument oder Slug-basierte Pfade (/{{slug}}#section)
-  verwenden. Erfinde keine externen Links.
+- Hauptbereiche werden zu Haupteinträgen. Unterüberschriften oder Listenpunkte innerhalb eines Bereichs werden zu children des jeweiligen Haupteintrags.
+- Links müssen existierende Anchors/IDs aus dem gelieferten HTML, vorhandene Dokument-Hrefs oder slug-basierte Pfade (/{{slug}}#anchor) nutzen. Alle anderen Links verwerfen oder durch passende Anchors/Slug-Pfade ersetzen. Platzhalter-Hrefs wie "#" sind verboten.
 - layout: "dropdown" wenn children existieren, sonst "link". Weitere Layouts nicht nutzen.
 - isActive: true, außer der Abschnitt ist explizit als ausgeblendet gekennzeichnet.
-- Gib das Ergebnis als JSON-Array unter dem Schlüssel "items" zurück (keine Markdown-Fences).
+- Antwort nur als JSON-Objekt mit Schlüssel "items", keine Markdown-Fences.
+
+Beispiel (Schema unbedingt beibehalten):
+{
+  "items": [
+    {
+      "label": "Überblick",
+      "href": "/{{slug}}#overview",
+      "layout": "dropdown",
+      "isActive": true,
+      "isExternal": false,
+      "icon": "home",
+      "detailTitle": "Überblick",
+      "detailText": "Kurzbeschreibung",
+      "detailSubline": "Zusammenfassung",
+      "children": [
+        {
+          "label": "FAQ",
+          "href": "#faq",
+          "layout": "link",
+          "isActive": true,
+          "isExternal": false
+        }
+      ]
+    }
+  ]
+}
 
 Kontext:
 Slug: {{slug}}
