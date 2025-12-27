@@ -5,218 +5,271 @@ declare(strict_types=1);
 namespace App\Service;
 
 use DateTimeImmutable;
-use RuntimeException;
+use DateTimeInterface;
 
 class ContainerMetricsService
 {
-    private string $cgroupRoot;
+    private string $cgroupPath;
 
-    /**
-     * @var callable
-     */
-    private $clock;
+    private int $cpuSampleMicros;
 
-    /**
-     * @var array{version:int, usage:int, timestamp:float}|null
-     */
-    private static ?array $lastCpuSample = null;
-
-    public function __construct(string $cgroupRoot = '/sys/fs/cgroup', ?callable $clock = null)
+    public function __construct(string $cgroupPath = '/sys/fs/cgroup', int $cpuSampleMicros = 200000)
     {
-        $this->cgroupRoot = rtrim($cgroupRoot, '/');
-        $this->clock = $clock ?? static fn (): float => microtime(true);
+        $this->cgroupPath = rtrim($cgroupPath, '/');
+        $this->cpuSampleMicros = max(0, $cpuSampleMicros);
     }
 
     /**
-     * @return array{
-     *   timestamp: string,
-     *   cgroupVersion: int,
-     *   memory: array{currentBytes:int,maxBytes:int|null},
-     *   cpu: array{usageMicros:int|null,usageNanos:int|null,percent:float|null,sampleWindowSeconds:float|null},
-     *   oom: array{events:int|null,kills:int|null}
-     * }
+     * @return array<string, mixed>
      */
-    public function collect(): array
+    public function read(): array
     {
-        if (!is_dir($this->cgroupRoot)) {
-            throw new RuntimeException('cgroup root unavailable');
-        }
+        $timestamp = (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM);
 
-        $version = $this->detectCgroupVersion();
-
-        $timestamp = (new DateTimeImmutable('now', new \DateTimeZone('UTC')))->format(DATE_ATOM);
-        if ($version === 2) {
-            $memoryCurrent = $this->readInt($this->cgroupRoot . '/memory.current');
-            $memoryMax = $this->readMaxValue($this->cgroupRoot . '/memory.max');
-            [$cpuUsage, $cpuPercent, $sampleSeconds] = $this->computeCpuPercent(
-                $this->readInt($this->cgroupRoot . '/cpu.stat', 'usage_usec'),
-                $version
-            );
-            [$oomEvents, $oomKills] = $this->readOomEventsV2();
-
+        if (!is_dir($this->cgroupPath)) {
             return [
+                'available' => false,
                 'timestamp' => $timestamp,
-                'cgroupVersion' => 2,
-                'memory' => ['currentBytes' => $memoryCurrent, 'maxBytes' => $memoryMax],
-                'cpu' => [
-                    'usageMicros' => $cpuUsage,
-                    'usageNanos' => null,
-                    'percent' => $cpuPercent,
-                    'sampleWindowSeconds' => $sampleSeconds,
-                ],
-                'oom' => ['events' => $oomEvents, 'kills' => $oomKills],
+                'message' => 'cgroup path not available',
             ];
         }
 
-        $memoryCurrent = $this->readInt($this->cgroupRoot . '/memory/memory.usage_in_bytes');
-        $memoryMax = $this->readInt($this->cgroupRoot . '/memory/memory.limit_in_bytes');
-        [$cpuUsage, $cpuPercent, $sampleSeconds] = $this->computeCpuPercent(
-            $this->readInt($this->cgroupRoot . '/cpu/cpuacct.usage'),
-            1
-        );
-        [$oomEvents, $oomKills] = $this->readOomEventsV1();
+        if ($this->isCgroupV2()) {
+            return $this->readV2($timestamp);
+        }
+
+        return $this->readV1($timestamp);
+    }
+
+    private function isCgroupV2(): bool
+    {
+        return is_file($this->cgroupPath . '/cgroup.controllers');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function readV2(string $timestamp): array
+    {
+        $memoryCurrentFile = $this->cgroupPath . '/memory.current';
+        $memoryMaxFile = $this->cgroupPath . '/memory.max';
+        $cpuStatFile = $this->cgroupPath . '/cpu.stat';
+        $oomEventsFile = $this->cgroupPath . '/memory.events';
+
+        if (!is_file($memoryCurrentFile) || !is_file($cpuStatFile)) {
+            return [
+                'available' => false,
+                'timestamp' => $timestamp,
+                'cgroupVersion' => 2,
+                'message' => 'required cgroup v2 files missing',
+            ];
+        }
+
+        $memoryCurrent = $this->readIntFromFile($memoryCurrentFile);
+        $memoryMaxRaw = $this->readStringFromFile($memoryMaxFile);
+        $memoryLimit = $memoryMaxRaw === 'max' ? null : $this->toInt($memoryMaxRaw);
+        $cpuPercent = $this->sampleCpuPercent(fn (): ?int => $this->readCpuUsageMicros($cpuStatFile), 1);
+        $oomStats = $this->readOomEventsV2($oomEventsFile);
 
         return [
+            'available' => $memoryCurrent !== null,
             'timestamp' => $timestamp,
-            'cgroupVersion' => 1,
-            'memory' => ['currentBytes' => $memoryCurrent, 'maxBytes' => $memoryMax],
-            'cpu' => [
-                'usageMicros' => null,
-                'usageNanos' => $cpuUsage,
-                'percent' => $cpuPercent,
-                'sampleWindowSeconds' => $sampleSeconds,
+            'cgroupVersion' => 2,
+            'memory' => [
+                'currentBytes' => $memoryCurrent,
+                'limitBytes' => $memoryLimit,
+                'usagePercent' => $this->computeMemoryPercent($memoryCurrent, $memoryLimit),
             ],
-            'oom' => ['events' => $oomEvents, 'kills' => $oomKills],
+            'cpu' => [
+                'usagePercent' => $cpuPercent,
+                'sampleMicros' => $this->cpuSampleMicros,
+            ],
+            'oomEvents' => $oomStats,
         ];
     }
 
-    private function detectCgroupVersion(): int
+    /**
+     * @return array<string, mixed>
+     */
+    private function readV1(string $timestamp): array
     {
-        if (is_file($this->cgroupRoot . '/cgroup.controllers')) {
-            return 2;
+        $memoryCurrentFile = $this->cgroupPath . '/memory/memory.usage_in_bytes';
+        $memoryLimitFile = $this->cgroupPath . '/memory/memory.limit_in_bytes';
+        $cpuUsageFile = $this->cgroupPath . '/cpu/cpuacct.usage';
+        $oomControlFile = $this->cgroupPath . '/memory/memory.oom_control';
+
+        if (!is_file($memoryCurrentFile) || !is_file($cpuUsageFile)) {
+            return [
+                'available' => false,
+                'timestamp' => $timestamp,
+                'cgroupVersion' => 1,
+                'message' => 'required cgroup v1 files missing',
+            ];
         }
 
-        return 1;
+        $memoryCurrent = $this->readIntFromFile($memoryCurrentFile);
+        $memoryLimit = $this->readIntFromFile($memoryLimitFile);
+        $cpuPercent = $this->sampleCpuPercent(fn (): ?int => $this->readIntFromFile($cpuUsageFile), 1000);
+        $oomStats = $this->readOomEventsV1($oomControlFile);
+
+        return [
+            'available' => $memoryCurrent !== null,
+            'timestamp' => $timestamp,
+            'cgroupVersion' => 1,
+            'memory' => [
+                'currentBytes' => $memoryCurrent,
+                'limitBytes' => $memoryLimit,
+                'usagePercent' => $this->computeMemoryPercent($memoryCurrent, $memoryLimit),
+            ],
+            'cpu' => [
+                'usagePercent' => $cpuPercent,
+                'sampleMicros' => $this->cpuSampleMicros,
+            ],
+            'oomEvents' => $oomStats,
+        ];
     }
 
-    private function readInt(string $path, ?string $key = null): int
+    private function readIntFromFile(string $path): ?int
+    {
+        $value = $this->readStringFromFile($path);
+        return $this->toInt($value);
+    }
+
+    private function readStringFromFile(string $path): ?string
     {
         if (!is_file($path)) {
-            throw new RuntimeException('Required metrics file missing: ' . $path);
+            return null;
         }
 
-        $contents = trim((string) file_get_contents($path));
-        if ($contents === '') {
-            return 0;
+        $content = @file_get_contents($path);
+        if ($content === false) {
+            return null;
         }
 
-        if ($key !== null) {
-            foreach (preg_split('/\r?\n/', $contents) as $line) {
-                $line = trim($line);
-                if ($line === '') {
-                    continue;
-                }
-                [$k, $v] = array_pad(preg_split('/\s+/', $line, 2) ?: [], 2, null);
-                if ($k === $key) {
-                    return (int) ($v ?? 0);
-                }
+        return trim($content);
+    }
+
+    private function toInt(?string $value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    private function readCpuUsageMicros(string $statFile): ?int
+    {
+        if (!is_file($statFile)) {
+            return null;
+        }
+
+        $lines = file($statFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return null;
+        }
+
+        foreach ($lines as $line) {
+            $parts = preg_split('/\s+/', trim($line));
+            if (count($parts) >= 2 && $parts[0] === 'usage_usec' && is_numeric($parts[1])) {
+                return (int) $parts[1];
             }
-
-            return 0;
         }
 
-        return (int) $contents;
+        return null;
     }
 
-    private function readMaxValue(string $path): ?int
+    private function sampleCpuPercent(callable $reader, int $usageScale): ?float
     {
-        if (!is_file($path)) {
+        $usageScale = max(1, $usageScale);
+        $start = $reader();
+        if ($start === null) {
             return null;
         }
 
-        $contents = trim((string) file_get_contents($path));
-        if ($contents === '' || $contents === 'max') {
+        if ($this->cpuSampleMicros > 0) {
+            usleep($this->cpuSampleMicros);
+        }
+
+        $end = $reader();
+        if ($end === null || $end < $start) {
             return null;
         }
 
-        return (int) $contents;
+        $elapsed = $this->cpuSampleMicros;
+        if ($elapsed <= 0) {
+            return null;
+        }
+
+        $delta = $end - $start;
+        $percent = ($delta / ($elapsed * $usageScale)) * 100;
+
+        return round($percent, 2);
+    }
+
+    private function computeMemoryPercent(?int $current, ?int $limit): ?float
+    {
+        if ($current === null || $limit === null || $limit <= 0) {
+            return null;
+        }
+
+        $percent = ($current / $limit) * 100;
+
+        return round(min(100, max(0, $percent)), 2);
     }
 
     /**
-     * @return array{0:int|null,1:float|null,2:float|null}
+     * @return array<string, int>
      */
-    private function computeCpuPercent(int $usage, int $version): array
+    private function readOomEventsV2(string $eventsFile): array
     {
-        $now = (float) ($this->clock)();
-        $last = self::$lastCpuSample;
-        self::$lastCpuSample = ['version' => $version, 'usage' => $usage, 'timestamp' => $now];
+        $oom = 0;
+        $oomKill = 0;
 
-        if ($last === null || $last['version'] !== $version) {
-            return [$usage, 0.0, null];
-        }
-
-        $deltaUsage = $usage - $last['usage'];
-        $deltaSeconds = max(0.0, $now - $last['timestamp']);
-        if ($deltaUsage < 0 || $deltaSeconds <= 0.0) {
-            return [$usage, null, $deltaSeconds];
-        }
-
-        $divisor = $version === 2 ? 1_000_000.0 : 1_000_000_000.0;
-        $percent = ($deltaUsage / ($deltaSeconds * $divisor)) * 100.0;
-
-        return [$usage, round($percent, 2), $deltaSeconds];
-    }
-
-    /**
-     * @return array{0:int|null,1:int|null}
-     */
-    private function readOomEventsV2(): array
-    {
-        $eventsFile = $this->cgroupRoot . '/memory.events';
         if (!is_file($eventsFile)) {
-            return [null, null];
+            return ['oom' => $oom, 'oomKill' => $oomKill];
         }
 
-        $oom = null;
-        $oomKill = null;
-        foreach (preg_split('/\r?\n/', (string) file_get_contents($eventsFile)) as $line) {
-            $line = trim($line);
-            if ($line === '') {
-                continue;
+        $lines = file($eventsFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return ['oom' => $oom, 'oomKill' => $oomKill];
+        }
+
+        foreach ($lines as $line) {
+            [$key, $value] = array_pad(preg_split('/\s+/', trim($line)), 2, null);
+            if ($key === 'oom' && is_numeric($value)) {
+                $oom = (int) $value;
             }
-            [$name, $value] = array_pad(preg_split('/\s+/', $line, 2) ?: [], 2, null);
-            if ($name === 'oom') {
-                $oom = (int) ($value ?? 0);
-            } elseif ($name === 'oom_kill') {
-                $oomKill = (int) ($value ?? 0);
+            if ($key === 'oom_kill' && is_numeric($value)) {
+                $oomKill = (int) $value;
             }
         }
 
-        return [$oom, $oomKill];
+        return ['oom' => $oom, 'oomKill' => $oomKill];
     }
 
     /**
-     * @return array{0:int|null,1:int|null}
+     * @return array<string, int>
      */
-    private function readOomEventsV1(): array
+    private function readOomEventsV1(string $controlFile): array
     {
-        $oomControl = $this->cgroupRoot . '/memory/memory.oom_control';
-        if (!is_file($oomControl)) {
-            return [null, null];
+        $oomKill = 0;
+        if (!is_file($controlFile)) {
+            return ['oom' => 0, 'oomKill' => $oomKill];
         }
 
-        $oomKill = null;
-        foreach (preg_split('/\r?\n/', (string) file_get_contents($oomControl)) as $line) {
-            $line = trim($line);
-            if ($line === '') {
-                continue;
-            }
-            [$name, $value] = array_pad(preg_split('/\s+/', $line, 2) ?: [], 2, null);
-            if ($name === 'oom_kill') {
-                $oomKill = (int) ($value ?? 0);
+        $lines = file($controlFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            return ['oom' => 0, 'oomKill' => $oomKill];
+        }
+
+        foreach ($lines as $line) {
+            [$key, $value] = array_pad(preg_split('/\s+/', trim($line)), 2, null);
+            if ($key === 'oom_kill' && is_numeric($value)) {
+                $oomKill = (int) $value;
             }
         }
 
-        return [null, $oomKill];
+        return ['oom' => 0, 'oomKill' => $oomKill];
     }
 }
