@@ -439,7 +439,9 @@ document.addEventListener('DOMContentLoaded', () => {
         .then((cfg) => {
           currentEventUid = uid;
           window.quizConfig = uid ? cfg : {};
-          location.search = '?event=' + uid;
+          const nextUrl = new URL(window.location.href);
+          nextUrl.searchParams.set('event', uid);
+          window.location.assign(nextUrl.toString());
         })
         .catch((err) => {
           notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
