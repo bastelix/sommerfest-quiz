@@ -7,6 +7,7 @@ namespace Tests\Service;
 use App\Service\ConfigService;
 use App\Service\ImageUploadService;
 use App\Service\MediaLibraryService;
+use App\Service\NamespaceValidator;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UploadedFileInterface;
@@ -249,6 +250,31 @@ SVG;
         $this->assertNotContains('-an', $ffmpegCall[1]);
     }
 
+    public function testRawUploadCreatesProjectDirectory(): void
+    {
+        [$service, $config] = $this->createService();
+
+        if (!method_exists($config, 'setCreateProjectDir')) {
+            $this->markTestSkipped('project directory creation flag unavailable');
+        }
+
+        $config->setCreateProjectDir(false);
+        $namespace = 'fresh-namespace';
+        $targetDir = $config->getProjectUploadsDir($namespace);
+        $this->assertDirectoryDoesNotExist($targetDir);
+
+        $tmp = tempnam($this->tempDir, 'raw');
+        file_put_contents($tmp, 'raw document');
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'document.pdf', 'application/pdf', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $info = $service->uploadFile(MediaLibraryService::SCOPE_PROJECT, $uploaded, null, null, $namespace);
+
+        $this->assertSame('document.pdf', $info['name']);
+        $this->assertDirectoryExists($targetDir);
+        $this->assertFileExists($targetDir . DIRECTORY_SEPARATOR . 'document.pdf');
+    }
+
     private function removeDir(string $dir): void {
         if (!is_dir($dir)) {
             return;
@@ -279,6 +305,7 @@ SVG;
         $config = new class ($pdo, $this->tempDir) extends ConfigService {
             private string $baseDir;
             private string $activeUid = 'event-test';
+            private bool $createProjectDir = true;
 
             public function __construct(PDO $pdo, string $baseDir) {
                 $this->baseDir = $baseDir;
@@ -302,6 +329,32 @@ SVG;
                 if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
                     throw new RuntimeException('unable to create uploads directory');
                 }
+                return $dir;
+            }
+
+            public function getProjectUploadsPath(string $namespace): string
+            {
+                $validator = new NamespaceValidator();
+                $normalized = $validator->normalizeCandidate($namespace);
+                if ($normalized === null) {
+                    throw new RuntimeException('invalid namespace');
+                }
+
+                return '/uploads/projects/' . $normalized;
+            }
+
+            public function setCreateProjectDir(bool $create): void
+            {
+                $this->createProjectDir = $create;
+            }
+
+            public function getProjectUploadsDir(string $namespace): string
+            {
+                $dir = $this->baseDir . $this->getProjectUploadsPath($namespace);
+                if ($this->createProjectDir && !is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+                    throw new RuntimeException('unable to create project uploads directory');
+                }
+
                 return $dir;
             }
 
