@@ -16,6 +16,12 @@ spec:
         - name: app
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- $marketingSslSecretName := default (printf "%s-marketing-ssl" (include "sommerfest-quiz.fullname" .)) .Values.marketingSsl.existingSecret }}
+          {{- if or .Values.marketingSsl.apiToken .Values.marketingSsl.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ $marketingSslSecretName }}
+          {{- end }}
           env:
             - name: POSTGRES_DSN
               value: "pgsql:host={{ include \"sommerfest-quiz.fullname\" . }}-postgresql;dbname={{ .Values.database.name }}"
