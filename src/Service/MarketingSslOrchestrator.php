@@ -22,13 +22,19 @@ class MarketingSslOrchestrator
     {
         $namespace = $namespace !== null ? trim($namespace) : '';
         $host = $host !== null ? trim($host) : '';
+        $apiToken = getenv('MARKETING_SSL_API_TOKEN') ?: '';
 
         if ($namespace === '' && $host === '') {
             throw new RuntimeException('Namespace or host is required.');
         }
 
+        if ($apiToken === '') {
+            throw new RuntimeException('MARKETING_SSL_API_TOKEN is required.');
+        }
+
         $command = [
             'sudo',
+            '--preserve-env=MARKETING_SSL_API_TOKEN,MARKETING_SSL_API_URL,MARKETING_SSL_CONTACT_EMAIL',
             '-u',
             $this->runAsUser,
             $this->scriptPath,
@@ -46,7 +52,19 @@ class MarketingSslOrchestrator
             $command[] = '--dry-run';
         }
 
-        $process = new Process($command);
+        $processEnvironment = ['MARKETING_SSL_API_TOKEN' => $apiToken];
+
+        $apiUrl = getenv('MARKETING_SSL_API_URL');
+        if ($apiUrl !== false) {
+            $processEnvironment['MARKETING_SSL_API_URL'] = $apiUrl;
+        }
+
+        $contactEmail = getenv('MARKETING_SSL_CONTACT_EMAIL');
+        if ($contactEmail !== false) {
+            $processEnvironment['MARKETING_SSL_CONTACT_EMAIL'] = $contactEmail;
+        }
+
+        $process = new Process($command, null, $processEnvironment);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
         $process->run();
