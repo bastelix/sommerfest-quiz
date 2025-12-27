@@ -13063,7 +13063,7 @@ var ExtensionManager = class _ExtensionManager {
       }
       return plugins;
     }).flat();
-    return [
+    const pluginList = [
       inputRulesPlugin({
         editor,
         rules: inputRules
@@ -13074,6 +13074,23 @@ var ExtensionManager = class _ExtensionManager {
       }),
       ...allPlugins
     ];
+
+    const seenKeys = new Set();
+    return pluginList.filter((plugin) => {
+      if (!plugin || typeof plugin.key !== "string") {
+        return Boolean(plugin);
+      }
+
+      if (seenKeys.has(plugin.key)) {
+        if (typeof window !== "undefined" && window.console?.debug) {
+          window.console.debug("Removed duplicate ProseMirror plugin", plugin.key);
+        }
+        return false;
+      }
+
+      seenKeys.add(plugin.key);
+      return true;
+    });
   }
   /**
    * Get all attributes from the extensions.
