@@ -47,6 +47,20 @@ const resolveWithBase = (path) => {
   }
   return withBase(path);
 };
+const resolveApiEndpoint = (path) => {
+  if (typeof window.baseUrl === 'string' && window.baseUrl.trim() !== '') {
+    try {
+      const parsed = new URL(path, window.baseUrl);
+      if (parsed.origin === window.location.origin) {
+        return parsed.pathname + parsed.search + parsed.hash;
+      }
+    } catch (error) {
+      // Ignore invalid base URLs and fall back to the base path resolution.
+    }
+  }
+
+  return resolveWithBase(path);
+};
 const normalizeEndpointToSameOrigin = (endpoint) => {
   const ensureString = value => (value === null || value === undefined ? '' : String(value));
   const trimmed = ensureString(endpoint).trim();
@@ -4280,8 +4294,8 @@ document.addEventListener('DOMContentLoaded', function () {
       empty: domainTable.dataset.empty || '',
       error: domainTable.dataset.error || window.transDomainError || 'Domain load failed.'
     };
-    const domainEndpoint = resolveWithBase(domainTable?.dataset?.api || '/admin/domains/api');
-    const renewSslEndpoint = resolveWithBase('/api/renew-ssl');
+    const domainEndpoint = resolveApiEndpoint(domainTable?.dataset?.api || '/admin/domains/api');
+    const renewSslEndpoint = resolveApiEndpoint('/api/renew-ssl');
     const resolveDomainElement = (id) => managementSection?.querySelector(`#${id}`) || document.getElementById(id);
     const domainForm = resolveDomainElement('domainForm');
     const domainLegend = resolveDomainElement('domainLegend');
@@ -4545,7 +4559,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const reset = setActionLoading(trigger, true);
-        const url = resolveWithBase(`/api/admin/domains/${encodeURIComponent(domain.id)}/provision-ssl`);
+        const url = resolveApiEndpoint(`/api/admin/domains/${encodeURIComponent(domain.id)}/provision-ssl`);
         const hostLabel = formatDomainLabel(domain);
         const successMessage = hostLabel
           ? `${hostLabel}: ${transProvisionStarted}`
