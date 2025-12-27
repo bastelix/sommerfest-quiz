@@ -455,22 +455,35 @@ if (container) {
         buildToggle('Aktiv', 'isActive', node.isActive !== false)
       );
 
+      const detailSectionLabel = document.createElement('div');
+      detailSectionLabel.className = 'uk-text-meta uk-margin-small-top';
+      detailSectionLabel.textContent = 'Mega-Menü Inhalte';
+
+      const detailTitleLabel = document.createElement('label');
+      detailTitleLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      detailTitleLabel.textContent = 'Detail Titel';
       const detailTitle = document.createElement('input');
-      detailTitle.className = 'uk-input uk-form-small uk-margin-small-top';
+      detailTitle.className = 'uk-input uk-form-small';
       detailTitle.type = 'text';
       detailTitle.placeholder = 'SEO Titel';
       detailTitle.dataset.field = 'detailTitle';
       detailTitle.value = node.detailTitle || '';
 
+      const detailTextLabel = document.createElement('label');
+      detailTextLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      detailTextLabel.textContent = 'Detail Beschreibung';
       const detailText = document.createElement('textarea');
-      detailText.className = 'uk-textarea uk-form-small uk-margin-small-top';
+      detailText.className = 'uk-textarea uk-form-small';
       detailText.rows = 2;
       detailText.placeholder = 'SEO Beschreibung';
       detailText.dataset.field = 'detailText';
       detailText.value = node.detailText || '';
 
+      const detailSublineLabel = document.createElement('label');
+      detailSublineLabel.className = 'uk-form-label uk-text-small menu-tree__field-label';
+      detailSublineLabel.textContent = 'Detail Subline';
       const detailSubline = document.createElement('input');
-      detailSubline.className = 'uk-input uk-form-small uk-margin-small-top';
+      detailSubline.className = 'uk-input uk-form-small';
       detailSubline.type = 'text';
       detailSubline.placeholder = 'Subline';
       detailSubline.dataset.field = 'detailSubline';
@@ -484,8 +497,12 @@ if (container) {
         localeLabel,
         localeInput,
         togglesRow,
+        detailSectionLabel,
+        detailTitleLabel,
         detailTitle,
+        detailTextLabel,
         detailText,
+        detailSublineLabel,
         detailSubline
       );
       containerEl.appendChild(advanced);
