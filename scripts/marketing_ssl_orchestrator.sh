@@ -58,7 +58,7 @@ mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/${namespace}.log"
 ENV_FILE="$PROJECT_DIR/.env.marketing.${namespace}"
 LOCK_FILE="/var/lock/marketing-ssl.${namespace}.lock"
-SERVICE="certbot-marketing-${namespace}"
+SERVICE="certbot-marketing"
 
 log_entry() {
   local action="$1"
