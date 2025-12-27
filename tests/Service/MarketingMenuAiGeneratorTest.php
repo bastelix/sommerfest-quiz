@@ -80,7 +80,7 @@ final class MarketingMenuAiGeneratorTest extends TestCase
         $this->assertLessThan(9000, strlen($prompt));
     }
 
-    public function testThrowsOnUnknownAnchors(): void
+    public function testFallsBackOnUnknownAnchors(): void
     {
         $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
             'items' => [
@@ -89,9 +89,52 @@ final class MarketingMenuAiGeneratorTest extends TestCase
         ])), '{{slug}}');
         $page = $this->createPage('default', 'landing', '<h1 id="intro">Intro</h1>');
 
-        $this->expectExceptionMessage(MarketingMenuAiGenerator::ERROR_INVALID_LINKS);
+        $items = $generator->generate($page, 'de');
 
-        $generator->generate($page, 'de');
+        $this->assertSame('/landing', $items[0]['href']);
+    }
+
+    public function testIgnoresInvalidLinksAndKeepsChildren(): void
+    {
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                [
+                    'label' => 'Broken parent',
+                    'href' => '#unknown',
+                    'layout' => 'dropdown',
+                    'children' => [
+                        ['label' => 'Intro', 'href' => '#intro', 'layout' => 'link'],
+                    ],
+                ],
+                ['label' => 'FAQ', 'href' => '#faq', 'layout' => 'link'],
+            ],
+        ])), '{{slug}}');
+
+        $page = $this->createPage('default', '', '<h1 id="intro">Intro</h1><h2 id="faq">FAQ</h2>');
+
+        $items = $generator->generate($page, 'de');
+
+        $this->assertSame('#intro', $items[0]['href']);
+        $this->assertSame('#faq', $items[1]['href']);
+    }
+
+    public function testProcessesMixedValidAndInvalidLinks(): void
+    {
+        $generator = new MarketingMenuAiGenerator(null, new StaticChatResponder(json_encode([
+            'items' => [
+                ['label' => 'Intro', 'href' => '#intro', 'layout' => 'link'],
+                ['label' => 'Empty', 'href' => '   ', 'layout' => 'link'],
+                ['label' => 'Unknown', 'href' => '/other#missing', 'layout' => 'link'],
+            ],
+        ])), '{{slug}}');
+
+        $page = $this->createPage('default', 'landing', '<h1 id="intro">Intro</h1>');
+
+        $items = $generator->generate($page, 'de');
+
+        $this->assertSame('#intro', $items[0]['href']);
+        $this->assertSame('/landing', $items[1]['href']);
+        $this->assertSame('/landing', $items[2]['href']);
     }
 
     private function createPage(string $namespace, string $slug, string $content): Page

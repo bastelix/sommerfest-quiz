@@ -19,6 +19,7 @@ use function mb_strlen;
 use function mb_substr;
 use function preg_replace;
 use function sprintf;
+use function error_log;
 use function strip_tags;
 use function str_replace;
 use function str_starts_with;
@@ -345,7 +346,7 @@ PROMPT;
                 throw new RuntimeException(self::ERROR_INVALID_ITEMS);
             }
 
-            $validated[] = $this->validateItem($item, $page);
+            $validated = array_merge($validated, $this->validateItem($item, $page));
         }
 
         return $validated;
@@ -353,33 +354,44 @@ PROMPT;
 
     /**
      * @param array<string, mixed> $item
-     * @return array<string, mixed>
+     * @return array<int, array<string, mixed>>
      */
     private function validateItem(array $item, Page $page): array
     {
-        $href = isset($item['href']) ? (string) $item['href'] : '';
-        $item['href'] = $this->normalizeHref($href, $page);
-
+        $children = [];
         if (isset($item['children']) && is_array($item['children'])) {
-            $children = [];
             foreach ($item['children'] as $child) {
                 if (!is_array($child)) {
                     continue;
                 }
-                $children[] = $this->validateItem($child, $page);
+                $children = array_merge($children, $this->validateItem($child, $page));
             }
+        }
 
+        $href = isset($item['href']) ? (string) $item['href'] : '';
+        $normalizedHref = $this->normalizeHref($href, $page);
+
+        if ($normalizedHref === null) {
+            return $children;
+        }
+
+        $item['href'] = $normalizedHref;
+
+        if ($children === []) {
+            unset($item['children']);
+        } else {
             $item['children'] = $children;
         }
 
-        return $item;
+        return [$item];
     }
 
-    private function normalizeHref(string $href, Page $page): string
+    private function normalizeHref(string $href, Page $page): ?string
     {
         $candidate = trim($href);
         if ($candidate === '') {
-            throw new RuntimeException(self::ERROR_INVALID_LINKS);
+            $this->logInvalidHref($href, $page);
+            return $this->fallbackHref($page);
         }
 
         $slug = '/' . ltrim($page->getSlug(), '/');
@@ -393,7 +405,25 @@ PROMPT;
             return $this->canonicalizeSlugHref($candidate, $slug);
         }
 
-        throw new RuntimeException(self::ERROR_INVALID_LINKS);
+        $this->logInvalidHref($href, $page);
+
+        return $this->fallbackHref($page);
+    }
+
+    private function logInvalidHref(string $href, Page $page): void
+    {
+        error_log(sprintf('[marketing-menu-ai] Invalid href "%s" for slug "%s"', $href, $page->getSlug()));
+    }
+
+    private function fallbackHref(Page $page): ?string
+    {
+        $slug = '/' . ltrim($page->getSlug(), '/');
+
+        if ($slug === '/') {
+            return null;
+        }
+
+        return $slug;
     }
 
     private function matchAnchorHref(string $href, string $slug): ?string
