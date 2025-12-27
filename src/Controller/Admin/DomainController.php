@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Service\CertificateProvisionerInterface;
 use App\Service\DomainService;
-use App\Service\CertificateProvisioningService;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -17,11 +17,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DomainController
 {
     private DomainService $domainService;
-    private ?CertificateProvisioningService $certificateProvisioningService;
+    private ?CertificateProvisionerInterface $certificateProvisioningService;
 
     public function __construct(
         DomainService $domainService,
-        ?CertificateProvisioningService $certificateProvisioningService = null
+        ?CertificateProvisionerInterface $certificateProvisioningService = null
     ) {
         $this->domainService = $domainService;
         $this->certificateProvisioningService = $certificateProvisioningService;
@@ -151,15 +151,24 @@ class DomainController
             return $this->jsonError($response, 'Certificate provisioning unavailable.', 503);
         }
 
+        $host = $this->domainService->normalizeDomain($domain['host'], stripAdmin: false);
+        if ($host === '' && isset($domain['normalized_host'])) {
+            $host = (string) $domain['normalized_host'];
+        }
+
+        if ($host === '') {
+            return $this->jsonError($response, 'Invalid domain supplied.', 422);
+        }
+
         try {
-            $this->certificateProvisioningService->provisionAllDomains();
+            $this->certificateProvisioningService->provisionMarketingDomain($host);
         } catch (InvalidArgumentException | RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 422);
         }
 
         $payload = [
             'status' => 'Certificate renewal queued.',
-            'domain' => $domain['host'],
+            'domain' => $host,
         ];
 
         $response->getBody()->write(json_encode($payload));

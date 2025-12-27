@@ -14,7 +14,7 @@ use function App\runBackgroundProcess;
  * Provisions or renews TLS certificates for marketing domains via the
  * acme-companion setup.
  */
-final class CertificateProvisioningService
+final class CertificateProvisioningService implements CertificateProvisionerInterface
 {
     private MarketingDomainProvider $marketingDomainProvider;
 
