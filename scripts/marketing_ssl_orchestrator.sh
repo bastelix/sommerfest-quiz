@@ -9,11 +9,13 @@ DEFAULT_EMAIL=${MARKETING_SSL_CONTACT_EMAIL:-${LETSENCRYPT_EMAIL:-"admin@calhelp
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: marketing_ssl_orchestrator.sh [--namespace <name> ...] [--dry-run]
+Usage: marketing_ssl_orchestrator.sh [--namespace <name> ...] [--host <domain>] [--dry-run]
 
 Options:
   --namespace <name>   Restrict provisioning to one or more namespaces. When omitted,
                        all marketing domains are collected from the API endpoint.
+  --host <domain>      Provision SSL only for the given host. When set, no API lookups
+                       are performed and the supplied host is normalized.
   --dry-run            Compute the domain list but skip Docker recreation.
 
 Environment variables:
@@ -29,12 +31,17 @@ if [[ -z "$API_TOKEN" ]]; then
 fi
 
 namespaces=()
+host=""
 dry_run=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --namespace)
       namespaces+=("$2")
+      shift 2
+      ;;
+    --host)
+      host="$2"
       shift 2
       ;;
     --dry-run)
@@ -136,13 +143,21 @@ collect_domains() {
   normalize_domains "${aggregated[@]}"
 }
 
+collect_domains_for_host() {
+  normalize_domains "$1"
+}
+
 current_container_domains() {
   docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$SERVICE" 2>/dev/null | \
     sed -n 's/^LETSENCRYPT_HOST=//p' | head -n1 | \
     tr ',' '\n' | normalize_domains
 }
 
-normalized_list=$(collect_domains)
+if [[ -n "$host" ]]; then
+  normalized_list=$(collect_domains_for_host "$host")
+else
+  normalized_list=$(collect_domains)
+fi
 
 if [[ -z "$normalized_list" ]]; then
   log_entry "NO_DOMAINS" "reason=empty-response"
