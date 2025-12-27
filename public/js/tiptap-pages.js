@@ -43,8 +43,13 @@ const hasValidSrcset = srcset => {
 };
 
 const scrubInvalidSrcsetAttributes = html => {
+  const stripInvalidSrcsets = markup => markup.replace(/\s+srcset\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/gi, (match, _full, doubleQuoted, singleQuoted, unquoted) => {
+    const value = doubleQuoted ?? singleQuoted ?? unquoted ?? '';
+    return hasValidSrcset(value) ? match : '';
+  });
+
   const container = document.createElement('div');
-  container.innerHTML = html;
+  container.innerHTML = stripInvalidSrcsets(html);
 
   container.querySelectorAll('img, source').forEach(el => {
     const srcset = el.getAttribute('srcset');
