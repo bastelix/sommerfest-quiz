@@ -30,6 +30,25 @@ The **Logins** tab combines registration settings with the user management list.
 JSON backup exports and restores. The statistics tab lists every answer with name, attempt, catalog, question, answer,
 correctness, and an optional evidence photo, and can be filtered by team or person.
 
+## Container-Metriken abrufen
+
+Über den geschützten Endpunkt `/admin/system/metrics` stehen CPU-, Speicher- und OOM-Zähler des laufenden Containers als JSON zur Verfügung. Die API liest die cgroup-Dateien direkt aus (`/sys/fs/cgroup`) und liefert je nach Version (v1/v2) unterschiedliche Felder:
+
+```
+{
+  "timestamp": "2024-06-01T12:00:00+00:00",
+  "cgroupVersion": 2,
+  "memory": { "currentBytes": 1234567, "maxBytes": 2345678 },
+  "cpu": { "usageMicros": 1234, "percent": 12.34, "sampleWindowSeconds": 1.0 },
+  "oom": { "events": 0, "kills": 0 }
+}
+```
+
+* `percent` basiert auf dem CPU-Usage-Differenzwert seit der letzten Abfrage und dem gemessenen Zeitfenster `sampleWindowSeconds`.
+* Fehlt das cgroup-Dateisystem oder notwendige Dateien, antwortet der Server mit HTTP 503 und einem `error`-Feld.
+
+Im Event-Dashboard steht das Modul **Container-Metriken** bereit. Dort lässt sich die Sichtbarkeit, das Layout, ein eigenes Aktualisierungsintervall sowie optionale Obergrenzen (Memory in MB, CPU in %) konfigurieren. Wird kein Memory-Limit gesetzt, verwendet das Modul den vom Kernel gemeldeten cgroup-Maximalwert (sofern vorhanden).
+
 ## Dashboard-Konfiguration
 
 Der Abschnitt **Event-Konfiguration → Dashboard** bündelt alle Einstellungen für die öffentliche Ergebnisanzeige. Für die Module „Live-Rankings“ und „Ergebnisliste“ lassen sich die sichtbare Menge (`Anzahl der Einträge`) sowie der automatische Seitenumbruch (`Einträge pro Seite`) steuern. Zusätzlich legt das Feld **Automatischer Seitenwechsel (Sekunden)** fest, in welchem Intervall die Anzeige zwischen den Seiten wechselt. Ohne Eingabe bleibt der Standard von 10 Sekunden aktiv – so können Administrator:innen bei großen Gruppen das Tempo jederzeit an das Publikum anpassen.

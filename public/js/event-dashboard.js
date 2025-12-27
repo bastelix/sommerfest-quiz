@@ -18,6 +18,14 @@ const eventIdentifier = config.slug || config.eventUid || '';
 const competitionMode = Boolean(config.competitionMode);
 const DASHBOARD_LAYOUT_OPTIONS = new Set(['auto', 'wide', 'full']);
 
+const containerMetricsState = {
+  timer: null,
+  card: null,
+  layout: null,
+  options: null,
+  refs: null,
+};
+
 const dashboardTheme = typeof config.theme === 'string' ? config.theme.trim().toLowerCase() : '';
 if (dashboardTheme === 'dark' || dashboardTheme === 'light') {
   document.body?.setAttribute('data-theme', dashboardTheme);
@@ -33,6 +41,7 @@ const MODULE_DEFAULT_LAYOUTS = {
   qrCodes: 'auto',
   rankingQr: 'auto',
   media: 'auto',
+  containerMetrics: 'auto',
 };
 const RESULTS_DEFAULT_PAGE_INTERVAL = 10;
 const RESULTS_PAGE_INTERVAL_MIN = 1;
@@ -49,6 +58,10 @@ const RESULTS_SORT_OPTIONS = new Set(['time', 'points', 'name']);
 const RESULTS_LIMIT_MAX = 50;
 const POINTS_LEADER_DEFAULT_OPTIONS = { title: 'Platzierungen', limit: 5 };
 const POINTS_LEADER_LIMIT_MAX = 10;
+const CONTAINER_METRICS_ENDPOINT = `${basePath}/admin/system/metrics`;
+const CONTAINER_METRICS_MIN_REFRESH = 5;
+const CONTAINER_METRICS_MAX_REFRESH = 300;
+const CONTAINER_METRICS_CPU_MAX = 400;
 
 function parseBooleanFlag(value) {
   if (value === null || value === undefined) {
@@ -141,6 +154,36 @@ function formatPercentage(value) {
   return `${localized} %`;
 }
 
+function clampNumber(value, min, max) {
+  if (!Number.isFinite(value)) {
+    return min;
+  }
+  return Math.min(Math.max(value, min), max);
+}
+
+function formatPercentValue(value, fractionDigits = 1) {
+  if (!Number.isFinite(value)) {
+    return '—';
+  }
+  const fixed = value.toFixed(fractionDigits);
+  return `${fixed.replace('.', ',')} %`;
+}
+
+function formatBytes(value) {
+  if (!Number.isFinite(value) || value < 0) {
+    return '—';
+  }
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = value;
+  let unitIndex = 0;
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+  const rounded = size >= 10 ? Math.round(size) : Math.round(size * 10) / 10;
+  return `${rounded.toString().replace('.', ',')} ${units[unitIndex]}`;
+}
+
 function parseResultNumber(value) {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
@@ -217,6 +260,29 @@ function resolveResultsOptions(moduleConfig, overrideDefaults = {}) {
     sort,
     title,
     showPlacement,
+  };
+}
+
+function resolveContainerMetricsOptions(moduleConfig) {
+  const options = moduleConfig?.options ?? {};
+  const title = resolveModuleTitle(moduleConfig, 'Container-Metriken');
+  const refreshCandidate = Number.parseInt(String(options.refreshInterval ?? refreshInterval).trim(), 10);
+  let refreshSeconds = Number.isFinite(refreshCandidate) ? refreshCandidate : refreshInterval;
+  refreshSeconds = clampNumber(refreshSeconds, CONTAINER_METRICS_MIN_REFRESH, CONTAINER_METRICS_MAX_REFRESH);
+  const maxMemoryMbRaw = options.maxMemoryMb;
+  let maxMemoryBytes = null;
+  const parsedMemory = Number.parseInt(String(maxMemoryMbRaw ?? '').trim(), 10);
+  if (Number.isFinite(parsedMemory) && parsedMemory > 0) {
+    maxMemoryBytes = parsedMemory * 1024 * 1024;
+  }
+  const cpuMaxRaw = Number.parseInt(String(options.cpuMaxPercent ?? 100).trim(), 10);
+  const cpuMaxPercent = clampNumber(Number.isFinite(cpuMaxRaw) ? cpuMaxRaw : 100, 1, CONTAINER_METRICS_CPU_MAX);
+
+  return {
+    title,
+    refreshInterval: refreshSeconds,
+    maxMemoryBytes,
+    cpuMaxPercent,
   };
 }
 
@@ -793,6 +859,150 @@ function renderMediaModule(moduleConfig, layout) {
   return createModuleCard(resolveModuleTitle(moduleConfig, 'Highlights'), container, layout);
 }
 
+function stopContainerMetricsPolling() {
+  if (containerMetricsState.timer) {
+    clearInterval(containerMetricsState.timer);
+    containerMetricsState.timer = null;
+  }
+}
+
+function updateContainerMetricsView(payload, options) {
+  if (!containerMetricsState.refs) return;
+  const { refs } = containerMetricsState;
+  const cpuPercent = Number.isFinite(payload?.cpu?.percent) ? payload.cpu.percent : null;
+  const cpuText = cpuPercent === null ? '—' : formatPercentValue(cpuPercent, 2);
+  refs.cpuValue.textContent = cpuText;
+  const cpuProgress = cpuPercent === null ? null : clampNumber(cpuPercent, 0, options.cpuMaxPercent) / options.cpuMaxPercent;
+  refs.cpuBar.style.width = cpuProgress === null ? '0%' : `${Math.round(cpuProgress * 100)}%`;
+
+  const memoryCurrent = Number.isFinite(payload?.memory?.currentBytes) ? payload.memory.currentBytes : null;
+  const memoryMaxCandidate = Number.isFinite(payload?.memory?.maxBytes) ? payload.memory.maxBytes : null;
+  const memoryMax = Number.isFinite(options.maxMemoryBytes) ? options.maxMemoryBytes : memoryMaxCandidate;
+  if (memoryCurrent === null) {
+    refs.memoryValue.textContent = '—';
+    refs.memoryBar.style.width = '0%';
+  } else {
+    const memoryParts = [formatBytes(memoryCurrent)];
+    if (memoryMax) {
+      memoryParts.push(formatBytes(memoryMax));
+    }
+    refs.memoryValue.textContent = memoryParts.join(' / ');
+    const memoryProgress = memoryMax ? clampNumber(memoryCurrent / memoryMax, 0, 1) : null;
+    refs.memoryBar.style.width = memoryProgress === null ? '0%' : `${Math.round(memoryProgress * 100)}%`;
+  }
+
+  const oomEvents = Number.isFinite(payload?.oom?.events) ? payload.oom.events : null;
+  const oomKills = Number.isFinite(payload?.oom?.kills) ? payload.oom.kills : null;
+  const parts = [];
+  if (oomEvents !== null) {
+    parts.push(`OOM: ${oomEvents}`);
+  }
+  if (oomKills !== null) {
+    parts.push(`Kills: ${oomKills}`);
+  }
+  refs.oomInfo.textContent = parts.length ? parts.join(' · ') : 'Keine OOM-Ereignisse gemeldet.';
+
+  const sampleWindow = Number.isFinite(payload?.cpu?.sampleWindowSeconds) ? payload.cpu.sampleWindowSeconds : null;
+  const timestamp = typeof payload?.timestamp === 'string' ? payload.timestamp : '';
+  if (sampleWindow && sampleWindow > 0.01) {
+    refs.status.textContent = `Aktualisiert (${sampleWindow.toFixed(1)}s Fenster)`;
+  } else {
+    refs.status.textContent = timestamp ? `Stand: ${timestamp}` : 'Werte geladen';
+  }
+}
+
+function createMetricRow(labelText) {
+  const row = document.createElement('div');
+  row.className = 'container-metrics__row';
+  const label = document.createElement('div');
+  label.className = 'container-metrics__label';
+  label.textContent = labelText;
+  const value = document.createElement('div');
+  value.className = 'container-metrics__value';
+  const bar = document.createElement('div');
+  bar.className = 'container-metrics__bar';
+  const barFill = document.createElement('div');
+  barFill.className = 'container-metrics__bar-fill';
+  bar.appendChild(barFill);
+  row.appendChild(label);
+  row.appendChild(value);
+  row.appendChild(bar);
+  return { row, value, barFill };
+}
+
+function buildContainerMetricsCard(options, layout) {
+  const container = document.createElement('div');
+  container.className = 'container-metrics';
+  const status = document.createElement('p');
+  status.className = 'container-metrics__status uk-text-meta';
+  status.textContent = 'Noch keine Daten geladen';
+
+  const cpuRow = createMetricRow('CPU-Auslastung');
+  const memoryRow = createMetricRow('Speicher');
+
+  const oomInfo = document.createElement('p');
+  oomInfo.className = 'container-metrics__status uk-text-meta';
+  oomInfo.textContent = 'Keine OOM-Ereignisse gemeldet.';
+
+  container.appendChild(status);
+  container.appendChild(cpuRow.row);
+  container.appendChild(memoryRow.row);
+  container.appendChild(oomInfo);
+
+  containerMetricsState.refs = {
+    status,
+    cpuValue: cpuRow.value,
+    cpuBar: cpuRow.barFill,
+    memoryValue: memoryRow.value,
+    memoryBar: memoryRow.barFill,
+    oomInfo,
+  };
+
+  return createModuleCard(options.title, container, layout);
+}
+
+function ensureContainerMetricsCard(moduleConfig, layout) {
+  const options = resolveContainerMetricsOptions(moduleConfig);
+  const optionsChanged = JSON.stringify(containerMetricsState.options) !== JSON.stringify(options);
+  const needsRebuild = !containerMetricsState.card
+    || containerMetricsState.layout !== layout
+    || options.title !== (containerMetricsState.options?.title ?? '');
+  if (needsRebuild) {
+    containerMetricsState.card = buildContainerMetricsCard(options, layout);
+    containerMetricsState.layout = layout;
+  }
+  containerMetricsState.options = options;
+
+  if (optionsChanged || !containerMetricsState.timer) {
+    stopContainerMetricsPolling();
+    containerMetricsState.timer = setInterval(() => fetchContainerMetrics(), options.refreshInterval * 1000);
+    fetchContainerMetrics();
+  }
+
+  return containerMetricsState.card;
+}
+
+function fetchContainerMetrics() {
+  if (!containerMetricsState.card || !containerMetricsState.options) {
+    return;
+  }
+  fetch(CONTAINER_METRICS_ENDPOINT, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error('metrics');
+      }
+      return res.json();
+    })
+    .then((payload) => {
+      updateContainerMetricsView(payload, containerMetricsState.options);
+    })
+    .catch(() => {
+      if (containerMetricsState.refs) {
+        containerMetricsState.refs.status.textContent = 'Laden der Metriken fehlgeschlagen';
+      }
+    });
+}
+
 function renderModules(rows, questionRows, rankings, catalogList) {
   if (!modulesRoot) return;
   clearResultsPagerTimer();
@@ -800,6 +1010,7 @@ function renderModules(rows, questionRows, rankings, catalogList) {
   applyHeaderVisibility(activeModules);
   const headerActive = activeModules.some((module) => module && module.id === 'header' && module.enabled);
   let hasModuleOutput = headerActive;
+  let hasContainerMetrics = false;
   activeModules.forEach((module) => {
     if (!module || !module.enabled) return;
     const layout = resolveModuleLayout(module);
@@ -830,8 +1041,18 @@ function renderModules(rows, questionRows, rankings, catalogList) {
     } else if (module.id === 'media' && mediaItems.length > 0) {
       modulesRoot.appendChild(renderMediaModule(module, layout));
       hasModuleOutput = true;
+    } else if (module.id === 'containerMetrics') {
+      modulesRoot.appendChild(ensureContainerMetricsCard(module, layout));
+      hasModuleOutput = true;
+      hasContainerMetrics = true;
     }
   });
+  if (!hasContainerMetrics) {
+    stopContainerMetricsPolling();
+    containerMetricsState.card = null;
+    containerMetricsState.refs = null;
+    containerMetricsState.options = null;
+  }
   if (!hasModuleOutput) {
     const placeholder = document.createElement('div');
     placeholder.className = 'uk-alert uk-alert-primary';

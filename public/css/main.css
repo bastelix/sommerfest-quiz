@@ -1074,6 +1074,59 @@ body.admin-page {
   margin-bottom: 0;
 }
 
+.container-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.container-metrics__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .container-metrics__row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+}
+
+.container-metrics__label {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.container-metrics__value {
+  font-weight: 600;
+}
+
+.container-metrics__bar {
+  width: 100%;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .container-metrics__bar {
+  background: #1f1f1f;
+}
+
+.container-metrics__bar-fill {
+  height: 100%;
+  width: 0;
+  background: var(--dashboard-accent, #1e87f0);
+  transition: width 0.2s ease;
+}
+
+.container-metrics__status {
+  margin: 0;
+}
+
 .dashboard-leader {
   display: flex;
   flex-direction: column;
