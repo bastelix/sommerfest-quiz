@@ -1,4 +1,4 @@
-import { Editor } from 'https://cdn.jsdelivr.net/npm/@tiptap/core@2.4.0/dist/tiptap-core.esm.js';
+import { Editor, Extension, Mark } from 'https://cdn.jsdelivr.net/npm/@tiptap/core@2.4.0/dist/tiptap-core.esm.js';
 import StarterKit from 'https://cdn.jsdelivr.net/npm/@tiptap/starter-kit@2.4.0/dist/tiptap-starter-kit.esm.js';
 
 /* global notify */
@@ -77,6 +77,140 @@ const THEME_DARK = 'dark';
 const THEME_HIGH_CONTRAST = 'high-contrast';
 const THEME_STORAGE_KEY = 'pageEditorTheme';
 const THEME_CHOICES = [THEME_LIGHT, THEME_DARK, THEME_HIGH_CONTRAST];
+
+const basePath = (window.basePath || '').replace(/\/$/, '');
+const withBase = path => `${basePath}${path}`;
+
+const escapeHtml = value => {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
+let quizLinksCache = null;
+let quizLinksPromise = null;
+
+const normalizeQuizLink = entry => {
+  if (!entry || typeof entry !== 'object') {
+    return null;
+  }
+  const slug = typeof entry.slug === 'string' ? entry.slug.trim() : '';
+  if (!slug) {
+    return null;
+  }
+  return {
+    slug,
+    name: typeof entry.name === 'string' ? entry.name.trim() : '',
+    description: typeof entry.description === 'string' ? entry.description.trim() : ''
+  };
+};
+
+const fetchQuizLinks = async () => {
+  if (quizLinksCache) {
+    return quizLinksCache;
+  }
+  if (!quizLinksPromise) {
+    quizLinksPromise = apiFetch('/kataloge/catalogs.json', { headers: { Accept: 'application/json' } })
+      .then(response => (response.ok ? response.json() : []))
+      .catch(() => [])
+      .then(rows => (Array.isArray(rows) ? rows.map(normalizeQuizLink).filter(Boolean) : []));
+  }
+
+  const links = await quizLinksPromise;
+  quizLinksCache = links;
+  quizLinksPromise = null;
+  return links;
+};
+
+const prefetchQuizLinks = () => fetchQuizLinks().catch(() => []);
+
+const createQuizLinkHref = slug => {
+  const safeSlug = encodeURIComponent(slug || '');
+  return `${basePath}/?katalog=${safeSlug}`;
+};
+
+const UikitTemplates = Extension.create({
+  name: 'uikitTemplates',
+  addCommands() {
+    const heroTemplate = `<div class="uk-section uk-section-primary uk-light">
+                <div class="uk-container">
+                  <h1 class="uk-heading-large">Hero-Titel</h1>
+                  <p class="uk-text-lead">Introtext</p>
+                </div>
+              </div>
+              <!-- Beispiel: Abschnitt mit alternierender Hintergrundfarbe -->
+              <section class="uk-section section--alt">
+                <div class="uk-container">
+                  <h2>Abschnittstitel</h2>
+                  <p>Inhalt hier</p>
+                </div>
+              </section>`;
+    const cardTemplate = `<div class="uk-card qr-card uk-card-body">
+                <h3 class="uk-card-title">Karte</h3>
+                <p>Inhalt hier</p>
+              </div>`;
+
+    return {
+      insertHeroTemplate: () => ({ commands }) => commands.insertContent(heroTemplate),
+      insertCardTemplate: () => ({ commands }) => commands.insertContent(cardTemplate)
+    };
+  },
+  addKeyboardShortcuts() {
+    return {
+      'Mod-Alt-h': () => this.editor.commands.insertHeroTemplate(),
+      'Mod-Alt-c': () => this.editor.commands.insertCardTemplate()
+    };
+  }
+});
+
+const QuizLink = Mark.create({
+  name: 'quizLink',
+  inclusive: false,
+  addAttributes() {
+    return {
+      href: { default: null },
+      class: {
+        default: 'uk-button uk-button-primary'
+      },
+      title: { default: null }
+    };
+  },
+  parseHTML() {
+    return [
+      {
+        tag: 'a.uk-button.uk-button-primary'
+      }
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    const attrs = { ...HTMLAttributes, class: 'uk-button uk-button-primary' };
+    return ['a', attrs, 0];
+  },
+  addCommands() {
+    return {
+      insertQuizLink: options => ({ commands }) => {
+        const slug = options?.slug || '';
+        const label = options?.label || slug;
+        const description = options?.description || label;
+        if (!slug || !label) {
+          return false;
+        }
+        const href = createQuizLinkHref(slug);
+        const safeLabel = escapeHtml(label);
+        const safeTitle = escapeHtml(description || label);
+        return commands.insertContent(
+          `<a class="uk-button uk-button-primary" href="${href}" title="${safeTitle}">${safeLabel}</a>`
+        );
+      }
+    };
+  }
+});
 
 let currentTheme = null;
 
@@ -530,6 +664,135 @@ const removeEditorInstance = form => {
   }
 };
 
+const createToolbarButton = (label, title, onClick) => {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'uk-button uk-button-default';
+  button.textContent = label;
+  button.title = title || label;
+  button.addEventListener('click', event => {
+    event.preventDefault();
+    onClick?.();
+  });
+  return button;
+};
+
+const buildTemplateButtons = editor => {
+  const group = document.createElement('div');
+  group.className = 'uk-button-group uk-margin-small-right';
+
+  const heroBtn = createToolbarButton('UIkit Hero', 'UIkit Hero-Template einfügen (Mod-Alt-H)', () => {
+    editor.commands.insertHeroTemplate();
+  });
+  const cardBtn = createToolbarButton('UIkit Card', 'UIkit Card-Template einfügen (Mod-Alt-C)', () => {
+    editor.commands.insertCardTemplate();
+  });
+
+  group.append(heroBtn, cardBtn);
+  return group;
+};
+
+const buildQuizLinkDropdown = editor => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'uk-inline uk-margin-small-right';
+
+  const trigger = createToolbarButton('Quiz-Link', 'Quiz-Link einfügen', null);
+  const dropdown = document.createElement('div');
+  dropdown.className = 'uk-dropdown';
+  dropdown.setAttribute('uk-dropdown', 'mode: click');
+  const list = document.createElement('ul');
+  list.className = 'uk-nav uk-dropdown-nav';
+  dropdown.append(list);
+  wrapper.append(trigger, dropdown);
+
+  const hideDropdown = () => {
+    try {
+      const instance = window.UIkit?.dropdown?.(dropdown);
+      instance?.hide?.();
+    } catch (error) {
+      if (window.console && typeof window.console.warn === 'function') {
+        window.console.warn('Failed to hide quiz link dropdown', error);
+      }
+    }
+  };
+
+  const renderLinks = links => {
+    list.innerHTML = '';
+    if (!Array.isArray(links) || links.length === 0) {
+      const emptyItem = document.createElement('li');
+      const emptyText = document.createElement('div');
+      emptyText.className = 'uk-text-muted uk-padding-small';
+      emptyText.textContent = 'Keine Quiz-Links gefunden';
+      emptyItem.append(emptyText);
+      list.append(emptyItem);
+      return;
+    }
+
+    links.forEach(link => {
+      const li = document.createElement('li');
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'uk-button uk-button-text uk-width-1-1 uk-text-left';
+      option.textContent = link.name || link.slug;
+      option.title = link.description || link.name || link.slug;
+      option.addEventListener('click', event => {
+        event.preventDefault();
+        editor.commands.insertQuizLink({
+          slug: link.slug,
+          label: link.name || link.slug,
+          description: link.description || link.name || link.slug
+        });
+        hideDropdown();
+      });
+      li.append(option);
+      list.append(li);
+    });
+  };
+
+  const ensureLinksLoaded = () => {
+    if (wrapper.dataset.linksLoaded === '1') {
+      return;
+    }
+    wrapper.dataset.linksLoaded = '1';
+    fetchQuizLinks()
+      .then(renderLinks)
+      .catch(() => renderLinks([]));
+  };
+
+  trigger.addEventListener('click', () => {
+    ensureLinksLoaded();
+  });
+
+  return wrapper;
+};
+
+const buildEditorToolbar = editor => {
+  const toolbar = document.createElement('div');
+  toolbar.className = 'page-editor-toolbar uk-margin-small-bottom uk-flex uk-flex-wrap uk-flex-middle';
+
+  const quizDropdown = buildQuizLinkDropdown(editor);
+  toolbar.append(quizDropdown);
+
+  const templates = buildTemplateButtons(editor);
+  toolbar.append(templates);
+
+  return toolbar;
+};
+
+const attachEditorToolbar = (form, editor) => {
+  if (!form || !editor || form.dataset.toolbarReady === '1') {
+    return;
+  }
+  const editorEl = getEditorElement(form);
+  if (!editorEl || !editorEl.parentNode) {
+    return;
+  }
+
+  const toolbar = buildEditorToolbar(editor);
+  editorEl.parentNode.insertBefore(toolbar, editorEl);
+  form.dataset.toolbarReady = '1';
+};
+
 const ensurePageEditorInitialized = form => {
   const editorEl = getEditorElement(form);
   if (!editorEl || editorEl.dataset.editorInitializing === '1') {
@@ -538,6 +801,7 @@ const ensurePageEditorInitialized = form => {
 
   let existing = getEditorInstance(form);
   if (existing) {
+    attachEditorToolbar(form, existing);
     return existing;
   }
 
@@ -556,7 +820,7 @@ const ensurePageEditorInitialized = form => {
   const editor = new Editor({
     element: editorEl,
     content: sanitized,
-    extensions: [StarterKit],
+    extensions: [StarterKit, QuizLink, UikitTemplates],
     editorProps: {
       attributes: {
         class: 'tiptap-editor',
@@ -571,6 +835,7 @@ const ensurePageEditorInitialized = form => {
   editorEl.dataset.editorInitialized = '1';
   delete editorEl.dataset.editorInitializing;
   setEditorInstance(form, editor);
+  attachEditorToolbar(form, editor);
   return editor;
 };
 
@@ -612,9 +877,6 @@ const teardownPageEditor = form => {
   resetLandingStyling(editorEl);
   delete editorEl.dataset.editorInitialized;
 };
-
-const basePath = (window.basePath || '').replace(/\/$/, '');
-const withBase = path => `${basePath}${path}`;
 
 let pageSelectionState = null;
 let currentStartpagePageId = null;
@@ -2378,6 +2640,7 @@ async function initPageTree() {
 
 const initPagesModule = () => {
   initThemeToggle();
+  prefetchQuizLinks();
   bindStartpageDomainSelect();
   loadStartpageState();
   initPageEditors();
