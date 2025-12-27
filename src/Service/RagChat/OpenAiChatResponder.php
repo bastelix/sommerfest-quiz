@@ -27,6 +27,8 @@ final class OpenAiChatResponder extends HttpChatResponder
         'RAG_CHAT_SERVICE_MAX_TOKENS' => 'max_tokens',
     ];
 
+    private const DEFAULT_MAX_TOKENS = 320;
+
     private string $model;
 
     /**
@@ -85,7 +87,7 @@ final class OpenAiChatResponder extends HttpChatResponder
      */
     private function loadOptionsFromEnv(): array
     {
-        $options = [];
+        $options = ['max_tokens' => self::DEFAULT_MAX_TOKENS];
 
         foreach (self::OPTION_MAP as $envKey => $payloadKey) {
             $value = $this->envOrNull($envKey);

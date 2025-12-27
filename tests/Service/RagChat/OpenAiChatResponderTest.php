@@ -126,6 +126,7 @@ final class OpenAiChatResponderTest extends TestCase
         self::assertIsArray($payload);
         self::assertSame('gpt-4o-mini', $payload['model'] ?? null);
         self::assertSame(0.2, $payload['temperature'] ?? null);
+        self::assertSame(320, $payload['max_tokens'] ?? null);
         $messages = $payload['messages'] ?? [];
         self::assertIsArray($messages);
         self::assertGreaterThanOrEqual(2, count($messages));
@@ -256,6 +257,7 @@ final class OpenAiChatResponderTest extends TestCase
             self::assertIsArray($payload);
             self::assertArrayNotHasKey('context', $payload);
             self::assertSame('gpt-4o-mini', $payload['model'] ?? null);
+            self::assertSame(320, $payload['max_tokens'] ?? null);
         } finally {
             putenv('RAG_CHAT_SERVICE_URL');
             putenv('RAG_CHAT_SERVICE_DRIVER');

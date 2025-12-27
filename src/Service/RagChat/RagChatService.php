@@ -148,7 +148,7 @@ final class RagChatService implements RagChatServiceInterface
                 }
 
                 $candidateResults = [];
-                foreach ($domainIndex->search($question, 4, 0.05) as $result) {
+                foreach ($domainIndex->search($question, 3, 0.2) as $result) {
                     $chunkId = $result->getChunkId();
                     if (isset($seenChunks[$chunkId])) {
                         continue;
@@ -171,7 +171,7 @@ final class RagChatService implements RagChatServiceInterface
                 return new RagChatResponse($question, $messages['no_results'], []);
             }
 
-            foreach ($globalIndex->search($question, 4, 0.05) as $result) {
+            foreach ($globalIndex->search($question, 3, 0.2) as $result) {
                 if (isset($seenChunks[$result->getChunkId()])) {
                     continue;
                 }
@@ -179,7 +179,7 @@ final class RagChatService implements RagChatServiceInterface
             }
         }
 
-        $contextResults = array_slice($contextResults, 0, 6);
+        $contextResults = array_slice($contextResults, 0, 4);
         $messages = self::MESSAGE_TEMPLATES[$locale] ?? self::MESSAGE_TEMPLATES[self::DEFAULT_LOCALE];
 
         if ($contextResults === []) {
@@ -253,7 +253,7 @@ final class RagChatService implements RagChatServiceInterface
             'item' => $item,
             'payload' => [
                 'id' => $result->getChunkId(),
-                'text' => $result->getText(),
+                'text' => $snippet,
                 'score' => round($rawScore, 6),
                 'metadata' => $metadata,
             ],
