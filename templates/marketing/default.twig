@@ -6,38 +6,74 @@
 {% block title %}{{ metaTitle|default('QuizRace – Marketingseite') }}{% endblock %}
 
 {% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
   <meta name="page-name" content="Marketing default">
 {% endblock %}
 
+{% block config_color_styles %}
+  {{ parent() }}
+  {% set designColors = config.colors|default({}) %}
+  {% set topbarLight = designColors.topbar_light|default(
+    designColors.topbarLight|default(designColors.background|default(null))
+  ) %}
+  {% set topbarDark = designColors.topbar_dark|default(
+    designColors.topbarDark|default(designColors.primary|default(designColors.background|default(null)))
+  ) %}
+  {% if topbarLight or topbarDark %}
+    <style>
+      :root {
+        {% if topbarLight %}--qr-landing-topbar-bg-light: {{ topbarLight|e('css') }};{% endif %}
+        {% if topbarDark %}--qr-landing-topbar-bg-dark: {{ topbarDark|e('css') }};{% endif %}
+      }
+    </style>
+  {% endif %}
+{% endblock %}
+
 {% block body_theme %}light{% endblock %}
-{% block body_class %}marketing-page generic-marketing uk-background-default{% endblock %}
+{% block body_class %}qr-landing marketing-page generic-marketing uk-background-default{% endblock %}
 
 {% block body %}
   <div class="landing-content">
+    {% set logoSettings = headerLogo|default({}) %}
+    {% set logoMode = logoSettings.mode|default('text') %}
+    {% set logoSrc = logoSettings.src|default(null) %}
+    {% set logoLabel = logoSettings.label|default(metaTitle|default('QuizRace')) %}
+    {% set logoAlt = logoSettings.alt|default(logoLabel) %}
+
     <header class="qr-topbar uk-position-sticky uk-top"
-            data-uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
-      <nav class="uk-navbar-container topbar" data-uk-navbar>
+            uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
+      <nav class="uk-navbar-container uk-padding-small topbar" role="navigation" aria-label="Hauptnavigation" uk-navbar>
         <div class="uk-navbar-left">
           <div class="uk-navbar-item">
             <button id="offcanvas-toggle"
                     class="uk-navbar-toggle uk-hidden@m git-btn"
-                    data-uk-navbar-toggle-icon
-                    data-uk-toggle="target: #qr-offcanvas"
+                    uk-navbar-toggle-icon
+                    uk-toggle="target: #qr-offcanvas"
                     aria-controls="qr-offcanvas"
                     aria-expanded="false"
                     aria-label="Menü"></button>
             <a class="uk-logo" href="{{ basePath }}/{{ marketingSlug|default('') }}">
-              {{ metaTitle|default('QuizRace') }}
+              {% if logoMode == 'image' and logoSrc %}
+                <img src="{{ logoSrc }}" alt="{{ logoAlt }}">
+              {% else %}
+                {{ logoLabel }}
+              {% endif %}
             </a>
           </div>
         </div>
-        <div class="uk-navbar-center uk-visible@m">
-          {{ menu.render_menu(menuItems, 'uk-navbar-nav') }}
-        </div>
         <div class="uk-navbar-right">
+          {{ menu.render_menu(menuItems, 'uk-navbar-nav uk-visible@m', 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
+          <a class="uk-navbar-item btn btn-black top-cta uk-visible@m"
+             href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ"
+             target="_blank"
+             rel="noopener">
+            <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+          </a>
           {% include 'components/config-menu.twig' with {
             show_help: false,
             show_language: headerConfig.show_language|default(true),
@@ -52,6 +88,12 @@
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
         {{ menu.render_offcanvas(menuItems, 'uk-nav uk-nav-default') }}
+        <a class="uk-button uk-button-default git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
+           href="https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&amp;katalog=DFB-QUIZ"
+           target="_blank"
+           rel="noopener">
+          <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+        </a>
       </div>
     </div>
 
