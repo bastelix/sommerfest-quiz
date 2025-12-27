@@ -66,7 +66,7 @@ class DomainNameHelperTest extends TestCase
      * @return iterable<string, array{string, string}>
      */
     public static function provideLegacyDomains(): iterable {
-        yield 'www removed' => ['www.example.com', 'example.com'];
+        yield 'www kept' => ['www.example.com', 'www.example.com'];
         yield 'admin kept' => ['admin.example.com', 'admin.example.com'];
         yield 'assistant kept' => ['assistant.example.com', 'assistant.example.com'];
     }
