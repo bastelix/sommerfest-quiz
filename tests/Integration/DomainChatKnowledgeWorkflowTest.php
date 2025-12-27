@@ -6,12 +6,15 @@ namespace Tests\Integration;
 
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Marketing\MarketingChatController;
+use App\Service\DomainService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\PageService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
 use App\Service\RagChat\DomainWikiSelectionService;
 use App\Service\RagChat\RagChatService;
+use App\Support\DomainNameHelper;
+use App\Service\MarketingDomainProvider;
 use PDO;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\UploadedFile;
@@ -46,6 +49,20 @@ use const JSON_THROW_ON_ERROR;
 
 final class DomainChatKnowledgeWorkflowTest extends TestCase
 {
+    private ?MarketingDomainProvider $marketingProviderBackup = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->marketingProviderBackup = DomainNameHelper::getMarketingDomainProvider();
+    }
+
+    protected function tearDown(): void
+    {
+        DomainNameHelper::setMarketingDomainProvider($this->marketingProviderBackup);
+        parent::tearDown();
+    }
+
     public function testLegacyMarketingDomainUploadIsAccessibleViaSlug(): void
     {
         $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
@@ -122,9 +139,7 @@ PHP_SCRIPT;
             'chunks' => [],
         ]));
 
-        $previousMarketing = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
 
         try {
             $storage = new DomainDocumentStorage($domainsDir);
@@ -195,14 +210,6 @@ PHP_SCRIPT;
             self::assertSame('doc', $chatPayload['context'][0]['metadata']['source']);
             self::assertDirectoryExists($domainsDir . '/calserver');
         } finally {
-            if ($previousMarketing === false) {
-                putenv('MARKETING_DOMAINS');
-                unset($_ENV['MARKETING_DOMAINS']);
-            } else {
-                putenv('MARKETING_DOMAINS=' . $previousMarketing);
-                $_ENV['MARKETING_DOMAINS'] = $previousMarketing;
-            }
-
             $this->cleanupDirectory($baseDir);
         }
     }
@@ -257,9 +264,7 @@ PHP_SCRIPT;
         $page = $pageService->create('calserver', 'Calserver', '<p>Calserver</p>');
         $articleId = $this->createWikiArticle($pdo, $page->getId(), 'getting-started');
 
-        $previousMarketing = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
 
         $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
         $domainsDir = $baseDir . '/domains';
@@ -291,14 +296,6 @@ PHP_SCRIPT;
             self::assertSame([$articleId], $wikiSelection->getSelectedArticleIds('calserver'));
             self::assertSame('calserver', $payload['wiki']['pageSlug']);
         } finally {
-            if ($previousMarketing === false) {
-                putenv('MARKETING_DOMAINS');
-                unset($_ENV['MARKETING_DOMAINS']);
-            } else {
-                putenv('MARKETING_DOMAINS=' . $previousMarketing);
-                $_ENV['MARKETING_DOMAINS'] = $previousMarketing;
-            }
-
             $this->cleanupDirectory($baseDir);
         }
     }
@@ -486,9 +483,7 @@ PHP_SCRIPT;
         ]);
         $articleId = (int) $pdo->lastInsertId();
 
-        $previousMarketing = getenv('MARKETING_DOMAINS');
-        putenv('MARKETING_DOMAINS=calserver.com');
-        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+        DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
 
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiSelection->replaceSelection('calserver.com', [$articleId]);
@@ -531,14 +526,6 @@ PHP_SCRIPT;
             self::assertStringContainsString('Concise summary', $indexPayload['files'][0]);
             self::assertStringContainsString('Detailed content body.', $indexPayload['files'][0]);
         } finally {
-            if ($previousMarketing === false) {
-                putenv('MARKETING_DOMAINS');
-                unset($_ENV['MARKETING_DOMAINS']);
-            } else {
-                putenv('MARKETING_DOMAINS=' . $previousMarketing);
-                $_ENV['MARKETING_DOMAINS'] = $previousMarketing;
-            }
-
             $this->cleanupDirectory($baseDir);
         }
     }
@@ -704,6 +691,33 @@ PYTHON;
         ]);
 
         return (int) $pdo->lastInsertId();
+    }
+
+    /**
+     * @param list<string> $domains
+     */
+    private function createMarketingProvider(array $domains): MarketingDomainProvider
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS domains ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'host TEXT NOT NULL, '
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'namespace TEXT, '
+            . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+        );
+
+        $service = new DomainService($pdo);
+        foreach ($domains as $domain) {
+            $service->createDomain($domain);
+        }
+
+        return new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
     }
 
     private function createWikiTestDatabase(): PDO

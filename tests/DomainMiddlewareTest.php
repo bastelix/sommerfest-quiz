@@ -260,7 +260,7 @@ class DomainMiddlewareTest extends TestCase
         $this->assertSame('promo', $handler->request->getAttribute('domainNamespace'));
     }
 
-    public function testEnvMarketingDomainsUsedWhenDatabaseEmpty(): void {
+    public function testRequestToUnknownMarketingDomainIsRejected(): void {
         putenv('MARKETING_DOMAINS=marketing-domain.tld');
 
         $middleware = new DomainMiddleware($this->createProvider([], 'main-domain.tld'));
@@ -278,8 +278,7 @@ class DomainMiddlewareTest extends TestCase
 
         $response = $middleware->process($request, $handler);
 
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('marketing', $handler->request->getAttribute('domainType'));
+        $this->assertSame(403, $response->getStatusCode());
     }
 
     private function restoreEnv(string $variable, mixed $value): void {
