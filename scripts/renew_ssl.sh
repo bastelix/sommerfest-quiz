@@ -347,6 +347,24 @@ reload_via_docker_exec() {
   return 0
 }
 
+if [ "$RECREATE" = "1" ]; then
+  ACTION="up -d --force-recreate"
+else
+  ACTION="restart"
+fi
+
+if [ "$SLUG" = "main" ]; then
+  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" $ACTION "$SERVICE" >/dev/null; then
+    echo "Failed to restart main services" >&2
+    exit 1
+  fi
+else
+  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" $ACTION "$SERVICE" --no-deps >/dev/null; then
+    echo "Failed to restart tenant application" >&2
+    exit 1
+  fi
+fi
+
 WEBHOOK_RESULT=0
 WEBHOOK_RESULT=$(reload_via_webhook) || WEBHOOK_RESULT=$?
 
@@ -363,24 +381,6 @@ fi
 if [ "$WEBHOOK_RESULT" -ne 0 ]; then
   if ! reload_via_docker_exec; then
     echo "Failed to trigger nginx reload via webhook or docker exec" >&2
-    exit 1
-  fi
-fi
-
-if [ "$RECREATE" = "1" ]; then
-  ACTION="up -d --force-recreate"
-else
-  ACTION="restart"
-fi
-
-if [ "$SLUG" = "main" ]; then
-  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" $ACTION "$SERVICE" >/dev/null; then
-    echo "Failed to restart main services" >&2
-    exit 1
-  fi
-else
-  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" $ACTION "$SERVICE" --no-deps >/dev/null; then
-    echo "Failed to restart tenant application" >&2
     exit 1
   fi
 fi
