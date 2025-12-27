@@ -74,11 +74,15 @@
       window.transDomainSaved = '{{ t('notify_domain_saved')|e('js') }}';
       window.transDomainError = '{{ t('notify_domain_error')|e('js') }}';
       window.transDomainInvalid = '{{ t('notify_domain_invalid')|e('js') }}';
-    window.transDomainDeleted = '{{ t('notify_domain_deleted')|e('js') }}';
-    window.transDomainDeleteConfirm = '{{ t('confirm_domain_delete')|e('js') }}';
-    window.transEdit = '{{ t('action_edit')|e('js') }}';
-    window.transDelete = '{{ t('action_delete')|e('js') }}';
-    window.transRenewSsl = '{{ t('action_renew_ssl')|e('js') }}';
-  </script>
+      window.transDomainDeleted = '{{ t('notify_domain_deleted')|e('js') }}';
+      window.transDomainDeleteConfirm = '{{ t('confirm_domain_delete')|e('js') }}';
+      window.transEdit = '{{ t('action_edit')|e('js') }}';
+      window.transDelete = '{{ t('action_delete')|e('js') }}';
+      window.transRenewSsl = '{{ t('action_renew_ssl')|e('js') }}';
+      window.transProvisionSsl = '{{ t('action_provision_ssl')|e('js') }}';
+      window.transProvisionSslConfirm = '{{ t('confirm_provision_marketing_ssl')|e('js') }}';
+      window.transProvisionSslStarted = '{{ t('notify_provision_ssl_started')|e('js') }}';
+      window.transProvisionSslError = '{{ t('notify_provision_ssl_error')|e('js') }}';
+    </script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
 {% endblock %}

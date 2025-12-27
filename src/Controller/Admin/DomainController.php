@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Service\CertificateProvisionerInterface;
 use App\Service\DomainService;
+use App\Service\MarketingSslOrchestrator;
 use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use RuntimeException;
@@ -19,13 +20,16 @@ class DomainController
 {
     private DomainService $domainService;
     private ?CertificateProvisionerInterface $certificateProvisioningService;
+    private ?MarketingSslOrchestrator $marketingSslOrchestrator;
 
     public function __construct(
         DomainService $domainService,
-        ?CertificateProvisionerInterface $certificateProvisioningService = null
+        ?CertificateProvisionerInterface $certificateProvisioningService = null,
+        ?MarketingSslOrchestrator $marketingSslOrchestrator = null
     ) {
         $this->domainService = $domainService;
         $this->certificateProvisioningService = $certificateProvisioningService;
+        $this->marketingSslOrchestrator = $marketingSslOrchestrator;
     }
 
     public function index(Request $request, Response $response): Response
@@ -35,6 +39,48 @@ class DomainController
         $response->getBody()->write(json_encode([
             'domains' => $domains,
         ], JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function provisionSsl(Request $request, Response $response, array $args): Response
+    {
+        $id = isset($args['id']) ? (int) $args['id'] : 0;
+        if ($id <= 0) {
+            return $response->withStatus(400);
+        }
+
+        if ($this->marketingSslOrchestrator === null) {
+            return $this->jsonError($response, 'Certificate provisioning unavailable.', 503);
+        }
+
+        $domain = $this->domainService->getDomainById($id);
+        if ($domain === null) {
+            return $response->withStatus(404);
+        }
+
+        $namespace = (string) ($domain['namespace'] ?? '');
+        if (trim($namespace) === '') {
+            return $this->jsonError($response, 'Namespace is required for SSL provisioning.', 400);
+        }
+
+        $queryParams = $request->getQueryParams();
+        $dryRun = $this->normalizeBool($queryParams['dry_run'] ?? false);
+
+        try {
+            $this->marketingSslOrchestrator->trigger($namespace, $dryRun);
+        } catch (RuntimeException $exception) {
+            error_log('[marketing-ssl] provisioning failed: ' . $exception->getMessage());
+
+            return $this->jsonError($response, 'SSL provisioning failed.', 500);
+        }
+
+        $payload = [
+            'status' => 'started',
+            'namespace' => $namespace,
+        ];
+
+        $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
