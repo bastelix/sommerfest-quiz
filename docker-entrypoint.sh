@@ -401,4 +401,14 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     unset PGPASSWORD
 fi
 
+ssl_bootstrap=$(printf '%s' "${REQUEST_SSL_ON_STARTUP:-1}" | tr '[:upper:]' '[:lower:]')
+case "$ssl_bootstrap" in
+    1|true|yes|on)
+        if [ -f scripts/request_ssl_for_domains.php ]; then
+            echo "Triggering certificate request for configured domains"
+            php scripts/request_ssl_for_domains.php || true
+        fi
+        ;;
+esac
+
 exec $@

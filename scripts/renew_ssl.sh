@@ -173,9 +173,39 @@ resolve_slug() {
   fi
 }
 
-if [ "$#" -lt 1 ]; then
-  echo "Usage: $0 <tenant-slug>|--main" >&2
+usage() {
+  cat >&2 <<'EOF'
+Usage: scripts/renew_ssl.sh [--recreate] <tenant-slug>|--main
+
+Options:
+  --recreate   Recreate the target service instead of issuing a plain restart.
+               Use this when environment variables such as MARKETING_DOMAINS or
+               LETSENCRYPT_HOST have changed and the container must pick up the
+               new values so that docker-gen and acme-companion discover the
+               updated domain list.
+EOF
   exit 1
+}
+
+RECREATE="0"
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --recreate)
+      RECREATE="1"
+      shift
+      ;;
+    --help|-h)
+      usage
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "$#" -lt 1 ]; then
+  usage
 fi
 
 if [ -z "${TENANTS_DIR+x}" ] || [ -z "$TENANTS_DIR" ]; then
@@ -341,13 +371,19 @@ if [ -z "$DOCKER_COMPOSE" ]; then
   exit 1
 fi
 
+if [ "$RECREATE" = "1" ]; then
+  ACTION="up -d --force-recreate"
+else
+  ACTION="restart"
+fi
+
 if [ "$SLUG" = "main" ]; then
-  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" restart "$SERVICE" >/dev/null; then
+  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" $ACTION "$SERVICE" >/dev/null; then
     echo "Failed to restart main services" >&2
     exit 1
   fi
 else
-  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" restart "$SERVICE" --no-deps >/dev/null; then
+  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" $ACTION "$SERVICE" --no-deps >/dev/null; then
     echo "Failed to restart tenant application" >&2
     exit 1
   fi
