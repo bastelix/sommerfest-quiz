@@ -1,0 +1,21 @@
+{
+  "name": "sommerfest-quiz",
+  "version": "1.0.0",
+  "description": "Admin- und Marketing-Frontend f\u00fcr QuizRace",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npm run test:playwright",
+    "test:playwright": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
+}
