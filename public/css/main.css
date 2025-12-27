@@ -963,6 +963,17 @@ body.admin-page {
   background: #fff;
 }
 
+.page-editor .tiptap-editor:focus {
+  outline: 2px solid var(--accent-color, #1e87f0);
+  outline-offset: 2px;
+}
+
+.page-editor-toolbar .uk-button:focus-visible,
+.preview-link:focus-visible {
+  outline: 2px solid var(--accent-color, #1e87f0);
+  outline-offset: 3px;
+}
+
 .page-editor.landing-editor {
   background: var(--qr-bg);
   color: var(--qr-text);

@@ -1135,10 +1135,9 @@ const buildPageForm = page => {
   saveBtn.type = 'button';
   saveBtn.textContent = 'Speichern';
 
-  const previewLink = document.createElement('a');
+  const previewLink = document.createElement('button');
   previewLink.className = 'uk-button uk-button-default uk-margin-small-left preview-link';
-  previewLink.href = withNamespace(withBase(`/${slug}`));
-  previewLink.target = '_blank';
+  previewLink.type = 'button';
   previewLink.textContent = 'Vorschau';
 
   const deleteBtn = document.createElement('button');
@@ -1201,6 +1200,15 @@ const setupPageForm = form => {
         .catch(() => notify('Fehler beim Speichern', 'danger'));
     });
     saveBtn.dataset.bound = '1';
+  }
+
+  const previewBtn = form.querySelector('.preview-link');
+  if (previewBtn && !previewBtn.dataset.bound) {
+    previewBtn.addEventListener('click', event => {
+      event.preventDefault();
+      showPreview(form);
+    });
+    previewBtn.dataset.bound = '1';
   }
 
   const deleteBtn = form.querySelector('.delete-page-btn');
@@ -2198,8 +2206,8 @@ const bindPreviewModal = () => {
   modalEl.dataset.previewBound = '1';
 };
 
-export async function showPreview() {
-  const activeForm = document.querySelector('.page-form:not(.uk-hidden)');
+export async function showPreview(formOverride = null) {
+  const activeForm = formOverride || document.querySelector('.page-form:not(.uk-hidden)');
   const editor = activeForm ? ensurePageEditorInitialized(activeForm) : null;
   if (!editor) return;
   const html = sanitize(editor.getHTML());

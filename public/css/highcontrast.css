@@ -256,3 +256,40 @@ body[data-theme="dark"].high-contrast .flip-card-back {
   color: #ffffff;
   border: 2px solid #ffffff;
 }
+
+/* TipTap page editor */
+body.high-contrast .page-editor {
+  background: #ffffff;
+  border: 2px solid #000000;
+  color: #000000;
+}
+
+body.high-contrast .page-editor .tiptap-editor {
+  background: transparent;
+  color: #000000;
+}
+
+body.high-contrast .page-editor .tiptap-editor:focus {
+  outline: 3px solid #000000;
+  outline-offset: 2px;
+}
+
+body.high-contrast .page-editor-toolbar .uk-button,
+body.high-contrast .preview-link {
+  background: #ffffff;
+  border: 2px solid #000000;
+  color: #000000;
+}
+
+body[data-theme="dark"].high-contrast .page-editor-toolbar .uk-button,
+body[data-theme="dark"].high-contrast .preview-link {
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+body.high-contrast .page-editor-toolbar .uk-button:focus-visible,
+body.high-contrast .preview-link:focus-visible {
+  outline: 3px solid #000000;
+  outline-offset: 3px;
+}
