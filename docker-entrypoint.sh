@@ -118,6 +118,17 @@ start_container_metrics_logging() {
     done &
 }
 
+ssl_log() {
+    log_file="${SSL_LOG_FILE:-/var/www/logs/ssl_provisioning.log}"
+    log_dir=$(dirname "$log_file")
+
+    if [ ! -d "$log_dir" ]; then
+        mkdir -p "$log_dir" 2>/dev/null || true
+    fi
+
+    printf '[%s] %s\n' "$(date -Iseconds)" "$1" >> "$log_file"
+}
+
 metrics_enabled=$(printf '%s' "${CONTAINER_METRICS_LOGGING:-true}" | tr '[:upper:]' '[:lower:]')
 case "$metrics_enabled" in
     1|true|yes|on)
@@ -214,6 +225,7 @@ filter_resolvable_hosts() {
             filtered="$filtered,$host"
         else
             echo "Warning: LETSENCRYPT_HOST entry '$host' does not resolve; skipping" >&2
+            ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entry '$host'"
         fi
     done
     IFS=$old_ifs
@@ -272,12 +284,25 @@ case "$single_container_flag" in
 esac
 
 if [ -n "${LETSENCRYPT_HOST:-}" ]; then
-    filtered_hosts=$(filter_certificate_hosts "$LETSENCRYPT_HOST")
+    raw_letsencrypt_hosts=$(sanitize_host_list "$LETSENCRYPT_HOST")
+    ssl_log "LETSENCRYPT_HOST raw input: ${raw_letsencrypt_hosts:-<empty>}"
+
+    filtered_hosts=$(filter_certificate_hosts "$raw_letsencrypt_hosts")
+    if [ "$filtered_hosts" != "$raw_letsencrypt_hosts" ]; then
+        ssl_log "Removed unsupported hosts from LETSENCRYPT_HOST. Before: ${raw_letsencrypt_hosts:-<empty>} After: ${filtered_hosts:-<empty>}"
+    fi
+
     if [ -z "$filtered_hosts" ] && [ -n "$LETSENCRYPT_HOST" ]; then
         echo "Warning: LETSENCRYPT_HOST only contained unsupported nginx regex hosts; clearing value" >&2
     fi
+
     filtered_hosts=$(filter_resolvable_hosts "$filtered_hosts")
+    if [ -n "$raw_letsencrypt_hosts" ] && [ "$filtered_hosts" != "$raw_letsencrypt_hosts" ]; then
+        ssl_log "Removed non-resolvable LETSENCRYPT_HOST entries. Before: ${raw_letsencrypt_hosts:-<empty>} After: ${filtered_hosts:-<empty>}"
+    fi
+
     export LETSENCRYPT_HOST="$filtered_hosts"
+    ssl_log "Final LETSENCRYPT_HOST after filtering: ${filtered_hosts:-<empty>}"
 fi
 
 redact_host_list() {
@@ -327,11 +352,14 @@ if [ -n "$LETSENCRYPT_HOST" ]; then
         mkdir -p "$(dirname "$cache_file")"
         if [ ! -f "$cache_file" ] || [ "$(cat "$cache_file" 2>/dev/null)" != "$normalized_hosts" ]; then
             echo "$normalized_hosts" > "$cache_file"
+            ssl_log "Persisted LETSENCRYPT_HOST cache: ${normalized_hosts}"
             if [ -n "$NGINX_RELOADER_URL" ]; then
                 if curl -fs -X POST -H "X-Token: ${NGINX_RELOAD_TOKEN:-changeme}" "$NGINX_RELOADER_URL" >/dev/null; then
                     echo "Triggered nginx reload for updated certificate host list"
+                    ssl_log "Triggered nginx reload for updated certificate host list"
                 else
                     echo "Warning: Failed to trigger nginx reload at $NGINX_RELOADER_URL" >&2
+                    ssl_log "Failed to trigger nginx reload at $NGINX_RELOADER_URL"
                 fi
             fi
         fi
