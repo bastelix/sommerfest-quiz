@@ -228,9 +228,7 @@ class ProjectPagesController
     public function generateMenu(Request $request, Response $response, array $args): Response
     {
         $pageId = (int) ($args['pageId'] ?? 0);
-        $namespaceValidator = new NamespaceValidator();
-        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
-        $namespace = $domainNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
         $page = $this->pageService->findById($pageId);
         if ($page === null || $page->getNamespace() !== $namespace) {
@@ -268,9 +266,7 @@ class ProjectPagesController
     public function translateMenu(Request $request, Response $response, array $args): Response
     {
         $pageId = (int) ($args['pageId'] ?? 0);
-        $namespaceValidator = new NamespaceValidator();
-        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
-        $namespace = $domainNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
 
         $page = $this->pageService->findById($pageId);
         if ($page === null || $page->getNamespace() !== $namespace) {
@@ -322,9 +318,7 @@ class ProjectPagesController
             return $response->withStatus(400);
         }
 
-        $namespaceValidator = new NamespaceValidator();
-        $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
-        $namespace = $domainNamespace ?? $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $page = $this->pageService->findById($pageId);
         if ($page === null || $page->getNamespace() !== $namespace) {
             return $response->withStatus(404);
