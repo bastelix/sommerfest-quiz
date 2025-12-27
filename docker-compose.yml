@@ -1,3 +1,13 @@
+x-certbot-marketing-service: &certbot-marketing-service
+  image: nginx:alpine
+  restart: unless-stopped
+  environment:
+    VIRTUAL_HOST: ${MARKETING_LETSENCRYPT_HOST}
+    LETSENCRYPT_HOST: ${MARKETING_LETSENCRYPT_HOST}
+    LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+  networks:
+    - webproxy
+
 services:
   nginx:
     image: nginx:1.25-alpine
@@ -67,6 +77,12 @@ services:
       - htmldata:/usr/share/nginx/html
     networks:
       - webproxy
+
+  # Cert-only placeholder; duplicate per marketing namespace using the orchestrator-generated env file.
+  certbot-marketing-default:
+    <<: *certbot-marketing-service
+    env_file:
+      - .env.marketing.default
 
   postgres:
     image: postgres:15
