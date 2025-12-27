@@ -245,6 +245,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (is_string($namespace) && $namespace !== '') {
             $request = $request->withAttribute('namespace', $namespace);
             $request = $request->withAttribute('pageNamespace', $namespace);
+            $request = $request->withAttribute('domainNamespace', $namespace);
         }
 
         return $handler->handle($request);
