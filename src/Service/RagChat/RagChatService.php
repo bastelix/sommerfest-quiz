@@ -66,7 +66,7 @@ final class RagChatService implements RagChatServiceInterface
         'rag_chat_service_model' => 'RAG_CHAT_SERVICE_MODEL',
         'rag_chat_service_temperature' => 'RAG_CHAT_SERVICE_TEMPERATURE',
         'rag_chat_service_top_p' => 'RAG_CHAT_SERVICE_TOP_P',
-        'rag_chat_service_max_tokens' => 'RAG_CHAT_SERVICE_MAX_TOKENS',
+        'rag_chat_service_max_completion_tokens' => 'RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS',
         'rag_chat_service_presence_penalty' => 'RAG_CHAT_SERVICE_PRESENCE_PENALTY',
         'rag_chat_service_frequency_penalty' => 'RAG_CHAT_SERVICE_FREQUENCY_PENALTY',
     ];
@@ -74,7 +74,7 @@ final class RagChatService implements RagChatServiceInterface
     private const OPENAI_OPTION_KEYS = [
         'rag_chat_service_temperature' => 'temperature',
         'rag_chat_service_top_p' => 'top_p',
-        'rag_chat_service_max_tokens' => 'max_tokens',
+        'rag_chat_service_max_completion_tokens' => 'max_completion_tokens',
         'rag_chat_service_presence_penalty' => 'presence_penalty',
         'rag_chat_service_frequency_penalty' => 'frequency_penalty',
     ];

@@ -24,10 +24,10 @@ final class OpenAiChatResponder extends HttpChatResponder
         'RAG_CHAT_SERVICE_TOP_P' => 'top_p',
         'RAG_CHAT_SERVICE_PRESENCE_PENALTY' => 'presence_penalty',
         'RAG_CHAT_SERVICE_FREQUENCY_PENALTY' => 'frequency_penalty',
-        'RAG_CHAT_SERVICE_MAX_TOKENS' => 'max_tokens',
+        'RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS' => 'max_completion_tokens',
     ];
 
-    private const DEFAULT_MAX_TOKENS = 320;
+    private const DEFAULT_MAX_COMPLETION_TOKENS = 320;
 
     private string $model;
 
@@ -87,7 +87,7 @@ final class OpenAiChatResponder extends HttpChatResponder
      */
     private function loadOptionsFromEnv(): array
     {
-        $options = ['max_tokens' => self::DEFAULT_MAX_TOKENS];
+        $options = ['max_completion_tokens' => self::DEFAULT_MAX_COMPLETION_TOKENS];
 
         foreach (self::OPTION_MAP as $envKey => $payloadKey) {
             $value = $this->envOrNull($envKey);
@@ -115,7 +115,7 @@ final class OpenAiChatResponder extends HttpChatResponder
                 continue;
             }
 
-            if ($key === 'max_tokens') {
+            if ($key === 'max_completion_tokens') {
                 if (is_int($value)) {
                     $normalised[$key] = $value;
                     continue;

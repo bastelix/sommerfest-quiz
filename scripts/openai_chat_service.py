@@ -92,7 +92,7 @@ OPTION_MAP: Dict[str, Tuple[str, Callable[[str], Optional[Any]]]] = {
     "RAG_CHAT_SERVICE_TOP_P": ("top_p", _load_float_option),
     "RAG_CHAT_SERVICE_PRESENCE_PENALTY": ("presence_penalty", _load_float_option),
     "RAG_CHAT_SERVICE_FREQUENCY_PENALTY": ("frequency_penalty", _load_float_option),
-    "RAG_CHAT_SERVICE_MAX_TOKENS": ("max_tokens", _load_int_option),
+    "RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS": ("max_completion_tokens", _load_int_option),
 }
 
 
