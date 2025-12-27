@@ -1585,7 +1585,49 @@ const initAiPageCreation = () => {
     return fallback;
   };
 
-  const syncColorDisplay = (input, display, fallback) => {
+  const getColorTokens = () => ({
+    primary: normaliseColorValue(primaryColorInput?.value, defaultColorTokens.primary),
+    background: normaliseColorValue(backgroundColorInput?.value, defaultColorTokens.background),
+    accent: normaliseColorValue(accentColorInput?.value, defaultColorTokens.accent)
+  });
+
+  const getColorTokensText = () => Object.entries(getColorTokens())
+    .filter(([, value]) => Boolean(value))
+    .map(([key, value]) => `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${value}`)
+    .join('; ');
+
+  const stripTokensFromValue = value => {
+    const tokensText = getColorTokensText();
+    if (!tokensText) {
+      return (value || '').trim();
+    }
+
+    const escapedTokens = tokensText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = new RegExp(`\\s*${escapedTokens}$`);
+    return (value || '').replace(pattern, '').trim();
+  };
+
+  const applyColorTokensToScheme = () => {
+    if (!colorSchemeInput) {
+      return;
+    }
+    const manualValue = stripTokensFromValue(colorSchemeInput.dataset.manual || colorSchemeInput.value);
+    colorSchemeInput.dataset.manual = manualValue;
+
+    const colorTokensText = getColorTokensText();
+    const combined = [manualValue, colorTokensText].filter(Boolean).join(' ').trim();
+    colorSchemeInput.value = combined;
+  };
+
+  if (colorSchemeInput) {
+    colorSchemeInput.dataset.manual = stripTokensFromValue(colorSchemeInput.value);
+    colorSchemeInput.addEventListener('input', () => {
+      colorSchemeInput.dataset.manual = stripTokensFromValue(colorSchemeInput.value);
+      applyColorTokensToScheme();
+    });
+  }
+
+  const syncColorDisplay = (input, display, fallback, onChange) => {
     if (!input) {
       return;
     }
@@ -1595,15 +1637,19 @@ const initAiPageCreation = () => {
       if (display) {
         display.textContent = value;
       }
+      if (typeof onChange === 'function') {
+        onChange();
+      }
     };
     updateDisplay();
     input.addEventListener('input', updateDisplay);
     input.addEventListener('change', updateDisplay);
   };
 
-  syncColorDisplay(primaryColorInput, colorValueDisplays.primary, defaultColorTokens.primary);
-  syncColorDisplay(backgroundColorInput, colorValueDisplays.background, defaultColorTokens.background);
-  syncColorDisplay(accentColorInput, colorValueDisplays.accent, defaultColorTokens.accent);
+  syncColorDisplay(primaryColorInput, colorValueDisplays.primary, defaultColorTokens.primary, applyColorTokensToScheme);
+  syncColorDisplay(backgroundColorInput, colorValueDisplays.background, defaultColorTokens.background, applyColorTokensToScheme);
+  syncColorDisplay(accentColorInput, colorValueDisplays.accent, defaultColorTokens.accent, applyColorTokensToScheme);
+  applyColorTokensToScheme();
 
   const setFeedback = message => {
     if (!feedback) {
@@ -1698,15 +1744,7 @@ const initAiPageCreation = () => {
     const themeValue = (themeInput?.value || '').trim();
     const colorSchemeValue = (colorSchemeInput?.value || '').trim();
     const problemValue = (problemInput?.value || '').trim();
-    const colorTokens = {
-      primary: normaliseColorValue(primaryColorInput?.value, defaultColorTokens.primary),
-      background: normaliseColorValue(backgroundColorInput?.value, defaultColorTokens.background),
-      accent: normaliseColorValue(accentColorInput?.value, defaultColorTokens.accent)
-    };
-    const colorTokensText = Object.entries(colorTokens)
-      .filter(([, value]) => Boolean(value))
-      .map(([key, value]) => `${key.charAt(0).toUpperCase()}${key.slice(1)}: ${value}`)
-      .join('; ');
+    const colorTokensText = getColorTokensText();
     const colorSchemeWithTokens = [colorSchemeValue, colorTokensText].filter(Boolean).join(' ').trim();
     const promptTemplateId = (promptTemplateSelect?.value || '').trim();
     const shouldCreateMenuItem = Boolean(createMenuItemCheckbox?.checked);
