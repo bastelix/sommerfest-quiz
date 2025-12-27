@@ -2997,6 +2997,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const DASHBOARD_POINTS_LEADER_MIN_LIMIT = 1;
   const DASHBOARD_POINTS_LEADER_MAX_LIMIT = 10;
   const DASHBOARD_POINTS_LEADER_DEFAULT_LIMIT = 5;
+  const DASHBOARD_CONTAINER_REFRESH_DEFAULT = 30;
+  const DASHBOARD_CONTAINER_REFRESH_MIN = 5;
+  const DASHBOARD_CONTAINER_REFRESH_MAX = 300;
+  const DASHBOARD_CONTAINER_CPU_MAX = 400;
   const DASHBOARD_RESULTS_DEFAULT_INTERVAL = 10;
   const DASHBOARD_RESULTS_PAGE_INTERVAL_MIN = 1;
   const DASHBOARD_RESULTS_PAGE_INTERVAL_MAX = 300;
@@ -3032,7 +3036,8 @@ document.addEventListener('DOMContentLoaded', function () {
     { id: 'wrongAnswers', enabled: false, layout: 'auto', options: { title: 'Falsch beantwortete Fragen' } },
     { id: 'infoBanner', enabled: false, layout: 'auto', options: { title: 'Hinweise' } },
     { id: 'qrCodes', enabled: false, layout: 'auto', options: { catalogs: [], title: 'Katalog-QR-Codes' } },
-    { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } }
+    { id: 'media', enabled: false, layout: 'auto', options: { title: 'Highlights' } },
+    { id: 'containerMetrics', enabled: false, layout: 'auto', options: { title: 'Container-Metriken', refreshInterval: 30, maxMemoryMb: null, cpuMaxPercent: 100 } }
   ];
   const DASHBOARD_DEFAULT_MODULE_MAP = new Map(DASHBOARD_DEFAULT_MODULES.map(module => [module.id, module]));
   const normalizeDashboardResultsLimit = (value) => {
@@ -3101,6 +3106,46 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (parsed > DASHBOARD_POINTS_LEADER_MAX_LIMIT) {
       return DASHBOARD_POINTS_LEADER_MAX_LIMIT;
+    }
+    return parsed;
+  };
+
+  const normalizeContainerRefreshInterval = (value, fallback = DASHBOARD_CONTAINER_REFRESH_DEFAULT) => {
+    const candidate = Number.parseInt(String(value ?? fallback).trim(), 10);
+    if (Number.isNaN(candidate)) {
+      return fallback;
+    }
+    if (candidate < DASHBOARD_CONTAINER_REFRESH_MIN) {
+      return DASHBOARD_CONTAINER_REFRESH_MIN;
+    }
+    if (candidate > DASHBOARD_CONTAINER_REFRESH_MAX) {
+      return DASHBOARD_CONTAINER_REFRESH_MAX;
+    }
+    return candidate;
+  };
+
+  const normalizeContainerMaxMemoryMb = (value) => {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    const normalized = String(value).trim();
+    if (normalized === '') {
+      return null;
+    }
+    const parsed = Number.parseInt(normalized, 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return null;
+    }
+    return parsed;
+  };
+
+  const normalizeContainerCpuMaxPercent = (value, fallback = 100) => {
+    const parsed = Number.parseInt(String(value ?? fallback).trim(), 10);
+    if (Number.isNaN(parsed) || parsed <= 0) {
+      return fallback;
+    }
+    if (parsed > DASHBOARD_CONTAINER_CPU_MAX) {
+      return DASHBOARD_CONTAINER_CPU_MAX;
     }
     return parsed;
   };
@@ -3179,6 +3224,36 @@ document.addEventListener('DOMContentLoaded', function () {
         : defaults.limit
     ) ?? normalizeDashboardPointsLeaderLimit(defaults.limit) ?? DASHBOARD_POINTS_LEADER_DEFAULT_LIMIT;
     field.value = String(fallback);
+  }
+
+  function applyContainerMetricsOptions(item, options = {}) {
+    if (!item) {
+      return;
+    }
+    const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get('containerMetrics')?.options || {};
+    const refreshField = item.querySelector('[data-module-container-refresh]');
+    if (refreshField) {
+      const baseRefresh = normalizeContainerRefreshInterval(defaults.refreshInterval, DASHBOARD_CONTAINER_REFRESH_DEFAULT);
+      const resolvedRefresh = normalizeContainerRefreshInterval(
+        Object.prototype.hasOwnProperty.call(options, 'refreshInterval') ? options.refreshInterval : baseRefresh,
+        baseRefresh
+      );
+      refreshField.value = String(resolvedRefresh);
+    }
+    const memoryField = item.querySelector('[data-module-container-memory]');
+    if (memoryField) {
+      const memoryValue = normalizeContainerMaxMemoryMb(options.maxMemoryMb ?? defaults.maxMemoryMb ?? null);
+      memoryField.value = memoryValue === null ? '' : String(memoryValue);
+    }
+    const cpuField = item.querySelector('[data-module-container-cpu-max]');
+    if (cpuField) {
+      const baseCpu = normalizeContainerCpuMaxPercent(defaults.cpuMaxPercent, 100);
+      const resolvedCpu = normalizeContainerCpuMaxPercent(
+        Object.prototype.hasOwnProperty.call(options, 'cpuMaxPercent') ? options.cpuMaxPercent : baseCpu,
+        baseCpu
+      );
+      cpuField.value = String(resolvedCpu);
+    }
   }
 
   function syncDashboardResultsPageSizeState(item) {
@@ -3743,6 +3818,26 @@ document.addEventListener('DOMContentLoaded', function () {
           : null;
         const resolvedLimit = limitValue ?? fallbackLimit;
         entry.options = { limit: resolvedLimit };
+      } else if (id === 'containerMetrics') {
+        const defaults = DASHBOARD_DEFAULT_MODULE_MAP.get(id)?.options || {};
+        const refreshField = item.querySelector('[data-module-container-refresh]');
+        const memoryField = item.querySelector('[data-module-container-memory]');
+        const cpuField = item.querySelector('[data-module-container-cpu-max]');
+        const baseRefresh = normalizeContainerRefreshInterval(defaults.refreshInterval, DASHBOARD_CONTAINER_REFRESH_DEFAULT);
+        const refreshValue = refreshField
+          ? normalizeContainerRefreshInterval(refreshField.value, baseRefresh)
+          : baseRefresh;
+        const maxMemoryValue = memoryField
+          ? normalizeContainerMaxMemoryMb(memoryField.value)
+          : normalizeContainerMaxMemoryMb(defaults.maxMemoryMb ?? null);
+        const cpuMaxValue = cpuField
+          ? normalizeContainerCpuMaxPercent(cpuField.value, defaults.cpuMaxPercent ?? 100)
+          : normalizeContainerCpuMaxPercent(defaults.cpuMaxPercent ?? 100, 100);
+        entry.options = {
+          refreshInterval: refreshValue,
+          maxMemoryMb: maxMemoryValue,
+          cpuMaxPercent: cpuMaxValue,
+        };
       } else if (id === DASHBOARD_QR_MODULE_ID) {
         const catalogs = [];
         item.querySelectorAll('[data-module-catalog]').forEach(catalogEl => {
@@ -3857,6 +3952,8 @@ document.addEventListener('DOMContentLoaded', function () {
         applyDashboardResultsOptions(item, module.id, module.options || {});
       } else if (module.id === 'pointsLeader') {
         applyDashboardPointsLeaderOptions(item, module.options || {});
+      } else if (module.id === 'containerMetrics') {
+        applyContainerMetricsOptions(item, module.options || {});
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
@@ -3884,6 +3981,8 @@ document.addEventListener('DOMContentLoaded', function () {
         applyDashboardResultsOptions(item, module.id, module.options || {});
       } else if (module.id === 'pointsLeader') {
         applyDashboardPointsLeaderOptions(item, module.options || {});
+      } else if (module.id === 'containerMetrics') {
+        applyContainerMetricsOptions(item, module.options || {});
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });

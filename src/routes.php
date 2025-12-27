@@ -113,6 +113,7 @@ use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainController;
 use App\Controller\Admin\MailProviderController;
+use App\Controller\Admin\SystemMetricsController;
 use App\Controller\Admin\UsernameBlocklistController;
 use App\Controller\Admin\PromptTemplateController;
 use App\Controller\Admin\DomainContactTemplateController;
@@ -1141,6 +1142,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/system/metrics', SystemMetricsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/media', AdminController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/admin/media/files', function (Request $request, Response $response): Response {

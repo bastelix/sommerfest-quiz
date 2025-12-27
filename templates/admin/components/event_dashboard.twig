@@ -319,6 +319,48 @@
                   </div>
                 </div>
               </li>
+              <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="containerMetrics">
+                <div class="uk-flex uk-flex-between uk-flex-middle">
+                  <div>
+                    <h4 class="uk-margin-remove">{{ t('label_dashboard_module_container_metrics') }}</h4>
+                    <p class="uk-text-meta uk-margin-remove-top">{{ t('text_dashboard_module_container_metrics_hint') }}</p>
+                  </div>
+                  <div class="uk-flex uk-flex-middle">
+                    <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                    <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> {{ t('label_dashboard_module_visible') }}</label>
+                  </div>
+                </div>
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="cfgDashboardLayoutContainerMetrics">{{ t('label_dashboard_module_layout') }}</label>
+                  <select class="uk-select uk-form-small" id="cfgDashboardLayoutContainerMetrics" data-module-layout data-default-layout="auto">
+                    <option value="auto">{{ t('option_dashboard_layout_auto') }}</option>
+                    <option value="wide">{{ t('option_dashboard_layout_wide') }}</option>
+                    <option value="full">{{ t('option_dashboard_layout_full') }}</option>
+                  </select>
+                </div>
+                <div class="uk-margin-small-top" data-module-options>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardContainerRefresh">{{ t('label_dashboard_container_refresh_interval') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="5" max="300" id="cfgDashboardContainerRefresh" data-module-container-refresh placeholder="{{ config.dashboardRefreshInterval|default(15) }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_container_refresh_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardContainerMemory">{{ t('label_dashboard_container_memory_cap') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="0" id="cfgDashboardContainerMemory" data-module-container-memory placeholder="0">
+                    <div class="uk-text-meta">{{ t('text_dashboard_container_memory_cap_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardContainerCpu">{{ t('label_dashboard_container_cpu_cap') }}</label>
+                    <input class="uk-input uk-form-small" type="number" min="10" max="400" id="cfgDashboardContainerCpu" data-module-container-cpu-max placeholder="100">
+                    <div class="uk-text-meta">{{ t('text_dashboard_container_cpu_cap_hint') }}</div>
+                  </div>
+                  <div class="uk-margin-small">
+                    <label class="uk-form-label" for="cfgDashboardContainerTitle">{{ t('label_dashboard_module_title') }}</label>
+                    <input class="uk-input uk-form-small" type="text" id="cfgDashboardContainerTitle" data-module-title placeholder="{{ t('label_dashboard_module_container_metrics') }}">
+                    <div class="uk-text-meta">{{ t('text_dashboard_container_title_hint') }}</div>
+                  </div>
+                </div>
+              </li>
             </ul>
           </div>
           <div class="uk-margin">

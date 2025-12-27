@@ -76,6 +76,10 @@ class ConfigValidator
 
     private const DASHBOARD_MAX_REFRESH = 300;
 
+    private const DASHBOARD_CONTAINER_REFRESH_DEFAULT = 30;
+
+    private const DASHBOARD_CONTAINER_CPU_MAX_PERCENT = 400;
+
     public const RANDOM_NAME_ALLOWED_DOMAINS = [
         'nature',
         'science',
@@ -538,6 +542,52 @@ class ConfigValidator
         return $amount . $unit;
     }
 
+    private function normalizeContainerRefreshInterval($value, int $fallback): int
+    {
+        $raw = is_numeric($value) ? (int) $value : (is_numeric($fallback) ? (int) $fallback : self::DASHBOARD_CONTAINER_REFRESH_DEFAULT);
+        if ($raw < self::DASHBOARD_MIN_REFRESH) {
+            return self::DASHBOARD_MIN_REFRESH;
+        }
+
+        if ($raw > self::DASHBOARD_MAX_REFRESH) {
+            return self::DASHBOARD_MAX_REFRESH;
+        }
+
+        return $raw;
+    }
+
+    private function normalizeContainerMaxMemoryMb($value): ?int
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (is_string($value) && trim($value) === '') {
+            return null;
+        }
+        if (!is_numeric($value)) {
+            return null;
+        }
+        $parsed = (int) $value;
+        if ($parsed <= 0) {
+            return null;
+        }
+
+        return $parsed;
+    }
+
+    private function normalizeContainerCpuMaxPercent($value, int $fallback): int
+    {
+        $raw = is_numeric($value) ? (int) $value : $fallback;
+        if ($raw < 1) {
+            $raw = $fallback;
+        }
+        if ($raw > self::DASHBOARD_CONTAINER_CPU_MAX_PERCENT) {
+            return self::DASHBOARD_CONTAINER_CPU_MAX_PERCENT;
+        }
+
+        return $raw;
+    }
+
     /**
      * @return array<int,array{id:string,enabled:bool,layout:string,options?:array<string,mixed>}>
      */
@@ -605,6 +655,17 @@ class ConfigValidator
                 'enabled' => false,
                 'layout' => 'auto',
                 'options' => ['title' => 'Highlights'],
+            ],
+            [
+                'id' => 'containerMetrics',
+                'enabled' => false,
+                'layout' => 'auto',
+                'options' => [
+                    'title' => 'Container-Metriken',
+                    'refreshInterval' => self::DASHBOARD_CONTAINER_REFRESH_DEFAULT,
+                    'maxMemoryMb' => null,
+                    'cpuMaxPercent' => 100,
+                ],
             ],
         ];
     }
@@ -743,6 +804,35 @@ class ConfigValidator
                 $fallbackTitle = isset($baseOptions['title']) ? (string)$baseOptions['title'] : '';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
                 $entry['options'] = ['title' => $title, 'limit' => $limit];
+            } elseif ($id === 'containerMetrics') {
+                $fallbackRefresh = $this->normalizeContainerRefreshInterval(
+                    $baseOptions['refreshInterval'] ?? null,
+                    self::DASHBOARD_CONTAINER_REFRESH_DEFAULT
+                );
+                $refreshInterval = $this->normalizeContainerRefreshInterval(
+                    $options['refreshInterval'] ?? null,
+                    $fallbackRefresh
+                );
+                $maxMemoryMb = $this->normalizeContainerMaxMemoryMb($options['maxMemoryMb'] ?? null);
+                if ($maxMemoryMb === null) {
+                    $maxMemoryMb = $this->normalizeContainerMaxMemoryMb($baseOptions['maxMemoryMb'] ?? null);
+                }
+                $fallbackCpuMax = $this->normalizeContainerCpuMaxPercent(
+                    $baseOptions['cpuMaxPercent'] ?? null,
+                    100
+                );
+                $cpuMaxPercent = $this->normalizeContainerCpuMaxPercent(
+                    $options['cpuMaxPercent'] ?? null,
+                    $fallbackCpuMax
+                );
+                $fallbackTitle = isset($baseOptions['title']) ? (string) $baseOptions['title'] : 'Container-Metriken';
+                $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);
+                $entry['options'] = [
+                    'title' => $title,
+                    'refreshInterval' => $refreshInterval,
+                    'maxMemoryMb' => $maxMemoryMb,
+                    'cpuMaxPercent' => $cpuMaxPercent,
+                ];
             } elseif (in_array($id, ['wrongAnswers', 'infoBanner', 'rankingQr', 'media'], true)) {
                 $fallbackTitle = isset($baseOptions['title']) ? (string)$baseOptions['title'] : '';
                 $title = $this->normalizeModuleTitle($options['title'] ?? null, $fallbackTitle);

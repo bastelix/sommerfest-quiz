@@ -531,6 +531,48 @@
                       </div>
                     </div>
                   </li>
+                  <li class="uk-card uk-card-default uk-card-small uk-card-body" data-module-id="containerMetrics">
+                    <div class="uk-flex uk-flex-between uk-flex-middle">
+                      <div>
+                        <h4 class="uk-margin-remove">Container-Metriken</h4>
+                        <p class="uk-text-meta uk-margin-remove-top">CPU-, Speicher- und OOM-Werte des Containers.</p>
+                      </div>
+                      <div class="uk-flex uk-flex-middle">
+                        <span class="module-handle uk-margin-small-right" uk-icon="icon: table"></span>
+                        <label class="uk-margin-remove"><input class="uk-checkbox" type="checkbox" data-module-toggle> Anzeigen</label>
+                      </div>
+                    </div>
+                    <div class="uk-margin-small-top">
+                      <label class="uk-form-label" for="dashboardLayoutContainer">Layout</label>
+                      <select class="uk-select uk-form-small" id="dashboardLayoutContainer" data-module-layout data-default-layout="auto">
+                        <option value="auto">Automatisch (eine Spalte)</option>
+                        <option value="wide">Breit (zwei Spalten)</option>
+                        <option value="full">Volle Breite</option>
+                      </select>
+                    </div>
+                    <div class="uk-margin-small-top" data-module-options>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardContainerRefresh">Aktualisierungsintervall (Sekunden)</label>
+                        <input class="uk-input uk-form-small" type="number" min="5" max="300" id="dashboardContainerRefresh" data-module-container-refresh placeholder="15">
+                        <div class="uk-text-meta">Leer lassen, um das globale Intervall zu nutzen.</div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardContainerMemory">Referenz-Speicherlimit (MB)</label>
+                        <input class="uk-input uk-form-small" type="number" min="0" id="dashboardContainerMemory" data-module-container-memory placeholder="0">
+                        <div class="uk-text-meta">Optional, falls kein cgroup-Limit vorliegt.</div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardContainerCpu">CPU-Obergrenze (%)</label>
+                        <input class="uk-input uk-form-small" type="number" min="10" max="400" id="dashboardContainerCpu" data-module-container-cpu-max placeholder="100">
+                        <div class="uk-text-meta">Deckelung der Anzeige; Werte darüber werden begrenzt.</div>
+                      </div>
+                      <div class="uk-margin-small">
+                        <label class="uk-form-label" for="dashboardContainerTitle">Überschrift</label>
+                        <input class="uk-input uk-form-small" type="text" id="dashboardContainerTitle" data-module-title placeholder="Container-Metriken">
+                        <div class="uk-text-meta">Optionaler Titel für die Kachel.</div>
+                      </div>
+                    </div>
+                  </li>
                 </ul>
               </div>
               <div class="uk-margin">
