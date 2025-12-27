@@ -229,6 +229,7 @@ class AdminController
             $pageSvc = new PageService($pdo);
             $seoSvc = new PageSeoConfigService($pdo);
             $landingNewsService = new LandingNewsService($pdo);
+            $domainService = new DomainService($pdo);
             if ($section === 'media') {
                 $landingReferenceService = new LandingMediaReferenceService(
                     $pageSvc,
@@ -247,7 +248,6 @@ class AdminController
             }
 
             if ($loadDomainChatData) {
-                $domainService = new DomainService($pdo);
                 $domainChatDomains = $domainService->listDomains(includeInactive: true);
 
                 $domainChatPages = [];
