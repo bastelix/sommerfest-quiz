@@ -401,8 +401,8 @@ const apiFetch = (path, options = {}) => {
   return fetcher(path, options);
 };
 
+const UIKIT_FILENAME = 'uikit.min.css';
 const LANDING_STYLE_FILENAMES = [
-  'uikit.min.css',
   'landing.css',
   'onboarding.css',
   'topbar.landing.css'
@@ -450,12 +450,13 @@ function ensureLandingFont() {
   document.head.appendChild(fontLink);
 }
 
-const buildLandingStyleSources = () => {
+const buildLandingStyleSources = (options = {}) => {
   const namespace = resolvePageNamespace();
   const normalized = (namespace || '').trim().toLowerCase();
   const hasCustomNamespace = normalized && normalized !== 'default';
   const hasNamespacedAssets = hasCustomNamespace && LANDING_NAMESPACE_ASSET_FOLDERS.has(normalized);
-  return LANDING_STYLE_FILENAMES.map(file => {
+  const files = options.includeUikit ? [UIKIT_FILENAME, ...LANDING_STYLE_FILENAMES] : LANDING_STYLE_FILENAMES;
+  return files.map(file => {
     const defaultPath = withBase(`/css/${file}`);
     if (!hasNamespacedAssets) {
       return [defaultPath];
@@ -464,7 +465,7 @@ const buildLandingStyleSources = () => {
   });
 };
 
-function ensureScopedLandingStyles(styleId, scopeSelector) {
+function ensureScopedLandingStyles(styleId, scopeSelector, options = {}) {
   const namespace = resolvePageNamespace() || 'default';
   const existingStyle = document.getElementById(styleId);
   if (existingStyle && existingStyle.dataset.namespace === namespace) {
@@ -477,7 +478,7 @@ function ensureScopedLandingStyles(styleId, scopeSelector) {
   if (landingStylesPromises[cacheKey]) {
     return landingStylesPromises[cacheKey];
   }
-  const requests = buildLandingStyleSources().map(paths => fetchCssWithFallback(paths));
+  const requests = buildLandingStyleSources(options).map(paths => fetchCssWithFallback(paths));
   landingStylesPromises[cacheKey] = Promise.all(requests).then(chunks => {
     const scoped = chunks
       .map(chunk => scopeLandingCss(chunk, scopeSelector))
@@ -500,7 +501,7 @@ function ensureScopedLandingStyles(styleId, scopeSelector) {
 }
 
 function ensureLandingEditorStyles() {
-  return ensureScopedLandingStyles('landing-editor-styles', '.landing-editor');
+  return ensureScopedLandingStyles('landing-editor-styles', '.landing-editor', { includeUikit: true });
 }
 
 function scopeLandingCss(css, scopeSelector) {
