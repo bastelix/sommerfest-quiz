@@ -70,7 +70,14 @@ load_env_defaults "$SCRIPT_DIR/../.env" \
   NGINX_CONTAINER "" \
   MAIN_DOMAIN "" \
   DOMAIN "" \
-  DOMAIN_STRIPPED_PREFIXES ""
+  DOMAIN_STRIPPED_PREFIXES "" \
+  MARKETING_DOMAINS "" \
+  SLIM_LETSENCRYPT_HOST "" \
+  SLIM_VIRTUAL_HOST "" \
+  LETSENCRYPT_HOST "" \
+  ACME_COMPANION_CONTAINER "" \
+  SSL_CERT_WAIT_SECONDS "" \
+  SSL_CERT_POLL_INTERVAL_SECONDS ""
 
 build_alias_list() {
   config=$(printf '%s' "${DOMAIN_STRIPPED_PREFIXES:-}" | tr '[:upper:]' '[:lower:]')
@@ -106,6 +113,16 @@ elif [ -n "${DOMAIN+x}" ] && [ -n "$DOMAIN" ]; then
 fi
 
 MAIN_ALIAS_LIST="$(build_alias_list)"
+CERT_DIR="$SCRIPT_DIR/../certs"
+
+trim() {
+  printf '%s' "$1" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+}
+
+normalize_csv_list() {
+  raw=$(printf '%s' "$1" | tr '\n' ',')
+  printf '%s' "$raw" | tr '\t ' ',' | sed 's/,,*/,/g; s/^,//; s/,$//'
+}
 
 is_main_alias() {
   candidate=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
@@ -251,6 +268,24 @@ else
   NGINX_CONTAINER_NAME="nginx"
 fi
 
+if [ -n "${ACME_COMPANION_CONTAINER+x}" ]; then
+  ACME_CONTAINER_NAME="$ACME_COMPANION_CONTAINER"
+else
+  ACME_CONTAINER_NAME="acme-companion"
+fi
+
+if [ -n "${SSL_CERT_WAIT_SECONDS+x}" ] && [ -n "$SSL_CERT_WAIT_SECONDS" ]; then
+  CERT_WAIT_SECONDS="$SSL_CERT_WAIT_SECONDS"
+else
+  CERT_WAIT_SECONDS="60"
+fi
+
+if [ -n "${SSL_CERT_POLL_INTERVAL_SECONDS+x}" ] && [ -n "$SSL_CERT_POLL_INTERVAL_SECONDS" ]; then
+  CERT_POLL_INTERVAL="$SSL_CERT_POLL_INTERVAL_SECONDS"
+else
+  CERT_POLL_INTERVAL="2"
+fi
+
 if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
   SLUG="main"
 else
@@ -292,6 +327,150 @@ compose_cmd() {
   else
     $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" "$@"
   fi
+}
+
+compose_letsencrypt_hosts() {
+  if ! config_output=$(compose_cmd config 2>/dev/null); then
+    return 1
+  fi
+
+  hosts=$(printf '%s\n' "$config_output" | awk 'tolower($1) ~ /letsencrypt_host:/ { $1=""; gsub("^[[:space:]]+", ""); print; exit }')
+  hosts=$(normalize_csv_list "$hosts")
+
+  if [ -n "$hosts" ]; then
+    printf '%s' "$hosts"
+    return 0
+  fi
+
+  return 1
+}
+
+resolve_letsencrypt_hosts() {
+  if hosts=$(compose_letsencrypt_hosts 2>/dev/null); then
+    if [ -n "$hosts" ]; then
+      printf '%s' "$hosts"
+      return 0
+    fi
+  fi
+
+  if [ -n "${LETSENCRYPT_HOST+x}" ] && [ -n "$LETSENCRYPT_HOST" ]; then
+    printf '%s' "$(normalize_csv_list "$LETSENCRYPT_HOST")"
+    return 0
+  fi
+
+  if [ "$SLUG" = "main" ]; then
+    base_host="${SLIM_LETSENCRYPT_HOST:-${SLIM_VIRTUAL_HOST:-${BASE_DOMAIN:-}}}"
+    base_host=$(trim "$base_host")
+
+    if [ -n "$base_host" ]; then
+      marketing="$(normalize_csv_list "$MARKETING_DOMAINS")"
+      if [ -n "$marketing" ]; then
+        printf '%s,%s' "$base_host" "$marketing"
+      else
+        printf '%s' "$base_host"
+      fi
+      return 0
+    fi
+  elif [ -n "$BASE_DOMAIN" ]; then
+    printf '%s.%s' "$SLUG" "$BASE_DOMAIN"
+    return 0
+  fi
+
+  return 1
+}
+
+certificate_present_for_domain() {
+  domain=$(trim "$1")
+
+  if [ -z "$domain" ]; then
+    return 1
+  fi
+
+  candidate_files=$(cat <<EOF
+$CERT_DIR/${domain}.crt
+$CERT_DIR/${domain}.fullchain.pem
+$CERT_DIR/${domain}.pem
+$CERT_DIR/${domain}/fullchain.pem
+$CERT_DIR/${domain}/fullchain.cer
+$CERT_DIR/${domain}/fullchain.crt
+$CERT_DIR/${domain}/cert.pem
+EOF
+)
+
+  for candidate in $candidate_files; do
+    if [ -f "$candidate" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+acme_logs_show_success() {
+  domain=$(trim "$1")
+  since_ref="$2"
+
+  if [ -z "$domain" ]; then
+    return 1
+  fi
+
+  if ! command -v docker >/dev/null 2>&1; then
+    return 1
+  fi
+
+  if ! docker ps --format '{{.Names}}' | grep -qx "$ACME_CONTAINER_NAME" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  logs=$(docker logs --since "$since_ref" "$ACME_CONTAINER_NAME" 2>/dev/null || true)
+  if [ -z "$logs" ]; then
+    return 1
+  fi
+
+  if printf '%s\n' "$logs" | grep -i "$domain" | grep -Ei "(success|succeed|valid|renew|issued|certificate)" >/dev/null 2>&1; then
+    return 0
+  fi
+
+  return 1
+}
+
+wait_for_certificate_confirmation() {
+  domains=$(normalize_csv_list "$1")
+  since_ref="$2"
+
+  if [ -z "$domains" ]; then
+    echo "Unable to determine target domains for certificate verification" >&2
+    return 1
+  fi
+
+  primary_domain=$(printf '%s\n' "$domains" | tr ',' '\n' | sed '/^$/d' | head -n1)
+  start_ts=$(date +%s)
+
+  while :; do
+    for domain in $(printf '%s' "$domains" | tr ',' ' '); do
+      domain=$(trim "$domain")
+      if [ -z "$domain" ]; then
+        continue
+      fi
+
+      if certificate_present_for_domain "$domain"; then
+        return 0
+      fi
+    done
+
+    if acme_logs_show_success "$primary_domain" "$since_ref"; then
+      return 0
+    fi
+
+    now=$(date +%s)
+    if [ $((now - start_ts)) -ge "$CERT_WAIT_SECONDS" ]; then
+      break
+    fi
+
+    sleep "$CERT_POLL_INTERVAL"
+  done
+
+  return 1
 }
 
 reload_via_webhook() {
@@ -365,6 +544,8 @@ else
   fi
 fi
 
+LOG_REFERENCE_TIME=$(date -Iseconds 2>/dev/null || date -u +"%Y-%m-%dT%H:%M:%SZ")
+
 WEBHOOK_RESULT=0
 if [ "$RELOAD_FLAG" = "0" ]; then
   echo "NGINX_RELOAD=0 set; skipping nginx reload" >&2
@@ -384,6 +565,17 @@ else
       exit 1
     fi
   fi
+fi
+
+TARGET_DOMAINS=$(resolve_letsencrypt_hosts || true)
+
+if ! wait_for_certificate_confirmation "$TARGET_DOMAINS" "$LOG_REFERENCE_TIME"; then
+  if [ -n "$TARGET_DOMAINS" ]; then
+    echo "Certificate files or success logs for '$TARGET_DOMAINS' not found after $CERT_WAIT_SECONDS seconds" >&2
+  else
+    echo "Failed to validate certificate issuance for slug '$SLUG'" >&2
+  fi
+  exit 1
 fi
 
 printf '{"status":"renewed","slug":"%s"}\n' "$SLUG"
