@@ -240,45 +240,6 @@
             </label>
           </div>
         </div>
-        <div
-          class="uk-card uk-card-default uk-card-body uk-margin"
-          data-page-namespace-manager
-          data-pages="{{ page_namespace_list|json_encode|e('html_attr') }}"
-          data-startpage-page-id="{{ startpage_page_id|default('') }}"
-          data-startpage-map="{{ startpage_map|json_encode|e('html_attr') }}"
-          data-selected-domain="{{ startpage_selected_domain|e('html_attr') }}"
-          data-page-select-id="pageContentSelect"
-          data-page-select-key="slug"
-          data-page-selection-param="pageSlug"
-          data-page-selection-value-key="slug"
-          data-active-namespace="{{ activePageNamespace|e('html_attr') }}"
-          data-success-message="Seite verschoben."
-          data-error-message="Namespace konnte nicht geändert werden."
-        >
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespacePerPageSelect">{{ t('label_page_project_namespace') }}</label>
-              <div class="uk-form-controls">
-                <select id="pageNamespacePerPageSelect" class="uk-select" data-page-namespace-select>
-                  {% for entry in pageNamespaceOptions %}
-                    {% set entryNamespace = entry.namespace|default('') %}
-                    {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                    <option value="{{ entryNamespace|e('html_attr') }}">
-                      {{ entryNamespace }}
-                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      {% if entryIsInactive %} – inaktiv{% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              {{ t('text_page_project_namespace_change') }}
-            </div>
-          </div>
-          <div class="uk-alert uk-alert-primary uk-margin-small-top" data-page-namespace-feedback hidden role="status"></div>
-        </div>
         <div id="pageFormsContainer">
           {% if pagesList is empty %}
             <div class="uk-alert uk-alert-warning pages-empty-alert">{{ t('text_no_marketing_pages') }}</div>
