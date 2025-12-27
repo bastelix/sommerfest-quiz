@@ -193,6 +193,41 @@
                         </div>
                         <div id="calendar"></div>
                       </div>
+                      <div class="uk-card qr-card uk-card-small uk-card-body uk-margin-small" data-system-metrics>
+                        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+                          <div>
+                            <h3 class="uk-card-title uk-margin-remove">Systemstatus</h3>
+                            <div class="uk-text-meta" data-metrics-status>Live-Metriken werden geladen …</div>
+                          </div>
+                          <button
+                            class="uk-button uk-button-default uk-button-small"
+                            type="button"
+                            data-metrics-refresh
+                            aria-label="Systemstatus aktualisieren"
+                          >
+                            <span uk-icon="refresh"></span>
+                          </button>
+                        </div>
+                        <div class="uk-alert-primary" uk-alert data-metrics-loading>Live-Metriken werden geladen …</div>
+                        <div class="uk-alert-danger" uk-alert hidden data-metrics-error></div>
+                        <div data-metrics-body hidden>
+                          <div class="uk-margin-small">
+                            <div class="uk-flex uk-flex-between uk-flex-middle">
+                              <div>CPU</div>
+                              <div class="uk-text-meta" data-metrics-cpu-label>–</div>
+                            </div>
+                            <progress class="uk-progress" value="0" max="100" data-metrics-cpu></progress>
+                          </div>
+                          <div class="uk-margin-small">
+                            <div class="uk-flex uk-flex-between uk-flex-middle">
+                              <div>RAM</div>
+                              <div class="uk-text-meta" data-metrics-memory-label>–</div>
+                            </div>
+                            <progress class="uk-progress" value="0" max="100" data-metrics-memory></progress>
+                          </div>
+                          <div class="uk-margin-small uk-text-meta" data-metrics-oom>OOM-Ereignisse: –</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

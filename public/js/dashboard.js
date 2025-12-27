@@ -231,7 +231,133 @@
     });
   }
 
+  function initSystemMetrics() {
+    const card = document.querySelector('[data-system-metrics]');
+    if (!card) return;
+
+    const refreshBtn = card.querySelector('[data-metrics-refresh]');
+    const loadingAlert = card.querySelector('[data-metrics-loading]');
+    const errorAlert = card.querySelector('[data-metrics-error]');
+    const body = card.querySelector('[data-metrics-body]');
+    const status = card.querySelector('[data-metrics-status]');
+    const cpuBar = card.querySelector('[data-metrics-cpu]');
+    const cpuLabel = card.querySelector('[data-metrics-cpu-label]');
+    const memoryBar = card.querySelector('[data-metrics-memory]');
+    const memoryLabel = card.querySelector('[data-metrics-memory-label]');
+    const oomLabel = card.querySelector('[data-metrics-oom]');
+
+    const setLoading = (visible) => {
+      if (loadingAlert) {
+        loadingAlert.hidden = !visible;
+      }
+    };
+
+    const setError = (message) => {
+      if (errorAlert) {
+        errorAlert.textContent = message;
+        errorAlert.hidden = message === '';
+      }
+      if (body) body.hidden = true;
+      setLoading(false);
+    };
+
+    const renderMetrics = (data) => {
+      setLoading(false);
+      if (errorAlert) errorAlert.hidden = true;
+      if (body) body.hidden = false;
+
+      const timestamp = data.timestamp ? new Date(data.timestamp) : null;
+      if (status) {
+        status.textContent = timestamp ? `Aktualisiert ${timestamp.toLocaleTimeString('de-DE')}` : 'Aktualisiert';
+      }
+
+      const cpuPercent = typeof data?.cpu?.usagePercent === 'number'
+        ? Math.max(0, Math.min(100, data.cpu.usagePercent))
+        : null;
+      if (cpuBar) {
+        cpuBar.value = cpuPercent ?? 0;
+        cpuBar.max = 100;
+      }
+      if (cpuLabel) {
+        cpuLabel.textContent = cpuPercent !== null ? `${cpuPercent.toFixed(2)} %` : '–';
+      }
+
+      const memoryCurrent = data?.memory?.currentBytes;
+      const memoryLimit = data?.memory?.limitBytes;
+      const memoryPercent = typeof data?.memory?.usagePercent === 'number'
+        ? Math.max(0, Math.min(100, data.memory.usagePercent))
+        : null;
+      if (memoryBar) {
+        memoryBar.value = memoryPercent ?? 0;
+        memoryBar.max = 100;
+      }
+      if (memoryLabel) {
+        const currentLabel = typeof memoryCurrent === 'number' ? formatBytes(memoryCurrent) : '–';
+        const limitLabel = typeof memoryLimit === 'number' ? formatBytes(memoryLimit) : '∞';
+        const percentLabel = memoryPercent !== null ? `${memoryPercent.toFixed(2)} %` : '–';
+        memoryLabel.textContent = `${currentLabel} / ${limitLabel} (${percentLabel})`;
+      }
+
+      if (oomLabel) {
+        const oom = data?.oomEvents?.oom;
+        const oomKill = data?.oomEvents?.oomKill;
+        const oomText = Number.isFinite(oom) || Number.isFinite(oomKill)
+          ? `OOM-Ereignisse: ${oom ?? 0} / Kills: ${oomKill ?? 0}`
+          : 'OOM-Ereignisse: –';
+        oomLabel.textContent = oomText;
+      }
+    };
+
+    const renderUnavailable = (message) => {
+      const hint = message || 'Systemmetriken sind derzeit nicht verfügbar.';
+      if (status) status.textContent = hint;
+      setError(hint);
+    };
+
+    const fetchMetrics = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(withBase('/admin/system/metrics'));
+        if (!response.ok) {
+          throw new Error(`Request failed with ${response.status}`);
+        }
+        const payload = await response.json();
+        if (!payload.available) {
+          renderUnavailable(payload.message || 'Systemmetriken sind deaktiviert.');
+          return;
+        }
+        renderMetrics(payload);
+      } catch (err) {
+        renderUnavailable('Systemmetriken konnten nicht geladen werden.');
+        if (window.console && console.error) {
+          console.error(err);
+        }
+      }
+    };
+
+    refreshBtn?.addEventListener('click', (event) => {
+      event.preventDefault();
+      fetchMetrics();
+    });
+
+    fetchMetrics();
+    window.setInterval(fetchMetrics, 30000);
+  }
+
   function capitalize(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+  function formatBytes(value) {
+    if (typeof value !== 'number' || Number.isNaN(value)) return '–';
+    const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let size = value;
+    let unit = 0;
+    while (size >= 1024 && unit < units.length - 1) {
+      size /= 1024;
+      unit += 1;
+    }
+    const decimals = size >= 10 ? 0 : 1;
+    return `${size.toFixed(decimals)} ${units[unit]}`;
+  }
 
   document.getElementById('cal-prev')?.addEventListener('click', () => {
     state.ym.setMonth(state.ym.getMonth() - 1);
@@ -242,5 +368,6 @@
     load();
   });
 
+  initSystemMetrics();
   load();
 })();

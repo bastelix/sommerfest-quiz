@@ -23,6 +23,7 @@ use App\Application\Middleware\HeadRequestMiddleware;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
+use App\Service\ContainerMetricsService;
 use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
@@ -1487,6 +1488,13 @@ return function (\Slim\App $app, TranslationService $translator) {
             ],
         ];
         $response->getBody()->write((string) json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
+    $app->get('/admin/system/metrics', function (Request $request, Response $response) {
+        $service = new ContainerMetricsService();
+        $metrics = $service->read();
+        $response->getBody()->write((string) json_encode($metrics));
+
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ADMIN_UI));
     $app->get('/admin/projects', function (Request $request, Response $response) {
