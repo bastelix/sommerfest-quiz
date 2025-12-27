@@ -152,7 +152,7 @@ class DomainController
         }
 
         $host = $this->domainService->normalizeDomain($domain['host'], stripAdmin: false);
-        if ($host === '' && isset($domain['normalized_host'])) {
+        if ($host === '') {
             $host = (string) $domain['normalized_host'];
         }
 
