@@ -118,7 +118,9 @@ rm -f "$BASE_DIR/vhost.d/$HOST_NAME"
 rm -f "$BASE_DIR"/certs/"$HOST_NAME"*
 rm -rf "$BASE_DIR/acme/$HOST_NAME" "$BASE_DIR/acme/${HOST_NAME}_ecc"
 
-if [ -n "$RELOADER_URL" ]; then
+if [ "$NGINX_RELOAD" = "0" ]; then
+  echo "NGINX_RELOAD=0 set; skipping reverse proxy reload" >&2
+elif [ -n "$RELOADER_URL" ]; then
   curl -s -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"
 elif [ "$NGINX_RELOAD" = "1" ]; then
   $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload

@@ -223,7 +223,9 @@ fi
 mkdir -p "$BASE_DIR/vhost.d"
 echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/$VHOST_NAME"
 
-if [ -n "$RELOADER_URL" ]; then
+if [ "$NGINX_RELOAD" = "0" ]; then
+  echo "NGINX_RELOAD=0 set; skipping reverse proxy reload" >&2
+elif [ -n "$RELOADER_URL" ]; then
   detect_docker_compose
   echo "Ensuring nginx-reloader service is running"
   if ! $DOCKER_COMPOSE up -d "$RELOADER_SERVICE" >/dev/null 2>&1; then

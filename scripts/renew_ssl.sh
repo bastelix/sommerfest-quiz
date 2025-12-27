@@ -366,23 +366,23 @@ else
 fi
 
 WEBHOOK_RESULT=0
-reload_via_webhook
-WEBHOOK_RESULT=$?
+if [ "$RELOAD_FLAG" = "0" ]; then
+  echo "NGINX_RELOAD=0 set; skipping nginx reload" >&2
+else
+  reload_via_webhook
+  WEBHOOK_RESULT=$?
 
-if [ "$WEBHOOK_RESULT" -eq 2 ]; then
-  if [ "$RELOAD_FLAG" = "0" ]; then
-    echo "nginx reload webhook disabled in configuration; falling back to docker exec because NGINX_RELOAD=0" >&2
-  else
+  if [ "$WEBHOOK_RESULT" -eq 2 ]; then
     echo "nginx reload webhook disabled, falling back to docker exec" >&2
+  elif [ "$WEBHOOK_RESULT" -ne 0 ]; then
+    echo "Falling back to docker exec for nginx reload" >&2
   fi
-elif [ "$WEBHOOK_RESULT" -ne 0 ]; then
-  echo "Falling back to docker exec for nginx reload" >&2
-fi
 
-if [ "$WEBHOOK_RESULT" -ne 0 ]; then
-  if ! reload_via_docker_exec; then
-    echo "Failed to trigger nginx reload via webhook or docker exec" >&2
-    exit 1
+  if [ "$WEBHOOK_RESULT" -ne 0 ]; then
+    if ! reload_via_docker_exec; then
+      echo "Failed to trigger nginx reload via webhook or docker exec" >&2
+      exit 1
+    fi
   fi
 fi
 
