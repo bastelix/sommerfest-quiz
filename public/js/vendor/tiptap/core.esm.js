@@ -12339,6 +12339,16 @@ function getNodeType(nameOrType, schema) {
   }
   return nameOrType;
 }
+function canInsertNode(state, nodeType) {
+  const { $from } = state.selection;
+  for (let depth = $from.depth; depth >= 0; depth -= 1) {
+    const index = $from.index(depth);
+    if ($from.node(depth).canReplaceWith(index, index, nodeType)) {
+      return true;
+    }
+  }
+  return false;
+}
 function mergeAttributes(...objects) {
   return objects.filter((item) => !!item).reduce((items, item) => {
     const mergedAttributes = { ...items };
@@ -16241,6 +16251,7 @@ export {
   NodeView,
   PasteRule,
   Tracker,
+  canInsertNode,
   callOrReturn,
   combineTransactionSteps,
   createChainableState,
