@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Marketing;
 
+use App\Service\Marketing\MarketingMenuAiException;
 use RuntimeException;
 use Throwable;
 
@@ -23,6 +24,14 @@ final class MarketingMenuAiErrorMapper
     public function map(Throwable $exception): array
     {
         $message = $exception instanceof RuntimeException ? $exception->getMessage() : '';
+
+        if ($exception instanceof MarketingMenuAiException) {
+            return [
+                'error_code' => $exception->getErrorCode(),
+                'message' => $message,
+                'status' => $exception->getStatus(),
+            ];
+        }
 
         if ($message === MarketingMenuAiGenerator::ERROR_PROMPT_MISSING) {
             return [
@@ -105,7 +114,9 @@ final class MarketingMenuAiErrorMapper
 
         return [
             'error_code' => 'ai_error',
-            'message' => 'The AI responder failed to generate navigation.',
+            'message' => $message !== ''
+                ? $message
+                : 'The AI responder failed to generate navigation.',
             'status' => 500,
         ];
     }
