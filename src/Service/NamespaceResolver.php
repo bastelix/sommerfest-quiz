@@ -43,6 +43,9 @@ final class NamespaceResolver
         $queryNamespace = $this->normalizeNamespace($request->getQueryParams()['namespace'] ?? null);
         $this->pushCandidate($candidates, $queryNamespace);
 
+        $domainNamespace = $this->normalizeNamespace($request->getAttribute('domainNamespace'));
+        $this->pushCandidate($candidates, $domainNamespace);
+
         $sessionNamespace = $this->normalizeNamespace($request->getAttribute('active_namespace'));
         $this->pushCandidate($candidates, $sessionNamespace);
 
@@ -52,9 +55,6 @@ final class NamespaceResolver
                 ?? $request->getAttribute('namespace')
         );
         $this->pushCandidate($candidates, $explicit);
-
-        $domainNamespace = $this->normalizeNamespace($request->getAttribute('domainNamespace'));
-        $this->pushCandidate($candidates, $domainNamespace);
 
         $routeNamespace = $this->resolveRouteNamespace($request);
         $this->pushCandidate($candidates, $routeNamespace);
