@@ -199,6 +199,7 @@ class AdminController
         $mediaLandingSlugs = [];
 
         $loadMarketingData = $section === 'pages' && $role === Roles::ADMIN;
+        $loadDomainChatData = $loadMarketingData || $section === 'rag-chat';
         $loadNamespaces = $section === 'management' || $loadMarketingData;
         $loadMediaLandingSlugs = $section === 'media';
         if ($loadNamespaces) {
@@ -224,7 +225,7 @@ class AdminController
             }
         }
 
-        if ($loadMarketingData || $loadMediaLandingSlugs) {
+        if ($loadMarketingData || $loadMediaLandingSlugs || $loadDomainChatData) {
             $pageSvc = new PageService($pdo);
             $seoSvc = new PageSeoConfigService($pdo);
             $landingNewsService = new LandingNewsService($pdo);
@@ -237,6 +238,35 @@ class AdminController
                 );
                 $mediaLandingSlugs = $landingReferenceService->getLandingSlugs($namespace);
             }
+
+            $allPages = [];
+            $marketingPages = [];
+            if ($loadMarketingData || $loadDomainChatData) {
+                $allPages = $pageSvc->getAllForNamespace($namespace);
+                $marketingPages = $this->filterMarketingPages($allPages);
+            }
+
+            if ($loadDomainChatData) {
+                $domainService = new DomainService($pdo);
+                $domainChatDomains = $domainService->listDomains(includeInactive: true);
+
+                $domainChatPages = [];
+                $seenPageSlugs = [];
+                foreach ($marketingPages as $page) {
+                    $slug = $page->getSlug();
+                    if ($slug === '' || isset($seenPageSlugs[$slug])) {
+                        continue;
+                    }
+
+                    $seenPageSlugs[$slug] = true;
+                    $domainChatPages[] = [
+                        'slug' => $slug,
+                        'title' => $page->getTitle(),
+                        'type' => 'marketing',
+                    ];
+                }
+            }
+
             if ($loadMarketingData) {
                 $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
                 $currentNamespaceExists = array_filter(
@@ -258,7 +288,6 @@ class AdminController
                 $marketingNewsletterStyles = $newsletterConfigService->getAllowedStyles();
                 $pages = [];
                 $pageContents = [];
-                $allPages = $pageSvc->getAllForNamespace($namespace);
                 foreach ($allPages as $page) {
                     $pages[] = [
                         'id' => $page->getId(),
@@ -267,26 +296,6 @@ class AdminController
                         'content' => $page->getContent(),
                     ];
                     $pageContents[$page->getSlug()] = $page->getContent();
-                }
-
-                $marketingPages = $this->filterMarketingPages($allPages);
-                $domainService = new DomainService($pdo);
-                $domainChatDomains = $domainService->listDomains(includeInactive: true);
-
-                $domainChatPages = [];
-                $seenPageSlugs = [];
-                foreach ($marketingPages as $page) {
-                    $slug = $page->getSlug();
-                    if ($slug === '' || isset($seenPageSlugs[$slug])) {
-                        continue;
-                    }
-
-                    $seenPageSlugs[$slug] = true;
-                    $domainChatPages[] = [
-                        'slug' => $slug,
-                        'title' => $page->getTitle(),
-                        'type' => 'marketing',
-                    ];
                 }
 
                 $pageTab = $this->resolvePageTab($params);
