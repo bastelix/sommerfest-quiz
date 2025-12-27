@@ -23,6 +23,17 @@ final class CertificateProvisioningService
         $this->marketingDomainProvider = $marketingDomainProvider;
     }
 
+    public function provisionAllDomains(): void
+    {
+        $domains = $this->collectMarketingDomains();
+        if ($domains === []) {
+            error_log('No active domains available for certificate provisioning.');
+            return;
+        }
+
+        $this->triggerProvisioning($domains);
+    }
+
     /**
      * Trigger certificate issuance for the given domain in the background.
      */
@@ -34,16 +45,7 @@ final class CertificateProvisioningService
         }
 
         $domains = $this->collectMarketingDomains($normalized);
-        $envValue = implode(',', $domains);
-
-        $script = dirname(__DIR__, 2) . '/scripts/renew_ssl.sh';
-        if (!is_file($script)) {
-            throw new RuntimeException('Renew script not found.');
-        }
-
-        $this->runWithMarketingEnv($envValue, static function () use ($script): void {
-            runBackgroundProcess($script, ['--main']);
-        });
+        $this->triggerProvisioning($domains);
     }
 
     /**
@@ -54,9 +56,14 @@ final class CertificateProvisioningService
      *
      * @return list<string>
      */
-    private function collectMarketingDomains(string $primary): array
+    private function collectMarketingDomains(?string $primary = null): array
     {
         $domains = [];
+
+        $mainDomain = $this->marketingDomainProvider->getMainDomain();
+        if ($mainDomain !== null && $mainDomain !== '') {
+            $domains[] = $mainDomain;
+        }
 
         foreach ($this->marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $entry) {
             $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
@@ -65,11 +72,30 @@ final class CertificateProvisioningService
             }
         }
 
-        $domains[] = $primary;
+        if ($primary !== null) {
+            $domains[] = $primary;
+        }
 
         $domains = array_values(array_unique(array_filter($domains, static fn ($value): bool => $value !== '')));
 
         return $domains;
+    }
+
+    /**
+     * @param list<string> $domains
+     */
+    private function triggerProvisioning(array $domains): void
+    {
+        $envValue = implode(',', $domains);
+        $script = dirname(__DIR__, 2) . '/scripts/request_ssl_for_domains.sh';
+        if (!is_file($script)) {
+            throw new RuntimeException('Certificate request script not found.');
+        }
+
+        error_log('Requesting certificates for domains: ' . implode(', ', $domains));
+        $this->runWithMarketingEnv($envValue, static function () use ($script, $envValue): void {
+            runBackgroundProcess($script, [$envValue], dirname(__DIR__, 2) . '/logs/ssl_provisioning.log');
+        });
     }
 
     private function runWithMarketingEnv(string $marketingDomains, callable $callback): void

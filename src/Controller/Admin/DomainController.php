@@ -60,7 +60,7 @@ class DomainController
             $this->certificateProvisioningService !== null
             && $domain['is_active']
         ) {
-            $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
+            $this->certificateProvisioningService->provisionAllDomains();
         }
 
         $response->getBody()->write(json_encode([
@@ -108,7 +108,7 @@ class DomainController
             && !$existing['is_active']
             && $domain['is_active']
         ) {
-            $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
+            $this->certificateProvisioningService->provisionAllDomains();
         }
 
         $response->getBody()->write(json_encode([
@@ -152,7 +152,7 @@ class DomainController
         }
 
         try {
-            $this->certificateProvisioningService->provisionMarketingDomain($domain['host']);
+            $this->certificateProvisioningService->provisionAllDomains();
         } catch (InvalidArgumentException | RuntimeException $exception) {
             return $this->jsonError($response, $exception->getMessage(), 422);
         }
