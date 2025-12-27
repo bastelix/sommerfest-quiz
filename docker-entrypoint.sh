@@ -293,6 +293,23 @@ append_proxy_host() {
     fi
 }
 
+# Merge marketing domains into both proxy and certificate host lists.
+marketing_domains=$(normalize_host_list "${MARKETING_DOMAINS:-}")
+if [ -n "$marketing_domains" ]; then
+    echo "Adding MARKETING_DOMAINS to host lists: $marketing_domains" >&2
+
+    old_ifs=$IFS
+    IFS=','
+    for marketing_host in $marketing_domains; do
+        if [ -z "$marketing_host" ]; then
+            continue
+        fi
+
+        append_proxy_host "$marketing_host"
+    done
+    IFS=$old_ifs
+fi
+
 # Automatically expose tenant domains in single-container setups. Add a wildcard
 # only when explicitly enabled, otherwise keep HTTP-01 compatible apex entries.
 single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
@@ -352,6 +369,11 @@ case "$single_container_flag" in
         fi
         ;;
 esac
+
+expanded_virtual_host=$(sanitize_host_list "${VIRTUAL_HOST:-}")
+expanded_letsencrypt_host=$(sanitize_host_list "${LETSENCRYPT_HOST:-}")
+ssl_log "Expanded host lists before filtering: VIRTUAL_HOST=${expanded_virtual_host:-<empty>} LETSENCRYPT_HOST=${expanded_letsencrypt_host:-<empty>}"
+echo "Expanded host lists before filtering: VIRTUAL_HOST=${expanded_virtual_host:-<empty>} LETSENCRYPT_HOST=${expanded_letsencrypt_host:-<empty>}" >&2
 
 if [ -n "${LETSENCRYPT_HOST:-}" ]; then
     raw_letsencrypt_hosts=$(sanitize_host_list "$LETSENCRYPT_HOST")
