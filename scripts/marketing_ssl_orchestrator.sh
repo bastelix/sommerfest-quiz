@@ -127,10 +127,10 @@ log_entry "CHANGE" "$old_csv" "$new_csv"
 
 printf 'MARKETING_LETSENCRYPT_HOST=%s\nLETSENCRYPT_EMAIL=%s\n' "$new_csv" "$DEFAULT_EMAIL" > "$ENV_FILE"
 
-(
-  cd "$PROJECT_DIR"
-  docker compose --env-file "$ENV_FILE" up -d --force-recreate "$SERVICE" >/dev/null
-)
+current_dir=$(pwd)
+cd "$PROJECT_DIR"
+docker compose --env-file "$ENV_FILE" up -d --force-recreate "$SERVICE" >/dev/null
+cd "$current_dir"
 
 log_entry "RECREATED" "$old_csv" "$new_csv"
 log_entry "DONE" "$old_csv" "$new_csv"
