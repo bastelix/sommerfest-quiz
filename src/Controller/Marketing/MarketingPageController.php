@@ -276,6 +276,7 @@ class MarketingPageController
             'privacyUrl' => $privacyUrl,
             'config' => $designConfig,
             'headerConfig' => $headerConfig,
+            'headerLogo' => $headerLogo,
         ];
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
@@ -326,7 +327,6 @@ class MarketingPageController
             $data['headerContent'] = $headerContent;
             $data['isAdmin'] = $isAdmin;
             $data['marketingNamespace'] = $page->getNamespace();
-            $data['headerLogo'] = $headerLogo;
         }
 
         $data['marketingMenuItems'] = $marketingMenuItems;
