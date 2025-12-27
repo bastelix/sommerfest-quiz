@@ -434,6 +434,8 @@ acme_logs_show_success() {
   return 1
 }
 
+WAIT_MISSING_CERT_DOMAINS=""
+
 wait_for_certificate_confirmation() {
   domains=$(normalize_csv_list "$1")
   since_ref="$2"
@@ -443,10 +445,11 @@ wait_for_certificate_confirmation() {
     return 1
   fi
 
-  primary_domain=$(printf '%s\n' "$domains" | tr ',' '\n' | sed '/^$/d' | head -n1)
   start_ts=$(date +%s)
 
   while :; do
+    missing_domains=""
+
     for domain in $(printf '%s' "$domains" | tr ',' ' '); do
       domain=$(trim "$domain")
       if [ -z "$domain" ]; then
@@ -454,16 +457,24 @@ wait_for_certificate_confirmation() {
       fi
 
       if certificate_present_for_domain "$domain"; then
-        return 0
+        continue
       fi
+
+      if acme_logs_show_success "$domain" "$since_ref"; then
+        continue
+      fi
+
+      missing_domains="$missing_domains $domain"
     done
 
-    if acme_logs_show_success "$primary_domain" "$since_ref"; then
+    if [ -z "$missing_domains" ]; then
+      WAIT_MISSING_CERT_DOMAINS=""
       return 0
     fi
 
     now=$(date +%s)
     if [ $((now - start_ts)) -ge "$CERT_WAIT_SECONDS" ]; then
+      WAIT_MISSING_CERT_DOMAINS=$(printf '%s' "$missing_domains" | sed 's/^ //;s/  */ /g')
       break
     fi
 
@@ -570,7 +581,9 @@ fi
 TARGET_DOMAINS=$(resolve_letsencrypt_hosts || true)
 
 if ! wait_for_certificate_confirmation "$TARGET_DOMAINS" "$LOG_REFERENCE_TIME"; then
-  if [ -n "$TARGET_DOMAINS" ]; then
+  if [ -n "$WAIT_MISSING_CERT_DOMAINS" ]; then
+    echo "Certificate files or success logs for '$WAIT_MISSING_CERT_DOMAINS' not found after $CERT_WAIT_SECONDS seconds" >&2
+  elif [ -n "$TARGET_DOMAINS" ]; then
     echo "Certificate files or success logs for '$TARGET_DOMAINS' not found after $CERT_WAIT_SECONDS seconds" >&2
   else
     echo "Failed to validate certificate issuance for slug '$SLUG'" >&2
