@@ -1065,10 +1065,14 @@ server {
     ssl_dhparam {{ printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert }};
             {{- end }}
 
-            {{- if (exists (printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert)) }}
+            {{- $chain_path := printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert }}
+            {{- $ocsp_flag := printf "/etc/nginx/certs/%s.ocsp_aia" $vhost.cert }}
+            {{- if (and (exists $chain_path) (exists $ocsp_flag)) }}
     ssl_stapling on;
     ssl_stapling_verify on;
-    ssl_trusted_certificate {{ printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert }};
+    ssl_trusted_certificate {{ $chain_path }};
+            {{- else if (exists $chain_path) }}
+    # OCSP stapling disabled: no responder URL detected for this certificate chain.
             {{- end }}
 
             {{- if (not (or (eq $vhost.https_method "noredirect") (eq $vhost.hsts "off"))) }}
