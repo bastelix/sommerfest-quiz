@@ -169,6 +169,42 @@ const UikitTemplates = Extension.create({
   }
 });
 
+const Link = Mark.create({
+  name: 'link',
+  inclusive: false,
+  priority: 1000,
+  addAttributes() {
+    return {
+      href: {
+        default: null
+      },
+      target: {
+        default: null
+      },
+      rel: {
+        default: null
+      }
+    };
+  },
+  parseHTML() {
+    return [
+      {
+        tag: 'a[href]'
+      }
+    ];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return ['a', HTMLAttributes, 0];
+  },
+  addCommands() {
+    return {
+      setLink: attributes => ({ chain }) => chain().setMark(this.name, attributes).run(),
+      toggleLink: attributes => ({ chain }) => chain().toggleMark(this.name, attributes).run(),
+      unsetLink: () => ({ chain }) => chain().unsetMark(this.name).run()
+    };
+  }
+});
+
 const QuizLink = Mark.create({
   name: 'quizLink',
   inclusive: false,
@@ -649,6 +685,7 @@ const resetLandingStyling = element => {
 };
 
 const editorInstances = new Map();
+const bubbleMenus = new WeakMap();
 
 const EDITOR_INSTANCE_KEY = '__pageEditorInstance';
 
@@ -697,6 +734,133 @@ const createToolbarButton = (label, title, onClick) => {
     onClick?.();
   });
   return button;
+};
+
+const createCommandButton = (editor, options) => {
+  const { label, title, action, isActive } = options;
+  const button = createToolbarButton(label, title, () => {
+    action?.();
+  });
+
+  const updateState = () => {
+    if (isActive && isActive()) {
+      button.classList.add('uk-button-primary');
+    } else {
+      button.classList.remove('uk-button-primary');
+    }
+  };
+
+  const unregister = () => {
+    button.remove();
+  };
+
+  return { button, updateState, unregister };
+};
+
+const buildFormattingButtons = editor => {
+  const container = document.createElement('div');
+  container.className = 'uk-flex uk-flex-middle uk-margin-small-right';
+  const updaters = [];
+
+  const addGroup = buttons => {
+    const group = document.createElement('div');
+    group.className = 'uk-button-group uk-margin-small-right';
+    buttons.forEach(config => {
+      const { button, updateState } = createCommandButton(editor, config);
+      group.append(button);
+      updaters.push(updateState);
+    });
+    container.append(group);
+  };
+
+  const focusChain = () => editor.chain().focus();
+  addGroup([
+    {
+      label: 'B',
+      title: 'Fett (Strg+B)',
+      action: () => focusChain().toggleBold().run(),
+      isActive: () => editor.isActive('bold')
+    },
+    {
+      label: 'I',
+      title: 'Kursiv (Strg+I)',
+      action: () => focusChain().toggleItalic().run(),
+      isActive: () => editor.isActive('italic')
+    }
+  ]);
+
+  addGroup(
+    [1, 2, 3].map(level => ({
+      label: `H${level}`,
+      title: `Überschrift ${level}`,
+      action: () => focusChain().toggleHeading({ level }).run(),
+      isActive: () => editor.isActive('heading', { level })
+    }))
+  );
+
+  addGroup([
+    {
+      label: '• Liste',
+      title: 'Aufzählungsliste',
+      action: () => focusChain().toggleBulletList().run(),
+      isActive: () => editor.isActive('bulletList')
+    },
+    {
+      label: '1. Liste',
+      title: 'Nummerierte Liste',
+      action: () => focusChain().toggleOrderedList().run(),
+      isActive: () => editor.isActive('orderedList')
+    }
+  ]);
+
+  addGroup([
+    {
+      label: 'Link',
+      title: 'Link einfügen',
+      action: () => {
+        const href = window.prompt('Link-URL eingeben', 'https://');
+        const value = typeof href === 'string' ? href.trim() : '';
+        if (!value) {
+          return;
+        }
+        focusChain().extendMarkRange('link').setLink({ href: value }).run();
+      },
+      isActive: () => editor.isActive('link')
+    },
+    {
+      label: 'Link löschen',
+      title: 'Link entfernen',
+      action: () => focusChain().unsetLink().run(),
+      isActive: null
+    }
+  ]);
+
+  addGroup([
+    {
+      label: '↺',
+      title: 'Rückgängig (Strg+Z)',
+      action: () => editor.commands.undo(),
+      isActive: null
+    },
+    {
+      label: '↻',
+      title: 'Wiederholen (Strg+Y)',
+      action: () => editor.commands.redo(),
+      isActive: null
+    }
+  ]);
+
+  const refreshState = () => {
+    updaters.forEach(update => update());
+  };
+
+  editor.on('selectionUpdate', refreshState);
+  editor.on('update', refreshState);
+  editor.on('focus', refreshState);
+
+  refreshState();
+
+  return { element: container, refreshState };
 };
 
 const buildTemplateButtons = editor => {
@@ -788,9 +952,101 @@ const buildQuizLinkDropdown = editor => {
   return wrapper;
 };
 
+const buildBubbleMenu = editor => {
+  const bubble = document.createElement('div');
+  bubble.className = 'page-editor-bubble uk-card uk-card-default uk-card-body';
+  bubble.style.position = 'absolute';
+  bubble.style.display = 'none';
+  bubble.style.zIndex = '1000';
+
+  const { element: formattingButtons, refreshState } = buildFormattingButtons(editor);
+  bubble.append(formattingButtons);
+
+  const hideMenu = () => {
+    bubble.style.display = 'none';
+  };
+
+  const placeMenu = (left, top) => {
+    bubble.style.visibility = 'hidden';
+    bubble.style.display = 'block';
+    bubble.style.left = `${Math.max(0, left)}px`;
+    bubble.style.top = `${Math.max(0, top)}px`;
+    const offsetX = bubble.offsetWidth ? bubble.offsetWidth / 2 : 0;
+    bubble.style.left = `${Math.max(0, left - offsetX)}px`;
+    bubble.style.visibility = 'visible';
+    refreshState();
+  };
+
+  const showAtRect = rect => {
+    if (!rect) {
+      hideMenu();
+      return;
+    }
+    const left = rect.left + rect.width / 2 + window.scrollX;
+    const top = rect.bottom + window.scrollY + 8;
+    placeMenu(left, top);
+  };
+
+  const selectionHandler = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed || selection.rangeCount === 0 || !editor.isFocused) {
+      hideMenu();
+      return;
+    }
+    const rect = selection.getRangeAt(0).getBoundingClientRect();
+    showAtRect(rect);
+  };
+
+  const blurHandler = () => hideMenu();
+  editor.on('selectionUpdate', selectionHandler);
+  editor.on('focus', selectionHandler);
+  editor.on('blur', blurHandler);
+
+  const editorEl = editor.view?.dom;
+  const contextHandler = event => {
+    event.preventDefault();
+    refreshState();
+    placeMenu(event.pageX, event.pageY);
+  };
+  if (editorEl) {
+    editorEl.addEventListener('contextmenu', contextHandler);
+  }
+
+  const clickAwayHandler = event => {
+    if (!bubble.contains(event.target) && (!editorEl || !editorEl.contains(event.target))) {
+      hideMenu();
+    }
+  };
+  document.addEventListener('click', clickAwayHandler);
+
+  document.body.append(bubble);
+
+  const destroy = () => {
+    hideMenu();
+    bubble.remove();
+    if (editorEl) {
+      editorEl.removeEventListener('contextmenu', contextHandler);
+    }
+    document.removeEventListener('click', clickAwayHandler);
+  };
+
+  return { element: bubble, destroy, refreshState, hideMenu };
+};
+
+const attachBubbleMenu = (form, editor) => {
+  if (!form || !editor || bubbleMenus.has(editor)) {
+    return;
+  }
+  const bubble = buildBubbleMenu(editor);
+  bubbleMenus.set(editor, bubble);
+};
+
 const buildEditorToolbar = editor => {
   const toolbar = document.createElement('div');
   toolbar.className = 'page-editor-toolbar uk-margin-small-bottom uk-flex uk-flex-wrap uk-flex-middle';
+
+  const { element: formattingButtons } = buildFormattingButtons(editor);
+  toolbar.append(formattingButtons);
 
   const quizDropdown = buildQuizLinkDropdown(editor);
   toolbar.append(quizDropdown);
@@ -802,21 +1058,27 @@ const buildEditorToolbar = editor => {
 };
 
 const attachEditorToolbar = (form, editor) => {
-  if (!form || !editor || form.dataset.toolbarReady === '1') {
+  if (!form || !editor) {
     return;
   }
+
   const editorEl = getEditorElement(form);
   if (!editorEl || !editorEl.parentNode) {
     return;
   }
 
-  const toolbar = buildEditorToolbar(editor);
-  editorEl.parentNode.insertBefore(toolbar, editorEl);
-  form.dataset.toolbarReady = '1';
+  if (form.dataset.toolbarReady !== '1') {
+    const toolbar = buildEditorToolbar(editor);
+    editorEl.parentNode.insertBefore(toolbar, editorEl);
+    form.dataset.toolbarReady = '1';
+  }
+
+  attachBubbleMenu(form, editor);
 };
 
 const buildEditorExtensions = () => [
   StarterKit.configure({}),
+  Link,
   QuizLink,
   UikitTemplates
 ];
@@ -905,6 +1167,12 @@ const teardownPageEditor = form => {
       window.console.warn('Failed to destroy page editor instance', error);
     }
   }
+
+  const bubble = bubbleMenus.get(editor);
+  if (bubble && typeof bubble.destroy === 'function') {
+    bubble.destroy();
+  }
+  bubbleMenus.delete(editor);
 
   removeEditorInstance(form);
   editorEl.innerHTML = '';
