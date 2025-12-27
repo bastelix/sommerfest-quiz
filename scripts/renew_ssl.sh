@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Force renew SSL certificate for a tenant or the main system via acme-companion
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(dirname "$0")"
 
@@ -274,17 +274,8 @@ else
   ACME_CONTAINER_NAME="acme-companion"
 fi
 
-if [ -n "${SSL_CERT_WAIT_SECONDS+x}" ] && [ -n "$SSL_CERT_WAIT_SECONDS" ]; then
-  CERT_WAIT_SECONDS="$SSL_CERT_WAIT_SECONDS"
-else
-  CERT_WAIT_SECONDS="60"
-fi
-
-if [ -n "${SSL_CERT_POLL_INTERVAL_SECONDS+x}" ] && [ -n "$SSL_CERT_POLL_INTERVAL_SECONDS" ]; then
-  CERT_POLL_INTERVAL="$SSL_CERT_POLL_INTERVAL_SECONDS"
-else
-  CERT_POLL_INTERVAL="2"
-fi
+CERT_WAIT_SECONDS="${SSL_CERT_WAIT_SECONDS:-60}"
+CERT_POLL_INTERVAL="${SSL_CERT_POLL_INTERVAL_SECONDS:-2}"
 
 if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
   SLUG="main"
@@ -463,7 +454,7 @@ wait_for_certificate_confirmation() {
     fi
 
     now=$(date +%s)
-    if [ $((now - start_ts)) -ge "$CERT_WAIT_SECONDS" ]; then
+    if (( now - start_ts >= CERT_WAIT_SECONDS )); then
       break
     fi
 
@@ -568,6 +559,11 @@ else
 fi
 
 TARGET_DOMAINS=$(resolve_letsencrypt_hosts || true)
+
+if [ -z "$TARGET_DOMAINS" ]; then
+  echo "No LETSENCRYPT_HOST resolved – aborting SSL request" >&2
+  exit 0
+fi
 
 if ! wait_for_certificate_confirmation "$TARGET_DOMAINS" "$LOG_REFERENCE_TIME"; then
   if [ -n "$TARGET_DOMAINS" ]; then
