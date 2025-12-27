@@ -65,7 +65,7 @@ class DomainController
         $namespace = trim((string) ($domain['namespace'] ?? ''));
         $host = $this->domainService->normalizeDomain((string) $domain['host'], stripAdmin: false);
         if ($host === '') {
-            $host = (string) ($domain['normalized_host'] ?? '');
+            $host = (string) $domain['normalized_host'];
         }
 
         if ($host === '') {
