@@ -193,7 +193,7 @@ class MarketingDomainProvider
             }
 
             if ($normalized === '') {
-                $normalized = DomainNameHelper::normalize($host);
+                $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
             } else {
                 $normalized = DomainNameHelper::normalize($normalized);
             }

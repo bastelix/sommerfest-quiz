@@ -47,7 +47,7 @@ final class DomainNameHelper
 
         $prefixes = $stripAdmin
             ? self::getStrippablePrefixes()
-            : ['www'];
+            : [];
 
         if ($prefixes !== []) {
             $pattern = sprintf('/^(%s)\./', implode('|', array_map(
