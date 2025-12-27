@@ -7,10 +7,32 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
+SCRIPT_DIR="$(dirname "$0")"
+LOG_FILE="$SCRIPT_DIR/../logs/ssl_provisioning.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+
+LOCK_FILE="$SCRIPT_DIR/../logs/ssl_provisioning.lock"
+
+cleanup_lock() {
+  if [ -n "$LOCK_ACQUIRED" ] && [ "$LOCK_ACQUIRED" -eq 1 ]; then
+    rm -f "$LOCK_FILE"
+  fi
+}
+
+trap cleanup_lock EXIT
+
+if ! ( set -o noclobber; echo "$$" > "$LOCK_FILE" ) 2>/dev/null; then
+  echo "[$(date -Iseconds)] renewal already running; skipping new trigger" >> "$LOG_FILE"
+  exit 0
+fi
+
+LOCK_ACQUIRED=1
+
 raw_input=$(printf '%s' "$1" | tr '\n' ',')
 normalized=$(printf '%s' "$raw_input" | sed 's/,,*/,/g; s/^,//; s/,$//')
 if [ -z "$normalized" ]; then
   echo "No domains supplied" >&2
+  echo "[$(date -Iseconds)] rejected request: no domains supplied" >> "$LOG_FILE"
   exit 1
 fi
 
@@ -42,6 +64,7 @@ done
 if [ -n "$wildcards" ]; then
   echo "Wildcard domains cannot be processed via HTTP-01. Remove them or provision a wildcard certificate manually." >&2
   echo "Rejected wildcard entries:${wildcards}" >&2
+  echo "[$(date -Iseconds)] rejected request: wildcard entries:${wildcards}" >> "$LOG_FILE"
   exit 1
 fi
 
@@ -49,32 +72,12 @@ domain_list=$(printf '%s' "$domains" | sed 's/^ //; s/  */ /g; s/ /,/g')
 domain_list=$(printf '%s' "$domain_list" | sed 's/^,//; s/,$//; s/,,*/,/g')
 if [ -z "$domain_list" ]; then
   echo "No valid domains supplied after filtering" >&2
+  echo "[$(date -Iseconds)] rejected request: no valid domains after filtering input '$normalized'" >> "$LOG_FILE"
   exit 1
 fi
 
 export MARKETING_DOMAINS="$domain_list"
 echo "[request_ssl] Domains: $MARKETING_DOMAINS"
-
-SCRIPT_DIR="$(dirname "$0")"
-LOG_FILE="$SCRIPT_DIR/../logs/ssl_provisioning.log"
-mkdir -p "$(dirname "$LOG_FILE")"
-
-LOCK_FILE="$SCRIPT_DIR/../logs/ssl_provisioning.lock"
-
-cleanup_lock() {
-  if [ -n "$LOCK_ACQUIRED" ] && [ "$LOCK_ACQUIRED" -eq 1 ]; then
-    rm -f "$LOCK_FILE"
-  fi
-}
-
-trap cleanup_lock EXIT
-
-if ! ( set -o noclobber; echo "$$" > "$LOCK_FILE" ) 2>/dev/null; then
-  echo "[$(date -Iseconds)] renewal already running; skipping new trigger" >> "$LOG_FILE"
-  exit 0
-fi
-
-LOCK_ACQUIRED=1
 
 primary_domain=$(printf '%s' "$domain_list" | cut -d ',' -f1)
 cert_path="$SCRIPT_DIR/../certs/${primary_domain}.crt"

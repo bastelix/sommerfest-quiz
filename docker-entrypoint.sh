@@ -208,7 +208,17 @@ filter_resolvable_hosts() {
         return
     fi
 
+    skip_dns_prefilter=$(printf '%s' "${LE_SKIP_DNS_PREFILTER:-}" | tr '[:upper:]' '[:lower:]')
+    case "$skip_dns_prefilter" in
+        1|true|yes|on)
+            ssl_log "LE_SKIP_DNS_PREFILTER enabled; skipping DNS resolution for LETSENCRYPT_HOST entries"
+            printf '%s' "$sanitized"
+            return
+            ;;
+    esac
+
     filtered=""
+    skipped_hosts=""
     old_ifs=$IFS
     IFS=','
     for host in $sanitized; do
@@ -224,11 +234,19 @@ filter_resolvable_hosts() {
 
             filtered="$filtered,$host"
         else
-            echo "Warning: LETSENCRYPT_HOST entry '$host' does not resolve; skipping" >&2
-            ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entry '$host'"
+            if [ -z "$skipped_hosts" ]; then
+                skipped_hosts="$host"
+            else
+                skipped_hosts="$skipped_hosts,$host"
+            fi
         fi
     done
     IFS=$old_ifs
+
+    if [ -n "$skipped_hosts" ]; then
+        echo "Warning: LETSENCRYPT_HOST entries skipped for failed DNS resolution: $skipped_hosts" >&2
+        ssl_log "Skipping non-resolvable LETSENCRYPT_HOST entries: ${skipped_hosts}"
+    fi
 
     printf '%s' "$filtered"
 }
@@ -267,6 +285,36 @@ append_proxy_host() {
 # Automatically expose tenant domains in single-container setups. Add a wildcard
 # only when explicitly enabled, otherwise keep HTTP-01 compatible apex entries.
 single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
+has_dns01_capable_flow() {
+    provider=$(printf '%s' "${ACME_WILDCARD_PROVIDER:-}" | tr '[:space:]' ' ' | tr -d '\t\r\n')
+    if [ -n "$provider" ]; then
+        return 0
+    fi
+
+    if env | grep -E '^ACME_WILDCARD_ENV_' >/dev/null 2>&1; then
+        return 0
+    fi
+
+    return 1
+}
+
+has_existing_wildcard_cert() {
+    domain="$1"
+    if [ -z "$domain" ]; then
+        return 1
+    fi
+
+    if [ -f "/var/www/certs/${domain}.crt" ] && [ -f "/var/www/certs/${domain}.key" ]; then
+        return 0
+    fi
+
+    if [ -f "$(dirname "$0")/certs/${domain}.crt" ] && [ -f "$(dirname "$0")/certs/${domain}.key" ]; then
+        return 0
+    fi
+
+    return 1
+}
+
 case "$single_container_flag" in
     1|true|yes|on)
         base_domain="${MAIN_DOMAIN:-${DOMAIN:-}}"
