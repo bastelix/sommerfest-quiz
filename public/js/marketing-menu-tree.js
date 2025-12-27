@@ -813,6 +813,20 @@ if (container) {
         });
     };
 
+    const parseGenerationError = response => response
+      .json()
+      .catch(() => response.text())
+      .then(payload => {
+        const message = typeof payload === 'string'
+          ? payload.trim()
+          : typeof payload?.error === 'string'
+            ? payload.error.trim()
+            : '';
+
+        return { message, status: response.status };
+      })
+      .catch(() => ({ message: '', status: response.status }));
+
     const triggerAutoGeneration = overwrite => {
       if (!state.pageId) {
         return;
@@ -828,14 +842,15 @@ if (container) {
         })
       })
         .then(response => {
-          if (!response.ok) {
-            return response.json().catch(() => ({})).then(err => {
-              const error = new Error(err?.error || 'menu-ai-failed');
-              error.responseStatus = response.status;
-              return Promise.reject(error);
-            });
+          if (response.ok) {
+            return response.json();
           }
-          return response.json();
+
+          return parseGenerationError(response).then(({ message, status }) => {
+            const error = new Error(message || 'menu-ai-failed');
+            error.responseStatus = status;
+            return Promise.reject(error);
+          });
         })
         .then(() => {
           setFeedback('Navigation aktualisiert.', 'success');
@@ -846,6 +861,8 @@ if (container) {
           const details = (error?.message || '').trim();
           const message = error?.responseStatus === 504
             ? 'Die KI konnte nicht rechtzeitig antworten. Bitte erneut versuchen.'
+            : error?.responseStatus === 502
+              ? 'Der KI-Dienst ist aktuell nicht erreichbar (Bad Gateway). Bitte später erneut versuchen.'
             : details && details !== 'menu-ai-failed'
               ? `Navigation konnte nicht automatisch generiert werden: ${details}`
               : 'Navigation konnte nicht automatisch generiert werden.';
