@@ -282,8 +282,8 @@ append_proxy_host() {
     fi
 }
 
-# Automatically expose all tenant subdomains in single-container setups so the
-# proxy requests a matching wildcard certificate.
+# Automatically expose tenant domains in single-container setups. Add a wildcard
+# only when explicitly enabled, otherwise keep HTTP-01 compatible apex entries.
 single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
 has_dns01_capable_flow() {
     provider=$(printf '%s' "${ACME_WILDCARD_PROVIDER:-}" | tr '[:space:]' ' ' | tr -d '\t\r\n')
@@ -319,24 +319,25 @@ case "$single_container_flag" in
     1|true|yes|on)
         base_domain="${MAIN_DOMAIN:-${DOMAIN:-}}"
         if [ -n "$base_domain" ]; then
-            wildcard_possible=1
-            if ! has_dns01_capable_flow && ! has_existing_wildcard_cert "$base_domain"; then
-                wildcard_possible=0
-            fi
+            wildcard_flag=$(printf '%s' "${ENABLE_WILDCARD_SSL:-}" | tr '[:upper:]' '[:lower:]')
+            case "$wildcard_flag" in
+                1|true|yes|on)
+                    wildcard_regex="~^([a-z0-9-]+\.)?${base_domain}\$"
+                    append_proxy_host "$wildcard_regex"
 
-            if [ "$wildcard_possible" -eq 1 ]; then
-                wildcard_regex="~^([a-z0-9-]+\.)?${base_domain}\$"
-                append_proxy_host "$wildcard_regex"
-
-                # Request certificates for the apex and wildcard domains so that
-                # the issued certificate covers all tenants while remaining
-                # compatible with nginx-proxy.
-                append_host_value "LETSENCRYPT_HOST" "$base_domain"
-                append_host_value "LETSENCRYPT_HOST" "*.${base_domain}"
-            else
-                append_host_value "LETSENCRYPT_HOST" "$base_domain"
-                ssl_log "Skipping wildcard host for ${base_domain}: DNS-01 flow not configured"
-            fi
+                    # Request certificates for the apex and wildcard domains so that
+                    # the issued certificate covers all tenants while remaining
+                    # compatible with nginx-proxy.
+                    append_host_value "LETSENCRYPT_HOST" "$base_domain"
+                    append_host_value "LETSENCRYPT_HOST" "*.${base_domain}"
+                    ;;
+                *)
+                    # Only expose the apex domain so HTTP-01 challenges work for the
+                    # explicitly listed hosts.
+                    append_proxy_host "$base_domain"
+                    append_host_value "LETSENCRYPT_HOST" "$base_domain"
+                    ;;
+            esac
         fi
         ;;
 esac

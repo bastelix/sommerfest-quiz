@@ -420,12 +420,19 @@ scripts/create_tenant.sh foo
 ```
 
 Setzt du in `.env` zusätzlich `TENANT_SINGLE_CONTAINER=1`, arbeitet das Skript
-mandantenfähig innerhalb des bestehenden `slim`-Containers. Dafür wird ein
-Wildcard-Zertifikat von Let's Encrypt erwartet, das `*.${MAIN_DOMAIN}` (oder –
-falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`) abdeckt und als
-`certs/<domain>.crt` sowie `certs/<domain>.key` im Projekt liegt. Der
-`acme-companion` kann ein solches Zertifikat über die DNS-Challenge beziehen und
-unter gleichem Namen in das `certs/`-Volume schreiben. Die neue Hilfsroutine
+mandantenfähig innerhalb des bestehenden `slim`-Containers. Standardmäßig
+werden nur die Apex-Domains in `VIRTUAL_HOST` und `LETSENCRYPT_HOST` eingetragen,
+damit HTTP-01-Challenges für die explizit konfigurierten Hosts funktionieren.
+Aktivierst du hingegen `ENABLE_WILDCARD_SSL=1`, fügt das Entrypoint-Skript
+einen Regex-Host für alle Subdomains hinzu und ergänzt einen Wildcard-Eintrag in
+`LETSENCRYPT_HOST`. Das erfordert eine DNS-01-Challenge, um ein gültiges
+Zertifikat zu erhalten.
+
+Für den Wildcard-Fall wird ein Zertifikat von Let's Encrypt erwartet, das
+`*.${MAIN_DOMAIN}` (oder – falls `MAIN_DOMAIN` nicht gesetzt ist – `*.${DOMAIN}`)
+abdeckt und als `certs/<domain>.crt` sowie `certs/<domain>.key` im Projekt liegt.
+Der `acme-companion` kann ein solches Zertifikat über die DNS-Challenge beziehen
+und unter gleichem Namen in das `certs/`-Volume schreiben. Die neue Hilfsroutine
 `scripts/provision_wildcard.sh` stößt diesen Prozess automatisiert an: Sie
 startet bei Bedarf den `acme-companion`, ruft `acme.sh` mit dem in `.env`
 konfigurierten DNS-Plugin auf und legt das Zertifikat im `certs/`-Verzeichnis
