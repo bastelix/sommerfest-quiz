@@ -388,7 +388,7 @@ const LANDING_STYLE_FILENAMES = [
   'topbar.landing.css'
 ];
 
-const LANDING_NAMESPACE_DEFAULTS = new Set([
+const LANDING_NAMESPACE_ASSET_FOLDERS = new Set([
   'calhelp'
 ]);
 
@@ -432,12 +432,12 @@ function ensureLandingFont() {
 
 const buildLandingStyleSources = () => {
   const namespace = resolvePageNamespace();
-  const normalized = (namespace || '').trim();
+  const normalized = (namespace || '').trim().toLowerCase();
   const hasCustomNamespace = normalized && normalized !== 'default';
-  const skipNamespace = hasCustomNamespace && LANDING_NAMESPACE_DEFAULTS.has(normalized.toLowerCase());
+  const hasNamespacedAssets = hasCustomNamespace && LANDING_NAMESPACE_ASSET_FOLDERS.has(normalized);
   return LANDING_STYLE_FILENAMES.map(file => {
     const defaultPath = withBase(`/css/${file}`);
-    if (!hasCustomNamespace || skipNamespace) {
+    if (!hasNamespacedAssets) {
       return [defaultPath];
     }
     return [withBase(`/css/${encodeURIComponent(normalized)}/${file}`), defaultPath];
@@ -2000,9 +2000,9 @@ const ensureScriptLoaded = (id, src) => new Promise(resolve => {
 
 const buildNamespacedCssCandidates = filename => {
   const namespace = resolvePageNamespace();
-  const normalized = (namespace || '').trim();
+  const normalized = (namespace || '').trim().toLowerCase();
   const candidates = [];
-  if (normalized && normalized !== 'default') {
+  if (normalized && normalized !== 'default' && LANDING_NAMESPACE_ASSET_FOLDERS.has(normalized)) {
     candidates.push(withBase(`/css/${encodeURIComponent(normalized)}/${filename}`));
   }
   candidates.push(withBase(`/css/${filename}`));
