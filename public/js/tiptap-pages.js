@@ -650,17 +650,39 @@ const resetLandingStyling = element => {
 
 const editorInstances = new Map();
 
-const getEditorInstance = form => (form ? editorInstances.get(form) : null);
+const EDITOR_INSTANCE_KEY = '__pageEditorInstance';
+
+const getEditorInstance = form => {
+  if (!form) {
+    return null;
+  }
+
+  const existing = editorInstances.get(form);
+  if (existing) {
+    return existing;
+  }
+
+  const editorEl = getEditorElement(form);
+  return editorEl?.[EDITOR_INSTANCE_KEY] || null;
+};
 
 const setEditorInstance = (form, editor) => {
   if (form && editor) {
     editorInstances.set(form, editor);
+    const editorEl = getEditorElement(form);
+    if (editorEl) {
+      editorEl[EDITOR_INSTANCE_KEY] = editor;
+    }
   }
 };
 
 const removeEditorInstance = form => {
   if (form) {
     editorInstances.delete(form);
+    const editorEl = getEditorElement(form);
+    if (editorEl) {
+      delete editorEl[EDITOR_INSTANCE_KEY];
+    }
   }
 };
 
