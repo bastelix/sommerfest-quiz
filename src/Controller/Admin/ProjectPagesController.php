@@ -114,7 +114,7 @@ class ProjectPagesController
         $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
         $domainOptions = $this->buildDomainOptionsForNamespace($namespace, $host);
         $startpageMap = $this->buildStartpageLookup($namespace, $locale, $domainOptions['options']);
-        $selectedDomain = $domainOptions['selected'];
+        $selectedDomain = $this->resolveSelectedStartpageDomain($domainOptions, $startpageMap);
         $startpagePageId = $startpageMap[$selectedDomain] ?? null;
 
         return $view->render($response, 'admin/pages/content.twig', [
@@ -498,6 +498,22 @@ class ProjectPagesController
         }
 
         return $lookup;
+    }
+
+    /**
+     * @param array{options: list<array<string, mixed>>, selected: string} $domainOptions
+     * @param array<string, int|null> $startpageMap
+     */
+    private function resolveSelectedStartpageDomain(array $domainOptions, array $startpageMap): string
+    {
+        foreach ($domainOptions['options'] as $option) {
+            $value = (string) ($option['value'] ?? '');
+            if (array_key_exists($value, $startpageMap) && $startpageMap[$value] !== null) {
+                return $value;
+            }
+        }
+
+        return $domainOptions['selected'];
     }
 
     /**
