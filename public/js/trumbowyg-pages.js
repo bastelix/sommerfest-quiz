@@ -388,6 +388,10 @@ const LANDING_STYLE_FILENAMES = [
   'topbar.landing.css'
 ];
 
+const LANDING_NAMESPACE_DEFAULTS = new Set([
+  'calhelp'
+]);
+
 const LANDING_FONT_URL = 'https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap';
 
 const landingStylesPromises = {};
@@ -430,9 +434,10 @@ const buildLandingStyleSources = () => {
   const namespace = resolvePageNamespace();
   const normalized = (namespace || '').trim();
   const hasCustomNamespace = normalized && normalized !== 'default';
+  const skipNamespace = hasCustomNamespace && LANDING_NAMESPACE_DEFAULTS.has(normalized.toLowerCase());
   return LANDING_STYLE_FILENAMES.map(file => {
     const defaultPath = withBase(`/css/${file}`);
-    if (!hasCustomNamespace) {
+    if (!hasCustomNamespace || skipNamespace) {
       return [defaultPath];
     }
     return [withBase(`/css/${encodeURIComponent(normalized)}/${file}`), defaultPath];
