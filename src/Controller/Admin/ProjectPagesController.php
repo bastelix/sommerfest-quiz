@@ -85,7 +85,7 @@ class ProjectPagesController
         $view = Twig::fromRequest($request);
         $namespaceValidator = new NamespaceValidator();
         $domainNamespace = $namespaceValidator->normalizeCandidate($request->getAttribute('domainNamespace'));
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request, $domainNamespace);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $domainNamespace = $domainNamespace ?? $this->resolveNamespaceFromDomains($namespace);
         $hasDomainNamespace = $domainNamespace !== null;
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
