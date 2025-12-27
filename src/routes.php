@@ -44,6 +44,7 @@ use App\Service\SettingsService;
 use App\Service\DomainService;
 use App\Service\DomainContactTemplateService;
 use App\Service\CertificateProvisioningService;
+use App\Service\MarketingSslOrchestrator;
 use App\Service\PromptTemplateService;
 use App\Service\PageService;
 use App\Service\NamespaceService;
@@ -530,6 +531,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainService = new DomainService($pdo);
+        $marketingSslOrchestrator = new MarketingSslOrchestrator(
+            getenv('MARKETING_SSL_SCRIPT') ?: '/usr/local/bin/marketing_ssl_orchestrator.sh',
+            getenv('MARKETING_SSL_USER') ?: 'www-data'
+        );
         $domainContactTemplateService = new DomainContactTemplateService($pdo);
         $promptTemplateService = new PromptTemplateService($pdo);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
@@ -639,7 +644,11 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute(
                 'domainController',
-                new DomainController($domainService, $certificateProvisioningService)
+                new DomainController(
+                    $domainService,
+                    $certificateProvisioningService,
+                    $marketingSslOrchestrator
+                )
             )
             ->withAttribute(
                 'domainContactTemplateController',
@@ -2342,6 +2351,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var DomainController $controller */
         $controller = $request->getAttribute('domainController');
         return $controller->renewSsl($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/api/admin/domains/{id}/provision-ssl', function (Request $request, Response $response, array $args) {
+        /** @var DomainController $controller */
+        $controller = $request->getAttribute('domainController');
+        return $controller->provisionSsl($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {

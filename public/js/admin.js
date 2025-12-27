@@ -4315,6 +4315,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const transRenewError = renewSslButton?.dataset.error
       || window.transDomainSslError
       || 'Certificate request failed.';
+    const transProvisionLabel = window.transProvisionSsl || 'Provision SSL Certificates';
+    const transProvisionConfirm = window.transProvisionSslConfirm
+      || 'Trigger SSL provisioning for marketing domains in this namespace?';
+    const transProvisionStarted = window.transProvisionSslStarted
+      || 'SSL provisioning started. Certificates are issued asynchronously.';
+    const transProvisionError = window.transProvisionSslError
+      || window.transDomainError
+      || 'SSL provisioning failed.';
     const initialDomainData = (() => {
       if (Array.isArray(window.domains)) {
         return window.domains;
@@ -4527,6 +4535,40 @@ document.addEventListener('DOMContentLoaded', function () {
           });
       };
 
+      const provisionDomainCertificate = (domain, trigger) => {
+        if (!domain?.id) {
+          return;
+        }
+
+        if (!window.confirm(transProvisionConfirm)) {
+          return;
+        }
+
+        const reset = setActionLoading(trigger, true);
+        const url = resolveWithBase(`/api/admin/domains/${encodeURIComponent(domain.id)}/provision-ssl`);
+        const hostLabel = formatDomainLabel(domain);
+        const successMessage = hostLabel
+          ? `${hostLabel}: ${transProvisionStarted}`
+          : transProvisionStarted;
+
+        apiFetch(url, { method: 'POST' })
+          .then(res => res.json().catch(() => ({})).then(data => {
+            if (!res.ok) {
+              throw new Error(data?.error || transProvisionError);
+            }
+            return data;
+          }))
+          .then(data => {
+            notify(data?.status || successMessage, 'primary');
+          })
+          .catch(err => {
+            notify(err?.message || transProvisionError, 'danger');
+          })
+          .finally(() => {
+            reset();
+          });
+      };
+
       const deleteDomain = (domain, trigger) => {
         if (!domain?.id) {
           return;
@@ -4635,6 +4677,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }));
             list.appendChild(editItem);
 
+            const provisionItem = document.createElement('li');
+            provisionItem.appendChild(createActionLink({
+              label: transProvisionLabel,
+              icon: 'play',
+              action: 'provision-ssl',
+              domainId: item.id,
+              onClick: link => provisionDomainCertificate(item, link),
+            }));
+            list.appendChild(provisionItem);
+
             const renewItem = document.createElement('li');
             renewItem.appendChild(createActionLink({
               label: window.transRenewSsl || window.transDomainRenew || window.transDomainRenewSsl || 'SSL erneuern',
@@ -4723,6 +4775,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (action === 'edit') {
           applyForm(domain);
+          return;
+        }
+
+        if (action === 'provision-ssl') {
+          provisionDomainCertificate(domain, actionTarget);
           return;
         }
 
