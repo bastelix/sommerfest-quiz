@@ -25,6 +25,7 @@ class AdminLogsController
         $stripeLog = LogService::tail('stripe');
         $slimLog = LogService::tailDocker('slim-1');
         $onboardingLog = LogService::tail('onboarding');
+        $sslProvisioningLog = LogService::tail('ssl_provisioning');
         $view = Twig::fromRequest($request);
         $role = $_SESSION['user']['role'] ?? '';
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
@@ -33,6 +34,7 @@ class AdminLogsController
             'stripeLog' => $stripeLog,
             'slimLog' => $slimLog,
             'onboardingLog' => $onboardingLog,
+            'sslProvisioningLog' => $sslProvisioningLog,
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
