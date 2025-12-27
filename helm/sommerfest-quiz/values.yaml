@@ -25,6 +25,15 @@ logging:
     intervalSeconds: 30
   phpErrorLog: /proc/self/fd/2
 
+marketingSsl:
+  # If you want to reuse an existing secret, set the name here and ensure it
+  # contains MARKETING_SSL_API_TOKEN (required) plus optional MARKETING_SSL_API_URL
+  # and MARKETING_SSL_CONTACT_EMAIL keys.
+  existingSecret: ""
+  apiToken: ""
+  apiUrl: ""
+  contactEmail: ""
+
 service:
   type: ClusterIP
   port: 8080
