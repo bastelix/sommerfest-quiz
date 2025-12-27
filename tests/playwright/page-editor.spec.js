@@ -121,6 +121,9 @@ async function mountPageEditor(page, { content = '<p>Start</p>' } = {}) {
         <button type="button" class="uk-button uk-button-default" data-theme-choice="dark">Dunkel</button>
         <button type="button" class="uk-button uk-button-default" data-theme-choice="high-contrast">High-Contrast</button>
       </div>
+      <select id="pageNamespaceSelect" data-page-namespace="demo">
+        <option value="demo" selected>demo</option>
+      </select>
       <select id="pageContentSelect" data-selected="landing">
         <option value="landing">landing</option>
       </select>
@@ -135,6 +138,8 @@ async function mountPageEditor(page, { content = '<p>Start</p>' } = {}) {
       <div id="preview-modal"><div id="preview-content"></div></div>
       <script>
         window.basePath = '';
+        window.__openedUrls = [];
+        window.open = (...args) => { window.__openedUrls.push(args); return {}; };
         window.notify = (message, status) => {
           window.__notifications = window.__notifications || [];
           window.__notifications.push({ message, status });
@@ -206,7 +211,7 @@ test('inserts quiz links from the dropdown and persists them', async ({ page }) 
   expect(saved).toContain('uk-button-primary');
 });
 
-test('applies theme choices and mirrors editor HTML in the preview', async ({ page }) => {
+test('applies theme choices and opens the live preview in a new tab', async ({ page }) => {
   await mountPageEditor(page, { content: '<p>Vorschau</p>' });
 
   await page.click('[data-theme-choice="dark"]');
@@ -216,19 +221,8 @@ test('applies theme choices and mirrors editor HTML in the preview', async ({ pa
   await expect(page.locator('body')).toHaveAttribute('data-theme', 'high-contrast');
 
   await page.click('.preview-link');
-  await page.evaluate(() => {
-    if (typeof window.showPreview === 'function') {
-      window.showPreview();
-    }
-    const target = document.getElementById('preview-content');
-    if (target && target.innerHTML.trim() === '') {
-      target.innerHTML = '<p>Vorschau</p>';
-      target.dataset.theme = document.body.dataset.theme || '';
-    }
-  });
-  await page.waitForSelector('#preview-content p');
-  const previewTheme = await page.$eval('#preview-content', el => el.dataset.theme);
-  expect(previewTheme).toBe('high-contrast');
-  const previewText = await page.textContent('#preview-content');
-  expect(previewText).toContain('Vorschau');
+  const opened = await page.evaluate(() => window.__openedUrls || []);
+  expect(opened).toHaveLength(1);
+  expect(opened[0][0]).toBe('/m/landing?namespace=demo');
+  expect(opened[0][1]).toBe('_blank');
 });

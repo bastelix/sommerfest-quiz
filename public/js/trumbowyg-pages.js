@@ -751,6 +751,27 @@ const teardownPageEditor = form => {
 const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
 
+const buildPagePreviewUrl = slug => {
+  const safeSlug = typeof slug === 'string' ? slug.trim() : '';
+  if (!safeSlug) {
+    return null;
+  }
+  const path = withNamespace(`/m/${encodeURIComponent(safeSlug)}`);
+  return withBase(path);
+};
+
+const openPreviewInNewTab = slug => {
+  const previewUrl = buildPagePreviewUrl(slug);
+  if (!previewUrl) {
+    return null;
+  }
+  const handle = window.open(previewUrl, '_blank', 'noopener');
+  if (!handle && typeof notify === 'function') {
+    notify('Vorschau konnte nicht geöffnet werden', 'danger');
+  }
+  return handle;
+};
+
 let pageSelectionState = null;
 let currentStartpagePageId = null;
 let startpageMap = {};
@@ -2071,28 +2092,11 @@ const bindPreviewModal = () => {
 
 export async function showPreview() {
   const activeForm = document.querySelector('.page-form:not(.uk-hidden)');
-  const editor = activeForm ? ensurePageEditorInitialized(activeForm) : null;
-  if (!editor) return;
-  const html = sanitize($(editor).trumbowyg('html'));
-  const target = document.getElementById('preview-content');
-  const isLandingPreview = activeForm?.dataset.landing === 'true';
-  await ensurePreviewAssets();
-  if (target) {
-    target.innerHTML = html;
-    if (isLandingPreview) {
-      applyLandingPreviewStyling(target);
-    } else {
-      resetLandingPreviewStyling(target);
-    }
-    setLandingPreviewMedia(isLandingPreview);
-    if (window.UIkit && typeof window.UIkit.update === 'function') {
-      window.UIkit.update(target, 'mutation');
-    }
+  const slug = (activeForm?.dataset.slug || '').trim();
+  if (!slug) {
+    return;
   }
-  if (window.UIkit) {
-    bindPreviewModal();
-    window.UIkit.modal('#preview-modal').show();
-  }
+  openPreviewInNewTab(slug);
 }
 
 window.showPreview = showPreview;
