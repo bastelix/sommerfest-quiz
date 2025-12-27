@@ -532,7 +532,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainService = new DomainService($pdo);
         $marketingSslOrchestrator = new MarketingSslOrchestrator(
-            getenv('MARKETING_SSL_SCRIPT') ?: '/usr/local/bin/marketing_ssl_orchestrator.sh',
+            getenv('MARKETING_SSL_SCRIPT') ?: dirname(__DIR__) . '/scripts/marketing_ssl_orchestrator.sh',
             getenv('MARKETING_SSL_USER') ?: 'www-data'
         );
         $domainContactTemplateService = new DomainContactTemplateService($pdo);
