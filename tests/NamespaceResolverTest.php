@@ -10,7 +10,21 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 
 final class NamespaceResolverTest extends TestCase
 {
-    public function testPrefersActiveNamespaceFromSessionAttributeWhenQueryMissing(): void
+    public function testPrefersDomainNamespaceOverSessionNamespace(): void
+    {
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', 'https://promo.quizrace.app/admin/dashboard')
+            ->withAttribute('domainNamespace', 'summer')
+            ->withAttribute('active_namespace', 'quizrace');
+
+        $resolver = new NamespaceResolver();
+        $context = $resolver->resolve($request);
+
+        self::assertSame('summer', $context->getNamespace());
+        self::assertSame(['summer', 'quizrace', 'default'], $context->getCandidates());
+    }
+
+    public function testPrefersActiveNamespaceFromSessionWhenDomainMissing(): void
     {
         $request = (new ServerRequestFactory())
             ->createServerRequest('GET', 'https://quizrace.app/admin/dashboard')
