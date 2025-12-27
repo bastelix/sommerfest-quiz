@@ -8,12 +8,11 @@ use App\Infrastructure\Database;
 use App\Service\CertificateProvisioningService;
 use App\Service\MarketingDomainProvider;
 use App\Support\EnvLoader;
-use PDO;
 
 EnvLoader::loadAndSet(__DIR__ . '/../.env');
 
 $pdo = Database::connectFromEnv();
-$marketingDomainProvider = new MarketingDomainProvider(static function () use ($pdo): PDO {
+$marketingDomainProvider = new MarketingDomainProvider(static function () use ($pdo): \PDO {
     return $pdo;
 });
 $certificateProvisioner = new CertificateProvisioningService($marketingDomainProvider);
