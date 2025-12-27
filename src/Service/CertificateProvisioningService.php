@@ -61,8 +61,11 @@ final class CertificateProvisioningService implements CertificateProvisionerInte
         $domains = [];
 
         $mainDomain = $this->marketingDomainProvider->getMainDomain();
-        if ($mainDomain !== null && $mainDomain !== '') {
-            $domains[] = $mainDomain;
+        $normalizedMain = $mainDomain !== null
+            ? DomainNameHelper::normalize((string) $mainDomain, stripAdmin: false)
+            : '';
+        if ($normalizedMain !== '') {
+            $domains[] = $normalizedMain;
         }
 
         foreach ($this->marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $entry) {
@@ -73,7 +76,7 @@ final class CertificateProvisioningService implements CertificateProvisionerInte
         }
 
         if ($primary !== null) {
-            $domains[] = $primary;
+            $domains[] = DomainNameHelper::normalize($primary, stripAdmin: false);
         }
 
         $domains = array_values(array_unique(array_filter($domains, static fn ($value): bool => $value !== '')));

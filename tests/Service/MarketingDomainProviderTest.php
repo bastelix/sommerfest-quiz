@@ -1,0 +1,86 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Service;
+
+use App\Service\CertificateProvisioningService;
+use App\Service\MarketingDomainProvider;
+use PDO;
+use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+
+final class MarketingDomainProviderTest extends TestCase
+{
+    private ?string $marketingEnv = null;
+    private ?string $mainEnv = null;
+
+    protected function setUp(): void
+    {
+        $this->marketingEnv = getenv('MARKETING_DOMAINS') === false ? null : (string) getenv('MARKETING_DOMAINS');
+        $this->mainEnv = getenv('MAIN_DOMAIN') === false ? null : (string) getenv('MAIN_DOMAIN');
+    }
+
+    protected function tearDown(): void
+    {
+        $this->restoreEnv('MARKETING_DOMAINS', $this->marketingEnv);
+        $this->restoreEnv('MAIN_DOMAIN', $this->mainEnv);
+    }
+
+    public function testFallsBackToEnvironmentWhenDatabaseIsEmpty(): void
+    {
+        putenv('MARKETING_DOMAINS=promo.example.com admin.example.com promo.example.com');
+        $_ENV['MARKETING_DOMAINS'] = 'promo.example.com admin.example.com promo.example.com';
+
+        $provider = $this->createProvider();
+
+        self::assertSame(
+            ['promo.example.com', 'example.com'],
+            $provider->getMarketingDomains()
+        );
+
+        self::assertSame(
+            ['promo.example.com', 'admin.example.com'],
+            $provider->getMarketingDomains(stripAdmin: false)
+        );
+    }
+
+    public function testCollectMarketingDomainsDeduplicatesMainAndEnvEntries(): void
+    {
+        putenv('MAIN_DOMAIN=Example.com');
+        $_ENV['MAIN_DOMAIN'] = 'Example.com';
+        putenv('MARKETING_DOMAINS=promo.example.com example.com');
+        $_ENV['MARKETING_DOMAINS'] = 'promo.example.com example.com';
+
+        $provider = $this->createProvider();
+        $service = new CertificateProvisioningService($provider);
+
+        $method = new ReflectionMethod(CertificateProvisioningService::class, 'collectMarketingDomains');
+        $method->setAccessible(true);
+
+        $domains = $method->invoke($service, 'promo.example.com');
+
+        self::assertSame(['example.com', 'promo.example.com'], $domains);
+    }
+
+    private function createProvider(): MarketingDomainProvider
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        return new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
+    }
+
+    private function restoreEnv(string $key, ?string $value): void
+    {
+        if ($value === null) {
+            putenv($key);
+            unset($_ENV[$key]);
+
+            return;
+        }
+
+        putenv($key . '=' . $value);
+        $_ENV[$key] = $value;
+    }
+}
