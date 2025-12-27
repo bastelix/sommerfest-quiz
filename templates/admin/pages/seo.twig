@@ -21,6 +21,11 @@
   <script>
     window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
+  <script>
+    window.transSeoAiPending = '{{ t('message_seo_ai_pending')|default('')|e('js') }}';
+    window.transSeoAiSuccess = '{{ t('message_seo_ai_success')|default('')|e('js') }}';
+    window.transSeoAiError = '{{ t('message_seo_ai_error')|default('')|e('js') }}';
+  </script>
   <script type="module" src="{{ basePath }}/js/seo-form.js"></script>
 {% endblock %}
 
@@ -230,6 +235,10 @@
             </div>
             <div class="uk-margin">
               <button type="button" class="uk-button uk-button-default import-seo-example">Beispiel importieren</button>
+              <button type="button" class="uk-button uk-button-secondary uk-margin-left import-seo-ai">
+                KI-Import
+                <span class="uk-margin-small-left" data-seo-ai-spinner hidden uk-spinner="ratio: 0.6"></span>
+              </button>
               <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
             </div>
           </form>
