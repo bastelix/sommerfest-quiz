@@ -9,6 +9,15 @@ x-certbot-marketing-service: &certbot-marketing-service
     - webproxy
 
 services:
+  certbot-marketing:
+    image: nginx:alpine
+    restart: unless-stopped
+    environment:
+      LETSENCRYPT_HOST: ${MARKETING_LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    networks:
+      - webproxy
+
   nginx:
     image: nginx:1.25-alpine
     container_name: nginx
@@ -124,8 +133,8 @@ services:
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}${MARKETING_DOMAINS:+,${MARKETING_DOMAINS}}
-      - LETSENCRYPT_HOST=${SLIM_LETSENCRYPT_HOST:-${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}}${MARKETING_DOMAINS:+,${MARKETING_DOMAINS}}
+      - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}
+      - LETSENCRYPT_HOST=${SLIM_LETSENCRYPT_HOST:-${SLIM_VIRTUAL_HOST:-${MAIN_DOMAIN:-${DOMAIN}}}}
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - POSTGRES_DSN=${POSTGRES_DSN}
