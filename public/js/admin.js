@@ -3344,7 +3344,7 @@ document.addEventListener('DOMContentLoaded', function () {
     model: document.getElementById('ragChatModel'),
     temperature: document.getElementById('ragChatTemperature'),
     topP: document.getElementById('ragChatTopP'),
-    maxTokens: document.getElementById('ragChatMaxTokens'),
+    maxCompletionTokens: document.getElementById('ragChatMaxCompletionTokens'),
     presencePenalty: document.getElementById('ragChatPresencePenalty'),
     frequencyPenalty: document.getElementById('ragChatFrequencyPenalty')
   };
@@ -3561,8 +3561,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (ragChatFields.topP) {
       ragChatFields.topP.value = settingsInitial.rag_chat_service_top_p || '';
     }
-    if (ragChatFields.maxTokens) {
-      ragChatFields.maxTokens.value = settingsInitial.rag_chat_service_max_tokens || '';
+    if (ragChatFields.maxCompletionTokens) {
+      ragChatFields.maxCompletionTokens.value = settingsInitial.rag_chat_service_max_completion_tokens || '';
     }
     if (ragChatFields.presencePenalty) {
       ragChatFields.presencePenalty.value = settingsInitial.rag_chat_service_presence_penalty || '';
@@ -3591,7 +3591,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rag_chat_service_model: ragChatFields.model?.value?.trim() || '',
       rag_chat_service_temperature: ragChatFields.temperature?.value?.trim() || '',
       rag_chat_service_top_p: ragChatFields.topP?.value?.trim() || '',
-      rag_chat_service_max_tokens: ragChatFields.maxTokens?.value?.trim() || '',
+      rag_chat_service_max_completion_tokens: ragChatFields.maxCompletionTokens?.value?.trim() || '',
       rag_chat_service_presence_penalty: ragChatFields.presencePenalty?.value?.trim() || '',
       rag_chat_service_frequency_penalty: ragChatFields.frequencyPenalty?.value?.trim() || ''
     };

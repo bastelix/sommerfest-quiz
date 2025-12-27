@@ -479,10 +479,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                     $options['frequency_penalty'] = (float) $frequency;
                 }
 
-                $maxTokensEnv = getenv('RAG_CHAT_SERVICE_MAX_TOKENS');
+                $maxTokensEnv = getenv('RAG_CHAT_SERVICE_MAX_COMPLETION_TOKENS');
                 $maxTokens = $maxTokensEnv !== false ? trim((string) $maxTokensEnv) : '';
                 if ($maxTokens !== '' && is_numeric($maxTokens)) {
-                    $options['max_tokens'] = (int) $maxTokens;
+                    $options['max_completion_tokens'] = (int) $maxTokens;
                 }
 
                 $teamNameAiResponder = new OpenAiChatResponder(

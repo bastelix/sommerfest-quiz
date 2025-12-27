@@ -738,7 +738,7 @@ return [
     'label_rag_chat_token_clear' => 'Remove stored token',
     'label_rag_chat_temperature' => 'Temperature',
     'label_rag_chat_top_p' => 'Top-p',
-    'label_rag_chat_max_tokens' => 'Max tokens',
+    'label_rag_chat_max_completion_tokens' => 'Max completion tokens',
     'label_rag_chat_presence_penalty' => 'Presence penalty',
     'label_rag_chat_frequency_penalty' => 'Frequency penalty',
     'label_registration_enabled' => 'Allow registration',
