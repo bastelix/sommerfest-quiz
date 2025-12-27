@@ -366,7 +366,8 @@ else
 fi
 
 WEBHOOK_RESULT=0
-WEBHOOK_RESULT=$(reload_via_webhook) || WEBHOOK_RESULT=$?
+reload_via_webhook
+WEBHOOK_RESULT=$?
 
 if [ "$WEBHOOK_RESULT" -eq 2 ]; then
   if [ "$RELOAD_FLAG" = "0" ]; then
