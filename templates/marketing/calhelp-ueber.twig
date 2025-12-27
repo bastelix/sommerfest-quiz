@@ -1,0 +1,107 @@
+{% extends 'layout.twig' %}
+
+{% set contactUrl = pageConfig.contact_url|default(basePath ~ '/kontakt') %}
+{% set calendlyUrl = pageConfig.calendly_url|default('https://calendly.com/calhelp/kennenlernen') %}
+{% set newsletterUrl = pageConfig.newsletter_url|default(basePath ~ '/newsletter') %}
+
+{% block title %}{{ metaTitle|default('Über mich – calHelp') }}{% endblock %}
+
+{% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/calhelp-about.css">
+  <meta name="page-name" content="calHelp – Über mich">
+  <meta name="description" content="Kurz, persönlich und klar: René über calHelp, Projekte und Arbeitsweise.">
+{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}calhelp-about-page uk-background-default{% endblock %}
+
+{% block body %}
+  <div class="calhelp-about">
+    <header class="calhelp-about__header uk-section uk-section-small">
+      <div class="uk-container uk-container-small">
+        <nav class="uk-navbar-container uk-navbar-transparent" uk-navbar>
+          <div class="uk-navbar-left">
+            <a class="uk-navbar-item uk-logo calhelp-about__logo" href="{{ basePath }}/calhelp">calHelp</a>
+          </div>
+          <div class="uk-navbar-right">
+            <ul class="uk-navbar-nav calhelp-about__nav">
+              <li class="uk-active"><a href="{{ basePath }}/ueber-mich">Über mich</a></li>
+              <li><a href="{{ basePath }}/wissen">Wissen</a></li>
+              <li><a href="{{ basePath }}/kostenlos">Kostenlos</a></li>
+              <li><a href="{{ basePath }}/angebote">Angebote</a></li>
+              <li><a href="{{ newsletterUrl }}">Newsletter</a></li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="uk-section uk-section-default uk-padding-large">
+      <div class="uk-container uk-container-small">
+        <section class="uk-card uk-card-default uk-card-body uk-border-rounded calhelp-about__hero">
+          <div class="uk-grid uk-grid-large uk-flex-middle" uk-grid>
+            <div class="uk-width-expand@m">
+              <h1 class="uk-heading-medium uk-margin-small-bottom">Hi, ich bin René.</h1>
+              <p class="uk-text-lead uk-margin-small-top">calHelp begann vor rund 20 Jahren als „calibration help“ – damals ganz praktisch: Software, Schulung und Support rund um Kalibrierung.</p>
+              <p class="uk-margin-small-top">Heute ist calHelp mein Rahmen, um Digitalisierung so zu machen, dass sie im Alltag wirklich hilft: klar, verlässlich und langfristig.</p>
+              <p class="calhelp-about__quote uk-text-lead uk-margin-medium-top">Ein System. Klare Prozesse.<br><span class="uk-text-muted">Nicht als Spruch – eher als meine Art zu arbeiten.</span></p>
+              <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap: 12px;">
+                <a class="uk-button uk-button-primary" href="{{ calendlyUrl }}">Termin vereinbaren</a>
+                <a class="uk-button uk-button-default" href="{{ contactUrl }}">Kontakt aufnehmen</a>
+              </div>
+            </div>
+            <div class="uk-width-auto@m">
+              <div class="calhelp-about__portrait uk-border-circle uk-box-shadow-small" aria-hidden="true">RB</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="uk-card uk-card-default uk-card-body uk-border-rounded uk-margin-medium-top">
+          <h2 class="uk-h3 uk-margin-remove-bottom">Was du von mir erwarten kannst</h2>
+          <p class="uk-margin-small-top">Ich mag Dinge, die verständlich sind. Und ich mag Systeme, die nicht nur „irgendwie laufen“, sondern sich sauber nutzen und weiterentwickeln lassen.</p>
+          <p class="uk-margin-small-top">Kurz gesagt: Ich bringe Struktur in Themen, die vorher eher nach „gewachsen“ aussehen.</p>
+        </section>
+
+        <section class="uk-card uk-card-default uk-card-body uk-border-rounded uk-margin-medium-top">
+          <h2 class="uk-h3 uk-margin-remove-bottom">Warum calHelp</h2>
+          <p class="uk-margin-small-top">calHelp hieß am Anfang „calibration help“. Vor rund 20 Jahren ist daraus mein Weg entstanden: Software, Schulung und Support – nah an echten Teams und echten Fragen.</p>
+          <p class="uk-margin-small-top">Irgendwann wurde mir etwas sehr klar:<br>Nur Software allein löst die Sache nicht. Nur Support auch nicht. Und selbst 100 Schulungen ändern wenig, wenn das System dahinter weiterhin kompliziert bleibt.</p>
+          <p class="uk-margin-small-top">Der echte Durchbruch war die Erkenntnis: Es geht fast nie um einen einzelnen Baustein. Es geht um das Zusammenspiel.<br>Daten, Abläufe, Zuständigkeiten und Dokumente müssen zusammenpassen – sonst entsteht eine Dauerbaustelle.</p>
+          <p class="uk-margin-small-top">Genau daraus ist calHelp heute geworden: mein Rahmen, um Probleme nicht nur teilweise zu lösen, sondern so, dass am Ende wirklich Ruhe reinkommt.<br>Ein System. Klare Prozesse. Als Konsequenz aus Erfahrung.</p>
+        </section>
+
+        <section class="uk-card uk-card-default uk-card-body uk-border-rounded uk-margin-medium-top">
+          <h2 class="uk-h3 uk-margin-remove-bottom">Meine Projekte (als Orientierung)</h2>
+          <ul class="uk-list uk-list-bullet uk-margin-small-top">
+            <li><strong>calServer</strong> – mein System für klare Abläufe und saubere Daten, damit man im Alltag nicht ständig nacharbeiten muss.</li>
+            <li><strong>QuizRace</strong> – eine Agentursoftware für Webseiten und richtig gute Online-Quizze: Inhalte erstellen, veröffentlichen, spielen – alles in einem System.</li>
+          </ul>
+        </section>
+
+        <section class="uk-card uk-card-default uk-card-body uk-border-rounded uk-margin-medium-top">
+          <h2 class="uk-h3 uk-margin-remove-bottom">Das bin ich – und damit muss man leben</h2>
+          <ul class="uk-list uk-list-divider uk-margin-small-top">
+            <li>Ich bin nicht immer sofort erreichbar. Familie ist mir wichtiger. Und dann ist da noch Ty, mein Beagle.</li>
+            <li>Ich arbeite gern nerdig – und oft später. Wenn zum Feierabend noch nichts fertig ist: keine Sorge. Bei mir passiert das Finale manchmal nach 18 Uhr.</li>
+            <li>Ich liebe Sport. Und ich liebe Sport ohne Handy. Nur Musik und ich.</li>
+            <li>Und wenn wir schon bei Musik sind: elektronisch. Schon immer. Vielleicht sieht man sich mal beim Airbeat One.</li>
+          </ul>
+        </section>
+
+        <section class="uk-card uk-card-primary uk-card-body uk-border-rounded uk-margin-medium-top calhelp-about__cta">
+          <h2 class="uk-h3 uk-margin-remove-bottom">Wenn du beim Lesen dachtest: „Das passt“, dann melde dich gern. Direkt, unkompliziert, ohne Umwege.</h2>
+          <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap: 12px;">
+            <a class="uk-button uk-button-default" href="{{ contactUrl }}">Kontakt aufnehmen</a>
+            <a class="uk-button uk-button-primary" href="{{ calendlyUrl }}">Termin vereinbaren</a>
+            <a class="uk-button uk-button-default" href="{{ newsletterUrl }}">Newsletter abonnieren</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+{% endblock %}
