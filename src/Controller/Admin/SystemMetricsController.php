@@ -22,7 +22,7 @@ class SystemMetricsController
     public function __invoke(Request $request, Response $response): Response
     {
         try {
-            $data = $this->metricsService->collect();
+            $data = $this->metricsService->read();
         } catch (RuntimeException $exception) {
             $errorResponse = $response instanceof SlimResponse ? $response : new SlimResponse();
             $errorResponse->getBody()->write(json_encode([
