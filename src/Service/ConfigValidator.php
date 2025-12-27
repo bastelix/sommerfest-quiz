@@ -544,7 +544,7 @@ class ConfigValidator
 
     private function normalizeContainerRefreshInterval($value, int $fallback): int
     {
-        $raw = is_numeric($value) ? (int) $value : (is_numeric($fallback) ? (int) $fallback : self::DASHBOARD_CONTAINER_REFRESH_DEFAULT);
+        $raw = is_numeric($value) ? (int) $value : $fallback;
         if ($raw < self::DASHBOARD_MIN_REFRESH) {
             return self::DASHBOARD_MIN_REFRESH;
         }
