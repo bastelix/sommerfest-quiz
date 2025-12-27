@@ -63,9 +63,9 @@ class ChatSession:
         responder: ChatResponder,
         *,
         system_prompt: str = DEFAULT_SYSTEM_PROMPT,
-        history_limit: int = 6,
-        top_k: int = 4,
-        min_score: float = 0.05,
+        history_limit: int = 4,
+        top_k: int = 3,
+        min_score: float = 0.2,
         transcript: Optional["ChatTranscript"] = None,
     ) -> None:
         if history_limit < 0:

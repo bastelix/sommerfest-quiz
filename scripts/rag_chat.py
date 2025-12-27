@@ -118,17 +118,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("data/rag-chatbot/index.json"),
         help="Pfad zum zuvor erzeugten semantischen Index",
     )
-    parser.add_argument("--top-k", type=int, default=4, help="Anzahl der Kontext-Chunks pro Frage")
+    parser.add_argument("--top-k", type=int, default=3, help="Anzahl der Kontext-Chunks pro Frage")
     parser.add_argument(
         "--min-score",
         type=float,
-        default=0.05,
+        default=0.2,
         help="Minimale Ähnlichkeit, damit ein Chunk berücksichtigt wird",
     )
     parser.add_argument(
         "--history-limit",
         type=int,
-        default=6,
+        default=4,
         help="Anzahl der vorangegangenen Benutzer/Assistenten-Paare, die behalten werden",
     )
     parser.add_argument(
