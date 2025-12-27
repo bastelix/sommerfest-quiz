@@ -627,18 +627,10 @@ Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *chi
 
 ### Rich-Text-Editor
 
-Zum Bearbeiten der statischen Seiten wird **Trumbowyg** eingesetzt. Die Bibliothek
-kann per CDN eingebunden werden:
-
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
-```
-
-Die Initialisierung erfolgt im Skript `public/js/trumbowyg-pages.js`. Dort sind
-auch eigene UIkit-Vorlagen wie ein Hero-Block oder eine Card hinterlegt. Beim
-Speichern wird das generierte HTML in das Feld `content` übertragen. Eine
+Zum Bearbeiten der statischen Seiten kommt **TipTap Core** mit dem
+**StarterKit** zum Einsatz. Die Initialisierung sowie die Anbindung an die
+Formulare übernimmt das Modul `public/js/tiptap-pages.js`, das außerdem vor dem
+Speichern DOMPurify-Sanitizing und eine `srcset`-Prüfung ausführt. Eine
 Vorschau lässt sich direkt im Modal aufrufen.
 
 ## Tests

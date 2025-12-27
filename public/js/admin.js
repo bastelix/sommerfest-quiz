@@ -10414,7 +10414,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadSummary();
   });
 
-  // Page editors are handled in trumbowyg-pages.js
+  // Page editors are handled in tiptap-pages.js
 
   ragChatFields.token?.addEventListener('input', () => {
     if (!ragChatFields.tokenClear) return;
