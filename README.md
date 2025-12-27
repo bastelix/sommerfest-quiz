@@ -579,14 +579,17 @@ ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
 aus echten Domains aufgebaut: Standardmäßig landen alle konkreten
 Einträge aus `SLIM_VIRTUAL_HOST` (inklusive des Fallbacks auf
 `MAIN_DOMAIN`) sowie sämtliche Werte aus `MARKETING_DOMAINS` in der
-Liste. Damit erhält auch die Admin-Subdomain automatisch ein Zertifikat,
-sobald sie in `SLIM_VIRTUAL_HOST` auftaucht. Über `SLIM_LETSENCRYPT_HOST`
-kannst du bei Bedarf weitere konkrete Hosts anhängen – Regex-Ausdrücke
-bleiben ausschließlich in `VIRTUAL_HOST`, damit der `acme-companion`
-keine ungültigen CSRs erzeugt. Beim Start normalisiert der Container
-beide Variablen (Leerzeichen und Zeilenumbrüche werden entfernt) und
-löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
-`acme-companion` direkt Zertifikate für neue Domains anfordert.
+Liste. Marketing-Domains dürfen mit Kommas oder Leerzeichen getrennt
+sein; der Entry-Point normalisiert die Werte, hängt sie an
+`VIRTUAL_HOST/LETSENCRYPT_HOST` an und protokolliert die resultierende
+Host-Liste für die Fehlersuche. Damit erhält auch die Admin-Subdomain
+automatisch ein Zertifikat, sobald sie in `SLIM_VIRTUAL_HOST` auftaucht.
+Über `SLIM_LETSENCRYPT_HOST` kannst du bei Bedarf weitere konkrete Hosts
+anhängen – Regex-Ausdrücke bleiben ausschließlich in `VIRTUAL_HOST`, damit
+der `acme-companion` keine ungültigen CSRs erzeugt. Beim Start
+normalisiert der Container beide Variablen (Leerzeichen und Zeilenumbrüche
+werden entfernt) und löst einen Reload des Proxys über `NGINX_RELOADER_URL`
+aus, sodass der `acme-companion` direkt Zertifikate für neue Domains anfordert.
 Zusätzlich prüft der Startvorgang, ob jede Domain in `LETSENCRYPT_HOST`
 auflösbar ist. Standardmäßig läuft dieser Check jetzt im Warnmodus und
 behält nicht auflösbare Hosts in der Liste (wichtig für DNS-01-Challenges
