@@ -5814,8 +5814,12 @@ var Configuration = class {
     this.fields = baseFields.slice();
     if (plugins)
       plugins.forEach((plugin) => {
-        if (this.pluginsByKey[plugin.key])
-          throw new RangeError("Adding different instances of a keyed plugin (" + plugin.key + ")");
+        if (this.pluginsByKey[plugin.key]) {
+          if (typeof window !== "undefined" && window.console?.warn) {
+            window.console.warn("Skipping duplicate ProseMirror plugin", plugin.key);
+          }
+          return;
+        }
         this.plugins.push(plugin);
         this.pluginsByKey[plugin.key] = plugin;
         if (plugin.spec.state)
