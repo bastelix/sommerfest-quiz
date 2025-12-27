@@ -9,32 +9,33 @@ DEFAULT_EMAIL=${MARKETING_SSL_CONTACT_EMAIL:-${LETSENCRYPT_EMAIL:-"admin@calhelp
 
 usage() {
   cat >&2 <<'USAGE'
-Usage: marketing_ssl_orchestrator.sh [--namespace <name> ...] [--dry-run]
+Usage: marketing_ssl_orchestrator.sh [--namespace <name> ...] [--host <domain> ...] [--dry-run]
 
 Options:
   --namespace <name>   Restrict provisioning to one or more namespaces. When omitted,
                        all marketing domains are collected from the API endpoint.
+  --host <domain>      Provision the given domain(s) directly without querying the API.
   --dry-run            Compute the domain list but skip Docker recreation.
 
 Environment variables:
   MARKETING_SSL_API_URL      Base URL for the marketing domains endpoint (default: http://localhost:8080/api/admin/marketing-domains)
-  MARKETING_SSL_API_TOKEN    Bearer token for the API request (required)
+  MARKETING_SSL_API_TOKEN    Bearer token for the API request (required unless using --host)
   MARKETING_SSL_CONTACT_EMAIL Contact email for LetsEncrypt (default: admin@calhelp.de)
 USAGE
 }
 
-if [[ -z "$API_TOKEN" ]]; then
-  printf 'API token is required (set MARKETING_SSL_API_TOKEN)\n' >&2
-  exit 1
-fi
-
 namespaces=()
+hosts=()
 dry_run=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --namespace)
       namespaces+=("$2")
+      shift 2
+      ;;
+    --host)
+      hosts+=("$2")
       shift 2
       ;;
     --dry-run)
@@ -121,7 +122,9 @@ fetch_domains_for_namespace() {
 collect_domains() {
   local aggregated=()
 
-  if [[ ${#namespaces[@]} -eq 0 ]]; then
+  if [[ ${#hosts[@]} -gt 0 ]]; then
+    aggregated=("${hosts[@]}")
+  elif [[ ${#namespaces[@]} -eq 0 ]]; then
     while IFS= read -r domain; do
       aggregated+=("$domain")
     done < <(fetch_domains_for_namespace "")
@@ -135,6 +138,11 @@ collect_domains() {
 
   normalize_domains "${aggregated[@]}"
 }
+
+if [[ ${#hosts[@]} -eq 0 && -z "$API_TOKEN" ]]; then
+  printf 'API token is required (set MARKETING_SSL_API_TOKEN)\n' >&2
+  exit 1
+fi
 
 current_container_domains() {
   docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' "$SERVICE" 2>/dev/null | \
