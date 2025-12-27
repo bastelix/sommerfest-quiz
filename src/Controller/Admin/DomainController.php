@@ -59,16 +59,21 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        $namespace = (string) ($domain['namespace'] ?? '');
-        if (trim($namespace) === '') {
-            return $this->jsonError($response, 'Namespace is required for SSL provisioning.', 400);
-        }
-
         $queryParams = $request->getQueryParams();
         $dryRun = $this->normalizeBool($queryParams['dry_run'] ?? false);
 
+        $namespace = trim((string) ($domain['namespace'] ?? ''));
+        $host = $this->domainService->normalizeDomain((string) $domain['host'], stripAdmin: false);
+        if ($host === '') {
+            $host = (string) ($domain['normalized_host'] ?? '');
+        }
+
+        if ($host === '') {
+            return $this->jsonError($response, 'Invalid domain supplied.', 422);
+        }
+
         try {
-            $this->marketingSslOrchestrator->trigger($namespace, $dryRun);
+            $this->marketingSslOrchestrator->trigger(namespace: $namespace !== '' ? $namespace : null, dryRun: $dryRun, host: $host);
         } catch (RuntimeException $exception) {
             error_log('[marketing-ssl] provisioning failed: ' . $exception->getMessage());
 
@@ -77,7 +82,8 @@ class DomainController
 
         $payload = [
             'status' => 'started',
-            'namespace' => $namespace,
+            'namespace' => $namespace !== '' ? $namespace : null,
+            'domain' => $host,
         ];
 
         $response->getBody()->write(json_encode($payload));

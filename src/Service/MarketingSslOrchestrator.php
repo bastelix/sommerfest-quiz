@@ -18,10 +18,13 @@ class MarketingSslOrchestrator
     ) {
     }
 
-    public function trigger(string $namespace, bool $dryRun = false): void
+    public function trigger(?string $namespace = null, bool $dryRun = false, ?string $host = null): void
     {
-        if (trim($namespace) === '') {
-            throw new RuntimeException('Namespace is required.');
+        $namespace = $namespace !== null ? trim($namespace) : '';
+        $host = $host !== null ? trim($host) : '';
+
+        if ($namespace === '' && $host === '') {
+            throw new RuntimeException('Namespace or host is required.');
         }
 
         $command = [
@@ -29,9 +32,15 @@ class MarketingSslOrchestrator
             '-u',
             $this->runAsUser,
             $this->scriptPath,
-            '--namespace',
-            $namespace,
         ];
+
+        if ($host !== '') {
+            $command[] = '--host';
+            $command[] = $host;
+        } else {
+            $command[] = '--namespace';
+            $command[] = $namespace;
+        }
 
         if ($dryRun) {
             $command[] = '--dry-run';

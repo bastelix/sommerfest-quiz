@@ -7,6 +7,7 @@ namespace Tests\Controller;
 use App\Service\CertificateProvisionerInterface;
 use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
+use App\Service\MarketingSslOrchestrator;
 use App\Support\DomainNameHelper;
 use Tests\TestCase;
 
@@ -252,5 +253,72 @@ class DomainControllerTest extends TestCase
         } finally {
             DomainNameHelper::setMarketingDomainProvider($previousProvider);
         }
+    }
+
+    public function testProvisionSslAllowsDomainsWithoutNamespace(): void
+    {
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domains (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                host TEXT NOT NULL,
+                normalized_host TEXT NOT NULL UNIQUE,
+                namespace TEXT,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+        SQL);
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+
+        $this->setDatabase($pdo);
+
+        $service = new DomainService($pdo);
+        $domain = $service->createDomain('promo.example.com', 'Example', null, true);
+
+        $orchestrator = new class () extends MarketingSslOrchestrator {
+            public array $triggered = [];
+
+            public function __construct()
+            {
+            }
+
+            public function trigger(?string $namespace = null, bool $dryRun = false, ?string $host = null): void
+            {
+                $this->triggered[] = [
+                    'namespace' => $namespace,
+                    'dryRun' => $dryRun,
+                    'host' => $host,
+                ];
+            }
+        };
+
+        $controller = new \App\Controller\Admin\DomainController($service, null, $orchestrator);
+
+        $request = $this->createRequest(
+            'POST',
+            '/api/admin/domains/' . $domain['id'] . '/provision-ssl',
+            [
+                'HTTP_ACCEPT' => 'application/json',
+            ]
+        );
+
+        $response = $controller->provisionSsl($request, new \Slim\Psr7\Response(), ['id' => (string) $domain['id']]);
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertSame('started', $payload['status'] ?? null);
+        $this->assertNull($payload['namespace'] ?? null);
+        $this->assertSame('promo.example.com', $payload['domain'] ?? null);
+
+        $this->assertCount(1, $orchestrator->triggered);
+        $trigger = $orchestrator->triggered[0];
+        $this->assertNull($trigger['namespace']);
+        $this->assertFalse($trigger['dryRun']);
+        $this->assertSame('promo.example.com', $trigger['host']);
     }
 }
