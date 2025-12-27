@@ -1,5 +1,6 @@
 import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
+import BlockContentEditor from './components/block-content-editor.js';
 
 /* global notify */
 
@@ -82,6 +83,9 @@ const THEME_DARK = 'dark';
 const THEME_HIGH_CONTRAST = 'high-contrast';
 const THEME_STORAGE_KEY = 'pageEditorTheme';
 const THEME_CHOICES = [THEME_LIGHT, THEME_DARK, THEME_HIGH_CONTRAST];
+
+const PAGE_EDITOR_MODE = (window.pageEditorMode || window.pageEditorDriver || 'tiptap').toLowerCase();
+const USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
 
 const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
@@ -1090,6 +1094,10 @@ const attachEditorToolbar = (form, editor) => {
     return;
   }
 
+  if (USE_BLOCK_EDITOR) {
+    return;
+  }
+
   const editorEl = getEditorElement(form);
   if (!editorEl || !editorEl.parentNode) {
     return;
@@ -1115,6 +1123,18 @@ const ensurePageEditorInitialized = form => {
   const editorEl = getEditorElement(form);
   if (!editorEl || editorEl.dataset.editorInitializing === '1') {
     return null;
+  }
+
+  if (USE_BLOCK_EDITOR) {
+    let existing = getEditorInstance(form);
+    if (existing) {
+      return existing;
+    }
+    const initialContent = editorEl.dataset.content || editorEl.textContent || '{}';
+    editorEl.dataset.content = initialContent;
+    const blockEditor = new BlockContentEditor(editorEl, initialContent, { pageId: form?.dataset.pageId });
+    setEditorInstance(form, blockEditor);
+    return blockEditor;
   }
 
   let existing = getEditorInstance(form);
@@ -1167,6 +1187,22 @@ const teardownPageEditor = form => {
   const editor = getEditorInstance(form);
   const editorEl = getEditorElement(form);
   if (!editor || !editorEl) {
+    return;
+  }
+
+  if (USE_BLOCK_EDITOR) {
+    if (typeof editor.getContent === 'function') {
+      const content = editor.getContent();
+      editorEl.dataset.content = content;
+      const slug = form?.dataset.slug;
+      if (slug && window.pagesContent && typeof window.pagesContent === 'object') {
+        window.pagesContent[slug] = content;
+      }
+    }
+    if (typeof editor.destroy === 'function') {
+      editor.destroy();
+    }
+    removeEditorInstance(form);
     return;
   }
 
@@ -1509,17 +1545,22 @@ const setupPageForm = form => {
     saveBtn.addEventListener('click', event => {
       event.preventDefault();
       const activeEditor = ensurePageEditorInitialized(form);
-      const rawHtml = activeEditor ? activeEditor.getHTML() : editorEl.dataset.content || '';
-      const html = sanitize(rawHtml);
-      input.value = html;
-      editorEl.dataset.content = html;
+      const content = USE_BLOCK_EDITOR
+        ? (activeEditor && typeof activeEditor.getContent === 'function'
+          ? activeEditor.getContent()
+          : editorEl.dataset.content || '{}')
+        : sanitize(activeEditor ? activeEditor.getHTML() : editorEl.dataset.content || '');
+
+      input.value = content;
+      editorEl.dataset.content = content;
       if (window.pagesContent && typeof window.pagesContent === 'object') {
-        window.pagesContent[slug] = html;
+        window.pagesContent[slug] = content;
       }
+
       apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(slug)}`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ content: html })
+        body: new URLSearchParams({ content })
       })
         .then(response => {
           if (!response.ok) {
@@ -1653,6 +1694,25 @@ const updatePageContentInInterface = (slug, html) => {
   }
   const form = document.querySelector(`.page-form[data-slug="${normalized}"]`);
   if (!form) {
+    return;
+  }
+
+  if (USE_BLOCK_EDITOR) {
+    const serialized = typeof html === 'string' ? html : JSON.stringify(html || {});
+    const input = form.querySelector('input[name="content"]');
+    const editorEl = form.querySelector('.page-editor');
+    const editor = getEditorInstance(form);
+    if (input) {
+      input.value = serialized;
+    }
+    if (editor && typeof editor.setContent === 'function') {
+      editor.setContent(serialized);
+    } else if (editorEl) {
+      editorEl.dataset.content = serialized;
+    }
+    if (window.pagesContent && typeof window.pagesContent === 'object') {
+      window.pagesContent[normalized] = serialized;
+    }
     return;
   }
 

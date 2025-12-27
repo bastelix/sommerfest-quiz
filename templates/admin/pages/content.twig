@@ -50,10 +50,13 @@
     window.transAiPageTimeout = '{{ t('error_ai_page_timeout')|e('js') }}';
     window.transAiPageCreated = '{{ t('notify_ai_page_created')|e('js') }}';
   </script>
-  {% set editorDriver = pageEditorDriver|default('tiptap') %}
+  {% set editorDriver = pageEditorDriver|default('blocks') %}
   {% if editorDriver == 'trumbowyg' %}
     <script src="{{ basePath }}/js/trumbowyg-pages.js"></script>
   {% else %}
+    <script>
+      window.pageEditorMode = 'blocks';
+    </script>
     <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
   {% endif %}
 {% endblock %}
