@@ -4405,7 +4405,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         const actionTarget = event.target.closest('[data-domain-action]');
-        if (!actionTarget || !domainTable.contains(actionTarget)) {
+        if (!actionTarget) {
           return;
         }
 
@@ -4434,7 +4434,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       };
 
-      domainTable.addEventListener('click', handleDomainAction);
+      document.addEventListener('click', handleDomainAction);
 
       const domainTableManager = domainTableBody
         ? new TableManager({
