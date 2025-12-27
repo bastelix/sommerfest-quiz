@@ -402,6 +402,7 @@ const apiFetch = (path, options = {}) => {
 };
 
 const LANDING_STYLE_FILENAMES = [
+  'uikit.min.css',
   'landing.css',
   'onboarding.css',
   'topbar.landing.css'
