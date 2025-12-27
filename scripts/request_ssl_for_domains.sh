@@ -1,9 +1,18 @@
 #!/bin/sh
-# Collect domains and trigger a full certificate request cycle
+# Collect domains and trigger a certbot-marketing recreate so docker-gen/acme-companion picks up changes
 set -e
 
 if [ -z "$1" ]; then
   echo "Usage: $0 <comma-separated-domains>" >&2
+  exit 1
+fi
+
+if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  echo "docker compose not available" >&2
   exit 1
 fi
 
@@ -12,6 +21,7 @@ LOG_FILE="$SCRIPT_DIR/../logs/ssl_provisioning.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 
 LOCK_FILE="$SCRIPT_DIR/../logs/ssl_provisioning.lock"
+LOCK_ACQUIRED=""
 
 cleanup_lock() {
   if [ -n "$LOCK_ACQUIRED" ] && [ "$LOCK_ACQUIRED" -eq 1 ]; then
@@ -28,107 +38,39 @@ fi
 
 LOCK_ACQUIRED=1
 
-raw_input=$(printf '%s' "$1" | tr '\n' ',')
-normalized=$(printf '%s' "$raw_input" | sed 's/,,*/,/g; s/^,//; s/,$//')
-if [ -z "$normalized" ]; then
-  echo "No domains supplied" >&2
-  echo "[$(date -Iseconds)] rejected request: no domains supplied" >> "$LOG_FILE"
+normalize_domains() {
+  printf '%s' "$1" | tr ',\n' '\n\n' |
+    tr '[:upper:]' '[:lower:]' |
+    sed -E 's#https?://##g' |
+    sed -E 's#/.*##' |
+    sed -E 's/\?.*$//' |
+    sed -E 's/#.*$//' |
+    sed -E 's/:.*$//' |
+    sed 's/^[[:space:]]*//;s/[[:space:]]*$//' |
+    sed '/^$/d' |
+    grep -v '\*' |
+    sort -u
+}
+
+raw_input=$(printf '%s' "$1")
+normalized_list=$(normalize_domains "$raw_input")
+
+if [ -z "$normalized_list" ]; then
+  echo "No valid domains supplied after normalization" >&2
+  echo "[$(date -Iseconds)] rejected request: empty domain list from input '$raw_input'" >> "$LOG_FILE"
   exit 1
 fi
 
-domains=""
-wildcards=""
+domain_csv=$(printf '%s' "$normalized_list" | paste -sd, -)
 
-for candidate in $(printf '%s' "$normalized" | tr ',' ' '); do
-  cleaned=$(printf '%s' "$candidate" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-  if [ -z "$cleaned" ]; then
-    continue
-  fi
+echo "[request_ssl] Domains: $domain_csv"
 
-  case "$cleaned" in
-    \*.*)
-      wildcards="$wildcards $cleaned"
-      continue
-      ;;
-  esac
+EMAIL_FALLBACK=${MARKETING_SSL_CONTACT_EMAIL:-admin@calhelp.de}
+LE_EMAIL=${LETSENCRYPT_EMAIL:-$EMAIL_FALLBACK}
 
-  case " $domains " in
-    *" $cleaned "*)
-      ;;
-    *)
-      domains="$domains $cleaned"
-      ;;
-  esac
-done
-
-if [ -n "$wildcards" ]; then
-  echo "Wildcard domains cannot be processed via HTTP-01. Remove them or provision a wildcard certificate manually." >&2
-  echo "Rejected wildcard entries:${wildcards}" >&2
-  echo "[$(date -Iseconds)] rejected request: wildcard entries:${wildcards}" >> "$LOG_FILE"
+if ! MARKETING_LETSENCRYPT_HOST="$domain_csv" LETSENCRYPT_EMAIL="$LE_EMAIL" $DOCKER_COMPOSE up -d --force-recreate certbot-marketing >/dev/null 2>&1; then
+  echo "[$(date -Iseconds)] failed to recreate certbot-marketing for domains: $domain_csv" >> "$LOG_FILE"
   exit 1
 fi
 
-domain_list=$(printf '%s' "$domains" | sed 's/^ //; s/  */ /g; s/ /,/g')
-domain_list=$(printf '%s' "$domain_list" | sed 's/^,//; s/,$//; s/,,*/,/g')
-if [ -z "$domain_list" ]; then
-  echo "No valid domains supplied after filtering" >&2
-  echo "[$(date -Iseconds)] rejected request: no valid domains after filtering input '$normalized'" >> "$LOG_FILE"
-  exit 1
-fi
-
-export MARKETING_DOMAINS="$domain_list"
-echo "[request_ssl] Domains: $MARKETING_DOMAINS"
-
-primary_domain=$(printf '%s' "$domain_list" | cut -d ',' -f1)
-cert_path="$SCRIPT_DIR/../certs/${primary_domain}.crt"
-freshness_window_seconds=$((6 * 3600))
-minimum_validity_days=7
-
-if [ -f "$cert_path" ]; then
-  now_ts=$(date +%s)
-  cert_mtime=$(stat -c %Y "$cert_path" 2>/dev/null || stat -f %m "$cert_path" 2>/dev/null || echo "")
-  expiry_raw=$(openssl x509 -enddate -noout -in "$cert_path" 2>/dev/null | cut -d '=' -f2-)
-  expiry_ts=""
-
-  if [ -n "$expiry_raw" ]; then
-    expiry_ts=$(date -d "$expiry_raw" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$expiry_raw" +%s 2>/dev/null || echo "")
-  fi
-
-  if [ -n "$cert_mtime" ]; then
-    age_seconds=$((now_ts - cert_mtime))
-  else
-    age_seconds=""
-  fi
-
-  if [ -n "$expiry_ts" ]; then
-    seconds_left=$((expiry_ts - now_ts))
-  else
-    seconds_left=""
-  fi
-
-  if [ -n "$age_seconds" ] && [ "$age_seconds" -lt "$freshness_window_seconds" ] && \
-     [ -n "$seconds_left" ] && [ "$seconds_left" -gt $((minimum_validity_days * 86400)) ]; then
-    echo "[$(date -Iseconds)] certificate for $primary_domain is fresh; skipping renewal trigger" >> "$LOG_FILE"
-    exit 0
-  fi
-fi
-
-echo "[$(date -Iseconds)] trigger renew_ssl for domains: $MARKETING_DOMAINS" >> "$LOG_FILE"
-
-max_attempts=3
-backoff_seconds=5
-attempt=1
-
-while [ "$attempt" -le "$max_attempts" ]; do
-  if sh "$SCRIPT_DIR/renew_ssl.sh" --recreate --main; then
-    exit 0
-  fi
-
-  attempt=$((attempt + 1))
-  if [ "$attempt" -le "$max_attempts" ]; then
-    sleep $((backoff_seconds * (attempt - 1)))
-  fi
-done
-
-echo "[$(date -Iseconds)] renew_ssl.sh failed after $max_attempts attempts" >> "$LOG_FILE"
-exit 1
+echo "[$(date -Iseconds)] recreated certbot-marketing for domains: $domain_csv" >> "$LOG_FILE"
