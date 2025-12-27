@@ -815,6 +815,12 @@ const attachEditorToolbar = (form, editor) => {
   form.dataset.toolbarReady = '1';
 };
 
+const buildEditorExtensions = () => [
+  StarterKit.configure({}),
+  QuizLink,
+  UikitTemplates
+];
+
 const ensurePageEditorInitialized = form => {
   const editorEl = getEditorElement(form);
   if (!editorEl || editorEl.dataset.editorInitializing === '1') {
@@ -839,20 +845,26 @@ const ensurePageEditorInitialized = form => {
   }
 
   editorEl.dataset.editorInitializing = '1';
-  const editor = new Editor({
-    element: editorEl,
-    content: sanitized,
-    extensions: [StarterKit, QuizLink, UikitTemplates],
-    editorProps: {
-      attributes: {
-        class: 'tiptap-editor',
-        spellcheck: 'true'
+  let editor;
+  try {
+    editor = new Editor({
+      element: editorEl,
+      content: sanitized,
+      extensions: buildEditorExtensions(),
+      editorProps: {
+        attributes: {
+          class: 'tiptap-editor',
+          spellcheck: 'true'
+        }
+      },
+      onUpdate: ({ editor: instance }) => {
+        editorEl.dataset.content = sanitize(instance.getHTML());
       }
-    },
-    onUpdate: ({ editor: instance }) => {
-      editorEl.dataset.content = sanitize(instance.getHTML());
-    }
-  });
+    });
+  } catch (error) {
+    delete editorEl.dataset.editorInitializing;
+    throw error;
+  }
 
   editorEl.dataset.editorInitialized = '1';
   delete editorEl.dataset.editorInitializing;
