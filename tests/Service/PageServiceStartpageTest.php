@@ -83,6 +83,22 @@ final class PageServiceStartpageTest extends TestCase
         $this->assertSame('fallback', $clearedStartpage?->getSlug());
     }
 
+    public function testEmptyDomainStringIsHandledAsNull(): void
+    {
+        $this->insertPage(1, 'default', 'legacy-empty', true, '', 'de');
+        $this->insertPage(2, 'default', 'new-home', false, null, 'de');
+
+        $resolved = $this->service->resolveStartpage('default', null, null);
+        $this->assertNotNull($resolved);
+        $this->assertSame('legacy-empty', $resolved?->getSlug());
+
+        $this->service->markAsStartpage(2, 'default', null);
+
+        $updated = $this->service->resolveStartpage('default', null, null);
+        $this->assertNotNull($updated);
+        $this->assertSame('new-home', $updated?->getSlug());
+    }
+
     private function insertPage(
         int $id,
         string $namespace,

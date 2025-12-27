@@ -308,7 +308,7 @@ class PageService
         $params = [$normalizedNamespace];
 
         if ($normalizedDomain === null) {
-            $sql .= ' AND startpage_domain IS NULL';
+            $sql .= " AND (startpage_domain IS NULL OR startpage_domain = '')";
         } else {
             $sql .= ' AND startpage_domain = ?';
             $params[] = $normalizedDomain;
@@ -667,7 +667,7 @@ class PageService
         $params = [$namespace];
 
         if ($domain === null) {
-            $sql .= ' AND startpage_domain IS NULL';
+            $sql .= " AND (startpage_domain IS NULL OR startpage_domain = '')";
         } else {
             $sql .= ' AND startpage_domain = ?';
             $params[] = $domain;
