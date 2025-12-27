@@ -588,8 +588,10 @@ beide Variablen (Leerzeichen und Zeilenumbrüche werden entfernt) und
 löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
 `acme-companion` direkt Zertifikate für neue Domains anfordert.
 Zusätzlich prüft der Startvorgang, ob jede Domain in `LETSENCRYPT_HOST`
-auflösbar ist; nicht auflösbare Hosts werden mit einer Warnung entfernt,
-damit keine vermeidbaren ACME-Fehler entstehen.
+auflösbar ist. Nicht auflösbare Hosts werden standardmäßig mit einer
+Warnung entfernt, damit keine vermeidbaren ACME-Fehler entstehen; setze
+`LE_SKIP_DNS_PREFILTER=true`, wenn der Check nur protokollieren und
+die Hosts in der Liste lassen soll (z. B. für DNS-01-Challenges).
 
 Weitere nützliche Variablen in `.env` sind:
 
