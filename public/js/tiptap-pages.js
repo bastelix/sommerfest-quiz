@@ -1,6 +1,7 @@
 import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
+import PreviewCanvas from './components/preview-canvas.js';
 
 /* global notify */
 
@@ -76,6 +77,132 @@ const sanitize = str => {
   }
 
   return scrubInvalidSrcsetAttributes(sanitized);
+};
+
+// The block editor owns the content model; the preview only consumes the
+// serialized blocks, forwards them into the renderer, and mirrors selection via
+// data-block-id. This keeps the editor and renderer isolated while still
+// synchronizing intent across both surfaces.
+const blockPreviewBindings = new WeakMap();
+
+const safeParseBlocks = value => {
+  if (!value) {
+    return { blocks: [], meta: {}, id: null };
+  }
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return {
+      blocks: Array.isArray(parsed?.blocks) ? parsed.blocks : [],
+      meta: parsed?.meta || {},
+      id: parsed?.id || null
+    };
+  } catch (error) {
+    return { blocks: [], meta: {}, id: null };
+  }
+};
+
+const readBlockEditorState = editor => safeParseBlocks(typeof editor?.getContent === 'function'
+  ? editor.getContent()
+  : editor?.state);
+
+const ensurePreviewSlots = form => {
+  const editorEl = getEditorElement(form);
+  if (!editorEl || !editorEl.parentNode) {
+    return null;
+  }
+
+  let layout = form.querySelector('[data-page-preview-layout="true"]');
+  if (layout) {
+    return {
+      layout,
+      previewRoot: layout.querySelector('[data-preview-canvas="true"]'),
+      editorPane: layout.querySelector('[data-editor-pane="true"]')
+    };
+  }
+
+  layout = document.createElement('div');
+  layout.dataset.pagePreviewLayout = 'true';
+  layout.className = 'page-editor-preview-layout';
+
+  const editorPane = document.createElement('div');
+  editorPane.dataset.editorPane = 'true';
+  editorPane.className = 'page-editor-pane';
+
+  const previewPane = document.createElement('div');
+  previewPane.dataset.previewPane = 'true';
+  previewPane.className = 'page-preview-pane';
+
+  const previewTitle = document.createElement('div');
+  previewTitle.className = 'page-preview-title';
+  previewTitle.textContent = 'Live-Vorschau';
+
+  const previewRoot = document.createElement('div');
+  previewRoot.dataset.previewCanvas = 'true';
+
+  previewPane.append(previewTitle, previewRoot);
+  layout.append(editorPane, previewPane);
+
+  editorEl.parentNode.insertBefore(layout, editorEl);
+  editorPane.append(editorEl);
+
+  return { layout, previewRoot, editorPane };
+};
+
+const teardownBlockPreview = form => {
+  const binding = blockPreviewBindings.get(form);
+  if (!binding) {
+    return;
+  }
+  const { editor, preview, restoreRender } = binding;
+  if (editor) {
+    editor.render = restoreRender;
+  }
+  if (preview && typeof preview.destroy === 'function') {
+    preview.destroy();
+  }
+  blockPreviewBindings.delete(form);
+};
+
+const attachBlockPreview = (form, editor) => {
+  if (!form || !editor) {
+    return null;
+  }
+  const existing = blockPreviewBindings.get(form);
+  if (existing) {
+    existing.sync();
+    return existing;
+  }
+
+  const slots = ensurePreviewSlots(form);
+  if (!slots || !slots.previewRoot) {
+    return null;
+  }
+
+  const preview = new PreviewCanvas(slots.previewRoot, {
+    onSelect: blockId => {
+      if (typeof editor.selectBlock === 'function') {
+        editor.selectBlock(blockId);
+      }
+    }
+  });
+
+  const sync = () => {
+    const snapshot = readBlockEditorState(editor);
+    const highlight = editor?.state?.selectedBlockId || null;
+    preview.setBlocks(snapshot.blocks || [], highlight);
+  };
+
+  const originalRender = editor.render.bind(editor);
+  editor.render = () => {
+    originalRender();
+    sync();
+  };
+
+  sync();
+
+  const binding = { preview, sync, restoreRender: originalRender, editor };
+  blockPreviewBindings.set(form, binding);
+  return binding;
 };
 
 const THEME_LIGHT = 'light';
@@ -1128,12 +1255,14 @@ const ensurePageEditorInitialized = form => {
   if (USE_BLOCK_EDITOR) {
     let existing = getEditorInstance(form);
     if (existing) {
+      attachBlockPreview(form, existing);
       return existing;
     }
     const initialContent = editorEl.dataset.content || editorEl.textContent || '{}';
     editorEl.dataset.content = initialContent;
     const blockEditor = new BlockContentEditor(editorEl, initialContent, { pageId: form?.dataset.pageId });
     setEditorInstance(form, blockEditor);
+    attachBlockPreview(form, blockEditor);
     return blockEditor;
   }
 
@@ -1202,6 +1331,7 @@ const teardownPageEditor = form => {
     if (typeof editor.destroy === 'function') {
       editor.destroy();
     }
+    teardownBlockPreview(form);
     removeEditorInstance(form);
     return;
   }
