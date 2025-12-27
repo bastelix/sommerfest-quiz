@@ -78,6 +78,16 @@ class BackupController
         if (!is_dir($path)) {
             return $response->withStatus(404);
         }
+
+        if (!class_exists(\ZipArchive::class)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'PHP zip extension (ZipArchive) is required to create backup archives. Please enable it in your PHP configuration.',
+            ]));
+
+            return $response
+                ->withStatus(500)
+                ->withHeader('Content-Type', 'application/json');
+        }
         $zipFile = sys_get_temp_dir() . '/' . $name . '.zip';
         $zip = new \ZipArchive();
         if ($zip->open($zipFile, \ZipArchive::CREATE) !== true) {
