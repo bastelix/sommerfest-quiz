@@ -4,6 +4,15 @@ set -e
 
 SCRIPT_DIR="$(dirname "$0")"
 
+if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  echo "docker compose not available" >&2
+  exit 1
+fi
+
 load_env_defaults() {
   file="$1"
   shift
@@ -242,14 +251,6 @@ else
   NGINX_CONTAINER_NAME="nginx"
 fi
 
-if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
-  DOCKER_COMPOSE="docker compose"
-elif command -v docker-compose >/dev/null 2>&1; then
-  DOCKER_COMPOSE="docker-compose"
-else
-  DOCKER_COMPOSE=""
-fi
-
 if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
   SLUG="main"
 else
@@ -364,11 +365,6 @@ if [ "$WEBHOOK_RESULT" -ne 0 ]; then
     echo "Failed to trigger nginx reload via webhook or docker exec" >&2
     exit 1
   fi
-fi
-
-if [ -z "$DOCKER_COMPOSE" ]; then
-  echo "docker compose not available" >&2
-  exit 1
 fi
 
 if [ "$RECREATE" = "1" ]; then
