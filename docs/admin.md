@@ -45,6 +45,7 @@ correctness, and an optional evidence photo, and can be filtered by team or pers
 ```
 
 * `percent` basiert auf dem CPU-Usage-Differenzwert seit der letzten Abfrage und dem gemessenen Zeitfenster `sampleWindowSeconds`.
+  Bei der ersten Abfrage wird `percent` mit `0` ausgeliefert, weil noch kein Vergleichswert existiert.
 * Fehlt das cgroup-Dateisystem oder notwendige Dateien, antwortet der Server mit HTTP 503 und einem `error`-Feld.
 
 Im Event-Dashboard steht das Modul **Container-Metriken** bereit. Dort lässt sich die Sichtbarkeit, das Layout, ein eigenes Aktualisierungsintervall sowie optionale Obergrenzen (Memory in MB, CPU in %) konfigurieren. Wird kein Memory-Limit gesetzt, verwendet das Modul den vom Kernel gemeldeten cgroup-Maximalwert (sofern vorhanden).

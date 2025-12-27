@@ -152,7 +152,7 @@ class ContainerMetricsService
         self::$lastCpuSample = ['version' => $version, 'usage' => $usage, 'timestamp' => $now];
 
         if ($last === null || $last['version'] !== $version) {
-            return [$usage, null, null];
+            return [$usage, 0.0, null];
         }
 
         $deltaUsage = $usage - $last['usage'];
