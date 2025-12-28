@@ -6,6 +6,9 @@ namespace App\Service;
 
 use App\Domain\Page;
 use DateTimeImmutable;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use RuntimeException;
 
 use function array_filter;
@@ -78,7 +81,7 @@ final class PageBlockContractMigrator
     {
         $pages = $this->pages->getAll();
         $report = [
-            'total' => count($pages),
+            'processed' => count($pages),
             'migrated' => 0,
             'skipped' => 0,
             'errors' => [
@@ -88,6 +91,11 @@ final class PageBlockContractMigrator
                 'invalid_variant' => 0,
                 'schema_violation' => 0,
                 'invalid_json' => 0,
+            ],
+            'semantic' => [
+                'split' => 0,
+                'skipped' => 0,
+                'details' => [],
             ],
             'details' => [],
         ];
@@ -113,6 +121,23 @@ final class PageBlockContractMigrator
                     'message' => $result['message'] ?? 'Migration failed',
                 ];
             }
+
+            if (isset($result['semantic'])) {
+                $semantic = $result['semantic'];
+                if (($semantic['status'] ?? null) === 'split') {
+                    $report['semantic']['split']++;
+                    $report['semantic']['details'][] = [
+                        'pageId' => $page->getId(),
+                        'namespace' => $page->getNamespace(),
+                        'slug' => $page->getSlug(),
+                        'blocks' => $semantic['blocks'] ?? null,
+                    ];
+                }
+
+                if (($semantic['status'] ?? null) === 'skipped') {
+                    $report['semantic']['skipped']++;
+                }
+            }
         }
 
         return $report;
@@ -137,13 +162,14 @@ final class PageBlockContractMigrator
         }
 
         $alreadyValid = $this->validatePageContent($parsed['content']);
-        if ($alreadyValid && $this->hasMigrationMarker($parsed['content'])) {
+        $alreadySplit = $alreadyValid && $this->hasSemanticSplitMarker($parsed['content']);
+        if ($alreadyValid && $this->hasMigrationMarker($parsed['content']) && $alreadySplit) {
             return ['status' => 'skipped'];
         }
 
         try {
-            $normalized = $this->normalizeContent($parsed['content']);
-            $normalized['content']['meta'] = $this->stampMigrationMeta($normalized['content']['meta'] ?? []);
+            $content = $alreadyValid ? $parsed['content'] : $this->normalizeContent($parsed['content'])['content'];
+            $content['meta'] = $this->stampMigrationMeta($content['meta'] ?? []);
         } catch (PageBlockMigrationException $exception) {
             return [
                 'status' => 'error',
@@ -151,6 +177,17 @@ final class PageBlockContractMigrator
                 'message' => $exception->getMessage(),
             ];
         }
+
+        $semanticResult = $this->attemptSemanticSplit($content);
+        if (($semanticResult['status'] ?? null) === 'error') {
+            return [
+                'status' => 'error',
+                'reason' => $semanticResult['reason'] ?? 'schema_violation',
+                'message' => $semanticResult['message'] ?? 'Semantic split failed',
+            ];
+        }
+
+        $normalized = ['content' => $semanticResult['content'] ?? $content];
 
         if (!$this->validatePageContent($normalized['content'])) {
             return [
@@ -171,7 +208,12 @@ final class PageBlockContractMigrator
 
         $this->pages->save($page->getNamespace(), $page->getSlug(), $json);
 
-        return ['status' => 'migrated'];
+        $result = ['status' => 'migrated'];
+        if (isset($semanticResult['status'])) {
+            $result['semantic'] = $semanticResult;
+        }
+
+        return $result;
     }
 
     /**
@@ -313,6 +355,8 @@ final class PageBlockContractMigrator
             'process_steps' => $this->normalizeProcessStepsData($data),
             'testimonial' => $this->normalizeTestimonialData($data),
             'rich_text' => $this->normalizeRichTextData($data),
+            'info_media' => $this->normalizeInfoMediaData($data),
+            'cta' => $this->normalizeCtaData($data),
             default => throw new PageBlockMigrationException('unknown_block_type', sprintf('Unsupported block type: %s', $type)),
         };
     }
@@ -508,6 +552,41 @@ final class PageBlockContractMigrator
             'body' => $body,
             'alignment' => $normalizedAlignment,
         ];
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     *
+     * @return array<string,mixed>
+     */
+    private function normalizeInfoMediaData(array $data): array
+    {
+        return [
+            'body' => $this->requireString($data['body'] ?? null, 'body'),
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     *
+     * @return array<string,mixed>
+     */
+    private function normalizeCtaData(array $data): array
+    {
+        $label = $this->requireString($data['label'] ?? null, 'label');
+        $href = $this->requireString($data['href'] ?? null, 'href');
+
+        $cta = [
+            'label' => $label,
+            'href' => $href,
+        ];
+
+        $ariaLabel = $this->normalizeString($data['ariaLabel'] ?? null);
+        if ($ariaLabel !== null) {
+            $cta['ariaLabel'] = $ariaLabel;
+        }
+
+        return $cta;
     }
 
     /**
@@ -849,6 +928,423 @@ final class PageBlockContractMigrator
         }
 
         return ($meta['migrationVersion'] ?? null) === self::MIGRATION_VERSION;
+    }
+
+    /**
+     * @param array<string,mixed> $content
+     */
+    private function hasSemanticSplitMarker(array $content): bool
+    {
+        $meta = $content['meta'] ?? null;
+        if (!is_array($meta)) {
+            return false;
+        }
+
+        $annotations = $meta['annotations'] ?? null;
+
+        return is_array($annotations) && ($annotations['semanticSplit'] ?? false) === true;
+    }
+
+    /**
+     * @param array<string,mixed> $meta
+     *
+     * @return array<string,mixed>
+     */
+    private function stampSemanticSplitMeta(array $meta): array
+    {
+        $annotations = is_array($meta['annotations'] ?? null) ? $meta['annotations'] : [];
+        $annotations['semanticSplit'] = true;
+        $annotations['reviewed'] = false;
+        $meta['annotations'] = $annotations;
+
+        return $meta;
+    }
+
+    /**
+     * @param array<string,mixed> $content
+     *
+     * @return array{status:string,content:array<string,mixed>,blocks?:int,reason?:string,message?:string}
+     */
+    private function attemptSemanticSplit(array $content): array
+    {
+        if ($this->hasSemanticSplitMarker($content)) {
+            return ['status' => 'skipped', 'content' => $content];
+        }
+
+        $blocks = $content['blocks'] ?? [];
+        if (!is_array($blocks) || count($blocks) !== 1) {
+            return ['status' => 'skipped', 'content' => $content];
+        }
+
+        $block = $blocks[0] ?? null;
+        $type = is_array($block) ? ($block['type'] ?? null) : null;
+        if (!in_array($type, ['rich_text', 'info_media'], true)) {
+            return ['status' => 'skipped', 'content' => $content];
+        }
+
+        $body = is_array($block) ? ($block['data']['body'] ?? null) : null;
+        if (!is_string($body) || trim($body) === '') {
+            return ['status' => 'skipped', 'content' => $content];
+        }
+
+        $sections = $this->extractSections($body);
+        if (count($sections) < 2) {
+            return ['status' => 'skipped', 'content' => $content];
+        }
+
+        $newBlocks = [];
+        foreach ($sections as $section) {
+            $newBlocks[] = $this->classifySection($section);
+        }
+
+        $content['blocks'] = $newBlocks;
+        $content['meta'] = $this->stampSemanticSplitMeta($content['meta'] ?? []);
+
+        if (!$this->validatePageContent($content)) {
+            return [
+                'status' => 'error',
+                'content' => $content,
+                'reason' => 'schema_violation',
+                'message' => 'Semantic split produced invalid content',
+            ];
+        }
+
+        return [
+            'status' => 'split',
+            'content' => $content,
+            'blocks' => count($newBlocks),
+        ];
+    }
+
+    /**
+     * @return list<DOMElement>
+     */
+    private function extractSections(string $html): array
+    {
+        $dom = new DOMDocument();
+        $htmlWrapper = sprintf('<div id="root">%s</div>', $html);
+        $dom->loadHTML($htmlWrapper, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $root = $dom->getElementById('root');
+        if (!$root instanceof DOMElement) {
+            return [];
+        }
+
+        $sections = [];
+        foreach ($root->childNodes as $child) {
+            if (!$child instanceof DOMElement) {
+                continue;
+            }
+            if ($child->tagName === 'section' || ($child->tagName === 'div' && $this->hasUkSectionClass($child))) {
+                $sections[] = $child;
+            }
+        }
+
+        return $sections;
+    }
+
+    private function hasUkSectionClass(DOMElement $element): bool
+    {
+        $class = $element->getAttribute('class');
+        if ($class === '') {
+            return false;
+        }
+
+        return str_contains($class, 'uk-section');
+    }
+
+    private function classifySection(DOMElement $section): array
+    {
+        $tokens = $this->normalizeTokens($this->inferTokens($section));
+
+        $hero = $this->buildHeroBlock($section, $tokens);
+        if ($hero !== null) {
+            return $hero;
+        }
+
+        $features = $this->buildFeatureListBlock($section, $tokens);
+        if ($features !== null) {
+            return $features;
+        }
+
+        $steps = $this->buildProcessBlock($section, $tokens);
+        if ($steps !== null) {
+            return $steps;
+        }
+
+        $cta = $this->buildCtaBlock($section, $tokens);
+        if ($cta !== null) {
+            return $cta;
+        }
+
+        return [
+            'id' => $this->normalizeBlockId(null),
+            'type' => 'info_media',
+            'variant' => 'stacked',
+            'data' => [
+                'body' => $this->safeHtml($this->innerHtml($section)),
+            ],
+            'tokens' => $tokens,
+        ];
+    }
+
+    /**
+     * @param array<string,string> $tokens
+     */
+    private function buildHeroBlock(DOMElement $section, array $tokens): ?array
+    {
+        $headings = $section->getElementsByTagName('h1');
+        if (count($headings) !== 1) {
+            return null;
+        }
+
+        $ctaNode = $this->findCtaNode($section);
+        if ($ctaNode === null) {
+            return null;
+        }
+
+        $headline = $this->innerHtml($headings->item(0));
+        $subheadline = $this->findFirstParagraphAfter($headings->item(0));
+        $cta = $this->buildCtaDataFromNode($ctaNode);
+        if ($cta === null) {
+            return null;
+        }
+
+        $data = [
+            'headline' => $headline,
+            'cta' => $cta,
+        ];
+
+        if ($subheadline !== null) {
+            $data['subheadline'] = $subheadline;
+        }
+
+        return [
+            'id' => $this->normalizeBlockId(null),
+            'type' => 'hero',
+            'variant' => 'centered_cta',
+            'data' => $data,
+            'tokens' => $tokens,
+        ];
+    }
+
+    /**
+     * @param array<string,string> $tokens
+     */
+    private function buildFeatureListBlock(DOMElement $section, array $tokens): ?array
+    {
+        $lists = $section->getElementsByTagName('ul');
+        if (count($lists) === 0) {
+            $lists = $section->getElementsByTagName('ol');
+        }
+
+        $items = [];
+        foreach ($lists as $list) {
+            foreach ($list->getElementsByTagName('li') as $li) {
+                $items[] = [
+                    'id' => $this->normalizeBlockId(null),
+                    'title' => trim($li->textContent),
+                    'description' => $this->innerHtml($li),
+                ];
+            }
+        }
+
+        if (count($items) < 3) {
+            return null;
+        }
+
+        $title = $this->extractHeadingText($section);
+        if ($title === null && isset($items[0])) {
+            $title = $items[0]['title'];
+        }
+
+        if ($title === null) {
+            return null;
+        }
+
+        return [
+            'id' => $this->normalizeBlockId(null),
+            'type' => 'feature_list',
+            'variant' => 'stacked_cards',
+            'data' => [
+                'title' => $title,
+                'items' => array_values($items),
+            ],
+            'tokens' => $tokens,
+        ];
+    }
+
+    /**
+     * @param array<string,string> $tokens
+     */
+    private function buildProcessBlock(DOMElement $section, array $tokens): ?array
+    {
+        $orderedLists = $section->getElementsByTagName('ol');
+        if (count($orderedLists) === 0) {
+            return null;
+        }
+
+        $steps = [];
+        foreach ($orderedLists as $ol) {
+            foreach ($ol->getElementsByTagName('li') as $li) {
+                $steps[] = [
+                    'id' => $this->normalizeBlockId(null),
+                    'title' => trim($li->textContent),
+                    'description' => $this->innerHtml($li),
+                ];
+            }
+        }
+
+        if (count($steps) < 2) {
+            return null;
+        }
+
+        $title = $this->extractHeadingText($section);
+        if ($title === null) {
+            $title = $steps[0]['title'];
+        }
+
+        return [
+            'id' => $this->normalizeBlockId(null),
+            'type' => 'process_steps',
+            'variant' => 'timeline_horizontal',
+            'data' => [
+                'title' => $title,
+                'steps' => array_values($steps),
+            ],
+            'tokens' => $tokens,
+        ];
+    }
+
+    /**
+     * @param array<string,string> $tokens
+     */
+    private function buildCtaBlock(DOMElement $section, array $tokens): ?array
+    {
+        $ctaNode = $this->findCtaNode($section);
+        if ($ctaNode === null) {
+            return null;
+        }
+
+        $hasLists = count($section->getElementsByTagName('ul')) > 0 || count($section->getElementsByTagName('ol')) > 0;
+        if ($hasLists) {
+            return null;
+        }
+
+        $cta = $this->buildCtaDataFromNode($ctaNode);
+        if ($cta === null) {
+            return null;
+        }
+
+        return [
+            'id' => $this->normalizeBlockId(null),
+            'type' => 'cta',
+            'variant' => 'full_width',
+            'data' => $cta,
+            'tokens' => $tokens,
+        ];
+    }
+
+    private function findCtaNode(DOMElement $section): ?DOMElement
+    {
+        foreach ($section->getElementsByTagName('a') as $anchor) {
+            if ($anchor->hasAttribute('href')) {
+                return $anchor;
+            }
+        }
+
+        foreach ($section->getElementsByTagName('button') as $button) {
+            return $button;
+        }
+
+        return null;
+    }
+
+    private function buildCtaDataFromNode(DOMElement $node): ?array
+    {
+        $label = trim($node->textContent);
+        $href = $node->getAttribute('href');
+        if ($label === '' || $href === '') {
+            return null;
+        }
+
+        $cta = [
+            'label' => $label,
+            'href' => $href,
+        ];
+
+        $ariaLabel = $node->getAttribute('aria-label');
+        if ($ariaLabel !== '') {
+            $cta['ariaLabel'] = $ariaLabel;
+        }
+
+        return $cta;
+    }
+
+    private function extractHeadingText(DOMElement $section): ?string
+    {
+        foreach (['h2', 'h3', 'h4'] as $tag) {
+            $elements = $section->getElementsByTagName($tag);
+            if (count($elements) > 0) {
+                $text = trim($elements->item(0)->textContent);
+                if ($text !== '') {
+                    return $text;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function findFirstParagraphAfter(?DOMNode $node): ?string
+    {
+        if ($node === null) {
+            return null;
+        }
+
+        $current = $node->nextSibling;
+        while ($current !== null) {
+            if ($current instanceof DOMElement && $current->tagName === 'p') {
+                $html = $this->innerHtml($current);
+                return $html === '' ? null : $html;
+            }
+            $current = $current->nextSibling;
+        }
+
+        return null;
+    }
+
+    private function innerHtml(?DOMNode $node): string
+    {
+        if ($node === null || !$node->ownerDocument instanceof DOMDocument) {
+            return '';
+        }
+
+        $html = '';
+        foreach ($node->childNodes as $child) {
+            $html .= $node->ownerDocument->saveHTML($child) ?: '';
+        }
+
+        return trim($html);
+    }
+
+    private function safeHtml(string $value): string
+    {
+        $trimmed = trim($value);
+
+        return $trimmed === '' ? '<p></p>' : $trimmed;
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private function inferTokens(DOMElement $section): array
+    {
+        $class = $section->getAttribute('class');
+        if ($class !== '' && (str_contains($class, 'section--alt') || str_contains($class, 'uk-section-muted'))) {
+            return ['background' => 'muted'];
+        }
+
+        return ['background' => 'default'];
     }
 
     private function buildRichTextBlock(string $html): array

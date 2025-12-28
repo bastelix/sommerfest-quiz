@@ -46,6 +46,7 @@ final class PageBlockContractMigratorTest extends TestCase
 
         $report = $migrator->migrateAll();
 
+        self::assertSame(1, $report['processed']);
         self::assertSame(1, $report['migrated']);
         self::assertSame(0, $report['errors']['total']);
         self::assertCount(1, $fakePages->savedContent);
@@ -93,6 +94,7 @@ final class PageBlockContractMigratorTest extends TestCase
             'meta' => [
                 'migrationVersion' => 'block-contract-v1',
                 'migratedAt' => '2024-01-01T00:00:00+00:00',
+                'annotations' => ['semanticSplit' => true, 'reviewed' => true],
             ],
             'blocks' => [
                 [
@@ -116,6 +118,69 @@ final class PageBlockContractMigratorTest extends TestCase
         self::assertSame(0, $report['migrated']);
         self::assertSame(1, $report['skipped']);
         self::assertEmpty($fakePages->savedContent);
+    }
+
+    public function testSplitsRichTextSectionsIntoSemanticBlocks(): void
+    {
+        $html = <<<HTML
+<section>
+  <h1>Headline</h1>
+  <p>Subline</p>
+  <a href="/go">Start</a>
+</section>
+<section class="uk-section">
+  <h2>Highlights</h2>
+  <ul>
+    <li>First</li>
+    <li>Second</li>
+    <li>Third</li>
+  </ul>
+</section>
+<section>
+  <h2>Steps</h2>
+  <ol>
+    <li>One</li>
+    <li>Two</li>
+  </ol>
+</section>
+<section>
+  <a href="/cta">Jetzt starten</a>
+</section>
+HTML;
+
+        $content = json_encode([
+            'blocks' => [
+                [
+                    'id' => 'legacy',
+                    'type' => 'rich_text',
+                    'variant' => 'prose',
+                    'data' => ['body' => $html, 'alignment' => 'start'],
+                    'tokens' => ['spacing' => 'normal', 'width' => 'normal'],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(4, 'default', 'split', $content);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator($fakePages, $schema);
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(1, $report['migrated']);
+        self::assertSame(1, $report['semantic']['split']);
+        self::assertCount(1, $fakePages->savedContent);
+
+        $saved = json_decode($fakePages->savedContent[0]['content'], true, 512, JSON_THROW_ON_ERROR);
+        self::assertTrue($saved['meta']['annotations']['semanticSplit']);
+        self::assertFalse($saved['meta']['annotations']['reviewed']);
+
+        self::assertCount(4, $saved['blocks']);
+        self::assertSame('hero', $saved['blocks'][0]['type']);
+        self::assertSame('feature_list', $saved['blocks'][1]['type']);
+        self::assertSame('process_steps', $saved['blocks'][2]['type']);
+        self::assertSame('cta', $saved['blocks'][3]['type']);
     }
 
     private function createPage(int $id, string $namespace, string $slug, string $content): Page
