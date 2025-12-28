@@ -757,6 +757,13 @@ body.admin-page {
 .admin-page .admin-main-container,
 .admin-page .admin-section {
   width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.admin-page .admin-main-container.is-full-width,
+.admin-page .admin-section.is-full-width {
   max-width: none;
 }
 
