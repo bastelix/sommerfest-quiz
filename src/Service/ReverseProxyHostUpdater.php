@@ -148,7 +148,7 @@ final class ReverseProxyHostUpdater
             }
         }
 
-        return array_values(array_unique(array_filter($hosts, static fn (string $host): bool => $host !== '')));
+        return array_values(array_unique($hosts));
     }
 
     private function readEnvValue(string $key): ?string
