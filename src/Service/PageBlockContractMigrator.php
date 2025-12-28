@@ -546,7 +546,7 @@ final class PageBlockContractMigrator
     }
 
     /**
-     * @param array<string,mixed>|null $tokens
+     * @param array<array-key,mixed>|null $tokens
      *
      * @return array<string,string>
      */
@@ -705,7 +705,7 @@ final class PageBlockContractMigrator
     }
 
     /**
-     * @param list<array<string,mixed>> $items
+     * @param list<mixed> $items
      */
     private function validateFeatureItems(array $items): bool
     {
@@ -722,7 +722,7 @@ final class PageBlockContractMigrator
     }
 
     /**
-     * @param list<array<string,mixed>> $steps
+     * @param list<mixed> $steps
      */
     private function validateProcessSteps(array $steps): bool
     {

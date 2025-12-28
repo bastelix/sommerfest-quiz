@@ -87,7 +87,7 @@ final class CertificateProvisioningService implements CertificateProvisionerInte
             $appendDomain($primary);
         }
 
-        $domains = array_values(array_unique(array_filter($domains, static fn ($value): bool => $value !== '')));
+        $domains = array_values(array_unique($domains));
 
         return $domains;
     }
