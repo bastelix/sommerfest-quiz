@@ -184,9 +184,11 @@ function buildDefaultBlock(type, variant) {
           focalPoint: { x: 0.5, y: 0.5 }
         },
         cta: {
-          label: 'Jetzt starten',
-          href: 'https://example.com',
-          ariaLabel: ''
+          primary: {
+            label: 'Jetzt starten',
+            href: 'https://example.com',
+            ariaLabel: ''
+          }
         }
       }
     }),
@@ -349,6 +351,9 @@ function migrateLegacyBlock(block) {
   }
   if (clone?.data?.cta?.style) {
     delete clone.data.cta.style;
+  }
+  if (clone.type === 'hero' && clone?.data?.cta && !clone.data.cta.primary && !clone.data.cta.secondary) {
+    clone.data.cta = { primary: clone.data.cta };
   }
   return { ...clone, variant };
 }
@@ -868,9 +873,17 @@ export class BlockContentEditor {
     wrapper.append(this.addLabeledInput('Focal X', block.data.media?.focalPoint?.x ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'x'], Number(value)), { type: 'number', step: '0.01', min: 0, max: 1 }));
     wrapper.append(this.addLabeledInput('Focal Y', block.data.media?.focalPoint?.y ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'y'], Number(value)), { type: 'number', step: '0.01', min: 0, max: 1 }));
 
-    wrapper.append(this.addLabeledInput('CTA Label', block.data.cta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'label'], value)));
-    wrapper.append(this.addLabeledInput('CTA Link', block.data.cta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'href'], value)));
-    wrapper.append(this.addLabeledInput('CTA Aria-Label', block.data.cta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'ariaLabel'], value)));
+    const heroCta = block.data.cta || {};
+    const primaryCta = heroCta.primary || heroCta;
+    const secondaryCta = heroCta.secondary || {};
+
+    wrapper.append(this.addLabeledInput('Primäre CTA (Label)', primaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'label'], value)));
+    wrapper.append(this.addLabeledInput('Primäre CTA (Link)', primaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'href'], value)));
+    wrapper.append(this.addLabeledInput('Primäre CTA (Aria-Label)', primaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'ariaLabel'], value)));
+
+    wrapper.append(this.addLabeledInput('Sekundäre CTA (Label)', secondaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'label'], value)));
+    wrapper.append(this.addLabeledInput('Sekundäre CTA (Link)', secondaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'href'], value)));
+    wrapper.append(this.addLabeledInput('Sekundäre CTA (Aria-Label)', secondaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'ariaLabel'], value)));
 
     return wrapper;
   }

@@ -170,7 +170,7 @@ const schema = {
         "headline": { "type": "string", "minLength": 1 },
         "subheadline": { "type": "string" },
         "media": { "$ref": "#/definitions/Media" },
-        "cta": { "$ref": "#/definitions/CallToAction" }
+        "cta": { "$ref": "#/definitions/CallToActionGroup" }
       }
     },
     "FeatureListData": {
@@ -251,6 +251,20 @@ const schema = {
         "href": { "type": "string", "minLength": 1 },
         "ariaLabel": { "type": "string" }
       }
+    },
+    "CallToActionGroup": {
+      "oneOf": [
+        { "$ref": "#/definitions/CallToAction" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["primary"],
+          "properties": {
+            "primary": { "$ref": "#/definitions/CallToAction" },
+            "secondary": { "$ref": "#/definitions/CallToAction" }
+          }
+        }
+      ]
     },
     "StatStripData": {
       "type": "object",
