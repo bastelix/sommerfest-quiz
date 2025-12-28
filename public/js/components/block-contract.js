@@ -1,6 +1,14 @@
 import { RENDERER_MATRIX } from './block-renderer-matrix-data.js';
 
 // Block contract aligned with docs/calserver-block-consolidation.md
+const VARIANT_ALIASES = {
+  hero: {
+    'media-right': 'media_right',
+    'media-left': 'media_left',
+    'centered-cta': 'centered_cta'
+  }
+};
+
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quizrace.example.com/schemas/block-contract.schema.json",
@@ -21,9 +29,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": {
-          "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left"]
-        },
+        "variant": { "enum": ["centered_cta", "centered-cta", "media_right", "media-right", "media_left", "media-left"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -515,6 +521,14 @@ function validateTokens(tokens) {
   return Object.entries(tokens).every(([key, value]) => TOKEN_ENUMS[key]?.includes(value));
 }
 
+export function normalizeVariant(type, variant) {
+  if (typeof variant !== 'string') {
+    return variant;
+  }
+  const aliasForType = VARIANT_ALIASES[type];
+  return aliasForType?.[variant] || variant;
+}
+
 export function validateBlockContract(block) {
   if (!isPlainObject(block)) {
     return { valid: false, reason: 'Block must be an object' };
@@ -525,12 +539,8 @@ export function validateBlockContract(block) {
   if (typeof block.type !== 'string' || !BLOCK_VARIANTS[block.type]) {
     return { valid: false, reason: `Unknown block type: ${block.type}` };
   }
-  if (typeof block.variant !== 'string') {
-    return { valid: false, reason: `Unknown variant for ${block.type}: ${block.variant}` };
-  }
-  const normalizedVariant = normalizeBlockVariant(block.type, block.variant);
-  const allowedRendererVariants = Object.keys(RENDERER_MATRIX[block.type] || {});
-  if (!allowedRendererVariants.includes(normalizedVariant)) {
+  const normalizedVariant = normalizeVariant(block.type, block.variant);
+  if (typeof normalizedVariant !== 'string' || !BLOCK_VARIANTS[block.type].includes(normalizedVariant)) {
     return { valid: false, reason: `Unknown variant for ${block.type}: ${block.variant}` };
   }
   if (!isPlainObject(block.data)) {
