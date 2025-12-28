@@ -3,7 +3,13 @@ import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
 
-/* global notify */
+const notify = typeof window !== 'undefined' && typeof window.notify === 'function'
+  ? window.notify.bind(window)
+  : (message, status) => {
+    if (typeof window !== 'undefined' && window.console) {
+      window.console.log(status ? `[${status}] ${message}` : message);
+    }
+  };
 
 // Define custom UIkit templates for the page editor
 const DOMPURIFY_PAGE_EDITOR_CONFIG = {
