@@ -550,8 +550,12 @@ class PageController
             if ($candidate instanceof UploadedFileInterface) {
                 return $candidate;
             }
-            if (is_array($candidate) && isset($candidate[0]) && $candidate[0] instanceof UploadedFileInterface) {
-                return $candidate[0];
+            if (is_array($candidate)) {
+                foreach ($candidate as $upload) {
+                    if ($upload instanceof UploadedFileInterface) {
+                        return $upload;
+                    }
+                }
             }
         }
 

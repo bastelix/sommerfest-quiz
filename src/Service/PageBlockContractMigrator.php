@@ -85,7 +85,25 @@ final class PageBlockContractMigrator
     /**
      * Execute the migration for all pages and persist valid results.
      *
-     * @return array{total:int,migrated:int,skipped:int,errors:array<string,int>,details:list<array<string,mixed>>}
+     * @return array{
+     *     processed:int,
+     *     migrated:int,
+     *     skipped:int,
+     *     errors:array{
+     *         total:int,
+     *         unknown_block_type:int,
+     *         missing_required_data:int,
+     *         invalid_variant:int,
+     *         schema_violation:int,
+     *         invalid_json:int,
+     *     },
+     *     semantic:array{
+     *         split:int,
+     *         skipped:int,
+     *         details:list<array<string,mixed>>,
+     *     },
+     *     details:list<array<string,mixed>>,
+     * }
      */
     public function migrateAll(): array
     {
@@ -156,7 +174,12 @@ final class PageBlockContractMigrator
     /**
      * Migrate a single page and persist the new content when valid.
      *
-     * @return array{status:string,reason?:string,message?:string}
+     * @return array{
+     *     status:string,
+     *     reason?:string,
+     *     message?:string,
+     *     semantic?:array{status:string,content:array<string,mixed>,blocks?:int,reason?:string,message?:string},
+     * }
      */
     public function migratePage(Page $page): array
     {
@@ -189,7 +212,7 @@ final class PageBlockContractMigrator
         }
 
         $semanticResult = $this->attemptSemanticSplit($content);
-        if (($semanticResult['status'] ?? null) === 'error') {
+        if ($semanticResult['status'] === 'error') {
             return [
                 'status' => 'error',
                 'reason' => $semanticResult['reason'] ?? 'schema_violation',
@@ -197,7 +220,7 @@ final class PageBlockContractMigrator
             ];
         }
 
-        $normalized = ['content' => $semanticResult['content'] ?? $content];
+        $normalized = ['content' => $semanticResult['content']];
 
         if (!$this->validatePageContent($normalized['content'])) {
             return [
@@ -218,10 +241,7 @@ final class PageBlockContractMigrator
 
         $this->pages->save($page->getNamespace(), $page->getSlug(), $json);
 
-        $result = ['status' => 'migrated'];
-        if (isset($semanticResult['status'])) {
-            $result['semantic'] = $semanticResult;
-        }
+        $result = ['status' => 'migrated', 'semantic' => $semanticResult];
 
         return $result;
     }
@@ -1163,7 +1183,7 @@ final class PageBlockContractMigrator
         }
 
         $title = $this->extractHeadingText($section);
-        if ($title === null && isset($items[0])) {
+        if ($title === null && $items !== []) {
             $title = $items[0]['title'];
         }
 
