@@ -202,8 +202,9 @@ export function renderPage(blocks = []) {
 
 export function listSupportedBlocks() {
   return BLOCK_TYPES.reduce((accumulator, type) => {
-    if (!DEPRECATED_BLOCK_MAP[type] || BLOCK_TYPES.includes(type)) {
-      accumulator[type] = getBlockVariants(type);
+    const variants = Object.keys(RENDERER_MATRIX[type] || {});
+    if (variants.length > 0 && (!DEPRECATED_BLOCK_MAP[type] || BLOCK_TYPES.includes(type))) {
+      accumulator[type] = variants;
     }
     return accumulator;
   }, {});
@@ -211,7 +212,10 @@ export function listSupportedBlocks() {
 
 export function listSelectableBlocks() {
   return ACTIVE_BLOCK_TYPES.reduce((accumulator, type) => {
-    accumulator[type] = getBlockVariants(type);
+    const variants = Object.keys(RENDERER_MATRIX[type] || {});
+    if (variants.length > 0) {
+      accumulator[type] = variants;
+    }
     return accumulator;
   }, {});
 }

@@ -4,13 +4,9 @@ import {
   ACTIVE_BLOCK_TYPES,
   BLOCK_CONTRACT_SCHEMA,
   DEPRECATED_BLOCK_MAP,
-  getBlockVariants,
   validateBlockContract
 } from './block-contract.js';
-import { listSelectableBlocks, listSupportedBlocks } from './block-renderer-matrix.js';
-
-const SUPPORTED_VARIANTS = listSupportedBlocks();
-const SELECTABLE_VARIANTS = listSelectableBlocks();
+import { RENDERER_MATRIX } from './block-renderer-matrix.js';
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
   feature_list: 'Feature list',
@@ -35,6 +31,22 @@ const createId = () => {
 };
 
 const deepClone = value => JSON.parse(JSON.stringify(value));
+
+const getRendererVariants = type => Object.keys(RENDERER_MATRIX[type] || {});
+
+const ensureRendererVariant = (type, requestedVariant) => {
+  const variants = getRendererVariants(type);
+  if (!variants.length) {
+    throw new Error(`No renderer variants registered for type: ${type}`);
+  }
+  if (requestedVariant) {
+    if (!variants.includes(requestedVariant)) {
+      throw new Error(`Unsupported variant for ${type}: ${requestedVariant}`);
+    }
+    return requestedVariant;
+  }
+  return variants[0];
+};
 
 const stripHtml = html => {
   if (!html) {
@@ -303,27 +315,7 @@ function buildDefaultBlock(type, variant) {
   return block;
 }
 
-const determineVariant = (type, requestedVariant, legacyLayout) => {
-  const variants = getBlockVariants(type).filter(variant => SUPPORTED_VARIANTS[type]?.includes(variant));
-  if (requestedVariant) {
-    if (!variants.includes(requestedVariant)) {
-      throw new Error(`Unsupported variant for ${type}: ${requestedVariant}`);
-    }
-    return requestedVariant;
-  }
-  if (type === 'feature_list' && legacyLayout) {
-    if (legacyLayout === 'grid' && variants.includes('icon_grid')) {
-      return 'icon_grid';
-    }
-    if (variants.includes('stacked_cards')) {
-      return 'stacked_cards';
-    }
-  }
-  if (variants.length > 0) {
-    return variants[0];
-  }
-  throw new Error(`No supported variant found for ${type}`);
-};
+const determineVariant = (type, requestedVariant) => ensureRendererVariant(type, requestedVariant);
 
 function migrateLegacyBlock(block) {
   if (!block || typeof block !== 'object') {
@@ -343,12 +335,11 @@ function migrateLegacyBlock(block) {
     };
   }
 
-  if (!SUPPORTED_VARIANTS[block.type]) {
+  if (!getRendererVariants(block.type).length) {
     throw new Error(`Unsupported block type: ${block.type}`);
   }
 
-  const legacyLayout = block?.data?.layout;
-  const variant = determineVariant(block.type, block.variant, legacyLayout);
+  const variant = determineVariant(block.type, block.variant);
   const clone = deepClone(block);
   if (clone?.data?.layout) {
     delete clone.data.layout;
@@ -547,7 +538,7 @@ export class BlockContentEditor {
 
     const typeSelect = document.createElement('select');
     typeSelect.dataset.action = 'insert-block-type';
-    const supportedTypes = ACTIVE_BLOCK_TYPES.filter(type => SELECTABLE_VARIANTS[type]);
+    const supportedTypes = ACTIVE_BLOCK_TYPES.filter(type => getRendererVariants(type).length > 0);
     supportedTypes.forEach(type => {
       const option = document.createElement('option');
       option.value = type;
@@ -560,23 +551,18 @@ export class BlockContentEditor {
 
     const populateVariants = () => {
       variantSelect.innerHTML = '';
-      const variants = getBlockVariants(typeSelect.value).filter(
-        variant => SELECTABLE_VARIANTS[typeSelect.value]?.includes(variant)
-      );
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Variante auswählen';
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      variantSelect.append(placeholder);
+      const variants = getRendererVariants(typeSelect.value);
       variants.forEach(variant => {
         const option = document.createElement('option');
         option.value = variant;
         option.textContent = variant;
         variantSelect.append(option);
       });
+      if (variants[0]) {
+        variantSelect.value = variants[0];
+      }
       variantSelect.disabled = variants.length === 0;
-      addBtn.disabled = !variantSelect.value;
+      addBtn.disabled = variants.length === 0;
     };
 
     const addBtn = document.createElement('button');
@@ -586,7 +572,7 @@ export class BlockContentEditor {
     addBtn.disabled = true;
     addBtn.addEventListener('click', () => {
       try {
-        this.addBlock(typeSelect.value, variantSelect.value);
+        this.addBlock(typeSelect.value);
       } catch (error) {
         window.alert(error.message || 'Block konnte nicht erstellt werden');
       }
@@ -704,7 +690,7 @@ export class BlockContentEditor {
   }
 
   buildVariantSelector(block) {
-    const variants = getBlockVariants(block.type).filter(variant => SUPPORTED_VARIANTS[block.type]?.includes(variant));
+    const variants = getRendererVariants(block.type);
     if (!variants.length) {
       return null;
     }
@@ -1040,8 +1026,9 @@ export class BlockContentEditor {
     this.render();
   }
 
-  addBlock(type, variant) {
-    if (!type || !variant || !SELECTABLE_VARIANTS[type]?.includes(variant)) {
+  addBlock(type) {
+    const variant = ensureRendererVariant(type);
+    if (!type || !variant) {
       throw new Error('Ungültiger Blocktyp oder Variante');
     }
     const newBlock = getDefaultBlock(type, variant);
@@ -1119,10 +1106,8 @@ export class BlockContentEditor {
         if (block.id !== blockId) {
           return block;
         }
-        if (!SUPPORTED_VARIANTS[block.type]?.includes(variant)) {
-          throw new Error('Variante wird nicht unterstützt');
-        }
-        return sanitizeBlock({ ...block, variant });
+        const allowedVariant = ensureRendererVariant(block.type, variant);
+        return sanitizeBlock({ ...block, variant: allowedVariant });
       });
       this.render();
     } catch (error) {
