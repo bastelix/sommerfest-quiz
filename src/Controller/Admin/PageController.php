@@ -543,19 +543,15 @@ class PageController
     private function findFirstUpload(array $files): ?UploadedFileInterface
     {
         foreach (['file', 'page', 'pageJson', 'upload'] as $key) {
-            if (!isset($files[$key])) {
+            $candidate = $files[$key] ?? null;
+            if ($candidate === null) {
                 continue;
             }
-            $candidate = $files[$key];
             if ($candidate instanceof UploadedFileInterface) {
                 return $candidate;
             }
-            if (is_array($candidate)) {
-                foreach ($candidate as $upload) {
-                    if ($upload instanceof UploadedFileInterface) {
-                        return $upload;
-                    }
-                }
+            foreach ($candidate as $upload) {
+                return $upload;
             }
         }
 
