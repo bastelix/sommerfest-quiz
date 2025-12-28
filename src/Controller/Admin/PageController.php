@@ -332,6 +332,8 @@ class PageController
             return $this->createJsonResponse($response, ['error' => 'Missing blocks array.'], 422);
         }
 
+        $blocks = $this->normalizeImportedBlocks($blocks);
+
         $content = [
             'meta' => array_merge(
                 is_array($payload['meta'] ?? null) ? $payload['meta'] : [],
@@ -371,6 +373,62 @@ class PageController
         ]);
 
         return $this->createJsonResponse($response, ['content' => $content], 200);
+    }
+
+    /**
+     * @param array<int|string, mixed> $blocks
+     *
+     * @return array<int|string, mixed>
+     */
+    private function normalizeImportedBlocks(array $blocks): array
+    {
+        foreach ($blocks as $index => $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            $type = $block['type'] ?? null;
+            $data = is_array($block['data'] ?? null) ? $block['data'] : null;
+
+            if ($type === 'hero' && $data !== null) {
+                $blocks[$index]['data'] = $this->normalizeImportedHeroData($data);
+            }
+        }
+
+        return $blocks;
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
+     * @return array<string, mixed>
+     */
+    private function normalizeImportedHeroData(array $data): array
+    {
+        $cta = $data['cta'] ?? null;
+        if (!is_array($cta)) {
+            return $data;
+        }
+
+        if (isset($cta['primary']) && is_array($cta['primary'])) {
+            $primary = $cta['primary'];
+            $flattened = [
+                'label' => $primary['label'] ?? null,
+                'href' => $primary['href'] ?? null,
+            ];
+
+            if (array_key_exists('ariaLabel', $primary)) {
+                $flattened['ariaLabel'] = $primary['ariaLabel'];
+            }
+
+            $cta = $flattened;
+        }
+
+        unset($cta['secondary']);
+
+        $data['cta'] = $cta;
+
+        return $data;
     }
 
     public function updateNamespace(Request $request, Response $response, array $args): Response
