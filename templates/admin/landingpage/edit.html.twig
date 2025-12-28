@@ -10,119 +10,171 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding{% endblock %}
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
-  <div class="uk-container uk-container-small">
-    <h1 class="uk-heading-bullet">Landingpage bearbeiten</h1>
-    {% if seoPages|default([]) is empty %}
-      <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
-    {% else %}
-    <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
-      <input type="hidden" name="pageId" value="{{ config.pageId|default(selectedPageId)|default('') }}">
-      <input type="hidden" name="domain" id="seoDomain" value="{{ config.domain|default('') }}">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-      <div class="uk-margin">
-        <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>
-        <div class="uk-form-controls">
-          <select
-            id="seoPageSelect"
-            class="uk-select"
-            data-configs="{{ seoPages|json_encode|e('html_attr') }}"
-            data-selected="{{ selectedPageId|default(config.pageId|default('')) }}"
-          >
-            {% for page in seoPages %}
-              <option
-                value="{{ page.id }}"{% if page.id == selectedPageId %} selected{% endif %}
-                data-slug="{{ page.slug }}"
-                data-title="{{ page.title }}"
-              >
-                {{ page.title }} ({{ page.slug }})
-              </option>
-            {% endfor %}
-          </select>
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <button
+        id="adminOffcanvasToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@s uk-hidden@m uk-margin-small-right git-btn"
+        uk-navbar-toggle-icon
+        uk-toggle="target: #qr-offcanvas"
+        aria-controls="qr-offcanvas"
+        aria-expanded="false"
+        aria-haspopup="true"
+        aria-label="{{ t('menu') }}"
+      ></button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace Admin</h3>
+          {% include 'admin/_nav.twig' %}
         </div>
       </div>
-      <h2>SEO</h2>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="metaTitle">Meta Title</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60" value="{{ config.metaTitle|default('') }}">
-          <small class="uk-text-meta char-count" data-for="metaTitle">0/60</small>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <div class="uk-container uk-container-small">
+          <h1 class="uk-heading-bullet">Landingpage bearbeiten</h1>
+          {% if seoPages|default([]) is empty %}
+            <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
+          {% else %}
+          <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
+            <input type="hidden" name="pageId" value="{{ config.pageId|default(selectedPageId)|default('') }}">
+            <input type="hidden" name="domain" id="seoDomain" value="{{ config.domain|default('') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="uk-margin">
+              <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>
+              <div class="uk-form-controls">
+                <select
+                  id="seoPageSelect"
+                  class="uk-select"
+                  data-configs="{{ seoPages|json_encode|e('html_attr') }}"
+                  data-selected="{{ selectedPageId|default(config.pageId|default('')) }}"
+                >
+                  {% for page in seoPages %}
+                    <option
+                      value="{{ page.id }}"{% if page.id == selectedPageId %} selected{% endif %}
+                      data-slug="{{ page.slug }}"
+                      data-title="{{ page.title }}"
+                    >
+                      {{ page.title }} ({{ page.slug }})
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <h2>SEO</h2>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="metaTitle">Meta Title</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60" value="{{ config.metaTitle|default('') }}">
+                <small class="uk-text-meta char-count" data-for="metaTitle">0/60</small>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="metaDescription">Meta Description</label>
+              <div class="uk-form-controls">
+                <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160">{{ config.metaDescription|default('') }}</textarea>
+                <small class="uk-text-meta char-count" data-for="metaDescription">0/160</small>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="slug">Slug</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100" value="{{ config.slug|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="canonical">Canonical</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="canonical" name="canonical" type="url" value="{{ config.canonicalUrl|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="faviconPath">Favicon</label>
+              <div class="uk-form-controls uk-flex uk-flex-middle uk-flex-wrap" style="gap:8px;">
+                <input class="uk-input uk-flex-auto" id="faviconPath" name="favicon_path" type="text" placeholder="/uploads/favicon.svg" value="{{ config.faviconPath|default('') }}">
+                <button type="button" class="uk-button uk-button-default" id="faviconSelectButton">Aus Medien wählen</button>
+              </div>
+              <small class="uk-text-meta">Optionaler relativer Pfad oder HTTPS-URL.</small>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="robots">Robots</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow" value="{{ config.robotsMeta|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label">OG-Tags</label>
+              <div class="uk-form-controls">
+                <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60" value="{{ config.ogTitle|default('') }}">
+                <input class="uk-input uk-margin-small-bottom" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160" value="{{ config.ogDescription|default('') }}">
+                <input class="uk-input" id="ogImage" name="og_image" type="url" placeholder="og:image" value="{{ config.ogImage|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="schema">Schema.org</label>
+              <div class="uk-form-controls">
+                <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }">{{ config.schemaJson|default('') }}</textarea>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="hreflang">hreflang</label>
+              <div class="uk-form-controls">
+                <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ..." value="{{ config.hreflang|default('') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <button type="button" class="uk-button uk-button-default import-seo-example">Beispiel importieren</button>
+              <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
+            </div>
+          </form>
+          <div id="seoMediaModal" class="uk-modal" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+              <button class="uk-modal-close-default" type="button" uk-close></button>
+              <h2 class="uk-modal-title">Favicon auswählen</h2>
+              <div class="uk-margin-small">
+                <input class="uk-input" type="search" placeholder="Suchen..." data-role="media-search">
+              </div>
+              <div class="uk-overflow-auto" style="max-height: 320px;">
+                <ul class="uk-list uk-list-divider" data-role="media-list"></ul>
+              </div>
+              <p class="uk-text-meta" data-role="media-empty" hidden>Keine Medien gefunden.</p>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="metaDescription">Meta Description</label>
-        <div class="uk-form-controls">
-          <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160">{{ config.metaDescription|default('') }}</textarea>
-          <small class="uk-text-meta char-count" data-for="metaDescription">0/160</small>
-        </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="slug">Slug</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100" value="{{ config.slug|default('') }}">
-        </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="canonical">Canonical</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" id="canonical" name="canonical" type="url" value="{{ config.canonicalUrl|default('') }}">
-        </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="faviconPath">Favicon</label>
-        <div class="uk-form-controls uk-flex uk-flex-middle uk-flex-wrap" style="gap:8px;">
-          <input class="uk-input uk-flex-auto" id="faviconPath" name="favicon_path" type="text" placeholder="/uploads/favicon.svg" value="{{ config.faviconPath|default('') }}">
-          <button type="button" class="uk-button uk-button-default" id="faviconSelectButton">Aus Medien wählen</button>
-        </div>
-        <small class="uk-text-meta">Optionaler relativer Pfad oder HTTPS-URL.</small>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="robots">Robots</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow" value="{{ config.robotsMeta|default('') }}">
-        </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label">OG-Tags</label>
-        <div class="uk-form-controls">
-          <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60" value="{{ config.ogTitle|default('') }}">
-          <input class="uk-input uk-margin-small-bottom" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160" value="{{ config.ogDescription|default('') }}">
-          <input class="uk-input" id="ogImage" name="og_image" type="url" placeholder="og:image" value="{{ config.ogImage|default('') }}">
-        </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="schema">Schema.org</label>
-        <div class="uk-form-controls">
-          <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }">{{ config.schemaJson|default('') }}</textarea>
-        </div>
-      </div>
-      <div class="uk-margin">
-        <label class="uk-form-label" for="hreflang">hreflang</label>
-        <div class="uk-form-controls">
-          <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ..." value="{{ config.hreflang|default('') }}">
-        </div>
-      </div>
-      <div class="uk-margin">
-        <button type="button" class="uk-button uk-button-default import-seo-example">Beispiel importieren</button>
-        <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
-      </div>
-    </form>
-    <div id="seoMediaModal" class="uk-modal" uk-modal>
-      <div class="uk-modal-dialog uk-modal-body">
-        <button class="uk-modal-close-default" type="button" uk-close></button>
-        <h2 class="uk-modal-title">Favicon auswählen</h2>
-        <div class="uk-margin-small">
-          <input class="uk-input" type="search" placeholder="Suchen..." data-role="media-search">
-        </div>
-        <div class="uk-overflow-auto" style="max-height: 320px;">
-          <ul class="uk-list uk-list-divider" data-role="media-list"></ul>
-        </div>
-        <p class="uk-text-meta" data-role="media-empty" hidden>Keine Medien gefunden.</p>
-      </div>
-    </div>
-    {% endif %}
+    </main>
   </div>
 {% endblock %}
 
