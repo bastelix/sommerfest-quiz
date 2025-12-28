@@ -707,8 +707,14 @@
       "type": "cta",
       "variant": "split",
       "data": {
-        "label": "Demo oder Test anfragen",
-        "href": "#offer"
+        "primary": {
+          "label": "Demo oder Test anfragen",
+          "href": "#offer"
+        },
+        "secondary": {
+          "label": "Jetzt testen",
+          "href": "#trial"
+        }
       }
     }
   ]

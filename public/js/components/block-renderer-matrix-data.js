@@ -55,7 +55,13 @@ function renderInfoMedia(block, variant) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(variant)}"><!-- info_media:${escapeHtml(variant)} | ${escapeHtml(title)} (${count} items) --></section>`;
 }
 
-function renderCta(block) {
+function renderCta(block, variant) {
+  if (variant === 'split') {
+    const primaryLabel = block?.data?.primary?.label || '';
+    const secondaryLabel = block?.data?.secondary?.label || '';
+    return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="split"><!-- cta:split | ${escapeHtml(primaryLabel)} / ${escapeHtml(secondaryLabel)} --></section>`;
+  }
+
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><!-- cta:full_width | ${escapeHtml(block.data.label || '')} --></section>`;
 }
 
@@ -117,7 +123,8 @@ export const RENDERER_MATRIX = {
     switcher: block => renderInfoMedia(block, 'switcher')
   },
   cta: {
-    full_width: renderCta
+    full_width: block => renderCta(block, 'full_width'),
+    split: block => renderCta(block, 'split')
   },
   stat_strip: {
     'three-up': renderStatStrip

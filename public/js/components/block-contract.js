@@ -81,12 +81,24 @@ const schema = {
     },
     {
       "title": "CTA block",
-      "properties": {
-        "type": { "const": "cta" },
-        "variant": { "enum": ["full_width"] },
-        "data": { "$ref": "#/definitions/CallToAction" }
-      },
-      "required": ["type", "variant", "data"]
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "cta" },
+            "variant": { "const": "full_width" },
+            "data": { "$ref": "#/definitions/CallToAction" }
+          },
+          "required": ["type", "variant", "data"]
+        },
+        {
+          "properties": {
+            "type": { "const": "cta" },
+            "variant": { "const": "split" },
+            "data": { "$ref": "#/definitions/SplitCallToAction" }
+          },
+          "required": ["type", "variant", "data"]
+        }
+      ]
     },
     {
       "title": "Stat strip block",
@@ -250,6 +262,15 @@ const schema = {
         "label": { "type": "string", "minLength": 1 },
         "href": { "type": "string", "minLength": 1 },
         "ariaLabel": { "type": "string" }
+      }
+    },
+    "SplitCallToAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "secondary"],
+      "properties": {
+        "primary": { "$ref": "#/definitions/CallToAction" },
+        "secondary": { "$ref": "#/definitions/CallToAction" }
       }
     },
     "StatStripData": {

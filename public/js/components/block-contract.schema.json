@@ -173,24 +173,43 @@
     },
     {
       "title": "CTA block",
-      "properties": {
-        "type": {
-          "const": "cta"
-        },
-        "variant": {
-          "enum": [
-            "full_width",
-            "split"
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "cta"
+            },
+            "variant": {
+              "const": "full_width"
+            },
+            "data": {
+              "$ref": "#/definitions/CallToAction"
+            }
+          },
+          "required": [
+            "type",
+            "variant",
+            "data"
           ]
         },
-        "data": {
-          "$ref": "#/definitions/CallToAction"
+        {
+          "properties": {
+            "type": {
+              "const": "cta"
+            },
+            "variant": {
+              "const": "split"
+            },
+            "data": {
+              "$ref": "#/definitions/SplitCallToAction"
+            }
+          },
+          "required": [
+            "type",
+            "variant",
+            "data"
+          ]
         }
-      },
-      "required": [
-        "type",
-        "variant",
-        "data"
       ]
     },
     {
@@ -624,6 +643,22 @@
         },
         "ariaLabel": {
           "type": "string"
+        }
+      }
+    },
+    "SplitCallToAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "secondary"
+      ],
+      "properties": {
+        "primary": {
+          "$ref": "#/definitions/CallToAction"
+        },
+        "secondary": {
+          "$ref": "#/definitions/CallToAction"
         }
       }
     },
