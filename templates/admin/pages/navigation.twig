@@ -540,10 +540,5 @@
   {% else %}
     <script type="module" src="{{ basePath }}/js/marketing-menu-admin.js"></script>
   {% endif %}
-  {% set editorDriver = pageEditorDriver|default('tiptap') %}
-  {% if editorDriver == 'trumbowyg' %}
-    <script src="{{ basePath }}/js/trumbowyg-pages.js"></script>
-  {% else %}
-    <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
-  {% endif %}
+  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
 {% endblock %}

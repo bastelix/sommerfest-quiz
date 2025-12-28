@@ -21,10 +21,6 @@
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
@@ -137,26 +133,4 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/storage.js"></script>
-  <script>
-    (function() {
-      const initEditor = function(selector) {
-        const el = document.querySelector(selector);
-        if (!el || !window.jQuery) {
-          return;
-        }
-        window.jQuery(selector).trumbowyg({
-          lang: 'de',
-          removeformatPasted: true,
-          autogrow: true,
-        }).on('tbwpaste', function(_, html) {
-          if (window.DOMPurify) {
-            return window.DOMPurify.sanitize(html);
-          }
-          return html;
-        });
-      };
-      initEditor('#newsContent');
-      initEditor('#newsExcerpt');
-    })();
-  </script>
 {% endblock %}

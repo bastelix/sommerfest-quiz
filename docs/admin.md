@@ -156,13 +156,9 @@ Diese Checks decken den Editor vollständig ab und sollten nach jedem Update ode
    * Öffne die Vorschau aus der Toolbar, prüfe die Darstellung von Buttons, Cards und Medien sowie die Namespace-spezifischen Styles (Landing-Assets werden mitgeladen).
    * Bei Landing-Seiten müssen Hero- und Alternativabschnitte sichtbar sein; für `impressum`, `datenschutz` und `faq` gilt die Standard-Hintergrundfarbe ohne Landing-Styles.
 
-### Feature-Flag-Fallback für den Editor
+### Editor-Konfiguration
 
-Standardmäßig verwendet das Admin-Frontend den Tiptap-Editor. Für Notfälle (z. B. CDN-Ausfälle) steht ein Fallback auf Trumbowyg bereit:
-
-* Setze in `.env` oder der Container-Umgebung `PAGE_EDITOR_DRIVER=trumbowyg` und starte den PHP-Container neu.
-* Das Admin-Layout lädt danach `trumbowyg-pages.js` statt `tiptap-pages.js`. Die Toolbar enthält weiterhin die Quiz-Link-Dropdowns und UIkit-Templates; Theme-Toggles bleiben erhalten.
-* Nach Entstörung den Wert wieder entfernen oder auf `tiptap` setzen und erneut neustarten. Führe anschließend die manuellen Tests oben aus, um sicherzustellen, dass beide Editoren identisch speichern.
+Das Admin-Frontend setzt ausschließlich auf den Tiptap-Editor; ein alternativer Fallback ist nicht mehr vorgesehen.
 
 ### Marketing-Menüs exportieren und importieren
 
