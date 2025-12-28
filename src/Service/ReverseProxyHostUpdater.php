@@ -16,6 +16,8 @@ use function App\runSyncProcess;
 final class ReverseProxyHostUpdater
 {
     private const MARKETING_ENV_KEY = 'MARKETING_DOMAINS';
+    private const SLIM_VIRTUAL_HOSTS_ENV_KEY = 'SLIM_VIRTUAL_HOSTS';
+    private const SLIM_LETSENCRYPT_HOSTS_ENV_KEY = 'SLIM_LETSENCRYPT_HOSTS';
 
     private DomainService $domainService;
 
@@ -25,16 +27,28 @@ final class ReverseProxyHostUpdater
 
     private string $nginxContainer;
 
+    private string $projectDir;
+
+    private string $slimService;
+
+    private string $dockerBinary;
+
     public function __construct(
         DomainService $domainService,
         NginxService $nginxService,
         ?string $envFile = null,
-        ?string $nginxContainer = null
+        ?string $nginxContainer = null,
+        ?string $projectDir = null,
+        ?string $slimService = null,
+        ?string $dockerBinary = null
     ) {
         $this->domainService = $domainService;
         $this->nginxService = $nginxService;
         $this->envFile = $envFile ?? dirname(__DIR__, 2) . '/.env';
         $this->nginxContainer = $nginxContainer ?? (getenv('NGINX_CONTAINER') ?: 'nginx');
+        $this->projectDir = $projectDir ?? dirname(__DIR__, 2);
+        $this->slimService = $slimService ?? 'slim';
+        $this->dockerBinary = $dockerBinary ?? 'docker';
     }
 
     /**
@@ -50,9 +64,25 @@ final class ReverseProxyHostUpdater
         $domains = $this->collectMarketingDomains($normalized);
         $value = implode(',', $domains);
 
-        $this->writeEnvValue($value);
-        $this->setRuntimeEnv($value);
-        $this->reloadProxy();
+        $marketingChanged = $this->writeEnvValue(self::MARKETING_ENV_KEY, $value);
+        $this->setRuntimeEnv(self::MARKETING_ENV_KEY, $value);
+
+        $combinedHosts = $this->collectSlimHosts($domains);
+        $combinedValue = implode(',', $combinedHosts);
+
+        $virtualChanged = $this->writeEnvValue(self::SLIM_VIRTUAL_HOSTS_ENV_KEY, $combinedValue);
+        $letsencryptChanged = $this->writeEnvValue(self::SLIM_LETSENCRYPT_HOSTS_ENV_KEY, $combinedValue);
+
+        $this->setRuntimeEnv(self::SLIM_VIRTUAL_HOSTS_ENV_KEY, $combinedValue);
+        $this->setRuntimeEnv(self::SLIM_LETSENCRYPT_HOSTS_ENV_KEY, $combinedValue);
+
+        if ($virtualChanged || $letsencryptChanged) {
+            $this->recreateSlimContainer();
+        }
+
+        if ($marketingChanged || $virtualChanged || $letsencryptChanged) {
+            $this->reloadProxy();
+        }
     }
 
     /**
@@ -70,7 +100,7 @@ final class ReverseProxyHostUpdater
             }
         }
 
-        $existing = $this->readEnvValue() ?? (getenv(self::MARKETING_ENV_KEY) ?: '');
+        $existing = $this->readEnvValue(self::MARKETING_ENV_KEY) ?? (getenv(self::MARKETING_ENV_KEY) ?: '');
         foreach (preg_split('/[\s,]+/', $existing) ?: [] as $entry) {
             $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
             if ($normalized !== '') {
@@ -84,7 +114,44 @@ final class ReverseProxyHostUpdater
         return $domains;
     }
 
-    private function readEnvValue(): ?string
+    /**
+     * @return list<string>
+     */
+    private function collectSlimHosts(array $marketingHosts): array
+    {
+        $hosts = [];
+
+        $sources = [
+            getenv(self::SLIM_VIRTUAL_HOSTS_ENV_KEY) ?: '',
+            getenv('SLIM_VIRTUAL_HOST') ?: '',
+            getenv(self::SLIM_LETSENCRYPT_HOSTS_ENV_KEY) ?: '',
+            getenv('SLIM_LETSENCRYPT_HOST') ?: '',
+            getenv('SLIM_VIRTUAL_HOSTS') ?: '',
+            getenv('SLIM_LETSENCRYPT_HOSTS') ?: '',
+            getenv('MAIN_DOMAIN') ?: '',
+            getenv('DOMAIN') ?: '',
+        ];
+
+        foreach ($sources as $source) {
+            foreach (preg_split('/[\s,]+/', $source) ?: [] as $host) {
+                $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+                if ($normalized !== '') {
+                    $hosts[] = $normalized;
+                }
+            }
+        }
+
+        foreach ($marketingHosts as $host) {
+            $normalized = DomainNameHelper::normalize($host, stripAdmin: false);
+            if ($normalized !== '') {
+                $hosts[] = $normalized;
+            }
+        }
+
+        return array_values(array_unique(array_filter($hosts, static fn (string $host): bool => $host !== '')));
+    }
+
+    private function readEnvValue(string $key): ?string
     {
         if (!is_file($this->envFile)) {
             return null;
@@ -96,7 +163,7 @@ final class ReverseProxyHostUpdater
         }
 
         foreach ($lines as $line) {
-            if (!preg_match('/^\s*' . preg_quote(self::MARKETING_ENV_KEY, '/') . '\s*=/', $line)) {
+            if (!preg_match('/^\s*' . preg_quote($key, '/') . '\s*=/', $line)) {
                 continue;
             }
 
@@ -130,16 +197,21 @@ final class ReverseProxyHostUpdater
         return trim($value);
     }
 
-    private function writeEnvValue(string $value): void
+    private function writeEnvValue(string $key, string $value): bool
     {
-        $line = self::MARKETING_ENV_KEY . '=' . $value;
+        $line = $key . '=' . $value;
+        $current = $this->readEnvValue($key);
+
+        if ($current !== null && $current === $value) {
+            return false;
+        }
 
         if (!file_exists($this->envFile)) {
             if (file_put_contents($this->envFile, $line . PHP_EOL) === false) {
                 throw new RuntimeException('Unable to create environment file.');
             }
 
-            return;
+            return true;
         }
 
         if (!is_writable($this->envFile)) {
@@ -153,7 +225,7 @@ final class ReverseProxyHostUpdater
 
         $updated = false;
         foreach ($lines as $index => $existing) {
-            if (!preg_match('/^\s*' . preg_quote(self::MARKETING_ENV_KEY, '/') . '\s*=/', $existing)) {
+            if (!preg_match('/^\s*' . preg_quote($key, '/') . '\s*=/', $existing)) {
                 continue;
             }
 
@@ -169,12 +241,14 @@ final class ReverseProxyHostUpdater
         if (file_put_contents($this->envFile, $content) === false) {
             throw new RuntimeException('Unable to persist environment file.');
         }
+
+        return true;
     }
 
-    private function setRuntimeEnv(string $value): void
+    private function setRuntimeEnv(string $key, string $value): void
     {
-        putenv(self::MARKETING_ENV_KEY . '=' . $value);
-        $_ENV[self::MARKETING_ENV_KEY] = $value;
+        putenv($key . '=' . $value);
+        $_ENV[$key] = $value;
     }
 
     private function reloadProxy(): void
@@ -194,6 +268,19 @@ final class ReverseProxyHostUpdater
         if (!$result['success']) {
             $message = $result['stderr'] !== '' ? $result['stderr'] : $result['stdout'];
             throw new RuntimeException('Failed to reload nginx: ' . trim($message));
+        }
+    }
+
+    private function recreateSlimContainer(): void
+    {
+        $result = runSyncProcess(
+            $this->dockerBinary,
+            ['compose', '--project-directory', $this->projectDir, 'up', '-d', '--force-recreate', $this->slimService]
+        );
+
+        if (!$result['success']) {
+            $message = $result['stderr'] !== '' ? $result['stderr'] : $result['stdout'];
+            throw new RuntimeException('Failed to recreate slim container: ' . trim($message));
         }
     }
 }
