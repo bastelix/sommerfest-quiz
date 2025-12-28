@@ -1,4 +1,4 @@
-import { ACTIVE_BLOCK_TYPES, BLOCK_TYPES, DEPRECATED_BLOCK_MAP, getBlockVariants, validateBlockContract } from './block-contract.js';
+import { ACTIVE_BLOCK_TYPES, BLOCK_TYPES, DEPRECATED_BLOCK_MAP, getBlockVariants, normalizeBlockVariant, validateBlockContract } from './block-contract.js';
 import { RENDERER_MATRIX, escapeAttribute, escapeHtml } from './block-renderer-matrix-data.js';
 
 function applyLegacyMapping(block) {
@@ -19,7 +19,8 @@ function assertRenderable(block) {
   if (!variants) {
     throw new Error(`No renderer registered for type: ${normalized.type}`);
   }
-  const renderer = variants[normalized.variant];
+  const normalizedVariant = normalizeBlockVariant(normalized.type, normalized.variant);
+  const renderer = variants[normalizedVariant];
   if (!renderer) {
     const allowedVariants = getBlockVariants(normalized.type).join(', ');
     throw new Error(`Unsupported variant for ${normalized.type}: ${normalized.variant}. Allowed: ${allowedVariants}`);
