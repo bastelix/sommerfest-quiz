@@ -1,46 +1,25 @@
-export type BlockType =
-  | 'hero'
-  | 'feature_list'
-  | 'process_steps'
-  | 'testimonial'
-  | 'rich_text'
-  | 'info_media'
-  | 'cta'
-  | 'stat_strip'
-  | 'audience_spotlight'
-  | 'package_summary'
-  | 'faq'
-  | 'system_module'
-  | 'case_showcase';
+import type { RENDERER_MATRIX } from './block-renderer-matrix-data.js';
 
-export type HeroVariant = 'centered_cta' | 'media_right' | 'media_left';
-export type FeatureListVariant = 'stacked_cards' | 'icon_grid' | 'detailed-cards' | 'grid-bullets';
-export type ProcessStepsVariant = 'timeline_horizontal' | 'timeline_vertical' | 'timeline';
-export type TestimonialVariant = 'single_quote' | 'quote_wall';
-export type RichTextVariant = 'prose';
-export type InfoMediaVariant = 'stacked' | 'switcher';
-export type CtaVariant = 'full_width';
-export type StatStripVariant = 'three-up';
-export type AudienceSpotlightVariant = 'tabs';
-export type PackageSummaryVariant = 'toggle' | 'comparison-cards';
-export type FaqVariant = 'accordion';
-export type SystemModuleVariant = 'switcher';
-export type CaseShowcaseVariant = 'tabs';
+type RendererMatrix = typeof RENDERER_MATRIX;
+type VariantsFor<Type extends keyof RendererMatrix> = keyof RendererMatrix[Type];
 
-export type BlockVariant =
-  | HeroVariant
-  | FeatureListVariant
-  | ProcessStepsVariant
-  | TestimonialVariant
-  | RichTextVariant
-  | InfoMediaVariant
-  | CtaVariant
-  | StatStripVariant
-  | AudienceSpotlightVariant
-  | PackageSummaryVariant
-  | FaqVariant
-  | SystemModuleVariant
-  | CaseShowcaseVariant;
+export type BlockType = keyof RendererMatrix;
+
+export type HeroVariant = VariantsFor<'hero'>;
+export type FeatureListVariant = VariantsFor<'feature_list'>;
+export type ProcessStepsVariant = VariantsFor<'process_steps'>;
+export type TestimonialVariant = VariantsFor<'testimonial'>;
+export type RichTextVariant = VariantsFor<'rich_text'>;
+export type InfoMediaVariant = VariantsFor<'info_media'>;
+export type CtaVariant = VariantsFor<'cta'>;
+export type StatStripVariant = VariantsFor<'stat_strip'>;
+export type AudienceSpotlightVariant = VariantsFor<'audience_spotlight'>;
+export type PackageSummaryVariant = VariantsFor<'package_summary'>;
+export type FaqVariant = VariantsFor<'faq'>;
+export type SystemModuleVariant = VariantsFor<'system_module'>;
+export type CaseShowcaseVariant = VariantsFor<'case_showcase'>;
+
+export type BlockVariant = keyof RendererMatrix[keyof RendererMatrix];
 
 export interface Tokens {
   background?: 'default' | 'muted' | 'primary';

@@ -1,3 +1,5 @@
+import { RENDERER_MATRIX } from './block-renderer-matrix-data.js';
+
 // Block contract aligned with docs/calserver-block-consolidation.md
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -468,22 +470,10 @@ const schema = {
   }
 };
 
-const BLOCK_VARIANTS = {
-  hero: ['centered_cta', 'media_right', 'media_left'],
-  feature_list: ['stacked_cards', 'icon_grid', 'detailed-cards', 'grid-bullets'],
-  process_steps: ['timeline_horizontal', 'timeline_vertical', 'timeline'],
-  testimonial: ['single_quote', 'quote_wall'],
-  rich_text: ['prose'],
-  info_media: ['stacked', 'switcher'],
-  cta: ['full_width'],
-  stat_strip: ['three-up'],
-  audience_spotlight: ['tabs'],
-  package_summary: ['toggle', 'comparison-cards'],
-  faq: ['accordion'],
-  // Deprecated legacy block types retained for editor/renderer compatibility.
-  system_module: ['switcher'],
-  case_showcase: ['tabs']
-};
+const BLOCK_VARIANTS = Object.entries(RENDERER_MATRIX).reduce((accumulator, [type, variants]) => {
+  accumulator[type] = Object.keys(variants);
+  return accumulator;
+}, {});
 
 const DEPRECATED_BLOCK_TYPES = {
   system_module: { replacement: { type: 'info_media', variant: 'switcher' } },
