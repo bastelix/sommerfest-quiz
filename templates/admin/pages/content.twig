@@ -254,6 +254,14 @@
             <div class="uk-margin-top">
               <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
               <button class="uk-button uk-button-default uk-margin-small-left preview-link" type="button">Vorschau</button>
+              <button class="uk-button uk-button-default uk-margin-small-left export-page-btn" type="button">
+                Export Page as JSON
+              </button>
+              <label class="uk-button uk-button-default uk-margin-small-left import-page-btn">
+                Import Page from JSON
+                <input class="page-import-input" type="file" accept="application/json,.json,.page.json" hidden>
+              </label>
+              <span class="uk-text-meta" data-page-import-feedback></span>
               <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
             </div>
           </form>

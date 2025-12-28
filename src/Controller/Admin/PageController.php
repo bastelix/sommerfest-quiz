@@ -4,27 +4,41 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Infrastructure\Database;
 use App\Service\NamespaceResolver;
+use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
+use App\Service\AuditLogger;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use JsonException;
 use LogicException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\UploadedFileInterface;
 use Slim\Views\Twig;
 
 class PageController
 {
     private PageService $pageService;
     private NamespaceResolver $namespaceResolver;
+    private PageBlockContractMigrator $blockMigrator;
+    private AuditLogger $audit;
 
     /** @var array<string, string[]> */
     private array $editableSlugs = [];
 
-    public function __construct(?PageService $pageService = null, ?NamespaceResolver $namespaceResolver = null) {
+    public function __construct(
+        ?PageService $pageService = null,
+        ?NamespaceResolver $namespaceResolver = null,
+        ?PageBlockContractMigrator $blockMigrator = null,
+        ?AuditLogger $audit = null
+    ) {
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->blockMigrator = $blockMigrator ?? new PageBlockContractMigrator($this->pageService);
+        $this->audit = $audit ?? new AuditLogger(Database::connectFromEnv());
     }
 
     /**
@@ -231,6 +245,138 @@ class PageController
             ->withStatus(200);
     }
 
+    public function export(Request $request, Response $response, array $args): Response
+    {
+        $slug = (string) ($args['slug'] ?? '');
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
+        $page = $this->pageService->findByKey($namespace, $slug);
+        if ($page === null) {
+            return $response->withStatus(404);
+        }
+
+        $decoded = json_decode($page->getContent(), true);
+        if (!is_array($decoded) || !isset($decoded['blocks'])) {
+            return $this->createJsonResponse($response, ['error' => 'Page content is not valid block JSON.'], 422);
+        }
+
+        if (!$this->blockMigrator->isContractValid($decoded)) {
+            return $this->createJsonResponse(
+                $response,
+                ['error' => 'Page content does not comply with the block contract.'],
+                422
+            );
+        }
+
+        $payload = [
+            'meta' => [
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'exportedAt' => (new DateTimeImmutable())->format(DATE_ATOM),
+                'schemaVersion' => PageBlockContractMigrator::MIGRATION_VERSION,
+            ],
+            'blocks' => $decoded['blocks'],
+        ];
+
+        $response->getBody()->write((string) json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        $filename = sprintf('content/%s/%s.page.json', $page->getNamespace(), $page->getSlug());
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+    }
+
+    public function import(Request $request, Response $response, array $args): Response
+    {
+        $slug = (string) ($args['slug'] ?? '');
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        if (!in_array($slug, $this->getEditableSlugs($namespace), true)) {
+            return $response->withStatus(404);
+        }
+
+        $page = $this->pageService->findByKey($namespace, $slug);
+        if ($page === null) {
+            return $response->withStatus(404);
+        }
+
+        [$payload, $uploadedName] = $this->extractImportPayload($request);
+        if ($payload === null) {
+            return $this->createJsonResponse($response, ['error' => 'Invalid JSON payload.'], 400);
+        }
+
+        $meta = $payload['meta'] ?? [];
+        if (!is_array($meta)) {
+            return $this->createJsonResponse($response, ['error' => 'Missing meta information.'], 422);
+        }
+
+        $schemaVersion = (string) ($meta['schemaVersion'] ?? '');
+        if ($schemaVersion !== PageBlockContractMigrator::MIGRATION_VERSION) {
+            return $this->createJsonResponse(
+                $response,
+                ['error' => 'Incompatible schemaVersion in import file.'],
+                422
+            );
+        }
+
+        if (($meta['namespace'] ?? '') !== $namespace) {
+            return $this->createJsonResponse($response, ['error' => 'Namespace does not match target page.'], 422);
+        }
+
+        if (($meta['slug'] ?? '') !== $slug) {
+            return $this->createJsonResponse($response, ['error' => 'Slug does not match target page.'], 422);
+        }
+
+        $blocks = $payload['blocks'] ?? null;
+        if (!is_array($blocks)) {
+            return $this->createJsonResponse($response, ['error' => 'Missing blocks array.'], 422);
+        }
+
+        $content = [
+            'meta' => array_merge(
+                is_array($payload['meta'] ?? null) ? $payload['meta'] : [],
+                [
+                    'namespace' => $namespace,
+                    'slug' => $slug,
+                    'title' => $page->getTitle(),
+                    'schemaVersion' => $schemaVersion,
+                ]
+            ),
+            'blocks' => $blocks,
+        ];
+
+        if (!$this->blockMigrator->isContractValid($content)) {
+            return $this->createJsonResponse(
+                $response,
+                ['error' => 'Block validation failed for imported content.'],
+                422
+            );
+        }
+
+        $encoded = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        if ($encoded === false) {
+            return $this->createJsonResponse($response, ['error' => 'Failed to encode imported content.'], 500);
+        }
+
+        $this->pageService->save($namespace, $slug, $encoded);
+
+        $this->audit->log('page_import', [
+            'pageId' => $page->getId(),
+            'namespace' => $namespace,
+            'slug' => $slug,
+            'userId' => $_SESSION['user']['id'] ?? null,
+            'username' => $_SESSION['user']['username'] ?? null,
+            'sourceFile' => $uploadedName,
+            'importedAt' => (new DateTimeImmutable())->format(DATE_ATOM),
+        ]);
+
+        return $this->createJsonResponse($response, ['content' => $content], 200);
+    }
+
     public function updateNamespace(Request $request, Response $response, array $args): Response
     {
         $slug = $args['slug'] ?? '';
@@ -364,5 +510,51 @@ class PageController
         return $response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus($status);
+    }
+
+    /**
+     * @return array{0: ?array, 1: ?string}
+     */
+    private function extractImportPayload(Request $request): array
+    {
+        $files = $request->getUploadedFiles();
+        $upload = $this->findFirstUpload($files);
+        $uploadedName = $upload?->getClientFilename();
+        $raw = null;
+        if ($upload !== null && $upload->getError() === UPLOAD_ERR_OK) {
+            $raw = (string) $upload->getStream();
+        }
+
+        if ($raw === null || $raw === '') {
+            $raw = (string) $request->getBody();
+        }
+
+        $payload = json_decode($raw, true);
+        if (!is_array($payload)) {
+            return [null, $uploadedName];
+        }
+
+        return [$payload, $uploadedName];
+    }
+
+    /**
+     * @param array<string, UploadedFileInterface|array|UploadedFileInterface[]> $files
+     */
+    private function findFirstUpload(array $files): ?UploadedFileInterface
+    {
+        foreach (['file', 'page', 'pageJson', 'upload'] as $key) {
+            if (!isset($files[$key])) {
+                continue;
+            }
+            $candidate = $files[$key];
+            if ($candidate instanceof UploadedFileInterface) {
+                return $candidate;
+            }
+            if (is_array($candidate) && isset($candidate[0]) && $candidate[0] instanceof UploadedFileInterface) {
+                return $candidate[0];
+            }
+        }
+
+        return null;
     }
 }

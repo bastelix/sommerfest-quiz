@@ -1843,6 +1843,74 @@ const setupPageForm = form => {
     deleteBtn.dataset.bound = '1';
   }
 
+  const exportBtn = form.querySelector('.export-page-btn');
+  if (exportBtn && !exportBtn.dataset.bound) {
+    exportBtn.addEventListener('click', event => {
+      event.preventDefault();
+      const url = withNamespace(`/admin/pages/${encodeURIComponent(slug)}/export`);
+      window.location.href = url;
+    });
+    exportBtn.dataset.bound = '1';
+  }
+
+  const importBtn = form.querySelector('.import-page-btn');
+  const importInput = form.querySelector('.page-import-input');
+  const importFeedback = form.querySelector('[data-page-import-feedback]');
+  const showImportFeedback = (message, tone = '') => {
+    if (!importFeedback) {
+      return;
+    }
+    importFeedback.textContent = message;
+    importFeedback.classList.remove('uk-text-danger', 'uk-text-success');
+    if (tone === 'error') {
+      importFeedback.classList.add('uk-text-danger');
+    } else if (tone === 'success') {
+      importFeedback.classList.add('uk-text-success');
+    }
+  };
+
+  if (importBtn && importInput && !importBtn.dataset.bound) {
+    importBtn.addEventListener('click', event => {
+      event.preventDefault();
+      importInput.click();
+    });
+
+    importInput.addEventListener('change', async () => {
+      const file = importInput.files?.[0];
+      if (!file) {
+        return;
+      }
+
+      showImportFeedback('Import wird ausgeführt...');
+      const formData = new FormData();
+      formData.append('file', file, file.name);
+
+      try {
+        const response = await apiFetch(withNamespace(`/admin/pages/${encodeURIComponent(slug)}/import`), {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': window.csrfToken || '' },
+          body: formData
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          const errorMessage = payload?.error || 'Import fehlgeschlagen.';
+          throw new Error(errorMessage);
+        }
+        notify('Seiteninhalt importiert.', 'success');
+        showImportFeedback('Import erfolgreich.', 'success');
+        window.location.reload();
+      } catch (error) {
+        const message = error instanceof Error && error.message ? error.message : 'Import fehlgeschlagen.';
+        showImportFeedback(message, 'error');
+        notify(message, 'danger');
+      } finally {
+        importInput.value = '';
+      }
+    });
+
+    importBtn.dataset.bound = '1';
+  }
+
   form.dataset.pageReady = '1';
 };
 

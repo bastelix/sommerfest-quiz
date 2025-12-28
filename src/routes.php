@@ -1953,6 +1953,16 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->move($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
+    $app->get('/admin/pages/{slug}/export', function (Request $request, Response $response, array $args) {
+        $controller = new PageController();
+        return $controller->export($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/pages/{slug}/import', function (Request $request, Response $response, array $args) {
+        $controller = new PageController();
+        return $controller->import($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
     $app->post('/admin/pages/{slug}/namespace', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->updateNamespace($request, $response, $args);

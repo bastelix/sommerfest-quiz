@@ -73,6 +73,16 @@ final class PageBlockContractMigrator
     }
 
     /**
+     * Expose contract validation for external consumers.
+     *
+     * @param array<string,mixed> $content
+     */
+    public function isContractValid(array $content): bool
+    {
+        return $this->validatePageContent($content);
+    }
+
+    /**
      * Execute the migration for all pages and persist valid results.
      *
      * @return array{total:int,migrated:int,skipped:int,errors:array<string,int>,details:list<array<string,mixed>>}
