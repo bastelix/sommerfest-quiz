@@ -4,9 +4,6 @@
 
 ### Build
 
-- Extend block contract schema with new hero, feature list, process steps, and CTA variants.
-- Add proof block alias with validated mappings to existing stat strip and audience spotlight data structures.
-
 - Tag image as sommerfest-quiz
 
 ### Chore
