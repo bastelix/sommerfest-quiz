@@ -19,10 +19,25 @@ final class DomainDocumentStorage
 
     private string $basePath;
 
-    public function __construct(?string $basePath = null)
+    private string $legacyBasePath;
+
+    public function __construct(?string $basePath = null, ?string $legacyBasePath = null)
     {
         $root = dirname(__DIR__, 3);
         $this->basePath = $basePath ?? $root . '/data/rag-chatbot/domains';
+
+        if ($legacyBasePath !== null) {
+            $this->legacyBasePath = $legacyBasePath;
+            return;
+        }
+
+        if (basename($this->basePath) === 'domains') {
+            $this->legacyBasePath = dirname($this->basePath);
+
+            return;
+        }
+
+        $this->legacyBasePath = $this->basePath;
     }
 
     /**
@@ -247,6 +262,8 @@ final class DomainDocumentStorage
             }
         }
 
+        $this->migrateLegacyDirectory($canonical, $canonical);
+
         return $canonical;
     }
 
@@ -255,75 +272,94 @@ final class DomainDocumentStorage
      */
     private function findLegacyDirectories(string $canonical): array
     {
-        if (!is_dir($this->basePath)) {
-            return [];
-        }
-
-        $entries = scandir($this->basePath);
-        if ($entries === false) {
-            return [];
-        }
-
         $candidates = [];
-        $prefix = $canonical . '.';
-
-        foreach ($entries as $entry) {
-            if ($entry === '.' || $entry === '..') {
+        foreach ($this->getBaseCandidates() as $basePath) {
+            if (!is_dir($basePath)) {
                 continue;
             }
 
-            $lower = strtolower($entry);
-            if ($lower === $canonical) {
+            $entries = scandir($basePath);
+            if ($entries === false) {
                 continue;
             }
 
-            if (!str_starts_with($lower, $prefix)) {
-                continue;
-            }
+            $prefix = $canonical . '.';
 
-            $path = $this->basePath . DIRECTORY_SEPARATOR . $entry;
-            if (!is_dir($path)) {
-                continue;
-            }
+            foreach ($entries as $entry) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
 
-            $candidates[] = $entry;
+                $lower = strtolower($entry);
+                if ($lower === $canonical) {
+                    continue;
+                }
+
+                if (!str_starts_with($lower, $prefix)) {
+                    continue;
+                }
+
+                $path = $basePath . DIRECTORY_SEPARATOR . $entry;
+                if (!is_dir($path)) {
+                    continue;
+                }
+
+                $candidates[$lower] = $entry;
+            }
         }
 
-        return $candidates;
+        return array_values($candidates);
     }
 
     private function migrateLegacyDirectory(string $legacy, string $canonical): void
     {
-        $legacyPath = $this->basePath . DIRECTORY_SEPARATOR . $legacy;
-        if (!is_dir($legacyPath)) {
-            return;
-        }
-
-        $canonicalPath = $this->basePath . DIRECTORY_SEPARATOR . $canonical;
-        $parent = dirname($canonicalPath);
-        if (!is_dir($parent)) {
-            $this->ensureDirectory($parent);
-        }
-
-        if (is_link($canonicalPath)) {
-            return;
-        }
-
-        if (!is_dir($canonicalPath)) {
-            if (rename($legacyPath, $canonicalPath)) {
-                return;
+        foreach ($this->getBaseCandidates() as $basePath) {
+            $legacyPath = $basePath . DIRECTORY_SEPARATOR . $legacy;
+            if (!is_dir($legacyPath)) {
+                continue;
             }
 
-            if ($this->createSymlink($legacyPath, $canonicalPath)) {
-                return;
+            $canonicalPath = $this->basePath . DIRECTORY_SEPARATOR . $canonical;
+            $parent = dirname($canonicalPath);
+            if (!is_dir($parent)) {
+                $this->ensureDirectory($parent);
+            }
+
+            if (is_link($canonicalPath)) {
+                continue;
+            }
+
+            $legacyRealPath = realpath($legacyPath);
+            $canonicalRealPath = realpath($canonicalPath);
+            if ($legacyRealPath !== false && $legacyRealPath === $canonicalRealPath) {
+                continue;
+            }
+
+            if (!is_dir($canonicalPath)) {
+                if (rename($legacyPath, $canonicalPath)) {
+                    continue;
+                }
+
+                if ($this->createSymlink($legacyPath, $canonicalPath)) {
+                    continue;
+                }
             }
 
             $this->mirrorDirectory($legacyPath, $canonicalPath);
+        }
+    }
 
-            return;
+    /**
+     * @return list<string>
+     */
+    private function getBaseCandidates(): array
+    {
+        $candidates = [$this->basePath];
+        if ($this->legacyBasePath !== $this->basePath) {
+            $candidates[] = $this->legacyBasePath;
         }
 
-        $this->mirrorDirectory($legacyPath, $canonicalPath);
+        return $candidates;
     }
 
     private function createSymlink(string $target, string $link): bool

@@ -137,6 +137,42 @@ final class DomainDocumentStorageTest extends TestCase
         self::assertCount(1, $documentsBySlug);
     }
 
+    public function testLegacyBaseFolderIsMigratedIntoDomainsDirectory(): void
+    {
+        $legacyRoot = $this->basePath . '/rag-chatbot';
+        $domainsDir = $legacyRoot . '/domains';
+        $legacyDomainDir = $legacyRoot . '/legacy.example/uploads';
+        mkdir($legacyDomainDir, 0775, true);
+
+        $documentId = 'legacy5678';
+        $filename = $documentId . '-guide.md';
+        file_put_contents($legacyDomainDir . DIRECTORY_SEPARATOR . $filename, 'Legacy base content');
+
+        $metadata = [
+            $documentId => [
+                'name' => 'Guide.md',
+                'filename' => $filename,
+                'mime_type' => 'text/markdown',
+                'size' => 19,
+                'uploaded_at' => date('c'),
+                'updated_at' => date('c'),
+            ],
+        ];
+
+        file_put_contents(
+            $legacyRoot . DIRECTORY_SEPARATOR . 'legacy.example' . DIRECTORY_SEPARATOR . 'documents.json',
+            json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        $storage = new DomainDocumentStorage($domainsDir, $legacyRoot);
+
+        $documents = $storage->listDocuments('legacy.example');
+
+        self::assertCount(1, $documents);
+        self::assertDirectoryExists($domainsDir . DIRECTORY_SEPARATOR . 'legacy.example');
+        self::assertFileExists($domainsDir . DIRECTORY_SEPARATOR . 'legacy.example' . DIRECTORY_SEPARATOR . 'documents.json');
+    }
+
     public function testSlugLookupMigratesLegacyMarketingDirectory(): void
     {
         DomainNameHelper::setMarketingDomainProvider($this->createMarketingProvider(['calserver.com']));
