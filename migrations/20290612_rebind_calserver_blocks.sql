@@ -1,4 +1,6 @@
-{
+-- Attach rebuilt calServer blocks to existing page identity
+UPDATE pages
+SET content = $CONTENT${
   "id": "calserver",
   "locale": "de",
   "title": "calServer",
@@ -644,4 +646,7 @@
       }
     }
   ]
-}
+}$CONTENT$,
+    content_source = NULL,
+    updated_at = CURRENT_TIMESTAMP
+WHERE slug = 'calserver' AND namespace IN ('calserver', 'default');
