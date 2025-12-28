@@ -50,9 +50,9 @@ final class CertificateProvisioningService implements CertificateProvisionerInte
 
     /**
      * Marketing domains are sourced from the admin database/provider and act as
-     * the preferred source of truth.
-     * The MARKETING_DOMAINS env var is only used as an optional fallback when
-     * no entries are configured in the database.
+     * the preferred source of truth. MARKETING_DOMAINS is always merged in as a
+     * safety net to ensure static env configuration still reaches the
+     * certificate companion.
      *
      * @return list<string>
      */
