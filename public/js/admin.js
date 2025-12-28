@@ -1536,21 +1536,6 @@ document.addEventListener('DOMContentLoaded', function () {
     : null;
   const domainSmtpSubmit = domainSmtpForm?.querySelector('button[type="submit"]') || null;
   let currentSmtpItem = null;
-  const trumbowygAvailable = () => !!(window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.trumbowyg === 'function');
-  const ensureTemplateEditor = element => {
-    if (!element || element.dataset.templateEditor !== 'html' || !trumbowygAvailable()) {
-      return null;
-    }
-    if (!element.dataset.editorReady) {
-      window.jQuery(element).trumbowyg({
-        autogrow: true,
-        semantic: false,
-        removeformatPasted: true,
-      });
-      element.dataset.editorReady = '1';
-    }
-    return window.jQuery(element);
-  };
   const sanitizeTemplateHtml = value => {
     if (typeof value !== 'string' || value === '') {
       return '';
@@ -1568,25 +1553,17 @@ document.addEventListener('DOMContentLoaded', function () {
   };
   const setTemplateFieldValue = (element, value) => {
     if (!element) return;
-    if (element.dataset.templateEditor === 'html') {
-      const editor = ensureTemplateEditor(element);
-      if (editor) {
-        const sanitized = sanitizeTemplateHtml(value);
-        editor.trumbowyg('html', sanitized);
-        return;
-      }
-    }
-    element.value = typeof value === 'string' ? value : '';
+    const normalizedValue = element.dataset.templateEditor === 'html'
+      ? sanitizeTemplateHtml(value)
+      : value;
+    element.value = typeof normalizedValue === 'string' ? normalizedValue : '';
   };
   const getTemplateFieldValue = element => {
     if (!element) return '';
-    if (element.dataset.templateEditor === 'html') {
-      const editor = ensureTemplateEditor(element);
-      if (editor) {
-        return editor.trumbowyg('html');
-      }
-    }
-    return element.value || '';
+    const value = element.value || '';
+    return element.dataset.templateEditor === 'html'
+      ? sanitizeTemplateHtml(value)
+      : value;
   };
   const resetContactTemplateForm = () => {
     if (!contactTemplateFields) return;
@@ -1655,8 +1632,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (contactTemplateInfo) {
       contactTemplateInfo.textContent = item?.domain || normalized;
     }
-    ensureTemplateEditor(contactTemplateFields?.recipientHtml);
-    ensureTemplateEditor(contactTemplateFields?.senderHtml);
     resetContactTemplateForm();
     contactTemplateModal.show();
     loadContactTemplateData(normalized).catch(err => {

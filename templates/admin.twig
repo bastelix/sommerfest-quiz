@@ -9,9 +9,6 @@
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <script>
@@ -26,12 +23,7 @@
   <script>
     window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
-  {% set editorDriver = pageEditorDriver|default('tiptap') %}
-  {% if editorDriver == 'trumbowyg' %}
-    <script src="{{ basePath }}/js/trumbowyg-pages.js"></script>
-  {% else %}
-    <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
-  {% endif %}
+  <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
   <script type="module" src="{{ basePath }}/js/seo-form.js"></script>
   {% endblock %}
 
