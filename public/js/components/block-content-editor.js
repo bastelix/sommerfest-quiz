@@ -4,6 +4,7 @@ import {
   ACTIVE_BLOCK_TYPES,
   BLOCK_CONTRACT_SCHEMA,
   DEPRECATED_BLOCK_MAP,
+  normalizeBlockContract,
   normalizeVariant,
   validateBlockContract
 } from './block-contract.js';
@@ -353,7 +354,7 @@ function migrateLegacyBlock(block) {
 }
 
 function sanitizeBlock(block) {
-  const migrated = migrateLegacyBlock(block);
+  const migrated = normalizeBlockContract(migrateLegacyBlock(block));
   const blockSchema = BLOCK_CONTRACT_SCHEMA.oneOf
     .find(entry => entry?.properties?.type?.const === migrated.type);
   if (!blockSchema) {
