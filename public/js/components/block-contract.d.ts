@@ -42,12 +42,19 @@ export interface CallToAction {
   ariaLabel?: string;
 }
 
+export type CallToActionGroup =
+  | CallToAction
+  | {
+      primary: CallToAction;
+      secondary?: CallToAction;
+    };
+
 export interface HeroBlockData {
   eyebrow?: string;
   headline: string;
   subheadline?: string;
   media?: Media;
-  cta: CallToAction;
+  cta: CallToActionGroup;
 }
 
 export interface FeatureItem {

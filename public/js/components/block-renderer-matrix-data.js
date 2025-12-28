@@ -14,16 +14,46 @@ export function escapeAttribute(value) {
   return escapeHtml(value).replace(/`/g, '&#x60;');
 }
 
+function formatHeroCtaLabel(cta) {
+  if (!cta) {
+    return '';
+  }
+
+  const entries = [];
+
+  if (cta.primary || cta.secondary) {
+    if (cta.primary) {
+      entries.push(cta.primary);
+    }
+    if (cta.secondary) {
+      entries.push(cta.secondary);
+    }
+  } else {
+    entries.push(cta);
+  }
+
+  return entries
+    .map(entry => (entry && entry.label ? escapeHtml(entry.label) : ''))
+    .filter(Boolean)
+    .join(' / ');
+}
+
 function renderHeroCenteredCta(block) {
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="centered_cta"><!-- hero:centered_cta | ${escapeHtml(block.data.headline || '')} --></section>`;
+  const ctaLabel = formatHeroCtaLabel(block.data?.cta);
+  const ctaSuffix = ctaLabel ? ` | CTA: ${ctaLabel}` : '';
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="centered_cta"><!-- hero:centered_cta | ${escapeHtml(block.data.headline || '')}${ctaSuffix} --></section>`;
 }
 
 function renderHeroMediaRight(block) {
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_right"><!-- hero:media_right | ${escapeHtml(block.data.headline || '')} --></section>`;
+  const ctaLabel = formatHeroCtaLabel(block.data?.cta);
+  const ctaSuffix = ctaLabel ? ` | CTA: ${ctaLabel}` : '';
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_right"><!-- hero:media_right | ${escapeHtml(block.data.headline || '')}${ctaSuffix} --></section>`;
 }
 
 function renderHeroMediaLeft(block) {
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_left"><!-- hero:media_left | ${escapeHtml(block.data.headline || '')} --></section>`;
+  const ctaLabel = formatHeroCtaLabel(block.data?.cta);
+  const ctaSuffix = ctaLabel ? ` | CTA: ${ctaLabel}` : '';
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_left"><!-- hero:media_left | ${escapeHtml(block.data.headline || '')}${ctaSuffix} --></section>`;
 }
 
 function renderFeatureList(block, variant) {
