@@ -2755,72 +2755,13 @@ export async function showPreview(formOverride = null) {
 
 window.showPreview = showPreview;
 
-const normalizeTreeNamespace = (namespace) => (namespace || 'default').trim() || 'default';
+const pageTreeUtils = window.pageTreeUtils;
+const normalizeTreeNamespace = pageTreeUtils?.normalizeNamespace;
+const flattenTreeNodes = pageTreeUtils?.flattenNodes;
+const buildTreeFromFlatPages = pageTreeUtils?.buildTree;
 
-const normalizeTreePosition = value => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-};
-
-function flattenTreeNodes(nodes, fallbackNamespace) {
-  const flat = [];
-  nodes.forEach(node => {
-    const namespace = normalizeTreeNamespace(node.namespace || fallbackNamespace);
-    flat.push({
-      id: Number.isFinite(Number(node.id)) ? Number(node.id) : null,
-      parent_id: Number.isFinite(Number(node.parent_id)) ? Number(node.parent_id) : null,
-      title: (node.title || node.slug || 'Ohne Titel').trim(),
-      slug: (node.slug || '').trim(),
-      namespace,
-      status: (node.status || '').trim(),
-      position: normalizeTreePosition(node.position ?? node.sort_order)
-    });
-    if (Array.isArray(node.children) && node.children.length) {
-      flat.push(...flattenTreeNodes(node.children, namespace));
-    }
-  });
-  return flat;
-}
-
-function sortTree(nodes) {
-  nodes.sort((a, b) => {
-    const positionDiff = Number(a.position || 0) - Number(b.position || 0);
-    if (positionDiff !== 0) {
-      return positionDiff;
-    }
-    return (a.title || '').localeCompare(b.title || '');
-  });
-  nodes.forEach(node => {
-    if (Array.isArray(node.children) && node.children.length) {
-      sortTree(node.children);
-    }
-  });
-}
-
-function buildTreeFromFlatPages(pages) {
-  const nodesById = new Map();
-  const roots = [];
-
-  pages.forEach(page => {
-    const key = page.id ?? page.slug;
-    if (key === null || key === undefined || key === '') {
-      return;
-    }
-    nodesById.set(String(key), { ...page, children: [] });
-  });
-
-  nodesById.forEach(node => {
-    const parentKey = node.parent_id !== null && node.parent_id !== undefined ? String(node.parent_id) : null;
-    if (parentKey && nodesById.has(parentKey)) {
-      nodesById.get(parentKey).children.push(node);
-    } else {
-      roots.push(node);
-    }
-  });
-
-  sortTree(roots);
-
-  return roots;
+if (!normalizeTreeNamespace || !flattenTreeNodes || !buildTreeFromFlatPages) {
+  throw new Error('pageTreeUtils is required for rendering page trees.');
 }
 
 function resolveNamespaceSections(namespaces, activeNamespace) {
@@ -2912,6 +2853,61 @@ function buildPageTreeList(nodes, level = 0) {
   });
 
   return list;
+}
+
+const parsePageTreePayload = (value, fallback = null) => {
+  if (!value) {
+    return fallback;
+  }
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+function renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace) {
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = '';
+  const sections = resolveNamespaceSections(namespaces, activeNamespace);
+
+  if (!sections.length) {
+    const empty = document.createElement('div');
+    empty.className = 'uk-text-meta';
+    empty.textContent = emptyMessage;
+    container.appendChild(empty);
+    return;
+  }
+
+  sections.forEach(section => {
+    const namespace = normalizeTreeNamespace(section.namespace);
+    const heading = document.createElement('h4');
+    heading.className = 'uk-heading-line uk-margin-small-top';
+    const headingText = document.createElement('span');
+    headingText.textContent = namespace;
+    heading.appendChild(headingText);
+    container.appendChild(heading);
+
+    const pages = Array.isArray(section.pages) ? section.pages : [];
+    const flatPages = flattenTreeNodes(pages, namespace).filter(page => page.namespace === namespace);
+    const tree = buildTreeFromFlatPages(flatPages);
+
+    container.appendChild(tree.length ? buildPageTreeList(tree) : (() => {
+      const empty = document.createElement('div');
+      empty.className = 'uk-text-meta';
+      empty.textContent = emptyMessage;
+      return empty;
+    })());
+  });
+
+  const select = document.getElementById('pageContentSelect');
+  if (select) {
+    updatePageTreeActive(container, select.value);
+  }
 }
 
 function resolveActiveNamespace(container) {
@@ -3165,6 +3161,12 @@ async function initPageTree() {
   const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
   const errorMessage = container.dataset.error || 'Seitenbaum konnte nicht geladen werden.';
   const endpoint = withNamespace(container.dataset.endpoint || '/admin/projects/tree');
+  const activeNamespace = resolveActiveNamespace(container);
+  const initialPayload = parsePageTreePayload(container.dataset.initialPayload);
+
+  if (Array.isArray(initialPayload)) {
+    renderPageTreeSections(container, initialPayload, emptyMessage, activeNamespace);
+  }
 
   try {
     const response = await (window.apiFetch ? window.apiFetch(endpoint) : fetch(endpoint));
@@ -3172,43 +3174,8 @@ async function initPageTree() {
       throw new Error('page-tree-request-failed');
     }
     const payload = await response.json();
-    const activeNamespace = resolveActiveNamespace(container);
-    container.innerHTML = '';
-    const namespaces = resolveNamespaceSections(payload?.namespaces, activeNamespace);
-
-    if (!namespaces.length) {
-      const empty = document.createElement('div');
-      empty.className = 'uk-text-meta';
-      empty.textContent = emptyMessage;
-      container.appendChild(empty);
-      return;
-    }
-
-    namespaces.forEach(section => {
-      const namespace = normalizeTreeNamespace(section.namespace);
-      const heading = document.createElement('h4');
-      heading.className = 'uk-heading-line uk-margin-small-top';
-      const headingText = document.createElement('span');
-      headingText.textContent = namespace;
-      heading.appendChild(headingText);
-      container.appendChild(heading);
-
-      const pages = Array.isArray(section.pages) ? section.pages : [];
-      const flatPages = flattenTreeNodes(pages, namespace).filter(page => page.namespace === namespace);
-      const tree = buildTreeFromFlatPages(flatPages);
-
-      container.appendChild(tree.length ? buildPageTreeList(tree) : (() => {
-        const empty = document.createElement('div');
-        empty.className = 'uk-text-meta';
-        empty.textContent = emptyMessage;
-        return empty;
-      })());
-    });
-
-    const select = document.getElementById('pageContentSelect');
-    if (select) {
-      updatePageTreeActive(container, select.value);
-    }
+    const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
+    renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace);
   } catch (error) {
     if (loading) {
       loading.textContent = errorMessage;
