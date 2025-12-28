@@ -565,6 +565,89 @@ const apiFetch = (path, options = {}) => {
   return fetcher(path, options);
 };
 
+const normalizeTreeNamespace = (namespace) => (namespace || 'default').trim() || 'default';
+
+const normalizeTreePosition = value => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const flattenTreeNodes = (nodes, fallbackNamespace) => {
+  const flat = [];
+  nodes.forEach(node => {
+    const namespace = normalizeTreeNamespace(node.namespace || fallbackNamespace);
+    flat.push({
+      id: Number.isFinite(Number(node.id)) ? Number(node.id) : null,
+      parent_id: Number.isFinite(Number(node.parent_id)) ? Number(node.parent_id) : null,
+      title: (node.title || node.slug || 'Ohne Titel').trim(),
+      slug: (node.slug || '').trim(),
+      namespace,
+      status: (node.status || '').trim(),
+      type: (node.type || '').trim(),
+      language: (node.language || '').trim(),
+      editUrl: typeof node.editUrl === 'string' ? node.editUrl : null,
+      position: normalizeTreePosition(node.position ?? node.sort_order)
+    });
+    if (Array.isArray(node.children) && node.children.length) {
+      flat.push(...flattenTreeNodes(node.children, namespace));
+    }
+  });
+  return flat;
+};
+
+const sortTree = (nodes) => {
+  nodes.sort((a, b) => {
+    const positionDiff = Number(a.position || 0) - Number(b.position || 0);
+    if (positionDiff !== 0) {
+      return positionDiff;
+    }
+    return (a.title || '').localeCompare(b.title || '');
+  });
+  nodes.forEach(node => {
+    if (Array.isArray(node.children) && node.children.length) {
+      sortTree(node.children);
+    }
+  });
+};
+
+const buildTreeFromFlatPages = (pages) => {
+  const nodesById = new Map();
+  const roots = [];
+
+  pages.forEach(page => {
+    const key = page.id ?? page.slug;
+    if (key === null || key === undefined || key === '') {
+      return;
+    }
+    nodesById.set(String(key), { ...page, children: [] });
+  });
+
+  nodesById.forEach(node => {
+    const parentKey = node.parent_id !== null && node.parent_id !== undefined ? String(node.parent_id) : null;
+    if (parentKey && nodesById.has(parentKey)) {
+      nodesById.get(parentKey).children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  sortTree(roots);
+
+  return roots;
+};
+
+const pageIndex = {
+  namespaces: [],
+  set(namespaces) {
+    this.namespaces = Array.isArray(namespaces) ? namespaces : [];
+  },
+  get() {
+    return Array.isArray(this.namespaces) ? this.namespaces : [];
+  }
+};
+
+window.pageIndex = pageIndex;
+
 const UIKIT_FILENAME = 'uikit.min.css';
 const LANDING_STYLE_FILENAMES = [
   'landing.css',
@@ -2755,15 +2838,6 @@ export async function showPreview(formOverride = null) {
 
 window.showPreview = showPreview;
 
-const pageTreeUtils = window.pageTreeUtils;
-const normalizeTreeNamespace = pageTreeUtils?.normalizeNamespace;
-const flattenTreeNodes = pageTreeUtils?.flattenNodes;
-const buildTreeFromFlatPages = pageTreeUtils?.buildTree;
-
-if (!normalizeTreeNamespace || !flattenTreeNodes || !buildTreeFromFlatPages) {
-  throw new Error('pageTreeUtils is required for rendering page trees.');
-}
-
 function resolveNamespaceSections(namespaces, activeNamespace) {
   if (!Array.isArray(namespaces)) {
     return [];
@@ -2865,6 +2939,32 @@ const parsePageTreePayload = (value, fallback = null) => {
   } catch (error) {
     return fallback;
   }
+};
+
+const buildPageTreeEndpoint = (namespace, baseEndpoint = '') => {
+  const base = (baseEndpoint || '/admin/projects/tree').trim() || '/admin/projects/tree';
+  const sanitized = base.replace(/([?&])namespace=[^&#]*/gi, '$1').replace(/[?&]$/, '');
+  const separator = sanitized.includes('?') ? '&' : '?';
+  return `${sanitized}${separator}namespace=${encodeURIComponent(namespace || '')}`;
+};
+
+const renderPageTreeFromState = (container, emptyMessage, activeNamespace) => {
+  renderPageTreeSections(container, pageIndex.get(), emptyMessage, activeNamespace);
+};
+
+const loadPageIndex = async (container, activeNamespace) => {
+  const namespace = activeNamespace || resolvePageNamespace();
+  const endpoint = buildPageTreeEndpoint(namespace, container?.dataset?.endpoint);
+  const response = await apiFetch(endpoint);
+  if (!response.ok) {
+    const error = new Error('page-tree-request-failed');
+    error.code = 'page-tree-request-failed';
+    throw error;
+  }
+  const payload = await response.json();
+  const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
+  pageIndex.set(namespaces);
+  return namespaces;
 };
 
 function renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace) {
@@ -3160,22 +3260,22 @@ async function initPageTree() {
   const loading = container.querySelector('[data-page-tree-loading]');
   const emptyMessage = container.dataset.empty || 'Keine Seiten vorhanden.';
   const errorMessage = container.dataset.error || 'Seitenbaum konnte nicht geladen werden.';
-  const endpoint = withNamespace(container.dataset.endpoint || '/admin/projects/tree');
+
   const activeNamespace = resolveActiveNamespace(container);
   const initialPayload = parsePageTreePayload(container.dataset.initialPayload);
 
   if (Array.isArray(initialPayload)) {
-    renderPageTreeSections(container, initialPayload, emptyMessage, activeNamespace);
+    pageIndex.set(initialPayload);
   }
 
+  renderPageTreeFromState(container, emptyMessage, activeNamespace);
+
   try {
-    const response = await (window.apiFetch ? window.apiFetch(endpoint) : fetch(endpoint));
-    if (!response.ok) {
-      throw new Error('page-tree-request-failed');
-    }
-    const payload = await response.json();
-    const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
+    const namespaces = await loadPageIndex(container, activeNamespace);
     renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace);
+    if (loading) {
+      loading.remove();
+    }
   } catch (error) {
     if (loading) {
       loading.textContent = errorMessage;
