@@ -60,23 +60,31 @@ final class CertificateProvisioningService implements CertificateProvisionerInte
     {
         $domains = [];
 
+        $appendDomain = static function (string $domain) use (&$domains): void {
+            $marketingVariant = DomainNameHelper::normalize($domain, stripAdmin: false);
+            if ($marketingVariant === '') {
+                return;
+            }
+
+            $domains[] = $marketingVariant;
+
+            $stripped = DomainNameHelper::normalize($marketingVariant);
+            if ($stripped !== '' && $stripped !== $marketingVariant) {
+                $domains[] = $stripped;
+            }
+        };
+
         $mainDomain = $this->marketingDomainProvider->getMainDomain();
-        $normalizedMain = $mainDomain !== null
-            ? DomainNameHelper::normalize((string) $mainDomain, stripAdmin: false)
-            : '';
-        if ($normalizedMain !== '') {
-            $domains[] = $normalizedMain;
+        if ($mainDomain !== null) {
+            $appendDomain((string) $mainDomain);
         }
 
         foreach ($this->marketingDomainProvider->getMarketingDomains(stripAdmin: false) as $entry) {
-            $normalized = DomainNameHelper::normalize((string) $entry, stripAdmin: false);
-            if ($normalized !== '') {
-                $domains[] = $normalized;
-            }
+            $appendDomain((string) $entry);
         }
 
         if ($primary !== null) {
-            $domains[] = DomainNameHelper::normalize($primary, stripAdmin: false);
+            $appendDomain($primary);
         }
 
         $domains = array_values(array_unique(array_filter($domains, static fn ($value): bool => $value !== '')));

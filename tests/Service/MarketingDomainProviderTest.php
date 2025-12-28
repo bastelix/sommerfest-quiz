@@ -64,6 +64,22 @@ final class MarketingDomainProviderTest extends TestCase
         self::assertSame(['example.com', 'promo.example.com'], $domains);
     }
 
+    public function testCollectMarketingDomainsKeepsAdminAndBaseVariants(): void
+    {
+        putenv('MARKETING_DOMAINS=admin.example.com');
+        $_ENV['MARKETING_DOMAINS'] = 'admin.example.com';
+
+        $provider = $this->createProvider();
+        $service = new CertificateProvisioningService($provider);
+
+        $method = new ReflectionMethod(CertificateProvisioningService::class, 'collectMarketingDomains');
+        $method->setAccessible(true);
+
+        $domains = $method->invoke($service);
+
+        self::assertSame(['admin.example.com', 'example.com'], $domains);
+    }
+
     public function testEnvDomainsSupplementDatabaseEntries(): void
     {
         putenv('MARKETING_DOMAINS=promo.example.com');
