@@ -2,6 +2,7 @@ import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
+import { renderPage } from './components/page-renderer.js';
 
 const notify = typeof window !== 'undefined' && typeof window.notify === 'function'
   ? window.notify.bind(window)
@@ -2903,11 +2904,26 @@ const bindPreviewModal = () => {
 
 export async function showPreview(formOverride = null) {
   const activeForm = formOverride || document.querySelector('.page-form:not(.uk-hidden)');
-  const slug = (activeForm?.dataset.slug || '').trim();
-  if (!slug) {
+  const previewContainer = document.getElementById('preview-content');
+  const modalEl = document.getElementById('preview-modal');
+  if (!activeForm || !previewContainer || !modalEl) {
     return;
   }
-  openPreviewInNewTab(slug);
+
+  const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
+  const { blocks } = readBlockEditorState(editor);
+  const html = renderPage(blocks || []);
+  previewContainer.innerHTML = html;
+
+  await ensurePreviewAssets();
+  setLandingPreviewMedia(true);
+  bindPreviewModal();
+  if (window.UIkit && typeof window.UIkit.modal === 'function') {
+    window.UIkit.modal(modalEl).show();
+  }
+  if (!blocks?.length) {
+    return;
+  }
 }
 
 window.showPreview = showPreview;
