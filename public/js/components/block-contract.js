@@ -478,13 +478,6 @@ const schema = {
   }
 };
 
-const VARIANT_ALIASES = {
-  hero: {
-    'media-right': 'media_right',
-    'media-left': 'media_left'
-  }
-};
-
 export const normalizeBlockVariant = (type, variant) => VARIANT_ALIASES[type]?.[variant] || variant;
 
 const BLOCK_VARIANTS = Object.entries(RENDERER_MATRIX).reduce((accumulator, [type, variants]) => {
