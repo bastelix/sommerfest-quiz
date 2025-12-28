@@ -1,0 +1,173 @@
+{
+  "id": "calserver",
+  "locale": "de",
+  "title": "calServer",
+  "meta": {
+    "rebuiltFromMigration": true,
+    "reviewed": false
+  },
+  "blocks": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "media-right",
+      "data": {
+        "headline": "Ein System. Klare Prozesse.",
+        "subheadline": "Migration und Hybridbetrieb mit FLUKE MET/CAL werden planbar: Wir orchestrieren den Wechsel von MET/TRACK in den calServer, binden METTEAM sinnvoll ein und sichern auditfähige Nachweise ohne Unterbrechung.",
+        "media": {
+          "image": "uploads/calserver-module-device-management.webp",
+          "alt": "Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten"
+        },
+        "ctaPrimary": {
+          "label": "Demo buchen",
+          "href": "https://calendly.com/calhelp/calserver-vorstellung"
+        },
+        "ctaSecondary": {
+          "label": "Jetzt testen",
+          "href": "#offer"
+        }
+      }
+    },
+    {
+      "id": "feature-overview",
+      "type": "feature_list",
+      "variant": "text-columns",
+      "data": {
+        "title": "Warum calServer",
+        "items": [
+          {
+            "id": "feature-devices",
+            "title": "Zentrale Geräteverwaltung",
+            "description": "Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht."
+          },
+          {
+            "id": "feature-history",
+            "title": "Kalibrier- und Wartungshistorie",
+            "description": "Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind."
+          },
+          {
+            "id": "feature-audit",
+            "title": "Auditfeste Nachweise",
+            "description": "Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet."
+          },
+          {
+            "id": "feature-integration",
+            "title": "Integration in Kalibrierlandschaften",
+            "description": "Synchronisation in beide Richtungen – MET/CAL läuft weiter, calServer erledigt Verwaltung und Berichte. Klare Feldregeln mit Freigabe der letzten Änderung und Abweichungslisten."
+          }
+        ]
+      }
+    },
+    {
+      "id": "process",
+      "type": "process_steps",
+      "variant": "numbered-vertical",
+      "data": {
+        "title": "Workflow mit calServer",
+        "steps": [
+          {
+            "id": "step-capture",
+            "title": "Geräte erfassen und strukturieren",
+            "description": "Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht."
+          },
+          {
+            "id": "step-plan",
+            "title": "Kalibrierungen planen und durchführen",
+            "description": "Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind."
+          },
+          {
+            "id": "step-document",
+            "title": "Dokumentation und Rückführbarkeit sichern",
+            "description": "DAkkS-taugliche Berichte mit Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet. Standardtexte steuern Rückführbarkeit und Konformität."
+          },
+          {
+            "id": "step-report",
+            "title": "Berichten und Auditnachweise liefern",
+            "description": "Vorlagen in Deutsch und Englisch mit QR-/Barcode und Versionierung sorgen dafür, dass Zertifikate, Historien und Abweichungen revisionssicher dokumentiert sind."
+          }
+        ]
+      }
+    },
+    {
+      "id": "system-explanation",
+      "type": "info_media",
+      "variant": "image-left",
+      "data": {
+        "title": "Systemumfang und Verantwortlichkeiten",
+        "body": "Migration und Hybridbetrieb mit FLUKE MET/CAL werden planbar: Wir orchestrieren den Wechsel von MET/TRACK in den calServer, binden METTEAM sinnvoll ein und sichern auditfähige Nachweise ohne Unterbrechung. Klare Feldregeln mit Freigabe der letzten Änderung, Änderungsprotokoll, Abweichungslisten und erneuter Abgleich bei Konflikten sorgen für verlässliche Daten. Pro Gerät aktivierbar – Daten und Historie sind sofort vorhanden.",
+        "media": {
+          "image": "uploads/calserver-module-order-ticketing.webp",
+          "alt": "Screenshot der calServer-Auftrags- und Ticketverwaltung mit Workflow-Status"
+        }
+      }
+    },
+    {
+      "id": "compliance",
+      "type": "proof",
+      "variant": "metric-callout",
+      "data": {
+        "items": [
+          {
+            "id": "proof-dakks",
+            "title": "DAkkS-taugliche Berichte",
+            "description": "Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet; Standardtexte steuern Rückführbarkeit und Konformität."
+          },
+          {
+            "id": "proof-hosting",
+            "title": "Hosting in Deutschland",
+            "description": "Rechenzentrum in Deutschland mit täglichen Backups, ISO 27001 zertifizierter Infrastruktur und Backup-Strategie inklusive."
+          },
+          {
+            "id": "proof-audit",
+            "title": "Auditbereit jederzeit",
+            "description": "Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit – vorbereitet auf Kontrollen mit dokumentierten Änderungen und Abweichungen."
+          }
+        ]
+      }
+    },
+    {
+      "id": "hosting",
+      "type": "feature_list",
+      "variant": "card-stack",
+      "data": {
+        "title": "Betriebs- und Hostingmodelle",
+        "items": [
+          {
+            "id": "hosting-cloud",
+            "title": "Cloud",
+            "description": "Die Cloud-Variante betreiben wir vollständig für Sie: Updates, Monitoring und Sicherheit bleiben bei uns, damit Ihr Team sich sofort auf die Arbeit mit calServer konzentrieren kann. Bereitstellung in wenigen Tagen, automatisierte Updates und Backup-Strategie inklusive."
+          },
+          {
+            "id": "hosting-performance",
+            "title": "Performance-Hosting",
+            "description": "Mehr Leistung und Spielraum für wachsende Anforderungen: erhöhte Performance und skalierbare Ressourcen, großzügige Speicheroptionen ohne Modullimits, priorisiertes Monitoring sowie tägliche Backups, SSL und Subdomain."
+          },
+          {
+            "id": "hosting-enterprise",
+            "title": "Enterprise (On-Prem)",
+            "description": "Mit der On-Premise-Variante läuft calServer in Ihrer Infrastruktur: Betrieb im eigenen Netzwerk, Unterstützung bei Installation und Updates sowie Integration in bestehende Systeme. SSO, erweiterte Integrationen, individuelle SLAs und Change-/Release-Management nach Vorgabe."
+          }
+        ]
+      }
+    },
+    {
+      "id": "cta-final",
+      "type": "cta",
+      "variant": "split",
+      "data": {
+        "title": "Bereit, calServer live zu erleben?",
+        "body": "Jetzt testen oder Demo buchen – wir zeigen, wie Ihre Prozesse in calServer aussehen.",
+        "primary": {
+          "label": "Demo buchen",
+          "href": "https://calendly.com/calhelp/calserver-vorstellung",
+          "description": "Wir führen Sie durch calServer, beantworten Fragen und zeigen passende Workflows."
+        },
+        "secondary": {
+          "label": "Jetzt testen",
+          "href": "#offer",
+          "description": "Starten Sie mit einer eigenen Umgebung und prüfen Sie calServer mit Ihren Prozessen."
+        }
+      }
+    }
+  ]
+}
