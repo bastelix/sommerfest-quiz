@@ -184,7 +184,9 @@ log_entry "CHANGE" "current='${current_csv:-}' new='$new_csv'"
 
 (
   cd "$PROJECT_DIR"
-  MARKETING_LETSENCRYPT_HOST="$new_csv" LETSENCRYPT_EMAIL="$DEFAULT_EMAIL" "${DOCKER_COMPOSE[@]}" up -d --force-recreate "$SERVICE" >/dev/null
+  MARKETING_LETSENCRYPT_HOST="$new_csv" \
+    MARKETING_VIRTUAL_HOST="$new_csv" \
+    LETSENCRYPT_EMAIL="$DEFAULT_EMAIL" "${DOCKER_COMPOSE[@]}" up -d --force-recreate "$SERVICE" >/dev/null
 )
 
 log_entry "RECREATED" "domains='$new_csv'"
