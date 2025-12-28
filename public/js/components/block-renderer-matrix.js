@@ -1,4 +1,4 @@
-import { BLOCK_TYPES, getBlockVariants, validateBlockContract } from './block-contract.js';
+import { ACTIVE_BLOCK_TYPES, BLOCK_TYPES, DEPRECATED_BLOCK_MAP, getBlockVariants, validateBlockContract } from './block-contract.js';
 
 function escapeHtml(value) {
   if (value === null || value === undefined) {
@@ -28,24 +28,14 @@ function renderHeroMediaLeft(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_left"><!-- hero:media_left | ${escapeHtml(block.data.headline || '')} --></section>`;
 }
 
-function renderFeatureListStacked(block) {
+function renderFeatureList(block, variant) {
   const itemCount = Array.isArray(block.data.items) ? block.data.items.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="stacked_cards"><!-- feature_list:stacked_cards | ${itemCount} items --></section>`;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="${escapeAttribute(variant)}"><!-- feature_list:${escapeHtml(variant)} | ${itemCount} items --></section>`;
 }
 
-function renderFeatureListIconGrid(block) {
-  const itemCount = Array.isArray(block.data.items) ? block.data.items.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="icon_grid"><!-- feature_list:icon_grid | ${itemCount} items --></section>`;
-}
-
-function renderProcessStepsHorizontal(block) {
+function renderProcessSteps(block, variant) {
   const stepCount = Array.isArray(block.data.steps) ? block.data.steps.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="timeline_horizontal"><!-- process_steps:timeline_horizontal | ${stepCount} steps --></section>`;
-}
-
-function renderProcessStepsVertical(block) {
-  const stepCount = Array.isArray(block.data.steps) ? block.data.steps.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="timeline_vertical"><!-- process_steps:timeline_vertical | ${stepCount} steps --></section>`;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(variant)}"><!-- process_steps:${escapeHtml(variant)} | ${stepCount} steps --></section>`;
 }
 
 function renderTestimonialSingle(block) {
@@ -61,6 +51,45 @@ function renderRichTextProse(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="rich_text" data-block-variant="prose"><!-- rich_text:prose -->${block.data.body || ''}</section>`;
 }
 
+function renderInfoMedia(block, variant) {
+  const title = block.data?.title || block.data?.subtitle || block.data?.body || '';
+  const count = Array.isArray(block.data.items) ? block.data.items.length : 0;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(variant)}"><!-- info_media:${escapeHtml(variant)} | ${escapeHtml(title)} (${count} items) --></section>`;
+}
+
+function renderCta(block) {
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><!-- cta:full_width | ${escapeHtml(block.data.label || '')} --></section>`;
+}
+
+function renderStatStrip(block) {
+  const count = Array.isArray(block.data.metrics) ? block.data.metrics.length : 0;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><!-- stat_strip:three-up | ${count} metrics --></section>`;
+}
+
+function renderAudienceSpotlight(block) {
+  const count = Array.isArray(block.data.cases) ? block.data.cases.length : 0;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="audience_spotlight" data-block-variant="tabs"><!-- audience_spotlight:tabs | ${count} cases --></section>`;
+}
+
+function renderPackageSummary(block, variant) {
+  const plans = Array.isArray(block.data.plans) ? block.data.plans.length : 0;
+  const options = Array.isArray(block.data.options) ? block.data.options.length : 0;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="package_summary" data-block-variant="${escapeAttribute(variant)}"><!-- package_summary:${escapeHtml(variant)} | ${plans} plans, ${options} options --></section>`;
+}
+
+function renderFaq(block) {
+  const count = Array.isArray(block.data.items) ? block.data.items.length : 0;
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="faq" data-block-variant="accordion"><!-- faq:accordion | ${count} questions --></section>`;
+}
+
+function renderLegacySystemModule(block) {
+  return renderInfoMedia({ ...block, type: 'info_media' }, 'switcher');
+}
+
+function renderLegacyCaseShowcase(block) {
+  return renderAudienceSpotlight({ ...block, type: 'audience_spotlight' });
+}
+
 export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
@@ -68,12 +97,15 @@ export const RENDERER_MATRIX = {
     media_left: renderHeroMediaLeft
   },
   feature_list: {
-    stacked_cards: renderFeatureListStacked,
-    icon_grid: renderFeatureListIconGrid
+    stacked_cards: block => renderFeatureList(block, 'stacked_cards'),
+    icon_grid: block => renderFeatureList(block, 'icon_grid'),
+    'detailed-cards': block => renderFeatureList(block, 'detailed-cards'),
+    'grid-bullets': block => renderFeatureList(block, 'grid-bullets')
   },
   process_steps: {
-    timeline_horizontal: renderProcessStepsHorizontal,
-    timeline_vertical: renderProcessStepsVertical
+    timeline_horizontal: block => renderProcessSteps(block, 'timeline_horizontal'),
+    timeline_vertical: block => renderProcessSteps(block, 'timeline_vertical'),
+    timeline: block => renderProcessSteps(block, 'timeline')
   },
   testimonial: {
     single_quote: renderTestimonialSingle,
@@ -81,22 +113,57 @@ export const RENDERER_MATRIX = {
   },
   rich_text: {
     prose: renderRichTextProse
+  },
+  info_media: {
+    stacked: block => renderInfoMedia(block, 'stacked'),
+    switcher: block => renderInfoMedia(block, 'switcher')
+  },
+  cta: {
+    full_width: renderCta
+  },
+  stat_strip: {
+    'three-up': renderStatStrip
+  },
+  audience_spotlight: {
+    tabs: renderAudienceSpotlight
+  },
+  package_summary: {
+    toggle: block => renderPackageSummary(block, 'toggle'),
+    'comparison-cards': block => renderPackageSummary(block, 'comparison-cards')
+  },
+  faq: {
+    accordion: renderFaq
+  },
+  system_module: {
+    switcher: renderLegacySystemModule
+  },
+  case_showcase: {
+    tabs: renderLegacyCaseShowcase
   }
 };
 
+function applyLegacyMapping(block) {
+  const mapping = DEPRECATED_BLOCK_MAP[block.type];
+  if (!mapping) {
+    return block;
+  }
+  return { ...block, type: mapping.replacement.type, variant: mapping.replacement.variant };
+}
+
 function assertRenderable(block) {
-  const validation = validateBlockContract(block);
+  const normalized = applyLegacyMapping(block);
+  const validation = validateBlockContract(normalized);
   if (!validation.valid) {
     throw new Error(validation.reason || 'Block contract validation failed');
   }
-  const variants = RENDERER_MATRIX[block.type];
+  const variants = RENDERER_MATRIX[normalized.type];
   if (!variants) {
-    throw new Error(`No renderer registered for type: ${block.type}`);
+    throw new Error(`No renderer registered for type: ${normalized.type}`);
   }
-  const renderer = variants[block.variant];
+  const renderer = variants[normalized.variant];
   if (!renderer) {
-    const allowedVariants = getBlockVariants(block.type).join(', ');
-    throw new Error(`Unsupported variant for ${block.type}: ${block.variant}. Allowed: ${allowedVariants}`);
+    const allowedVariants = getBlockVariants(normalized.type).join(', ');
+    throw new Error(`Unsupported variant for ${normalized.type}: ${normalized.variant}. Allowed: ${allowedVariants}`);
   }
   return renderer;
 }
@@ -114,6 +181,15 @@ export function renderPage(blocks = []) {
 
 export function listSupportedBlocks() {
   return BLOCK_TYPES.reduce((accumulator, type) => {
+    if (!DEPRECATED_BLOCK_MAP[type] || BLOCK_TYPES.includes(type)) {
+      accumulator[type] = getBlockVariants(type);
+    }
+    return accumulator;
+  }, {});
+}
+
+export function listSelectableBlocks() {
+  return ACTIVE_BLOCK_TYPES.reduce((accumulator, type) => {
     accumulator[type] = getBlockVariants(type);
     return accumulator;
   }, {});
