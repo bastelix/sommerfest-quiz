@@ -73,29 +73,29 @@
     {% endblock %}
     {% block right %}{% endblock %}
   {% endembed %}
-  {% if not stripe_configured %}
-    <div class="admin-section">
-      <div class="uk-alert-danger uk-margin" uk-alert>
-        {{ t('text_stripe_config_missing') }}
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
       </div>
-    </div>
-  {% endif %}
-  {% if tenant and tenant.stripe_status == 'trialing' and tenant.stripe_current_period_end %}
-    <div class="admin-section">
-      <div class="uk-alert-primary uk-margin" uk-alert>
-        {{ t('text_trial_banner_prefix') }} {{ tenant.stripe_current_period_end|date('d.m.Y') }}.
-        {{ t('text_trial_banner_suffix') }} <a href="{{ basePath }}/admin/subscription/portal">{{ t('action_setup_payment_method') }}</a>
-      </div>
-    </div>
-  {% endif %}
-  <div class="uk-container uk-container-expand admin-layout-container">
-    <div class="uk-grid-large" uk-grid>
-      <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-        <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-          {% include 'admin/_nav.twig' %}
-        </div>
-      </aside>
-      <main class="uk-width-expand uk-padding-small@xs uk-padding">
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        {% if not stripe_configured %}
+          <div class="admin-section">
+            <div class="uk-alert-danger uk-margin" uk-alert>
+              {{ t('text_stripe_config_missing') }}
+            </div>
+          </div>
+        {% endif %}
+        {% if tenant and tenant.stripe_status == 'trialing' and tenant.stripe_current_period_end %}
+          <div class="admin-section">
+            <div class="uk-alert-primary uk-margin" uk-alert>
+              {{ t('text_trial_banner_prefix') }} {{ tenant.stripe_current_period_end|date('d.m.Y') }}.
+              {{ t('text_trial_banner_suffix') }} <a href="{{ basePath }}/admin/subscription/portal">{{ t('action_setup_payment_method') }}</a>
+            </div>
+          </div>
+        {% endif %}
         <div class="admin-main-container">
           <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
           {% set activeRoute = currentPath|split('/admin/')|last %}
