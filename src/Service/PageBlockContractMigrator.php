@@ -152,7 +152,7 @@ final class PageBlockContractMigrator
 
             if (isset($result['semantic'])) {
                 $semantic = $result['semantic'];
-                if (($semantic['status'] ?? null) === 'split') {
+                if ($semantic['status'] === 'split') {
                     $report['semantic']['split']++;
                     $report['semantic']['details'][] = [
                         'pageId' => $page->getId(),
@@ -162,7 +162,7 @@ final class PageBlockContractMigrator
                     ];
                 }
 
-                if (($semantic['status'] ?? null) === 'skipped') {
+                if ($semantic['status'] === 'skipped') {
                     $report['semantic']['skipped']++;
                 }
             }
@@ -1182,14 +1182,7 @@ final class PageBlockContractMigrator
             return null;
         }
 
-        $title = $this->extractHeadingText($section);
-        if ($title === null && $items !== []) {
-            $title = $items[0]['title'];
-        }
-
-        if ($title === null) {
-            return null;
-        }
+        $title = $this->extractHeadingText($section) ?? $items[0]['title'];
 
         return [
             'id' => $this->normalizeBlockId(null),
