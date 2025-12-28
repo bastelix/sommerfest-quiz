@@ -81,12 +81,24 @@ const schema = {
     },
     {
       "title": "CTA block",
-      "properties": {
-        "type": { "const": "cta" },
-        "variant": { "enum": ["full_width"] },
-        "data": { "$ref": "#/definitions/CallToAction" }
-      },
-      "required": ["type", "variant", "data"]
+      "oneOf": [
+        {
+          "properties": {
+            "type": { "const": "cta" },
+            "variant": { "const": "full_width" },
+            "data": { "$ref": "#/definitions/CallToAction" }
+          },
+          "required": ["type", "variant", "data"]
+        },
+        {
+          "properties": {
+            "type": { "const": "cta" },
+            "variant": { "const": "split" },
+            "data": { "$ref": "#/definitions/CallToActionSplit" }
+          },
+          "required": ["type", "variant", "data"]
+        }
+      ]
     },
     {
       "title": "Stat strip block",
@@ -265,6 +277,15 @@ const schema = {
           }
         }
       ]
+    },
+    "CallToActionSplit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "secondary"],
+      "properties": {
+        "primary": { "$ref": "#/definitions/CallToAction" },
+        "secondary": { "$ref": "#/definitions/CallToAction" }
+      }
     },
     "StatStripData": {
       "type": "object",
@@ -571,6 +592,35 @@ function normalizePackagePlanCtas(plan) {
   return normalized;
 }
 
+function normalizeCtaBlockData(data) {
+  if (!isPlainObject(data)) {
+    return data;
+  }
+
+  const normalized = { ...data };
+
+  if (isPlainObject(data.primary) || isPlainObject(data.secondary)) {
+    const primary = normalizeCallToAction(data.primary);
+    const secondary = normalizeCallToAction(data.secondary);
+
+    if (primary) {
+      normalized.primary = primary;
+    } else {
+      delete normalized.primary;
+    }
+
+    if (secondary) {
+      normalized.secondary = secondary;
+    } else {
+      delete normalized.secondary;
+    }
+
+    return normalized;
+  }
+
+  return normalizeCallToAction(normalized) || normalized;
+}
+
 function normalizeBlockData(type, data) {
   if (!isPlainObject(data)) {
     return data;
@@ -588,6 +638,10 @@ function normalizeBlockData(type, data) {
 
   if (type === 'package_summary' && Array.isArray(normalized.plans)) {
     normalized = { ...normalized, plans: normalized.plans.map(normalizePackagePlanCtas) };
+  }
+
+  if (type === 'cta') {
+    normalized = normalizeCtaBlockData(normalized);
   }
 
   if (isPlainObject(normalized.cta) && !['process_steps', 'package_summary'].includes(type)) {

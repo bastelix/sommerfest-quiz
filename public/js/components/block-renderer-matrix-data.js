@@ -89,6 +89,13 @@ function renderCta(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><!-- cta:full_width | ${escapeHtml(block.data.label || '')} --></section>`;
 }
 
+function renderCtaSplit(block) {
+  const primary = block.data?.primary?.label ? escapeHtml(block.data.primary.label) : '';
+  const secondary = block.data?.secondary?.label ? escapeHtml(block.data.secondary.label) : '';
+  const labels = [primary, secondary].filter(Boolean).join(' / ');
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="split"><!-- cta:split | ${labels} --></section>`;
+}
+
 function renderStatStrip(block) {
   const count = Array.isArray(block.data.metrics) ? block.data.metrics.length : 0;
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><!--stat_strip:three-up | ${count} metrics --></section>`;
@@ -147,7 +154,8 @@ export const RENDERER_MATRIX = {
     switcher: block => renderInfoMedia(block, 'switcher')
   },
   cta: {
-    full_width: renderCta
+    full_width: renderCta,
+    split: renderCtaSplit
   },
   stat_strip: {
     'three-up': renderStatStrip

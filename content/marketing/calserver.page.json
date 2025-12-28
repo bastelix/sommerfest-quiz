@@ -707,8 +707,14 @@
       "type": "cta",
       "variant": "split",
       "data": {
-        "label": "Demo oder Test anfragen",
-        "href": "#offer"
+        "primary": {
+          "label": "Jetzt testen",
+          "href": "#trial"
+        },
+        "secondary": {
+          "label": "Demo buchen",
+          "href": "https://calendly.com/calhelp/calserver-vorstellung"
+        }
       }
     }
   ]
