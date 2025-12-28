@@ -21,7 +21,9 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media_right", "media_left"] },
+        "variant": {
+          "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left"]
+        },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -470,8 +472,19 @@ const schema = {
   }
 };
 
+const VARIANT_ALIASES = {
+  hero: {
+    'media-right': 'media_right',
+    'media-left': 'media_left'
+  }
+};
+
+export const normalizeBlockVariant = (type, variant) => VARIANT_ALIASES[type]?.[variant] || variant;
+
 const BLOCK_VARIANTS = Object.entries(RENDERER_MATRIX).reduce((accumulator, [type, variants]) => {
-  accumulator[type] = Object.keys(variants);
+  const canonicalVariants = Object.keys(variants);
+  const aliasVariants = Object.keys(VARIANT_ALIASES[type] || {});
+  accumulator[type] = [...canonicalVariants, ...aliasVariants];
   return accumulator;
 }, {});
 
@@ -512,7 +525,12 @@ export function validateBlockContract(block) {
   if (typeof block.type !== 'string' || !BLOCK_VARIANTS[block.type]) {
     return { valid: false, reason: `Unknown block type: ${block.type}` };
   }
-  if (typeof block.variant !== 'string' || !BLOCK_VARIANTS[block.type].includes(block.variant)) {
+  if (typeof block.variant !== 'string') {
+    return { valid: false, reason: `Unknown variant for ${block.type}: ${block.variant}` };
+  }
+  const normalizedVariant = normalizeBlockVariant(block.type, block.variant);
+  const allowedRendererVariants = Object.keys(RENDERER_MATRIX[block.type] || {});
+  if (!allowedRendererVariants.includes(normalizedVariant)) {
     return { valid: false, reason: `Unknown variant for ${block.type}: ${block.variant}` };
   }
   if (!isPlainObject(block.data)) {
