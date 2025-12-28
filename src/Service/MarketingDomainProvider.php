@@ -141,8 +141,12 @@ class MarketingDomainProvider
             $domains = [];
         }
 
+        $envDomains = $this->loadMarketingDomainsFromEnv();
+
         if ($domains === []) {
-            $domains = $this->loadMarketingDomainsFromEnv();
+            $domains = $envDomains;
+        } elseif ($envDomains !== []) {
+            $domains = $this->deduplicateMarketingEntries([...$domains, ...$envDomains]);
         }
 
         $this->marketingCache = $domains;

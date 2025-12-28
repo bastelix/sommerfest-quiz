@@ -6,6 +6,7 @@ namespace Tests\Service;
 
 use App\Service\CertificateProvisioningService;
 use App\Service\MarketingDomainProvider;
+use App\Support\DomainNameHelper;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
@@ -63,10 +64,42 @@ final class MarketingDomainProviderTest extends TestCase
         self::assertSame(['example.com', 'promo.example.com'], $domains);
     }
 
+    public function testEnvDomainsSupplementDatabaseEntries(): void
+    {
+        putenv('MARKETING_DOMAINS=promo.example.com');
+        $_ENV['MARKETING_DOMAINS'] = 'promo.example.com';
+
+        $provider = $this->createProviderWithDomains(['shop.example.com']);
+
+        self::assertSame(
+            ['shop.example.com', 'promo.example.com'],
+            $provider->getMarketingDomains()
+        );
+    }
+
     private function createProvider(): MarketingDomainProvider
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        return new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
+    }
+
+    private function createProviderWithDomains(array $domains): MarketingDomainProvider
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $pdo->exec('CREATE TABLE domains (host TEXT, normalized_host TEXT, is_active BOOLEAN)');
+        $stmt = $pdo->prepare('INSERT INTO domains (host, normalized_host, is_active) VALUES (:host, :normalized, :active)');
+
+        foreach ($domains as $host) {
+            $stmt->execute([
+                ':host' => $host,
+                ':normalized' => DomainNameHelper::normalize($host, stripAdmin: false),
+                ':active' => 1,
+            ]);
+        }
 
         return new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
     }
