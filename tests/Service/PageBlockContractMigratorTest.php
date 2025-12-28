@@ -1,0 +1,169 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Service;
+
+use App\Domain\Page;
+use App\Service\PageBlockContractMigrator;
+use App\Service\PageService;
+use DateTimeImmutable;
+use PHPUnit\Framework\TestCase;
+
+final class PageBlockContractMigratorTest extends TestCase
+{
+    public function testMigratesLegacyBlocksAndPersists(): void
+    {
+        $legacyContent = json_encode([
+            'blocks' => [
+                [
+                    'id' => 'hero-1',
+                    'type' => 'hero',
+                    'data' => [
+                        'headline' => 'Hello',
+                        'subheadline' => 'World',
+                        'cta' => ['label' => 'Go', 'href' => '/next'],
+                        'layout' => 'media-right',
+                    ],
+                ],
+                [
+                    'id' => 'text-1',
+                    'type' => 'text',
+                    'data' => ['body' => '<p>Copy</p>', 'alignment' => 'center'],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(1, 'default', 'landing', $legacyContent);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator(
+            $fakePages,
+            $schema,
+            static fn (): DateTimeImmutable => new DateTimeImmutable('2024-01-01T00:00:00Z')
+        );
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(1, $report['migrated']);
+        self::assertSame(0, $report['errors']['total']);
+        self::assertCount(1, $fakePages->savedContent);
+
+        $saved = json_decode($fakePages->savedContent[0]['content'], true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('block-contract-v1', $saved['meta']['migrationVersion']);
+        self::assertSame('2024-01-01T00:00:00+00:00', $saved['meta']['migratedAt']);
+
+        $hero = $saved['blocks'][0];
+        self::assertSame('hero', $hero['type']);
+        self::assertSame('media_right', $hero['variant']);
+        self::assertArrayNotHasKey('layout', $hero['data']);
+
+        $richText = $saved['blocks'][1];
+        self::assertSame('rich_text', $richText['type']);
+        self::assertSame('prose', $richText['variant']);
+        self::assertSame('center', $richText['data']['alignment']);
+    }
+
+    public function testReportsUnknownBlockTypes(): void
+    {
+        $content = json_encode([
+            'blocks' => [
+                ['id' => 'bad', 'type' => 'unsupported', 'data' => []],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(2, 'default', 'unknown', $content);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator($fakePages, $schema);
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(0, $report['migrated']);
+        self::assertSame(1, $report['errors']['total']);
+        self::assertSame(1, $report['errors']['unknown_block_type']);
+        self::assertEmpty($fakePages->savedContent);
+    }
+
+    public function testSkipsAlreadyMigratedContent(): void
+    {
+        $content = json_encode([
+            'meta' => [
+                'migrationVersion' => 'block-contract-v1',
+                'migratedAt' => '2024-01-01T00:00:00+00:00',
+            ],
+            'blocks' => [
+                [
+                    'id' => 'rich',
+                    'type' => 'rich_text',
+                    'variant' => 'prose',
+                    'data' => ['body' => '<p>Ok</p>', 'alignment' => 'start'],
+                    'tokens' => ['spacing' => 'normal', 'width' => 'normal'],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(3, 'default', 'already', $content);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator($fakePages, $schema);
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(0, $report['migrated']);
+        self::assertSame(1, $report['skipped']);
+        self::assertEmpty($fakePages->savedContent);
+    }
+
+    private function createPage(int $id, string $namespace, string $slug, string $content): Page
+    {
+        return new Page(
+            $id,
+            $namespace,
+            $slug,
+            'Title',
+            $content,
+            null,
+            null,
+            0,
+            null,
+            null,
+            null,
+            null,
+            false
+        );
+    }
+}
+
+final class FakePageService extends PageService
+{
+    /** @var Page[] */
+    private array $pages;
+
+    /** @var list<array{namespace:string,slug:string,content:string}> */
+    public array $savedContent = [];
+
+    /** @param Page[] $pages */
+    public function __construct(array $pages)
+    {
+        $this->pages = $pages;
+    }
+
+    /** @return Page[] */
+    public function getAll(): array
+    {
+        return $this->pages;
+    }
+
+    public function save(string $namespace, string $slug, string $content): void
+    {
+        $this->savedContent[] = [
+            'namespace' => $namespace,
+            'slug' => $slug,
+            'content' => $content,
+        ];
+    }
+}
