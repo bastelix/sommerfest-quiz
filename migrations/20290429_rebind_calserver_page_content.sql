@@ -1,3 +1,6 @@
+-- Rebind calServer page content to the existing calserver namespace/slug
+WITH payload AS (
+    SELECT $CALSERVER_PAGE$
 {
   "id": "calserver",
   "locale": "de",
@@ -29,133 +32,9 @@
       }
     },
     {
-      "id": "product-stats",
-      "type": "stat_strip",
-      "variant": "three-up",
-      "data": {
-        "metrics": [
-          {
-            "id": "metrics-wishes",
-            "value": "1.668",
-            "label": "umgesetzte Kund:innen-Wünsche",
-            "asOf": "Stand: 23.09.2025",
-            "tooltip": "Priorisierte Kundenanforderungen, ausgeliefert und abgenommen.",
-            "benefit": "Durch Community driven Engineering kundennahe Entwicklung."
-          },
-          {
-            "id": "metrics-availability",
-            "value": "99,9 %",
-            "label": "Systemverfügbarkeit",
-            "asOf": "Stand: 23.09.2025",
-            "tooltip": "Zeitanteil, in dem der Service erreichbar war.",
-            "benefit": "Sichere, planbare Abläufe im Alltag."
-          },
-          {
-            "id": "metrics-years",
-            "value": "> 15",
-            "label": "Jahre am Markt",
-            "asOf": "Stand: 23.09.2025",
-            "tooltip": "calServer wird seit über 15 Jahren produktiv eingesetzt.",
-            "benefit": "Erfahrung, Stabilität und gereifte Prozesse."
-          }
-        ],
-        "marquee": [
-          "Hosting in Deutschland",
-          "DSGVO-konform",
-          "Software Made in Germany",
-          "REST-API & Webhooks",
-          "Autom. Backups und weitere keys"
-        ]
-      }
-    },
-    {
-      "id": "everyday-experience",
-      "type": "process_steps",
-      "variant": "timeline",
-      "data": {
-        "title": "So fühlt sich calServer im Alltag an",
-        "intro": "Vom ersten Login bis zur entspannten Audit-Vorbereitung: calServer nimmt dir Schritt für Schritt den Druck aus der Kalibrier- und Inventarverwaltung.",
-        "steps": [
-          {
-            "id": "trust-devices",
-            "title": "Alle Geräte auf einen Blick",
-            "description": "Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht."
-          },
-          {
-            "id": "trust-deadlines",
-            "title": "Fristen melden sich von selbst",
-            "description": "Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind."
-          },
-          {
-            "id": "trust-audit",
-            "title": "Auditbereit – jederzeit",
-            "description": "Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet."
-          }
-        ],
-        "closing": {
-          "title": "Beruhigende Sicherheit für dein Team",
-          "body": "DSGVO-konform, zuverlässig betreut und flexibel erweiterbar – calServer wächst mit deinen Abläufen und sorgt dafür, dass Termine, Rollen und Geräte harmonisch zusammenspielen."
-        },
-        "ctaPrimary": {
-          "label": "Jetzt testen",
-          "href": "#trial"
-        },
-        "ctaSecondary": {
-          "label": "Demo buchen",
-          "href": "https://calendly.com/calhelp/calserver-vorstellung"
-        }
-      }
-    },
-    {
-      "id": "metcal",
+      "id": "why-calserver",
       "type": "feature_list",
-      "variant": "detailed-cards",
-      "data": {
-        "eyebrow": "FLUKE MET/CAL · MET/TRACK",
-        "title": "Ein System. Klare Prozesse.",
-        "lead": "Migration und Hybridbetrieb mit FLUKE MET/CAL werden planbar: Wir orchestrieren den Wechsel von MET/TRACK in den calServer, binden METTEAM sinnvoll ein und sichern auditfähige Nachweise ohne Unterbrechung.",
-        "items": [
-          {
-            "id": "migration",
-            "title": "Migration ohne Stillstand",
-            "description": "Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.",
-            "bullets": [
-              "Datenmapping für Kunden, Geräte, Historien und Dokumente",
-              "Delta-Sync & Freeze-Fenster für den Go-Live",
-              "Abnahmebericht mit KPIs und Korrekturschleifen"
-            ]
-          },
-          {
-            "id": "hybrid",
-            "title": "Hybrid & METTEAM eingebunden",
-            "description": "Synchronisation in beide Richtungen – MET/CAL läuft weiter, calServer erledigt Verwaltung und Berichte.",
-            "bullets": [
-              "Klare Feldregeln mit Freigabe der letzten Änderung",
-              "Änderungsprotokoll, Abweichungslisten und erneuter Abgleich bei Konflikten",
-              "Pro Gerät aktivierbar – Daten und Historie sind sofort vorhanden"
-            ]
-          },
-          {
-            "id": "certificates",
-            "title": "Auditfähige Zertifikate",
-            "description": "DAkkS-taugliche Berichte – Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet.",
-            "bullets": [
-              "Vorlagen in Deutsch und Englisch, inklusive QR-/Barcode und Versionierung",
-              "Standardtexte steuern Rückführbarkeit und Konformität",
-              "Endlich korrekte Anzeigen der erweiterten Messunsicherheit durch intelligente Feldformeln"
-            ]
-          }
-        ],
-        "cta": {
-          "label": "Zur Landingpage MET/CAL",
-          "href": "/fluke-metcal"
-        }
-      }
-    },
-    {
-      "id": "core-features",
-      "type": "feature_list",
-      "variant": "grid-bullets",
+      "variant": "text-columns",
       "data": {
         "title": "Funktionen, die den Alltag erleichtern",
         "subtitle": "Scroll & entdecke die wichtigsten Bereiche",
@@ -274,9 +153,9 @@
       }
     },
     {
-      "id": "modules",
+      "id": "core-modules",
       "type": "system_module",
-      "variant": "switcher",
+      "variant": "showcase",
       "data": {
         "title": "Module, die den Unterschied machen",
         "subtitle": "Individuell kombinierbar – ohne versteckte Kosten",
@@ -341,12 +220,99 @@
       }
     },
     {
-      "id": "usecases",
-      "type": "case_showcase",
-      "variant": "tabs",
+      "id": "lifecycle",
+      "type": "process_steps",
+      "variant": "numbered-vertical",
+      "data": {
+        "title": "So fühlt sich calServer im Alltag an",
+        "intro": "Vom ersten Login bis zur entspannten Audit-Vorbereitung: calServer nimmt dir Schritt für Schritt den Druck aus der Kalibrier- und Inventarverwaltung.",
+        "summary": "FLUKE MET/CAL · MET/TRACK — Migration und Hybridbetrieb mit FLUKE MET/CAL werden planbar: Wir orchestrieren den Wechsel von MET/TRACK in den calServer, binden METTEAM sinnvoll ein und sichern auditfähige Nachweise ohne Unterbrechung.",
+        "steps": [
+          {
+            "id": "trust-devices",
+            "title": "Alle Geräte auf einen Blick",
+            "description": "Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht."
+          },
+          {
+            "id": "trust-deadlines",
+            "title": "Fristen melden sich von selbst",
+            "description": "Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind."
+          },
+          {
+            "id": "trust-audit",
+            "title": "Auditbereit – jederzeit",
+            "description": "Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet."
+          },
+          {
+            "id": "migration",
+            "title": "Migration ohne Stillstand",
+            "description": "Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.\n• Datenmapping für Kunden, Geräte, Historien und Dokumente\n• Delta-Sync & Freeze-Fenster für den Go-Live\n• Abnahmebericht mit KPIs und Korrekturschleifen"
+          },
+          {
+            "id": "hybrid",
+            "title": "Hybrid & METTEAM eingebunden",
+            "description": "Synchronisation in beide Richtungen – MET/CAL läuft weiter, calServer erledigt Verwaltung und Berichte.\n• Klare Feldregeln mit Freigabe der letzten Änderung\n• Änderungsprotokoll, Abweichungslisten und erneuter Abgleich bei Konflikten\n• Pro Gerät aktivierbar – Daten und Historie sind sofort vorhanden"
+          },
+          {
+            "id": "certificates",
+            "title": "Auditfähige Zertifikate",
+            "description": "DAkkS-taugliche Berichte – Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet.\n• Vorlagen in Deutsch und Englisch, inklusive QR-/Barcode und Versionierung\n• Standardtexte steuern Rückführbarkeit und Konformität\n• Endlich korrekte Anzeigen der erweiterten Messunsicherheit durch intelligente Feldformeln"
+          }
+        ],
+        "closing": {
+          "title": "Beruhigende Sicherheit für dein Team",
+          "body": "DSGVO-konform, zuverlässig betreut und flexibel erweiterbar – calServer wächst mit deinen Abläufen und sorgt dafür, dass Termine, Rollen und Geräte harmonisch zusammenspielen."
+        },
+        "ctaPrimary": {
+          "label": "Jetzt testen",
+          "href": "#trial"
+        },
+        "ctaSecondary": {
+          "label": "Demo buchen",
+          "href": "https://calendly.com/calhelp/calserver-vorstellung"
+        }
+      }
+    },
+    {
+      "id": "proof",
+      "type": "proof",
+      "variant": "metric-callout",
       "data": {
         "title": "Anwendungsfälle aus der Praxis",
         "subtitle": "Vom Labor bis zum Außendienst",
+        "metrics": [
+          {
+            "id": "metrics-wishes",
+            "value": "1.668",
+            "label": "umgesetzte Kund:innen-Wünsche",
+            "asOf": "Stand: 23.09.2025",
+            "tooltip": "Priorisierte Kundenanforderungen, ausgeliefert und abgenommen.",
+            "benefit": "Durch Community driven Engineering kundennahe Entwicklung."
+          },
+          {
+            "id": "metrics-availability",
+            "value": "99,9 %",
+            "label": "Systemverfügbarkeit",
+            "asOf": "Stand: 23.09.2025",
+            "tooltip": "Zeitanteil, in dem der Service erreichbar war.",
+            "benefit": "Sichere, planbare Abläufe im Alltag."
+          },
+          {
+            "id": "metrics-years",
+            "value": "> 15",
+            "label": "Jahre am Markt",
+            "asOf": "Stand: 23.09.2025",
+            "tooltip": "calServer wird seit über 15 Jahren produktiv eingesetzt.",
+            "benefit": "Erfahrung, Stabilität und gereifte Prozesse."
+          }
+        ],
+        "marquee": [
+          "Hosting in Deutschland",
+          "DSGVO-konform",
+          "Software Made in Germany",
+          "REST-API & Webhooks",
+          "Autom. Backups und weitere keys"
+        ],
         "cases": [
           {
             "id": "ifm",
@@ -520,86 +486,53 @@
       }
     },
     {
-      "id": "operating-modes",
-      "type": "package_summary",
-      "variant": "toggle",
+      "id": "operating-models",
+      "type": "feature_list",
+      "variant": "operating-models",
       "data": {
         "title": "Betriebsarten, die zu Ihnen passen",
         "subtitle": "Wählen Sie, wie calServer betrieben wird: als sichere Cloud-Lösung oder in Ihrer eigenen Umgebung.",
-        "options": [
+        "items": [
           {
             "id": "cloud",
             "title": "Cloud",
-            "intro": "Die Cloud-Variante betreiben wir vollständig für Sie: Updates, Monitoring und Sicherheit bleiben bei uns, damit Ihr Team sich sofort auf die Arbeit mit calServer konzentrieren kann.",
-            "highlights": [
-              {
-                "title": "Sofort startklar",
-                "bullets": [
-                  "Bereitstellung in wenigen Tagen",
-                  "Automatisierte Updates & Monitoring",
-                  "Backup-Strategie inklusive"
-                ]
-              },
-              {
-                "title": "Sicher & skalierbar",
-                "bullets": [
-                  "Rechenzentrum in Deutschland",
-                  "ISO 27001 zertifizierte Infrastruktur",
-                  "Flexible Nutzer:innenzahlen"
-                ]
-              }
+            "description": "Die Cloud-Variante betreiben wir vollständig für Sie: Updates, Monitoring und Sicherheit bleiben bei uns, damit Ihr Team sich sofort auf die Arbeit mit calServer konzentrieren kann.",
+            "bullets": [
+              "Bereitstellung in wenigen Tagen",
+              "Automatisierte Updates & Monitoring",
+              "Backup-Strategie inklusive",
+              "Rechenzentrum in Deutschland",
+              "ISO 27001 zertifizierte Infrastruktur",
+              "Flexible Nutzer:innenzahlen"
             ]
           },
           {
             "id": "on-prem",
             "title": "On-Premise",
-            "intro": "Mit der On-Premise-Variante läuft calServer in Ihrer Infrastruktur: Sie behalten volle Datenhoheit, wir begleiten Installation, Updates und binden bestehende Systeme nahtlos an.",
-            "highlights": [
-              {
-                "title": "Volle Kontrolle",
-                "bullets": [
-                  "Betrieb im eigenen Netzwerk",
-                  "Unterstützung bei Installation & Updates",
-                  "Integration in bestehende Systeme"
-                ]
-              },
-              {
-                "title": "Individuelle Sicherheit",
-                "bullets": [
-                  "Anbindung an Ihr Identity-Management",
-                  "Flexible Backup- und Wartungsfenster",
-                  "Support per SLA vereinbar"
-                ]
-              }
+            "description": "Mit der On-Premise-Variante läuft calServer in Ihrer Infrastruktur: Sie behalten volle Datenhoheit, wir begleiten Installation, Updates und binden bestehende Systeme nahtlos an.",
+            "bullets": [
+              "Betrieb im eigenen Netzwerk",
+              "Unterstützung bei Installation & Updates",
+              "Integration in bestehende Systeme",
+              "Anbindung an Ihr Identity-Management",
+              "Flexible Backup- und Wartungsfenster",
+              "Support per SLA vereinbar"
             ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "pricing",
-      "type": "package_summary",
-      "variant": "comparison-cards",
-      "data": {
-        "title": "Abomodelle",
-        "subtitle": "Monatliche Laufzeit, transparente Bedingungen, DSGVO-konform.",
-        "plans": [
+          },
           {
             "id": "standard",
             "title": "Standard-Hosting",
-            "badge": "Cloud in DE",
             "description": "Für Teams, die schnell und zuverlässig starten wollen.",
-            "features": [
+            "bullets": [
               "Inventar-, Kalibrier- & Auftragsverwaltung",
               "Dokumentenmanagement (Basis-Kontingent)",
               "Tägliche Backups, SSL & Subdomain",
               "Basis-Updateservice (Security & regelmäßige Features)",
-              "Rollen & Berechtigungen, Audit-fähige Historie"
-            ],
-            "notes": [
+              "Rollen & Berechtigungen, Audit-fähige Historie",
               "Monatliche Abrechnung · Kündigungsfrist 30 Tage",
               "Erweiterungen (z. B. Speicher, SSO) zubuchbar"
             ],
+            "badge": "Cloud in DE",
             "primaryCta": {
               "label": "Anfrage senden",
               "href": "#offer"
@@ -612,19 +545,17 @@
           {
             "id": "performance",
             "title": "Performance-Hosting",
-            "badge": "Beliebt",
             "description": "Mehr Leistung und Spielraum für wachsende Anforderungen.",
-            "features": [
+            "bullets": [
               "Erhöhte Performance & skalierbare Ressourcen",
               "Mehr Speicher, keine Moduleinschränkungen",
               "Priorisiertes Monitoring & Stabilität",
               "Tägliche Backups, SSL, Subdomain",
-              "Rollen & Berechtigungen, Team-Workflows"
-            ],
-            "notes": [
+              "Rollen & Berechtigungen, Team-Workflows",
               "Monatliche Abrechnung · Kündigungsfrist 30 Tage",
               "Upgrade/Downgrade zwischen Plänen möglich"
             ],
+            "badge": "Beliebt",
             "primaryCta": {
               "label": "Anfrage senden",
               "href": "#offer"
@@ -637,19 +568,17 @@
           {
             "id": "enterprise",
             "title": "Enterprise (On-Prem)",
-            "badge": "Max. Kontrolle",
             "description": "Volle Datenhoheit und individuelle Compliance.",
-            "features": [
+            "bullets": [
               "On-Prem-Betrieb in Ihrer Infrastruktur",
               "SSO (Azure/Google), erweiterte Integrationen",
               "Erweiterte Compliance & individuelle SLAs",
               "Optionale Synchronisationen (z. B. METBASE/METTEAM)",
-              "Change-/Release-Management nach Vorgabe"
-            ],
-            "notes": [
+              "Change-/Release-Management nach Vorgabe",
               "Monatliche Abrechnung · Kündigungsfrist 30 Tage",
               "Rollout & Betrieb nach gemeinsamem Migrationsplan"
             ],
+            "badge": "Max. Kontrolle",
             "primaryCta": {
               "label": "Anfrage senden",
               "href": "#offer"
@@ -658,49 +587,44 @@
               "label": "Leistungsdetails",
               "href": "#modal-enterprise-hosting"
             }
-          }
-        ],
-        "disclaimer": "Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar."
-      }
-    },
-    {
-      "id": "faq",
-      "type": "faq",
-      "variant": "accordion",
-      "data": {
-        "title": "Häufige Fragen",
-        "items": [
+          },
+          {
+            "id": "plans-disclaimer",
+            "title": "Hinweis",
+            "description": "Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar."
+          },
           {
             "id": "faq-cloud-start",
-            "question": "Wie schnell bin ich mit der Cloud-Version startklar?",
-            "answer": "In der Regel innerhalb weniger Tage – wir begleiten den Kick-off persönlich."
+            "title": "Wie schnell bin ich mit der Cloud-Version startklar?",
+            "description": "In der Regel innerhalb weniger Tage – wir begleiten den Kick-off persönlich."
           },
           {
             "id": "faq-switch",
-            "question": "Kann ich zwischen Cloud und On-Premise wechseln?",
-            "answer": "Ja, ein Wechsel ist jederzeit möglich. Wir unterstützen bei Migration und Datenübernahme."
+            "title": "Kann ich zwischen Cloud und On-Premise wechseln?",
+            "description": "Ja, ein Wechsel ist jederzeit möglich. Wir unterstützen bei Migration und Datenübernahme."
           },
           {
             "id": "faq-import",
-            "question": "Welche Datenimporte sind möglich?",
-            "answer": "Excel/CSV-Importe, API-Schnittstellen sowie individuelle Integrationen."
+            "title": "Welche Datenimporte sind möglich?",
+            "description": "Excel/CSV-Importe, API-Schnittstellen sowie individuelle Integrationen."
           },
           {
             "id": "faq-support",
-            "question": "Wie funktioniert der Support?",
-            "answer": "Support per E-Mail, Telefon oder Ticketsystem – je nach Paket sogar mit SLA."
+            "title": "Wie funktioniert der Support?",
+            "description": "Support per E-Mail, Telefon oder Ticketsystem – je nach Paket sogar mit SLA."
           },
           {
             "id": "faq-test-data",
-            "question": "Was passiert mit meinen Daten nach dem Test?",
-            "answer": "Nach Testende entscheiden Sie: weiter nutzen, exportieren oder löschen lassen – ganz transparent."
+            "title": "Was passiert mit meinen Daten nach dem Test?",
+            "description": "Nach Testende entscheiden Sie: weiter nutzen, exportieren oder löschen lassen – ganz transparent."
+          },
+          {
+            "id": "faq-follow-up",
+            "title": "Noch nicht fündig geworden?",
+            "description": "Weitere Fragen → Kontakt",
+            "href": "#contact-form"
           }
-        ],
-        "followUp": {
-          "text": "Noch nicht fündig geworden?",
-          "linkLabel": "Weitere Fragen → Kontakt",
-          "href": "#contact-form"
-        }
+        ]
       }
     },
     {
@@ -724,3 +648,12 @@
     }
   ]
 }
+$CALSERVER_PAGE$::text AS content
+)
+UPDATE pages AS p
+SET content = payload.content,
+    content_source = 'db',
+    updated_at = CURRENT_TIMESTAMP
+FROM payload
+WHERE p.namespace IN ('calserver', 'default')
+  AND p.slug = 'calserver';
