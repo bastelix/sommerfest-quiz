@@ -4,6 +4,7 @@ import {
   ACTIVE_BLOCK_TYPES,
   BLOCK_CONTRACT_SCHEMA,
   DEPRECATED_BLOCK_MAP,
+  normalizeBlockVariant,
   validateBlockContract
 } from './block-contract.js';
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
@@ -39,13 +40,11 @@ const ensureRendererVariant = (type, requestedVariant) => {
   if (!variants.length) {
     throw new Error(`No renderer variants registered for type: ${type}`);
   }
-  if (requestedVariant) {
-    if (!variants.includes(requestedVariant)) {
-      throw new Error(`Unsupported variant for ${type}: ${requestedVariant}`);
-    }
-    return requestedVariant;
+  const normalizedVariant = requestedVariant ? normalizeBlockVariant(type, requestedVariant) : variants[0];
+  if (requestedVariant && !variants.includes(normalizedVariant)) {
+    throw new Error(`Unsupported variant for ${type}: ${requestedVariant}`);
   }
-  return variants[0];
+  return normalizedVariant;
 };
 
 const stripHtml = html => {
