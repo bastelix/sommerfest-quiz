@@ -1,8 +1,8 @@
-import { renderBlock } from './block-renderer-matrix.js';
+import { renderBlockSafe } from './block-renderer-matrix.js';
 
 export function renderPage(blocks = []) {
   return (Array.isArray(blocks) ? blocks : [])
-    .map(block => renderBlock(block))
+    .map(block => renderBlockSafe(block))
     .join('\n');
 }
 

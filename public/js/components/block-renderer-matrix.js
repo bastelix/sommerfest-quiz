@@ -168,14 +168,35 @@ function assertRenderable(block) {
   return renderer;
 }
 
-export function renderBlock(block) {
+export function renderBlockStrict(block) {
   const renderer = assertRenderable(block);
   return renderer(block);
 }
 
+function renderBlockError(block, error) {
+  const blockId = block && typeof block === 'object' && 'id' in block ? escapeAttribute(block.id) : 'unknown';
+  const type = block && typeof block === 'object' && 'type' in block ? escapeAttribute(block.type) : 'unknown';
+  const variant = block && typeof block === 'object' && 'variant' in block ? escapeAttribute(block.variant) : 'unknown';
+  const reason = error && error.message ? escapeHtml(error.message) : 'Unknown rendering error';
+
+  return `<section data-block-id="${blockId}" data-block-type="${type}" data-block-variant="${variant}" class="block-render-error"><!-- render_error: ${reason} --></section>`;
+}
+
+export function renderBlockSafe(block) {
+  try {
+    return renderBlockStrict(block);
+  } catch (error) {
+    return renderBlockError(block, error);
+  }
+}
+
+export function renderBlock(block) {
+  return renderBlockSafe(block);
+}
+
 export function renderPage(blocks = []) {
   return (Array.isArray(blocks) ? blocks : [])
-    .map(block => renderBlock(block))
+    .map(block => renderBlockSafe(block))
     .join('\n');
 }
 
