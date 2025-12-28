@@ -2912,7 +2912,7 @@ export async function showPreview(formOverride = null) {
 
   const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
   const { blocks } = readBlockEditorState(editor);
-  const html = renderPage(blocks || []);
+  const html = renderPage(Array.isArray(blocks) ? blocks : []);
   previewContainer.innerHTML = html;
 
   await ensurePreviewAssets();

@@ -47,10 +47,7 @@ export class PreviewCanvas {
   }
 
   render() {
-    const html = renderPage(this.blocks, {
-      mode: 'preview',
-      highlightBlockId: this.highlightBlockId
-    });
+    const html = renderPage(Array.isArray(this.blocks) ? this.blocks : []);
     this.surface.innerHTML = html;
     this.applySelectionHighlight();
   }
