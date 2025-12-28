@@ -6,6 +6,7 @@ SET content = $CONTENT${
   "title": "calServer",
   "meta": {
     "rebuiltFromMigration": true,
+    "corrected": true,
     "reviewed": false
   },
   "blocks": [
@@ -20,13 +21,15 @@ SET content = $CONTENT${
           "image": "uploads/calserver-module-device-management.webp",
           "alt": "Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten"
         },
-        "ctaPrimary": {
-          "label": "Demo buchen",
-          "href": "https://calendly.com/calhelp/calserver-vorstellung"
-        },
-        "ctaSecondary": {
-          "label": "Jetzt testen",
-          "href": "#offer"
+        "cta": {
+          "primary": {
+            "label": "Demo buchen",
+            "href": "https://calendly.com/calhelp/calserver-vorstellung"
+          },
+          "secondary": {
+            "label": "Jetzt testen",
+            "href": "#offer"
+          }
         }
       }
     },
@@ -152,9 +155,65 @@ SET content = $CONTENT${
       }
     },
     {
+      "id": "lifecycle",
+      "type": "process_steps",
+      "variant": "numbered-vertical",
+      "data": {
+        "title": "So fühlt sich calServer im Alltag an",
+        "intro": "Vom ersten Login bis zur entspannten Audit-Vorbereitung: calServer nimmt dir Schritt für Schritt den Druck aus der Kalibrier- und Inventarverwaltung.",
+        "summary": "FLUKE MET/CAL · MET/TRACK — Migration und Hybridbetrieb mit FLUKE MET/CAL werden planbar: Wir orchestrieren den Wechsel von MET/TRACK in den calServer, binden METTEAM sinnvoll ein und sichern auditfähige Nachweise ohne Unterbrechung.",
+        "steps": [
+          {
+            "id": "trust-devices",
+            "title": "Alle Geräte auf einen Blick",
+            "description": "Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht."
+          },
+          {
+            "id": "trust-deadlines",
+            "title": "Fristen melden sich von selbst",
+            "description": "Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind."
+          },
+          {
+            "id": "trust-audit",
+            "title": "Auditbereit – jederzeit",
+            "description": "Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet."
+          },
+          {
+            "id": "migration",
+            "title": "Migration ohne Stillstand",
+            "description": "Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.\n• Datenmapping für Kunden, Geräte, Historien und Dokumente\n• Delta-Sync & Freeze-Fenster für den Go-Live\n• Abnahmebericht mit KPIs und Korrekturschleifen"
+          },
+          {
+            "id": "hybrid",
+            "title": "Hybrid & METTEAM eingebunden",
+            "description": "Synchronisation in beide Richtungen – MET/CAL läuft weiter, calServer erledigt Verwaltung und Berichte.\n• Klare Feldregeln mit Freigabe der letzten Änderung\n• Änderungsprotokoll, Abweichungslisten und erneuter Abgleich bei Konflikten\n• Pro Gerät aktivierbar – Daten und Historie sind sofort vorhanden"
+          },
+          {
+            "id": "certificates",
+            "title": "Auditfähige Zertifikate",
+            "description": "DAkkS-taugliche Berichte – Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet.\n• Vorlagen in Deutsch und Englisch, inklusive QR-/Barcode und Versionierung\n• Standardtexte steuern Rückführbarkeit und Konformität\n• Endlich korrekte Anzeigen der erweiterten Messunsicherheit durch intelligente Feldformeln"
+          }
+        ],
+        "closing": {
+          "title": "Beruhigende Sicherheit für dein Team",
+          "body": "DSGVO-konform, zuverlässig betreut und flexibel erweiterbar – calServer wächst mit deinen Abläufen und sorgt dafür, dass Termine, Rollen und Geräte harmonisch zusammenspielen."
+        },
+        "cta": {
+          "primary": {
+            "label": "Jetzt testen",
+            "href": "#trial"
+          },
+          "secondary": {
+            "label": "Demo buchen",
+            "href": "https://calendly.com/calhelp/calserver-vorstellung"
+          }
+        }
+      }
+    },
+    {
       "id": "core-modules",
-      "type": "system_module",
-      "variant": "showcase",
+      "type": "feature_list",
+      "variant": "card-stack",
       "data": {
         "title": "Module, die den Unterschied machen",
         "subtitle": "Individuell kombinierbar – ohne versteckte Kosten",
@@ -219,63 +278,12 @@ SET content = $CONTENT${
       }
     },
     {
-      "id": "lifecycle",
-      "type": "process_steps",
-      "variant": "numbered-vertical",
-      "data": {
-        "title": "So fühlt sich calServer im Alltag an",
-        "intro": "Vom ersten Login bis zur entspannten Audit-Vorbereitung: calServer nimmt dir Schritt für Schritt den Druck aus der Kalibrier- und Inventarverwaltung.",
-        "summary": "FLUKE MET/CAL · MET/TRACK — Migration und Hybridbetrieb mit FLUKE MET/CAL werden planbar: Wir orchestrieren den Wechsel von MET/TRACK in den calServer, binden METTEAM sinnvoll ein und sichern auditfähige Nachweise ohne Unterbrechung.",
-        "steps": [
-          {
-            "id": "trust-devices",
-            "title": "Alle Geräte auf einen Blick",
-            "description": "Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht."
-          },
-          {
-            "id": "trust-deadlines",
-            "title": "Fristen melden sich von selbst",
-            "description": "Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind."
-          },
-          {
-            "id": "trust-audit",
-            "title": "Auditbereit – jederzeit",
-            "description": "Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet."
-          },
-          {
-            "id": "migration",
-            "title": "Migration ohne Stillstand",
-            "description": "Assessment bis Nachprüfung – klare Timeline, Dry-Run und Cut-over-Regeln.\n• Datenmapping für Kunden, Geräte, Historien und Dokumente\n• Delta-Sync & Freeze-Fenster für den Go-Live\n• Abnahmebericht mit KPIs und Korrekturschleifen"
-          },
-          {
-            "id": "hybrid",
-            "title": "Hybrid & METTEAM eingebunden",
-            "description": "Synchronisation in beide Richtungen – MET/CAL läuft weiter, calServer erledigt Verwaltung und Berichte.\n• Klare Feldregeln mit Freigabe der letzten Änderung\n• Änderungsprotokoll, Abweichungslisten und erneuter Abgleich bei Konflikten\n• Pro Gerät aktivierbar – Daten und Historie sind sofort vorhanden"
-          },
-          {
-            "id": "certificates",
-            "title": "Auditfähige Zertifikate",
-            "description": "DAkkS-taugliche Berichte – Guardband, Messunsicherheit und Konformitätsangaben sind vorbereitet.\n• Vorlagen in Deutsch und Englisch, inklusive QR-/Barcode und Versionierung\n• Standardtexte steuern Rückführbarkeit und Konformität\n• Endlich korrekte Anzeigen der erweiterten Messunsicherheit durch intelligente Feldformeln"
-          }
-        ],
-        "closing": {
-          "title": "Beruhigende Sicherheit für dein Team",
-          "body": "DSGVO-konform, zuverlässig betreut und flexibel erweiterbar – calServer wächst mit deinen Abläufen und sorgt dafür, dass Termine, Rollen und Geräte harmonisch zusammenspielen."
-        },
-        "ctaPrimary": {
-          "label": "Jetzt testen",
-          "href": "#trial"
-        },
-        "ctaSecondary": {
-          "label": "Demo buchen",
-          "href": "https://calendly.com/calhelp/calserver-vorstellung"
-        }
-      }
-    },
-    {
       "id": "proof",
       "type": "proof",
       "variant": "metric-callout",
+      "meta": {
+        "anchor": "trust"
+      },
       "data": {
         "title": "Anwendungsfälle aus der Praxis",
         "subtitle": "Vom Labor bis zum Außendienst",
@@ -487,7 +495,7 @@ SET content = $CONTENT${
     {
       "id": "operating-models",
       "type": "feature_list",
-      "variant": "operating-models",
+      "variant": "card-stack",
       "data": {
         "title": "Betriebsarten, die zu Ihnen passen",
         "subtitle": "Wählen Sie, wie calServer betrieben wird: als sichere Cloud-Lösung oder in Ihrer eigenen Umgebung.",
@@ -532,11 +540,11 @@ SET content = $CONTENT${
               "Erweiterungen (z. B. Speicher, SSO) zubuchbar"
             ],
             "badge": "Cloud in DE",
-            "primaryCta": {
+            "primary": {
               "label": "Anfrage senden",
               "href": "#offer"
             },
-            "secondaryCta": {
+            "secondary": {
               "label": "Leistungsdetails",
               "href": "#modal-standard-hosting"
             }
@@ -555,11 +563,11 @@ SET content = $CONTENT${
               "Upgrade/Downgrade zwischen Plänen möglich"
             ],
             "badge": "Beliebt",
-            "primaryCta": {
+            "primary": {
               "label": "Anfrage senden",
               "href": "#offer"
             },
-            "secondaryCta": {
+            "secondary": {
               "label": "Leistungsdetails",
               "href": "#modal-performance-hosting"
             }
@@ -578,11 +586,11 @@ SET content = $CONTENT${
               "Rollout & Betrieb nach gemeinsamem Migrationsplan"
             ],
             "badge": "Max. Kontrolle",
-            "primaryCta": {
+            "primary": {
               "label": "Anfrage senden",
               "href": "#offer"
             },
-            "secondaryCta": {
+            "secondary": {
               "label": "Leistungsdetails",
               "href": "#modal-enterprise-hosting"
             }
@@ -591,36 +599,46 @@ SET content = $CONTENT${
             "id": "plans-disclaimer",
             "title": "Hinweis",
             "description": "Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar."
-          },
+          }
+        ]
+      }
+    },
+    {
+      "id": "operating-faq",
+      "type": "faq",
+      "variant": "accordion",
+      "data": {
+        "title": "Fragen zu Betrieb und Wechsel",
+        "items": [
           {
             "id": "faq-cloud-start",
-            "title": "Wie schnell bin ich mit der Cloud-Version startklar?",
-            "description": "In der Regel innerhalb weniger Tage – wir begleiten den Kick-off persönlich."
+            "question": "Wie schnell bin ich mit der Cloud-Version startklar?",
+            "answer": "In der Regel innerhalb weniger Tage – wir begleiten den Kick-off persönlich."
           },
           {
             "id": "faq-switch",
-            "title": "Kann ich zwischen Cloud und On-Premise wechseln?",
-            "description": "Ja, ein Wechsel ist jederzeit möglich. Wir unterstützen bei Migration und Datenübernahme."
+            "question": "Kann ich zwischen Cloud und On-Premise wechseln?",
+            "answer": "Ja, ein Wechsel ist jederzeit möglich. Wir unterstützen bei Migration und Datenübernahme."
           },
           {
             "id": "faq-import",
-            "title": "Welche Datenimporte sind möglich?",
-            "description": "Excel/CSV-Importe, API-Schnittstellen sowie individuelle Integrationen."
+            "question": "Welche Datenimporte sind möglich?",
+            "answer": "Excel/CSV-Importe, API-Schnittstellen sowie individuelle Integrationen."
           },
           {
             "id": "faq-support",
-            "title": "Wie funktioniert der Support?",
-            "description": "Support per E-Mail, Telefon oder Ticketsystem – je nach Paket sogar mit SLA."
+            "question": "Wie funktioniert der Support?",
+            "answer": "Support per E-Mail, Telefon oder Ticketsystem – je nach Paket sogar mit SLA."
           },
           {
             "id": "faq-test-data",
-            "title": "Was passiert mit meinen Daten nach dem Test?",
-            "description": "Nach Testende entscheiden Sie: weiter nutzen, exportieren oder löschen lassen – ganz transparent."
+            "question": "Was passiert mit meinen Daten nach dem Test?",
+            "answer": "Nach Testende entscheiden Sie: weiter nutzen, exportieren oder löschen lassen – ganz transparent."
           },
           {
             "id": "faq-follow-up",
-            "title": "Noch nicht fündig geworden?",
-            "description": "Weitere Fragen → Kontakt",
+            "question": "Noch nicht fündig geworden?",
+            "answer": "Weitere Fragen → Kontakt",
             "href": "#contact-form"
           }
         ]
@@ -632,16 +650,14 @@ SET content = $CONTENT${
       "variant": "split",
       "data": {
         "title": "Bereit, calServer live zu erleben?",
-        "body": "Jetzt testen oder Demo buchen – wir zeigen, wie Ihre Prozesse in calServer aussehen.",
+        "body": "Jetzt testen oder Demo buchen – wir zeigen, wie Ihre Prozesse in calServer aussehen. Wir führen Sie durch calServer, beantworten Fragen und zeigen passende Workflows. Starten Sie mit einer eigenen Umgebung und prüfen Sie calServer mit Ihren Prozessen.",
         "primary": {
           "label": "Demo buchen",
-          "href": "https://calendly.com/calhelp/calserver-vorstellung",
-          "description": "Wir führen Sie durch calServer, beantworten Fragen und zeigen passende Workflows."
+          "href": "https://calendly.com/calhelp/calserver-vorstellung"
         },
         "secondary": {
           "label": "Jetzt testen",
-          "href": "#offer",
-          "description": "Starten Sie mit einer eigenen Umgebung und prüfen Sie calServer mit Ihren Prozessen."
+          "href": "#offer"
         }
       }
     }
