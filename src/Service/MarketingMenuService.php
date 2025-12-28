@@ -28,11 +28,14 @@ final class MarketingMenuService
         'detailText',
         'detailSubline',
         'position',
+        'order',
         'isExternal',
         'locale',
         'isActive',
         'isStartpage',
         'children',
+        'submenu',
+        'link',
     ];
 
     private PDO $pdo;
@@ -1107,9 +1110,26 @@ final class MarketingMenuService
                 ));
             }
 
+            $hrefFields = array_intersect(array_keys($item), ['href', 'link']);
+            if (count($hrefFields) > 1) {
+                throw new RuntimeException(sprintf('Mischschema für Link-Felder in %s nicht erlaubt.', $currentPath));
+            }
+
+            $childrenFields = array_intersect(array_keys($item), ['children', 'submenu']);
+            if (count($childrenFields) > 1) {
+                throw new RuntimeException(sprintf('Mischschema für Children/Submenu in %s nicht erlaubt.', $currentPath));
+            }
+
+            $positionFields = array_intersect(array_keys($item), ['position', 'order']);
+            if (count($positionFields) > 1) {
+                throw new RuntimeException(sprintf('Mischschema für Position/Order in %s nicht erlaubt.', $currentPath));
+            }
+
             $position = isset($item['position']) && is_numeric($item['position'])
                 ? (int) $item['position']
-                : $positionCounter;
+                : (isset($item['order']) && is_numeric($item['order'])
+                    ? (int) $item['order']
+                    : $positionCounter);
             $positionCounter = max($positionCounter, $position + 1);
 
             $locale = isset($item['locale']) ? $this->normalizeLocale((string) $item['locale']) : 'de';
@@ -1122,20 +1142,23 @@ final class MarketingMenuService
             }
 
             $children = [];
-            if (array_key_exists('children', $item)) {
-                if (!is_array($item['children'])) {
-                    throw new RuntimeException(sprintf('children muss ein Array sein (%s).', $currentPath));
+            if (array_key_exists('children', $item) || array_key_exists('submenu', $item)) {
+                $rawChildren = $item['children'] ?? $item['submenu'] ?? [];
+                if (!is_array($rawChildren)) {
+                    throw new RuntimeException(sprintf('children/submenu muss ein Array sein (%s).', $currentPath));
                 }
                 $children = $this->normalizeImportItems(
-                    $item['children'],
+                    $rawChildren,
                     $startpageLocales,
                     $currentPath . '.children'
                 );
             }
 
+            $href = $item['href'] ?? $item['link'] ?? '';
+
             $normalized[] = [
                 'label' => $this->normalizeLabel((string) ($item['label'] ?? '')),
-                'href' => $this->normalizeHref((string) ($item['href'] ?? '')),
+                'href' => $this->normalizeHref((string) $href),
                 'icon' => array_key_exists('icon', $item)
                     ? $this->normalizeIcon($item['icon'] !== null ? (string) $item['icon'] : null)
                     : null,

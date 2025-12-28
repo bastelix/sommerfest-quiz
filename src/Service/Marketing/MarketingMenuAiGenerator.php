@@ -42,7 +42,7 @@ final class MarketingMenuAiGenerator
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Nutze den folgenden HTML-Inhalt einer Marketing-Seite, um Navigationspunkte zu erzeugen.
 
-- Nutze ausschließlich die Felder aus ALLOWED_IMPORT_FIELDS: label, href, layout, isActive, isExternal, icon, detailTitle, detailText, detailSubline, children. Optional: locale, isStartpage, position. Keine weiteren Felder.
+- Nutze ausschließlich die Felder label, href, layout, isActive, isExternal, icon, detailTitle, detailText, detailSubline, children. Optional: locale, isStartpage, position. Aliasse link→href, submenu→children und order→position sind erlaubt, dürfen aber niemals parallel zu den Hauptfeldern verwendet werden. Keine weiteren Felder.
 - Ziehe H1/H2-Überschriften, Abschnittstitel und Anker-IDs (#id) heran, um Labels und Links zu bauen.
 - Hauptbereiche werden zu Haupteinträgen. Unterüberschriften oder Listenpunkte innerhalb eines Bereichs werden zu children des jeweiligen Haupteintrags.
 - Links müssen existierende Anchors/IDs aus dem gelieferten HTML, vorhandene Dokument-Hrefs oder slug-basierte Pfade (/{{slug}}#anchor) nutzen. Alle anderen Links verwerfen oder durch passende Anchors/Slug-Pfade ersetzen. Platzhalter-Hrefs wie "#" sind verboten.
