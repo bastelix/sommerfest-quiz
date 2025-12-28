@@ -7,6 +7,7 @@ namespace App\Controller\Admin;
 use App\Service\CertificateProvisionerInterface;
 use App\Service\DomainService;
 use App\Service\MarketingSslOrchestrator;
+use App\Service\ReverseProxyHostUpdater;
 use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use RuntimeException;
@@ -19,15 +20,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DomainController
 {
     private DomainService $domainService;
+    private ReverseProxyHostUpdater $reverseProxyHostUpdater;
     private ?CertificateProvisionerInterface $certificateProvisioningService;
     private ?MarketingSslOrchestrator $marketingSslOrchestrator;
 
     public function __construct(
         DomainService $domainService,
+        ReverseProxyHostUpdater $reverseProxyHostUpdater,
         ?CertificateProvisionerInterface $certificateProvisioningService = null,
         ?MarketingSslOrchestrator $marketingSslOrchestrator = null
     ) {
         $this->domainService = $domainService;
+        $this->reverseProxyHostUpdater = $reverseProxyHostUpdater;
         $this->certificateProvisioningService = $certificateProvisioningService;
         $this->marketingSslOrchestrator = $marketingSslOrchestrator;
     }
@@ -109,6 +113,14 @@ class DomainController
             return $this->jsonError($response, $exception->getMessage(), 422);
         }
 
+        if ($domain['is_active']) {
+            try {
+                $this->reverseProxyHostUpdater->persistMarketingDomain($this->getMarketingHost($domain));
+            } catch (InvalidArgumentException | RuntimeException $exception) {
+                return $this->jsonError($response, 'Failed to persist marketing domain configuration.', 500);
+            }
+        }
+
         if (
             $this->certificateProvisioningService !== null
             && $domain['is_active']
@@ -162,6 +174,12 @@ class DomainController
             && !$existing['is_active']
             && $domain['is_active']
         ) {
+            try {
+                $this->reverseProxyHostUpdater->persistMarketingDomain($this->getMarketingHost($domain));
+            } catch (InvalidArgumentException | RuntimeException $exception) {
+                return $this->jsonError($response, 'Failed to persist marketing domain configuration.', 500);
+            }
+
             $this->clearMarketingDomainCache();
             $this->certificateProvisioningService->provisionAllDomains();
         }
@@ -289,5 +307,18 @@ class DomainController
         $value = is_string($value) ? strtolower(trim($value)) : $value;
 
         return $value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'on';
+    }
+
+    /**
+     * @param array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool} $domain
+     */
+    private function getMarketingHost(array $domain): string
+    {
+        $host = $this->domainService->normalizeDomain($domain['host'], stripAdmin: false);
+        if ($host !== '') {
+            return $host;
+        }
+
+        return $this->domainService->normalizeDomain($domain['normalized_host'], stripAdmin: false);
     }
 }

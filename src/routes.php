@@ -59,6 +59,7 @@ use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
+use App\Service\ReverseProxyHostUpdater;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\HttpChatResponder;
 use App\Repository\NamespaceRepository;
@@ -532,6 +533,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainService = new DomainService($pdo);
+        $reverseProxyHostUpdater = new ReverseProxyHostUpdater($domainService, $nginxService);
         $marketingSslOrchestrator = new MarketingSslOrchestrator(
             getenv('MARKETING_SSL_SCRIPT') ?: dirname(__DIR__) . '/scripts/marketing_ssl_orchestrator.sh',
             getenv('MARKETING_SSL_USER') ?: 'www-data'
@@ -647,6 +649,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 'domainController',
                 new DomainController(
                     $domainService,
+                    $reverseProxyHostUpdater,
                     $certificateProvisioningService,
                     $marketingSslOrchestrator
                 )
