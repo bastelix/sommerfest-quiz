@@ -94,9 +94,9 @@ services:
     restart: unless-stopped
     environment:
       - VIRTUAL_HOST=adminer.${DOMAIN}
-      - LETSENCRYPT_HOST=${ADMINER_LETSENCRYPT_HOST:-}
+      - LETSENCRYPT_HOST=${ADMINER_LETSENCRYPT_HOST:-adminer.${DOMAIN}}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-      - HTTPS_METHOD=${ADMINER_HTTPS_METHOD:-nohttps}
+      - HTTPS_METHOD=${ADMINER_HTTPS_METHOD:-redirect}
       - ENABLE_HTTP_ON_MISSING_CERT=${ADMINER_ENABLE_HTTP_ON_MISSING_CERT:-true}
       - ADMINER_DEFAULT_SERVER=postgres
     ports:
