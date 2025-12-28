@@ -257,10 +257,17 @@
               <button class="uk-button uk-button-default uk-margin-small-left export-page-btn" type="button">
                 Export Page as JSON
               </button>
-              <label class="uk-button uk-button-default uk-margin-small-left import-page-btn">
+              {% set importInputId = 'pageImportInput-' ~ page.slug %}
+              <label class="uk-button uk-button-default uk-margin-small-left import-page-btn" for="{{ importInputId|e('html_attr') }}">
                 Import Page from JSON
-                <input class="page-import-input" type="file" accept="application/json,.json,.page.json" hidden>
               </label>
+              <input
+                id="{{ importInputId|e('html_attr') }}"
+                class="page-import-input"
+                type="file"
+                accept="application/json,.json,.page.json"
+                style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;"
+              >
               <span class="uk-text-meta" data-page-import-feedback></span>
               <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
             </div>
