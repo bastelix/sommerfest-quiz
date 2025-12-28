@@ -58,6 +58,24 @@ const schema = {
         "data": { "$ref": "#/definitions/RichTextData" }
       },
       "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "Info media block",
+      "properties": {
+        "type": { "const": "info_media" },
+        "variant": { "enum": ["stacked"] },
+        "data": { "$ref": "#/definitions/InfoMediaData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "CTA block",
+      "properties": {
+        "type": { "const": "cta" },
+        "variant": { "enum": ["full_width"] },
+        "data": { "$ref": "#/definitions/CallToAction" }
+      },
+      "required": ["type", "variant", "data"]
     }
   ],
   "definitions": {
@@ -157,6 +175,14 @@ const schema = {
         "label": { "type": "string", "minLength": 1 },
         "href": { "type": "string", "minLength": 1 },
         "ariaLabel": { "type": "string" }
+      }
+    },
+    "InfoMediaData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["body"],
+      "properties": {
+        "body": { "type": "string", "minLength": 1 }
       }
     },
     "FeatureItem": {
