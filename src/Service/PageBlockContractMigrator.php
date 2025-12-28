@@ -791,10 +791,18 @@ final class PageBlockContractMigrator
     private function validateBlockData(string $type, array $data): bool
     {
         return match ($type) {
-            'hero' => isset($data['headline'], $data['cta']['label'], $data['cta']['href'])
+            'hero' => isset($data['headline'], $data['cta'])
                 && $this->hasContent($data['headline'])
-                && $this->hasContent($data['cta']['label'])
-                && $this->hasContent($data['cta']['href']),
+                && (
+                    (isset($data['cta']['label'], $data['cta']['href'])
+                        && $this->hasContent($data['cta']['label'])
+                        && $this->hasContent($data['cta']['href']))
+                    || (
+                        isset($data['cta']['primary']['label'], $data['cta']['primary']['href'])
+                        && $this->hasContent($data['cta']['primary']['label'])
+                        && $this->hasContent($data['cta']['primary']['href'])
+                    )
+                ),
             'feature_list' => isset($data['title'], $data['items'])
                 && $this->hasContent($data['title'])
                 && is_array($data['items'])
@@ -809,7 +817,8 @@ final class PageBlockContractMigrator
                 && $this->hasContent($data['quote'])
                 && $this->hasContent($data['author']['name']),
             'rich_text' => isset($data['body']) && $this->hasContent($data['body']),
-            default => false,
+            // Newer block types are validated against the JSON schema via $blockVariants; no extra field checks required here.
+            default => true,
         };
     }
 
