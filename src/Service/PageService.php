@@ -584,9 +584,11 @@ class PageService
         $title = isset($row['title']) ? (string) $row['title'] : '';
         $content = isset($row['content']) ? (string) $row['content'] : '';
 
-        if ($id <= 0 || $namespace === '' || $slug === '' || $title === '') {
+        if ($id <= 0 || $namespace === '' || $slug === '') {
             return null;
         }
+
+        $title = $title !== '' ? $title : $slug;
 
         $type = isset($row['type']) ? (string) $row['type'] : null;
         $parentId = isset($row['parent_id']) ? (int) $row['parent_id'] : null;
