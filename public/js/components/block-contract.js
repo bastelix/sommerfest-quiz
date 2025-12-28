@@ -1,3 +1,4 @@
+// Block contract aligned with docs/calserver-block-consolidation.md
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quizrace.example.com/schemas/block-contract.schema.json",
@@ -27,7 +28,7 @@ const schema = {
       "title": "Feature list block",
       "properties": {
         "type": { "const": "feature_list" },
-        "variant": { "enum": ["stacked_cards", "icon_grid"] },
+        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets"] },
         "data": { "$ref": "#/definitions/FeatureListData" }
       },
       "required": ["type", "variant", "data"]
@@ -36,7 +37,7 @@ const schema = {
       "title": "Process steps block",
       "properties": {
         "type": { "const": "process_steps" },
-        "variant": { "enum": ["timeline_horizontal", "timeline_vertical"] },
+        "variant": { "enum": ["timeline_horizontal", "timeline_vertical", "timeline"] },
         "data": { "$ref": "#/definitions/ProcessStepsData" }
       },
       "required": ["type", "variant", "data"]
@@ -63,7 +64,7 @@ const schema = {
       "title": "Info media block",
       "properties": {
         "type": { "const": "info_media" },
-        "variant": { "enum": ["stacked"] },
+        "variant": { "enum": ["stacked", "switcher"] },
         "data": { "$ref": "#/definitions/InfoMediaData" }
       },
       "required": ["type", "variant", "data"]
@@ -76,6 +77,66 @@ const schema = {
         "data": { "$ref": "#/definitions/CallToAction" }
       },
       "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "Stat strip block",
+      "properties": {
+        "type": { "const": "stat_strip" },
+        "variant": { "enum": ["three-up"] },
+        "data": { "$ref": "#/definitions/StatStripData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "Audience spotlight block",
+      "properties": {
+        "type": { "const": "audience_spotlight" },
+        "variant": { "enum": ["tabs"] },
+        "data": { "$ref": "#/definitions/AudienceSpotlightData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "Package summary block",
+      "properties": {
+        "type": { "const": "package_summary" },
+        "variant": { "enum": ["toggle", "comparison-cards"] },
+        "data": { "$ref": "#/definitions/PackageSummaryData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
+      "title": "FAQ block",
+      "properties": {
+        "type": { "const": "faq" },
+        "variant": { "enum": ["accordion"] },
+        "data": { "$ref": "#/definitions/FaqData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
+      // Deprecated: see docs/calserver-block-consolidation.md
+      "title": "System module (deprecated)",
+      "description": "Deprecated in favour of info_media switcher variant.",
+      "properties": {
+        "type": { "const": "system_module" },
+        "variant": { "enum": ["switcher"] },
+        "data": { "$ref": "#/definitions/InfoMediaData" }
+      },
+      "required": ["type", "variant", "data"],
+      "deprecated": true
+    },
+    {
+      // Deprecated: see docs/calserver-block-consolidation.md
+      "title": "Case showcase (deprecated)",
+      "description": "Deprecated in favour of audience_spotlight tabs variant.",
+      "properties": {
+        "type": { "const": "case_showcase" },
+        "variant": { "enum": ["tabs"] },
+        "data": { "$ref": "#/definitions/AudienceSpotlightData" }
+      },
+      "required": ["type", "variant", "data"],
+      "deprecated": true
     }
   ],
   "definitions": {
@@ -107,13 +168,17 @@ const schema = {
       "additionalProperties": false,
       "required": ["title", "items"],
       "properties": {
+        "eyebrow": { "type": "string" },
         "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "lead": { "type": "string" },
         "intro": { "type": "string" },
         "items": {
           "type": "array",
           "minItems": 1,
           "items": { "$ref": "#/definitions/FeatureItem" }
-        }
+        },
+        "cta": { "$ref": "#/definitions/CallToAction" }
       }
     },
     "ProcessStepsData": {
@@ -123,11 +188,15 @@ const schema = {
       "properties": {
         "title": { "type": "string", "minLength": 1 },
         "summary": { "type": "string" },
+        "intro": { "type": "string" },
         "steps": {
           "type": "array",
           "minItems": 2,
           "items": { "$ref": "#/definitions/ProcessStep" }
-        }
+        },
+        "closing": { "$ref": "#/definitions/ClosingCopy" },
+        "ctaPrimary": { "$ref": "#/definitions/CallToAction" },
+        "ctaSecondary": { "$ref": "#/definitions/CallToAction" }
       }
     },
     "TestimonialData": {
@@ -149,22 +218,18 @@ const schema = {
         "alignment": { "enum": ["start", "center", "end", "justify"] }
       }
     },
-    "Media": {
+    "InfoMediaData": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "imageId": { "type": "string" },
-        "alt": { "type": "string" },
-        "focalPoint": { "$ref": "#/definitions/FocalPoint" }
-      }
-    },
-    "FocalPoint": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["x", "y"],
-      "properties": {
-        "x": { "type": "number", "minimum": 0, "maximum": 1 },
-        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "body": { "type": "string" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/InfoMediaItem" },
+          "minItems": 1
+        }
       }
     },
     "CallToAction": {
@@ -177,12 +242,183 @@ const schema = {
         "ariaLabel": { "type": "string" }
       }
     },
-    "InfoMediaData": {
+    "StatStripData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["body"],
+      "required": ["metrics"],
       "properties": {
-        "body": { "type": "string", "minLength": 1 }
+        "metrics": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Metric" },
+          "minItems": 1
+        },
+        "marquee": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "AudienceSpotlightData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "cases"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "cases": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AudienceCase" },
+          "minItems": 1
+        }
+      }
+    },
+    "PackageSummaryData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "options": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PackageOption" },
+          "minItems": 1
+        },
+        "plans": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PackagePlan" },
+          "minItems": 1
+        },
+        "disclaimer": { "type": "string" }
+      }
+    },
+    "FaqData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "items"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/FaqItem" },
+          "minItems": 1
+        },
+        "followUp": { "$ref": "#/definitions/FaqFollowUp" }
+      }
+    },
+    "Media": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "imageId": { "type": "string" },
+        "image": { "type": "string" },
+        "alt": { "type": "string" },
+        "focalPoint": { "$ref": "#/definitions/FocalPoint" }
+      }
+    },
+    "InfoMediaItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "description"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "media": { "$ref": "#/definitions/Media" },
+        "bullets": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "Metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "value", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "value": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "asOf": { "type": "string" },
+        "tooltip": { "type": "string" },
+        "benefit": { "type": "string" }
+      }
+    },
+    "AudienceCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "badge": { "type": "string" },
+        "title": { "type": "string", "minLength": 1 },
+        "lead": { "type": "string" },
+        "body": { "type": "string" },
+        "bullets": { "type": "array", "items": { "type": "string" } },
+        "keyFacts": { "type": "array", "items": { "type": "string" } },
+        "media": { "$ref": "#/definitions/Media" }
+      }
+    },
+    "PackageOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "intro": { "type": "string" },
+        "highlights": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/PackageHighlight" }
+        }
+      }
+    },
+    "PackageHighlight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "bullets": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "PackagePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "badge": { "type": "string" },
+        "description": { "type": "string" },
+        "features": { "type": "array", "items": { "type": "string" } },
+        "notes": { "type": "array", "items": { "type": "string" } },
+        "primaryCta": { "$ref": "#/definitions/CallToAction" },
+        "secondaryCta": { "$ref": "#/definitions/CallToAction" }
+      }
+    },
+    "FaqItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "question", "answer"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "question": { "type": "string", "minLength": 1 },
+        "answer": { "type": "string", "minLength": 1 }
+      }
+    },
+    "FaqFollowUp": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string" },
+        "linkLabel": { "type": "string" },
+        "href": { "type": "string" }
+      }
+    },
+    "ClosingCopy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string" },
+        "body": { "type": "string" }
       }
     },
     "FeatureItem": {
@@ -194,6 +430,7 @@ const schema = {
         "icon": { "type": "string" },
         "title": { "type": "string", "minLength": 1 },
         "description": { "type": "string", "minLength": 1 },
+        "bullets": { "type": "array", "items": { "type": "string" } },
         "media": { "$ref": "#/definitions/Media" }
       }
     },
@@ -218,16 +455,39 @@ const schema = {
         "role": { "type": "string" },
         "avatarId": { "type": "string" }
       }
+    },
+    "FocalPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
     }
   }
 };
 
 const BLOCK_VARIANTS = {
   hero: ['centered_cta', 'media_right', 'media_left'],
-  feature_list: ['stacked_cards', 'icon_grid'],
-  process_steps: ['timeline_horizontal', 'timeline_vertical'],
+  feature_list: ['stacked_cards', 'icon_grid', 'detailed-cards', 'grid-bullets'],
+  process_steps: ['timeline_horizontal', 'timeline_vertical', 'timeline'],
   testimonial: ['single_quote', 'quote_wall'],
-  rich_text: ['prose']
+  rich_text: ['prose'],
+  info_media: ['stacked', 'switcher'],
+  cta: ['full_width'],
+  stat_strip: ['three-up'],
+  audience_spotlight: ['tabs'],
+  package_summary: ['toggle', 'comparison-cards'],
+  faq: ['accordion'],
+  // Deprecated legacy block types retained for editor/renderer compatibility.
+  system_module: ['switcher'],
+  case_showcase: ['tabs']
+};
+
+const DEPRECATED_BLOCK_TYPES = {
+  system_module: { replacement: { type: 'info_media', variant: 'switcher' } },
+  case_showcase: { replacement: { type: 'audience_spotlight', variant: 'tabs' } }
 };
 
 const TOKEN_ENUMS = {
@@ -280,4 +540,6 @@ export function getBlockVariants(type) {
 
 export const BLOCK_CONTRACT_SCHEMA = schema;
 export const BLOCK_TYPES = Object.keys(BLOCK_VARIANTS);
+export const ACTIVE_BLOCK_TYPES = BLOCK_TYPES.filter(type => !DEPRECATED_BLOCK_TYPES[type]);
 export const TOKENS = TOKEN_ENUMS;
+export const DEPRECATED_BLOCK_MAP = DEPRECATED_BLOCK_TYPES;

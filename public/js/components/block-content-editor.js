@@ -1,15 +1,30 @@
 import { Editor } from '../vendor/tiptap/core.esm.js';
 import StarterKit from '../vendor/tiptap/starter-kit.esm.js';
-import { BLOCK_CONTRACT_SCHEMA, BLOCK_TYPES, getBlockVariants, validateBlockContract } from './block-contract.js';
-import { listSupportedBlocks } from './block-renderer-matrix.js';
+import {
+  ACTIVE_BLOCK_TYPES,
+  BLOCK_CONTRACT_SCHEMA,
+  DEPRECATED_BLOCK_MAP,
+  getBlockVariants,
+  validateBlockContract
+} from './block-contract.js';
+import { listSelectableBlocks, listSupportedBlocks } from './block-renderer-matrix.js';
 
 const SUPPORTED_VARIANTS = listSupportedBlocks();
+const SELECTABLE_VARIANTS = listSelectableBlocks();
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
   feature_list: 'Feature list',
   process_steps: 'Process steps',
   testimonial: 'Testimonial',
-  rich_text: 'Rich text'
+  rich_text: 'Rich text',
+  info_media: 'Info + media',
+  stat_strip: 'Stat strip',
+  audience_spotlight: 'Audience spotlight',
+  package_summary: 'Package summary',
+  faq: 'FAQ',
+  system_module: 'System module (deprecated)',
+  case_showcase: 'Case showcase (deprecated)',
+  cta: 'CTA'
 };
 
 const createId = () => {
@@ -206,6 +221,72 @@ function buildDefaultBlock(type, variant) {
       data: {
         body: '<p>Text</p>',
         alignment: 'start'
+      }
+    }),
+    info_media: () => ({
+      id: createId(),
+      type: 'info_media',
+      variant,
+      data: {
+        title: 'Info block',
+        subtitle: '',
+        body: '',
+        items: [{ id: createId(), title: 'Eintrag', description: 'Beschreibung', bullets: [] }]
+      }
+    }),
+    stat_strip: () => ({
+      id: createId(),
+      type: 'stat_strip',
+      variant,
+      data: {
+        metrics: [{ id: createId(), value: '100%', label: 'Zuverlässig' }],
+        marquee: []
+      }
+    }),
+    audience_spotlight: () => ({
+      id: createId(),
+      type: 'audience_spotlight',
+      variant,
+      data: {
+        title: 'Use cases',
+        subtitle: '',
+        cases: [{ id: createId(), title: 'Fallstudie', lead: '', body: '', bullets: [], keyFacts: [] }]
+      }
+    }),
+    package_summary: () => ({
+      id: createId(),
+      type: 'package_summary',
+      variant,
+      data: {
+        title: 'Pakete',
+        subtitle: '',
+        options: [
+          { id: createId(), title: 'Option A', intro: '', highlights: [{ title: 'Vorteile', bullets: [] }] }
+        ],
+        plans: [
+          { id: createId(), title: 'Plan', description: '', features: [], notes: [], primaryCta: { label: 'Los', href: '#' } }
+        ],
+        disclaimer: ''
+      }
+    }),
+    faq: () => ({
+      id: createId(),
+      type: 'faq',
+      variant,
+      data: {
+        title: 'FAQ',
+        items: [{ id: createId(), question: 'Frage', answer: 'Antwort' }],
+        followUp: { text: '', linkLabel: '', href: '' }
+      }
+    }),
+    cta: () => ({
+      id: createId(),
+      type: 'cta',
+      variant,
+      data: {
+        label: 'Mehr erfahren',
+        href: '#',
+        ariaLabel: ''
       }
     })
   };
@@ -466,7 +547,7 @@ export class BlockContentEditor {
 
     const typeSelect = document.createElement('select');
     typeSelect.dataset.action = 'insert-block-type';
-    const supportedTypes = BLOCK_TYPES.filter(type => SUPPORTED_VARIANTS[type]);
+    const supportedTypes = ACTIVE_BLOCK_TYPES.filter(type => SELECTABLE_VARIANTS[type]);
     supportedTypes.forEach(type => {
       const option = document.createElement('option');
       option.value = type;
@@ -479,7 +560,9 @@ export class BlockContentEditor {
 
     const populateVariants = () => {
       variantSelect.innerHTML = '';
-      const variants = getBlockVariants(typeSelect.value).filter(variant => SUPPORTED_VARIANTS[typeSelect.value]?.includes(variant));
+      const variants = getBlockVariants(typeSelect.value).filter(
+        variant => SELECTABLE_VARIANTS[typeSelect.value]?.includes(variant)
+      );
       const placeholder = document.createElement('option');
       placeholder.value = '';
       placeholder.textContent = 'Variante auswählen';
@@ -560,7 +643,8 @@ export class BlockContentEditor {
 
       const label = document.createElement('span');
       label.dataset.blockLabel = 'true';
-      label.textContent = `${block.type}:${block.variant} – ${stripHtml(this.getPrimaryText(block))}`.trim();
+      const deprecated = DEPRECATED_BLOCK_MAP[block.type] ? ' [deprecated]' : '';
+      label.textContent = `${block.type}:${block.variant}${deprecated} – ${stripHtml(this.getPrimaryText(block))}`.trim();
 
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
@@ -599,6 +683,13 @@ export class BlockContentEditor {
 
     const form = document.createElement('div');
     form.dataset.blockType = block.type;
+
+    if (DEPRECATED_BLOCK_MAP[block.type]) {
+      const deprecatedNotice = document.createElement('div');
+      deprecatedNotice.dataset.deprecatedNotice = 'true';
+      deprecatedNotice.textContent = 'Hinweis: Dieser Block ist laut calserver-block-consolidation als veraltet markiert.';
+      form.append(deprecatedNotice);
+    }
 
     const variantSelector = this.buildVariantSelector(block);
     if (variantSelector) {
@@ -648,8 +739,41 @@ export class BlockContentEditor {
       case 'testimonial':
         return this.buildTestimonialForm(block);
       default:
-        return document.createElement('div');
+        return this.buildGenericJsonForm(block);
     }
+  }
+
+  buildGenericJsonForm(block) {
+    const wrapper = document.createElement('div');
+    const info = document.createElement('p');
+    info.textContent = 'Dieser Block nutzt eine generische Struktur. Passe die Felder als JSON an.';
+    wrapper.append(info);
+
+    if (DEPRECATED_BLOCK_MAP[block.type]) {
+      const deprecated = document.createElement('p');
+      deprecated.textContent = 'Veraltet: Nicht neu anlegen, nur bestehende Inhalte pflegen.';
+      wrapper.append(deprecated);
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.rows = 16;
+    textarea.value = JSON.stringify(block.data, null, 2);
+    wrapper.append(textarea);
+
+    const applyBtn = document.createElement('button');
+    applyBtn.type = 'button';
+    applyBtn.textContent = 'Änderungen übernehmen';
+    applyBtn.addEventListener('click', () => {
+      try {
+        const parsed = JSON.parse(textarea.value || '{}');
+        this.replaceBlock(block.id, { data: parsed });
+      } catch (error) {
+        window.alert(error.message || 'JSON ungültig');
+      }
+    });
+
+    wrapper.append(applyBtn);
+    return wrapper;
   }
 
   addLabeledInput(labelText, value, onChange, options = {}) {
@@ -894,6 +1018,18 @@ export class BlockContentEditor {
         return block.data.title || block.data.steps?.[0]?.title || '';
       case 'testimonial':
         return block.data.quote || block.data.author?.name || '';
+      case 'info_media':
+      case 'system_module':
+        return block.data.title || block.data.items?.[0]?.title || '';
+      case 'stat_strip':
+        return block.data.metrics?.[0]?.label || block.data.metrics?.[0]?.value || '';
+      case 'audience_spotlight':
+      case 'case_showcase':
+        return block.data.title || block.data.cases?.[0]?.title || '';
+      case 'package_summary':
+        return block.data.title || block.data.plans?.[0]?.title || block.data.options?.[0]?.title || '';
+      case 'faq':
+        return block.data.title || block.data.items?.[0]?.question || '';
       default:
         return '';
     }
@@ -905,7 +1041,7 @@ export class BlockContentEditor {
   }
 
   addBlock(type, variant) {
-    if (!type || !variant || !SUPPORTED_VARIANTS[type]?.includes(variant)) {
+    if (!type || !variant || !SELECTABLE_VARIANTS[type]?.includes(variant)) {
       throw new Error('Ungültiger Blocktyp oder Variante');
     }
     const newBlock = getDefaultBlock(type, variant);
@@ -991,6 +1127,20 @@ export class BlockContentEditor {
       this.render();
     } catch (error) {
       window.alert(error.message || 'Variante ungültig');
+    }
+  }
+
+  replaceBlock(blockId, changes) {
+    try {
+      this.state.blocks = this.state.blocks.map(block => {
+        if (block.id !== blockId) {
+          return block;
+        }
+        return sanitizeBlock({ ...block, ...changes });
+      });
+      this.render();
+    } catch (error) {
+      window.alert(error.message || 'Block konnte nicht aktualisiert werden');
     }
   }
 

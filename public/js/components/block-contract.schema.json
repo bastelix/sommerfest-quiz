@@ -5,77 +5,317 @@
   "description": "Strict contract for editorial blocks used by the editor, renderer, and migration tools.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "type", "variant", "data"],
+  "required": [
+    "id",
+    "type",
+    "variant",
+    "data"
+  ],
   "properties": {
-    "id": { "type": "string", "minLength": 1 },
-    "type": { "type": "string" },
-    "variant": { "type": "string" },
-    "data": { "type": "object" },
-    "tokens": { "$ref": "#/definitions/Tokens" }
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string"
+    },
+    "variant": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object"
+    },
+    "tokens": {
+      "$ref": "#/definitions/Tokens"
+    }
   },
   "oneOf": [
     {
       "title": "Hero block",
       "properties": {
-        "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media_right", "media_left"] },
-        "data": { "$ref": "#/definitions/HeroData" }
+        "type": {
+          "const": "hero"
+        },
+        "variant": {
+          "enum": [
+            "centered_cta",
+            "media_right",
+            "media_left"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/HeroData"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     },
     {
       "title": "Feature list block",
       "properties": {
-        "type": { "const": "feature_list" },
-        "variant": { "enum": ["stacked_cards", "icon_grid"] },
-        "data": { "$ref": "#/definitions/FeatureListData" }
+        "type": {
+          "const": "feature_list"
+        },
+        "variant": {
+          "enum": [
+            "stacked_cards",
+            "icon_grid",
+            "detailed-cards",
+            "grid-bullets"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/FeatureListData"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     },
     {
       "title": "Process steps block",
       "properties": {
-        "type": { "const": "process_steps" },
-        "variant": { "enum": ["timeline_horizontal", "timeline_vertical"] },
-        "data": { "$ref": "#/definitions/ProcessStepsData" }
+        "type": {
+          "const": "process_steps"
+        },
+        "variant": {
+          "enum": [
+            "timeline_horizontal",
+            "timeline_vertical",
+            "timeline"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/ProcessStepsData"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     },
     {
       "title": "Testimonial block",
       "properties": {
-        "type": { "const": "testimonial" },
-        "variant": { "enum": ["single_quote", "quote_wall"] },
-        "data": { "$ref": "#/definitions/TestimonialData" }
+        "type": {
+          "const": "testimonial"
+        },
+        "variant": {
+          "enum": [
+            "single_quote",
+            "quote_wall"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/TestimonialData"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     },
     {
       "title": "Rich text block",
       "properties": {
-        "type": { "const": "rich_text" },
-        "variant": { "enum": ["prose"] },
-        "data": { "$ref": "#/definitions/RichTextData" }
+        "type": {
+          "const": "rich_text"
+        },
+        "variant": {
+          "enum": [
+            "prose"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/RichTextData"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     },
     {
       "title": "Info media block",
       "properties": {
-        "type": { "const": "info_media" },
-        "variant": { "enum": ["stacked"] },
-        "data": { "$ref": "#/definitions/InfoMediaData" }
+        "type": {
+          "const": "info_media"
+        },
+        "variant": {
+          "enum": [
+            "stacked",
+            "switcher"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/InfoMediaData"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
     },
     {
       "title": "CTA block",
       "properties": {
-        "type": { "const": "cta" },
-        "variant": { "enum": ["full_width"] },
-        "data": { "$ref": "#/definitions/CallToAction" }
+        "type": {
+          "const": "cta"
+        },
+        "variant": {
+          "enum": [
+            "full_width"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/CallToAction"
+        }
       },
-      "required": ["type", "variant", "data"]
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
+      "title": "Stat strip block",
+      "properties": {
+        "type": {
+          "const": "stat_strip"
+        },
+        "variant": {
+          "enum": [
+            "three-up"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/StatStripData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
+      "title": "Audience spotlight block",
+      "properties": {
+        "type": {
+          "const": "audience_spotlight"
+        },
+        "variant": {
+          "enum": [
+            "tabs"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/AudienceSpotlightData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
+      "title": "Package summary block",
+      "properties": {
+        "type": {
+          "const": "package_summary"
+        },
+        "variant": {
+          "enum": [
+            "toggle",
+            "comparison-cards"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/PackageSummaryData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
+      "title": "FAQ block",
+      "properties": {
+        "type": {
+          "const": "faq"
+        },
+        "variant": {
+          "enum": [
+            "accordion"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/FaqData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
+      "title": "System module (deprecated)",
+      "description": "Deprecated in favour of info_media switcher variant.",
+      "properties": {
+        "type": {
+          "const": "system_module"
+        },
+        "variant": {
+          "enum": [
+            "switcher"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/InfoMediaData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ],
+      "deprecated": true
+    },
+    {
+      "title": "Case showcase (deprecated)",
+      "description": "Deprecated in favour of audience_spotlight tabs variant.",
+      "properties": {
+        "type": {
+          "const": "case_showcase"
+        },
+        "variant": {
+          "enum": [
+            "tabs"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/AudienceSpotlightData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ],
+      "deprecated": true
     }
   ],
   "definitions": {
@@ -83,140 +323,692 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "background": { "enum": ["default", "muted", "primary"] },
-        "spacing": { "enum": ["small", "normal", "large"] },
-        "width": { "enum": ["narrow", "normal", "wide"] },
-        "columns": { "enum": ["single", "two", "three", "four"] },
-        "accent": { "enum": ["brandA", "brandB", "brandC"] }
+        "background": {
+          "enum": [
+            "default",
+            "muted",
+            "primary"
+          ]
+        },
+        "spacing": {
+          "enum": [
+            "small",
+            "normal",
+            "large"
+          ]
+        },
+        "width": {
+          "enum": [
+            "narrow",
+            "normal",
+            "wide"
+          ]
+        },
+        "columns": {
+          "enum": [
+            "single",
+            "two",
+            "three",
+            "four"
+          ]
+        },
+        "accent": {
+          "enum": [
+            "brandA",
+            "brandB",
+            "brandC"
+          ]
+        }
       }
     },
     "HeroData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["headline", "cta"],
+      "required": [
+        "headline",
+        "cta"
+      ],
       "properties": {
-        "eyebrow": { "type": "string" },
-        "headline": { "type": "string", "minLength": 1 },
-        "subheadline": { "type": "string" },
-        "media": { "$ref": "#/definitions/Media" },
-        "cta": { "$ref": "#/definitions/CallToAction" }
+        "eyebrow": {
+          "type": "string"
+        },
+        "headline": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subheadline": {
+          "type": "string"
+        },
+        "media": {
+          "$ref": "#/definitions/Media"
+        },
+        "cta": {
+          "$ref": "#/definitions/CallToAction"
+        }
       }
     },
     "FeatureListData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "items"],
+      "required": [
+        "title",
+        "items"
+      ],
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "intro": { "type": "string" },
+        "eyebrow": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "lead": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string"
+        },
         "items": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "#/definitions/FeatureItem" }
+          "items": {
+            "$ref": "#/definitions/FeatureItem"
+          }
+        },
+        "cta": {
+          "$ref": "#/definitions/CallToAction"
         }
       }
     },
     "ProcessStepsData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "steps"],
+      "required": [
+        "title",
+        "steps"
+      ],
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "summary": { "type": "string" },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string"
+        },
         "steps": {
           "type": "array",
           "minItems": 2,
-          "items": { "$ref": "#/definitions/ProcessStep" }
+          "items": {
+            "$ref": "#/definitions/ProcessStep"
+          }
+        },
+        "closing": {
+          "$ref": "#/definitions/ClosingCopy"
+        },
+        "ctaPrimary": {
+          "$ref": "#/definitions/CallToAction"
+        },
+        "ctaSecondary": {
+          "$ref": "#/definitions/CallToAction"
         }
       }
     },
     "TestimonialData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["quote", "author"],
+      "required": [
+        "quote",
+        "author"
+      ],
       "properties": {
-        "quote": { "type": "string", "minLength": 1 },
-        "author": { "$ref": "#/definitions/Author" },
-        "source": { "type": "string" }
+        "quote": {
+          "type": "string",
+          "minLength": 1
+        },
+        "author": {
+          "$ref": "#/definitions/Author"
+        },
+        "source": {
+          "type": "string"
+        }
       }
     },
     "RichTextData": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["body"],
+      "required": [
+        "body"
+      ],
       "properties": {
-        "body": { "type": "string", "minLength": 1 },
-        "alignment": { "enum": ["start", "center", "end", "justify"] }
+        "body": {
+          "type": "string",
+          "minLength": 1
+        },
+        "alignment": {
+          "enum": [
+            "start",
+            "center",
+            "end",
+            "justify"
+          ]
+        }
+      }
+    },
+    "InfoMediaData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/InfoMediaItem"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "CallToAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "href"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "href": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ariaLabel": {
+          "type": "string"
+        }
+      }
+    },
+    "StatStripData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metrics"
+      ],
+      "properties": {
+        "metrics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Metric"
+          },
+          "minItems": 1
+        },
+        "marquee": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "AudienceSpotlightData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "cases"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AudienceCase"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "PackageSummaryData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "options": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PackageOption"
+          },
+          "minItems": 1
+        },
+        "plans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PackagePlan"
+          },
+          "minItems": 1
+        },
+        "disclaimer": {
+          "type": "string"
+        }
+      }
+    },
+    "FaqData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "items"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FaqItem"
+          },
+          "minItems": 1
+        },
+        "followUp": {
+          "$ref": "#/definitions/FaqFollowUp"
+        }
       }
     },
     "Media": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "imageId": { "type": "string" },
-        "alt": { "type": "string" },
-        "focalPoint": { "$ref": "#/definitions/FocalPoint" }
+        "imageId": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "alt": {
+          "type": "string"
+        },
+        "focalPoint": {
+          "$ref": "#/definitions/FocalPoint"
+        }
       }
     },
-    "FocalPoint": {
+    "InfoMediaItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["x", "y"],
+      "required": [
+        "id",
+        "title",
+        "description"
+      ],
       "properties": {
-        "x": { "type": "number", "minimum": 0, "maximum": 1 },
-        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "media": {
+          "$ref": "#/definitions/Media"
+        },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
-    "CallToAction": {
+    "Metric": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["label", "href"],
+      "required": [
+        "id",
+        "value",
+        "label"
+      ],
       "properties": {
-        "label": { "type": "string", "minLength": 1 },
-        "href": { "type": "string", "minLength": 1 },
-        "ariaLabel": { "type": "string" }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "asOf": {
+          "type": "string"
+        },
+        "tooltip": {
+          "type": "string"
+        },
+        "benefit": {
+          "type": "string"
+        }
       }
     },
-    "InfoMediaData": {
+    "AudienceCase": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["body"],
+      "required": [
+        "id",
+        "title"
+      ],
       "properties": {
-        "body": { "type": "string", "minLength": 1 }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "badge": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lead": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "keyFacts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "media": {
+          "$ref": "#/definitions/Media"
+        }
+      }
+    },
+    "PackageOption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "intro": {
+          "type": "string"
+        },
+        "highlights": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PackageHighlight"
+          }
+        }
+      }
+    },
+    "PackageHighlight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PackagePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "badge": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "primaryCta": {
+          "$ref": "#/definitions/CallToAction"
+        },
+        "secondaryCta": {
+          "$ref": "#/definitions/CallToAction"
+        }
+      }
+    },
+    "FaqItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "question",
+        "answer"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "answer": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "FaqFollowUp": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "linkLabel": {
+          "type": "string"
+        },
+        "href": {
+          "type": "string"
+        }
+      }
+    },
+    "ClosingCopy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        }
       }
     },
     "FeatureItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "description"],
+      "required": [
+        "id",
+        "title",
+        "description"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "icon": { "type": "string" },
-        "title": { "type": "string", "minLength": 1 },
-        "description": { "type": "string", "minLength": 1 },
-        "media": { "$ref": "#/definitions/Media" }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "icon": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bullets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "media": {
+          "$ref": "#/definitions/Media"
+        }
       }
     },
     "ProcessStep": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "description"],
+      "required": [
+        "id",
+        "title",
+        "description"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "title": { "type": "string", "minLength": 1 },
-        "description": { "type": "string", "minLength": 1 },
-        "duration": { "type": "string" },
-        "media": { "$ref": "#/definitions/Media" }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duration": {
+          "type": "string"
+        },
+        "media": {
+          "$ref": "#/definitions/Media"
+        }
       }
     },
     "Author": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "role": { "type": "string" },
-        "avatarId": { "type": "string" }
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string"
+        },
+        "avatarId": {
+          "type": "string"
+        }
+      }
+    },
+    "FocalPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
       }
     }
   }
