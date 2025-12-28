@@ -445,7 +445,7 @@
           "$ref": "#/definitions/Media"
         },
         "cta": {
-          "$ref": "#/definitions/CallToAction"
+          "$ref": "#/definitions/CallToActionGroup"
         }
       }
     },
@@ -583,6 +583,28 @@
           "minItems": 1
         }
       }
+    },
+    "CallToActionGroup": {
+      "oneOf": [
+        {
+          "$ref": "#/definitions/CallToAction"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "primary"
+          ],
+          "properties": {
+            "primary": {
+              "$ref": "#/definitions/CallToAction"
+            },
+            "secondary": {
+              "$ref": "#/definitions/CallToAction"
+            }
+          }
+        }
+      ]
     },
     "CallToAction": {
       "type": "object",
