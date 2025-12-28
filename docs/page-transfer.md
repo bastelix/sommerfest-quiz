@@ -20,7 +20,8 @@ Manual export/import of block-based pages uses a deterministic JSON file with th
 Key rules:
 
 - `schemaVersion` must match the current block contract (`block-contract-v1`).
-- `meta.namespace` and `meta.slug` have to match the target page when importing; imports never create new pages.
+- `meta.slug` has to match the target page when importing; imports never create new pages.
+- `meta.namespace` is ignored during import. The namespace is derived from the request query string so that exports can be reused across namespaces.
 - Only the `blocks` array is written during import; page identity, permissions, and relations remain unchanged.
 - Block payloads must validate against `public/js/components/block-contract.schema.json`.
 - Exports are read-only and do not alter content.
