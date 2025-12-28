@@ -1,12 +1,16 @@
 import { Editor } from '../vendor/tiptap/core.esm.js';
 import StarterKit from '../vendor/tiptap/starter-kit.esm.js';
+import { BLOCK_CONTRACT_SCHEMA, BLOCK_TYPES, getBlockVariants, validateBlockContract } from './block-contract.js';
+import { listSupportedBlocks } from './block-renderer-matrix.js';
 
-const BLOCK_TYPES = [
-  { value: 'hero', label: 'Hero' },
-  { value: 'text', label: 'Text' },
-  { value: 'feature_list', label: 'Feature list' },
-  { value: 'testimonial', label: 'Testimonial' }
-];
+const SUPPORTED_VARIANTS = listSupportedBlocks();
+const BLOCK_TYPE_LABELS = {
+  hero: 'Hero',
+  feature_list: 'Feature list',
+  process_steps: 'Process steps',
+  testimonial: 'Testimonial',
+  rich_text: 'Rich text'
+};
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -26,63 +30,295 @@ const stripHtml = html => {
   return container.textContent || container.innerText || '';
 };
 
-const defaultBlocks = {
-  hero: () => ({
-    id: createId(),
-    type: 'hero',
-    data: {
-      eyebrow: '',
-      headline: '',
-      subheadline: '',
-      media: {
-        imageId: '',
-        alt: '',
-        focalPoint: { x: 0.5, y: 0.5 }
-      },
-      cta: {
-        label: '',
-        href: '',
-        style: 'primary'
-      }
-    }
-  }),
-  text: () => ({
-    id: createId(),
-    type: 'text',
-    data: {
-      body: '',
-      alignment: 'start'
-    }
-  }),
-  feature_list: () => ({
-    id: createId(),
-    type: 'feature_list',
-    data: {
-      title: '',
-      layout: 'stacked',
-      items: [
-        {
-          id: createId(),
-          icon: '',
-          title: '',
-          description: ''
-        }
-      ]
-    }
-  }),
-  testimonial: () => ({
-    id: createId(),
-    type: 'testimonial',
-    data: {
-      quote: '',
-      author: {
-        name: '',
-        role: '',
-        avatarId: ''
-      }
-    }
-  })
+const getSchemaDefinition = ref => {
+  if (!ref || typeof ref !== 'string' || !ref.startsWith('#/definitions/')) {
+    return null;
+  }
+  const key = ref.replace('#/definitions/', '');
+  return BLOCK_CONTRACT_SCHEMA.definitions?.[key] || null;
 };
+
+const isPlainObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+function sanitizeValue(value, schema, legacyIgnores = []) {
+  if (schema?.$ref) {
+    const definition = getSchemaDefinition(schema.$ref);
+    return sanitizeValue(value, definition, legacyIgnores);
+  }
+
+  if (schema?.oneOf && Array.isArray(schema.oneOf)) {
+    for (const entry of schema.oneOf) {
+      try {
+        return sanitizeValue(value, entry, legacyIgnores);
+      } catch (error) {
+        // Try next entry
+      }
+    }
+    throw new Error('Value does not match any allowed schema variant');
+  }
+
+  if (schema?.type === 'object') {
+    if (!isPlainObject(value)) {
+      throw new Error('Expected object');
+    }
+    const allowedKeys = Object.keys(schema.properties || {});
+    const disallowed = Object.keys(value).filter(key => !allowedKeys.includes(key) && !legacyIgnores.includes(key));
+    if (disallowed.length > 0) {
+      throw new Error(`Unexpected field: ${disallowed[0]}`);
+    }
+    const required = schema.required || [];
+    required.forEach(key => {
+      if (value[key] === undefined) {
+        throw new Error(`Missing required field: ${key}`);
+      }
+    });
+    const sanitized = {};
+    allowedKeys.forEach(key => {
+      if (value[key] !== undefined) {
+        sanitized[key] = sanitizeValue(value[key], schema.properties[key], legacyIgnores);
+      }
+    });
+    return sanitized;
+  }
+
+  if (schema?.type === 'array') {
+    if (!Array.isArray(value)) {
+      throw new Error('Expected array');
+    }
+    if (typeof schema.minItems === 'number' && value.length < schema.minItems) {
+      throw new Error(`Array requires at least ${schema.minItems} entries`);
+    }
+    return value.map(entry => sanitizeValue(entry, schema.items, legacyIgnores));
+  }
+
+  if (schema?.type === 'string') {
+    if (typeof value !== 'string') {
+      throw new Error('Expected string');
+    }
+    if (schema.minLength && value.length < schema.minLength) {
+      throw new Error('String is too short');
+    }
+    if (Array.isArray(schema.enum) && !schema.enum.includes(value)) {
+      throw new Error(`Value must be one of: ${schema.enum.join(', ')}`);
+    }
+    if (schema.const && value !== schema.const) {
+      throw new Error(`Value must equal ${schema.const}`);
+    }
+    return value;
+  }
+
+  if (schema?.type === 'number') {
+    if (typeof value !== 'number') {
+      throw new Error('Expected number');
+    }
+    if (schema.minimum !== undefined && value < schema.minimum) {
+      throw new Error('Number below minimum');
+    }
+    if (schema.maximum !== undefined && value > schema.maximum) {
+      throw new Error('Number above maximum');
+    }
+    return value;
+  }
+
+  if (schema?.enum && Array.isArray(schema.enum)) {
+    if (!schema.enum.includes(value)) {
+      throw new Error(`Value must be one of: ${schema.enum.join(', ')}`);
+    }
+    return value;
+  }
+
+  return value;
+}
+
+function sanitizeTokens(tokens) {
+  if (tokens === undefined) {
+    return undefined;
+  }
+  const tokensSchema = BLOCK_CONTRACT_SCHEMA.definitions?.Tokens;
+  return sanitizeValue(tokens, tokensSchema);
+}
+
+function buildDefaultBlock(type, variant) {
+  const factories = {
+    hero: () => ({
+      id: createId(),
+      type: 'hero',
+      variant,
+      data: {
+        eyebrow: '',
+        headline: 'Hero Headline',
+        subheadline: '',
+        media: {
+          imageId: '',
+          alt: '',
+          focalPoint: { x: 0.5, y: 0.5 }
+        },
+        cta: {
+          label: 'Jetzt starten',
+          href: 'https://example.com',
+          ariaLabel: ''
+        }
+      }
+    }),
+    feature_list: () => ({
+      id: createId(),
+      type: 'feature_list',
+      variant,
+      data: {
+        title: 'Feature Headline',
+        intro: '',
+        items: [
+          { id: createId(), title: 'Feature eins', description: 'Beschreibung' }
+        ]
+      }
+    }),
+    process_steps: () => ({
+      id: createId(),
+      type: 'process_steps',
+      variant,
+      data: {
+        title: 'Ablauf',
+        summary: '',
+        steps: [
+          { id: createId(), title: 'Schritt eins', description: 'Beschreibung' },
+          { id: createId(), title: 'Schritt zwei', description: 'Beschreibung' }
+        ]
+      }
+    }),
+    testimonial: () => ({
+      id: createId(),
+      type: 'testimonial',
+      variant,
+      data: {
+        quote: 'Zitat des Kunden',
+        author: {
+          name: 'Kunde',
+          role: '',
+          avatarId: ''
+        },
+        source: ''
+      }
+    }),
+    rich_text: () => ({
+      id: createId(),
+      type: 'rich_text',
+      variant,
+      data: {
+        body: '<p>Text</p>',
+        alignment: 'start'
+      }
+    })
+  };
+
+  const factory = factories[type];
+  if (!factory) {
+    throw new Error(`Unsupported block type: ${type}`);
+  }
+  const block = factory();
+  const validation = validateBlockContract(block);
+  if (!validation.valid) {
+    throw new Error(validation.reason || 'Invalid default block');
+  }
+  return block;
+}
+
+const determineVariant = (type, requestedVariant, legacyLayout) => {
+  const variants = getBlockVariants(type).filter(variant => SUPPORTED_VARIANTS[type]?.includes(variant));
+  if (requestedVariant) {
+    if (!variants.includes(requestedVariant)) {
+      throw new Error(`Unsupported variant for ${type}: ${requestedVariant}`);
+    }
+    return requestedVariant;
+  }
+  if (type === 'feature_list' && legacyLayout) {
+    if (legacyLayout === 'grid' && variants.includes('icon_grid')) {
+      return 'icon_grid';
+    }
+    if (variants.includes('stacked_cards')) {
+      return 'stacked_cards';
+    }
+  }
+  if (variants.length > 0) {
+    return variants[0];
+  }
+  throw new Error(`No supported variant found for ${type}`);
+};
+
+function migrateLegacyBlock(block) {
+  if (!block || typeof block !== 'object') {
+    throw new Error('Block payload must be an object');
+  }
+
+  if (block.type === 'text') {
+    const alignment = ['start', 'center', 'end', 'justify'].includes(block?.data?.alignment)
+      ? block.data.alignment
+      : 'start';
+    return {
+      id: block.id,
+      type: 'rich_text',
+      variant: determineVariant('rich_text', block.variant),
+      data: { body: block?.data?.body || '', alignment },
+      tokens: block.tokens
+    };
+  }
+
+  if (!SUPPORTED_VARIANTS[block.type]) {
+    throw new Error(`Unsupported block type: ${block.type}`);
+  }
+
+  const legacyLayout = block?.data?.layout;
+  const variant = determineVariant(block.type, block.variant, legacyLayout);
+  const clone = deepClone(block);
+  if (clone?.data?.layout) {
+    delete clone.data.layout;
+  }
+  if (clone?.data?.cta?.style) {
+    delete clone.data.cta.style;
+  }
+  return { ...clone, variant };
+}
+
+function sanitizeBlock(block) {
+  const migrated = migrateLegacyBlock(block);
+  const blockSchema = BLOCK_CONTRACT_SCHEMA.oneOf
+    .find(entry => entry?.properties?.type?.const === migrated.type);
+  if (!blockSchema) {
+    throw new Error(`Unknown block type: ${migrated.type}`);
+  }
+  const allowedKeys = Object.keys(BLOCK_CONTRACT_SCHEMA.properties || {});
+  const disallowedTopLevel = Object.keys(migrated).filter(key => !allowedKeys.includes(key));
+  if (disallowedTopLevel.length > 0) {
+    throw new Error(`Unexpected top-level field: ${disallowedTopLevel[0]}`);
+  }
+
+  const dataDefinition = getSchemaDefinition(blockSchema.properties?.data?.$ref);
+  if (!dataDefinition) {
+    throw new Error(`Missing data schema for ${migrated.type}`);
+  }
+
+  const sanitizedData = sanitizeValue(migrated.data, dataDefinition, ['layout', 'style']);
+  const sanitizedTokens = sanitizeTokens(migrated.tokens);
+
+  const sanitizedBlock = {
+    id: typeof migrated.id === 'string' && migrated.id ? migrated.id : createId(),
+    type: migrated.type,
+    variant: migrated.variant,
+    data: sanitizedData
+  };
+
+  if (sanitizedTokens !== undefined) {
+    sanitizedBlock.tokens = sanitizedTokens;
+  }
+
+  const validation = validateBlockContract(sanitizedBlock);
+  if (!validation.valid) {
+    throw new Error(validation.reason || 'Block failed contract validation');
+  }
+
+  return sanitizedBlock;
+}
+
+const getDefaultBlock = (type, variant) => buildDefaultBlock(type, variant);
 
 class RichTextField {
   constructor(container, initialValue, onUpdate) {
@@ -172,7 +408,14 @@ export class BlockContentEditor {
       parsed = content;
     }
 
-    const blocks = Array.isArray(parsed.blocks) ? parsed.blocks.map(block => this.normalizeBlock(block)).filter(Boolean) : [];
+    let blocks = [];
+    try {
+      blocks = Array.isArray(parsed.blocks)
+        ? parsed.blocks.map(block => this.normalizeBlock(block))
+        : [];
+    } catch (error) {
+      throw new Error(`Invalid block content: ${error.message}`);
+    }
     this.state = {
       id: typeof parsed.id === 'string' ? parsed.id : null,
       blocks,
@@ -183,30 +426,14 @@ export class BlockContentEditor {
   }
 
   normalizeBlock(block) {
-    if (!block || typeof block !== 'object') {
-      return null;
-    }
-    const { id, type, data } = block;
-    if (!type || typeof type !== 'string') {
-      return null;
-    }
-    const safeId = typeof id === 'string' && id ? id : createId();
-    const defaultFactory = defaultBlocks[type];
-    if (!defaultFactory) {
-      return null;
-    }
-    const fallback = defaultFactory();
-    return {
-      id: safeId,
-      type,
-      data: Object.assign({}, fallback.data, deepClone(data || {}))
-    };
+    return sanitizeBlock(block);
   }
 
   getContent() {
+    const validatedBlocks = this.state.blocks.map(block => sanitizeBlock(block));
     return JSON.stringify({
       id: this.state.id || null,
-      blocks: this.state.blocks,
+      blocks: validatedBlocks,
       meta: this.state.meta || {}
     });
   }
@@ -239,20 +466,55 @@ export class BlockContentEditor {
 
     const typeSelect = document.createElement('select');
     typeSelect.dataset.action = 'insert-block-type';
-    BLOCK_TYPES.forEach(entry => {
+    const supportedTypes = BLOCK_TYPES.filter(type => SUPPORTED_VARIANTS[type]);
+    supportedTypes.forEach(type => {
       const option = document.createElement('option');
-      option.value = entry.value;
-      option.textContent = entry.label;
+      option.value = type;
+      option.textContent = BLOCK_TYPE_LABELS[type] || type;
       typeSelect.append(option);
     });
+
+    const variantSelect = document.createElement('select');
+    variantSelect.dataset.action = 'insert-block-variant';
+
+    const populateVariants = () => {
+      variantSelect.innerHTML = '';
+      const variants = getBlockVariants(typeSelect.value).filter(variant => SUPPORTED_VARIANTS[typeSelect.value]?.includes(variant));
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Variante auswählen';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      variantSelect.append(placeholder);
+      variants.forEach(variant => {
+        const option = document.createElement('option');
+        option.value = variant;
+        option.textContent = variant;
+        variantSelect.append(option);
+      });
+      variantSelect.disabled = variants.length === 0;
+      addBtn.disabled = !variantSelect.value;
+    };
 
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.dataset.action = 'add-block';
     addBtn.textContent = 'Block hinzufügen';
+    addBtn.disabled = true;
     addBtn.addEventListener('click', () => {
-      this.addBlock(typeSelect.value);
+      try {
+        this.addBlock(typeSelect.value, variantSelect.value);
+      } catch (error) {
+        window.alert(error.message || 'Block konnte nicht erstellt werden');
+      }
     });
+
+    typeSelect.addEventListener('change', populateVariants);
+    variantSelect.addEventListener('change', () => {
+      addBtn.disabled = !variantSelect.value;
+    });
+
+    populateVariants();
 
     const duplicateBtn = document.createElement('button');
     duplicateBtn.type = 'button';
@@ -268,7 +530,7 @@ export class BlockContentEditor {
     deleteBtn.disabled = !this.state.selectedBlockId;
     deleteBtn.addEventListener('click', () => this.deleteSelected());
 
-    container.append(typeSelect, addBtn, duplicateBtn, deleteBtn);
+    container.append(typeSelect, variantSelect, addBtn, duplicateBtn, deleteBtn);
     return container;
   }
 
@@ -298,7 +560,7 @@ export class BlockContentEditor {
 
       const label = document.createElement('span');
       label.dataset.blockLabel = 'true';
-      label.textContent = `${block.type} – ${stripHtml(this.getPrimaryText(block))}`.trim();
+      label.textContent = `${block.type}:${block.variant} – ${stripHtml(this.getPrimaryText(block))}`.trim();
 
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
@@ -338,6 +600,11 @@ export class BlockContentEditor {
     const form = document.createElement('div');
     form.dataset.blockType = block.type;
 
+    const variantSelector = this.buildVariantSelector(block);
+    if (variantSelector) {
+      form.append(variantSelector);
+    }
+
     const formContent = this.buildBlockForm(block);
     form.append(formContent);
 
@@ -345,14 +612,39 @@ export class BlockContentEditor {
     return panel;
   }
 
+  buildVariantSelector(block) {
+    const variants = getBlockVariants(block.type).filter(variant => SUPPORTED_VARIANTS[block.type]?.includes(variant));
+    if (!variants.length) {
+      return null;
+    }
+    const wrapper = document.createElement('div');
+    const label = document.createElement('div');
+    label.textContent = 'Variante';
+    const select = document.createElement('select');
+    variants.forEach(variant => {
+      const option = document.createElement('option');
+      option.value = variant;
+      option.textContent = variant;
+      if (variant === block.variant) {
+        option.selected = true;
+      }
+      select.append(option);
+    });
+    select.addEventListener('change', event => this.updateVariant(block.id, event.target.value));
+    wrapper.append(label, select);
+    return wrapper;
+  }
+
   buildBlockForm(block) {
     switch (block.type) {
       case 'hero':
         return this.buildHeroForm(block);
-      case 'text':
-        return this.buildTextForm(block);
+      case 'rich_text':
+        return this.buildRichTextForm(block);
       case 'feature_list':
         return this.buildFeatureListForm(block);
+      case 'process_steps':
+        return this.buildProcessStepsForm(block);
       case 'testimonial':
         return this.buildTestimonialForm(block);
       default:
@@ -426,24 +718,12 @@ export class BlockContentEditor {
 
     wrapper.append(this.addLabeledInput('CTA Label', block.data.cta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'label'], value)));
     wrapper.append(this.addLabeledInput('CTA Link', block.data.cta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'href'], value)));
-
-    const styleSelect = document.createElement('select');
-    ['primary', 'secondary'].forEach(style => {
-      const option = document.createElement('option');
-      option.value = style;
-      option.textContent = style;
-      if (style === block.data.cta?.style) {
-        option.selected = true;
-      }
-      styleSelect.append(option);
-    });
-    styleSelect.addEventListener('change', event => this.updateBlockData(block.id, ['data', 'cta', 'style'], event.target.value));
-    wrapper.append(this.wrapField('CTA Style', styleSelect));
+    wrapper.append(this.addLabeledInput('CTA Aria-Label', block.data.cta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'ariaLabel'], value)));
 
     return wrapper;
   }
 
-  buildTextForm(block) {
+  buildRichTextForm(block) {
     const wrapper = document.createElement('div');
     const bodyField = document.createElement('div');
     bodyField.dataset.field = 'body';
@@ -452,7 +732,7 @@ export class BlockContentEditor {
     wrapper.append(this.wrapField('Text', bodyField));
 
     const alignmentSelect = document.createElement('select');
-    ['start', 'center', 'end'].forEach(value => {
+    ['start', 'center', 'end', 'justify'].forEach(value => {
       const option = document.createElement('option');
       option.value = value;
       option.textContent = value;
@@ -476,18 +756,11 @@ export class BlockContentEditor {
     this.mountRichText(titleField, block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value));
     wrapper.append(this.wrapField('Titel', titleField));
 
-    const layoutSelect = document.createElement('select');
-    ['stacked', 'grid'].forEach(value => {
-      const option = document.createElement('option');
-      option.value = value;
-      option.textContent = value;
-      if (value === block.data.layout) {
-        option.selected = true;
-      }
-      layoutSelect.append(option);
-    });
-    layoutSelect.addEventListener('change', event => this.updateBlockData(block.id, ['data', 'layout'], event.target.value));
-    wrapper.append(this.wrapField('Layout', layoutSelect));
+    const introField = document.createElement('div');
+    introField.dataset.field = 'intro';
+    introField.dataset.richtext = 'true';
+    this.mountRichText(introField, block.data.intro, value => this.updateBlockData(block.id, ['data', 'intro'], value));
+    wrapper.append(this.wrapField('Intro', introField));
 
     const itemsWrapper = document.createElement('div');
     itemsWrapper.dataset.field = 'items';
@@ -514,6 +787,7 @@ export class BlockContentEditor {
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.textContent = 'Entfernen';
+      removeBtn.disabled = (block.data.items || []).length <= 1;
       removeBtn.addEventListener('click', () => this.removeFeatureItem(block.id, item.id));
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
@@ -532,6 +806,55 @@ export class BlockContentEditor {
     });
 
     wrapper.append(itemsWrapper);
+    return wrapper;
+  }
+
+  buildProcessStepsForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Zusammenfassung', block.data.summary, value => this.updateBlockData(block.id, ['data', 'summary'], value), { multiline: true }));
+
+    const stepsWrapper = document.createElement('div');
+    stepsWrapper.dataset.field = 'steps';
+
+    const addStepBtn = document.createElement('button');
+    addStepBtn.type = 'button';
+    addStepBtn.textContent = 'Schritt hinzufügen';
+    addStepBtn.addEventListener('click', () => this.addProcessStep(block.id));
+    stepsWrapper.append(addStepBtn);
+
+    (block.data.steps || []).forEach((step, index) => {
+      const stepCard = document.createElement('div');
+      stepCard.dataset.processStep = step.id;
+
+      stepCard.append(this.addLabeledInput('Titel', step.title, value => this.updateProcessStep(block.id, step.id, 'title', value)));
+      stepCard.append(this.addLabeledInput('Beschreibung', step.description, value => this.updateProcessStep(block.id, step.id, 'description', value), { multiline: true }));
+      stepCard.append(this.addLabeledInput('Dauer', step.duration, value => this.updateProcessStep(block.id, step.id, 'duration', value)));
+
+      const controls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.disabled = (block.data.steps || []).length <= 2;
+      removeBtn.addEventListener('click', () => this.removeProcessStep(block.id, step.id));
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveProcessStep(block.id, step.id, -1));
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === block.data.steps.length - 1;
+      moveDown.addEventListener('click', () => this.moveProcessStep(block.id, step.id, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      stepCard.append(controls);
+      stepsWrapper.append(stepCard);
+    });
+
+    wrapper.append(stepsWrapper);
     return wrapper;
   }
 
@@ -563,10 +886,12 @@ export class BlockContentEditor {
     switch (block.type) {
       case 'hero':
         return block.data.headline || block.data.subheadline || block.data.eyebrow || '';
-      case 'text':
+      case 'rich_text':
         return block.data.body || '';
       case 'feature_list':
         return block.data.title || block.data.items?.[0]?.title || block.data.items?.[0]?.description || '';
+      case 'process_steps':
+        return block.data.title || block.data.steps?.[0]?.title || '';
       case 'testimonial':
         return block.data.quote || block.data.author?.name || '';
       default:
@@ -579,12 +904,11 @@ export class BlockContentEditor {
     this.render();
   }
 
-  addBlock(type) {
-    const factory = defaultBlocks[type];
-    if (!factory) {
-      return;
+  addBlock(type, variant) {
+    if (!type || !variant || !SUPPORTED_VARIANTS[type]?.includes(variant)) {
+      throw new Error('Ungültiger Blocktyp oder Variante');
     }
-    const newBlock = factory();
+    const newBlock = getDefaultBlock(type, variant);
     const blocks = [...this.state.blocks, newBlock];
     this.state.blocks = blocks;
     this.state.selectedBlockId = newBlock.id;
@@ -601,11 +925,15 @@ export class BlockContentEditor {
     if (clone.type === 'feature_list' && Array.isArray(clone.data.items)) {
       clone.data.items = clone.data.items.map(item => ({ ...item, id: createId() }));
     }
+    if (clone.type === 'process_steps' && Array.isArray(clone.data.steps)) {
+      clone.data.steps = clone.data.steps.map(step => ({ ...step, id: createId() }));
+    }
+    const sanitizedClone = sanitizeBlock(clone);
     const insertIndex = this.state.blocks.findIndex(item => item.id === block.id) + 1;
     const blocks = [...this.state.blocks];
-    blocks.splice(insertIndex, 0, clone);
+    blocks.splice(insertIndex, 0, sanitizedClone);
     this.state.blocks = blocks;
-    this.state.selectedBlockId = clone.id;
+    this.state.selectedBlockId = sanitizedClone.id;
     this.render();
   }
 
@@ -649,6 +977,23 @@ export class BlockContentEditor {
     this.state.blocks = blocks;
   }
 
+  updateVariant(blockId, variant) {
+    try {
+      this.state.blocks = this.state.blocks.map(block => {
+        if (block.id !== blockId) {
+          return block;
+        }
+        if (!SUPPORTED_VARIANTS[block.type]?.includes(variant)) {
+          throw new Error('Variante wird nicht unterstützt');
+        }
+        return sanitizeBlock({ ...block, variant });
+      });
+      this.render();
+    } catch (error) {
+      window.alert(error.message || 'Variante ungültig');
+    }
+  }
+
   addFeatureItem(blockId) {
     const blocks = this.state.blocks.map(block => {
       if (block.id !== blockId) {
@@ -656,7 +1001,7 @@ export class BlockContentEditor {
       }
       const updated = deepClone(block);
       const items = Array.isArray(updated.data.items) ? updated.data.items : [];
-      items.push({ id: createId(), icon: '', title: '', description: '' });
+      items.push({ id: createId(), icon: '', title: 'Feature', description: 'Beschreibung' });
       updated.data.items = items;
       return updated;
     });
@@ -681,7 +1026,11 @@ export class BlockContentEditor {
         return block;
       }
       const updated = deepClone(block);
-      updated.data.items = (updated.data.items || []).filter(item => item.id !== itemId);
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      if (items.length <= 1) {
+        return block;
+      }
+      updated.data.items = items.filter(item => item.id !== itemId);
       return updated;
     });
     this.render();
@@ -702,6 +1051,67 @@ export class BlockContentEditor {
       const [entry] = items.splice(index, 1);
       items.splice(target, 0, entry);
       updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  addProcessStep(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const steps = Array.isArray(updated.data.steps) ? updated.data.steps : [];
+      steps.push({ id: createId(), title: 'Schritt', description: 'Beschreibung', duration: '' });
+      updated.data.steps = steps;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateProcessStep(blockId, stepId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.steps = (updated.data.steps || []).map(step => (step.id === stepId ? { ...step, [field]: value } : step));
+      return updated;
+    });
+  }
+
+  removeProcessStep(blockId, stepId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const steps = Array.isArray(updated.data.steps) ? [...updated.data.steps] : [];
+      if (steps.length <= 2) {
+        return block;
+      }
+      updated.data.steps = steps.filter(step => step.id !== stepId);
+      return updated;
+    });
+    this.render();
+  }
+
+  moveProcessStep(blockId, stepId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const steps = Array.isArray(updated.data.steps) ? [...updated.data.steps] : [];
+      const index = steps.findIndex(step => step.id === stepId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= steps.length) {
+        return block;
+      }
+      const [entry] = steps.splice(index, 1);
+      steps.splice(target, 0, entry);
+      updated.data.steps = steps;
       return updated;
     });
     this.render();
