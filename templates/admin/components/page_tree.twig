@@ -10,6 +10,7 @@
     class="page-tree"
     data-page-tree
     data-endpoint="{{ basePath }}/admin/projects/tree"
+    data-initial-payload="{{ project_tree_payload|default([])|json_encode|e('html_attr') }}"
     data-namespace="{{ pageNamespace|default('default')|e('html_attr') }}"
     data-empty="Keine Seiten vorhanden."
     data-error="Seitenbaum konnte nicht geladen werden."

@@ -207,6 +207,84 @@ const parseDatasetJson = (value, fallback = []) => {
     return fallback;
   }
 };
+
+const normalizeTreeNamespace = (namespace) => (namespace || 'default').trim() || 'default';
+
+const normalizeTreePosition = value => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const flattenTreeNodes = (nodes, fallbackNamespace) => {
+  const flat = [];
+  nodes.forEach(node => {
+    const namespace = normalizeTreeNamespace(node.namespace || fallbackNamespace);
+    flat.push({
+      id: Number.isFinite(Number(node.id)) ? Number(node.id) : null,
+      parent_id: Number.isFinite(Number(node.parent_id)) ? Number(node.parent_id) : null,
+      title: (node.title || node.slug || 'Ohne Titel').trim(),
+      slug: (node.slug || '').trim(),
+      namespace,
+      status: (node.status || '').trim(),
+      type: (node.type || '').trim(),
+      language: (node.language || '').trim(),
+      editUrl: typeof node.editUrl === 'string' ? node.editUrl : null,
+      position: normalizeTreePosition(node.position ?? node.sort_order)
+    });
+    if (Array.isArray(node.children) && node.children.length) {
+      flat.push(...flattenTreeNodes(node.children, namespace));
+    }
+  });
+  return flat;
+};
+
+const sortTree = (nodes) => {
+  nodes.sort((a, b) => {
+    const positionDiff = Number(a.position || 0) - Number(b.position || 0);
+    if (positionDiff !== 0) {
+      return positionDiff;
+    }
+    return (a.title || '').localeCompare(b.title || '');
+  });
+  nodes.forEach(node => {
+    if (Array.isArray(node.children) && node.children.length) {
+      sortTree(node.children);
+    }
+  });
+};
+
+const buildTreeFromFlatPages = (pages) => {
+  const nodesById = new Map();
+  const roots = [];
+
+  pages.forEach(page => {
+    const key = page.id ?? page.slug;
+    if (key === null || key === undefined || key === '') {
+      return;
+    }
+    nodesById.set(String(key), { ...page, children: [] });
+  });
+
+  nodesById.forEach(node => {
+    const parentKey = node.parent_id !== null && node.parent_id !== undefined ? String(node.parent_id) : null;
+    if (parentKey && nodesById.has(parentKey)) {
+      nodesById.get(parentKey).children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+
+  sortTree(roots);
+
+  return roots;
+};
+
+window.pageTreeUtils = {
+  normalizeNamespace: normalizeTreeNamespace,
+  normalizePosition: normalizeTreePosition,
+  flattenNodes: flattenTreeNodes,
+  buildTree: buildTreeFromFlatPages,
+};
 function showUpgradeModal() {
   if (document.getElementById('upgrade-modal')) return;
   const modal = document.createElement('div');
@@ -830,6 +908,8 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
     return;
   }
 
+  const { flattenNodes, buildTree, normalizeNamespace } = window.pageTreeUtils || {};
+
   namespaces.forEach(section => {
     const wrapper = document.createElement('div');
     wrapper.className = 'project-tree-section uk-margin';
@@ -840,11 +920,16 @@ const renderProjectTree = (container, namespaces, emptyMessage) => {
       wrapper.appendChild(createProjectEmptyStateWithActions(section.namespace || ''));
     }
 
+    const namespace = typeof normalizeNamespace === 'function'
+      ? normalizeNamespace(section.namespace)
+      : (section.namespace || 'default');
     const pages = Array.isArray(section.pages) ? section.pages : [];
+    const flatPages = typeof flattenNodes === 'function' ? flattenNodes(pages, namespace) : pages;
+    const pageTree = typeof buildTree === 'function' ? buildTree(flatPages) : pages;
     appendProjectBlock(
       wrapper,
       'Pages',
-      pages.length ? buildProjectPageTreeList(pages) : createProjectEmptyState('Keine Seiten vorhanden.')
+      pageTree.length ? buildProjectPageTreeList(pageTree) : createProjectEmptyState('Keine Seiten vorhanden.')
     );
 
     const wikiEntries = Array.isArray(section.wiki) ? section.wiki : [];
