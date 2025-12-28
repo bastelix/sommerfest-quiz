@@ -6382,10 +6382,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  loadCatalogs();
+  if (catalogList || catSelect) {
+    loadCatalogs();
 
-  if (catSelect) {
-    catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
+    if (catSelect) {
+      catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
+    }
   }
 
   function deleteCatalogById(id) {
