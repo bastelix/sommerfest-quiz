@@ -9,7 +9,10 @@ use App\Infrastructure\MailProviderRepository;
 use App\Service\LandingNewsService;
 use App\Service\NewsletterCampaignSender;
 use App\Service\NewsletterCampaignService;
+use App\Service\NamespaceAccessService;
+use App\Service\NamespaceResolver;
 use App\Service\PageService;
+use App\Repository\NamespaceRepository;
 use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -24,25 +27,36 @@ class NewsletterCampaignController
 
     private MailProviderRepository $providers;
 
-    public function __construct(?NewsletterCampaignService $campaigns = null, ?LandingNewsService $landingNews = null, ?MailProviderRepository $providers = null)
+    private NamespaceResolver $namespaceResolver;
+
+    private NamespaceRepository $namespaceRepository;
+
+    public function __construct(
+        ?NewsletterCampaignService $campaigns = null,
+        ?LandingNewsService $landingNews = null,
+        ?MailProviderRepository $providers = null,
+        ?NamespaceResolver $namespaceResolver = null,
+        ?NamespaceRepository $namespaceRepository = null
+    )
     {
         $pdo = Database::connectFromEnv();
         $this->campaigns = $campaigns ?? new NewsletterCampaignService($pdo);
         $this->landingNews = $landingNews ?? new LandingNewsService($pdo);
         $this->providers = $providers ?? new MailProviderRepository($pdo);
+        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
     }
 
     public function index(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $namespace = $request->getAttribute('pageNamespace') ?? PageService::DEFAULT_NAMESPACE;
-        $campaigns = $this->campaigns->getAll((string) $namespace);
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
+        $campaigns = $this->campaigns->getAll($namespace);
         $queryParams = $request->getQueryParams();
         $editId = isset($queryParams['edit']) ? (int) $queryParams['edit'] : null;
         $activeCampaign = $editId !== null ? $this->campaigns->find((int) $editId) : null;
-        $newsEntries = $this->landingNews->getAllForNamespace((string) $namespace);
-        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
-        $_SESSION['csrf_token'] = $csrf;
+        $newsEntries = $this->landingNews->getAllForNamespace($namespace);
+        $csrf = $this->ensureCsrfToken();
 
         return $view->render($response, 'admin/newsletter_campaigns.twig', [
             'pageTab' => 'newsletter-campaigns',
@@ -51,6 +65,10 @@ class NewsletterCampaignController
             'newsEntries' => $newsEntries,
             'pageNamespace' => $namespace,
             'csrf_token' => $csrf,
+            'available_namespaces' => $availableNamespaces,
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
             'error_message' => isset($queryParams['error']) ? (string) $queryParams['error'] : null,
         ]);
     }
@@ -63,7 +81,7 @@ class NewsletterCampaignController
             throw new RuntimeException('Invalid CSRF token.');
         }
 
-        $namespace = (string) ($request->getAttribute('pageNamespace') ?? PageService::DEFAULT_NAMESPACE);
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $id = isset($data['id']) ? (int) $data['id'] : null;
         $name = (string) ($data['name'] ?? '');
         $newsIds = isset($data['news_ids']) ? (array) $data['news_ids'] : [];
@@ -93,7 +111,7 @@ class NewsletterCampaignController
             throw new RuntimeException('Invalid CSRF token.');
         }
 
-        $namespace = (string) ($request->getAttribute('pageNamespace') ?? PageService::DEFAULT_NAMESPACE);
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $campaignId = isset($args['id']) ? (int) $args['id'] : 0;
         $campaign = $this->campaigns->find($campaignId);
         if ($campaign === null || $campaign->getNamespace() !== $namespace) {
@@ -118,5 +136,89 @@ class NewsletterCampaignController
 
         return $response->withHeader('Location', $baseLocation)
             ->withStatus(302);
+    }
+
+    /**
+     * @return array{0: list<array<string, mixed>>, 1: string}
+     */
+    private function loadNamespaces(Request $request): array
+    {
+        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $role = $_SESSION['user']['role'] ?? null;
+        $accessService = new NamespaceAccessService();
+        $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
+
+        try {
+            $availableNamespaces = $this->namespaceRepository->list();
+        } catch (RuntimeException $exception) {
+            $availableNamespaces = [];
+        }
+
+        if (
+            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
+            && !array_filter(
+                $availableNamespaces,
+                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
+            )
+        ) {
+            $availableNamespaces[] = [
+                'namespace' => PageService::DEFAULT_NAMESPACE,
+                'label' => null,
+                'is_active' => true,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        $currentNamespaceExists = array_filter(
+            $availableNamespaces,
+            static fn (array $entry): bool => $entry['namespace'] === $namespace
+        );
+        if (
+            !$currentNamespaceExists
+            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
+        ) {
+            $availableNamespaces[] = [
+                'namespace' => $namespace,
+                'label' => 'nicht gespeichert',
+                'is_active' => false,
+                'created_at' => null,
+                'updated_at' => null,
+            ];
+        }
+
+        if ($allowedNamespaces !== []) {
+            foreach ($allowedNamespaces as $allowedNamespace) {
+                if (
+                    !array_filter(
+                        $availableNamespaces,
+                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
+                    )
+                ) {
+                    $availableNamespaces[] = [
+                        'namespace' => $allowedNamespace,
+                        'label' => 'nicht gespeichert',
+                        'is_active' => false,
+                        'created_at' => null,
+                        'updated_at' => null,
+                    ];
+                }
+            }
+        }
+
+        $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
+
+        return [$availableNamespaces, $namespace];
+    }
+
+    private function ensureCsrfToken(): string
+    {
+        $token = $_SESSION['csrf_token'] ?? '';
+        if ($token === '') {
+            $token = bin2hex(random_bytes(16));
+            $_SESSION['csrf_token'] = $token;
+        }
+
+        return $token;
     }
 }
