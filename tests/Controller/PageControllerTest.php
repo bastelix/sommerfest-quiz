@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Service\PageBlockContractMigrator;
 use PDO;
 use Slim\Psr7\Factory\StreamFactory;
 use Tests\TestCase;
@@ -190,6 +191,61 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testImportAllowsNamespaceOverride(): void {
+        $pdo = $this->getDatabase();
+        $this->seedPage($pdo, 'calserver', 'calServer', '<p>Alt</p>', 'calserver');
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
+
+        $payload = [
+            'meta' => [
+                'namespace' => 'default',
+                'slug' => 'calserver',
+                'title' => 'calServer',
+                'exportedAt' => '2024-01-01T00:00:00+00:00',
+                'schemaVersion' => PageBlockContractMigrator::MIGRATION_VERSION,
+            ],
+            'blocks' => [
+                [
+                    'id' => 'block-1',
+                    'type' => 'rich_text',
+                    'variant' => 'prose',
+                    'data' => ['body' => '<p>Hallo Welt</p>'],
+                ],
+            ],
+        ];
+
+        $stream = (new StreamFactory())->createStream(json_encode($payload, JSON_THROW_ON_ERROR));
+        $request = $this->createRequest(
+            'POST',
+            '/admin/pages/calserver/import?namespace=calserver',
+            [
+                'HTTP_X_CSRF_TOKEN' => 'token',
+                'HTTP_ACCEPT' => 'application/json',
+            ]
+        )
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody($stream);
+
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertSame('calserver', $payload['content']['meta']['namespace'] ?? null);
+        $this->assertSame('calserver', $payload['content']['meta']['slug'] ?? null);
+
+        $stmt = $pdo->prepare('SELECT content FROM pages WHERE namespace = ? AND slug = ?');
+        $stmt->execute(['calserver', 'calserver']);
+        $decoded = json_decode((string) $stmt->fetchColumn(), true);
+
+        $this->assertSame('calserver', $decoded['meta']['namespace'] ?? null);
+
+        session_destroy();
+    }
+
     /**
      * @return array<int, array{0:string,1:string}>
      */
@@ -201,11 +257,11 @@ class PageControllerTest extends TestCase
         ];
     }
 
-    private function seedPage(PDO $pdo, string $slug, string $title, string $content): void {
-        $stmt = $pdo->prepare('DELETE FROM pages WHERE slug = ?');
-        $stmt->execute([$slug]);
+    private function seedPage(PDO $pdo, string $slug, string $title, string $content, string $namespace = 'default'): void {
+        $stmt = $pdo->prepare('DELETE FROM pages WHERE namespace = ? AND slug = ?');
+        $stmt->execute([$namespace, $slug]);
 
-        $stmt = $pdo->prepare('INSERT INTO pages (slug, title, content) VALUES (?, ?, ?)');
-        $stmt->execute([$slug, $title, $content]);
+        $stmt = $pdo->prepare('INSERT INTO pages (namespace, slug, title, content) VALUES (?, ?, ?, ?)');
+        $stmt->execute([$namespace, $slug, $title, $content]);
     }
 }

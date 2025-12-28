@@ -323,10 +323,6 @@ class PageController
             );
         }
 
-        if (($meta['namespace'] ?? '') !== $namespace) {
-            return $this->createJsonResponse($response, ['error' => 'Namespace does not match target page.'], 422);
-        }
-
         if (($meta['slug'] ?? '') !== $slug) {
             return $this->createJsonResponse($response, ['error' => 'Slug does not match target page.'], 422);
         }
