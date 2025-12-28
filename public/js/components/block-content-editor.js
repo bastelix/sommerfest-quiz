@@ -482,19 +482,30 @@ export class BlockContentEditor {
       parsed = content;
     }
 
-    let blocks = [];
-    try {
-      blocks = Array.isArray(parsed.blocks)
-        ? parsed.blocks.map(block => this.normalizeBlock(block))
-        : [];
-    } catch (error) {
-      throw new Error(`Invalid block content: ${error.message}`);
+    const skippedBlocks = [];
+    const blocks = [];
+    if (Array.isArray(parsed.blocks)) {
+      parsed.blocks.forEach((block, index) => {
+        try {
+          blocks.push(this.normalizeBlock(block));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+          skippedBlocks.push({ index, block, message });
+          console.warn('Skipping invalid block during initialization', { index, block, error });
+        }
+      });
     }
+
+    if (skippedBlocks.length > 0 && typeof notify === 'function') {
+      notify('Einige Blöcke wurden aufgrund von Validierungsfehlern übersprungen.', 'warning');
+    }
+
     this.state = {
       id: typeof parsed.id === 'string' ? parsed.id : null,
       blocks,
       meta: parsed.meta || {},
-      selectedBlockId: blocks[0]?.id || null
+      selectedBlockId: blocks[0]?.id || null,
+      skippedBlocks
     };
     this.render();
   }
@@ -610,10 +621,38 @@ export class BlockContentEditor {
     aside.dataset.blockList = 'true';
     const list = document.createElement('ul');
 
+    if (Array.isArray(this.state.skippedBlocks) && this.state.skippedBlocks.length > 0) {
+      const warning = document.createElement('div');
+      warning.dataset.blockWarning = 'true';
+      warning.textContent = 'Einige Blöcke konnten nicht geladen werden. Bitte überprüfe sie und füge sie erneut hinzu.';
+      aside.append(warning);
+
+      this.state.skippedBlocks.forEach(entry => {
+        const placeholder = document.createElement('li');
+        placeholder.dataset.blockRow = 'true';
+        placeholder.setAttribute('aria-selected', 'false');
+        const label = document.createElement('span');
+        const typeLabel = entry?.block?.type || 'Block';
+        label.textContent = `${typeLabel} (übersprungen): ${entry.message}`;
+        placeholder.append(label);
+
+        const canRecreate = entry?.block?.type && getRendererVariants(entry.block.type).length > 0;
+        if (canRecreate) {
+          const recreate = document.createElement('button');
+          recreate.type = 'button';
+          recreate.textContent = 'Block neu anlegen';
+          recreate.addEventListener('click', () => this.addBlock(entry.block.type));
+          placeholder.append(recreate);
+        }
+
+        list.append(placeholder);
+      });
+    }
+
     if (this.state.blocks.length === 0) {
       const empty = document.createElement('div');
       empty.textContent = 'Keine Blöcke vorhanden.';
-      aside.append(empty);
+      aside.append(list, empty);
       return aside;
     }
 
