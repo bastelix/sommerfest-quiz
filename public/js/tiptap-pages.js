@@ -2911,8 +2911,11 @@ export async function showPreview(formOverride = null) {
   }
 
   const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
+  const editorEl = activeForm.querySelector('.page-editor');
   const { blocks } = readBlockEditorState(editor);
-  const html = renderPage(Array.isArray(blocks) ? blocks : []);
+  const html = USE_BLOCK_EDITOR
+    ? renderPage(Array.isArray(blocks) ? blocks : [])
+    : sanitize(typeof editor?.getHTML === 'function' ? editor.getHTML() : editorEl?.dataset.content || '');
   previewContainer.innerHTML = html;
 
   await ensurePreviewAssets();
@@ -2921,7 +2924,7 @@ export async function showPreview(formOverride = null) {
   if (window.UIkit && typeof window.UIkit.modal === 'function') {
     window.UIkit.modal(modalEl).show();
   }
-  if (!blocks?.length) {
+  if (USE_BLOCK_EDITOR && !blocks?.length) {
     return;
   }
 }
