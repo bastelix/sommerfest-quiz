@@ -101,9 +101,16 @@ const safeParseBlocks = value => {
   }
 };
 
-const readBlockEditorState = editor => safeParseBlocks(typeof editor?.getContent === 'function'
-  ? editor.getContent()
-  : editor?.state);
+const readBlockEditorState = editor => {
+  try {
+    return safeParseBlocks(typeof editor?.getContent === 'function'
+      ? editor.getContent()
+      : editor?.state);
+  } catch (error) {
+    notify(error.message || 'Ungültige Blöcke', 'danger');
+    return { blocks: [], meta: {}, id: null };
+  }
+};
 
 const ensurePreviewSlots = form => {
   const editorEl = getEditorElement(form);
@@ -1260,10 +1267,15 @@ const ensurePageEditorInitialized = form => {
     }
     const initialContent = editorEl.dataset.content || editorEl.textContent || '{}';
     editorEl.dataset.content = initialContent;
-    const blockEditor = new BlockContentEditor(editorEl, initialContent, { pageId: form?.dataset.pageId });
-    setEditorInstance(form, blockEditor);
-    attachBlockPreview(form, blockEditor);
-    return blockEditor;
+    try {
+      const blockEditor = new BlockContentEditor(editorEl, initialContent, { pageId: form?.dataset.pageId });
+      setEditorInstance(form, blockEditor);
+      attachBlockPreview(form, blockEditor);
+      return blockEditor;
+    } catch (error) {
+      notify(error.message || 'Ungültige Blöcke', 'danger');
+      return null;
+    }
   }
 
   let existing = getEditorInstance(form);
@@ -1675,11 +1687,17 @@ const setupPageForm = form => {
     saveBtn.addEventListener('click', event => {
       event.preventDefault();
       const activeEditor = ensurePageEditorInitialized(form);
-      const content = USE_BLOCK_EDITOR
-        ? (activeEditor && typeof activeEditor.getContent === 'function'
-          ? activeEditor.getContent()
-          : editorEl.dataset.content || '{}')
-        : sanitize(activeEditor ? activeEditor.getHTML() : editorEl.dataset.content || '');
+      let content;
+      try {
+        content = USE_BLOCK_EDITOR
+          ? (activeEditor && typeof activeEditor.getContent === 'function'
+            ? activeEditor.getContent()
+            : editorEl.dataset.content || '{}')
+          : sanitize(activeEditor ? activeEditor.getHTML() : editorEl.dataset.content || '');
+      } catch (error) {
+        notify(error.message || 'Ungültige Blöcke', 'danger');
+        return;
+      }
 
       input.value = content;
       editorEl.dataset.content = content;
