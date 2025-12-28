@@ -480,6 +480,136 @@ const schema = {
 
 export const normalizeBlockVariant = (type, variant) => VARIANT_ALIASES[type]?.[variant] || variant;
 
+function normalizeCallToAction(value) {
+  if (!isPlainObject(value)) {
+    return undefined;
+  }
+
+  const normalized = {};
+
+  if (typeof value.label === 'string' && value.label.trim() !== '') {
+    normalized.label = value.label;
+  }
+
+  if (typeof value.href === 'string' && value.href.trim() !== '') {
+    normalized.href = value.href;
+  }
+
+  if (typeof value.ariaLabel === 'string' && value.ariaLabel.trim() !== '') {
+    normalized.ariaLabel = value.ariaLabel;
+  }
+
+  if (!normalized.label || !normalized.href) {
+    return undefined;
+  }
+
+  return normalized;
+}
+
+function normalizeProcessStepsCtas(data) {
+  const normalized = { ...data };
+
+  if (isPlainObject(data.cta)) {
+    const primary = normalizeCallToAction(data.cta.primary);
+    const secondary = normalizeCallToAction(data.cta.secondary);
+    if (primary) {
+      normalized.ctaPrimary = primary;
+    }
+    if (secondary) {
+      normalized.ctaSecondary = secondary;
+    }
+    delete normalized.cta;
+  }
+
+  if (isPlainObject(data.ctaPrimary) || isPlainObject(data.ctaSecondary)) {
+    const primary = normalizeCallToAction(data.ctaPrimary);
+    const secondary = normalizeCallToAction(data.ctaSecondary);
+    if (primary) {
+      normalized.ctaPrimary = primary;
+    }
+    if (secondary) {
+      normalized.ctaSecondary = secondary;
+    }
+  }
+
+  return normalized;
+}
+
+function normalizePackagePlanCtas(plan) {
+  if (!isPlainObject(plan)) {
+    return plan;
+  }
+
+  const normalized = { ...plan };
+  const nestedCta = isPlainObject(plan.cta) ? plan.cta : {};
+  const primary = normalizeCallToAction(plan.primaryCta ?? nestedCta.primary);
+  const secondary = normalizeCallToAction(plan.secondaryCta ?? nestedCta.secondary);
+
+  if (primary) {
+    normalized.primaryCta = primary;
+  }
+  if (secondary) {
+    normalized.secondaryCta = secondary;
+  }
+
+  delete normalized.cta;
+
+  return normalized;
+}
+
+function normalizeBlockData(type, data) {
+  if (!isPlainObject(data)) {
+    return data;
+  }
+
+  let normalized = { ...data };
+
+  if (type === 'hero' && typeof normalized.subline === 'string' && !normalized.subheadline) {
+    normalized.subheadline = normalized.subline;
+  }
+
+  if (type === 'process_steps') {
+    normalized = normalizeProcessStepsCtas(normalized);
+  }
+
+  if (type === 'package_summary' && Array.isArray(normalized.plans)) {
+    normalized = { ...normalized, plans: normalized.plans.map(normalizePackagePlanCtas) };
+  }
+
+  if (isPlainObject(normalized.cta) && !['process_steps', 'package_summary'].includes(type)) {
+    const primary = normalizeCallToAction(normalized.cta.primary);
+    const secondary = normalizeCallToAction(normalized.cta.secondary);
+    const collapsed = normalizeCallToAction(normalized.cta);
+    normalized.cta = primary || collapsed || normalized.cta;
+    if (secondary && !normalized.ctaSecondary) {
+      normalized.ctaSecondary = secondary;
+    }
+  }
+
+  delete normalized.subline;
+
+  return normalized;
+}
+
+export function normalizeBlockContract(block) {
+  if (!isPlainObject(block)) {
+    return block;
+  }
+
+  const normalized = { ...block };
+  const type = normalized.type;
+
+  if (typeof type === 'string') {
+    normalized.variant = normalizeBlockVariant(type, normalized.variant);
+  }
+
+  if (normalized.data !== undefined) {
+    normalized.data = normalizeBlockData(type, normalized.data);
+  }
+
+  return normalized;
+}
+
 const BLOCK_VARIANTS = Object.entries(RENDERER_MATRIX).reduce((accumulator, [type, variants]) => {
   const canonicalVariants = Object.keys(variants);
   const aliasVariants = Object.keys(VARIANT_ALIASES[type] || {});
