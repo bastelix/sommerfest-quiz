@@ -259,13 +259,15 @@ class ProjectController
      */
     private function buildTreePayloadForNamespace(string $requestedNamespace, string $basePath): array
     {
-        $requestedNamespace = $this->normalizeNamespace($requestedNamespace);
+        $normalizedRequestedNamespace = $requestedNamespace === ''
+            ? ''
+            : $this->normalizeNamespace($requestedNamespace);
         $pageTree = $this->pageService->getTree();
         $treeByNamespace = [];
         $knownNamespaces = [];
         foreach ($pageTree as $section) {
             $namespace = $this->normalizeNamespace($section['namespace'] ?? null);
-            if ($requestedNamespace !== '' && $namespace !== $requestedNamespace) {
+            if ($normalizedRequestedNamespace !== '' && $namespace !== $normalizedRequestedNamespace) {
                 continue;
             }
             $treeByNamespace[$namespace] = $section['pages'] ?? [];
@@ -276,7 +278,7 @@ class ProjectController
         $pages = $this->pageService->getAll();
         foreach ($pages as $page) {
             $namespace = $this->normalizeNamespace($page->getNamespace());
-            if ($requestedNamespace !== '' && $namespace !== $requestedNamespace) {
+            if ($normalizedRequestedNamespace !== '' && $namespace !== $normalizedRequestedNamespace) {
                 continue;
             }
             if (!isset($pagesByNamespace[$namespace])) {
@@ -288,7 +290,7 @@ class ProjectController
 
         foreach ($this->newsletterService->getNamespaces() as $namespace) {
             $normalizedNamespace = $this->normalizeNamespace($namespace);
-            if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
+            if ($normalizedRequestedNamespace !== '' && $normalizedNamespace !== $normalizedRequestedNamespace) {
                 continue;
             }
             $knownNamespaces[$normalizedNamespace] = true;
@@ -297,17 +299,19 @@ class ProjectController
         $namespaceEntries = $this->namespaceRepository->list();
         foreach ($namespaceEntries as $namespace) {
             $normalizedNamespace = $this->normalizeNamespace($namespace['namespace']);
-            if ($requestedNamespace !== '' && $normalizedNamespace !== $requestedNamespace) {
+            if ($normalizedRequestedNamespace !== '' && $normalizedNamespace !== $normalizedRequestedNamespace) {
                 continue;
             }
             $knownNamespaces[$normalizedNamespace] = true;
         }
 
-        if ($requestedNamespace !== '') {
-            $knownNamespaces[$requestedNamespace] = true;
+        if ($normalizedRequestedNamespace !== '') {
+            $knownNamespaces[$normalizedRequestedNamespace] = true;
         }
 
-        $namespaces = $requestedNamespace !== '' ? [$requestedNamespace] : array_keys($knownNamespaces);
+        $namespaces = $normalizedRequestedNamespace !== ''
+            ? [$normalizedRequestedNamespace]
+            : array_keys($knownNamespaces);
         if ($namespaces === []) {
             $namespaces[] = PageService::DEFAULT_NAMESPACE;
         }
@@ -319,7 +323,7 @@ class ProjectController
             if ($entryNamespace === '') {
                 continue;
             }
-            if ($requestedNamespace !== '' && $entryNamespace !== $requestedNamespace) {
+            if ($normalizedRequestedNamespace !== '' && $entryNamespace !== $normalizedRequestedNamespace) {
                 continue;
             }
             $namespaceInfo[$entryNamespace] = [
@@ -329,11 +333,11 @@ class ProjectController
             ];
         }
 
-        if ($requestedNamespace !== '' && !isset($namespaceInfo[$requestedNamespace])) {
-            $namespaceInfo[$requestedNamespace] = [
+        if ($normalizedRequestedNamespace !== '' && !isset($namespaceInfo[$normalizedRequestedNamespace])) {
+            $namespaceInfo[$normalizedRequestedNamespace] = [
                 'label' => null,
                 'is_active' => true,
-                'is_default' => $requestedNamespace === PageService::DEFAULT_NAMESPACE,
+                'is_default' => $normalizedRequestedNamespace === PageService::DEFAULT_NAMESPACE,
             ];
         }
 
