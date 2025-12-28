@@ -14,46 +14,110 @@ export function escapeAttribute(value) {
   return escapeHtml(value).replace(/`/g, '&#x60;');
 }
 
-function formatHeroCtaLabel(cta) {
+function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
+  const sectionClasses = ['uk-section', 'uk-section-default', sectionModifiers].filter(Boolean).join(' ');
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  return `<section${anchor} class="${sectionClasses}" data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${content}</div></section>`;
+}
+
+function renderEyebrow(eyebrow, alignmentClass = '') {
+  if (!eyebrow) {
+    return '';
+  }
+  const alignment = alignmentClass ? ` ${alignmentClass}` : '';
+  return `<p class="uk-text-meta uk-margin-remove-bottom${alignment}">${escapeHtml(eyebrow)}</p>`;
+}
+
+function renderHeadline(headline, alignmentClass = '') {
+  const alignment = alignmentClass ? ` ${alignmentClass}` : '';
+  return `<h1 class="uk-heading-medium uk-margin-small-top${alignment}">${escapeHtml(headline || '')}</h1>`;
+}
+
+function renderSubheadline(subheadline, alignmentClass = '') {
+  if (!subheadline) {
+    return '';
+  }
+  const alignment = alignmentClass ? ` ${alignmentClass}` : '';
+  return `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom${alignment}">${escapeHtml(subheadline)}</p>`;
+}
+
+function renderHeroMedia(media) {
+  if (!media || !media.image) {
+    return '';
+  }
+  const altText = media.alt ? escapeAttribute(media.alt) : '';
+  return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
+}
+
+function renderHeroCtas(cta, alignmentClass = '') {
   if (!cta) {
     return '';
   }
 
-  const entries = [];
+  const buttons = [];
+  const primary = cta.primary || cta;
+  const secondary = cta.secondary;
 
-  if (cta.primary || cta.secondary) {
-    if (cta.primary) {
-      entries.push(cta.primary);
-    }
-    if (cta.secondary) {
-      entries.push(cta.secondary);
-    }
-  } else {
-    entries.push(cta);
+  if (primary?.label && primary?.href) {
+    const ariaLabel = primary.ariaLabel ? ` aria-label="${escapeAttribute(primary.ariaLabel)}"` : '';
+    buttons.push(`<a class="uk-button uk-button-primary" href="${escapeAttribute(primary.href)}"${ariaLabel}>${escapeHtml(primary.label)}</a>`);
   }
 
-  return entries
-    .map(entry => (entry && entry.label ? escapeHtml(entry.label) : ''))
-    .filter(Boolean)
-    .join(' / ');
+  if (secondary?.label && secondary?.href) {
+    const ariaLabel = secondary.ariaLabel ? ` aria-label="${escapeAttribute(secondary.ariaLabel)}"` : '';
+    const marginClass = buttons.length ? ' uk-margin-small-left' : '';
+    buttons.push(`<a class="uk-button uk-button-default${marginClass}" href="${escapeAttribute(secondary.href)}"${ariaLabel}>${escapeHtml(secondary.label)}</a>`);
+  }
+
+  if (!buttons.length) {
+    return '';
+  }
+
+  const alignment = alignmentClass ? ` ${alignmentClass}` : '';
+  return `<div class="uk-margin-medium-top uk-flex uk-flex-middle uk-flex-wrap${alignment}">${buttons.join('')}</div>`;
 }
 
 function renderHeroCenteredCta(block) {
-  const ctaLabel = formatHeroCtaLabel(block.data?.cta);
-  const ctaSuffix = ctaLabel ? ` | CTA: ${ctaLabel}` : '';
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="centered_cta"><!-- hero:centered_cta | ${escapeHtml(block.data.headline || '')}${ctaSuffix} --></section>`;
+  const eyebrow = renderEyebrow(block.data?.eyebrow, 'uk-text-center');
+  const headline = renderHeadline(block.data?.headline, 'uk-text-center');
+  const subheadline = renderSubheadline(block.data?.subheadline, 'uk-text-center');
+  const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
+  const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  return renderHeroSection({ block, variant: 'centered_cta', content });
 }
 
 function renderHeroMediaRight(block) {
-  const ctaLabel = formatHeroCtaLabel(block.data?.cta);
-  const ctaSuffix = ctaLabel ? ` | CTA: ${ctaLabel}` : '';
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_right"><!-- hero:media_right | ${escapeHtml(block.data.headline || '')}${ctaSuffix} --></section>`;
+  const eyebrow = renderEyebrow(block.data?.eyebrow);
+  const headline = renderHeadline(block.data?.headline);
+  const subheadline = renderSubheadline(block.data?.subheadline);
+  const ctas = renderHeroCtas(block.data?.cta);
+  const media = renderHeroMedia(block.data?.media);
+  const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
+  const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
+  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${mediaColumn}</div>`;
+  return renderHeroSection({ block, variant: 'media_right', content: grid });
 }
 
 function renderHeroMediaLeft(block) {
-  const ctaLabel = formatHeroCtaLabel(block.data?.cta);
-  const ctaSuffix = ctaLabel ? ` | CTA: ${ctaLabel}` : '';
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="media_left"><!-- hero:media_left | ${escapeHtml(block.data.headline || '')}${ctaSuffix} --></section>`;
+  const eyebrow = renderEyebrow(block.data?.eyebrow);
+  const headline = renderHeadline(block.data?.headline);
+  const subheadline = renderSubheadline(block.data?.subheadline);
+  const ctas = renderHeroCtas(block.data?.cta);
+  const media = renderHeroMedia(block.data?.media);
+  const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
+  const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
+  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${mediaColumn}${textColumn}</div>`;
+  return renderHeroSection({ block, variant: 'media_left', content: grid });
+}
+
+function renderHeroMinimal(block) {
+  const eyebrow = renderEyebrow(block.data?.eyebrow);
+  const headline = renderHeadline(block.data?.headline);
+  const subheadline = renderSubheadline(block.data?.subheadline);
+  const content = `<div class="uk-width-1-1 uk-width-3-4@m uk-align-center">${eyebrow}${headline}${subheadline}</div>`;
+  return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
 }
 
 function renderFeatureList(block, variant) {
@@ -129,7 +193,8 @@ export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
     media_right: renderHeroMediaRight,
-    media_left: renderHeroMediaLeft
+    media_left: renderHeroMediaLeft,
+    minimal: renderHeroMinimal
   },
   feature_list: {
     stacked_cards: block => renderFeatureList(block, 'stacked_cards'),
