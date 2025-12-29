@@ -391,6 +391,15 @@ function migrateLegacyBlock(block) {
   if (clone?.data?.cta?.style) {
     delete clone.data.cta.style;
   }
+  if (clone.type === 'faq' && clone?.data?.followUp) {
+    const { followUp } = clone.data;
+    if (followUp.label && !followUp.linkLabel) {
+      followUp.linkLabel = followUp.label;
+    }
+    if ('label' in followUp) {
+      delete followUp.label;
+    }
+  }
   if (clone.type === 'hero' && clone?.data?.cta && !clone.data.cta.primary && !clone.data.cta.secondary) {
     clone.data.cta = { primary: clone.data.cta };
   }
