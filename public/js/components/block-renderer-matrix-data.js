@@ -120,17 +120,6 @@ function renderHeroMinimal(block) {
   return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
 }
 
-function renderFeatureListHeader(title, subtitle) {
-  if (!title && !subtitle) {
-    return '';
-  }
-
-  const heading = title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(title)}</h2>` : '';
-  const subheading = subtitle ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(subtitle)}</p>` : '';
-
-  return `<div class="uk-width-1-1 uk-margin-medium-bottom">${heading}${subheading}</div>`;
-}
-
 function renderFeatureBullets(bullets) {
   if (!Array.isArray(bullets) || bullets.length === 0) {
     return '';
@@ -164,6 +153,25 @@ function renderFeatureListItemContent(item) {
   return `${title}${description}${bullets}`;
 }
 
+function normalizeFeatureListItems(block) {
+  if (!Array.isArray(block.data?.items)) {
+    return [];
+  }
+
+  return block.data.items.filter(item => item && typeof item.title === 'string' && typeof item.description === 'string');
+}
+
+function renderFeatureListHeader(title, subtitle) {
+  if (!title && !subtitle) {
+    return '';
+  }
+
+  const heading = title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(title)}</h2>` : '';
+  const subheading = subtitle ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(subtitle)}</p>` : '';
+
+  return `<div class="uk-width-1-1 uk-margin-medium-bottom">${heading}${subheading}</div>`;
+}
+
 function renderFeatureListTextColumns(items) {
   const columns = items
     .map(item => {
@@ -193,15 +201,55 @@ function renderFeatureList(block, variant) {
     throw new Error(`Unsupported variant for feature_list: ${variant}`);
   }
 
-  const items = Array.isArray(block.data?.items)
-    ? block.data.items.filter(item => item && typeof item.title === 'string' && typeof item.description === 'string')
-    : [];
+  const items = normalizeFeatureListItems(block);
 
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const header = renderFeatureListHeader(block.data?.title, block.data?.subtitle);
   const grid = variant === 'card-stack' ? renderFeatureListCardStack(items) : renderFeatureListTextColumns(items);
 
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${grid}</div></section>`;
+}
+
+function renderFeatureListDetailedCards(block) {
+  const items = normalizeFeatureListItems(block);
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const eyebrow = renderEyebrow(block.data?.eyebrow);
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const lead = block.data?.lead ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.lead)}</p>` : '';
+  const header = (eyebrow || title || lead) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${eyebrow}${title}${lead}</div>` : '';
+
+  const cards = items
+    .map(item => {
+      const content = renderFeatureListItemContent(item);
+      return `<div class="uk-width-1-1 uk-width-1-2@m uk-width-1-3@l"><div class="uk-card uk-card-default uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
+    })
+    .join('');
+
+  const grid = `<div class="uk-grid uk-grid-medium" data-uk-grid>${cards}</div>`;
+  const ctas = renderHeroCtas(block.data?.cta);
+  const footer = ctas || '';
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="detailed-cards"><div class="uk-container">${header}${grid}${footer}</div></section>`;
+}
+
+function renderFeatureListGridBullets(block) {
+  const items = normalizeFeatureListItems(block);
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const intro = block.data?.intro ? `<p class="uk-text-meta uk-margin-remove-bottom">${escapeHtml(block.data.intro)}</p>` : '';
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const subtitle = block.data?.subtitle ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(block.data.subtitle)}</p>` : '';
+  const header = (intro || title || subtitle) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${intro}${title}${subtitle}</div>` : '';
+
+  const cards = items
+    .map(item => {
+      const content = renderFeatureListItemContent(item);
+      return `<div class="uk-width-1-1 uk-width-1-2@m uk-width-1-3@l"><div class="uk-card uk-card-default uk-card-small uk-height-1-1"><div class="uk-card-body">${content}</div></div></div>`;
+    })
+    .join('');
+
+  const grid = `<div class="uk-grid uk-grid-small" data-uk-grid>${cards}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="grid-bullets"><div class="uk-container">${header}${grid}</div></section>`;
 }
 
 function renderProcessSteps(block, variant) {
@@ -277,6 +325,8 @@ export const RENDERER_MATRIX = {
     minimal: renderHeroMinimal
   },
   feature_list: {
+    'detailed-cards': renderFeatureListDetailedCards,
+    'grid-bullets': renderFeatureListGridBullets,
     'text-columns': block => renderFeatureList(block, 'text-columns'),
     'card-stack': block => renderFeatureList(block, 'card-stack')
   },
