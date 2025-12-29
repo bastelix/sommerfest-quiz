@@ -917,7 +917,9 @@ export class BlockContentEditor {
 
     const buildStringList = (items, label, onChange) => {
       const listWrapper = document.createElement('div');
-      listWrapper.append(document.createElement('div')).textContent = label;
+      const listLabel = document.createElement('div');
+      listLabel.textContent = label;
+      listWrapper.append(listLabel);
 
       const addEntryBtn = document.createElement('button');
       addEntryBtn.type = 'button';
