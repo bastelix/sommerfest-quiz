@@ -378,9 +378,13 @@ function buildDefaultBlock(type, variant) {
       type: 'cta',
       variant,
       data: {
-        label: 'Mehr erfahren',
-        href: '#',
-        ariaLabel: ''
+        title: '',
+        body: '',
+        primary: {
+          label: 'Mehr erfahren',
+          href: '#',
+          ariaLabel: ''
+        }
       }
     })
   };

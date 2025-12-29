@@ -400,14 +400,17 @@ final class PageBlockContractMigrator
     {
         $headline = $this->requireString($data['headline'] ?? null, 'headline');
         $ctaRaw = is_array($data['cta'] ?? null) ? $data['cta'] : [];
-        $cta = [
-            'label' => $this->requireString($ctaRaw['label'] ?? null, 'cta.label'),
-            'href' => $this->requireString($ctaRaw['href'] ?? null, 'cta.href'),
-        ];
+        $cta = [];
 
-        $ariaLabel = $this->normalizeString($ctaRaw['ariaLabel'] ?? null);
-        if ($ariaLabel !== null) {
-            $cta['ariaLabel'] = $ariaLabel;
+        if (is_array($ctaRaw['primary'] ?? null) || is_array($ctaRaw['secondary'] ?? null)) {
+            $primary = is_array($ctaRaw['primary'] ?? null) ? $ctaRaw['primary'] : [];
+            $cta['primary'] = $this->normalizeCallToAction($primary, 'cta.primary');
+
+            if (is_array($ctaRaw['secondary'] ?? null)) {
+                $cta['secondary'] = $this->normalizeCallToAction($ctaRaw['secondary'], 'cta.secondary');
+            }
+        } else {
+            $cta['primary'] = $this->normalizeCallToAction($ctaRaw, 'cta');
         }
 
         $normalized = [
@@ -603,15 +606,41 @@ final class PageBlockContractMigrator
      */
     private function normalizeCtaData(array $data): array
     {
-        $label = $this->requireString($data['label'] ?? null, 'label');
-        $href = $this->requireString($data['href'] ?? null, 'href');
-
+        $primaryRaw = is_array($data['primary'] ?? null) ? $data['primary'] : $data;
         $cta = [
-            'label' => $label,
-            'href' => $href,
+            'primary' => $this->normalizeCallToAction($primaryRaw, 'primary'),
         ];
 
-        $ariaLabel = $this->normalizeString($data['ariaLabel'] ?? null);
+        if (is_array($data['secondary'] ?? null)) {
+            $cta['secondary'] = $this->normalizeCallToAction($data['secondary'], 'secondary');
+        }
+
+        $title = $this->normalizeString($data['title'] ?? null);
+        if ($title !== null) {
+            $cta['title'] = $title;
+        }
+
+        $body = $this->normalizeString($data['body'] ?? null);
+        if ($body !== null) {
+            $cta['body'] = $body;
+        }
+
+        return $cta;
+    }
+
+    /**
+     * @param array<string,mixed> $ctaRaw
+     *
+     * @return array<string,string>
+     */
+    private function normalizeCallToAction(array $ctaRaw, string $pathPrefix): array
+    {
+        $cta = [
+            'label' => $this->requireString($ctaRaw['label'] ?? null, $pathPrefix . '.label'),
+            'href' => $this->requireString($ctaRaw['href'] ?? null, $pathPrefix . '.href'),
+        ];
+
+        $ariaLabel = $this->normalizeString($ctaRaw['ariaLabel'] ?? null);
         if ($ariaLabel !== null) {
             $cta['ariaLabel'] = $ariaLabel;
         }
