@@ -196,7 +196,13 @@
             >{{ t('action_ai_page_create') }}</button>
           </div>
         </div>
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin-small"
+          data-page-namespace-manager
+          data-startpage-page-id="{{ startpage_page_id|default('') }}"
+          data-startpage-map='{{ startpage_map|default({})|json_encode|e('html_attr') }}'
+          data-selected-domain="{{ startpage_selected_domain|default('')|e('html_attr') }}"
+        >
           <label class="uk-form-label" for="startpageToggle">Startseite dieses Projekts</label>
           {% if not hasDomainNamespace %}
             <div class="uk-alert uk-alert-warning uk-margin-small-top" role="alert">
