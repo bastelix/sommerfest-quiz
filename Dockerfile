@@ -31,11 +31,14 @@ RUN test -f composer.lock \
     && rm -rf /var/www/vendor \
     && if [ -n "${GITHUB_TOKEN}" ]; then \
         composer config -g github-oauth.github.com "${GITHUB_TOKEN}"; \
+        INSTALL_PREFERENCE="--prefer-dist"; \
+       else \
+        INSTALL_PREFERENCE="--prefer-source"; \
        fi \
     && if [ "${COMPOSER_NO_DEV}" = "1" ]; then \
-        composer install --no-interaction --prefer-dist --no-progress --no-dev; \
+        composer install --no-interaction ${INSTALL_PREFERENCE} --no-progress --no-dev; \
        else \
-        composer install --no-interaction --prefer-dist --no-progress; \
+        composer install --no-interaction ${INSTALL_PREFERENCE} --no-progress; \
        fi
 COPY . /var/www
 RUN mkdir -p /var/www/logs && chown www-data:www-data /var/www/logs
