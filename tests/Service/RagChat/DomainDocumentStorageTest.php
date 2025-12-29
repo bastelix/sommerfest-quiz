@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Service\RagChat;
 
+use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
 use App\Service\RagChat\DomainDocumentStorage;
@@ -216,18 +217,21 @@ final class DomainDocumentStorageTest extends TestCase
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
+            'CREATE TABLE IF NOT EXISTS domains ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE)'
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'zone TEXT NOT NULL, '
+            . 'namespace TEXT, '
+            . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
 
-        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
+        $service = new DomainService($pdo);
         foreach ($domains as $domain) {
-            $stmt->execute([
-                DomainNameHelper::normalize($domain, stripAdmin: false),
-                DomainNameHelper::normalize($domain),
-            ]);
+            $service->createDomain($domain);
         }
 
         return new MarketingDomainProvider(static fn (): \PDO => $pdo, 0);

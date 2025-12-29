@@ -28,11 +28,9 @@ class DomainMiddlewareTest extends TestCase
 
         $this->envBackup = [
             'MAIN_DOMAIN' => getenv('MAIN_DOMAIN'),
-            'MARKETING_DOMAINS' => getenv('MARKETING_DOMAINS'),
         ];
 
         putenv('MAIN_DOMAIN');
-        putenv('MARKETING_DOMAINS');
 
         Database::setFactory(static fn () => new PDO('sqlite::memory:'));
     }
@@ -42,7 +40,6 @@ class DomainMiddlewareTest extends TestCase
         DomainNameHelper::setMarketingDomainProvider(null);
         Database::setFactory(null);
         $this->restoreEnv('MAIN_DOMAIN', $this->envBackup['MAIN_DOMAIN']);
-        $this->restoreEnv('MARKETING_DOMAINS', $this->envBackup['MARKETING_DOMAINS']);
 
         parent::tearDown();
     }
@@ -229,25 +226,17 @@ class DomainMiddlewareTest extends TestCase
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
             . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'zone TEXT NOT NULL, '
             . 'namespace TEXT, '
             . 'label TEXT, '
             . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
             . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
             . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
-        $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
-            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE)'
-        );
-
-        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
-        $stmt->execute(['promo.example.com', DomainNameHelper::normalize('promo.example.com', stripAdmin: false)]);
-        $stmt->execute(['admin.promo.example.com', DomainNameHelper::normalize('admin.promo.example.com', stripAdmin: false)]);
 
         $service = new DomainService($pdo);
         $service->createDomain('promo.example.com', namespace: 'promo');
+        $service->createDomain('admin.promo.example.com', namespace: 'promo');
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
         DomainNameHelper::setMarketingDomainProvider($provider);
@@ -324,30 +313,23 @@ class DomainMiddlewareTest extends TestCase
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
             . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'zone TEXT NOT NULL, '
             . 'namespace TEXT, '
             . 'label TEXT, '
             . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
             . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
             . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
-        $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
-            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE)'
-        );
+
+        $service = new DomainService($pdo);
 
         if ($mainDomain !== null) {
             $stmt = $pdo->prepare('INSERT INTO settings(key, value) VALUES(?, ?)');
             $stmt->execute(['main_domain', $mainDomain]);
         }
 
-        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
         foreach ($marketingDomains as $domain) {
-            $stmt->execute([
-                DomainNameHelper::normalize($domain, stripAdmin: false),
-                DomainNameHelper::normalize($domain),
-            ]);
+            $service->createDomain($domain);
         }
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);

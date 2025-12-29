@@ -224,7 +224,7 @@ class DomainControllerTest extends TestCase
             $this->assertSame(201, $response->getStatusCode());
             $this->assertTrue($provider->cleared);
 
-            $status = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "marketing.example"');
+            $status = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "example.com"');
             $this->assertSame('pending', $status !== false ? $status->fetchColumn() : null);
         } finally {
             DomainNameHelper::setMarketingDomainProvider($previousProvider);
