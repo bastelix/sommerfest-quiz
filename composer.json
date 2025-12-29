@@ -58,7 +58,8 @@
             "node tests/test_event_summary_switch.js",
             "node tests/test_sticker_editor_save_events.js",
             "node tests/test_media_filters.js",
-            "node tests/test_media_preview.js"
+            "node tests/test_media_preview.js",
+            "node tests/test_info_media_renderer.js"
         ]
     }
 }

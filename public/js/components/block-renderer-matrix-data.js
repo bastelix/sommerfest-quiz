@@ -316,31 +316,33 @@ function renderRichTextProse(block) {
 
 function renderInfoMedia(block, variant) {
   const allowedVariants = new Set(['stacked', 'image-left', 'image-right']);
+  const hasSupportedVariant = allowedVariants.has(variant);
+  const safeVariant = hasSupportedVariant ? variant : 'stacked';
 
-  if (!allowedVariants.has(variant)) {
-    throw new Error(`Unsupported info_media variant: ${variant}`);
-  }
-
-  const body = block.data?.body;
-  if (!body) {
-    throw new Error('info_media block requires body content');
-  }
-
+  const bodyContent = block.data?.body || '<p class="uk-text-muted uk-margin-remove">Noch kein Text hinterlegt.</p>';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
     : '';
-  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${title}<div class="uk-margin-small-top">${body}</div></div>`;
+
+  const warnings = [];
+  if (!hasSupportedVariant) {
+    const providedVariant = variant ? escapeHtml(variant) : 'kein Variant-Name angegeben';
+    warnings.push(
+      `<div class="uk-alert-warning uk-margin-small-bottom" role="alert">Unsupported info_media variant: ${providedVariant}. Fallback: stacked.</div>`
+    );
+  }
+
+  const textColumn = `<div class="${safeVariant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${title}${warnings.join('')}<div class="uk-margin-small-top">${bodyContent}</div></div>`;
 
   const media = block.data?.media;
   const hasMedia = !!media?.image;
-  if (!hasMedia && variant !== 'stacked') {
-    throw new Error(`info_media:${variant} variant requires media.image`);
-  }
+  const mediaContent = hasMedia
+    ? `<div class="uk-border-rounded uk-overflow-hidden uk-box-shadow-small"><img class="uk-width-1-1" src="${escapeAttribute(media.image)}" alt="${media?.alt ? escapeAttribute(media.alt) : ''}" loading="lazy"></div>`
+    : `<div class="uk-placeholder uk-text-center uk-border-rounded uk-box-shadow-small"><span class="uk-text-muted">Kein Bild ausgewählt</span></div>`;
 
-  const mediaColumn = hasMedia
-    ? `<div class="uk-width-1-1 uk-width-1-2@m"><div class="uk-border-rounded uk-overflow-hidden uk-box-shadow-small"><img class="uk-width-1-1" src="${escapeAttribute(media.image)}" alt="${media.alt ? escapeAttribute(media.alt) : ''}" loading="lazy"></div></div>`
-    : '';
+  const showMediaColumn = hasMedia || safeVariant !== 'stacked';
+  const mediaColumn = showMediaColumn ? `<div class="uk-width-1-1 uk-width-1-2@m">${mediaContent}</div>` : '';
 
   const columnsByVariant = {
     stacked: `${textColumn}${mediaColumn}`,
@@ -348,9 +350,9 @@ function renderInfoMedia(block, variant) {
     'image-right': `${textColumn}${mediaColumn}`
   };
 
-  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${columnsByVariant[variant]}</div>`;
+  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${columnsByVariant[safeVariant]}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${grid}</div></section>`;
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(safeVariant)}"><div class="uk-container">${grid}</div></section>`;
 }
 
 function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasses = '') {
