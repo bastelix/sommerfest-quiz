@@ -317,23 +317,24 @@ function renderRichTextProse(block) {
 function renderInfoMedia(block, variant) {
   const allowedVariants = new Set(['stacked', 'image-left', 'image-right']);
   const hasSupportedVariant = allowedVariants.has(variant);
-  const safeVariant = hasSupportedVariant ? variant : 'stacked';
-
-  const bodyContent = block.data?.body || '<p class="uk-text-muted uk-margin-remove">Noch kein Text hinterlegt.</p>';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
-    : '';
+  const dataAttributes = ` data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(hasSupportedVariant ? variant : 'unsupported')}"`;
 
-  const warnings = [];
   if (!hasSupportedVariant) {
-    const providedVariant = variant ? escapeHtml(variant) : 'kein Variant-Name angegeben';
-    warnings.push(
-      `<div class="uk-alert-warning uk-margin-small-bottom" role="alert">Unsupported info_media variant: ${providedVariant}. Fallback: stacked.</div>`
-    );
+    const providedVariant = variant ? `"${escapeHtml(variant)}"` : 'nicht gesetzt';
+    const allowed = Array.from(allowedVariants).join(', ');
+    const warning = `<div class="uk-alert-warning" role="alert">Unsupported info_media variant ${providedVariant}. Erlaubte Varianten: ${escapeHtml(allowed)}.</div>`;
+    return `<section${anchor} class="uk-section uk-section-default"${dataAttributes}"><div class="uk-container">${warning}</div></section>`;
   }
 
-  const textColumn = `<div class="${safeVariant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${title}${warnings.join('')}<div class="uk-margin-small-top">${bodyContent}</div></div>`;
+  const bodyContent = typeof block.data?.body === 'string' && block.data.body.trim()
+    ? block.data.body
+    : '<p class="uk-text-muted uk-margin-remove">Noch kein Text hinterlegt.</p>';
+
+  const warnings = [];
+  if (!block.data || typeof block.data.body !== 'string') {
+    warnings.push('<div class="uk-alert-warning uk-margin-small-bottom" role="alert">Blockinhalt fehlt oder ist ungültig.</div>');
+  }
 
   const media = block.data?.media;
   const hasMedia = !!media?.image;
@@ -341,18 +342,21 @@ function renderInfoMedia(block, variant) {
     ? `<div class="uk-border-rounded uk-overflow-hidden uk-box-shadow-small"><img class="uk-width-1-1" src="${escapeAttribute(media.image)}" alt="${media?.alt ? escapeAttribute(media.alt) : ''}" loading="lazy"></div>`
     : `<div class="uk-placeholder uk-text-center uk-border-rounded uk-box-shadow-small"><span class="uk-text-muted">Kein Bild ausgewählt</span></div>`;
 
-  const showMediaColumn = hasMedia || safeVariant !== 'stacked';
-  const mediaColumn = showMediaColumn ? `<div class="uk-width-1-1 uk-width-1-2@m">${mediaContent}</div>` : '';
+  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${warnings.join('')}<div class="uk-article">${bodyContent}</div></div>`;
 
+  const mediaColumnRequired = variant !== 'stacked';
+  const mediaColumn = mediaColumnRequired || hasMedia ? `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${mediaContent}</div>` : '';
+
+  const gridClass = variant === 'stacked' ? 'uk-grid uk-grid-small' : 'uk-grid uk-grid-large uk-flex-middle';
   const columnsByVariant = {
     stacked: `${textColumn}${mediaColumn}`,
     'image-left': `${mediaColumn}${textColumn}`,
     'image-right': `${textColumn}${mediaColumn}`
   };
 
-  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${columnsByVariant[safeVariant]}</div>`;
+  const grid = `<div class="${gridClass}" data-uk-grid>${columnsByVariant[variant]}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(safeVariant)}"><div class="uk-container">${grid}</div></section>`;
+  return `<section${anchor} class="uk-section uk-section-default"${dataAttributes}"><div class="uk-container">${grid}</div></section>`;
 }
 
 function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasses = '') {
