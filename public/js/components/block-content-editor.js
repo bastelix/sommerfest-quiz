@@ -33,16 +33,16 @@ const VARIANT_LABELS = {
     minimal: 'Minimal'
   },
   feature_list: {
-    'detailed-cards': 'Karten',
-    'grid-bullets': 'Liste',
+    'detailed-cards': 'Detailkarten',
+    'grid-bullets': 'Listenpunkte',
     'text-columns': 'Spalten',
-    'card-stack': 'Stapel',
-    stacked_cards: 'Stapel',
-    icon_grid: 'Icons'
+    'card-stack': 'Karten',
+    stacked_cards: 'Karten',
+    icon_grid: 'Icon-Raster'
   },
   process_steps: {
-    'numbered-vertical': 'Vertikale Schritte',
-    'numbered-horizontal': 'Horizontale Schritte'
+    'numbered-vertical': 'Vertikaler Ablauf',
+    'numbered-horizontal': 'Horizontaler Ablauf'
   },
   testimonial: {
     single_quote: 'Einzelnes Zitat',
@@ -57,7 +57,7 @@ const VARIANT_LABELS = {
     'image-right': 'Bild rechts'
   },
   cta: {
-    full_width: 'Vollbreite',
+    full_width: 'Zentriert',
     split: 'Geteilt'
   },
   stat_strip: {
@@ -106,6 +106,282 @@ const getBlockDisplayName = type => BLOCK_TYPE_LABELS[type] || humanizeToken(typ
 const getVariantLabel = (type, variant) => {
   const labelMap = VARIANT_LABELS[type] || {};
   return labelMap[variant] || humanizeToken(variant || 'Layout');
+};
+
+const createPreviewLine = (width = '100%', accent = false) => {
+  const line = document.createElement('div');
+  line.className = 'layout-preview__line';
+  line.style.width = width;
+  if (accent) {
+    line.dataset.accent = 'true';
+  }
+  return line;
+};
+
+const createPreviewMedia = size => {
+  const media = document.createElement('div');
+  media.className = 'layout-preview__media';
+  if (size === 'wide') {
+    media.dataset.wide = 'true';
+  }
+  if (size === 'compact') {
+    media.dataset.compact = 'true';
+  }
+  return media;
+};
+
+const createPreviewBadge = text => {
+  const badge = document.createElement('div');
+  badge.className = 'layout-preview__badge';
+  badge.textContent = text;
+  return badge;
+};
+
+const createPreviewPill = () => {
+  const pill = document.createElement('div');
+  pill.className = 'layout-preview__pill';
+  return pill;
+};
+
+const createPreviewCard = (options = {}) => {
+  const card = document.createElement('div');
+  card.className = 'layout-preview__card';
+
+  if (options.withIcon) {
+    const icon = document.createElement('div');
+    icon.className = 'layout-preview__icon';
+    card.append(icon);
+  }
+
+  card.append(createPreviewLine('80%', true));
+  card.append(createPreviewLine('100%'));
+  card.append(createPreviewLine('60%'));
+
+  if (options.withAction) {
+    card.append(createPreviewPill());
+  }
+
+  return card;
+};
+
+const createPreviewContainer = (variantClass, columns) => {
+  const preview = document.createElement('div');
+  preview.className = 'layout-style-card__preview layout-preview';
+  if (variantClass) {
+    preview.classList.add(variantClass);
+  }
+  if (columns) {
+    preview.style.setProperty('--layout-preview-columns', columns);
+  }
+  return preview;
+};
+
+const createFallbackPreview = () => {
+  const preview = createPreviewContainer('layout-preview--stacked');
+  preview.append(createPreviewCard(), createPreviewCard());
+  return preview;
+};
+
+const createStackedCardsPreview = () => {
+  const preview = createPreviewContainer('layout-preview--stacked');
+  [1, 2, 3].forEach(() => {
+    preview.append(createPreviewCard());
+  });
+  return preview;
+};
+
+const createColumnsPreview = (columns = 2) => {
+  const preview = createPreviewContainer('layout-preview--columns', columns);
+  for (let index = 0; index < columns; index += 1) {
+    const column = document.createElement('div');
+    column.className = 'layout-preview__column';
+    column.append(createPreviewLine('70%', true));
+    column.append(createPreviewLine('90%'));
+    column.append(createPreviewLine('60%'));
+    preview.append(column);
+  }
+  return preview;
+};
+
+const createListPreview = () => {
+  const preview = createPreviewContainer('layout-preview--list');
+  [1, 2, 3, 4].forEach(() => {
+    const row = document.createElement('div');
+    row.className = 'layout-preview__row';
+    row.append(createPreviewBadge('•'));
+    row.append(createPreviewLine('85%'));
+    preview.append(row);
+  });
+  return preview;
+};
+
+const createIconGridPreview = () => {
+  const preview = createPreviewContainer('layout-preview--columns', 3);
+  [1, 2, 3, 4, 5, 6].forEach(() => {
+    const iconTile = document.createElement('div');
+    iconTile.className = 'layout-preview__icon-tile';
+    iconTile.append(createPreviewMedia('compact'));
+    iconTile.append(createPreviewLine('70%'));
+    preview.append(iconTile);
+  });
+  return preview;
+};
+
+const createStepsPreview = orientation => {
+  const preview = createPreviewContainer(`layout-preview--steps-${orientation}`);
+  [1, 2, 3].forEach(step => {
+    const row = document.createElement('div');
+    row.className = 'layout-preview__row';
+    row.append(createPreviewBadge(step));
+    row.append(createPreviewLine('75%', true));
+    row.append(createPreviewLine('60%'));
+    preview.append(row);
+  });
+  return preview;
+};
+
+const createSplitPreview = ({ mediaFirst } = {}) => {
+  const preview = createPreviewContainer('layout-preview--split');
+  const media = createPreviewMedia();
+  const copy = createPreviewCard({ withAction: true });
+  if (mediaFirst) {
+    preview.append(media, copy);
+  } else {
+    preview.append(copy, media);
+  }
+  return preview;
+};
+
+const createStackedMediaPreview = () => {
+  const preview = createPreviewContainer('layout-preview--stacked');
+  preview.append(createPreviewMedia('wide'));
+  preview.append(createPreviewCard());
+  return preview;
+};
+
+const createCenteredCtaPreview = () => {
+  const preview = createPreviewContainer('layout-preview--centered');
+  const card = document.createElement('div');
+  card.className = 'layout-preview__card layout-preview__card--centered';
+  card.append(createPreviewLine('60%', true));
+  card.append(createPreviewLine('80%'));
+  card.append(createPreviewPill());
+  preview.append(card);
+  return preview;
+};
+
+const createHeroPreview = (mediaSide = 'right') => {
+  const preview = createPreviewContainer('layout-preview--split');
+  const media = createPreviewMedia('wide');
+  const copy = createPreviewCard({ withAction: true });
+  if (mediaSide === 'left') {
+    preview.append(media, copy);
+  } else {
+    preview.append(copy, media);
+  }
+  return preview;
+};
+
+const createAccordionPreview = () => {
+  const preview = createPreviewContainer('layout-preview--stacked');
+  [1, 2, 3].forEach(index => {
+    const row = document.createElement('div');
+    row.className = 'layout-preview__accordion';
+    row.append(createPreviewLine('75%', index === 1));
+    row.append(createPreviewBadge('+'));
+    preview.append(row);
+  });
+  return preview;
+};
+
+const createTogglePreview = () => {
+  const preview = createPreviewContainer('layout-preview--toggle');
+  const header = document.createElement('div');
+  header.className = 'layout-preview__toggle-header';
+  header.append(createPreviewLine('40%', true));
+  header.append(createPreviewLine('30%'));
+  preview.append(header);
+
+  const body = document.createElement('div');
+  body.className = 'layout-preview__toggle-body';
+  body.append(createPreviewCard());
+  body.append(createPreviewCard());
+  preview.append(body);
+  return preview;
+};
+
+const createMetricCalloutPreview = () => {
+  const preview = createPreviewContainer('layout-preview--centered');
+  const card = document.createElement('div');
+  card.className = 'layout-preview__metric';
+  card.append(createPreviewLine('30%', true));
+  card.append(createPreviewLine('55%'));
+  preview.append(card);
+  return preview;
+};
+
+const LAYOUT_PREVIEWS = {
+  hero: {
+    centered_cta: createCenteredCtaPreview,
+    media_right: () => createHeroPreview('right'),
+    media_left: () => createHeroPreview('left'),
+    minimal: () => createColumnsPreview(1)
+  },
+  feature_list: {
+    'detailed-cards': () => createColumnsPreview(3),
+    'grid-bullets': createListPreview,
+    'text-columns': () => createColumnsPreview(2),
+    'card-stack': createStackedCardsPreview,
+    stacked_cards: createStackedCardsPreview,
+    icon_grid: createIconGridPreview
+  },
+  process_steps: {
+    'numbered-vertical': () => createStepsPreview('vertical'),
+    'numbered-horizontal': () => createStepsPreview('horizontal')
+  },
+  testimonial: {
+    single_quote: () => createColumnsPreview(1),
+    quote_wall: () => createColumnsPreview(2)
+  },
+  rich_text: {
+    prose: () => createColumnsPreview(1)
+  },
+  info_media: {
+    stacked: createStackedMediaPreview,
+    'image-left': () => createSplitPreview({ mediaFirst: true }),
+    'image-right': () => createSplitPreview({ mediaFirst: false })
+  },
+  cta: {
+    full_width: createCenteredCtaPreview,
+    split: () => createSplitPreview({ mediaFirst: false })
+  },
+  stat_strip: {
+    'three-up': () => createColumnsPreview(3)
+  },
+  proof: {
+    'metric-callout': createMetricCalloutPreview
+  },
+  audience_spotlight: {
+    tabs: () => createColumnsPreview(1),
+    tiles: createIconGridPreview,
+    'single-focus': () => createColumnsPreview(1)
+  },
+  package_summary: {
+    toggle: createTogglePreview,
+    'comparison-cards': () => createColumnsPreview(2)
+  },
+  faq: {
+    accordion: createAccordionPreview
+  },
+  default: createFallbackPreview
+};
+
+const buildLayoutPreview = (type, variant) => {
+  const previewFactory = LAYOUT_PREVIEWS[type]?.[variant] || LAYOUT_PREVIEWS[type]?.default;
+  if (typeof previewFactory === 'function') {
+    return previewFactory();
+  }
+  return createFallbackPreview();
 };
 
 const buildRecoverableVariantBlock = (block, error) => {
@@ -1198,10 +1474,14 @@ export class BlockContentEditor {
       return null;
     }
     const wrapper = document.createElement('div');
+    wrapper.className = 'layout-style-picker';
+
     const label = document.createElement('div');
+    label.className = 'layout-style-picker__label';
     label.textContent = 'Layout-Stil';
-    const select = document.createElement('select');
     const hasInvalidVariant = Boolean(block.invalidVariant);
+
+    wrapper.append(label);
 
     if (hasInvalidVariant) {
       const notice = document.createElement('div');
@@ -1211,26 +1491,30 @@ export class BlockContentEditor {
         ', '
       )}.`;
       wrapper.append(notice);
-
-      const placeholder = document.createElement('option');
-      placeholder.value = '';
-      placeholder.textContent = 'Layout-Stil auswählen';
-      placeholder.disabled = true;
-      placeholder.selected = true;
-      select.append(placeholder);
     }
 
+    const cards = document.createElement('div');
+    cards.className = 'layout-style-picker__options';
+    const isCurrentVariant = variant => !hasInvalidVariant && variant === block.variant;
+
     variants.forEach(variant => {
-      const option = document.createElement('option');
-      option.value = variant;
-      option.textContent = getVariantLabel(block.type, variant);
-      if (!hasInvalidVariant && variant === block.variant) {
-        option.selected = true;
-      }
-      select.append(option);
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'layout-style-card';
+      card.dataset.selected = String(isCurrentVariant(variant));
+      card.setAttribute('aria-pressed', isCurrentVariant(variant) ? 'true' : 'false');
+
+      const preview = buildLayoutPreview(block.type, variant);
+      const title = document.createElement('div');
+      title.className = 'layout-style-card__title';
+      title.textContent = getVariantLabel(block.type, variant);
+
+      card.append(preview, title);
+      card.addEventListener('click', () => this.updateVariant(block.id, variant));
+      cards.append(card);
     });
-    select.addEventListener('change', event => this.updateVariant(block.id, event.target.value));
-    wrapper.append(label, select);
+
+    wrapper.append(cards);
     return wrapper;
   }
 
