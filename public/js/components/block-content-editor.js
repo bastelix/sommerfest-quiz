@@ -36,6 +36,45 @@ const deepClone = value => JSON.parse(JSON.stringify(value));
 
 const getRendererVariants = type => Object.keys(RENDERER_MATRIX[type] || {});
 
+const resolveBlockSchema = (type, variant) => {
+  const blocks = BLOCK_CONTRACT_SCHEMA.oneOf || [];
+
+  for (const entry of blocks) {
+    if (entry?.properties?.type?.const === type) {
+      return entry;
+    }
+
+    if (Array.isArray(entry?.oneOf)) {
+      const matches = entry.oneOf.filter(candidate => candidate?.properties?.type?.const === type);
+      if (!matches.length) {
+        continue;
+      }
+
+      if (!variant) {
+        return matches[0];
+      }
+
+      const exactMatch = matches.find(candidate => {
+        const variantSchema = candidate?.properties?.variant;
+        if (!variantSchema) {
+          return false;
+        }
+        if (typeof variantSchema.const === 'string') {
+          return normalizeVariant(type, variant) === variantSchema.const;
+        }
+        if (Array.isArray(variantSchema.enum)) {
+          return variantSchema.enum.includes(normalizeVariant(type, variant));
+        }
+        return false;
+      });
+
+      return exactMatch || matches[0];
+    }
+  }
+
+  return null;
+};
+
 const ensureRendererVariant = (type, requestedVariant) => {
   const variants = getRendererVariants(type);
   if (!variants.length) {
@@ -360,8 +399,7 @@ function migrateLegacyBlock(block) {
 
 function sanitizeBlock(block) {
   const migrated = normalizeBlockContract(migrateLegacyBlock(block));
-  const blockSchema = BLOCK_CONTRACT_SCHEMA.oneOf
-    .find(entry => entry?.properties?.type?.const === migrated.type);
+  const blockSchema = resolveBlockSchema(migrated.type, migrated.variant);
   if (!blockSchema) {
     throw new Error(`Unknown block type: ${migrated.type}`);
   }
