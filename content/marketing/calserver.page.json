@@ -274,8 +274,8 @@
     },
     {
       "id": "modules",
-      "type": "system_module",
-      "variant": "switcher",
+      "type": "feature_list",
+      "variant": "card-stack",
       "data": {
         "title": "Module, die den Unterschied machen",
         "subtitle": "Individuell kombinierbar – ohne versteckte Kosten",
