@@ -14,6 +14,7 @@ use RuntimeException;
 use function array_filter;
 use function array_is_list;
 use function array_map;
+use function array_unique;
 use function array_values;
 use function dirname;
 use function file_get_contents;
@@ -23,6 +24,8 @@ use function is_numeric;
 use function is_string;
 use function json_decode;
 use function json_encode;
+use function preg_match_all;
+use function strpos;
 use function trim;
 
 final class PageBlockContractMigrator
@@ -44,6 +47,9 @@ final class PageBlockContractMigrator
     private array $legacyTypeMap = [
         'text' => 'rich_text',
     ];
+
+    /** @var list<string> */
+    private array $rendererBlockTypes;
 
     /** @var array<string, string> */
     private array $legacyLayoutMap = [
@@ -69,6 +75,7 @@ final class PageBlockContractMigrator
         $schemaFile = $schemaPath ?? dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
         $schema = $this->loadSchema($schemaFile);
         [$this->blockVariants, $this->tokenEnums] = $this->extractSchemaData($schema);
+        $this->rendererBlockTypes = $this->loadRendererBlockTypes();
         $this->clock = $clock ?? static fn (): DateTimeImmutable => new DateTimeImmutable();
     }
 
@@ -379,6 +386,10 @@ final class PageBlockContractMigrator
      */
     private function normalizeBlockData(string $type, array $data): array
     {
+        if (!in_array($type, $this->rendererBlockTypes, true)) {
+            throw new PageBlockMigrationException('unknown_block_type', sprintf('Unsupported block type: %s', $type));
+        }
+
         return match ($type) {
             'hero' => $this->normalizeHeroData($data),
             'feature_list' => $this->normalizeFeatureListData($data),
@@ -387,7 +398,7 @@ final class PageBlockContractMigrator
             'rich_text' => $this->normalizeRichTextData($data),
             'info_media' => $this->normalizeInfoMediaData($data),
             'cta' => $this->normalizeCtaData($data),
-            default => throw new PageBlockMigrationException('unknown_block_type', sprintf('Unsupported block type: %s', $type)),
+            default => $data,
         };
     }
 
@@ -906,6 +917,37 @@ final class PageBlockContractMigrator
         }
 
         return $decoded;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function loadRendererBlockTypes(?string $rendererMatrixPath = null): array
+    {
+        $path = $rendererMatrixPath ?? dirname(__DIR__, 2) . '/public/js/components/block-renderer-matrix-data.js';
+        $content = file_get_contents($path);
+
+        if ($content === false) {
+            throw new RuntimeException(sprintf('Renderer matrix not found at %s', $path));
+        }
+
+        $start = strpos($content, 'RENDERER_MATRIX');
+        if ($start === false) {
+            throw new RuntimeException(sprintf('Renderer matrix missing in %s', $path));
+        }
+
+        $matrixSection = substr($content, $start);
+
+        preg_match_all('/^  ([a-zA-Z0-9_]+):/m', $matrixSection, $matches);
+
+        if (!isset($matches[1]) || $matches[1] === []) {
+            throw new RuntimeException(sprintf('Could not extract renderer block types from %s', $path));
+        }
+
+        /** @var list<string> $types */
+        $types = array_values(array_unique($matches[1]));
+
+        return $types;
     }
 
     private function normalizeString($value): ?string

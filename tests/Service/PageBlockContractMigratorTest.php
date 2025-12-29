@@ -120,6 +120,43 @@ final class PageBlockContractMigratorTest extends TestCase
         self::assertEmpty($fakePages->savedContent);
     }
 
+    public function testPassThroughRendererMatrixBlocks(): void
+    {
+        $content = json_encode([
+            'blocks' => [
+                [
+                    'id' => 'proof-1',
+                    'type' => 'proof',
+                    'variant' => 'metric-callout',
+                    'data' => ['items' => [['value' => '42%', 'label' => 'Win rate']]],
+                ],
+                [
+                    'id' => 'stat-1',
+                    'type' => 'stat_strip',
+                    'variant' => 'three-up',
+                    'data' => ['items' => [['value' => '3', 'label' => 'Metrics']]],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(5, 'default', 'renderer', $content);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator($fakePages, $schema);
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(1, $report['migrated']);
+        self::assertCount(1, $fakePages->savedContent);
+
+        $saved = json_decode($fakePages->savedContent[0]['content'], true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame('proof', $saved['blocks'][0]['type']);
+        self::assertSame(['items' => [['value' => '42%', 'label' => 'Win rate']]], $saved['blocks'][0]['data']);
+        self::assertSame('stat_strip', $saved['blocks'][1]['type']);
+        self::assertSame(['items' => [['value' => '3', 'label' => 'Metrics']]], $saved['blocks'][1]['data']);
+    }
+
     public function testSplitsRichTextSectionsIntoSemanticBlocks(): void
     {
         $html = <<<HTML
