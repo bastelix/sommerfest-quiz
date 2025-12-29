@@ -7,6 +7,10 @@ const VARIANT_ALIASES = {
     'media-left': 'media_left',
     'centered-cta': 'centered_cta'
   },
+  feature_list: {
+    stacked_cards: 'card-stack',
+    icon_grid: 'grid-bullets'
+  },
   audience_spotlight: {
     'single_focus': 'single-focus'
   }
@@ -32,7 +36,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "centered-cta", "media_right", "media-right", "media_left", "media-left"] },
+        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -41,7 +45,7 @@ const schema = {
       "title": "Feature list block",
       "properties": {
         "type": { "const": "feature_list" },
-        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets"] },
+        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets", "text-columns", "card-stack"] },
         "data": { "$ref": "#/definitions/FeatureListData" }
       },
       "required": ["type", "variant", "data"]
@@ -50,7 +54,7 @@ const schema = {
       "title": "Process steps block",
       "properties": {
         "type": { "const": "process_steps" },
-        "variant": { "enum": ["timeline_horizontal", "timeline_vertical", "timeline"] },
+        "variant": { "enum": ["timeline_horizontal", "timeline_vertical", "timeline", "numbered-vertical", "numbered-horizontal"] },
         "data": { "$ref": "#/definitions/ProcessStepsData" }
       },
       "required": ["type", "variant", "data"]
@@ -116,7 +120,7 @@ const schema = {
       "title": "Audience spotlight block",
       "properties": {
         "type": { "const": "audience_spotlight" },
-        "variant": { "enum": ["tabs"] },
+        "variant": { "enum": ["tabs", "tiles", "single-focus", "single_focus"] },
         "data": { "$ref": "#/definitions/AudienceSpotlightData" }
       },
       "required": ["type", "variant", "data"]

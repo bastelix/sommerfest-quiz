@@ -328,12 +328,16 @@ export const RENDERER_MATRIX = {
     'detailed-cards': renderFeatureListDetailedCards,
     'grid-bullets': renderFeatureListGridBullets,
     'text-columns': block => renderFeatureList(block, 'text-columns'),
-    'card-stack': block => renderFeatureList(block, 'card-stack')
+    'card-stack': block => renderFeatureList(block, 'card-stack'),
+    stacked_cards: block => renderFeatureList(block, 'card-stack'),
+    icon_grid: renderFeatureListGridBullets
   },
   process_steps: {
     timeline_horizontal: block => renderProcessSteps(block, 'timeline_horizontal'),
     timeline_vertical: block => renderProcessSteps(block, 'timeline_vertical'),
-    timeline: block => renderProcessSteps(block, 'timeline')
+    timeline: block => renderProcessSteps(block, 'timeline'),
+    'numbered-vertical': block => renderProcessSteps(block, 'numbered-vertical'),
+    'numbered-horizontal': block => renderProcessSteps(block, 'numbered-horizontal')
   },
   testimonial: {
     single_quote: renderTestimonialSingle,
