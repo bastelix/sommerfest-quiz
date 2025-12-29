@@ -202,7 +202,8 @@ const attachBlockPreview = (form, editor) => {
       if (typeof editor.selectBlock === 'function') {
         editor.selectBlock(blockId);
       }
-    }
+    },
+    onInlineEdit: payload => (typeof editor.applyInlineEdit === 'function' ? editor.applyInlineEdit(payload) : false)
   });
 
   const previewBridge = {
