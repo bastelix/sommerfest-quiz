@@ -350,7 +350,7 @@ final class PageBlockContractMigrator
         }
 
         $normalizedType = $this->legacyTypeMap[$type] ?? $type;
-        if (!isset($this->blockVariants[$normalizedType])) {
+        if (!in_array($normalizedType, $this->rendererBlockTypes, true)) {
             throw new PageBlockMigrationException('unknown_block_type', sprintf('Unsupported block type: %s', $type));
         }
 

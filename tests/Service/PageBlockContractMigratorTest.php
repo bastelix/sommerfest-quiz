@@ -171,6 +171,12 @@ final class PageBlockContractMigratorTest extends TestCase
                     'variant' => 'three-up',
                     'data' => ['items' => [['value' => '3', 'label' => 'Metrics']]],
                 ],
+                [
+                    'id' => 'faq-1',
+                    'type' => 'faq',
+                    'variant' => 'accordion',
+                    'data' => ['items' => [['question' => 'Q', 'answer' => 'A']]],
+                ],
             ],
         ], JSON_THROW_ON_ERROR);
 
@@ -190,6 +196,35 @@ final class PageBlockContractMigratorTest extends TestCase
         self::assertSame(['items' => [['value' => '42%', 'label' => 'Win rate']]], $saved['blocks'][0]['data']);
         self::assertSame('stat_strip', $saved['blocks'][1]['type']);
         self::assertSame(['items' => [['value' => '3', 'label' => 'Metrics']]], $saved['blocks'][1]['data']);
+        self::assertSame('faq', $saved['blocks'][2]['type']);
+        self::assertSame(['items' => [['question' => 'Q', 'answer' => 'A']]], $saved['blocks'][2]['data']);
+    }
+
+    public function testRejectsBlocksOutsideRendererMatrix(): void
+    {
+        $content = json_encode([
+            'blocks' => [
+                [
+                    'id' => 'mystery',
+                    'type' => 'not_a_block',
+                    'variant' => 'unknown',
+                    'data' => [],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(6, 'default', 'unknown-renderer', $content);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator($fakePages, $schema);
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(0, $report['migrated']);
+        self::assertSame(1, $report['errors']['total']);
+        self::assertSame(1, $report['errors']['unknown_block_type']);
+        self::assertEmpty($fakePages->savedContent);
     }
 
     public function testSplitsRichTextSectionsIntoSemanticBlocks(): void
