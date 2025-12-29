@@ -1748,3 +1748,22 @@ body.admin-page {
   box-shadow: 0 0 0 2px #cbd2d9;
   background-color: #f8fafc;
 }
+
+.page-preview-surface .preview-status {
+  position: relative;
+  z-index: 1;
+}
+
+.page-preview-surface .preview-status .uk-alert {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-preview-surface .preview-status .uk-link-text {
+  font-weight: 600;
+}
