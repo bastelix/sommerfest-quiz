@@ -93,9 +93,9 @@ final class DomainZoneResolver
 
     /**
      * @param list<string> $labels
-     * @return list<string>|null
+     * @return list<string>
      */
-    private function matchWildcardOrExact(array $labels): ?array
+    private function matchWildcardOrExact(array $labels): array
     {
         $matchedRule = null;
 
