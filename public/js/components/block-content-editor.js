@@ -36,6 +36,44 @@ const deepClone = value => JSON.parse(JSON.stringify(value));
 
 const getRendererVariants = type => Object.keys(RENDERER_MATRIX[type] || {});
 
+const buildRecoverableVariantBlock = (block, error) => {
+  if (!block || typeof block !== 'object') {
+    return null;
+  }
+
+  const normalized = normalizeBlockContract(deepClone(block));
+  const type = normalized?.type;
+  const allowedVariants = type ? getRendererVariants(type) : [];
+
+  if (!type || !allowedVariants.length) {
+    return null;
+  }
+
+  const normalizedVariant = normalizeVariant(type, normalized.variant);
+  const variantSupported = typeof normalizedVariant === 'string' && allowedVariants.includes(normalizedVariant);
+
+  if (variantSupported) {
+    return null;
+  }
+
+  const recoverable = {
+    ...normalized,
+    id: typeof normalized.id === 'string' && normalized.id ? normalized.id : createId(),
+    variant: normalizedVariant,
+    invalidVariant: {
+      attemptedVariant: normalizedVariant,
+      allowedVariants,
+      reason: error instanceof Error ? error.message : 'Unsupported variant'
+    }
+  };
+
+  if (!isPlainObject(recoverable.data)) {
+    recoverable.data = {};
+  }
+
+  return recoverable;
+};
+
 const resolveBlockSchema = (type, variant) => {
   const blocks = BLOCK_CONTRACT_SCHEMA.oneOf || [];
 
@@ -408,28 +446,31 @@ function migrateLegacyBlock(block) {
 
 function sanitizeBlock(block) {
   const migrated = normalizeBlockContract(migrateLegacyBlock(block));
-  const blockSchema = resolveBlockSchema(migrated.type, migrated.variant);
+  const sanitizedTopLevel = { ...migrated };
+  delete sanitizedTopLevel.invalidVariant;
+
+  const blockSchema = resolveBlockSchema(sanitizedTopLevel.type, sanitizedTopLevel.variant);
   if (!blockSchema) {
-    throw new Error(`Unknown block type: ${migrated.type}`);
+    throw new Error(`Unknown block type: ${sanitizedTopLevel.type}`);
   }
   const allowedKeys = Object.keys(BLOCK_CONTRACT_SCHEMA.properties || {});
-  const disallowedTopLevel = Object.keys(migrated).filter(key => !allowedKeys.includes(key));
+  const disallowedTopLevel = Object.keys(sanitizedTopLevel).filter(key => !allowedKeys.includes(key));
   if (disallowedTopLevel.length > 0) {
     throw new Error(`Unexpected top-level field: ${disallowedTopLevel[0]}`);
   }
 
   const dataDefinition = getSchemaDefinition(blockSchema.properties?.data?.$ref);
   if (!dataDefinition) {
-    throw new Error(`Missing data schema for ${migrated.type}`);
+    throw new Error(`Missing data schema for ${sanitizedTopLevel.type}`);
   }
 
-  const sanitizedData = sanitizeValue(migrated.data, dataDefinition, ['layout', 'style']);
-  const sanitizedTokens = sanitizeTokens(migrated.tokens);
+  const sanitizedData = sanitizeValue(sanitizedTopLevel.data, dataDefinition, ['layout', 'style']);
+  const sanitizedTokens = sanitizeTokens(sanitizedTopLevel.tokens);
 
   const sanitizedBlock = {
-    id: typeof migrated.id === 'string' && migrated.id ? migrated.id : createId(),
-    type: migrated.type,
-    variant: migrated.variant,
+    id: typeof sanitizedTopLevel.id === 'string' && sanitizedTopLevel.id ? sanitizedTopLevel.id : createId(),
+    type: sanitizedTopLevel.type,
+    variant: sanitizedTopLevel.variant,
     data: sanitizedData
   };
 
@@ -564,10 +605,25 @@ export class BlockContentEditor {
   }
 
   normalizeBlock(block) {
-    return sanitizeBlock(block);
+    try {
+      return sanitizeBlock(block);
+    } catch (error) {
+      const recoverable = buildRecoverableVariantBlock(block, error);
+      if (recoverable) {
+        return recoverable;
+      }
+      throw error;
+    }
   }
 
   getContent() {
+    const recoverable = this.state.blocks.find(block => block.invalidVariant);
+    if (recoverable) {
+      const attempted = recoverable.invalidVariant?.attemptedVariant || recoverable.variant || 'unbekannt';
+      const allowed = (recoverable.invalidVariant?.allowedVariants || []).join(', ');
+      throw new Error(`Block-Variante nicht unterstützt (${attempted}). Erlaubte Varianten: ${allowed || 'keine'}.`);
+    }
+
     const validatedBlocks = this.state.blocks.map(block => sanitizeBlock(block));
     return JSON.stringify({
       id: this.state.id || null,
@@ -724,7 +780,8 @@ export class BlockContentEditor {
       const label = document.createElement('span');
       label.dataset.blockLabel = 'true';
       const deprecated = DEPRECATED_BLOCK_MAP[block.type] ? ' [deprecated]' : '';
-      label.textContent = `${block.type}:${block.variant}${deprecated} – ${stripHtml(this.getPrimaryText(block))}`.trim();
+      const invalidVariant = block.invalidVariant ? ' [Variante ungültig]' : '';
+      label.textContent = `${block.type}:${block.variant}${deprecated}${invalidVariant} – ${stripHtml(this.getPrimaryText(block))}`.trim();
 
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
@@ -792,11 +849,29 @@ export class BlockContentEditor {
     const label = document.createElement('div');
     label.textContent = 'Variante';
     const select = document.createElement('select');
+    const hasInvalidVariant = Boolean(block.invalidVariant);
+
+    if (hasInvalidVariant) {
+      const notice = document.createElement('div');
+      notice.dataset.invalidVariantNotice = 'true';
+      const attempted = block.invalidVariant?.attemptedVariant || block.variant || 'unbekannt';
+      const allowed = (block.invalidVariant?.allowedVariants || variants).join(', ');
+      notice.textContent = `Diese Variante (${attempted}) wird nicht unterstützt. Wähle eine der erlaubten Varianten: ${allowed}.`;
+      wrapper.append(notice);
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Variante auswählen';
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      select.append(placeholder);
+    }
+
     variants.forEach(variant => {
       const option = document.createElement('option');
       option.value = variant;
       option.textContent = variant;
-      if (variant === block.variant) {
+      if (!hasInvalidVariant && variant === block.variant) {
         option.selected = true;
       }
       select.append(option);
