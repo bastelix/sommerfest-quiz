@@ -154,15 +154,42 @@ class MarketingDomainProvider
     {
         $pdo = $this->resolveConnection();
 
+        $rows = $this->fetchDomainsTable($pdo);
+        if ($rows === []) {
+            $rows = $this->fetchLegacyMarketingTable($pdo);
+        }
+
+        return $this->normalizeMarketingDomainRows($rows);
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private function fetchDomainsTable(PDO $pdo): array
+    {
+        try {
+            $stmt = $pdo->query('SELECT host, normalized_host FROM domains WHERE is_active = 1');
+        } catch (PDOException $exception) {
+            return [];
+        }
+
+        return $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+    }
+
+    /**
+     * Legacy fallback for deployments that still expose marketing_domains.
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    private function fetchLegacyMarketingTable(PDO $pdo): array
+    {
         try {
             $stmt = $pdo->query('SELECT host, normalized_host FROM marketing_domains');
         } catch (PDOException $exception) {
-            throw $exception;
+            return [];
         }
 
-        $rows = $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
-
-        return $this->normalizeMarketingDomainRows($rows);
+        return $stmt !== false ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
     }
 
     /**

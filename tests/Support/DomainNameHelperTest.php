@@ -5,30 +5,22 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use App\Infrastructure\Database;
-use App\Support\DomainNameHelper;
+use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
+use App\Support\DomainNameHelper;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 class DomainNameHelperTest extends TestCase
 {
-    private string|false $marketingDomainsEnv = false;
-
     protected function setUp(): void
     {
         parent::setUp();
-        $this->marketingDomainsEnv = getenv('MARKETING_DOMAINS');
     }
 
     protected function tearDown(): void
     {
-        if ($this->marketingDomainsEnv === false) {
-            putenv('MARKETING_DOMAINS');
-        } else {
-            putenv('MARKETING_DOMAINS=' . $this->marketingDomainsEnv);
-        }
-
         Database::setFactory(null);
         DomainNameHelper::setMarketingDomainProvider(null);
         parent::tearDown();
@@ -74,15 +66,11 @@ class DomainNameHelperTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
-            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE)'
-        );
 
-        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
-        $stmt->execute(['promo.example.com', DomainNameHelper::normalize('promo.example.com', stripAdmin: false)]);
+        $this->createDomainsTable($pdo);
+
+        $service = new DomainService($pdo);
+        $service->createDomain('promo.example.com');
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
         DomainNameHelper::setMarketingDomainProvider($provider);
@@ -93,11 +81,9 @@ class DomainNameHelperTest extends TestCase
 
     public function testMarketingDomainsResolveFromDatabaseWithoutEnv(): void
     {
-        putenv('MARKETING_DOMAINS');
-
         $pdo = $this->createDomainDatabase();
-        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
-        $stmt->execute(['promo.example.com', DomainNameHelper::normalize('promo.example.com', stripAdmin: false)]);
+        $service = new DomainService($pdo);
+        $service->createDomain('promo.example.com');
 
         Database::setFactory(static fn (): PDO => $pdo);
 
@@ -138,13 +124,24 @@ class DomainNameHelperTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS marketing_domains ('
-            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-            . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE)'
-        );
+        $this->createDomainsTable($pdo);
 
         return $pdo;
+    }
+
+    private function createDomainsTable(PDO $pdo): void
+    {
+        $pdo->exec(
+            'CREATE TABLE IF NOT EXISTS domains ('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+            . 'host TEXT NOT NULL, '
+            . 'normalized_host TEXT NOT NULL UNIQUE, '
+            . 'zone TEXT NOT NULL, '
+            . 'namespace TEXT, '
+            . 'label TEXT, '
+            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
+            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
+            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+        );
     }
 }
