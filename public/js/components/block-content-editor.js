@@ -897,6 +897,8 @@ export class BlockContentEditor {
         return this.buildProcessStepsForm(block);
       case 'testimonial':
         return this.buildTestimonialForm(block);
+      case 'cta':
+        return this.buildCtaForm(block);
       case 'audience_spotlight':
         return this.buildAudienceSpotlightForm(block);
       default:
@@ -1127,6 +1129,26 @@ export class BlockContentEditor {
     wrapper.append(this.addLabeledInput('Sekundäre CTA (Label)', secondaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'label'], value)));
     wrapper.append(this.addLabeledInput('Sekundäre CTA (Link)', secondaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'href'], value)));
     wrapper.append(this.addLabeledInput('Sekundäre CTA (Aria-Label)', secondaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'ariaLabel'], value)));
+
+    return wrapper;
+  }
+
+  buildCtaForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Body', block.data.body, value => this.updateBlockData(block.id, ['data', 'body'], value), { multiline: true, rows: 3 }));
+
+    const primary = block.data.primary || {};
+    const secondary = block.data.secondary || {};
+
+    wrapper.append(this.addLabeledInput('Primäre CTA (Label)', primary.label, value => this.updateBlockData(block.id, ['data', 'primary', 'label'], value)));
+    wrapper.append(this.addLabeledInput('Primäre CTA (Link)', primary.href, value => this.updateBlockData(block.id, ['data', 'primary', 'href'], value)));
+    wrapper.append(this.addLabeledInput('Primäre CTA (Aria-Label)', primary.ariaLabel, value => this.updateBlockData(block.id, ['data', 'primary', 'ariaLabel'], value)));
+
+    wrapper.append(this.addLabeledInput('Sekundäre CTA (Label)', secondary.label, value => this.updateBlockData(block.id, ['data', 'secondary', 'label'], value)));
+    wrapper.append(this.addLabeledInput('Sekundäre CTA (Link)', secondary.href, value => this.updateBlockData(block.id, ['data', 'secondary', 'href'], value)));
+    wrapper.append(this.addLabeledInput('Sekundäre CTA (Aria-Label)', secondary.ariaLabel, value => this.updateBlockData(block.id, ['data', 'secondary', 'ariaLabel'], value)));
 
     return wrapper;
   }
