@@ -156,6 +156,30 @@ class HomeControllerTest extends TestCase
         }
     }
 
+    public function testEventsStartpageUsesCustomPageWhenAvailable(): void {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        (new \App\Service\SettingsService($pdo))->save(['home_page' => 'events']);
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
+        $pdo->exec(
+            "INSERT INTO pages(slug,title,content) VALUES('events','Events','<p>Custom content</p>')"
+        );
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = (string) $response->getBody();
+            $this->assertStringContainsString('Custom content', $body);
+            $this->assertStringNotContainsString('Veranstaltungen', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testLandingAsHomePage(): void {
         $db = $this->setupDb();
         $this->getAppInstance();

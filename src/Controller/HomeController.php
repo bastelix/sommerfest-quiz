@@ -13,6 +13,7 @@ use App\Service\EventService;
 use App\Service\PageService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
+use App\Service\PageContentLoader;
 use App\Service\ResultService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
@@ -80,6 +81,17 @@ class HomeController
             $startpageBaseSlug = $startpageSlug !== null
                 ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)
                 : '';
+
+            $startpagePage = $startpageSlug !== null
+                ? $pageService->findByKey($namespace, $startpageSlug)
+                : null;
+            $hasCustomStartpage = $startpagePage !== null
+                && $startpagePage->getContentSource() !== PageContentLoader::SOURCE_FILE;
+
+            if ($hasCustomStartpage && $catalogParam === '') {
+                $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug);
+                return $ctrl($request, $response);
+            }
 
             if ($startpageBaseSlug === 'events') {
                 $events = $eventSvc->getAll();
