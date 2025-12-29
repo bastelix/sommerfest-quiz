@@ -683,11 +683,11 @@ function renderPackageSummary(block, variant, options = {}) {
     ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
     : '';
 
-  const options = Array.isArray(block.data?.options) ? block.data.options : [];
+  const packageOptions = Array.isArray(block.data?.options) ? block.data.options : [];
   const plans = Array.isArray(block.data?.plans) ? block.data.plans : [];
 
   const isToggleVariant = variant === 'toggle';
-  const itemsToRender = isToggleVariant ? options : plans;
+  const itemsToRender = isToggleVariant ? packageOptions : plans;
   const renderItem = isToggleVariant ? renderPackageOption : renderPackagePlan;
   const gridClass = isToggleVariant ? 'uk-child-width-1-1 uk-child-width-1-2@m' : 'uk-child-width-1-1 uk-child-width-1-3@m';
 
