@@ -291,6 +291,8 @@ const schema = {
       "additionalProperties": false,
       "required": ["metrics"],
       "properties": {
+        "title": { "type": "string" },
+        "lede": { "type": "string" },
         "metrics": {
           "type": "array",
           "items": { "$ref": "#/definitions/Metric" },
@@ -380,6 +382,7 @@ const schema = {
         "id": { "type": "string", "minLength": 1 },
         "value": { "type": "string", "minLength": 1 },
         "label": { "type": "string", "minLength": 1 },
+        "icon": { "type": "string" },
         "asOf": { "type": "string" },
         "tooltip": { "type": "string" },
         "benefit": { "type": "string" }

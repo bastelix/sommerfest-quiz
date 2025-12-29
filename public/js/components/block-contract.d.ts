@@ -138,12 +138,15 @@ export interface StatMetric {
   id: string;
   value: string;
   label: string;
+  icon?: string;
   asOf?: string;
   tooltip?: string;
   benefit?: string;
 }
 
 export interface StatStripBlockData {
+  title?: string;
+  lede?: string;
   metrics: StatMetric[];
   marquee?: string[];
 }
