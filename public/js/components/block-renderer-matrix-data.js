@@ -253,8 +253,51 @@ function renderFeatureListGridBullets(block) {
 }
 
 function renderProcessSteps(block, variant) {
-  const stepCount = Array.isArray(block.data.steps) ? block.data.steps.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(variant)}"><!-- process_steps:${escapeHtml(variant)} | ${stepCount} steps --></section>`;
+  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal']);
+
+  if (!allowedVariants.has(variant)) {
+    throw new Error(`Unsupported process_steps variant: ${variant}`);
+  }
+
+  const steps = Array.isArray(block.data?.steps) ? block.data.steps : [];
+
+  const allStepsValid = steps.every(step =>
+    step && typeof step.title === 'string' && typeof step.description === 'string'
+  );
+
+  if (!steps.length || !allStepsValid) {
+    throw new Error('process_steps block requires at least one valid step');
+  }
+
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const summary = block.data?.summary ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(block.data.summary)}</p>` : '';
+  const header = title || summary ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}${summary}</div>` : '';
+
+  const renderNumberBadge = stepNumber =>
+    `<div class="uk-flex uk-flex-middle uk-flex-center uk-background-primary uk-light uk-border-circle uk-text-bold" style="width:48px;height:48px;">${stepNumber}</div>`;
+
+  const stepItems = steps.map((step, index) => {
+    const stepNumber = renderNumberBadge(index + 1);
+
+    if (variant === 'numbered-horizontal') {
+      const horizontalTitle = `<h3 class="uk-h4 uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>`;
+      const horizontalDescription = `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>`;
+      return `<div class="uk-text-center"><div class="uk-flex uk-flex-center">${stepNumber}</div>${horizontalTitle}${horizontalDescription}</div>`;
+    }
+
+    const verticalTitle = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>`;
+    const verticalDescription = `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>`;
+    const content = `<div class="uk-width-expand">${verticalTitle}${verticalDescription}</div>`;
+    const numberColumn = `<div class="uk-width-auto uk-flex uk-flex-top">${stepNumber}</div>`;
+    return `<div class="uk-grid-small uk-flex-top" data-uk-grid>${numberColumn}${content}</div>`;
+  });
+
+  const layout = variant === 'numbered-horizontal'
+    ? `<div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid>${stepItems.join('')}</div>`
+    : `<div class="uk-grid-medium" data-uk-grid>${stepItems.map(item => `<div class="uk-width-1-1">${item}</div>`).join('')}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${layout}</div></section>`;
 }
 
 function renderTestimonialSingle(block) {
@@ -333,9 +376,6 @@ export const RENDERER_MATRIX = {
     icon_grid: renderFeatureListGridBullets
   },
   process_steps: {
-    timeline_horizontal: block => renderProcessSteps(block, 'timeline_horizontal'),
-    timeline_vertical: block => renderProcessSteps(block, 'timeline_vertical'),
-    timeline: block => renderProcessSteps(block, 'timeline'),
     'numbered-vertical': block => renderProcessSteps(block, 'numbered-vertical'),
     'numbered-horizontal': block => renderProcessSteps(block, 'numbered-horizontal')
   },
