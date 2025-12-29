@@ -88,6 +88,41 @@ final class PageBlockContractMigratorTest extends TestCase
         self::assertEmpty($fakePages->savedContent);
     }
 
+    public function testNormalizesLegacyCtaBlocks(): void
+    {
+        $content = json_encode([
+            'blocks' => [
+                [
+                    'id' => 'cta-1',
+                    'type' => 'cta',
+                    'variant' => 'split',
+                    'data' => ['label' => 'Go', 'href' => '/cta'],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        $page = $this->createPage(5, 'default', 'cta', $content);
+        $fakePages = new FakePageService([$page]);
+
+        $schema = dirname(__DIR__, 2) . '/public/js/components/block-contract.schema.json';
+        $migrator = new PageBlockContractMigrator($fakePages, $schema);
+
+        $report = $migrator->migrateAll();
+
+        self::assertSame(1, $report['migrated']);
+        self::assertCount(1, $fakePages->savedContent);
+
+        $saved = json_decode($fakePages->savedContent[0]['content'], true, 512, JSON_THROW_ON_ERROR);
+        $ctaBlock = $saved['blocks'][0];
+
+        self::assertSame('cta', $ctaBlock['type']);
+        self::assertSame('split', $ctaBlock['variant']);
+        self::assertSame(
+            ['primary' => ['label' => 'Go', 'href' => '/cta']],
+            $ctaBlock['data']
+        );
+    }
+
     public function testSkipsAlreadyMigratedContent(): void
     {
         $content = json_encode([

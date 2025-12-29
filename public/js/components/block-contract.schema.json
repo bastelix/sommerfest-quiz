@@ -184,7 +184,7 @@
           ]
         },
         "data": {
-          "$ref": "#/definitions/CallToAction"
+          "$ref": "#/definitions/CtaBlockData"
         }
       },
       "required": [
@@ -608,6 +608,27 @@
           }
         }
       ]
+    },
+    "CtaBlockData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "primary": {
+          "$ref": "#/definitions/CallToAction"
+        },
+        "secondary": {
+          "$ref": "#/definitions/CallToAction"
+        }
+      }
     },
     "CallToAction": {
       "type": "object",

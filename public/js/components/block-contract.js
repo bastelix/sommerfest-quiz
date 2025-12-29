@@ -88,24 +88,12 @@ const schema = {
     },
     {
       "title": "CTA block",
-      "oneOf": [
-        {
-          "properties": {
-            "type": { "const": "cta" },
-            "variant": { "const": "full_width" },
-            "data": { "$ref": "#/definitions/CallToAction" }
-          },
-          "required": ["type", "variant", "data"]
-        },
-        {
-          "properties": {
-            "type": { "const": "cta" },
-            "variant": { "const": "split" },
-            "data": { "$ref": "#/definitions/CallToActionSplit" }
-          },
-          "required": ["type", "variant", "data"]
-        }
-      ]
+      "properties": {
+        "type": { "const": "cta" },
+        "variant": { "enum": ["full_width", "split"] },
+        "data": { "$ref": "#/definitions/CtaBlockData" }
+      },
+      "required": ["type", "variant", "data"]
     },
     {
       "title": "Stat strip block",
@@ -271,6 +259,17 @@ const schema = {
         "ariaLabel": { "type": "string" }
       }
     },
+    "CtaBlockData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary"],
+      "properties": {
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "primary": { "$ref": "#/definitions/CallToAction" },
+        "secondary": { "$ref": "#/definitions/CallToAction" }
+      }
+    },
     "CallToActionGroup": {
       "oneOf": [
         { "$ref": "#/definitions/CallToAction" },
@@ -284,15 +283,6 @@ const schema = {
           }
         }
       ]
-    },
-    "CallToActionSplit": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["primary", "secondary"],
-      "properties": {
-        "primary": { "$ref": "#/definitions/CallToAction" },
-        "secondary": { "$ref": "#/definitions/CallToAction" }
-      }
     },
     "StatStripData": {
       "type": "object",
@@ -605,28 +595,28 @@ function normalizeCtaBlockData(data) {
     return data;
   }
 
-  const normalized = { ...data };
+  const normalized = {};
 
-  if (isPlainObject(data.primary) || isPlainObject(data.secondary)) {
-    const primary = normalizeCallToAction(data.primary);
-    const secondary = normalizeCallToAction(data.secondary);
-
-    if (primary) {
-      normalized.primary = primary;
-    } else {
-      delete normalized.primary;
-    }
-
-    if (secondary) {
-      normalized.secondary = secondary;
-    } else {
-      delete normalized.secondary;
-    }
-
-    return normalized;
+  const title = typeof data.title === 'string' && data.title.trim() !== '' ? data.title : undefined;
+  const body = typeof data.body === 'string' && data.body.trim() !== '' ? data.body : undefined;
+  if (title) {
+    normalized.title = title;
+  }
+  if (body) {
+    normalized.body = body;
   }
 
-  return normalizeCallToAction(normalized) || normalized;
+  const primary = normalizeCallToAction(data.primary ?? data);
+  if (primary) {
+    normalized.primary = primary;
+  }
+
+  const secondary = normalizeCallToAction(data.secondary);
+  if (secondary) {
+    normalized.secondary = secondary;
+  }
+
+  return normalized;
 }
 
 function normalizeBlockData(type, data) {
