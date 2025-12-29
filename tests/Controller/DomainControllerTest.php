@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
-use App\Service\CertificateProvisionerInterface;
+use App\Service\CertificateZoneRegistry;
 use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
-use App\Service\MarketingSslOrchestrator;
 use App\Support\DomainNameHelper;
 use Tests\TestCase;
 
@@ -25,12 +24,14 @@ class DomainControllerTest extends TestCase
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 host TEXT NOT NULL,
                 normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
                 namespace TEXT,
                 label TEXT,
                 is_active INTEGER NOT NULL DEFAULT 1
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
 
         $this->setDatabase($pdo);
 
@@ -56,7 +57,7 @@ class DomainControllerTest extends TestCase
         $request->getBody()->write($payload);
         $request->getBody()->rewind();
 
-        $controller = new \App\Controller\Admin\DomainController($service);
+        $controller = new \App\Controller\Admin\DomainController($service, new CertificateZoneRegistry($pdo));
         $response = $controller->update($request, new \Slim\Psr7\Response(), ['id' => (string) $domain['id']]);
 
         $this->assertSame(200, $response->getStatusCode());
@@ -78,19 +79,21 @@ class DomainControllerTest extends TestCase
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 host TEXT NOT NULL,
                 normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
                 namespace TEXT,
                 label TEXT,
                 is_active INTEGER NOT NULL DEFAULT 1
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
 
         $this->setDatabase($pdo);
 
         $service = new DomainService($pdo);
         $domain = $service->createDomain('example.com', 'Example', null, true);
 
-        $controller = new \App\Controller\Admin\DomainController($service);
+        $controller = new \App\Controller\Admin\DomainController($service, new CertificateZoneRegistry($pdo));
 
         $request = $this->createRequest(
             'PATCH',
@@ -127,34 +130,23 @@ class DomainControllerTest extends TestCase
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 host TEXT NOT NULL,
                 normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
                 namespace TEXT,
                 label TEXT,
                 is_active INTEGER NOT NULL DEFAULT 1
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
 
         $this->setDatabase($pdo);
 
         $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
         $domain = $service->createDomain('WWW.Example.com', 'Example', null, true);
+        $registry->ensureZone($domain['zone']);
 
-        $provisioning = new class implements CertificateProvisionerInterface {
-            public array $domains = [];
-            public bool $provisionAllCalled = false;
-
-            public function provisionAllDomains(): void
-            {
-                $this->provisionAllCalled = true;
-            }
-
-            public function provisionMarketingDomain(string $domain): void
-            {
-                $this->domains[] = $domain;
-            }
-        };
-
-        $controller = new \App\Controller\Admin\DomainController($service, $provisioning);
+        $controller = new \App\Controller\Admin\DomainController($service, $registry);
 
         $request = $this->createRequest(
             'POST',
@@ -168,13 +160,13 @@ class DomainControllerTest extends TestCase
 
         $this->assertSame(200, $response->getStatusCode());
 
-        $this->assertFalse($provisioning->provisionAllCalled);
-        $this->assertSame(['example.com'], $provisioning->domains);
-
         $payload = json_decode((string) $response->getBody(), true);
         $this->assertIsArray($payload);
         $this->assertSame('Certificate renewal queued.', $payload['status'] ?? null);
         $this->assertSame('example.com', $payload['domain'] ?? null);
+
+        $status = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "example.com"');
+        $this->assertSame('pending', $status !== false ? $status->fetchColumn() : null);
     }
 
     public function testProvisioningUsesFreshMarketingDomains(): void
@@ -186,16 +178,19 @@ class DomainControllerTest extends TestCase
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 host TEXT NOT NULL,
                 normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
                 namespace TEXT,
                 label TEXT,
                 is_active INTEGER NOT NULL DEFAULT 1
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
 
         $this->setDatabase($pdo);
 
         $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
 
         $provider = new class (static fn (): \PDO => $pdo) extends MarketingDomainProvider {
             public bool $cleared = false;
@@ -210,29 +205,8 @@ class DomainControllerTest extends TestCase
         $previousProvider = DomainNameHelper::getMarketingDomainProvider();
         DomainNameHelper::setMarketingDomainProvider($provider);
 
-        $provisioning = new class ($provider) implements CertificateProvisionerInterface {
-            public bool $provisionAllCalled = false;
-            public bool $marketingCleared = false;
-            private MarketingDomainProvider $provider;
-
-            public function __construct(MarketingDomainProvider $provider)
-            {
-                $this->provider = $provider;
-            }
-
-            public function provisionAllDomains(): void
-            {
-                $this->provisionAllCalled = true;
-                $this->marketingCleared = $this->provider->cleared;
-            }
-
-            public function provisionMarketingDomain(string $domain): void
-            {
-            }
-        };
-
         try {
-            $controller = new \App\Controller\Admin\DomainController($service, $provisioning);
+            $controller = new \App\Controller\Admin\DomainController($service, $registry);
 
             $request = $this->createRequest(
                 'POST',
@@ -248,8 +222,10 @@ class DomainControllerTest extends TestCase
             $response = $controller->create($request, new \Slim\Psr7\Response());
 
             $this->assertSame(201, $response->getStatusCode());
-            $this->assertTrue($provisioning->provisionAllCalled);
-            $this->assertTrue($provisioning->marketingCleared);
+            $this->assertTrue($provider->cleared);
+
+            $status = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "marketing.example"');
+            $this->assertSame('pending', $status !== false ? $status->fetchColumn() : null);
         } finally {
             DomainNameHelper::setMarketingDomainProvider($previousProvider);
         }
@@ -267,36 +243,22 @@ class DomainControllerTest extends TestCase
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 host TEXT NOT NULL,
                 normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
                 namespace TEXT,
                 label TEXT,
                 is_active INTEGER NOT NULL DEFAULT 1
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
 
         $this->setDatabase($pdo);
 
         $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
         $domain = $service->createDomain('promo.example.com', 'Example', null, true);
 
-        $orchestrator = new class () extends MarketingSslOrchestrator {
-            public array $triggered = [];
-
-            public function __construct()
-            {
-            }
-
-            public function trigger(?string $namespace = null, bool $dryRun = false, ?string $host = null): void
-            {
-                $this->triggered[] = [
-                    'namespace' => $namespace,
-                    'dryRun' => $dryRun,
-                    'host' => $host,
-                ];
-            }
-        };
-
-        $controller = new \App\Controller\Admin\DomainController($service, null, $orchestrator);
+        $controller = new \App\Controller\Admin\DomainController($service, $registry);
 
         $request = $this->createRequest(
             'POST',
@@ -315,10 +277,8 @@ class DomainControllerTest extends TestCase
         $this->assertNull($payload['namespace'] ?? null);
         $this->assertSame('promo.example.com', $payload['domain'] ?? null);
 
-        $this->assertCount(1, $orchestrator->triggered);
-        $trigger = $orchestrator->triggered[0];
-        $this->assertNull($trigger['namespace']);
-        $this->assertFalse($trigger['dryRun']);
-        $this->assertSame('promo.example.com', $trigger['host']);
+        $zoneStmt = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "promo.example.com"');
+        $status = $zoneStmt !== false ? $zoneStmt->fetchColumn() : false;
+        $this->assertSame('pending', $status);
     }
 }

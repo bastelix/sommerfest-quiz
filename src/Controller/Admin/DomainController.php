@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Service\CertificateProvisionerInterface;
+use App\Service\CertificateZoneRegistry;
 use App\Service\DomainService;
-use App\Service\MarketingSslOrchestrator;
-use App\Service\ReverseProxyHostUpdater;
 use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use RuntimeException;
@@ -20,20 +18,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class DomainController
 {
     private DomainService $domainService;
-    private ReverseProxyHostUpdater $reverseProxyHostUpdater;
-    private ?CertificateProvisionerInterface $certificateProvisioningService;
-    private ?MarketingSslOrchestrator $marketingSslOrchestrator;
+    private CertificateZoneRegistry $certificateZoneRegistry;
 
     public function __construct(
         DomainService $domainService,
-        ReverseProxyHostUpdater $reverseProxyHostUpdater,
-        ?CertificateProvisionerInterface $certificateProvisioningService = null,
-        ?MarketingSslOrchestrator $marketingSslOrchestrator = null
+        CertificateZoneRegistry $certificateZoneRegistry
     ) {
         $this->domainService = $domainService;
-        $this->reverseProxyHostUpdater = $reverseProxyHostUpdater;
-        $this->certificateProvisioningService = $certificateProvisioningService;
-        $this->marketingSslOrchestrator = $marketingSslOrchestrator;
+        $this->certificateZoneRegistry = $certificateZoneRegistry;
     }
 
     public function index(Request $request, Response $response): Response
@@ -54,40 +46,22 @@ class DomainController
             return $response->withStatus(400);
         }
 
-        if ($this->marketingSslOrchestrator === null) {
-            return $this->jsonError($response, 'Certificate provisioning unavailable.', 503);
-        }
-
         $domain = $this->domainService->getDomainById($id);
         if ($domain === null) {
             return $response->withStatus(404);
         }
 
-        $queryParams = $request->getQueryParams();
-        $dryRun = $this->normalizeBool($queryParams['dry_run'] ?? false);
-
-        $namespace = trim((string) ($domain['namespace'] ?? ''));
-        $host = $this->domainService->normalizeDomain((string) $domain['host'], stripAdmin: false);
-        if ($host === '') {
-            $host = (string) $domain['normalized_host'];
-        }
-
-        if ($host === '') {
-            return $this->jsonError($response, 'Invalid domain supplied.', 422);
-        }
-
         try {
-            $this->marketingSslOrchestrator->trigger(namespace: $namespace !== '' ? $namespace : null, dryRun: $dryRun, host: $host);
+            $this->certificateZoneRegistry->ensureZone($domain['zone']);
+            $this->certificateZoneRegistry->markPending($domain['zone']);
         } catch (RuntimeException $exception) {
-            error_log('[marketing-ssl] provisioning failed: ' . $exception->getMessage());
-
-            return $this->jsonError($response, 'SSL provisioning failed.', 500);
+            return $this->jsonError($response, 'Failed to queue certificate provisioning.', 500);
         }
 
         $payload = [
             'status' => 'started',
-            'namespace' => $namespace !== '' ? $namespace : null,
-            'domain' => $host,
+            'namespace' => $domain['namespace'] ?? null,
+            'domain' => $domain['host'],
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -114,19 +88,8 @@ class DomainController
         }
 
         if ($domain['is_active']) {
-            try {
-                $this->reverseProxyHostUpdater->persistMarketingDomain($this->getMarketingHost($domain));
-            } catch (InvalidArgumentException | RuntimeException $exception) {
-                return $this->jsonError($response, 'Failed to persist marketing domain configuration.', 500);
-            }
-        }
-
-        if (
-            $this->certificateProvisioningService !== null
-            && $domain['is_active']
-        ) {
+            $this->queueZone($domain['zone']);
             $this->clearMarketingDomainCache();
-            $this->certificateProvisioningService->provisionAllDomains();
         }
 
         $response->getBody()->write(json_encode([
@@ -169,19 +132,9 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        if (
-            $this->certificateProvisioningService !== null
-            && !$existing['is_active']
-            && $domain['is_active']
-        ) {
-            try {
-                $this->reverseProxyHostUpdater->persistMarketingDomain($this->getMarketingHost($domain));
-            } catch (InvalidArgumentException | RuntimeException $exception) {
-                return $this->jsonError($response, 'Failed to persist marketing domain configuration.', 500);
-            }
-
+        if (!$existing['is_active'] && $domain['is_active']) {
+            $this->queueZone($domain['zone']);
             $this->clearMarketingDomainCache();
-            $this->certificateProvisioningService->provisionAllDomains();
         }
 
         $response->getBody()->write(json_encode([
@@ -230,31 +183,16 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        if ($this->certificateProvisioningService === null) {
-            return $this->jsonError($response, 'Certificate provisioning unavailable.', 503);
-        }
-
-        $host = $this->domainService->normalizeDomain($domain['host'], stripAdmin: false);
-        if ($host === '') {
-            $host = (string) $domain['normalized_host'];
-        }
-
-        if ($host === '') {
-            return $this->jsonError($response, 'Invalid domain supplied.', 422);
-        }
-
         try {
-            $this->certificateProvisioningService->provisionMarketingDomain($host);
-        } catch (InvalidArgumentException | RuntimeException $exception) {
-            return $this->jsonError($response, $exception->getMessage(), 422);
+            $this->certificateZoneRegistry->markPending($domain['zone']);
+        } catch (RuntimeException $exception) {
+            return $this->jsonError($response, 'Failed to queue certificate renewal.', 500);
         }
 
-        $payload = [
+        $response->getBody()->write(json_encode([
             'status' => 'Certificate renewal queued.',
-            'domain' => $host,
-        ];
-
-        $response->getBody()->write(json_encode($payload));
+            'domain' => $domain['zone'],
+        ]));
 
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -309,16 +247,10 @@ class DomainController
         return $value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'on';
     }
 
-    /**
-     * @param array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool} $domain
-     */
-    private function getMarketingHost(array $domain): string
+    private function queueZone(string $zone): void
     {
-        $host = $this->domainService->normalizeDomain($domain['host'], stripAdmin: false);
-        if ($host !== '') {
-            return $host;
-        }
+        $provider = getenv('ACME_WILDCARD_PROVIDER') ?: 'hetzner';
 
-        return $this->domainService->normalizeDomain($domain['normalized_host'], stripAdmin: false);
+        $this->certificateZoneRegistry->ensureZone($zone, $provider, true);
     }
 }

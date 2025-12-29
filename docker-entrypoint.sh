@@ -293,23 +293,6 @@ append_proxy_host() {
     fi
 }
 
-# Merge marketing domains into both proxy and certificate host lists.
-marketing_domains=$(normalize_host_list "${MARKETING_DOMAINS:-}")
-if [ -n "$marketing_domains" ]; then
-    echo "Adding MARKETING_DOMAINS to host lists: $marketing_domains" >&2
-
-    old_ifs=$IFS
-    IFS=','
-    for marketing_host in $marketing_domains; do
-        if [ -z "$marketing_host" ]; then
-            continue
-        fi
-
-        append_proxy_host "$marketing_host"
-    done
-    IFS=$old_ifs
-fi
-
 # Automatically expose tenant domains in single-container setups. Add a wildcard
 # only when explicitly enabled, otherwise keep HTTP-01 compatible apex entries.
 single_container_flag=$(printf '%s' "${TENANT_SINGLE_CONTAINER:-}" | tr '[:upper:]' '[:lower:]')
@@ -524,9 +507,14 @@ fi
 ssl_bootstrap=$(printf '%s' "${REQUEST_SSL_ON_STARTUP:-1}" | tr '[:upper:]' '[:lower:]')
 case "$ssl_bootstrap" in
     1|true|yes|on)
-        if [ -f scripts/request_ssl_for_domains.php ]; then
-            echo "Triggering certificate request for configured domains"
-            php scripts/request_ssl_for_domains.php || true
+        if [ -x bin/provision-wildcard-certificates ]; then
+            echo "Triggering wildcard certificate provisioning for configured zones"
+            bin/provision-wildcard-certificates || true
+        fi
+
+        if [ -x bin/generate-nginx-zones ]; then
+            echo "Regenerating nginx wildcard server blocks"
+            bin/generate-nginx-zones || true
         fi
         ;;
 esac

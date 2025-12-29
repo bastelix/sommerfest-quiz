@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Support\DomainNameHelper;
+use App\Support\DomainZoneResolver;
 use InvalidArgumentException;
 use PDO;
 
@@ -17,9 +18,16 @@ class DomainService
 
     private NamespaceValidator $namespaceValidator;
 
-    public function __construct(PDO $pdo, ?NamespaceValidator $namespaceValidator = null) {
+    private DomainZoneResolver $zoneResolver;
+
+    public function __construct(
+        PDO $pdo,
+        ?NamespaceValidator $namespaceValidator = null,
+        ?DomainZoneResolver $zoneResolver = null
+    ) {
         $this->pdo = $pdo;
         $this->namespaceValidator = $namespaceValidator ?? new NamespaceValidator();
+        $this->zoneResolver = $zoneResolver ?? new DomainZoneResolver();
     }
 
     /**
@@ -27,6 +35,7 @@ class DomainService
      *     id:int,
      *     host:string,
      *     normalized_host:string,
+     *     zone:string,
      *     namespace:?string,
      *     label:?string,
      *     is_active:bool
@@ -34,7 +43,7 @@ class DomainService
      */
     public function listDomains(bool $includeInactive = false): array
     {
-        $sql = 'SELECT id, host, normalized_host, namespace, label, is_active FROM domains';
+        $sql = 'SELECT id, host, normalized_host, zone, namespace, label, is_active FROM domains';
         if (!$includeInactive) {
             $sql .= ' WHERE is_active = TRUE';
         }
@@ -55,20 +64,21 @@ class DomainService
         ?string $namespace = null,
         bool $isActive = true
     ): array {
-        [$displayHost, $normalizedHost] = $this->prepareHost($host);
+        [$displayHost, $normalizedHost, $zone] = $this->prepareHost($host);
         $labelValue = $this->normalizeLabel($label);
         $namespaceValue = $this->normalizeNamespace($namespace);
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO domains (host, normalized_host, namespace, label, is_active)
-             VALUES (?, ?, ?, ?, ?)
+            'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)
+             VALUES (?, ?, ?, ?, ?, ?)
              ON CONFLICT(normalized_host) DO UPDATE SET
                  host = EXCLUDED.host,
+                 zone = EXCLUDED.zone,
                  namespace = EXCLUDED.namespace,
                  label = EXCLUDED.label,
                  is_active = EXCLUDED.is_active'
         );
-        $stmt->execute([$displayHost, $normalizedHost, $namespaceValue, $labelValue, $isActive]);
+        $stmt->execute([$displayHost, $normalizedHost, $zone, $namespaceValue, $labelValue, $isActive]);
 
         $domain = $this->getDomainByNormalized($normalizedHost);
         if ($domain === null) {
@@ -88,7 +98,7 @@ class DomainService
         ?string $namespace = null,
         bool $isActive = true
     ): ?array {
-        [$displayHost, $normalizedHost] = $this->prepareHost($host);
+        [$displayHost, $normalizedHost, $zone] = $this->prepareHost($host);
         $labelValue = $this->normalizeLabel($label);
         $namespaceValue = $this->normalizeNamespace($namespace);
 
@@ -98,9 +108,9 @@ class DomainService
         }
 
         $stmt = $this->pdo->prepare(
-            'UPDATE domains SET host = ?, normalized_host = ?, namespace = ?, label = ?, is_active = ? WHERE id = ?'
+            'UPDATE domains SET host = ?, normalized_host = ?, zone = ?, namespace = ?, label = ?, is_active = ? WHERE id = ?'
         );
-        $stmt->execute([$displayHost, $normalizedHost, $namespaceValue, $labelValue, $isActive, $id]);
+        $stmt->execute([$displayHost, $normalizedHost, $zone, $namespaceValue, $labelValue, $isActive, $id]);
 
         return $this->fetchDomainById($id);
     }
@@ -117,7 +127,7 @@ class DomainService
     }
 
     /**
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}|null
      */
     public function getDomainForHost(string $host, bool $includeInactive = false): ?array
     {
@@ -167,7 +177,7 @@ class DomainService
     }
 
     /**
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}|null
      */
     public function getDomainById(int $id): ?array
     {
@@ -175,7 +185,7 @@ class DomainService
     }
 
     /**
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}|null
      */
     private function getDomainByNormalized(string $normalizedHost, bool $includeInactive = false): ?array
     {
@@ -183,7 +193,7 @@ class DomainService
             return null;
         }
 
-        $sql = 'SELECT id, host, normalized_host, namespace, label, is_active FROM domains WHERE normalized_host = ?';
+        $sql = 'SELECT id, host, normalized_host, zone, namespace, label, is_active FROM domains WHERE normalized_host = ?';
         if (!$includeInactive) {
             $sql .= ' AND is_active = TRUE';
         }
@@ -195,12 +205,12 @@ class DomainService
     }
 
     /**
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}|null
      */
     private function fetchDomainById(int $id): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id, host, normalized_host, namespace, label, is_active FROM domains WHERE id = ?'
+            'SELECT id, host, normalized_host, zone, namespace, label, is_active FROM domains WHERE id = ?'
         );
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -210,7 +220,7 @@ class DomainService
 
     /**
      * @param array<int,array<string,mixed>> $rows
-     * @return list<array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}>
+     * @return list<array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}>
      */
     private function hydrateDomains(array $rows): array
     {
@@ -227,7 +237,7 @@ class DomainService
 
     /**
      * @param array<string,mixed> $row
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}|null
      */
     private function hydrateDomain(array $row): ?array
     {
@@ -239,6 +249,11 @@ class DomainService
         $normalized = strtolower(trim((string) $row['normalized_host']));
         if ($normalized === '') {
             return null;
+        }
+
+        $zone = isset($row['zone']) ? strtolower(trim((string) $row['zone'])) : '';
+        if ($zone === '') {
+            $zone = $normalized;
         }
 
         $host = isset($row['host']) ? strtolower(trim((string) $row['host'])) : '';
@@ -264,6 +279,7 @@ class DomainService
             'id' => $id,
             'host' => $host,
             'normalized_host' => $normalized,
+            'zone' => $zone,
             'namespace' => $namespace,
             'label' => $label,
             'is_active' => $isActive,
@@ -271,7 +287,7 @@ class DomainService
     }
 
     /**
-     * @return array{0:string,1:string}
+     * @return array{0:string,1:string,2:string}
      */
     private function prepareHost(string $host): array
     {
@@ -285,7 +301,12 @@ class DomainService
             throw new InvalidArgumentException('Unable to normalize domain.');
         }
 
-        return [$displayHost, $normalizedHost];
+        $zone = $this->zoneResolver->deriveZone($displayHost);
+        if ($zone === null) {
+            throw new InvalidArgumentException('Unable to derive zone.');
+        }
+
+        return [$displayHost, $normalizedHost, $zone];
     }
 
     private function normalizeLabel(?string $label): ?string

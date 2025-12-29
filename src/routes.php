@@ -44,8 +44,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\DomainService;
 use App\Service\DomainContactTemplateService;
-use App\Service\CertificateProvisioningService;
-use App\Service\MarketingSslOrchestrator;
+use App\Service\CertificateZoneRegistry;
 use App\Service\PromptTemplateService;
 use App\Service\PageService;
 use App\Service\NamespaceService;
@@ -59,7 +58,6 @@ use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
-use App\Service\ReverseProxyHostUpdater;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\HttpChatResponder;
 use App\Repository\NamespaceRepository;
@@ -533,11 +531,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainService = new DomainService($pdo);
-        $reverseProxyHostUpdater = new ReverseProxyHostUpdater($domainService, $nginxService);
-        $marketingSslOrchestrator = new MarketingSslOrchestrator(
-            getenv('MARKETING_SSL_SCRIPT') ?: dirname(__DIR__) . '/scripts/marketing_ssl_orchestrator.sh',
-            getenv('MARKETING_SSL_USER') ?: 'www-data'
-        );
+        $certificateZoneRegistry = new CertificateZoneRegistry($pdo);
         $domainContactTemplateService = new DomainContactTemplateService($pdo);
         $promptTemplateService = new PromptTemplateService($pdo);
         $marketingNewsletterConfigService = new MarketingNewsletterConfigService($pdo);
@@ -550,7 +544,6 @@ return function (\Slim\App $app, TranslationService $translator) {
             );
             DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
         }
-        $certificateProvisioningService = new CertificateProvisioningService($marketingDomainProvider);
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
@@ -649,9 +642,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 'domainController',
                 new DomainController(
                     $domainService,
-                    $reverseProxyHostUpdater,
-                    $certificateProvisioningService,
-                    $marketingSslOrchestrator
+                    $certificateZoneRegistry
                 )
             )
             ->withAttribute(

@@ -114,11 +114,21 @@ CREATE TABLE IF NOT EXISTS domains (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     host TEXT NOT NULL,
     normalized_host TEXT NOT NULL UNIQUE,
+    zone TEXT NOT NULL,
     namespace TEXT,
     label TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS certificate_zones (
+    zone TEXT PRIMARY KEY,
+    provider TEXT NOT NULL DEFAULT 'hetzner',
+    wildcard_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    status TEXT NOT NULL DEFAULT 'pending',
+    last_issued_at TEXT,
+    last_error TEXT
 );
 
 -- Domain contact templates
