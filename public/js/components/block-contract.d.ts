@@ -62,6 +62,7 @@ export interface FeatureItem {
   icon?: string;
   title: string;
   description: string;
+  label?: string;
   bullets?: string[];
   media?: Media;
 }
