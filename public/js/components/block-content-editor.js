@@ -897,6 +897,8 @@ export class BlockContentEditor {
         return this.buildProcessStepsForm(block);
       case 'testimonial':
         return this.buildTestimonialForm(block);
+      case 'faq':
+        return this.buildFaqForm(block);
       case 'cta':
         return this.buildCtaForm(block);
       case 'audience_spotlight':
@@ -1304,6 +1306,74 @@ export class BlockContentEditor {
     return wrapper;
   }
 
+  buildFaqForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+
+    const itemsWrapper = document.createElement('div');
+    itemsWrapper.dataset.field = 'items';
+
+    const addItemBtn = document.createElement('button');
+    addItemBtn.type = 'button';
+    addItemBtn.textContent = 'Frage hinzufügen';
+    addItemBtn.addEventListener('click', () => this.addFaqItem(block.id));
+    itemsWrapper.append(addItemBtn);
+
+    (block.data.items || []).forEach((item, index) => {
+      const itemCard = document.createElement('div');
+      itemCard.dataset.faqItem = item.id;
+
+      itemCard.append(this.addLabeledInput('Frage', item.question, value => this.updateFaqItem(block.id, item.id, 'question', value)));
+      itemCard.append(
+        this.addLabeledInput('Antwort', item.answer, value => this.updateFaqItem(block.id, item.id, 'answer', value), {
+          multiline: true,
+          rows: 3
+        })
+      );
+
+      const controls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.disabled = (block.data.items || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removeFaqItem(block.id, item.id));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveFaqItem(block.id, item.id, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.items || []).length - 1;
+      moveDown.addEventListener('click', () => this.moveFaqItem(block.id, item.id, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      itemCard.append(controls);
+      itemsWrapper.append(itemCard);
+    });
+
+    wrapper.append(itemsWrapper);
+
+    const followUpWrapper = document.createElement('div');
+    followUpWrapper.dataset.field = 'followUp';
+    followUpWrapper.append(
+      this.addLabeledInput('Hinweis', block.data.followUp?.text, value => this.updateBlockData(block.id, ['data', 'followUp', 'text'], value))
+    );
+    followUpWrapper.append(
+      this.addLabeledInput('Link-Label', block.data.followUp?.linkLabel, value => this.updateBlockData(block.id, ['data', 'followUp', 'linkLabel'], value))
+    );
+    followUpWrapper.append(
+      this.addLabeledInput('Link URL', block.data.followUp?.href, value => this.updateBlockData(block.id, ['data', 'followUp', 'href'], value))
+    );
+    wrapper.append(followUpWrapper);
+
+    return wrapper;
+  }
+
   wrapField(labelText, element) {
     const wrapper = document.createElement('div');
     const label = document.createElement('div');
@@ -1370,6 +1440,9 @@ export class BlockContentEditor {
     }
     if (clone.type === 'process_steps' && Array.isArray(clone.data.steps)) {
       clone.data.steps = clone.data.steps.map(step => ({ ...step, id: createId() }));
+    }
+    if (clone.type === 'faq' && Array.isArray(clone.data.items)) {
+      clone.data.items = clone.data.items.map(entry => ({ ...entry, id: createId() }));
     }
     if (clone.type === 'audience_spotlight' && Array.isArray(clone.data.cases)) {
       clone.data.cases = clone.data.cases.map(entry => ({ ...entry, id: createId() }));
@@ -1450,6 +1523,67 @@ export class BlockContentEditor {
     } catch (error) {
       window.alert(error.message || 'Block konnte nicht aktualisiert werden');
     }
+  }
+
+  addFaqItem(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const items = Array.isArray(updated.data.items) ? updated.data.items : [];
+      items.push({ id: createId(), question: 'Frage', answer: 'Antwort' });
+      updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateFaqItem(blockId, itemId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.items = (updated.data.items || []).map(item => (item.id === itemId ? { ...item, [field]: value } : item));
+      return updated;
+    });
+  }
+
+  removeFaqItem(blockId, itemId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      if (items.length <= 1) {
+        return block;
+      }
+      updated.data.items = items.filter(item => item.id !== itemId);
+      return updated;
+    });
+    this.render();
+  }
+
+  moveFaqItem(blockId, itemId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      const index = items.findIndex(item => item.id === itemId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= items.length) {
+        return block;
+      }
+      const [entry] = items.splice(index, 1);
+      items.splice(target, 0, entry);
+      updated.data.items = items;
+      return updated;
+    });
+    this.render();
   }
 
   addFeatureItem(blockId) {
