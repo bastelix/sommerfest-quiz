@@ -322,10 +322,20 @@ function buildDefaultBlock(type, variant) {
       type: 'info_media',
       variant,
       data: {
+        eyebrow: '',
         title: 'Info block',
         subtitle: '',
         body: '',
-        items: [{ id: createId(), title: 'Eintrag', description: 'Beschreibung', bullets: [] }]
+        media: { imageId: '', alt: '', focalPoint: { x: 0.5, y: 0.5 } },
+        items: [
+          {
+            id: createId(),
+            title: 'Eintrag',
+            description: 'Beschreibung',
+            bullets: [],
+            media: { imageId: '', alt: '', focalPoint: { x: 0.5, y: 0.5 } }
+          }
+        ]
       }
     }),
     stat_strip: () => ({
@@ -897,6 +907,8 @@ export class BlockContentEditor {
         return this.buildProcessStepsForm(block);
       case 'testimonial':
         return this.buildTestimonialForm(block);
+      case 'info_media':
+        return this.buildInfoMediaForm(block);
       case 'cta':
         return this.buildCtaForm(block);
       case 'audience_spotlight':
@@ -1304,6 +1316,176 @@ export class BlockContentEditor {
     return wrapper;
   }
 
+  buildInfoMediaForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Eyebrow', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value)));
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
+
+    const bodyField = document.createElement('div');
+    bodyField.dataset.field = 'body';
+    bodyField.dataset.richtext = 'true';
+    this.mountRichText(bodyField, block.data.body, value => this.updateBlockData(block.id, ['data', 'body'], value));
+    wrapper.append(this.wrapField('Body', bodyField));
+
+    wrapper.append(
+      this.addLabeledInput('Media ID', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value))
+    );
+    wrapper.append(
+      this.addLabeledInput('Alt-Text', block.data.media?.alt, value => this.updateBlockData(block.id, ['data', 'media', 'alt'], value))
+    );
+    wrapper.append(
+      this.addLabeledInput(
+        'Focal X',
+        block.data.media?.focalPoint?.x ?? 0.5,
+        value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'x'], Number(value)),
+        { type: 'number', step: '0.01', min: 0, max: 1 }
+      )
+    );
+    wrapper.append(
+      this.addLabeledInput(
+        'Focal Y',
+        block.data.media?.focalPoint?.y ?? 0.5,
+        value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'y'], Number(value)),
+        { type: 'number', step: '0.01', min: 0, max: 1 }
+      )
+    );
+
+    const itemsWrapper = document.createElement('div');
+    itemsWrapper.dataset.field = 'items';
+
+    const addItemBtn = document.createElement('button');
+    addItemBtn.type = 'button';
+    addItemBtn.textContent = 'Eintrag hinzufügen';
+    addItemBtn.addEventListener('click', () => this.addInfoMediaItem(block.id));
+    itemsWrapper.append(addItemBtn);
+
+    (block.data.items || []).forEach((item, index) => {
+      const itemCard = document.createElement('div');
+      itemCard.dataset.infoMediaItem = item.id;
+
+      itemCard.append(
+        this.addLabeledInput('Titel', item.title, value => this.updateInfoMediaItem(block.id, item.id, current => ({ ...current, title: value })))
+      );
+
+      const descField = document.createElement('div');
+      descField.dataset.richtext = 'true';
+      this.mountRichText(
+        descField,
+        item.description,
+        value => this.updateInfoMediaItem(block.id, item.id, current => ({ ...current, description: value }))
+      );
+      itemCard.append(this.wrapField('Beschreibung', descField));
+
+      itemCard.append(
+        this.addLabeledInput(
+          'Media ID',
+          item.media?.imageId,
+          value => this.updateInfoMediaItem(block.id, item.id, current => ({ ...current, media: { ...(current.media || {}), imageId: value } }))
+        )
+      );
+      itemCard.append(
+        this.addLabeledInput(
+          'Alt-Text',
+          item.media?.alt,
+          value => this.updateInfoMediaItem(block.id, item.id, current => ({ ...current, media: { ...(current.media || {}), alt: value } }))
+        )
+      );
+      itemCard.append(
+        this.addLabeledInput(
+          'Focal X',
+          item.media?.focalPoint?.x ?? 0.5,
+          value =>
+            this.updateInfoMediaItem(block.id, item.id, current => ({
+              ...current,
+              media: { ...(current.media || {}), focalPoint: { ...(current.media?.focalPoint || {}), x: Number(value) } }
+            })),
+          { type: 'number', step: '0.01', min: 0, max: 1 }
+        )
+      );
+      itemCard.append(
+        this.addLabeledInput(
+          'Focal Y',
+          item.media?.focalPoint?.y ?? 0.5,
+          value =>
+            this.updateInfoMediaItem(block.id, item.id, current => ({
+              ...current,
+              media: { ...(current.media || {}), focalPoint: { ...(current.media?.focalPoint || {}), y: Number(value) } }
+            })),
+          { type: 'number', step: '0.01', min: 0, max: 1 }
+        )
+      );
+
+      const bulletsWrapper = document.createElement('div');
+      const bulletsLabel = document.createElement('div');
+      bulletsLabel.textContent = 'Bullets';
+      bulletsWrapper.append(bulletsLabel);
+
+      const addBulletBtn = document.createElement('button');
+      addBulletBtn.type = 'button';
+      addBulletBtn.textContent = 'Bullet hinzufügen';
+      addBulletBtn.addEventListener('click', () => this.addInfoMediaBullet(block.id, item.id));
+      bulletsWrapper.append(addBulletBtn);
+
+      (item.bullets || []).forEach((bullet, bulletIndex) => {
+        const bulletRow = document.createElement('div');
+        const bulletInput = document.createElement('input');
+        bulletInput.value = bullet || '';
+        bulletInput.addEventListener('input', event => this.updateInfoMediaBullet(block.id, item.id, bulletIndex, event.target.value));
+        bulletRow.append(bulletInput);
+
+        const bulletControls = document.createElement('div');
+        const removeBullet = document.createElement('button');
+        removeBullet.type = 'button';
+        removeBullet.textContent = 'Entfernen';
+        removeBullet.addEventListener('click', () => this.removeInfoMediaBullet(block.id, item.id, bulletIndex));
+
+        const moveBulletUp = document.createElement('button');
+        moveBulletUp.type = 'button';
+        moveBulletUp.textContent = '↑';
+        moveBulletUp.disabled = bulletIndex === 0;
+        moveBulletUp.addEventListener('click', () => this.moveInfoMediaBullet(block.id, item.id, bulletIndex, -1));
+
+        const moveBulletDown = document.createElement('button');
+        moveBulletDown.type = 'button';
+        moveBulletDown.textContent = '↓';
+        moveBulletDown.disabled = bulletIndex === (item.bullets?.length || 0) - 1;
+        moveBulletDown.addEventListener('click', () => this.moveInfoMediaBullet(block.id, item.id, bulletIndex, 1));
+
+        bulletControls.append(removeBullet, moveBulletUp, moveBulletDown);
+        bulletRow.append(bulletControls);
+        bulletsWrapper.append(bulletRow);
+      });
+
+      itemCard.append(bulletsWrapper);
+
+      const itemControls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.disabled = (block.data.items || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removeInfoMediaItem(block.id, item.id));
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveInfoMediaItem(block.id, item.id, -1));
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.items?.length || 0) - 1;
+      moveDown.addEventListener('click', () => this.moveInfoMediaItem(block.id, item.id, 1));
+
+      itemControls.append(removeBtn, moveUp, moveDown);
+      itemCard.append(itemControls);
+      itemsWrapper.append(itemCard);
+    });
+
+    wrapper.append(itemsWrapper);
+    return wrapper;
+  }
+
   wrapField(labelText, element) {
     const wrapper = document.createElement('div');
     const label = document.createElement('div');
@@ -1370,6 +1552,9 @@ export class BlockContentEditor {
     }
     if (clone.type === 'process_steps' && Array.isArray(clone.data.steps)) {
       clone.data.steps = clone.data.steps.map(step => ({ ...step, id: createId() }));
+    }
+    if (clone.type === 'info_media' && Array.isArray(clone.data.items)) {
+      clone.data.items = clone.data.items.map(item => ({ ...item, id: createId() }));
     }
     if (clone.type === 'audience_spotlight' && Array.isArray(clone.data.cases)) {
       clone.data.cases = clone.data.cases.map(entry => ({ ...entry, id: createId() }));
@@ -1510,6 +1695,124 @@ export class BlockContentEditor {
       items.splice(target, 0, entry);
       updated.data.items = items;
       return updated;
+    });
+    this.render();
+  }
+
+  addInfoMediaItem(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const items = Array.isArray(updated.data.items) ? updated.data.items : [];
+      items.push({
+        id: createId(),
+        title: 'Eintrag',
+        description: 'Beschreibung',
+        bullets: [],
+        media: { imageId: '', alt: '', focalPoint: { x: 0.5, y: 0.5 } }
+      });
+      updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateInfoMediaItem(blockId, itemId, updater) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.items = (updated.data.items || []).map(item => {
+        if (item.id !== itemId) {
+          return item;
+        }
+        const nextValue = typeof updater === 'function' ? updater(item) : { ...item, ...updater };
+        return nextValue;
+      });
+      return updated;
+    });
+  }
+
+  removeInfoMediaItem(blockId, itemId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      if (items.length <= 1) {
+        return block;
+      }
+      updated.data.items = items.filter(item => item.id !== itemId);
+      return updated;
+    });
+    this.render();
+  }
+
+  moveInfoMediaItem(blockId, itemId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const items = Array.isArray(updated.data.items) ? [...updated.data.items] : [];
+      const index = items.findIndex(item => item.id === itemId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= items.length) {
+        return block;
+      }
+      const [entry] = items.splice(index, 1);
+      items.splice(target, 0, entry);
+      updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  addInfoMediaBullet(blockId, itemId) {
+    this.updateInfoMediaItem(blockId, itemId, current => ({
+      ...current,
+      bullets: Array.isArray(current.bullets) ? [...current.bullets, ''] : ['']
+    }));
+    this.render();
+  }
+
+  updateInfoMediaBullet(blockId, itemId, index, value) {
+    this.updateInfoMediaItem(blockId, itemId, current => {
+      const bullets = Array.isArray(current.bullets) ? [...current.bullets] : [];
+      if (index < 0 || index >= bullets.length) {
+        return current;
+      }
+      bullets[index] = value;
+      return { ...current, bullets };
+    });
+  }
+
+  removeInfoMediaBullet(blockId, itemId, index) {
+    this.updateInfoMediaItem(blockId, itemId, current => {
+      const bullets = Array.isArray(current.bullets) ? [...current.bullets] : [];
+      if (bullets.length <= 1 || index < 0 || index >= bullets.length) {
+        return current;
+      }
+      bullets.splice(index, 1);
+      return { ...current, bullets };
+    });
+    this.render();
+  }
+
+  moveInfoMediaBullet(blockId, itemId, index, delta) {
+    this.updateInfoMediaItem(blockId, itemId, current => {
+      const bullets = Array.isArray(current.bullets) ? [...current.bullets] : [];
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= bullets.length) {
+        return current;
+      }
+      const [entry] = bullets.splice(index, 1);
+      bullets.splice(target, 0, entry);
+      return { ...current, bullets };
     });
     this.render();
   }

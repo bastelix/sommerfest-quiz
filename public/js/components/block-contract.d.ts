@@ -126,9 +126,11 @@ export interface InfoMediaItem {
 }
 
 export interface InfoMediaBlockData {
+  eyebrow?: string;
   title?: string;
   subtitle?: string;
   body?: string;
+  media?: Media;
   items?: InfoMediaItem[];
 }
 

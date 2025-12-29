@@ -569,6 +569,9 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "eyebrow": {
+          "type": "string"
+        },
         "title": {
           "type": "string"
         },
@@ -577,6 +580,9 @@
         },
         "body": {
           "type": "string"
+        },
+        "media": {
+          "$ref": "#/definitions/Media"
         },
         "items": {
           "type": "array",
