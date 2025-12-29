@@ -1,8 +1,13 @@
 FROM php:8.2.29-alpine
 
 # allow Composer to run as root inside the container
+ARG COMPOSER_RETRY=5
+ARG COMPOSER_PROCESS_TIMEOUT=300
+ARG GITHUB_TOKEN
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_RETRY=${COMPOSER_RETRY}
+ENV COMPOSER_PROCESS_TIMEOUT=${COMPOSER_PROCESS_TIMEOUT}
 
 RUN apk add --no-cache \
     curl git \
@@ -24,6 +29,9 @@ COPY composer.json composer.lock /var/www/
 ARG COMPOSER_NO_DEV=0
 RUN test -f composer.lock \
     && rm -rf /var/www/vendor \
+    && if [ -n "${GITHUB_TOKEN}" ]; then \
+        composer config -g github-oauth.github.com "${GITHUB_TOKEN}"; \
+       fi \
     && if [ "${COMPOSER_NO_DEV}" = "1" ]; then \
         composer install --no-interaction --prefer-dist --no-progress --no-dev; \
        else \
