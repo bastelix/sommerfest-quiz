@@ -17,6 +17,7 @@ use Throwable;
 class MarketingDomainProvider
 {
     private const DEFAULT_CACHE_TTL = 300;
+    private const FAILURE_CACHE_TTL = 30;
 
     /** @var Closure():PDO */
     private Closure $connectionFactory;
@@ -133,18 +134,20 @@ class MarketingDomainProvider
 
         try {
             $domains = $this->loadMarketingDomainsFromDatabase();
+
+            return $this->storeMarketingDomainsInCache($domains, $now);
         } catch (Throwable $exception) {
             if ($this->marketingCache !== null) {
                 return $this->marketingCache;
             }
 
-            $domains = [];
+            $fallback = $this->loadConfiguredMarketingDomains();
+            if ($fallback !== []) {
+                return $this->storeMarketingDomainsInCache($fallback, $now, self::FAILURE_CACHE_TTL);
+            }
+
+            return [];
         }
-
-        $this->marketingCache = $domains;
-        $this->marketingLoadedAt = $now;
-
-        return $this->marketingCache;
     }
 
     /**
@@ -239,6 +242,50 @@ class MarketingDomainProvider
         }
 
         return $this->deduplicateMarketingEntries($entries);
+    }
+
+    /**
+     * @param list<array{host:string,normalized:string}> $domains
+     * @return list<array{host:string,normalized:string}>
+     */
+    private function storeMarketingDomainsInCache(array $domains, int $now, ?int $customTtl = null): array
+    {
+        $this->marketingCache = $domains;
+
+        if ($customTtl === null || $this->cacheTtl === 0 || $customTtl >= $this->cacheTtl) {
+            $this->marketingLoadedAt = $now;
+        } else {
+            $this->marketingLoadedAt = $now - max(0, $this->cacheTtl - $customTtl);
+        }
+
+        return $this->marketingCache;
+    }
+
+    /**
+     * @return list<array{host:string,normalized:string}>
+     */
+    private function loadConfiguredMarketingDomains(): array
+    {
+        $env = getenv('MARKETING_DOMAINS');
+        if ($env === false) {
+            return [];
+        }
+
+        $raw = array_filter(
+            preg_split('/[\s,]+/', strtolower((string) $env)) ?: [],
+            static fn (string $domain): bool => trim($domain) !== ''
+        );
+
+        if ($raw === []) {
+            return [];
+        }
+
+        $rows = array_map(
+            static fn (string $domain): array => ['host' => $domain, 'normalized_host' => ''],
+            $raw
+        );
+
+        return $this->normalizeMarketingDomainRows($rows);
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Tests\Service;
 use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use PDO;
+use PDOException;
 use PHPUnit\Framework\TestCase;
 
 final class MarketingDomainProviderTest extends TestCase
@@ -27,6 +28,35 @@ final class MarketingDomainProviderTest extends TestCase
         sort($domains);
 
         self::assertSame(['active.example.com'], $domains);
+    }
+
+    public function testKeepsPreviousCacheOnDatabaseFailure(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createSchema($pdo);
+
+        $pdo->exec("INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)"
+            . " VALUES ('active.example.com', 'active.example.com', 'calserver.com', 'default', 'Main', 1)");
+
+        $connectionCalls = 0;
+        $provider = new MarketingDomainProvider(static function () use (&$connectionCalls, $pdo): PDO {
+            $connectionCalls++;
+
+            if ($connectionCalls === 1) {
+                return $pdo;
+            }
+
+            throw new PDOException('Database not reachable');
+        }, 0);
+
+        $initial = $provider->getMarketingDomains(stripAdmin: false);
+
+        self::assertSame(['active.example.com'], $initial);
+
+        $second = $provider->getMarketingDomains(stripAdmin: false);
+
+        self::assertSame($initial, $second);
     }
 
     private function createSchema(PDO $pdo): void
