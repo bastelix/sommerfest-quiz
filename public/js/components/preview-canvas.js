@@ -1,4 +1,5 @@
 import { renderPage } from './page-renderer.js';
+import { RENDERER_MATRIX } from './block-renderer-matrix.js';
 
 const noop = () => {};
 
@@ -53,7 +54,10 @@ export class PreviewCanvas {
   }
 
   render() {
-    const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : []);
+    const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
+      rendererMatrix: RENDERER_MATRIX,
+      context: 'preview'
+    });
     this.surface.innerHTML = html;
     this.applySelectionHighlight();
   }
