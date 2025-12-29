@@ -1815,7 +1815,11 @@ const setupPageForm = form => {
   if (previewBtn && !previewBtn.dataset.bound) {
     previewBtn.addEventListener('click', event => {
       event.preventDefault();
-      showPreview(form);
+      const slug = (form.dataset.slug || '').trim();
+      const handle = slug ? openPreviewInNewTab(slug) : null;
+      if (!handle) {
+        showPreview(form, { forceModal: true });
+      }
     });
     previewBtn.dataset.bound = '1';
   }
@@ -2902,11 +2906,24 @@ const bindPreviewModal = () => {
   modalEl.dataset.previewBound = '1';
 };
 
-export async function showPreview(formOverride = null) {
+export async function showPreview(formOverride = null, options = {}) {
+  const { forceModal = false } = options;
   const activeForm = formOverride || document.querySelector('.page-form:not(.uk-hidden)');
+  if (!activeForm) {
+    return;
+  }
+
+  const slug = (activeForm.dataset.slug || '').trim();
+  if (!forceModal && slug) {
+    const handle = openPreviewInNewTab(slug);
+    if (handle) {
+      return handle;
+    }
+  }
+
   const previewContainer = document.getElementById('preview-content');
   const modalEl = document.getElementById('preview-modal');
-  if (!activeForm || !previewContainer || !modalEl) {
+  if (!previewContainer || !modalEl) {
     return;
   }
 
