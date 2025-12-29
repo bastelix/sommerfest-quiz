@@ -120,9 +120,88 @@ function renderHeroMinimal(block) {
   return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
 }
 
+function renderFeatureListHeader(title, subtitle) {
+  if (!title && !subtitle) {
+    return '';
+  }
+
+  const heading = title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(title)}</h2>` : '';
+  const subheading = subtitle ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(subtitle)}</p>` : '';
+
+  return `<div class="uk-width-1-1 uk-margin-medium-bottom">${heading}${subheading}</div>`;
+}
+
+function renderFeatureBullets(bullets) {
+  if (!Array.isArray(bullets) || bullets.length === 0) {
+    return '';
+  }
+
+  const items = bullets
+    .filter(text => typeof text === 'string' && text.length > 0)
+    .map(text => `<li>${escapeHtml(text)}</li>`);
+
+  if (!items.length) {
+    return '';
+  }
+
+  return `<ul class="uk-list uk-list-bullet uk-margin-small-top">${items.join('')}</ul>`;
+}
+
+function renderFeatureMedia(media) {
+  if (!media || !media.image) {
+    return '';
+  }
+
+  const altText = media.alt ? escapeAttribute(media.alt) : '';
+  return `<div class="uk-card-media-top"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" class="uk-border-rounded"></div>`;
+}
+
+function renderFeatureListItemContent(item) {
+  const title = `<h3 class="uk-h3 uk-margin-remove-bottom">${escapeHtml(item.title || '')}</h3>`;
+  const description = item.description ? `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(item.description)}</p>` : '';
+  const bullets = renderFeatureBullets(item.bullets);
+
+  return `${title}${description}${bullets}`;
+}
+
+function renderFeatureListTextColumns(items) {
+  const columns = items
+    .map(item => {
+      const content = renderFeatureListItemContent(item);
+      return `<div class="uk-width-1-1 uk-width-1-2@m">${content}</div>`;
+    })
+    .join('');
+
+  return `<div class="uk-grid uk-grid-large" data-uk-grid>${columns}</div>`;
+}
+
+function renderFeatureListCardStack(items) {
+  const cards = items
+    .map(item => {
+      const media = renderFeatureMedia(item.media);
+      const content = renderFeatureListItemContent(item);
+      const body = `<div class="uk-card-body">${content}</div>`;
+      return `<div class="uk-width-1-1 uk-width-1-2@m"><div class="uk-card uk-card-default uk-height-1-1">${media}${body}</div></div>`;
+    })
+    .join('');
+
+  return `<div class="uk-grid uk-grid-medium" data-uk-grid>${cards}</div>`;
+}
+
 function renderFeatureList(block, variant) {
-  const itemCount = Array.isArray(block.data.items) ? block.data.items.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="${escapeAttribute(variant)}"><!-- feature_list:${escapeHtml(variant)} | ${itemCount} items --></section>`;
+  if (variant !== 'text-columns' && variant !== 'card-stack') {
+    throw new Error(`Unsupported variant for feature_list: ${variant}`);
+  }
+
+  const items = Array.isArray(block.data?.items)
+    ? block.data.items.filter(item => item && typeof item.title === 'string' && typeof item.description === 'string')
+    : [];
+
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const header = renderFeatureListHeader(block.data?.title, block.data?.subtitle);
+  const grid = variant === 'card-stack' ? renderFeatureListCardStack(items) : renderFeatureListTextColumns(items);
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${grid}</div></section>`;
 }
 
 function renderProcessSteps(block, variant) {
@@ -197,10 +276,8 @@ export const RENDERER_MATRIX = {
     minimal: renderHeroMinimal
   },
   feature_list: {
-    stacked_cards: block => renderFeatureList(block, 'stacked_cards'),
-    icon_grid: block => renderFeatureList(block, 'icon_grid'),
-    'detailed-cards': block => renderFeatureList(block, 'detailed-cards'),
-    'grid-bullets': block => renderFeatureList(block, 'grid-bullets')
+    'text-columns': block => renderFeatureList(block, 'text-columns'),
+    'card-stack': block => renderFeatureList(block, 'card-stack')
   },
   process_steps: {
     timeline_horizontal: block => renderProcessSteps(block, 'timeline_horizontal'),
