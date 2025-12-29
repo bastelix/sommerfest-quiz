@@ -333,7 +333,11 @@ function buildDefaultBlock(type, variant) {
       type: 'stat_strip',
       variant,
       data: {
-        metrics: [{ id: createId(), value: '100%', label: 'Zuverlässig' }],
+        title: 'Kennzahlen',
+        lede: '',
+        metrics: [
+          { id: createId(), value: '100%', label: 'Zuverlässig', icon: '', asOf: '', tooltip: '', benefit: '' }
+        ],
         marquee: []
       }
     }),
@@ -901,6 +905,8 @@ export class BlockContentEditor {
         return this.buildFaqForm(block);
       case 'cta':
         return this.buildCtaForm(block);
+      case 'stat_strip':
+        return this.buildStatStripForm(block);
       case 'audience_spotlight':
         return this.buildAudienceSpotlightForm(block);
       case 'package_summary':
@@ -915,51 +921,6 @@ export class BlockContentEditor {
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
-
-    const buildStringList = (items, label, onChange) => {
-      const listWrapper = document.createElement('div');
-      const listLabel = document.createElement('div');
-      listLabel.textContent = label;
-      listWrapper.append(listLabel);
-
-      const addEntryBtn = document.createElement('button');
-      addEntryBtn.type = 'button';
-      addEntryBtn.textContent = `${label} hinzufügen`;
-      addEntryBtn.addEventListener('click', onChange.add);
-      listWrapper.append(addEntryBtn);
-
-      (items || []).forEach((item, index) => {
-        const entry = document.createElement('div');
-        const input = document.createElement('input');
-        input.value = item || '';
-        input.addEventListener('input', event => onChange.update(index, event.target.value));
-        entry.append(input);
-
-        const controls = document.createElement('div');
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.textContent = 'Entfernen';
-        removeBtn.addEventListener('click', () => onChange.remove(index));
-
-        const moveUp = document.createElement('button');
-        moveUp.type = 'button';
-        moveUp.textContent = '↑';
-        moveUp.disabled = index === 0;
-        moveUp.addEventListener('click', () => onChange.move(index, -1));
-
-        const moveDown = document.createElement('button');
-        moveDown.type = 'button';
-        moveDown.textContent = '↓';
-        moveDown.disabled = index === (items?.length || 0) - 1;
-        moveDown.addEventListener('click', () => onChange.move(index, 1));
-
-        controls.append(removeBtn, moveUp, moveDown);
-        entry.append(controls);
-        listWrapper.append(entry);
-      });
-
-      return listWrapper;
-    };
 
     const optionsWrapper = document.createElement('div');
     optionsWrapper.dataset.field = 'options';
@@ -992,7 +953,7 @@ export class BlockContentEditor {
 
         highlightCard.append(this.addLabeledInput('Highlight-Titel', highlight.title, value => this.updatePackageOptionHighlight(block.id, option.id, highlightIndex, 'title', value)));
 
-        highlightCard.append(buildStringList(highlight.bullets, 'Bullet', {
+        highlightCard.append(this.buildStringList(highlight.bullets, 'Bullet', {
           add: () => this.addPackageOptionHighlightBullet(block.id, option.id, highlightIndex),
           update: (itemIndex, value) => this.updatePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, value),
           remove: itemIndex => this.removePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex),
@@ -1069,14 +1030,14 @@ export class BlockContentEditor {
       planCard.append(this.addLabeledInput('Badge', plan.badge, value => this.updatePackagePlan(block.id, plan.id, 'badge', value)));
       planCard.append(this.addLabeledInput('Beschreibung', plan.description, value => this.updatePackagePlan(block.id, plan.id, 'description', value), { multiline: true }));
 
-      planCard.append(buildStringList(plan.features, 'Feature', {
+      planCard.append(this.buildStringList(plan.features, 'Feature', {
         add: () => this.addPackagePlanListItem(block.id, plan.id, 'features'),
         update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'features', itemIndex, value),
         remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'features', itemIndex),
         move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'features', itemIndex, delta)
       }));
 
-      planCard.append(buildStringList(plan.notes, 'Hinweis', {
+      planCard.append(this.buildStringList(plan.notes, 'Hinweis', {
         add: () => this.addPackagePlanListItem(block.id, plan.id, 'notes'),
         update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, value),
         remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'notes', itemIndex),
@@ -1142,51 +1103,6 @@ export class BlockContentEditor {
     addCaseBtn.addEventListener('click', () => this.addAudienceCase(block.id));
     casesWrapper.append(addCaseBtn);
 
-    const buildStringList = (items, label, onChange) => {
-      const listWrapper = document.createElement('div');
-      const listLabel = document.createElement('div');
-      listLabel.textContent = label;
-      listWrapper.append(listLabel);
-
-      const addEntryBtn = document.createElement('button');
-      addEntryBtn.type = 'button';
-      addEntryBtn.textContent = `${label} hinzufügen`;
-      addEntryBtn.addEventListener('click', onChange.add);
-      listWrapper.append(addEntryBtn);
-
-      (items || []).forEach((item, index) => {
-        const entry = document.createElement('div');
-        const input = document.createElement('input');
-        input.value = item || '';
-        input.addEventListener('input', event => onChange.update(index, event.target.value));
-        entry.append(input);
-
-        const controls = document.createElement('div');
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.textContent = 'Entfernen';
-        removeBtn.addEventListener('click', () => onChange.remove(index));
-
-        const moveUp = document.createElement('button');
-        moveUp.type = 'button';
-        moveUp.textContent = '↑';
-        moveUp.disabled = index === 0;
-        moveUp.addEventListener('click', () => onChange.move(index, -1));
-
-        const moveDown = document.createElement('button');
-        moveDown.type = 'button';
-        moveDown.textContent = '↓';
-        moveDown.disabled = index === (items?.length || 0) - 1;
-        moveDown.addEventListener('click', () => onChange.move(index, 1));
-
-        controls.append(removeBtn, moveUp, moveDown);
-        entry.append(controls);
-        listWrapper.append(entry);
-      });
-
-      return listWrapper;
-    };
-
     (block.data.cases || []).forEach((audienceCase, index) => {
       const card = document.createElement('div');
       card.dataset.audienceCase = audienceCase.id;
@@ -1197,14 +1113,14 @@ export class BlockContentEditor {
       card.append(this.addLabeledInput('Lead', audienceCase.lead, value => this.updateAudienceCase(block.id, audienceCase.id, 'lead', value), { multiline: true }));
       card.append(this.addLabeledInput('Body', audienceCase.body, value => this.updateAudienceCase(block.id, audienceCase.id, 'body', value), { multiline: true, rows: 4 }));
 
-      card.append(buildStringList(audienceCase.bullets, 'Bullet', {
+      card.append(this.buildStringList(audienceCase.bullets, 'Bullet', {
         add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'bullets'),
         update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, value),
         remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex),
         move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, delta)
       }));
 
-      card.append(buildStringList(audienceCase.keyFacts, 'Key Fact', {
+      card.append(this.buildStringList(audienceCase.keyFacts, 'Key Fact', {
         add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts'),
         update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, value),
         remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex),
@@ -1305,6 +1221,51 @@ export class BlockContentEditor {
     }
     wrapper.append(document.createElement('br'), input);
     return wrapper;
+  }
+
+  buildStringList(items, label, onChange) {
+    const listWrapper = document.createElement('div');
+    const listLabel = document.createElement('div');
+    listLabel.textContent = label;
+    listWrapper.append(listLabel);
+
+    const addEntryBtn = document.createElement('button');
+    addEntryBtn.type = 'button';
+    addEntryBtn.textContent = `${label} hinzufügen`;
+    addEntryBtn.addEventListener('click', onChange.add);
+    listWrapper.append(addEntryBtn);
+
+    (items || []).forEach((item, index) => {
+      const entry = document.createElement('div');
+      const input = document.createElement('input');
+      input.value = item || '';
+      input.addEventListener('input', event => onChange.update(index, event.target.value));
+      entry.append(input);
+
+      const controls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.addEventListener('click', () => onChange.remove(index));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => onChange.move(index, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (items?.length || 0) - 1;
+      moveDown.addEventListener('click', () => onChange.move(index, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      entry.append(controls);
+      listWrapper.append(entry);
+    });
+
+    return listWrapper;
   }
 
   mountRichText(container, initialValue, onUpdate) {
@@ -1616,6 +1577,93 @@ export class BlockContentEditor {
     return wrapper;
   }
 
+  buildStatStripForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(
+      this.addLabeledInput('Lead', block.data.lede, value => this.updateBlockData(block.id, ['data', 'lede'], value), {
+        multiline: true
+      })
+    );
+
+    const metricsWrapper = document.createElement('div');
+    metricsWrapper.dataset.field = 'metrics';
+
+    const addMetricBtn = document.createElement('button');
+    addMetricBtn.type = 'button';
+    addMetricBtn.textContent = 'Kennzahl hinzufügen';
+    addMetricBtn.addEventListener('click', () => this.addStatStripMetric(block.id));
+    metricsWrapper.append(addMetricBtn);
+
+    (block.data.metrics || []).forEach((metric, index) => {
+      const metricCard = document.createElement('div');
+      metricCard.dataset.statMetric = metric.id;
+
+      metricCard.append(this.addLabeledInput('ID', metric.id, value => this.updateStatStripMetric(block.id, metric.id, 'id', value)));
+      metricCard.append(
+        this.addLabeledInput('Wert', metric.value, value => this.updateStatStripMetric(block.id, metric.id, 'value', value))
+      );
+      metricCard.append(
+        this.addLabeledInput('Label', metric.label, value => this.updateStatStripMetric(block.id, metric.id, 'label', value))
+      );
+      metricCard.append(this.addLabeledInput('Icon', metric.icon, value => this.updateStatStripMetric(block.id, metric.id, 'icon', value)));
+      metricCard.append(
+        this.addLabeledInput('Tooltip', metric.tooltip, value => this.updateStatStripMetric(block.id, metric.id, 'tooltip', value))
+      );
+      metricCard.append(
+        this.addLabeledInput('Stand (as of)', metric.asOf, value => this.updateStatStripMetric(block.id, metric.id, 'asOf', value))
+      );
+      metricCard.append(
+        this.addLabeledInput(
+          'Supporting text',
+          metric.benefit,
+          value => this.updateStatStripMetric(block.id, metric.id, 'benefit', value),
+          { multiline: true, rows: 2 }
+        )
+      );
+
+      const controls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.disabled = (block.data.metrics || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removeStatStripMetric(block.id, metric.id));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveStatStripMetric(block.id, metric.id, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.metrics || []).length - 1;
+      moveDown.addEventListener('click', () => this.moveStatStripMetric(block.id, metric.id, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      metricCard.append(controls);
+      metricsWrapper.append(metricCard);
+    });
+
+    wrapper.append(metricsWrapper);
+
+    const marqueeWrapper = document.createElement('div');
+    marqueeWrapper.dataset.field = 'marquee';
+    marqueeWrapper.append(
+      this.buildStringList(block.data.marquee, 'Marquee-Eintrag', {
+        add: () => this.addStatStripMarquee(block.id),
+        update: (itemIndex, value) => this.updateStatStripMarquee(block.id, itemIndex, value),
+        remove: itemIndex => this.removeStatStripMarquee(block.id, itemIndex),
+        move: (itemIndex, delta) => this.moveStatStripMarquee(block.id, itemIndex, delta)
+      })
+    );
+    wrapper.append(marqueeWrapper);
+
+    return wrapper;
+  }
+
   wrapField(labelText, element) {
     const wrapper = document.createElement('div');
     const label = document.createElement('div');
@@ -1640,7 +1688,7 @@ export class BlockContentEditor {
       case 'system_module':
         return block.data.title || block.data.items?.[0]?.title || '';
       case 'stat_strip':
-        return block.data.metrics?.[0]?.label || block.data.metrics?.[0]?.value || '';
+        return block.data.title || block.data.lede || block.data.metrics?.[0]?.label || block.data.metrics?.[0]?.value || '';
       case 'audience_spotlight':
       case 'case_showcase':
         return block.data.title || block.data.cases?.[0]?.title || '';
@@ -1765,6 +1813,155 @@ export class BlockContentEditor {
     } catch (error) {
       window.alert(error.message || 'Block konnte nicht aktualisiert werden');
     }
+  }
+
+  sanitizeStatStripLists(block) {
+    const updated = deepClone(block);
+    if (!isPlainObject(updated.data)) {
+      updated.data = {};
+    }
+    const metrics = Array.isArray(updated.data.metrics)
+      ? updated.data.metrics.filter(entry => entry && typeof entry === 'object')
+      : [];
+    updated.data.metrics = metrics.map(metric => ({
+      ...metric,
+      id: typeof metric.id === 'string' && metric.id ? metric.id : createId()
+    }));
+    updated.data.marquee = Array.isArray(updated.data.marquee)
+      ? updated.data.marquee.filter(entry => typeof entry === 'string')
+      : [];
+    return updated;
+  }
+
+  addStatStripMetric(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const metrics = Array.isArray(updated.data.metrics) ? [...updated.data.metrics] : [];
+      metrics.push({ id: createId(), value: '100', label: 'Kennzahl', icon: '', tooltip: '', asOf: '', benefit: '' });
+      updated.data.metrics = metrics;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateStatStripMetric(blockId, metricId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      updated.data.metrics = (updated.data.metrics || []).map(metric =>
+        metric.id === metricId ? { ...metric, [field]: value } : metric
+      );
+      return updated;
+    });
+  }
+
+  removeStatStripMetric(blockId, metricId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const metrics = Array.isArray(updated.data.metrics) ? [...updated.data.metrics] : [];
+      const index = metrics.findIndex(metric => metric.id === metricId);
+      if (metrics.length <= 1 || index < 0) {
+        return block;
+      }
+      metrics.splice(index, 1);
+      updated.data.metrics = metrics;
+      return updated;
+    });
+    this.render();
+  }
+
+  moveStatStripMetric(blockId, metricId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const metrics = Array.isArray(updated.data.metrics) ? [...updated.data.metrics] : [];
+      const index = metrics.findIndex(metric => metric.id === metricId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= metrics.length) {
+        return block;
+      }
+      const [entry] = metrics.splice(index, 1);
+      metrics.splice(target, 0, entry);
+      updated.data.metrics = metrics;
+      return updated;
+    });
+    this.render();
+  }
+
+  addStatStripMarquee(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      marquee.push('Neuer Punkt');
+      updated.data.marquee = marquee;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateStatStripMarquee(blockId, index, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      if (index < 0 || index >= marquee.length) {
+        return block;
+      }
+      marquee[index] = value;
+      updated.data.marquee = marquee;
+      return updated;
+    });
+  }
+
+  removeStatStripMarquee(blockId, index) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      if (index < 0 || index >= marquee.length) {
+        return block;
+      }
+      marquee.splice(index, 1);
+      updated.data.marquee = marquee;
+      return updated;
+    });
+    this.render();
+  }
+
+  moveStatStripMarquee(blockId, index, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = this.sanitizeStatStripLists(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      const target = index + delta;
+      if (index < 0 || target < 0 || index >= marquee.length || target >= marquee.length) {
+        return block;
+      }
+      const [entry] = marquee.splice(index, 1);
+      marquee.splice(target, 0, entry);
+      updated.data.marquee = marquee;
+      return updated;
+    });
+    this.render();
   }
 
   addFaqItem(blockId) {

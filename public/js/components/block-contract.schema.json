@@ -658,6 +658,12 @@
         "metrics"
       ],
       "properties": {
+        "title": {
+          "type": "string"
+        },
+        "lede": {
+          "type": "string"
+        },
         "metrics": {
           "type": "array",
           "items": {
@@ -824,6 +830,9 @@
         "label": {
           "type": "string",
           "minLength": 1
+        },
+        "icon": {
+          "type": "string"
         },
         "asOf": {
           "type": "string"
