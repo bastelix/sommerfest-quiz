@@ -193,6 +193,7 @@ const attachBlockPreview = (form, editor) => {
   }
 
   const preview = new PreviewCanvas(slots.previewRoot, {
+    renderSelectionOnly: true,
     onSelect: blockId => {
       if (typeof editor.selectBlock === 'function') {
         editor.selectBlock(blockId);
