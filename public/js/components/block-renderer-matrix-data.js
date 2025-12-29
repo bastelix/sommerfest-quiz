@@ -320,15 +320,85 @@ function renderInfoMedia(block, variant) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(variant)}"><!-- info_media:${escapeHtml(variant)} | ${escapeHtml(title)} (${count} items) --></section>`;
 }
 
+function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasses = '') {
+  if (!cta?.label || !cta?.href) {
+    return '';
+  }
+
+  const ariaLabel = cta.ariaLabel ? ` aria-label="${escapeAttribute(cta.ariaLabel)}"` : '';
+  const classes = ['uk-button', styleClass, additionalClasses].filter(Boolean).join(' ');
+
+  return `<a class="${classes}" href="${escapeAttribute(cta.href)}"${ariaLabel}>${escapeHtml(cta.label)}</a>`;
+}
+
+function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-margin-medium-top' } = {}) {
+  const primaryButton = renderCtaButton(primary, 'uk-button-primary');
+  const secondaryButton = renderCtaButton(secondary, 'uk-button-default', primaryButton ? 'uk-margin-small-top uk-margin-small-left@m' : '');
+
+  const buttons = [primaryButton, secondaryButton].filter(Boolean);
+  if (!buttons.length) {
+    return '';
+  }
+
+  const classes = [
+    'uk-flex',
+    'uk-flex-column',
+    'uk-flex-row@m',
+    'uk-flex-middle',
+    'uk-flex-wrap',
+    alignment,
+    margin
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return `<div class="${classes}">${buttons.join('')}</div>`;
+}
+
 function renderCta(block) {
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><!-- cta:full_width | ${escapeHtml(block.data.label || '')} --></section>`;
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const body = block.data?.body
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.body)}</p>`
+    : '';
+  const primary = block.data?.primary || block.data;
+  const secondary = block.data?.secondary;
+  const buttons = renderCtaButtons(primary, secondary, {
+    alignment: 'uk-flex-center',
+    margin: 'uk-margin-medium-top'
+  });
+  if (!buttons) {
+    throw new Error('CTA block requires at least one valid action');
+  }
+  const inner = `<div class="uk-text-center uk-width-1-1 uk-width-2-3@m uk-margin-auto">${title}${body}${buttons}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-primary" data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><div class="uk-container">${inner}</div></section>`;
 }
 
 function renderCtaSplit(block) {
-  const primary = block.data?.primary?.label ? escapeHtml(block.data.primary.label) : '';
-  const secondary = block.data?.secondary?.label ? escapeHtml(block.data.secondary.label) : '';
-  const labels = [primary, secondary].filter(Boolean).join(' / ');
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="split"><!-- cta:split | ${labels} --></section>`;
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const body = block.data?.body
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.body)}</p>`
+    : '';
+  const textColumn = `<div class="uk-width-expand">${title}${body}</div>`;
+  const primary = block.data?.primary || block.data;
+  const secondary = block.data?.secondary;
+  const buttons = renderCtaButtons(primary, secondary, {
+    alignment: 'uk-flex-right@m',
+    margin: 'uk-margin-small-top'
+  });
+  if (!buttons) {
+    throw new Error('CTA split variant requires at least one valid action');
+  }
+  const ctaColumn = `<div class="uk-width-1-1 uk-width-auto@m">${buttons}</div>`;
+  const layout = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${ctaColumn}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-primary" data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="split"><div class="uk-container">${layout}</div></section>`;
 }
 
 function renderStatStrip(block) {
