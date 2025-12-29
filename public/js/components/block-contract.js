@@ -482,6 +482,7 @@ const schema = {
         "icon": { "type": "string" },
         "title": { "type": "string", "minLength": 1 },
         "description": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
         "bullets": { "type": "array", "items": { "type": "string" } },
         "media": { "$ref": "#/definitions/Media" }
       }
