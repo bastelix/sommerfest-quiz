@@ -270,26 +270,33 @@ function renderProcessSteps(block, variant) {
   const summary = block.data?.summary ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(block.data.summary)}</p>` : '';
   const header = title || summary ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}${summary}</div>` : '';
 
-  const stepItems = steps.map((step, index) => {
-    const stepNumber = index + 1;
-    const numberBadge = `<div class="uk-flex uk-flex-middle uk-flex-center uk-background-primary uk-light uk-border-circle" style="width:48px;height:48px;">${stepNumber}</div>`;
+  const renderNumberBadge = (stepNumber) => `<div class="uk-flex uk-flex-middle uk-flex-center uk-background-primary uk-light uk-border-circle uk-text-bold" style="width:48px;height:48px;">${stepNumber}</div>`;
 
-    if (variant === 'numbered-horizontal') {
-      const horizontalTitle = `<h3 class="uk-h4 uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>`;
-      const horizontalDescription = `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>`;
-      return `<div class="uk-text-center"><div class="uk-flex uk-flex-center">${numberBadge}</div>${horizontalTitle}${horizontalDescription}</div>`;
-    }
+  const renderVerticalSteps = () => {
+    const items = steps.map((step, index) => {
+      const number = renderNumberBadge(index + 1);
+      const stepTitle = step?.title ? `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>` : '';
+      const stepDescription = step?.description ? `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>` : '';
+      const numberColumn = `<div class="uk-width-auto uk-flex uk-flex-top">${number}</div>`;
+      const contentColumn = `<div class="uk-width-expand">${stepTitle}${stepDescription}</div>`;
+      return `<li class="uk-padding-small uk-margin-remove-bottom"><div class="uk-grid-small uk-flex-top" data-uk-grid>${numberColumn}${contentColumn}</div></li>`;
+    });
 
-    const verticalTitle = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>`;
-    const verticalDescription = `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>`;
-    const content = `<div class="uk-width-expand">${verticalTitle}${verticalDescription}</div>`;
-    const numberColumn = `<div class="uk-width-auto uk-flex uk-flex-top">${numberBadge}</div>`;
-    return `<div class="uk-grid-small uk-flex-top" data-uk-grid>${numberColumn}${content}</div>`;
-  });
+    return `<ol class="uk-list uk-list-large uk-margin-remove">${items.join('')}</ol>`;
+  };
 
-  const layout = variant === 'numbered-horizontal'
-    ? `<div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid>${stepItems.join('')}</div>`
-    : `<div class="uk-grid-medium uk-grid-match" data-uk-grid>${stepItems.map(item => `<div class="uk-width-1-1">${item}</div>`).join('')}</div>`;
+  const renderHorizontalSteps = () => {
+    const items = steps.map((step, index) => {
+      const number = renderNumberBadge(index + 1);
+      const stepTitle = step?.title ? `<h3 class="uk-h4 uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.title)}</h3>` : '';
+      const stepDescription = step?.description ? `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(step.description)}</p>` : '';
+      return `<div class="uk-text-center uk-height-1-1"><div class="uk-flex uk-flex-center">${number}</div>${stepTitle}${stepDescription}</div>`;
+    });
+
+    return `<div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid>${items.join('')}</div>`;
+  };
+
+  const layout = variant === 'numbered-horizontal' ? renderHorizontalSteps() : renderVerticalSteps();
 
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${layout}</div></section>`;
 }
