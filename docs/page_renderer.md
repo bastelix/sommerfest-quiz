@@ -8,8 +8,8 @@ The renderer converts the editor's block JSON into UIkit 3 markup without coupli
 import { renderPage } from '/js/components/page-renderer.js';
 
 const html = renderPage(blocks, {
-  mode: 'frontend' | 'preview',
-  highlightBlockId: 'optional-block-id',
+  context: 'frontend',
+  rendererMatrix: customRendererMatrix,
   resolveAssetUrl: id => `/uploads/${id}` // optional asset resolver
 });
 ```
@@ -31,11 +31,13 @@ Each block type is handled by a dedicated function that emits UIkit markup and t
 import { renderPage } from '/js/components/page-renderer.js';
 
 const previewRoot = document.querySelector('[data-preview]');
-previewRoot.innerHTML = renderPage(page.blocks, {
-  mode: 'preview',
-  highlightBlockId: editorState.selectedBlockId,
+const rendererOptions = {
+  context: 'preview',
+  rendererMatrix: customRendererMatrix,
   resolveAssetUrl: assetId => assetService.getUrl(assetId)
-});
+};
+
+previewRoot.innerHTML = renderPage(page.blocks, rendererOptions);
 ```
 
 * Blocks are wrapped with light outlines for context.
@@ -46,10 +48,13 @@ previewRoot.innerHTML = renderPage(page.blocks, {
 ```js
 import { renderPage } from '/js/components/page-renderer.js';
 
-document.querySelector('#page-root').innerHTML = renderPage(page.blocks, {
-  mode: 'frontend',
+const rendererOptions = {
+  context: 'frontend',
+  rendererMatrix: customRendererMatrix,
   resolveAssetUrl: assetId => cdn.buildUrl(assetId)
-});
+};
+
+document.querySelector('#page-root').innerHTML = renderPage(page.blocks, rendererOptions);
 ```
 
 * Outputs clean UIkit markup only.

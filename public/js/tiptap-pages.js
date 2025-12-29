@@ -3,6 +3,7 @@ import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
 import { renderPage } from './components/page-renderer.js';
+import { RENDERER_MATRIX } from './components/block-renderer-matrix.js';
 
 const notify = typeof window !== 'undefined' && typeof window.notify === 'function'
   ? window.notify.bind(window)
@@ -2940,8 +2941,9 @@ export async function showPreview(formOverride = null, options = {}) {
   const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
   const editorEl = activeForm.querySelector('.page-editor');
   const { blocks } = readBlockEditorState(editor);
+  const rendererOptions = { rendererMatrix: RENDERER_MATRIX, context: 'preview' };
   const html = USE_BLOCK_EDITOR
-    ? renderPage(Array.isArray(blocks) ? blocks : [])
+    ? renderPage(Array.isArray(blocks) ? blocks : [], rendererOptions)
     : sanitize(typeof editor?.getHTML === 'function' ? editor.getHTML() : editorEl?.dataset.content || '');
   previewContainer.innerHTML = html;
 
