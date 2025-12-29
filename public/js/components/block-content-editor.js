@@ -1,7 +1,6 @@
 import { Editor } from '../vendor/tiptap/core.esm.js';
 import StarterKit from '../vendor/tiptap/starter-kit.esm.js';
 import {
-  ACTIVE_BLOCK_TYPES,
   BLOCK_CONTRACT_SCHEMA,
   DEPRECATED_BLOCK_MAP,
   normalizeBlockContract,
@@ -582,6 +581,178 @@ function sanitizeBlock(block) {
 
 const getDefaultBlock = (type, variant) => buildDefaultBlock(type, variant);
 
+const SECTION_TEMPLATES = [
+  {
+    id: 'hero-section',
+    label: 'Hero-Bereich',
+    description: 'Starker Einstieg mit Überschrift, Bild und primärer Handlung.',
+    type: 'hero',
+    variant: 'media_right',
+    build: variant => {
+      const block = getDefaultBlock('hero', variant);
+      block.data.headline = 'Neue Überschrift';
+      block.data.subheadline = 'Beschreiben Sie hier den Abschnitt und laden Sie Leser:innen ein weiterzulesen.';
+      block.data.cta.primary.label = 'Weiterlesen';
+      block.data.cta.primary.href = '#';
+      return block;
+    }
+  },
+  {
+    id: 'stat-strip',
+    label: 'Kennzahlen',
+    description: 'Drei prägnante Zahlen für schnelle Orientierung.',
+    type: 'stat_strip',
+    variant: 'three-up',
+    build: variant => {
+      const block = getDefaultBlock('stat_strip', variant);
+      block.data.title = 'Kennzahlen im Überblick';
+      block.data.lede = 'Heben Sie drei Highlights hervor.';
+      block.data.metrics = ['Kennzahl eins', 'Kennzahl zwei', 'Kennzahl drei'].map((label, index) => ({
+        id: createId(),
+        value: `${index + 1}0%`,
+        label,
+        tooltip: 'Beschreiben Sie die Bedeutung der Zahl.',
+        benefit: '',
+        icon: '',
+        asOf: ''
+      }));
+      return block;
+    }
+  },
+  {
+    id: 'process-steps',
+    label: 'Ablauf',
+    description: 'Zeigt die nächsten Schritte in klarer Reihenfolge.',
+    type: 'process_steps',
+    variant: 'numbered-vertical',
+    build: variant => {
+      const block = getDefaultBlock('process_steps', variant);
+      block.data.title = 'So läuft es ab';
+      block.data.summary = 'Skizzieren Sie die wichtigsten Schritte.';
+      block.data.steps = [
+        { id: createId(), title: 'Schritt 1', description: 'Beschreiben Sie den ersten Schritt.' },
+        { id: createId(), title: 'Schritt 2', description: 'Erläutern Sie den nächsten Schritt.' },
+        { id: createId(), title: 'Schritt 3', description: 'Schließen Sie mit dem Ergebnis ab.' }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'feature-overview',
+    label: 'Funktionsübersicht',
+    description: 'Drei Funktionen mit kurzer Erklärung.',
+    type: 'feature_list',
+    variant: 'grid-bullets',
+    build: variant => {
+      const block = getDefaultBlock('feature_list', variant);
+      block.data.title = 'Funktionsübersicht';
+      block.data.intro = 'Beschreiben Sie, was diesen Abschnitt auszeichnet.';
+      block.data.items = [
+        { id: createId(), title: 'Funktion 1', description: 'Erklären Sie den Nutzen.' },
+        { id: createId(), title: 'Funktion 2', description: 'Welche Aufgabe wird damit gelöst?' },
+        { id: createId(), title: 'Funktion 3', description: 'Warum ist das relevant?' }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'use-cases',
+    label: 'Anwendungsfälle',
+    description: 'Zeigt Beispiele aus der Praxis.',
+    type: 'audience_spotlight',
+    variant: 'tiles',
+    build: variant => {
+      const block = getDefaultBlock('audience_spotlight', variant);
+      block.data.title = 'Anwendungsfälle';
+      block.data.subtitle = 'Zeigen Sie, wer profitiert.';
+      block.data.cases = [
+        { id: createId(), title: 'Fallbeispiel 1', lead: 'Kurzer Kontext.', body: 'Beschreiben Sie das Ergebnis.', bullets: [], keyFacts: [] },
+        { id: createId(), title: 'Fallbeispiel 2', lead: 'Kurzer Kontext.', body: 'Beschreiben Sie das Ergebnis.', bullets: [], keyFacts: [] }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'packages',
+    label: 'Pakete / Leistungen',
+    description: 'Vergleicht zwei Angebote mit Highlights.',
+    type: 'package_summary',
+    variant: 'comparison-cards',
+    build: variant => {
+      const block = getDefaultBlock('package_summary', variant);
+      block.data.title = 'Pakete & Leistungen';
+      block.data.subtitle = 'Stellen Sie zwei Pakete gegenüber.';
+      block.data.options = [
+        {
+          id: createId(),
+          title: 'Leistungspaket A',
+          intro: 'Wofür eignet sich dieses Paket?',
+          highlights: [{ title: 'Enthalten', bullets: ['Vorteil 1', 'Vorteil 2'] }]
+        },
+        {
+          id: createId(),
+          title: 'Leistungspaket B',
+          intro: 'Wann ist dieses Paket passend?',
+          highlights: [{ title: 'Enthalten', bullets: ['Stärke 1', 'Stärke 2'] }]
+        }
+      ];
+      block.data.plans = [
+        {
+          id: createId(),
+          title: 'Paket Standard',
+          description: 'Kurzbeschreibung des Einstiegsangebots.',
+          features: ['Leistungsmerkmal 1', 'Leistungsmerkmal 2'],
+          notes: [],
+          primaryCta: { label: 'Angebot anfragen', href: '#', ariaLabel: '' },
+          secondaryCta: { label: 'Details ansehen', href: '#', ariaLabel: '' }
+        },
+        {
+          id: createId(),
+          title: 'Paket Plus',
+          description: 'Für Teams mit höherem Bedarf.',
+          features: ['Zusätzliche Funktion 1', 'Zusätzliche Funktion 2'],
+          notes: [],
+          primaryCta: { label: 'Angebot anfragen', href: '#', ariaLabel: '' },
+          secondaryCta: { label: 'Details ansehen', href: '#', ariaLabel: '' }
+        }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'faq',
+    label: 'Häufige Fragen',
+    description: 'Beantwortet wiederkehrende Fragen direkt im Abschnitt.',
+    type: 'faq',
+    variant: 'accordion',
+    build: variant => {
+      const block = getDefaultBlock('faq', variant);
+      block.data.title = 'Häufige Fragen';
+      block.data.items = [
+        { id: createId(), question: 'Frage 1', answer: 'Antwort mit Hinweis, was zu beachten ist.' },
+        { id: createId(), question: 'Frage 2', answer: 'Antwort mit weiterführender Hilfe.' },
+        { id: createId(), question: 'Frage 3', answer: 'Antwort mit nächstem Schritt.' }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'cta',
+    label: 'Call to Action',
+    description: 'Klare nächste Aktion mit kurzem Kontext.',
+    type: 'cta',
+    variant: 'full_width',
+    build: variant => {
+      const block = getDefaultBlock('cta', variant);
+      block.data.title = 'Bereit für den nächsten Schritt?';
+      block.data.body = 'Beschreiben Sie kurz, was als Nächstes passiert.';
+      block.data.primary = { label: 'Jetzt anfragen', href: '#', ariaLabel: '' };
+      block.data.secondary = { label: 'Mehr erfahren', href: '#', ariaLabel: '' };
+      return block;
+    }
+  }
+];
+
 class RichTextField {
   constructor(container, initialValue, onUpdate) {
     this.container = container;
@@ -617,7 +788,8 @@ export class BlockContentEditor {
     this.state = {
       blocks: [],
       meta: {},
-      selectedBlockId: null
+      selectedBlockId: null,
+      templatePickerOpen: false
     };
     this.previewBridge = null;
     this.richTextInstances = new Map();
@@ -733,7 +905,8 @@ export class BlockContentEditor {
       blocks,
       meta: parsed.meta || {},
       selectedBlockId: blocks[0]?.id || null,
-      skippedBlocks
+      skippedBlocks,
+      templatePickerOpen: false
     };
     this.render();
   }
@@ -792,27 +965,13 @@ export class BlockContentEditor {
     const container = document.createElement('div');
     container.dataset.editorControls = 'true';
 
-    const typeSelect = document.createElement('select');
-    typeSelect.dataset.action = 'insert-block-type';
-    const supportedTypes = ACTIVE_BLOCK_TYPES.filter(type => getRendererVariants(type).length > 0);
-    supportedTypes.forEach(type => {
-      const option = document.createElement('option');
-      option.value = type;
-      option.textContent = getBlockDisplayName(type);
-      typeSelect.append(option);
-    });
-
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
-    addBtn.dataset.action = 'add-block';
-    addBtn.textContent = 'Block hinzufügen';
-    addBtn.disabled = supportedTypes.length === 0;
+    addBtn.dataset.action = 'open-section-templates';
+    addBtn.textContent = 'Abschnitt hinzufügen';
     addBtn.addEventListener('click', () => {
-      try {
-        this.addBlock(typeSelect.value);
-      } catch (error) {
-        window.alert(error.message || 'Block konnte nicht erstellt werden');
-      }
+      this.state.templatePickerOpen = !this.state.templatePickerOpen;
+      this.render();
     });
 
     const duplicateBtn = document.createElement('button');
@@ -829,8 +988,54 @@ export class BlockContentEditor {
     deleteBtn.disabled = !this.state.selectedBlockId;
     deleteBtn.addEventListener('click', () => this.deleteSelected());
 
-    container.append(typeSelect, addBtn, duplicateBtn, deleteBtn);
+    container.append(addBtn, duplicateBtn, deleteBtn);
+
+    if (this.state.templatePickerOpen) {
+      container.append(this.buildTemplateChooser());
+    }
     return container;
+  }
+
+  buildTemplateChooser() {
+    const chooser = document.createElement('div');
+    chooser.dataset.templateChooser = 'true';
+
+    const title = document.createElement('div');
+    title.textContent = 'Welchen Abschnitt möchtest du hinzufügen?';
+    chooser.append(title);
+
+    const list = document.createElement('ul');
+    list.dataset.templateList = 'true';
+
+    SECTION_TEMPLATES.forEach(template => {
+      const entry = document.createElement('li');
+      entry.dataset.templateEntry = template.id;
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.dataset.action = 'choose-template';
+      button.textContent = template.label;
+      button.addEventListener('click', () => this.addBlockFromTemplate(template.id));
+
+      const description = document.createElement('div');
+      description.dataset.templateDescription = 'true';
+      description.textContent = template.description;
+
+      entry.append(button, description);
+      list.append(entry);
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.dataset.action = 'close-template-chooser';
+    closeBtn.textContent = 'Abbrechen';
+    closeBtn.addEventListener('click', () => {
+      this.state.templatePickerOpen = false;
+      this.render();
+    });
+
+    chooser.append(list, closeBtn);
+    return chooser;
   }
 
   buildBlockList() {
@@ -858,7 +1063,7 @@ export class BlockContentEditor {
           const recreate = document.createElement('button');
           recreate.type = 'button';
           recreate.textContent = 'Block neu anlegen';
-          recreate.addEventListener('click', () => this.addBlock(entry.block.type));
+          recreate.addEventListener('click', () => this.addBlock(entry.block.type, { variant: entry.block.variant }));
           placeholder.append(recreate);
         }
 
@@ -2046,16 +2251,46 @@ export class BlockContentEditor {
     }
   }
 
-  addBlock(type) {
-    const variant = ensureRendererVariant(type);
+  insertBlockAfterSelection(block) {
+    const blocks = [...this.state.blocks];
+    const currentIndex = blocks.findIndex(item => item.id === this.state.selectedBlockId);
+    const insertIndex = currentIndex >= 0 ? currentIndex + 1 : blocks.length;
+    blocks.splice(insertIndex, 0, block);
+    this.state.blocks = blocks;
+    this.state.templatePickerOpen = false;
+    this.selectBlock(block.id, { scrollPreview: true });
+  }
+
+  addBlockFromTemplate(templateId) {
+    try {
+      const newBlock = this.createBlockFromTemplate(templateId);
+      this.insertBlockAfterSelection(newBlock);
+    } catch (error) {
+      window.alert(error.message || 'Abschnitt konnte nicht erstellt werden');
+    }
+  }
+
+  createBlockFromTemplate(templateId) {
+    const template = SECTION_TEMPLATES.find(entry => entry.id === templateId);
+    if (!template) {
+      throw new Error('Unbekannte Vorlage');
+    }
+
+    const variant = ensureRendererVariant(template.type, template.variant);
+    const blockFactory = typeof template.build === 'function' ? template.build : () => getDefaultBlock(template.type, variant);
+    const block = blockFactory(variant);
+    return sanitizeBlock(block);
+  }
+
+  addBlock(type, options = {}) {
+    const variant = ensureRendererVariant(type, options.variant);
     if (!type || !variant) {
       throw new Error('Ungültiger Blocktyp oder Variante');
     }
-    const newBlock = getDefaultBlock(type, variant);
-    const blocks = [...this.state.blocks, newBlock];
-    this.state.blocks = blocks;
-    this.state.selectedBlockId = newBlock.id;
-    this.render();
+    const baseBlock = getDefaultBlock(type, variant);
+    const preparedBlock = typeof options.prepare === 'function' ? options.prepare(deepClone(baseBlock)) : baseBlock;
+    const newBlock = sanitizeBlock(preparedBlock);
+    this.insertBlockAfterSelection(newBlock);
   }
 
   duplicateSelected() {
