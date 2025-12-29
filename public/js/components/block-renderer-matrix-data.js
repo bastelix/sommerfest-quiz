@@ -494,25 +494,201 @@ function renderProofMetricCallout(block) {
   return `<section${anchor} class="uk-section uk-section-muted" data-block-id="${escapeAttribute(block.id)}" data-block-type="proof" data-block-variant="metric-callout"><div class="uk-container">${header}${metricsGrid}${marquee}</div></section>`;
 }
 
+function renderAudienceSpotlightCard(item) {
+  const badge = item.badge ? `<span class="uk-label uk-label-success uk-margin-small-bottom">${escapeHtml(item.badge)}</span>` : '';
+  const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(item.title || '')}</h3>`;
+  const lead = item.lead ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(item.lead)}</p>` : '';
+  const body = item.body ? `<p class="uk-margin-small-top">${escapeHtml(item.body)}</p>` : '';
+
+  const bullets = Array.isArray(item.bullets)
+    ? item.bullets
+        .filter(text => typeof text === 'string' && text.trim() !== '')
+        .map(text => `<li>${escapeHtml(text)}</li>`)
+    : [];
+  const bulletList = bullets.length ? `<ul class="uk-list uk-list-bullet uk-margin-small-top">${bullets.join('')}</ul>` : '';
+
+  const keyFacts = Array.isArray(item.keyFacts)
+    ? item.keyFacts
+        .filter(text => typeof text === 'string' && text.trim() !== '')
+        .map(text => `<li>${escapeHtml(text)}</li>`)
+    : [];
+  const keyFactList = keyFacts.length
+    ? `<div class="uk-margin-small-top"><h4 class="uk-h6 uk-text-muted uk-margin-remove-bottom">Key Facts</h4><ul class="uk-list uk-list-divider uk-margin-small-top">${keyFacts
+        .filter(Boolean)
+        .map(text => `<li class="uk-text-small">${escapeHtml(text)}</li>`)
+        .join('')}</ul></div>`
+    : '';
+
+  const media = item.media?.image
+    ? `<div class="uk-card-media-top uk-border-rounded uk-overflow-hidden"><img src="${escapeAttribute(item.media.image)}" alt="${item.media.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
+    : '';
+
+  const content = `<div class="uk-card-body">${badge}${title}${lead}${body}${bulletList}${keyFactList}</div>`;
+
+  return `<div><div class="uk-card uk-card-default uk-height-1-1">${media}${content}</div></div>`;
+}
+
 function renderAudienceSpotlight(block, variant = block.variant || 'tabs') {
-  const count = Array.isArray(block.data.cases) ? block.data.cases.length : 0;
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const safeVariant = escapeAttribute(variant);
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="audience_spotlight" data-block-variant="${safeVariant}"><!-- audience_spotlight:${escapeHtml(variant)} | ${count} cases --></section>`;
+  const sectionTitle = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const sectionSubtitle = block.data?.subtitle
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom">${escapeHtml(block.data.subtitle)}</p>`
+    : '';
+
+  const cases = Array.isArray(block.data?.cases) ? block.data.cases : [];
+  const gridVariants = {
+    tabs: 'uk-child-width-1-1 uk-child-width-1-2@m',
+    tiles: 'uk-child-width-1-1 uk-child-width-1-3@m',
+    'single-focus': 'uk-child-width-1-1'
+  };
+  const gridClass = gridVariants[variant] || gridVariants.tabs;
+  const cards = cases.map(item => renderAudienceSpotlightCard(item)).join('') ||
+    '<div><div class="uk-alert-warning" role="alert">Keine Anwendungsfälle hinterlegt.</div></div>';
+
+  const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="audience_spotlight" data-block-variant="${safeVariant}"><div class="uk-container">${sectionTitle}${sectionSubtitle}${grid}</div></section>`;
+}
+
+function renderPackageHighlightGroup(highlight) {
+  const title = highlight.title ? `<h4 class="uk-h5 uk-margin-remove-bottom">${escapeHtml(highlight.title)}</h4>` : '';
+  const bullets = Array.isArray(highlight.bullets)
+    ? highlight.bullets
+        .filter(text => typeof text === 'string' && text.trim() !== '')
+        .map(text => `<li>${escapeHtml(text)}</li>`)
+    : [];
+  const list = bullets.length ? `<ul class="uk-list uk-list-bullet uk-margin-small-top">${bullets.join('')}</ul>` : '';
+  return `${title}${list}`;
+}
+
+function renderPackageOption(option) {
+  const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(option.title || '')}</h3>`;
+  const intro = option.intro ? `<p class="uk-margin-small-top">${escapeHtml(option.intro)}</p>` : '';
+
+  const highlights = Array.isArray(option.highlights)
+    ? option.highlights
+        .filter(item => item)
+        .map(item => `<div class="uk-margin-small-top">${renderPackageHighlightGroup(item)}</div>`)
+        .join('')
+    : '';
+
+  return `<div><div class="uk-card uk-card-default uk-height-1-1"><div class="uk-card-body">${title}${intro}${highlights}</div></div></div>`;
+}
+
+function renderPackagePlan(plan) {
+  const badge = plan.badge ? `<span class="uk-label uk-label-success uk-margin-small-bottom">${escapeHtml(plan.badge)}</span>` : '';
+  const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(plan.title || '')}</h3>`;
+  const description = plan.description ? `<p class="uk-margin-small-top">${escapeHtml(plan.description)}</p>` : '';
+  const features = Array.isArray(plan.features)
+    ? plan.features
+        .filter(text => typeof text === 'string' && text.trim() !== '')
+        .map(text => `<li>${escapeHtml(text)}</li>`)
+    : [];
+  const featureList = features.length ? `<ul class="uk-list uk-list-bullet uk-margin-small-top">${features.join('')}</ul>` : '';
+  const notes = Array.isArray(plan.notes)
+    ? plan.notes
+        .filter(text => typeof text === 'string' && text.trim() !== '')
+        .map(text => `<li>${escapeHtml(text)}</li>`)
+    : [];
+  const noteList = notes.length
+    ? `<div class="uk-margin-small-top"><ul class="uk-list uk-text-small uk-margin-remove">${notes.map(text => `<li>${escapeHtml(text)}</li>`).join('')}</ul></div>`
+    : '';
+
+  const ctas = [
+    renderCtaButton(plan.primaryCta, 'uk-button-primary'),
+    renderCtaButton(plan.secondaryCta, 'uk-button-default', 'uk-margin-small-left')
+  ].filter(Boolean);
+  const ctaGroup = ctas.length ? `<div class="uk-margin-medium-top uk-flex uk-flex-wrap uk-flex-left">${ctas.join('')}</div>` : '';
+
+  return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
+    `<div class="uk-card-body uk-flex-1">${badge}${title}${description}${featureList}${noteList}</div>` +
+    (ctaGroup ? `<div class="uk-card-footer">${ctaGroup}</div>` : '') +
+    `</div></div></div>`;
 }
 
 function renderPackageSummary(block, variant) {
-  const plans = Array.isArray(block.data.plans) ? block.data.plans.length : 0;
-  const options = Array.isArray(block.data.options) ? block.data.options.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="package_summary" data-block-variant="${escapeAttribute(variant)}"><!-- package_summary:${escapeHtml(variant)} | ${plans} plans, ${options} options --></section>`;
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const safeVariant = escapeAttribute(variant);
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const subtitle = block.data?.subtitle ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom">${escapeHtml(block.data.subtitle)}</p>` : '';
+
+  const options = Array.isArray(block.data?.options) ? block.data.options : [];
+  const plans = Array.isArray(block.data?.plans) ? block.data.plans : [];
+
+  const isToggleVariant = variant === 'toggle';
+  const itemsToRender = isToggleVariant ? options : plans;
+  const renderItem = isToggleVariant ? renderPackageOption : renderPackagePlan;
+  const gridClass = isToggleVariant ? 'uk-child-width-1-1 uk-child-width-1-2@m' : 'uk-child-width-1-1 uk-child-width-1-3@m';
+
+  const cards = itemsToRender.length
+    ? itemsToRender.map(item => renderItem(item)).join('')
+    : '<div><div class="uk-alert-warning" role="alert">Keine Pakete hinterlegt.</div></div>';
+
+  const disclaimer = block.data?.disclaimer
+    ? `<p class="uk-text-small uk-text-muted uk-margin-medium-top">${escapeHtml(block.data.disclaimer)}</p>`
+    : '';
+
+  const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="package_summary" data-block-variant="${safeVariant}"><div class="uk-container">${title}${subtitle}${grid}${disclaimer}</div></section>`;
+}
+
+function renderFaqItem(item) {
+  const question = `<a class="uk-accordion-title" href="#">${escapeHtml(item.question || '')}</a>`;
+  const answer = item.answer ? `<div class="uk-accordion-content"><p class="uk-margin-remove-top">${escapeHtml(item.answer)}</p></div>` : '';
+  return `<li>${question}${answer}</li>`;
 }
 
 function renderFaq(block) {
-  const count = Array.isArray(block.data.items) ? block.data.items.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="faq" data-block-variant="accordion"><!-- faq:accordion | ${count} questions --></section>`;
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const items = Array.isArray(block.data?.items) ? block.data.items : [];
+  const accordionItems = items.length
+    ? items.map(item => renderFaqItem(item)).join('')
+    : '<li><div class="uk-alert-warning" role="alert">Keine Fragen hinterlegt.</div></li>';
+  const followUpData = block.data?.followUp;
+  const followUpLink = followUpData?.href
+    ? `<a class="uk-link-heading" href="${escapeAttribute(followUpData.href)}">${escapeHtml(followUpData.linkLabel || followUpData.text || 'Mehr erfahren')}</a>`
+    : '';
+  const followUpText = followUpData?.text ? `<span class="uk-text-muted">${escapeHtml(followUpData.text)}</span>` : '';
+  const followUp = followUpLink || followUpText
+    ? `<div class="uk-margin-medium-top">${[followUpLink, followUpText].filter(Boolean).join(' ')}</div>`
+    : '';
+
+  const accordion = `<ul class="uk-accordion" data-uk-accordion>${accordionItems}</ul>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="faq" data-block-variant="accordion"><div class="uk-container">${title}${accordion}${followUp}</div></section>`;
+}
+
+function renderLegacySystemModuleItem(item) {
+  const media = item.media?.image
+    ? `<div class="uk-card-media-top uk-border-rounded uk-overflow-hidden"><img src="${escapeAttribute(item.media.image)}" alt="${item.media.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
+    : '';
+  const title = `<h3 class="uk-h4 uk-margin-remove-bottom">${escapeHtml(item.title || '')}</h3>`;
+  const description = item.description ? `<p class="uk-margin-small-top">${escapeHtml(item.description)}</p>` : '';
+  const bullets = Array.isArray(item.bullets)
+    ? item.bullets
+        .filter(text => typeof text === 'string' && text.trim() !== '')
+        .map(text => `<li>${escapeHtml(text)}</li>`)
+    : [];
+  const bulletList = bullets.length ? `<ul class="uk-list uk-list-bullet uk-margin-small-top">${bullets.join('')}</ul>` : '';
+  return `<div><div class="uk-card uk-card-default uk-height-1-1">${media}<div class="uk-card-body">${title}${description}${bulletList}</div></div></div>`;
 }
 
 function renderLegacySystemModule(block) {
-  throw new Error('system_module/switcher variant is deprecated; migrate to a supported info_media layout');
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const subtitle = block.data?.subtitle ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom">${escapeHtml(block.data.subtitle)}</p>` : '';
+  const legacyNote = '<p class="uk-text-meta uk-margin-remove-top uk-margin-small-bottom">Legacy module block – consider migrating</p>';
+
+  const items = Array.isArray(block.data?.items) ? block.data.items : [];
+  const gridItems = items.length
+    ? items.map(item => renderLegacySystemModuleItem(item)).join('')
+    : '<div><div class="uk-alert-warning" role="alert">Keine Module hinterlegt.</div></div>';
+  const grid = `<div class="uk-grid uk-grid-medium uk-child-width-1-1 uk-child-width-1-2@m" data-uk-grid>${gridItems}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="system_module" data-block-variant="switcher"><div class="uk-container">${legacyNote}${title}${subtitle}${grid}</div></section>`;
 }
 
 function renderLegacyCaseShowcase(block) {
