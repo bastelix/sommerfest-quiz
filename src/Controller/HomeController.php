@@ -87,10 +87,26 @@ class HomeController
                 : null;
             $hasCustomStartpage = $startpagePage !== null
                 && $startpagePage->getContentSource() !== PageContentLoader::SOURCE_FILE;
+            $isSpecialStartpage = in_array($startpageBaseSlug, [
+                'events',
+                'help',
+                'landing',
+                'calhelp',
+                'calserver',
+                'calserver-maintenance',
+                'future-is-green',
+            ], true);
 
-            if ($hasCustomStartpage && $catalogParam === '') {
-                $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug);
-                return $ctrl($request, $response);
+            if ($startpageSlug !== null && $catalogParam === '') {
+                if ($hasCustomStartpage) {
+                    $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug);
+                    return $ctrl($request, $response);
+                }
+
+                if (!$isSpecialStartpage) {
+                    $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug);
+                    return $ctrl($request, $response);
+                }
             }
 
             if ($startpageBaseSlug === 'events') {
