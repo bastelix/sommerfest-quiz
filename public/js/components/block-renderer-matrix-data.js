@@ -336,6 +336,48 @@ function renderStatStrip(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><!--stat_strip:three-up | ${count} metrics --></section>`;
 }
 
+function renderProofMetricCallout(block) {
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const subtitle = block.data?.subtitle
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.subtitle)}</p>`
+    : '';
+  const header = title || subtitle ? `<div class="uk-width-1-1 uk-text-center uk-margin-medium-bottom">${title}${subtitle}</div>` : '';
+
+  const metricCards = (Array.isArray(block.data?.metrics) ? block.data.metrics : [])
+    .filter(metric => metric && typeof metric.value === 'string' && typeof metric.label === 'string')
+    .map(metric => {
+      const tooltip = metric.tooltip ? ` title="${escapeAttribute(metric.tooltip)}" data-uk-tooltip` : '';
+      const value = `<div class="uk-heading-large uk-margin-remove"${tooltip}>${escapeHtml(metric.value)}</div>`;
+      const label = `<p class="uk-text-muted uk-margin-remove-top uk-margin-small-bottom">${escapeHtml(metric.label)}</p>`;
+      const benefit = metric.benefit
+        ? `<p class="uk-text-success uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(metric.benefit)}</p>`
+        : '';
+      const asOf = metric.asOf
+        ? `<p class="uk-text-meta uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(metric.asOf)}</p>`
+        : '';
+
+      return `<div class="uk-width-1-1 uk-width-1-3@m"><div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">${value}${label}${benefit}${asOf}</div></div>`;
+    })
+    .join('');
+
+  const metricsGrid = metricCards
+    ? `<div class="uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-medium" data-uk-grid>${metricCards}</div>`
+    : '';
+
+  const marqueeItems = Array.isArray(block.data?.marquee)
+    ? block.data.marquee.filter(item => typeof item === 'string' && item.trim() !== '')
+    : [];
+
+  const marquee = marqueeItems.length
+    ? `<div class="uk-margin-large-top"><div class="uk-flex uk-flex-middle uk-flex-center uk-flex-wrap uk-text-muted uk-text-small">${marqueeItems
+        .map(text => `<span class="uk-margin-small-left uk-margin-small-right">${escapeHtml(text)}</span>`)
+        .join('<span class="uk-text-muted">•</span>')}</div></div>`
+    : '';
+
+  return `<section${anchor} class="uk-section uk-section-muted" data-block-id="${escapeAttribute(block.id)}" data-block-type="proof" data-block-variant="metric-callout"><div class="uk-container">${header}${metricsGrid}${marquee}</div></section>`;
+}
+
 function renderAudienceSpotlight(block, variant = block.variant || 'tabs') {
   const count = Array.isArray(block.data.cases) ? block.data.cases.length : 0;
   const safeVariant = escapeAttribute(variant);
@@ -397,6 +439,9 @@ export const RENDERER_MATRIX = {
   },
   stat_strip: {
     'three-up': renderStatStrip
+  },
+  proof: {
+    'metric-callout': renderProofMetricCallout
   },
   audience_spotlight: {
     tabs: block => renderAudienceSpotlight(block, 'tabs'),
