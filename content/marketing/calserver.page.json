@@ -341,7 +341,7 @@
     },
     {
       "id": "usecases",
-      "type": "case_showcase",
+      "type": "audience_spotlight",
       "variant": "tabs",
       "data": {
         "title": "Anwendungsfälle aus der Praxis",

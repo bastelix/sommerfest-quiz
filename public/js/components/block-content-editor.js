@@ -771,9 +771,124 @@ export class BlockContentEditor {
         return this.buildProcessStepsForm(block);
       case 'testimonial':
         return this.buildTestimonialForm(block);
+      case 'audience_spotlight':
+        return this.buildAudienceSpotlightForm(block);
       default:
         return this.buildGenericJsonForm(block);
     }
+  }
+
+  buildAudienceSpotlightForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
+
+    const casesWrapper = document.createElement('div');
+    casesWrapper.dataset.field = 'cases';
+
+    const addCaseBtn = document.createElement('button');
+    addCaseBtn.type = 'button';
+    addCaseBtn.textContent = 'Use Case hinzufügen';
+    addCaseBtn.addEventListener('click', () => this.addAudienceCase(block.id));
+    casesWrapper.append(addCaseBtn);
+
+    const buildStringList = (items, label, onChange) => {
+      const listWrapper = document.createElement('div');
+      listWrapper.append(document.createElement('div')).textContent = label;
+
+      const addEntryBtn = document.createElement('button');
+      addEntryBtn.type = 'button';
+      addEntryBtn.textContent = `${label} hinzufügen`;
+      addEntryBtn.addEventListener('click', onChange.add);
+      listWrapper.append(addEntryBtn);
+
+      (items || []).forEach((item, index) => {
+        const entry = document.createElement('div');
+        const input = document.createElement('input');
+        input.value = item || '';
+        input.addEventListener('input', event => onChange.update(index, event.target.value));
+        entry.append(input);
+
+        const controls = document.createElement('div');
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.textContent = 'Entfernen';
+        removeBtn.addEventListener('click', () => onChange.remove(index));
+
+        const moveUp = document.createElement('button');
+        moveUp.type = 'button';
+        moveUp.textContent = '↑';
+        moveUp.disabled = index === 0;
+        moveUp.addEventListener('click', () => onChange.move(index, -1));
+
+        const moveDown = document.createElement('button');
+        moveDown.type = 'button';
+        moveDown.textContent = '↓';
+        moveDown.disabled = index === (items?.length || 0) - 1;
+        moveDown.addEventListener('click', () => onChange.move(index, 1));
+
+        controls.append(removeBtn, moveUp, moveDown);
+        entry.append(controls);
+        listWrapper.append(entry);
+      });
+
+      return listWrapper;
+    };
+
+    (block.data.cases || []).forEach((audienceCase, index) => {
+      const card = document.createElement('div');
+      card.dataset.audienceCase = audienceCase.id;
+
+      card.append(this.addLabeledInput('ID', audienceCase.id, value => this.updateAudienceCase(block.id, audienceCase.id, 'id', value)));
+      card.append(this.addLabeledInput('Badge', audienceCase.badge, value => this.updateAudienceCase(block.id, audienceCase.id, 'badge', value)));
+      card.append(this.addLabeledInput('Titel', audienceCase.title, value => this.updateAudienceCase(block.id, audienceCase.id, 'title', value)));
+      card.append(this.addLabeledInput('Lead', audienceCase.lead, value => this.updateAudienceCase(block.id, audienceCase.id, 'lead', value), { multiline: true }));
+      card.append(this.addLabeledInput('Body', audienceCase.body, value => this.updateAudienceCase(block.id, audienceCase.id, 'body', value), { multiline: true, rows: 4 }));
+
+      card.append(buildStringList(audienceCase.bullets, 'Bullet', {
+        add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'bullets'),
+        update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, value),
+        remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex),
+        move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, delta)
+      }));
+
+      card.append(buildStringList(audienceCase.keyFacts, 'Key Fact', {
+        add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts'),
+        update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, value),
+        remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex),
+        move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, delta)
+      }));
+
+      card.append(this.addLabeledInput('Medienbild', audienceCase.media?.image, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'image'], value)));
+      card.append(this.addLabeledInput('Alt-Text', audienceCase.media?.alt, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'alt'], value)));
+
+      const controls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Use Case entfernen';
+      removeBtn.disabled = (block.data.cases || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removeAudienceCase(block.id, audienceCase.id));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveAudienceCase(block.id, audienceCase.id, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.cases || []).length - 1;
+      moveDown.addEventListener('click', () => this.moveAudienceCase(block.id, audienceCase.id, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      card.append(controls);
+      casesWrapper.append(card);
+    });
+
+    wrapper.append(casesWrapper);
+    return wrapper;
   }
 
   buildGenericJsonForm(block) {
@@ -1106,6 +1221,9 @@ export class BlockContentEditor {
     if (clone.type === 'process_steps' && Array.isArray(clone.data.steps)) {
       clone.data.steps = clone.data.steps.map(step => ({ ...step, id: createId() }));
     }
+    if (clone.type === 'audience_spotlight' && Array.isArray(clone.data.cases)) {
+      clone.data.cases = clone.data.cases.map(entry => ({ ...entry, id: createId() }));
+    }
     const sanitizedClone = sanitizeBlock(clone);
     const insertIndex = this.state.blocks.findIndex(item => item.id === block.id) + 1;
     const blocks = [...this.state.blocks];
@@ -1255,6 +1373,171 @@ export class BlockContentEditor {
       const steps = Array.isArray(updated.data.steps) ? updated.data.steps : [];
       steps.push({ id: createId(), title: 'Schritt', description: 'Beschreibung', duration: '' });
       updated.data.steps = steps;
+      return updated;
+    });
+    this.render();
+  }
+
+  addAudienceCase(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const cases = Array.isArray(updated.data.cases) ? updated.data.cases : [];
+      cases.push({ id: createId(), title: 'Use Case', lead: '', body: '', bullets: [], keyFacts: [] });
+      updated.data.cases = cases;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateAudienceCase(blockId, caseId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.cases = (updated.data.cases || []).map(entry => {
+        if (entry.id !== caseId) {
+          return entry;
+        }
+        if (Array.isArray(field)) {
+          const clone = { ...entry };
+          let cursor = clone;
+          for (let i = 0; i < field.length - 1; i += 1) {
+            const key = field[i];
+            if (!cursor[key] || typeof cursor[key] !== 'object') {
+              cursor[key] = {};
+            }
+            cursor = cursor[key];
+          }
+          cursor[field[field.length - 1]] = value;
+          return clone;
+        }
+        return { ...entry, [field]: value };
+      });
+      return updated;
+    });
+  }
+
+  removeAudienceCase(blockId, caseId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const cases = Array.isArray(updated.data.cases) ? [...updated.data.cases] : [];
+      if (cases.length <= 1) {
+        return block;
+      }
+      updated.data.cases = cases.filter(entry => entry.id !== caseId);
+      return updated;
+    });
+    this.render();
+  }
+
+  moveAudienceCase(blockId, caseId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const cases = Array.isArray(updated.data.cases) ? [...updated.data.cases] : [];
+      const index = cases.findIndex(entry => entry.id === caseId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= cases.length) {
+        return block;
+      }
+      const [entry] = cases.splice(index, 1);
+      cases.splice(target, 0, entry);
+      updated.data.cases = cases;
+      return updated;
+    });
+    this.render();
+  }
+
+  addAudienceCaseListItem(blockId, caseId, field) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.cases = (updated.data.cases || []).map(entry => {
+        if (entry.id !== caseId) {
+          return entry;
+        }
+        const list = Array.isArray(entry[field]) ? [...entry[field]] : [];
+        list.push('');
+        return { ...entry, [field]: list };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  updateAudienceCaseListItem(blockId, caseId, field, index, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.cases = (updated.data.cases || []).map(entry => {
+        if (entry.id !== caseId) {
+          return entry;
+        }
+        const list = Array.isArray(entry[field]) ? [...entry[field]] : [];
+        if (index < 0 || index >= list.length) {
+          return entry;
+        }
+        list[index] = value;
+        return { ...entry, [field]: list };
+      });
+      return updated;
+    });
+  }
+
+  removeAudienceCaseListItem(blockId, caseId, field, index) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.cases = (updated.data.cases || []).map(entry => {
+        if (entry.id !== caseId) {
+          return entry;
+        }
+        const list = Array.isArray(entry[field]) ? [...entry[field]] : [];
+        if (list.length <= 1 || index < 0 || index >= list.length) {
+          return entry;
+        }
+        list.splice(index, 1);
+        return { ...entry, [field]: list };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  moveAudienceCaseListItem(blockId, caseId, field, index, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.cases = (updated.data.cases || []).map(entry => {
+        if (entry.id !== caseId) {
+          return entry;
+        }
+        const list = Array.isArray(entry[field]) ? [...entry[field]] : [];
+        const target = index + delta;
+        if (index < 0 || target < 0 || target >= list.length) {
+          return entry;
+        }
+        const [item] = list.splice(index, 1);
+        list.splice(target, 0, item);
+        return { ...entry, [field]: list };
+      });
       return updated;
     });
     this.render();
