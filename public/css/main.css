@@ -1989,6 +1989,22 @@ body.admin-page {
   background-color: #f8fafc;
 }
 
+.page-preview-canvas [data-editable="true"] {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-preview-canvas [data-editable="true"]:hover {
+  outline-color: #b7c5dc;
+  cursor: text;
+}
+
+.page-preview-canvas [data-editable="true"][data-editing="true"] {
+  outline: 2px solid #1e87f0;
+  box-shadow: 0 0 0 2px rgba(30, 135, 240, 0.2);
+}
+
 .page-preview-surface .preview-status {
   position: relative;
   z-index: 1;

@@ -20,12 +20,15 @@ export class PreviewCanvas {
   constructor(root, options = {}) {
     this.root = root;
     this.onSelect = typeof options.onSelect === 'function' ? options.onSelect : noop;
+    this.onInlineEdit = typeof options.onInlineEdit === 'function' ? options.onInlineEdit : null;
     this.renderSelectionOnly = options.renderSelectionOnly === true;
     this.blocks = [];
     this.highlightBlockId = null;
     this.hoverBlockId = null;
     this.blockIds = new Set();
     this.visibleBlocks = [];
+    this.activeEdit = null;
+    this.cleanupInlineEdit = null;
 
     this.surface = document.createElement('div');
     this.surface.className = 'page-preview-surface';
@@ -34,11 +37,15 @@ export class PreviewCanvas {
     this.root.append(this.surface);
 
     this.handleClick = this.handleClick.bind(this);
+    this.handleEditableClick = this.handleEditableClick.bind(this);
     this.root.addEventListener('click', this.handleClick, true);
+    this.surface.addEventListener('click', this.handleEditableClick);
   }
 
   destroy() {
     this.root.removeEventListener('click', this.handleClick, true);
+    this.surface.removeEventListener('click', this.handleEditableClick);
+    this.finishInlineEdit(false);
     this.root.innerHTML = '';
     this.blockIds.clear();
   }
@@ -58,6 +65,9 @@ export class PreviewCanvas {
   }
 
   render() {
+    if (this.activeEdit) {
+      this.finishInlineEdit(false);
+    }
     const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
       rendererMatrix: RENDERER_MATRIX,
       context: 'preview'
@@ -95,6 +105,9 @@ export class PreviewCanvas {
   }
 
   handleClick(event) {
+    if (event.target.closest('[data-editable="true"]')) {
+      return;
+    }
     const target = event.target.closest('[data-block-id]');
     if (!target) {
       return;
@@ -105,6 +118,91 @@ export class PreviewCanvas {
     }
     event.preventDefault();
     this.onSelect(blockId);
+  }
+
+  handleEditableClick(event) {
+    const target = event.target.closest('[data-editable="true"]');
+    if (!target || !this.surface.contains(target)) {
+      return;
+    }
+    const blockId = target.getAttribute('data-block-id');
+    const fieldPath = target.getAttribute('data-field-path');
+    if (!blockId || !fieldPath || !this.blockIds.has(blockId) || !this.onInlineEdit) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const type = target.getAttribute('data-editable-type') === 'richtext' ? 'richtext' : 'text';
+    this.startInlineEdit(target, { blockId, fieldPath, type });
+    this.onSelect(blockId);
+  }
+
+  startInlineEdit(element, meta) {
+    this.finishInlineEdit(false);
+    const editableElement = element;
+    const originalHtml = editableElement.innerHTML;
+    editableElement.dataset.editing = 'true';
+    editableElement.setAttribute('contenteditable', 'true');
+    editableElement.setAttribute('spellcheck', 'true');
+
+    const onBlur = () => this.finishInlineEdit(true);
+    const onKeydown = event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        this.finishInlineEdit(false);
+      }
+      if (event.key === 'Enter' && !(meta.type === 'richtext' && event.shiftKey)) {
+        event.preventDefault();
+        this.finishInlineEdit(true);
+      }
+    };
+    const swallowClick = evt => evt.stopPropagation();
+
+    editableElement.addEventListener('blur', onBlur);
+    editableElement.addEventListener('keydown', onKeydown);
+    editableElement.addEventListener('click', swallowClick);
+
+    this.cleanupInlineEdit = () => {
+      editableElement.removeEventListener('blur', onBlur);
+      editableElement.removeEventListener('keydown', onKeydown);
+      editableElement.removeEventListener('click', swallowClick);
+    };
+
+    const selection = typeof window !== 'undefined' ? window.getSelection?.() : null;
+    if (selection && typeof selection.removeAllRanges === 'function' && editableElement.firstChild) {
+      const range = document.createRange();
+      range.selectNodeContents(editableElement);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    editableElement.focus();
+    this.activeEdit = { element: editableElement, originalHtml, meta };
+  }
+
+  finishInlineEdit(commit = false) {
+    if (!this.activeEdit) {
+      return;
+    }
+    const { element, originalHtml, meta } = this.activeEdit;
+    if (this.cleanupInlineEdit) {
+      this.cleanupInlineEdit();
+      this.cleanupInlineEdit = null;
+    }
+    element.removeAttribute('contenteditable');
+    element.removeAttribute('spellcheck');
+    element.removeAttribute('data-editing');
+    const value = meta.type === 'richtext'
+      ? (element.innerHTML || '').trim()
+      : (element.textContent || '').trim();
+    let updated = false;
+    if (commit && this.onInlineEdit) {
+      updated = this.onInlineEdit({ ...meta, value });
+    }
+    if (!updated) {
+      element.innerHTML = originalHtml;
+    }
+    this.activeEdit = null;
   }
 
   applySelectionHighlight() {

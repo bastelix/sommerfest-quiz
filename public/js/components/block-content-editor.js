@@ -92,6 +92,65 @@ const createId = () => {
 
 const deepClone = value => JSON.parse(JSON.stringify(value));
 
+const parseFieldPath = path => {
+  if (Array.isArray(path)) {
+    return path;
+  }
+  if (!path) {
+    return [];
+  }
+
+  return String(path)
+    .split('.')
+    .filter(Boolean)
+    .flatMap(segment => segment.split(/\[|\]/).filter(Boolean))
+    .map(token => (token.match(/^\d+$/) ? Number(token) : token));
+};
+
+const sanitizeInlineHtml = value => {
+  const html = typeof value === 'string' ? value : '';
+  if (window?.DOMPurify?.sanitize) {
+    return window.DOMPurify.sanitize(html);
+  }
+  return html;
+};
+
+const assignValueAtPath = (target, pathSegments, value) => {
+  if (!Array.isArray(pathSegments) || pathSegments.length === 0) {
+    return target;
+  }
+
+  let cursor = target;
+  for (let i = 0; i < pathSegments.length - 1; i += 1) {
+    const segment = pathSegments[i];
+    const isIndex = typeof segment === 'number';
+
+    if (isIndex) {
+      if (!Array.isArray(cursor)) {
+        return target;
+      }
+      if (cursor[segment] === undefined) {
+        cursor[segment] = {};
+      }
+      cursor = cursor[segment];
+    } else {
+      if (cursor[segment] === undefined || cursor[segment] === null || typeof cursor[segment] !== 'object') {
+        cursor[segment] = {};
+      }
+      cursor = cursor[segment];
+    }
+  }
+
+  const finalKey = pathSegments[pathSegments.length - 1];
+  if (Array.isArray(cursor) && typeof finalKey === 'number') {
+    cursor[finalKey] = value;
+  } else if (cursor && typeof cursor === 'object') {
+    cursor[finalKey] = value;
+  }
+
+  return target;
+};
+
 const getRendererVariants = type => Object.keys(RENDERER_MATRIX[type] || {});
 
 const humanizeToken = token =>
@@ -2847,6 +2906,41 @@ export class BlockContentEditor {
       return updated;
     });
     this.state.blocks = blocks;
+  }
+
+  applyInlineEdit(edit) {
+    const blockId = edit?.blockId;
+    const fieldPath = edit?.fieldPath;
+    if (!blockId || !fieldPath) {
+      return false;
+    }
+
+    const parsedPath = parseFieldPath(fieldPath);
+    if (!parsedPath.length) {
+      return false;
+    }
+
+    const value = edit?.type === 'richtext' ? sanitizeInlineHtml(edit?.value ?? '') : String(edit?.value ?? '').trim();
+
+    let updated = false;
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updatedBlock = deepClone(block);
+      assignValueAtPath(updatedBlock, parsedPath, value);
+      updated = true;
+      return updatedBlock;
+    });
+
+    if (!updated) {
+      return false;
+    }
+
+    this.render();
+    this.selectBlock(blockId, { scrollPreview: false });
+    this.highlightPreview(blockId);
+    return true;
   }
 
   updateVariant(blockId, variant) {
