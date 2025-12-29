@@ -897,6 +897,8 @@ export class BlockContentEditor {
         return this.buildProcessStepsForm(block);
       case 'testimonial':
         return this.buildTestimonialForm(block);
+      case 'stat_strip':
+        return this.buildStatStripForm(block);
       case 'cta':
         return this.buildCtaForm(block);
       case 'audience_spotlight':
@@ -1288,6 +1290,107 @@ export class BlockContentEditor {
     return wrapper;
   }
 
+  buildStatStripForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Lead', block.data.lede, value => this.updateBlockData(block.id, ['data', 'lede'], value), { multiline: true }));
+
+    const metricsWrapper = document.createElement('div');
+    metricsWrapper.dataset.field = 'metrics';
+
+    const addMetricBtn = document.createElement('button');
+    addMetricBtn.type = 'button';
+    addMetricBtn.textContent = 'Stat hinzufügen';
+    addMetricBtn.addEventListener('click', () => this.addStatMetric(block.id));
+    metricsWrapper.append(addMetricBtn);
+
+    (block.data.metrics || []).forEach((metric, index) => {
+      const metricCard = document.createElement('div');
+      metricCard.dataset.statMetric = metric.id;
+
+      metricCard.append(this.addLabeledInput('Wert', metric.value, value => this.updateStatMetric(block.id, metric.id, 'value', value)));
+      metricCard.append(this.addLabeledInput('Label', metric.label, value => this.updateStatMetric(block.id, metric.id, 'label', value)));
+      metricCard.append(this.addLabeledInput('Icon', metric.icon, value => this.updateStatMetric(block.id, metric.id, 'icon', value)));
+      metricCard.append(this.addLabeledInput('Stand', metric.asOf, value => this.updateStatMetric(block.id, metric.id, 'asOf', value)));
+      metricCard.append(this.addLabeledInput('Tooltip', metric.tooltip, value => this.updateStatMetric(block.id, metric.id, 'tooltip', value), { multiline: true }));
+      metricCard.append(this.addLabeledInput('Benefit', metric.benefit, value => this.updateStatMetric(block.id, metric.id, 'benefit', value), { multiline: true }));
+
+      const controls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.disabled = (block.data.metrics || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removeStatMetric(block.id, metric.id));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveStatMetric(block.id, metric.id, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.metrics || []).length - 1;
+      moveDown.addEventListener('click', () => this.moveStatMetric(block.id, metric.id, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      metricCard.append(controls);
+      metricsWrapper.append(metricCard);
+    });
+
+    wrapper.append(metricsWrapper);
+
+    const marqueeWrapper = document.createElement('div');
+    marqueeWrapper.dataset.field = 'marquee';
+
+    const marqueeLabel = document.createElement('div');
+    marqueeLabel.textContent = 'Marquee';
+    marqueeWrapper.append(marqueeLabel);
+
+    const addMarqueeBtn = document.createElement('button');
+    addMarqueeBtn.type = 'button';
+    addMarqueeBtn.textContent = 'Marquee-Eintrag hinzufügen';
+    addMarqueeBtn.addEventListener('click', () => this.addStatMarqueeItem(block.id));
+    marqueeWrapper.append(addMarqueeBtn);
+
+    (block.data.marquee || []).forEach((entry, index) => {
+      const row = document.createElement('div');
+
+      const input = document.createElement('input');
+      input.value = entry || '';
+      input.addEventListener('input', event => this.updateStatMarqueeItem(block.id, index, event.target.value));
+      row.append(input);
+
+      const controls = document.createElement('div');
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.addEventListener('click', () => this.removeStatMarqueeItem(block.id, index));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.moveStatMarqueeItem(block.id, index, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.marquee || []).length - 1;
+      moveDown.addEventListener('click', () => this.moveStatMarqueeItem(block.id, index, 1));
+
+      controls.append(removeBtn, moveUp, moveDown);
+      row.append(controls);
+      marqueeWrapper.append(row);
+    });
+
+    wrapper.append(marqueeWrapper);
+    return wrapper;
+  }
+
   buildTestimonialForm(block) {
     const wrapper = document.createElement('div');
 
@@ -1450,6 +1553,133 @@ export class BlockContentEditor {
     } catch (error) {
       window.alert(error.message || 'Block konnte nicht aktualisiert werden');
     }
+  }
+
+  addStatMetric(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const metrics = Array.isArray(updated.data.metrics) ? updated.data.metrics : [];
+      metrics.push({ id: createId(), value: '', label: '', icon: '' });
+      updated.data.metrics = metrics;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateStatMetric(blockId, metricId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.metrics = (updated.data.metrics || []).map(metric => (metric.id === metricId ? { ...metric, [field]: value } : metric));
+      return updated;
+    });
+  }
+
+  removeStatMetric(blockId, metricId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const metrics = Array.isArray(updated.data.metrics) ? [...updated.data.metrics] : [];
+      if (metrics.length <= 1) {
+        return block;
+      }
+      updated.data.metrics = metrics.filter(metric => metric.id !== metricId);
+      return updated;
+    });
+    this.render();
+  }
+
+  moveStatMetric(blockId, metricId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const metrics = Array.isArray(updated.data.metrics) ? [...updated.data.metrics] : [];
+      const index = metrics.findIndex(metric => metric.id === metricId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= metrics.length) {
+        return block;
+      }
+      const [entry] = metrics.splice(index, 1);
+      metrics.splice(target, 0, entry);
+      updated.data.metrics = metrics;
+      return updated;
+    });
+    this.render();
+  }
+
+  addStatMarqueeItem(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      marquee.push('');
+      updated.data.marquee = marquee;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateStatMarqueeItem(blockId, index, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      if (index < 0 || index >= marquee.length) {
+        return block;
+      }
+      marquee[index] = value;
+      updated.data.marquee = marquee;
+      return updated;
+    });
+  }
+
+  removeStatMarqueeItem(blockId, index) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      if (index < 0 || index >= marquee.length) {
+        return block;
+      }
+      marquee.splice(index, 1);
+      updated.data.marquee = marquee;
+      return updated;
+    });
+    this.render();
+  }
+
+  moveStatMarqueeItem(blockId, index, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const marquee = Array.isArray(updated.data.marquee) ? [...updated.data.marquee] : [];
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= marquee.length) {
+        return block;
+      }
+      const [entry] = marquee.splice(index, 1);
+      marquee.splice(target, 0, entry);
+      updated.data.marquee = marquee;
+      return updated;
+    });
+    this.render();
   }
 
   addFeatureItem(blockId) {
