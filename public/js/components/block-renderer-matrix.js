@@ -50,7 +50,8 @@ export function renderBlockStrict(block, options = {}) {
   const rendererMatrix = resolveRendererMatrix(options.rendererMatrix);
   const renderer = assertRenderable(block, rendererMatrix);
   const context = resolveContext(options.context);
-  return renderer(block, { context });
+  const html = renderer(block, { context });
+  return withPreviewStatus(block, html, context);
 }
 
 function renderBlockError(block, error) {
@@ -103,3 +104,83 @@ export function listSelectableBlocks(rendererMatrix = RENDERER_MATRIX) {
 }
 
 export { RENDERER_MATRIX };
+
+const PREVIEW_STATUS = {
+  INCOMPLETE: 'INCOMPLETE',
+  LEGACY: 'LEGACY'
+};
+
+function resolvePreviewStatus(block) {
+  const rawStatus = block?.meta?.status || block?.status;
+  if (!rawStatus) {
+    return null;
+  }
+
+  const normalized = String(rawStatus).toUpperCase();
+  if (normalized === PREVIEW_STATUS.INCOMPLETE) {
+    return PREVIEW_STATUS.INCOMPLETE;
+  }
+  if (normalized === PREVIEW_STATUS.LEGACY) {
+    return PREVIEW_STATUS.LEGACY;
+  }
+  return null;
+}
+
+function buildStatusNotice(status, block) {
+  if (status === PREVIEW_STATUS.INCOMPLETE) {
+    return buildNoticeTemplate({
+      alertClass: 'uk-alert-warning',
+      icon: '⚠️',
+      text: 'Dieser Abschnitt ist noch unvollständig.',
+      actionLabel: 'Inhalt ergänzen',
+      blockId: block?.id
+    });
+  }
+
+  if (status === PREVIEW_STATUS.LEGACY) {
+    return buildNoticeTemplate({
+      alertClass: 'uk-alert-muted',
+      icon: '🕘',
+      text: 'Dieser Abschnitt nutzt ein veraltetes Layout.',
+      actionLabel: 'Layout aktualisieren',
+      blockId: block?.id
+    });
+  }
+
+  return '';
+}
+
+function buildNoticeTemplate({ alertClass, icon, text, actionLabel, blockId }) {
+  const action = blockId
+    ? `<a class="uk-link-text uk-margin-small-left" href="#" data-preview-status-action="select" data-block-id="${escapeAttribute(blockId)}">${actionLabel}</a>`
+    : '';
+
+  return `<div class="preview-status"><div class="uk-alert ${alertClass} uk-padding-small uk-margin-remove-top uk-margin-small-bottom" data-uk-alert><span class="preview-status__icon" aria-hidden="true">${icon}</span><span class="uk-margin-small-left">${text}</span>${action ? `<span class="uk-margin-small-left">${action}</span>` : ''}</div></div>`;
+}
+
+function insertNoticeIntoSection(html, notice) {
+  if (!notice) {
+    return html;
+  }
+
+  const sectionStart = html.indexOf('>');
+  if (sectionStart === -1) {
+    return `${notice}${html}`;
+  }
+
+  return `${html.slice(0, sectionStart + 1)}${notice}${html.slice(sectionStart + 1)}`;
+}
+
+function withPreviewStatus(block, html, context) {
+  if (context !== CONTEXTS.PREVIEW) {
+    return html;
+  }
+
+  const status = resolvePreviewStatus(block);
+  if (!status) {
+    return html;
+  }
+
+  const notice = buildStatusNotice(status, block);
+  return insertNoticeIntoSection(html, notice);
+}
