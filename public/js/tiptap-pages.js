@@ -196,19 +196,26 @@ const attachBlockPreview = (form, editor) => {
     return null;
   }
 
-  const preview = new PreviewCanvas(slots.previewRoot, {
-    renderSelectionOnly: false,
-    onSelect: blockId => {
-      if (typeof editor.selectBlock === 'function') {
-        editor.selectBlock(blockId);
-      }
-    }
-  });
+  let preview = null;
+
+  try {
+    preview = new PreviewCanvas(slots.previewRoot, {
+      renderSelectionOnly: false,
+      onSelect: blockId => {
+        if (typeof editor.selectBlock === 'function') {
+          editor.selectBlock(blockId);
+        }
+      },
+      onInlineEdit: payload => (typeof editor.applyInlineEdit === 'function' ? editor.applyInlineEdit(payload) : false)
+    });
+  } catch (error) {
+    notify(error?.message || 'Live-Vorschau konnte nicht initialisiert werden.', 'warning');
+  }
 
   const previewBridge = {
-    highlight: blockId => preview.setHoverBlock(blockId),
-    clearHighlight: () => preview.setHoverBlock(null),
-    scrollTo: blockId => preview.scrollToBlock(blockId)
+    highlight: blockId => preview?.setHoverBlock(blockId),
+    clearHighlight: () => preview?.setHoverBlock(null),
+    scrollTo: blockId => preview?.scrollToBlock(blockId)
   };
 
   if (typeof editor.bindPreviewBridge === 'function') {
@@ -216,6 +223,9 @@ const attachBlockPreview = (form, editor) => {
   }
 
   const sync = () => {
+    if (!preview) {
+      return;
+    }
     const snapshot = readBlockEditorState(editor);
     const highlight = editor?.state?.selectedBlockId || null;
     preview.setBlocks(snapshot.blocks || [], highlight);

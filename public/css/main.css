@@ -320,6 +320,7 @@ body.uk-padding {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--topbar-fg, #111827);
 }
 
 .topbar .uk-navbar-item,
@@ -330,6 +331,12 @@ body.uk-padding {
   padding-right: 0.5rem;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+[data-theme="dark"] .topbar .uk-navbar-item,
+[data-theme="dark"] .topbar .uk-navbar-nav > li > a,
+[data-theme="dark"] .topbar .uk-navbar-toggle {
+  color: var(--topbar-fg-dark, #f8fafc);
 }
 
 .topbar .uk-navbar-toggle.git-btn {
@@ -1987,6 +1994,22 @@ body.admin-page {
   outline-color: #94a2b8;
   box-shadow: 0 0 0 2px #cbd2d9;
   background-color: #f8fafc;
+}
+
+.page-preview-canvas [data-editable="true"] {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.page-preview-canvas [data-editable="true"]:hover {
+  outline-color: #b7c5dc;
+  cursor: text;
+}
+
+.page-preview-canvas [data-editable="true"][data-editing="true"] {
+  outline: 2px solid #1e87f0;
+  box-shadow: 0 0 0 2px rgba(30, 135, 240, 0.2);
 }
 
 .page-preview-surface .preview-status {

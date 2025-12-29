@@ -14,31 +14,54 @@ export function escapeAttribute(value) {
   return escapeHtml(value).replace(/`/g, '&#x60;');
 }
 
+const PREVIEW_CONTEXT = 'preview';
+
+function buildEditableAttributes(block, fieldPath, context, { type = 'text' } = {}) {
+  if (context !== PREVIEW_CONTEXT || !block?.id || !fieldPath) {
+    return '';
+  }
+
+  const attributes = [
+    'data-editable="true"',
+    `data-block-id="${escapeAttribute(block.id)}"`,
+    `data-field-path="${escapeAttribute(fieldPath)}"`,
+    `data-editable-type="${type === 'richtext' ? 'richtext' : 'text'}"`
+  ];
+
+  return ` ${attributes.join(' ')}`;
+}
+
 function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
   const sectionClasses = ['uk-section', 'uk-section-default', sectionModifiers].filter(Boolean).join(' ');
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   return `<section${anchor} class="${sectionClasses}" data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${content}</div></section>`;
 }
 
-function renderEyebrow(eyebrow, alignmentClass = '') {
+function renderEyebrow(block, alignmentClass = '', context = 'frontend') {
+  const eyebrow = block?.data?.eyebrow;
   if (!eyebrow) {
     return '';
   }
   const alignment = alignmentClass ? ` ${alignmentClass}` : '';
-  return `<p class="uk-text-meta uk-margin-remove-bottom${alignment}">${escapeHtml(eyebrow)}</p>`;
+  const editable = buildEditableAttributes(block, 'data.eyebrow', context);
+  return `<p class="uk-text-meta uk-margin-remove-bottom${alignment}"${editable}>${escapeHtml(eyebrow)}</p>`;
 }
 
-function renderHeadline(headline, alignmentClass = '') {
+function renderHeadline(block, alignmentClass = '', context = 'frontend') {
+  const headline = block?.data?.headline;
   const alignment = alignmentClass ? ` ${alignmentClass}` : '';
-  return `<h1 class="uk-heading-medium uk-margin-small-top${alignment}">${escapeHtml(headline || '')}</h1>`;
+  const editable = buildEditableAttributes(block, 'data.headline', context);
+  return `<h1 class="uk-heading-medium uk-margin-small-top${alignment}"${editable}>${escapeHtml(headline || '')}</h1>`;
 }
 
-function renderSubheadline(subheadline, alignmentClass = '') {
+function renderSubheadline(block, alignmentClass = '', context = 'frontend') {
+  const subheadline = block?.data?.subheadline;
   if (!subheadline) {
     return '';
   }
   const alignment = alignmentClass ? ` ${alignmentClass}` : '';
-  return `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom${alignment}">${escapeHtml(subheadline)}</p>`;
+  const editable = buildEditableAttributes(block, 'data.subheadline', context);
+  return `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom${alignment}"${editable}>${escapeHtml(subheadline)}</p>`;
 }
 
 function renderHeroMedia(media) {
@@ -77,19 +100,21 @@ function renderHeroCtas(cta, alignmentClass = '') {
   return `<div class="uk-margin-medium-top uk-flex uk-flex-middle uk-flex-wrap${alignment}">${buttons.join('')}</div>`;
 }
 
-function renderHeroCenteredCta(block) {
-  const eyebrow = renderEyebrow(block.data?.eyebrow, 'uk-text-center');
-  const headline = renderHeadline(block.data?.headline, 'uk-text-center');
-  const subheadline = renderSubheadline(block.data?.subheadline, 'uk-text-center');
+function renderHeroCenteredCta(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, 'uk-text-center', context);
+  const headline = renderHeadline(block, 'uk-text-center', context);
+  const subheadline = renderSubheadline(block, 'uk-text-center', context);
   const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
   const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
   return renderHeroSection({ block, variant: 'centered_cta', content });
 }
 
-function renderHeroMediaRight(block) {
-  const eyebrow = renderEyebrow(block.data?.eyebrow);
-  const headline = renderHeadline(block.data?.headline);
-  const subheadline = renderSubheadline(block.data?.subheadline);
+function renderHeroMediaRight(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, '', context);
+  const headline = renderHeadline(block, '', context);
+  const subheadline = renderSubheadline(block, '', context);
   const ctas = renderHeroCtas(block.data?.cta);
   const media = renderHeroMedia(block.data?.media);
   const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
@@ -99,10 +124,11 @@ function renderHeroMediaRight(block) {
   return renderHeroSection({ block, variant: 'media_right', content: grid });
 }
 
-function renderHeroMediaLeft(block) {
-  const eyebrow = renderEyebrow(block.data?.eyebrow);
-  const headline = renderHeadline(block.data?.headline);
-  const subheadline = renderSubheadline(block.data?.subheadline);
+function renderHeroMediaLeft(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, '', context);
+  const headline = renderHeadline(block, '', context);
+  const subheadline = renderSubheadline(block, '', context);
   const ctas = renderHeroCtas(block.data?.cta);
   const media = renderHeroMedia(block.data?.media);
   const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
@@ -112,10 +138,11 @@ function renderHeroMediaLeft(block) {
   return renderHeroSection({ block, variant: 'media_left', content: grid });
 }
 
-function renderHeroMinimal(block) {
-  const eyebrow = renderEyebrow(block.data?.eyebrow);
-  const headline = renderHeadline(block.data?.headline);
-  const subheadline = renderSubheadline(block.data?.subheadline);
+function renderHeroMinimal(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, '', context);
+  const headline = renderHeadline(block, '', context);
+  const subheadline = renderSubheadline(block, '', context);
   const content = `<div class="uk-width-1-1 uk-width-3-4@m uk-align-center">${eyebrow}${headline}${subheadline}</div>`;
   return renderHeroSection({ block, variant: 'minimal', content, sectionModifiers: 'uk-section-small' });
 }
@@ -163,13 +190,20 @@ function normalizeFeatureListItems(block) {
   return block.data.items.filter(item => item && typeof item.title === 'string' && typeof item.description === 'string');
 }
 
-function renderFeatureListHeader(title, subtitle) {
+function renderFeatureListHeader(block, context = 'frontend') {
+  const title = block?.data?.title;
+  const subtitle = block?.data?.subtitle;
+
   if (!title && !subtitle) {
     return '';
   }
 
-  const heading = title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(title)}</h2>` : '';
-  const subheading = subtitle ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(subtitle)}</p>` : '';
+  const heading = title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(title)}</h2>`
+    : '';
+  const subheading = subtitle
+    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(subtitle)}</p>`
+    : '';
 
   return `<div class="uk-width-1-1 uk-margin-medium-bottom">${heading}${subheading}</div>`;
 }
@@ -198,26 +232,33 @@ function renderFeatureListCardStack(items) {
   return `<div class="uk-grid uk-grid-medium" data-uk-grid>${cards}</div>`;
 }
 
-function renderFeatureList(block, variant) {
+function renderFeatureList(block, variant, options = {}) {
   if (variant !== 'text-columns' && variant !== 'card-stack') {
     throw new Error(`Unsupported variant for feature_list: ${variant}`);
   }
 
+  const context = options?.context || 'frontend';
+
   const items = normalizeFeatureListItems(block);
 
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const header = renderFeatureListHeader(block.data?.title, block.data?.subtitle);
+  const header = renderFeatureListHeader(block, context);
   const grid = variant === 'card-stack' ? renderFeatureListCardStack(items) : renderFeatureListTextColumns(items);
 
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${grid}</div></section>`;
 }
 
-function renderFeatureListDetailedCards(block) {
+function renderFeatureListDetailedCards(block, options = {}) {
+  const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const eyebrow = renderEyebrow(block.data?.eyebrow);
-  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
-  const lead = block.data?.lead ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.lead)}</p>` : '';
+  const eyebrow = renderEyebrow(block, '', context);
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const lead = block.data?.lead
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.lead', context)}>${escapeHtml(block.data.lead)}</p>`
+    : '';
   const header = (eyebrow || title || lead) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${eyebrow}${title}${lead}</div>` : '';
 
   const cards = items
@@ -234,12 +275,19 @@ function renderFeatureListDetailedCards(block) {
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="detailed-cards"><div class="uk-container">${header}${grid}${footer}</div></section>`;
 }
 
-function renderFeatureListGridBullets(block) {
+function renderFeatureListGridBullets(block, options = {}) {
+  const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const intro = block.data?.intro ? `<p class="uk-text-meta uk-margin-remove-bottom">${escapeHtml(block.data.intro)}</p>` : '';
-  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
-  const subtitle = block.data?.subtitle ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(block.data.subtitle)}</p>` : '';
+  const intro = block.data?.intro
+    ? `<p class="uk-text-meta uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
+    : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const subtitle = block.data?.subtitle
+    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
+    : '';
   const header = (intro || title || subtitle) ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${intro}${title}${subtitle}</div>` : '';
 
   const cards = items
@@ -254,12 +302,14 @@ function renderFeatureListGridBullets(block) {
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="grid-bullets"><div class="uk-container">${header}${grid}</div></section>`;
 }
 
-function renderProcessSteps(block, variant) {
+function renderProcessSteps(block, variant, options = {}) {
   const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal']);
 
   if (!allowedVariants.has(variant)) {
     throw new Error(`Unsupported process_steps variant: ${variant}`);
   }
+
+  const context = options?.context || 'frontend';
 
   const steps = Array.isArray(block.data?.steps) ? block.data.steps : [];
 
@@ -268,8 +318,12 @@ function renderProcessSteps(block, variant) {
   }
 
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
-  const summary = block.data?.summary ? `<p class="uk-text-lead uk-margin-small-top">${escapeHtml(block.data.summary)}</p>` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const summary = block.data?.summary
+    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.summary', context)}>${escapeHtml(block.data.summary)}</p>`
+    : '';
   const header = title || summary ? `<div class="uk-width-1-1 uk-margin-medium-bottom">${title}${summary}</div>` : '';
 
   const renderNumberBadge = (stepNumber) => `<div class="uk-flex uk-flex-middle uk-flex-center uk-background-primary uk-light uk-border-circle uk-text-bold" style="width:48px;height:48px;">${stepNumber}</div>`;
@@ -312,13 +366,16 @@ function renderTestimonialWall(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="testimonial" data-block-variant="quote_wall"><!-- testimonial:quote_wall | grouped quotes --></section>`;
 }
 
-function renderRichTextProse(block) {
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="rich_text" data-block-variant="prose"><!-- rich_text:prose -->${block.data.body || ''}</section>`;
+function renderRichTextProse(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const editable = buildEditableAttributes(block, 'data.body', context, { type: 'richtext' });
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="rich_text" data-block-variant="prose"${editable}><!-- rich_text:prose -->${block.data.body || ''}</section>`;
 }
 
-function renderInfoMedia(block, variant) {
+function renderInfoMedia(block, variant, options = {}) {
   const allowedVariants = new Set(['stacked', 'image-left', 'image-right']);
   const hasSupportedVariant = allowedVariants.has(variant);
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const dataAttributes = ` data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(hasSupportedVariant ? variant : 'unsupported')}"`;
 
@@ -344,7 +401,7 @@ function renderInfoMedia(block, variant) {
     ? `<div class="uk-border-rounded uk-overflow-hidden uk-box-shadow-small"><img class="uk-width-1-1" src="${escapeAttribute(media.image)}" alt="${media?.alt ? escapeAttribute(media.alt) : ''}" loading="lazy"></div>`
     : `<div class="uk-placeholder uk-text-center uk-border-rounded uk-box-shadow-small"><span class="uk-text-muted">Kein Bild ausgewählt</span></div>`;
 
-  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${warnings.join('')}<div class="uk-article">${bodyContent}</div></div>`;
+  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${warnings.join('')}<div class="uk-article"${buildEditableAttributes(block, 'data.body', context, { type: 'richtext' })}>${bodyContent}</div></div>`;
 
   const mediaColumnRequired = variant !== 'stacked';
   const mediaColumn = mediaColumnRequired || hasMedia ? `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${mediaContent}</div>` : '';
@@ -400,13 +457,14 @@ function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-mar
   return `<div class="${classes}">${buttons.join('')}</div>`;
 }
 
-function renderCta(block) {
+function renderCta(block, options = {}) {
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const body = block.data?.body
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.body)}</p>`
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(block.data.body)}</p>`
     : '';
   const primary = block.data?.primary;
   const secondary = block.data?.secondary;
@@ -423,13 +481,14 @@ function renderCta(block) {
   return `<section${anchor} class="uk-section uk-section-primary" data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><div class="uk-container">${inner}</div></section>`;
 }
 
-function renderCtaSplit(block) {
+function renderCtaSplit(block, options = {}) {
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const body = block.data?.body
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.body)}</p>`
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(block.data.body)}</p>`
     : '';
   const textColumn = `<div class="uk-width-expand">${title}${body}</div>`;
   const primary = block.data?.primary;
@@ -452,11 +511,14 @@ function renderStatStrip(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><!--stat_strip:three-up | ${count} metrics --></section>`;
 }
 
-function renderProofMetricCallout(block) {
+function renderProofMetricCallout(block, options = {}) {
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
   const subtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.subtitle)}</p>`
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
     : '';
   const header = title || subtitle ? `<div class="uk-width-1-1 uk-text-center uk-margin-medium-bottom">${title}${subtitle}</div>` : '';
 
@@ -528,12 +590,15 @@ function renderAudienceSpotlightCard(item) {
   return `<div><div class="uk-card uk-card-default uk-height-1-1">${media}${content}</div></div>`;
 }
 
-function renderAudienceSpotlight(block, variant = block.variant || 'tabs') {
+function renderAudienceSpotlight(block, variant = block.variant || 'tabs', options = {}) {
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const safeVariant = escapeAttribute(variant);
-  const sectionTitle = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const sectionTitle = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
   const sectionSubtitle = block.data?.subtitle
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom">${escapeHtml(block.data.subtitle)}</p>`
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
     : '';
 
   const cases = Array.isArray(block.data?.cases) ? block.data.cases : [];
@@ -607,11 +672,16 @@ function renderPackagePlan(plan) {
     `</div></div></div>`;
 }
 
-function renderPackageSummary(block, variant) {
+function renderPackageSummary(block, variant, options = {}) {
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const safeVariant = escapeAttribute(variant);
-  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
-  const subtitle = block.data?.subtitle ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom">${escapeHtml(block.data.subtitle)}</p>` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const subtitle = block.data?.subtitle
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
+    : '';
 
   const options = Array.isArray(block.data?.options) ? block.data.options : [];
   const plans = Array.isArray(block.data?.plans) ? block.data.plans : [];
@@ -626,7 +696,7 @@ function renderPackageSummary(block, variant) {
     : '<div><div class="uk-alert-warning" role="alert">Keine Pakete hinterlegt.</div></div>';
 
   const disclaimer = block.data?.disclaimer
-    ? `<p class="uk-text-small uk-text-muted uk-margin-medium-top">${escapeHtml(block.data.disclaimer)}</p>`
+    ? `<p class="uk-text-small uk-text-muted uk-margin-medium-top"${buildEditableAttributes(block, 'data.disclaimer', context)}>${escapeHtml(block.data.disclaimer)}</p>`
     : '';
 
   const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
@@ -640,9 +710,12 @@ function renderFaqItem(item) {
   return `<li>${question}${answer}</li>`;
 }
 
-function renderFaq(block) {
+function renderFaq(block, options = {}) {
+  const context = options?.context || 'frontend';
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
   const items = Array.isArray(block.data?.items) ? block.data.items : [];
   const accordionItems = items.length
     ? items.map(item => renderFaqItem(item)).join('')
@@ -651,7 +724,9 @@ function renderFaq(block) {
   const followUpLink = followUpData?.href
     ? `<a class="uk-link-heading" href="${escapeAttribute(followUpData.href)}">${escapeHtml(followUpData.linkLabel || followUpData.text || 'Mehr erfahren')}</a>`
     : '';
-  const followUpText = followUpData?.text ? `<span class="uk-text-muted">${escapeHtml(followUpData.text)}</span>` : '';
+  const followUpText = followUpData?.text
+    ? `<span class="uk-text-muted"${buildEditableAttributes(block, 'data.followUp.text', context)}>${escapeHtml(followUpData.text)}</span>`
+    : '';
   const followUp = followUpLink || followUpText
     ? `<div class="uk-margin-medium-top">${[followUpLink, followUpText].filter(Boolean).join(' ')}</div>`
     : '';
@@ -691,8 +766,8 @@ function renderLegacySystemModule(block) {
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="system_module" data-block-variant="switcher"><div class="uk-container">${legacyNote}${title}${subtitle}${grid}</div></section>`;
 }
 
-function renderLegacyCaseShowcase(block) {
-  return renderAudienceSpotlight({ ...block, type: 'audience_spotlight' });
+function renderLegacyCaseShowcase(block, options = {}) {
+  return renderAudienceSpotlight({ ...block, type: 'audience_spotlight' }, block.variant, options);
 }
 
 export const RENDERER_MATRIX = {
@@ -705,14 +780,14 @@ export const RENDERER_MATRIX = {
   feature_list: {
     'detailed-cards': renderFeatureListDetailedCards,
     'grid-bullets': renderFeatureListGridBullets,
-    'text-columns': block => renderFeatureList(block, 'text-columns'),
-    'card-stack': block => renderFeatureList(block, 'card-stack'),
-    stacked_cards: block => renderFeatureList(block, 'card-stack'),
+    'text-columns': (block, options) => renderFeatureList(block, 'text-columns', options),
+    'card-stack': (block, options) => renderFeatureList(block, 'card-stack', options),
+    stacked_cards: (block, options) => renderFeatureList(block, 'card-stack', options),
     icon_grid: renderFeatureListGridBullets
   },
   process_steps: {
-    'numbered-vertical': block => renderProcessSteps(block, 'numbered-vertical'),
-    'numbered-horizontal': block => renderProcessSteps(block, 'numbered-horizontal')
+    'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),
+    'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options)
   },
   testimonial: {
     single_quote: renderTestimonialSingle,
@@ -722,9 +797,9 @@ export const RENDERER_MATRIX = {
     prose: renderRichTextProse
   },
   info_media: {
-    stacked: block => renderInfoMedia(block, 'stacked'),
-    'image-left': block => renderInfoMedia(block, 'image-left'),
-    'image-right': block => renderInfoMedia(block, 'image-right')
+    stacked: (block, options) => renderInfoMedia(block, 'stacked', options),
+    'image-left': (block, options) => renderInfoMedia(block, 'image-left', options),
+    'image-right': (block, options) => renderInfoMedia(block, 'image-right', options)
   },
   cta: {
     full_width: renderCta,
@@ -737,13 +812,13 @@ export const RENDERER_MATRIX = {
     'metric-callout': renderProofMetricCallout
   },
   audience_spotlight: {
-    tabs: block => renderAudienceSpotlight(block, 'tabs'),
-    tiles: block => renderAudienceSpotlight(block, 'tiles'),
-    'single-focus': block => renderAudienceSpotlight(block, 'single-focus')
+    tabs: (block, options) => renderAudienceSpotlight(block, 'tabs', options),
+    tiles: (block, options) => renderAudienceSpotlight(block, 'tiles', options),
+    'single-focus': (block, options) => renderAudienceSpotlight(block, 'single-focus', options)
   },
   package_summary: {
-    toggle: block => renderPackageSummary(block, 'toggle'),
-    'comparison-cards': block => renderPackageSummary(block, 'comparison-cards')
+    toggle: (block, options) => renderPackageSummary(block, 'toggle', options),
+    'comparison-cards': (block, options) => renderPackageSummary(block, 'comparison-cards', options)
   },
   faq: {
     accordion: renderFaq
