@@ -11,18 +11,77 @@ import {
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
-  feature_list: 'Feature list',
-  process_steps: 'Process steps',
-  testimonial: 'Testimonial',
-  rich_text: 'Rich text',
-  info_media: 'Info + media',
-  stat_strip: 'Stat strip',
-  audience_spotlight: 'Audience spotlight',
-  package_summary: 'Package summary',
-  faq: 'FAQ',
-  system_module: 'System module (deprecated)',
-  case_showcase: 'Case showcase (deprecated)',
-  cta: 'CTA'
+  feature_list: 'Funktionen',
+  process_steps: 'Ablauf',
+  testimonial: 'Stimmen',
+  rich_text: 'Text',
+  info_media: 'Info & Medien',
+  stat_strip: 'Kennzahlen',
+  audience_spotlight: 'Anwendungsfälle',
+  package_summary: 'Pakete',
+  faq: 'Häufige Fragen',
+  system_module: 'Module (alt)',
+  case_showcase: 'Referenzen (alt)',
+  cta: 'Call to Action',
+  proof: 'Nachweise'
+};
+
+const VARIANT_LABELS = {
+  hero: {
+    centered_cta: 'Zentriert',
+    media_right: 'Bild rechts',
+    media_left: 'Bild links',
+    minimal: 'Minimal'
+  },
+  feature_list: {
+    'detailed-cards': 'Karten',
+    'grid-bullets': 'Liste',
+    'text-columns': 'Spalten',
+    'card-stack': 'Stapel',
+    stacked_cards: 'Stapel',
+    icon_grid: 'Icons'
+  },
+  process_steps: {
+    'numbered-vertical': 'Vertikale Schritte',
+    'numbered-horizontal': 'Horizontale Schritte'
+  },
+  testimonial: {
+    single_quote: 'Einzelnes Zitat',
+    quote_wall: 'Zitatewand'
+  },
+  rich_text: {
+    prose: 'Fließtext'
+  },
+  info_media: {
+    stacked: 'Übereinander',
+    'image-left': 'Bild links',
+    'image-right': 'Bild rechts'
+  },
+  cta: {
+    full_width: 'Vollbreite',
+    split: 'Geteilt'
+  },
+  stat_strip: {
+    'three-up': 'Kennzahlenreihe'
+  },
+  proof: {
+    'metric-callout': 'Kennzahl-Highlight'
+  },
+  audience_spotlight: {
+    tabs: 'Tabs',
+    tiles: 'Kacheln',
+    'single-focus': 'Einzelfokus'
+  },
+  package_summary: {
+    toggle: 'Umschalten',
+    'comparison-cards': 'Vergleich'
+  },
+  faq: {
+    accordion: 'Akkordeon'
+  },
+  system_module: {
+    switcher: 'Module'
+  }
 };
 
 const createId = () => {
@@ -35,6 +94,20 @@ const createId = () => {
 const deepClone = value => JSON.parse(JSON.stringify(value));
 
 const getRendererVariants = type => Object.keys(RENDERER_MATRIX[type] || {});
+
+const humanizeToken = token =>
+  (token || '')
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+
+const getBlockDisplayName = type => BLOCK_TYPE_LABELS[type] || humanizeToken(type || 'Block');
+
+const getVariantLabel = (type, variant) => {
+  const labelMap = VARIANT_LABELS[type] || {};
+  return labelMap[variant] || humanizeToken(variant || 'Layout');
+};
 
 const buildRecoverableVariantBlock = (block, error) => {
   if (!block || typeof block !== 'object') {
@@ -685,34 +758,15 @@ export class BlockContentEditor {
     supportedTypes.forEach(type => {
       const option = document.createElement('option');
       option.value = type;
-      option.textContent = BLOCK_TYPE_LABELS[type] || type;
+      option.textContent = getBlockDisplayName(type);
       typeSelect.append(option);
     });
-
-    const variantSelect = document.createElement('select');
-    variantSelect.dataset.action = 'insert-block-variant';
-
-    const populateVariants = () => {
-      variantSelect.innerHTML = '';
-      const variants = getRendererVariants(typeSelect.value);
-      variants.forEach(variant => {
-        const option = document.createElement('option');
-        option.value = variant;
-        option.textContent = variant;
-        variantSelect.append(option);
-      });
-      if (variants[0]) {
-        variantSelect.value = variants[0];
-      }
-      variantSelect.disabled = variants.length === 0;
-      addBtn.disabled = variants.length === 0;
-    };
 
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.dataset.action = 'add-block';
     addBtn.textContent = 'Block hinzufügen';
-    addBtn.disabled = true;
+    addBtn.disabled = supportedTypes.length === 0;
     addBtn.addEventListener('click', () => {
       try {
         this.addBlock(typeSelect.value);
@@ -720,13 +774,6 @@ export class BlockContentEditor {
         window.alert(error.message || 'Block konnte nicht erstellt werden');
       }
     });
-
-    typeSelect.addEventListener('change', populateVariants);
-    variantSelect.addEventListener('change', () => {
-      addBtn.disabled = !variantSelect.value;
-    });
-
-    populateVariants();
 
     const duplicateBtn = document.createElement('button');
     duplicateBtn.type = 'button';
@@ -742,7 +789,7 @@ export class BlockContentEditor {
     deleteBtn.disabled = !this.state.selectedBlockId;
     deleteBtn.addEventListener('click', () => this.deleteSelected());
 
-    container.append(typeSelect, variantSelect, addBtn, duplicateBtn, deleteBtn);
+    container.append(typeSelect, addBtn, duplicateBtn, deleteBtn);
     return container;
   }
 
@@ -798,11 +845,25 @@ export class BlockContentEditor {
       selectBtn.textContent = 'Auswählen';
       selectBtn.addEventListener('click', () => this.selectBlock(block.id));
 
-      const label = document.createElement('span');
-      label.dataset.blockLabel = 'true';
-      const deprecated = DEPRECATED_BLOCK_MAP[block.type] ? ' [deprecated]' : '';
-      const invalidVariant = block.invalidVariant ? ' [Variante ungültig]' : '';
-      label.textContent = `${block.type}:${block.variant}${deprecated}${invalidVariant} – ${stripHtml(this.getPrimaryText(block))}`.trim();
+      const labelWrapper = document.createElement('div');
+      labelWrapper.dataset.blockLabel = 'true';
+      labelWrapper.style.display = 'flex';
+      labelWrapper.style.gap = '0.5rem';
+      labelWrapper.style.alignItems = 'center';
+
+      const labelText = document.createElement('span');
+      labelText.textContent = this.getBlockDisplayTitle(block);
+
+      const statuses = this.getBlockStatuses(block);
+      statuses.forEach(status => {
+        const badge = document.createElement('span');
+        badge.textContent = status.icon;
+        badge.title = status.tooltip;
+        badge.dataset.blockStatus = 'true';
+        labelWrapper.append(badge);
+      });
+
+      labelWrapper.append(labelText);
 
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
@@ -818,7 +879,7 @@ export class BlockContentEditor {
       moveDown.disabled = index === this.state.blocks.length - 1;
       moveDown.addEventListener('click', () => this.moveBlock(block.id, 1));
 
-      row.append(selectBtn, label, moveUp, moveDown);
+      row.append(selectBtn, labelWrapper, moveUp, moveDown);
       list.append(row);
     });
 
@@ -868,21 +929,22 @@ export class BlockContentEditor {
     }
     const wrapper = document.createElement('div');
     const label = document.createElement('div');
-    label.textContent = 'Variante';
+    label.textContent = 'Layout-Stil';
     const select = document.createElement('select');
     const hasInvalidVariant = Boolean(block.invalidVariant);
 
     if (hasInvalidVariant) {
       const notice = document.createElement('div');
       notice.dataset.invalidVariantNotice = 'true';
-      const attempted = block.invalidVariant?.attemptedVariant || block.variant || 'unbekannt';
-      const allowed = (block.invalidVariant?.allowedVariants || variants).join(', ');
-      notice.textContent = `Diese Variante (${attempted}) wird nicht unterstützt. Wähle eine der erlaubten Varianten: ${allowed}.`;
+      const allowed = (block.invalidVariant?.allowedVariants || variants).map(variant => getVariantLabel(block.type, variant));
+      notice.textContent = `Der ausgewählte Layout-Stil wird nicht unterstützt. Wähle einen der verfügbaren Stile: ${allowed.join(
+        ', '
+      )}.`;
       wrapper.append(notice);
 
       const placeholder = document.createElement('option');
       placeholder.value = '';
-      placeholder.textContent = 'Variante auswählen';
+      placeholder.textContent = 'Layout-Stil auswählen';
       placeholder.disabled = true;
       placeholder.selected = true;
       select.append(placeholder);
@@ -891,7 +953,7 @@ export class BlockContentEditor {
     variants.forEach(variant => {
       const option = document.createElement('option');
       option.value = variant;
-      option.textContent = variant;
+      option.textContent = getVariantLabel(block.type, variant);
       if (!hasInvalidVariant && variant === block.variant) {
         option.selected = true;
       }
@@ -1847,6 +1909,39 @@ export class BlockContentEditor {
     label.textContent = labelText;
     wrapper.append(label, element);
     return wrapper;
+  }
+
+  getBlockStatuses(block) {
+    const statuses = [];
+    if (block.invalidVariant) {
+      statuses.push({
+        icon: '⚠️',
+        tooltip: 'Dieser Abschnitt nutzt einen nicht unterstützten Layout-Stil. Bitte wähle einen verfügbaren Stil aus.'
+      });
+    }
+
+    if (DEPRECATED_BLOCK_MAP[block.type]) {
+      statuses.push({
+        icon: '🕘',
+        tooltip: 'Dieser Abschnitt stammt aus einer älteren Version und kann ersetzt werden.'
+      });
+    }
+
+    if (!stripHtml(this.getPrimaryText(block)).trim()) {
+      statuses.push({
+        icon: '⚠️',
+        tooltip: 'Dieser Abschnitt ist noch unvollständig.'
+      });
+    }
+
+    return statuses;
+  }
+
+  getBlockDisplayTitle(block) {
+    const primary = stripHtml(this.getPrimaryText(block)).trim();
+    const fallback = getBlockDisplayName(block.type);
+    const baseTitle = primary || fallback;
+    return DEPRECATED_BLOCK_MAP[block.type] ? `${baseTitle} (alt)` : baseTitle;
   }
 
   getPrimaryText(block) {
