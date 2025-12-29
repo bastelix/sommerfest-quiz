@@ -2,9 +2,10 @@ FROM php:8.2.29-alpine
 
 # allow Composer to run as root inside the container
 ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV COMPOSER_MEMORY_LIMIT=-1
 
 RUN apk add --no-cache \
-    curl \
+    curl git \
     libpng libjpeg-turbo freetype libwebp libzip postgresql-client imagemagick \
     python3 py3-pip \
     && apk add --no-cache --virtual .build-deps \
