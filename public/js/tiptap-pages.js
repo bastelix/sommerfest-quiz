@@ -1556,10 +1556,15 @@ const syncStartpageToggle = () => {
 
 const loadStartpageState = () => {
   const manager = document.querySelector('[data-page-namespace-manager]');
+  const select = getDomainSelect();
   const rawStartpageId = manager?.dataset.startpagePageId || '';
   const rawMap = manager?.dataset.startpageMap || '';
   startpageMap = normalizeStartpageMap(rawMap);
   selectedStartpageDomain = manager?.dataset.selectedDomain || '';
+
+  if (!selectedStartpageDomain && select) {
+    selectedStartpageDomain = select.value || '';
+  }
 
   if (startpageMap === null || typeof startpageMap !== 'object') {
     startpageMap = {};
@@ -1575,6 +1580,10 @@ const loadStartpageState = () => {
   if (currentStartpagePageId === null && rawStartpageId) {
     const numeric = Number(rawStartpageId);
     currentStartpagePageId = Number.isFinite(numeric) ? numeric : null;
+  }
+
+  if (select && select.value !== selectedStartpageDomain) {
+    select.value = selectedStartpageDomain;
   }
 
   refreshStartpageOptionState(currentStartpagePageId);
