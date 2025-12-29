@@ -1,5 +1,7 @@
 import { ACTIVE_BLOCK_TYPES, BLOCK_TYPES, DEPRECATED_BLOCK_MAP, getBlockVariants, normalizeBlockContract, normalizeBlockVariant, validateBlockContract } from './block-contract.js';
-import { RENDERER_MATRIX, escapeAttribute, escapeHtml } from './block-renderer-matrix-data.js';
+import { RENDERER_MATRIX as BASE_RENDERER_MATRIX, escapeAttribute, escapeHtml } from './block-renderer-matrix-data.js';
+
+const RENDERER_MATRIX = { ...BASE_RENDERER_MATRIX, proof: BASE_RENDERER_MATRIX.proof };
 
 function applyLegacyMapping(block) {
   const mapping = DEPRECATED_BLOCK_MAP[block.type];
