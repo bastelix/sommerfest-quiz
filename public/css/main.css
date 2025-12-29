@@ -320,6 +320,7 @@ body.uk-padding {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--topbar-fg, #111827);
 }
 
 .topbar .uk-navbar-item,
@@ -330,6 +331,12 @@ body.uk-padding {
   padding-right: 0.5rem;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+[data-theme="dark"] .topbar .uk-navbar-item,
+[data-theme="dark"] .topbar .uk-navbar-nav > li > a,
+[data-theme="dark"] .topbar .uk-navbar-toggle {
+  color: var(--topbar-fg-dark, #f8fafc);
 }
 
 .topbar .uk-navbar-toggle.git-btn {
