@@ -69,6 +69,9 @@ final class MarketingDomainProviderTest extends TestCase
         putenv('MARKETING_DOMAINS=admin.example.com');
         $_ENV['MARKETING_DOMAINS'] = 'admin.example.com';
 
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+
         $provider = $this->createProvider();
         $service = new CertificateProvisioningService($provider);
 
@@ -98,6 +101,8 @@ final class MarketingDomainProviderTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        $pdo->exec('CREATE TABLE marketing_domains (host TEXT, normalized_host TEXT UNIQUE)');
+
         return new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
     }
 
@@ -106,14 +111,13 @@ final class MarketingDomainProviderTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $pdo->exec('CREATE TABLE domains (host TEXT, normalized_host TEXT, is_active BOOLEAN)');
-        $stmt = $pdo->prepare('INSERT INTO domains (host, normalized_host, is_active) VALUES (:host, :normalized, :active)');
+        $pdo->exec('CREATE TABLE marketing_domains (host TEXT, normalized_host TEXT UNIQUE)');
+        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (:host, :normalized)');
 
         foreach ($domains as $host) {
             $stmt->execute([
                 ':host' => $host,
                 ':normalized' => DomainNameHelper::normalize($host, stripAdmin: false),
-                ':active' => 1,
             ]);
         }
 

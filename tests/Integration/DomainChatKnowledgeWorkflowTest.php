@@ -6,7 +6,6 @@ namespace Tests\Integration;
 
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Marketing\MarketingChatController;
-use App\Service\DomainService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\PageService;
 use App\Service\RagChat\DomainDocumentStorage;
@@ -701,20 +700,18 @@ PYTHON;
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS domains ('
+            'CREATE TABLE IF NOT EXISTS marketing_domains ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE, '
-            . 'namespace TEXT, '
-            . 'label TEXT, '
-            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
-            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
-            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+            . 'normalized_host TEXT NOT NULL UNIQUE)'
         );
 
-        $service = new DomainService($pdo);
+        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
         foreach ($domains as $domain) {
-            $service->createDomain($domain);
+            $stmt->execute([
+                DomainNameHelper::normalize($domain, stripAdmin: false),
+                DomainNameHelper::normalize($domain),
+            ]);
         }
 
         return new MarketingDomainProvider(static fn (): PDO => $pdo, 0);

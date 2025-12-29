@@ -163,7 +163,7 @@ class MarketingDomainProvider
         $pdo = $this->resolveConnection();
 
         try {
-            $stmt = $pdo->query('SELECT host, normalized_host FROM domains WHERE is_active = TRUE');
+            $stmt = $pdo->query('SELECT host, normalized_host FROM marketing_domains');
         } catch (PDOException $exception) {
             throw $exception;
         }
