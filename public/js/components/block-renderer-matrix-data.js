@@ -364,9 +364,13 @@ function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasse
   return `<a class="${classes}" href="${escapeAttribute(cta.href)}"${ariaLabel}>${escapeHtml(cta.label)}</a>`;
 }
 
-function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-margin-medium-top' } = {}) {
-  const primaryButton = renderCtaButton(primary, 'uk-button-primary');
-  const secondaryButton = renderCtaButton(secondary, 'uk-button-default', primaryButton ? 'uk-margin-small-top uk-margin-small-left@m' : '');
+function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-margin-medium-top', sizeClass = '' } = {}) {
+  const primaryButton = renderCtaButton(primary, ['uk-button-primary', sizeClass].filter(Boolean).join(' '));
+  const secondaryButton = renderCtaButton(
+    secondary,
+    ['uk-button-default', sizeClass].filter(Boolean).join(' '),
+    primaryButton ? 'uk-margin-small-top uk-margin-small-left@m' : ''
+  );
 
   const buttons = [primaryButton, secondaryButton].filter(Boolean);
   if (!buttons.length) {
@@ -396,11 +400,12 @@ function renderCta(block) {
   const body = block.data?.body
     ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.body)}</p>`
     : '';
-  const primary = block.data?.primary || block.data;
+  const primary = block.data?.primary;
   const secondary = block.data?.secondary;
   const buttons = renderCtaButtons(primary, secondary, {
     alignment: 'uk-flex-center',
-    margin: 'uk-margin-medium-top'
+    margin: 'uk-margin-medium-top',
+    sizeClass: 'uk-button-large'
   });
   if (!buttons) {
     throw new Error('CTA block requires at least one valid action');
@@ -419,7 +424,7 @@ function renderCtaSplit(block) {
     ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(block.data.body)}</p>`
     : '';
   const textColumn = `<div class="uk-width-expand">${title}${body}</div>`;
-  const primary = block.data?.primary || block.data;
+  const primary = block.data?.primary;
   const secondary = block.data?.secondary;
   const buttons = renderCtaButtons(primary, secondary, {
     alignment: 'uk-flex-right@m',
