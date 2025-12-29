@@ -619,6 +619,7 @@ export class BlockContentEditor {
       meta: {},
       selectedBlockId: null
     };
+    this.previewBridge = null;
     this.richTextInstances = new Map();
     this.handleKeyNavigation = this.handleKeyNavigation.bind(this);
     this.setContent(initialContent);
@@ -631,6 +632,45 @@ export class BlockContentEditor {
     this.richTextInstances.forEach(instance => instance.destroy());
     this.richTextInstances.clear();
     this.root.innerHTML = '';
+  }
+
+  bindPreviewBridge(bridge) {
+    if (!bridge || typeof bridge !== 'object') {
+      this.previewBridge = null;
+      return;
+    }
+
+    this.previewBridge = {
+      highlight: typeof bridge.highlight === 'function' ? bridge.highlight : null,
+      clearHighlight: typeof bridge.clearHighlight === 'function' ? bridge.clearHighlight : null,
+      scrollTo: typeof bridge.scrollTo === 'function' ? bridge.scrollTo : null
+    };
+  }
+
+  clearPreviewBridge() {
+    this.previewBridge = null;
+  }
+
+  highlightPreview(blockId) {
+    if (this.previewBridge?.highlight) {
+      this.previewBridge.highlight(blockId);
+    }
+  }
+
+  clearPreviewHighlight() {
+    if (this.previewBridge?.clearHighlight) {
+      this.previewBridge.clearHighlight();
+      return;
+    }
+    if (this.previewBridge?.highlight) {
+      this.previewBridge.highlight(null);
+    }
+  }
+
+  scrollPreviewTo(blockId) {
+    if (this.previewBridge?.scrollTo) {
+      this.previewBridge.scrollTo(blockId);
+    }
   }
 
   bindKeyboardNavigation() {
@@ -837,13 +877,16 @@ export class BlockContentEditor {
       const row = document.createElement('li');
       row.dataset.blockRow = 'true';
       row.dataset.blockId = block.id;
+      row.dataset.blockHover = 'false';
       row.setAttribute('aria-selected', block.id === this.state.selectedBlockId ? 'true' : 'false');
 
       const selectBtn = document.createElement('button');
       selectBtn.type = 'button';
       selectBtn.dataset.action = 'select-block';
       selectBtn.textContent = 'Auswählen';
-      selectBtn.addEventListener('click', () => this.selectBlock(block.id));
+      selectBtn.addEventListener('click', () => this.selectBlock(block.id, { scrollPreview: true }));
+      selectBtn.addEventListener('focus', () => this.highlightPreview(block.id));
+      selectBtn.addEventListener('blur', () => this.clearPreviewHighlight());
 
       const labelWrapper = document.createElement('div');
       labelWrapper.dataset.blockLabel = 'true';
@@ -880,6 +923,28 @@ export class BlockContentEditor {
       moveDown.addEventListener('click', () => this.moveBlock(block.id, 1));
 
       row.append(selectBtn, labelWrapper, moveUp, moveDown);
+      row.addEventListener('mouseenter', () => {
+        row.dataset.blockHover = 'true';
+        this.highlightPreview(block.id);
+      });
+      row.addEventListener('mouseleave', () => {
+        row.dataset.blockHover = 'false';
+        this.clearPreviewHighlight();
+      });
+      row.addEventListener('focusin', () => {
+        row.dataset.blockHover = 'true';
+        this.highlightPreview(block.id);
+      });
+      row.addEventListener('focusout', () => {
+        row.dataset.blockHover = 'false';
+        this.clearPreviewHighlight();
+      });
+      row.addEventListener('click', event => {
+        if (event.target.closest('button')) {
+          return;
+        }
+        this.selectBlock(block.id, { scrollPreview: true });
+      });
       list.append(row);
     });
 
@@ -1973,9 +2038,12 @@ export class BlockContentEditor {
     }
   }
 
-  selectBlock(id) {
+  selectBlock(id, options = {}) {
     this.state.selectedBlockId = id;
     this.render();
+    if (options.scrollPreview && id) {
+      this.scrollPreviewTo(id);
+    }
   }
 
   addBlock(type) {
