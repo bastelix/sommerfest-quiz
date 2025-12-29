@@ -903,9 +903,228 @@ export class BlockContentEditor {
         return this.buildCtaForm(block);
       case 'audience_spotlight':
         return this.buildAudienceSpotlightForm(block);
+      case 'package_summary':
+        return this.buildPackageSummaryForm(block);
       default:
         return this.buildGenericJsonForm(block);
     }
+  }
+
+  buildPackageSummaryForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
+
+    const buildStringList = (items, label, onChange) => {
+      const listWrapper = document.createElement('div');
+      const listLabel = document.createElement('div');
+      listLabel.textContent = label;
+      listWrapper.append(listLabel);
+
+      const addEntryBtn = document.createElement('button');
+      addEntryBtn.type = 'button';
+      addEntryBtn.textContent = `${label} hinzufügen`;
+      addEntryBtn.addEventListener('click', onChange.add);
+      listWrapper.append(addEntryBtn);
+
+      (items || []).forEach((item, index) => {
+        const entry = document.createElement('div');
+        const input = document.createElement('input');
+        input.value = item || '';
+        input.addEventListener('input', event => onChange.update(index, event.target.value));
+        entry.append(input);
+
+        const controls = document.createElement('div');
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.textContent = 'Entfernen';
+        removeBtn.addEventListener('click', () => onChange.remove(index));
+
+        const moveUp = document.createElement('button');
+        moveUp.type = 'button';
+        moveUp.textContent = '↑';
+        moveUp.disabled = index === 0;
+        moveUp.addEventListener('click', () => onChange.move(index, -1));
+
+        const moveDown = document.createElement('button');
+        moveDown.type = 'button';
+        moveDown.textContent = '↓';
+        moveDown.disabled = index === (items?.length || 0) - 1;
+        moveDown.addEventListener('click', () => onChange.move(index, 1));
+
+        controls.append(removeBtn, moveUp, moveDown);
+        entry.append(controls);
+        listWrapper.append(entry);
+      });
+
+      return listWrapper;
+    };
+
+    const optionsWrapper = document.createElement('div');
+    optionsWrapper.dataset.field = 'options';
+
+    const addOptionBtn = document.createElement('button');
+    addOptionBtn.type = 'button';
+    addOptionBtn.textContent = 'Option hinzufügen';
+    addOptionBtn.addEventListener('click', () => this.addPackageOption(block.id));
+    optionsWrapper.append(addOptionBtn);
+
+    (block.data.options || []).forEach((option, index) => {
+      const optionCard = document.createElement('div');
+      optionCard.dataset.packageOption = option.id;
+
+      optionCard.append(this.addLabeledInput('ID', option.id, value => this.updatePackageOption(block.id, option.id, 'id', value)));
+      optionCard.append(this.addLabeledInput('Titel', option.title, value => this.updatePackageOption(block.id, option.id, 'title', value)));
+      optionCard.append(this.addLabeledInput('Intro', option.intro, value => this.updatePackageOption(block.id, option.id, 'intro', value), { multiline: true }));
+
+      const highlightsWrapper = document.createElement('div');
+      highlightsWrapper.dataset.field = 'highlights';
+
+      const addHighlightBtn = document.createElement('button');
+      addHighlightBtn.type = 'button';
+      addHighlightBtn.textContent = 'Highlight hinzufügen';
+      addHighlightBtn.addEventListener('click', () => this.addPackageOptionHighlight(block.id, option.id));
+      highlightsWrapper.append(addHighlightBtn);
+
+      (option.highlights || []).forEach((highlight, highlightIndex) => {
+        const highlightCard = document.createElement('div');
+
+        highlightCard.append(this.addLabeledInput('Highlight-Titel', highlight.title, value => this.updatePackageOptionHighlight(block.id, option.id, highlightIndex, 'title', value)));
+
+        highlightCard.append(buildStringList(highlight.bullets, 'Bullet', {
+          add: () => this.addPackageOptionHighlightBullet(block.id, option.id, highlightIndex),
+          update: (itemIndex, value) => this.updatePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, value),
+          remove: itemIndex => this.removePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex),
+          move: (itemIndex, delta) => this.movePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, delta)
+        }));
+
+        const highlightControls = document.createElement('div');
+        const removeHighlight = document.createElement('button');
+        removeHighlight.type = 'button';
+        removeHighlight.textContent = 'Highlight entfernen';
+        removeHighlight.disabled = (option.highlights || []).length <= 1;
+        removeHighlight.addEventListener('click', () => this.removePackageOptionHighlight(block.id, option.id, highlightIndex));
+
+        const moveHighlightUp = document.createElement('button');
+        moveHighlightUp.type = 'button';
+        moveHighlightUp.textContent = '↑';
+        moveHighlightUp.disabled = highlightIndex === 0;
+        moveHighlightUp.addEventListener('click', () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, -1));
+
+        const moveHighlightDown = document.createElement('button');
+        moveHighlightDown.type = 'button';
+        moveHighlightDown.textContent = '↓';
+        moveHighlightDown.disabled = highlightIndex === (option.highlights || []).length - 1;
+        moveHighlightDown.addEventListener('click', () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, 1));
+
+        highlightControls.append(removeHighlight, moveHighlightUp, moveHighlightDown);
+        highlightCard.append(highlightControls);
+        highlightsWrapper.append(highlightCard);
+      });
+
+      optionCard.append(highlightsWrapper);
+
+      const optionControls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Option entfernen';
+      removeBtn.disabled = (block.data.options || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removePackageOption(block.id, option.id));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.movePackageOption(block.id, option.id, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.options || []).length - 1;
+      moveDown.addEventListener('click', () => this.movePackageOption(block.id, option.id, 1));
+
+      optionControls.append(removeBtn, moveUp, moveDown);
+      optionCard.append(optionControls);
+      optionsWrapper.append(optionCard);
+    });
+
+    wrapper.append(optionsWrapper);
+
+    const plansWrapper = document.createElement('div');
+    plansWrapper.dataset.field = 'plans';
+
+    const addPlanBtn = document.createElement('button');
+    addPlanBtn.type = 'button';
+    addPlanBtn.textContent = 'Paket hinzufügen';
+    addPlanBtn.addEventListener('click', () => this.addPackagePlan(block.id));
+    plansWrapper.append(addPlanBtn);
+
+    (block.data.plans || []).forEach((plan, index) => {
+      const planCard = document.createElement('div');
+      planCard.dataset.packagePlan = plan.id;
+
+      planCard.append(this.addLabeledInput('ID', plan.id, value => this.updatePackagePlan(block.id, plan.id, 'id', value)));
+      planCard.append(this.addLabeledInput('Titel', plan.title, value => this.updatePackagePlan(block.id, plan.id, 'title', value)));
+      planCard.append(this.addLabeledInput('Badge', plan.badge, value => this.updatePackagePlan(block.id, plan.id, 'badge', value)));
+      planCard.append(this.addLabeledInput('Beschreibung', plan.description, value => this.updatePackagePlan(block.id, plan.id, 'description', value), { multiline: true }));
+
+      planCard.append(buildStringList(plan.features, 'Feature', {
+        add: () => this.addPackagePlanListItem(block.id, plan.id, 'features'),
+        update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'features', itemIndex, value),
+        remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'features', itemIndex),
+        move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'features', itemIndex, delta)
+      }));
+
+      planCard.append(buildStringList(plan.notes, 'Hinweis', {
+        add: () => this.addPackagePlanListItem(block.id, plan.id, 'notes'),
+        update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, value),
+        remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'notes', itemIndex),
+        move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, delta)
+      }));
+
+      const ctaWrapper = document.createElement('div');
+      ctaWrapper.dataset.field = 'primaryCta';
+      ctaWrapper.append(this.addLabeledInput('Primäre CTA (Label)', plan.primaryCta?.label, value => this.updatePackagePlan(block.id, plan.id, ['primaryCta', 'label'], value)));
+      ctaWrapper.append(this.addLabeledInput('Primäre CTA (Link)', plan.primaryCta?.href, value => this.updatePackagePlan(block.id, plan.id, ['primaryCta', 'href'], value)));
+      ctaWrapper.append(this.addLabeledInput('Primäre CTA (Aria-Label)', plan.primaryCta?.ariaLabel, value => this.updatePackagePlan(block.id, plan.id, ['primaryCta', 'ariaLabel'], value)));
+      planCard.append(ctaWrapper);
+
+      const secondaryCtaWrapper = document.createElement('div');
+      secondaryCtaWrapper.dataset.field = 'secondaryCta';
+      secondaryCtaWrapper.append(this.addLabeledInput('Sekundäre CTA (Label)', plan.secondaryCta?.label, value => this.updatePackagePlan(block.id, plan.id, ['secondaryCta', 'label'], value)));
+      secondaryCtaWrapper.append(this.addLabeledInput('Sekundäre CTA (Link)', plan.secondaryCta?.href, value => this.updatePackagePlan(block.id, plan.id, ['secondaryCta', 'href'], value)));
+      secondaryCtaWrapper.append(this.addLabeledInput('Sekundäre CTA (Aria-Label)', plan.secondaryCta?.ariaLabel, value => this.updatePackagePlan(block.id, plan.id, ['secondaryCta', 'ariaLabel'], value)));
+      planCard.append(secondaryCtaWrapper);
+
+      const planControls = document.createElement('div');
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = 'Paket entfernen';
+      removeBtn.disabled = (block.data.plans || []).length <= 1;
+      removeBtn.addEventListener('click', () => this.removePackagePlan(block.id, plan.id));
+
+      const moveUp = document.createElement('button');
+      moveUp.type = 'button';
+      moveUp.textContent = '↑';
+      moveUp.disabled = index === 0;
+      moveUp.addEventListener('click', () => this.movePackagePlan(block.id, plan.id, -1));
+
+      const moveDown = document.createElement('button');
+      moveDown.type = 'button';
+      moveDown.textContent = '↓';
+      moveDown.disabled = index === (block.data.plans || []).length - 1;
+      moveDown.addEventListener('click', () => this.movePackagePlan(block.id, plan.id, 1));
+
+      planControls.append(removeBtn, moveUp, moveDown);
+      planCard.append(planControls);
+      plansWrapper.append(planCard);
+    });
+
+    wrapper.append(plansWrapper);
+    wrapper.append(this.addLabeledInput('Disclaimer', block.data.disclaimer, value => this.updateBlockData(block.id, ['data', 'disclaimer'], value), { multiline: true }));
+
+    return wrapper;
   }
 
   buildAudienceSpotlightForm(block) {
@@ -1844,6 +2063,451 @@ export class BlockContentEditor {
         const [item] = list.splice(index, 1);
         list.splice(target, 0, item);
         return { ...entry, [field]: list };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  addPackageOption(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const options = Array.isArray(updated.data.options) ? updated.data.options : [];
+      options.push({ id: createId(), title: 'Option', intro: '', highlights: [{ title: 'Highlight', bullets: [] }] });
+      updated.data.options = options;
+      return updated;
+    });
+    this.render();
+  }
+
+  updatePackageOption(blockId, optionId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => (option.id === optionId ? { ...option, [field]: value } : option));
+      return updated;
+    });
+  }
+
+  removePackageOption(blockId, optionId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const options = Array.isArray(updated.data.options) ? [...updated.data.options] : [];
+      if (options.length <= 1) {
+        return block;
+      }
+      updated.data.options = options.filter(option => option.id !== optionId);
+      return updated;
+    });
+    this.render();
+  }
+
+  movePackageOption(blockId, optionId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const options = Array.isArray(updated.data.options) ? [...updated.data.options] : [];
+      const index = options.findIndex(option => option.id === optionId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= options.length) {
+        return block;
+      }
+      const [entry] = options.splice(index, 1);
+      options.splice(target, 0, entry);
+      updated.data.options = options;
+      return updated;
+    });
+    this.render();
+  }
+
+  addPackageOptionHighlight(blockId, optionId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        highlights.push({ title: 'Highlight', bullets: [] });
+        return { ...option, highlights };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  updatePackageOptionHighlight(blockId, optionId, index, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        if (index < 0 || index >= highlights.length) {
+          return option;
+        }
+        const updatedHighlights = highlights.map((highlight, highlightIndex) => (highlightIndex === index ? { ...highlight, [field]: value } : highlight));
+        return { ...option, highlights: updatedHighlights };
+      });
+      return updated;
+    });
+  }
+
+  removePackageOptionHighlight(blockId, optionId, index) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        if (highlights.length <= 1 || index < 0 || index >= highlights.length) {
+          return option;
+        }
+        highlights.splice(index, 1);
+        return { ...option, highlights };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  movePackageOptionHighlight(blockId, optionId, index, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        const target = index + delta;
+        if (index < 0 || target < 0 || target >= highlights.length) {
+          return option;
+        }
+        const [entry] = highlights.splice(index, 1);
+        highlights.splice(target, 0, entry);
+        return { ...option, highlights };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  addPackageOptionHighlightBullet(blockId, optionId, highlightIndex) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        if (highlightIndex < 0 || highlightIndex >= highlights.length) {
+          return option;
+        }
+        const updatedHighlights = highlights.map((highlight, index) => {
+          if (index !== highlightIndex) {
+            return highlight;
+          }
+          const bullets = Array.isArray(highlight.bullets) ? [...highlight.bullets] : [];
+          bullets.push('');
+          return { ...highlight, bullets };
+        });
+        return { ...option, highlights: updatedHighlights };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  updatePackageOptionHighlightBullet(blockId, optionId, highlightIndex, bulletIndex, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        if (highlightIndex < 0 || highlightIndex >= highlights.length) {
+          return option;
+        }
+        const updatedHighlights = highlights.map((highlight, index) => {
+          if (index !== highlightIndex) {
+            return highlight;
+          }
+          const bullets = Array.isArray(highlight.bullets) ? [...highlight.bullets] : [];
+          if (bulletIndex < 0 || bulletIndex >= bullets.length) {
+            return highlight;
+          }
+          bullets[bulletIndex] = value;
+          return { ...highlight, bullets };
+        });
+        return { ...option, highlights: updatedHighlights };
+      });
+      return updated;
+    });
+  }
+
+  removePackageOptionHighlightBullet(blockId, optionId, highlightIndex, bulletIndex) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        if (highlightIndex < 0 || highlightIndex >= highlights.length) {
+          return option;
+        }
+        const updatedHighlights = highlights.map((highlight, index) => {
+          if (index !== highlightIndex) {
+            return highlight;
+          }
+          const bullets = Array.isArray(highlight.bullets) ? [...highlight.bullets] : [];
+          if (bullets.length <= 1 || bulletIndex < 0 || bulletIndex >= bullets.length) {
+            return highlight;
+          }
+          bullets.splice(bulletIndex, 1);
+          return { ...highlight, bullets };
+        });
+        return { ...option, highlights: updatedHighlights };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  movePackageOptionHighlightBullet(blockId, optionId, highlightIndex, bulletIndex, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.options = (updated.data.options || []).map(option => {
+        if (option.id !== optionId) {
+          return option;
+        }
+        const highlights = Array.isArray(option.highlights) ? [...option.highlights] : [];
+        if (highlightIndex < 0 || highlightIndex >= highlights.length) {
+          return option;
+        }
+        const updatedHighlights = highlights.map((highlight, index) => {
+          if (index !== highlightIndex) {
+            return highlight;
+          }
+          const bullets = Array.isArray(highlight.bullets) ? [...highlight.bullets] : [];
+          const target = bulletIndex + delta;
+          if (bulletIndex < 0 || target < 0 || target >= bullets.length) {
+            return highlight;
+          }
+          const [entry] = bullets.splice(bulletIndex, 1);
+          bullets.splice(target, 0, entry);
+          return { ...highlight, bullets };
+        });
+        return { ...option, highlights: updatedHighlights };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  addPackagePlan(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const plans = Array.isArray(updated.data.plans) ? updated.data.plans : [];
+      plans.push({
+        id: createId(),
+        title: 'Paket',
+        description: '',
+        features: [],
+        notes: [],
+        primaryCta: { label: 'Mehr erfahren', href: '#' }
+      });
+      updated.data.plans = plans;
+      return updated;
+    });
+    this.render();
+  }
+
+  updatePackagePlan(blockId, planId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.plans = (updated.data.plans || []).map(plan => {
+        if (plan.id !== planId) {
+          return plan;
+        }
+        if (Array.isArray(field)) {
+          const clone = { ...plan };
+          let cursor = clone;
+          for (let i = 0; i < field.length - 1; i += 1) {
+            const key = field[i];
+            if (!cursor[key] || typeof cursor[key] !== 'object') {
+              cursor[key] = {};
+            }
+            cursor = cursor[key];
+          }
+          cursor[field[field.length - 1]] = value;
+          return clone;
+        }
+        return { ...plan, [field]: value };
+      });
+      return updated;
+    });
+  }
+
+  removePackagePlan(blockId, planId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const plans = Array.isArray(updated.data.plans) ? [...updated.data.plans] : [];
+      if (plans.length <= 1) {
+        return block;
+      }
+      updated.data.plans = plans.filter(plan => plan.id !== planId);
+      return updated;
+    });
+    this.render();
+  }
+
+  movePackagePlan(blockId, planId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const plans = Array.isArray(updated.data.plans) ? [...updated.data.plans] : [];
+      const index = plans.findIndex(plan => plan.id === planId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= plans.length) {
+        return block;
+      }
+      const [entry] = plans.splice(index, 1);
+      plans.splice(target, 0, entry);
+      updated.data.plans = plans;
+      return updated;
+    });
+    this.render();
+  }
+
+  addPackagePlanListItem(blockId, planId, field) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.plans = (updated.data.plans || []).map(plan => {
+        if (plan.id !== planId) {
+          return plan;
+        }
+        const list = Array.isArray(plan[field]) ? [...plan[field]] : [];
+        list.push('');
+        return { ...plan, [field]: list };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  updatePackagePlanListItem(blockId, planId, field, index, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.plans = (updated.data.plans || []).map(plan => {
+        if (plan.id !== planId) {
+          return plan;
+        }
+        const list = Array.isArray(plan[field]) ? [...plan[field]] : [];
+        if (index < 0 || index >= list.length) {
+          return plan;
+        }
+        list[index] = value;
+        return { ...plan, [field]: list };
+      });
+      return updated;
+    });
+  }
+
+  removePackagePlanListItem(blockId, planId, field, index) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.plans = (updated.data.plans || []).map(plan => {
+        if (plan.id !== planId) {
+          return plan;
+        }
+        const list = Array.isArray(plan[field]) ? [...plan[field]] : [];
+        if (list.length <= 1 || index < 0 || index >= list.length) {
+          return plan;
+        }
+        list.splice(index, 1);
+        return { ...plan, [field]: list };
+      });
+      return updated;
+    });
+    this.render();
+  }
+
+  movePackagePlanListItem(blockId, planId, field, index, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.plans = (updated.data.plans || []).map(plan => {
+        if (plan.id !== planId) {
+          return plan;
+        }
+        const list = Array.isArray(plan[field]) ? [...plan[field]] : [];
+        const target = index + delta;
+        if (index < 0 || target < 0 || target >= list.length) {
+          return plan;
+        }
+        const [item] = list.splice(index, 1);
+        list.splice(target, 0, item);
+        return { ...plan, [field]: list };
       });
       return updated;
     });
