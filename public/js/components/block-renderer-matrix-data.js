@@ -315,9 +315,42 @@ function renderRichTextProse(block) {
 }
 
 function renderInfoMedia(block, variant) {
-  const title = block.data?.title || block.data?.subtitle || block.data?.body || '';
-  const count = Array.isArray(block.data.items) ? block.data.items.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(variant)}"><!-- info_media:${escapeHtml(variant)} | ${escapeHtml(title)} (${count} items) --></section>`;
+  const allowedVariants = new Set(['stacked', 'image-left', 'image-right']);
+
+  if (!allowedVariants.has(variant)) {
+    throw new Error(`Unsupported info_media variant: ${variant}`);
+  }
+
+  const body = block.data?.body;
+  if (!body) {
+    throw new Error('info_media block requires body content');
+  }
+
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const textColumn = `<div class="${variant === 'stacked' ? 'uk-width-1-1' : 'uk-width-1-1 uk-width-1-2@m'}">${title}<div class="uk-margin-small-top">${body}</div></div>`;
+
+  const media = block.data?.media;
+  const hasMedia = !!media?.image;
+  if (!hasMedia && variant !== 'stacked') {
+    throw new Error(`info_media:${variant} variant requires media.image`);
+  }
+
+  const mediaColumn = hasMedia
+    ? `<div class="uk-width-1-1 uk-width-1-2@m"><div class="uk-border-rounded uk-overflow-hidden uk-box-shadow-small"><img class="uk-width-1-1" src="${escapeAttribute(media.image)}" alt="${media.alt ? escapeAttribute(media.alt) : ''}" loading="lazy"></div></div>`
+    : '';
+
+  const columnsByVariant = {
+    stacked: `${textColumn}${mediaColumn}`,
+    'image-left': `${mediaColumn}${textColumn}`,
+    'image-right': `${textColumn}${mediaColumn}`
+  };
+
+  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${columnsByVariant[variant]}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${grid}</div></section>`;
 }
 
 function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasses = '') {
@@ -466,7 +499,7 @@ function renderFaq(block) {
 }
 
 function renderLegacySystemModule(block) {
-  return renderInfoMedia({ ...block, type: 'info_media' }, 'switcher');
+  throw new Error('system_module/switcher variant is deprecated; migrate to a supported info_media layout');
 }
 
 function renderLegacyCaseShowcase(block) {
@@ -501,7 +534,8 @@ export const RENDERER_MATRIX = {
   },
   info_media: {
     stacked: block => renderInfoMedia(block, 'stacked'),
-    switcher: block => renderInfoMedia(block, 'switcher')
+    'image-left': block => renderInfoMedia(block, 'image-left'),
+    'image-right': block => renderInfoMedia(block, 'image-right')
   },
   cta: {
     full_width: renderCta,
