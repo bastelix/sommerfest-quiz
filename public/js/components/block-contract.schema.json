@@ -222,7 +222,10 @@
         },
         "variant": {
           "enum": [
-            "tabs"
+            "tabs",
+            "tiles",
+            "single-focus",
+            "single_focus"
           ]
         },
         "data": {
