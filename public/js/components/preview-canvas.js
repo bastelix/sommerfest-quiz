@@ -19,9 +19,11 @@ export class PreviewCanvas {
   constructor(root, options = {}) {
     this.root = root;
     this.onSelect = typeof options.onSelect === 'function' ? options.onSelect : noop;
+    this.renderSelectionOnly = options.renderSelectionOnly === true;
     this.blocks = [];
     this.highlightBlockId = null;
     this.blockIds = new Set();
+    this.visibleBlocks = [];
 
     this.surface = document.createElement('div');
     this.surface.className = 'page-preview-surface';
@@ -42,12 +44,16 @@ export class PreviewCanvas {
   setBlocks(blocks, highlightBlockId = null) {
     this.blocks = parseBlocks(blocks);
     this.highlightBlockId = highlightBlockId || null;
-    this.blockIds = new Set(this.blocks.map(block => block?.id).filter(Boolean));
+    const shouldLimitToSelection = this.renderSelectionOnly && this.highlightBlockId;
+    this.visibleBlocks = shouldLimitToSelection
+      ? this.blocks.filter(block => block?.id === this.highlightBlockId)
+      : this.blocks;
+    this.blockIds = new Set(this.visibleBlocks.map(block => block?.id).filter(Boolean));
     this.render();
   }
 
   render() {
-    const html = renderPage(Array.isArray(this.blocks) ? this.blocks : []);
+    const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : []);
     this.surface.innerHTML = html;
     this.applySelectionHighlight();
   }
