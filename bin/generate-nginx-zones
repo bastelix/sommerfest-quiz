@@ -1,0 +1,137 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Infrastructure\Database;
+use App\Service\CertificateZoneRegistry;
+use App\Support\EnvLoader;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+EnvLoader::loadAndSet(__DIR__ . '/../.env');
+
+$configDir = getenv('NGINX_WILDCARD_CONF_DIR') ?: '/etc/nginx/wildcards';
+$certificateDir = getenv('NGINX_WILDCARD_CERT_DIR') ?: '/etc/ssl/wildcards';
+$upstream = getenv('NGINX_WILDCARD_UPSTREAM') ?: 'http://slim-1:8080';
+
+$pdo = Database::connectFromEnv();
+$registry = new CertificateZoneRegistry($pdo);
+$zones = $registry->listWildcardEnabled();
+
+if (!is_dir($configDir) && !mkdir($configDir, 0775, true) && !is_dir($configDir)) {
+    fwrite(STDERR, "Unable to create nginx wildcard config directory: {$configDir}\n");
+    exit(1);
+}
+
+$existing = glob($configDir . '/*.conf') ?: [];
+$activeFiles = [];
+$changed = false;
+
+foreach ($zones as $zone) {
+    $name = $zone['zone'];
+    if ($name === '') {
+        continue;
+    }
+
+    $file = $configDir . '/' . $name . '.conf';
+    $activeFiles[] = $file;
+    $content = generateConfig($name, $certificateDir, $upstream);
+
+    if (!file_exists($file) || file_get_contents($file) !== $content) {
+        if (file_put_contents($file, $content) === false) {
+            fwrite(STDERR, "Failed to write config for {$name}\n");
+            exit(1);
+        }
+
+        $changed = true;
+    }
+}
+
+foreach ($existing as $file) {
+    if (!in_array($file, $activeFiles, true)) {
+        @unlink($file);
+        $changed = true;
+    }
+}
+
+if (!$changed) {
+    echo "No changes detected.\n";
+    exit(0);
+}
+
+$test = runCommand(['nginx', '-t']);
+if (!$test) {
+    fwrite(STDERR, "nginx configuration test failed; aborting reload.\n");
+    exit(1);
+}
+
+$reload = runCommand(['nginx', '-s', 'reload']);
+if (!$reload) {
+    fwrite(STDERR, "nginx reload failed.\n");
+    exit(1);
+}
+
+echo "Wildcard nginx configuration reloaded.\n";
+
+function generateConfig(string $zone, string $certificateDir, string $upstream): string
+{
+    $certPath = rtrim($certificateDir, '/') . '/' . $zone;
+    $serverName = $zone . ' *.' . $zone;
+
+    return <<<CONF
+server {
+    listen 80;
+    listen [::]:80;
+    server_name {$serverName};
+    return 301 https://\$host\$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name {$serverName};
+
+    ssl_certificate {$certPath}/fullchain.pem;
+    ssl_certificate_key {$certPath}/privkey.pem;
+
+    location / {
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_pass {$upstream};
+    }
+}
+
+CONF;
+}
+
+/**
+ * @param list<string> $command
+ */
+function runCommand(array $command): bool
+{
+    $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) {
+        return false;
+    }
+
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    foreach ($pipes as $pipe) {
+        if (is_resource($pipe)) {
+            fclose($pipe);
+        }
+    }
+
+    $exitCode = proc_close($process);
+    if ($stdout !== '') {
+        echo $stdout;
+    }
+    if ($stderr !== '') {
+        fwrite(STDERR, $stderr);
+    }
+
+    return $exitCode === 0;
+}

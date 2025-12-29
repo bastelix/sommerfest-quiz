@@ -570,32 +570,25 @@ Anschließend kann `CREATE SCHEMA` im Hintergrund ausgeführt werden.
 Für den eigentlichen Quiz-Container lässt sich der Hostname über die
 Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
 mit unterschiedlichen Werten, werden die Subdomains automatisch als
-eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
-`nginxproxy/acme-companion` für jede konfigurierte Domain ein
-Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
-Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
-ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
-`VIRTUAL_HOST`. `LETSENCRYPT_HOST` wird seit Version 4.19 ausschließlich
-aus echten Domains aufgebaut: Standardmäßig landen alle konkreten
-Einträge aus `SLIM_VIRTUAL_HOST` (inklusive des Fallbacks auf
-`MAIN_DOMAIN`) sowie sämtliche Werte aus `MARKETING_DOMAINS` in der
-Liste. Marketing-Domains dürfen mit Kommas oder Leerzeichen getrennt
-sein; der Entry-Point normalisiert die Werte, hängt sie an
-`VIRTUAL_HOST/LETSENCRYPT_HOST` an und protokolliert die resultierende
-Host-Liste für die Fehlersuche. Damit erhält auch die Admin-Subdomain
-automatisch ein Zertifikat, sobald sie in `SLIM_VIRTUAL_HOST` auftaucht.
-Über `SLIM_LETSENCRYPT_HOST` kannst du bei Bedarf weitere konkrete Hosts
-anhängen – Regex-Ausdrücke bleiben ausschließlich in `VIRTUAL_HOST`, damit
-der `acme-companion` keine ungültigen CSRs erzeugt. Beim Start
-normalisiert der Container beide Variablen (Leerzeichen und Zeilenumbrüche
-werden entfernt) und löst einen Reload des Proxys über `NGINX_RELOADER_URL`
-aus, sodass der `acme-companion` direkt Zertifikate für neue Domains anfordert.
-Zusätzlich prüft der Startvorgang, ob jede Domain in `LETSENCRYPT_HOST`
-auflösbar ist. Standardmäßig läuft dieser Check jetzt im Warnmodus und
-behält nicht auflösbare Hosts in der Liste (wichtig für DNS-01-Challenges
-oder manuelle Einträge), protokolliert den Status aber in den Logs. Setze
-`LE_SKIP_DNS_PREFILTER=false` oder `strict`, wenn nicht auflösbare Hosts
-weiterhin vor dem Start entfernt werden sollen.
+eigene Mandanten behandelt. Marketing-Domains werden ausschließlich in der
+Anwendung hinterlegt (`domains`-Tabelle) und beim Anlegen automatisch einer
+Zone zugeordnet. Die Zone-Liste wird in `certificate_zones` persistiert und
+dient als einzige Quelle für TLS-Konfiguration:
+
+- `bin/generate-nginx-zones` erzeugt für jede aktive Zone eine statische
+  Datei unter `/etc/nginx/wildcards/<zone>.conf` (HTTP→HTTPS-Redirect, Proxy
+  auf den Slim-Container) und entfernt veraltete Einträge, bevor nginx
+  einmalig per `nginx -s reload` neu geladen wird.
+- `bin/provision-wildcard-certificates` nutzt `acme.sh` mit DNS-01, stellt
+  `<zone>` und `*.zone` aus und installiert die Zertifikate unter
+  `/etc/ssl/wildcards/<zone>/`. Die Tabelle `certificate_zones` zeichnet den
+  Status der Ausstellung mit Zeitstempel auf; nginx wird nur nach einer
+  tatsächlichen Änderung der Zertifikate neu geladen.
+
+`SLIM_LETSENCRYPT_HOST` ist weiterhin verfügbar, sollte aber nur für
+konkrete Hosts (keine Regex-Ausdrücke) genutzt werden. Marketing-Domain-
+Listen in `.env` entfallen vollständig – die Anwendung ist die zentrale
+Quelle für alle Domains und Zonen.
 
 Weitere nützliche Variablen in `.env` sind:
 

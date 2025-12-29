@@ -63,12 +63,9 @@ Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen d
 - `admin.` – Administrationsoberfläche
 - `{tenant}.` – individuelle Mandanteninstanzen
 
-Zusätzlich lassen sich weitere Marketing-Domains über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder Zeilen-separiert) freischalten. Diese Domains liefern die Inhalte der Landing Pages aus, ohne eine Mandanten-Subdomain verwenden zu müssen. Damit der Reverse Proxy automatisch TLS-Zertifikate für diese Hosts anfordert, sollten die Domains kommagetrennt eingetragen werden; `docker-compose.yml` hängt die Liste an `VIRTUAL_HOST` an und übernimmt sie zugleich (ohne Regex-Einträge) in `LETSENCRYPT_HOST`.
-
-Die Zertifikatsanforderung für Marketing-Domains läuft über den `MarketingSslOrchestrator`, der das Skript `scripts/marketing_ssl_orchestrator.sh` mit sudo ausführt. Dafür muss die Umgebung `MARKETING_SSL_API_TOKEN` setzen; optional lassen sich `MARKETING_SSL_API_URL` (Fallback auf `http://localhost:8080/api/admin/marketing-domains`) und `MARKETING_SSL_CONTACT_EMAIL` überschreiben. In Kubernetes-Deployments wird der Token als Secret injiziert: Entweder wird ein eigenes Secret per `marketingSsl.existingSecret` referenziert oder der Chart erzeugt `sommerfest-quiz-marketing-ssl` aus den Werten `marketingSsl.apiToken`, `marketingSsl.apiUrl` und `marketingSsl.contactEmail`.
+Marketing-Domains werden ausschließlich im Admin-Bereich gepflegt (Tabelle `domains`). Bei jeder Aktivierung wird automatisch die passende Zone über die Public-Suffix-Liste abgeleitet und in `certificate_zones` registriert. Ein separater Cron-Job erzeugt daraus statische nginx-Konfigurationen und löst Wildcard-Zertifikate via `acme.sh` (DNS-01) aus. `.env` enthält keine Marketing-Domain-Listen mehr; secrets wie DNS-API-Tokens werden weiterhin dort verwaltet.
 
 Im Admin-Tab **Administration → Domains** kann die Schaltfläche **Domains prüfen** genutzt werden, um fehlende Zertifikate nachzuziehen und nicht auflösbare DNS-Einträge zu melden.
-Wenn eine Marketing-Domain über die Admin-Oberfläche angelegt wird, schreibt der Server die Domain in die `MARKETING_DOMAINS`-Liste (persistiert in `.env`) und stößt danach einen Proxy-Reload über den konfigurierten Reload-Mechanismus an. Dadurch aktualisiert der Reverse Proxy seine Hostliste und der ACME-Companion kann direkt ein Zertifikat für die neue Domain anfordern.
 
 Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und die Marketing-Liste und setzt entsprechend das Attribut `domainType` (`main`, `tenant` oder `marketing`). Ist `MAIN_DOMAIN` leer oder stimmt keine der konfigurierten Domains mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
 

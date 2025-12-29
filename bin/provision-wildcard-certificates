@@ -1,0 +1,119 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Infrastructure\Database;
+use App\Service\CertificateZoneRegistry;
+use App\Support\EnvLoader;
+use DateTimeImmutable;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+EnvLoader::loadAndSet(__DIR__ . '/../.env');
+
+$acmeBinary = getenv('ACME_SH_BIN') ?: 'acme.sh';
+$dnsProvider = getenv('ACME_WILDCARD_PROVIDER') ?: 'dns_hetzner';
+$certificateDir = getenv('NGINX_WILDCARD_CERT_DIR') ?: '/etc/ssl/wildcards';
+$acmeHome = getenv('ACME_SH_HOME') ?: null;
+$reloadOnChange = getenv('ACME_RELOAD_ON_SUCCESS') !== '0';
+
+$pdo = Database::connectFromEnv();
+$registry = new CertificateZoneRegistry($pdo);
+$zones = $registry->listWildcardEnabled();
+
+if ($dnsProvider === '') {
+    fwrite(STDERR, "ACME_WILDCARD_PROVIDER is required.\n");
+    exit(1);
+}
+
+$certChanged = false;
+foreach ($zones as $zone) {
+    $name = $zone['zone'];
+    if ($name === '') {
+        continue;
+    }
+
+    $targetDir = rtrim($certificateDir, '/') . '/' . $name;
+    if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+        fwrite(STDERR, "Unable to create certificate directory for {$name}.\n");
+        continue;
+    }
+
+    $fullchain = $targetDir . '/fullchain.pem';
+    $previousHash = is_file($fullchain) ? hash_file('sha256', $fullchain) : null;
+
+    $registry->markPending($name);
+
+    $issueCommand = [$acmeBinary, '--issue', '--dns', $dnsProvider, '-d', $name, '-d', '*.' . $name];
+    if ($acmeHome !== null && $acmeHome !== '') {
+        $issueCommand[] = '--home';
+        $issueCommand[] = $acmeHome;
+    }
+
+    if (!runCommand($issueCommand)) {
+        $registry->markError($name, 'Issue command failed');
+        continue;
+    }
+
+    $installCommand = [
+        $acmeBinary,
+        '--install-cert',
+        '-d',
+        $name,
+        '--fullchain-file',
+        $fullchain,
+        '--key-file',
+        $targetDir . '/privkey.pem',
+    ];
+
+    if ($acmeHome !== null && $acmeHome !== '') {
+        $installCommand[] = '--home';
+        $installCommand[] = $acmeHome;
+    }
+
+    if (!runCommand($installCommand)) {
+        $registry->markError($name, 'Install command failed');
+        continue;
+    }
+
+    $registry->markIssued($name, new DateTimeImmutable());
+
+    $currentHash = is_file($fullchain) ? hash_file('sha256', $fullchain) : null;
+    if ($currentHash !== null && $currentHash !== $previousHash) {
+        $certChanged = true;
+    }
+}
+
+if ($certChanged && $reloadOnChange) {
+    if (!runCommand(['nginx', '-s', 'reload'])) {
+        fwrite(STDERR, "nginx reload failed after certificate update.\n");
+        exit(1);
+    }
+}
+
+function runCommand(array $command): bool
+{
+    $process = proc_open($command, [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) {
+        return false;
+    }
+
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    foreach ($pipes as $pipe) {
+        if (is_resource($pipe)) {
+            fclose($pipe);
+        }
+    }
+
+    $exitCode = proc_close($process);
+    if ($stdout !== '') {
+        echo $stdout;
+    }
+    if ($stderr !== '') {
+        fwrite(STDERR, $stderr);
+    }
+
+    return $exitCode === 0;
+}
