@@ -21,12 +21,12 @@ assert.ok(
   'Missing media should render a visible placeholder'
 );
 
-const fallbackVariantHtml = sandbox.renderInfoMedia({ id: 'wrong-variant', data: { body: '<p>Body</p>' } }, 'unknown');
+const invalidVariantHtml = sandbox.renderInfoMedia({ id: 'wrong-variant', data: { body: '<p>Body</p>' } }, 'unknown');
 assert.ok(
-  fallbackVariantHtml.includes('Unsupported info_media variant'),
+  invalidVariantHtml.includes('Unsupported info_media variant'),
   'Unsupported variant should add warning instead of throwing'
 );
 assert.ok(
-  fallbackVariantHtml.includes('data-block-variant="stacked"'),
-  'Unsupported variant should fall back to stacked layout'
+  invalidVariantHtml.includes('data-block-variant="unsupported"'),
+  'Unsupported variant should mark the block as unsupported instead of faking a known layout'
 );
