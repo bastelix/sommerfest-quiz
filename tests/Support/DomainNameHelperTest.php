@@ -6,7 +6,6 @@ namespace Tests\Support;
 
 use App\Infrastructure\Database;
 use App\Support\DomainNameHelper;
-use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -76,19 +75,14 @@ class DomainNameHelperTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS domains ('
+            'CREATE TABLE IF NOT EXISTS marketing_domains ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE, '
-            . 'namespace TEXT, '
-            . 'label TEXT, '
-            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
-            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
-            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+            . 'normalized_host TEXT NOT NULL UNIQUE)'
         );
 
-        $service = new DomainService($pdo);
-        $service->createDomain('promo.example.com');
+        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
+        $stmt->execute(['promo.example.com', DomainNameHelper::normalize('promo.example.com', stripAdmin: false)]);
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
         DomainNameHelper::setMarketingDomainProvider($provider);
@@ -102,8 +96,8 @@ class DomainNameHelperTest extends TestCase
         putenv('MARKETING_DOMAINS');
 
         $pdo = $this->createDomainDatabase();
-        $service = new DomainService($pdo);
-        $service->createDomain('promo.example.com');
+        $stmt = $pdo->prepare('INSERT INTO marketing_domains (host, normalized_host) VALUES (?, ?)');
+        $stmt->execute(['promo.example.com', DomainNameHelper::normalize('promo.example.com', stripAdmin: false)]);
 
         Database::setFactory(static fn (): PDO => $pdo);
 
@@ -145,15 +139,10 @@ class DomainNameHelperTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS domains ('
+            'CREATE TABLE IF NOT EXISTS marketing_domains ('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, '
             . 'host TEXT NOT NULL, '
-            . 'normalized_host TEXT NOT NULL UNIQUE, '
-            . 'namespace TEXT, '
-            . 'label TEXT, '
-            . 'is_active BOOLEAN NOT NULL DEFAULT TRUE, '
-            . 'created_at TEXT DEFAULT CURRENT_TIMESTAMP, '
-            . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
+            . 'normalized_host TEXT NOT NULL UNIQUE)'
         );
 
         return $pdo;

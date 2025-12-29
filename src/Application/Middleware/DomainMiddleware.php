@@ -50,7 +50,7 @@ class DomainMiddleware implements MiddlewareInterface
             }
         }
 
-        if ($domainType === null && in_array($marketingHost, $marketingDomains, true)) {
+        if ($domainType === null && in_array($host, $marketingDomains, true)) {
             $domainType = 'marketing';
         }
 
@@ -122,8 +122,8 @@ class DomainMiddleware implements MiddlewareInterface
     private function getMarketingDomains(): array {
         $domains = [];
 
-        foreach ($this->domainProvider->getMarketingDomains(stripAdmin: false) as $domain) {
-            $normalized = $this->normalizeHost($domain, stripAdmin: false);
+        foreach ($this->domainProvider->getMarketingDomains() as $domain) {
+            $normalized = $this->normalizeHost($domain);
             if ($normalized === '') {
                 continue;
             }
