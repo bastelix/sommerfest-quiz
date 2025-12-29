@@ -168,7 +168,7 @@ class MarketingDomainProvider
     private function fetchDomainsTable(PDO $pdo): array
     {
         try {
-            $stmt = $pdo->query('SELECT host, normalized_host FROM domains WHERE is_active = 1');
+            $stmt = $pdo->query('SELECT host, normalized_host FROM domains WHERE is_active = TRUE');
         } catch (PDOException $exception) {
             return [];
         }
