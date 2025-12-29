@@ -56,7 +56,7 @@ class DomainService
     }
 
     /**
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}
      */
     public function createDomain(
         string $host,
@@ -89,7 +89,7 @@ class DomainService
     }
 
     /**
-     * @return array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}|null
+     * @return array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}|null
      */
     public function updateDomain(
         int $id,
@@ -161,8 +161,8 @@ class DomainService
     }
 
     /**
-     * @return array<string,list<array{id:int,host:string,normalized_host:string,namespace:?string,label:?string,is_active:bool}>>
-     */
+     * @return array<string,list<array{id:int,host:string,normalized_host:string,zone:string,namespace:?string,label:?string,is_active:bool}>>
+    */
     public function listDomainsByNamespace(bool $includeInactive = false): array
     {
         $domains = $this->listDomains($includeInactive);

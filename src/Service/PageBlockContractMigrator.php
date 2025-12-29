@@ -969,7 +969,7 @@ final class PageBlockContractMigrator
 
         preg_match_all('/^  ([a-zA-Z0-9_]+):/m', $matrixSection, $matches);
 
-        if (!isset($matches[1]) || $matches[1] === []) {
+        if (empty($matches[1])) {
             throw new RuntimeException(sprintf('Could not extract renderer block types from %s', $path));
         }
 
