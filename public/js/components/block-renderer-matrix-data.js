@@ -244,9 +244,10 @@ function renderStatStrip(block) {
   return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><!--stat_strip:three-up | ${count} metrics --></section>`;
 }
 
-function renderAudienceSpotlight(block) {
+function renderAudienceSpotlight(block, variant = block.variant || 'tabs') {
   const count = Array.isArray(block.data.cases) ? block.data.cases.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="audience_spotlight" data-block-variant="tabs"><!-- audience_spotlight:tabs | ${count} cases --></section>`;
+  const safeVariant = escapeAttribute(variant);
+  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="audience_spotlight" data-block-variant="${safeVariant}"><!-- audience_spotlight:${escapeHtml(variant)} | ${count} cases --></section>`;
 }
 
 function renderPackageSummary(block, variant) {
@@ -303,7 +304,9 @@ export const RENDERER_MATRIX = {
     'three-up': renderStatStrip
   },
   audience_spotlight: {
-    tabs: renderAudienceSpotlight
+    tabs: block => renderAudienceSpotlight(block, 'tabs'),
+    tiles: block => renderAudienceSpotlight(block, 'tiles'),
+    'single-focus': block => renderAudienceSpotlight(block, 'single-focus')
   },
   package_summary: {
     toggle: block => renderPackageSummary(block, 'toggle'),

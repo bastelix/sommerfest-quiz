@@ -6,6 +6,9 @@ const VARIANT_ALIASES = {
     'media-right': 'media_right',
     'media-left': 'media_left',
     'centered-cta': 'centered_cta'
+  },
+  audience_spotlight: {
+    'single_focus': 'single-focus'
   }
 };
 
