@@ -147,7 +147,9 @@ function renderFeatureMedia(media) {
 
 function renderFeatureListItemContent(item) {
   const title = `<h3 class="uk-h3 uk-margin-remove-bottom">${escapeHtml(item.title || '')}</h3>`;
-  const description = item.description ? `<p class="uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(item.description)}</p>` : '';
+  const description = item.description
+    ? `<div class="uk-margin-small-top uk-margin-remove-bottom">${item.description}</div>`
+    : '';
   const bullets = renderFeatureBullets(item.bullets);
 
   return `${title}${description}${bullets}`;
