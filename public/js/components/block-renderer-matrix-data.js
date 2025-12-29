@@ -377,9 +377,6 @@ export const RENDERER_MATRIX = {
     icon_grid: renderFeatureListGridBullets
   },
   process_steps: {
-    timeline_horizontal: block => renderProcessSteps(block, 'timeline_horizontal'),
-    timeline_vertical: block => renderProcessSteps(block, 'timeline_vertical'),
-    timeline: block => renderProcessSteps(block, 'timeline'),
     'numbered-vertical': block => renderProcessSteps(block, 'numbered-vertical'),
     'numbered-horizontal': block => renderProcessSteps(block, 'numbered-horizontal')
   },
