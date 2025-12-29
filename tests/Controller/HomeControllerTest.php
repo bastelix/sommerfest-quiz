@@ -332,6 +332,30 @@ class HomeControllerTest extends TestCase
         }
     }
 
+    public function testCustomStartpageOverridesReservedSlug(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+
+        $pdo->exec('DELETE FROM pages');
+        $pdo->exec(
+            "INSERT INTO pages(namespace, slug, title, content, language, is_startpage) "
+            . "VALUES('default','help','Custom Help','<p>Individuelle Hilfe</p>','de',1)"
+        );
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertStringContainsString('Individuelle Hilfe', (string) $response->getBody());
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testHomePageWithSlug(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
