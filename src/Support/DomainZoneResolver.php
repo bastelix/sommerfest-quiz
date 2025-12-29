@@ -84,7 +84,7 @@ final class DomainZoneResolver
             $ruleLabels = $this->matchWildcardOrExact($labels);
         }
 
-        if ($ruleLabels === null || $ruleLabels === []) {
+        if ($ruleLabels === []) {
             return (string) end($labels);
         }
 
