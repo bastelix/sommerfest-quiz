@@ -171,6 +171,9 @@ const teardownBlockPreview = form => {
   const { editor, preview, restoreRender } = binding;
   if (editor) {
     editor.render = restoreRender;
+    if (typeof editor.clearPreviewBridge === 'function') {
+      editor.clearPreviewBridge();
+    }
   }
   if (preview && typeof preview.destroy === 'function') {
     preview.destroy();
@@ -194,13 +197,23 @@ const attachBlockPreview = (form, editor) => {
   }
 
   const preview = new PreviewCanvas(slots.previewRoot, {
-    renderSelectionOnly: true,
+    renderSelectionOnly: false,
     onSelect: blockId => {
       if (typeof editor.selectBlock === 'function') {
         editor.selectBlock(blockId);
       }
     }
   });
+
+  const previewBridge = {
+    highlight: blockId => preview.setHoverBlock(blockId),
+    clearHighlight: () => preview.setHoverBlock(null),
+    scrollTo: blockId => preview.scrollToBlock(blockId)
+  };
+
+  if (typeof editor.bindPreviewBridge === 'function') {
+    editor.bindPreviewBridge(previewBridge);
+  }
 
   const sync = () => {
     const snapshot = readBlockEditorState(editor);
@@ -216,7 +229,7 @@ const attachBlockPreview = (form, editor) => {
 
   sync();
 
-  const binding = { preview, sync, restoreRender: originalRender, editor };
+  const binding = { preview, sync, restoreRender: originalRender, editor, previewBridge };
   blockPreviewBindings.set(form, binding);
   return binding;
 };
