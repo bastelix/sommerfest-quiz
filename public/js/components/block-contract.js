@@ -239,9 +239,11 @@ const schema = {
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "eyebrow": { "type": "string" },
         "title": { "type": "string" },
         "subtitle": { "type": "string" },
         "body": { "type": "string" },
+        "media": { "$ref": "#/definitions/Media" },
         "items": {
           "type": "array",
           "items": { "$ref": "#/definitions/InfoMediaItem" },
