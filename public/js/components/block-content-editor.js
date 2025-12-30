@@ -92,6 +92,36 @@ const createId = () => {
 
 const deepClone = value => JSON.parse(JSON.stringify(value));
 
+const createHelperText = text => {
+  if (!text) return null;
+  const helper = document.createElement('div');
+  helper.className = 'field-helper-text';
+  helper.textContent = text;
+  return helper;
+};
+
+const createFieldSection = (title, description, options = {}) => {
+  const isOptional = Boolean(options.optional);
+  const section = document.createElement(isOptional ? 'details' : 'section');
+  section.className = 'block-form-section';
+  if (isOptional) {
+    section.dataset.optionalSection = 'true';
+  }
+
+  const heading = document.createElement(isOptional ? 'summary' : 'div');
+  heading.className = 'block-form-section__title';
+  heading.textContent = title;
+  section.append(heading);
+
+  const helper = createHelperText(description);
+  if (helper) {
+    helper.classList.add('block-form-section__hint');
+    section.append(helper);
+  }
+
+  return section;
+};
+
 const parseFieldPath = path => {
   if (Array.isArray(path)) {
     return path;
@@ -1884,8 +1914,18 @@ export class BlockContentEditor {
   addLabeledInput(labelText, value, onChange, options = {}) {
     const wrapper = document.createElement('label');
     wrapper.dataset.fieldLabel = 'true';
-    wrapper.textContent = labelText;
-    const input = document.createElement(options.element || 'input');
+
+    const label = document.createElement('div');
+    label.className = 'field-label';
+    label.textContent = labelText;
+    wrapper.append(label);
+
+    const helper = createHelperText(options.helpText);
+    if (helper) {
+      wrapper.append(helper);
+    }
+
+    const input = document.createElement(options.element || (options.multiline ? 'textarea' : 'input'));
     if (options.type) {
       input.type = options.type;
     }
@@ -1901,15 +1941,13 @@ export class BlockContentEditor {
     if (options.placeholder) {
       input.placeholder = options.placeholder;
     }
+    input.value = value || '';
+    input.addEventListener('input', event => onChange(event.target.value));
     if (options.multiline) {
-      input.value = value || '';
-      input.addEventListener('input', event => onChange(event.target.value));
       input.rows = options.rows || 3;
-    } else {
-      input.value = value || '';
-      input.addEventListener('input', event => onChange(event.target.value));
     }
-    wrapper.append(document.createElement('br'), input);
+
+    wrapper.append(input);
     return wrapper;
   }
 
@@ -1971,36 +2009,114 @@ export class BlockContentEditor {
   buildHeroForm(block) {
     const wrapper = document.createElement('div');
 
-    wrapper.append(this.addLabeledInput('Eyebrow', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value)));
+    const textSection = createFieldSection('Titel & Text', 'Führe die Leser:innen mit einer klaren Einstiegsbotschaft.');
+
+    const eyebrowSection = createFieldSection('Optional: Aufhänger', 'Kurzer Kontext oberhalb der Überschrift.', { optional: true });
+    eyebrowSection.append(
+      this.addLabeledInput('Aufhänger (optional)', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value), {
+        placeholder: 'z. B. Neu im Sommer 2024',
+        helpText: 'Ein kurzes Label wie „Neu“ oder „Beliebt“.'
+      })
+    );
 
     const headlineField = document.createElement('div');
     headlineField.dataset.field = 'headline';
     headlineField.dataset.richtext = 'true';
     this.mountRichText(headlineField, block.data.headline, value => this.updateBlockData(block.id, ['data', 'headline'], value));
-    wrapper.append(this.wrapField('Headline', headlineField));
+    textSection.append(this.wrapField('Überschrift (Haupttitel)', headlineField, {
+      helpText: 'Die zentrale Aussage des Abschnitts. Maximal zwei Zeilen.'
+    }));
 
     const subheadlineField = document.createElement('div');
     subheadlineField.dataset.field = 'subheadline';
     subheadlineField.dataset.richtext = 'true';
     this.mountRichText(subheadlineField, block.data.subheadline, value => this.updateBlockData(block.id, ['data', 'subheadline'], value));
-    wrapper.append(this.wrapField('Subheadline', subheadlineField));
+    textSection.append(this.wrapField('Untertitel / Einleitung', subheadlineField, {
+      helpText: 'Ergänzt die Überschrift mit 1–2 kurzen Sätzen.'
+    }));
 
-    wrapper.append(this.addLabeledInput('Media ID', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value)));
-    wrapper.append(this.addLabeledInput('Alt-Text', block.data.media?.alt, value => this.updateBlockData(block.id, ['data', 'media', 'alt'], value)));
-    wrapper.append(this.addLabeledInput('Focal X', block.data.media?.focalPoint?.x ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'x'], Number(value)), { type: 'number', step: '0.01', min: 0, max: 1 }));
-    wrapper.append(this.addLabeledInput('Focal Y', block.data.media?.focalPoint?.y ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'y'], Number(value)), { type: 'number', step: '0.01', min: 0, max: 1 }));
+    wrapper.append(textSection, eyebrowSection);
+
+    const mediaSection = createFieldSection('Medien', 'Steuere das Hero-Bild und den sichtbaren Ausschnitt.');
+    mediaSection.append(
+      this.addLabeledInput('Bild-ID (Mediathek)', block.data.media?.imageId, value => this.updateBlockData(block.id, ['data', 'media', 'imageId'], value), {
+        placeholder: 'z. B. upload_12345',
+        helpText: 'Nutze die ID aus der Medienverwaltung.'
+      })
+    );
+    mediaSection.append(
+      this.addLabeledInput('Alternativtext', block.data.media?.alt, value => this.updateBlockData(block.id, ['data', 'media', 'alt'], value), {
+        placeholder: 'Was ist auf dem Bild zu sehen?',
+        helpText: 'Hilft Screenreadern und verbessert SEO.'
+      })
+    );
+
+    const focalSection = createFieldSection('Optional: Bildfokus', 'Feineinstellung für den Bildausschnitt.', { optional: true });
+    focalSection.append(
+      this.addLabeledInput('Fokus X', block.data.media?.focalPoint?.x ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'x'], Number(value)), {
+        type: 'number',
+        step: '0.01',
+        min: 0,
+        max: 1,
+        placeholder: '0.00 – 1.00',
+        helpText: 'Horizontale Ausrichtung des Bildfokus.'
+      })
+    );
+    focalSection.append(
+      this.addLabeledInput('Fokus Y', block.data.media?.focalPoint?.y ?? 0.5, value => this.updateBlockData(block.id, ['data', 'media', 'focalPoint', 'y'], Number(value)), {
+        type: 'number',
+        step: '0.01',
+        min: 0,
+        max: 1,
+        placeholder: '0.00 – 1.00',
+        helpText: 'Vertikale Ausrichtung des Bildfokus.'
+      })
+    );
+
+    wrapper.append(mediaSection, focalSection);
 
     const heroCta = block.data.cta || {};
     const primaryCta = heroCta.primary || heroCta;
     const secondaryCta = heroCta.secondary || {};
 
-    wrapper.append(this.addLabeledInput('Primäre CTA (Label)', primaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'label'], value)));
-    wrapper.append(this.addLabeledInput('Primäre CTA (Link)', primaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'href'], value)));
-    wrapper.append(this.addLabeledInput('Primäre CTA (Aria-Label)', primaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'ariaLabel'], value)));
+    const ctaSection = createFieldSection('Button', 'Leite Besucher:innen zur wichtigsten Aktion.');
+    ctaSection.append(
+      this.addLabeledInput('Button-Text', primaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'label'], value), {
+        placeholder: 'z. B. Jetzt teilnehmen',
+        helpText: 'Handlungsaufforderung in maximal drei Wörtern.'
+      })
+    );
+    ctaSection.append(
+      this.addLabeledInput('Ziel-Link', primaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'href'], value), {
+        placeholder: 'https://…',
+        helpText: 'Interner oder externer Link für den Button.'
+      })
+    );
+    ctaSection.append(
+      this.addLabeledInput('Screenreader-Text', primaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'primary', 'ariaLabel'], value), {
+        placeholder: 'Beschreibt das Ziel des Buttons',
+        helpText: 'Optionaler Kontext für Screenreader.'
+      })
+    );
 
-    wrapper.append(this.addLabeledInput('Sekundäre CTA (Label)', secondaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'label'], value)));
-    wrapper.append(this.addLabeledInput('Sekundäre CTA (Link)', secondaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'href'], value)));
-    wrapper.append(this.addLabeledInput('Sekundäre CTA (Aria-Label)', secondaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'ariaLabel'], value)));
+    const secondarySection = createFieldSection('Optional: Zweiter Button', 'Zeigt eine alternative Aktion neben dem Hauptbutton.', { optional: true });
+    secondarySection.append(
+      this.addLabeledInput('Button-Text (sekundär)', secondaryCta?.label, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'label'], value), {
+        placeholder: 'z. B. Mehr erfahren'
+      })
+    );
+    secondarySection.append(
+      this.addLabeledInput('Ziel-Link (sekundär)', secondaryCta?.href, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'href'], value), {
+        placeholder: 'https://…'
+      })
+    );
+    secondarySection.append(
+      this.addLabeledInput('Screenreader-Text (sekundär)', secondaryCta?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'cta', 'secondary', 'ariaLabel'], value), {
+        placeholder: 'Beschreibt die alternative Aktion'
+      })
+    );
+
+    wrapper.append(ctaSection, secondarySection);
 
     return wrapper;
   }
@@ -2008,42 +2124,51 @@ export class BlockContentEditor {
   buildCtaForm(block) {
     const wrapper = document.createElement('div');
 
-    wrapper.append(
-      this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value))
+    const copySection = createFieldSection('Titel & Text', 'Mache klar, was hinter dem Call-to-Action steckt.');
+    copySection.append(
+      this.addLabeledInput('Überschrift (Haupttitel)', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value), {
+        placeholder: 'Was bringt der Klick?',
+        helpText: 'Beschreibt den Nutzen in einem Satz.'
+      })
     );
-    wrapper.append(
-      this.addLabeledInput('Body', block.data.body, value => this.updateBlockData(block.id, ['data', 'body'], value), {
+    copySection.append(
+      this.addLabeledInput('Untertitel / Ergänzung', block.data.body, value => this.updateBlockData(block.id, ['data', 'body'], value), {
         multiline: true,
-        rows: 3
+        rows: 3,
+        placeholder: 'Kurze Erklärung oder Hinweis',
+        helpText: 'Optional: Kontext oder weiterführende Details.'
       })
     );
 
-    const addCtaInputs = (cta, labelPrefix, path) => {
-      wrapper.append(
-        this.addLabeledInput(
-          `${labelPrefix} CTA (Label)`,
-          cta.label,
-          value => this.updateBlockData(block.id, [...path, 'label'], value)
-        )
+    const addCtaInputs = (cta, labelPrefix, path, options = {}) => {
+      const section = createFieldSection(labelPrefix, options.description, options.sectionOptions);
+      section.append(
+        this.addLabeledInput('Button-Text', cta.label, value => this.updateBlockData(block.id, [...path, 'label'], value), {
+          placeholder: 'z. B. Jetzt testen'
+        })
       );
-      wrapper.append(
-        this.addLabeledInput(
-          `${labelPrefix} CTA (Link)`,
-          cta.href,
-          value => this.updateBlockData(block.id, [...path, 'href'], value)
-        )
+      section.append(
+        this.addLabeledInput('Ziel-Link', cta.href, value => this.updateBlockData(block.id, [...path, 'href'], value), {
+          placeholder: 'https://…'
+        })
       );
-      wrapper.append(
-        this.addLabeledInput(
-          `${labelPrefix} CTA (Aria-Label)`,
-          cta.ariaLabel,
-          value => this.updateBlockData(block.id, [...path, 'ariaLabel'], value)
-        )
+      section.append(
+        this.addLabeledInput('Screenreader-Text', cta.ariaLabel, value => this.updateBlockData(block.id, [...path, 'ariaLabel'], value), {
+          placeholder: 'Beschreibt Ziel oder Aktion'
+        })
       );
+      return section;
     };
 
-    addCtaInputs(block.data.primary || {}, 'Primäre', ['data', 'primary']);
-    addCtaInputs(block.data.secondary || {}, 'Sekundäre', ['data', 'secondary']);
+    const primarySection = addCtaInputs(block.data.primary || {}, 'Primärer Button', ['data', 'primary'], {
+      description: 'Hauptaktion für diesen Abschnitt.'
+    });
+    const secondarySection = addCtaInputs(block.data.secondary || {}, 'Optional: Zweiter Button', ['data', 'secondary'], {
+      description: 'Alternative oder ergänzende Aktion.',
+      sectionOptions: { optional: true }
+    });
+
+    wrapper.append(copySection, primarySection, secondarySection);
 
     return wrapper;
   }
@@ -2516,11 +2641,19 @@ export class BlockContentEditor {
     return wrapper;
   }
 
-  wrapField(labelText, element) {
+  wrapField(labelText, element, options = {}) {
     const wrapper = document.createElement('div');
     const label = document.createElement('div');
     label.textContent = labelText;
-    wrapper.append(label, element);
+    label.className = 'field-label';
+    wrapper.append(label);
+
+    const helper = createHelperText(options.helpText);
+    if (helper) {
+      wrapper.append(helper);
+    }
+
+    wrapper.append(element);
     return wrapper;
   }
 
