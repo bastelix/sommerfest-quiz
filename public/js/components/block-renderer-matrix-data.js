@@ -70,10 +70,44 @@ function resolveCsrfToken() {
   return '';
 }
 
+const SECTION_APPEARANCES = ['default', 'surface', 'contrast', 'image', 'image-fixed'];
+const IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
+
+function resolveSectionAppearance(block) {
+  const preset = typeof block?.sectionAppearance === 'string' ? block.sectionAppearance.trim() : '';
+  return SECTION_APPEARANCES.includes(preset) ? preset : 'default';
+}
+
+function buildSectionStyle(block, appearance) {
+  const backgroundImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage.trim() : '';
+  if (!backgroundImage || !IMAGE_APPEARANCES.has(appearance)) {
+    return '';
+  }
+
+  return `--section-bg-image: url('${escapeAttribute(backgroundImage)}')`;
+}
+
+function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
+  const appearance = resolveSectionAppearance(block);
+  const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const classes = ['section', 'uk-section', sectionClass].filter(Boolean).join(' ');
+  const dataAttributes = [
+    `data-block-id="${escapeAttribute(block.id)}"`,
+    `data-block-type="${escapeAttribute(block.type)}"`,
+    `data-block-variant="${escapeAttribute(variant)}"`,
+    `data-appearance="${appearance}"`
+  ].join(' ');
+  const style = buildSectionStyle(block, appearance);
+  const styleAttribute = style ? ` style="${style}"` : '';
+  const inner = container
+    ? `<div class="uk-container${containerClass ? ` ${containerClass}` : ''}">${content}</div>`
+    : content;
+
+  return `<section${anchor} class="${classes}" ${dataAttributes}${styleAttribute}>${inner}</section>`;
+}
+
 function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
-  const sectionClasses = ['uk-section', 'uk-section-default', sectionModifiers].filter(Boolean).join(' ');
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  return `<section${anchor} class="${sectionClasses}" data-block-id="${escapeAttribute(block.id)}" data-block-type="hero" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${content}</div></section>`;
+  return renderSection({ block, variant, content, sectionClass: sectionModifiers });
 }
 
 function renderEyebrow(block, alignmentClass = '', context = 'frontend') {
@@ -280,17 +314,15 @@ function renderFeatureList(block, variant, options = {}) {
 
   const items = normalizeFeatureListItems(block);
 
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const header = renderFeatureListHeader(block, context);
   const grid = variant === 'card-stack' ? renderFeatureListCardStack(items) : renderFeatureListTextColumns(items);
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${grid}</div></section>`;
+  return renderSection({ block, variant, content: `${header}${grid}` });
 }
 
 function renderFeatureListDetailedCards(block, options = {}) {
   const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const eyebrow = renderEyebrow(block, '', context);
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
@@ -311,13 +343,12 @@ function renderFeatureListDetailedCards(block, options = {}) {
   const ctas = renderHeroCtas(block.data?.cta);
   const footer = ctas || '';
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="detailed-cards"><div class="uk-container">${header}${grid}${footer}</div></section>`;
+  return renderSection({ block, variant: 'detailed-cards', content: `${header}${grid}${footer}` });
 }
 
 function renderFeatureListGridBullets(block, options = {}) {
   const context = options?.context || 'frontend';
   const items = normalizeFeatureListItems(block);
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const intro = block.data?.intro
     ? `<p class="uk-text-meta uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
     : '';
@@ -338,7 +369,7 @@ function renderFeatureListGridBullets(block, options = {}) {
 
   const grid = `<div class="uk-grid uk-grid-small" data-uk-grid>${cards}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="grid-bullets"><div class="uk-container">${header}${grid}</div></section>`;
+  return renderSection({ block, variant: 'grid-bullets', content: `${header}${grid}` });
 }
 
 function normalizeProcessStepsVariant(variant) {
@@ -369,7 +400,6 @@ function renderProcessSteps(block, variant, options = {}) {
     throw new Error('process_steps block requires at least one step');
   }
 
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -408,13 +438,12 @@ function renderProcessSteps(block, variant, options = {}) {
     ? renderHorizontalSteps()
     : renderVerticalSteps();
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(normalizedVariant)}"><div class="uk-container">${header}${layout}</div></section>`;
+  return renderSection({ block, variant: normalizedVariant, content: `${header}${layout}` });
 }
 
 function renderContactForm(block, variant = 'default', options = {}) {
   const context = options?.context || 'frontend';
   const normalizedVariant = variant === 'compact' ? 'compact' : 'default';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -478,36 +507,50 @@ function renderContactForm(block, variant = 'default', options = {}) {
     ? `<div class="uk-grid uk-grid-medium uk-flex-center" data-uk-grid>${copyColumn}${formColumn}</div>`
     : `<div class="uk-grid uk-grid-large uk-flex-top" data-uk-grid>${copyColumn}${formColumn}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="contact_form" data-block-variant="${escapeAttribute(normalizedVariant)}"><div class="uk-container">${gridContent}</div></section>`;
+  return renderSection({ block, variant: normalizedVariant, content: gridContent });
 }
 
 function renderTestimonialSingle(block) {
   const author = block.data?.author?.name ? ` by ${escapeHtml(block.data.author.name)}` : '';
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="testimonial" data-block-variant="single_quote"><!-- testimonial:single_quote${author} --></section>`;
+  return renderSection({
+    block,
+    variant: 'single_quote',
+    content: `<!-- testimonial:single_quote${author} -->`,
+    container: false
+  });
 }
 
 function renderTestimonialWall(block) {
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="testimonial" data-block-variant="quote_wall"><!-- testimonial:quote_wall | grouped quotes --></section>`;
+  return renderSection({
+    block,
+    variant: 'quote_wall',
+    content: '<!-- testimonial:quote_wall | grouped quotes -->',
+    container: false
+  });
 }
 
 function renderRichTextProse(block, options = {}) {
   const context = options?.context || 'frontend';
   const editable = buildEditableAttributes(block, 'data.body', context, { type: 'richtext' });
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="rich_text" data-block-variant="prose"${editable}><!-- rich_text:prose -->${block.data.body || ''}</section>`;
+  return renderSection({
+    block,
+    variant: 'prose',
+    content: `<!-- rich_text:prose -->${block.data.body || ''}`,
+    container: false
+  });
 }
 
 function renderInfoMedia(block, variant, options = {}) {
   const allowedVariants = new Set(['stacked', 'image-left', 'image-right']);
   const hasSupportedVariant = allowedVariants.has(variant);
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const dataAttributes = ` data-block-id="${escapeAttribute(block.id)}" data-block-type="info_media" data-block-variant="${escapeAttribute(hasSupportedVariant ? variant : 'unsupported')}"`;
+  const displayVariant = hasSupportedVariant ? variant : 'unsupported';
 
   if (!hasSupportedVariant) {
     const providedVariant = variant ? `"${escapeHtml(variant)}"` : 'nicht gesetzt';
     const allowed = Array.from(allowedVariants).join(', ');
     const warning = `<div class="uk-alert-warning" role="alert">Unsupported info_media variant ${providedVariant}. Erlaubte Varianten: ${escapeHtml(allowed)}.</div>`;
-    return `<section${anchor} class="uk-section uk-section-default"${dataAttributes}"><div class="uk-container">${warning}</div></section>`;
+    return renderSection({ block, variant: displayVariant, content: warning });
   }
 
   const bodyContent = typeof block.data?.body === 'string' && block.data.body.trim()
@@ -539,7 +582,7 @@ function renderInfoMedia(block, variant, options = {}) {
 
   const grid = `<div class="${gridClass}" data-uk-grid>${columnsByVariant[variant]}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default"${dataAttributes}"><div class="uk-container">${grid}</div></section>`;
+  return renderSection({ block, variant: displayVariant, content: grid });
 }
 
 function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasses = '') {
@@ -583,7 +626,6 @@ function renderCtaButtons(primary, secondary, { alignment = '', margin = 'uk-mar
 
 function renderCta(block, options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -602,12 +644,11 @@ function renderCta(block, options = {}) {
   }
   const inner = `<div class="uk-text-center uk-width-1-1 uk-width-2-3@m uk-margin-auto">${title}${body}${buttons}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-primary" data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="full_width"><div class="uk-container">${inner}</div></section>`;
+  return renderSection({ block, variant: 'full_width', content: inner });
 }
 
 function renderCtaSplit(block, options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -627,13 +668,11 @@ function renderCtaSplit(block, options = {}) {
   const ctaColumn = `<div class="uk-width-1-1 uk-width-auto@m">${buttons}</div>`;
   const layout = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${ctaColumn}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-primary" data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="split"><div class="uk-container">${layout}</div></section>`;
+  return renderSection({ block, variant: 'split', content: layout });
 }
 
 function renderStatStrip(block, options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -691,12 +730,11 @@ function renderStatStrip(block, options = {}) {
         .join('<span class="uk-text-muted">•</span>')}</div></div>`
     : '';
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><div class="uk-container">${header}${metricsGrid}${marquee}</div></section>`;
+  return renderSection({ block, variant: 'three-up', content: `${header}${metricsGrid}${marquee}` });
 }
 
 function renderProofMetricCallout(block, options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -736,7 +774,7 @@ function renderProofMetricCallout(block, options = {}) {
         .join('<span class="uk-text-muted">•</span>')}</div></div>`
     : '';
 
-  return `<section${anchor} class="uk-section uk-section-muted" data-block-id="${escapeAttribute(block.id)}" data-block-type="proof" data-block-variant="metric-callout"><div class="uk-container">${header}${metricsGrid}${marquee}</div></section>`;
+  return renderSection({ block, variant: 'metric-callout', content: `${header}${metricsGrid}${marquee}` });
 }
 
 function renderAudienceSpotlightCard(item) {
@@ -775,7 +813,6 @@ function renderAudienceSpotlightCard(item) {
 
 function renderAudienceSpotlight(block, variant = block.variant || 'tabs', options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const safeVariant = escapeAttribute(variant);
   const sectionTitle = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
@@ -796,7 +833,7 @@ function renderAudienceSpotlight(block, variant = block.variant || 'tabs', optio
 
   const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="audience_spotlight" data-block-variant="${safeVariant}"><div class="uk-container">${sectionTitle}${sectionSubtitle}${grid}</div></section>`;
+  return renderSection({ block, variant: safeVariant, content: `${sectionTitle}${sectionSubtitle}${grid}` });
 }
 
 function renderPackageHighlightGroup(highlight) {
@@ -857,7 +894,6 @@ function renderPackagePlan(plan) {
 
 function renderPackageSummary(block, variant, options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const safeVariant = escapeAttribute(variant);
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
@@ -884,7 +920,7 @@ function renderPackageSummary(block, variant, options = {}) {
 
   const grid = `<div class="uk-grid uk-grid-medium ${gridClass}" data-uk-grid>${cards}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="package_summary" data-block-variant="${safeVariant}"><div class="uk-container">${title}${subtitle}${grid}${disclaimer}</div></section>`;
+  return renderSection({ block, variant: safeVariant, content: `${title}${subtitle}${grid}${disclaimer}` });
 }
 
 function renderFaqItem(block, item, index, context) {
@@ -900,7 +936,6 @@ function renderFaqItem(block, item, index, context) {
 
 function renderFaq(block, options = {}) {
   const context = options?.context || 'frontend';
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
@@ -922,7 +957,7 @@ function renderFaq(block, options = {}) {
 
   const accordion = `<ul class="uk-accordion" data-uk-accordion>${accordionItems}</ul>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="faq" data-block-variant="accordion"><div class="uk-container">${title}${accordion}${followUp}</div></section>`;
+  return renderSection({ block, variant: 'accordion', content: `${title}${accordion}${followUp}` });
 }
 
 function renderLegacySystemModuleItem(item) {
@@ -941,7 +976,6 @@ function renderLegacySystemModuleItem(item) {
 }
 
 function renderLegacySystemModule(block) {
-  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const title = block.data?.title ? `<h2 class="uk-heading-medium uk-margin-remove-bottom">${escapeHtml(block.data.title)}</h2>` : '';
   const subtitle = block.data?.subtitle ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom">${escapeHtml(block.data.subtitle)}</p>` : '';
   const legacyNote = '<p class="uk-text-meta uk-margin-remove-top uk-margin-small-bottom">Legacy module block – consider migrating</p>';
@@ -952,7 +986,7 @@ function renderLegacySystemModule(block) {
     : '<div><div class="uk-alert-warning" role="alert">Keine Module hinterlegt.</div></div>';
   const grid = `<div class="uk-grid uk-grid-medium uk-child-width-1-1 uk-child-width-1-2@m" data-uk-grid>${gridItems}</div>`;
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="system_module" data-block-variant="switcher"><div class="uk-container">${legacyNote}${title}${subtitle}${grid}</div></section>`;
+  return renderSection({ block, variant: 'switcher', content: `${legacyNote}${title}${subtitle}${grid}` });
 }
 
 function renderLegacyCaseShowcase(block, options = {}) {

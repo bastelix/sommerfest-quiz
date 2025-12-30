@@ -5,6 +5,7 @@ import {
   DEPRECATED_BLOCK_MAP,
   normalizeBlockContract,
   normalizeVariant,
+  SECTION_APPEARANCE_PRESETS,
   validateBlockContract
 } from './block-contract.js';
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
@@ -87,6 +88,20 @@ const VARIANT_LABELS = {
     switcher: 'Module'
   }
 };
+
+const SECTION_APPEARANCE_OPTIONS = [
+  { value: 'default', label: 'Standard' },
+  { value: 'surface', label: 'Abgesetzt' },
+  { value: 'contrast', label: 'Kontrast' },
+  { value: 'image', label: 'Hintergrundbild' },
+  { value: 'image-fixed', label: 'Hintergrundbild (fixiert)' }
+];
+
+const IMAGE_APPEARANCE_PRESETS = new Set(['image', 'image-fixed']);
+
+const normalizeAppearance = value => (SECTION_APPEARANCE_PRESETS.includes(value) ? value : 'default');
+
+const appearanceSupportsImage = appearance => IMAGE_APPEARANCE_PRESETS.has(appearance);
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -945,6 +960,11 @@ function sanitizeBlock(block) {
 
   const sanitizedData = sanitizeValue(sanitizedTopLevel.data, dataDefinition, ['layout', 'style']);
   const sanitizedTokens = sanitizeTokens(sanitizedTopLevel.tokens);
+  const sanitizedAppearance = normalizeAppearance(sanitizedTopLevel.sectionAppearance);
+  const sanitizedBackgroundImage = typeof sanitizedTopLevel.backgroundImage === 'string'
+    ? sanitizedTopLevel.backgroundImage.trim()
+    : undefined;
+  const hasAppearancePreset = sanitizedTopLevel.sectionAppearance !== undefined;
 
   const sanitizedBlock = {
     id: typeof sanitizedTopLevel.id === 'string' && sanitizedTopLevel.id ? sanitizedTopLevel.id : createId(),
@@ -955,6 +975,18 @@ function sanitizeBlock(block) {
 
   if (sanitizedTokens !== undefined) {
     sanitizedBlock.tokens = sanitizedTokens;
+  }
+
+  if (hasAppearancePreset || sanitizedBackgroundImage) {
+    sanitizedBlock.sectionAppearance = sanitizedAppearance;
+  }
+
+  if (sanitizedBackgroundImage && !appearanceSupportsImage(sanitizedAppearance)) {
+    throw new Error('Hintergrundbilder erfordern den Stil "Hintergrundbild".');
+  }
+
+  if (sanitizedBackgroundImage && appearanceSupportsImage(sanitizedAppearance)) {
+    sanitizedBlock.backgroundImage = sanitizedBackgroundImage;
   }
 
   const validation = validateBlockContract(sanitizedBlock);
@@ -1587,6 +1619,11 @@ export class BlockContentEditor {
       form.append(variantSelector);
     }
 
+    const appearanceSelector = this.buildAppearanceSelector(block);
+    if (appearanceSelector) {
+      form.append(appearanceSelector);
+    }
+
     const formContent = this.buildBlockForm(block);
     form.append(formContent);
 
@@ -1641,6 +1678,61 @@ export class BlockContentEditor {
     });
 
     wrapper.append(cards);
+    return wrapper;
+  }
+
+  buildAppearanceSelector(block) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'layout-style-picker layout-style-picker--appearance';
+
+    const label = document.createElement('div');
+    label.className = 'layout-style-picker__label';
+    label.textContent = 'Abschnitts-Stil';
+    wrapper.append(label);
+
+    const hint = createHelperText('Der Stil beeinflusst nur den Hintergrund dieses Abschnitts.');
+    if (hint) {
+      hint.classList.add('layout-style-picker__hint');
+      wrapper.append(hint);
+    }
+
+    const options = document.createElement('div');
+    options.className = 'layout-style-picker__options layout-style-picker__options--appearance';
+    const currentAppearance = normalizeAppearance(block.sectionAppearance);
+
+    SECTION_APPEARANCE_OPTIONS.forEach(option => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'layout-style-card layout-style-card--appearance';
+      const selected = option.value === currentAppearance;
+      card.dataset.selected = String(selected);
+      card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+
+      const title = document.createElement('div');
+      title.className = 'layout-style-card__title';
+      title.textContent = option.label;
+
+      card.append(title);
+      card.addEventListener('click', () => this.updateAppearance(block.id, option.value));
+      options.append(card);
+    });
+
+    wrapper.append(options);
+
+    if (appearanceSupportsImage(currentAppearance)) {
+      wrapper.append(
+        this.addLabeledInput(
+          'Hintergrundbild',
+          block.backgroundImage,
+          value => this.updateBackgroundImage(block.id, value),
+          {
+            placeholder: '/uploads/bg.jpg',
+            helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
+          }
+        )
+      );
+    }
+
     return wrapper;
   }
 
@@ -3223,6 +3315,45 @@ export class BlockContentEditor {
       this.render();
     } catch (error) {
       window.alert(error.message || 'Variante ungültig');
+    }
+  }
+
+  updateAppearance(blockId, appearance) {
+    const safeAppearance = normalizeAppearance(appearance);
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+
+      const keepBackground = appearanceSupportsImage(safeAppearance);
+      return sanitizeBlock({
+        ...block,
+        sectionAppearance: safeAppearance,
+        backgroundImage: keepBackground ? block.backgroundImage : undefined
+      });
+    });
+
+    this.render();
+  }
+
+  updateBackgroundImage(blockId, value) {
+    const imageValue = typeof value === 'string' ? value : '';
+
+    try {
+      this.state.blocks = this.state.blocks.map(block => {
+        if (block.id !== blockId) {
+          return block;
+        }
+
+        return sanitizeBlock({
+          ...block,
+          backgroundImage: imageValue
+        });
+      });
+
+      this.render();
+    } catch (error) {
+      window.alert(error.message || 'Hintergrundbild konnte nicht gesetzt werden');
     }
   }
 

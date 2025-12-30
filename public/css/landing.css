@@ -149,6 +149,46 @@ body.qr-landing { color: var(--qr-fg); }
 .qr-landing .uk-section { background: transparent; }
 .qr-landing .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
+.section {
+  background: var(--bg-page);
+  color: inherit;
+}
+
+.section[data-appearance="surface"] {
+  background: var(--bg-surface);
+}
+
+.section[data-appearance="contrast"] {
+  background: var(--brand-primary, #1e87f0);
+  color: var(--text-on-primary, #ffffff);
+}
+
+.section[data-appearance="contrast"] a {
+  color: inherit;
+}
+
+.section[data-appearance="contrast"] a:hover {
+  color: inherit;
+}
+
+.section[data-appearance="image"],
+.section[data-appearance="image-fixed"] {
+  background-image: var(--section-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.section[data-appearance="image-fixed"] {
+  background-attachment: fixed;
+}
+
+@media (max-width: 959px), (prefers-reduced-motion: reduce) {
+  .section[data-appearance="image-fixed"] {
+    background-attachment: scroll;
+  }
+}
+
 /* Footer */
 body.qr-landing .site-footer {
   background: var(--qr-bg);

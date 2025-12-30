@@ -12,6 +12,7 @@
   --border-muted: #dfe3eb;
   --accent-primary: var(--brand-primary, #1e87f0);
   --accent-secondary: var(--brand-accent, var(--brand-primary, #1e87f0));
+  --text-on-primary: #ffffff;
 
   --primary-color: var(--accent-primary);
   --accent-color: var(--accent-secondary);
@@ -43,6 +44,7 @@
   --border-muted: #2c3a4b;
   --accent-primary: var(--brand-primary, #63a4ff);
   --accent-secondary: var(--brand-accent, var(--brand-primary, #63a4ff));
+  --text-on-primary: #ffffff;
 
   --primary-color: var(--accent-primary);
   --accent-color: var(--accent-secondary);
