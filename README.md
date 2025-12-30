@@ -523,6 +523,39 @@ Schlägt das Onboarding fehl, hilft ein Blick in das Log:
 tail -n 50 logs/onboarding.log
 ```
 
+
+## Wildcard-Domain für die Anwendung einrichten
+
+Damit die Anwendung jede Subdomain deines Mandanten verarbeitet (z. B.
+`team1.example.test`, `marketing.example.test`), richte die Wildcard-Domain
+innerhalb des Stacks wie folgt ein:
+
+1. **DNS vorbereiten** – Leite einen Wildcard-A/AAAA-Record (`*.example.test`)
+   auf die IP deines Reverse Proxys. Der Apex (`example.test`) sollte ebenfalls
+   auf dieselbe IP zeigen.
+2. **Umgebungsvariablen setzen** – Trage in `.env` mindestens `DOMAIN` oder
+   `MAIN_DOMAIN` sowie `ENABLE_WILDCARD_SSL=1` ein. Hinterlege das gewünschte
+   ACME-DNS-Plugin (z. B. `dns_cf`) per `ACME_WILDCARD_PROVIDER` und dessen
+   Zugangsdaten via `ACME_WILDCARD_ENV_*` (siehe oben).
+3. **Wildcard-Zertifikat beziehen** – Starte den Stack mit Compose
+   (`docker compose up -d slim acme-companion`) und führe anschließend
+   `scripts/provision_wildcard.sh --domain "$MAIN_DOMAIN"` aus. Das Skript
+   kümmert sich um die DNS-01-Challenge per `acme.sh` und legt `.crt`/`.key`
+   unter `certs/<domain>.*` ab.
+4. **Reverse Proxy aktualisieren** – Das Entrypoint-Skript ergänzt nach dem
+   Zertifikat ein Regex-Host-Muster (`~^([a-z0-9-]+\.)?<domain>$`) in
+   `VIRTUAL_HOST` und lädt nginx neu. Kontrolliere mit `docker logs slim`, dass
+   der Reload erfolgreich war.
+5. **Mandanten testen** – Lege einen neuen Mandanten mit
+   `scripts/create_tenant.sh <slug>` an oder onboarde einen bestehenden via
+   `/onboarding`. Rufe anschließend eine beliebige Subdomain deines Mandanten
+   per HTTPS auf. Das Zertifikat sollte für `*.example.test` ausgestellt sein.
+
+Kommt es bei Schritt 3 zu Fehlern (häufig: DNS-Provider-API), hilft ein Blick
+in die Protokolle des Companions (`docker logs acme-companion`). Solange kein
+gültiges Wildcard-Zertifikat vorliegt, blockiert `scripts/create_tenant.sh` das
+Onboarding und weist auf den fehlgeschlagenen Zertifikatsabruf hin.
+
 ### Synchronisation der Mandantenliste
 
 Die Mandantenübersicht im Admin-Backend lädt bestehende Einträge nur noch
