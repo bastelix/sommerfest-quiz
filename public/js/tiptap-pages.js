@@ -145,6 +145,7 @@ const ensurePreviewSlots = form => {
   layout = document.createElement('div');
   layout.dataset.pagePreviewLayout = 'true';
   layout.className = 'page-editor-preview-layout';
+  layout.dataset.editorMode = 'edit';
 
   const editorPane = document.createElement('div');
   editorPane.dataset.editorPane = 'true';
@@ -235,35 +236,23 @@ const ensurePreviewSlots = form => {
     previewModeToggle.append(button);
   });
 
-  previewActions.append(previewModeToggle, fullWidthToggle, previewReturnButton);
-  previewViewport.append(previewRoot);
+  const modeSwitcher = document.createElement('div');
+  modeSwitcher.className = 'page-editor-mode-switch';
 
-  previewPane.append(previewHeader, previewActions, previewModeHint, previewViewport);
-  layout.append(editorPane, previewPane);
+  const modeLabel = document.createElement('span');
+  modeLabel.className = 'page-editor-mode-switch__label';
+  modeLabel.textContent = 'Modus:';
 
-  editorEl.parentNode.insertBefore(layout, editorEl);
-  editorPane.append(editorEl);
+  const modeButtons = document.createElement('div');
+  modeButtons.className = 'uk-button-group';
 
-  return { layout, previewRoot, editorPane, previewPane, previewViewport };
-};
+  const editorModes = [
+    { id: 'edit', label: 'Bearbeiten' },
+    { id: 'preview', label: 'Vorschau' },
+    { id: 'design', label: 'Design-Vorschau' }
+  ];
 
-const bindFullWidthPreview = slots => {
-  const { layout, previewPane, previewViewport } = slots || {};
-  if (!layout || !previewPane || !previewViewport) {
-    return null;
-  }
-
-  if (layout.dataset.previewFullWidthBound === '1') {
-    return typeof layout.previewFullWidthCleanup === 'function'
-      ? layout.previewFullWidthCleanup
-      : null;
-  }
-
-  const fullWidthToggle = previewPane.querySelector('[data-preview-fullwidth-toggle="true"]');
-  const previewReturnButton = previewPane.querySelector('[data-preview-return="true"]');
-  const previewCloseButton = previewPane.querySelector('[data-preview-close="true"]');
-
-  const applyExpanded = expanded => {
+  const setPreviewExpanded = expanded => {
     const scrollTop = previewViewport.scrollTop;
     layout.classList.toggle('is-preview-expanded', expanded);
     previewPane.classList.toggle('is-preview-expanded', expanded);
@@ -286,6 +275,106 @@ const bindFullWidthPreview = slots => {
       previewViewport.scrollTop = scrollTop;
     });
   };
+
+  layout.setPreviewExpanded = setPreviewExpanded;
+
+  const updateModeButtons = mode => {
+    modeButtons.querySelectorAll('[data-editor-mode]').forEach(button => {
+      const isActive = button.dataset.editorMode === mode;
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      button.classList.toggle('uk-button-primary', isActive);
+      button.classList.toggle('uk-button-default', !isActive);
+    });
+  };
+
+  const applyEditorMode = mode => {
+    const normalized = editorModes.some(item => item.id === mode) ? mode : 'edit';
+    layout.dataset.editorMode = normalized;
+
+    const showPreview = normalized !== 'edit';
+    previewPane.hidden = !showPreview;
+
+    if (normalized === 'design') {
+      setPreviewExpanded(true);
+    } else if (previewPane.dataset.previewExpanded === 'true') {
+      setPreviewExpanded(false);
+    }
+
+    if (!showPreview) {
+      setPreviewExpanded(false);
+    }
+
+    updateModeButtons(normalized);
+  };
+
+  editorModes.forEach(mode => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'uk-button uk-button-default';
+    button.dataset.editorMode = mode.id;
+    button.textContent = mode.label;
+    button.setAttribute('aria-pressed', mode.id === 'edit' ? 'true' : 'false');
+    button.addEventListener('click', () => applyEditorMode(mode.id));
+    modeButtons.append(button);
+  });
+
+  modeSwitcher.append(modeLabel, modeButtons);
+
+  previewActions.append(previewModeToggle, fullWidthToggle, previewReturnButton);
+  previewViewport.append(previewRoot);
+
+  previewPane.append(previewHeader, previewActions, previewModeHint, previewViewport);
+  layout.append(modeSwitcher, editorPane, previewPane);
+
+  editorEl.parentNode.insertBefore(layout, editorEl);
+  editorPane.append(editorEl);
+
+  applyEditorMode('edit');
+
+  return { layout, previewRoot, editorPane, previewPane, previewViewport };
+};
+
+const bindFullWidthPreview = slots => {
+  const { layout, previewPane, previewViewport } = slots || {};
+  if (!layout || !previewPane || !previewViewport) {
+    return null;
+  }
+
+  if (layout.dataset.previewFullWidthBound === '1') {
+    return typeof layout.previewFullWidthCleanup === 'function'
+      ? layout.previewFullWidthCleanup
+      : null;
+  }
+
+  const fullWidthToggle = previewPane.querySelector('[data-preview-fullwidth-toggle="true"]');
+  const previewReturnButton = previewPane.querySelector('[data-preview-return="true"]');
+  const previewCloseButton = previewPane.querySelector('[data-preview-close="true"]');
+
+  const applyExpanded = typeof layout.setPreviewExpanded === 'function'
+    ? layout.setPreviewExpanded
+    : expanded => {
+        const scrollTop = previewViewport.scrollTop;
+        layout.classList.toggle('is-preview-expanded', expanded);
+        previewPane.classList.toggle('is-preview-expanded', expanded);
+        previewPane.dataset.previewExpanded = expanded ? 'true' : 'false';
+
+        if (fullWidthToggle) {
+          fullWidthToggle.classList.toggle('is-active', expanded);
+          fullWidthToggle.setAttribute('aria-pressed', expanded ? 'true' : 'false');
+        }
+
+        if (previewReturnButton) {
+          previewReturnButton.hidden = !expanded;
+        }
+
+        if (previewCloseButton) {
+          previewCloseButton.hidden = !expanded;
+        }
+
+        window.requestAnimationFrame(() => {
+          previewViewport.scrollTop = scrollTop;
+        });
+      };
 
   const exitFullWidth = () => applyExpanded(false);
   const toggleFullWidth = () => applyExpanded(!previewPane.classList.contains('is-preview-expanded'));
