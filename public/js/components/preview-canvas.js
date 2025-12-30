@@ -1,5 +1,4 @@
-import { renderPage } from './page-renderer.js';
-import { RENDERER_MATRIX } from './block-renderer-matrix.js';
+import { renderPage, RENDERER_MATRIX } from './block-renderer-matrix.js';
 
 const noop = () => {};
 

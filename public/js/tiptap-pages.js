@@ -2,13 +2,12 @@ import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
-import { renderPage } from './components/page-renderer.js';
 import {
   normalizeBlockContract,
   normalizeBlockVariant,
   validateBlockContract
 } from './components/block-contract.js';
-import { RENDERER_MATRIX } from './components/block-renderer-matrix.js';
+import { renderPage, RENDERER_MATRIX } from './components/block-renderer-matrix.js';
 
 const notify = typeof window !== 'undefined' && typeof window.notify === 'function'
   ? window.notify.bind(window)
