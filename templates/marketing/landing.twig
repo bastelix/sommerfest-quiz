@@ -45,14 +45,6 @@
     <header class="qr-topbar">
       {{ headerMarkup|raw }}
     </header>
-    {% if isAdmin %}
-      <button type="button"
-              id="inline-edit-save"
-              class="uk-button uk-button-primary"
-              style="position: fixed; bottom: 24px; right: 24px; z-index: 1000;">
-        Inhalte speichern
-      </button>
-    {% endif %}
     <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
@@ -79,10 +71,7 @@
       position: 'before-content'
     } %}
 
-    <div id="inline-edit-content"
-         data-inline-editable="true"
-         data-inline-page-slug="{{ marketingSlug }}"
-         data-inline-page-namespace="{{ marketingNamespace|default('default')|e('html_attr') }}">
+    <div class="landing-page-content">
       {{ content|raw }}
     </div>
     {% include 'marketing/partials/page-modules.twig' with {
@@ -146,98 +135,6 @@
 {% endblock %}
 
 {% block scripts %}
-  {% if isAdmin %}
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const saveButton = document.getElementById('inline-edit-save');
-        const contentContainer = document.getElementById('inline-edit-content');
-        const editableSections = Array.from(document.querySelectorAll('[data-inline-editable="true"]'));
-        const editorConstructor = window.CKEDITOR && window.CKEDITOR.InlineEditor ? window.CKEDITOR.InlineEditor : null;
-
-        if (!saveButton || !contentContainer || editableSections.length === 0 || !editorConstructor) {
-          return;
-        }
-
-        const editors = new Map();
-        const editorPromises = editableSections.map(section =>
-          editorConstructor.create(section, {
-            toolbar: ['bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
-            htmlSupport: {
-              allow: [
-                {
-                  name: /.*/,
-                  attributes: true,
-                  classes: true,
-                  styles: true,
-                },
-              ],
-            },
-          })
-            .then(editor => {
-              editors.set(section, editor);
-            })
-            .catch(error => {
-              console.error(error);
-            })
-        );
-
-        const basePath = window.basePath || '';
-        const csrfToken = '{{ csrf_token }}';
-        const defaultLabel = saveButton.textContent;
-
-        saveButton.addEventListener('click', async () => {
-          saveButton.disabled = true;
-          saveButton.textContent = 'Speichern...';
-
-          try {
-            await Promise.all(editorPromises);
-            editors.forEach((editor, section) => {
-              section.innerHTML = editor.getData();
-            });
-
-            const slug = contentContainer.dataset.inlinePageSlug || '';
-            const namespace = contentContainer.dataset.inlinePageNamespace || '';
-            const payload = {
-              namespace,
-              slug,
-              html: contentContainer.innerHTML,
-            };
-
-            const response = await fetch(`${basePath}/api/save-marketing-content`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken,
-                'X-Requested-With': 'fetch',
-              },
-              body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-              throw new Error(`Save failed (${response.status})`);
-            }
-
-            if (window.UIkit && typeof window.UIkit.notification === 'function') {
-              window.UIkit.notification({ message: 'Inhalte gespeichert.', status: 'success' });
-            } else {
-              alert('Inhalte gespeichert.');
-            }
-          } catch (error) {
-            console.error(error);
-            if (window.UIkit && typeof window.UIkit.notification === 'function') {
-              window.UIkit.notification({ message: 'Inhalte konnten nicht gespeichert werden.', status: 'danger' });
-            } else {
-              alert('Inhalte konnten nicht gespeichert werden.');
-            }
-          } finally {
-            saveButton.disabled = false;
-            saveButton.textContent = defaultLabel;
-          }
-        });
-      });
-    </script>
-  {% endif %}
   {% if turnstileSiteKey %}
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
   {% endif %}

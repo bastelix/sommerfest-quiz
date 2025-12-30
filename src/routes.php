@@ -2220,29 +2220,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new AdminAuthMiddleware())->add(new CsrfMiddleware());
 
-    $app->post('/api/save-marketing-content', function (Request $request, Response $response): Response {
-        $data = json_decode((string) $request->getBody(), true);
-        $slug = is_array($data) ? (string) ($data['slug'] ?? '') : '';
-        $namespace = is_array($data) ? (string) ($data['namespace'] ?? '') : '';
-        $html = is_array($data) ? ($data['html'] ?? '') : '';
-
-        if ($slug === '' || $namespace === '' || !is_string($html)) {
-            return $response->withStatus(400);
-        }
-
-        $pageService = new PageService();
-        $page = $pageService->findByKey($namespace, $slug);
-        if ($page === null) {
-            return $response->withStatus(404);
-        }
-
-        $pageService->save($namespace, $slug, $html);
-
-        $response->getBody()->write((string) json_encode(['status' => 'ok']));
-
-        return $response->withHeader('Content-Type', 'application/json');
-    })->add(new AdminAuthMiddleware())->add(new CsrfMiddleware());
-
     $app->delete('/api/player-contact', function (Request $request, Response $response) {
         /** @var PlayerContactController|null $controller */
         $controller = $request->getAttribute('playerContactController');
