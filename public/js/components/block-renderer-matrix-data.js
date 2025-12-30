@@ -630,9 +630,68 @@ function renderCtaSplit(block, options = {}) {
   return `<section${anchor} class="uk-section uk-section-primary" data-block-id="${escapeAttribute(block.id)}" data-block-type="cta" data-block-variant="split"><div class="uk-container">${layout}</div></section>`;
 }
 
-function renderStatStrip(block) {
-  const count = Array.isArray(block.data.metrics) ? block.data.metrics.length : 0;
-  return `<section data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><!--stat_strip:three-up | ${count} metrics --></section>`;
+function renderStatStrip(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const lede = block.data?.lede
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.lede', context)}>${escapeHtml(block.data.lede)}</p>`
+    : '';
+  const header = title || lede ? `<div class="uk-width-1-1 uk-text-center uk-margin-medium-bottom">${title}${lede}</div>` : '';
+
+  const metrics = Array.isArray(block.data?.metrics) ? block.data.metrics : [];
+  const metricCards = metrics
+    .filter(metric => metric && typeof metric.value === 'string' && typeof metric.label === 'string')
+    .map((metric, index) => {
+      const tooltip = metric.tooltip ? ` title="${escapeAttribute(metric.tooltip)}" data-uk-tooltip` : '';
+      const icon = metric.icon ? `<span class="uk-margin-small-right" aria-hidden="true">${escapeHtml(metric.icon)}</span>` : '';
+      const value = `<div class="uk-heading-large uk-margin-remove"${tooltip}${buildEditableAttributes(
+        block,
+        `data.metrics.${index}.value`,
+        context
+      )}>${icon}${escapeHtml(metric.value)}</div>`;
+      const label = `<p class="uk-text-muted uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(
+        block,
+        `data.metrics.${index}.label`,
+        context
+      )}>${escapeHtml(metric.label)}</p>`;
+      const benefit = metric.benefit
+        ? `<p class="uk-text-success uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(
+            block,
+            `data.metrics.${index}.benefit`,
+            context
+          )}>${escapeHtml(metric.benefit)}</p>`
+        : '';
+      const asOf = metric.asOf
+        ? `<p class="uk-text-meta uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(
+            block,
+            `data.metrics.${index}.asOf`,
+            context
+          )}>${escapeHtml(metric.asOf)}</p>`
+        : '';
+
+      return `<div class="uk-width-1-1 uk-width-1-3@m"><div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">${value}${label}${benefit}${asOf}</div></div>`;
+    })
+    .join('');
+
+  const metricsGrid = metricCards
+    ? `<div class="uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large" data-uk-grid>${metricCards}</div>`
+    : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
+
+  const marqueeItems = Array.isArray(block.data?.marquee)
+    ? block.data.marquee.filter(item => typeof item === 'string' && item.trim() !== '')
+    : [];
+
+  const marquee = marqueeItems.length
+    ? `<div class="uk-margin-large-top"><div class="uk-flex uk-flex-middle uk-flex-center uk-flex-wrap uk-text-muted uk-text-small">${marqueeItems
+        .map(text => `<span class="uk-margin-small-left uk-margin-small-right">${escapeHtml(text)}</span>`)
+        .join('<span class="uk-text-muted">•</span>')}</div></div>`
+    : '';
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="stat_strip" data-block-variant="three-up"><div class="uk-container">${header}${metricsGrid}${marquee}</div></section>`;
 }
 
 function renderProofMetricCallout(block, options = {}) {
