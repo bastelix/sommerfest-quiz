@@ -89,6 +89,16 @@ final class PageBlockContractMigrator
         return $this->validatePageContent($content);
     }
 
+    public function isBlockTypeSupported(string $type): bool
+    {
+        return isset($this->blockVariants[$type]);
+    }
+
+    public function isBlockVariantSupported(string $type, string $variant): bool
+    {
+        return isset($this->blockVariants[$type]) && in_array($variant, $this->blockVariants[$type], true);
+    }
+
     /**
      * Execute the migration for all pages and persist valid results.
      *

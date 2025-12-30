@@ -246,6 +246,82 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testImportPreservesValidBlocksAndFlagsInvalidOnes(): void { 
+        $pdo = $this->getDatabase();
+        $this->seedPage($pdo, 'calserver', 'Calserver', '<p>legacy</p>');
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
+
+        $payload = [
+            'meta' => [
+                'namespace' => 'calserver',
+                'slug' => 'calserver',
+                'title' => 'Calserver',
+                'schemaVersion' => PageBlockContractMigrator::MIGRATION_VERSION,
+            ],
+            'blocks' => [
+                [
+                    'id' => 'block-1',
+                    'type' => 'rich_text',
+                    'variant' => 'prose',
+                    'data' => ['body' => '<p>Hallo Welt</p>'],
+                ],
+                [
+                    'id' => 'block-2',
+                    'type' => 'unknown_block',
+                    'variant' => 'mystery',
+                    'data' => [],
+                ],
+                [
+                    'id' => 'block-3',
+                    'type' => 'process_steps',
+                    'variant' => 'timeline_vertical',
+                    'data' => [
+                        'title' => 'Ablauf',
+                        'steps' => [
+                            ['id' => 'step-1', 'title' => 'Erster', 'description' => 'Zuerst'],
+                            ['id' => 'step-2', 'title' => 'Zweiter', 'description' => 'Dann'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $stream = (new StreamFactory())->createStream(json_encode($payload, JSON_THROW_ON_ERROR));
+        $request = $this->createRequest(
+            'POST',
+            '/admin/pages/calserver/import?namespace=calserver',
+            [
+                'HTTP_X_CSRF_TOKEN' => 'token',
+                'HTTP_ACCEPT' => 'application/json',
+            ]
+        )
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody($stream);
+
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+
+        $stored = json_decode((string) $pdo->query("SELECT content FROM pages WHERE namespace = 'calserver' AND slug = 'calserver'")->fetchColumn(), true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertCount(3, $stored['blocks']);
+        $this->assertSame('rich_text', $stored['blocks'][0]['type']);
+
+        $this->assertSame('info_media', $stored['blocks'][1]['type']);
+        $this->assertSame('stacked', $stored['blocks'][1]['variant']);
+        $this->assertTrue($stored['blocks'][1]['meta']['importError']);
+        $this->assertSame('unknown_block', $stored['blocks'][1]['meta']['originalType']);
+        $this->assertSame('mystery', $stored['blocks'][1]['meta']['originalVariant']);
+
+        $this->assertSame('process_steps', $stored['blocks'][2]['type']);
+        $this->assertSame('numbered-vertical', $stored['blocks'][2]['variant']);
+
+        session_destroy();
+    }
+
     /**
      * @return array<int, array{0:string,1:string}>
      */

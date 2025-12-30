@@ -29,6 +29,16 @@ class PageController
     /** @var array<string, string[]> */
     private array $editableSlugs = [];
 
+    private const LEGACY_VARIANT_NORMALIZATION = [
+        'hero' => [
+            'media_right' => 'media-right',
+            'centered_cta' => 'centered-cta',
+        ],
+        'process_steps' => [
+            'timeline_vertical' => 'numbered-vertical',
+        ],
+    ];
+
     public function __construct(
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null,
@@ -382,20 +392,39 @@ class PageController
      */
     private function normalizeImportedBlocks(array $blocks): array
     {
-        foreach ($blocks as $index => $block) {
+        $normalized = [];
+
+        foreach ($blocks as $block) {
             if (!is_array($block)) {
                 continue;
             }
 
-            $type = $block['type'] ?? null;
+            $type = is_string($block['type'] ?? null) ? $block['type'] : null;
+            $variant = is_string($block['variant'] ?? null) ? $block['variant'] : null;
+
+            if ($type !== null && $variant !== null) {
+                $variant = $this->normalizeLegacyVariant($type, $variant);
+                $block['variant'] = $variant;
+            }
+
             $data = is_array($block['data'] ?? null) ? $block['data'] : null;
 
             if ($type === 'hero' && $data !== null) {
-                $blocks[$index]['data'] = $this->normalizeImportedHeroData($data);
+                $block['data'] = $this->normalizeImportedHeroData($data);
             }
+
+            $block['id'] = $this->normalizeImportedBlockId($block['id'] ?? null);
+
+            if ($type === null || $variant === null || !$this->blockMigrator->isBlockVariantSupported($type, $variant)) {
+                $normalized[] = $this->buildImportErrorBlock($type, $variant);
+
+                continue;
+            }
+
+            $normalized[] = $block;
         }
 
-        return $blocks;
+        return $normalized;
     }
 
     /**
@@ -429,6 +458,37 @@ class PageController
         $data['cta'] = $cta;
 
         return $data;
+    }
+
+    private function normalizeLegacyVariant(string $type, string $variant): string
+    {
+        return self::LEGACY_VARIANT_NORMALIZATION[$type][$variant] ?? $variant;
+    }
+
+    private function normalizeImportedBlockId($id): string
+    {
+        if (is_string($id) && trim($id) !== '') {
+            return trim($id);
+        }
+
+        return sprintf('imported-%s', bin2hex(random_bytes(8)));
+    }
+
+    private function buildImportErrorBlock(?string $originalType, ?string $originalVariant): array
+    {
+        return [
+            'id' => sprintf('import-error-%s', bin2hex(random_bytes(8))),
+            'type' => 'info_media',
+            'variant' => 'stacked',
+            'data' => [
+                'body' => '⚠ This section could not be imported due to an invalid block type or variant.',
+            ],
+            'meta' => [
+                'importError' => true,
+                'originalType' => $originalType,
+                'originalVariant' => $originalVariant,
+            ],
+        ];
     }
 
     public function updateNamespace(Request $request, Response $response, array $args): Response
