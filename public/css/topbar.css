@@ -77,14 +77,15 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
 
 /* Dropdown/Offcanvas */
 .uk-dropdown, .uk-drop, .uk-offcanvas-bar{
-  background: var(--drop-bg, var(--bg-card));
+  background-color: var(--drop-bg, var(--bg-surface));
   color: var(--drop-color, var(--topbar-text, var(--text-primary)));
   border: 1px solid var(--drop-border, var(--border-muted));
 }
 .uk-offcanvas-bar{
   --uk-inverse: unset;
   --drop-color: var(--text-primary);
-  background: var(--drop-bg, var(--bg-card));
+  background-color: var(--drop-bg, var(--bg-surface));
+  color: var(--drop-color, var(--text-primary));
 }
 .uk-offcanvas-bar .uk-nav-header,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-header,
@@ -103,13 +104,17 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:hover,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:focus,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:active {
-  background: var(--bg-accent-soft);
+  background-color: var(--bg-accent-soft);
   color: var(--text-primary);
 }
 .uk-offcanvas-bar .uk-nav-default>li>a:focus-visible,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:focus-visible {
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
+}
+.uk-offcanvas-bar .uk-nav-default>li.uk-active>a {
+  background-color: var(--bg-accent-soft);
+  color: var(--text-primary);
 }
 .uk-offcanvas-bar h3 {
   color: var(--drop-color, var(--text-primary));
