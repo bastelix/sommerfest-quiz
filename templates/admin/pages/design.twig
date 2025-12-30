@@ -2,12 +2,14 @@
 
 {% block config_color_styles %}{% endblock %}
 
-{% block title %}{{ t('tab_design') }}{% endblock %}
+{% block title %}Design – Namespace: {{ pageNamespace|default('') }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/admin-design.css">
+  <script src="{{ basePath }}/js/admin-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
@@ -50,9 +52,15 @@
         {% include 'admin/_nav.twig' %}
       </div>
     </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+    <main class="uk-width-expand uk-padding-small@xs uk-padding" id="design-editor"
+      data-default-tokens='{{ tokenDefaults|json_encode|e('html_attr') }}'
+      data-current-tokens='{{ tokens|json_encode|e('html_attr') }}'
+      data-namespace="{{ pageNamespace|e('html_attr') }}"
+      data-read-only="{{ readOnly ? '1' : '0' }}"
+    >
       <div class="uk-container uk-container-large">
-        <h1 class="uk-heading-bullet">{{ t('tab_design') }}</h1>
+        <h1 class="uk-heading-bullet">Design – Namespace: {{ pageNamespace }}</h1>
+        <p class="uk-text-lead uk-margin-remove">Erscheinungsbild für alle Seiten dieses Namespace</p>
       </div>
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}
@@ -102,73 +110,199 @@
           </div>
         {% endif %}
 
-        {% set existingColors = config.colors|default({}) %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-            <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-              <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+        <div class="uk-grid-match uk-grid-small" uk-grid>
+          <div class="uk-width-1-1 uk-width-2-5@l">
+            <div class="uk-card uk-card-default uk-card-body design-preview-card">
+              <div class="uk-flex uk-flex-between uk-flex-middle">
+                <div>
+                  <h3 class="uk-card-title uk-margin-remove">Live Preview</h3>
+                  <p class="uk-text-meta uk-margin-remove">Änderungen wirken sofort</p>
+                </div>
+                <div class="uk-button-group" data-theme-toggle>
+                  <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Light</button>
+                  <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dark</button>
+                </div>
+              </div>
+              <div class="uk-margin-small-top uk-flex uk-flex-middle uk-flex-between">
+                <div class="uk-button-group" data-device-toggle>
+                  <button type="button" class="uk-button uk-button-default" data-device-choice="desktop" aria-pressed="false">Desktop</button>
+                  <button type="button" class="uk-button uk-button-default" data-device-choice="tablet" aria-pressed="false">Tablet</button>
+                  <button type="button" class="uk-button uk-button-default" data-device-choice="mobile" aria-pressed="false">Mobile</button>
+                </div>
+                <div class="uk-text-meta">
+                  <span class="uk-margin-small-right">Layout: <strong data-preview-meta="layout">{{ tokens.layout.profile }}</strong></span>
+                  <span>Typo: <strong data-preview-meta="typography">{{ tokens.typography.preset }}</strong></span>
+                </div>
+              </div>
+              <div
+                id="design-preview"
+                class="design-preview__viewport"
+                data-theme="light"
+                data-device="desktop"
+                data-namespace="{{ activePageNamespace|e('html_attr') }}"
+                data-layout-profile="{{ tokens.layout.profile|e('html_attr') }}"
+                data-card-style="{{ tokens.components.cardStyle|e('html_attr') }}"
+                data-button-style="{{ tokens.components.buttonStyle|e('html_attr') }}"
+                data-typography-preset="{{ tokens.typography.preset|e('html_attr') }}"
+              >
+                <div class="design-preview__surface">
+                  <div class="design-preview__badge">{{ activePageNamespace }}</div>
+                  <div class="design-preview__content">
+                    <div class="design-preview__eyebrow">Marketing Page</div>
+                    <h2 class="design-preview__headline">Gestaltete Überschrift</h2>
+                    <p class="design-preview__copy">
+                      Einheitliche Design-Tokens sorgen für konsistente Farben, Abstände und Komponenten in diesem Namespace.
+                    </p>
+                    <div class="design-preview__cta-group">
+                      <button class="uk-button uk-button-primary design-preview__button">Primary Action</button>
+                      <button class="uk-button uk-button-default design-preview__button-secondary">Secondary</button>
+                    </div>
+                    <div class="design-preview__cards">
+                      <div class="design-preview__card">
+                        <h4 class="uk-margin-small-bottom">Card Titel</h4>
+                        <p class="uk-margin-remove">Gestaltete Karte mit {{ tokens.components.cardStyle }}-Kanten.</p>
+                      </div>
+                      <div class="design-preview__card">
+                        <h4 class="uk-margin-small-bottom">Buttons</h4>
+                        <p class="uk-margin-remove">Button-Stil: {{ tokens.components.buttonStyle }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% if readOnly %}
+              <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+                <h3 class="uk-card-title uk-margin-remove">Design-Übersicht</h3>
+                <p class="uk-text-meta">Design wird auf Namespace-Ebene gesteuert</p>
+                <dl class="design-summary">
+                  <div class="design-summary__row">
+                    <dt>Layout-Profil</dt>
+                    <dd>{{ tokens.layout.profile }}</dd>
+                  </div>
+                  <div class="design-summary__row">
+                    <dt>Typografie</dt>
+                    <dd>{{ tokens.typography.preset }}</dd>
+                  </div>
+                  <div class="design-summary__row">
+                    <dt>Kartendesign</dt>
+                    <dd>{{ tokens.components.cardStyle }}</dd>
+                  </div>
+                  <div class="design-summary__row">
+                    <dt>Button-Stil</dt>
+                    <dd>{{ tokens.components.buttonStyle }}</dd>
+                  </div>
+                  <div class="design-summary__row">
+                    <dt>Farben</dt>
+                    <dd>
+                      <span class="design-summary__swatch" style="background: {{ tokens.brand.primary }}"></span>
+                      <code>{{ tokens.brand.primary }}</code>
+                      <span class="design-summary__swatch design-summary__swatch--accent" style="background: {{ tokens.brand.accent }}"></span>
+                      <code>{{ tokens.brand.accent }}</code>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            {% endif %}
+          </div>
+          <div class="uk-width-1-1 uk-width-expand@l">
+            {% if readOnly %}
+              <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Design-Vorgaben.</div>
+            {% else %}
+              <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
 
-              <div class="uk-alert uk-alert-primary">
-                <p class="uk-margin-remove">
-                  Namespace-spezifische Landingpages können eigene Assets und UIkit-Effekte nutzen.
-                </p>
-                <ul class="uk-list uk-list-disc uk-margin-small-top">
-                  <li>
-                    Relative Stylesheet-Pfade laden aus <code>/css/{{ activePageNamespace }}/</code>, z.&nbsp;B.
-                    <code>{{ basePath }}/css/{{ activePageNamespace }}/landing.css</code>.
+                <ul class="uk-accordion" uk-accordion>
+                  <li class="uk-open">
+                    <a class="uk-accordion-title" href="#">Brand</a>
+                    <div class="uk-accordion-content">
+                      <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-2@s">
+                          <label class="uk-form-label" for="brandPrimary">Primary Color</label>
+                          <div class="uk-flex uk-flex-middle design-color-input">
+                            <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
+                            <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
+                          </div>
+                        </div>
+                        <div class="uk-width-1-2@s">
+                          <label class="uk-form-label" for="brandAccent">Accent Color</label>
+                          <div class="uk-flex uk-flex-middle design-color-input">
+                            <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
+                            <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
+                          </div>
+                        </div>
+                      </div>
+                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_brand">Panel zurücksetzen</button>
+                    </div>
                   </li>
                   <li>
-                    Animations- oder Scroll-Effekte lassen sich als Body-Klassen hinterlegen
-                    (z.&nbsp;B. <code>uk-animation-fade</code>, <code>uk-scrollspy-inview</code> oder
-                    <code>uk-animation-slide-bottom-small</code>).
+                    <a class="uk-accordion-title" href="#">Layout</a>
+                    <div class="uk-accordion-content">
+                      <label class="uk-form-label" for="layoutProfile">Layout-Profil</label>
+                      <div class="uk-form-controls">
+                        <select id="layoutProfile" class="uk-select" name="layout[profile]" data-token-input data-group="layout" data-key="profile">
+                          {% for option in layoutProfiles %}
+                            <option value="{{ option }}" {% if option == tokens.layout.profile %}selected{% endif %}>{{ option|title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_layout">Panel zurücksetzen</button>
+                    </div>
                   </li>
-                  <li>Fehlende Angaben fallen automatisch auf den Default-Namespace zurück.</li>
+                  <li>
+                    <a class="uk-accordion-title" href="#">Typography</a>
+                    <div class="uk-accordion-content">
+                      <label class="uk-form-label" for="typographyPreset">Heading Style Preset</label>
+                      <div class="uk-form-controls">
+                        <select id="typographyPreset" class="uk-select" name="typography[preset]" data-token-input data-group="typography" data-key="preset">
+                          {% for preset in typographyPresets %}
+                            <option value="{{ preset }}" {% if preset == tokens.typography.preset %}selected{% endif %}>{{ preset|title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_typography">Panel zurücksetzen</button>
+                    </div>
+                  </li>
+                  <li>
+                    <a class="uk-accordion-title" href="#">Components</a>
+                    <div class="uk-accordion-content">
+                      <div class="uk-grid-small" uk-grid>
+                        <div class="uk-width-1-2@s">
+                          <label class="uk-form-label" for="cardStyle">Card Shape</label>
+                          <div class="uk-form-controls">
+                            <select id="cardStyle" class="uk-select" name="components[cardStyle]" data-token-input data-group="components" data-key="cardStyle">
+                              {% for style in cardStyles %}
+                                <option value="{{ style }}" {% if style == tokens.components.cardStyle %}selected{% endif %}>{{ style|title }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                        <div class="uk-width-1-2@s">
+                          <label class="uk-form-label" for="buttonStyle">Button Style</label>
+                          <div class="uk-form-controls">
+                            <select id="buttonStyle" class="uk-select" name="components[buttonStyle]" data-token-input data-group="components" data-key="buttonStyle">
+                              {% for style in buttonStyles %}
+                                <option value="{{ style }}" {% if style == tokens.components.buttonStyle %}selected{% endif %}>{{ style|title }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_components">Panel zurücksetzen</button>
+                    </div>
+                  </li>
                 </ul>
-              </div>
 
-              <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-1-3@s">
-                  <label class="uk-form-label" for="primaryColor">{{ t('label_primary_color') }}</label>
-                <div class="uk-form-controls">
-                  <input id="primaryColor" class="uk-input" type="text" name="primaryColor" value="{{ existingColors.primary|default('') }}" placeholder="#1b6ac9" pattern="#?[0-9a-fA-F]{3,6}">
+                <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                  <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">Auf Standard zurücksetzen</button>
+                  <button class="uk-button uk-button-primary" type="submit">Speichern</button>
                 </div>
-              </div>
-              <div class="uk-width-1-3@s">
-                <label class="uk-form-label" for="backgroundColor">{{ t('label_background_color') }}</label>
-                <div class="uk-form-controls">
-                  <input id="backgroundColor" class="uk-input" type="text" name="backgroundColor" value="{{ existingColors.background|default(existingColors.primary|default('')) }}" placeholder="#ffffff" pattern="#?[0-9a-fA-F]{3,6}">
-                </div>
-              </div>
-              <div class="uk-width-1-3@s">
-                <label class="uk-form-label" for="accentColor">{{ t('label_accent_color') }}</label>
-                <div class="uk-form-controls">
-                  <input id="accentColor" class="uk-input" type="text" name="accentColor" value="{{ existingColors.accent|default('') }}" placeholder="#ff9500" pattern="#?[0-9a-fA-F]{3,6}">
-                </div>
-              </div>
-            </div>
-
-            <div class="uk-margin">
-              <label class="uk-form-label" for="logo">{{ t('label_logo_upload') }}</label>
-              <div class="uk-form-controls">
-                <input id="logo" class="uk-input" type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
-              </div>
-              <p class="uk-text-meta uk-margin-small-top">{{ t('text_logo_upload_hint') }}</p>
-            </div>
-
-            <div class="uk-margin">
-              <label class="uk-form-label" for="logoUrl">{{ t('label_logo_url') }}</label>
-              <div class="uk-form-controls">
-                <input id="logoUrl" class="uk-input" type="url" name="logoUrl" value="{{ config.logoPath|default('') }}" placeholder="https://example.com/logo.svg">
-              </div>
-            </div>
-
-            <div class="uk-margin">
-              <button class="uk-button uk-button-primary" type="submit">{{ t('save') }}</button>
-            </div>
-          </form>
+              </form>
+            {% endif %}
+          </div>
         </div>
       </div>
     </main>
   </div>
 {% endblock %}
-

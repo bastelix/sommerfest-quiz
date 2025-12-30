@@ -1,29 +1,19 @@
+/**
+ * Auto-generated. Do not edit manually.
+ */
 :root {
   --brand-primary: #1e87f0;
   --brand-accent: #f97316;
+  --layout-profile: standard;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
+:root {
   --brand-surface: #0f172a;
   --brand-on-surface: #ffffff;
   --section-gap: 2.25rem;
   --card-radius: 10px;
   --font-heading-weight: 700;
-}
-
-[data-namespace="quizrace"] {
-  --brand-primary: #1e87f0;
-  --brand-accent: #6e40c9;
-  --brand-surface: #0d1117;
-  --brand-on-surface: #e7eef9;
-  --section-gap: 2.5rem;
-  --card-radius: 12px;
-  --font-heading-weight: 700;
-}
-
-[data-namespace="calserver"] {
-  --brand-primary: #22c55e;
-  --brand-accent: #0ea5e9;
-  --brand-surface: #0c2f23;
-  --brand-on-surface: #e7f6ed;
-  --section-gap: 2.75rem;
-  --card-radius: 14px;
-  --font-heading-weight: 650;
 }

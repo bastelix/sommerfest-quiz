@@ -116,9 +116,15 @@ class LoginController
                 Roles::ANALYST,
                 Roles::TEAM_MANAGER,
             ];
+            $designRoles = [
+                Roles::DESIGNER,
+                Roles::REDAKTEUR,
+            ];
             // Service accounts are excluded: they are for automation and have no dashboard.
             if (in_array($record['role'], $dashboardRoles, true)) {
                 $target = '/admin';
+            } elseif (in_array($record['role'], $designRoles, true)) {
+                $target = '/admin/pages/design';
             } elseif ($record['role'] === Roles::SERVICE_ACCOUNT) {
                 // Service accounts are used for automation and have no UI.
                 $target = '/';

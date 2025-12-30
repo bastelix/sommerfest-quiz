@@ -1519,11 +1519,11 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/pages/design', function (Request $request, Response $response) {
         $controller = new PagesDesignController();
         return $controller->show($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::DESIGNER, Roles::REDAKTEUR))->add($namespaceQueryMiddleware);
     $app->post('/admin/pages/design', function (Request $request, Response $response) {
         $controller = new PagesDesignController();
         return $controller->save($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::DESIGNER))->add(new CsrfMiddleware());
     $app->get('/admin/newsletter', function (Request $request, Response $response) {
         $controller = new MarketingNewsletterController();
         return $controller->index($request, $response);

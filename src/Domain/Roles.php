@@ -7,6 +7,8 @@ namespace App\Domain;
 final class Roles
 {
     public const ADMIN = 'admin';
+    public const DESIGNER = 'designer';
+    public const REDAKTEUR = 'redakteur';
     public const CATALOG_EDITOR = 'catalog-editor';
     public const EVENT_MANAGER = 'event-manager';
     public const ANALYST = 'analyst';
@@ -15,6 +17,8 @@ final class Roles
 
     public const ALL = [
         self::ADMIN,
+        self::DESIGNER,
+        self::REDAKTEUR,
         self::CATALOG_EDITOR,
         self::EVENT_MANAGER,
         self::ANALYST,
