@@ -1926,6 +1926,13 @@ export class BlockContentEditor {
     }
 
     const input = document.createElement(options.element || (options.multiline ? 'textarea' : 'input'));
+    if (!input.className) {
+      if ((options.element || '').toLowerCase() === 'textarea' || options.multiline) {
+        input.className = 'uk-textarea';
+      } else if ((options.element || '').toLowerCase() === 'input' || !options.element) {
+        input.className = 'uk-input';
+      }
+    }
     if (options.type) {
       input.type = options.type;
     }
@@ -2489,23 +2496,51 @@ export class BlockContentEditor {
   buildFaqForm(block) {
     const wrapper = document.createElement('div');
 
-    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    const titleSection = createFieldSection('Abschnittstitel', 'Steuert die Überschrift oberhalb des FAQ-Blocks.');
+    titleSection.append(
+      this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value))
+    );
+    wrapper.append(titleSection);
 
-    const itemsWrapper = document.createElement('div');
-    itemsWrapper.dataset.field = 'items';
+    const itemsSection = createFieldSection('Fragen & Antworten', 'Klappe einzelne Fragen auf, um Details zu bearbeiten.');
 
+    const listActions = document.createElement('div');
+    listActions.className = 'block-repeater-card__actions';
     const addItemBtn = document.createElement('button');
     addItemBtn.type = 'button';
+    addItemBtn.className = 'uk-button uk-button-default';
     addItemBtn.textContent = 'Frage hinzufügen';
     addItemBtn.addEventListener('click', () => this.addFaqItem(block.id));
-    itemsWrapper.append(addItemBtn);
+    listActions.append(addItemBtn);
+    itemsSection.append(listActions);
 
     (block.data.items || []).forEach((item, index) => {
-      const itemCard = document.createElement('div');
+      const itemCard = document.createElement('details');
       itemCard.dataset.faqItem = item.id;
+      itemCard.className = 'block-repeater-card';
+      if (index === 0) {
+        itemCard.open = true;
+      }
 
-      itemCard.append(this.addLabeledInput('Frage', item.question, value => this.updateFaqItem(block.id, item.id, 'question', value)));
-      itemCard.append(
+      const summary = document.createElement('summary');
+      const title = document.createElement('div');
+      title.className = 'block-repeater-card__title';
+      title.textContent = (item.question || '').trim() || `Frage ${index + 1}`;
+
+      const meta = document.createElement('div');
+      meta.className = 'block-repeater-card__meta';
+      meta.textContent = `Eintrag ${index + 1}`;
+
+      summary.append(title, meta);
+      itemCard.append(summary);
+
+      const body = document.createElement('div');
+      body.className = 'block-repeater-card__body';
+
+      body.append(
+        this.addLabeledInput('Frage', item.question, value => this.updateFaqItem(block.id, item.id, 'question', value))
+      );
+      body.append(
         this.addLabeledInput('Antwort', item.answer, value => this.updateFaqItem(block.id, item.id, 'answer', value), {
           multiline: true,
           rows: 3
@@ -2513,43 +2548,50 @@ export class BlockContentEditor {
       );
 
       const controls = document.createElement('div');
+      controls.className = 'block-repeater-card__actions';
+
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
+      removeBtn.className = 'uk-button uk-button-default';
       removeBtn.textContent = 'Entfernen';
       removeBtn.disabled = (block.data.items || []).length <= 1;
       removeBtn.addEventListener('click', () => this.removeFaqItem(block.id, item.id));
 
       const moveUp = document.createElement('button');
       moveUp.type = 'button';
-      moveUp.textContent = '↑';
+      moveUp.className = 'uk-button uk-button-default';
+      moveUp.textContent = 'Nach oben';
       moveUp.disabled = index === 0;
       moveUp.addEventListener('click', () => this.moveFaqItem(block.id, item.id, -1));
 
       const moveDown = document.createElement('button');
       moveDown.type = 'button';
-      moveDown.textContent = '↓';
+      moveDown.className = 'uk-button uk-button-default';
+      moveDown.textContent = 'Nach unten';
       moveDown.disabled = index === (block.data.items || []).length - 1;
       moveDown.addEventListener('click', () => this.moveFaqItem(block.id, item.id, 1));
 
       controls.append(removeBtn, moveUp, moveDown);
-      itemCard.append(controls);
-      itemsWrapper.append(itemCard);
+      body.append(controls);
+      itemCard.append(body);
+      itemsSection.append(itemCard);
     });
 
-    wrapper.append(itemsWrapper);
+    wrapper.append(itemsSection);
 
-    const followUpWrapper = document.createElement('div');
-    followUpWrapper.dataset.field = 'followUp';
-    followUpWrapper.append(
+    const followUpSection = createFieldSection('Weiterführende Hinweise', 'Optionaler Hinweis oder Link unterhalb der Fragen.', {
+      optional: true
+    });
+    followUpSection.append(
       this.addLabeledInput('Hinweis', block.data.followUp?.text, value => this.updateBlockData(block.id, ['data', 'followUp', 'text'], value))
     );
-    followUpWrapper.append(
+    followUpSection.append(
       this.addLabeledInput('Link-Label', block.data.followUp?.linkLabel, value => this.updateBlockData(block.id, ['data', 'followUp', 'linkLabel'], value))
     );
-    followUpWrapper.append(
+    followUpSection.append(
       this.addLabeledInput('Link URL', block.data.followUp?.href, value => this.updateBlockData(block.id, ['data', 'followUp', 'href'], value))
     );
-    wrapper.append(followUpWrapper);
+    wrapper.append(followUpSection);
 
     return wrapper;
   }

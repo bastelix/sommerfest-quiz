@@ -125,6 +125,10 @@ export class PreviewCanvas {
     if (!target || !this.surface.contains(target)) {
       return;
     }
+    const previewPane = this.root.closest('[data-preview-pane]');
+    if (previewPane?.dataset.previewIntent === 'design') {
+      return;
+    }
     const blockId = target.getAttribute('data-block-id');
     const fieldPath = target.getAttribute('data-field-path');
     if (!blockId || !fieldPath || !this.blockIds.has(blockId) || !this.onInlineEdit) {

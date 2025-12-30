@@ -719,9 +719,14 @@ function renderPackageSummary(block, variant, options = {}) {
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="package_summary" data-block-variant="${safeVariant}"><div class="uk-container">${title}${subtitle}${grid}${disclaimer}</div></section>`;
 }
 
-function renderFaqItem(item) {
-  const question = `<a class="uk-accordion-title" href="#">${escapeHtml(item.question || '')}</a>`;
-  const answer = item.answer ? `<div class="uk-accordion-content"><p class="uk-margin-remove-top">${escapeHtml(item.answer)}</p></div>` : '';
+function renderFaqItem(block, item, index, context) {
+  const questionAttributes = buildEditableAttributes(block, `data.items.${index}.question`, context);
+  const answerAttributes = buildEditableAttributes(block, `data.items.${index}.answer`, context, { type: 'richtext' });
+  const questionText = escapeHtml(item.question || '');
+  const question = `<a class="uk-accordion-title" href="#"><span${questionAttributes}>${questionText}</span></a>`;
+  const answer = item.answer
+    ? `<div class="uk-accordion-content"><p class="uk-margin-remove-top"${answerAttributes}>${escapeHtml(item.answer)}</p></div>`
+    : '';
   return `<li>${question}${answer}</li>`;
 }
 
@@ -733,11 +738,12 @@ function renderFaq(block, options = {}) {
     : '';
   const items = Array.isArray(block.data?.items) ? block.data.items : [];
   const accordionItems = items.length
-    ? items.map(item => renderFaqItem(item)).join('')
+    ? items.map((item, index) => renderFaqItem(block, item, index, context)).join('')
     : '<li><div class="uk-alert-warning" role="alert">Keine Fragen hinterlegt.</div></li>';
   const followUpData = block.data?.followUp;
+  const followUpLinkLabel = followUpData?.linkLabel || followUpData?.text || 'Mehr erfahren';
   const followUpLink = followUpData?.href
-    ? `<a class="uk-link-heading" href="${escapeAttribute(followUpData.href)}">${escapeHtml(followUpData.linkLabel || followUpData.text || 'Mehr erfahren')}</a>`
+    ? `<a class="uk-link-heading" href="${escapeAttribute(followUpData.href)}"><span${buildEditableAttributes(block, 'data.followUp.linkLabel', context)}>${escapeHtml(followUpLinkLabel)}</span></a>`
     : '';
   const followUpText = followUpData?.text
     ? `<span class="uk-text-muted"${buildEditableAttributes(block, 'data.followUp.text', context)}>${escapeHtml(followUpData.text)}</span>`
