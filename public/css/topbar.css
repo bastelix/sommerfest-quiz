@@ -87,6 +87,10 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   background-color: var(--drop-bg, var(--bg-surface));
   color: var(--drop-color, var(--text-primary));
 }
+.uk-offcanvas-bar .uk-offcanvas-title,
+#qr-offcanvas .uk-offcanvas-title{
+  color: var(--drop-color, var(--text-primary));
+}
 .uk-offcanvas-bar .uk-nav-header,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-header,
 .uk-offcanvas-bar .uk-nav.uk-nav-divider{
@@ -116,8 +120,19 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   background-color: var(--bg-accent-soft);
   color: var(--text-primary);
 }
-.uk-offcanvas-bar h3 {
+#qr-offcanvas .uk-form-label,
+#qr-offcanvas .uk-text-meta,
+#qr-offcanvas .uk-select,
+.uk-offcanvas-bar h3,
+.uk-offcanvas-bar .uk-text-meta {
   color: var(--drop-color, var(--text-primary));
+}
+#qr-offcanvas .uk-select {
+  background-color: var(--bg-surface);
+  border-color: var(--border-muted);
+}
+#qr-offcanvas .uk-select:focus {
+  box-shadow: 0 0 0 3px var(--topbar-focus-ring, var(--accent-primary));
 }
 .git-btn{
   width:var(--topbar-height);
