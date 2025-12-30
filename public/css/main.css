@@ -1934,6 +1934,16 @@ body.admin-page {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.layout-style-card__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
 }
 
 .layout-preview {
@@ -2072,6 +2082,24 @@ body.admin-page {
   height: 10px;
   border-radius: 999px;
   background: #c7d2fe;
+}
+
+.layout-style-picker--appearance {
+  position: static;
+  z-index: 2;
+  gap: 10px;
+}
+
+.layout-style-picker__options--appearance {
+  position: static;
+  z-index: 1;
+  min-height: 0;
+  gap: 8px;
+}
+
+.page-editor .content-editor-body,
+.page-editor [data-block-editor="true"] {
+  min-height: 0;
 }
 
 .layout-preview__accordion {
