@@ -18,6 +18,7 @@ const BLOCK_TYPE_LABELS = {
   stat_strip: 'Kennzahlen',
   audience_spotlight: 'Anwendungsfälle',
   package_summary: 'Pakete',
+  contact_form: 'Kontaktformular',
   faq: 'Häufige Fragen',
   system_module: 'Module (alt)',
   case_showcase: 'Referenzen (alt)',
@@ -74,6 +75,10 @@ const VARIANT_LABELS = {
   package_summary: {
     toggle: 'Umschalten',
     'comparison-cards': 'Vergleich'
+  },
+  contact_form: {
+    default: 'Zweispaltig',
+    compact: 'Kompakt'
   },
   faq: {
     accordion: 'Akkordeon'
@@ -450,6 +455,10 @@ const LAYOUT_PREVIEWS = {
   proof: {
     'metric-callout': createMetricCalloutPreview
   },
+  contact_form: {
+    default: () => createSplitPreview({ mediaFirst: false }),
+    compact: () => createColumnsPreview(1)
+  },
   audience_spotlight: {
     tabs: () => createColumnsPreview(1),
     tiles: createIconGridPreview,
@@ -817,6 +826,18 @@ function buildDefaultBlock(type, variant) {
         disclaimer: ''
       }
     }),
+    contact_form: () => ({
+      id: createId(),
+      type: 'contact_form',
+      variant,
+      data: {
+        title: 'Kontakt aufnehmen',
+        intro: 'Stellen Sie Ihre Anfrage, wir melden uns persönlich.',
+        recipient: 'kontakt@example.com',
+        submitLabel: 'Nachricht senden',
+        privacyHint: 'Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.'
+      }
+    }),
     faq: () => ({
       id: createId(),
       type: 'faq',
@@ -1034,6 +1055,22 @@ const SECTION_TEMPLATES = [
         { id: createId(), title: 'Fallbeispiel 1', lead: 'Kurzer Kontext.', body: 'Beschreiben Sie das Ergebnis.', bullets: [], keyFacts: [] },
         { id: createId(), title: 'Fallbeispiel 2', lead: 'Kurzer Kontext.', body: 'Beschreiben Sie das Ergebnis.', bullets: [], keyFacts: [] }
       ];
+      return block;
+    }
+  },
+  {
+    id: 'contact-form',
+    label: 'Kontaktformular',
+    description: 'Anfragen mit Einwilligung sicher einsammeln.',
+    type: 'contact_form',
+    variant: 'default',
+    build: variant => {
+      const block = getDefaultBlock('contact_form', variant);
+      block.data.title = 'Noch Fragen? Wir sind für Sie da.';
+      block.data.intro = 'Teilen Sie Ihr Anliegen, wir melden uns mit Vorschlägen für das weitere Vorgehen.';
+      block.data.recipient = 'office@example.com';
+      block.data.submitLabel = 'Anfrage senden';
+      block.data.privacyHint = 'Ich stimme der Verarbeitung meiner Daten gemäß Datenschutz zu.';
       return block;
     }
   },
@@ -1629,11 +1666,65 @@ export class BlockContentEditor {
         return this.buildStatStripForm(block);
       case 'audience_spotlight':
         return this.buildAudienceSpotlightForm(block);
+      case 'contact_form':
+        return this.buildContactForm(block);
       case 'package_summary':
         return this.buildPackageSummaryForm(block);
       default:
         return this.buildGenericJsonForm(block);
     }
+  }
+
+  buildContactForm(block) {
+    const wrapper = document.createElement('div');
+
+    const introSection = createFieldSection('Titel & Einleitung', 'Leitet das Formular ein.');
+    introSection.append(
+      this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value))
+    );
+    introSection.append(
+      this.addLabeledInput('Einleitung', block.data.intro, value => this.updateBlockData(block.id, ['data', 'intro'], value), {
+        multiline: true,
+        rows: 3,
+        placeholder: 'Kurzer Satz zum Ziel des Formulars'
+      })
+    );
+
+    const settingsSection = createFieldSection('Formularoptionen', 'Legt Empfänger und Beschriftungen fest.');
+    settingsSection.append(
+      this.addLabeledInput(
+        'Empfänger (E-Mail)',
+        block.data.recipient,
+        value => this.updateBlockData(block.id, ['data', 'recipient'], value),
+        {
+          type: 'email',
+          placeholder: 'kontakt@example.com'
+        }
+      )
+    );
+    settingsSection.append(
+      this.addLabeledInput(
+        'Button-Text',
+        block.data.submitLabel,
+        value => this.updateBlockData(block.id, ['data', 'submitLabel'], value),
+        { placeholder: 'z. B. Nachricht senden' }
+      )
+    );
+    settingsSection.append(
+      this.addLabeledInput(
+        'Hinweis zur Einwilligung',
+        block.data.privacyHint,
+        value => this.updateBlockData(block.id, ['data', 'privacyHint'], value),
+        {
+          multiline: true,
+          rows: 2,
+          placeholder: 'z. B. Zustimmung zur Datenverarbeitung'
+        }
+      )
+    );
+
+    wrapper.append(introSection, settingsSection);
+    return wrapper;
   }
 
   buildPackageSummaryForm(block) {
@@ -2756,6 +2847,8 @@ export class BlockContentEditor {
         return block.data.title || block.data.plans?.[0]?.title || block.data.options?.[0]?.title || '';
       case 'faq':
         return block.data.title || block.data.items?.[0]?.question || '';
+      case 'contact_form':
+        return block.data.title || block.data.intro || '';
       default:
         return '';
     }
