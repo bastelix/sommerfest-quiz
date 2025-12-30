@@ -1,0 +1,207 @@
+{
+  "meta": {
+    "namespace": "marketing",
+    "slug": "quizrace",
+    "title": "QuizRace – Live-Quiz für Teams",
+    "schemaVersion": "block-contract-v1"
+  },
+  "blocks": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "media-right",
+      "data": {
+        "eyebrow": "Ohne App, sofort spielbar",
+        "headline": "QuizRace verbindet Teams in Echtzeit.",
+        "subheadline": "Live-Ranking, QR-Stationen und Moderation aus einem Dashboard – ideal für Sommerfeste, Teamevents und Bildungsrallyes.",
+        "cta": {
+          "primary": {
+            "label": "Demo ansehen",
+            "href": "https://quizrace.app/?katalog=station"
+          },
+          "secondary": {
+            "label": "Live-Dashboard öffnen",
+            "href": "https://quizrace.app/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-proof",
+      "type": "stat_strip",
+      "variant": "three-up",
+      "data": {
+        "metrics": [
+          {
+            "id": "participants",
+            "value": "> 25.000",
+            "label": "mitspielende Personen",
+            "benefit": "Getestet bei Stadtfesten, Firmenfeiern und Bildungsprojekten."
+          },
+          {
+            "id": "events",
+            "value": "420",
+            "label": "Events & Live-Runden",
+            "benefit": "Von Rallye bis Escape-Quiz – alles im Browser steuerbar."
+          },
+          {
+            "id": "setup",
+            "value": "unter 10 Min",
+            "label": "Startklar",
+            "benefit": "QR-Codes scannen, Teams wählen, Ranking läuft." 
+          }
+        ],
+        "marquee": [
+          "DSGVO-konform gehostet in Deutschland",
+          "Keine App-Installation notwendig",
+          "Drag-and-drop Editor für Aufgaben",
+          "Live-Ranking & Teamstatus",
+          "QR-Sticker für Stationen"
+        ]
+      }
+    },
+    {
+      "id": "how-it-works",
+      "type": "process_steps",
+      "variant": "timeline",
+      "data": {
+        "title": "So funktioniert QuizRace",
+        "intro": "Die alte QuizRace-Landingpage zeigte einen schnellen Ablauf – diese Version fasst ihn für den Page-Editor zusammen.",
+        "steps": [
+          {
+            "id": "idea",
+            "title": "Idee & Aufbau",
+            "description": "Rallye, Escape-Quiz oder Team-Challenge planen. Aufgaben im Editor anlegen oder aus Katalogen übernehmen."
+          },
+          {
+            "id": "stations",
+            "title": "Stationen markieren",
+            "description": "QR-Sticker platzieren, Teams scannen ein und lösen Fragen direkt im Browser – ohne Login und ohne App."
+          },
+          {
+            "id": "live",
+            "title": "Live auswerten",
+            "description": "Punkte, Zeitboni und Teamstatus fließen automatisch ins Live-Ranking. Moderation erfolgt aus dem Dashboard."
+          }
+        ],
+        "closing": {
+          "title": "Fertig für Sommerfest, Unterricht oder Messe",
+          "body": "QuizRace bleibt leichtgewichtig: Browser-Link teilen, Spiel starten, Live-Ergebnisse projizieren oder auf dem Smartphone anzeigen."
+        },
+        "ctaPrimary": {
+          "label": "Live-Dashboard testen",
+          "href": "https://quizrace.app/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
+        },
+        "ctaSecondary": {
+          "label": "QR-Station scannen",
+          "href": "https://quizrace.app/?katalog=station"
+        }
+      }
+    },
+    {
+      "id": "features",
+      "type": "feature_list",
+      "variant": "detailed-cards",
+      "data": {
+        "eyebrow": "Highlights der alten QuizRace-Page",
+        "title": "Alles für schnelle Live-Events",
+        "lead": "Die Inhalte stammen aus der bisherigen QuizRace-Marketingseite und sind bereit für den Block-Editor.",
+        "items": [
+          {
+            "id": "editor",
+            "title": "Aufgaben & Medien",
+            "description": "Aufgaben verwalten, Medien hochladen und Reihenfolgen per Drag-and-drop steuern.",
+            "features": [
+              "Aufgabenbibliothek mit Kategorien",
+              "Bild, Audio und Video einbetten",
+              "Flexible Punkte- und Zeitlogik"
+            ],
+            "primaryCta": {
+              "label": "Editor öffnen",
+              "href": "https://quizrace.app"
+            }
+          },
+          {
+            "id": "dashboard",
+            "title": "Live-Dashboard",
+            "badge": "Teamfokus",
+            "description": "Ranking, Teamstatus und Moderation in einem Interface – optimiert für Großbild und Mobile.",
+            "features": [
+              "Live-Ranking mit Bonus-Regeln",
+              "Status je Team: unterwegs, gelöst, pausiert",
+              "Moderationsaktionen wie Hint, Freeze, Bonuspunkte"
+            ],
+            "primaryCta": {
+              "label": "Dashboard starten",
+              "href": "https://quizrace.app/event/98e5abe1-f80a-4241-8d03-a154ae2f6cb0/dashboard/kqVk1ZTLLBoKdxw0VDwFrcV9"
+            }
+          },
+          {
+            "id": "stickers",
+            "title": "QR-Stationen",
+            "description": "Stationen mit QR-Stickern oder NFC-Tags markieren – Scans öffnen automatisch die passende Aufgabe.",
+            "features": [
+              "Stationen drucken oder digital teilen",
+              "Optionaler Zeitbonus je Fundstelle",
+              "Funktioniert offline nach dem Scannen"
+            ],
+            "primaryCta": {
+              "label": "QR-Vorlagen",
+              "href": "https://quizrace.app/uploads/landing/quizrace-shot-frontend.webp"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "faq",
+      "type": "faq",
+      "variant": "accordion",
+      "data": {
+        "title": "Häufige Fragen",
+        "items": [
+          {
+            "id": "faq-login",
+            "question": "Brauchen Teams einen Account?",
+            "answer": "Nein. Teams scannen einen QR-Code, wählen ihren Namen und spielen direkt im Browser."
+          },
+          {
+            "id": "faq-setup",
+            "question": "Wie lang dauert das Setup?",
+            "answer": "Mit fertigen Katalogaufgaben bist du in wenigen Minuten startklar; eigene Fragen können importiert werden."
+          },
+          {
+            "id": "faq-devices",
+            "question": "Welche Geräte unterstützen wir?",
+            "answer": "QuizRace läuft auf Smartphones, Tablets und Laptops. Das Live-Dashboard funktioniert auf TV/Beamer."
+          },
+          {
+            "id": "faq-data",
+            "question": "Wo liegen die Daten?",
+            "answer": "Der Dienst läuft in Deutschland und ist DSGVO-konform. Exporte für Auswertungen sind jederzeit möglich."
+          }
+        ],
+        "followUp": {
+          "text": "Weitere Details aus der alten Landingpage benötigt?",
+          "linkLabel": "Kontakt aufnehmen",
+          "href": "mailto:support@quizrace.app"
+        }
+      }
+    },
+    {
+      "id": "closing-cta",
+      "type": "cta",
+      "variant": "split",
+      "data": {
+        "primary": {
+          "label": "Demo spielen",
+          "href": "https://quizrace.app/?event=98e5abe1-f80a-4241-8d03-a154ae2f6cb0&katalog=DFB-QUIZ"
+        },
+        "secondary": {
+          "label": "Mit Team sprechen",
+          "href": "https://www.quizrace.app"
+        }
+      }
+    }
+  ]
+}
