@@ -22,6 +22,7 @@ export class PreviewCanvas {
     this.onSelect = typeof options.onSelect === 'function' ? options.onSelect : noop;
     this.onInlineEdit = typeof options.onInlineEdit === 'function' ? options.onInlineEdit : null;
     this.renderSelectionOnly = options.renderSelectionOnly === true;
+    this.intent = ['preview', 'design'].includes(options.intent) ? options.intent : 'edit';
     this.blocks = [];
     this.highlightBlockId = null;
     this.hoverBlockId = null;
@@ -76,6 +77,20 @@ export class PreviewCanvas {
     this.applySelectionHighlight();
   }
 
+  setIntent(intent = 'edit') {
+    const allowed = ['edit', 'preview', 'design'];
+    const normalized = allowed.includes(intent) ? intent : 'edit';
+    if (this.intent === normalized) {
+      return;
+    }
+    this.intent = normalized;
+    if (this.intent !== 'edit') {
+      this.finishInlineEdit(false);
+      this.setHoverBlock(null);
+    }
+    this.applySelectionHighlight();
+  }
+
   setHoverBlock(blockId = null) {
     this.hoverBlockId = blockId && this.blockIds.has(blockId) ? blockId : null;
     this.applySelectionHighlight();
@@ -123,6 +138,9 @@ export class PreviewCanvas {
   handleEditableClick(event) {
     const target = event.target.closest('[data-editable="true"]');
     if (!target || !this.surface.contains(target)) {
+      return;
+    }
+    if (this.intent !== 'edit') {
       return;
     }
     const previewPane = this.root.closest('[data-preview-pane]');
@@ -210,11 +228,12 @@ export class PreviewCanvas {
   }
 
   applySelectionHighlight() {
+    const shouldHighlight = this.intent === 'edit';
     const selectable = this.surface.querySelectorAll('[data-block-id]');
     selectable.forEach(el => {
       el.removeAttribute('data-preview-selected');
       el.removeAttribute('data-preview-hover');
-      if (el.classList.contains('page-preview-empty')) {
+      if (!shouldHighlight || el.classList.contains('page-preview-empty')) {
         return;
       }
       const value = el.getAttribute('data-block-id');

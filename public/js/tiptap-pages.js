@@ -287,12 +287,46 @@ const ensurePreviewSlots = form => {
     });
   };
 
+  const getAssociatedForm = () => layout.closest('form');
+
+  const toggleFormActions = mode => {
+    const form = getAssociatedForm();
+    if (!form) {
+      return;
+    }
+    const isEdit = mode === 'edit';
+    form.querySelectorAll('[data-editor-actions="true"]').forEach(group => {
+      group.hidden = !isEdit;
+    });
+  };
+
+  const syncPreviewIntent = mode => {
+    const intent = mode === 'design' ? 'design' : (mode === 'preview' ? 'preview' : 'edit');
+    previewPane.dataset.previewIntent = intent;
+
+    const binding = blockPreviewBindings.get(getAssociatedForm());
+    if (binding?.preview?.setIntent) {
+      binding.preview.setIntent(intent);
+    }
+    if (intent !== 'edit') {
+      binding?.preview?.finishInlineEdit?.(false);
+      binding?.preview?.setHoverBlock?.(null);
+      binding?.previewBridge?.clearHighlight?.();
+      binding?.preview?.applySelectionHighlight?.();
+    }
+  };
+
   const applyEditorMode = mode => {
     const normalized = editorModes.some(item => item.id === mode) ? mode : 'edit';
     layout.dataset.editorMode = normalized;
 
     const showPreview = normalized !== 'edit';
     previewPane.hidden = !showPreview;
+    previewActions.hidden = !showPreview;
+    previewModeToggle.hidden = !showPreview;
+    fullWidthToggle.hidden = !showPreview;
+
+    fullWidthToggle.disabled = normalized === 'design';
 
     if (normalized === 'design') {
       setPreviewExpanded(true);
@@ -304,6 +338,10 @@ const ensurePreviewSlots = form => {
       setPreviewExpanded(false);
     }
 
+    previewReturnButton.hidden = previewPane.dataset.previewExpanded !== 'true' || normalized === 'edit';
+    previewCloseButton.hidden = previewPane.dataset.previewExpanded !== 'true' || normalized === 'edit';
+    toggleFormActions(normalized);
+    syncPreviewIntent(normalized);
     updateModeButtons(normalized);
   };
 
@@ -451,7 +489,8 @@ const attachBlockPreview = (form, editor) => {
           editor.selectBlock(blockId);
         }
       },
-      onInlineEdit: payload => (typeof editor.applyInlineEdit === 'function' ? editor.applyInlineEdit(payload) : false)
+      onInlineEdit: payload => (typeof editor.applyInlineEdit === 'function' ? editor.applyInlineEdit(payload) : false),
+      intent: slots.previewPane?.dataset.previewIntent || 'edit'
     });
   } catch (error) {
     notify(error?.message || 'Live-Vorschau konnte nicht initialisiert werden.', 'warning');
@@ -1995,6 +2034,7 @@ const buildPageForm = page => {
 
   const actions = document.createElement('div');
   actions.className = 'uk-margin-top';
+  actions.dataset.editorActions = 'true';
 
   const saveBtn = document.createElement('button');
   saveBtn.className = 'uk-button uk-button-primary save-page-btn';
