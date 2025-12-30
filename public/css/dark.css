@@ -229,15 +229,15 @@ body .uk-icon-button.uk-button-primary {
 
 /* Active state for navigation items in dark off-canvas menus */
 .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: var(--qr-fg);
+  background-color: var(--bg-accent-soft);
+  color: var(--text-primary);
 }
 
 /* Active state for navigation items in dark mode */
 body .uk-navbar-nav > li.uk-active > a,
 body .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: var(--qr-fg);
+  background-color: var(--bg-accent-soft);
+  color: var(--text-primary);
 }
 
 /* Styles fuer QR-Scan-Popup im Dunkelmodus */
@@ -567,15 +567,15 @@ body[data-theme="dark"] .uk-icon-button.uk-button-primary {
 
 /* Active state for navigation items in dark off-canvas menus */
 .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: var(--qr-fg);
+  background-color: var(--bg-accent-soft);
+  color: var(--text-primary);
 }
 
 /* Active state for navigation items in dark mode */
 body[data-theme="dark"] .uk-navbar-nav > li.uk-active > a,
 body[data-theme="dark"] .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: var(--qr-fg);
+  background-color: var(--bg-accent-soft);
+  color: var(--text-primary);
 }
 
 /* Styles fuer QR-Scan-Popup im Dunkelmodus */

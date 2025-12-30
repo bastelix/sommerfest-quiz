@@ -286,7 +286,7 @@ body.uk-padding {
   right: 0;
   min-height: var(--topbar-height, 48px);
   padding: 0 0.5rem;
-  background: var(--topbar-bg, var(--color-bg, #fff));
+  background: var(--topbar-bg, var(--bg-card, #fff));
   box-sizing: border-box;
   z-index: 1000;
   display: flex;
@@ -310,7 +310,7 @@ body.uk-padding {
 
 .uk-icon-button {
   border-radius: 6px;
-  border: 1px solid var(--topbar-btn-border, #ddd);
+  border: 1px solid var(--topbar-btn-border, var(--border-muted, #ddd));
 }
 
 .topbar .uk-navbar-item,
@@ -320,7 +320,7 @@ body.uk-padding {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--topbar-fg, #111827);
+  color: var(--topbar-text, var(--text-primary));
 }
 
 .topbar .uk-navbar-item,
@@ -336,7 +336,7 @@ body.uk-padding {
 [data-theme="dark"] .topbar .uk-navbar-item,
 [data-theme="dark"] .topbar .uk-navbar-nav > li > a,
 [data-theme="dark"] .topbar .uk-navbar-toggle {
-  color: var(--topbar-fg-dark, #f8fafc);
+  color: var(--topbar-text, var(--text-primary));
 }
 
 .topbar .uk-navbar-toggle.git-btn {
