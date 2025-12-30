@@ -1,17 +1,7 @@
-import { renderBlockSafe } from './block-renderer-matrix.js';
+import { renderPage as renderWithMatrix } from './block-renderer-matrix.js';
 
-const PREVIEW_CONTEXT = 'preview';
-
-function resolveContext(context) {
-  return context === PREVIEW_CONTEXT ? PREVIEW_CONTEXT : 'frontend';
-}
-
-export function renderPage(blocks = [], options = {}) {
-  const context = resolveContext(options.context);
-  const renderOptions = { ...options, context };
-  return (Array.isArray(blocks) ? blocks : [])
-    .map(block => renderBlockSafe(block, renderOptions))
-    .join('\n');
-}
+// Thin compatibility wrapper that forwards all rendering to the shared
+// block renderer matrix so preview and frontend stay in sync.
+export const renderPage = (blocks = [], options = {}) => renderWithMatrix(blocks, options);
 
 export const PageRenderer = { renderPage };

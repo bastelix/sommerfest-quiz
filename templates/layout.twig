@@ -185,11 +185,10 @@
     if (blockRoot && blockRoot.dataset.pageBlocks) {
       const blocks = parseBlocks(blockRoot.dataset.pageBlocks);
       Promise.all([
-        import(`${basePath}/js/components/page-renderer.js`),
         import(`${basePath}/js/components/block-renderer-matrix.js`),
       ])
-        .then(([renderer, matrix]) => {
-          const html = renderer.renderPage(Array.isArray(blocks) ? blocks : [], {
+        .then(([matrix]) => {
+          const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
             rendererMatrix: matrix.RENDERER_MATRIX,
             context: 'frontend',
           });
