@@ -77,14 +77,19 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
 
 /* Dropdown/Offcanvas */
 .uk-dropdown, .uk-drop, .uk-offcanvas-bar{
-  background: var(--drop-bg, var(--bg-card));
+  background-color: var(--drop-bg, var(--bg-surface));
   color: var(--drop-color, var(--topbar-text, var(--text-primary)));
   border: 1px solid var(--drop-border, var(--border-muted));
 }
 .uk-offcanvas-bar{
   --uk-inverse: unset;
   --drop-color: var(--text-primary);
-  background: var(--drop-bg, var(--bg-card));
+  background-color: var(--drop-bg, var(--bg-surface));
+  color: var(--drop-color, var(--text-primary));
+}
+.uk-offcanvas-bar .uk-offcanvas-title,
+#qr-offcanvas .uk-offcanvas-title{
+  color: var(--drop-color, var(--text-primary));
 }
 .uk-offcanvas-bar .uk-nav-header,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-header,
@@ -103,7 +108,7 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:hover,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:focus,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:active {
-  background: var(--bg-accent-soft);
+  background-color: var(--bg-accent-soft);
   color: var(--text-primary);
 }
 .uk-offcanvas-bar .uk-nav-default>li>a:focus-visible,
@@ -111,8 +116,23 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   outline: 2px solid var(--accent-primary);
   outline-offset: 2px;
 }
-.uk-offcanvas-bar h3 {
+.uk-offcanvas-bar .uk-nav-default>li.uk-active>a {
+  background-color: var(--bg-accent-soft);
+  color: var(--text-primary);
+}
+#qr-offcanvas .uk-form-label,
+#qr-offcanvas .uk-text-meta,
+#qr-offcanvas .uk-select,
+.uk-offcanvas-bar h3,
+.uk-offcanvas-bar .uk-text-meta {
   color: var(--drop-color, var(--text-primary));
+}
+#qr-offcanvas .uk-select {
+  background-color: var(--bg-surface);
+  border-color: var(--border-muted);
+}
+#qr-offcanvas .uk-select:focus {
+  box-shadow: 0 0 0 3px var(--topbar-focus-ring, var(--accent-primary));
 }
 .git-btn{
   width:var(--topbar-height);

@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
   syncDarkStylesheet();
 
   document.body.dataset.theme = dark ? 'dark' : 'light';
+  document.documentElement.dataset.theme = document.body.dataset.theme;
   document.body.classList.toggle('dark-mode', dark);
   if (uikitStylesheet) {
     if (isLaborLanding) {
@@ -235,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault();
       dark = document.body.dataset.theme !== 'dark';
       document.body.dataset.theme = dark ? 'dark' : 'light';
+      document.documentElement.dataset.theme = document.body.dataset.theme;
       document.body.classList.toggle('dark-mode', dark);
       if (uikitStylesheet) {
         if (isLaborLanding) {

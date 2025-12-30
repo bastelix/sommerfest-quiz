@@ -2,6 +2,7 @@
   --bg-page: #f7f9fb;
   --bg-section: #ffffff;
   --bg-card: #ffffff;
+  --bg-surface: var(--bg-card);
   --bg-subtle: #f8fafc;
   --bg-muted: #eef2f7;
   --bg-accent-soft: #f0f7ff;
@@ -30,6 +31,7 @@
   --bg-page: #0e1218;
   --bg-section: #111827;
   --bg-card: #161b22;
+  --bg-surface: var(--bg-card);
   --bg-subtle: #0f172a;
   --bg-muted: #0b1018;
   --bg-accent-soft: rgba(99, 164, 255, 0.12);
