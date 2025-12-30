@@ -715,6 +715,51 @@ function validateTokens(tokens) {
   return Object.entries(tokens).every(([key, value]) => TOKEN_ENUMS[key]?.includes(value));
 }
 
+function hasContent(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function validateHeroData(data) {
+  if (!hasContent(data?.headline)) {
+    return false;
+  }
+
+  const cta = data?.cta ?? {};
+  if (hasContent(cta.label) && hasContent(cta.href)) {
+    return true;
+  }
+
+  if (hasContent(cta.primary?.label) && hasContent(cta.primary?.href)) {
+    return true;
+  }
+
+  return false;
+}
+
+function validateFeatureListData(data) {
+  if (!hasContent(data?.title) || !Array.isArray(data?.items) || data.items.length === 0) {
+    return false;
+  }
+
+  return data.items.every(item => hasContent(item?.id) && hasContent(item?.title) && hasContent(item?.description));
+}
+
+function validateProcessStepsData(data) {
+  if (!hasContent(data?.title) || !Array.isArray(data?.steps) || data.steps.length < 2) {
+    return false;
+  }
+
+  return data.steps.every(step => hasContent(step?.id) && hasContent(step?.title) && hasContent(step?.description));
+}
+
+const DATA_VALIDATORS = {
+  hero: validateHeroData,
+  feature_list: validateFeatureListData,
+  process_steps: validateProcessStepsData,
+  testimonial: data => hasContent(data?.quote) && hasContent(data?.author?.name),
+  rich_text: data => hasContent(data?.body)
+};
+
 export function normalizeVariant(type, variant) {
   if (typeof variant !== 'string') {
     return variant;
@@ -739,6 +784,11 @@ export function validateBlockContract(block) {
   }
   if (!isPlainObject(block.data)) {
     return { valid: false, reason: 'Block data must be an object' };
+  }
+
+  const validator = DATA_VALIDATORS[block.type];
+  if (validator && !validator(block.data)) {
+    return { valid: false, reason: 'Block data is missing required fields' };
   }
   if (!validateTokens(block.tokens)) {
     return { valid: false, reason: 'Tokens must match allowed design tokens' };
