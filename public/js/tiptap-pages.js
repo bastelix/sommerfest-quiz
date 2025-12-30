@@ -131,7 +131,9 @@ const ensurePreviewSlots = form => {
     return {
       layout,
       previewRoot: layout.querySelector('[data-preview-canvas="true"]'),
-      editorPane: layout.querySelector('[data-editor-pane="true"]')
+      editorPane: layout.querySelector('[data-editor-pane="true"]'),
+      previewPane: layout.querySelector('[data-preview-pane="true"]'),
+      previewViewport: layout.querySelector('[data-preview-viewport="true"]')
     };
   }
 
@@ -148,13 +150,43 @@ const ensurePreviewSlots = form => {
   previewPane.className = 'page-preview-pane';
   previewPane.dataset.previewMode = 'desktop';
 
+  const previewHeader = document.createElement('div');
+  previewHeader.className = 'page-preview-header';
+
   const previewTitle = document.createElement('div');
   previewTitle.className = 'page-preview-title';
   previewTitle.textContent = 'Live-Vorschau';
 
+  const previewCloseButton = document.createElement('button');
+  previewCloseButton.type = 'button';
+  previewCloseButton.className = 'page-preview-close';
+  previewCloseButton.dataset.previewClose = 'true';
+  previewCloseButton.setAttribute('aria-label', 'Vorschau schließen');
+  previewCloseButton.textContent = '×';
+  previewCloseButton.hidden = true;
+
+  previewHeader.append(previewTitle, previewCloseButton);
+
+  const previewActions = document.createElement('div');
+  previewActions.className = 'page-preview-actions';
+
   const previewModeToggle = document.createElement('div');
   previewModeToggle.className = 'page-preview-mode-toggle';
   previewModeToggle.dataset.previewModeToggle = 'true';
+
+  const fullWidthToggle = document.createElement('button');
+  fullWidthToggle.type = 'button';
+  fullWidthToggle.className = 'uk-button page-preview-fullwidth-toggle';
+  fullWidthToggle.textContent = '⛶ Vorschau maximieren';
+  fullWidthToggle.dataset.previewFullwidthToggle = 'true';
+  fullWidthToggle.setAttribute('aria-pressed', 'false');
+
+  const previewReturnButton = document.createElement('button');
+  previewReturnButton.type = 'button';
+  previewReturnButton.className = 'uk-button uk-button-default page-preview-return';
+  previewReturnButton.textContent = 'Zurück zur Bearbeitung';
+  previewReturnButton.hidden = true;
+  previewReturnButton.dataset.previewReturn = 'true';
 
   const previewModeHint = document.createElement('div');
   previewModeHint.className = 'page-preview-mode-hint';
@@ -197,15 +229,84 @@ const ensurePreviewSlots = form => {
     previewModeToggle.append(button);
   });
 
+  previewActions.append(previewModeToggle, fullWidthToggle, previewReturnButton);
   previewViewport.append(previewRoot);
 
-  previewPane.append(previewTitle, previewModeToggle, previewModeHint, previewViewport);
+  previewPane.append(previewHeader, previewActions, previewModeHint, previewViewport);
   layout.append(editorPane, previewPane);
 
   editorEl.parentNode.insertBefore(layout, editorEl);
   editorPane.append(editorEl);
 
-  return { layout, previewRoot, editorPane };
+  return { layout, previewRoot, editorPane, previewPane, previewViewport };
+};
+
+const bindFullWidthPreview = slots => {
+  const { layout, previewPane, previewViewport } = slots || {};
+  if (!layout || !previewPane || !previewViewport) {
+    return null;
+  }
+
+  if (layout.dataset.previewFullWidthBound === '1') {
+    return typeof layout.previewFullWidthCleanup === 'function'
+      ? layout.previewFullWidthCleanup
+      : null;
+  }
+
+  const fullWidthToggle = previewPane.querySelector('[data-preview-fullwidth-toggle="true"]');
+  const previewReturnButton = previewPane.querySelector('[data-preview-return="true"]');
+  const previewCloseButton = previewPane.querySelector('[data-preview-close="true"]');
+
+  const applyExpanded = expanded => {
+    const scrollTop = previewViewport.scrollTop;
+    layout.classList.toggle('is-preview-expanded', expanded);
+    previewPane.classList.toggle('is-preview-expanded', expanded);
+    previewPane.dataset.previewExpanded = expanded ? 'true' : 'false';
+
+    if (fullWidthToggle) {
+      fullWidthToggle.classList.toggle('is-active', expanded);
+      fullWidthToggle.setAttribute('aria-pressed', expanded ? 'true' : 'false');
+    }
+
+    if (previewReturnButton) {
+      previewReturnButton.hidden = !expanded;
+    }
+
+    if (previewCloseButton) {
+      previewCloseButton.hidden = !expanded;
+    }
+
+    window.requestAnimationFrame(() => {
+      previewViewport.scrollTop = scrollTop;
+    });
+  };
+
+  const exitFullWidth = () => applyExpanded(false);
+  const toggleFullWidth = () => applyExpanded(!previewPane.classList.contains('is-preview-expanded'));
+
+  fullWidthToggle?.addEventListener('click', toggleFullWidth);
+  previewReturnButton?.addEventListener('click', exitFullWidth);
+  previewCloseButton?.addEventListener('click', exitFullWidth);
+
+  const handleKeydown = event => {
+    if (event.key === 'Escape' && previewPane.classList.contains('is-preview-expanded')) {
+      exitFullWidth();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeydown);
+
+  const cleanup = () => {
+    document.removeEventListener('keydown', handleKeydown);
+    exitFullWidth();
+    layout.dataset.previewFullWidthBound = '0';
+    delete layout.previewFullWidthCleanup;
+  };
+
+  layout.dataset.previewFullWidthBound = '1';
+  layout.previewFullWidthCleanup = cleanup;
+
+  return cleanup;
 };
 
 const teardownBlockPreview = form => {
@@ -213,7 +314,7 @@ const teardownBlockPreview = form => {
   if (!binding) {
     return;
   }
-  const { editor, preview, restoreRender } = binding;
+  const { editor, preview, restoreRender, teardownFullWidth } = binding;
   if (editor) {
     editor.render = restoreRender;
     if (typeof editor.clearPreviewBridge === 'function') {
@@ -222,6 +323,9 @@ const teardownBlockPreview = form => {
   }
   if (preview && typeof preview.destroy === 'function') {
     preview.destroy();
+  }
+  if (typeof teardownFullWidth === 'function') {
+    teardownFullWidth();
   }
   blockPreviewBindings.delete(form);
 };
@@ -241,6 +345,7 @@ const attachBlockPreview = (form, editor) => {
     return null;
   }
 
+  const teardownFullWidth = bindFullWidthPreview(slots);
   let preview = null;
 
   try {
@@ -284,7 +389,7 @@ const attachBlockPreview = (form, editor) => {
 
   sync();
 
-  const binding = { preview, sync, restoreRender: originalRender, editor, previewBridge };
+  const binding = { preview, sync, restoreRender: originalRender, editor, previewBridge, teardownFullWidth };
   blockPreviewBindings.set(form, binding);
   return binding;
 };
