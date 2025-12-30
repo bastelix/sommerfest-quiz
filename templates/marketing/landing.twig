@@ -72,7 +72,7 @@
     } %}
 
     <div class="landing-page-content">
-      {{ content|raw }}
+      {% include 'marketing/partials/block-content.twig' %}
     </div>
     {% include 'marketing/partials/page-modules.twig' with {
       modules: pageModules['after-content']|default([]),

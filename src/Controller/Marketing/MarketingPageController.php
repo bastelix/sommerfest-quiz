@@ -32,11 +32,14 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Twig\Error\LoaderError;
 
+use function array_key_exists;
 use function dirname;
 use function file_get_contents;
 use function html_entity_decode;
 use function htmlspecialchars;
+use function is_array;
 use function is_readable;
+use function json_decode;
 use function max;
 use function preg_replace;
 use function rawurlencode;
@@ -256,6 +259,7 @@ class MarketingPageController
 
         $data = [
             'content' => $html,
+            'pageBlocks' => $this->extractPageBlocks($html),
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),
@@ -350,11 +354,30 @@ class MarketingPageController
             $data['laborAssets'] = $this->buildLaborAssetUrls($basePath);
         }
 
+        $response = $response->withHeader('Content-Type', 'text/html; charset=UTF-8');
         try {
             return $view->render($response, $template, $data);
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    /**
+     * @return array<int, mixed>|null
+     */
+    private function extractPageBlocks(string $content): ?array
+    {
+        $decoded = json_decode($content, true);
+        if (!is_array($decoded)) {
+            return null;
+        }
+
+        $blocks = array_key_exists('blocks', $decoded) ? $decoded['blocks'] : $decoded;
+        if (!is_array($blocks)) {
+            return null;
+        }
+
+        return $blocks;
     }
 
     private function buildMaintenanceWindowLabel(string $locale): string
