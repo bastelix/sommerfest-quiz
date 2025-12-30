@@ -5,14 +5,15 @@
   --bg-surface: var(--bg-card);
   --bg-subtle: #f8fafc;
   --bg-muted: #eef2f7;
-  --bg-accent-soft: #f0f7ff;
+  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #1e87f0)) 16%, transparent);
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --border-muted: #dfe3eb;
-  --accent-primary: #1e87f0;
+  --accent-primary: var(--brand-primary, #1e87f0);
+  --accent-secondary: var(--brand-accent, var(--brand-primary, #1e87f0));
 
   --primary-color: var(--accent-primary);
-  --accent-color: var(--accent-primary);
+  --accent-color: var(--accent-secondary);
   --color-bg: var(--bg-page);
   --color-primary: var(--accent-primary);
   --color-text: var(--text-primary);
@@ -34,14 +35,15 @@
   --bg-surface: var(--bg-card);
   --bg-subtle: #0f172a;
   --bg-muted: #0b1018;
-  --bg-accent-soft: rgba(99, 164, 255, 0.12);
+  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #63a4ff)) 18%, transparent);
   --text-primary: #e5e7eb;
   --text-secondary: #cbd5e1;
   --border-muted: #2c3a4b;
-  --accent-primary: #63a4ff;
+  --accent-primary: var(--brand-primary, #63a4ff);
+  --accent-secondary: var(--brand-accent, var(--brand-primary, #63a4ff));
 
   --primary-color: var(--accent-primary);
-  --accent-color: var(--accent-primary);
+  --accent-color: var(--accent-secondary);
   --color-bg: var(--bg-page);
   --color-primary: var(--accent-primary);
   --color-text: var(--text-primary);
