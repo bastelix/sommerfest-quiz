@@ -9,6 +9,7 @@ use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\ConfigService;
 use App\Service\DesignTokenService;
+use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceValidator;
@@ -40,7 +41,12 @@ class PagesDesignController
         $designService = $this->getDesignService($request);
         $tokens = $designService->getTokensForNamespace($namespace);
         $defaults = $designService->getDefaults();
+        $effectsService = new EffectsPolicyService($this->configService);
+        $effectsDefaults = $effectsService->getDefaults();
+        $effects = $effectsService->getEffectsForNamespace($namespace);
         $role = (string) ($_SESSION['user']['role'] ?? '');
+        $canAccessBehavior = $role !== Roles::REDAKTEUR;
+        $activeTab = $this->resolveActiveTab($request, $canAccessBehavior);
 
         $flash = $_SESSION['page_design_flash'] ?? null;
         unset($_SESSION['page_design_flash']);
@@ -48,18 +54,25 @@ class PagesDesignController
         return $view->render($response, 'admin/pages/design.twig', [
             'role' => $role,
             'readOnly' => !$this->isEditRole($role),
+            'effectsReadOnly' => !$this->isEditRole($role),
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
             'tokens' => $tokens,
             'tokenDefaults' => $defaults,
+            'effects' => $effects,
+            'effectsDefaults' => $effectsDefaults,
+            'effectsProfiles' => $effectsService->getProfiles(),
+            'hasSliderBlocks' => $effectsService->hasSliderBlocks(),
             'layoutProfiles' => $designService->getLayoutProfiles(),
             'typographyPresets' => $designService->getTypographyPresets(),
             'cardStyles' => $designService->getCardStyles(),
             'buttonStyles' => $designService->getButtonStyles(),
+            'activeTab' => $activeTab,
             'csrf_token' => $this->ensureCsrfToken(),
             'flash' => $flash,
+            'canAccessBehavior' => $canAccessBehavior,
         ]);
     }
 
@@ -84,11 +97,16 @@ class PagesDesignController
         $designService = $this->getDesignService($request);
         $defaults = $designService->getDefaults();
         $currentTokens = $designService->getTokensForNamespace($namespace);
+        $effectsService = new EffectsPolicyService($this->configService);
         $action = strtolower(trim((string) ($parsedBody['action'] ?? 'save')));
 
         if ($action === 'reset_all') {
             $designService->resetToDefaults($namespace);
             $message = 'Design auf Standard zurückgesetzt.';
+        } elseif ($action === 'save_effects') {
+            $effects = $this->extractEffects($parsedBody);
+            $effectsService->persist($namespace, $effects);
+            $message = 'Verhalten-Einstellungen gespeichert.';
         } else {
             $incoming = $this->extractTokens($parsedBody);
             $tokensToPersist = $currentTokens;
@@ -123,7 +141,7 @@ class PagesDesignController
         ];
 
         return $response
-            ->withHeader('Location', $this->buildRedirectUrl($request, $namespace))
+            ->withHeader('Location', $this->buildRedirectUrl($request, $namespace, $action === 'save_effects' ? 'behavior' : null))
             ->withStatus(303);
     }
 
@@ -135,12 +153,27 @@ class PagesDesignController
         return $csrf;
     }
 
-    private function buildRedirectUrl(Request $request, string $namespace): string
+    private function buildRedirectUrl(Request $request, string $namespace, ?string $tab = null): string
     {
         $basePath = RouteContext::fromRequest($request)->getBasePath();
-        $query = http_build_query(['namespace' => $namespace]);
+        $queryData = ['namespace' => $namespace];
+        if ($tab !== null) {
+            $queryData['tab'] = $tab;
+        }
+
+        $query = http_build_query($queryData);
 
         return $basePath . '/admin/pages/design' . ($query !== '' ? '?' . $query : '');
+    }
+
+    private function resolveActiveTab(Request $request, bool $canAccessBehavior): string
+    {
+        $tab = strtolower(trim((string) ($request->getQueryParams()['tab'] ?? '')));
+        if ($canAccessBehavior && $tab === 'behavior') {
+            return 'behavior';
+        }
+
+        return 'appearance';
     }
 
     /**
@@ -281,6 +314,29 @@ class PagesDesignController
         }
 
         return $tokens;
+    }
+
+    /**
+     * @param array<string, mixed> $parsedBody
+     * @return array{effectsProfile: ?string, sliderProfile: ?string}
+     */
+    private function extractEffects(array $parsedBody): array
+    {
+        $effectsProfile = null;
+        $sliderProfile = null;
+
+        if (isset($parsedBody['effects_profile'])) {
+            $effectsProfile = $this->sanitizeString($parsedBody['effects_profile']);
+        }
+
+        if (isset($parsedBody['slider_profile'])) {
+            $sliderProfile = $this->sanitizeString($parsedBody['slider_profile']);
+        }
+
+        return [
+            'effectsProfile' => $effectsProfile,
+            'sliderProfile' => $sliderProfile,
+        ];
     }
 
     private function sanitizeString(mixed $value): ?string

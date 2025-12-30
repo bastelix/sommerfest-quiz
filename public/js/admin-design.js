@@ -17,8 +17,18 @@
 
   const defaults = parseJson(editor.dataset.defaultTokens, {});
   const current = parseJson(editor.dataset.currentTokens, defaults);
+  const effectsDefaults = parseJson(editor.dataset.effectsDefaults, {});
+  const effectsCurrent = parseJson(editor.dataset.effectsCurrent, effectsDefaults);
+  const effectsProfiles = parseJson(editor.dataset.effectsMap, {});
   const preview = document.getElementById('design-preview');
   const isReadOnly = editor.dataset.readOnly === '1';
+  const isEffectsReadOnly = editor.dataset.effectsReadOnly === '1';
+  const sliderSuggestionMap = {
+    'calserver.professional': 'static',
+    'quizrace.calm': 'calm',
+    'quizrace.marketing': 'marketing',
+  };
+  const activeTab = editor.dataset.activeTab === 'behavior' ? 'behavior' : 'appearance';
 
   const resolveTokens = () => ({
     brand: { ...(defaults.brand || {}), ...(current.brand || {}) },
@@ -26,6 +36,17 @@
     typography: { ...(defaults.typography || {}), ...(current.typography || {}) },
     components: { ...(defaults.components || {}), ...(current.components || {}) },
   });
+
+  const resolveEffects = () => {
+    const merged = { ...(effectsDefaults || {}), ...(effectsCurrent || {}) };
+    const effectsProfile = merged.effectsProfile || effectsDefaults.effectsProfile || 'calserver.professional';
+    const suggestion = sliderSuggestionMap[effectsProfile] || effectsDefaults.sliderProfile || 'static';
+    const sliderProfile = ['static', 'calm', 'marketing'].includes(merged.sliderProfile)
+      ? merged.sliderProfile
+      : suggestion;
+
+    return { effectsProfile, sliderProfile };
+  };
 
   const updateMeta = (selector, value) => {
     const target = document.querySelector(`[data-preview-meta="${selector}"]`);
@@ -58,6 +79,28 @@
 
     updateMeta('layout', preview.dataset.layoutProfile);
     updateMeta('typography', preview.dataset.typographyPreset);
+  };
+
+  const applyEffectsToPreview = () => {
+    if (!preview) return;
+    const effects = resolveEffects();
+    const suggestion = sliderSuggestionMap[effects.effectsProfile] || effectsDefaults.sliderProfile || 'static';
+    preview.dataset.effectsProfile = effects.effectsProfile;
+    preview.dataset.sliderProfile = effects.sliderProfile;
+
+    const autoSlider = editor.querySelector('[data-slider-auto="true"]');
+    if (autoSlider instanceof HTMLInputElement) {
+      autoSlider.value = effects.sliderProfile === 'static' ? suggestion : effects.sliderProfile;
+    }
+
+    const effectsLabel = effectsProfiles[effects.effectsProfile]?.label || effects.effectsProfile;
+    const sliderLabelMap = {
+      static: 'Statisch',
+      calm: 'Automatisch (sanft)',
+      marketing: 'Automatisch (Marketing)',
+    };
+    updateMeta('effectsProfile', effectsLabel);
+    updateMeta('sliderProfile', sliderLabelMap[effects.sliderProfile] || effects.sliderProfile);
   };
 
   const updateToggleState = (container, attribute, value) => {
@@ -127,6 +170,86 @@
     });
   };
 
+  const syncSliderValue = () => {
+    const effects = resolveEffects();
+    const suggestion = sliderSuggestionMap[effects.effectsProfile] || effectsDefaults.sliderProfile || 'static';
+    const autoInput = editor.querySelector('[data-slider-auto="true"]');
+    if (autoInput instanceof HTMLInputElement) {
+      autoInput.value = effects.sliderProfile === 'static' ? suggestion : effects.sliderProfile;
+    }
+  };
+
+  const initEffectsInputs = () => {
+    if (isEffectsReadOnly) return;
+    const inputs = document.querySelectorAll('[data-effects-input]');
+    inputs.forEach(input => {
+      input.addEventListener('change', event => {
+        const target = event.target;
+        if (!(target instanceof HTMLInputElement)) {
+          return;
+        }
+        const key = target.dataset.effectsInput;
+        if (!key) return;
+
+        if (!(key in effectsCurrent)) {
+          effectsCurrent[key] = null;
+        }
+        effectsCurrent[key] = target.value;
+
+        if (key === 'effectsProfile') {
+          const suggested = sliderSuggestionMap[target.value] || effectsDefaults.sliderProfile || 'static';
+          if (effectsCurrent.sliderProfile !== 'static') {
+            effectsCurrent.sliderProfile = suggested;
+          }
+        }
+
+        syncSliderValue();
+        applyEffectsToPreview();
+      });
+    });
+  };
+
+  const initTabs = () => {
+    const tabNav = document.querySelector('[data-design-tabs]');
+    if (!tabNav) return;
+    const panels = Array.from(document.querySelectorAll('[data-design-panel]'));
+    const links = Array.from(tabNav.querySelectorAll('[data-design-tab]'));
+
+    const setActiveTab = tab => {
+      const normalized = tab === 'behavior' ? 'behavior' : 'appearance';
+      links.forEach(link => {
+        const isActive = link.dataset.designTab === normalized;
+        const parent = link.parentElement;
+        if (parent) {
+          parent.classList.toggle('uk-active', isActive);
+        }
+      });
+      panels.forEach(panel => {
+        const shouldShow = panel.dataset.designPanel === normalized;
+        if (shouldShow) {
+          panel.removeAttribute('hidden');
+        } else {
+          panel.setAttribute('hidden', 'hidden');
+        }
+      });
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', normalized);
+      window.history.replaceState({}, document.title, url.toString());
+    };
+
+    tabNav.addEventListener('click', event => {
+      const link = event.target?.closest?.('[data-design-tab]');
+      if (!link || !tabNav.contains(link)) {
+        return;
+      }
+      event.preventDefault();
+      setActiveTab(link.dataset.designTab);
+    });
+
+    setActiveTab(activeTab);
+  };
+
   const initNamespaceSelect = () => {
     const select = document.getElementById('pageNamespaceSelect');
     if (!select) return;
@@ -138,8 +261,11 @@
   };
 
   applyTokensToPreview();
+  applyEffectsToPreview();
   initThemeToggle();
   initDeviceToggle();
   initTokenInputs();
+  initEffectsInputs();
   initNamespaceSelect();
+  initTabs();
 })();
