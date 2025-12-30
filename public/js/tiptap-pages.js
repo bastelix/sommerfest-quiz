@@ -399,6 +399,13 @@ const THEME_DARK = 'dark';
 const THEME_HIGH_CONTRAST = 'high-contrast';
 const THEME_STORAGE_KEY = 'pageEditorTheme';
 const THEME_CHOICES = [THEME_LIGHT, THEME_DARK, THEME_HIGH_CONTRAST];
+const resolveBaseTheme = theme => {
+  const normalized = normalizeTheme(theme);
+  if (normalized === THEME_DARK || normalized === THEME_HIGH_CONTRAST) {
+    return THEME_DARK;
+  }
+  return THEME_LIGHT;
+};
 
 const PAGE_EDITOR_MODE = (window.pageEditorMode || window.pageEditorDriver || 'tiptap').toLowerCase();
 const USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
@@ -663,43 +670,33 @@ const updateThemeToggleButtons = theme => {
 
 const updatePageEditorTheme = theme => {
   const activeTheme = normalizeTheme(theme);
+  const resolvedTheme = resolveBaseTheme(activeTheme);
   document.querySelectorAll('.page-editor').forEach(editor => {
-    editor.dataset.theme = activeTheme;
+    editor.dataset.theme = resolvedTheme;
     editor.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-    if (activeTheme === THEME_DARK) {
-      editor.classList.add('dark-mode');
-    } else {
-      editor.classList.remove('dark-mode');
-    }
     if (editor.classList.contains('landing-editor')) {
-      applyLandingStyling(editor, activeTheme);
+      applyLandingStyling(editor, resolvedTheme);
     }
   });
 
   const preview = document.getElementById('preview-content');
   if (preview) {
-    preview.dataset.theme = activeTheme;
+    preview.dataset.theme = resolvedTheme;
     preview.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-    if (activeTheme === THEME_DARK) {
-      preview.classList.add('dark-mode');
-    } else {
-      preview.classList.remove('dark-mode');
-    }
   }
 };
 
 const applyThemePreference = theme => {
   const targetTheme = normalizeTheme(theme);
+  const resolvedTheme = resolveBaseTheme(targetTheme);
   currentTheme = targetTheme;
   saveThemePreference(targetTheme);
 
-  document.body.dataset.theme = targetTheme;
+  document.documentElement.dataset.theme = resolvedTheme;
+  document.body.dataset.theme = resolvedTheme;
   document.body.classList.toggle('high-contrast', targetTheme === THEME_HIGH_CONTRAST);
-  const enableDark = targetTheme === THEME_DARK;
+  const enableDark = resolvedTheme === THEME_DARK;
   document.body.classList.toggle('dark-mode', enableDark);
-  if (targetTheme !== THEME_DARK) {
-    document.body.classList.remove('dark-mode');
-  }
 
   setDarkStylesheetEnabled(enableDark);
   updatePageEditorTheme(targetTheme);
@@ -1065,14 +1062,10 @@ function applyLandingStyling(element, theme = getCurrentTheme()) {
   }
   ensureLandingEditorStyles();
   const activeTheme = normalizeTheme(theme);
+  const resolvedTheme = resolveBaseTheme(activeTheme);
   element.classList.add('landing-editor');
-  element.setAttribute('data-theme', activeTheme);
+  element.setAttribute('data-theme', resolvedTheme);
   element.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-  if (activeTheme === THEME_DARK) {
-    element.classList.add('dark-mode');
-  } else {
-    element.classList.remove('dark-mode');
-  }
 }
 
 const PREVIEW_LANDING_CLASS = 'landing-preview';
@@ -1087,21 +1080,17 @@ function applyLandingPreviewStyling(element, theme = getCurrentTheme()) {
   }
   ensureLandingPreviewStyles();
   const activeTheme = normalizeTheme(theme);
+  const resolvedTheme = resolveBaseTheme(activeTheme);
   element.classList.add(PREVIEW_LANDING_CLASS);
-  element.setAttribute('data-theme', activeTheme);
+  element.setAttribute('data-theme', resolvedTheme);
   element.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-  if (activeTheme === THEME_DARK) {
-    element.classList.add('dark-mode');
-  } else {
-    element.classList.remove('dark-mode');
-  }
 }
 
 function resetLandingPreviewStyling(element) {
   if (!element) {
     return;
   }
-  element.classList.remove(PREVIEW_LANDING_CLASS, 'dark-mode', 'high-contrast');
+  element.classList.remove(PREVIEW_LANDING_CLASS, 'high-contrast');
   element.removeAttribute('data-theme');
 }
 
@@ -1111,7 +1100,7 @@ const resetLandingStyling = element => {
   if (!element) {
     return;
   }
-  element.classList.remove('landing-editor', 'dark-mode', 'high-contrast');
+  element.classList.remove('landing-editor', 'high-contrast');
   element.removeAttribute('data-theme');
 };
 

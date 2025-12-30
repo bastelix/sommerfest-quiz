@@ -1,31 +1,55 @@
 :root {
-  --primary-color: #0c86d0;
-  --accent-color: #39f;
-  --color-bg: #fff;
-  --color-primary: #0c86d0;
-  --color-text: #232323;
+  --bg-page: #f7f9fb;
+  --bg-section: #ffffff;
+  --bg-card: #ffffff;
+  --bg-subtle: #f8fafc;
+  --bg-muted: #eef2f7;
+  --bg-accent-soft: #f0f7ff;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --border-muted: #dfe3eb;
+  --accent-primary: #1e87f0;
+
+  --primary-color: var(--accent-primary);
+  --accent-color: var(--accent-primary);
+  --color-bg: var(--bg-page);
+  --color-primary: var(--accent-primary);
+  --color-text: var(--text-primary);
   --danger-500: #8b0000;
   --danger-600: #660000;
-  --qr-card: #ffffff;
-  --qr-row: #f3f7fa;
-  --qr-row-alt: #e0f7fa;
+  --qr-card: var(--bg-card);
+  --qr-row: var(--bg-card);
+  --qr-row-alt: #f3f7fa;
   --qr-border: rgba(0, 0, 0, 0.1);
-  --qr-head: #ffffff;
+  --qr-head: var(--bg-card);
   --qr-bg-soft: #f3f4f6;
-  --qr-fg: #000000;
+  --qr-fg: var(--text-primary);
 }
 
-body[data-theme="dark"] {
-  --color-bg: #1e1e1e;
-  --color-primary: #0c86d0;
-  --color-text: #f5f5f5;
+:root[data-theme="dark"] {
+  --bg-page: #0e1218;
+  --bg-section: #111827;
+  --bg-card: #161b22;
+  --bg-subtle: #0f172a;
+  --bg-muted: #0b1018;
+  --bg-accent-soft: rgba(99, 164, 255, 0.12);
+  --text-primary: #e5e7eb;
+  --text-secondary: #cbd5e1;
+  --border-muted: #2c3a4b;
+  --accent-primary: #63a4ff;
+
+  --primary-color: var(--accent-primary);
+  --accent-color: var(--accent-primary);
+  --color-bg: var(--bg-page);
+  --color-primary: var(--accent-primary);
+  --color-text: var(--text-primary);
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
-  --qr-card: #1e1e1e;
-  --qr-row: #1e1e1e;
-  --qr-row-alt: #2a2a2a;
-  --qr-head: #1e1e1e;
-  --qr-border: rgba(255, 255, 255, 0.1);
-  --qr-bg-soft: #161b22;
-  --qr-fg: #e6e9ef;
+  --qr-card: var(--bg-card);
+  --qr-row: var(--bg-card);
+  --qr-row-alt: #1e2835;
+  --qr-head: var(--bg-card);
+  --qr-border: rgba(255, 255, 255, 0.12);
+  --qr-bg-soft: #0f172a;
+  --qr-fg: var(--text-primary);
 }
