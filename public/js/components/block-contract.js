@@ -16,6 +16,8 @@ const VARIANT_ALIASES = {
   }
 };
 
+const SECTION_APPEARANCES = ['default', 'surface', 'contrast', 'image', 'image-fixed'];
+
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quizrace.example.com/schemas/block-contract.schema.json",
@@ -29,7 +31,9 @@ const schema = {
     "type": { "type": "string" },
     "variant": { "type": "string" },
     "data": { "type": "object" },
-    "tokens": { "$ref": "#/definitions/Tokens" }
+    "tokens": { "$ref": "#/definitions/Tokens" },
+    "sectionAppearance": { "enum": SECTION_APPEARANCES },
+    "backgroundImage": { "type": "string" }
   },
   "oneOf": [
     {
@@ -699,6 +703,20 @@ export function normalizeBlockContract(block) {
     normalized.data = normalizeBlockData(type, normalized.data);
   }
 
+  const appearance = normalizeSectionAppearance(normalized.sectionAppearance);
+  if (appearance) {
+    normalized.sectionAppearance = appearance;
+  } else {
+    delete normalized.sectionAppearance;
+  }
+
+  const backgroundImage = hasContent(normalized.backgroundImage) ? normalized.backgroundImage : undefined;
+  if (allowsBackgroundImage(appearance) && backgroundImage) {
+    normalized.backgroundImage = backgroundImage;
+  } else {
+    delete normalized.backgroundImage;
+  }
+
   return normalized;
 }
 
@@ -721,6 +739,21 @@ const TOKEN_ENUMS = {
   columns: ['single', 'two', 'three', 'four'],
   accent: ['brandA', 'brandB', 'brandC']
 };
+
+const IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
+
+function normalizeSectionAppearance(appearance) {
+  if (typeof appearance !== 'string') {
+    return undefined;
+  }
+
+  const normalized = appearance.trim();
+  return SECTION_APPEARANCES.includes(normalized) ? normalized : undefined;
+}
+
+function allowsBackgroundImage(appearance) {
+  return IMAGE_APPEARANCES.has(appearance);
+}
 
 function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -821,6 +854,22 @@ export function validateBlockContract(block) {
   if (!validateTokens(block.tokens)) {
     return { valid: false, reason: 'Tokens must match allowed design tokens' };
   }
+
+  const appearance = normalizeSectionAppearance(block.sectionAppearance) || 'default';
+  if (block.sectionAppearance !== undefined && !normalizeSectionAppearance(block.sectionAppearance)) {
+    return { valid: false, reason: 'Unknown section appearance preset' };
+  }
+
+  if (block.backgroundImage !== undefined) {
+    if (!allowsBackgroundImage(appearance)) {
+      return { valid: false, reason: 'Background image is only allowed for image appearances' };
+    }
+
+    if (!hasContent(block.backgroundImage)) {
+      return { valid: false, reason: 'Background image must be a non-empty string' };
+    }
+  }
+
   return { valid: true };
 }
 
@@ -833,3 +882,4 @@ export const BLOCK_TYPES = Object.keys(BLOCK_VARIANTS);
 export const ACTIVE_BLOCK_TYPES = BLOCK_TYPES.filter(type => !DEPRECATED_BLOCK_TYPES[type]);
 export const TOKENS = TOKEN_ENUMS;
 export const DEPRECATED_BLOCK_MAP = DEPRECATED_BLOCK_TYPES;
+export const SECTION_APPEARANCE_PRESETS = SECTION_APPEARANCES;

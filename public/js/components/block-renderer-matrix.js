@@ -1,4 +1,4 @@
-import { ACTIVE_BLOCK_TYPES, BLOCK_TYPES, DEPRECATED_BLOCK_MAP, getBlockVariants, normalizeBlockContract, normalizeBlockVariant, validateBlockContract } from './block-contract.js';
+import { ACTIVE_BLOCK_TYPES, BLOCK_TYPES, DEPRECATED_BLOCK_MAP, SECTION_APPEARANCE_PRESETS, getBlockVariants, normalizeBlockContract, normalizeBlockVariant, validateBlockContract } from './block-contract.js';
 import { RENDERER_MATRIX as BASE_RENDERER_MATRIX, escapeAttribute, escapeHtml } from './block-renderer-matrix-data.js';
 
 const RENDERER_MATRIX = { ...BASE_RENDERER_MATRIX, proof: BASE_RENDERER_MATRIX.proof };
@@ -59,8 +59,11 @@ function renderBlockError(block, error) {
   const type = block && typeof block === 'object' && 'type' in block ? escapeAttribute(block.type) : 'unknown';
   const variant = block && typeof block === 'object' && 'variant' in block ? escapeAttribute(block.variant) : 'unknown';
   const reason = error && error.message ? escapeHtml(error.message) : 'Unknown rendering error';
+  const appearance = SECTION_APPEARANCE_PRESETS.includes(block?.sectionAppearance)
+    ? escapeAttribute(block.sectionAppearance)
+    : 'default';
 
-  return `<section data-block-id="${blockId}" data-block-type="${type}" data-block-variant="${variant}" class="block-render-error"><!-- render_error: ${reason} --></section>`;
+  return `<section data-block-id="${blockId}" data-block-type="${type}" data-block-variant="${variant}" data-appearance="${appearance}" class="section uk-section block-render-error"><!-- render_error: ${reason} --></section>`;
 }
 
 export function renderBlockSafe(block, options = {}) {
