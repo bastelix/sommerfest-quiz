@@ -2436,6 +2436,21 @@ body.admin-page {
   background-color: var(--bg-subtle, #f8fafc);
 }
 
+.page-preview-pane[data-preview-intent="preview"] .page-preview-surface [data-block-id],
+.page-preview-pane[data-preview-intent="design"] .page-preview-surface [data-block-id] {
+  outline-color: transparent;
+  box-shadow: none;
+  background-color: inherit;
+}
+
+.page-preview-pane[data-preview-intent="preview"] .page-preview-canvas [data-editable="true"],
+.page-preview-pane[data-preview-intent="design"] .page-preview-canvas [data-editable="true"] {
+  outline: none;
+  box-shadow: none;
+  pointer-events: none;
+  cursor: default;
+}
+
 .page-preview-canvas [data-editable="true"] {
   outline: 1px dashed transparent;
   outline-offset: 2px;

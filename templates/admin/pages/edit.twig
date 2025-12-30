@@ -72,7 +72,7 @@
     >
       <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
       <div class="page-editor" data-content="{{ content|e('html_attr') }}"></div>
-      <div class="uk-margin-top">
+      <div class="uk-margin-top" data-editor-actions="true">
         <button type="button" class="uk-button uk-button-primary save-page-btn">Speichern</button>
         <button type="button" class="uk-button uk-button-default" onclick="showPreview()">Vorschau</button>
       </div>
