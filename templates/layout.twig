@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 {% set bodyThemeValue %}{% block body_theme %}light{% endblock %}{% endset %}
 {% set normalizedBodyTheme = bodyThemeValue|trim|lower %}
-<html lang="{{ locale() }}" data-theme="{{ normalizedBodyTheme }}">
+{% set namespaceCandidate = pageNamespace|default(marketingNamespace|default(config.namespace|default('default'))) %}
+{% set normalizedNamespace = namespaceCandidate|default('default')|trim|lower %}
+<html lang="{{ locale() }}" data-theme="{{ normalizedBodyTheme }}" data-namespace="{{ normalizedNamespace }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -101,6 +103,7 @@
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% block head %}{% endblock %}
