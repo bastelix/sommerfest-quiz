@@ -9,7 +9,7 @@
     {
       "id": "hero",
       "type": "hero",
-      "variant": "media-right",
+      "variant": "media_right",
       "data": {
         "eyebrow": "Ohne App, sofort spielbar",
         "headline": "QuizRace verbindet Teams in Echtzeit.",
@@ -63,7 +63,7 @@
     {
       "id": "how-it-works",
       "type": "process_steps",
-      "variant": "timeline",
+      "variant": "timeline_vertical",
       "data": {
         "title": "So funktioniert QuizRace",
         "intro": "Die alte QuizRace-Landingpage zeigte einen schnellen Ablauf – diese Version fasst ihn für den Page-Editor zusammen.",

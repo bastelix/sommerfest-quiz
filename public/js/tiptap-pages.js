@@ -3,6 +3,11 @@ import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
 import { renderPage } from './components/page-renderer.js';
+import {
+  normalizeBlockContract,
+  normalizeBlockVariant,
+  validateBlockContract
+} from './components/block-contract.js';
 import { RENDERER_MATRIX } from './components/block-renderer-matrix.js';
 
 const notify = typeof window !== 'undefined' && typeof window.notify === 'function'
@@ -2062,6 +2067,35 @@ const setupPageForm = form => {
     importInput.addEventListener('change', async () => {
       const file = importInput.files?.[0];
       if (!file) {
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        const blocks = Array.isArray(parsed?.blocks) ? parsed.blocks : [];
+
+        const violations = blocks.map((block, index) => {
+          const normalized = normalizeBlockContract(block);
+          const validation = validateBlockContract(normalized);
+          if (!validation.valid) {
+            return `Block ${normalized?.id || index + 1}: ${validation.reason}`;
+          }
+
+          const variant = normalizeBlockVariant(normalized.type, normalized.variant);
+          if (!RENDERER_MATRIX[normalized.type]?.[variant]) {
+            return `Block ${normalized?.id || index + 1}: Keine Renderer-Variante für ${variant}`;
+          }
+
+          return null;
+        }).filter(Boolean);
+
+        if (violations.length > 0) {
+          showImportFeedback(violations[0], 'error');
+          return;
+        }
+      } catch (error) {
+        showImportFeedback('Import fehlgeschlagen: Ungültige JSON-Datei oder Blockdaten.', 'error');
         return;
       }
 
