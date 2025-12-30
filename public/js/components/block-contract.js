@@ -114,6 +114,15 @@ const schema = {
       "required": ["type", "variant", "data"]
     },
     {
+      "title": "Contact form block",
+      "properties": {
+        "type": { "const": "contact_form" },
+        "variant": { "enum": ["default", "compact"] },
+        "data": { "$ref": "#/definitions/ContactFormData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
       "title": "Package summary block",
       "properties": {
         "type": { "const": "package_summary" },
@@ -336,6 +345,18 @@ const schema = {
           "minItems": 1
         },
         "disclaimer": { "type": "string" }
+      }
+    },
+    "ContactFormData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "intro", "recipient", "submitLabel", "privacyHint"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "intro": { "type": "string", "minLength": 1 },
+        "recipient": { "type": "string", "minLength": 1 },
+        "submitLabel": { "type": "string", "minLength": 1 },
+        "privacyHint": { "type": "string", "minLength": 1 }
       }
     },
     "FaqData": {
@@ -757,7 +778,14 @@ const DATA_VALIDATORS = {
   feature_list: validateFeatureListData,
   process_steps: validateProcessStepsData,
   testimonial: data => hasContent(data?.quote) && hasContent(data?.author?.name),
-  rich_text: data => hasContent(data?.body)
+  rich_text: data => hasContent(data?.body),
+  contact_form: data => (
+    hasContent(data?.title)
+    && hasContent(data?.intro)
+    && hasContent(data?.recipient)
+    && hasContent(data?.submitLabel)
+    && hasContent(data?.privacyHint)
+  )
 };
 
 export function normalizeVariant(type, variant) {

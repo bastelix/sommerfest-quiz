@@ -31,6 +31,45 @@ function buildEditableAttributes(block, fieldPath, context, { type = 'text' } = 
   return ` ${attributes.join(' ')}`;
 }
 
+function resolveBasePath() {
+  if (typeof window === 'undefined' || typeof window.basePath !== 'string') {
+    return '';
+  }
+
+  const trimmed = window.basePath.trim();
+  if (trimmed === '' || trimmed === '/') {
+    return '';
+  }
+
+  return trimmed.endsWith('/') ? trimmed.slice(0, -1) : trimmed;
+}
+
+function resolveContactEndpoint() {
+  const basePath = resolveBasePath();
+  const endpoint = `${basePath}/landing/contact`;
+  return endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+}
+
+function resolveCsrfToken() {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  if (typeof window.csrfToken === 'string' && window.csrfToken.trim() !== '') {
+    return window.csrfToken.trim();
+  }
+
+  if (typeof document !== 'undefined') {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    const metaContent = meta?.getAttribute('content');
+    if (metaContent) {
+      return metaContent;
+    }
+  }
+
+  return '';
+}
+
 function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
   const sectionClasses = ['uk-section', 'uk-section-default', sectionModifiers].filter(Boolean).join(' ');
   const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
@@ -370,6 +409,76 @@ function renderProcessSteps(block, variant, options = {}) {
     : renderVerticalSteps();
 
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(normalizedVariant)}"><div class="uk-container">${header}${layout}</div></section>`;
+}
+
+function renderContactForm(block, variant = 'default', options = {}) {
+  const context = options?.context || 'frontend';
+  const normalizedVariant = variant === 'compact' ? 'compact' : 'default';
+  const anchor = block.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const intro = block.data?.intro
+    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
+    : '';
+
+  const copyColumn = title || intro
+    ? `<div class="uk-width-1-1 ${normalizedVariant === 'compact' ? 'uk-text-center' : 'uk-width-1-2@m'}">${title}${intro}</div>`
+    : '';
+
+  const isPreview = context === 'preview';
+  const disabledAttr = isPreview ? ' disabled' : '';
+  const submitType = isPreview ? 'button' : 'submit';
+  const submitLabel = block.data?.submitLabel || 'Nachricht senden';
+  const submitEditable = buildEditableAttributes(block, 'data.submitLabel', context);
+  const privacyText = block.data?.privacyHint || '';
+  const privacyLabel = privacyText
+    ? `<div class="uk-margin"><label class="uk-text-small"><input class="uk-checkbox" name="privacy" type="checkbox" required${disabledAttr}> <span${buildEditableAttributes(block, 'data.privacyHint', context)}>${escapeHtml(privacyText)}</span></label></div>`
+    : '';
+
+  const formId = `contact-form-${block.id ? escapeAttribute(block.id) : 'section'}`;
+  const endpoint = escapeAttribute(resolveContactEndpoint());
+  const csrfToken = resolveCsrfToken();
+  const csrfField = csrfToken ? `<input type="hidden" name="csrf_token" value="${escapeAttribute(csrfToken)}">` : '';
+  const form = `
+    <form
+      id="${formId}"
+      class="uk-form-stacked contact-form"
+      method="post"
+      action="${endpoint}"
+      data-contact-endpoint="${endpoint}"
+      ${isPreview ? 'data-preview-submit="true" novalidate' : ''}
+    >
+      <div class="uk-margin">
+        <label class="uk-form-label" for="${formId}-name">Ihr Name</label>
+        <input class="uk-input" id="${formId}-name" name="name" type="text" required${disabledAttr}>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="${formId}-email">E-Mail</label>
+        <input class="uk-input" id="${formId}-email" name="email" type="email" required${disabledAttr}>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="${formId}-message">Nachricht</label>
+        <textarea class="uk-textarea" id="${formId}-message" name="message" rows="5" required${disabledAttr}></textarea>
+      </div>
+      ${privacyLabel}
+      <input type="hidden" name="recipient" value="${escapeAttribute(block.data?.recipient || '')}">
+      ${csrfField}
+      <input type="text" name="company" autocomplete="off" tabindex="-1" class="uk-hidden" aria-hidden="true">
+      <div class="uk-margin">
+        <button class="uk-button uk-button-primary uk-width-1-1" type="${submitType}"${submitEditable}${isPreview ? ' aria-disabled="true"' : ''}>${escapeHtml(submitLabel)}</button>
+      </div>
+    </form>
+  `;
+
+  const formColumnWidth = normalizedVariant === 'compact' ? 'uk-width-1-1 uk-width-2-3@m' : 'uk-width-1-1 uk-width-1-2@m';
+  const formColumn = `<div class="${formColumnWidth}"><div class="uk-card uk-card-default uk-card-body">${form}</div></div>`;
+
+  const gridContent = normalizedVariant === 'compact'
+    ? `<div class="uk-grid uk-grid-medium uk-flex-center" data-uk-grid>${copyColumn}${formColumn}</div>`
+    : `<div class="uk-grid uk-grid-large uk-flex-top" data-uk-grid>${copyColumn}${formColumn}</div>`;
+
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="contact_form" data-block-variant="${escapeAttribute(normalizedVariant)}"><div class="uk-container">${gridContent}</div></section>`;
 }
 
 function renderTestimonialSingle(block) {
@@ -846,6 +955,10 @@ export const RENDERER_MATRIX = {
   },
   faq: {
     accordion: renderFaq
+  },
+  contact_form: {
+    default: (block, options) => renderContactForm(block, 'default', options),
+    compact: (block, options) => renderContactForm(block, 'compact', options)
   },
   system_module: {
     switcher: renderLegacySystemModule
