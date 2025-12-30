@@ -221,7 +221,7 @@
       </div>
     </section>
 
-    {{ content|raw }}
+    {% include 'marketing/partials/block-content.twig' %}
 
     {% include 'marketing/partials/page-modules.twig' with {
       modules: pageModules['after-content']|default([]),

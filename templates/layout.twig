@@ -160,6 +160,47 @@
   <script src="{{ basePath }}/js/app.js" defer></script>
   <script>window.basePath = '{{ basePath }}';</script>
   <script src="{{ basePath }}/js/i18n/{{ locale() == 'en' ? 'en-us' : 'de-de' }}.js" defer></script>
+  <script type="module">
+    const blockRoot = document.querySelector('[data-page-blocks]');
+    const basePath = window.basePath || '';
+
+    const parseBlocks = raw => {
+      if (!raw) {
+        return [];
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.blocks)) {
+          return parsed.blocks;
+        }
+      } catch (error) {
+        console.error('Failed to parse page blocks', error);
+      }
+      return [];
+    };
+
+    if (blockRoot && blockRoot.dataset.pageBlocks) {
+      const blocks = parseBlocks(blockRoot.dataset.pageBlocks);
+      Promise.all([
+        import(`${basePath}/js/components/page-renderer.js`),
+        import(`${basePath}/js/components/block-renderer-matrix.js`),
+      ])
+        .then(([renderer, matrix]) => {
+          const html = renderer.renderPage(Array.isArray(blocks) ? blocks : [], {
+            rendererMatrix: matrix.RENDERER_MATRIX,
+            context: 'frontend',
+          });
+          blockRoot.innerHTML = html;
+        })
+        .catch(error => {
+          console.error('Failed to render page blocks', error);
+          blockRoot.innerHTML = '';
+        });
+    }
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
