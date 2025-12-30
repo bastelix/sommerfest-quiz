@@ -302,10 +302,23 @@ function renderFeatureListGridBullets(block, options = {}) {
   return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="feature_list" data-block-variant="grid-bullets"><div class="uk-container">${header}${grid}</div></section>`;
 }
 
-function renderProcessSteps(block, variant, options = {}) {
-  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal']);
+function normalizeProcessStepsVariant(variant) {
+  const mapping = {
+    'timeline': 'timeline_vertical',
+    'timeline-vertical': 'timeline_vertical',
+    'timeline_vertical': 'timeline_vertical',
+    'timeline-horizontal': 'timeline_horizontal',
+    'timeline_horizontal': 'timeline_horizontal'
+  };
 
-  if (!allowedVariants.has(variant)) {
+  return mapping[variant] || variant;
+}
+
+function renderProcessSteps(block, variant, options = {}) {
+  const normalizedVariant = normalizeProcessStepsVariant(variant);
+  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal', 'timeline_vertical', 'timeline_horizontal']);
+
+  if (!allowedVariants.has(normalizedVariant)) {
     throw new Error(`Unsupported process_steps variant: ${variant}`);
   }
 
@@ -352,9 +365,11 @@ function renderProcessSteps(block, variant, options = {}) {
     return `<div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid>${items.join('')}</div>`;
   };
 
-  const layout = variant === 'numbered-horizontal' ? renderHorizontalSteps() : renderVerticalSteps();
+  const layout = normalizedVariant === 'numbered-horizontal' || normalizedVariant === 'timeline_horizontal'
+    ? renderHorizontalSteps()
+    : renderVerticalSteps();
 
-  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(variant)}"><div class="uk-container">${header}${layout}</div></section>`;
+  return `<section${anchor} class="uk-section uk-section-default" data-block-id="${escapeAttribute(block.id)}" data-block-type="process_steps" data-block-variant="${escapeAttribute(normalizedVariant)}"><div class="uk-container">${header}${layout}</div></section>`;
 }
 
 function renderTestimonialSingle(block) {
@@ -787,7 +802,10 @@ export const RENDERER_MATRIX = {
   },
   process_steps: {
     'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),
-    'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options)
+    'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options),
+    timeline: (block, options) => renderProcessSteps(block, 'timeline', options),
+    timeline_vertical: (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
+    timeline_horizontal: (block, options) => renderProcessSteps(block, 'timeline_horizontal', options)
   },
   testimonial: {
     single_quote: renderTestimonialSingle,
