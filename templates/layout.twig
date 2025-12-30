@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="{{ locale() }}">
+{% set bodyThemeValue %}{% block body_theme %}light{% endblock %}{% endset %}
+{% set normalizedBodyTheme = bodyThemeValue|trim|lower %}
+<html lang="{{ locale() }}" data-theme="{{ normalizedBodyTheme }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -134,7 +136,7 @@
     {% endif %}
   {% endblock %}
 </head>
-<body data-theme="{% block body_theme %}light{% endblock %}" class="{% block body_class %}{% endblock %}">
+<body data-theme="{{ normalizedBodyTheme }}" class="{% block body_class %}{% endblock %}">
   <div class="wrapper">
     <main class="content">
       {% block body %}{% endblock %}
