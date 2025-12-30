@@ -4,34 +4,32 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Domain\Roles;
 use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
 use App\Service\ConfigService;
-use App\Service\ImageUploadService;
+use App\Service\DesignTokenService;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
-use App\Repository\NamespaceRepository;
-use App\Service\PageService;
 use App\Service\NamespaceValidator;
+use App\Service\PageService;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
-use PDO;
 
 class PagesDesignController
 {
     private ConfigService $configService;
-    private ImageUploadService $imageUploadService;
     private NamespaceResolver $namespaceResolver;
 
     public function __construct(
         ?ConfigService $configService = null,
-        ?ImageUploadService $imageUploadService = null,
         ?NamespaceResolver $namespaceResolver = null
     ) {
         $pdo = Database::connectFromEnv();
         $this->configService = $configService ?? new ConfigService($pdo);
-        $this->imageUploadService = $imageUploadService ?? new ImageUploadService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
@@ -39,20 +37,27 @@ class PagesDesignController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $config = $this->configService->getConfigForEvent($namespace);
-
-        $config['colors'] = $this->mergeColorConfig($config);
+        $designService = $this->getDesignService($request);
+        $tokens = $designService->getTokensForNamespace($namespace);
+        $defaults = $designService->getDefaults();
+        $role = (string) ($_SESSION['user']['role'] ?? '');
 
         $flash = $_SESSION['page_design_flash'] ?? null;
         unset($_SESSION['page_design_flash']);
 
         return $view->render($response, 'admin/pages/design.twig', [
-            'role' => $_SESSION['user']['role'] ?? '',
+            'role' => $role,
+            'readOnly' => !$this->isEditRole($role),
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
             'available_namespaces' => $availableNamespaces,
             'pageNamespace' => $namespace,
-            'config' => $config,
+            'tokens' => $tokens,
+            'tokenDefaults' => $defaults,
+            'layoutProfiles' => $designService->getLayoutProfiles(),
+            'typographyPresets' => $designService->getTypographyPresets(),
+            'cardStyles' => $designService->getCardStyles(),
+            'buttonStyles' => $designService->getButtonStyles(),
             'csrf_token' => $this->ensureCsrfToken(),
             'flash' => $flash,
         ]);
@@ -61,8 +66,6 @@ class PagesDesignController
     public function save(Request $request, Response $response): Response
     {
         $parsedBody = $request->getParsedBody();
-        $files = $request->getUploadedFiles();
-
         if (!is_array($parsedBody)) {
             return $response->withStatus(400);
         }
@@ -73,85 +76,50 @@ class PagesDesignController
             return $response->withStatus(400);
         }
 
-        $colors = [
-            'primary' => $this->normalizeColor($parsedBody['primaryColor'] ?? null),
-            'background' => $this->normalizeColor($parsedBody['backgroundColor'] ?? null),
-            'accent' => $this->normalizeColor($parsedBody['accentColor'] ?? null),
-        ];
+        $role = (string) ($_SESSION['user']['role'] ?? '');
+        if (!$this->isEditRole($role)) {
+            return $response->withStatus(403);
+        }
 
-        $logoPath = null;
-        $logoUrl = isset($parsedBody['logoUrl']) ? trim((string) $parsedBody['logoUrl']) : '';
-        $uploadedLogo = $files['logo'] ?? null;
+        $designService = $this->getDesignService($request);
+        $defaults = $designService->getDefaults();
+        $currentTokens = $designService->getTokensForNamespace($namespace);
+        $action = strtolower(trim((string) ($parsedBody['action'] ?? 'save')));
 
-        try {
-            $this->assertValidColors($colors);
-
-            if ($uploadedLogo !== null && $uploadedLogo->getError() !== UPLOAD_ERR_NO_FILE) {
-                $this->imageUploadService->validate(
-                    $uploadedLogo,
-                    5 * 1024 * 1024,
-                    ['png', 'jpg', 'jpeg', 'webp', 'svg'],
-                    ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
-                );
-                $logoPath = $this->imageUploadService->saveUploadedFile(
-                    $uploadedLogo,
-                    'uploads',
-                    'logo-' . $namespace,
-                    512,
-                    512,
-                    ImageUploadService::QUALITY_LOGO,
-                    true
-                );
-            } elseif ($logoUrl !== '') {
-                if (!filter_var($logoUrl, FILTER_VALIDATE_URL)) {
-                    throw new \RuntimeException('invalid logo url');
+        if ($action === 'reset_all') {
+            $designService->resetToDefaults($namespace);
+            $message = 'Design auf Standard zurückgesetzt.';
+        } else {
+            $incoming = $this->extractTokens($parsedBody);
+            $tokensToPersist = $currentTokens;
+            foreach ($incoming as $group => $values) {
+                if (!is_array($values) || !array_key_exists($group, $tokensToPersist)) {
+                    continue;
                 }
-                $logoPath = $logoUrl;
+                foreach ($values as $key => $value) {
+                    if ($value !== null && $value !== '') {
+                        $tokensToPersist[$group][$key] = $value;
+                    }
+                }
             }
-        } catch (\RuntimeException $exception) {
-            $_SESSION['page_design_flash'] = [
-                'type' => 'error',
-                'message' => $exception->getMessage(),
-            ];
 
-            return $response
-                ->withHeader('Location', $this->buildRedirectUrl($request, $namespace))
-                ->withStatus(303);
+            if ($action === 'reset_brand') {
+                $tokensToPersist['brand'] = $defaults['brand'];
+            } elseif ($action === 'reset_layout') {
+                $tokensToPersist['layout'] = $defaults['layout'];
+            } elseif ($action === 'reset_typography') {
+                $tokensToPersist['typography'] = $defaults['typography'];
+            } elseif ($action === 'reset_components') {
+                $tokensToPersist['components'] = $defaults['components'];
+            }
+
+            $designService->persistTokens($namespace, $tokensToPersist);
+            $message = 'Design-Einstellungen gespeichert.';
         }
-
-        $config = $this->configService->getConfigForEvent($namespace);
-        $config['event_uid'] = $namespace;
-
-        $colorPayload = array_filter(
-            [
-                'primary' => $colors['primary'],
-                'accent' => $colors['accent'],
-                'background' => $colors['background'],
-            ],
-            static fn (?string $value): bool => $value !== null && $value !== ''
-        );
-
-        if ($colorPayload !== []) {
-            $config['colors'] = $colorPayload;
-        }
-
-        if ($colors['background'] !== null) {
-            $config['backgroundColor'] = $colors['background'];
-        }
-
-        if ($colors['accent'] !== null) {
-            $config['buttonColor'] = $colors['accent'];
-        }
-
-        if ($logoPath !== null) {
-            $config['logoPath'] = $logoPath;
-        }
-
-        $this->configService->saveConfig($config);
 
         $_SESSION['page_design_flash'] = [
             'type' => 'success',
-            'message' => 'Design-Einstellungen gespeichert.',
+            'message' => $message,
         ];
 
         return $response
@@ -165,75 +133,6 @@ class PagesDesignController
         $_SESSION['csrf_token'] = $csrf;
 
         return $csrf;
-    }
-
-    private function normalizeColor(mixed $value): ?string
-    {
-        if (!is_string($value)) {
-            return null;
-        }
-
-        $trimmed = trim($value);
-
-        if ($trimmed === '') {
-            return null;
-        }
-
-        $normalized = strtolower($trimmed);
-        if (!str_starts_with($normalized, '#')) {
-            $normalized = '#' . $normalized;
-        }
-
-        return $normalized;
-    }
-
-    private function assertValidColors(array $colors): void
-    {
-        $pattern = '/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/';
-        foreach ($colors as $color) {
-            if ($color === null || $color === '') {
-                continue;
-            }
-
-            if (!preg_match($pattern, $color)) {
-                throw new \RuntimeException('Ungültiges Farbformat. Nutze Hex-Werte wie #336699.');
-            }
-        }
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     * @return array<string, string>
-     */
-    private function mergeColorConfig(array $config): array
-    {
-        $colors = [];
-
-        if (isset($config['colors']) && is_array($config['colors'])) {
-            foreach ($config['colors'] as $key => $value) {
-                if (is_string($value) && $value !== '') {
-                    $colors[$key] = $value;
-                }
-            }
-        }
-
-        if (
-            isset($config['backgroundColor'])
-            && !isset($colors['background'])
-            && is_string($config['backgroundColor'])
-        ) {
-            $colors['background'] = $config['backgroundColor'];
-        }
-
-        if (isset($config['backgroundColor']) && !isset($colors['primary']) && is_string($config['backgroundColor'])) {
-            $colors['primary'] = $config['backgroundColor'];
-        }
-
-        if (isset($config['buttonColor']) && !isset($colors['accent']) && is_string($config['buttonColor'])) {
-            $colors['accent'] = $config['buttonColor'];
-        }
-
-        return $colors;
     }
 
     private function buildRedirectUrl(Request $request, string $namespace): string
@@ -320,5 +219,77 @@ class PagesDesignController
 
         return [$availableNamespaces, $namespace];
     }
-}
 
+    private function isEditRole(string $role): bool
+    {
+        return in_array($role, [Roles::ADMIN, Roles::DESIGNER], true);
+    }
+
+    private function getDesignService(Request $request): DesignTokenService
+    {
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        return new DesignTokenService($pdo, $this->configService);
+    }
+
+    /**
+     * @param array<string, mixed> $parsedBody
+     * @return array<string, array<string, ?string>>
+     */
+    private function extractTokens(array $parsedBody): array
+    {
+        $tokens = [
+            'brand' => [
+                'primary' => null,
+                'accent' => null,
+            ],
+            'layout' => [
+                'profile' => null,
+            ],
+            'typography' => [
+                'preset' => null,
+            ],
+            'components' => [
+                'cardStyle' => null,
+                'buttonStyle' => null,
+            ],
+        ];
+
+        $brand = $parsedBody['brand'] ?? [];
+        if (is_array($brand)) {
+            $tokens['brand']['primary'] = $this->sanitizeString($brand['primary'] ?? null);
+            $tokens['brand']['accent'] = $this->sanitizeString($brand['accent'] ?? null);
+        }
+
+        $layout = $parsedBody['layout'] ?? [];
+        if (is_array($layout)) {
+            $tokens['layout']['profile'] = $this->sanitizeString($layout['profile'] ?? null);
+        }
+
+        $typography = $parsedBody['typography'] ?? [];
+        if (is_array($typography)) {
+            $tokens['typography']['preset'] = $this->sanitizeString($typography['preset'] ?? null);
+        }
+
+        $components = $parsedBody['components'] ?? [];
+        if (is_array($components)) {
+            $tokens['components']['cardStyle'] = $this->sanitizeString($components['cardStyle'] ?? null);
+            $tokens['components']['buttonStyle'] = $this->sanitizeString($components['buttonStyle'] ?? null);
+        }
+
+        return $tokens;
+    }
+
+    private function sanitizeString(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $trimmed = trim($value);
+
+        return $trimmed === '' ? null : $trimmed;
+    }
+}

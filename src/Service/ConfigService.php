@@ -58,6 +58,7 @@ class ConfigService
      */
     private const JSON_COLUMNS = [
         'colors',
+        'designTokens',
         'dashboardModules',
         'dashboardSponsorModules',
         'randomNameDomains',
@@ -83,6 +84,7 @@ class ConfigService
         'dashboardVisibilityEnd' => 'dashboard_visibility_end',
         'dashboardShareToken' => 'dashboard_share_token',
         'dashboardSponsorToken' => 'dashboard_sponsor_token',
+        'designTokens' => 'design_tokens',
         'randomNameDomains' => 'random_name_domains',
         'randomNameTones' => 'random_name_tones',
         'randomNameBuffer' => 'random_name_buffer',
@@ -392,6 +394,7 @@ class ConfigService
             'webhookUrl',
             'analyticsId',
             'colors',
+            'designTokens',
             'event_uid',
             'qrLabelLine1',
             'qrLabelLine2',
@@ -1018,6 +1021,7 @@ class ConfigService
             'webhookUrl',
             'analyticsId',
             'colors',
+            'designTokens',
             'event_uid',
             'qrLabelLine1',
             'qrLabelLine2',
