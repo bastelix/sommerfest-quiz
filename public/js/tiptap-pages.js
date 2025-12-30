@@ -146,15 +146,60 @@ const ensurePreviewSlots = form => {
   const previewPane = document.createElement('div');
   previewPane.dataset.previewPane = 'true';
   previewPane.className = 'page-preview-pane';
+  previewPane.dataset.previewMode = 'desktop';
 
   const previewTitle = document.createElement('div');
   previewTitle.className = 'page-preview-title';
   previewTitle.textContent = 'Live-Vorschau';
 
+  const previewModeToggle = document.createElement('div');
+  previewModeToggle.className = 'page-preview-mode-toggle';
+  previewModeToggle.dataset.previewModeToggle = 'true';
+
+  const previewModeHint = document.createElement('div');
+  previewModeHint.className = 'page-preview-mode-hint';
+  previewModeHint.textContent = 'Mobile Vorschau';
+
+  const previewViewport = document.createElement('div');
+  previewViewport.className = 'page-preview-viewport';
+  previewViewport.dataset.previewViewport = 'true';
+
   const previewRoot = document.createElement('div');
   previewRoot.dataset.previewCanvas = 'true';
 
-  previewPane.append(previewTitle, previewRoot);
+  const modes = [
+    { id: 'desktop', label: '🖥 Desktop' },
+    { id: 'tablet', label: '📱 Tablet' },
+    { id: 'mobile', label: '📱 Mobile' }
+  ];
+
+  modes.forEach(mode => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'uk-button page-preview-mode-toggle__btn';
+    button.textContent = mode.label;
+    button.dataset.previewMode = mode.id;
+    button.setAttribute('aria-pressed', mode.id === 'desktop' ? 'true' : 'false');
+    if (mode.id === 'desktop') {
+      button.classList.add('is-active');
+    }
+    button.addEventListener('click', () => {
+      if (previewPane.dataset.previewMode === mode.id) {
+        return;
+      }
+      previewPane.dataset.previewMode = mode.id;
+      previewModeToggle.querySelectorAll('[data-preview-mode]').forEach(btn => {
+        const isActive = btn.dataset.previewMode === mode.id;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+    });
+    previewModeToggle.append(button);
+  });
+
+  previewViewport.append(previewRoot);
+
+  previewPane.append(previewTitle, previewModeToggle, previewModeHint, previewViewport);
   layout.append(editorPane, previewPane);
 
   editorEl.parentNode.insertBefore(layout, editorEl);
