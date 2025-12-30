@@ -154,6 +154,7 @@ const ensurePreviewSlots = form => {
   previewPane.dataset.previewPane = 'true';
   previewPane.className = 'page-preview-pane';
   previewPane.dataset.previewMode = 'desktop';
+  previewPane.dataset.previewIntent = 'edit';
 
   const previewHeader = document.createElement('div');
   previewHeader.className = 'page-preview-header';
