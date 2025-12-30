@@ -458,6 +458,10 @@ class ConfigService
         $uid = (string)($filtered['event_uid']['value'] ?? $this->getActiveEventUid());
         $filtered['event_uid'] = ['key' => 'event_uid', 'value' => $uid];
 
+        if ($uid === '' || !$this->eventExists($uid)) {
+            throw new RuntimeException('Cannot save config because event does not exist: ' . $uid);
+        }
+
         $randomNameBefore = null;
         $randomNameAfter = null;
         if ($this->teamNameService !== null) {
@@ -608,12 +612,25 @@ class ConfigService
         if ($uid === '') {
             return;
         }
+
+        if (!$this->eventExists($uid)) {
+            throw new RuntimeException('Cannot create config because event does not exist: ' . $uid);
+        }
+
         $stmt = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid = ? LIMIT 1');
         $stmt->execute([$uid]);
         if ($stmt->fetchColumn() === false) {
             $insert = $this->pdo->prepare('INSERT INTO config(event_uid) VALUES(?)');
             $insert->execute([$uid]);
         }
+    }
+
+    private function eventExists(string $uid): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM events WHERE uid = ? LIMIT 1');
+        $stmt->execute([$uid]);
+
+        return $stmt->fetchColumn() !== false;
     }
 
     /**
