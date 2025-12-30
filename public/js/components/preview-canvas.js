@@ -1,4 +1,5 @@
 import { renderPage, RENDERER_MATRIX } from './block-renderer-matrix.js';
+import { initEffects } from '../effects/initEffects.js';
 
 const noop = () => {};
 
@@ -13,6 +14,20 @@ const parseBlocks = value => {
     return value.blocks || [];
   }
   return [];
+};
+
+const resolvePreviewNamespace = root => {
+  if (root?.dataset?.namespace) {
+    return root.dataset.namespace;
+  }
+  const ancestor = root?.closest?.('[data-namespace]');
+  if (ancestor?.dataset?.namespace) {
+    return ancestor.dataset.namespace;
+  }
+  if (typeof document !== 'undefined' && document.documentElement?.dataset?.namespace) {
+    return document.documentElement.dataset.namespace;
+  }
+  return 'default';
 };
 
 export class PreviewCanvas {
@@ -40,12 +55,18 @@ export class PreviewCanvas {
     this.handleEditableClick = this.handleEditableClick.bind(this);
     this.root.addEventListener('click', this.handleClick, true);
     this.surface.addEventListener('click', this.handleEditableClick);
+
+    this.cleanupEffects = null;
   }
 
   destroy() {
     this.root.removeEventListener('click', this.handleClick, true);
     this.surface.removeEventListener('click', this.handleEditableClick);
     this.finishInlineEdit(false);
+    if (typeof this.cleanupEffects === 'function') {
+      this.cleanupEffects();
+      this.cleanupEffects = null;
+    }
     this.root.innerHTML = '';
     this.blockIds.clear();
   }
@@ -68,12 +89,20 @@ export class PreviewCanvas {
     if (this.activeEdit) {
       this.finishInlineEdit(false);
     }
+    if (typeof this.cleanupEffects === 'function') {
+      this.cleanupEffects();
+      this.cleanupEffects = null;
+    }
     const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
       rendererMatrix: RENDERER_MATRIX,
       context: 'preview'
     });
     this.surface.innerHTML = html;
     this.applySelectionHighlight();
+    const namespace = resolvePreviewNamespace(this.root);
+    const mode = this.intent === 'preview' ? 'preview' : (this.intent === 'design' ? 'design-preview' : 'edit');
+    const effects = initEffects(this.surface, { namespace, mode });
+    this.cleanupEffects = effects?.destroy || null;
   }
 
   setIntent(intent = 'edit') {

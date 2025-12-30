@@ -186,13 +186,20 @@
       const blocks = parseBlocks(blockRoot.dataset.pageBlocks);
       Promise.all([
         import(`${basePath}/js/components/block-renderer-matrix.js`),
+        import(`${basePath}/js/effects/initEffects.js`)
       ])
-        .then(([matrix]) => {
+        .then(([matrix, effects]) => {
           const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
             rendererMatrix: matrix.RENDERER_MATRIX,
             context: 'frontend',
           });
           blockRoot.innerHTML = html;
+          if (effects?.initEffects) {
+            effects.initEffects(blockRoot, {
+              namespace: document.documentElement?.dataset?.namespace || 'default',
+              mode: 'frontend'
+            });
+          }
         })
         .catch(error => {
           console.error('Failed to render page blocks', error);
