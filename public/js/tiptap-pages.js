@@ -138,7 +138,8 @@ const ensurePreviewSlots = form => {
       previewRoot: layout.querySelector('[data-preview-canvas="true"]'),
       editorPane: layout.querySelector('[data-editor-pane="true"]'),
       previewPane: layout.querySelector('[data-preview-pane="true"]'),
-      previewViewport: layout.querySelector('[data-preview-viewport="true"]')
+      previewViewport: layout.querySelector('[data-preview-viewport="true"]'),
+      workspace: layout.querySelector('[data-editor-workspace="true"]')
     };
   }
 
@@ -146,6 +147,11 @@ const ensurePreviewSlots = form => {
   layout.dataset.pagePreviewLayout = 'true';
   layout.className = 'page-editor-preview-layout';
   layout.dataset.editorMode = 'edit';
+
+  const workspace = document.createElement('div');
+  workspace.dataset.editorWorkspace = 'true';
+  workspace.className = 'page-editor-workspace';
+  workspace.dataset.mode = 'edit';
 
   const editorPane = document.createElement('div');
   editorPane.dataset.editorPane = 'true';
@@ -319,16 +325,34 @@ const ensurePreviewSlots = form => {
   const applyEditorMode = mode => {
     const normalized = editorModes.some(item => item.id === mode) ? mode : 'edit';
     layout.dataset.editorMode = normalized;
+    workspace.dataset.mode = normalized;
+
+    const form = getAssociatedForm();
+    const editor = getEditorInstance(form);
+    if (editor?.setLayoutMode) {
+      editor.setLayoutMode(normalized);
+    }
+
+    workspace.innerHTML = '';
+
+    if (normalized === 'edit') {
+      workspace.append(editorPane);
+    } else if (normalized === 'preview') {
+      workspace.append(editorPane, previewPane);
+    } else if (normalized === 'design') {
+      workspace.append(previewPane);
+    }
 
     const showPreview = normalized !== 'edit';
-    previewPane.hidden = !showPreview;
-    previewActions.hidden = !showPreview;
+    previewActions.hidden = normalized === 'edit';
     previewModeToggle.hidden = !showPreview;
-    fullWidthToggle.hidden = !showPreview;
+    fullWidthToggle.hidden = normalized !== 'preview';
 
-    fullWidthToggle.disabled = normalized === 'design';
+    fullWidthToggle.disabled = normalized !== 'preview';
 
     if (normalized === 'design') {
+      previewReturnButton.hidden = false;
+      previewCloseButton.hidden = true;
       setPreviewExpanded(true);
     } else if (previewPane.dataset.previewExpanded === 'true') {
       setPreviewExpanded(false);
@@ -338,8 +362,18 @@ const ensurePreviewSlots = form => {
       setPreviewExpanded(false);
     }
 
-    previewReturnButton.hidden = previewPane.dataset.previewExpanded !== 'true' || normalized === 'edit';
-    previewCloseButton.hidden = previewPane.dataset.previewExpanded !== 'true' || normalized === 'edit';
+    if (normalized !== 'edit') {
+      previewReturnButton.hidden = normalized !== 'design';
+      previewReturnButton.textContent = 'Zurück zur Bearbeitung';
+      previewReturnButton.dataset.exitPreviewMode = normalized === 'design' ? 'true' : 'false';
+      previewReturnButton.onclick = () => applyEditorMode('edit');
+    } else {
+      previewReturnButton.hidden = true;
+      previewReturnButton.dataset.exitPreviewMode = 'false';
+      previewReturnButton.onclick = null;
+    }
+
+    previewCloseButton.hidden = normalized !== 'preview' || previewPane.dataset.previewExpanded !== 'true';
     toggleFormActions(normalized);
     syncPreviewIntent(normalized);
     updateModeButtons(normalized);
@@ -362,14 +396,14 @@ const ensurePreviewSlots = form => {
   previewViewport.append(previewRoot);
 
   previewPane.append(previewHeader, previewActions, previewModeHint, previewViewport);
-  layout.append(modeSwitcher, editorPane, previewPane);
+  layout.append(modeSwitcher, workspace);
 
   editorEl.parentNode.insertBefore(layout, editorEl);
   editorPane.append(editorEl);
 
   applyEditorMode('edit');
 
-  return { layout, previewRoot, editorPane, previewPane, previewViewport };
+  return { layout, previewRoot, editorPane, previewPane, previewViewport, workspace };
 };
 
 const bindFullWidthPreview = slots => {
@@ -418,7 +452,15 @@ const bindFullWidthPreview = slots => {
   const toggleFullWidth = () => applyExpanded(!previewPane.classList.contains('is-preview-expanded'));
 
   fullWidthToggle?.addEventListener('click', toggleFullWidth);
-  previewReturnButton?.addEventListener('click', exitFullWidth);
+
+  const handleReturn = () => {
+    if (previewReturnButton?.dataset.exitPreviewMode === 'true') {
+      return;
+    }
+    exitFullWidth();
+  };
+
+  previewReturnButton?.addEventListener('click', handleReturn);
   previewCloseButton?.addEventListener('click', exitFullWidth);
 
   const handleKeydown = event => {
@@ -431,6 +473,7 @@ const bindFullWidthPreview = slots => {
 
   const cleanup = () => {
     document.removeEventListener('keydown', handleKeydown);
+    previewReturnButton?.removeEventListener('click', handleReturn);
     exitFullWidth();
     layout.dataset.previewFullWidthBound = '0';
     delete layout.previewFullWidthCleanup;
