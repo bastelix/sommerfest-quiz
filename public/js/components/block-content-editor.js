@@ -1223,7 +1223,8 @@ export class BlockContentEditor {
       blocks: [],
       meta: {},
       selectedBlockId: null,
-      templatePickerOpen: false
+      templatePickerOpen: false,
+      layoutMode: 'edit'
     };
     this.previewBridge = null;
     this.richTextInstances = new Map();
@@ -1340,8 +1341,19 @@ export class BlockContentEditor {
       meta: parsed.meta || {},
       selectedBlockId: blocks[0]?.id || null,
       skippedBlocks,
-      templatePickerOpen: false
+      templatePickerOpen: false,
+      layoutMode: this.state?.layoutMode || 'edit'
     };
+    this.render();
+  }
+
+  setLayoutMode(mode) {
+    const allowed = ['edit', 'preview', 'design'];
+    const normalized = allowed.includes(mode) ? mode : 'edit';
+    if (this.state.layoutMode === normalized) {
+      return;
+    }
+    this.state.layoutMode = normalized;
     this.render();
   }
 
@@ -1382,16 +1394,26 @@ export class BlockContentEditor {
     this.root.innerHTML = '';
     const wrapper = document.createElement('div');
     wrapper.dataset.editorRoot = 'true';
+    const mode = this.state.layoutMode || 'edit';
 
-    const controls = this.buildControls();
-    const body = document.createElement('div');
-    body.className = 'content-editor-body';
+    if (mode !== 'design') {
+      const controls = this.buildControls();
+      wrapper.append(controls);
 
-    const list = this.buildBlockList();
-    const panel = this.buildEditorPanel();
+      const body = document.createElement('div');
+      body.className = 'content-editor-body';
 
-    body.append(list, panel);
-    wrapper.append(controls, body);
+      const list = this.buildBlockList();
+      body.append(list);
+
+      if (mode === 'edit') {
+        const panel = this.buildEditorPanel();
+        body.append(panel);
+      }
+
+      wrapper.append(body);
+    }
+
     this.root.append(wrapper);
   }
 
