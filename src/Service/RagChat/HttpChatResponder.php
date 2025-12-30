@@ -239,6 +239,10 @@ class HttpChatResponder implements ChatResponderInterface
             }
         }
 
+        if (array_key_exists('output_text', $payload) && is_string($payload['output_text']) && trim($payload['output_text']) !== '') {
+            return $payload['output_text'];
+        }
+
         return null;
     }
 
