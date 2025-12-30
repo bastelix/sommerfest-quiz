@@ -55,8 +55,13 @@
     <main class="uk-width-expand uk-padding-small@xs uk-padding" id="design-editor"
       data-default-tokens='{{ tokenDefaults|json_encode|e('html_attr') }}'
       data-current-tokens='{{ tokens|json_encode|e('html_attr') }}'
+      data-effects-defaults='{{ effectsDefaults|json_encode|e('html_attr') }}'
+      data-effects-current='{{ effects|json_encode|e('html_attr') }}'
+      data-effects-map='{{ effectsProfiles|json_encode|e('html_attr') }}'
       data-namespace="{{ pageNamespace|e('html_attr') }}"
       data-read-only="{{ readOnly ? '1' : '0' }}"
+      data-effects-read-only="{{ effectsReadOnly ? '1' : '0' }}"
+      data-active-tab="{{ activeTab }}"
     >
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">Design – Namespace: {{ pageNamespace }}</h1>
@@ -110,6 +115,20 @@
           </div>
         {% endif %}
 
+        <ul class="uk-tab design-tab-nav" data-design-tabs>
+          <li class="{{ activeTab == 'appearance' ? 'uk-active' : '' }}">
+            <a href="#" data-design-tab="appearance">Erscheinungsbild</a>
+          </li>
+          {% if canAccessBehavior %}
+            <li class="{{ activeTab == 'behavior' ? 'uk-active' : '' }}">
+              <a href="#" data-design-tab="behavior">Verhalten</a>
+            </li>
+          {% endif %}
+        </ul>
+        {% if not canAccessBehavior %}
+          <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
+        {% endif %}
+
         <div class="uk-grid-match uk-grid-small" uk-grid>
           <div class="uk-width-1-1 uk-width-2-5@l">
             <div class="uk-card uk-card-default uk-card-body design-preview-card">
@@ -144,6 +163,8 @@
                 data-card-style="{{ tokens.components.cardStyle|e('html_attr') }}"
                 data-button-style="{{ tokens.components.buttonStyle|e('html_attr') }}"
                 data-typography-preset="{{ tokens.typography.preset|e('html_attr') }}"
+                data-effects-profile="{{ effects.effectsProfile|e('html_attr') }}"
+                data-slider-profile="{{ effects.sliderProfile|e('html_attr') }}"
               >
                 <div class="design-preview__surface">
                   <div class="design-preview__badge">{{ activePageNamespace }}</div>
@@ -165,6 +186,22 @@
                       <div class="design-preview__card">
                         <h4 class="uk-margin-small-bottom">Buttons</h4>
                         <p class="uk-margin-remove">Button-Stil: {{ tokens.components.buttonStyle }}</p>
+                      </div>
+                    </div>
+                    <div class="design-preview__effects" data-preview-effects>
+                      <div class="design-preview__effects-item">
+                        <span class="design-preview__effects-pill">Verhalten</span>
+                        <span class="design-preview__effects-value" data-preview-meta="effectsProfile">
+                          {{ effectsProfiles[effects.effectsProfile].label|default(effects.effectsProfile) }}
+                        </span>
+                      </div>
+                      <div class="design-preview__effects-item">
+                        <span class="design-preview__effects-pill">Slider</span>
+                        <span class="design-preview__effects-value" data-preview-meta="sliderProfile">{{ effects.sliderProfile }}</span>
+                      </div>
+                      <div class="design-preview__effects-item">
+                        <span class="design-preview__effects-pill design-preview__effects-pill--muted">Scroll</span>
+                        <span class="design-preview__effects-value">Abschnitte erscheinen beim Scrollen</span>
                       </div>
                     </div>
                   </div>
@@ -206,100 +243,235 @@
             {% endif %}
           </div>
           <div class="uk-width-1-1 uk-width-expand@l">
-            {% if readOnly %}
-              <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Design-Vorgaben.</div>
-            {% else %}
-              <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+            <div class="design-panel" data-design-panel="appearance" {% if activeTab != 'appearance' %}hidden{% endif %}>
+              {% if readOnly %}
+                <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Design-Vorgaben.</div>
+              {% else %}
+                <form class="uk-form-stacked" method="post" enctype="multipart/form-data">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                  <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
 
-                <ul class="uk-accordion" uk-accordion>
-                  <li class="uk-open">
-                    <a class="uk-accordion-title" href="#">Brand</a>
-                    <div class="uk-accordion-content">
-                      <div class="uk-grid-small" uk-grid>
-                        <div class="uk-width-1-2@s">
-                          <label class="uk-form-label" for="brandPrimary">Primary Color</label>
-                          <div class="uk-flex uk-flex-middle design-color-input">
-                            <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
-                            <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
+                  <ul class="uk-accordion" uk-accordion>
+                    <li class="uk-open">
+                      <a class="uk-accordion-title" href="#">Brand</a>
+                      <div class="uk-accordion-content">
+                        <div class="uk-grid-small" uk-grid>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="brandPrimary">Primary Color</label>
+                            <div class="uk-flex uk-flex-middle design-color-input">
+                              <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
+                              <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="brandAccent">Accent Color</label>
+                            <div class="uk-flex uk-flex-middle design-color-input">
+                              <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
+                              <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
+                            </div>
                           </div>
                         </div>
-                        <div class="uk-width-1-2@s">
-                          <label class="uk-form-label" for="brandAccent">Accent Color</label>
-                          <div class="uk-flex uk-flex-middle design-color-input">
-                            <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
-                            <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
+                        <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_brand">Panel zurücksetzen</button>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="uk-accordion-title" href="#">Layout</a>
+                      <div class="uk-accordion-content">
+                        <label class="uk-form-label" for="layoutProfile">Layout-Profil</label>
+                        <div class="uk-form-controls">
+                          <select id="layoutProfile" class="uk-select" name="layout[profile]" data-token-input data-group="layout" data-key="profile">
+                            {% for option in layoutProfiles %}
+                              <option value="{{ option }}" {% if option == tokens.layout.profile %}selected{% endif %}>{{ option|title }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_layout">Panel zurücksetzen</button>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="uk-accordion-title" href="#">Typography</a>
+                      <div class="uk-accordion-content">
+                        <label class="uk-form-label" for="typographyPreset">Heading Style Preset</label>
+                        <div class="uk-form-controls">
+                          <select id="typographyPreset" class="uk-select" name="typography[preset]" data-token-input data-group="typography" data-key="preset">
+                            {% for preset in typographyPresets %}
+                              <option value="{{ preset }}" {% if preset == tokens.typography.preset %}selected{% endif %}>{{ preset|title }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_typography">Panel zurücksetzen</button>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="uk-accordion-title" href="#">Components</a>
+                      <div class="uk-accordion-content">
+                        <div class="uk-grid-small" uk-grid>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="cardStyle">Card Shape</label>
+                            <div class="uk-form-controls">
+                              <select id="cardStyle" class="uk-select" name="components[cardStyle]" data-token-input data-group="components" data-key="cardStyle">
+                                {% for style in cardStyles %}
+                                  <option value="{{ style }}" {% if style == tokens.components.cardStyle %}selected{% endif %}>{{ style|title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-2@s">
+                            <label class="uk-form-label" for="buttonStyle">Button Style</label>
+                            <div class="uk-form-controls">
+                              <select id="buttonStyle" class="uk-select" name="components[buttonStyle]" data-token-input data-group="components" data-key="buttonStyle">
+                                {% for style in buttonStyles %}
+                                  <option value="{{ style }}" {% if style == tokens.components.buttonStyle %}selected{% endif %}>{{ style|title }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
                           </div>
                         </div>
+                        <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_components">Panel zurücksetzen</button>
                       </div>
-                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_brand">Panel zurücksetzen</button>
-                    </div>
-                  </li>
-                  <li>
-                    <a class="uk-accordion-title" href="#">Layout</a>
-                    <div class="uk-accordion-content">
-                      <label class="uk-form-label" for="layoutProfile">Layout-Profil</label>
-                      <div class="uk-form-controls">
-                        <select id="layoutProfile" class="uk-select" name="layout[profile]" data-token-input data-group="layout" data-key="profile">
-                          {% for option in layoutProfiles %}
-                            <option value="{{ option }}" {% if option == tokens.layout.profile %}selected{% endif %}>{{ option|title }}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_layout">Panel zurücksetzen</button>
-                    </div>
-                  </li>
-                  <li>
-                    <a class="uk-accordion-title" href="#">Typography</a>
-                    <div class="uk-accordion-content">
-                      <label class="uk-form-label" for="typographyPreset">Heading Style Preset</label>
-                      <div class="uk-form-controls">
-                        <select id="typographyPreset" class="uk-select" name="typography[preset]" data-token-input data-group="typography" data-key="preset">
-                          {% for preset in typographyPresets %}
-                            <option value="{{ preset }}" {% if preset == tokens.typography.preset %}selected{% endif %}>{{ preset|title }}</option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_typography">Panel zurücksetzen</button>
-                    </div>
-                  </li>
-                  <li>
-                    <a class="uk-accordion-title" href="#">Components</a>
-                    <div class="uk-accordion-content">
-                      <div class="uk-grid-small" uk-grid>
-                        <div class="uk-width-1-2@s">
-                          <label class="uk-form-label" for="cardStyle">Card Shape</label>
-                          <div class="uk-form-controls">
-                            <select id="cardStyle" class="uk-select" name="components[cardStyle]" data-token-input data-group="components" data-key="cardStyle">
-                              {% for style in cardStyles %}
-                                <option value="{{ style }}" {% if style == tokens.components.cardStyle %}selected{% endif %}>{{ style|title }}</option>
-                              {% endfor %}
-                            </select>
-                          </div>
-                        </div>
-                        <div class="uk-width-1-2@s">
-                          <label class="uk-form-label" for="buttonStyle">Button Style</label>
-                          <div class="uk-form-controls">
-                            <select id="buttonStyle" class="uk-select" name="components[buttonStyle]" data-token-input data-group="components" data-key="buttonStyle">
-                              {% for style in buttonStyles %}
-                                <option value="{{ style }}" {% if style == tokens.components.buttonStyle %}selected{% endif %}>{{ style|title }}</option>
-                              {% endfor %}
-                            </select>
-                          </div>
-                        </div>
-                      </div>
-                      <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_components">Panel zurücksetzen</button>
-                    </div>
-                  </li>
-                </ul>
+                    </li>
+                  </ul>
 
-                <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
-                  <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">Auf Standard zurücksetzen</button>
-                  <button class="uk-button uk-button-primary" type="submit">Speichern</button>
-                </div>
-              </form>
-            {% endif %}
+                  <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                    <button class="uk-button uk-button-default" type="submit" name="action" value="reset_all">Auf Standard zurücksetzen</button>
+                    <button class="uk-button uk-button-primary" type="submit">Speichern</button>
+                  </div>
+                </form>
+              {% endif %}
+            </div>
+
+            <div class="design-panel" data-design-panel="behavior" {% if activeTab != 'behavior' %}hidden{% endif %}>
+              <div class="uk-card uk-card-default uk-card-body">
+                <h2 class="uk-heading-line"><span>Verhalten – Namespace: {{ pageNamespace }}</span></h2>
+                <p class="uk-text-meta uk-margin-remove">Wie sich Seiten in diesem Namespace bewegen und anfühlen.</p>
+                {% if not canAccessBehavior %}
+                  <div class="uk-alert uk-alert-primary uk-margin-small">Verhalten wird auf Namespace-Ebene gesteuert.</div>
+                {% elseif effectsReadOnly %}
+                  <div class="uk-alert uk-alert-primary uk-margin-small">Redakteur:innen haben nur Lesezugriff auf die Effekt-Vorgaben.</div>
+                {% endif %}
+
+                {% if canAccessBehavior %}
+                  <form class="uk-form-stacked" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="namespace" value="{{ activePageNamespace|e('html_attr') }}">
+                    <input type="hidden" name="action" value="save_effects">
+
+                    <div class="design-effects-section">
+                      <div class="design-effects-section__header">
+                        <h3 class="uk-heading-bullet uk-margin-remove">Bewegungsprofil</h3>
+                        <p class="uk-text-meta uk-margin-remove">Über Profile gesteuerte Effekte – kein Freitext.</p>
+                      </div>
+                      <div class="design-effects-options">
+                        {% for profileKey, profile in effectsProfiles %}
+                          <label class="design-effects-option">
+                            <input
+                              class="uk-radio"
+                              type="radio"
+                              name="effects_profile"
+                              value="{{ profileKey|e('html_attr') }}"
+                              data-effects-input="effectsProfile"
+                              {% if profileKey == effects.effectsProfile %}checked{% endif %}
+                              {% if effectsReadOnly %}disabled{% endif %}
+                            >
+                            <div>
+                              <div class="design-effects-option__label">{{ profile.label }}</div>
+                              <div class="design-effects-option__description">{{ profile.description }}</div>
+                            </div>
+                          </label>
+                        {% endfor %}
+                      </div>
+                    </div>
+
+                    <div class="design-effects-section">
+                      <div class="design-effects-section__header">
+                        <h3 class="uk-heading-bullet uk-margin-remove">Scroll-Effekte</h3>
+                        <p class="uk-text-meta uk-margin-remove">Abgeleitet vom Bewegungsprofil.</p>
+                      </div>
+                      <div class="design-effects-detail">
+                        <div class="design-effects-detail__row">
+                          <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
+                          <div>
+                            <div class="design-effects-detail__title">Abschnitte erscheinen beim Scrollen</div>
+                            <div class="design-effects-detail__meta">Gilt global für alle Seiten</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {% set sliderSuggestionMap = {
+                      'calserver.professional': 'static',
+                      'quizrace.calm': 'calm',
+                      'quizrace.marketing': 'marketing'
+                    } %}
+                    {% set suggestedSliderProfile = sliderSuggestionMap[effects.effectsProfile]|default(effectsDefaults.sliderProfile) %}
+                    {% set activeSliderProfile = effects.sliderProfile|default(suggestedSliderProfile) %}
+                    {% set autoSliderValue = activeSliderProfile == 'static' ? suggestedSliderProfile : activeSliderProfile %}
+                    {% if hasSliderBlocks %}
+                      <div class="design-effects-section">
+                        <div class="design-effects-section__header">
+                          <h3 class="uk-heading-bullet uk-margin-remove">Slider-Verhalten</h3>
+                          <p class="uk-text-meta uk-margin-remove">Gilt für alle Slider-fähigen Blöcke.</p>
+                        </div>
+                        <div class="design-effects-options">
+                          <label class="design-effects-option">
+                            <input
+                              class="uk-radio"
+                              type="radio"
+                              name="slider_profile"
+                              value="static"
+                              data-effects-input="sliderProfile"
+                              {% if activeSliderProfile == 'static' %}checked{% endif %}
+                              {% if effectsReadOnly %}disabled{% endif %}
+                            >
+                            <div>
+                              <div class="design-effects-option__label">Statisch</div>
+                              <div class="design-effects-option__description">Keine automatische Rotation.</div>
+                            </div>
+                          </label>
+                          <label class="design-effects-option">
+                            <input
+                              class="uk-radio"
+                              type="radio"
+                              name="slider_profile"
+                              value="{{ autoSliderValue|e('html_attr') }}"
+                              data-effects-input="sliderProfile"
+                              data-slider-auto="true"
+                              {% if activeSliderProfile != 'static' %}checked{% endif %}
+                              {% if effectsReadOnly %}disabled{% endif %}
+                            >
+                            <div>
+                              <div class="design-effects-option__label">Automatisch wechseln</div>
+                              <div class="design-effects-option__description">ca. alle 5 Sekunden, pausiert bei Hover</div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+                    {% endif %}
+
+                    <div class="design-effects-section">
+                      <div class="design-effects-section__header">
+                        <h3 class="uk-heading-bullet uk-margin-remove">Barrierefreiheit</h3>
+                        <p class="uk-text-meta uk-margin-remove">Immer aktiv, nicht editierbar.</p>
+                      </div>
+                      <div class="design-effects-detail">
+                        <div class="design-effects-detail__row">
+                          <span class="design-effects-detail__icon" aria-hidden="true">✓</span>
+                          <div>
+                            <div class="design-effects-detail__title">Systemeinstellung „Bewegung reduzieren“ wird respektiert</div>
+                            <div class="design-effects-detail__meta">Effekte werden bei Bedarf automatisch deaktiviert</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="uk-margin-large-top uk-flex uk-flex-between uk-flex-middle design-actions">
+                      <div class="uk-text-meta">Änderungen gelten für alle Seiten des Namespace.</div>
+                      <button class="uk-button uk-button-primary" type="submit">Verhalten speichern</button>
+                    </div>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
           </div>
         </div>
       </div>

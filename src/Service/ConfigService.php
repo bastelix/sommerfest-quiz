@@ -90,6 +90,8 @@ class ConfigService
         'randomNameBuffer' => 'random_name_buffer',
         'randomNameLocale' => 'random_name_locale',
         'randomNameStrategy' => 'random_name_strategy',
+        'effectsProfile' => 'effects_profile',
+        'sliderProfile' => 'slider_profile',
     ];
 
     /**
@@ -436,6 +438,8 @@ class ConfigService
             'dashboardMediaEmbed',
             'dashboardVisibilityStart',
             'dashboardVisibilityEnd',
+            'effectsProfile',
+            'sliderProfile',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $allowed = array_flip($keys);
@@ -1061,6 +1065,8 @@ class ConfigService
             'dashboardVisibilityEnd',
             'dashboardShareToken',
             'dashboardSponsorToken',
+            'effectsProfile',
+            'sliderProfile',
         ];
         $map = [];
         foreach ($keys as $k) {
