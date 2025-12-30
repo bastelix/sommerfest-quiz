@@ -12,6 +12,13 @@ body {
   background-color: var(--bg-page, #ffffff);
 }
 
+h1,
+h2,
+h3,
+h4 {
+  color: var(--text-heading, var(--text-primary, #111827));
+}
+
 .uk-offcanvas-content {
   min-height: 100vh;
   background: var(--bg-page, #ffffff);

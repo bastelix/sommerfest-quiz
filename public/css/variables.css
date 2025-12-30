@@ -8,6 +8,7 @@
   --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #1e87f0)) 16%, transparent);
   --text-primary: #111827;
   --text-secondary: #4b5563;
+  --text-heading: #0b1728;
   --border-muted: #dfe3eb;
   --accent-primary: var(--brand-primary, #1e87f0);
   --accent-secondary: var(--brand-accent, var(--brand-primary, #1e87f0));
@@ -38,6 +39,7 @@
   --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #63a4ff)) 18%, transparent);
   --text-primary: #e5e7eb;
   --text-secondary: #cbd5e1;
+  --text-heading: #f8fafc;
   --border-muted: #2c3a4b;
   --accent-primary: var(--brand-primary, #63a4ff);
   --accent-secondary: var(--brand-accent, var(--brand-primary, #63a4ff));
