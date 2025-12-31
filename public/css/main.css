@@ -1970,7 +1970,13 @@ body.admin-page {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 16px;
+  margin: 0;
+}
+
+.appearance-style-picker,
+.section-style-panel,
+.background-style-panel {
+  margin: 0;
 }
 
 .layout-style-picker__label {
