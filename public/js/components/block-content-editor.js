@@ -129,18 +129,26 @@ const BACKGROUND_ATTACHMENTS = [
 ];
 
 const BACKGROUND_COLOR_TOKENS = [
-  { value: 'default', label: 'Standard (Oberfläche)' },
+  { value: 'primary', label: 'Primärfarbe' },
+  { value: 'secondary', label: 'Sekundärfarbe' },
   { value: 'muted', label: 'Neutral (Muted)' },
-  { value: 'primary', label: 'Primärfarbe' }
+  { value: 'accent', label: 'Akzent' },
+  { value: 'surface', label: 'Standard (Fläche)' }
 ];
 
 const BACKGROUND_COLOR_TOKEN_MAP = {
-  default: 'var(--surface)',
+  primary: 'var(--accent-primary)',
+  secondary: 'var(--accent-secondary)',
   muted: 'var(--surface-muted)',
-  primary: 'var(--brand-primary, #1e87f0)'
+  accent: 'var(--bg-accent-soft)',
+  surface: 'var(--surface)'
 };
 
-const DEFAULT_BACKGROUND_COLOR_TOKEN = 'muted';
+const LEGACY_BACKGROUND_TOKEN_ALIASES = {
+  default: 'surface'
+};
+
+const DEFAULT_BACKGROUND_COLOR_TOKEN = 'surface';
 
 const BACKGROUND_TYPES_BY_APPEARANCE = {
   contained: ['none', 'color'],
@@ -162,14 +170,18 @@ const normalizeBackgroundType = (type, allowedTypes = BACKGROUND_TYPE_OPTIONS.ma
 const normalizeAttachment = attachment =>
   (BACKGROUND_ATTACHMENTS.some(option => option.value === attachment) ? attachment : 'scroll');
 
-const isDesignTokenColor = color => BACKGROUND_COLOR_TOKENS.some(token => token.value === color);
+const mapLegacyBackgroundToken = color => LEGACY_BACKGROUND_TOKEN_ALIASES[color] || color;
+
+const isDesignTokenColor = color => BACKGROUND_COLOR_TOKENS
+  .some(token => token.value === mapLegacyBackgroundToken(color));
 
 const resolveBackgroundColorToken = color => {
   if (typeof color !== 'string') {
     return '';
   }
   const trimmed = color.trim();
-  return isDesignTokenColor(trimmed) ? trimmed : trimmed;
+  const mapped = mapLegacyBackgroundToken(trimmed);
+  return isDesignTokenColor(mapped) ? mapped : trimmed;
 };
 
 const clampOverlayValue = value => {

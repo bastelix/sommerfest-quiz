@@ -88,14 +88,23 @@ const BACKGROUND_TYPES_BY_APPEARANCE = {
 };
 
 const BACKGROUND_COLOR_TOKEN_MAP = {
-  default: 'var(--surface)',
+  primary: 'var(--accent-primary)',
+  secondary: 'var(--accent-secondary)',
   muted: 'var(--surface-muted)',
-  primary: 'var(--brand-primary, #1e87f0)'
+  accent: 'var(--bg-accent-soft)',
+  surface: 'var(--surface)'
+};
+
+const BACKGROUND_COLOR_TOKEN_ALIASES = {
+  default: 'surface'
 };
 
 const getAllowedBackgroundTypes = appearance => BACKGROUND_TYPES_BY_APPEARANCE[appearance] || ['none'];
 
-const resolveBackgroundColorValue = color => BACKGROUND_COLOR_TOKEN_MAP[color] || color;
+const resolveBackgroundColorValue = color => {
+  const mapped = BACKGROUND_COLOR_TOKEN_ALIASES[color] || color;
+  return BACKGROUND_COLOR_TOKEN_MAP[mapped] || color;
+};
 
 function clampBackgroundOverlay(value) {
   if (value === null || value === undefined) {

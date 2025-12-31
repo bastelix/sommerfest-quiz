@@ -190,7 +190,7 @@ const schema = {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "background": { "enum": ["default", "muted", "primary"] },
+        "background": { "enum": ["primary", "secondary", "muted", "accent", "surface"] },
         "spacing": { "enum": ["small", "normal", "large"] },
         "width": { "enum": ["narrow", "normal", "wide"] },
         "columns": { "enum": ["single", "two", "three", "four"] },
@@ -782,11 +782,15 @@ const DEPRECATED_BLOCK_TYPES = {
 };
 
 const TOKEN_ENUMS = {
-  background: ['default', 'muted', 'primary'],
+  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
   spacing: ['small', 'normal', 'large'],
   width: ['narrow', 'normal', 'wide'],
   columns: ['single', 'two', 'three', 'four'],
   accent: ['brandA', 'brandB', 'brandC']
+};
+
+const BACKGROUND_TOKEN_ALIASES = {
+  default: 'surface'
 };
 
 function normalizeSectionAppearance(appearance) {
@@ -818,11 +822,18 @@ function normalizeSectionLayout(layout, legacyAppearance) {
   return APPEARANCE_TO_LAYOUT[preset] || 'normal';
 }
 
-function normalizeColorToken(value) {
-  if (TOKEN_ENUMS.background.includes(value)) {
-    return value;
+function resolveBackgroundToken(value) {
+  if (typeof value !== 'string') {
+    return undefined;
   }
-  return undefined;
+
+  const normalized = value.trim();
+  const mapped = BACKGROUND_TOKEN_ALIASES[normalized] || normalized;
+  return TOKEN_ENUMS.background.includes(mapped) ? mapped : undefined;
+}
+
+function normalizeColorToken(value) {
+  return resolveBackgroundToken(value);
 }
 
 function clampOverlay(value) {
@@ -952,7 +963,12 @@ function validateTokens(tokens) {
   if (!isPlainObject(tokens)) {
     return false;
   }
-  return Object.entries(tokens).every(([key, value]) => TOKEN_ENUMS[key]?.includes(value));
+  return Object.entries(tokens).every(([key, value]) => {
+    if (key === 'background') {
+      return Boolean(resolveBackgroundToken(value));
+    }
+    return TOKEN_ENUMS[key]?.includes(value);
+  });
 }
 
 function hasContent(value) {
@@ -989,14 +1005,16 @@ function validateSectionBackground(background, layout = 'normal') {
     }
   }
 
+  const colorToken = resolveBackgroundToken(background.colorToken);
+
   if (background.mode === 'none') {
-    return background.colorToken === undefined
+    return colorToken === undefined
       && background.imageId === undefined
       && background.overlay === undefined;
   }
 
   if (background.mode === 'color') {
-    return TOKEN_ENUMS.background.includes(background.colorToken)
+    return Boolean(colorToken)
       && background.imageId === undefined
       && background.overlay === undefined
       && background.attachment === undefined;
