@@ -129,18 +129,22 @@ const BACKGROUND_ATTACHMENTS = [
 ];
 
 const BACKGROUND_COLOR_TOKENS = [
-  { value: 'default', label: 'Standard (Oberfläche)' },
+  { value: 'primary', label: 'Primärfarbe' },
+  { value: 'secondary', label: 'Sekundärfarbe' },
   { value: 'muted', label: 'Neutral (Muted)' },
-  { value: 'primary', label: 'Primärfarbe' }
+  { value: 'accent', label: 'Akzent' },
+  { value: 'surface', label: 'Standard (Oberfläche)' }
 ];
 
 const BACKGROUND_COLOR_TOKEN_MAP = {
-  default: 'var(--surface)',
+  primary: 'var(--brand-primary, #1e87f0)',
+  secondary: 'var(--brand-accent, var(--brand-primary, #1e87f0))',
   muted: 'var(--surface-muted)',
-  primary: 'var(--brand-primary, #1e87f0)'
+  accent: 'var(--bg-accent-soft)',
+  surface: 'var(--surface)'
 };
 
-const DEFAULT_BACKGROUND_COLOR_TOKEN = 'muted';
+const DEFAULT_BACKGROUND_COLOR_TOKEN = 'surface';
 
 const BACKGROUND_TYPES_BY_APPEARANCE = {
   contained: ['none', 'color'],
