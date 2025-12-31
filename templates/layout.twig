@@ -3,6 +3,23 @@
 {% set normalizedBodyTheme = bodyThemeValue|trim|lower %}
 {% set namespaceCandidate = pageNamespace|default(marketingNamespace|default(config.namespace|default('default'))) %}
 {% set normalizedNamespace = namespaceCandidate|default('default')|trim|lower %}
+{% set bodyClassRaw %}{% block body_class %}{% endblock %}{% endset %}
+{% set normalizedBodyClass = bodyClassRaw|trim %}
+{% set isAdminPage = 'admin-page' in normalizedBodyClass %}
+{# Allowed admin layout profiles: wide, standard, narrow. #}
+{% set allowedAdminLayouts = ['wide', 'standard', 'narrow'] %}
+{% set adminLayoutRaw = adminLayout|default('') %}
+{% set normalizedAdminLayout = adminLayoutRaw is same as(null) ? '' : adminLayoutRaw|trim|lower %}
+{% set resolvedAdminLayout = null %}
+{% if isAdminPage %}
+  {% set resolvedAdminLayout = 'standard' %}
+  {% if normalizedAdminLayout in allowedAdminLayouts %}
+    {% set resolvedAdminLayout = normalizedAdminLayout %}
+  {% elseif normalizedAdminLayout %}
+    {% set resolvedAdminLayout = 'standard' %}
+  {% endif %}
+{% endif %}
+{% set mergedBodyClass = normalizedBodyClass ~ (isAdminPage ? (normalizedBodyClass ? ' ' : '') ~ 'admin-shell' : '') %}
 <html lang="{{ locale() }}" data-theme="{{ normalizedBodyTheme }}" data-namespace="{{ normalizedNamespace }}">
 <head>
   <meta charset="UTF-8">
@@ -139,7 +156,11 @@
     {% endif %}
   {% endblock %}
 </head>
-<body data-theme="{{ normalizedBodyTheme }}" class="{% block body_class %}{% endblock %}">
+<body
+  data-theme="{{ normalizedBodyTheme }}"
+  class="{{ mergedBodyClass }}"
+  {% if resolvedAdminLayout %}data-admin-layout="{{ resolvedAdminLayout }}"{% endif %}
+>
   <div class="wrapper">
     <main class="content">
       {% block body %}{% endblock %}
