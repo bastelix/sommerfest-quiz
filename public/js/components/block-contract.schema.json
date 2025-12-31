@@ -486,6 +486,9 @@
     "SectionStyle": {
       "type": "object",
       "additionalProperties": false,
+      "required": [
+        "layout"
+      ],
       "properties": {
         "layout": {
           "enum": [

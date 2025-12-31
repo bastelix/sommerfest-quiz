@@ -816,12 +816,17 @@ const APPEARANCE_TO_LAYOUT = {
 };
 
 function normalizeSectionLayout(layout, legacyAppearance) {
-  if (SECTION_LAYOUTS.includes(layout)) {
-    return layout;
+  const normalizedLayout = typeof layout === 'string' ? layout.trim() : undefined;
+  if (SECTION_LAYOUTS.includes(normalizedLayout)) {
+    return normalizedLayout;
   }
 
-  const preset = resolveSectionAppearancePreset(legacyAppearance);
-  return APPEARANCE_TO_LAYOUT[preset] || 'normal';
+  const preset = normalizeSectionAppearance(legacyAppearance);
+  if (preset && APPEARANCE_TO_LAYOUT[preset]) {
+    return APPEARANCE_TO_LAYOUT[preset];
+  }
+
+  return undefined;
 }
 
 function normalizeColorToken(value) {
@@ -850,7 +855,11 @@ function normalizeBackgroundAttachment(value) {
   return SECTION_BACKGROUND_ATTACHMENTS.includes(value) ? value : 'scroll';
 }
 
-export function normalizeSectionBackground(background, legacyBackgroundImage, layout = 'normal', legacyAppearance) {
+export function normalizeSectionBackground(background, legacyBackgroundImage, layout, legacyAppearance) {
+  if (!SECTION_LAYOUTS.includes(layout)) {
+    return undefined;
+  }
+
   const source = isPlainObject(background) ? background : {};
   const legacyImage = hasContent(legacyBackgroundImage) ? legacyBackgroundImage : undefined;
   const baseMode = SECTION_BACKGROUND_MODES.includes(source.mode)
@@ -921,6 +930,9 @@ export function normalizeSectionBackground(background, legacyBackgroundImage, la
 function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppearance) {
   const source = isPlainObject(sectionStyle) ? sectionStyle : {};
   const layout = normalizeSectionLayout(source.layout, legacyAppearance);
+  if (!layout) {
+    return undefined;
+  }
   const normalizedBackground = normalizeSectionBackground(
     source.background,
     legacyBackgroundImage,
@@ -978,7 +990,7 @@ function hasContent(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
-export function validateSectionBackground(background, layout = 'normal') {
+export function validateSectionBackground(background, layout) {
   if (!isPlainObject(background) || !SECTION_LAYOUTS.includes(layout)) {
     return false;
   }
@@ -1049,7 +1061,10 @@ function validateSectionStyle(style) {
     return false;
   }
 
-  const layout = style.layout || 'normal';
+  const layout = typeof style.layout === 'string' ? style.layout.trim() : undefined;
+  if (!layout) {
+    return false;
+  }
   if (!SECTION_LAYOUTS.includes(layout)) {
     return false;
   }
