@@ -112,7 +112,7 @@ class PagesDesignController
             $incoming = $this->extractTokens($parsedBody);
             $tokensToPersist = $currentTokens;
             foreach ($incoming as $group => $values) {
-                if (!is_array($values) || !array_key_exists($group, $tokensToPersist)) {
+                if (!array_key_exists($group, $tokensToPersist)) {
                     continue;
                 }
                 foreach ($values as $key => $value) {
