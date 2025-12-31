@@ -613,8 +613,8 @@ class ConfigService
             return;
         }
 
-        if (!$this->eventExists($uid)) {
-            throw new RuntimeException('Cannot create config because event does not exist: ' . $uid);
+        if (!$this->eventExists($uid) && !$this->namespaceExists($uid)) {
+            throw new RuntimeException('Cannot create config because event or namespace does not exist: ' . $uid);
         }
 
         $stmt = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid = ? LIMIT 1');
@@ -631,6 +631,18 @@ class ConfigService
         $stmt->execute([$uid]);
 
         return $stmt->fetchColumn() !== false;
+    }
+
+    private function namespaceExists(string $namespace): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare('SELECT 1 FROM namespaces WHERE namespace = ? LIMIT 1');
+            $stmt->execute([$namespace]);
+
+            return $stmt->fetchColumn() !== false;
+        } catch (PDOException) {
+            return false;
+        }
     }
 
     /**
