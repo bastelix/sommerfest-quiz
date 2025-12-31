@@ -90,18 +90,38 @@ const VARIANT_LABELS = {
 };
 
 const SECTION_APPEARANCE_OPTIONS = [
-  { value: 'default', label: 'Standard' },
-  { value: 'surface', label: 'Abgesetzt' },
-  { value: 'contrast', label: 'Kontrast' },
-  { value: 'image', label: 'Hintergrundbild' },
-  { value: 'image-fixed', label: 'Hintergrundbild (fixiert)' }
+  {
+    value: 'contained',
+    label: 'Normal (mit Rand)',
+    description: 'Hintergrund und Padding sind an die Inhaltsbreite gekoppelt.'
+  },
+  {
+    value: 'full',
+    label: 'Hintergrund volle Breite',
+    description: 'Hintergrund läuft über die gesamte Breite, der Inhalt bleibt eingerückt.'
+  },
+  {
+    value: 'card',
+    label: 'Als Card anzeigen',
+    description: 'Der Abschnitt erscheint als Karte mit Innenabstand.'
+  }
 ];
 
-const IMAGE_APPEARANCE_PRESETS = new Set(['image', 'image-fixed']);
+const LEGACY_IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
 
-const normalizeAppearance = value => (SECTION_APPEARANCE_PRESETS.includes(value) ? value : 'default');
+const LEGACY_APPEARANCE_ALIASES = {
+  default: 'contained',
+  surface: 'contained',
+  contrast: 'full',
+  image: 'full',
+  'image-fixed': 'full'
+};
 
-const appearanceSupportsImage = appearance => IMAGE_APPEARANCE_PRESETS.has(appearance);
+const normalizeAppearance = value => (SECTION_APPEARANCE_PRESETS.includes(value) ? value : 'contained');
+
+const resolveAppearanceOption = value => LEGACY_APPEARANCE_ALIASES[value] || value;
+
+const appearanceSupportsImage = appearance => LEGACY_IMAGE_APPEARANCES.has(appearance);
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -1720,7 +1740,8 @@ export class BlockContentEditor {
 
     const options = document.createElement('div');
     options.className = 'layout-style-picker__options layout-style-picker__options--appearance';
-    const currentAppearance = normalizeAppearance(block.sectionAppearance);
+    const normalizedAppearance = normalizeAppearance(block.sectionAppearance);
+    const currentAppearance = resolveAppearanceOption(normalizedAppearance);
 
     SECTION_APPEARANCE_OPTIONS.forEach(option => {
       const card = document.createElement('button');
@@ -1734,14 +1755,21 @@ export class BlockContentEditor {
       title.className = 'layout-style-card__title';
       title.textContent = option.label;
 
-      card.append(title);
+      if (option.description) {
+        const description = document.createElement('div');
+        description.className = 'layout-style-card__description';
+        description.textContent = option.description;
+        card.append(title, description);
+      } else {
+        card.append(title);
+      }
       card.addEventListener('click', () => this.updateAppearance(block.id, option.value));
       options.append(card);
     });
 
     wrapper.append(options);
 
-    if (appearanceSupportsImage(currentAppearance)) {
+    if (appearanceSupportsImage(normalizedAppearance)) {
       wrapper.append(
         this.addLabeledInput(
           'Hintergrundbild',

@@ -13,6 +13,12 @@
   --accent-primary: var(--brand-primary, #1e87f0);
   --accent-secondary: var(--brand-accent, var(--brand-primary, #1e87f0));
   --text-on-primary: #ffffff;
+  --section-padding: clamp(24px, 4vw, 48px);
+  --section-padding-tight: clamp(16px, 3vw, 28px);
+  --card-radius: 18px;
+  --card-radius-square: 12px;
+  --surface: var(--bg-section);
+  --surface-muted: var(--bg-page);
 
   --primary-color: var(--accent-primary);
   --accent-color: var(--accent-secondary);
@@ -45,6 +51,12 @@
   --accent-primary: var(--brand-primary, #63a4ff);
   --accent-secondary: var(--brand-accent, var(--brand-primary, #63a4ff));
   --text-on-primary: #ffffff;
+  --section-padding: clamp(24px, 4vw, 48px);
+  --section-padding-tight: clamp(16px, 3vw, 28px);
+  --card-radius: 18px;
+  --card-radius-square: 12px;
+  --surface: var(--bg-section);
+  --surface-muted: var(--bg-page);
 
   --primary-color: var(--accent-primary);
   --accent-color: var(--accent-secondary);

@@ -70,38 +70,56 @@ function resolveCsrfToken() {
   return '';
 }
 
-const SECTION_APPEARANCES = ['default', 'surface', 'contrast', 'image', 'image-fixed'];
+const SECTION_APPEARANCE_ALIASES = {
+  default: 'contained',
+  surface: 'contained',
+  contrast: 'full',
+  image: 'full',
+  'image-fixed': 'full'
+};
+
+const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
 const IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
 
 function resolveSectionAppearance(block) {
   const preset = typeof block?.sectionAppearance === 'string' ? block.sectionAppearance.trim() : '';
-  return SECTION_APPEARANCES.includes(preset) ? preset : 'default';
+  const rawAppearance = SECTION_APPEARANCES.includes(preset) ? preset : 'contained';
+  const mappedAppearance = SECTION_APPEARANCE_ALIASES[rawAppearance] || rawAppearance;
+
+  return { appearance: mappedAppearance, legacyAppearance: rawAppearance };
 }
 
-function buildSectionStyle(block, appearance) {
+function buildSectionStyle(block, rawAppearance) {
   const backgroundImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage.trim() : '';
-  if (!backgroundImage || !IMAGE_APPEARANCES.has(appearance)) {
+  if (!backgroundImage || !IMAGE_APPEARANCES.has(rawAppearance)) {
     return '';
   }
 
-  return `--section-bg-image: url('${escapeAttribute(backgroundImage)}')`;
+  return [
+    `--section-bg-image: url('${escapeAttribute(backgroundImage)}')`,
+    rawAppearance === 'image-fixed' ? '--section-bg-attachment: fixed' : null
+  ]
+    .filter(Boolean)
+    .join('; ');
 }
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
-  const appearance = resolveSectionAppearance(block);
+  const { appearance, legacyAppearance } = resolveSectionAppearance(block);
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const classes = ['section', 'uk-section', sectionClass].filter(Boolean).join(' ');
+  const classes = ['section', 'uk-section', `section--${appearance}`, sectionClass].filter(Boolean).join(' ');
   const dataAttributes = [
     `data-block-id="${escapeAttribute(block.id)}"`,
     `data-block-type="${escapeAttribute(block.type)}"`,
     `data-block-variant="${escapeAttribute(variant)}"`,
-    `data-appearance="${appearance}"`
+    `data-appearance="${appearance}"`,
+    `data-appearance-legacy="${legacyAppearance}"`
   ].join(' ');
-  const style = buildSectionStyle(block, appearance);
+  const style = buildSectionStyle(block, legacyAppearance);
   const styleAttribute = style ? ` style="${style}"` : '';
+  const contentWrapper = `<div class="section__inner">${content}</div>`;
   const inner = container
-    ? `<div class="uk-container${containerClass ? ` ${containerClass}` : ''}">${content}</div>`
-    : content;
+    ? `<div class="uk-container${containerClass ? ` ${containerClass}` : ''}">${contentWrapper}</div>`
+    : contentWrapper;
 
   return `<section${anchor} class="${classes}" ${dataAttributes}${styleAttribute}>${inner}</section>`;
 }
