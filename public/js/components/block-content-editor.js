@@ -91,14 +91,14 @@ const VARIANT_LABELS = {
   }
 };
 
-const SECTION_APPEARANCE_OPTIONS = [
+const SECTION_LAYOUT_OPTIONS = [
   {
-    value: 'contained',
-    label: 'Normal (mit Rand)',
+    value: 'normal',
+    label: 'Normal',
     description: 'Hintergrund und Padding sind an die Inhaltsbreite gekoppelt.'
   },
   {
-    value: 'full',
+    value: 'fullwidth',
     label: 'Hintergrund volle Breite',
     description: 'Hintergrund läuft über die gesamte Breite, der Inhalt bleibt eingerückt.'
   },
@@ -109,6 +109,8 @@ const SECTION_APPEARANCE_OPTIONS = [
   }
 ];
 
+const SECTION_LAYOUTS = SECTION_LAYOUT_OPTIONS.map(option => option.value);
+
 const LEGACY_APPEARANCE_ALIASES = {
   default: 'contained',
   surface: 'contained',
@@ -117,9 +119,21 @@ const LEGACY_APPEARANCE_ALIASES = {
   'image-fixed': 'full'
 };
 
-const BACKGROUND_TYPE_OPTIONS = [
+const LAYOUT_TO_APPEARANCE = {
+  normal: 'contained',
+  fullwidth: 'full',
+  card: 'card'
+};
+
+const APPEARANCE_TO_LAYOUT = {
+  contained: 'normal',
+  full: 'fullwidth',
+  card: 'card'
+};
+
+const BACKGROUND_MODE_OPTIONS = [
   { value: 'none', label: 'Kein Hintergrund' },
-  { value: 'color', label: 'Farbe' },
+  { value: 'color', label: 'Farbton' },
   { value: 'image', label: 'Bild' }
 ];
 
@@ -129,12 +143,14 @@ const BACKGROUND_ATTACHMENTS = [
 ];
 
 const BACKGROUND_COLOR_TOKENS = [
+  { value: 'surface', label: 'Standard (Surface)' },
   { value: 'primary', label: 'Primärfarbe' },
   { value: 'secondary', label: 'Sekundärfarbe' },
   { value: 'muted', label: 'Neutral (Muted)' },
-  { value: 'accent', label: 'Akzent' },
-  { value: 'surface', label: 'Standard (Oberfläche)' }
+  { value: 'accent', label: 'Akzent' }
 ];
+
+const BACKGROUND_COLOR_TOKEN_VALUES = BACKGROUND_COLOR_TOKENS.map(option => option.value);
 
 const BACKGROUND_COLOR_TOKEN_MAP = {
   primary: 'var(--brand-primary, #1e87f0)',
@@ -146,124 +162,107 @@ const BACKGROUND_COLOR_TOKEN_MAP = {
 
 const DEFAULT_BACKGROUND_COLOR_TOKEN = 'surface';
 
-const BACKGROUND_TYPES_BY_APPEARANCE = {
-  contained: ['none', 'color'],
-  full: ['none', 'color', 'image'],
-  card: ['none']
+const BACKGROUND_MODES_BY_LAYOUT = {
+  normal: ['none', 'color'],
+  fullwidth: ['none', 'color', 'image'],
+  card: ['none', 'color']
 };
 
 const normalizeAppearance = value => (SECTION_APPEARANCE_PRESETS.includes(value) ? value : 'contained');
 
 const resolveAppearanceOption = value => LEGACY_APPEARANCE_ALIASES[value] || value;
 
-const getAllowedBackgroundTypes = appearance => BACKGROUND_TYPES_BY_APPEARANCE[appearance] || ['none'];
-
-const normalizeBackgroundType = (type, allowedTypes = BACKGROUND_TYPE_OPTIONS.map(option => option.value)) => {
-  const safeType = BACKGROUND_TYPE_OPTIONS.some(option => option.value === type) ? type : 'none';
-  return allowedTypes.includes(safeType) ? safeType : 'none';
-};
-
-const normalizeAttachment = attachment =>
-  (BACKGROUND_ATTACHMENTS.some(option => option.value === attachment) ? attachment : 'scroll');
-
-const isDesignTokenColor = color => BACKGROUND_COLOR_TOKENS.some(token => token.value === color);
-
-const resolveBackgroundColorToken = color => {
-  if (typeof color !== 'string') {
-    return '';
-  }
-  const trimmed = color.trim();
-  return isDesignTokenColor(trimmed) ? trimmed : trimmed;
-};
-
 const clampOverlayValue = value => {
   if (value === null || value === undefined || value === '') {
-    return null;
+    return undefined;
   }
 
   const numeric = Number(value);
-  if (Number.isNaN(numeric)) {
-    return null;
+  if (!Number.isFinite(numeric)) {
+    return undefined;
   }
 
   return Math.min(1, Math.max(0, numeric));
 };
 
-const normalizeBackgroundConfig = (background, allowedTypes = BACKGROUND_TYPE_OPTIONS.map(option => option.value)) => {
-  const type = normalizeBackgroundType(background?.type, allowedTypes);
-  const color = resolveBackgroundColorToken(background?.color);
-  const image = typeof background?.image === 'string'
-    ? background.image
-    : typeof background?.imageId === 'string'
-      ? background.imageId
+const normalizeLayout = layout => (SECTION_LAYOUTS.includes(layout) ? layout : undefined);
+
+const resolveLayout = (block, appearance = undefined) => {
+  const rawLayout = typeof block?.meta?.sectionStyle?.layout === 'string' ? block.meta.sectionStyle.layout.trim() : '';
+  const resolvedLayout = normalizeLayout(rawLayout);
+  if (resolvedLayout) {
+    return resolvedLayout;
+  }
+
+  const preset = resolveAppearanceOption(normalizeAppearance(appearance ?? block.sectionAppearance));
+  return APPEARANCE_TO_LAYOUT[preset] || 'normal';
+};
+
+const normalizeBackgroundForLayout = (background, layout, legacyBackgroundImage, legacyAppearance) => {
+  const allowedModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
+  const source = isPlainObject(background) ? background : {};
+  const legacyImage = typeof legacyBackgroundImage === 'string' ? legacyBackgroundImage : '';
+  const baseMode = typeof source.mode === 'string'
+    ? source.mode.trim()
+    : typeof source.type === 'string'
+      ? source.type.trim()
       : '';
-  const attachment = normalizeAttachment(background?.attachment);
-  const overlay = clampOverlayValue(background?.overlay);
+  const mode = allowedModes.includes(baseMode) ? baseMode : '';
+  const colorToken = typeof source.colorToken === 'string'
+    ? source.colorToken.trim()
+    : typeof source.color === 'string'
+      ? source.color.trim()
+      : '';
+  const imageId = typeof source.imageId === 'string'
+    ? source.imageId.trim()
+    : typeof source.image === 'string'
+      ? source.image.trim()
+      : legacyImage;
+  const overlay = clampOverlayValue(source.overlay);
+  const attachment = source.attachment === 'fixed'
+    ? 'fixed'
+    : source.attachment === 'scroll'
+      ? 'scroll'
+      : legacyAppearance === 'image-fixed'
+        ? 'fixed'
+        : 'scroll';
 
-  const normalized = { type, color, image, attachment, overlay };
-
-  if (normalized.type !== 'color') {
-    normalized.color = '';
-  } else if (!normalized.color) {
-    normalized.color = DEFAULT_BACKGROUND_COLOR_TOKEN;
+  if (mode === 'color' && BACKGROUND_COLOR_TOKEN_VALUES.includes(colorToken)) {
+    return { mode, colorToken };
   }
 
-  if (normalized.type !== 'image') {
-    normalized.image = '';
-    normalized.attachment = 'scroll';
-  }
-
-  if (!allowedTypes.includes(normalized.type)) {
-    normalized.type = 'none';
-    normalized.image = '';
-    normalized.color = '';
-  }
-
-  return normalized;
-};
-
-const serializeBackgroundConfig = (background, allowedTypes = BACKGROUND_TYPE_OPTIONS.map(option => option.value)) => {
-  const normalized = normalizeBackgroundConfig(background, allowedTypes);
-  const serialized = { type: normalized.type };
-
-  if (normalized.type === 'color' && normalized.color) {
-    serialized.color = normalized.color;
-  }
-
-  if (normalized.type === 'image' && normalized.image) {
-    serialized.image = normalized.image;
-    serialized.attachment = normalized.attachment;
-    if (normalized.overlay !== null) {
-      serialized.overlay = normalized.overlay;
+  if (mode === 'image' && layout === 'fullwidth' && imageId) {
+    const normalized = { mode, imageId, attachment };
+    if (overlay !== undefined) {
+      normalized.overlay = overlay;
     }
+    return normalized;
   }
 
-  if (normalized.type === 'none') {
-    serialized.attachment = 'scroll';
-  }
-
-  return serialized;
+  return { mode: 'none' };
 };
 
-const resolveSectionBackground = (block, appearance) => {
-  const background = block?.meta?.sectionStyle?.background || {};
-  const legacyImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage : '';
-  const legacyAttachment = block?.sectionAppearance === 'image-fixed' ? 'fixed' : 'scroll';
-  const merged = { ...background };
+const resolveSectionBackground = (block, layout) => normalizeBackgroundForLayout(
+  block?.meta?.sectionStyle?.background,
+  layout,
+  block?.backgroundImage,
+  block?.sectionAppearance
+);
 
-  if (!merged.type && legacyImage) {
-    merged.type = 'image';
-  }
-
-  if (!merged.image && legacyImage) {
-    merged.image = legacyImage;
-    merged.attachment = merged.attachment || legacyAttachment;
-  }
-
-  const allowedTypes = getAllowedBackgroundTypes(appearance || resolveAppearanceOption(normalizeAppearance(block.sectionAppearance)));
-
-  return normalizeBackgroundConfig(merged, allowedTypes);
+const resolveSectionStyle = block => {
+  const layout = resolveLayout(block);
+  const background = resolveSectionBackground(block, layout);
+  return { layout, background };
 };
+
+const applySectionStyle = (block, sectionStyle) => sanitizeBlock({
+  ...block,
+  sectionAppearance: LAYOUT_TO_APPEARANCE[sectionStyle.layout],
+  meta: {
+    ...(block.meta || {}),
+    sectionStyle
+  }
+});
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -2012,15 +2011,15 @@ export class BlockContentEditor {
 
     const options = document.createElement('div');
     options.className = 'layout-style-picker__options layout-style-picker__options--appearance';
-    const normalizedAppearance = normalizeAppearance(block.sectionAppearance);
-    const currentAppearance = resolveAppearanceOption(normalizedAppearance);
-    const allowedBackgroundTypes = getAllowedBackgroundTypes(currentAppearance);
+    const sectionStyle = resolveSectionStyle(block);
+    const { layout, background } = sectionStyle;
+    const allowedBackgroundModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
 
-    SECTION_APPEARANCE_OPTIONS.forEach(option => {
+    SECTION_LAYOUT_OPTIONS.forEach(option => {
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'layout-style-card layout-style-card--appearance';
-      const selected = option.value === currentAppearance;
+      const selected = option.value === layout;
       card.dataset.selected = String(selected);
       card.setAttribute('aria-pressed', selected ? 'true' : 'false');
 
@@ -2036,14 +2035,13 @@ export class BlockContentEditor {
       } else {
         card.append(title);
       }
-      card.addEventListener('click', () => this.updateAppearance(block.id, option.value));
+      card.addEventListener('click', () => this.updateSectionLayout(block.id, option.value));
       options.append(card);
     });
 
     wrapper.append(options);
 
-    const background = resolveSectionBackground(block, currentAppearance);
-    const supportsBackgroundConfig = allowedBackgroundTypes.some(type => type !== 'none');
+    const supportsBackgroundConfig = allowedBackgroundModes.some(type => type !== 'none');
 
     if (supportsBackgroundConfig) {
       const backgroundSection = document.createElement('div');
@@ -2062,21 +2060,32 @@ export class BlockContentEditor {
 
       const typeSelect = document.createElement('select');
       typeSelect.className = 'uk-select';
-      BACKGROUND_TYPE_OPTIONS.filter(option => allowedBackgroundTypes.includes(option.value)).forEach(option => {
+      BACKGROUND_MODE_OPTIONS.filter(option => allowedBackgroundModes.includes(option.value)).forEach(option => {
         const optionEl = document.createElement('option');
         optionEl.value = option.value;
         optionEl.textContent = option.label;
-        optionEl.selected = option.value === background.type;
+        optionEl.selected = option.value === background.mode;
         typeSelect.append(optionEl);
       });
       typeSelect.addEventListener('change', event => {
-        this.updateSectionBackground(block.id, { type: event.target.value });
+        const nextMode = event.target.value;
+        if (nextMode === 'image' && layout === 'fullwidth' && !background.imageId) {
+          const imageId = window.prompt('Bildquelle aus der Mediathek oder eine absolute URL.');
+          if (!imageId) {
+            event.target.value = background.mode;
+            return;
+          }
+          this.updateSectionBackground(block.id, { mode: 'image', imageId });
+          return;
+        }
+
+        this.updateSectionBackground(block.id, { mode: nextMode });
       });
 
       typeField.append(typeLabel, typeSelect);
       backgroundSection.append(typeField);
 
-      if (background.type === 'color') {
+      if (background.mode === 'color') {
         const colorField = document.createElement('label');
         colorField.dataset.fieldLabel = 'true';
 
@@ -2086,7 +2095,9 @@ export class BlockContentEditor {
 
         const colorSelect = document.createElement('select');
         colorSelect.className = 'uk-select';
-        const selectedColor = isDesignTokenColor(background.color) ? background.color : DEFAULT_BACKGROUND_COLOR_TOKEN;
+        const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
+          ? background.colorToken
+          : DEFAULT_BACKGROUND_COLOR_TOKEN;
 
         BACKGROUND_COLOR_TOKENS.forEach(option => {
           const optionEl = document.createElement('option');
@@ -2097,27 +2108,20 @@ export class BlockContentEditor {
         });
 
         colorSelect.addEventListener('change', event => {
-          this.updateSectionBackground(block.id, { type: 'color', color: event.target.value });
+          this.updateSectionBackground(block.id, { mode: 'color', colorToken: event.target.value });
         });
 
         colorField.append(colorLabel, colorSelect);
 
-        if (background.color && !isDesignTokenColor(background.color)) {
-          const legacyHelper = createHelperText('Bestehende Freifarbe erkannt. Wähle einen Design-Token, um sie zu ersetzen.');
-          if (legacyHelper) {
-            colorField.append(legacyHelper);
-          }
-        }
-
         backgroundSection.append(colorField);
       }
 
-      if (background.type === 'image' && allowedBackgroundTypes.includes('image')) {
+      if (layout === 'fullwidth' && background.mode === 'image') {
         backgroundSection.append(
           this.addLabeledInput(
             'Hintergrundbild',
-            background.image,
-            value => this.updateSectionBackground(block.id, { type: 'image', image: value }),
+            background.imageId,
+            value => this.updateSectionBackground(block.id, { mode: 'image', imageId: value }),
             {
               placeholder: '/uploads/bg.jpg',
               helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
@@ -2141,18 +2145,18 @@ export class BlockContentEditor {
           attachmentSelect.append(optionEl);
         });
         attachmentSelect.addEventListener('change', event => {
-          this.updateSectionBackground(block.id, { attachment: event.target.value, type: 'image' });
+          this.updateSectionBackground(block.id, { attachment: event.target.value, mode: 'image' });
         });
 
         attachmentField.append(attachmentLabel, attachmentSelect);
         backgroundSection.append(attachmentField);
 
-        const overlayValue = background.overlay ?? 0;
+        const overlayValue = typeof background.overlay === 'number' ? background.overlay : 0;
         backgroundSection.append(
           this.addLabeledInput(
             'Overlay-Deckkraft',
             overlayValue,
-            value => this.updateSectionBackground(block.id, { overlay: clampOverlayValue(value), type: 'image' }),
+            value => this.updateSectionBackground(block.id, { overlay: clampOverlayValue(value), mode: 'image' }),
             { type: 'range', min: 0, max: 1, step: 0.05, helpText: 'Optionaler dunkler Verlauf über dem Bild.' }
           )
         );
@@ -3746,29 +3750,19 @@ export class BlockContentEditor {
     }
   }
 
-  updateAppearance(blockId, appearance) {
-    const safeAppearance = normalizeAppearance(appearance);
+  updateSectionLayout(blockId, layout) {
+    const normalizedLayout = normalizeLayout(layout);
+    if (!normalizedLayout) {
+      return;
+    }
+
     this.state.blocks = this.state.blocks.map(block => {
       if (block.id !== blockId) {
         return block;
       }
 
-      const resolvedAppearance = resolveAppearanceOption(safeAppearance);
-      const allowedBackgroundTypes = getAllowedBackgroundTypes(resolvedAppearance);
-      const normalizedBackground = resolveSectionBackground(block, resolvedAppearance);
-      const serializedBackground = serializeBackgroundConfig(normalizedBackground, allowedBackgroundTypes);
-
-      return sanitizeBlock({
-        ...block,
-        sectionAppearance: safeAppearance,
-        meta: {
-          ...(block.meta || {}),
-          sectionStyle: {
-            ...(block.meta?.sectionStyle || {}),
-            background: serializedBackground
-          }
-        }
-      });
+      const normalizedBackground = resolveSectionBackground(block, normalizedLayout);
+      return applySectionStyle(block, { layout: normalizedLayout, background: normalizedBackground });
     });
 
     this.render();
@@ -3781,31 +3775,17 @@ export class BlockContentEditor {
           return block;
         }
 
-        const resolvedAppearance = resolveAppearanceOption(normalizeAppearance(block.sectionAppearance));
-        const allowedBackgroundTypes = getAllowedBackgroundTypes(resolvedAppearance);
-        const currentBackground = resolveSectionBackground(block, resolvedAppearance);
+        const layout = resolveLayout(block);
+        const currentBackground = resolveSectionBackground(block, layout);
         const merged = { ...currentBackground, ...changes };
-        merged.type = normalizeBackgroundType(changes.type || currentBackground.type, allowedBackgroundTypes);
-        if (typeof merged.image === 'string' && merged.image.trim() === '') {
-          merged.image = undefined;
-        }
-        if (typeof merged.color === 'string' && merged.color.trim() === '') {
-          merged.color = undefined;
-        }
-        const serializedBackground = serializeBackgroundConfig(merged, allowedBackgroundTypes);
+        const normalizedBackground = normalizeBackgroundForLayout(
+          merged,
+          layout,
+          block?.backgroundImage,
+          block?.sectionAppearance
+        );
 
-        const nextMeta = {
-          ...(block.meta || {}),
-          sectionStyle: {
-            ...(block.meta?.sectionStyle || {}),
-            background: serializedBackground
-          }
-        };
-
-        return sanitizeBlock({
-          ...block,
-          meta: nextMeta
-        });
+        return applySectionStyle(block, { layout, background: normalizedBackground });
       });
 
       this.render();
