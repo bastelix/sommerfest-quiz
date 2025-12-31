@@ -842,7 +842,7 @@ function normalizeBackgroundAttachment(value) {
   return SECTION_BACKGROUND_ATTACHMENTS.includes(value) ? value : 'scroll';
 }
 
-function normalizeSectionBackground(background, legacyBackgroundImage, layout = 'normal', legacyAppearance) {
+export function normalizeSectionBackground(background, legacyBackgroundImage, layout = 'normal', legacyAppearance) {
   const source = isPlainObject(background) ? background : {};
   const legacyImage = hasContent(legacyBackgroundImage) ? legacyBackgroundImage : undefined;
   const baseMode = SECTION_BACKGROUND_MODES.includes(source.mode)
@@ -871,6 +871,8 @@ function normalizeSectionBackground(background, legacyBackgroundImage, layout = 
     mode = 'none';
   }
 
+  const layoutSupportsImages = layout === 'fullwidth';
+
   const normalized = { mode };
 
   if (mode === 'color') {
@@ -884,7 +886,7 @@ function normalizeSectionBackground(background, legacyBackgroundImage, layout = 
   }
 
   if (mode === 'image') {
-    if (layout !== 'fullwidth' || !hasContent(imageId)) {
+    if (!layoutSupportsImages || !hasContent(imageId)) {
       normalized.mode = 'none';
       return normalized;
     }
@@ -892,9 +894,15 @@ function normalizeSectionBackground(background, legacyBackgroundImage, layout = 
     normalized.imageId = imageId;
     normalized.attachment = attachment;
 
-    if (overlay !== undefined && layout === 'fullwidth') {
-      normalized.overlay = overlay;
-    }
+    normalized.overlay = overlay ?? 0;
+
+    return normalized;
+  }
+
+  if (!layoutSupportsImages) {
+    delete normalized.imageId;
+    delete normalized.attachment;
+    delete normalized.overlay;
 
     return normalized;
   }
@@ -959,7 +967,7 @@ function hasContent(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
-function validateSectionBackground(background, layout = 'normal') {
+export function validateSectionBackground(background, layout = 'normal') {
   if (!isPlainObject(background) || !SECTION_LAYOUTS.includes(layout)) {
     return false;
   }
@@ -975,7 +983,8 @@ function validateSectionBackground(background, layout = 'normal') {
 
   const overlayAllowed = layout === 'fullwidth' && background.mode === 'image';
   if (background.overlay !== undefined) {
-    if (!overlayAllowed || clampOverlay(background.overlay) === undefined) {
+    const numericOverlay = Number.parseFloat(background.overlay);
+    if (!overlayAllowed || !Number.isFinite(numericOverlay) || numericOverlay < 0 || numericOverlay > 1) {
       return false;
     }
   }
