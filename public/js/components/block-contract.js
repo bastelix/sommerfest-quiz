@@ -29,7 +29,8 @@ const SECTION_APPEARANCE_ALIASES = {
 };
 
 const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
-const SECTION_BACKGROUND_TYPES = ['none', 'color', 'image'];
+const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
+const SECTION_BACKGROUND_MODES = ['none', 'color', 'image'];
 const SECTION_BACKGROUND_ATTACHMENTS = ['scroll', 'fixed'];
 
 const schema = {
@@ -200,9 +201,8 @@ const schema = {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "enum": SECTION_BACKGROUND_TYPES },
-        "color": { "type": "string" },
-        "image": { "type": "string" },
+        "mode": { "enum": SECTION_BACKGROUND_MODES },
+        "colorToken": { "enum": TOKEN_ENUMS.background },
         "imageId": { "type": "string" },
         "attachment": { "enum": SECTION_BACKGROUND_ATTACHMENTS },
         "overlay": { "type": "number", "minimum": 0, "maximum": 1 }
@@ -212,6 +212,7 @@ const schema = {
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "layout": { "enum": SECTION_LAYOUTS },
         "background": { "$ref": "#/definitions/SectionBackground" }
       }
     },
@@ -802,6 +803,28 @@ export function resolveSectionAppearancePreset(appearance) {
   return SECTION_APPEARANCE_ALIASES[normalized] || normalized;
 }
 
+const APPEARANCE_TO_LAYOUT = {
+  contained: 'normal',
+  full: 'fullwidth',
+  card: 'card'
+};
+
+function normalizeSectionLayout(layout, legacyAppearance) {
+  if (SECTION_LAYOUTS.includes(layout)) {
+    return layout;
+  }
+
+  const preset = resolveSectionAppearancePreset(legacyAppearance);
+  return APPEARANCE_TO_LAYOUT[preset] || 'normal';
+}
+
+function normalizeColorToken(value) {
+  if (TOKEN_ENUMS.background.includes(value)) {
+    return value;
+  }
+  return undefined;
+}
+
 function clampOverlay(value) {
   if (value === null || value === undefined) {
     return undefined;
@@ -819,83 +842,82 @@ function normalizeBackgroundAttachment(value) {
   return SECTION_BACKGROUND_ATTACHMENTS.includes(value) ? value : 'scroll';
 }
 
-function normalizeSectionBackground(background, legacyBackgroundImage, legacyAppearance) {
+function normalizeSectionBackground(background, legacyBackgroundImage, layout = 'normal', legacyAppearance) {
   const source = isPlainObject(background) ? background : {};
   const legacyImage = hasContent(legacyBackgroundImage) ? legacyBackgroundImage : undefined;
-  const baseType = SECTION_BACKGROUND_TYPES.includes(source.type) ? source.type : undefined;
-  const color = hasContent(source.color) ? source.color : undefined;
-  const image = hasContent(source.image)
+  const baseMode = SECTION_BACKGROUND_MODES.includes(source.mode)
+    ? source.mode
+    : SECTION_BACKGROUND_MODES.includes(source.type)
+      ? source.type
+      : undefined;
+  const colorToken = normalizeColorToken(source.colorToken) || normalizeColorToken(source.color);
+  const imageId = hasContent(source.image)
     ? source.image
     : hasContent(source.imageId)
       ? source.imageId
-      : undefined;
-  const attachment = normalizeBackgroundAttachment(source.attachment);
+      : legacyImage;
   const overlay = clampOverlay(source.overlay);
   const defaultAttachment = legacyAppearance === 'image-fixed' ? 'fixed' : 'scroll';
+  const attachment = normalizeBackgroundAttachment(source.attachment || defaultAttachment);
 
-  let type = baseType;
-  if (!type && color) {
-    type = 'color';
+  let mode = baseMode;
+  if (!mode && colorToken) {
+    mode = 'color';
   }
-  if (!type && (image || legacyImage)) {
-    type = 'image';
+  if (!mode && imageId) {
+    mode = 'image';
   }
-  if (!type) {
-    type = 'none';
-  }
-
-  const normalized = {
-    type,
-    attachment: attachment || defaultAttachment
-  };
-
-  if (type === 'color' && color) {
-    normalized.color = color;
+  if (!mode) {
+    mode = 'none';
   }
 
-  if (type === 'image' && (image || legacyImage)) {
-    normalized.image = image || legacyImage;
+  const normalized = { mode };
+
+  if (mode === 'color') {
+    if (!colorToken) {
+      normalized.mode = 'none';
+      return normalized;
+    }
+
+    normalized.colorToken = colorToken;
+    return normalized;
   }
 
-  if (overlay !== undefined) {
-    normalized.overlay = overlay;
+  if (mode === 'image') {
+    if (layout !== 'fullwidth' || !hasContent(imageId)) {
+      normalized.mode = 'none';
+      return normalized;
+    }
+
+    normalized.imageId = imageId;
+    normalized.attachment = attachment;
+
+    if (overlay !== undefined && layout === 'fullwidth') {
+      normalized.overlay = overlay;
+    }
+
+    return normalized;
   }
 
-  if (normalized.type === 'color' && !normalized.color) {
-    normalized.type = 'none';
-  }
-
-  if (normalized.type === 'image' && !normalized.image) {
-    normalized.type = 'none';
-  }
-
-  if (normalized.type !== 'image' && normalized.attachment === 'scroll') {
-    delete normalized.attachment;
-  }
-
-  if (normalized.type === 'none') {
-    delete normalized.color;
-    delete normalized.image;
-    delete normalized.overlay;
-    delete normalized.attachment;
-  }
-
-  return normalized.type ? normalized : undefined;
+  return normalized;
 }
 
 function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppearance) {
+  const source = isPlainObject(sectionStyle) ? sectionStyle : {};
+  const layout = normalizeSectionLayout(source.layout, legacyAppearance);
   const normalizedBackground = normalizeSectionBackground(
-    sectionStyle?.background,
+    source.background,
     legacyBackgroundImage,
+    layout,
     legacyAppearance
   );
 
-  const normalized = {};
+  const normalized = { layout };
   if (normalizedBackground) {
     normalized.background = normalizedBackground;
   }
 
-  return Object.keys(normalized).length ? normalized : undefined;
+  return normalized;
 }
 
 function normalizeBlockMeta(meta, { sectionAppearance, backgroundImage } = {}) {
@@ -937,33 +959,55 @@ function hasContent(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
-function validateSectionBackground(background) {
-  if (!isPlainObject(background)) {
+function validateSectionBackground(background, layout = 'normal') {
+  if (!isPlainObject(background) || !SECTION_LAYOUTS.includes(layout)) {
     return false;
   }
 
-  if (!SECTION_BACKGROUND_TYPES.includes(background.type)) {
+  const allowedKeys = ['mode', 'colorToken', 'imageId', 'attachment', 'overlay'];
+  if (Object.keys(background).some(key => !allowedKeys.includes(key))) {
     return false;
   }
 
-  if (background.attachment && !SECTION_BACKGROUND_ATTACHMENTS.includes(background.attachment)) {
+  if (!SECTION_BACKGROUND_MODES.includes(background.mode)) {
     return false;
   }
 
-  if (background.overlay !== undefined && clampOverlay(background.overlay) === undefined) {
-    return false;
+  const overlayAllowed = layout === 'fullwidth' && background.mode === 'image';
+  if (background.overlay !== undefined) {
+    if (!overlayAllowed || clampOverlay(background.overlay) === undefined) {
+      return false;
+    }
   }
 
-  if (background.type === 'color') {
-    return hasContent(background.color);
+  if (background.attachment !== undefined) {
+    if (background.mode !== 'image' || layout !== 'fullwidth') {
+      return false;
+    }
+    if (!SECTION_BACKGROUND_ATTACHMENTS.includes(background.attachment)) {
+      return false;
+    }
   }
 
-  if (background.type === 'image') {
-    if (background.image === undefined && background.imageId === undefined) {
-      return true;
+  if (background.mode === 'none') {
+    return background.colorToken === undefined
+      && background.imageId === undefined
+      && background.overlay === undefined;
+  }
+
+  if (background.mode === 'color') {
+    return TOKEN_ENUMS.background.includes(background.colorToken)
+      && background.imageId === undefined
+      && background.overlay === undefined
+      && background.attachment === undefined;
+  }
+
+  if (background.mode === 'image') {
+    if (layout !== 'fullwidth') {
+      return false;
     }
 
-    return hasContent(background.image) || hasContent(background.imageId);
+    return hasContent(background.imageId);
   }
 
   return true;
@@ -978,11 +1022,21 @@ function validateSectionStyle(style) {
     return false;
   }
 
+  const allowedKeys = ['layout', 'background'];
+  if (Object.keys(style).some(key => !allowedKeys.includes(key))) {
+    return false;
+  }
+
+  const layout = style.layout || 'normal';
+  if (!SECTION_LAYOUTS.includes(layout)) {
+    return false;
+  }
+
   if (style.background === undefined) {
     return true;
   }
 
-  return validateSectionBackground(style.background);
+  return validateSectionBackground(style.background, layout);
 }
 
 function validateBlockMeta(meta) {
