@@ -70,153 +70,139 @@ function resolveCsrfToken() {
   return '';
 }
 
-const SECTION_APPEARANCE_ALIASES = {
-  default: 'contained',
-  surface: 'contained',
-  contrast: 'full',
-  image: 'full',
-  'image-fixed': 'full'
+const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
+const BACKGROUND_MODES_BY_LAYOUT = {
+  normal: ['none', 'color'],
+  fullwidth: ['none', 'color', 'image'],
+  card: ['none', 'color']
 };
 
-const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
-const IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
-
-const BACKGROUND_TYPES_BY_APPEARANCE = {
-  contained: ['none', 'color'],
-  full: ['none', 'color', 'image'],
-  card: ['none']
-};
-
-const BACKGROUND_COLOR_TOKEN_MAP = {
-  default: 'var(--surface)',
-  muted: 'var(--surface-muted)',
-  primary: 'var(--brand-primary, #1e87f0)'
-};
-
-const getAllowedBackgroundTypes = appearance => BACKGROUND_TYPES_BY_APPEARANCE[appearance] || ['none'];
-
-const resolveBackgroundColorValue = color => BACKGROUND_COLOR_TOKEN_MAP[color] || color;
+const BACKGROUND_COLOR_TOKENS = ['primary', 'secondary', 'muted', 'accent', 'surface'];
 
 function clampBackgroundOverlay(value) {
   if (value === null || value === undefined) {
-    return null;
+    return undefined;
   }
 
   const numeric = typeof value === 'number' ? value : Number.parseFloat(value);
   if (Number.isNaN(numeric)) {
-    return null;
+    return undefined;
   }
 
   return Math.min(1, Math.max(0, numeric));
 }
 
-function resolveSectionAppearance(block) {
-  const preset = typeof block?.sectionAppearance === 'string' ? block.sectionAppearance.trim() : '';
-  const rawAppearance = SECTION_APPEARANCES.includes(preset) ? preset : 'contained';
-  const mappedAppearance = SECTION_APPEARANCE_ALIASES[rawAppearance] || rawAppearance;
-
-  return { appearance: mappedAppearance, legacyAppearance: rawAppearance };
+function resolveSectionLayout(block) {
+  const layout = typeof block?.meta?.sectionStyle?.layout === 'string' ? block.meta.sectionStyle.layout.trim() : '';
+  return SECTION_LAYOUTS.includes(layout) ? layout : 'normal';
 }
 
-function resolveSectionBackground(block, appearance, rawAppearance) {
-  const allowedTypes = getAllowedBackgroundTypes(appearance);
+function resolveSectionBackground(block, layout) {
+  const allowedModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
   const background = block?.meta?.sectionStyle?.background || {};
-  const type = ['color', 'image', 'none'].includes(background.type) ? background.type : 'none';
-  const color = typeof background.color === 'string' ? background.color.trim() : '';
-  const image = typeof background.image === 'string'
-    ? background.image.trim()
-    : typeof background.imageId === 'string'
-      ? background.imageId.trim()
+  const rawMode = typeof background.mode === 'string'
+    ? background.mode.trim()
+    : typeof background.type === 'string'
+      ? background.type.trim()
+      : '';
+  const colorToken = typeof background.colorToken === 'string'
+    ? background.colorToken.trim()
+    : typeof background.color === 'string'
+      ? background.color.trim()
+      : '';
+  const imageId = typeof background.imageId === 'string'
+    ? background.imageId.trim()
+    : typeof background.image === 'string'
+      ? background.image.trim()
       : '';
   const attachment = background.attachment === 'fixed' ? 'fixed' : 'scroll';
   const overlay = clampBackgroundOverlay(background.overlay);
 
-  const legacyImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage.trim() : '';
-  const legacyAttachment = rawAppearance === 'image-fixed' ? 'fixed' : 'scroll';
+  let mode = allowedModes.includes(rawMode) ? rawMode : '';
 
-  let resolvedType = allowedTypes.includes(type) ? type : 'none';
-  let resolvedImage = image;
-
-  if (resolvedType === 'color' && !color) {
-    resolvedType = 'none';
+  if (!mode && colorToken) {
+    mode = 'color';
   }
 
-  if (resolvedType === 'image' && !resolvedImage && legacyImage) {
-    resolvedImage = legacyImage;
+  if (!mode && imageId) {
+    mode = 'image';
   }
 
-  if (resolvedType === 'image' && !resolvedImage) {
-    resolvedType = 'none';
+  if (!mode || !allowedModes.includes(mode)) {
+    mode = 'none';
   }
 
-  if (
-    resolvedType === 'none' &&
-    legacyImage &&
-    IMAGE_APPEARANCES.has(rawAppearance) &&
-    allowedTypes.includes('image')
-  ) {
-    resolvedType = 'image';
-    resolvedImage = legacyImage;
+  if (mode === 'color') {
+    return BACKGROUND_COLOR_TOKENS.includes(colorToken)
+      ? { mode, colorToken }
+      : { mode: 'none' };
   }
 
-  if (!allowedTypes.includes(resolvedType)) {
-    resolvedType = 'none';
-    resolvedImage = '';
-  }
-
-  return {
-    type: resolvedType || 'none',
-    color,
-    image: resolvedImage,
-    attachment: resolvedType === 'image' ? attachment || legacyAttachment : 'scroll',
-    overlay
-  };
-}
-
-function buildSectionStyle(background) {
-  const styles = [];
-
-  if (background.type === 'color' && background.color) {
-    const resolvedColor = resolveBackgroundColorValue(background.color);
-    styles.push(`--section-bg-color: ${escapeAttribute(resolvedColor)}`);
-  }
-
-  if (background.type === 'image' && background.image) {
-    styles.push(`--section-bg-image: url('${escapeAttribute(background.image)}')`);
-    styles.push(`--section-bg-attachment: ${escapeAttribute(background.attachment || 'scroll')}`);
-    if (background.overlay !== null && background.overlay !== undefined) {
-      styles.push(`--section-bg-overlay: ${background.overlay}`);
+  if (mode === 'image') {
+    if (layout !== 'fullwidth' || !imageId) {
+      return { mode: 'none' };
     }
+
+    const resolvedBackground = {
+      mode: 'image',
+      imageId,
+      attachment
+    };
+
+    if (overlay !== undefined) {
+      resolvedBackground.overlay = overlay;
+    }
+
+    return resolvedBackground;
   }
 
-  return styles.filter(Boolean).join('; ');
+  return { mode: 'none' };
 }
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
-  const { appearance, legacyAppearance } = resolveSectionAppearance(block);
-  const background = resolveSectionBackground(block, appearance, legacyAppearance);
+  const layout = resolveSectionLayout(block);
+  const background = resolveSectionBackground(block, layout);
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
-  const classes = ['section', 'uk-section', `section--${appearance}`, sectionClass].filter(Boolean).join(' ');
+  const classes = [
+    'section',
+    'uk-section',
+    `section--${layout}`,
+    background.mode === 'color' ? `section--bg-${background.colorToken}` : '',
+    background.mode === 'image' ? 'section--bg-image' : '',
+    background.mode === 'image' && background.attachment === 'fixed' ? 'section--bg-fixed' : '',
+    sectionClass
+  ]
+    .filter(Boolean)
+    .join(' ');
   const dataAttributes = [
     `data-block-id="${escapeAttribute(block.id)}"`,
     `data-block-type="${escapeAttribute(block.type)}"`,
     `data-block-variant="${escapeAttribute(variant)}"`,
-    `data-appearance="${appearance}"`,
-    `data-appearance-legacy="${legacyAppearance}"`,
-    background?.type && background.type !== 'none'
-      ? `data-section-background="${escapeAttribute(background.type)}"`
+    `data-section-layout="${escapeAttribute(layout)}"`,
+    `data-section-background-mode="${escapeAttribute(background.mode)}"`,
+    background.mode === 'color' && background.colorToken
+      ? `data-section-background-color-token="${escapeAttribute(background.colorToken)}"`
+      : null,
+    background.mode === 'image' && background.imageId
+      ? `data-section-background-image-id="${escapeAttribute(background.imageId)}"`
+      : null,
+    background.mode === 'image' && background.attachment
+      ? `data-section-background-attachment="${escapeAttribute(background.attachment)}"`
+      : null,
+    background.mode === 'image' && background.overlay !== undefined
+      ? `data-section-background-overlay="${escapeAttribute(String(background.overlay))}"`
       : null
   ]
     .filter(Boolean)
     .join(' ');
-  const style = buildSectionStyle(background);
-  const styleAttribute = style ? ` style="${style}"` : '';
   const contentWrapper = `<div class="section__inner">${content}</div>`;
   const inner = container
     ? `<div class="uk-container${containerClass ? ` ${containerClass}` : ''}">${contentWrapper}</div>`
     : contentWrapper;
 
-  return `<section${anchor} class="${classes}" ${dataAttributes}${styleAttribute}>${inner}</section>`;
+  const dataAttributesString = dataAttributes ? ` ${dataAttributes}` : '';
+
+  return `<section${anchor} class="${classes}"${dataAttributesString}>${inner}</section>`;
 }
 
 function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
