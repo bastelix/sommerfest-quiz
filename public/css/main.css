@@ -756,6 +756,37 @@ body.admin-page {
   padding-top: 0;
 }
 
+/* Admin layout profiles: wide (tables), standard (default), narrow (focused forms) */
+.admin-shell {
+  --admin-content-max-width: 1200px;
+}
+
+.admin-shell[data-admin-layout="standard"] {
+  --admin-content-max-width: 1200px;
+}
+
+.admin-shell[data-admin-layout="wide"] {
+  --admin-content-max-width: 1440px;
+}
+
+.admin-shell[data-admin-layout="narrow"] {
+  --admin-content-max-width: 800px;
+}
+
+.admin-shell .admin-main-container,
+.admin-shell .admin-section,
+.admin-shell .uk-container {
+  width: 100%;
+  max-width: var(--admin-content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.admin-shell .uk-container {
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .admin-page .admin-table-wrapper {
   overflow-x: auto;
   overflow-y: visible;
@@ -766,19 +797,6 @@ body.admin-page {
   /* Allow dropdown menus to escape the scroll container while preserving horizontal scrolling */
   overflow-x: auto !important;
   overflow-y: visible !important;
-}
-
-.admin-page .admin-main-container,
-.admin-page .admin-section {
-  width: 100%;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.admin-page .admin-main-container.is-full-width,
-.admin-page .admin-section.is-full-width {
-  max-width: none;
 }
 
 /* Ensure action dropdowns inside admin tables are not clipped by card or background layers */
