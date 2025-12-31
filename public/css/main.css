@@ -1983,6 +1983,7 @@ body.admin-page {
   width: 100%;
   appearance: none;
   color: inherit;
+  overflow: hidden;
 }
 
 .layout-style-card:hover {
