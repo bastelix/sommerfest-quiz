@@ -190,7 +190,7 @@ const schema = {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "background": { "enum": ["default", "muted", "primary"] },
+        "background": { "enum": ["primary", "secondary", "muted", "accent", "surface"] },
         "spacing": { "enum": ["small", "normal", "large"] },
         "width": { "enum": ["narrow", "normal", "wide"] },
         "columns": { "enum": ["single", "two", "three", "four"] },
@@ -782,11 +782,17 @@ const DEPRECATED_BLOCK_TYPES = {
 };
 
 const TOKEN_ENUMS = {
-  background: ['default', 'muted', 'primary'],
+  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
   spacing: ['small', 'normal', 'large'],
   width: ['narrow', 'normal', 'wide'],
   columns: ['single', 'two', 'three', 'four'],
   accent: ['brandA', 'brandB', 'brandC']
+};
+
+const TOKEN_ALIASES = {
+  background: {
+    default: 'surface'
+  }
 };
 
 function normalizeSectionAppearance(appearance) {
@@ -819,8 +825,10 @@ function normalizeSectionLayout(layout, legacyAppearance) {
 }
 
 function normalizeColorToken(value) {
-  if (TOKEN_ENUMS.background.includes(value)) {
-    return value;
+  const normalized = TOKEN_ALIASES.background?.[value] || value;
+
+  if (TOKEN_ENUMS.background.includes(normalized)) {
+    return normalized;
   }
   return undefined;
 }
@@ -952,7 +960,10 @@ function validateTokens(tokens) {
   if (!isPlainObject(tokens)) {
     return false;
   }
-  return Object.entries(tokens).every(([key, value]) => TOKEN_ENUMS[key]?.includes(value));
+  return Object.entries(tokens).every(([key, value]) => {
+    const normalizedValue = TOKEN_ALIASES[key]?.[value] || value;
+    return TOKEN_ENUMS[key]?.includes(normalizedValue);
+  });
 }
 
 function hasContent(value) {
@@ -996,7 +1007,9 @@ function validateSectionBackground(background, layout = 'normal') {
   }
 
   if (background.mode === 'color') {
-    return TOKEN_ENUMS.background.includes(background.colorToken)
+    const normalizedToken = normalizeColorToken(background.colorToken);
+
+    return normalizedToken !== undefined
       && background.imageId === undefined
       && background.overlay === undefined
       && background.attachment === undefined;

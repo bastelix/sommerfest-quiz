@@ -460,9 +460,11 @@
         },
         "colorToken": {
           "enum": [
-            "default",
+            "primary",
+            "secondary",
             "muted",
-            "primary"
+            "accent",
+            "surface"
           ]
         },
         "imageId": {
