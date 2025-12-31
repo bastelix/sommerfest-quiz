@@ -177,7 +177,7 @@ class DesignTokenService
     }
 
     /**
-     * @param array<string, mixed> $tokens
+     * @param string $namespace
      * @return array<string, mixed>
      */
     private function fetchStoredTokens(string $namespace): array

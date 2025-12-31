@@ -78,6 +78,7 @@ class PagesDesignController
 
     public function save(Request $request, Response $response): Response
     {
+        /** @var mixed $parsedBody */
         $parsedBody = $request->getParsedBody();
         if (!is_array($parsedBody)) {
             return $response->withStatus(400);
