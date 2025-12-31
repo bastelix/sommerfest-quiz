@@ -1105,7 +1105,7 @@ body.admin-page {
 
 .page-editor .content-editor-body {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 16px;
   align-items: flex-start;
   width: 100%;
