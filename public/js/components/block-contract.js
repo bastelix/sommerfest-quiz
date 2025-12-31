@@ -33,6 +33,20 @@ const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
 const SECTION_BACKGROUND_MODES = ['none', 'color', 'image'];
 const SECTION_BACKGROUND_ATTACHMENTS = ['scroll', 'fixed'];
 
+const TOKEN_ENUMS = {
+  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
+  spacing: ['small', 'normal', 'large'],
+  width: ['narrow', 'normal', 'wide'],
+  columns: ['single', 'two', 'three', 'four'],
+  accent: ['brandA', 'brandB', 'brandC']
+};
+
+const TOKEN_ALIASES = {
+  background: {
+    default: 'surface'
+  }
+};
+
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://quizrace.example.com/schemas/block-contract.schema.json",
@@ -779,20 +793,6 @@ const BLOCK_VARIANTS = Object.entries(RENDERER_MATRIX).reduce((accumulator, [typ
 const DEPRECATED_BLOCK_TYPES = {
   system_module: { replacement: { type: 'info_media', variant: 'switcher' } },
   case_showcase: { replacement: { type: 'audience_spotlight', variant: 'tabs' } }
-};
-
-const TOKEN_ENUMS = {
-  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
-  spacing: ['small', 'normal', 'large'],
-  width: ['narrow', 'normal', 'wide'],
-  columns: ['single', 'two', 'three', 'four'],
-  accent: ['brandA', 'brandB', 'brandC']
-};
-
-const TOKEN_ALIASES = {
-  background: {
-    default: 'surface'
-  }
 };
 
 function normalizeSectionAppearance(appearance) {
