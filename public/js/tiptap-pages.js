@@ -96,6 +96,52 @@ const sanitize = str => {
 // data-block-id. This keeps the editor and renderer isolated while still
 // synchronizing intent across both surfaces.
 const blockPreviewBindings = new WeakMap();
+const pageValidationState = new Map();
+
+const normalizePageSlug = slug => (typeof slug === 'string' ? slug.trim() : '');
+
+const getPageValidationStatus = slug => {
+  const normalized = normalizePageSlug(slug);
+  return pageValidationState.get(normalized) || { status: 'ok', errors: [] };
+};
+
+const applyValidationIndicatorsToTree = () => {
+  const container = document.querySelector('[data-page-tree]');
+  if (!container) {
+    return;
+  }
+
+  container.querySelectorAll('[data-page-tree-item]').forEach(item => {
+    const slug = normalizePageSlug(item.dataset.pageTreeItem);
+    const state = getPageValidationStatus(slug);
+    const isInvalid = state.status === 'invalid';
+    item.classList.toggle('page-tree-item-invalid', isInvalid);
+    const warning = item.querySelector('[data-page-tree-warning]');
+    if (isInvalid && !warning) {
+      const target = item.querySelector('[data-page-tree-info]') || item;
+      const indicator = document.createElement('span');
+      indicator.dataset.pageTreeWarning = 'true';
+      indicator.className = 'uk-text-warning uk-margin-small-left';
+      indicator.setAttribute('uk-icon', 'warning');
+      indicator.setAttribute('title', 'Seiteninhalt enthält Validierungsfehler.');
+      target.appendChild(indicator);
+    }
+    if (!isInvalid && warning) {
+      warning.remove();
+    }
+  });
+};
+
+const setPageValidationStatus = (slug, payload = {}) => {
+  const normalized = normalizePageSlug(slug);
+  if (!normalized) {
+    return;
+  }
+  const status = payload.status === 'invalid' ? 'invalid' : 'ok';
+  const errors = Array.isArray(payload.errors) ? payload.errors : [];
+  pageValidationState.set(normalized, { status, errors });
+  applyValidationIndicatorsToTree();
+};
 
 const safeParseBlocks = value => {
   if (!value) {
@@ -507,6 +553,9 @@ const teardownBlockPreview = form => {
 
 const attachBlockPreview = (form, editor) => {
   if (!form || !editor) {
+    return null;
+  }
+  if (editor.status === 'invalid') {
     return null;
   }
   const existing = blockPreviewBindings.get(form);
@@ -1272,6 +1321,35 @@ function resetLandingPreviewStyling(element) {
 
 const getEditorElement = form => (form ? form.querySelector('.page-editor') : null);
 
+const evaluatePageContent = form => {
+  const slug = normalizePageSlug(form?.dataset.slug);
+  if (!slug) {
+    return null;
+  }
+
+  const editorEl = getEditorElement(form);
+  const fallback = form?.querySelector('input[name="content"]');
+  const rawContent = editorEl?.dataset.content || editorEl?.textContent || fallback?.value || '{}';
+
+  let status = 'ok';
+  let errors = [];
+  try {
+    const evaluation = BlockContentEditor.evaluateContent(rawContent);
+    errors = Array.isArray(evaluation.validationErrors) ? evaluation.validationErrors : [];
+    status = errors.length ? 'invalid' : 'ok';
+  } catch (error) {
+    status = 'invalid';
+    errors = [{
+      message: 'Validierung fehlgeschlagen',
+      detail: error instanceof Error ? error.message : String(error || '')
+    }];
+  }
+
+  setPageValidationStatus(slug, { status, errors });
+  form.dataset.pageStatus = status;
+  return { status, errors };
+};
+
 const resetLandingStyling = element => {
   if (!element) {
     return;
@@ -1689,9 +1767,17 @@ const ensurePageEditorInitialized = form => {
     return null;
   }
 
+  const slug = normalizePageSlug(form?.dataset.slug);
+
   if (USE_BLOCK_EDITOR) {
     let existing = getEditorInstance(form);
     if (existing) {
+      if (slug) {
+        setPageValidationStatus(slug, {
+          status: existing.status === 'invalid' ? 'invalid' : 'ok',
+          errors: Array.isArray(existing.validationErrors) ? existing.validationErrors : []
+        });
+      }
       attachBlockPreview(form, existing);
       return existing;
     }
@@ -1699,10 +1785,22 @@ const ensurePageEditorInitialized = form => {
     editorEl.dataset.content = initialContent;
     try {
       const blockEditor = new BlockContentEditor(editorEl, initialContent, { pageId: form?.dataset.pageId });
+      if (slug) {
+        setPageValidationStatus(slug, {
+          status: blockEditor.status === 'invalid' ? 'invalid' : 'ok',
+          errors: Array.isArray(blockEditor.validationErrors) ? blockEditor.validationErrors : []
+        });
+      }
       setEditorInstance(form, blockEditor);
       attachBlockPreview(form, blockEditor);
       return blockEditor;
     } catch (error) {
+      if (slug) {
+        setPageValidationStatus(slug, {
+          status: 'invalid',
+          errors: [{ message: error?.message || 'Ungültige Blöcke' }]
+        });
+      }
       notify(error.message || 'Ungültige Blöcke', 'danger');
       return null;
     }
@@ -2115,6 +2213,16 @@ const setupPageForm = form => {
     return;
   }
 
+  editorEl.addEventListener('block-editor:validation', event => {
+    const detail = event?.detail || {};
+    setPageValidationStatus(slug, {
+      status: detail.status === 'invalid' ? 'invalid' : 'ok',
+      errors: Array.isArray(detail.errors) ? detail.errors : []
+    });
+  });
+
+  evaluatePageContent(form);
+
   if (form.classList.contains('uk-hidden')) {
     editorEl.innerHTML = '';
     resetLandingStyling(editorEl);
@@ -2453,6 +2561,9 @@ const removePageFromInterface = slug => {
     form.remove();
   }
 
+  pageValidationState.delete(normalized);
+  applyValidationIndicatorsToTree();
+
   if (window.pagesContent && typeof window.pagesContent === 'object') {
     delete window.pagesContent[normalized];
   }
@@ -2496,7 +2607,13 @@ const removePageFromInterface = slug => {
 };
 
 export function initPageEditors() {
-  document.querySelectorAll('.page-form').forEach(setupPageForm);
+  document.querySelectorAll('.page-form').forEach(form => {
+    try {
+      setupPageForm(form);
+    } catch (error) {
+      console.error('Failed to initialize page form', form?.dataset?.slug, error);
+    }
+  });
 }
 
 export function initPageSelection() {
@@ -3357,6 +3474,7 @@ function buildPageTreeList(nodes, level = 0) {
     row.className = 'uk-flex uk-flex-between uk-flex-middle uk-flex-wrap';
 
     const info = document.createElement('div');
+    info.dataset.pageTreeInfo = 'true';
     const title = document.createElement('span');
     title.className = 'uk-text-bold';
     title.textContent = node.title || node.slug || 'Ohne Titel';
@@ -3376,6 +3494,17 @@ function buildPageTreeList(nodes, level = 0) {
       button.dataset.pageSlug = selectableSlug;
       button.textContent = getTranslation('transEdit', 'Bearbeiten');
       info.appendChild(button);
+    }
+
+    const validation = getPageValidationStatus(selectableSlug);
+    if (validation.status === 'invalid') {
+      item.classList.add('page-tree-item-invalid');
+      const warning = document.createElement('span');
+      warning.dataset.pageTreeWarning = 'true';
+      warning.className = 'uk-text-warning uk-margin-small-left';
+      warning.setAttribute('uk-icon', 'warning');
+      warning.setAttribute('title', 'Seiteninhalt enthält Validierungsfehler.');
+      info.appendChild(warning);
     }
 
     const meta = document.createElement('div');
@@ -3759,10 +3888,12 @@ async function initPageTree() {
   }
 
   renderPageTreeFromState(container, emptyMessage, activeNamespace);
+  applyValidationIndicatorsToTree();
 
   try {
     const namespaces = await loadPageIndex(container, activeNamespace);
     renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace);
+    applyValidationIndicatorsToTree();
     if (loading) {
       loading.remove();
     }
@@ -3778,18 +3909,31 @@ async function initPageTree() {
   }
 }
 
+const runInitStep = (label, fn) => {
+  try {
+    const result = typeof fn === 'function' ? fn() : null;
+    if (result && typeof result.then === 'function') {
+      result.catch(error => {
+        console.error(`init step failed: ${label}`, error);
+      });
+    }
+  } catch (error) {
+    console.error(`init step failed: ${label}`, error);
+  }
+};
+
 const initPagesModule = () => {
-  initThemeToggle();
-  prefetchQuizLinks();
-  bindStartpageDomainSelect();
-  loadStartpageState();
-  initPageEditors();
-  initPageSelection();
-  bindStartpageToggle();
-  initPageCreation();
-  initAiPageCreation();
-  initPageTransferModal();
-  initPageTree();
+  runInitStep('theme-toggle', initThemeToggle);
+  runInitStep('prefetch-quiz-links', prefetchQuizLinks);
+  runInitStep('startpage-domain-select', bindStartpageDomainSelect);
+  runInitStep('startpage-state', loadStartpageState);
+  runInitStep('page-editors', initPageEditors);
+  runInitStep('page-selection', initPageSelection);
+  runInitStep('startpage-toggle', bindStartpageToggle);
+  runInitStep('page-creation', initPageCreation);
+  runInitStep('ai-page-creation', initAiPageCreation);
+  runInitStep('page-transfer-modal', initPageTransferModal);
+  runInitStep('page-tree', initPageTree);
 };
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPagesModule);
