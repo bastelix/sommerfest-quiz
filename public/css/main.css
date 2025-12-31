@@ -2007,6 +2007,16 @@ body.admin-page {
   color: #111827;
 }
 
+.layout-style-card__description {
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.layout-style-card[data-selected="true"] .layout-style-card__description {
+  color: #0f172a;
+}
+
 .layout-style-card__preview {
   background: #f8fafc;
   border: 1px solid #e5e7eb;

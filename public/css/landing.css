@@ -150,42 +150,71 @@ body.qr-landing { color: var(--qr-fg); }
 .qr-landing .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
 .section {
-  background: var(--bg-page);
+  padding: var(--section-padding-tight) 0;
+  background: transparent;
   color: inherit;
 }
 
-.section[data-appearance="surface"] {
-  background: var(--bg-surface);
+.section .uk-container {
+  position: relative;
 }
 
-.section[data-appearance="contrast"] {
+.section__inner {
+  background: transparent;
+  border-radius: var(--card-radius-square);
+  padding: var(--section-padding);
+  width: 100%;
+}
+
+.section--contained .section__inner {
+  background: var(--surface);
+}
+
+.section--full {
+  background: var(--surface-muted);
+  padding: var(--section-padding) 0;
+}
+
+.section--full .section__inner {
+  padding: var(--section-padding);
+}
+
+.section--card .section__inner {
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
+}
+
+.section[data-appearance-legacy="contrast"] {
   background: var(--brand-primary, #1e87f0);
   color: var(--text-on-primary, #ffffff);
 }
 
-.section[data-appearance="contrast"] a {
+.section[data-appearance-legacy="contrast"] a,
+.section[data-appearance-legacy="contrast"] a:hover {
   color: inherit;
 }
 
-.section[data-appearance="contrast"] a:hover {
-  color: inherit;
-}
-
-.section[data-appearance="image"],
-.section[data-appearance="image-fixed"] {
+.section[data-appearance-legacy="image"],
+.section[data-appearance-legacy="image-fixed"] {
   background-image: var(--section-bg-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.section[data-appearance="image-fixed"] {
-  background-attachment: fixed;
+.section[data-appearance-legacy="image-fixed"] {
+  background-attachment: var(--section-bg-attachment, fixed);
 }
 
 @media (max-width: 959px), (prefers-reduced-motion: reduce) {
-  .section[data-appearance="image-fixed"] {
+  .section[data-appearance-legacy="image-fixed"] {
     background-attachment: scroll;
+  }
+
+  .section__inner {
+    padding: var(--section-padding-tight);
   }
 }
 

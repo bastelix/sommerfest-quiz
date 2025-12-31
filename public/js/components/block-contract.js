@@ -16,7 +16,15 @@ const VARIANT_ALIASES = {
   }
 };
 
-const SECTION_APPEARANCES = ['default', 'surface', 'contrast', 'image', 'image-fixed'];
+const SECTION_APPEARANCE_ALIASES = {
+  default: 'contained',
+  surface: 'contained',
+  contrast: 'full',
+  image: 'full',
+  'image-fixed': 'full'
+};
+
+const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
 
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -751,6 +759,11 @@ function normalizeSectionAppearance(appearance) {
   return SECTION_APPEARANCES.includes(normalized) ? normalized : undefined;
 }
 
+export function resolveSectionAppearancePreset(appearance) {
+  const normalized = normalizeSectionAppearance(appearance) || 'contained';
+  return SECTION_APPEARANCE_ALIASES[normalized] || normalized;
+}
+
 function allowsBackgroundImage(appearance) {
   return IMAGE_APPEARANCES.has(appearance);
 }
@@ -855,7 +868,7 @@ export function validateBlockContract(block) {
     return { valid: false, reason: 'Tokens must match allowed design tokens' };
   }
 
-  const appearance = normalizeSectionAppearance(block.sectionAppearance) || 'default';
+  const appearance = normalizeSectionAppearance(block.sectionAppearance) || 'contained';
   if (block.sectionAppearance !== undefined && !normalizeSectionAppearance(block.sectionAppearance)) {
     return { valid: false, reason: 'Unknown section appearance preset' };
   }
@@ -883,3 +896,4 @@ export const ACTIVE_BLOCK_TYPES = BLOCK_TYPES.filter(type => !DEPRECATED_BLOCK_T
 export const TOKENS = TOKEN_ENUMS;
 export const DEPRECATED_BLOCK_MAP = DEPRECATED_BLOCK_TYPES;
 export const SECTION_APPEARANCE_PRESETS = SECTION_APPEARANCES;
+export const SECTION_APPEARANCE_ALIAS_MAP = SECTION_APPEARANCE_ALIASES;
