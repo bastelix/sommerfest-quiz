@@ -1973,6 +1973,12 @@ body.admin-page {
   margin: 0;
 }
 
+.appearance-style-picker,
+.section-style-panel,
+.background-style-panel {
+  margin: 0;
+}
+
 .layout-style-picker__label {
   font-weight: 600;
   color: #111827;
