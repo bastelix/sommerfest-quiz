@@ -109,8 +109,6 @@ const SECTION_APPEARANCE_OPTIONS = [
   }
 ];
 
-const LEGACY_IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
-
 const LEGACY_APPEARANCE_ALIASES = {
   default: 'contained',
   surface: 'contained',
@@ -119,11 +117,104 @@ const LEGACY_APPEARANCE_ALIASES = {
   'image-fixed': 'full'
 };
 
+const BACKGROUND_TYPE_OPTIONS = [
+  { value: 'none', label: 'Kein Hintergrund' },
+  { value: 'color', label: 'Farbe' },
+  { value: 'image', label: 'Bild' }
+];
+
+const BACKGROUND_ATTACHMENTS = [
+  { value: 'scroll', label: 'Mit Inhalt scrollen' },
+  { value: 'fixed', label: 'Fixiert (Parallax-Effekt)' }
+];
+
 const normalizeAppearance = value => (SECTION_APPEARANCE_PRESETS.includes(value) ? value : 'contained');
 
 const resolveAppearanceOption = value => LEGACY_APPEARANCE_ALIASES[value] || value;
 
-const appearanceSupportsImage = appearance => LEGACY_IMAGE_APPEARANCES.has(appearance);
+const normalizeBackgroundType = type => (BACKGROUND_TYPE_OPTIONS.some(option => option.value === type) ? type : 'none');
+
+const normalizeAttachment = attachment =>
+  (BACKGROUND_ATTACHMENTS.some(option => option.value === attachment) ? attachment : 'scroll');
+
+const clampOverlayValue = value => {
+  if (value === null || value === undefined || value === '') {
+    return null;
+  }
+
+  const numeric = Number(value);
+  if (Number.isNaN(numeric)) {
+    return null;
+  }
+
+  return Math.min(1, Math.max(0, numeric));
+};
+
+const normalizeBackgroundConfig = background => {
+  const type = normalizeBackgroundType(background?.type);
+  const color = typeof background?.color === 'string' ? background.color : '';
+  const image = typeof background?.image === 'string'
+    ? background.image
+    : typeof background?.imageId === 'string'
+      ? background.imageId
+      : '';
+  const attachment = normalizeAttachment(background?.attachment);
+  const overlay = clampOverlayValue(background?.overlay);
+
+  const normalized = { type, color, image, attachment, overlay };
+
+  if (normalized.type !== 'color') {
+    normalized.color = '';
+  }
+
+  if (normalized.type !== 'image') {
+    normalized.image = '';
+    normalized.attachment = 'scroll';
+  }
+
+  return normalized;
+};
+
+const serializeBackgroundConfig = background => {
+  const normalized = normalizeBackgroundConfig(background);
+  const serialized = { type: normalized.type };
+
+  if (normalized.type === 'color' && normalized.color) {
+    serialized.color = normalized.color;
+  }
+
+  if (normalized.type === 'image' && normalized.image) {
+    serialized.image = normalized.image;
+    serialized.attachment = normalized.attachment;
+    if (normalized.overlay !== null) {
+      serialized.overlay = normalized.overlay;
+    }
+  }
+
+  if (normalized.type === 'none') {
+    serialized.attachment = 'scroll';
+  }
+
+  return serialized;
+};
+
+const resolveSectionBackground = block => {
+  const background = block?.meta?.sectionStyle?.background || {};
+  const legacyImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage : '';
+  const legacyAttachment = block?.sectionAppearance === 'image-fixed' ? 'fixed' : 'scroll';
+  const merged = { ...background };
+
+  if (!merged.type && legacyImage) {
+    merged.type = 'image';
+  }
+
+  if (!merged.image && legacyImage) {
+    merged.image = legacyImage;
+    merged.attachment = merged.attachment || legacyAttachment;
+  }
+
+  return normalizeBackgroundConfig(merged);
+};
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -985,10 +1076,8 @@ function sanitizeBlock(block) {
   const sanitizedData = sanitizeValue(sanitizedTopLevel.data, dataDefinition, ['layout', 'style']);
   const sanitizedTokens = sanitizeTokens(sanitizedTopLevel.tokens);
   const sanitizedAppearance = normalizeAppearance(sanitizedTopLevel.sectionAppearance);
-  const sanitizedBackgroundImage = typeof sanitizedTopLevel.backgroundImage === 'string'
-    ? sanitizedTopLevel.backgroundImage.trim()
-    : undefined;
   const hasAppearancePreset = sanitizedTopLevel.sectionAppearance !== undefined;
+  const sanitizedMeta = sanitizedTopLevel.meta;
 
   const sanitizedBlock = {
     id: typeof sanitizedTopLevel.id === 'string' && sanitizedTopLevel.id ? sanitizedTopLevel.id : createId(),
@@ -1001,16 +1090,12 @@ function sanitizeBlock(block) {
     sanitizedBlock.tokens = sanitizedTokens;
   }
 
-  if (hasAppearancePreset || sanitizedBackgroundImage) {
+  if (hasAppearancePreset) {
     sanitizedBlock.sectionAppearance = sanitizedAppearance;
   }
 
-  if (sanitizedBackgroundImage && !appearanceSupportsImage(sanitizedAppearance)) {
-    throw new Error('Hintergrundbilder erfordern den Stil "Hintergrundbild".');
-  }
-
-  if (sanitizedBackgroundImage && appearanceSupportsImage(sanitizedAppearance)) {
-    sanitizedBlock.backgroundImage = sanitizedBackgroundImage;
+  if (sanitizedMeta) {
+    sanitizedBlock.meta = sanitizedMeta;
   }
 
   const validation = validateBlockContract(sanitizedBlock);
@@ -1773,19 +1858,95 @@ export class BlockContentEditor {
 
     wrapper.append(options);
 
-    if (appearanceSupportsImage(normalizedAppearance)) {
-      wrapper.append(
+    const background = resolveSectionBackground(block);
+    const backgroundSection = document.createElement('div');
+    backgroundSection.className = 'section-background-config';
+
+    const backgroundLabel = document.createElement('div');
+    backgroundLabel.className = 'layout-style-picker__label';
+    backgroundLabel.textContent = 'Hintergrund';
+    backgroundSection.append(backgroundLabel);
+
+    const typeField = document.createElement('label');
+    typeField.dataset.fieldLabel = 'true';
+    const typeLabel = document.createElement('div');
+    typeLabel.className = 'field-label';
+    typeLabel.textContent = 'Hintergrundart';
+
+    const typeSelect = document.createElement('select');
+    typeSelect.className = 'uk-select';
+    BACKGROUND_TYPE_OPTIONS.forEach(option => {
+      const optionEl = document.createElement('option');
+      optionEl.value = option.value;
+      optionEl.textContent = option.label;
+      optionEl.selected = option.value === background.type;
+      typeSelect.append(optionEl);
+    });
+    typeSelect.addEventListener('change', event => {
+      this.updateSectionBackground(block.id, { type: event.target.value });
+    });
+
+    typeField.append(typeLabel, typeSelect);
+    backgroundSection.append(typeField);
+
+    if (background.type === 'color') {
+      backgroundSection.append(
+        this.addLabeledInput(
+          'Hintergrundfarbe',
+          background.color || '#ffffff',
+          value => this.updateSectionBackground(block.id, { type: 'color', color: value || '#ffffff' }),
+          { type: 'color' }
+        )
+      );
+    }
+
+    if (background.type === 'image') {
+      backgroundSection.append(
         this.addLabeledInput(
           'Hintergrundbild',
-          block.backgroundImage,
-          value => this.updateBackgroundImage(block.id, value),
+          background.image,
+          value => this.updateSectionBackground(block.id, { type: 'image', image: value }),
           {
             placeholder: '/uploads/bg.jpg',
             helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
           }
         )
       );
+
+      const attachmentField = document.createElement('label');
+      attachmentField.dataset.fieldLabel = 'true';
+      const attachmentLabel = document.createElement('div');
+      attachmentLabel.className = 'field-label';
+      attachmentLabel.textContent = 'Bildverhalten';
+
+      const attachmentSelect = document.createElement('select');
+      attachmentSelect.className = 'uk-select';
+      BACKGROUND_ATTACHMENTS.forEach(option => {
+        const optionEl = document.createElement('option');
+        optionEl.value = option.value;
+        optionEl.textContent = option.label;
+        optionEl.selected = option.value === background.attachment;
+        attachmentSelect.append(optionEl);
+      });
+      attachmentSelect.addEventListener('change', event => {
+        this.updateSectionBackground(block.id, { attachment: event.target.value, type: 'image' });
+      });
+
+      attachmentField.append(attachmentLabel, attachmentSelect);
+      backgroundSection.append(attachmentField);
+
+      const overlayValue = background.overlay ?? 0;
+      backgroundSection.append(
+        this.addLabeledInput(
+          'Overlay-Deckkraft',
+          overlayValue,
+          value => this.updateSectionBackground(block.id, { overlay: clampOverlayValue(value), type: 'image' }),
+          { type: 'range', min: 0, max: 1, step: 0.05, helpText: 'Optionaler dunkler Verlauf über dem Bild.' }
+        )
+      );
     }
+
+    wrapper.append(backgroundSection);
 
     return wrapper;
   }
@@ -2185,7 +2346,7 @@ export class BlockContentEditor {
     if (options.placeholder) {
       input.placeholder = options.placeholder;
     }
-    input.value = value || '';
+    input.value = value === null || value === undefined ? '' : value;
     input.addEventListener('input', event => onChange(event.target.value));
     if (options.multiline) {
       input.rows = options.rows || 3;
@@ -3379,35 +3540,53 @@ export class BlockContentEditor {
         return block;
       }
 
-      const keepBackground = appearanceSupportsImage(safeAppearance);
       return sanitizeBlock({
         ...block,
-        sectionAppearance: safeAppearance,
-        backgroundImage: keepBackground ? block.backgroundImage : undefined
+        sectionAppearance: safeAppearance
       });
     });
 
     this.render();
   }
 
-  updateBackgroundImage(blockId, value) {
-    const imageValue = typeof value === 'string' ? value : '';
-
+  updateSectionBackground(blockId, changes = {}) {
     try {
       this.state.blocks = this.state.blocks.map(block => {
         if (block.id !== blockId) {
           return block;
         }
 
+        const currentBackground = resolveSectionBackground(block);
+        const merged = { ...currentBackground, ...changes };
+        merged.type = normalizeBackgroundType(changes.type || currentBackground.type);
+        if (typeof merged.image === 'string' && merged.image.trim() === '') {
+          merged.image = undefined;
+        }
+        if (typeof merged.color === 'string' && merged.color.trim() === '') {
+          merged.color = undefined;
+        }
+        if (merged.type === 'color' && !merged.color) {
+          merged.color = '#ffffff';
+        }
+        const serializedBackground = serializeBackgroundConfig(merged);
+
+        const nextMeta = {
+          ...(block.meta || {}),
+          sectionStyle: {
+            ...(block.meta?.sectionStyle || {}),
+            background: serializedBackground
+          }
+        };
+
         return sanitizeBlock({
           ...block,
-          backgroundImage: imageValue
+          meta: nextMeta
         });
       });
 
       this.render();
     } catch (error) {
-      window.alert(error.message || 'Hintergrundbild konnte nicht gesetzt werden');
+      window.alert(error.message || 'Hintergrund konnte nicht gesetzt werden');
     }
   }
 

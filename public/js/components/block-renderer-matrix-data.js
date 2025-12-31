@@ -81,6 +81,19 @@ const SECTION_APPEARANCE_ALIASES = {
 const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
 const IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
 
+function clampBackgroundOverlay(value) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const numeric = typeof value === 'number' ? value : Number.parseFloat(value);
+  if (Number.isNaN(numeric)) {
+    return null;
+  }
+
+  return Math.min(1, Math.max(0, numeric));
+}
+
 function resolveSectionAppearance(block) {
   const preset = typeof block?.sectionAppearance === 'string' ? block.sectionAppearance.trim() : '';
   const rawAppearance = SECTION_APPEARANCES.includes(preset) ? preset : 'contained';
@@ -89,22 +102,71 @@ function resolveSectionAppearance(block) {
   return { appearance: mappedAppearance, legacyAppearance: rawAppearance };
 }
 
-function buildSectionStyle(block, rawAppearance) {
-  const backgroundImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage.trim() : '';
-  if (!backgroundImage || !IMAGE_APPEARANCES.has(rawAppearance)) {
-    return '';
+function resolveSectionBackground(block, rawAppearance) {
+  const background = block?.meta?.sectionStyle?.background || {};
+  const type = ['color', 'image', 'none'].includes(background.type) ? background.type : 'none';
+  const color = typeof background.color === 'string' ? background.color.trim() : '';
+  const image = typeof background.image === 'string'
+    ? background.image.trim()
+    : typeof background.imageId === 'string'
+      ? background.imageId.trim()
+      : '';
+  const attachment = background.attachment === 'fixed' ? 'fixed' : 'scroll';
+  const overlay = clampBackgroundOverlay(background.overlay);
+
+  const legacyImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage.trim() : '';
+  const legacyAttachment = rawAppearance === 'image-fixed' ? 'fixed' : 'scroll';
+
+  let resolvedType = type;
+  let resolvedImage = image;
+
+  if (resolvedType === 'color' && !color) {
+    resolvedType = 'none';
   }
 
-  return [
-    `--section-bg-image: url('${escapeAttribute(backgroundImage)}')`,
-    rawAppearance === 'image-fixed' ? '--section-bg-attachment: fixed' : null
-  ]
-    .filter(Boolean)
-    .join('; ');
+  if (resolvedType === 'image' && !resolvedImage && legacyImage) {
+    resolvedImage = legacyImage;
+  }
+
+  if (resolvedType === 'image' && !resolvedImage) {
+    resolvedType = 'none';
+  }
+
+  if (resolvedType === 'none' && legacyImage && IMAGE_APPEARANCES.has(rawAppearance)) {
+    resolvedType = 'image';
+    resolvedImage = legacyImage;
+  }
+
+  return {
+    type: resolvedType || 'none',
+    color,
+    image: resolvedImage,
+    attachment: resolvedType === 'image' ? attachment || legacyAttachment : 'scroll',
+    overlay
+  };
+}
+
+function buildSectionStyle(background) {
+  const styles = [];
+
+  if (background.type === 'color' && background.color) {
+    styles.push(`--section-bg-color: ${escapeAttribute(background.color)}`);
+  }
+
+  if (background.type === 'image' && background.image) {
+    styles.push(`--section-bg-image: url('${escapeAttribute(background.image)}')`);
+    styles.push(`--section-bg-attachment: ${escapeAttribute(background.attachment || 'scroll')}`);
+    if (background.overlay !== null && background.overlay !== undefined) {
+      styles.push(`--section-bg-overlay: ${background.overlay}`);
+    }
+  }
+
+  return styles.filter(Boolean).join('; ');
 }
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const { appearance, legacyAppearance } = resolveSectionAppearance(block);
+  const background = resolveSectionBackground(block, legacyAppearance);
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const classes = ['section', 'uk-section', `section--${appearance}`, sectionClass].filter(Boolean).join(' ');
   const dataAttributes = [
@@ -112,9 +174,14 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     `data-block-type="${escapeAttribute(block.type)}"`,
     `data-block-variant="${escapeAttribute(variant)}"`,
     `data-appearance="${appearance}"`,
-    `data-appearance-legacy="${legacyAppearance}"`
-  ].join(' ');
-  const style = buildSectionStyle(block, legacyAppearance);
+    `data-appearance-legacy="${legacyAppearance}"`,
+    background?.type && background.type !== 'none'
+      ? `data-section-background="${escapeAttribute(background.type)}"`
+      : null
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const style = buildSectionStyle(background);
   const styleAttribute = style ? ` style="${style}"` : '';
   const contentWrapper = `<div class="section__inner">${content}</div>`;
   const inner = container

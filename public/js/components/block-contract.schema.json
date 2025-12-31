@@ -27,6 +27,24 @@
     },
     "tokens": {
       "$ref": "#/definitions/Tokens"
+    },
+    "sectionAppearance": {
+      "enum": [
+        "contained",
+        "full",
+        "card",
+        "default",
+        "surface",
+        "contrast",
+        "image",
+        "image-fixed"
+      ]
+    },
+    "backgroundImage": {
+      "type": "string"
+    },
+    "meta": {
+      "$ref": "#/definitions/BlockMeta"
     }
   },
   "oneOf": [
@@ -426,6 +444,60 @@
             "brandB",
             "brandC"
           ]
+        }
+      }
+    },
+    "SectionBackground": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "none",
+            "color",
+            "image"
+          ]
+        },
+        "color": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "imageId": {
+          "type": "string"
+        },
+        "attachment": {
+          "enum": [
+            "scroll",
+            "fixed"
+          ]
+        },
+        "overlay": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "SectionStyle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "background": {
+          "$ref": "#/definitions/SectionBackground"
+        }
+      }
+    },
+    "BlockMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "type": "string"
+        },
+        "sectionStyle": {
+          "$ref": "#/definitions/SectionStyle"
         }
       }
     },
