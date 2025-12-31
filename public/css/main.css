@@ -1122,10 +1122,10 @@ body.admin-page {
 }
 
 .page-editor .content-editor-body {
-  display: flex;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: 280px 1fr;
   gap: 16px;
-  align-items: flex-start;
+  align-items: start;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1136,13 +1136,12 @@ body.admin-page {
 }
 
 .page-editor [data-block-list="true"] {
-  flex: 0 0 260px;
-  max-width: 320px;
-  min-width: 240px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
   box-sizing: border-box;
+  border-right: 1px solid var(--border-muted, #e5e7eb);
 }
 
 .page-editor [data-block-list="true"] ul {
@@ -1151,8 +1150,6 @@ body.admin-page {
 }
 
 .page-editor [data-block-editor="true"] {
-  flex: 1 1 520px;
-  min-width: 320px;
   width: 100%;
   border: 1px solid var(--border-muted, #e5e7eb);
   background: var(--bg-card, #fff);
