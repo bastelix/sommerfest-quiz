@@ -81,6 +81,22 @@ const SECTION_APPEARANCE_ALIASES = {
 const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
 const IMAGE_APPEARANCES = new Set(['image', 'image-fixed']);
 
+const BACKGROUND_TYPES_BY_APPEARANCE = {
+  contained: ['none', 'color'],
+  full: ['none', 'color', 'image'],
+  card: ['none']
+};
+
+const BACKGROUND_COLOR_TOKEN_MAP = {
+  default: 'var(--surface)',
+  muted: 'var(--surface-muted)',
+  primary: 'var(--brand-primary, #1e87f0)'
+};
+
+const getAllowedBackgroundTypes = appearance => BACKGROUND_TYPES_BY_APPEARANCE[appearance] || ['none'];
+
+const resolveBackgroundColorValue = color => BACKGROUND_COLOR_TOKEN_MAP[color] || color;
+
 function clampBackgroundOverlay(value) {
   if (value === null || value === undefined) {
     return null;
@@ -102,7 +118,8 @@ function resolveSectionAppearance(block) {
   return { appearance: mappedAppearance, legacyAppearance: rawAppearance };
 }
 
-function resolveSectionBackground(block, rawAppearance) {
+function resolveSectionBackground(block, appearance, rawAppearance) {
+  const allowedTypes = getAllowedBackgroundTypes(appearance);
   const background = block?.meta?.sectionStyle?.background || {};
   const type = ['color', 'image', 'none'].includes(background.type) ? background.type : 'none';
   const color = typeof background.color === 'string' ? background.color.trim() : '';
@@ -117,7 +134,7 @@ function resolveSectionBackground(block, rawAppearance) {
   const legacyImage = typeof block?.backgroundImage === 'string' ? block.backgroundImage.trim() : '';
   const legacyAttachment = rawAppearance === 'image-fixed' ? 'fixed' : 'scroll';
 
-  let resolvedType = type;
+  let resolvedType = allowedTypes.includes(type) ? type : 'none';
   let resolvedImage = image;
 
   if (resolvedType === 'color' && !color) {
@@ -132,9 +149,19 @@ function resolveSectionBackground(block, rawAppearance) {
     resolvedType = 'none';
   }
 
-  if (resolvedType === 'none' && legacyImage && IMAGE_APPEARANCES.has(rawAppearance)) {
+  if (
+    resolvedType === 'none' &&
+    legacyImage &&
+    IMAGE_APPEARANCES.has(rawAppearance) &&
+    allowedTypes.includes('image')
+  ) {
     resolvedType = 'image';
     resolvedImage = legacyImage;
+  }
+
+  if (!allowedTypes.includes(resolvedType)) {
+    resolvedType = 'none';
+    resolvedImage = '';
   }
 
   return {
@@ -150,7 +177,8 @@ function buildSectionStyle(background) {
   const styles = [];
 
   if (background.type === 'color' && background.color) {
-    styles.push(`--section-bg-color: ${escapeAttribute(background.color)}`);
+    const resolvedColor = resolveBackgroundColorValue(background.color);
+    styles.push(`--section-bg-color: ${escapeAttribute(resolvedColor)}`);
   }
 
   if (background.type === 'image' && background.image) {
@@ -166,7 +194,7 @@ function buildSectionStyle(background) {
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const { appearance, legacyAppearance } = resolveSectionAppearance(block);
-  const background = resolveSectionBackground(block, legacyAppearance);
+  const background = resolveSectionBackground(block, appearance, legacyAppearance);
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const classes = ['section', 'uk-section', `section--${appearance}`, sectionClass].filter(Boolean).join(' ');
   const dataAttributes = [
