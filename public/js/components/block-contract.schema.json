@@ -451,18 +451,19 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": {
+        "mode": {
           "enum": [
             "none",
             "color",
             "image"
           ]
         },
-        "color": {
-          "type": "string"
-        },
-        "image": {
-          "type": "string"
+        "colorToken": {
+          "enum": [
+            "default",
+            "muted",
+            "primary"
+          ]
         },
         "imageId": {
           "type": "string"
@@ -484,6 +485,13 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "layout": {
+          "enum": [
+            "normal",
+            "fullwidth",
+            "card"
+          ]
+        },
         "background": {
           "$ref": "#/definitions/SectionBackground"
         }
