@@ -1377,6 +1377,8 @@ export class BlockContentEditor {
   constructor(root, initialContent = '{}', options = {}) {
     this.root = root;
     this.pageId = options.pageId || null;
+    this.status = 'ok';
+    this.validationErrors = [];
     this.state = {
       blocks: [],
       meta: {},
@@ -1387,9 +1389,55 @@ export class BlockContentEditor {
     this.previewBridge = null;
     this.richTextInstances = new Map();
     this.handleKeyNavigation = this.handleKeyNavigation.bind(this);
+
     this.setContent(initialContent);
-    this.render();
     this.bindKeyboardNavigation();
+  }
+
+  static evaluateContent(content) {
+    const validationErrors = [];
+    const skippedBlocks = [];
+
+    let parsed = {};
+    if (typeof content === 'string') {
+      try {
+        parsed = JSON.parse(content || '{}');
+      } catch (error) {
+        validationErrors.push({
+          message: 'Seiteninhalt konnte nicht als JSON gelesen werden.',
+          detail: error instanceof Error ? error.message : String(error || '')
+        });
+        parsed = {};
+      }
+    } else if (content && typeof content === 'object') {
+      parsed = content;
+    }
+
+    const blocks = [];
+    if (Array.isArray(parsed.blocks)) {
+      parsed.blocks.forEach((block, index) => {
+        try {
+          blocks.push(sanitizeBlock(block));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+          const entry = { index, block, message };
+          skippedBlocks.push(entry);
+          validationErrors.push({
+            message: `Block ${typeof block?.id === 'string' ? block.id : index + 1} ist ungültig`,
+            detail: message
+          });
+          console.warn('Skipping invalid block during initialization', { index, block, error });
+        }
+      });
+    }
+
+    return {
+      id: typeof parsed.id === 'string' ? parsed.id : null,
+      blocks,
+      meta: parsed.meta || {},
+      skippedBlocks,
+      validationErrors
+    };
   }
 
   destroy() {
@@ -1460,48 +1508,41 @@ export class BlockContentEditor {
     }
   }
 
+  emitValidationState() {
+    if (!this.root) {
+      return;
+    }
+    const detail = {
+      status: this.status,
+      errors: Array.isArray(this.validationErrors) ? this.validationErrors : []
+    };
+    this.root.dispatchEvent(new CustomEvent('block-editor:validation', { detail }));
+  }
+
   setContent(content) {
     this.richTextInstances.forEach(instance => instance.destroy());
     this.richTextInstances.clear();
 
-    let parsed = {};
-    if (typeof content === 'string') {
-      try {
-        parsed = JSON.parse(content || '{}');
-      } catch (error) {
-        parsed = {};
-      }
-    } else if (content && typeof content === 'object') {
-      parsed = content;
-    }
+    const evaluation = BlockContentEditor.evaluateContent(content);
+    const { blocks, skippedBlocks, meta, id, validationErrors } = evaluation;
 
-    const skippedBlocks = [];
-    const blocks = [];
-    if (Array.isArray(parsed.blocks)) {
-      parsed.blocks.forEach((block, index) => {
-        try {
-          blocks.push(this.normalizeBlock(block));
-        } catch (error) {
-          const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
-          skippedBlocks.push({ index, block, message });
-          console.warn('Skipping invalid block during initialization', { index, block, error });
-        }
-      });
-    }
+    this.validationErrors = validationErrors;
+    this.status = validationErrors.length > 0 ? 'invalid' : 'ok';
 
     if (skippedBlocks.length > 0 && typeof notify === 'function') {
       notify('Einige Blöcke wurden aufgrund von Validierungsfehlern übersprungen.', 'warning');
     }
 
     this.state = {
-      id: typeof parsed.id === 'string' ? parsed.id : null,
+      id,
       blocks,
-      meta: parsed.meta || {},
+      meta,
       selectedBlockId: blocks[0]?.id || null,
       skippedBlocks,
       templatePickerOpen: false,
       layoutMode: this.state?.layoutMode || 'edit'
     };
+    this.emitValidationState();
     this.render();
   }
 
@@ -1528,6 +1569,11 @@ export class BlockContentEditor {
   }
 
   getContent() {
+    if (this.status === 'invalid') {
+      const summary = this.validationErrors.map(error => error.message).join('; ');
+      throw new Error(summary || 'Ungültiger Seitenzustand');
+    }
+
     const recoverable = this.state.blocks.find(block => block.invalidVariant);
     if (recoverable) {
       const attempted = recoverable.invalidVariant?.attemptedVariant || recoverable.variant || 'unbekannt';
@@ -1545,6 +1591,12 @@ export class BlockContentEditor {
 
   render() {
     if (!this.root) {
+      return;
+    }
+
+    if (this.status === 'invalid') {
+      this.root.innerHTML = '';
+      this.root.append(this.buildValidationPanel());
       return;
     }
     this.richTextInstances.forEach(instance => instance.destroy());
@@ -1573,6 +1625,88 @@ export class BlockContentEditor {
     }
 
     this.root.append(wrapper);
+  }
+
+  buildValidationPanel() {
+    const container = document.createElement('div');
+    container.className = 'uk-alert uk-alert-danger uk-margin';
+    container.setAttribute('role', 'alert');
+
+    const heading = document.createElement('h4');
+    heading.className = 'uk-margin-remove';
+    heading.textContent = 'Seite konnte nicht geladen werden';
+
+    const description = document.createElement('p');
+    description.className = 'uk-margin-small-top';
+    description.textContent = 'Die vorhandenen Blöcke verstoßen gegen den Vertrag und müssen repariert werden.';
+
+    const list = document.createElement('ul');
+    list.className = 'uk-list uk-list-divider uk-margin-small-top';
+    if (this.validationErrors.length === 0) {
+      const item = document.createElement('li');
+      item.textContent = 'Unbekannter Validierungsfehler.';
+      list.append(item);
+    } else {
+      this.validationErrors.forEach(error => {
+        const item = document.createElement('li');
+        const title = document.createElement('div');
+        title.className = 'uk-text-bold';
+        title.textContent = error.message || 'Ungültiger Block';
+        item.append(title);
+
+        if (error.detail) {
+          const detail = document.createElement('div');
+          detail.className = 'uk-text-meta';
+          detail.textContent = error.detail;
+          item.append(detail);
+        }
+
+        list.append(item);
+      });
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'uk-margin-top uk-flex uk-flex-wrap';
+    actions.style.gap = '8px';
+
+    const reopenButton = document.createElement('button');
+    reopenButton.type = 'button';
+    reopenButton.className = 'uk-button uk-button-primary';
+    reopenButton.textContent = 'Ungültige Blöcke verwerfen';
+    reopenButton.addEventListener('click', () => {
+      this.validationErrors = [];
+      this.status = 'ok';
+      this.state = {
+        ...this.state,
+        selectedBlockId: this.state.blocks[0]?.id || null,
+        skippedBlocks: []
+      };
+      this.emitValidationState();
+      this.render();
+    });
+
+    const resetButton = document.createElement('button');
+    resetButton.type = 'button';
+    resetButton.className = 'uk-button uk-button-default';
+    resetButton.textContent = 'Seite leeren und neu beginnen';
+    resetButton.addEventListener('click', () => {
+      this.validationErrors = [];
+      this.status = 'ok';
+      this.state = {
+        ...this.state,
+        blocks: [],
+        meta: {},
+        skippedBlocks: [],
+        selectedBlockId: null
+      };
+      this.emitValidationState();
+      this.render();
+    });
+
+    actions.append(reopenButton, resetButton);
+
+    container.append(heading, description, list, actions);
+    return container;
   }
 
   buildControls() {
