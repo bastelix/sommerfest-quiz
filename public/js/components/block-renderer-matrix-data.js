@@ -671,48 +671,132 @@ function renderCtaSplit(block, options = {}) {
   return renderSection({ block, variant: 'split', content: layout });
 }
 
-function renderStatStrip(block, options = {}) {
-  const context = options?.context || 'frontend';
+function renderStatStripHeader(block, context, alignment = 'center') {
+  const alignmentClass = alignment === 'left' ? 'uk-text-left' : 'uk-text-center';
   const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom ${alignmentClass}"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const lede = block.data?.lede
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.lede', context)}>${escapeHtml(block.data.lede)}</p>`
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom ${alignmentClass}"${buildEditableAttributes(block, 'data.lede', context)}>${escapeHtml(block.data.lede)}</p>`
     : '';
-  const header = title || lede ? `<div class="uk-width-1-1 uk-text-center uk-margin-medium-bottom">${title}${lede}</div>` : '';
+  if (!title && !lede) {
+    return '';
+  }
+  const spacing = alignment === 'left' ? 'uk-margin-medium-bottom' : 'uk-margin-medium-bottom';
+  return `<div class="uk-width-1-1 ${alignmentClass} ${spacing}">${title}${lede}</div>`;
+}
 
-  const metrics = Array.isArray(block.data?.metrics) ? block.data.metrics : [];
-  const metricCards = metrics
-    .filter(metric => metric && typeof metric.value === 'string' && typeof metric.label === 'string')
+function renderStatStripMarquee(block) {
+  const marqueeItems = Array.isArray(block.data?.marquee)
+    ? block.data.marquee.filter(item => typeof item === 'string' && item.trim() !== '')
+    : [];
+
+  if (!marqueeItems.length) {
+    return '';
+  }
+
+  return `<div class="uk-margin-large-top"><div class="uk-flex uk-flex-middle uk-flex-center uk-flex-wrap uk-text-muted uk-text-small">${marqueeItems
+    .map(text => `<span class="uk-margin-small-left uk-margin-small-right">${escapeHtml(text)}</span>`)
+    .join('<span class="uk-text-muted">•</span>')}</div></div>`;
+}
+
+function renderStatMetricValue(block, metric, index, context, options = {}) {
+  const tooltip = metric.tooltip ? ` title="${escapeAttribute(metric.tooltip)}" data-uk-tooltip` : '';
+  const icon = metric.icon ? `<span class="uk-margin-small-right" aria-hidden="true">${escapeHtml(metric.icon)}</span>` : '';
+  const sizeClass = options.valueSize || 'uk-heading-large';
+  const alignment = options.alignClass ? ` ${options.alignClass}` : '';
+  return `<div class="${sizeClass} uk-margin-remove${alignment}"${tooltip}${buildEditableAttributes(
+    block,
+    `data.metrics.${index}.value`,
+    context
+  )}>${icon}${escapeHtml(metric.value)}</div>`;
+}
+
+function renderStatMetricLabel(block, metric, index, context, options = {}) {
+  const alignment = options.alignClass ? ` ${options.alignClass}` : '';
+  const labelClass = options.labelClass || 'uk-text-muted';
+  return `<p class="${labelClass} uk-margin-small-top uk-margin-remove-bottom${alignment}"${buildEditableAttributes(
+    block,
+    `data.metrics.${index}.label`,
+    context
+  )}>${escapeHtml(metric.label)}</p>`;
+}
+
+function renderStatMetricBenefit(block, metric, index, context, options = {}) {
+  if (!metric.benefit) {
+    return '';
+  }
+  const alignment = options.alignClass ? ` ${options.alignClass}` : '';
+  return `<p class="uk-text-success uk-margin-small-top uk-margin-remove-bottom${alignment}"${buildEditableAttributes(
+    block,
+    `data.metrics.${index}.benefit`,
+    context
+  )}>${escapeHtml(metric.benefit)}</p>`;
+}
+
+function renderStatMetricAsOf(block, metric, index, context, options = {}) {
+  if (!metric.asOf) {
+    return '';
+  }
+  const alignment = options.alignClass ? ` ${options.alignClass}` : '';
+  return `<p class="uk-text-meta uk-margin-small-top uk-margin-remove-bottom${alignment}"${buildEditableAttributes(
+    block,
+    `data.metrics.${index}.asOf`,
+    context
+  )}>${escapeHtml(metric.asOf)}</p>`;
+}
+
+function getValidMetrics(block) {
+  return (Array.isArray(block.data?.metrics) ? block.data.metrics : []).filter(
+    metric => metric && typeof metric.value === 'string' && typeof metric.label === 'string'
+  );
+}
+
+function renderStatStripInline(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const header = renderStatStripHeader(block, context, 'left');
+  const metrics = getValidMetrics(block);
+
+  const items = metrics
     .map((metric, index) => {
-      const tooltip = metric.tooltip ? ` title="${escapeAttribute(metric.tooltip)}" data-uk-tooltip` : '';
-      const icon = metric.icon ? `<span class="uk-margin-small-right" aria-hidden="true">${escapeHtml(metric.icon)}</span>` : '';
-      const value = `<div class="uk-heading-large uk-margin-remove"${tooltip}${buildEditableAttributes(
-        block,
-        `data.metrics.${index}.value`,
-        context
-      )}>${icon}${escapeHtml(metric.value)}</div>`;
-      const label = `<p class="uk-text-muted uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(
-        block,
-        `data.metrics.${index}.label`,
-        context
-      )}>${escapeHtml(metric.label)}</p>`;
-      const benefit = metric.benefit
-        ? `<p class="uk-text-success uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(
-            block,
-            `data.metrics.${index}.benefit`,
-            context
-          )}>${escapeHtml(metric.benefit)}</p>`
-        : '';
-      const asOf = metric.asOf
-        ? `<p class="uk-text-meta uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(
-            block,
-            `data.metrics.${index}.asOf`,
-            context
-          )}>${escapeHtml(metric.asOf)}</p>`
-        : '';
+      const value = renderStatMetricValue(block, metric, index, context, {
+        valueSize: 'uk-heading-medium',
+        alignClass: 'uk-text-left'
+      });
+      const label = renderStatMetricLabel(block, metric, index, context, {
+        labelClass: 'uk-text-emphasis',
+        alignClass: 'uk-text-left'
+      });
+      const benefit = renderStatMetricBenefit(block, metric, index, context, { alignClass: 'uk-text-left' });
+      const asOf = renderStatMetricAsOf(block, metric, index, context, { alignClass: 'uk-text-left' });
+      const meta = [benefit, asOf].filter(Boolean).join('');
+      return `<li class="uk-flex uk-flex-column" role="listitem">${value}${label}${meta}</li>`;
+    })
+    .join('');
 
-      return `<div class="uk-width-1-1 uk-width-1-3@m"><div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">${value}${label}${benefit}${asOf}</div></div>`;
+  const metricsInline = items
+    ? `<ul class="uk-grid-small uk-child-width-auto uk-flex-middle uk-grid" data-uk-grid role="list">${items}</ul>`
+    : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
+
+  const marquee = renderStatStripMarquee(block);
+  return renderSection({ block, variant: 'inline', content: `${header}${metricsInline}${marquee}` });
+}
+
+function renderStatStripCards(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const header = renderStatStripHeader(block, context, 'center');
+  const metrics = getValidMetrics(block);
+
+  const metricCards = metrics
+    .map((metric, index) => {
+      const value = renderStatMetricValue(block, metric, index, context, { alignClass: 'uk-text-left' });
+      const label = renderStatMetricLabel(block, metric, index, context, {
+        labelClass: 'uk-text-muted',
+        alignClass: 'uk-text-left'
+      });
+      const benefit = renderStatMetricBenefit(block, metric, index, context, { alignClass: 'uk-text-left' });
+      const asOf = renderStatMetricAsOf(block, metric, index, context, { alignClass: 'uk-text-left' });
+      return `<div class="uk-width-1-1 uk-width-1-3@m"><div class="uk-card uk-card-default uk-card-body uk-height-1-1">${value}${label}${benefit}${asOf}</div></div>`;
     })
     .join('');
 
@@ -720,17 +804,37 @@ function renderStatStrip(block, options = {}) {
     ? `<div class="uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large" data-uk-grid>${metricCards}</div>`
     : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
 
-  const marqueeItems = Array.isArray(block.data?.marquee)
-    ? block.data.marquee.filter(item => typeof item === 'string' && item.trim() !== '')
-    : [];
+  const marquee = renderStatStripMarquee(block);
+  return renderSection({ block, variant: 'cards', content: `${header}${metricsGrid}${marquee}` });
+}
 
-  const marquee = marqueeItems.length
-    ? `<div class="uk-margin-large-top"><div class="uk-flex uk-flex-middle uk-flex-center uk-flex-wrap uk-text-muted uk-text-small">${marqueeItems
-        .map(text => `<span class="uk-margin-small-left uk-margin-small-right">${escapeHtml(text)}</span>`)
-        .join('<span class="uk-text-muted">•</span>')}</div></div>`
-    : '';
+function renderStatStripCentered(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const header = renderStatStripHeader(block, context, 'center');
+  const metrics = getValidMetrics(block);
 
-  return renderSection({ block, variant: 'three-up', content: `${header}${metricsGrid}${marquee}` });
+  const items = metrics
+    .map((metric, index) => {
+      const value = renderStatMetricValue(block, metric, index, context, {
+        valueSize: 'uk-heading-large',
+        alignClass: 'uk-text-center'
+      });
+      const label = renderStatMetricLabel(block, metric, index, context, {
+        labelClass: 'uk-text-lead',
+        alignClass: 'uk-text-center'
+      });
+      const benefit = renderStatMetricBenefit(block, metric, index, context, { alignClass: 'uk-text-center' });
+      const asOf = renderStatMetricAsOf(block, metric, index, context, { alignClass: 'uk-text-center' });
+      return `<div class="uk-width-1-1 uk-width-1-3@m"><div class="uk-panel uk-text-center">${value}${label}${benefit}${asOf}</div></div>`;
+    })
+    .join('');
+
+  const layout = items
+    ? `<div class="uk-grid uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid role="list">${items}</div>`
+    : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
+
+  const marquee = renderStatStripMarquee(block);
+  return renderSection({ block, variant: 'centered', content: `${header}${layout}${marquee}` });
 }
 
 function renderProofMetricCallout(block, options = {}) {
@@ -1032,7 +1136,9 @@ export const RENDERER_MATRIX = {
     split: renderCtaSplit
   },
   stat_strip: {
-    'three-up': renderStatStrip
+    inline: renderStatStripInline,
+    cards: renderStatStripCards,
+    centered: renderStatStripCentered
   },
   proof: {
     'metric-callout': renderProofMetricCallout

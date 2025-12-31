@@ -201,6 +201,9 @@
         },
         "variant": {
           "enum": [
+            "inline",
+            "cards",
+            "centered",
             "three-up"
           ]
         },

@@ -13,6 +13,10 @@ const VARIANT_ALIASES = {
   },
   audience_spotlight: {
     'single_focus': 'single-focus'
+  },
+  stat_strip: {
+    'three-up': 'cards',
+    three_up: 'cards'
   }
 };
 
@@ -103,7 +107,7 @@ const schema = {
       "title": "Stat strip block",
       "properties": {
         "type": { "const": "stat_strip" },
-        "variant": { "enum": ["three-up"] },
+        "variant": { "enum": ["inline", "cards", "centered", "three-up"] },
         "data": { "$ref": "#/definitions/StatStripData" }
       },
       "required": ["type", "variant", "data"]
