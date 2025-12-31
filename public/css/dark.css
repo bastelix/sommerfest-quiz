@@ -47,12 +47,12 @@ body[data-theme="dark"] .uk-background-muted,
 body[data-theme="dark"] .uk-background-default,
 body[data-theme="dark"].uk-background-muted,
 body[data-theme="dark"].uk-background-default {
-  background-color: #000 !important;
-  color: #f5f5f5;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
 }
 
 body[data-theme="dark"].admin-page {
-  background: #000 !important;
+  background: var(--bg-page);
 }
 
 body[data-theme="dark"].admin-page .uk-section,
@@ -440,6 +440,70 @@ body[data-theme="dark"] .mc-option {
   font-size: 1rem;
   padding: 16px;
   white-space: normal;
+}
+
+/* Admin Pages: token-aligned dark theme surfaces and hierarchy */
+[data-theme="dark"] .admin-page,
+body[data-theme="dark"].admin-page {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .admin-page h1,
+[data-theme="dark"] .admin-page h2,
+[data-theme="dark"] .admin-page h3,
+[data-theme="dark"] .admin-page h4,
+[data-theme="dark"] .admin-page h5,
+[data-theme="dark"] .admin-page h6,
+[data-theme="dark"] .admin-page .uk-card-title {
+  color: var(--text-heading);
+}
+
+[data-theme="dark"] .admin-page .uk-text-meta,
+[data-theme="dark"] .admin-page .uk-text-muted {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .admin-page .uk-card {
+  background: var(--bg-card);
+  border-color: var(--border-muted);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .admin-page .uk-card .uk-form-label,
+[data-theme="dark"] .admin-page .uk-form-label {
+  color: var(--text-heading);
+}
+
+[data-theme="dark"] .admin-page .page-tree {
+  filter: none;
+  opacity: 1;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .admin-page .page-tree .uk-text-meta {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .admin-page .page-tree .uk-text-bold {
+  color: var(--text-heading);
+}
+
+[data-theme="dark"] .admin-page .uk-button-primary {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--text-on-primary);
+}
+
+[data-theme="dark"] .admin-page .uk-button-default {
+  background-color: var(--bg-muted);
+  border-color: var(--border-muted);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .admin-page .uk-button-default:hover,
+[data-theme="dark"] .admin-page .uk-button-default:focus {
+  background-color: var(--bg-subtle);
+  color: var(--text-heading);
 }
 body[data-theme="dark"] .dropzone.over {
   background-color: #2a2a2a;
