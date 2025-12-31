@@ -63,7 +63,9 @@ const VARIANT_LABELS = {
     split: 'Geteilt'
   },
   stat_strip: {
-    'three-up': 'Kennzahlenreihe'
+    inline: 'Inline (ruhig, sachlich)',
+    cards: 'Cards (vergleichend)',
+    centered: 'Zentriert (signalstark)'
   },
   proof: {
     'metric-callout': 'Kennzahl-Highlight'
@@ -485,7 +487,9 @@ const LAYOUT_PREVIEWS = {
     split: () => createSplitPreview({ mediaFirst: false })
   },
   stat_strip: {
-    'three-up': () => createColumnsPreview(3)
+    inline: () => createColumnsPreview(3),
+    cards: () => createColumnsPreview(3),
+    centered: createCenteredCtaPreview
   },
   proof: {
     'metric-callout': createMetricCalloutPreview
@@ -1040,7 +1044,7 @@ const SECTION_TEMPLATES = [
     label: 'Kennzahlen',
     description: 'Drei prägnante Zahlen für schnelle Orientierung.',
     type: 'stat_strip',
-    variant: 'three-up',
+    variant: 'cards',
     build: variant => {
       const block = getDefaultBlock('stat_strip', variant);
       block.data.title = 'Kennzahlen im Überblick';
