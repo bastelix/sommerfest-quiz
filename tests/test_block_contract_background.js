@@ -9,8 +9,11 @@ function loadModule() {
     .replace(/export /g, '')
     .replace(/const TOKEN_ENUMS = [\s\S]*?};\n/, '');
 
-  const prelude = `const TOKEN_ENUMS = {
-  background: ['default', 'muted', 'primary'],
+  const prelude = `class Ajv {
+  compile() { return () => true; }
+}
+const TOKEN_ENUMS = {
+  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
   spacing: ['small', 'normal', 'large'],
   width: ['narrow', 'normal', 'wide'],
   columns: ['single', 'two', 'three', 'four'],

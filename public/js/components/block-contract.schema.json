@@ -32,12 +32,7 @@
       "enum": [
         "contained",
         "full",
-        "card",
-        "default",
-        "surface",
-        "contrast",
-        "image",
-        "image-fixed"
+        "card"
       ]
     },
     "backgroundImage": {
@@ -56,11 +51,10 @@
         },
         "variant": {
           "enum": [
-            "centered_cta",
+            "centered-cta",
             "media-right",
-            "media_right",
             "media-left",
-            "media_left"
+            "minimal"
           ]
         },
         "data": {
@@ -81,12 +75,10 @@
         },
         "variant": {
           "enum": [
-            "stacked_cards",
-            "icon_grid",
-            "detailed-cards",
-            "grid-bullets",
             "text-columns",
-            "card-stack"
+            "card-stack",
+            "grid-bullets",
+            "detailed-cards"
           ]
         },
         "data": {
@@ -107,9 +99,6 @@
         },
         "variant": {
           "enum": [
-            "timeline_horizontal",
-            "timeline_vertical",
-            "timeline",
             "numbered-vertical",
             "numbered-horizontal"
           ]
@@ -132,8 +121,8 @@
         },
         "variant": {
           "enum": [
-            "single_quote",
-            "quote_wall"
+            "single-quote",
+            "quote-wall"
           ]
         },
         "data": {
@@ -176,6 +165,8 @@
         "variant": {
           "enum": [
             "stacked",
+            "image-left",
+            "image-right",
             "switcher"
           ]
         },
@@ -197,8 +188,8 @@
         },
         "variant": {
           "enum": [
-            "full_width",
-            "split"
+            "split",
+            "full-width"
           ]
         },
         "data": {
@@ -245,8 +236,7 @@
           "enum": [
             "tabs",
             "tiles",
-            "single-focus",
-            "single_focus"
+            "single-focus"
           ]
         },
         "data": {

@@ -1,28 +1,52 @@
-import type { RENDERER_MATRIX } from './block-renderer-matrix-data.js';
+export type BlockType =
+  | 'hero'
+  | 'feature_list'
+  | 'process_steps'
+  | 'testimonial'
+  | 'rich_text'
+  | 'info_media'
+  | 'cta'
+  | 'stat_strip'
+  | 'audience_spotlight'
+  | 'package_summary'
+  | 'faq'
+  | 'contact_form'
+  | 'system_module'
+  | 'case_showcase';
 
-type RendererMatrix = typeof RENDERER_MATRIX;
-type VariantsFor<Type extends keyof RendererMatrix> = keyof RendererMatrix[Type];
+export type HeroVariant = 'centered-cta' | 'media-right' | 'media-left' | 'minimal';
+export type FeatureListVariant = 'text-columns' | 'card-stack' | 'grid-bullets' | 'detailed-cards';
+export type ProcessStepsVariant = 'numbered-vertical' | 'numbered-horizontal';
+export type TestimonialVariant = 'single-quote' | 'quote-wall';
+export type RichTextVariant = 'prose';
+export type InfoMediaVariant = 'stacked' | 'image-left' | 'image-right' | 'switcher';
+export type CtaVariant = 'split' | 'full-width';
+export type StatStripVariant = 'inline' | 'cards' | 'centered' | 'three-up';
+export type AudienceSpotlightVariant = 'tabs' | 'tiles' | 'single-focus';
+export type PackageSummaryVariant = 'toggle' | 'comparison-cards';
+export type FaqVariant = 'accordion';
+export type ContactFormVariant = 'default' | 'compact';
+export type SystemModuleVariant = 'switcher';
+export type CaseShowcaseVariant = 'tabs';
 
-export type BlockType = keyof RendererMatrix;
-
-export type HeroVariant = VariantsFor<'hero'>;
-export type FeatureListVariant = VariantsFor<'feature_list'>;
-export type ProcessStepsVariant = VariantsFor<'process_steps'>;
-export type TestimonialVariant = VariantsFor<'testimonial'>;
-export type RichTextVariant = VariantsFor<'rich_text'>;
-export type InfoMediaVariant = VariantsFor<'info_media'>;
-export type CtaVariant = VariantsFor<'cta'>;
-export type StatStripVariant = VariantsFor<'stat_strip'>;
-export type AudienceSpotlightVariant = VariantsFor<'audience_spotlight'>;
-export type PackageSummaryVariant = VariantsFor<'package_summary'>;
-export type FaqVariant = VariantsFor<'faq'>;
-export type SystemModuleVariant = VariantsFor<'system_module'>;
-export type CaseShowcaseVariant = VariantsFor<'case_showcase'>;
-
-export type BlockVariant = keyof RendererMatrix[keyof RendererMatrix];
+export type BlockVariant =
+  | HeroVariant
+  | FeatureListVariant
+  | ProcessStepsVariant
+  | TestimonialVariant
+  | RichTextVariant
+  | InfoMediaVariant
+  | CtaVariant
+  | StatStripVariant
+  | AudienceSpotlightVariant
+  | PackageSummaryVariant
+  | FaqVariant
+  | ContactFormVariant
+  | SystemModuleVariant
+  | CaseShowcaseVariant;
 
 export interface Tokens {
-  background?: 'default' | 'muted' | 'primary';
+  background?: 'primary' | 'secondary' | 'muted' | 'accent' | 'surface';
   spacing?: 'small' | 'normal' | 'large';
   width?: 'narrow' | 'normal' | 'wide';
   columns?: 'single' | 'two' | 'three' | 'four';
@@ -48,6 +72,13 @@ export type CallToActionGroup =
       primary: CallToAction;
       secondary?: CallToAction;
     };
+
+export interface CtaBlockData {
+  title?: string;
+  body?: string;
+  primary: CallToAction;
+  secondary?: CallToAction;
+}
 
 export interface HeroBlockData {
   eyebrow?: string;
@@ -217,12 +248,41 @@ export interface FaqBlockData {
   followUp?: FaqFollowUp;
 }
 
+export interface ContactFormBlockData {
+  title: string;
+  intro: string;
+  recipient: string;
+  submitLabel: string;
+  privacyHint: string;
+}
+
+export interface SectionBackground {
+  mode: 'none' | 'color' | 'image';
+  colorToken?: Tokens['background'];
+  imageId?: string;
+  attachment?: 'scroll' | 'fixed';
+  overlay?: number;
+}
+
+export interface SectionStyle {
+  layout?: 'normal' | 'fullwidth' | 'card';
+  background?: SectionBackground;
+}
+
+export interface BlockMeta {
+  anchor?: string;
+  sectionStyle?: SectionStyle;
+}
+
 export interface BaseBlock<TType extends BlockType, TVariant extends BlockVariant, TData> {
   id: string;
   type: TType;
   variant: TVariant;
   data: TData;
   tokens?: Tokens;
+  sectionAppearance?: 'contained' | 'full' | 'card';
+  meta?: BlockMeta;
+  backgroundImage?: string;
 }
 
 export type HeroBlock = BaseBlock<'hero', HeroVariant, HeroBlockData>;
@@ -231,11 +291,12 @@ export type ProcessStepsBlock = BaseBlock<'process_steps', ProcessStepsVariant, 
 export type TestimonialBlock = BaseBlock<'testimonial', TestimonialVariant, TestimonialBlockData>;
 export type RichTextBlock = BaseBlock<'rich_text', RichTextVariant, RichTextBlockData>;
 export type InfoMediaBlock = BaseBlock<'info_media', InfoMediaVariant, InfoMediaBlockData>;
-export type CtaBlock = BaseBlock<'cta', CtaVariant, CallToAction>;
+export type CtaBlock = BaseBlock<'cta', CtaVariant, CtaBlockData>;
 export type StatStripBlock = BaseBlock<'stat_strip', StatStripVariant, StatStripBlockData>;
 export type AudienceSpotlightBlock = BaseBlock<'audience_spotlight', AudienceSpotlightVariant, AudienceSpotlightBlockData>;
 export type PackageSummaryBlock = BaseBlock<'package_summary', PackageSummaryVariant, PackageSummaryBlockData>;
 export type FaqBlock = BaseBlock<'faq', FaqVariant, FaqBlockData>;
+export type ContactFormBlock = BaseBlock<'contact_form', ContactFormVariant, ContactFormBlockData>;
 export type SystemModuleBlock = BaseBlock<'system_module', SystemModuleVariant, InfoMediaBlockData>;
 export type CaseShowcaseBlock = BaseBlock<'case_showcase', CaseShowcaseVariant, AudienceSpotlightBlockData>;
 
@@ -251,5 +312,6 @@ export type BlockContract =
   | AudienceSpotlightBlock
   | PackageSummaryBlock
   | FaqBlock
+  | ContactFormBlock
   | SystemModuleBlock
   | CaseShowcaseBlock;

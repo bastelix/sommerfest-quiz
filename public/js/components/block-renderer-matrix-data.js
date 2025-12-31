@@ -279,7 +279,7 @@ function renderHeroCenteredCta(block, options = {}) {
   const subheadline = renderSubheadline(block, 'uk-text-center', context);
   const ctas = renderHeroCtas(block.data?.cta, 'uk-flex-center');
   const content = `<div class="uk-width-1-1 uk-width-2-3@m uk-align-center uk-text-center">${eyebrow}${headline}${subheadline}${ctas}</div>`;
-  return renderHeroSection({ block, variant: 'centered_cta', content });
+  return renderHeroSection({ block, variant: 'centered-cta', content });
 }
 
 function renderHeroMediaRight(block, options = {}) {
@@ -293,7 +293,7 @@ function renderHeroMediaRight(block, options = {}) {
   const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
   const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
   const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${mediaColumn}</div>`;
-  return renderHeroSection({ block, variant: 'media_right', content: grid });
+  return renderHeroSection({ block, variant: 'media-right', content: grid });
 }
 
 function renderHeroMediaLeft(block, options = {}) {
@@ -307,7 +307,7 @@ function renderHeroMediaLeft(block, options = {}) {
   const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
   const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
   const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${mediaColumn}${textColumn}</div>`;
-  return renderHeroSection({ block, variant: 'media_left', content: grid });
+  return renderHeroSection({ block, variant: 'media-left', content: grid });
 }
 
 function renderHeroMinimal(block, options = {}) {
@@ -473,11 +473,11 @@ function renderFeatureListGridBullets(block, options = {}) {
 
 function normalizeProcessStepsVariant(variant) {
   const mapping = {
-    'timeline': 'timeline_vertical',
-    'timeline-vertical': 'timeline_vertical',
-    'timeline_vertical': 'timeline_vertical',
-    'timeline-horizontal': 'timeline_horizontal',
-    'timeline_horizontal': 'timeline_horizontal'
+    'timeline': 'numbered-vertical',
+    'timeline-vertical': 'numbered-vertical',
+    'timeline_vertical': 'numbered-vertical',
+    'timeline-horizontal': 'numbered-horizontal',
+    'timeline_horizontal': 'numbered-horizontal'
   };
 
   return mapping[variant] || variant;
@@ -485,7 +485,7 @@ function normalizeProcessStepsVariant(variant) {
 
 function renderProcessSteps(block, variant, options = {}) {
   const normalizedVariant = normalizeProcessStepsVariant(variant);
-  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal', 'timeline_vertical', 'timeline_horizontal']);
+  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal']);
 
   if (!allowedVariants.has(normalizedVariant)) {
     throw new Error(`Unsupported process_steps variant: ${variant}`);
@@ -533,7 +533,7 @@ function renderProcessSteps(block, variant, options = {}) {
     return `<div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid>${items.join('')}</div>`;
   };
 
-  const layout = normalizedVariant === 'numbered-horizontal' || normalizedVariant === 'timeline_horizontal'
+  const layout = normalizedVariant === 'numbered-horizontal'
     ? renderHorizontalSteps()
     : renderVerticalSteps();
 
@@ -613,8 +613,8 @@ function renderTestimonialSingle(block) {
   const author = block.data?.author?.name ? ` by ${escapeHtml(block.data.author.name)}` : '';
   return renderSection({
     block,
-    variant: 'single_quote',
-    content: `<!-- testimonial:single_quote${author} -->`,
+    variant: 'single-quote',
+    content: `<!-- testimonial:single-quote${author} -->`,
     container: false
   });
 }
@@ -622,8 +622,8 @@ function renderTestimonialSingle(block) {
 function renderTestimonialWall(block) {
   return renderSection({
     block,
-    variant: 'quote_wall',
-    content: '<!-- testimonial:quote_wall | grouped quotes -->',
+    variant: 'quote-wall',
+    content: '<!-- testimonial:quote-wall | grouped quotes -->',
     container: false
   });
 }
@@ -743,7 +743,7 @@ function renderCta(block, options = {}) {
   }
   const inner = `<div class="uk-text-center uk-width-1-1 uk-width-2-3@m uk-margin-auto">${title}${body}${buttons}</div>`;
 
-  return renderSection({ block, variant: 'full_width', content: inner });
+  return renderSection({ block, variant: 'full-width', content: inner });
 }
 
 function renderCtaSplit(block, options = {}) {
@@ -1227,29 +1227,24 @@ function renderLegacyCaseShowcase(block, options = {}) {
 
 export const RENDERER_MATRIX = {
   hero: {
-    centered_cta: renderHeroCenteredCta,
-    media_right: renderHeroMediaRight,
-    media_left: renderHeroMediaLeft,
+    'centered-cta': renderHeroCenteredCta,
+    'media-right': renderHeroMediaRight,
+    'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal
   },
   feature_list: {
     'detailed-cards': renderFeatureListDetailedCards,
     'grid-bullets': renderFeatureListGridBullets,
     'text-columns': (block, options) => renderFeatureList(block, 'text-columns', options),
-    'card-stack': (block, options) => renderFeatureList(block, 'card-stack', options),
-    stacked_cards: (block, options) => renderFeatureList(block, 'card-stack', options),
-    icon_grid: renderFeatureListGridBullets
+    'card-stack': (block, options) => renderFeatureList(block, 'card-stack', options)
   },
   process_steps: {
     'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),
-    'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options),
-    timeline: (block, options) => renderProcessSteps(block, 'timeline', options),
-    timeline_vertical: (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
-    timeline_horizontal: (block, options) => renderProcessSteps(block, 'timeline_horizontal', options)
+    'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options)
   },
   testimonial: {
-    single_quote: renderTestimonialSingle,
-    quote_wall: renderTestimonialWall
+    'single-quote': renderTestimonialSingle,
+    'quote-wall': renderTestimonialWall
   },
   rich_text: {
     prose: renderRichTextProse
@@ -1257,16 +1252,18 @@ export const RENDERER_MATRIX = {
   info_media: {
     stacked: (block, options) => renderInfoMedia(block, 'stacked', options),
     'image-left': (block, options) => renderInfoMedia(block, 'image-left', options),
-    'image-right': (block, options) => renderInfoMedia(block, 'image-right', options)
+    'image-right': (block, options) => renderInfoMedia(block, 'image-right', options),
+    switcher: renderLegacySystemModule
   },
   cta: {
-    full_width: renderCta,
+    'full-width': renderCta,
     split: renderCtaSplit
   },
   stat_strip: {
     inline: renderStatStripInline,
     cards: renderStatStripCards,
-    centered: renderStatStripCentered
+    centered: renderStatStripCentered,
+    'three-up': renderStatStripCards
   },
   proof: {
     'metric-callout': renderProofMetricCallout

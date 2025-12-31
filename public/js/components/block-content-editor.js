@@ -29,26 +29,24 @@ const BLOCK_TYPE_LABELS = {
 
 const VARIANT_LABELS = {
   hero: {
-    centered_cta: 'Zentriert',
-    media_right: 'Bild rechts',
-    media_left: 'Bild links',
+    'centered-cta': 'Zentriert',
+    'media-right': 'Bild rechts',
+    'media-left': 'Bild links',
     minimal: 'Minimal'
   },
   feature_list: {
     'detailed-cards': 'Detailkarten',
     'grid-bullets': 'Listenpunkte',
     'text-columns': 'Spalten',
-    'card-stack': 'Karten',
-    stacked_cards: 'Karten',
-    icon_grid: 'Icon-Raster'
+    'card-stack': 'Karten'
   },
   process_steps: {
     'numbered-vertical': 'Vertikaler Ablauf',
     'numbered-horizontal': 'Horizontaler Ablauf'
   },
   testimonial: {
-    single_quote: 'Einzelnes Zitat',
-    quote_wall: 'Zitatewand'
+    'single-quote': 'Einzelnes Zitat',
+    'quote-wall': 'Zitatewand'
   },
   rich_text: {
     prose: 'Fließtext'
@@ -59,13 +57,14 @@ const VARIANT_LABELS = {
     'image-right': 'Bild rechts'
   },
   cta: {
-    full_width: 'Zentriert',
+    'full-width': 'Zentriert',
     split: 'Geteilt'
   },
   stat_strip: {
     inline: 'Inline (ruhig, sachlich)',
     cards: 'Cards (vergleichend)',
-    centered: 'Zentriert (signalstark)'
+    centered: 'Zentriert (signalstark)',
+    'three-up': 'Drei Punkte'
   },
   proof: {
     'metric-callout': 'Kennzahl-Highlight'
@@ -593,26 +592,24 @@ const createMetricCalloutPreview = () => {
 
 const LAYOUT_PREVIEWS = {
   hero: {
-    centered_cta: createCenteredCtaPreview,
-    media_right: () => createHeroPreview('right'),
-    media_left: () => createHeroPreview('left'),
+    'centered-cta': createCenteredCtaPreview,
+    'media-right': () => createHeroPreview('right'),
+    'media-left': () => createHeroPreview('left'),
     minimal: () => createColumnsPreview(1)
   },
   feature_list: {
     'detailed-cards': () => createColumnsPreview(3),
     'grid-bullets': createListPreview,
     'text-columns': () => createColumnsPreview(2),
-    'card-stack': createStackedCardsPreview,
-    stacked_cards: createStackedCardsPreview,
-    icon_grid: createIconGridPreview
+    'card-stack': createStackedCardsPreview
   },
   process_steps: {
     'numbered-vertical': () => createStepsPreview('vertical'),
     'numbered-horizontal': () => createStepsPreview('horizontal')
   },
   testimonial: {
-    single_quote: () => createColumnsPreview(1),
-    quote_wall: () => createColumnsPreview(2)
+    'single-quote': () => createColumnsPreview(1),
+    'quote-wall': () => createColumnsPreview(2)
   },
   rich_text: {
     prose: () => createColumnsPreview(1)
@@ -623,13 +620,14 @@ const LAYOUT_PREVIEWS = {
     'image-right': () => createSplitPreview({ mediaFirst: false })
   },
   cta: {
-    full_width: createCenteredCtaPreview,
+    'full-width': createCenteredCtaPreview,
     split: () => createSplitPreview({ mediaFirst: false })
   },
   stat_strip: {
     inline: () => createColumnsPreview(3),
     cards: () => createColumnsPreview(3),
-    centered: createCenteredCtaPreview
+    centered: createCenteredCtaPreview,
+    'three-up': () => createColumnsPreview(3)
   },
   proof: {
     'metric-callout': createMetricCalloutPreview
@@ -1163,7 +1161,7 @@ const SECTION_TEMPLATES = [
     label: 'Hero-Bereich',
     description: 'Starker Einstieg mit Überschrift, Bild und primärer Handlung.',
     type: 'hero',
-    variant: 'media_right',
+    variant: 'media-right',
     build: variant => {
       const block = getDefaultBlock('hero', variant);
       block.data.headline = 'Neue Überschrift';
@@ -1333,7 +1331,7 @@ const SECTION_TEMPLATES = [
     label: 'Call to Action',
     description: 'Klare nächste Aktion mit kurzem Kontext.',
     type: 'cta',
-    variant: 'full_width',
+    variant: 'full-width',
     build: variant => {
       const block = getDefaultBlock('cta', variant);
       block.data.title = 'Bereit für den nächsten Schritt?';

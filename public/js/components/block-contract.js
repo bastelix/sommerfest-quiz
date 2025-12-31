@@ -1,22 +1,49 @@
-import { RENDERER_MATRIX } from './block-renderer-matrix-data.js';
+import Ajv from 'ajv';
 
-// Block contract aligned with docs/calserver-block-consolidation.md
+const CONTRACT_BLOCKS = {
+  hero: ['centered-cta', 'media-right', 'media-left', 'minimal'],
+  feature_list: ['text-columns', 'card-stack', 'grid-bullets', 'detailed-cards'],
+  process_steps: ['numbered-vertical', 'numbered-horizontal'],
+  cta: ['split', 'full-width'],
+  info_media: ['stacked', 'image-left', 'image-right', 'switcher'],
+  stat_strip: ['three-up', 'cards', 'inline', 'centered'],
+  audience_spotlight: ['tabs', 'tiles', 'single-focus'],
+  package_summary: ['toggle', 'comparison-cards'],
+  faq: ['accordion'],
+  contact_form: ['default', 'compact'],
+  testimonial: ['single-quote', 'quote-wall'],
+  rich_text: ['prose'],
+  system_module: ['switcher'],
+  case_showcase: ['tabs']
+};
+
 const VARIANT_ALIASES = {
   hero: {
-    'media-right': 'media_right',
-    'media-left': 'media_left',
-    'centered-cta': 'centered_cta'
+    centered_cta: 'centered-cta',
+    media_right: 'media-right',
+    media_left: 'media-left'
   },
   feature_list: {
     stacked_cards: 'card-stack',
     icon_grid: 'grid-bullets'
   },
-  audience_spotlight: {
-    'single_focus': 'single-focus'
+  process_steps: {
+    timeline: 'numbered-vertical',
+    timeline_vertical: 'numbered-vertical',
+    timeline_horizontal: 'numbered-horizontal'
+  },
+  testimonial: {
+    single_quote: 'single-quote',
+    quote_wall: 'quote-wall'
+  },
+  cta: {
+    full_width: 'full-width'
   },
   stat_strip: {
-    'three-up': 'cards',
-    three_up: 'cards'
+    three_up: 'three-up'
+  },
+  audience_spotlight: {
+    single_focus: 'single-focus'
   }
 };
 
@@ -28,10 +55,25 @@ const SECTION_APPEARANCE_ALIASES = {
   'image-fixed': 'full'
 };
 
-const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
+const SECTION_APPEARANCE_CANONICAL = ['contained', 'full', 'card'];
+const SECTION_APPEARANCES = [...SECTION_APPEARANCE_CANONICAL];
 const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
 const SECTION_BACKGROUND_MODES = ['none', 'color', 'image'];
 const SECTION_BACKGROUND_ATTACHMENTS = ['scroll', 'fixed'];
+
+const TOKEN_ENUMS = {
+  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
+  spacing: ['small', 'normal', 'large'],
+  width: ['narrow', 'normal', 'wide'],
+  columns: ['single', 'two', 'three', 'four'],
+  accent: ['brandA', 'brandB', 'brandC']
+};
+
+const TOKEN_ALIASES = {
+  background: {
+    default: 'surface'
+  }
+};
 
 const schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -56,7 +98,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left"] },
+        "variant": { "enum": ["centered-cta", "media-right", "media-left", "minimal"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -65,7 +107,7 @@ const schema = {
       "title": "Feature list block",
       "properties": {
         "type": { "const": "feature_list" },
-        "variant": { "enum": ["stacked_cards", "icon_grid", "detailed-cards", "grid-bullets", "text-columns", "card-stack"] },
+        "variant": { "enum": ["text-columns", "card-stack", "grid-bullets", "detailed-cards"] },
         "data": { "$ref": "#/definitions/FeatureListData" }
       },
       "required": ["type", "variant", "data"]
@@ -74,7 +116,7 @@ const schema = {
       "title": "Process steps block",
       "properties": {
         "type": { "const": "process_steps" },
-        "variant": { "enum": ["timeline_horizontal", "timeline_vertical", "timeline", "numbered-vertical", "numbered-horizontal"] },
+        "variant": { "enum": ["numbered-vertical", "numbered-horizontal"] },
         "data": { "$ref": "#/definitions/ProcessStepsData" }
       },
       "required": ["type", "variant", "data"]
@@ -83,7 +125,7 @@ const schema = {
       "title": "Testimonial block",
       "properties": {
         "type": { "const": "testimonial" },
-        "variant": { "enum": ["single_quote", "quote_wall"] },
+        "variant": { "enum": ["single-quote", "quote-wall"] },
         "data": { "$ref": "#/definitions/TestimonialData" }
       },
       "required": ["type", "variant", "data"]
@@ -101,7 +143,7 @@ const schema = {
       "title": "Info media block",
       "properties": {
         "type": { "const": "info_media" },
-        "variant": { "enum": ["stacked", "switcher"] },
+        "variant": { "enum": ["stacked", "image-left", "image-right", "switcher"] },
         "data": { "$ref": "#/definitions/InfoMediaData" }
       },
       "required": ["type", "variant", "data"]
@@ -110,7 +152,7 @@ const schema = {
       "title": "CTA block",
       "properties": {
         "type": { "const": "cta" },
-        "variant": { "enum": ["full_width", "split"] },
+        "variant": { "enum": ["split", "full-width"] },
         "data": { "$ref": "#/definitions/CtaBlockData" }
       },
       "required": ["type", "variant", "data"]
@@ -128,7 +170,7 @@ const schema = {
       "title": "Audience spotlight block",
       "properties": {
         "type": { "const": "audience_spotlight" },
-        "variant": { "enum": ["tabs", "tiles", "single-focus", "single_focus"] },
+        "variant": { "enum": ["tabs", "tiles", "single-focus"] },
         "data": { "$ref": "#/definitions/AudienceSpotlightData" }
       },
       "required": ["type", "variant", "data"]
@@ -584,7 +626,16 @@ const schema = {
   }
 };
 
-export const normalizeBlockVariant = (type, variant) => VARIANT_ALIASES[type]?.[variant] || variant;
+export function normalizeBlockVariant(type, variant) {
+  if (typeof variant !== 'string') {
+    return variant;
+  }
+
+  const trimmed = variant.trim();
+  const aliasForType = VARIANT_ALIASES[type] || {};
+  const hyphenated = trimmed.includes('_') ? trimmed.replace(/_/g, '-') : trimmed;
+  return aliasForType[trimmed] || aliasForType[hyphenated] || hyphenated;
+}
 
 function normalizeCallToAction(value) {
   if (!isPlainObject(value)) {
@@ -736,9 +787,10 @@ export function normalizeBlockContract(block) {
   }
 
   const normalized = { ...block };
-  const type = normalized.type;
+  const type = typeof normalized.type === 'string' ? normalized.type.trim() : normalized.type;
 
   if (typeof type === 'string') {
+    normalized.type = type;
     normalized.variant = normalizeBlockVariant(type, normalized.variant);
   }
 
@@ -769,10 +821,8 @@ export function normalizeBlockContract(block) {
   return normalized;
 }
 
-const BLOCK_VARIANTS = Object.entries(RENDERER_MATRIX).reduce((accumulator, [type, variants]) => {
-  const canonicalVariants = Object.keys(variants);
-  const aliasVariants = Object.keys(VARIANT_ALIASES[type] || {});
-  accumulator[type] = [...canonicalVariants, ...aliasVariants];
+const BLOCK_VARIANTS = Object.entries(CONTRACT_BLOCKS).reduce((accumulator, [type, variants]) => {
+  accumulator[type] = [...variants];
   return accumulator;
 }, {});
 
@@ -781,32 +831,18 @@ const DEPRECATED_BLOCK_TYPES = {
   case_showcase: { replacement: { type: 'audience_spotlight', variant: 'tabs' } }
 };
 
-const TOKEN_ENUMS = {
-  background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
-  spacing: ['small', 'normal', 'large'],
-  width: ['narrow', 'normal', 'wide'],
-  columns: ['single', 'two', 'three', 'four'],
-  accent: ['brandA', 'brandB', 'brandC']
-};
-
-const TOKEN_ALIASES = {
-  background: {
-    default: 'surface'
-  }
-};
-
 function normalizeSectionAppearance(appearance) {
   if (typeof appearance !== 'string') {
     return undefined;
   }
 
   const normalized = appearance.trim();
-  return SECTION_APPEARANCES.includes(normalized) ? normalized : undefined;
+  const preset = SECTION_APPEARANCE_ALIASES[normalized] || normalized;
+  return SECTION_APPEARANCE_CANONICAL.includes(preset) ? preset : undefined;
 }
 
 export function resolveSectionAppearancePreset(appearance) {
-  const normalized = normalizeSectionAppearance(appearance) || 'contained';
-  return SECTION_APPEARANCE_ALIASES[normalized] || normalized;
+  return normalizeSectionAppearance(appearance) || 'contained';
 }
 
 const APPEARANCE_TO_LAYOUT = {
@@ -961,19 +997,6 @@ function isPlainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-function validateTokens(tokens) {
-  if (tokens === undefined) {
-    return true;
-  }
-  if (!isPlainObject(tokens)) {
-    return false;
-  }
-  return Object.entries(tokens).every(([key, value]) => {
-    const normalizedValue = TOKEN_ALIASES[key]?.[value] || value;
-    return TOKEN_ENUMS[key]?.includes(normalizedValue);
-  });
-}
-
 function hasContent(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
@@ -1035,144 +1058,32 @@ export function validateSectionBackground(background, layout = 'normal') {
   return true;
 }
 
-function validateSectionStyle(style) {
-  if (style === undefined) {
-    return true;
-  }
-
-  if (!isPlainObject(style)) {
-    return false;
-  }
-
-  const allowedKeys = ['layout', 'background'];
-  if (Object.keys(style).some(key => !allowedKeys.includes(key))) {
-    return false;
-  }
-
-  const layout = style.layout || 'normal';
-  if (!SECTION_LAYOUTS.includes(layout)) {
-    return false;
-  }
-
-  if (style.background === undefined) {
-    return true;
-  }
-
-  return validateSectionBackground(style.background, layout);
-}
-
-function validateBlockMeta(meta) {
-  if (meta === undefined) {
-    return true;
-  }
-
-  if (!isPlainObject(meta)) {
-    return false;
-  }
-
-  if (meta.anchor !== undefined && !hasContent(meta.anchor)) {
-    return false;
-  }
-
-  return validateSectionStyle(meta.sectionStyle);
-}
-
-function validateHeroData(data) {
-  if (!hasContent(data?.headline)) {
-    return false;
-  }
-
-  const cta = data?.cta ?? {};
-  if (hasContent(cta.label) && hasContent(cta.href)) {
-    return true;
-  }
-
-  if (hasContent(cta.primary?.label) && hasContent(cta.primary?.href)) {
-    return true;
-  }
-
-  return false;
-}
-
-function validateFeatureListData(data) {
-  if (!hasContent(data?.title) || !Array.isArray(data?.items) || data.items.length === 0) {
-    return false;
-  }
-
-  return data.items.every(item => hasContent(item?.id) && hasContent(item?.title) && hasContent(item?.description));
-}
-
-function validateProcessStepsData(data) {
-  if (!hasContent(data?.title) || !Array.isArray(data?.steps) || data.steps.length < 2) {
-    return false;
-  }
-
-  return data.steps.every(step => hasContent(step?.id) && hasContent(step?.title) && hasContent(step?.description));
-}
-
-const DATA_VALIDATORS = {
-  hero: validateHeroData,
-  feature_list: validateFeatureListData,
-  process_steps: validateProcessStepsData,
-  testimonial: data => hasContent(data?.quote) && hasContent(data?.author?.name),
-  rich_text: data => hasContent(data?.body),
-  contact_form: data => (
-    hasContent(data?.title)
-    && hasContent(data?.intro)
-    && hasContent(data?.recipient)
-    && hasContent(data?.submitLabel)
-    && hasContent(data?.privacyHint)
-  )
-};
-
 export function normalizeVariant(type, variant) {
-  if (typeof variant !== 'string') {
-    return variant;
+  return normalizeBlockVariant(type, variant);
+}
+
+const ajv = new Ajv({ allErrors: true, strict: false });
+const ajvValidate = ajv.compile(schema);
+
+function formatAjvErrors(errors = []) {
+  if (!Array.isArray(errors)) {
+    return [];
   }
-  const aliasForType = VARIANT_ALIASES[type];
-  return aliasForType?.[variant] || variant;
+
+  return errors.map(error => ({
+    message: error.message,
+    instancePath: error.instancePath,
+    schemaPath: error.schemaPath,
+    params: error.params
+  }));
 }
 
 export function validateBlockContract(block) {
-  if (!isPlainObject(block)) {
-    return { valid: false, reason: 'Block must be an object' };
-  }
-  if (typeof block.id !== 'string' || block.id.length === 0) {
-    return { valid: false, reason: 'Block id must be a non-empty string' };
-  }
-  if (typeof block.type !== 'string' || !BLOCK_VARIANTS[block.type]) {
-    return { valid: false, reason: `Unknown block type: ${block.type}` };
-  }
-  const normalizedVariant = normalizeVariant(block.type, block.variant);
-  if (typeof normalizedVariant !== 'string' || !BLOCK_VARIANTS[block.type].includes(normalizedVariant)) {
-    return { valid: false, reason: `Unknown variant for ${block.type}: ${block.variant}` };
-  }
-  if (!isPlainObject(block.data)) {
-    return { valid: false, reason: 'Block data must be an object' };
-  }
+  const normalized = normalizeBlockContract(block);
+  const valid = ajvValidate(normalized);
+  const errors = formatAjvErrors(ajvValidate.errors);
 
-  const validator = DATA_VALIDATORS[block.type];
-  if (validator && !validator(block.data)) {
-    return { valid: false, reason: 'Block data is missing required fields' };
-  }
-  if (!validateTokens(block.tokens)) {
-    return { valid: false, reason: 'Tokens must match allowed design tokens' };
-  }
-
-  if (!validateBlockMeta(block.meta)) {
-    return { valid: false, reason: 'Block meta is invalid' };
-  }
-
-  const appearance = normalizeSectionAppearance(block.sectionAppearance) || 'contained';
-  if (block.sectionAppearance !== undefined && !normalizeSectionAppearance(block.sectionAppearance)) {
-    return { valid: false, reason: 'Unknown section appearance preset' };
-  }
-
-  if (block.backgroundImage !== undefined && !hasContent(block.backgroundImage)) {
-    return { valid: false, reason: 'Background image must be a non-empty string' };
-  }
-
-  return { valid: true };
+  return { valid, errors, reason: errors[0]?.message, normalized };
 }
 
 export function getBlockVariants(type) {
