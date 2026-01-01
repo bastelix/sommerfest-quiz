@@ -397,6 +397,9 @@ upstream {{ $vpath.upstream }} {
     {{- end }}
 }
 {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
 
 {{- /* debug "endpoint" location template */}}
 {{- define "debug_location" }}
@@ -991,6 +994,13 @@ server {
         {{- end }}
     {{- end }}
 
+    {{- $has_cert := $vhost.cert_ok }}
+    {{- $default_cert_available := and $vhost.trust_default_cert $globals.config.default_cert_ok }}
+    {{- $has_usable_cert := or $has_cert $default_cert_available }}
+
+    {{- if and (not $has_usable_cert) (eq $vhost.https_method "nohttp") }}
+    # Skipping HTTPS-only vhost {{ $hostname }} because no certificate is available.
+    {{- else }}
     server_name {{ $hostname }};
     {{- if $vhost.server_tokens }}
     server_tokens {{ $vhost.server_tokens }};
@@ -1031,28 +1041,45 @@ server {
             {{- end }}
         {{- end }}
 
-        {{- if $vhost.cert_ok }}
+        {{- if $has_usable_cert }}
             {{- template "ssl_policy" (dict "ssl_policy" $vhost.ssl_policy) }}
 
     ssl_session_timeout 5m;
     ssl_session_cache shared:SSL:50m;
     ssl_session_tickets off;
 
+            {{- if $has_cert }}
     ssl_certificate /etc/nginx/certs/{{ (printf "%s.crt" $vhost.cert) }};
     ssl_certificate_key /etc/nginx/certs/{{ (printf "%s.key" $vhost.cert) }};
 
-            {{- if (exists (printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert)) }}
+                {{- if (exists (printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert)) }}
     ssl_dhparam {{ printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert }};
-            {{- end }}
+                {{- end }}
 
-            {{- $chain_path := printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert }}
-            {{- $ocsp_flag := printf "/etc/nginx/certs/%s.ocsp_aia" $vhost.cert }}
-            {{- if (and (exists $chain_path) (exists $ocsp_flag)) }}
+                {{- $chain_path := printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert }}
+                {{- $ocsp_flag := printf "/etc/nginx/certs/%s.ocsp_aia" $vhost.cert }}
+                {{- if (and (exists $chain_path) (exists $ocsp_flag)) }}
     ssl_stapling on;
     ssl_stapling_verify on;
     ssl_trusted_certificate {{ $chain_path }};
-            {{- else if (exists $chain_path) }}
+                {{- else if (exists $chain_path) }}
     # OCSP stapling disabled: no responder URL detected for this certificate chain.
+                {{- end }}
+            {{- else }}
+    ssl_certificate /etc/nginx/certs/default.crt;
+    ssl_certificate_key /etc/nginx/certs/default.key;
+                {{- if (exists "/etc/nginx/certs/default.dhparam.pem") }}
+    ssl_dhparam /etc/nginx/certs/default.dhparam.pem;
+                {{- end }}
+                {{- $default_chain := "/etc/nginx/certs/default.chain.pem" }}
+                {{- $default_ocsp := "/etc/nginx/certs/default.ocsp_aia" }}
+                {{- if (and (exists $default_chain) (exists $default_ocsp)) }}
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate {{ $default_chain }};
+                {{- else if (exists $default_chain) }}
+    # OCSP stapling disabled: no responder URL detected for this certificate chain.
+                {{- end }}
             {{- end }}
 
             {{- if (not (or (eq $vhost.https_method "noredirect") (eq $vhost.hsts "off"))) }}
@@ -1062,12 +1089,8 @@ server {
     }
     add_header Strict-Transport-Security $sts_header always;
             {{- end }}
-        {{- else if not $vhost.trust_default_cert | and $globals.config.default_cert_ok }}
-    # No certificate found for this vhost, and the default certificate isn't trusted, so reject SSL handshake.
-    ssl_reject_handshake on;
         {{- else }}
-    # No certificate for this vhost nor default certificate found, so reject SSL handshake.
-    ssl_reject_handshake on;
+    # HTTPS is disabled for this vhost because no certificate could be found.
         {{- end }}
     {{- end }}
 
@@ -1086,7 +1109,7 @@ server {
     ssl_verify_client {{ $vhost.ssl_verify_client }};
         {{/* If vhost(hash).crl.pem exists, include CRL */}}
         {{- if (exists (printf "/etc/nginx/certs/%s.crl.pem" $vhostFileName)) }}
-    ssl_crl {{ printf "/etc/nginx/certs/%s.crl.pem" $vhostFileName }}; 
+    ssl_crl {{ printf "/etc/nginx/certs/%s.crl.pem" $vhostFileName }};
         {{ end }}
     {{/* Else if no vhost CA file exists, but a global ca.crt exists include it */}}
     {{ else if (exists "/etc/nginx/certs/ca.crt") }}
@@ -1135,4 +1158,6 @@ server {
     }
     {{- end }}
 }
+{{- end }}
+
 {{- end }}
