@@ -139,14 +139,14 @@ const BACKGROUND_MODE_OPTIONS = [
 
 const BACKGROUND_ATTACHMENTS = [
   { value: 'scroll', label: 'Mit Inhalt scrollen' },
-  { value: 'fixed', label: 'Fixiert (Parallax-Effekt)' }
+  { value: 'fixed', label: 'Fixiert (Parallax)' }
 ];
 
 const BACKGROUND_COLOR_TOKENS = [
-  { value: 'surface', label: 'Standard (Surface)' },
-  { value: 'primary', label: 'Primärfarbe' },
-  { value: 'secondary', label: 'Sekundärfarbe' },
-  { value: 'muted', label: 'Neutral (Muted)' },
+  { value: 'surface', label: 'Standard' },
+  { value: 'primary', label: 'Primär' },
+  { value: 'secondary', label: 'Sekundär' },
+  { value: 'muted', label: 'Neutral' },
   { value: 'accent', label: 'Akzent' }
 ];
 
@@ -159,8 +159,6 @@ const BACKGROUND_COLOR_TOKEN_MAP = {
   accent: 'var(--bg-accent-soft)',
   surface: 'var(--surface)'
 };
-
-const DEFAULT_BACKGROUND_COLOR_TOKEN = 'surface';
 
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
@@ -2135,12 +2133,31 @@ export class BlockContentEditor {
 
     if (supportsBackgroundConfig) {
       const backgroundSection = document.createElement('div');
-      backgroundSection.className = 'section-background-config';
+      backgroundSection.className = 'section-background-config background-style-panel';
 
       const backgroundLabel = document.createElement('div');
       backgroundLabel.className = 'layout-style-picker__label';
       backgroundLabel.textContent = 'Hintergrund';
       backgroundSection.append(backgroundLabel);
+
+      const backgroundHelper = createHelperText('Wähle Hintergrundmodus und passe Farbe oder Bild an.');
+      if (backgroundHelper) {
+        backgroundHelper.classList.add('section-background-config__hint');
+        backgroundSection.append(backgroundHelper);
+      }
+
+      let colorField;
+      let imageControls;
+      let imageInput;
+
+      const toggleBackgroundFields = mode => {
+        if (colorField) {
+          colorField.hidden = mode !== 'color';
+        }
+        if (imageControls) {
+          imageControls.hidden = !(layout === 'fullwidth' && mode === 'image');
+        }
+      };
 
       const typeField = document.createElement('label');
       typeField.dataset.fieldLabel = 'true';
@@ -2159,13 +2176,10 @@ export class BlockContentEditor {
       });
       typeSelect.addEventListener('change', event => {
         const nextMode = event.target.value;
-        if (nextMode === 'image' && layout === 'fullwidth' && !background.imageId) {
-          const imageId = window.prompt('Bildquelle aus der Mediathek oder eine absolute URL.');
-          if (!imageId) {
-            event.target.value = background.mode;
-            return;
-          }
-          this.updateSectionBackground(block.id, { mode: 'image', imageId });
+        toggleBackgroundFields(nextMode);
+
+        if (nextMode === 'image' && layout === 'fullwidth' && !background.imageId && imageInput) {
+          imageInput.focus();
           return;
         }
 
@@ -2175,55 +2189,86 @@ export class BlockContentEditor {
       typeField.append(typeLabel, typeSelect);
       backgroundSection.append(typeField);
 
-      if (background.mode === 'color') {
-        const colorField = document.createElement('label');
+      if (allowedBackgroundModes.includes('color')) {
+        const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
+          ? background.colorToken
+          : '';
+
+        colorField = document.createElement('label');
         colorField.dataset.fieldLabel = 'true';
 
         const colorLabel = document.createElement('div');
         colorLabel.className = 'field-label';
-        colorLabel.textContent = 'Farbton (Designsystem)';
+        colorLabel.textContent = 'Farbton';
 
-        const colorSelect = document.createElement('select');
-        colorSelect.className = 'uk-select';
-        const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
-          ? background.colorToken
-          : DEFAULT_BACKGROUND_COLOR_TOKEN;
+        const colorHint = createHelperText('Markenfarbton für Flächenhintergründe.');
+
+        const colorPicker = document.createElement('div');
+        colorPicker.className = 'color-token-picker';
 
         BACKGROUND_COLOR_TOKENS.forEach(option => {
-          const optionEl = document.createElement('option');
-          optionEl.value = option.value;
-          optionEl.textContent = option.label;
-          optionEl.selected = option.value === selectedColor;
-          colorSelect.append(optionEl);
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'color-token-chip';
+          chip.dataset.selected = option.value === selectedColor ? 'true' : 'false';
+          chip.setAttribute('aria-pressed', option.value === selectedColor ? 'true' : 'false');
+          chip.title = option.value;
+
+          const swatch = document.createElement('span');
+          swatch.className = 'color-token-chip__swatch';
+          swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
+
+          const copy = document.createElement('span');
+          copy.className = 'color-token-chip__text';
+          const label = document.createElement('span');
+          label.className = 'color-token-chip__label';
+          label.textContent = option.label;
+          const hint = document.createElement('span');
+          hint.className = 'color-token-chip__hint';
+          hint.textContent = 'Markenfarbe';
+
+          copy.append(label, hint);
+
+          chip.append(swatch, copy);
+          chip.addEventListener('click', () => {
+            this.updateSectionBackground(block.id, { mode: 'color', colorToken: option.value });
+          });
+
+          colorPicker.append(chip);
         });
 
-        colorSelect.addEventListener('change', event => {
-          this.updateSectionBackground(block.id, { mode: 'color', colorToken: event.target.value });
-        });
-
-        colorField.append(colorLabel, colorSelect);
+        if (colorHint) {
+          colorField.append(colorLabel, colorHint, colorPicker);
+        } else {
+          colorField.append(colorLabel, colorPicker);
+        }
 
         backgroundSection.append(colorField);
       }
 
-      if (layout === 'fullwidth' && background.mode === 'image') {
-        backgroundSection.append(
-          this.addLabeledInput(
-            'Hintergrundbild',
-            background.imageId,
-            value => this.updateSectionBackground(block.id, { mode: 'image', imageId: value }),
-            {
-              placeholder: '/uploads/bg.jpg',
-              helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
-            }
-          )
+      if (allowedBackgroundModes.includes('image') && layout === 'fullwidth') {
+        imageControls = document.createElement('div');
+        imageControls.className = 'background-image-fields';
+
+        const imageField = this.addLabeledInput(
+          'Hintergrundbild',
+          background.imageId,
+          value => this.updateSectionBackground(block.id, { mode: 'image', imageId: value }),
+          {
+            placeholder: '/uploads/bg.jpg',
+            helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
+          }
         );
+
+        imageInput = imageField.querySelector('input, textarea, select');
+
+        imageControls.append(imageField);
 
         const attachmentField = document.createElement('label');
         attachmentField.dataset.fieldLabel = 'true';
         const attachmentLabel = document.createElement('div');
         attachmentLabel.className = 'field-label';
-        attachmentLabel.textContent = 'Bildverhalten';
+        attachmentLabel.textContent = 'Scroll-Verhalten';
 
         const attachmentSelect = document.createElement('select');
         attachmentSelect.className = 'uk-select';
@@ -2238,11 +2283,13 @@ export class BlockContentEditor {
           this.updateSectionBackground(block.id, { attachment: event.target.value, mode: 'image' });
         });
 
-        attachmentField.append(attachmentLabel, attachmentSelect);
-        backgroundSection.append(attachmentField);
+        const attachmentHelper = createHelperText('Nur auf Desktop sinnvoll');
+
+        attachmentField.append(attachmentLabel, attachmentSelect, attachmentHelper);
+        imageControls.append(attachmentField);
 
         const overlayValue = typeof background.overlay === 'number' ? background.overlay : 0;
-        backgroundSection.append(
+        imageControls.append(
           this.addLabeledInput(
             'Overlay-Deckkraft',
             overlayValue,
@@ -2250,7 +2297,11 @@ export class BlockContentEditor {
             { type: 'range', min: 0, max: 1, step: 0.05, helpText: 'Optionaler dunkler Verlauf über dem Bild.' }
           )
         );
+
+        backgroundSection.append(imageControls);
       }
+
+      toggleBackgroundFields(background.mode);
 
       wrapper.append(backgroundSection);
     }
