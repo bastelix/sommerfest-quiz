@@ -40,9 +40,6 @@
 {{- $_ := set $config "enable_json_logs" ($globals.Env.LOG_JSON | default "false" | parseBool) }}
 {{- $_ := set $config "log_format" $globals.Env.LOG_FORMAT }}
 {{- $_ := set $config "log_format_escape" $globals.Env.LOG_FORMAT_ESCAPE }}
-{{- $_ := set $config "enable_admin_request_log" ($globals.Env.ADMIN_REQUEST_LOGGING | default "false" | parseBool) }}
-{{- $_ := set $config "admin_request_log_path" ($globals.Env.ADMIN_REQUEST_LOG_PATH | default "/var/log/nginx/admin-access.log") }}
-{{- $_ := set $config "admin_request_log_format" $globals.Env.ADMIN_REQUEST_LOG_FORMAT }}
 
 {{- $_ := set $globals "config" $config }}
 
@@ -287,7 +284,6 @@
 {{- end }}
 
 {{- define "location" }}
-    {{- $globals := .Globals }}
     {{- $vpath := .VPath }}
     {{- $override := printf "/etc/nginx/vhost.d/%s_%s_location_override" .Host (sha1 .Path) }}
     {{- if and (eq .Path "/") (not (exists $override)) }}
@@ -298,25 +294,18 @@
     {{- else }}
         {{- $keepalive := $vpath.keepalive }}
     location {{ .Path }} {
-        {{- if $globals.config.enable_admin_request_log }}
-        access_log {{ $globals.config.admin_request_log_path }} admin_timing if=$admin_request_loggable;
-        {{- end }}
         {{- if eq $vpath.network_tag "internal" }}
         # Only allow traffic from internal clients
         include /etc/nginx/network_internal.conf;
         {{- end }}
 
-        {{- if eq .Path "/admin/pages/ai-generate" }}
-        proxy_read_timeout 35s;
-        {{- end }}
+        {{ $proto := $vpath.proto }}
+        {{ $upstream := $vpath.upstream }}
+        {{ $dest := $vpath.dest }}
 
         {{- if and (hasPrefix .Path "/admin/pages/") (hasSuffix .Path "/menu/ai") }}
         proxy_read_timeout 70s;
         {{- end }}
-
-        {{ $proto := $vpath.proto }}
-        {{ $upstream := $vpath.upstream }}
-        {{ $dest := $vpath.dest }}
         {{- if eq $proto "uwsgi" }}
         include uwsgi_params;
         uwsgi_pass {{ trim $proto }}://{{ trim $upstream }};
@@ -407,6 +396,9 @@ upstream {{ $vpath.upstream }} {
         {{- end }}
     {{- end }}
 }
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{- /* debug "endpoint" location template */}}
@@ -549,15 +541,6 @@ gzip_types text/plain text/css application/javascript application/json applicati
 {{- end }}
 
 log_format vhost {{ $logEscape }} '{{ $logFormat }}';
-
-{{- if $globals.config.enable_admin_request_log }}
-{{- $adminLogFormat := $globals.config.admin_request_log_format | default `{"time_local":"$time_iso8601","host":"$host","request":"$request","status":"$status","request_uri":"$request_uri","request_time":"$request_time","request_length":"$request_length","body_bytes_sent":"$body_bytes_sent","upstream_response_time":"$upstream_response_time","upstream_addr":"$upstream_addr","remote_addr":"$remote_addr","request_id":"$request_id"}` }}
-log_format admin_timing escape=json '{{ $adminLogFormat }}';
-map $request_uri $admin_request_loggable {
-    default 0;
-    ~^/admin(/|$) 1;
-}
-{{- end }}
 
 access_log off;
 
@@ -1011,6 +994,13 @@ server {
         {{- end }}
     {{- end }}
 
+    {{- $has_cert := $vhost.cert_ok }}
+    {{- $default_cert_available := and $vhost.trust_default_cert $globals.config.default_cert_ok }}
+    {{- $has_usable_cert := or $has_cert $default_cert_available }}
+
+    {{- if and (not $has_usable_cert) (eq $vhost.https_method "nohttp") }}
+    # Skipping HTTPS-only vhost {{ $hostname }} because no certificate is available.
+    {{- else }}
     server_name {{ $hostname }};
     {{- if $vhost.server_tokens }}
     server_tokens {{ $vhost.server_tokens }};
@@ -1051,28 +1041,45 @@ server {
             {{- end }}
         {{- end }}
 
-        {{- if $vhost.cert_ok }}
+        {{- if $has_usable_cert }}
             {{- template "ssl_policy" (dict "ssl_policy" $vhost.ssl_policy) }}
 
     ssl_session_timeout 5m;
     ssl_session_cache shared:SSL:50m;
     ssl_session_tickets off;
 
+            {{- if $has_cert }}
     ssl_certificate /etc/nginx/certs/{{ (printf "%s.crt" $vhost.cert) }};
     ssl_certificate_key /etc/nginx/certs/{{ (printf "%s.key" $vhost.cert) }};
 
-            {{- if (exists (printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert)) }}
+                {{- if (exists (printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert)) }}
     ssl_dhparam {{ printf "/etc/nginx/certs/%s.dhparam.pem" $vhost.cert }};
-            {{- end }}
+                {{- end }}
 
-            {{- $chain_path := printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert }}
-            {{- $ocsp_flag := printf "/etc/nginx/certs/%s.ocsp_aia" $vhost.cert }}
-            {{- if (and (exists $chain_path) (exists $ocsp_flag)) }}
+                {{- $chain_path := printf "/etc/nginx/certs/%s.chain.pem" $vhost.cert }}
+                {{- $ocsp_flag := printf "/etc/nginx/certs/%s.ocsp_aia" $vhost.cert }}
+                {{- if (and (exists $chain_path) (exists $ocsp_flag)) }}
     ssl_stapling on;
     ssl_stapling_verify on;
     ssl_trusted_certificate {{ $chain_path }};
-            {{- else if (exists $chain_path) }}
+                {{- else if (exists $chain_path) }}
     # OCSP stapling disabled: no responder URL detected for this certificate chain.
+                {{- end }}
+            {{- else }}
+    ssl_certificate /etc/nginx/certs/default.crt;
+    ssl_certificate_key /etc/nginx/certs/default.key;
+                {{- if (exists "/etc/nginx/certs/default.dhparam.pem") }}
+    ssl_dhparam /etc/nginx/certs/default.dhparam.pem;
+                {{- end }}
+                {{- $default_chain := "/etc/nginx/certs/default.chain.pem" }}
+                {{- $default_ocsp := "/etc/nginx/certs/default.ocsp_aia" }}
+                {{- if (and (exists $default_chain) (exists $default_ocsp)) }}
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate {{ $default_chain }};
+                {{- else if (exists $default_chain) }}
+    # OCSP stapling disabled: no responder URL detected for this certificate chain.
+                {{- end }}
             {{- end }}
 
             {{- if (not (or (eq $vhost.https_method "noredirect") (eq $vhost.hsts "off"))) }}
@@ -1082,12 +1089,8 @@ server {
     }
     add_header Strict-Transport-Security $sts_header always;
             {{- end }}
-        {{- else if not $vhost.trust_default_cert | and $globals.config.default_cert_ok }}
-    # No certificate found for this vhost, and the default certificate isn't trusted, so reject SSL handshake.
-    ssl_reject_handshake on;
         {{- else }}
-    # No certificate for this vhost nor default certificate found, so reject SSL handshake.
-    ssl_reject_handshake on;
+    # HTTPS is disabled for this vhost because no certificate could be found.
         {{- end }}
     {{- end }}
 
@@ -1106,7 +1109,7 @@ server {
     ssl_verify_client {{ $vhost.ssl_verify_client }};
         {{/* If vhost(hash).crl.pem exists, include CRL */}}
         {{- if (exists (printf "/etc/nginx/certs/%s.crl.pem" $vhostFileName)) }}
-    ssl_crl {{ printf "/etc/nginx/certs/%s.crl.pem" $vhostFileName }}; 
+    ssl_crl {{ printf "/etc/nginx/certs/%s.crl.pem" $vhostFileName }};
         {{ end }}
     {{/* Else if no vhost CA file exists, but a global ca.crt exists include it */}}
     {{ else if (exists "/etc/nginx/certs/ca.crt") }}
@@ -1141,7 +1144,6 @@ server {
 
     {{- range $path, $vpath := $vhost.paths }}
         {{- template "location" (dict
-            "Globals" $globals
             "Path" $path
             "Host" $vhostFileName
             "HostIsRegexp" $vhost.is_regexp
@@ -1156,4 +1158,6 @@ server {
     }
     {{- end }}
 }
+{{- end }}
+
 {{- end }}
