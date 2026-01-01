@@ -160,6 +160,47 @@ const BACKGROUND_COLOR_TOKEN_MAP = {
   surface: 'var(--surface)'
 };
 
+const BACKGROUND_INTENT_OPTIONS = [
+  {
+    value: 'standard',
+    label: 'Standard',
+    description: 'Neutraler Abschnitt ohne Hervorhebung.',
+    preset: { mode: 'none' }
+  },
+  {
+    value: 'highlight',
+    label: 'Hervorgehoben',
+    description: 'Leicht getönter Hintergrund für dezente Abhebung.',
+    preset: { mode: 'color', colorToken: 'muted' }
+  },
+  {
+    value: 'accent',
+    label: 'Akzent',
+    description: 'Markanter Farbton für Schlüsselbotschaften.',
+    preset: { mode: 'color', colorToken: 'accent' }
+  },
+  {
+    value: 'contrast',
+    label: 'Kontrast',
+    description: 'Kräftiger Kontrast auf Markenbasis.',
+    preset: { mode: 'color', colorToken: 'primary' }
+  },
+  {
+    value: 'image',
+    label: 'Bildfläche',
+    description: 'Großflächiger Hintergrund mit Bild.',
+    preset: { mode: 'image' }
+  }
+];
+
+const BACKGROUND_INTENT_BY_COLOR = {
+  surface: 'standard',
+  muted: 'highlight',
+  accent: 'accent',
+  primary: 'contrast',
+  secondary: 'contrast'
+};
+
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
   fullwidth: ['none', 'color', 'image'],
@@ -251,6 +292,18 @@ const resolveSectionStyle = block => {
   const layout = resolveLayout(block);
   const background = resolveSectionBackground(block, layout);
   return { layout, background };
+};
+
+const resolveBackgroundIntent = (background, layout) => {
+  if (layout === 'fullwidth' && background.mode === 'image') {
+    return 'image';
+  }
+
+  if (background.mode === 'color' && BACKGROUND_INTENT_BY_COLOR[background.colorToken]) {
+    return BACKGROUND_INTENT_BY_COLOR[background.colorToken];
+  }
+
+  return 'standard';
 };
 
 const applySectionStyle = (block, sectionStyle) => sanitizeBlock({
@@ -2140,11 +2193,52 @@ export class BlockContentEditor {
       backgroundLabel.textContent = 'Hintergrund';
       backgroundSection.append(backgroundLabel);
 
-      const backgroundHelper = createHelperText('Wähle Hintergrundmodus und passe Farbe oder Bild an.');
+      const backgroundHelper = createHelperText('Wähle die gewünschte Wirkung; Details findest du unter „Erweiterte Einstellungen“.');
       if (backgroundHelper) {
         backgroundHelper.classList.add('section-background-config__hint');
         backgroundSection.append(backgroundHelper);
       }
+
+      const backgroundIntent = resolveBackgroundIntent(background, layout);
+      const intentOptions = BACKGROUND_INTENT_OPTIONS.filter(option => {
+        if (option.preset.mode === 'image') {
+          return layout === 'fullwidth' && allowedBackgroundModes.includes('image');
+        }
+        if (option.preset.mode === 'color') {
+          return allowedBackgroundModes.includes('color');
+        }
+        return true;
+      });
+
+      const intentCards = document.createElement('div');
+      intentCards.className = 'layout-style-picker__options layout-style-picker__options--appearance';
+
+      intentOptions.forEach(option => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'layout-style-card layout-style-card--appearance';
+        const selected = option.value === backgroundIntent;
+        card.dataset.selected = String(selected);
+        card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+
+        const title = document.createElement('div');
+        title.className = 'layout-style-card__title';
+        title.textContent = option.label;
+
+        if (option.description) {
+          const description = document.createElement('div');
+          description.className = 'layout-style-card__description';
+          description.textContent = option.description;
+          card.append(title, description);
+        } else {
+          card.append(title);
+        }
+
+        card.addEventListener('click', () => this.applyBackgroundIntent(block.id, option.value));
+        intentCards.append(card);
+      });
+
+      backgroundSection.append(intentCards);
 
       let colorField;
       let imageControls;
@@ -2159,11 +2253,21 @@ export class BlockContentEditor {
         }
       };
 
+      const advancedControls = document.createElement('details');
+      advancedControls.className = 'section-background-config__advanced';
+
+      const advancedSummary = document.createElement('summary');
+      advancedSummary.textContent = 'Erweiterte Einstellungen';
+      advancedControls.append(advancedSummary);
+
+      const advancedBody = document.createElement('div');
+      advancedBody.className = 'section-background-config__advanced-fields';
+
       const typeField = document.createElement('label');
       typeField.dataset.fieldLabel = 'true';
       const typeLabel = document.createElement('div');
       typeLabel.className = 'field-label';
-      typeLabel.textContent = 'Hintergrundart';
+      typeLabel.textContent = 'Technischer Modus';
 
       const typeSelect = document.createElement('select');
       typeSelect.className = 'uk-select';
@@ -2176,65 +2280,56 @@ export class BlockContentEditor {
       });
       typeSelect.addEventListener('change', event => {
         const nextMode = event.target.value;
+        this.updateSectionBackground(block.id, { mode: nextMode });
         toggleBackgroundFields(nextMode);
-
         if (nextMode === 'image' && layout === 'fullwidth' && !background.imageId && imageInput) {
           imageInput.focus();
-          return;
         }
-
-        this.updateSectionBackground(block.id, { mode: nextMode });
       });
 
-      typeField.append(typeLabel, typeSelect);
-      backgroundSection.append(typeField);
+      const typeHelper = createHelperText('Feintuning für Layout- oder Theme-Szenarien.');
+      if (typeHelper) {
+        typeHelper.classList.add('section-background-config__hint');
+      }
+
+      typeField.append(typeLabel, typeSelect, typeHelper);
+      advancedBody.append(typeField);
 
       if (allowedBackgroundModes.includes('color')) {
-        const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
-          ? background.colorToken
-          : '';
-
-        colorField = document.createElement('label');
+        colorField = document.createElement('div');
         colorField.dataset.fieldLabel = 'true';
+        colorField.className = 'background-color-field';
 
         const colorLabel = document.createElement('div');
         colorLabel.className = 'field-label';
         colorLabel.textContent = 'Farbton';
 
-        const colorHint = createHelperText('Markenfarbton für Flächenhintergründe.');
-
+        const colorHint = createHelperText('Nutze die Markenfarben für konsistente Kontraste.');
         const colorPicker = document.createElement('div');
-        colorPicker.className = 'color-token-picker';
+        colorPicker.className = 'background-color-picker';
 
         BACKGROUND_COLOR_TOKENS.forEach(option => {
-          const chip = document.createElement('button');
-          chip.type = 'button';
-          chip.className = 'color-token-chip';
-          chip.dataset.selected = option.value === selectedColor ? 'true' : 'false';
-          chip.setAttribute('aria-pressed', option.value === selectedColor ? 'true' : 'false');
-          chip.title = option.value;
-
-          const swatch = document.createElement('span');
-          swatch.className = 'color-token-chip__swatch';
-          swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
-
-          const copy = document.createElement('span');
-          copy.className = 'color-token-chip__text';
-          const label = document.createElement('span');
-          label.className = 'color-token-chip__label';
-          label.textContent = option.label;
-          const hint = document.createElement('span');
-          hint.className = 'color-token-chip__hint';
-          hint.textContent = 'Markenfarbe';
-
-          copy.append(label, hint);
-
-          chip.append(swatch, copy);
-          chip.addEventListener('click', () => {
+          const swatch = document.createElement('button');
+          swatch.type = 'button';
+          swatch.dataset.color = option.value;
+          const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
+            ? background.colorToken
+            : 'surface';
+          swatch.dataset.selected = String(selectedColor === option.value);
+          swatch.className = 'color-swatch';
+          swatch.textContent = option.label;
+          swatch.setAttribute('aria-pressed', selectedColor === option.value ? 'true' : 'false');
+          swatch.addEventListener('click', () => {
+            colorPicker.querySelectorAll('.color-swatch').forEach(btn => {
+              btn.dataset.selected = 'false';
+              btn.setAttribute('aria-pressed', 'false');
+            });
+            swatch.dataset.selected = 'true';
+            swatch.setAttribute('aria-pressed', 'true');
             this.updateSectionBackground(block.id, { mode: 'color', colorToken: option.value });
           });
-
-          colorPicker.append(chip);
+          swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
+          colorPicker.append(swatch);
         });
 
         if (colorHint) {
@@ -2243,7 +2338,7 @@ export class BlockContentEditor {
           colorField.append(colorLabel, colorPicker);
         }
 
-        backgroundSection.append(colorField);
+        advancedBody.append(colorField);
       }
 
       if (allowedBackgroundModes.includes('image') && layout === 'fullwidth') {
@@ -2298,8 +2393,11 @@ export class BlockContentEditor {
           )
         );
 
-        backgroundSection.append(imageControls);
+        advancedBody.append(imageControls);
       }
+
+      advancedControls.append(advancedBody);
+      backgroundSection.append(advancedControls);
 
       toggleBackgroundFields(background.mode);
 
@@ -3910,6 +4008,48 @@ export class BlockContentEditor {
     });
 
     this.render();
+  }
+
+  applyBackgroundIntent(blockId, intent) {
+    const preset = BACKGROUND_INTENT_OPTIONS.find(option => option.value === intent)?.preset;
+    if (!preset) {
+      return;
+    }
+
+    const targetBlock = this.state.blocks.find(block => block.id === blockId);
+    if (!targetBlock) {
+      return;
+    }
+
+    const layout = resolveLayout(targetBlock);
+    if (preset.mode === 'image' && layout !== 'fullwidth') {
+      return;
+    }
+
+    if (preset.mode === 'none') {
+      this.updateSectionBackground(blockId, { mode: 'none' });
+      return;
+    }
+
+    if (preset.mode === 'color') {
+      this.updateSectionBackground(blockId, { mode: 'color', colorToken: preset.colorToken });
+      return;
+    }
+
+    const currentBackground = resolveSectionBackground(targetBlock, layout);
+    const attachment = currentBackground.attachment || 'scroll';
+    const overlay = currentBackground.overlay;
+    const changes = {
+      mode: 'image',
+      imageId: currentBackground.imageId || targetBlock?.backgroundImage || '',
+      attachment
+    };
+
+    if (overlay !== undefined) {
+      changes.overlay = overlay;
+    }
+
+    this.updateSectionBackground(blockId, changes);
   }
 
   updateSectionBackground(blockId, changes = {}) {
