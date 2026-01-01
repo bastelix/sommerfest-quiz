@@ -128,7 +128,8 @@ CREATE TABLE IF NOT EXISTS certificate_zones (
     wildcard_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     status TEXT NOT NULL DEFAULT 'pending',
     last_issued_at TEXT,
-    last_error TEXT
+    last_error TEXT,
+    next_renewal_after TEXT
 );
 
 -- Domain contact templates
