@@ -15,7 +15,7 @@ if (is_readable($configFile)) {
 
 $dsn = getenv('POSTGRES_DSN') ?: ($config['postgres_dsn'] ?? null);
 $user = getenv('POSTGRES_USER') ?: ($config['postgres_user'] ?? null);
-$pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: ($config['postgres_pass'] ?? null);
+$pass = getenv('POSTGRES_PASSWORD') ?: ($config['postgres_password'] ?? null);
 $db   = getenv('POSTGRES_DB') ?: ($config['postgres_db'] ?? null);
 
 if (!$dsn || !$user || !$db) {

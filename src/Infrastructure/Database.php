@@ -49,7 +49,7 @@ class Database
 
         $dsn  = getenv('POSTGRES_DSN') ?: '';
         $user = getenv('POSTGRES_USER') ?: '';
-        $pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: '';
+        $pass = getenv('POSTGRES_PASSWORD') ?: '';
         $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
 
         while (true) {

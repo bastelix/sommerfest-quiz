@@ -14,6 +14,9 @@ if (getenv('MAIN_DOMAIN') === false || getenv('MAIN_DOMAIN') === '') {
     $_ENV['MAIN_DOMAIN'] = 'example.com';
 }
 
+putenv('ENABLE_WILDCARD_AUTOMATION=0');
+$_ENV['ENABLE_WILDCARD_AUTOMATION'] = '0';
+
 $rateLimitDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rate_limit_tests_' . getmypid();
 \App\Application\Middleware\RateLimitMiddleware::setPersistentStore(
     new \App\Application\RateLimiting\FilesystemRateLimitStore($rateLimitDir)

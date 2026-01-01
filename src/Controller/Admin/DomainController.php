@@ -89,6 +89,7 @@ class DomainController
 
         if ($domain['is_active']) {
             $this->queueZone($domain['zone']);
+            $this->dispatchWildcardJobs();
             $this->clearMarketingDomainCache();
         }
 
@@ -134,6 +135,7 @@ class DomainController
 
         if (!$existing['is_active'] && $domain['is_active']) {
             $this->queueZone($domain['zone']);
+            $this->dispatchWildcardJobs();
             $this->clearMarketingDomainCache();
         }
 
@@ -252,5 +254,39 @@ class DomainController
         $provider = getenv('ACME_WILDCARD_PROVIDER') ?: 'hetzner';
 
         $this->certificateZoneRegistry->ensureZone($zone, $provider, true);
+    }
+
+    private function dispatchWildcardJobs(): void
+    {
+        $autoDispatch = getenv('ENABLE_WILDCARD_AUTOMATION');
+        if ($autoDispatch !== false && strtolower((string) $autoDispatch) === '0') {
+            return;
+        }
+
+        foreach (['ACME_SH_BIN', 'ACME_WILDCARD_PROVIDER', 'NGINX_WILDCARD_CERT_DIR'] as $variable) {
+            if (getenv($variable) === false || getenv($variable) === '') {
+                return;
+            }
+        }
+
+        $script = realpath(__DIR__ . '/../../scripts/wildcard_maintenance.sh');
+        if ($script === false || !is_file($script)) {
+            return;
+        }
+
+        $command = 'bash ' . escapeshellarg($script) . ' >/dev/null 2>&1 &';
+        $process = @proc_open(
+            ['/bin/sh', '-c', $command],
+            [
+                0 => ['file', '/dev/null', 'r'],
+                1 => ['file', '/dev/null', 'w'],
+                2 => ['file', '/dev/null', 'w'],
+            ],
+            $pipes
+        );
+
+        if (is_resource($process)) {
+            proc_close($process);
+        }
     }
 }

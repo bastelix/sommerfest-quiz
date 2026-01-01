@@ -11,6 +11,21 @@ if [ -r .env ]; then
     done < .env
 fi
 
+if [ -n "${MARKETING_DOMAINS:-}" ]; then
+    echo "Warning: MARKETING_DOMAINS is deprecated and ignored. Manage marketing hosts in the domains table instead." >&2
+    unset MARKETING_DOMAINS
+fi
+
+if [ -n "${SLIM_VIRTUAL_HOSTS:-}" ] || [ -n "${SLIM_LETSENCRYPT_HOSTS:-}" ]; then
+    echo "Error: SLIM_VIRTUAL_HOSTS and SLIM_LETSENCRYPT_HOSTS have been removed. Configure SLIM_VIRTUAL_HOST/SLIM_LETSENCRYPT_HOST instead." >&2
+    exit 1
+fi
+
+if [ -n "${POSTGRES_PASS:-}" ]; then
+    echo "Error: POSTGRES_PASS has been removed. Use POSTGRES_PASSWORD." >&2
+    exit 1
+fi
+
 php_memory_limit="${PHP_MEMORY_LIMIT:-512M}"
 printf 'memory_limit = %s\n' "$php_memory_limit" > /usr/local/etc/php/conf.d/zz-memory-limit.ini
 
