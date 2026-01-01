@@ -123,6 +123,29 @@
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
+  {% set designData = design is defined and design ? design : null %}
+  <script>
+    window.namespaceDesign = window.namespaceDesign || {};
+    {% if designData %}
+    const designPayload = {{ {
+      appearance: designData.appearance|default({}),
+      effects: designData.effects|default({}),
+    }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+    const namespaceKey = {{ designData.namespace|default(normalizedNamespace)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+    window.namespaceDesign[namespaceKey] = designPayload;
+    if (namespaceKey !== {{ normalizedNamespace|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }}) {
+      window.namespaceDesign[{{ normalizedNamespace|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }}] = designPayload;
+    }
+    {% endif %}
+  </script>
+  {% if not isAdminPage and designData and designData.appearance.tokens is defined %}
+    <style>
+      :root {
+        {% if designData.appearance.tokens.brand.primary is defined %}--brand-primary: {{ designData.appearance.tokens.brand.primary }};{% endif %}
+        {% if designData.appearance.tokens.brand.accent is defined %}--brand-accent: {{ designData.appearance.tokens.brand.accent }};{% endif %}
+      }
+    </style>
+  {% endif %}
   {% block head %}{% endblock %}
   {% set rawConfig = config is defined and config ? config : {} %}
   {% set allowConfigBackgroundRaw %}

@@ -21,6 +21,7 @@ use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
 use App\Service\TurnstileConfig;
+use App\Service\EffectsPolicyService;
 use App\Infrastructure\Database;
 use App\Support\BasePathHelper;
 use App\Support\FeatureFlags;
@@ -76,6 +77,7 @@ class MarketingPageController
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
     private DesignTokenService $designTokens;
+    private EffectsPolicyService $effectsPolicy;
 
     public function __construct(
         ?string $slug = null,
@@ -92,7 +94,8 @@ class MarketingPageController
         ?NamespaceResolver $namespaceResolver = null,
         ?ProjectSettingsService $projectSettings = null,
         ?ConfigService $configService = null,
-        ?DesignTokenService $designTokens = null
+        ?DesignTokenService $designTokens = null,
+        ?EffectsPolicyService $effectsPolicy = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -110,6 +113,7 @@ class MarketingPageController
         $pdo = Database::connectFromEnv();
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->designTokens = $designTokens ?? new DesignTokenService($pdo, $this->configService);
+        $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -256,15 +260,7 @@ class MarketingPageController
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
-        $designConfig = $this->configService->getConfigForEvent($namespace);
-        if ($designConfig === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $designConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-        }
-
-        $appearance = [
-            'tokens' => $this->designTokens->getTokensForNamespace($namespace),
-            'defaults' => $this->designTokens->getDefaults(),
-        ];
+        $design = $this->loadDesign($namespace);
 
         $data = [
             'content' => $html,
@@ -287,10 +283,11 @@ class MarketingPageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'config' => $designConfig,
+            'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
-            'appearance' => $appearance,
+            'appearance' => $design['appearance'],
+            'design' => $design,
         ];
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
@@ -1085,5 +1082,42 @@ class MarketingPageController
 
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string {
         return MarketingSlugResolver::resolveLocalizedSlug($baseSlug, $locale);
+    }
+
+    /**
+     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     */
+    private function loadDesign(string $namespace): array
+    {
+        $config = $this->configService->getConfigForEvent($namespace);
+        $resolvedNamespace = $namespace;
+
+        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
+            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+            if ($fallbackConfig !== []) {
+                $config = $fallbackConfig;
+                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+            }
+        }
+
+        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
+        $appearance = [
+            'tokens' => $tokens,
+            'defaults' => $this->designTokens->getDefaults(),
+            'colors' => [
+                'primary' => $tokens['brand']['primary'] ?? null,
+                'secondary' => $tokens['brand']['accent'] ?? null,
+                'accent' => $tokens['brand']['accent'] ?? null,
+            ],
+        ];
+
+        $effects = $this->effectsPolicy->getEffectsForNamespace($resolvedNamespace);
+
+        return [
+            'config' => $config,
+            'appearance' => $appearance,
+            'effects' => $effects,
+            'namespace' => $resolvedNamespace,
+        ];
     }
 }
