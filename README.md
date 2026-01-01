@@ -385,7 +385,9 @@ Ist in der `.env` die Variable `POSTGRES_DSN` gesetzt, legt das Entrypoint-
 Skript beim Start automatisch die Datenbank anhand von `docs/schema.sql` an und
 importiert die vorhandenen JSON-Daten. Danach werden die Migrationen einmalig
 ausgeführt. Neben `POSTGRES_DSN` werden dafür auch
-`POSTGRES_USER`, `POSTGRES_PASSWORD` und `POSTGRES_DB` ausgewertet.
+`POSTGRES_USER`, `POSTGRES_PASSWORD` und `POSTGRES_DB` ausgewertet. Das
+veraltete `POSTGRES_PASS` wird bei Bedarf mit Warnung auf `POSTGRES_PASSWORD`
+gespiegelt.
 
 ### Bildgrößen anpassen
 
@@ -624,7 +626,8 @@ Weitere Werte sind optional. Der TLS-Block bündelt ACME-/nginx-Einstellungen
 und kann leer bleiben, solange keine Wildcard-Automatisierung benötigt wird.
 Alle Beispiele sind in `sample.env` ausführlich kommentiert; veraltete Felder
 wie `SLIM_VIRTUAL_HOSTS`, `SLIM_LETSENCRYPT_HOSTS` oder `MARKETING_DOMAINS`
-werden ignoriert.
+lösen nur noch Warnungen aus und werden automatisch auf die neuen Variablen
+umgesetzt.
 
 Für den eigentlichen Quiz-Container lässt sich der Hostname über die
 Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen

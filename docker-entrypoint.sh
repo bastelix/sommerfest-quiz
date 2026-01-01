@@ -16,14 +16,34 @@ if [ -n "${MARKETING_DOMAINS:-}" ]; then
     unset MARKETING_DOMAINS
 fi
 
+echo "Starting entrypoint. Prefer SLIM_VIRTUAL_HOST/SLIM_LETSENCRYPT_HOST and POSTGRES_PASSWORD; legacy variables will be migrated automatically." >&2
+
 if [ -n "${SLIM_VIRTUAL_HOSTS:-}" ] || [ -n "${SLIM_LETSENCRYPT_HOSTS:-}" ]; then
-    echo "Error: SLIM_VIRTUAL_HOSTS and SLIM_LETSENCRYPT_HOSTS have been removed. Configure SLIM_VIRTUAL_HOST/SLIM_LETSENCRYPT_HOST instead." >&2
-    exit 1
+    if [ -n "${SLIM_VIRTUAL_HOSTS:-}" ] && [ -z "${SLIM_VIRTUAL_HOST:-}" ]; then
+        echo "Warning: SLIM_VIRTUAL_HOSTS is deprecated; falling back to SLIM_VIRTUAL_HOST." >&2
+        export SLIM_VIRTUAL_HOST="$SLIM_VIRTUAL_HOSTS"
+    fi
+
+    if [ -n "${SLIM_LETSENCRYPT_HOSTS:-}" ] && [ -z "${SLIM_LETSENCRYPT_HOST:-}" ]; then
+        echo "Warning: SLIM_LETSENCRYPT_HOSTS is deprecated; falling back to SLIM_LETSENCRYPT_HOST." >&2
+        export SLIM_LETSENCRYPT_HOST="$SLIM_LETSENCRYPT_HOSTS"
+    fi
+
+    if [ -z "${VIRTUAL_HOST:-}" ]; then
+        export VIRTUAL_HOST="${SLIM_VIRTUAL_HOST:-${SLIM_VIRTUAL_HOSTS:-}}"
+    fi
+
+    if [ -z "${LETSENCRYPT_HOST:-}" ]; then
+        export LETSENCRYPT_HOST="${SLIM_LETSENCRYPT_HOST:-${SLIM_LETSENCRYPT_HOSTS:-}}"
+    fi
 fi
 
 if [ -n "${POSTGRES_PASS:-}" ]; then
-    echo "Error: POSTGRES_PASS has been removed. Use POSTGRES_PASSWORD." >&2
-    exit 1
+    echo "Warning: POSTGRES_PASS is deprecated; falling back to POSTGRES_PASSWORD." >&2
+
+    if [ -z "${POSTGRES_PASSWORD:-}" ]; then
+        export POSTGRES_PASSWORD="$POSTGRES_PASS"
+    fi
 fi
 
 php_memory_limit="${PHP_MEMORY_LIMIT:-512M}"
