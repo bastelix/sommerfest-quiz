@@ -332,6 +332,31 @@ class HomeControllerTest extends TestCase
         }
     }
 
+    public function testCustomDomainWithoutStartpageShowsMaintenancePage(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+
+        $domainService = new \App\Service\DomainService($pdo);
+        $domainService->createDomain('tenant.test', namespace: 'tenant-a');
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $request = $request->withUri($request->getUri()->withHost('tenant.test'));
+            $response = $app->handle($request);
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = strtolower((string) $response->getBody());
+            $this->assertStringContainsString('wir richten diese seite gerade ein', $body);
+            $this->assertStringContainsString('tenant.test', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testCustomStartpageOverridesReservedSlug(): void
     {
         $db = $this->setupDb();
