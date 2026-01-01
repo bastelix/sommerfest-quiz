@@ -1,0 +1,55 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Seite in Wartung{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}marketing-page marketing-maintenance uk-background-muted{% endblock %}
+
+{% block head %}
+  <meta name="page-name" content="Domain maintenance">
+  <style>
+    .maintenance-wrapper {
+      min-height: 80vh;
+      display: grid;
+      place-items: center;
+      padding: 3rem 1.5rem;
+    }
+
+    .maintenance-card {
+      max-width: 640px;
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+      text-align: center;
+    }
+
+    .maintenance-card h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .maintenance-card p {
+      margin: 0.4rem 0;
+      color: #555;
+    }
+
+    .maintenance-card .maintenance-meta {
+      color: #888;
+      font-size: 0.95rem;
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="maintenance-wrapper">
+    <section class="maintenance-card" role="status" aria-live="polite">
+      <h1>Wir richten diese Seite gerade ein</h1>
+      <p>Die Domain ist hinterlegt, aber noch ohne Startseite. Bitte schau bald wieder vorbei.</p>
+      {% if requestedHost %}
+        <p class="maintenance-meta">Aufruf: {{ requestedHost }}</p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock %}

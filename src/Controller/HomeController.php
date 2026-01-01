@@ -78,6 +78,14 @@ class HomeController
 
             $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
             $startpageSlug = $pageService->resolveStartpageSlug($namespace, $locale, $host);
+            $isCustomDomain = $request->getAttribute('domainNamespace') !== null
+                || in_array((string) $request->getAttribute('domainType'), ['tenant', 'marketing'], true);
+
+            if ($startpageSlug === null && $catalogParam === '' && $isCustomDomain) {
+                return $view->render($response, 'marketing/domain_maintenance.twig', [
+                    'requestedHost' => $host,
+                ]);
+            }
             $startpageBaseSlug = $startpageSlug !== null
                 ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)
                 : '';
