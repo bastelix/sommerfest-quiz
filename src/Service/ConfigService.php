@@ -458,7 +458,7 @@ class ConfigService
         $uid = (string)($filtered['event_uid']['value'] ?? $this->getActiveEventUid());
         $filtered['event_uid'] = ['key' => 'event_uid', 'value' => $uid];
 
-        if ($uid === '' || !$this->eventExists($uid)) {
+        if ($uid === '' || (!$this->eventExists($uid) && !$this->namespaceExists($uid))) {
             throw new RuntimeException('Cannot save config because event does not exist: ' . $uid);
         }
 
