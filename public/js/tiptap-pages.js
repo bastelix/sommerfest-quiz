@@ -3448,7 +3448,11 @@ export async function showPreview(formOverride = null, options = {}) {
   const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
   const editorEl = activeForm.querySelector('.page-editor');
   const { blocks } = readBlockEditorState(editor);
-  const rendererOptions = { rendererMatrix: RENDERER_MATRIX, context: 'preview' };
+  const rendererOptions = {
+    rendererMatrix: RENDERER_MATRIX,
+    context: 'preview',
+    appearance: window.pageAppearance || {},
+  };
   const html = USE_BLOCK_EDITOR
     ? renderPage(Array.isArray(blocks) ? blocks : [], rendererOptions)
     : sanitize(typeof editor?.getHTML === 'function' ? editor.getHTML() : editorEl?.dataset.content || '');

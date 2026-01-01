@@ -14,6 +14,90 @@ export function escapeAttribute(value) {
   return escapeHtml(value).replace(/`/g, '&#x60;');
 }
 
+const DEFAULT_APPEARANCE = {
+  colors: {
+    primary: 'var(--accent-primary, var(--brand-primary, #1e87f0))',
+    secondary: 'var(--accent-secondary, var(--brand-accent, var(--brand-primary, #1e87f0)))',
+    accent: 'var(--brand-accent, var(--accent-secondary, var(--accent-primary, #1e87f0)))',
+    muted: 'var(--surface-muted, #f8fafc)',
+    surface: 'var(--surface, #ffffff)',
+  },
+  variables: {},
+};
+
+let activeAppearance = DEFAULT_APPEARANCE;
+
+function resolveComputedAppearance() {
+  if (typeof window === 'undefined' || typeof window.getComputedStyle !== 'function') {
+    return {};
+  }
+
+  try {
+    const styles = window.getComputedStyle(document.documentElement);
+    return {
+      surface: styles.getPropertyValue('--surface')?.trim(),
+      muted: styles.getPropertyValue('--surface-muted')?.trim(),
+      primary: styles.getPropertyValue('--accent-primary')?.trim() || styles.getPropertyValue('--brand-primary')?.trim(),
+      secondary: styles.getPropertyValue('--accent-secondary')?.trim() || styles.getPropertyValue('--brand-accent')?.trim(),
+      accent: styles.getPropertyValue('--brand-accent')?.trim() || styles.getPropertyValue('--accent-secondary')?.trim(),
+    };
+  } catch (error) {
+    return {};
+  }
+}
+
+function normalizeAppearance(appearance) {
+  const resolved = { ...DEFAULT_APPEARANCE, colors: { ...DEFAULT_APPEARANCE.colors }, variables: {} };
+  const colors = appearance?.colors || {};
+  Object.entries(colors).forEach(([key, value]) => {
+    if (typeof value === 'string' && value.trim() !== '') {
+      resolved.colors[key] = value.trim();
+    }
+  });
+
+  const tokens = appearance?.tokens || {};
+  const brand = tokens.brand || {};
+  if (!colors.primary && typeof brand.primary === 'string' && brand.primary.trim()) {
+    resolved.colors.primary = brand.primary.trim();
+  }
+  if (!colors.secondary && typeof brand.accent === 'string' && brand.accent.trim()) {
+    resolved.colors.secondary = brand.accent.trim();
+  }
+  if (!colors.accent && typeof brand.accent === 'string' && brand.accent.trim()) {
+    resolved.colors.accent = brand.accent.trim();
+  }
+
+  const computed = resolveComputedAppearance();
+  Object.entries(computed).forEach(([key, value]) => {
+    if (typeof value === 'string' && value !== '' && resolved.colors[key] === DEFAULT_APPEARANCE.colors[key]) {
+      resolved.colors[key] = value;
+    }
+  });
+
+  if (appearance?.variables && typeof appearance.variables === 'object') {
+    resolved.variables = appearance.variables;
+  }
+
+  return resolved;
+}
+
+export function setActiveAppearance(appearance) {
+  const previous = activeAppearance;
+  activeAppearance = normalizeAppearance(appearance);
+  return previous;
+}
+
+export function withAppearance(appearance, callback) {
+  const previous = setActiveAppearance(appearance);
+  const result = callback();
+  activeAppearance = previous;
+  return result;
+}
+
+function resolveActiveAppearance() {
+  return activeAppearance || DEFAULT_APPEARANCE;
+}
+
 const PREVIEW_CONTEXT = 'preview';
 
 function buildEditableAttributes(block, fieldPath, context, { type = 'text' } = {}) {
@@ -159,9 +243,65 @@ function resolveSectionBackground(block, layout) {
   return { mode: 'none' };
 }
 
+function resolveBackgroundColor(token) {
+  const palette = resolveActiveAppearance().colors;
+  if (token && palette[token]) {
+    return palette[token];
+  }
+
+  return null;
+}
+
+function resolveBackgroundImage(imageId) {
+  if (!imageId || typeof imageId !== 'string') {
+    return null;
+  }
+
+  const trimmed = imageId.trim();
+  if (trimmed === '') {
+    return null;
+  }
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  const basePath = resolveBasePath();
+  return `${basePath}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+}
+
+function resolveSectionBackgroundStyles(background) {
+  const styles = [];
+  const dataAttributes = [];
+
+  if (background.mode === 'color') {
+    const colorValue = resolveBackgroundColor(background.colorToken);
+    if (colorValue) {
+      styles.push(`--section-bg-color:${colorValue}`);
+      dataAttributes.push('data-section-background="color"');
+    }
+  }
+
+  if (background.mode === 'image') {
+    const imageUrl = resolveBackgroundImage(background.imageId);
+    if (imageUrl) {
+      styles.push(`--section-bg-image:url('${escapeAttribute(imageUrl)}')`);
+      styles.push(`--section-bg-attachment:${background.attachment || 'scroll'}`);
+      if (background.overlay !== undefined) {
+        styles.push(`--section-bg-overlay:${background.overlay}`);
+      }
+      dataAttributes.push('data-section-background="image"');
+    }
+  }
+
+  const style = styles.length ? `${styles.join('; ')};` : '';
+
+  return { style, dataAttributes };
+}
+
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
   const background = resolveSectionBackground(block, layout);
+  const backgroundStyle = resolveSectionBackgroundStyles(background);
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const classes = [
     'section',
@@ -191,7 +331,8 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
       : null,
     background.mode === 'image' && background.overlay !== undefined
       ? `data-section-background-overlay="${escapeAttribute(String(background.overlay))}"`
-      : null
+      : null,
+    ...backgroundStyle.dataAttributes,
   ]
     .filter(Boolean)
     .join(' ');
@@ -202,7 +343,9 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
 
   const dataAttributesString = dataAttributes ? ` ${dataAttributes}` : '';
 
-  return `<section${anchor} class="${classes}"${dataAttributesString}>${inner}</section>`;
+  const style = backgroundStyle.style ? ` style="${backgroundStyle.style}"` : '';
+
+  return `<section${anchor} class="${classes}"${dataAttributesString}${style}>${inner}</section>`;
 }
 
 function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
