@@ -29,6 +29,7 @@ if ($dnsProvider === '') {
 }
 
 $certChanged = false;
+$nginxPidFile = '/run/nginx/nginx.pid';
 foreach ($zones as $zone) {
     $name = $zone['zone'];
     if ($name === '') {
@@ -87,7 +88,9 @@ foreach ($zones as $zone) {
 }
 
 if ($certChanged && $reloadOnChange) {
-    if (!runCommand(['nginx', '-s', 'reload'])) {
+    if (!is_file($nginxPidFile) || !is_readable($nginxPidFile)) {
+        fwrite(STDERR, "Skipping nginx reload: PID file missing or unreadable at {$nginxPidFile}.\n");
+    } elseif (!runCommand(['nginx', '-s', 'reload'])) {
         fwrite(STDERR, "nginx reload failed after certificate update.\n");
         exit(1);
     }
