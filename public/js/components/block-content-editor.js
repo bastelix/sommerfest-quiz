@@ -1397,9 +1397,9 @@ export class BlockContentEditor {
     this.state = {
       blocks: [],
       meta: {},
-      selectedBlockId: null,
+      activeSectionId: null,
       templatePickerOpen: false,
-      layoutMode: 'edit'
+      editorMode: 'structure'
     };
     this.previewBridge = null;
     this.richTextInstances = new Map();
@@ -1515,7 +1515,7 @@ export class BlockContentEditor {
     }
     event.preventDefault();
     const ids = this.state.blocks.map(block => block.id);
-    const currentIndex = ids.indexOf(this.state.selectedBlockId);
+    const currentIndex = ids.indexOf(this.state.activeSectionId);
     if (key === 'ArrowUp' && currentIndex > 0) {
       this.selectBlock(ids[currentIndex - 1]);
     } else if (key === 'ArrowDown' && currentIndex < ids.length - 1) {
@@ -1548,27 +1548,57 @@ export class BlockContentEditor {
       notify('Einige Blöcke wurden aufgrund von Validierungsfehlern übersprungen.', 'warning');
     }
 
+    const preservedActive = this.state.activeSectionId && blocks.some(block => block.id === this.state.activeSectionId)
+      ? this.state.activeSectionId
+      : null;
+    const initialMode = this.state?.editorMode || 'structure';
+    const activeSectionId = initialMode === 'edit'
+      ? preservedActive || blocks[0]?.id || null
+      : null;
+
     this.state = {
       id,
       blocks,
       meta,
-      selectedBlockId: blocks[0]?.id || null,
+      activeSectionId,
       skippedBlocks,
       templatePickerOpen: false,
-      layoutMode: this.state?.layoutMode || 'edit'
+      editorMode: initialMode
     };
     this.emitValidationState();
     this.render();
+    this.emitModeChange();
   }
 
-  setLayoutMode(mode) {
-    const allowed = ['edit', 'preview', 'design'];
-    const normalized = allowed.includes(mode) ? mode : 'edit';
-    if (this.state.layoutMode === normalized) {
-      return;
+  setEditorMode(mode, options = {}) {
+    const allowed = ['structure', 'edit', 'preview'];
+    let normalized = allowed.includes(mode) ? mode : 'structure';
+    let nextActiveId = options.activeSectionId ?? this.state.activeSectionId ?? null;
+
+    if (normalized === 'structure' || normalized === 'preview') {
+      nextActiveId = null;
     }
-    this.state.layoutMode = normalized;
-    this.render();
+
+    if (normalized === 'edit') {
+      if (!nextActiveId) {
+        nextActiveId = this.state.blocks[0]?.id || null;
+      }
+      if (!nextActiveId) {
+        normalized = 'structure';
+      }
+    }
+
+    const hasChanged = normalized !== this.state.editorMode || nextActiveId !== this.state.activeSectionId;
+    this.state.editorMode = normalized;
+    this.state.activeSectionId = nextActiveId;
+    if (hasChanged) {
+      this.emitModeChange();
+      this.render();
+    }
+  }
+
+  getActiveSectionId() {
+    return this.state.activeSectionId || null;
   }
 
   normalizeBlock(block) {
@@ -1619,27 +1649,71 @@ export class BlockContentEditor {
     this.root.innerHTML = '';
     const wrapper = document.createElement('div');
     wrapper.dataset.editorRoot = 'true';
-    const mode = this.state.layoutMode || 'edit';
+    const mode = this.state.editorMode || 'structure';
+    wrapper.dataset.editorMode = mode;
+    wrapper.dataset.activeSectionId = this.state.activeSectionId || '';
 
-    if (mode !== 'design') {
-      const controls = this.buildControls();
-      wrapper.append(controls);
-
-      const body = document.createElement('div');
-      body.className = 'content-editor-body';
-
-      const list = this.buildBlockList();
-      body.append(list);
-
-      if (mode === 'edit') {
-        const panel = this.buildEditorPanel();
-        body.append(panel);
-      }
-
-      wrapper.append(body);
+    if (mode === 'structure') {
+      wrapper.append(this.buildStructureView());
+    } else if (mode === 'edit') {
+      wrapper.append(this.buildEditView());
     }
 
     this.root.append(wrapper);
+  }
+
+  emitModeChange() {
+    if (!this.root) {
+      return;
+    }
+    const detail = {
+      editorMode: this.state.editorMode,
+      activeSectionId: this.state.activeSectionId
+    };
+    this.root.dispatchEvent(new CustomEvent('block-editor:state-change', { detail }));
+  }
+
+  buildStructureView() {
+    const container = document.createElement('div');
+    container.className = 'content-editor-body';
+    container.append(this.buildControls(), this.buildBlockList());
+    return container;
+  }
+
+  buildEditView() {
+    const container = document.createElement('div');
+    container.className = 'content-editor-body content-editor-body--edit';
+
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'uk-button uk-button-text';
+    back.textContent = 'Zur Strukturansicht';
+    back.addEventListener('click', () => this.setEditorMode('structure'));
+    container.append(back);
+
+    const block = this.state.blocks.find(item => item.id === this.state.activeSectionId);
+    if (!block) {
+      const hint = document.createElement('div');
+      hint.className = 'uk-alert uk-alert-warning';
+      hint.textContent = 'Kein Abschnitt ausgewählt. Bitte wähle einen Abschnitt in der Struktur aus.';
+      container.append(hint);
+      return container;
+    }
+
+    const heading = document.createElement('div');
+    heading.className = 'section-heading';
+    const title = document.createElement('div');
+    title.className = 'section-heading__title';
+    title.textContent = this.getBlockDisplayTitle(block) || 'Abschnitt bearbeiten';
+    const type = document.createElement('div');
+    type.className = 'section-heading__meta';
+    type.textContent = `Typ: ${BLOCK_TYPE_LABELS[block.type] || block.type}`;
+    heading.append(title, type);
+    container.append(heading);
+
+    container.append(this.buildEditorPanel(block));
+
+    return container;
   }
 
   buildValidationPanel() {
@@ -1693,7 +1767,8 @@ export class BlockContentEditor {
       this.status = 'ok';
       this.state = {
         ...this.state,
-        selectedBlockId: this.state.blocks[0]?.id || null,
+        activeSectionId: this.state.blocks[0]?.id || null,
+        editorMode: this.state.blocks.length ? 'edit' : 'structure',
         skippedBlocks: []
       };
       this.emitValidationState();
@@ -1712,7 +1787,8 @@ export class BlockContentEditor {
         blocks: [],
         meta: {},
         skippedBlocks: [],
-        selectedBlockId: null
+        activeSectionId: null,
+        editorMode: 'structure'
       };
       this.emitValidationState();
       this.render();
@@ -1737,21 +1813,7 @@ export class BlockContentEditor {
       this.render();
     });
 
-    const duplicateBtn = document.createElement('button');
-    duplicateBtn.type = 'button';
-    duplicateBtn.dataset.action = 'duplicate-block';
-    duplicateBtn.textContent = 'Duplizieren';
-    duplicateBtn.disabled = !this.state.selectedBlockId;
-    duplicateBtn.addEventListener('click', () => this.duplicateSelected());
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.type = 'button';
-    deleteBtn.dataset.action = 'delete-block';
-    deleteBtn.textContent = 'Löschen';
-    deleteBtn.disabled = !this.state.selectedBlockId;
-    deleteBtn.addEventListener('click', () => this.deleteSelected());
-
-    container.append(addBtn, duplicateBtn, deleteBtn);
+    container.append(addBtn);
 
     if (this.state.templatePickerOpen) {
       container.append(this.buildTemplateChooser());
@@ -1846,7 +1908,7 @@ export class BlockContentEditor {
       row.dataset.blockRow = 'true';
       row.dataset.blockId = block.id;
       row.dataset.blockHover = 'false';
-      row.setAttribute('aria-selected', block.id === this.state.selectedBlockId ? 'true' : 'false');
+      row.setAttribute('aria-selected', block.id === this.state.activeSectionId ? 'true' : 'false');
 
       const selectBtn = document.createElement('button');
       selectBtn.type = 'button';
@@ -1890,7 +1952,19 @@ export class BlockContentEditor {
       moveDown.disabled = index === this.state.blocks.length - 1;
       moveDown.addEventListener('click', () => this.moveBlock(block.id, 1));
 
-      row.append(selectBtn, labelWrapper, moveUp, moveDown);
+      const duplicateBtn = document.createElement('button');
+      duplicateBtn.type = 'button';
+      duplicateBtn.dataset.action = 'duplicate-block';
+      duplicateBtn.textContent = 'Duplizieren';
+      duplicateBtn.addEventListener('click', () => this.duplicateBlock(block.id));
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.dataset.action = 'delete-block';
+      deleteBtn.textContent = 'Löschen';
+      deleteBtn.addEventListener('click', () => this.deleteBlock(block.id));
+
+      row.append(selectBtn, labelWrapper, moveUp, moveDown, duplicateBtn, deleteBtn);
       row.addEventListener('mouseenter', () => {
         row.dataset.blockHover = 'true';
         this.highlightPreview(block.id);
@@ -1920,12 +1994,12 @@ export class BlockContentEditor {
     return aside;
   }
 
-  buildEditorPanel() {
+  buildEditorPanel(blockOverride = null) {
     const panel = document.createElement('section');
     panel.dataset.blockEditor = 'true';
-    panel.dataset.selectedBlockId = this.state.selectedBlockId || '';
+    panel.dataset.activeSectionId = this.state.activeSectionId || '';
 
-    const block = this.state.blocks.find(item => item.id === this.state.selectedBlockId);
+    const block = blockOverride || this.state.blocks.find(item => item.id === this.state.activeSectionId);
     if (!block) {
       const hint = document.createElement('div');
       hint.textContent = 'Wähle einen Block aus, um ihn zu bearbeiten.';
@@ -3395,8 +3469,7 @@ export class BlockContentEditor {
   }
 
   selectBlock(id, options = {}) {
-    this.state.selectedBlockId = id;
-    this.render();
+    this.setEditorMode('edit', { activeSectionId: id });
     if (options.scrollPreview && id) {
       this.scrollPreviewTo(id);
     }
@@ -3404,7 +3477,7 @@ export class BlockContentEditor {
 
   insertBlockAfterSelection(block) {
     const blocks = [...this.state.blocks];
-    const currentIndex = blocks.findIndex(item => item.id === this.state.selectedBlockId);
+    const currentIndex = blocks.findIndex(item => item.id === this.state.activeSectionId);
     const insertIndex = currentIndex >= 0 ? currentIndex + 1 : blocks.length;
     blocks.splice(insertIndex, 0, block);
     this.state.blocks = blocks;
@@ -3444,8 +3517,8 @@ export class BlockContentEditor {
     this.insertBlockAfterSelection(newBlock);
   }
 
-  duplicateSelected() {
-    const block = this.state.blocks.find(item => item.id === this.state.selectedBlockId);
+  duplicateBlock(blockId) {
+    const block = this.state.blocks.find(item => item.id === blockId);
     if (!block) {
       return;
     }
@@ -3476,15 +3549,19 @@ export class BlockContentEditor {
     const blocks = [...this.state.blocks];
     blocks.splice(insertIndex, 0, sanitizedClone);
     this.state.blocks = blocks;
-    this.state.selectedBlockId = sanitizedClone.id;
-    this.render();
+    this.setEditorMode('edit', { activeSectionId: sanitizedClone.id });
   }
 
-  deleteSelected() {
-    const blocks = this.state.blocks.filter(item => item.id !== this.state.selectedBlockId);
+  deleteBlock(blockId) {
+    const blocks = this.state.blocks.filter(item => item.id !== blockId);
     this.state.blocks = blocks;
-    this.state.selectedBlockId = blocks[0]?.id || null;
-    this.render();
+    if (this.state.editorMode === 'edit') {
+      const fallback = blocks[0]?.id || null;
+      this.setEditorMode(fallback ? 'edit' : 'structure', { activeSectionId: fallback });
+    } else {
+      this.render();
+      this.emitModeChange();
+    }
   }
 
   moveBlock(id, delta) {

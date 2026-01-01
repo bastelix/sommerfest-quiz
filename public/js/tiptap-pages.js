@@ -292,15 +292,15 @@ const ensurePreviewSlots = form => {
 
   const modeLabel = document.createElement('span');
   modeLabel.className = 'page-editor-mode-switch__label';
-  modeLabel.textContent = 'Modus:';
+  modeLabel.textContent = 'Editor-Modus';
 
   const modeButtons = document.createElement('div');
-  modeButtons.className = 'uk-button-group';
+  modeButtons.className = 'page-editor-tabs';
 
   const editorModes = [
+    { id: 'structure', label: 'Struktur' },
     { id: 'edit', label: 'Bearbeiten' },
-    { id: 'preview', label: 'Vorschau' },
-    { id: 'design', label: 'Design-Vorschau' }
+    { id: 'preview', label: 'Vorschau' }
   ];
 
   const setPreviewExpanded = expanded => {
@@ -333,8 +333,7 @@ const ensurePreviewSlots = form => {
     modeButtons.querySelectorAll('[data-editor-mode]').forEach(button => {
       const isActive = button.dataset.editorMode === mode;
       button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-      button.classList.toggle('uk-button-primary', isActive);
-      button.classList.toggle('uk-button-default', !isActive);
+      button.classList.toggle('is-active', isActive);
     });
   };
 
@@ -352,7 +351,7 @@ const ensurePreviewSlots = form => {
   };
 
   const syncPreviewIntent = mode => {
-    const intent = mode === 'design' ? 'design' : (mode === 'preview' ? 'preview' : 'edit');
+    const intent = mode === 'preview' ? 'preview' : 'edit';
     previewPane.dataset.previewIntent = intent;
 
     const binding = blockPreviewBindings.get(getAssociatedForm());
@@ -367,70 +366,77 @@ const ensurePreviewSlots = form => {
     }
   };
 
-  const applyEditorMode = mode => {
-    const normalized = editorModes.some(item => item.id === mode) ? mode : 'edit';
-    layout.dataset.editorMode = normalized;
-    workspace.dataset.mode = normalized;
+  let currentMode = 'structure';
+  let currentActiveSectionId = null;
 
+  const applyEditorMode = (mode, options = {}) => {
+    const normalized = editorModes.some(item => item.id === mode) ? mode : 'structure';
+    const requestedActive = options.activeSectionId ?? currentActiveSectionId ?? null;
     const form = getAssociatedForm();
     const editor = getEditorInstance(form);
-    if (editor?.setLayoutMode) {
-      editor.setLayoutMode(normalized);
+
+    let resolvedMode = normalized;
+    let resolvedActive = requestedActive;
+
+    if (resolvedMode === 'structure' || resolvedMode === 'preview') {
+      resolvedActive = null;
+    } else if (resolvedMode === 'edit') {
+      const editorActive = typeof editor?.getActiveSectionId === 'function'
+        ? editor.getActiveSectionId()
+        : null;
+      resolvedActive = resolvedActive || editorActive || null;
+
+      if (!resolvedActive) {
+        const state = readBlockEditorState(editor);
+        resolvedActive = Array.isArray(state.blocks) ? state.blocks?.[0]?.id || null : null;
+      }
+
+      if (!resolvedActive) {
+        resolvedMode = 'structure';
+      }
     }
 
-    workspace.innerHTML = '';
+    currentMode = resolvedMode;
+    currentActiveSectionId = resolvedActive;
 
-    if (normalized === 'edit') {
-      workspace.append(editorPane);
-    } else if (normalized === 'preview') {
-      workspace.append(editorPane, previewPane);
-    } else if (normalized === 'design') {
-      workspace.append(previewPane);
+    layout.dataset.editorMode = resolvedMode;
+    workspace.dataset.mode = resolvedMode;
+
+    if (editor?.setEditorMode) {
+      editor.setEditorMode(resolvedMode, { activeSectionId: resolvedActive });
     }
 
-    const showPreview = normalized !== 'edit';
-    previewActions.hidden = normalized === 'edit';
+    editorPane.hidden = resolvedMode === 'preview';
+    previewPane.hidden = resolvedMode !== 'preview';
+
+    const showPreview = resolvedMode === 'preview';
+    previewActions.hidden = !showPreview;
     previewModeToggle.hidden = !showPreview;
-    fullWidthToggle.hidden = normalized !== 'preview';
+    fullWidthToggle.hidden = !showPreview;
 
-    fullWidthToggle.disabled = normalized !== 'preview';
+    fullWidthToggle.disabled = !showPreview;
 
-    if (normalized === 'design') {
-      previewReturnButton.hidden = false;
-      previewCloseButton.hidden = true;
-      setPreviewExpanded(true);
-    } else if (previewPane.dataset.previewExpanded === 'true') {
+    if (!showPreview && previewPane.dataset.previewExpanded === 'true') {
       setPreviewExpanded(false);
     }
 
-    if (!showPreview) {
-      setPreviewExpanded(false);
-    }
+    previewReturnButton.hidden = true;
+    previewReturnButton.dataset.exitPreviewMode = 'false';
+    previewReturnButton.onclick = null;
 
-    if (normalized !== 'edit') {
-      previewReturnButton.hidden = normalized !== 'design';
-      previewReturnButton.textContent = 'Zurück zur Bearbeitung';
-      previewReturnButton.dataset.exitPreviewMode = normalized === 'design' ? 'true' : 'false';
-      previewReturnButton.onclick = () => applyEditorMode('edit');
-    } else {
-      previewReturnButton.hidden = true;
-      previewReturnButton.dataset.exitPreviewMode = 'false';
-      previewReturnButton.onclick = null;
-    }
-
-    previewCloseButton.hidden = normalized !== 'preview' || previewPane.dataset.previewExpanded !== 'true';
-    toggleFormActions(normalized);
-    syncPreviewIntent(normalized);
-    updateModeButtons(normalized);
+    previewCloseButton.hidden = resolvedMode !== 'preview' || previewPane.dataset.previewExpanded !== 'true';
+    toggleFormActions(resolvedMode);
+    syncPreviewIntent(resolvedMode);
+    updateModeButtons(resolvedMode);
   };
 
   editorModes.forEach(mode => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'uk-button uk-button-default';
+    button.className = 'page-editor-tab';
     button.dataset.editorMode = mode.id;
     button.textContent = mode.label;
-    button.setAttribute('aria-pressed', mode.id === 'edit' ? 'true' : 'false');
+    button.setAttribute('aria-pressed', mode.id === 'structure' ? 'true' : 'false');
     button.addEventListener('click', () => applyEditorMode(mode.id));
     modeButtons.append(button);
   });
@@ -441,12 +447,28 @@ const ensurePreviewSlots = form => {
   previewViewport.append(previewRoot);
 
   previewPane.append(previewHeader, previewActions, previewModeHint, previewViewport);
+  workspace.append(editorPane, previewPane);
+  previewPane.hidden = true;
+
   layout.append(modeSwitcher, workspace);
 
   editorEl.parentNode.insertBefore(layout, editorEl);
   editorPane.append(editorEl);
 
-  applyEditorMode('edit');
+  editorEl.addEventListener('block-editor:state-change', event => {
+    const detail = event?.detail || {};
+    const nextMode = editorModes.some(item => item.id === detail.editorMode) ? detail.editorMode : null;
+    const nextActive = detail.activeSectionId || null;
+    if (!nextMode) {
+      return;
+    }
+    if (nextMode === currentMode && nextActive === currentActiveSectionId) {
+      return;
+    }
+    applyEditorMode(nextMode, { activeSectionId: nextActive });
+  });
+
+  applyEditorMode('structure');
 
   return { layout, previewRoot, editorPane, previewPane, previewViewport, workspace };
 };
