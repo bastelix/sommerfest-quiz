@@ -277,8 +277,230 @@ class DomainControllerTest extends TestCase
         $this->assertNull($payload['namespace'] ?? null);
         $this->assertSame('promo.example.com', $payload['domain'] ?? null);
 
-        $zoneStmt = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "promo.example.com"');
+        $zoneStmt = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "example.com"');
         $status = $zoneStmt !== false ? $zoneStmt->fetchColumn() : false;
         $this->assertSame('pending', $status);
+    }
+
+    public function testDeletingLastDomainRemovesCertificateZoneAndConfig(): void
+    {
+        $dbFile = tempnam(sys_get_temp_dir(), 'domains-');
+        $this->assertNotFalse($dbFile);
+
+        $pdo = new \PDO('sqlite:' . $dbFile);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domains (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                host TEXT NOT NULL,
+                normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
+                namespace TEXT,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+        SQL);
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+
+        $this->setDatabase($pdo);
+
+        $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
+        $domain = $service->createDomain('example.com', 'Example', null, true);
+        $registry->ensureZone($domain['zone']);
+
+        $confDir = sys_get_temp_dir() . '/nginx-conf-' . uniqid('', true);
+        $certDir = $confDir . '/certs';
+        mkdir($confDir, 0777, true);
+        mkdir($certDir, 0777, true);
+        file_put_contents($confDir . '/example.com.conf', 'legacy');
+
+        $binDir = sys_get_temp_dir() . '/nginx-bin-' . uniqid('', true);
+        mkdir($binDir, 0777, true);
+        $nginx = $binDir . '/nginx';
+        file_put_contents($nginx, "#!/usr/bin/env bash\nexit 0\n");
+        chmod($nginx, 0755);
+
+        $originalPath = getenv('PATH') ?: '';
+        $envBackup = [
+            'NGINX_WILDCARD_CONF_DIR' => getenv('NGINX_WILDCARD_CONF_DIR'),
+            'NGINX_WILDCARD_CERT_DIR' => getenv('NGINX_WILDCARD_CERT_DIR'),
+            'NGINX_WILDCARD_UPSTREAM' => getenv('NGINX_WILDCARD_UPSTREAM'),
+            'POSTGRES_DSN' => getenv('POSTGRES_DSN'),
+            'POSTGRES_USER' => getenv('POSTGRES_USER'),
+            'POSTGRES_PASSWORD' => getenv('POSTGRES_PASSWORD'),
+            'PATH' => $originalPath,
+        ];
+
+        putenv('NGINX_WILDCARD_CONF_DIR=' . $confDir);
+        putenv('NGINX_WILDCARD_CERT_DIR=' . $certDir);
+        putenv('NGINX_WILDCARD_UPSTREAM=http://localhost');
+        putenv('POSTGRES_DSN=sqlite:' . $dbFile);
+        putenv('POSTGRES_USER=');
+        putenv('POSTGRES_PASSWORD=');
+        putenv('PATH=' . $binDir . PATH_SEPARATOR . $originalPath);
+
+        try {
+            $controller = new \App\Controller\Admin\DomainController($service, $registry);
+            $request = $this->createRequest(
+                'DELETE',
+                '/admin/domains/api/' . $domain['id'],
+                [
+                    'HTTP_ACCEPT' => 'application/json',
+                ]
+            );
+
+            $response = $controller->delete($request, new \Slim\Psr7\Response(), ['id' => (string) $domain['id']]);
+
+            $this->assertSame(200, $response->getStatusCode());
+            $this->assertSame('0', (string) $pdo->query('SELECT COUNT(*) FROM certificate_zones')->fetchColumn());
+
+            exec('php bin/generate-nginx-zones', $output, $exitCode);
+            $this->assertSame(0, $exitCode);
+            $this->assertFileDoesNotExist($confDir . '/example.com.conf');
+        } finally {
+            $this->restoreEnv($envBackup);
+            $this->removeDirectory($confDir);
+            $this->removeDirectory($binDir);
+            @unlink($dbFile);
+        }
+    }
+
+    public function testDeactivatingLastDomainRemovesCertificateZoneAndConfig(): void
+    {
+        $dbFile = tempnam(sys_get_temp_dir(), 'domains-');
+        $this->assertNotFalse($dbFile);
+
+        $pdo = new \PDO('sqlite:' . $dbFile);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(<<<'SQL'
+            CREATE TABLE domains (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                host TEXT NOT NULL,
+                normalized_host TEXT NOT NULL UNIQUE,
+                zone TEXT NOT NULL,
+                namespace TEXT,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1
+            );
+        SQL);
+        $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+
+        $this->setDatabase($pdo);
+
+        $service = new DomainService($pdo);
+        $registry = new CertificateZoneRegistry($pdo);
+        $domain = $service->createDomain('example.com', 'Example', null, true);
+        $registry->ensureZone($domain['zone']);
+
+        $confDir = sys_get_temp_dir() . '/nginx-conf-' . uniqid('', true);
+        $certDir = $confDir . '/certs';
+        mkdir($confDir, 0777, true);
+        mkdir($certDir, 0777, true);
+        file_put_contents($confDir . '/example.com.conf', 'legacy');
+
+        $binDir = sys_get_temp_dir() . '/nginx-bin-' . uniqid('', true);
+        mkdir($binDir, 0777, true);
+        $nginx = $binDir . '/nginx';
+        file_put_contents($nginx, "#!/usr/bin/env bash\nexit 0\n");
+        chmod($nginx, 0755);
+
+        $originalPath = getenv('PATH') ?: '';
+        $envBackup = [
+            'NGINX_WILDCARD_CONF_DIR' => getenv('NGINX_WILDCARD_CONF_DIR'),
+            'NGINX_WILDCARD_CERT_DIR' => getenv('NGINX_WILDCARD_CERT_DIR'),
+            'NGINX_WILDCARD_UPSTREAM' => getenv('NGINX_WILDCARD_UPSTREAM'),
+            'POSTGRES_DSN' => getenv('POSTGRES_DSN'),
+            'POSTGRES_USER' => getenv('POSTGRES_USER'),
+            'POSTGRES_PASSWORD' => getenv('POSTGRES_PASSWORD'),
+            'PATH' => $originalPath,
+        ];
+
+        putenv('NGINX_WILDCARD_CONF_DIR=' . $confDir);
+        putenv('NGINX_WILDCARD_CERT_DIR=' . $certDir);
+        putenv('NGINX_WILDCARD_UPSTREAM=http://localhost');
+        putenv('POSTGRES_DSN=sqlite:' . $dbFile);
+        putenv('POSTGRES_USER=');
+        putenv('POSTGRES_PASSWORD=');
+        putenv('PATH=' . $binDir . PATH_SEPARATOR . $originalPath);
+
+        try {
+            $controller = new \App\Controller\Admin\DomainController($service, $registry);
+            $request = $this->createRequest(
+                'PATCH',
+                '/admin/domains/api/' . $domain['id'],
+                [
+                    'Content-Type' => 'application/json',
+                    'HTTP_ACCEPT' => 'application/json',
+                ]
+            );
+
+            $payload = json_encode([
+                'host' => 'example.com',
+                'label' => 'Example',
+                'namespace' => null,
+                'is_active' => false,
+            ], JSON_THROW_ON_ERROR);
+            $request->getBody()->write($payload);
+            $request->getBody()->rewind();
+
+            $response = $controller->update($request, new \Slim\Psr7\Response(), ['id' => (string) $domain['id']]);
+
+            $this->assertSame(200, $response->getStatusCode());
+            $this->assertSame('0', (string) $pdo->query('SELECT COUNT(*) FROM certificate_zones')->fetchColumn());
+
+            exec('php bin/generate-nginx-zones', $output, $exitCode);
+            $this->assertSame(0, $exitCode);
+            $this->assertFileDoesNotExist($confDir . '/example.com.conf');
+        } finally {
+            $this->restoreEnv($envBackup);
+            $this->removeDirectory($confDir);
+            $this->removeDirectory($binDir);
+            @unlink($dbFile);
+        }
+    }
+
+    /**
+     * @param array<string,string|false> $envBackup
+     */
+    private function restoreEnv(array $envBackup): void
+    {
+        foreach ($envBackup as $key => $value) {
+            if ($value === false) {
+                putenv($key);
+                continue;
+            }
+
+            putenv($key . '=' . $value);
+        }
+    }
+
+    private function removeDirectory(string $directory): void
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $entries = scandir($directory);
+        if ($entries === false) {
+            return;
+        }
+
+        foreach ($entries as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $path = $directory . DIRECTORY_SEPARATOR . $entry;
+            if (is_dir($path)) {
+                $this->removeDirectory($path);
+            } else {
+                @unlink($path);
+            }
+        }
+
+        @rmdir($directory);
     }
 }

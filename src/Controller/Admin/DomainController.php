@@ -159,6 +159,16 @@ class DomainController
             $this->clearMarketingDomainCache();
         }
 
+        $zoneRemoved = false;
+        if ($existing['is_active'] && (!$domain['is_active'] || $existing['zone'] !== $domain['zone'])) {
+            $zoneRemoved = $this->domainService->removeZoneIfUnused($existing['zone']);
+        }
+
+        if ($zoneRemoved) {
+            $this->dispatchWildcardJobs();
+            $this->clearMarketingDomainCache();
+        }
+
         $response->getBody()->write(json_encode([
             'status' => 'ok',
             'domain' => $domain,
@@ -184,7 +194,12 @@ class DomainController
             return $response->withStatus(400);
         }
 
-        $this->domainService->deleteDomain($id);
+        $result = $this->domainService->deleteDomain($id);
+
+        if ($result !== null && $result['zone_removed']) {
+            $this->dispatchWildcardJobs();
+            $this->clearMarketingDomainCache();
+        }
 
         $response->getBody()->write(json_encode([
             'status' => 'ok',
