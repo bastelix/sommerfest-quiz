@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS domains (
 
 CREATE TABLE IF NOT EXISTS certificate_zones (
     zone TEXT PRIMARY KEY,
-    provider TEXT NOT NULL DEFAULT 'hetzner',
+    provider TEXT NOT NULL DEFAULT 'dns_hetzner',
     wildcard_enabled BOOLEAN NOT NULL DEFAULT TRUE,
     status TEXT NOT NULL DEFAULT 'pending',
     last_issued_at TEXT,

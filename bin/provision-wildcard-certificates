@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use App\Infrastructure\Database;
 use App\Service\CertificateZoneRegistry;
+use App\Support\AcmeDnsProvider;
 use App\Support\EnvLoader;
 use DateTimeImmutable;
 
@@ -13,7 +14,7 @@ require __DIR__ . '/../vendor/autoload.php';
 EnvLoader::loadAndSet(__DIR__ . '/../.env');
 
 $acmeBinary = getenv('ACME_SH_BIN') ?: 'acme.sh';
-$dnsProvider = getenv('ACME_WILDCARD_PROVIDER') ?: 'dns_hetzner';
+$dnsProvider = AcmeDnsProvider::fromEnv();
 $certificateDir = getenv('NGINX_WILDCARD_CERT_DIR') ?: '/etc/ssl/wildcards';
 $acmeHome = getenv('ACME_SH_HOME') ?: null;
 $reloadOnChange = getenv('ACME_RELOAD_ON_SUCCESS') !== '0';

@@ -448,7 +448,7 @@ Zertifikate für alle Mandanten-Slugs ausstellen kann.
 
 Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
 
-* `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (z. B. `dns_cf`).
+* `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (unterstützt: `dns_cf`, `dns_hetzner`).
 * `ACME_WILDCARD_ACCOUNT_EMAIL` (optional) – Account-Adresse; fällt ansonsten
   auf `LETSENCRYPT_EMAIL` zurück. Stelle sicher, dass sie gesetzt ist (z. B.
   identisch zu `LETSENCRYPT_EMAIL`), damit `acme.sh` ohne ZeroSSL-Nachfrage

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Support\AcmeDnsProvider;
 use DateTimeImmutable;
 use PDO;
 use RuntimeException;
@@ -50,18 +51,20 @@ final class CertificateZoneRegistry
     /**
      * Ensure a certificate zone entry exists.
      */
-    public function ensureZone(string $zone, string $provider = 'hetzner', bool $wildcardEnabled = true): void
+    public function ensureZone(string $zone, string $provider = AcmeDnsProvider::DEFAULT_PROVIDER, bool $wildcardEnabled = true): void
     {
         $normalized = strtolower(trim($zone));
         if ($normalized === '') {
             throw new RuntimeException('Zone cannot be empty.');
         }
 
+        $normalizedProvider = AcmeDnsProvider::normalize($provider);
+
         $stmt = $this->pdo->prepare(
             'INSERT INTO certificate_zones (zone, provider, wildcard_enabled, status)
              VALUES (?, ?, ?, ?) ON CONFLICT(zone) DO UPDATE SET provider = EXCLUDED.provider'
         );
-        $stmt->execute([$normalized, $provider, $wildcardEnabled, self::STATUS_PENDING]);
+        $stmt->execute([$normalized, $normalizedProvider, $wildcardEnabled, self::STATUS_PENDING]);
     }
 
     public function markIssued(string $zone, ?DateTimeImmutable $issuedAt = null): void
@@ -82,7 +85,7 @@ final class CertificateZoneRegistry
     /**
      * Ensure certificate zones exist for all active domains.
      */
-    public function backfillActiveDomains(string $provider = 'hetzner', bool $wildcardEnabled = true): void
+    public function backfillActiveDomains(string $provider = AcmeDnsProvider::DEFAULT_PROVIDER, bool $wildcardEnabled = true): void
     {
         $stmt = $this->pdo->query('SELECT DISTINCT zone FROM domains WHERE is_active = TRUE');
         if ($stmt === false) {
