@@ -18,6 +18,9 @@ use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
+use App\Service\DesignTokenService;
+use App\Service\ConfigService;
+use App\Service\EffectsPolicyService;
 use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
@@ -53,6 +56,9 @@ class ProjectPagesController
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
     private MarketingMenuService $marketingMenu;
+    private ConfigService $configService;
+    private DesignTokenService $designTokens;
+    private EffectsPolicyService $effectsPolicy;
 
     public function __construct(
         ?PDO $pdo = null,
@@ -65,7 +71,10 @@ class ProjectPagesController
         ?TenantService $tenantService = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
         ?ProjectSettingsService $projectSettings = null,
-        ?MarketingMenuService $marketingMenu = null
+        ?MarketingMenuService $marketingMenu = null,
+        ?ConfigService $configService = null,
+        ?DesignTokenService $designTokens = null,
+        ?EffectsPolicyService $effectsPolicy = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
@@ -78,6 +87,9 @@ class ProjectPagesController
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->marketingMenu = $marketingMenu ?? new MarketingMenuService($pdo, $this->pageService);
+        $this->configService = $configService ?? new ConfigService($pdo);
+        $this->designTokens = $designTokens ?? new DesignTokenService($pdo, $this->configService);
+        $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
     }
 
     public function content(Request $request, Response $response): Response
@@ -116,6 +128,7 @@ class ProjectPagesController
         $startpageMap = $this->buildStartpageLookup($namespace, $locale, $domainOptions['options']);
         $selectedDomain = $this->resolveSelectedStartpageDomain($domainOptions, $startpageMap);
         $startpagePageId = $startpageMap[$selectedDomain] ?? null;
+        $design = $this->loadDesign($namespace);
 
         return $view->render($response, 'admin/pages/content.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -136,6 +149,8 @@ class ProjectPagesController
             'startpage_domain_options' => $domainOptions['options'],
             'startpage_selected_domain' => $selectedDomain,
             'startpage_map' => $startpageMap,
+            'appearance' => $design['appearance'],
+            'design' => $design,
         ]);
     }
 
@@ -802,6 +817,43 @@ class ProjectPagesController
         }
 
         return $result;
+    }
+
+    /**
+     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     */
+    private function loadDesign(string $namespace): array
+    {
+        $config = $this->configService->getConfigForEvent($namespace);
+        $resolvedNamespace = $namespace;
+
+        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
+            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+            if ($fallbackConfig !== []) {
+                $config = $fallbackConfig;
+                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+            }
+        }
+
+        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
+        $appearance = [
+            'tokens' => $tokens,
+            'defaults' => $this->designTokens->getDefaults(),
+            'colors' => [
+                'primary' => $tokens['brand']['primary'] ?? null,
+                'secondary' => $tokens['brand']['accent'] ?? null,
+                'accent' => $tokens['brand']['accent'] ?? null,
+            ],
+        ];
+
+        $effects = $this->effectsPolicy->getEffectsForNamespace($resolvedNamespace);
+
+        return [
+            'config' => $config,
+            'appearance' => $appearance,
+            'effects' => $effects,
+            'namespace' => $resolvedNamespace,
+        ];
     }
 
     private function buildPreviewUrl(Page $page, string $namespace, string $basePath): string

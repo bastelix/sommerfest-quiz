@@ -42,6 +42,10 @@ function normalizeNamespace(namespace) {
 
 export function resolveProfileName(namespace) {
   const normalized = normalizeNamespace(namespace);
+  const designProfile = resolveDesignProfile(normalized);
+  if (designProfile) {
+    return designProfile;
+  }
   return EFFECTS_BY_NAMESPACE[normalized] || null;
 }
 
@@ -51,6 +55,23 @@ export function resolveEffectsProfile(namespace) {
     return { profileName, profile: EFFECTS_PROFILES[profileName] };
   }
   return null;
+}
+
+function resolveDesignProfile(namespace) {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const registry = window.namespaceDesign || {};
+  const design = registry?.[namespace];
+  const profile = design?.effects?.effectsProfile || design?.effectsProfile;
+  if (!profile || typeof profile !== 'string') {
+    return null;
+  }
+
+  const normalized = profile.trim();
+
+  return normalized !== '' ? normalized : null;
 }
 
 export function reduceProfileIntensity(profile) {
