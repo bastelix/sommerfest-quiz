@@ -450,7 +450,10 @@ Konfiguriere für die automatische Ausstellung folgende Variablen in `.env`:
 
 * `ACME_WILDCARD_PROVIDER` – Name des `acme.sh`-DNS-Plugins (z. B. `dns_cf`).
 * `ACME_WILDCARD_ACCOUNT_EMAIL` (optional) – Account-Adresse; fällt ansonsten
-  auf `LETSENCRYPT_EMAIL` zurück.
+  auf `LETSENCRYPT_EMAIL` zurück. Stelle sicher, dass sie gesetzt ist (z. B.
+  identisch zu `LETSENCRYPT_EMAIL`), damit `acme.sh` ohne ZeroSSL-Nachfrage
+  läuft; die Slim-Container-Umgebung übernimmt diesen Wert inzwischen
+  automatisch.
 * `ACME_WILDCARD_SERVICE` (optional) – Compose-Service des Companions
   (`acme-companion`).
 * `ACME_WILDCARD_SERVER` und `ACME_WILDCARD_USE_STAGING` für abweichende
