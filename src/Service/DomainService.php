@@ -20,6 +20,8 @@ class DomainService
 
     private DomainZoneResolver $zoneResolver;
 
+    private bool $certificateZonePruned = false;
+
     public function __construct(
         PDO $pdo,
         ?NamespaceValidator $namespaceValidator = null,
@@ -98,6 +100,13 @@ class DomainService
         ?string $namespace = null,
         bool $isActive = true
     ): ?array {
+        $this->certificateZonePruned = false;
+
+        $existing = $this->fetchDomainById($id);
+        if ($existing === null) {
+            return null;
+        }
+
         [$displayHost, $normalizedHost, $zone] = $this->prepareHost($host);
         $labelValue = $this->normalizeLabel($label);
         $namespaceValue = $this->normalizeNamespace($namespace);
@@ -112,13 +121,31 @@ class DomainService
         );
         $stmt->execute([$displayHost, $normalizedHost, $zone, $namespaceValue, $labelValue, $isActive, $id]);
 
-        return $this->fetchDomainById($id);
+        $updated = $this->fetchDomainById($id);
+        if ($updated === null) {
+            return null;
+        }
+
+        if ($existing['zone'] !== $updated['zone'] || ($existing['is_active'] && !$updated['is_active'])) {
+            $this->certificateZonePruned = $this->pruneCertificateZoneIfUnused($existing['zone']);
+        }
+
+        return $updated;
     }
 
     public function deleteDomain(int $id): void
     {
+        $this->certificateZonePruned = false;
+
+        $domain = $this->fetchDomainById($id);
+        if ($domain === null) {
+            return;
+        }
+
         $stmt = $this->pdo->prepare('DELETE FROM domains WHERE id = ?');
         $stmt->execute([$id]);
+
+        $this->certificateZonePruned = $this->pruneCertificateZoneIfUnused($domain['zone']);
     }
 
     public function normalizeDomain(string $domain, bool $stripAdmin = true): string
@@ -337,5 +364,31 @@ class DomainService
         }
 
         return $normalized;
+    }
+
+    public function wasCertificateZonePruned(): bool
+    {
+        return $this->certificateZonePruned;
+    }
+
+    private function pruneCertificateZoneIfUnused(string $zone): bool
+    {
+        $normalizedZone = strtolower(trim($zone));
+        if ($normalizedZone === '') {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM domains WHERE zone = ? AND is_active = TRUE');
+        $stmt->execute([$normalizedZone]);
+        $activeDomains = (int) ($stmt->fetchColumn() ?: 0);
+
+        if ($activeDomains > 0) {
+            return false;
+        }
+
+        $deleteZone = $this->pdo->prepare('DELETE FROM certificate_zones WHERE zone = ?');
+        $deleteZone->execute([$normalizedZone]);
+
+        return true;
     }
 }

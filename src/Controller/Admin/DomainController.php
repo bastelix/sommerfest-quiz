@@ -133,10 +133,21 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        if (!$existing['is_active'] && $domain['is_active']) {
+        $shouldDispatch = false;
+
+        if ($domain['is_active'] && (!$existing['is_active'] || $existing['zone'] !== $domain['zone'])) {
             $this->queueZone($domain['zone']);
-            $this->dispatchWildcardJobs();
+            $shouldDispatch = true;
             $this->clearMarketingDomainCache();
+        }
+
+        if ($this->domainService->wasCertificateZonePruned()) {
+            $shouldDispatch = true;
+            $this->clearMarketingDomainCache();
+        }
+
+        if ($shouldDispatch) {
+            $this->dispatchWildcardJobs();
         }
 
         $response->getBody()->write(json_encode([
@@ -164,7 +175,17 @@ class DomainController
             return $response->withStatus(400);
         }
 
+        $domain = $this->domainService->getDomainById($id);
+        if ($domain === null) {
+            return $response->withStatus(404);
+        }
+
         $this->domainService->deleteDomain($id);
+
+        if ($this->domainService->wasCertificateZonePruned()) {
+            $this->dispatchWildcardJobs();
+            $this->clearMarketingDomainCache();
+        }
 
         $response->getBody()->write(json_encode([
             'status' => 'ok',
