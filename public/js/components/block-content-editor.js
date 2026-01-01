@@ -1102,7 +1102,10 @@ function migrateLegacyBlock(block) {
 }
 
 function sanitizeBlock(block) {
-  const migrated = normalizeBlockContract(migrateLegacyBlock(block));
+  const migratedBlock = migrateLegacyBlock(block);
+  const legacyAppearance = migratedBlock.sectionAppearance;
+  const legacyBackgroundImage = migratedBlock.backgroundImage;
+  const migrated = normalizeBlockContract(migratedBlock);
   const sanitizedTopLevel = { ...migrated };
   delete sanitizedTopLevel.invalidVariant;
 
@@ -1142,8 +1145,21 @@ function sanitizeBlock(block) {
     sanitizedBlock.sectionAppearance = sanitizedAppearance;
   }
 
-  if (sanitizedMeta) {
-    sanitizedBlock.meta = sanitizedMeta;
+  const resolvedSectionStyle = resolveSectionStyle({
+    ...sanitizedBlock,
+    meta: sanitizedMeta,
+    sectionAppearance: sanitizedAppearance ?? legacyAppearance,
+    backgroundImage: legacyBackgroundImage
+  });
+
+  const mergedMeta = {
+    ...(sanitizedMeta || {}),
+    sectionStyle: resolvedSectionStyle
+  };
+
+  const hasMeta = Object.keys(mergedMeta).length > 0;
+  if (hasMeta) {
+    sanitizedBlock.meta = mergedMeta;
   }
 
   const validation = validateBlockContract(sanitizedBlock);
@@ -4752,4 +4768,5 @@ export class BlockContentEditor {
   }
 }
 
+export { sanitizeBlock };
 export default BlockContentEditor;
