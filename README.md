@@ -652,7 +652,7 @@ Projektwurzelverzeichnis, validiert die benötigten Umgebungsvariablen, führt
 `bin/generate-nginx-zones` und `bin/provision-wildcard-certificates`
 nacheinander aus und protokolliert alles in `logs/wildcard-maintenance.log`.
 Cron-Alternative: `0 * * * * cd /opt/quizrace && /usr/bin/env
-ACME_SH_BIN=/usr/local/bin/acme.sh ACME_WILDCARD_PROVIDER=dns_cf
+ACME_SH_BIN=/usr/bin/acme.sh ACME_WILDCARD_PROVIDER=dns_cf
 NGINX_WILDCARD_CERT_DIR=/etc/ssl/wildcards ./scripts/wildcard_maintenance.sh
 >> /var/log/wildcard-maintenance.log 2>&1`
 
