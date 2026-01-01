@@ -633,12 +633,12 @@ und die Zertifikats-Erneuerung. Die Unit-Dateien liegen unter
 1. Kopiere `resources/systemd/wildcard-maintenance.service` und
    `resources/systemd/wildcard-maintenance.timer` nach `/etc/systemd/system/`.
 2. Passe `WorkingDirectory` und `EnvironmentFile` an deinen Projektpfad an (z. B.
-   `/opt/quizrace`). Stelle sicher, dass dort `ACME_SH_BIN`,
-   `ACME_WILDCARD_PROVIDER`, `NGINX_WILDCARD_CERT_DIR` und optional
-   `ACME_SH_HOME` gesetzt sind.
+   `/opt/quizrace`) und hinterlege die nötigen Variablen (`ACME_SH_BIN`,
+   `ACME_WILDCARD_PROVIDER`, `NGINX_WILDCARD_CERT_DIR`, optional `ACME_SH_HOME`).
 3. Aktiviere den Timer: `systemctl daemon-reload && systemctl enable --now
-   wildcard-maintenance.timer`.
-4. Prüfe die Ausführung und Fehlerlogs mit `journalctl -u
+   wildcard-maintenance.timer` (oder richte einen äquivalenten Cronjob ein).
+4. Prüfe die Ausführung und Fehlerlogs frühzeitig über
+   `logs/wildcard-maintenance.log` oder `journalctl -u
    wildcard-maintenance.service`.
 
 Der Timer ruft `scripts/wildcard_maintenance.sh` auf. Das Skript läuft im
