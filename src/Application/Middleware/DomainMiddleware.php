@@ -36,16 +36,45 @@ class DomainMiddleware implements MiddlewareInterface
         $marketingHost = $this->normalizeHost($originalHost, stripAdmin: false);
 
         $mainDomainRaw = $this->domainProvider->getMainDomain();
+        $mainDomainSource = $this->domainProvider->getMainDomainSource();
         $mainDomain = $mainDomainRaw !== null ? $this->normalizeHost($mainDomainRaw) : '';
+        $effectiveMainDomain = $mainDomain;
+        $fallbackSource = 'none';
+
+        if ($effectiveMainDomain === '') {
+            $domainEnv = getenv('DOMAIN');
+            if ($domainEnv !== false) {
+                $candidate = $this->normalizeHost((string) $domainEnv);
+                if ($candidate !== '') {
+                    $effectiveMainDomain = $candidate;
+                    $fallbackSource = 'env:DOMAIN';
+                }
+            }
+        }
+
+        if ($effectiveMainDomain === '' && $host !== '') {
+            $effectiveMainDomain = $host;
+            $fallbackSource = 'request-host';
+        }
+
+        $logMessage = sprintf(
+            'DomainMiddleware resolved main domain "%s" (source: %s, fallback: %s, request host: "%s")',
+            $effectiveMainDomain !== '' ? $effectiveMainDomain : '(empty)',
+            $mainDomainSource ?? 'none',
+            $fallbackSource,
+            $marketingHost !== '' ? $marketingHost : $host
+        );
+
+        error_log($logMessage);
         $marketingDomains = $this->getMarketingDomains();
 
         $domainType = null;
         $allowLocalHost = $this->isLocalHost($host) || $this->isLocalHost($marketingHost);
 
-        if ($mainDomain !== '') {
-            if ($host === $mainDomain) {
+        if ($effectiveMainDomain !== '') {
+            if ($host === $effectiveMainDomain) {
                 $domainType = 'main';
-            } elseif ($host !== '' && str_ends_with($host, '.' . $mainDomain)) {
+            } elseif ($host !== '' && str_ends_with($host, '.' . $effectiveMainDomain)) {
                 $domainType = 'tenant';
             }
         }
@@ -61,12 +90,12 @@ class DomainMiddleware implements MiddlewareInterface
         if (
             $domainType !== 'marketing'
             && (
-                $mainDomain === ''
+                $effectiveMainDomain === ''
                 || $domainType === null
             )
             && !$allowLocalHost
         ) {
-            $message = 'Invalid main domain configuration.';
+            $message = 'Main domain is not configured. Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.';
             error_log(sprintf(
                 'MAIN_DOMAIN misconfiguration: "%s" (request host: "%s")',
                 $mainDomain,
@@ -84,12 +113,21 @@ class DomainMiddleware implements MiddlewareInterface
             $response = new SlimResponse(403);
 
             if ($isApi) {
-                $response->getBody()->write(json_encode(['error' => $message]));
+                $response->getBody()->write(json_encode([
+                    'error' => $message,
+                    'expectedEnv' => ['MAIN_DOMAIN', 'DOMAIN'],
+                    'requestHost' => $marketingHost !== '' ? $marketingHost : $host,
+                ]));
 
                 return $response->withHeader('Content-Type', 'application/json');
             }
 
-            $response->getBody()->write($message);
+            $response->getBody()->write(
+                '<p>'
+                . htmlspecialchars($message, ENT_QUOTES, 'UTF-8')
+                . '</p><p>Setzen Sie die Umgebungsvariable <code>MAIN_DOMAIN</code> '
+                . 'oder ersatzweise <code>DOMAIN</code>, um die Anfrage-Domain zu validieren.</p>'
+            );
 
             return $response->withHeader('Content-Type', 'text/html');
         }

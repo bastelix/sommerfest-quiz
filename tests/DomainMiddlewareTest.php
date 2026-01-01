@@ -28,9 +28,11 @@ class DomainMiddlewareTest extends TestCase
 
         $this->envBackup = [
             'MAIN_DOMAIN' => getenv('MAIN_DOMAIN'),
+            'DOMAIN' => getenv('DOMAIN'),
         ];
 
         putenv('MAIN_DOMAIN');
+        putenv('DOMAIN');
 
         Database::setFactory(static fn () => new PDO('sqlite::memory:'));
     }
@@ -40,6 +42,7 @@ class DomainMiddlewareTest extends TestCase
         DomainNameHelper::setMarketingDomainProvider(null);
         Database::setFactory(null);
         $this->restoreEnv('MAIN_DOMAIN', $this->envBackup['MAIN_DOMAIN']);
+        $this->restoreEnv('DOMAIN', $this->envBackup['DOMAIN']);
 
         parent::tearDown();
     }
@@ -100,8 +103,12 @@ class DomainMiddlewareTest extends TestCase
         $this->assertFalse($handler->handled);
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertSame(
-            json_encode(['error' => 'Invalid main domain configuration.']),
+        $this->assertJsonStringEqualsJsonString(
+            json_encode([
+                'error' => 'Main domain is not configured. Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.',
+                'expectedEnv' => ['MAIN_DOMAIN', 'DOMAIN'],
+                'requestHost' => 'foo.test',
+            ]),
             (string) $response->getBody()
         );
     }
@@ -151,7 +158,32 @@ class DomainMiddlewareTest extends TestCase
         $this->assertFalse($handler->handled);
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
-        $this->assertSame('Invalid main domain configuration.', (string) $response->getBody());
+        $this->assertStringContainsString('Main domain is not configured', (string) $response->getBody());
+    }
+
+    public function testDomainEnvActsAsFallbackWhenMainDomainMissing(): void
+    {
+        putenv('DOMAIN=domain-fallback.test');
+
+        $middleware = new DomainMiddleware($this->createProvider());
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('GET', 'https://domain-fallback.test/');
+
+        $handler = new class implements RequestHandlerInterface {
+            public ?Request $request = null;
+
+            public function handle(Request $request): ResponseInterface
+            {
+                $this->request = $request;
+
+                return new Response();
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('main', $handler->request?->getAttribute('domainType'));
     }
 
     public function testMarketingDomainAllowed(): void {
