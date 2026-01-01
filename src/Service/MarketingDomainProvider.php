@@ -17,7 +17,6 @@ use Throwable;
 class MarketingDomainProvider
 {
     private const DEFAULT_CACHE_TTL = 300;
-    private const FAILURE_CACHE_TTL = 30;
 
     /** @var Closure():PDO */
     private Closure $connectionFactory;
