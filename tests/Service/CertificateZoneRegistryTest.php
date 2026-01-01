@@ -55,7 +55,7 @@ final class CertificateZoneRegistryTest extends TestCase
 
         $this->assertSame([
             ['zone' => 'demo.com', 'provider' => 'dns_cf', 'wildcard_enabled' => 1, 'status' => 'pending'],
-            ['zone' => 'existing.com', 'provider' => 'hetzner', 'wildcard_enabled' => 0, 'status' => 'pending'],
+            ['zone' => 'existing.com', 'provider' => 'dns_hetzner', 'wildcard_enabled' => 0, 'status' => 'pending'],
             ['zone' => 'kaaroo.com', 'provider' => 'dns_cf', 'wildcard_enabled' => 1, 'status' => 'pending'],
         ], $normalized);
     }

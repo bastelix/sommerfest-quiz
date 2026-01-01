@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Service\CertificateZoneRegistry;
 use App\Service\DomainService;
+use App\Support\AcmeDnsProvider;
 use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use RuntimeException;
@@ -81,6 +82,15 @@ class DomainController
         $namespace = array_key_exists('namespace', $data) ? (string) $data['namespace'] : null;
         $isActive = $this->normalizeBool($data['is_active'] ?? true);
 
+        $provider = null;
+        if ($isActive) {
+            try {
+                $provider = AcmeDnsProvider::fromEnv();
+            } catch (InvalidArgumentException $exception) {
+                return $this->jsonError($response, $exception->getMessage(), 422);
+            }
+        }
+
         try {
             $domain = $this->domainService->createDomain($host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
@@ -88,7 +98,7 @@ class DomainController
         }
 
         if ($domain['is_active']) {
-            $this->queueZone($domain['zone']);
+            $this->queueZone($domain['zone'], $provider);
             $this->dispatchWildcardJobs();
             $this->clearMarketingDomainCache();
         }
@@ -123,6 +133,16 @@ class DomainController
             return $response->withStatus(404);
         }
 
+        $provider = null;
+        $shouldActivate = !$existing['is_active'] && $isActive;
+        if ($shouldActivate) {
+            try {
+                $provider = AcmeDnsProvider::fromEnv();
+            } catch (InvalidArgumentException $exception) {
+                return $this->jsonError($response, $exception->getMessage(), 422);
+            }
+        }
+
         try {
             $domain = $this->domainService->updateDomain($id, $host, $label, $namespace, $isActive);
         } catch (InvalidArgumentException $exception) {
@@ -133,8 +153,8 @@ class DomainController
             return $response->withStatus(404);
         }
 
-        if (!$existing['is_active'] && $domain['is_active']) {
-            $this->queueZone($domain['zone']);
+        if ($shouldActivate && $domain['is_active']) {
+            $this->queueZone($domain['zone'], $provider);
             $this->dispatchWildcardJobs();
             $this->clearMarketingDomainCache();
         }
@@ -249,11 +269,11 @@ class DomainController
         return $value === true || $value === 1 || $value === '1' || $value === 'true' || $value === 'on';
     }
 
-    private function queueZone(string $zone): void
+    private function queueZone(string $zone, ?string $provider = null): void
     {
-        $provider = getenv('ACME_WILDCARD_PROVIDER') ?: 'hetzner';
+        $resolvedProvider = $provider ?? AcmeDnsProvider::fromEnv();
 
-        $this->certificateZoneRegistry->ensureZone($zone, $provider, true);
+        $this->certificateZoneRegistry->ensureZone($zone, $resolvedProvider, true);
     }
 
     private function dispatchWildcardJobs(): void
