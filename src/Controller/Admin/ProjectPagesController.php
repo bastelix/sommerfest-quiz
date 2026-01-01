@@ -506,6 +506,12 @@ class ProjectPagesController
      */
     private function resolveSelectedStartpageDomain(array $domainOptions, array $startpageMap): string
     {
+        $selectedDomain = $domainOptions['selected'];
+
+        if (array_key_exists($selectedDomain, $startpageMap)) {
+            return $selectedDomain;
+        }
+
         foreach ($domainOptions['options'] as $option) {
             $value = (string) ($option['value'] ?? '');
             if (array_key_exists($value, $startpageMap) && $startpageMap[$value] !== null) {
@@ -513,7 +519,7 @@ class ProjectPagesController
             }
         }
 
-        return $domainOptions['selected'];
+        return $selectedDomain;
     }
 
     /**

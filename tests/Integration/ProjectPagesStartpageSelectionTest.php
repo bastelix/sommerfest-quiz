@@ -10,7 +10,7 @@ use ReflectionMethod;
 
 final class ProjectPagesStartpageSelectionTest extends TestCase
 {
-    public function testSelectsDomainWithExistingStartpage(): void
+    public function testKeepsSelectedDomainWhenOthersHaveStartpages(): void
     {
         $controller = $this->createController();
         $domainOptions = [
@@ -29,7 +29,7 @@ final class ProjectPagesStartpageSelectionTest extends TestCase
 
         $result = $this->resolveSelectedDomain($controller, $domainOptions, $startpageMap);
 
-        $this->assertSame('custom.example', $result);
+        $this->assertSame('example.org', $result);
     }
 
     public function testFallsBackToCurrentHostWhenNoStartpageAssigned(): void
@@ -50,6 +50,26 @@ final class ProjectPagesStartpageSelectionTest extends TestCase
         $result = $this->resolveSelectedDomain($controller, $domainOptions, $startpageMap);
 
         $this->assertSame('example.org', $result);
+    }
+
+    public function testFallsBackToDomainWithStartpageWhenSelectedMissing(): void
+    {
+        $controller = $this->createController();
+        $domainOptions = [
+            'options' => [
+                ['value' => '', 'label' => 'Namespace-weit (Fallback)'],
+                ['value' => 'custom.example', 'label' => 'custom.example'],
+            ],
+            'selected' => 'other.example',
+        ];
+        $startpageMap = [
+            '' => null,
+            'custom.example' => 42,
+        ];
+
+        $result = $this->resolveSelectedDomain($controller, $domainOptions, $startpageMap);
+
+        $this->assertSame('custom.example', $result);
     }
 
     private function createController(): ProjectPagesController
