@@ -65,6 +65,12 @@ Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen d
 
 Marketing-Domains werden ausschließlich im Admin-Bereich gepflegt (Tabelle `domains`). Bei jeder Aktivierung wird automatisch die passende Zone über die Public-Suffix-Liste abgeleitet und in `certificate_zones` registriert. Ein separater Cron-Job erzeugt daraus statische nginx-Konfigurationen und löst Wildcard-Zertifikate via `acme.sh` (DNS-01) aus. `.env` enthält keine Marketing-Domain-Listen mehr; secrets wie DNS-API-Tokens werden weiterhin dort verwaltet.
 
+So stellst du die TLS-Versorgung für Marketing-Hosts sicher:
+
+1. Lege die Domains im Tab **Administration → Domains** an und aktiviere sie. Kontrolliere per SQL, dass jede Zone in `certificate_zones` auftaucht (`SELECT * FROM certificate_zones ORDER BY zone;`).
+2. Starte anschließend `bin/generate-nginx-zones` und `bin/provision-wildcard-certificates` (oder den Systemd-Timer), damit sowohl `<zone>` als auch `*.zone` in die Zertifikatsanforderung gelangen und nginx die neuen Zonen lädt.
+3. Müssen einzelne Hosts sofort per Companion ausgeliefert werden, setze sie zusätzlich in `.env` als `SLIM_LETSENCRYPT_HOST` (nur konkrete Hosts, keine Regex). Der Entrypoint übernimmt diese Werte vor dem Filterprozess in `LETSENCRYPT_HOST`.
+
 Im Admin-Tab **Administration → Domains** kann die Schaltfläche **Domains prüfen** genutzt werden, um fehlende Zertifikate nachzuziehen und nicht auflösbare DNS-Einträge zu melden.
 
 Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und die Marketing-Liste und setzt entsprechend das Attribut `domainType` (`main`, `tenant` oder `marketing`). Ist `MAIN_DOMAIN` leer oder stimmt keine der konfigurierten Domains mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
