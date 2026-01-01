@@ -1,0 +1,11 @@
+[Unit]
+Description=Run wildcard maintenance to refresh nginx zones and certificates
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+AccuracySec=5m
+Unit=wildcard-maintenance.service
+
+[Install]
+WantedBy=timers.target
