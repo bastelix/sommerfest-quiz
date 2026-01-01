@@ -624,6 +624,12 @@ dient als einzige Quelle für TLS-Konfiguration:
   Status der Ausstellung mit Zeitstempel auf; nginx wird nur nach einer
   tatsächlichen Änderung der Zertifikate neu geladen.
 
+Der vollständige Ablauf für Marketing-Hosts:
+
+1. Domains im Admin-Bereich aktiv schalten (**Administration → Domains**) und prüfen, dass die abgeleiteten Zonen in `certificate_zones` landen (`SELECT * FROM certificate_zones ORDER BY zone;`).
+2. `bin/generate-nginx-zones` und `bin/provision-wildcard-certificates` ausführen (oder den Systemd-Timer aktivieren), damit `<zone>` und `*.zone` in die Wildcard-Anforderung einfließen und nginx die neuen Zonen kennt.
+3. Falls einzelne Marketing-Hosts sofort per Companion bedient werden sollen, in `.env` `SLIM_LETSENCRYPT_HOST` setzen (nur konkrete Hosts, keine Regex). Der Entrypoint übernimmt sie vor dem Filterprozess nach `LETSENCRYPT_HOST`.
+
 ### Automatisierung der Wildcard-Zertifikate
 
 Ein stündlicher Systemd-Timer kümmert sich um die statische nginx-Zonenliste
