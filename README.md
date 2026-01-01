@@ -535,17 +535,23 @@ innerhalb des Stacks wie folgt ein:
    auf dieselbe IP zeigen.
 2. **Umgebungsvariablen setzen** – Trage in `.env` mindestens `DOMAIN` oder
    `MAIN_DOMAIN` sowie `ENABLE_WILDCARD_SSL=1` ein. Hinterlege das gewünschte
-   ACME-DNS-Plugin (z. B. `dns_cf`) per `ACME_WILDCARD_PROVIDER` und dessen
-   Zugangsdaten via `ACME_WILDCARD_ENV_*` (siehe oben).
+   ACME-DNS-Plugin (z. B. `dns_cf`) per `ACME_WILDCARD_PROVIDER`, den Companion
+   über `ACME_WILDCARD_SERVICE=acme-companion` und die Zugangsdaten via
+   `ACME_WILDCARD_ENV_*` (siehe oben). Für Marketing-Subdomains kannst du
+   Regex-/Wildcard-Hosts bereits in `VIRTUAL_HOST`/`LETSENCRYPT_HOST`
+   ergänzen, damit der Companion die DNS-01-Challenges akzeptiert.
 3. **Wildcard-Zertifikat beziehen** – Starte den Stack mit Compose
    (`docker compose up -d slim acme-companion`) und führe anschließend
-   `scripts/provision_wildcard.sh --domain "$MAIN_DOMAIN"` aus. Das Skript
-   kümmert sich um die DNS-01-Challenge per `acme.sh` und legt `.crt`/`.key`
-   unter `certs/<domain>.*` ab.
+   `scripts/provision_wildcard.sh --domain "$MAIN_DOMAIN"` aus (alternativ:
+   `bin/provision-wildcard-certificates` kopiert vorhandene Marketing-Zonen
+   auf das Companion-Volume). Das Skript kümmert sich um die DNS-01-Challenge
+   per `acme.sh` und legt `.crt`/`.key` unter `certs/<domain>.*` sowie
+   `/etc/ssl/wildcards/<zone>/` ab.
 4. **Reverse Proxy aktualisieren** – Das Entrypoint-Skript ergänzt nach dem
    Zertifikat ein Regex-Host-Muster (`~^([a-z0-9-]+\.)?<domain>$`) in
-   `VIRTUAL_HOST` und lädt nginx neu. Kontrolliere mit `docker logs slim`, dass
-   der Reload erfolgreich war.
+   `VIRTUAL_HOST` und lädt nginx neu. Kontrolliere mit `docker logs slim`
+   bzw. `docker logs acme-companion`, dass der Reload erfolgreich war und die
+   Zertifikate im Volume sichtbar sind.
 5. **Mandanten testen** – Lege einen neuen Mandanten mit
    `scripts/create_tenant.sh <slug>` an oder onboarde einen bestehenden via
    `/onboarding`. Rufe anschließend eine beliebige Subdomain deines Mandanten
