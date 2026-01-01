@@ -2002,89 +2002,64 @@ body.admin-page {
   margin: 0;
 }
 
-.section-background-config {
+.appearance-accent-picker {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   padding: 12px;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   background: #ffffff;
 }
 
-.section-background-config__hint {
-  color: #4b5563;
-  margin-top: -4px;
+.accent-token-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.color-token-picker {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.color-token-chip {
+.accent-token-badge {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
+  gap: 8px;
+  padding: 8px 10px;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 999px;
   background: #f9fafb;
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  text-align: left;
+  color: #0f172a;
 }
 
-.color-token-chip:hover {
+.accent-token-badge:hover {
   border-color: #cbd2d9;
   background: #f3f4f6;
 }
 
-.color-token-chip:focus-visible {
+.accent-token-badge:focus-visible {
   outline: 2px solid #1e87f0;
   outline-offset: 2px;
   box-shadow: 0 0 0 3px rgba(30, 135, 240, 0.25);
 }
 
-.color-token-chip[data-selected="true"] {
+.accent-token-badge[data-selected="true"] {
   border-color: #1e87f0;
   background: #f0f7ff;
   box-shadow: 0 8px 18px rgba(30, 135, 240, 0.12);
 }
 
-.color-token-chip__swatch {
-  width: 24px;
-  height: 24px;
+.accent-token-badge__swatch {
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 
-.color-token-chip__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  line-height: 1.2;
-}
-
-.color-token-chip__label {
+.accent-token-badge__text {
   font-weight: 600;
   color: #0f172a;
-}
-
-.color-token-chip__hint {
-  font-size: 0.9rem;
-  color: #6b7280;
-}
-
-.background-image-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
 .layout-style-picker__label {

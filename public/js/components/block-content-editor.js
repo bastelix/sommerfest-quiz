@@ -131,17 +131,6 @@ const APPEARANCE_TO_LAYOUT = {
   card: 'card'
 };
 
-const BACKGROUND_MODE_OPTIONS = [
-  { value: 'none', label: 'Kein Hintergrund' },
-  { value: 'color', label: 'Farbton' },
-  { value: 'image', label: 'Bild' }
-];
-
-const BACKGROUND_ATTACHMENTS = [
-  { value: 'scroll', label: 'Mit Inhalt scrollen' },
-  { value: 'fixed', label: 'Fixiert (Parallax)' }
-];
-
 const BACKGROUND_COLOR_TOKENS = [
   { value: 'surface', label: 'Standard' },
   { value: 'primary', label: 'Primär' },
@@ -2091,7 +2080,7 @@ export class BlockContentEditor {
     label.textContent = 'Abschnitts-Stil';
     wrapper.append(label);
 
-    const hint = createHelperText('Der Stil beeinflusst nur den Hintergrund dieses Abschnitts.');
+    const hint = createHelperText('Layout und Akzent wirken sich nur auf die Hintergrundfläche dieses Abschnitts aus.');
     if (hint) {
       hint.classList.add('layout-style-picker__hint');
       wrapper.append(hint);
@@ -2101,7 +2090,6 @@ export class BlockContentEditor {
     options.className = 'layout-style-picker__options layout-style-picker__options--appearance';
     const sectionStyle = resolveSectionStyle(block);
     const { layout, background } = sectionStyle;
-    const allowedBackgroundModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
 
     SECTION_LAYOUT_OPTIONS.forEach(option => {
       const card = document.createElement('button');
@@ -2129,182 +2117,67 @@ export class BlockContentEditor {
 
     wrapper.append(options);
 
-    const supportsBackgroundConfig = allowedBackgroundModes.some(type => type !== 'none');
+    const allowedBackgroundModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
+    const supportsColorAccents = allowedBackgroundModes.includes('color');
+    const accentSection = document.createElement('div');
+    accentSection.className = 'appearance-accent-picker';
 
-    if (supportsBackgroundConfig) {
-      const backgroundSection = document.createElement('div');
-      backgroundSection.className = 'section-background-config background-style-panel';
+    const accentLabel = document.createElement('div');
+    accentLabel.className = 'layout-style-picker__label';
+    accentLabel.textContent = 'Hintergrundakzent';
+    accentSection.append(accentLabel);
 
-      const backgroundLabel = document.createElement('div');
-      backgroundLabel.className = 'layout-style-picker__label';
-      backgroundLabel.textContent = 'Hintergrund';
-      backgroundSection.append(backgroundLabel);
-
-      const backgroundHelper = createHelperText('Wähle Hintergrundmodus und passe Farbe oder Bild an.');
-      if (backgroundHelper) {
-        backgroundHelper.classList.add('section-background-config__hint');
-        backgroundSection.append(backgroundHelper);
-      }
-
-      let colorField;
-      let imageControls;
-      let imageInput;
-
-      const toggleBackgroundFields = mode => {
-        if (colorField) {
-          colorField.hidden = mode !== 'color';
-        }
-        if (imageControls) {
-          imageControls.hidden = !(layout === 'fullwidth' && mode === 'image');
-        }
-      };
-
-      const typeField = document.createElement('label');
-      typeField.dataset.fieldLabel = 'true';
-      const typeLabel = document.createElement('div');
-      typeLabel.className = 'field-label';
-      typeLabel.textContent = 'Hintergrundart';
-
-      const typeSelect = document.createElement('select');
-      typeSelect.className = 'uk-select';
-      BACKGROUND_MODE_OPTIONS.filter(option => allowedBackgroundModes.includes(option.value)).forEach(option => {
-        const optionEl = document.createElement('option');
-        optionEl.value = option.value;
-        optionEl.textContent = option.label;
-        optionEl.selected = option.value === background.mode;
-        typeSelect.append(optionEl);
-      });
-      typeSelect.addEventListener('change', event => {
-        const nextMode = event.target.value;
-        toggleBackgroundFields(nextMode);
-
-        if (nextMode === 'image' && layout === 'fullwidth' && !background.imageId && imageInput) {
-          imageInput.focus();
-          return;
-        }
-
-        this.updateSectionBackground(block.id, { mode: nextMode });
-      });
-
-      typeField.append(typeLabel, typeSelect);
-      backgroundSection.append(typeField);
-
-      if (allowedBackgroundModes.includes('color')) {
-        const selectedColor = BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
-          ? background.colorToken
-          : '';
-
-        colorField = document.createElement('label');
-        colorField.dataset.fieldLabel = 'true';
-
-        const colorLabel = document.createElement('div');
-        colorLabel.className = 'field-label';
-        colorLabel.textContent = 'Farbton';
-
-        const colorHint = createHelperText('Markenfarbton für Flächenhintergründe.');
-
-        const colorPicker = document.createElement('div');
-        colorPicker.className = 'color-token-picker';
-
-        BACKGROUND_COLOR_TOKENS.forEach(option => {
-          const chip = document.createElement('button');
-          chip.type = 'button';
-          chip.className = 'color-token-chip';
-          chip.dataset.selected = option.value === selectedColor ? 'true' : 'false';
-          chip.setAttribute('aria-pressed', option.value === selectedColor ? 'true' : 'false');
-          chip.title = option.value;
-
-          const swatch = document.createElement('span');
-          swatch.className = 'color-token-chip__swatch';
-          swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
-
-          const copy = document.createElement('span');
-          copy.className = 'color-token-chip__text';
-          const label = document.createElement('span');
-          label.className = 'color-token-chip__label';
-          label.textContent = option.label;
-          const hint = document.createElement('span');
-          hint.className = 'color-token-chip__hint';
-          hint.textContent = 'Markenfarbe';
-
-          copy.append(label, hint);
-
-          chip.append(swatch, copy);
-          chip.addEventListener('click', () => {
-            this.updateSectionBackground(block.id, { mode: 'color', colorToken: option.value });
-          });
-
-          colorPicker.append(chip);
-        });
-
-        if (colorHint) {
-          colorField.append(colorLabel, colorHint, colorPicker);
-        } else {
-          colorField.append(colorLabel, colorPicker);
-        }
-
-        backgroundSection.append(colorField);
-      }
-
-      if (allowedBackgroundModes.includes('image') && layout === 'fullwidth') {
-        imageControls = document.createElement('div');
-        imageControls.className = 'background-image-fields';
-
-        const imageField = this.addLabeledInput(
-          'Hintergrundbild',
-          background.imageId,
-          value => this.updateSectionBackground(block.id, { mode: 'image', imageId: value }),
-          {
-            placeholder: '/uploads/bg.jpg',
-            helpText: 'Bildquelle aus der Mediathek oder eine absolute URL.'
-          }
-        );
-
-        imageInput = imageField.querySelector('input, textarea, select');
-
-        imageControls.append(imageField);
-
-        const attachmentField = document.createElement('label');
-        attachmentField.dataset.fieldLabel = 'true';
-        const attachmentLabel = document.createElement('div');
-        attachmentLabel.className = 'field-label';
-        attachmentLabel.textContent = 'Scroll-Verhalten';
-
-        const attachmentSelect = document.createElement('select');
-        attachmentSelect.className = 'uk-select';
-        BACKGROUND_ATTACHMENTS.forEach(option => {
-          const optionEl = document.createElement('option');
-          optionEl.value = option.value;
-          optionEl.textContent = option.label;
-          optionEl.selected = option.value === background.attachment;
-          attachmentSelect.append(optionEl);
-        });
-        attachmentSelect.addEventListener('change', event => {
-          this.updateSectionBackground(block.id, { attachment: event.target.value, mode: 'image' });
-        });
-
-        const attachmentHelper = createHelperText('Nur auf Desktop sinnvoll');
-
-        attachmentField.append(attachmentLabel, attachmentSelect, attachmentHelper);
-        imageControls.append(attachmentField);
-
-        const overlayValue = typeof background.overlay === 'number' ? background.overlay : 0;
-        imageControls.append(
-          this.addLabeledInput(
-            'Overlay-Deckkraft',
-            overlayValue,
-            value => this.updateSectionBackground(block.id, { overlay: clampOverlayValue(value), mode: 'image' }),
-            { type: 'range', min: 0, max: 1, step: 0.05, helpText: 'Optionaler dunkler Verlauf über dem Bild.' }
-          )
-        );
-
-        backgroundSection.append(imageControls);
-      }
-
-      toggleBackgroundFields(background.mode);
-
-      wrapper.append(backgroundSection);
+    const accentHelper = createHelperText('Wähle einen freigegebenen Akzentton für diesen Abschnitt.');
+    if (accentHelper) {
+      accentHelper.classList.add('layout-style-picker__hint');
+      accentSection.append(accentHelper);
     }
+
+    const accentOptions = document.createElement('div');
+    accentOptions.className = 'accent-token-picker';
+
+    const selection = background.mode === 'color' && BACKGROUND_COLOR_TOKEN_VALUES.includes(background.colorToken)
+      ? background.colorToken
+      : 'none';
+
+    const noneBadge = document.createElement('button');
+    noneBadge.type = 'button';
+    noneBadge.className = 'accent-token-badge';
+    noneBadge.dataset.selected = selection === 'none' ? 'true' : 'false';
+    noneBadge.setAttribute('aria-pressed', selection === 'none' ? 'true' : 'false');
+    noneBadge.textContent = 'Kein Akzent';
+    noneBadge.addEventListener('click', () => {
+      this.updateSectionBackground(block.id, { mode: 'none' });
+    });
+    accentOptions.append(noneBadge);
+
+    if (supportsColorAccents) {
+      BACKGROUND_COLOR_TOKENS.forEach(option => {
+        const badge = document.createElement('button');
+        badge.type = 'button';
+        badge.className = 'accent-token-badge accent-token-badge--color';
+        badge.dataset.selected = selection === option.value ? 'true' : 'false';
+        badge.setAttribute('aria-pressed', selection === option.value ? 'true' : 'false');
+
+        const swatch = document.createElement('span');
+        swatch.className = 'accent-token-badge__swatch';
+        swatch.style.background = BACKGROUND_COLOR_TOKEN_MAP[option.value] || 'var(--surface)';
+
+        const labelText = document.createElement('span');
+        labelText.className = 'accent-token-badge__text';
+        labelText.textContent = option.label;
+
+        badge.append(swatch, labelText);
+        badge.addEventListener('click', () => {
+          this.updateSectionBackground(block.id, { mode: 'color', colorToken: option.value });
+        });
+
+        accentOptions.append(badge);
+      });
+    }
+
+    accentSection.append(accentOptions);
+    wrapper.append(accentSection);
 
     return wrapper;
   }
