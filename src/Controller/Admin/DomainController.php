@@ -8,6 +8,7 @@ use App\Service\CertificateZoneRegistry;
 use App\Service\DomainService;
 use App\Support\AcmeDnsProvider;
 use App\Support\DomainNameHelper;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -54,7 +55,7 @@ class DomainController
 
         try {
             $this->certificateZoneRegistry->ensureZone($domain['zone']);
-            $this->certificateZoneRegistry->markPending($domain['zone']);
+            $this->certificateZoneRegistry->markPending($domain['zone'], null, new DateTimeImmutable());
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, 'Failed to queue certificate provisioning.', 500);
         }
@@ -221,7 +222,7 @@ class DomainController
         }
 
         try {
-            $this->certificateZoneRegistry->markPending($domain['zone']);
+            $this->certificateZoneRegistry->markPending($domain['zone'], null, new DateTimeImmutable());
         } catch (RuntimeException $exception) {
             return $this->jsonError($response, 'Failed to queue certificate renewal.', 500);
         }

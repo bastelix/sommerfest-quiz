@@ -8,6 +8,8 @@ use App\Service\CertificateZoneRegistry;
 use App\Support\AcmeDnsProvider;
 use App\Support\EnvLoader;
 use DateTimeImmutable;
+use DateTimeInterface;
+use DateTimeZone;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -46,7 +48,43 @@ foreach ($zones as $zone) {
     $fullchain = $targetDir . '/fullchain.pem';
     $previousHash = is_file($fullchain) ? hash_file('sha256', $fullchain) : null;
 
-    $registry->markPending($name);
+    $now = new DateTimeImmutable();
+    $lastIssuedAt = $zone['last_issued_at'] !== null ? new DateTimeImmutable($zone['last_issued_at']) : null;
+    $nextRenewalAfter = $zone['next_renewal_after'] !== null
+        ? new DateTimeImmutable($zone['next_renewal_after'])
+        : $registry->calculateNextRenewalWindow($lastIssuedAt);
+    $certificateExpiry = readCertificateExpiry($fullchain);
+    $forcedRenewal = $zone['status'] !== CertificateZoneRegistry::STATUS_ISSUED;
+
+    $daysRemaining = $certificateExpiry !== null ? $now->diff($certificateExpiry)->format('%r%a') : null;
+
+    $renewalDue = $forcedRenewal || $registry->isRenewalEligible($lastIssuedAt, $now) || $certificateExpiry === null;
+    if ($certificateExpiry !== null && (int) $daysRemaining <= CertificateZoneRegistry::RENEWAL_THRESHOLD_DAYS) {
+        $renewalDue = true;
+    }
+
+    if ($renewalDue === false) {
+        $windowDescription = $nextRenewalAfter?->format(DateTimeInterface::ATOM) ?? 'unscheduled';
+        $expiryDescription = $certificateExpiry !== null
+            ? sprintf(
+                '%s days remaining (expires %s)',
+                $daysRemaining,
+                $certificateExpiry->format(DateTimeInterface::ATOM)
+            )
+            : 'no expiry metadata available';
+        logMessage(
+            sprintf(
+                'Skipping %s: certificate fresh, next renewal after %s; %s.',
+                $name,
+                $windowDescription,
+                $expiryDescription
+            )
+        );
+        continue;
+    }
+
+    logMessage(sprintf('Renewing %s (%s).', $name, $forcedRenewal ? 'queued' : 'window reached'));
+    $registry->markPending($name, null, $now);
 
     $issueCommand = [$acmeBinary, '--issue', '--dns', $dnsProvider, '-d', $name, '-d', '*.' . $name];
     if ($acmeHome !== null && $acmeHome !== '') {
@@ -80,7 +118,7 @@ foreach ($zones as $zone) {
         continue;
     }
 
-    $registry->markIssued($name, new DateTimeImmutable());
+    $registry->markIssued($name, $now);
 
     $currentHash = is_file($fullchain) ? hash_file('sha256', $fullchain) : null;
     if ($currentHash !== null && $currentHash !== $previousHash) {
@@ -121,4 +159,30 @@ function runCommand(array $command): bool
     }
 
     return $exitCode === 0;
+}
+
+function readCertificateExpiry(string $certificatePath): ?DateTimeImmutable
+{
+    if (!is_file($certificatePath) || !is_readable($certificatePath)) {
+        return null;
+    }
+
+    $content = @file_get_contents($certificatePath);
+    if ($content === false) {
+        return null;
+    }
+
+    $certificate = @openssl_x509_parse($content);
+    if (!is_array($certificate) || !array_key_exists('validTo_time_t', $certificate)) {
+        return null;
+    }
+
+    return (new DateTimeImmutable('@' . $certificate['validTo_time_t']))
+        ->setTimezone(new DateTimeZone(date_default_timezone_get()));
+}
+
+function logMessage(string $message): void
+{
+    $timestamp = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
+    fwrite(STDOUT, sprintf('[%s] %s%s', $timestamp, $message, PHP_EOL));
 }

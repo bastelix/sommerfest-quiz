@@ -6,6 +6,8 @@ namespace App\Controller\Admin;
 
 use App\Infrastructure\Database;
 use App\Service\DesignTokenService;
+use App\Service\ConfigService;
+use App\Service\EffectsPolicyService;
 use App\Service\NamespaceResolver;
 use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
@@ -27,6 +29,8 @@ class PageController
     private PageBlockContractMigrator $blockMigrator;
     private AuditLogger $audit;
     private DesignTokenService $designTokens;
+    private ConfigService $configService;
+    private EffectsPolicyService $effectsPolicy;
 
     /** @var array<string, string[]> */
     private array $editableSlugs = [];
@@ -46,7 +50,9 @@ class PageController
         ?NamespaceResolver $namespaceResolver = null,
         ?PageBlockContractMigrator $blockMigrator = null,
         ?AuditLogger $audit = null,
-        ?DesignTokenService $designTokens = null
+        ?DesignTokenService $designTokens = null,
+        ?ConfigService $configService = null,
+        ?EffectsPolicyService $effectsPolicy = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
@@ -54,6 +60,8 @@ class PageController
         $pdo = Database::connectFromEnv();
         $this->audit = $audit ?? new AuditLogger($pdo);
         $this->designTokens = $designTokens ?? new DesignTokenService($pdo);
+        $this->configService = $configService ?? new ConfigService($pdo);
+        $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
     }
 
     /**
@@ -72,14 +80,13 @@ class PageController
         }
 
         $view = Twig::fromRequest($request);
+        $design = $this->loadDesign($namespace);
         return $view->render($response, 'admin/pages/edit.twig', [
             'slug' => $slug,
             'content' => $content,
             'pageNamespace' => $namespace,
-            'appearance' => [
-                'tokens' => $this->designTokens->getTokensForNamespace($namespace),
-                'defaults' => $this->designTokens->getDefaults(),
-            ],
+            'appearance' => $design['appearance'],
+            'design' => $design,
         ]);
     }
 
@@ -594,6 +601,52 @@ class PageController
         $this->editableSlugs[$namespace] = array_keys($slugs);
 
         return $this->editableSlugs[$namespace];
+    }
+
+    /**
+     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     */
+    private function loadDesign(string $namespace): array
+    {
+        $config = $this->configService->getConfigForEvent($namespace);
+        $resolvedNamespace = $namespace;
+
+        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
+            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+            if ($fallbackConfig !== []) {
+                $config = $fallbackConfig;
+                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+            }
+        }
+
+        $appearance = [
+            'tokens' => $this->designTokens->getTokensForNamespace($resolvedNamespace),
+            'defaults' => $this->designTokens->getDefaults(),
+        ];
+        $appearance['colors'] = $this->buildAppearanceColors($resolvedNamespace);
+
+        $effects = $this->effectsPolicy->getEffectsForNamespace($resolvedNamespace);
+
+        return [
+            'config' => $config,
+            'appearance' => $appearance,
+            'effects' => $effects,
+            'namespace' => $resolvedNamespace,
+        ];
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private function buildAppearanceColors(string $namespace): array
+    {
+        $tokens = $this->designTokens->getTokensForNamespace($namespace);
+
+        return [
+            'primary' => $tokens['brand']['primary'] ?? null,
+            'secondary' => $tokens['brand']['accent'] ?? null,
+            'accent' => $tokens['brand']['accent'] ?? null,
+        ];
     }
 
     private function parseRequestData(Request $request): ?array
