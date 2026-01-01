@@ -32,6 +32,10 @@ class MarketingDomainProvider
 
     private ?int $mainDomainLoadedAt = null;
 
+    private ?string $mainDomainSource = null;
+
+    private ?string $mainDomainSourceCache = null;
+
     /**
      * @param Closure():PDO $connectionFactory
      */
@@ -48,10 +52,13 @@ class MarketingDomainProvider
     {
         $now = time();
         if ($this->mainDomainCache !== null && $this->isFresh($this->mainDomainLoadedAt, $now)) {
+            $this->mainDomainSource = $this->mainDomainSourceCache;
+
             return $this->mainDomainCache;
         }
 
         $value = null;
+        $source = null;
 
         try {
             $pdo = $this->resolveConnection();
@@ -62,10 +69,13 @@ class MarketingDomainProvider
                 $candidate = strtolower(trim((string) $fetched));
                 if ($candidate !== '') {
                     $value = $candidate;
+                    $source = 'database';
                 }
             }
         } catch (Throwable $exception) {
             if ($this->mainDomainCache !== null) {
+                $this->mainDomainSource = $this->mainDomainSourceCache;
+
                 return $this->mainDomainCache;
             }
         }
@@ -76,14 +86,22 @@ class MarketingDomainProvider
                 $candidate = strtolower(trim((string) $env));
                 if ($candidate !== '') {
                     $value = $candidate;
+                    $source = 'environment';
                 }
             }
         }
 
         $this->mainDomainCache = $value;
         $this->mainDomainLoadedAt = $now;
+        $this->mainDomainSourceCache = $source;
+        $this->mainDomainSource = $source;
 
         return $this->mainDomainCache;
+    }
+
+    public function getMainDomainSource(): ?string
+    {
+        return $this->mainDomainSourceCache;
     }
 
     /**
@@ -119,6 +137,8 @@ class MarketingDomainProvider
         $this->marketingLoadedAt = null;
         $this->mainDomainCache = null;
         $this->mainDomainLoadedAt = null;
+        $this->mainDomainSourceCache = null;
+        $this->mainDomainSource = null;
     }
 
     /**
