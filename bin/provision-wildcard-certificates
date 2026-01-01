@@ -20,6 +20,7 @@ $reloadOnChange = getenv('ACME_RELOAD_ON_SUCCESS') !== '0';
 
 $pdo = Database::connectFromEnv();
 $registry = new CertificateZoneRegistry($pdo);
+$registry->backfillActiveDomains($dnsProvider);
 $zones = $registry->listWildcardEnabled();
 
 if ($dnsProvider === '') {

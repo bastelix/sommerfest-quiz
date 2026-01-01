@@ -79,6 +79,28 @@ final class CertificateZoneRegistry
         $this->updateStatus($zone, self::STATUS_PENDING, $message, null);
     }
 
+    /**
+     * Ensure certificate zones exist for all active domains.
+     */
+    public function backfillActiveDomains(string $provider = 'hetzner', bool $wildcardEnabled = true): void
+    {
+        $stmt = $this->pdo->query('SELECT DISTINCT zone FROM domains WHERE is_active = TRUE');
+        if ($stmt === false) {
+            return;
+        }
+
+        $zones = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+        foreach ($zones as $zone) {
+            $normalized = strtolower(trim((string) $zone));
+            if ($normalized === '') {
+                continue;
+            }
+
+            $this->ensureZone($normalized, $provider, $wildcardEnabled);
+        }
+    }
+
     private function updateStatus(string $zone, string $status, ?string $error, ?DateTimeImmutable $issuedAt): void
     {
         $normalized = strtolower(trim($zone));

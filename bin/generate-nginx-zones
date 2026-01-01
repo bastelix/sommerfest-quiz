@@ -14,9 +14,11 @@ EnvLoader::loadAndSet(__DIR__ . '/../.env');
 $configDir = getenv('NGINX_WILDCARD_CONF_DIR') ?: '/etc/nginx/wildcards';
 $certificateDir = getenv('NGINX_WILDCARD_CERT_DIR') ?: '/etc/ssl/wildcards';
 $upstream = getenv('NGINX_WILDCARD_UPSTREAM') ?: 'http://slim-1:8080';
+$dnsProvider = getenv('ACME_WILDCARD_PROVIDER') ?: 'hetzner';
 
 $pdo = Database::connectFromEnv();
 $registry = new CertificateZoneRegistry($pdo);
+$registry->backfillActiveDomains($dnsProvider);
 $zones = $registry->listWildcardEnabled();
 
 if (!is_dir($configDir) && !mkdir($configDir, 0775, true) && !is_dir($configDir)) {
