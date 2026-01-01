@@ -32,8 +32,6 @@ class MarketingDomainProvider
 
     private ?int $mainDomainLoadedAt = null;
 
-    private ?string $mainDomainSource = null;
-
     private ?string $mainDomainSourceCache = null;
 
     /**
@@ -52,8 +50,6 @@ class MarketingDomainProvider
     {
         $now = time();
         if ($this->mainDomainCache !== null && $this->isFresh($this->mainDomainLoadedAt, $now)) {
-            $this->mainDomainSource = $this->mainDomainSourceCache;
-
             return $this->mainDomainCache;
         }
 
@@ -74,8 +70,6 @@ class MarketingDomainProvider
             }
         } catch (Throwable $exception) {
             if ($this->mainDomainCache !== null) {
-                $this->mainDomainSource = $this->mainDomainSourceCache;
-
                 return $this->mainDomainCache;
             }
         }
@@ -94,7 +88,6 @@ class MarketingDomainProvider
         $this->mainDomainCache = $value;
         $this->mainDomainLoadedAt = $now;
         $this->mainDomainSourceCache = $source;
-        $this->mainDomainSource = $source;
 
         return $this->mainDomainCache;
     }
@@ -138,7 +131,6 @@ class MarketingDomainProvider
         $this->mainDomainCache = null;
         $this->mainDomainLoadedAt = null;
         $this->mainDomainSourceCache = null;
-        $this->mainDomainSource = null;
     }
 
     /**
