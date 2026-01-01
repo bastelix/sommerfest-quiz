@@ -8,11 +8,12 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_RETRY=${COMPOSER_RETRY}
 ENV COMPOSER_PROCESS_TIMEOUT=${COMPOSER_PROCESS_TIMEOUT}
+ENV ACME_SH_BIN=/usr/bin/acme.sh
 
 RUN apk add --no-cache \
     curl git \
     libpng libjpeg-turbo freetype libwebp libzip postgresql-client imagemagick \
-    python3 py3-pip \
+    python3 py3-pip nginx acme.sh \
     && apk add --no-cache --virtual .build-deps \
        libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev libzip-dev postgresql-dev imagemagick-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
