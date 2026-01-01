@@ -37,6 +37,7 @@ export class PreviewCanvas {
     this.onInlineEdit = typeof options.onInlineEdit === 'function' ? options.onInlineEdit : null;
     this.renderSelectionOnly = options.renderSelectionOnly === true;
     this.intent = ['preview', 'design'].includes(options.intent) ? options.intent : 'edit';
+    this.appearance = options.appearance || null;
     this.blocks = [];
     this.highlightBlockId = null;
     this.hoverBlockId = null;
@@ -95,7 +96,8 @@ export class PreviewCanvas {
     }
     const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
       rendererMatrix: RENDERER_MATRIX,
-      context: 'preview'
+      context: 'preview',
+      appearance: this.appearance || window.pageAppearance || {},
     });
     this.surface.innerHTML = html;
     this.applySelectionHighlight();

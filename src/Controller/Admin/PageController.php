@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Infrastructure\Database;
+use App\Service\DesignTokenService;
 use App\Service\NamespaceResolver;
 use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
@@ -25,6 +26,7 @@ class PageController
     private NamespaceResolver $namespaceResolver;
     private PageBlockContractMigrator $blockMigrator;
     private AuditLogger $audit;
+    private DesignTokenService $designTokens;
 
     /** @var array<string, string[]> */
     private array $editableSlugs = [];
@@ -43,12 +45,15 @@ class PageController
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?PageBlockContractMigrator $blockMigrator = null,
-        ?AuditLogger $audit = null
+        ?AuditLogger $audit = null,
+        ?DesignTokenService $designTokens = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->blockMigrator = $blockMigrator ?? new PageBlockContractMigrator($this->pageService);
-        $this->audit = $audit ?? new AuditLogger(Database::connectFromEnv());
+        $pdo = Database::connectFromEnv();
+        $this->audit = $audit ?? new AuditLogger($pdo);
+        $this->designTokens = $designTokens ?? new DesignTokenService($pdo);
     }
 
     /**
@@ -70,6 +75,11 @@ class PageController
         return $view->render($response, 'admin/pages/edit.twig', [
             'slug' => $slug,
             'content' => $content,
+            'pageNamespace' => $namespace,
+            'appearance' => [
+                'tokens' => $this->designTokens->getTokensForNamespace($namespace),
+                'defaults' => $this->designTokens->getDefaults(),
+            ],
         ]);
     }
 

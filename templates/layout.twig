@@ -180,10 +180,14 @@
   <script src="{{ basePath }}/js/storage.js" defer></script>
   <script src="{{ basePath }}/js/app.js" defer></script>
   <script>window.basePath = '{{ basePath }}';</script>
+  <script>
+    window.pageAppearance = {{ appearance|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+  </script>
   <script src="{{ basePath }}/js/i18n/{{ locale() == 'en' ? 'en-us' : 'de-de' }}.js" defer></script>
   <script type="module">
     const blockRoot = document.querySelector('[data-page-blocks]');
     const basePath = window.basePath || '';
+    const appearance = window.pageAppearance || {};
 
     const parseBlocks = raw => {
       if (!raw) {
@@ -213,6 +217,7 @@
           const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
             rendererMatrix: matrix.RENDERER_MATRIX,
             context: 'frontend',
+            appearance,
           });
           blockRoot.innerHTML = html;
           if (effects?.initEffects) {

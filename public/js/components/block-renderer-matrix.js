@@ -9,7 +9,13 @@ import {
   resolveSectionAppearancePreset,
   validateBlockContract
 } from './block-contract.js';
-import { RENDERER_MATRIX as BASE_RENDERER_MATRIX, escapeAttribute, escapeHtml } from './block-renderer-matrix-data.js';
+import {
+  RENDERER_MATRIX as BASE_RENDERER_MATRIX,
+  escapeAttribute,
+  escapeHtml,
+  setActiveAppearance,
+  withAppearance,
+} from './block-renderer-matrix-data.js';
 
 const RENDERER_MATRIX = { ...BASE_RENDERER_MATRIX, proof: BASE_RENDERER_MATRIX.proof };
 
@@ -60,7 +66,8 @@ export function renderBlockStrict(block, options = {}) {
   const rendererMatrix = resolveRendererMatrix(options.rendererMatrix);
   const renderer = assertRenderable(block, rendererMatrix);
   const context = resolveContext(options.context);
-  const html = renderer(block, { context });
+  const appearance = options.appearance;
+  const html = withAppearance(appearance, () => renderer(block, { context }));
   return withPreviewStatus(block, html, context);
 }
 
@@ -99,9 +106,10 @@ export function renderBlock(block, options = {}) {
 }
 
 export function renderPage(blocks = [], options = {}) {
-  return (Array.isArray(blocks) ? blocks : [])
+  const { appearance } = options;
+  return withAppearance(appearance, () => (Array.isArray(blocks) ? blocks : [])
     .map(block => renderBlockSafe(block, options))
-    .join('\n');
+    .join('\n'));
 }
 
 export function listSupportedBlocks(rendererMatrix = RENDERER_MATRIX) {

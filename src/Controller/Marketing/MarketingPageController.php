@@ -14,6 +14,7 @@ use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
 use App\Service\ConfigService;
+use App\Service\DesignTokenService;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
@@ -74,6 +75,7 @@ class MarketingPageController
     private NamespaceResolver $namespaceResolver;
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
+    private DesignTokenService $designTokens;
 
     public function __construct(
         ?string $slug = null,
@@ -89,7 +91,8 @@ class MarketingPageController
         ?PageModuleService $pageModules = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?ProjectSettingsService $projectSettings = null,
-        ?ConfigService $configService = null
+        ?ConfigService $configService = null,
+        ?DesignTokenService $designTokens = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -106,6 +109,7 @@ class MarketingPageController
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
         $pdo = Database::connectFromEnv();
         $this->configService = $configService ?? new ConfigService($pdo);
+        $this->designTokens = $designTokens ?? new DesignTokenService($pdo, $this->configService);
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -257,6 +261,11 @@ class MarketingPageController
             $designConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
         }
 
+        $appearance = [
+            'tokens' => $this->designTokens->getTokensForNamespace($namespace),
+            'defaults' => $this->designTokens->getDefaults(),
+        ];
+
         $data = [
             'content' => $html,
             'pageBlocks' => $this->extractPageBlocks($html),
@@ -281,6 +290,7 @@ class MarketingPageController
             'config' => $designConfig,
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
+            'appearance' => $appearance,
         ];
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
