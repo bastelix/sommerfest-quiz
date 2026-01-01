@@ -31,7 +31,7 @@ class DomainControllerTest extends TestCase
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
 
         $this->setDatabase($pdo);
 
@@ -86,7 +86,7 @@ class DomainControllerTest extends TestCase
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
 
         $this->setDatabase($pdo);
 
@@ -137,7 +137,7 @@ class DomainControllerTest extends TestCase
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
 
         $this->setDatabase($pdo);
 
@@ -185,7 +185,7 @@ class DomainControllerTest extends TestCase
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
 
         $this->setDatabase($pdo);
 
@@ -250,7 +250,7 @@ class DomainControllerTest extends TestCase
             );
         SQL);
         $pdo->exec('CREATE TABLE settings(key TEXT PRIMARY KEY, value TEXT)');
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
 
         $this->setDatabase($pdo);
 
@@ -277,8 +277,9 @@ class DomainControllerTest extends TestCase
         $this->assertNull($payload['namespace'] ?? null);
         $this->assertSame('promo.example.com', $payload['domain'] ?? null);
 
-        $zoneStmt = $pdo->query('SELECT status FROM certificate_zones WHERE zone = "promo.example.com"');
-        $status = $zoneStmt !== false ? $zoneStmt->fetchColumn() : false;
+        $zoneStmt = $pdo->prepare('SELECT status FROM certificate_zones WHERE zone = ?');
+        $zoneStmt->execute([$domain['zone']]);
+        $status = $zoneStmt->fetchColumn();
         $this->assertSame('pending', $status);
     }
 }

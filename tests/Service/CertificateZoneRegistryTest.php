@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\CertificateZoneRegistry;
+use DateTimeImmutable;
 use Tests\TestCase;
 
 final class CertificateZoneRegistryTest extends TestCase
@@ -24,7 +25,7 @@ final class CertificateZoneRegistryTest extends TestCase
                 is_active INTEGER NOT NULL DEFAULT 1
             );
         SQL);
-        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT)');
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
 
         $pdo->exec(<<<'SQL'
             INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES
@@ -58,5 +59,34 @@ final class CertificateZoneRegistryTest extends TestCase
             ['zone' => 'existing.com', 'provider' => 'dns_hetzner', 'wildcard_enabled' => 0, 'status' => 'pending'],
             ['zone' => 'kaaroo.com', 'provider' => 'dns_cf', 'wildcard_enabled' => 1, 'status' => 'pending'],
         ], $normalized);
+    }
+
+    public function testRenewalWindowsArePersisted(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE certificate_zones (zone TEXT PRIMARY KEY, provider TEXT, wildcard_enabled INTEGER, status TEXT, last_issued_at TEXT, last_error TEXT, next_renewal_after TEXT)');
+
+        $registry = new CertificateZoneRegistry($pdo);
+        $issuedAt = new DateTimeImmutable('2024-01-01 00:00:00+00:00');
+        $registry->ensureZone('example.com');
+        $registry->markIssued('example.com', $issuedAt);
+
+        $row = $pdo->query('SELECT status, last_issued_at, next_renewal_after FROM certificate_zones WHERE zone = "example.com"');
+        $data = $row !== false ? $row->fetch(\PDO::FETCH_ASSOC) : null;
+
+        $this->assertSame('issued', $data['status']);
+        $this->assertSame($issuedAt->format(DateTimeImmutable::ATOM), $data['last_issued_at']);
+        $this->assertSame('2024-03-01T00:00:00+00:00', $data['next_renewal_after']);
+    }
+
+    public function testRenewalEligibilityUsesThreshold(): void
+    {
+        $registry = new CertificateZoneRegistry(new \PDO('sqlite::memory:'));
+        $now = new DateTimeImmutable('2024-03-01 00:00:00+00:00');
+
+        $this->assertTrue($registry->isRenewalEligible(null, $now));
+        $this->assertFalse($registry->isRenewalEligible(new DateTimeImmutable('2024-02-15 00:00:00+00:00'), $now));
+        $this->assertTrue($registry->isRenewalEligible(new DateTimeImmutable('2023-12-31 00:00:00+00:00'), $now));
     }
 }
