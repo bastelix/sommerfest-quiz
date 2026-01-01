@@ -135,6 +135,20 @@ class MarketingDomainProvider
         try {
             $domains = $this->loadMarketingDomainsFromDatabase();
 
+            if ($domains === []) {
+                $configuredDomains = $this->loadConfiguredMarketingDomains();
+
+                if ($configuredDomains !== []) {
+                    return $this->storeMarketingDomainsInCache(
+                        $configuredDomains,
+                        $now,
+                        self::FAILURE_CACHE_TTL
+                    );
+                }
+
+                return $this->storeMarketingDomainsInCache([], $now, 0);
+            }
+
             return $this->storeMarketingDomainsInCache($domains, $now);
         } catch (Throwable $exception) {
             if ($this->marketingCache !== null) {

@@ -59,6 +59,24 @@ final class MarketingDomainProviderTest extends TestCase
         self::assertSame($initial, $second);
     }
 
+    public function testEmptyDatabaseResultExpiresImmediately(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->createSchema($pdo);
+
+        $provider = new MarketingDomainProvider(static fn (): PDO => $pdo);
+
+        self::assertSame([], $provider->getMarketingDomains(stripAdmin: false));
+
+        $service = new DomainService($pdo);
+        $service->createDomain('cached.example.com', isActive: true);
+
+        $domains = $provider->getMarketingDomains(stripAdmin: false);
+
+        self::assertSame(['cached.example.com'], $domains);
+    }
+
     private function createSchema(PDO $pdo): void
     {
         $pdo->exec(
