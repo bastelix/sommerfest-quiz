@@ -115,10 +115,51 @@ class DomainService
         return $this->fetchDomainById($id);
     }
 
-    public function deleteDomain(int $id): void
+    /**
+     * Delete a domain and clean up orphaned certificate zones.
+     *
+     * @return array{zone:string,zone_removed:bool}|null
+     */
+    public function deleteDomain(int $id): ?array
     {
+        $domain = $this->fetchDomainById($id);
+        if ($domain === null) {
+            return null;
+        }
+
         $stmt = $this->pdo->prepare('DELETE FROM domains WHERE id = ?');
         $stmt->execute([$id]);
+
+        $zoneRemoved = $this->removeZoneIfUnused($domain['zone']);
+
+        return [
+            'zone' => $domain['zone'],
+            'zone_removed' => $zoneRemoved,
+        ];
+    }
+
+    /**
+     * Remove the certificate zone if no active domains reference it.
+     */
+    public function removeZoneIfUnused(string $zone): bool
+    {
+        $normalized = strtolower(trim($zone));
+        if ($normalized === '') {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM domains WHERE zone = ? AND is_active = TRUE');
+        $stmt->execute([$normalized]);
+        $activeCount = (int) $stmt->fetchColumn();
+
+        if ($activeCount > 0) {
+            return false;
+        }
+
+        $deleteStmt = $this->pdo->prepare('DELETE FROM certificate_zones WHERE zone = ?');
+        $deleteStmt->execute([$normalized]);
+
+        return $deleteStmt->rowCount() > 0;
     }
 
     public function normalizeDomain(string $domain, bool $stripAdmin = true): string
