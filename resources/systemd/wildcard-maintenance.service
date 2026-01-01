@@ -1,0 +1,15 @@
+[Unit]
+Description=Generate nginx wildcard zones and provision certificates
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/quizrace
+EnvironmentFile=/opt/quizrace/.env
+ExecStart=/opt/quizrace/scripts/wildcard_maintenance.sh
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

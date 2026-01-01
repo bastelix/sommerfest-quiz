@@ -618,6 +618,48 @@ dient als einzige Quelle für TLS-Konfiguration:
   Status der Ausstellung mit Zeitstempel auf; nginx wird nur nach einer
   tatsächlichen Änderung der Zertifikate neu geladen.
 
+### Automatisierung der Wildcard-Zertifikate
+
+Ein stündlicher Systemd-Timer kümmert sich um die statische nginx-Zonenliste
+und die Zertifikats-Erneuerung. Die Unit-Dateien liegen unter
+`resources/systemd/`:
+
+1. Kopiere `resources/systemd/wildcard-maintenance.service` und
+   `resources/systemd/wildcard-maintenance.timer` nach `/etc/systemd/system/`.
+2. Passe `WorkingDirectory` und `EnvironmentFile` an deinen Projektpfad an (z. B.
+   `/opt/quizrace`). Stelle sicher, dass dort `ACME_SH_BIN`,
+   `ACME_WILDCARD_PROVIDER`, `NGINX_WILDCARD_CERT_DIR` und optional
+   `ACME_SH_HOME` gesetzt sind.
+3. Aktiviere den Timer: `systemctl daemon-reload && systemctl enable --now
+   wildcard-maintenance.timer`.
+4. Prüfe die Ausführung und Fehlerlogs mit `journalctl -u
+   wildcard-maintenance.service`.
+
+Der Timer ruft `scripts/wildcard_maintenance.sh` auf. Das Skript läuft im
+Projektwurzelverzeichnis, validiert die benötigten Umgebungsvariablen, führt
+`bin/generate-nginx-zones` und `bin/provision-wildcard-certificates`
+nacheinander aus und protokolliert alles in `logs/wildcard-maintenance.log`.
+Cron-Alternative: `0 * * * * cd /opt/quizrace && /usr/bin/env
+ACME_SH_BIN=/usr/local/bin/acme.sh ACME_WILDCARD_PROVIDER=dns_cf
+NGINX_WILDCARD_CERT_DIR=/etc/ssl/wildcards ./scripts/wildcard_maintenance.sh
+>> /var/log/wildcard-maintenance.log 2>&1`
+
+Marketing-Domains müssen im Admin-Bereich aktiv geschaltet sein, damit die
+Tabelle `certificate_zones` gefüllt wird. Unter **Administration → Domains**
+stellt der **Aktiv**-Schalter sicher, dass jede Domain einer Zone zugeordnet
+und für die Zertifikats-Jobs eingeplant wird. Der Status der Anforderung
+(`pending`/`issued`) lässt sich per SQL kontrollieren:
+
+```sql
+SELECT domain, zone, status, last_issued_at
+FROM certificate_zones
+ORDER BY zone;
+```
+
+Die gleiche Admin-Ansicht bietet den Button **Domains prüfen**, der fehlende
+Zertifikate nachzieht und DNS-Fehler meldet. Anschließend sollten die Logs des
+Maintenance-Skripts auf Fehlermeldungen kontrolliert werden.
+
 `SLIM_LETSENCRYPT_HOST` ist weiterhin verfügbar, sollte aber nur für
 konkrete Hosts (keine Regex-Ausdrücke) genutzt werden. Marketing-Domain-
 Listen in `.env` entfallen vollständig – die Anwendung ist die zentrale
