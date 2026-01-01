@@ -183,7 +183,7 @@ if (is_readable($configPath)) {
 
 $dsn = getenv('POSTGRES_DSN') ?: ($config['postgres_dsn'] ?? null);
 $user = getenv('POSTGRES_USER') ?: ($config['postgres_user'] ?? null);
-$pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: ($config['postgres_pass'] ?? null);
+$pass = getenv('POSTGRES_PASSWORD') ?: ($config['postgres_password'] ?? null);
 
 if (!$dsn) {
     fwrite(STDERR, "Database DSN missing. Set POSTGRES_DSN or configure data/config.json.\n");

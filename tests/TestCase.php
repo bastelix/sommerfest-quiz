@@ -220,10 +220,6 @@ class TestCase extends PHPUnit_TestCase
             putenv('MAIN_DOMAIN=example.com');
             $_ENV['MAIN_DOMAIN'] = 'example.com';
         }
-        if (getenv('MARKETING_DOMAINS') === false) {
-            putenv('MARKETING_DOMAINS');
-            unset($_ENV['MARKETING_DOMAINS']);
-        }
         if (getenv('TURNSTILE_SITE_KEY') !== false) {
             putenv('TURNSTILE_SITE_KEY');
         }

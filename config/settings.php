@@ -16,9 +16,8 @@ if ($envError !== false) {
 
 $settings['postgres_dsn'] = getenv('POSTGRES_DSN') ?: ($settings['postgres_dsn'] ?? null);
 $settings['postgres_user'] = getenv('POSTGRES_USER') ?: ($settings['postgres_user'] ?? null);
-$settings['postgres_pass'] = getenv('POSTGRES_PASSWORD')
-    ?: getenv('POSTGRES_PASS')
-    ?: ($settings['postgres_pass'] ?? null);
+$settings['postgres_password'] = getenv('POSTGRES_PASSWORD')
+    ?: ($settings['postgres_password'] ?? null);
 
 $settings['main_domain'] = getenv('MAIN_DOMAIN') ?: ($settings['main_domain'] ?? null);
 $settings['service_user'] = getenv('SERVICE_USER') ?: ($settings['service_user'] ?? null);

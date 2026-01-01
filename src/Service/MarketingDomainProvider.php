@@ -136,16 +136,6 @@ class MarketingDomainProvider
             $domains = $this->loadMarketingDomainsFromDatabase();
 
             if ($domains === []) {
-                $configuredDomains = $this->loadConfiguredMarketingDomains();
-
-                if ($configuredDomains !== []) {
-                    return $this->storeMarketingDomainsInCache(
-                        $configuredDomains,
-                        $now,
-                        self::FAILURE_CACHE_TTL
-                    );
-                }
-
                 return $this->storeMarketingDomainsInCache([], $now, 0);
             }
 
@@ -153,11 +143,6 @@ class MarketingDomainProvider
         } catch (Throwable $exception) {
             if ($this->marketingCache !== null) {
                 return $this->marketingCache;
-            }
-
-            $fallback = $this->loadConfiguredMarketingDomains();
-            if ($fallback !== []) {
-                return $this->storeMarketingDomainsInCache($fallback, $now, self::FAILURE_CACHE_TTL);
             }
 
             return [];
@@ -273,33 +258,6 @@ class MarketingDomainProvider
         }
 
         return $this->marketingCache;
-    }
-
-    /**
-     * @return list<array{host:string,normalized:string}>
-     */
-    private function loadConfiguredMarketingDomains(): array
-    {
-        $env = getenv('MARKETING_DOMAINS');
-        if ($env === false) {
-            return [];
-        }
-
-        $raw = array_filter(
-            preg_split('/[\s,]+/', strtolower((string) $env)) ?: [],
-            static fn (string $domain): bool => trim($domain) !== ''
-        );
-
-        if ($raw === []) {
-            return [];
-        }
-
-        $rows = array_map(
-            static fn (string $domain): array => ['host' => $domain, 'normalized_host' => ''],
-            $raw
-        );
-
-        return $this->normalizeMarketingDomainRows($rows);
     }
 
     /**

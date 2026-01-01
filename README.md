@@ -240,7 +240,7 @@ und können jederzeit entfernt werden.
 
 ### Nutzername-Sperrlisten importieren
 
-Für größere Aktualisierungen der Sperrliste steht das Skript `scripts/import_username_blocklists.php` bereit. Es verarbeitet beliebig viele CSV- oder JSON-Dateien, entfernt doppelte Einträge pro Kategorie und schreibt die Daten über den `UsernameBlocklistService` in die Datenbank. Die Verbindung erfolgt wie bei den anderen Admin-Skripten über `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` (bzw. `POSTGRES_PASS`).
+Für größere Aktualisierungen der Sperrliste steht das Skript `scripts/import_username_blocklists.php` bereit. Es verarbeitet beliebig viele CSV- oder JSON-Dateien, entfernt doppelte Einträge pro Kategorie und schreibt die Daten über den `UsernameBlocklistService` in die Datenbank. Die Verbindung erfolgt wie bei den anderen Admin-Skripten über `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD`.
 
 ```bash
 php scripts/import_username_blocklists.php data/username_blocklist/sample.csv data/username_blocklist/sample.json
@@ -385,8 +385,7 @@ Ist in der `.env` die Variable `POSTGRES_DSN` gesetzt, legt das Entrypoint-
 Skript beim Start automatisch die Datenbank anhand von `docs/schema.sql` an und
 importiert die vorhandenen JSON-Daten. Danach werden die Migrationen einmalig
 ausgeführt. Neben `POSTGRES_DSN` werden dafür auch
-`POSTGRES_USER`, `POSTGRES_PASSWORD` und `POSTGRES_DB` ausgewertet (zur
-Kompatibilität wird auch `POSTGRES_PASS` noch unterstützt).
+`POSTGRES_USER`, `POSTGRES_PASSWORD` und `POSTGRES_DB` ausgewertet.
 
 ### Bildgrößen anpassen
 
@@ -606,13 +605,33 @@ GRANT CREATE ON DATABASE quiz TO quiz;
 
 Anschließend kann `CREATE SCHEMA` im Hintergrund ausgeführt werden.
 
+### `.env`-Blöcke
+
+Die wichtigsten Umgebungsvariablen werden in der `.env` gebündelt. Der
+Minimal-Block ist zwingend nötig und besteht aus
+
+- `COMPOSE_PROJECT_NAME`
+- `DOMAIN`/`MAIN_DOMAIN`
+- `SLIM_VIRTUAL_HOST`
+- `POSTGRES_DSN`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+- `LETSENCRYPT_EMAIL`
+
+Weitere Werte sind optional. Der TLS-Block bündelt ACME-/nginx-Einstellungen
+(`ACME_*`, `NGINX_WILDCARD_*`, `SLIM_LETSENCRYPT_HOST`, `ENABLE_WILDCARD_SSL`)
+und kann leer bleiben, solange keine Wildcard-Automatisierung benötigt wird.
+Alle Beispiele sind in `sample.env` ausführlich kommentiert; veraltete Felder
+wie `SLIM_VIRTUAL_HOSTS`, `SLIM_LETSENCRYPT_HOSTS` oder `MARKETING_DOMAINS`
+werden ignoriert.
+
 Für den eigentlichen Quiz-Container lässt sich der Hostname über die
 Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
 mit unterschiedlichen Werten, werden die Subdomains automatisch als
-eigene Mandanten behandelt. Marketing-Domains werden ausschließlich in der
-Anwendung hinterlegt (`domains`-Tabelle) und beim Anlegen automatisch einer
-Zone zugeordnet. Die Zone-Liste wird in `certificate_zones` persistiert und
-dient als einzige Quelle für TLS-Konfiguration:
+eigene Mandanten behandelt.
+
+Marketing-Domains werden ausschließlich in der Anwendung hinterlegt
+(`domains`-Tabelle) und beim Anlegen automatisch einer Zone zugeordnet.
+Die Zone-Liste wird in `certificate_zones` persistiert und dient als
+einzige Quelle für TLS-Konfiguration:
 
 - `bin/generate-nginx-zones` erzeugt für jede aktive Zone eine statische
   Datei unter `/etc/nginx/wildcards/<zone>.conf` (HTTP→HTTPS-Redirect, Proxy
@@ -627,8 +646,9 @@ dient als einzige Quelle für TLS-Konfiguration:
 Der vollständige Ablauf für Marketing-Hosts:
 
 1. Domains im Admin-Bereich aktiv schalten (**Administration → Domains**) und prüfen, dass die abgeleiteten Zonen in `certificate_zones` landen (`SELECT * FROM certificate_zones ORDER BY zone;`).
-2. `bin/generate-nginx-zones` und `bin/provision-wildcard-certificates` ausführen (oder den Systemd-Timer aktivieren), damit `<zone>` und `*.zone` in die Wildcard-Anforderung einfließen und nginx die neuen Zonen kennt.
-3. Falls einzelne Marketing-Hosts sofort per Companion bedient werden sollen, in `.env` `SLIM_LETSENCRYPT_HOST` setzen (nur konkrete Hosts, keine Regex). Der Entrypoint übernimmt sie vor dem Filterprozess nach `LETSENCRYPT_HOST`.
+2. Nach dem Aktivieren einer Domain stößt die Admin-API automatisch `scripts/wildcard_maintenance.sh` an, sofern die ACME-Variablen (`ACME_SH_BIN`, `ACME_WILDCARD_PROVIDER`, `NGINX_WILDCARD_CERT_DIR`) gesetzt sind. Andernfalls bleiben die Zonen auf `pending` und der stündliche Timer (siehe unten) übernimmt.
+3. `bin/generate-nginx-zones` und `bin/provision-wildcard-certificates` lassen sich weiterhin manuell ausführen (oder per Systemd-Timer aktivieren), damit `<zone>` und `*.zone` in die Wildcard-Anforderung einfließen und nginx die neuen Zonen kennt.
+4. Falls einzelne Marketing-Hosts sofort per Companion bedient werden sollen, in `.env` `SLIM_LETSENCRYPT_HOST` setzen (nur konkrete Hosts, keine Regex). Der Entrypoint übernimmt sie vor dem Filterprozess nach `LETSENCRYPT_HOST`.
 
 ### Automatisierung der Wildcard-Zertifikate
 
@@ -833,7 +853,7 @@ Alle wesentlichen Einstellungen werden in der Datenbank gespeichert und können 
   "inviteText": "",
   "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
   "postgres_user": "quiz",
-  "postgres_pass": "***"
+  "postgres_password": "***"
 }
 ```
 
