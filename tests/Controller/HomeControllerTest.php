@@ -357,6 +357,44 @@ class HomeControllerTest extends TestCase
         }
     }
 
+    public function testCustomDomainStartpageIgnoresSessionNamespace(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+
+        $pdo->exec('DELETE FROM pages');
+        $pdo->exec(
+            "INSERT INTO pages(namespace, slug, title, content, language, is_startpage) "
+            . "VALUES('default','default-home','Default Home','<p>Default start</p>','de',1)"
+        );
+        $pdo->exec(
+            "INSERT INTO pages(namespace, slug, title, content, language, is_startpage) "
+            . "VALUES('tenant-a','tenant-home','Tenant Home','<p>Tenant start</p>','de',1)"
+        );
+
+        $domainService = new \App\Service\DomainService($pdo);
+        $domainService->createDomain('tenant.test', namespace: 'tenant-a');
+
+        session_start();
+        $_SESSION['active_namespace'] = 'default';
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $request = $request->withUri($request->getUri()->withHost('tenant.test'));
+            $response = $app->handle($request);
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = (string) $response->getBody();
+            $this->assertStringContainsString('Tenant start', $body);
+            $this->assertStringNotContainsString('Default start', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testCustomStartpageOverridesReservedSlug(): void
     {
         $db = $this->setupDb();
