@@ -3,6 +3,8 @@ const DEFAULT_NAMESPACE = 'default';
 const DEFAULT_BRAND_PRIMARY = '#1e87f0';
 const DEFAULT_BRAND_ACCENT = '#f97316';
 
+const designRegistry = {};
+
 const normalizeNamespace = namespace => {
   if (!namespace) {
     return DEFAULT_NAMESPACE;
@@ -10,15 +12,27 @@ const normalizeNamespace = namespace => {
   return String(namespace).trim().toLowerCase() || DEFAULT_NAMESPACE;
 };
 
+const mergeIntoRegistry = (namespace, design) => {
+  const normalized = normalizeNamespace(namespace);
+  if (!design || typeof design !== 'object') {
+    return;
+  }
+  designRegistry[normalized] = design;
+};
+
 const resolveDesignRegistry = () => {
-  if (typeof window === 'undefined') {
-    return {};
+  if (Object.keys(designRegistry).length) {
+    return designRegistry;
   }
-  const registry = window.namespaceDesign;
-  if (registry && typeof registry === 'object') {
-    return registry;
+
+  if (typeof window !== 'undefined') {
+    const registry = window.namespaceDesign;
+    if (registry && typeof registry === 'object') {
+      Object.entries(registry).forEach(([ns, design]) => mergeIntoRegistry(ns, design));
+    }
   }
-  return {};
+
+  return designRegistry;
 };
 
 const resolveDesignForNamespace = namespace => {
@@ -100,4 +114,8 @@ export function resolveNamespaceDesign(namespace) {
   const resolvedNamespace = normalizeNamespace(namespace);
   const design = resolveDesignForNamespace(resolvedNamespace);
   return design || null;
+}
+
+export function registerNamespaceDesign(namespace, design) {
+  mergeIntoRegistry(namespace, design);
 }

@@ -20,7 +20,14 @@
   {% endif %}
 {% endif %}
 {% set mergedBodyClass = normalizedBodyClass ~ (isAdminPage ? (normalizedBodyClass ? ' ' : '') ~ 'admin-shell' : '') %}
-<html lang="{{ locale() }}" data-theme="{{ normalizedBodyTheme }}" data-namespace="{{ normalizedNamespace }}">
+<html
+  lang="{{ locale() }}"
+  data-theme="{{ normalizedBodyTheme }}"
+  data-namespace="{{ normalizedNamespace }}"
+  data-base-path="{{ basePath }}"
+  data-appearance="{{ appearance|default({})|json_encode|e('html_attr') }}"
+  {% if design is defined and design %}data-namespace-design="{{ design|json_encode|e('html_attr') }}"{% endif %}
+>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -123,61 +130,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
-  {% set designData = design is defined and design ? design : null %}
-  <script>
-    window.namespaceDesign = window.namespaceDesign || {};
-    {% if designData %}
-    const designPayload = {{ {
-      appearance: designData.appearance|default({}),
-      effects: designData.effects|default({}),
-    }|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
-    const namespaceKey = {{ designData.namespace|default(normalizedNamespace)|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
-    window.namespaceDesign[namespaceKey] = designPayload;
-    if (namespaceKey !== {{ normalizedNamespace|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }}) {
-      window.namespaceDesign[{{ normalizedNamespace|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }}] = designPayload;
-    }
-    {% endif %}
-  </script>
-  {% if not isAdminPage and designData and designData.appearance.tokens is defined %}
-    <style>
-      :root {
-        {% if designData.appearance.tokens.brand.primary is defined %}--brand-primary: {{ designData.appearance.tokens.brand.primary }};{% endif %}
-        {% if designData.appearance.tokens.brand.accent is defined %}--brand-accent: {{ designData.appearance.tokens.brand.accent }};{% endif %}
-      }
-    </style>
-  {% endif %}
   {% block head %}{% endblock %}
-  {% set rawConfig = config is defined and config ? config : {} %}
-  {% set allowConfigBackgroundRaw %}
-    {% block allow_config_background %}true{% endblock %}
-  {% endset %}
-  {% set allowConfigBackgroundRaw = allowConfigBackgroundRaw|trim %}
-  {% set allowConfigBackground = true %}
-  {% if allowConfigBackgroundRaw is same as(false) %}
-    {% set allowConfigBackground = false %}
-  {% elseif allowConfigBackgroundRaw is same as(true) %}
-    {% set allowConfigBackground = true %}
-  {% elseif allowConfigBackgroundRaw is not null %}
-    {% set normalizedAllowConfigBackground = allowConfigBackgroundRaw|trim|lower %}
-    {% if normalizedAllowConfigBackground in ['false', '0', 'off', 'no'] %}
-      {% set allowConfigBackground = false %}
-    {% endif %}
-  {% endif %}
-  {% set colors = rawConfig.colors is defined and rawConfig.colors ? rawConfig.colors : {} %}
-  {% set primaryColor = colors.primary is defined and colors.primary ? colors.primary : (attribute(rawConfig, 'backgroundColor')|default(null)) %}
-  {% set accentColor = colors.accent is defined and colors.accent ? colors.accent : (attribute(rawConfig, 'buttonColor')|default(null)) %}
-  {% set backgroundColor = attribute(rawConfig, 'backgroundColor')|default(null) ?: (colors.primary is defined and colors.primary ? colors.primary : null) %}
-  {% block config_color_styles %}
-    {% if primaryColor or accentColor or (allowConfigBackground and backgroundColor) %}
-    <style>
-      :root {
-        {% if primaryColor %}--primary-color: {{ primaryColor }};{% endif %}
-        {% if accentColor %}--accent-color: {{ accentColor }};{% endif %}
-        {% if allowConfigBackground and backgroundColor %}--color-bg: {{ backgroundColor }};{% endif %}
-      }
-    </style>
-    {% endif %}
-  {% endblock %}
 </head>
 <body
   data-theme="{{ normalizedBodyTheme }}"
@@ -202,87 +155,8 @@
   <script src="{{ basePath }}/js/uikit-icons.min.js" defer></script>
   <script src="{{ basePath }}/js/storage.js" defer></script>
   <script src="{{ basePath }}/js/app.js" defer></script>
-  <script>window.basePath = '{{ basePath }}';</script>
-  <script>
-    window.pageAppearance = {{ appearance|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
-  </script>
   <script src="{{ basePath }}/js/i18n/{{ locale() == 'en' ? 'en-us' : 'de-de' }}.js" defer></script>
-  <script type="module">
-    const blockRoot = document.querySelector('[data-page-blocks]');
-    const basePath = window.basePath || '';
-    const appearance = window.pageAppearance || {};
-    const namespace = document.documentElement?.dataset?.namespace || 'default';
-
-    const parseBlocks = raw => {
-      if (!raw) {
-        return [];
-      }
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-        if (parsed && typeof parsed === 'object' && Array.isArray(parsed.blocks)) {
-          return parsed.blocks;
-        }
-      } catch (error) {
-        console.error('Failed to parse page blocks', error);
-      }
-      return [];
-    };
-
-    const hydrateDesign = async () => {
-      try {
-        const design = await import(`${basePath}/js/components/namespace-design.js`);
-        const resolvedAppearance = design?.resolveNamespaceAppearance
-          ? design.resolveNamespaceAppearance(namespace, appearance)
-          : appearance;
-
-        if (design?.applyNamespaceDesign) {
-          design.applyNamespaceDesign(document.documentElement, namespace, resolvedAppearance);
-        }
-
-        return { design, resolvedAppearance };
-      } catch (error) {
-        console.error('Failed to apply namespace design', error);
-        return { design: null, resolvedAppearance: appearance };
-      }
-    };
-
-    const hydrateBlocks = async (resolvedAppearance) => {
-      if (!blockRoot || !blockRoot.dataset.pageBlocks) {
-        return;
-      }
-
-      const blocks = parseBlocks(blockRoot.dataset.pageBlocks);
-      try {
-        const [matrix, effects] = await Promise.all([
-          import(`${basePath}/js/components/block-renderer-matrix.js`),
-          import(`${basePath}/js/effects/initEffects.js`)
-        ]);
-
-        const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
-          rendererMatrix: matrix.RENDERER_MATRIX,
-          context: 'frontend',
-          appearance: resolvedAppearance,
-        });
-        blockRoot.innerHTML = html;
-        if (effects?.initEffects) {
-          effects.initEffects(blockRoot, {
-            namespace,
-            mode: 'frontend'
-          });
-        }
-      } catch (error) {
-        console.error('Failed to render page blocks', error);
-        blockRoot.innerHTML = '';
-      }
-    };
-
-    hydrateDesign().then(({ resolvedAppearance }) => {
-      hydrateBlocks(resolvedAppearance);
-    });
-  </script>
+  <script type="module" src="{{ basePath }}/js/frontend-hydrator.js"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
