@@ -1335,6 +1335,65 @@ body.admin-page {
   justify-content: flex-end;
 }
 
+.collection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.collection-list__add {
+  align-self: flex-start;
+}
+
+.collection-list--nested {
+  padding: 4px 4px 0;
+  border-left: 2px solid var(--border-muted, #e5e7eb);
+}
+
+.collection-item {
+  border: 1px solid var(--border-muted, #e5e7eb);
+  border-radius: 10px;
+  background: var(--bg-card, #fff);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.collection-list--nested .collection-item {
+  background: var(--bg-subtle, #f9fbff);
+}
+
+.collection-item__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.collection-item__title {
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.collection-item__meta {
+  color: var(--text-secondary, #6b7280);
+  font-size: 13px;
+}
+
+.collection-item__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.collection-item__body {
+  display: grid;
+  gap: 10px;
+}
+
 .qr-img {
   border-radius: 8px;
   image-rendering: pixelated;

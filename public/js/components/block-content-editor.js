@@ -2498,164 +2498,123 @@ export class BlockContentEditor {
 
     const optionsWrapper = document.createElement('div');
     optionsWrapper.dataset.field = 'options';
-
-    const addOptionBtn = document.createElement('button');
-    addOptionBtn.type = 'button';
-    addOptionBtn.textContent = 'Option hinzufügen';
-    addOptionBtn.addEventListener('click', () => this.addPackageOption(block.id));
-    optionsWrapper.append(addOptionBtn);
+    optionsWrapper.className = 'collection-list';
 
     (block.data.options || []).forEach((option, index) => {
-      const optionCard = document.createElement('div');
-      optionCard.dataset.packageOption = option.id;
-
-      optionCard.append(this.addLabeledInput('ID', option.id, value => this.updatePackageOption(block.id, option.id, 'id', value)));
-      optionCard.append(this.addLabeledInput('Titel', option.title, value => this.updatePackageOption(block.id, option.id, 'title', value)));
-      optionCard.append(this.addLabeledInput('Intro', option.intro, value => this.updatePackageOption(block.id, option.id, 'intro', value), { multiline: true }));
-
       const highlightsWrapper = document.createElement('div');
       highlightsWrapper.dataset.field = 'highlights';
-
-      const addHighlightBtn = document.createElement('button');
-      addHighlightBtn.type = 'button';
-      addHighlightBtn.textContent = 'Highlight hinzufügen';
-      addHighlightBtn.addEventListener('click', () => this.addPackageOptionHighlight(block.id, option.id));
-      highlightsWrapper.append(addHighlightBtn);
+      highlightsWrapper.className = 'collection-list collection-list--nested';
 
       (option.highlights || []).forEach((highlight, highlightIndex) => {
-        const highlightCard = document.createElement('div');
+        const highlightBody = [
+          this.addLabeledInput('Highlight-Titel', highlight.title, value => this.updatePackageOptionHighlight(block.id, option.id, highlightIndex, 'title', value)),
+          this.buildStringList(highlight.bullets, 'Bullet', {
+            add: () => this.addPackageOptionHighlightBullet(block.id, option.id, highlightIndex),
+            update: (itemIndex, value) => this.updatePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, value),
+            remove: itemIndex => this.removePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex),
+            move: (itemIndex, delta) => this.movePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, delta)
+          })
+        ];
 
-        highlightCard.append(this.addLabeledInput('Highlight-Titel', highlight.title, value => this.updatePackageOptionHighlight(block.id, option.id, highlightIndex, 'title', value)));
+        const highlightCard = this.createCollectionCard({
+          title: (highlight.title || '').trim() || `Highlight ${highlightIndex + 1}`,
+          meta: `Highlight ${highlightIndex + 1}`,
+          index: highlightIndex,
+          onRemove: () => this.removePackageOptionHighlight(block.id, option.id, highlightIndex),
+          onMoveUp: () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, -1),
+          onMoveDown: () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, 1),
+          moveUpDisabled: highlightIndex === 0,
+          moveDownDisabled: highlightIndex === (option.highlights || []).length - 1,
+          removeDisabled: (option.highlights || []).length <= 1,
+          body: highlightBody
+        });
 
-        highlightCard.append(this.buildStringList(highlight.bullets, 'Bullet', {
-          add: () => this.addPackageOptionHighlightBullet(block.id, option.id, highlightIndex),
-          update: (itemIndex, value) => this.updatePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, value),
-          remove: itemIndex => this.removePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex),
-          move: (itemIndex, delta) => this.movePackageOptionHighlightBullet(block.id, option.id, highlightIndex, itemIndex, delta)
-        }));
-
-        const highlightControls = document.createElement('div');
-        const removeHighlight = document.createElement('button');
-        removeHighlight.type = 'button';
-        removeHighlight.textContent = 'Highlight entfernen';
-        removeHighlight.disabled = (option.highlights || []).length <= 1;
-        removeHighlight.addEventListener('click', () => this.removePackageOptionHighlight(block.id, option.id, highlightIndex));
-
-        const moveHighlightUp = document.createElement('button');
-        moveHighlightUp.type = 'button';
-        moveHighlightUp.textContent = '↑';
-        moveHighlightUp.disabled = highlightIndex === 0;
-        moveHighlightUp.addEventListener('click', () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, -1));
-
-        const moveHighlightDown = document.createElement('button');
-        moveHighlightDown.type = 'button';
-        moveHighlightDown.textContent = '↓';
-        moveHighlightDown.disabled = highlightIndex === (option.highlights || []).length - 1;
-        moveHighlightDown.addEventListener('click', () => this.movePackageOptionHighlight(block.id, option.id, highlightIndex, 1));
-
-        highlightControls.append(removeHighlight, moveHighlightUp, moveHighlightDown);
-        highlightCard.append(highlightControls);
         highlightsWrapper.append(highlightCard);
       });
 
-      optionCard.append(highlightsWrapper);
+      highlightsWrapper.append(this.createCollectionAddButton('Highlight hinzufügen', () => this.addPackageOptionHighlight(block.id, option.id)));
 
-      const optionControls = document.createElement('div');
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.textContent = 'Option entfernen';
-      removeBtn.disabled = (block.data.options || []).length <= 1;
-      removeBtn.addEventListener('click', () => this.removePackageOption(block.id, option.id));
+      const optionBody = [
+        this.addLabeledInput('ID', option.id, value => this.updatePackageOption(block.id, option.id, 'id', value)),
+        this.addLabeledInput('Titel', option.title, value => this.updatePackageOption(block.id, option.id, 'title', value)),
+        this.addLabeledInput('Intro', option.intro, value => this.updatePackageOption(block.id, option.id, 'intro', value), { multiline: true }),
+        highlightsWrapper
+      ];
 
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.textContent = '↑';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.movePackageOption(block.id, option.id, -1));
+      const optionCard = this.createCollectionCard({
+        title: (option.title || option.id || '').trim() || `Option ${index + 1}`,
+        meta: `Option ${index + 1}`,
+        index,
+        onRemove: () => this.removePackageOption(block.id, option.id),
+        onMoveUp: () => this.movePackageOption(block.id, option.id, -1),
+        onMoveDown: () => this.movePackageOption(block.id, option.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.options || []).length - 1,
+        removeDisabled: (block.data.options || []).length <= 1,
+        body: optionBody
+      });
 
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.textContent = '↓';
-      moveDown.disabled = index === (block.data.options || []).length - 1;
-      moveDown.addEventListener('click', () => this.movePackageOption(block.id, option.id, 1));
-
-      optionControls.append(removeBtn, moveUp, moveDown);
-      optionCard.append(optionControls);
       optionsWrapper.append(optionCard);
     });
 
+    optionsWrapper.append(this.createCollectionAddButton('Option hinzufügen', () => this.addPackageOption(block.id)));
     wrapper.append(optionsWrapper);
 
     const plansWrapper = document.createElement('div');
     plansWrapper.dataset.field = 'plans';
-
-    const addPlanBtn = document.createElement('button');
-    addPlanBtn.type = 'button';
-    addPlanBtn.textContent = 'Paket hinzufügen';
-    addPlanBtn.addEventListener('click', () => this.addPackagePlan(block.id));
-    plansWrapper.append(addPlanBtn);
+    plansWrapper.className = 'collection-list';
 
     (block.data.plans || []).forEach((plan, index) => {
-      const planCard = document.createElement('div');
-      planCard.dataset.packagePlan = plan.id;
-
-      planCard.append(this.addLabeledInput('ID', plan.id, value => this.updatePackagePlan(block.id, plan.id, 'id', value)));
-      planCard.append(this.addLabeledInput('Titel', plan.title, value => this.updatePackagePlan(block.id, plan.id, 'title', value)));
-      planCard.append(this.addLabeledInput('Badge', plan.badge, value => this.updatePackagePlan(block.id, plan.id, 'badge', value)));
-      planCard.append(this.addLabeledInput('Beschreibung', plan.description, value => this.updatePackagePlan(block.id, plan.id, 'description', value), { multiline: true }));
-
-      planCard.append(this.buildStringList(plan.features, 'Feature', {
-        add: () => this.addPackagePlanListItem(block.id, plan.id, 'features'),
-        update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'features', itemIndex, value),
-        remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'features', itemIndex),
-        move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'features', itemIndex, delta)
-      }));
-
-      planCard.append(this.buildStringList(plan.notes, 'Hinweis', {
-        add: () => this.addPackagePlanListItem(block.id, plan.id, 'notes'),
-        update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, value),
-        remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'notes', itemIndex),
-        move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, delta)
-      }));
+      const planBody = [
+        this.addLabeledInput('ID', plan.id, value => this.updatePackagePlan(block.id, plan.id, 'id', value)),
+        this.addLabeledInput('Titel', plan.title, value => this.updatePackagePlan(block.id, plan.id, 'title', value)),
+        this.addLabeledInput('Badge', plan.badge, value => this.updatePackagePlan(block.id, plan.id, 'badge', value)),
+        this.addLabeledInput('Beschreibung', plan.description, value => this.updatePackagePlan(block.id, plan.id, 'description', value), { multiline: true }),
+        this.buildStringList(plan.features, 'Feature', {
+          add: () => this.addPackagePlanListItem(block.id, plan.id, 'features'),
+          update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'features', itemIndex, value),
+          remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'features', itemIndex),
+          move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'features', itemIndex, delta)
+        }),
+        this.buildStringList(plan.notes, 'Hinweis', {
+          add: () => this.addPackagePlanListItem(block.id, plan.id, 'notes'),
+          update: (itemIndex, value) => this.updatePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, value),
+          remove: itemIndex => this.removePackagePlanListItem(block.id, plan.id, 'notes', itemIndex),
+          move: (itemIndex, delta) => this.movePackagePlanListItem(block.id, plan.id, 'notes', itemIndex, delta)
+        })
+      ];
 
       const ctaWrapper = document.createElement('div');
       ctaWrapper.dataset.field = 'primaryCta';
       ctaWrapper.append(this.addLabeledInput('Primäre CTA (Label)', plan.primaryCta?.label, value => this.updatePackagePlan(block.id, plan.id, ['primaryCta', 'label'], value)));
       ctaWrapper.append(this.addLabeledInput('Primäre CTA (Link)', plan.primaryCta?.href, value => this.updatePackagePlan(block.id, plan.id, ['primaryCta', 'href'], value)));
       ctaWrapper.append(this.addLabeledInput('Primäre CTA (Aria-Label)', plan.primaryCta?.ariaLabel, value => this.updatePackagePlan(block.id, plan.id, ['primaryCta', 'ariaLabel'], value)));
-      planCard.append(ctaWrapper);
+      planBody.append(ctaWrapper);
 
       const secondaryCtaWrapper = document.createElement('div');
       secondaryCtaWrapper.dataset.field = 'secondaryCta';
       secondaryCtaWrapper.append(this.addLabeledInput('Sekundäre CTA (Label)', plan.secondaryCta?.label, value => this.updatePackagePlan(block.id, plan.id, ['secondaryCta', 'label'], value)));
       secondaryCtaWrapper.append(this.addLabeledInput('Sekundäre CTA (Link)', plan.secondaryCta?.href, value => this.updatePackagePlan(block.id, plan.id, ['secondaryCta', 'href'], value)));
       secondaryCtaWrapper.append(this.addLabeledInput('Sekundäre CTA (Aria-Label)', plan.secondaryCta?.ariaLabel, value => this.updatePackagePlan(block.id, plan.id, ['secondaryCta', 'ariaLabel'], value)));
-      planCard.append(secondaryCtaWrapper);
+      planBody.append(secondaryCtaWrapper);
 
-      const planControls = document.createElement('div');
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.textContent = 'Paket entfernen';
-      removeBtn.disabled = (block.data.plans || []).length <= 1;
-      removeBtn.addEventListener('click', () => this.removePackagePlan(block.id, plan.id));
+      const planCard = this.createCollectionCard({
+        title: (plan.title || plan.badge || '').trim() || `Paket ${index + 1}`,
+        meta: `Paket ${index + 1}`,
+        index,
+        onRemove: () => this.removePackagePlan(block.id, plan.id),
+        onMoveUp: () => this.movePackagePlan(block.id, plan.id, -1),
+        onMoveDown: () => this.movePackagePlan(block.id, plan.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.plans || []).length - 1,
+        removeDisabled: (block.data.plans || []).length <= 1,
+        body: planBody
+      });
 
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.textContent = '↑';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.movePackagePlan(block.id, plan.id, -1));
-
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.textContent = '↓';
-      moveDown.disabled = index === (block.data.plans || []).length - 1;
-      moveDown.addEventListener('click', () => this.movePackagePlan(block.id, plan.id, 1));
-
-      planControls.append(removeBtn, moveUp, moveDown);
-      planCard.append(planControls);
       plansWrapper.append(planCard);
     });
 
+    plansWrapper.append(this.createCollectionAddButton('Paket hinzufügen', () => this.addPackagePlan(block.id)));
     wrapper.append(plansWrapper);
     wrapper.append(this.addLabeledInput('Disclaimer', block.data.disclaimer, value => this.updateBlockData(block.id, ['data', 'disclaimer'], value), { multiline: true }));
 
@@ -2670,63 +2629,48 @@ export class BlockContentEditor {
 
     const casesWrapper = document.createElement('div');
     casesWrapper.dataset.field = 'cases';
-
-    const addCaseBtn = document.createElement('button');
-    addCaseBtn.type = 'button';
-    addCaseBtn.textContent = 'Use Case hinzufügen';
-    addCaseBtn.addEventListener('click', () => this.addAudienceCase(block.id));
-    casesWrapper.append(addCaseBtn);
+    casesWrapper.className = 'collection-list';
 
     (block.data.cases || []).forEach((audienceCase, index) => {
-      const card = document.createElement('div');
-      card.dataset.audienceCase = audienceCase.id;
+      const body = [
+        this.addLabeledInput('ID', audienceCase.id, value => this.updateAudienceCase(block.id, audienceCase.id, 'id', value)),
+        this.addLabeledInput('Badge', audienceCase.badge, value => this.updateAudienceCase(block.id, audienceCase.id, 'badge', value)),
+        this.addLabeledInput('Titel', audienceCase.title, value => this.updateAudienceCase(block.id, audienceCase.id, 'title', value)),
+        this.addLabeledInput('Lead', audienceCase.lead, value => this.updateAudienceCase(block.id, audienceCase.id, 'lead', value), { multiline: true }),
+        this.addLabeledInput('Body', audienceCase.body, value => this.updateAudienceCase(block.id, audienceCase.id, 'body', value), { multiline: true, rows: 4 }),
+        this.buildStringList(audienceCase.bullets, 'Bullet', {
+          add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'bullets'),
+          update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, value),
+          remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex),
+          move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, delta)
+        }),
+        this.buildStringList(audienceCase.keyFacts, 'Key Fact', {
+          add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts'),
+          update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, value),
+          remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex),
+          move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, delta)
+        }),
+        this.addLabeledInput('Medienbild', audienceCase.media?.image, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'image'], value)),
+        this.addLabeledInput('Alt-Text', audienceCase.media?.alt, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'alt'], value))
+      ];
 
-      card.append(this.addLabeledInput('ID', audienceCase.id, value => this.updateAudienceCase(block.id, audienceCase.id, 'id', value)));
-      card.append(this.addLabeledInput('Badge', audienceCase.badge, value => this.updateAudienceCase(block.id, audienceCase.id, 'badge', value)));
-      card.append(this.addLabeledInput('Titel', audienceCase.title, value => this.updateAudienceCase(block.id, audienceCase.id, 'title', value)));
-      card.append(this.addLabeledInput('Lead', audienceCase.lead, value => this.updateAudienceCase(block.id, audienceCase.id, 'lead', value), { multiline: true }));
-      card.append(this.addLabeledInput('Body', audienceCase.body, value => this.updateAudienceCase(block.id, audienceCase.id, 'body', value), { multiline: true, rows: 4 }));
+      const card = this.createCollectionCard({
+        title: (audienceCase.title || audienceCase.badge || '').trim() || `Use Case ${index + 1}`,
+        meta: `Eintrag ${index + 1}`,
+        index,
+        onRemove: () => this.removeAudienceCase(block.id, audienceCase.id),
+        onMoveUp: () => this.moveAudienceCase(block.id, audienceCase.id, -1),
+        onMoveDown: () => this.moveAudienceCase(block.id, audienceCase.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.cases || []).length - 1,
+        removeDisabled: (block.data.cases || []).length <= 1,
+        body
+      });
 
-      card.append(this.buildStringList(audienceCase.bullets, 'Bullet', {
-        add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'bullets'),
-        update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, value),
-        remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex),
-        move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'bullets', itemIndex, delta)
-      }));
-
-      card.append(this.buildStringList(audienceCase.keyFacts, 'Key Fact', {
-        add: () => this.addAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts'),
-        update: (itemIndex, value) => this.updateAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, value),
-        remove: itemIndex => this.removeAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex),
-        move: (itemIndex, delta) => this.moveAudienceCaseListItem(block.id, audienceCase.id, 'keyFacts', itemIndex, delta)
-      }));
-
-      card.append(this.addLabeledInput('Medienbild', audienceCase.media?.image, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'image'], value)));
-      card.append(this.addLabeledInput('Alt-Text', audienceCase.media?.alt, value => this.updateAudienceCase(block.id, audienceCase.id, ['media', 'alt'], value)));
-
-      const controls = document.createElement('div');
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.textContent = 'Use Case entfernen';
-      removeBtn.disabled = (block.data.cases || []).length <= 1;
-      removeBtn.addEventListener('click', () => this.removeAudienceCase(block.id, audienceCase.id));
-
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.textContent = '↑';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.moveAudienceCase(block.id, audienceCase.id, -1));
-
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.textContent = '↓';
-      moveDown.disabled = index === (block.data.cases || []).length - 1;
-      moveDown.addEventListener('click', () => this.moveAudienceCase(block.id, audienceCase.id, 1));
-
-      controls.append(removeBtn, moveUp, moveDown);
-      card.append(controls);
       casesWrapper.append(card);
     });
+
+    casesWrapper.append(this.createCollectionAddButton('Use Case hinzufügen', () => this.addAudienceCase(block.id)));
 
     wrapper.append(casesWrapper);
     return wrapper;
@@ -3237,46 +3181,36 @@ export class BlockContentEditor {
 
     const itemsWrapper = document.createElement('div');
     itemsWrapper.dataset.field = 'items';
-
-    const addItemBtn = document.createElement('button');
-    addItemBtn.type = 'button';
-    addItemBtn.textContent = 'Feature hinzufügen';
-    addItemBtn.addEventListener('click', () => this.addFeatureItem(block.id));
-    itemsWrapper.append(addItemBtn);
+    itemsWrapper.className = 'collection-list';
 
     (block.data.items || []).forEach((item, index) => {
-      const itemCard = document.createElement('div');
-      itemCard.dataset.featureItem = item.id;
-
-      itemCard.append(this.addLabeledInput('Icon', item.icon, value => this.updateFeatureItem(block.id, item.id, 'icon', value)));
-      itemCard.append(this.addLabeledInput('Titel', item.title, value => this.updateFeatureItem(block.id, item.id, 'title', value)));
-
       const descField = document.createElement('div');
       descField.dataset.richtext = 'true';
       this.mountRichText(descField, item.description, value => this.updateFeatureItem(block.id, item.id, 'description', value));
-      itemCard.append(this.wrapField('Beschreibung', descField));
 
-      const itemControls = document.createElement('div');
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.textContent = 'Entfernen';
-      removeBtn.disabled = (block.data.items || []).length <= 1;
-      removeBtn.addEventListener('click', () => this.removeFeatureItem(block.id, item.id));
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.textContent = '↑';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.moveFeatureItem(block.id, item.id, -1));
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.textContent = '↓';
-      moveDown.disabled = index === block.data.items.length - 1;
-      moveDown.addEventListener('click', () => this.moveFeatureItem(block.id, item.id, 1));
-      itemControls.append(removeBtn, moveUp, moveDown);
-      itemCard.append(itemControls);
+      const body = [
+        this.addLabeledInput('Icon', item.icon, value => this.updateFeatureItem(block.id, item.id, 'icon', value)),
+        this.addLabeledInput('Titel', item.title, value => this.updateFeatureItem(block.id, item.id, 'title', value)),
+        this.wrapField('Beschreibung', descField)
+      ];
 
-      itemsWrapper.append(itemCard);
+      const card = this.createCollectionCard({
+        title: (item.title || item.description || '').trim() || `Feature ${index + 1}`,
+        meta: `Feature ${index + 1}`,
+        index,
+        onRemove: () => this.removeFeatureItem(block.id, item.id),
+        onMoveUp: () => this.moveFeatureItem(block.id, item.id, -1),
+        onMoveDown: () => this.moveFeatureItem(block.id, item.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.items || []).length - 1,
+        removeDisabled: (block.data.items || []).length <= 1,
+        body
+      });
+
+      itemsWrapper.append(card);
     });
+
+    itemsWrapper.append(this.createCollectionAddButton('Feature hinzufügen', () => this.addFeatureItem(block.id)));
 
     wrapper.append(itemsWrapper);
     return wrapper;
@@ -3356,81 +3290,39 @@ export class BlockContentEditor {
     );
     wrapper.append(titleSection);
 
-    const itemsSection = createFieldSection('Fragen & Antworten', 'Klappe einzelne Fragen auf, um Details zu bearbeiten.');
+    const itemsSection = createFieldSection('Fragen & Antworten', 'Klare Trennung und schnelle Navigation zwischen FAQs.');
 
-    const listActions = document.createElement('div');
-    listActions.className = 'block-repeater-card__actions';
-    const addItemBtn = document.createElement('button');
-    addItemBtn.type = 'button';
-    addItemBtn.className = 'uk-button uk-button-default';
-    addItemBtn.textContent = 'Frage hinzufügen';
-    addItemBtn.addEventListener('click', () => this.addFaqItem(block.id));
-    listActions.append(addItemBtn);
-    itemsSection.append(listActions);
+    const list = document.createElement('div');
+    list.className = 'collection-list';
+    list.dataset.field = 'faq-items';
 
     (block.data.items || []).forEach((item, index) => {
-      const itemCard = document.createElement('details');
-      itemCard.dataset.faqItem = item.id;
-      itemCard.className = 'block-repeater-card';
-      if (index === 0) {
-        itemCard.open = true;
-      }
-
-      const summary = document.createElement('summary');
-      const title = document.createElement('div');
-      title.className = 'block-repeater-card__title';
-      title.textContent = (item.question || '').trim() || `Frage ${index + 1}`;
-
-      const meta = document.createElement('div');
-      meta.className = 'block-repeater-card__meta';
-      meta.textContent = `Eintrag ${index + 1}`;
-
-      summary.append(title, meta);
-      itemCard.append(summary);
-
-      const body = document.createElement('div');
-      body.className = 'block-repeater-card__body';
-
-      body.append(
-        this.addLabeledInput('Frage', item.question, value => this.updateFaqItem(block.id, item.id, 'question', value))
-      );
-      body.append(
+      const body = [
+        this.addLabeledInput('Frage', item.question, value => this.updateFaqItem(block.id, item.id, 'question', value)),
         this.addLabeledInput('Antwort', item.answer, value => this.updateFaqItem(block.id, item.id, 'answer', value), {
           multiline: true,
           rows: 3
         })
-      );
+      ];
 
-      const controls = document.createElement('div');
-      controls.className = 'block-repeater-card__actions';
+      const card = this.createCollectionCard({
+        title: (item.question || '').trim() || `Frage ${index + 1}`,
+        meta: `Eintrag ${index + 1}`,
+        index,
+        onRemove: () => this.removeFaqItem(block.id, item.id),
+        onMoveUp: () => this.moveFaqItem(block.id, item.id, -1),
+        onMoveDown: () => this.moveFaqItem(block.id, item.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.items || []).length - 1,
+        removeDisabled: (block.data.items || []).length <= 1,
+        body
+      });
 
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className = 'uk-button uk-button-default';
-      removeBtn.textContent = 'Entfernen';
-      removeBtn.disabled = (block.data.items || []).length <= 1;
-      removeBtn.addEventListener('click', () => this.removeFaqItem(block.id, item.id));
-
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.className = 'uk-button uk-button-default';
-      moveUp.textContent = 'Nach oben';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.moveFaqItem(block.id, item.id, -1));
-
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.className = 'uk-button uk-button-default';
-      moveDown.textContent = 'Nach unten';
-      moveDown.disabled = index === (block.data.items || []).length - 1;
-      moveDown.addEventListener('click', () => this.moveFaqItem(block.id, item.id, 1));
-
-      controls.append(removeBtn, moveUp, moveDown);
-      body.append(controls);
-      itemCard.append(body);
-      itemsSection.append(itemCard);
+      list.append(card);
     });
 
+    list.append(this.createCollectionAddButton('Frage hinzufügen', () => this.addFaqItem(block.id)));
+    itemsSection.append(list);
     wrapper.append(itemsSection);
 
     const followUpSection = createFieldSection('Weiterführende Hinweise', 'Optionaler Hinweis oder Link unterhalb der Fragen.', {
@@ -3462,63 +3354,41 @@ export class BlockContentEditor {
 
     const metricsWrapper = document.createElement('div');
     metricsWrapper.dataset.field = 'metrics';
-
-    const addMetricBtn = document.createElement('button');
-    addMetricBtn.type = 'button';
-    addMetricBtn.textContent = 'Kennzahl hinzufügen';
-    addMetricBtn.addEventListener('click', () => this.addStatStripMetric(block.id));
-    metricsWrapper.append(addMetricBtn);
+    metricsWrapper.className = 'collection-list';
 
     (block.data.metrics || []).forEach((metric, index) => {
-      const metricCard = document.createElement('div');
-      metricCard.dataset.statMetric = metric.id;
-
-      metricCard.append(this.addLabeledInput('ID', metric.id, value => this.updateStatStripMetric(block.id, metric.id, 'id', value)));
-      metricCard.append(
-        this.addLabeledInput('Wert', metric.value, value => this.updateStatStripMetric(block.id, metric.id, 'value', value))
-      );
-      metricCard.append(
-        this.addLabeledInput('Label', metric.label, value => this.updateStatStripMetric(block.id, metric.id, 'label', value))
-      );
-      metricCard.append(this.addLabeledInput('Icon', metric.icon, value => this.updateStatStripMetric(block.id, metric.id, 'icon', value)));
-      metricCard.append(
-        this.addLabeledInput('Tooltip', metric.tooltip, value => this.updateStatStripMetric(block.id, metric.id, 'tooltip', value))
-      );
-      metricCard.append(
-        this.addLabeledInput('Stand (as of)', metric.asOf, value => this.updateStatStripMetric(block.id, metric.id, 'asOf', value))
-      );
-      metricCard.append(
+      const body = [
+        this.addLabeledInput('ID', metric.id, value => this.updateStatStripMetric(block.id, metric.id, 'id', value)),
+        this.addLabeledInput('Wert', metric.value, value => this.updateStatStripMetric(block.id, metric.id, 'value', value)),
+        this.addLabeledInput('Label', metric.label, value => this.updateStatStripMetric(block.id, metric.id, 'label', value)),
+        this.addLabeledInput('Icon', metric.icon, value => this.updateStatStripMetric(block.id, metric.id, 'icon', value)),
+        this.addLabeledInput('Tooltip', metric.tooltip, value => this.updateStatStripMetric(block.id, metric.id, 'tooltip', value)),
+        this.addLabeledInput('Stand (as of)', metric.asOf, value => this.updateStatStripMetric(block.id, metric.id, 'asOf', value)),
         this.addLabeledInput(
           'Supporting text',
           metric.benefit,
           value => this.updateStatStripMetric(block.id, metric.id, 'benefit', value),
           { multiline: true, rows: 2 }
         )
-      );
+      ];
 
-      const controls = document.createElement('div');
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.textContent = 'Entfernen';
-      removeBtn.disabled = (block.data.metrics || []).length <= 1;
-      removeBtn.addEventListener('click', () => this.removeStatStripMetric(block.id, metric.id));
+      const card = this.createCollectionCard({
+        title: (metric.label || metric.value || '').trim() || `Kennzahl ${index + 1}`,
+        meta: `Eintrag ${index + 1}`,
+        index,
+        onRemove: () => this.removeStatStripMetric(block.id, metric.id),
+        onMoveUp: () => this.moveStatStripMetric(block.id, metric.id, -1),
+        onMoveDown: () => this.moveStatStripMetric(block.id, metric.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.metrics || []).length - 1,
+        removeDisabled: (block.data.metrics || []).length <= 1,
+        body
+      });
 
-      const moveUp = document.createElement('button');
-      moveUp.type = 'button';
-      moveUp.textContent = '↑';
-      moveUp.disabled = index === 0;
-      moveUp.addEventListener('click', () => this.moveStatStripMetric(block.id, metric.id, -1));
-
-      const moveDown = document.createElement('button');
-      moveDown.type = 'button';
-      moveDown.textContent = '↓';
-      moveDown.disabled = index === (block.data.metrics || []).length - 1;
-      moveDown.addEventListener('click', () => this.moveStatStripMetric(block.id, metric.id, 1));
-
-      controls.append(removeBtn, moveUp, moveDown);
-      metricCard.append(controls);
-      metricsWrapper.append(metricCard);
+      metricsWrapper.append(card);
     });
+
+    metricsWrapper.append(this.createCollectionAddButton('Kennzahl hinzufügen', () => this.addStatStripMetric(block.id)));
 
     wrapper.append(metricsWrapper);
 
@@ -3535,6 +3405,94 @@ export class BlockContentEditor {
     wrapper.append(marqueeWrapper);
 
     return wrapper;
+  }
+
+  createCollectionActionButton(label, handler, options = {}) {
+    if (typeof handler !== 'function') {
+      return null;
+    }
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'uk-button uk-button-default uk-button-small collection-item__action';
+    button.textContent = label;
+    if (options.title) {
+      button.title = options.title;
+    }
+    if (options.disabled) {
+      button.disabled = true;
+    }
+    button.addEventListener('click', handler);
+    return button;
+  }
+
+  createCollectionCard(options = {}) {
+    const {
+      title,
+      meta,
+      body = [],
+      onRemove,
+      onMoveUp,
+      onMoveDown,
+      moveUpDisabled = false,
+      moveDownDisabled = false,
+      removeDisabled = false
+    } = options;
+
+    const card = document.createElement('div');
+    card.className = 'collection-item';
+
+    const header = document.createElement('div');
+    header.className = 'collection-item__header';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'collection-item__title';
+    titleEl.textContent = (title || '').trim() || 'Eintrag';
+    header.append(titleEl);
+
+    if (meta) {
+      const metaEl = document.createElement('div');
+      metaEl.className = 'collection-item__meta';
+      metaEl.textContent = meta;
+      header.append(metaEl);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'collection-item__actions';
+
+    const moveUpBtn = this.createCollectionActionButton('Nach oben', onMoveUp, { disabled: moveUpDisabled });
+    const moveDownBtn = this.createCollectionActionButton('Nach unten', onMoveDown, { disabled: moveDownDisabled });
+    const removeBtn = this.createCollectionActionButton('Entfernen', onRemove, { disabled: removeDisabled });
+
+    [moveUpBtn, moveDownBtn, removeBtn].forEach(btn => {
+      if (btn) {
+        actions.append(btn);
+      }
+    });
+
+    header.append(actions);
+    card.append(header);
+
+    const bodyContainer = document.createElement('div');
+    bodyContainer.className = 'collection-item__body';
+    body.forEach(entry => {
+      if (entry) {
+        bodyContainer.append(entry);
+      }
+    });
+    card.append(bodyContainer);
+
+    return card;
+  }
+
+  createCollectionAddButton(label, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'uk-button uk-button-default collection-list__add';
+    button.textContent = label;
+    if (typeof onClick === 'function') {
+      button.addEventListener('click', onClick);
+    }
+    return button;
   }
 
   wrapField(labelText, element, options = {}) {
