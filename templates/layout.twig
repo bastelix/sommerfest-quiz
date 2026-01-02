@@ -234,18 +234,26 @@
       const blocks = parseBlocks(blockRoot.dataset.pageBlocks);
       Promise.all([
         import(`${basePath}/js/components/block-renderer-matrix.js`),
-        import(`${basePath}/js/effects/initEffects.js`)
+        import(`${basePath}/js/effects/initEffects.js`),
+        import(`${basePath}/js/components/namespace-design.js`)
       ])
-        .then(([matrix, effects]) => {
+        .then(([matrix, effects, design]) => {
+          const namespace = document.documentElement?.dataset?.namespace || 'default';
+          const resolvedAppearance = design?.resolveNamespaceAppearance
+            ? design.resolveNamespaceAppearance(namespace, appearance)
+            : appearance;
+          if (design?.applyNamespaceDesign) {
+            design.applyNamespaceDesign(document.documentElement, namespace, resolvedAppearance);
+          }
           const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
             rendererMatrix: matrix.RENDERER_MATRIX,
             context: 'frontend',
-            appearance,
+            appearance: resolvedAppearance,
           });
           blockRoot.innerHTML = html;
           if (effects?.initEffects) {
             effects.initEffects(blockRoot, {
-              namespace: document.documentElement?.dataset?.namespace || 'default',
+              namespace,
               mode: 'frontend'
             });
           }
