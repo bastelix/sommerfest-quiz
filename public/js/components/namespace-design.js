@@ -4,7 +4,6 @@ const DEFAULT_BRAND_PRIMARY = '#1e87f0';
 const DEFAULT_BRAND_ACCENT = '#f97316';
 
 const designRegistry = {};
-let hasBootstrappedRegistry = false;
 
 const normalizeNamespace = namespace => {
   if (!namespace) {
@@ -21,37 +20,7 @@ const mergeIntoRegistry = (namespace, design) => {
   designRegistry[normalized] = design;
 };
 
-const bootstrapRegistryFromDocument = () => {
-  if (hasBootstrappedRegistry) {
-    return;
-  }
-  hasBootstrappedRegistry = true;
-
-  if (typeof document === 'undefined') {
-    return;
-  }
-
-  const payload = document.documentElement?.dataset?.namespaceDesign;
-  if (!payload) {
-    return;
-  }
-
-  try {
-    const parsed = JSON.parse(payload);
-    const candidates = Array.isArray(parsed) ? parsed : [parsed];
-    candidates
-      .filter(entry => entry && typeof entry === 'object')
-      .forEach(entry => mergeIntoRegistry(entry.namespace, entry));
-  } catch (error) {
-    console.error('Failed to bootstrap namespace design registry', error);
-  }
-};
-
 const resolveDesignRegistry = () => {
-  if (!Object.keys(designRegistry).length) {
-    bootstrapRegistryFromDocument();
-  }
-
   return designRegistry;
 };
 
