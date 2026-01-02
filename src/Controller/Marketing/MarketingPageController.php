@@ -1090,17 +1090,14 @@ class MarketingPageController
     private function loadDesign(string $namespace): array
     {
         $config = $this->configService->getConfigForEvent($namespace);
-        $resolvedNamespace = $namespace;
-
         if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
             if ($fallbackConfig !== []) {
                 $config = $fallbackConfig;
-                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
             }
         }
 
-        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
+        $tokens = $this->designTokens->getTokensForNamespace($namespace);
         $appearance = [
             'tokens' => $tokens,
             'defaults' => $this->designTokens->getDefaults(),
@@ -1111,13 +1108,13 @@ class MarketingPageController
             ],
         ];
 
-        $effects = $this->effectsPolicy->getEffectsForNamespace($resolvedNamespace);
+        $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);
 
         return [
             'config' => $config,
             'appearance' => $appearance,
             'effects' => $effects,
-            'namespace' => $resolvedNamespace,
+            'namespace' => $namespace,
         ];
     }
 }
