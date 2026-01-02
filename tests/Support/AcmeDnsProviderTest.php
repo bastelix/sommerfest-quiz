@@ -17,6 +17,15 @@ final class AcmeDnsProviderTest extends TestCase
         $this->assertSame('dns_cf', AcmeDnsProvider::normalize('CLOUDflare'));
     }
 
+    public function testNormalizesUnicodeWhitespaceAndControlCharacters(): void
+    {
+        $nonBreakingSpace = "\u{00A0}";
+
+        $this->assertSame('dns_hetzner', AcmeDnsProvider::normalize($nonBreakingSpace . 'Hetzner'));
+        $this->assertSame('dns_cf', AcmeDnsProvider::normalize("\tCloudFlare\n"));
+        $this->assertSame('dns_cf', AcmeDnsProvider::normalize("CF\t\r\n"));
+    }
+
     public function testRejectsUnsupportedProviders(): void
     {
         $this->expectException(InvalidArgumentException::class);

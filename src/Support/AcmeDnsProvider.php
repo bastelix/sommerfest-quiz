@@ -16,11 +16,12 @@ final class AcmeDnsProvider
     /**
      * Normalize and validate a provider token. Falls back to the default provider when
      * the input is empty and raises an exception for unsupported values.
-     */
+    */
     public static function normalize(?string $provider): string
     {
-        $cleaned = strtolower(trim((string) ($provider ?? '')));
-        $cleaned = str_replace('-', '_', $cleaned);
+        $normalized = preg_replace('/[\s\p{C}]+/u', ' ', (string) ($provider ?? ''));
+        $normalized = strtolower(trim($normalized ?? (string) ($provider ?? '')));
+        $cleaned = str_replace('-', '_', $normalized);
 
         if ($cleaned === '') {
             return self::DEFAULT_PROVIDER;
