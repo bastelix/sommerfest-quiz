@@ -98,11 +98,6 @@ class HomeController
             $isSpecialStartpage = in_array($startpageBaseSlug, [
                 'events',
                 'help',
-                'landing',
-                'calhelp',
-                'calserver',
-                'calserver-maintenance',
-                'future-is-green',
             ], true);
 
             if ($startpageSlug !== null && $catalogParam === '') {
@@ -127,43 +122,6 @@ class HomeController
             } elseif ($startpageBaseSlug === 'help') {
                 $ctrl = new HelpController();
                 return $ctrl($request, $response);
-            } elseif ($startpageBaseSlug === 'landing') {
-                if ($catalogParam === '') {
-                    $domainType = $request->getAttribute('domainType');
-                    $host = $request->getUri()->getHost();
-                    $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-                    if (
-                        $domainType === null
-                        || $domainType === 'main'
-                        || $host === $mainDomain
-                        || $domainType === 'marketing'
-                    ) {
-                        $ctrl = new \App\Controller\Marketing\LandingController();
-                        return $ctrl($request, $response);
-                    }
-                }
-            } elseif ($startpageBaseSlug === 'calhelp') {
-                if ($catalogParam === '') {
-                    $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug ?? 'calhelp');
-                    return $ctrl($request, $response);
-                }
-            } elseif ($startpageBaseSlug === 'calserver') {
-                if ($catalogParam === '') {
-                    $ctrl = new \App\Controller\Marketing\CalserverController();
-                    return $ctrl($request, $response);
-                }
-            } elseif ($startpageBaseSlug === 'calserver-maintenance') {
-                if ($catalogParam === '') {
-                    $ctrl = new \App\Controller\Marketing\MarketingPageController(
-                        $startpageSlug ?? 'calserver-maintenance'
-                    );
-                    return $ctrl($request, $response);
-                }
-            } elseif ($startpageBaseSlug === 'future-is-green') {
-                if ($catalogParam === '') {
-                    $ctrl = new \App\Controller\Marketing\FutureIsGreenController();
-                    return $ctrl($request, $response);
-                }
             } elseif ($startpageSlug !== null && $catalogParam === '') {
                 $ctrl = new \App\Controller\Marketing\MarketingPageController($startpageSlug);
                 return $ctrl($request, $response);

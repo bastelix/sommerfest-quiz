@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Controller\Marketing\CalserverController;
-use App\Controller\Marketing\FutureIsGreenController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\Marketing\MarketingPageController;
 use App\Domain\Page;
@@ -16,8 +14,6 @@ final class MarketingPageRouteResolver
     /** @var array<string, class-string> */
     private const CONTROLLER_MAP = [
         'landing' => LandingController::class,
-        'calserver' => CalserverController::class,
-        'future-is-green' => FutureIsGreenController::class,
     ];
 
     private PageService $pages;
