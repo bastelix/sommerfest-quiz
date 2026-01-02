@@ -127,6 +127,7 @@ class MarketingPageController
 
         $namespaceContext = $this->namespaceResolver->resolve($request);
         $namespace = $namespaceContext->getNamespace();
+        $requestedNamespace = $namespace;
         $page = $this->pages->findByKey($namespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
             $page = $this->pages->findByKey($namespace, $templateSlug);
@@ -260,7 +261,7 @@ class MarketingPageController
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
-        $design = $this->loadDesign($namespace);
+        $design = $this->loadDesign($requestedNamespace);
 
         $data = [
             'content' => $html,
@@ -1087,17 +1088,17 @@ class MarketingPageController
     /**
      * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
      */
-    private function loadDesign(string $namespace): array
+    private function loadDesign(string $requestedNamespace): array
     {
-        $config = $this->configService->getConfigForEvent($namespace);
-        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
+        $config = $this->configService->getConfigForEvent($requestedNamespace);
+        if ($config === [] && $requestedNamespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
             if ($fallbackConfig !== []) {
                 $config = $fallbackConfig;
             }
         }
 
-        $tokens = $this->designTokens->getTokensForNamespace($namespace);
+        $tokens = $this->designTokens->getTokensForNamespace($requestedNamespace);
         $appearance = [
             'tokens' => $tokens,
             'defaults' => $this->designTokens->getDefaults(),
@@ -1108,13 +1109,13 @@ class MarketingPageController
             ],
         ];
 
-        $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);
+        $effects = $this->effectsPolicy->getEffectsForNamespace($requestedNamespace);
 
         return [
             'config' => $config,
             'appearance' => $appearance,
             'effects' => $effects,
-            'namespace' => $namespace,
+            'namespace' => $requestedNamespace,
         ];
     }
 }
