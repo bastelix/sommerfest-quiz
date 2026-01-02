@@ -1,4 +1,5 @@
 import { RENDERER_MATRIX } from './block-renderer-matrix-data.js';
+import { SECTION_INTENTS, normalizeSectionIntent } from './section-intents.js';
 
 // Block contract aligned with docs/calserver-block-consolidation.md
 const VARIANT_ALIASES = {
@@ -227,6 +228,7 @@ const schema = {
       "additionalProperties": false,
       "properties": {
         "layout": { "enum": SECTION_LAYOUTS },
+        "intent": { "enum": SECTION_INTENTS },
         "background": { "$ref": "#/definitions/SectionBackground" }
       }
     },
@@ -933,6 +935,7 @@ function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppear
   if (!layout) {
     return undefined;
   }
+  const intent = normalizeSectionIntent(source.intent);
   const normalizedBackground = normalizeSectionBackground(
     source.background,
     legacyBackgroundImage,
@@ -941,6 +944,9 @@ function normalizeSectionStyle(sectionStyle, legacyBackgroundImage, legacyAppear
   );
 
   const normalized = { layout };
+  if (intent) {
+    normalized.intent = intent;
+  }
   if (normalizedBackground) {
     normalized.background = normalizedBackground;
   }
@@ -1056,7 +1062,7 @@ function validateSectionStyle(style) {
     return false;
   }
 
-  const allowedKeys = ['layout', 'background'];
+  const allowedKeys = ['layout', 'background', 'intent'];
   if (Object.keys(style).some(key => !allowedKeys.includes(key))) {
     return false;
   }
@@ -1066,6 +1072,10 @@ function validateSectionStyle(style) {
     return false;
   }
   if (!SECTION_LAYOUTS.includes(layout)) {
+    return false;
+  }
+
+  if (style.intent !== undefined && !normalizeSectionIntent(style.intent)) {
     return false;
   }
 

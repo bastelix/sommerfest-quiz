@@ -16,6 +16,7 @@ import {
   setActiveAppearance,
   withAppearance,
 } from './block-renderer-matrix-data.js';
+import { resolveSectionIntent } from './section-intents.js';
 
 const RENDERER_MATRIX = { ...BASE_RENDERER_MATRIX, proof: BASE_RENDERER_MATRIX.proof };
 
@@ -76,6 +77,7 @@ function renderBlockError(block, error) {
   const type = block && typeof block === 'object' && 'type' in block ? escapeAttribute(block.type) : 'unknown';
   const variant = block && typeof block === 'object' && 'variant' in block ? escapeAttribute(block.variant) : 'unknown';
   const reason = error && error.message ? escapeHtml(error.message) : 'Unknown rendering error';
+  const intent = resolveSectionIntent(block);
   const legacyAppearance = SECTION_APPEARANCE_PRESETS.includes(block?.sectionAppearance)
     ? block.sectionAppearance
     : 'contained';
@@ -84,13 +86,14 @@ function renderBlockError(block, error) {
     `data-block-id="${blockId}"`,
     `data-block-type="${type}"`,
     `data-block-variant="${variant}"`,
+    `data-section-intent="${escapeAttribute(intent)}"`,
     `data-appearance="${escapeAttribute(appearance)}"`,
     legacyAppearance ? `data-appearance-legacy="${escapeAttribute(legacyAppearance)}"` : null
   ]
     .filter(Boolean)
     .join(' ');
 
-  return `<section ${attributes} class="section uk-section section--${escapeAttribute(appearance)} block-render-error"><div class="uk-container"><div class="section__inner"><!-- render_error: ${reason} --></div></div></section>`;
+  return `<section ${attributes} class="section uk-section uk-section-default uk-section-medium section--${escapeAttribute(appearance)} block-render-error"><div class="uk-container"><div class="section__inner section__inner--panel"><!-- render_error: ${reason} --></div></div></section>`;
 }
 
 export function renderBlockSafe(block, options = {}) {

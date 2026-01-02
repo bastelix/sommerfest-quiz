@@ -22,11 +22,35 @@ export type CaseShowcaseVariant = VariantsFor<'case_showcase'>;
 export type BlockVariant = keyof RendererMatrix[keyof RendererMatrix];
 
 export interface Tokens {
-  background?: 'default' | 'muted' | 'primary';
+  background?: 'primary' | 'secondary' | 'muted' | 'accent' | 'surface';
   spacing?: 'small' | 'normal' | 'large';
   width?: 'narrow' | 'normal' | 'wide';
   columns?: 'single' | 'two' | 'three' | 'four';
   accent?: 'brandA' | 'brandB' | 'brandC';
+}
+
+export type SectionIntent = 'content' | 'feature' | 'highlight' | 'hero';
+export type SectionLayout = 'normal' | 'fullwidth' | 'card';
+export type SectionBackgroundMode = 'none' | 'color' | 'image';
+export type SectionBackgroundAttachment = 'scroll' | 'fixed';
+
+export interface SectionBackground {
+  mode: SectionBackgroundMode;
+  colorToken?: Tokens['background'];
+  imageId?: string;
+  attachment?: SectionBackgroundAttachment;
+  overlay?: number;
+}
+
+export interface SectionStyle {
+  layout: SectionLayout;
+  intent?: SectionIntent;
+  background?: SectionBackground;
+}
+
+export interface BlockMeta {
+  anchor?: string;
+  sectionStyle?: SectionStyle;
 }
 
 export interface Media {
@@ -223,6 +247,7 @@ export interface BaseBlock<TType extends BlockType, TVariant extends BlockVarian
   variant: TVariant;
   data: TData;
   tokens?: Tokens;
+  meta?: BlockMeta;
 }
 
 export type HeroBlock = BaseBlock<'hero', HeroVariant, HeroBlockData>;

@@ -8,6 +8,7 @@ import {
   SECTION_APPEARANCE_PRESETS,
   validateBlockContract
 } from './block-contract.js';
+import { normalizeSectionIntent, resolveSectionIntent } from './section-intents.js';
 import { RENDERER_MATRIX } from './block-renderer-matrix.js';
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
@@ -160,6 +161,29 @@ const BACKGROUND_COLOR_TOKEN_MAP = {
   surface: 'var(--surface)'
 };
 
+const SECTION_INTENT_OPTIONS = [
+  {
+    value: 'hero',
+    label: 'Hero',
+    description: 'Große Bühne mit maximaler Aufmerksamkeit und kräftigen Kontrasten.'
+  },
+  {
+    value: 'highlight',
+    label: 'Highlight',
+    description: 'Signalstarker Abschnitt für Botschaften, Nachweise oder CTAs.'
+  },
+  {
+    value: 'feature',
+    label: 'Feature',
+    description: 'Weit gesetzter Raum mit Kartenrahmen für Vorteile, Module oder Stories.'
+  },
+  {
+    value: 'content',
+    label: 'Inhalt',
+    description: 'Neutraler Flussbereich für erklärende Texte, FAQs und Prozesse.'
+  }
+];
+
 const BACKGROUND_INTENT_OPTIONS = [
   {
     value: 'standard',
@@ -291,7 +315,8 @@ const resolveSectionBackground = (block, layout) => normalizeBackgroundForLayout
 const resolveSectionStyle = block => {
   const layout = resolveLayout(block);
   const background = resolveSectionBackground(block, layout);
-  return { layout, background };
+  const intent = resolveSectionIntent(block);
+  return { layout, background, intent };
 };
 
 const resolveBackgroundIntent = (background, layout) => {
@@ -306,14 +331,27 @@ const resolveBackgroundIntent = (background, layout) => {
   return 'standard';
 };
 
-const applySectionStyle = (block, sectionStyle) => sanitizeBlock({
-  ...block,
-  sectionAppearance: LAYOUT_TO_APPEARANCE[sectionStyle.layout],
-  meta: {
-    ...(block.meta || {}),
-    sectionStyle
-  }
-});
+const applySectionStyle = (block, sectionStyle) => {
+  const baseSectionStyle = block?.meta?.sectionStyle || {};
+  const layout = sectionStyle.layout || baseSectionStyle.layout || resolveLayout(block);
+  const intent = normalizeSectionIntent(sectionStyle.intent)
+    || normalizeSectionIntent(baseSectionStyle.intent)
+    || resolveSectionIntent(block);
+
+  return sanitizeBlock({
+    ...block,
+    sectionAppearance: LAYOUT_TO_APPEARANCE[layout],
+    meta: {
+      ...(block.meta || {}),
+      sectionStyle: {
+        ...baseSectionStyle,
+        ...sectionStyle,
+        intent,
+        layout
+      }
+    }
+  });
+};
 
 const createId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -2153,8 +2191,45 @@ export class BlockContentEditor {
     const options = document.createElement('div');
     options.className = 'layout-style-picker__options layout-style-picker__options--appearance';
     const sectionStyle = resolveSectionStyle(block);
-    const { layout, background } = sectionStyle;
+    const { layout, background, intent } = sectionStyle;
     const allowedBackgroundModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
+
+    const intentHelper = createHelperText('Der Intent steuert Polsterung, Hintergrund und Karteneinsatz.');
+    if (intentHelper) {
+      intentHelper.classList.add('layout-style-picker__hint');
+      wrapper.append(intentHelper);
+    }
+
+    const intentOptions = document.createElement('div');
+    intentOptions.className = 'layout-style-picker__options layout-style-picker__options--appearance';
+    const selectedIntent = normalizeSectionIntent(intent) || resolveSectionIntent(block);
+
+    SECTION_INTENT_OPTIONS.forEach(option => {
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'layout-style-card layout-style-card--appearance';
+      const selected = option.value === selectedIntent;
+      card.dataset.selected = String(selected);
+      card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+
+      const title = document.createElement('div');
+      title.className = 'layout-style-card__title';
+      title.textContent = option.label;
+
+      if (option.description) {
+        const description = document.createElement('div');
+        description.className = 'layout-style-card__description';
+        description.textContent = option.description;
+        card.append(title, description);
+      } else {
+        card.append(title);
+      }
+
+      card.addEventListener('click', () => this.updateSectionIntent(block.id, option.value));
+      intentOptions.append(card);
+    });
+
+    wrapper.append(intentOptions);
 
     SECTION_LAYOUT_OPTIONS.forEach(option => {
       const card = document.createElement('button');
@@ -3963,6 +4038,25 @@ export class BlockContentEditor {
 
       const normalizedBackground = resolveSectionBackground(block, normalizedLayout);
       return applySectionStyle(block, { layout: normalizedLayout, background: normalizedBackground });
+    });
+
+    this.render();
+  }
+
+  updateSectionIntent(blockId, intent) {
+    const normalizedIntent = normalizeSectionIntent(intent);
+    if (!normalizedIntent) {
+      return;
+    }
+
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+
+      const layout = resolveLayout(block);
+      const background = resolveSectionBackground(block, layout);
+      return applySectionStyle(block, { layout, background, intent: normalizedIntent });
     });
 
     this.render();
