@@ -146,19 +146,49 @@ body.qr-landing {
   background-color: var(--qr-hero-grad-start);
 }
 body.qr-landing { color: var(--qr-fg); }
-.qr-landing .uk-section { background: transparent; }
+.qr-landing .uk-section { background: var(--section-bg-color, var(--section-surface, transparent)); }
 .qr-landing .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
 .section {
-  padding: var(--section-padding-tight) 0;
-  background: transparent;
-  color: inherit;
+  --section-surface: transparent;
+  --section-bg-color: var(--section-surface);
+  --section-padding-outer: var(--section-padding-tight);
+  --section-padding-inner: var(--section-padding);
   --section-bg-overlay: 0;
+  color: inherit;
+  padding: var(--section-padding-outer) 0;
+  background: var(--section-bg-color);
+}
+
+.section[data-section-intent="content"] {
+  --section-surface: var(--surface);
+  --section-padding-outer: clamp(20px, 4vw, 48px);
+  --section-padding-inner: clamp(22px, 4vw, 44px);
+}
+
+.section[data-section-intent="feature"] {
+  --section-surface: var(--surface-muted);
+  --section-padding-outer: clamp(28px, 5vw, 64px);
+  --section-padding-inner: clamp(28px, 5vw, 60px);
+}
+
+.section[data-section-intent="highlight"] {
+  --section-surface: var(--accent-primary, var(--brand-primary, #1e87f0));
+  --section-padding-outer: clamp(32px, 6vw, 72px);
+  --section-padding-inner: clamp(32px, 6vw, 68px);
+  color: var(--text-on-primary, #ffffff);
+}
+
+.section[data-section-intent="hero"] {
+  --section-surface: color-mix(in srgb, var(--accent-secondary, var(--accent-primary, #1e87f0)) 85%, #0b1728);
+  --section-padding-outer: clamp(36px, 7vw, 88px);
+  --section-padding-inner: clamp(36px, 7vw, 80px);
+  color: var(--text-on-primary, #ffffff);
 }
 
 .section[data-section-background] {
   position: relative;
-  background-color: var(--section-bg-color, transparent);
+  background-color: var(--section-bg-color, var(--section-surface));
   background-image: var(--section-bg-image, none);
   background-size: cover;
   background-position: center;
@@ -185,10 +215,39 @@ body.qr-landing { color: var(--qr-fg); }
 }
 
 .section__inner {
-  background: transparent;
+  background: var(--section-surface-inner, transparent);
   border-radius: var(--card-radius-square);
-  padding: var(--section-padding);
+  padding: var(--section-padding-inner);
   width: 100%;
+}
+
+.section__inner--panel {
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+}
+
+.section__inner--card {
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.09);
+}
+
+.section__inner--accent {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--card-radius);
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+}
+
+.section__inner--hero {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: calc(var(--card-radius) + 4px);
+  box-shadow: 0 34px 76px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(4px);
 }
 
 .section--contained .section__inner {
@@ -196,12 +255,12 @@ body.qr-landing { color: var(--qr-fg); }
 }
 
 .section--full {
-  background: var(--surface-muted);
-  padding: var(--section-padding) 0;
+  background: var(--section-bg-color, var(--surface-muted));
+  padding: var(--section-padding-outer) 0;
 }
 
 .section--full .section__inner {
-  padding: var(--section-padding);
+  padding: var(--section-padding-inner);
 }
 
 .section--card .section__inner {
@@ -209,6 +268,11 @@ body.qr-landing { color: var(--qr-fg); }
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
+}
+
+.section[data-section-intent="highlight"] a,
+.section[data-section-intent="hero"] a {
+  color: inherit;
 }
 
 .section[data-appearance-legacy="contrast"] {

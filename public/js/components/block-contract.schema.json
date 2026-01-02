@@ -497,6 +497,14 @@
             "card"
           ]
         },
+        "intent": {
+          "enum": [
+            "content",
+            "feature",
+            "highlight",
+            "hero"
+          ]
+        },
         "background": {
           "$ref": "#/definitions/SectionBackground"
         }

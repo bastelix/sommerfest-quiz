@@ -1,3 +1,5 @@
+import { resolveSectionIntent } from './section-intents.js';
+
 export function escapeHtml(value) {
   if (value === null || value === undefined) {
     return '';
@@ -298,19 +300,59 @@ function resolveSectionBackgroundStyles(background) {
   return { style, dataAttributes };
 }
 
+const SECTION_INTENT_PRESETS = {
+  content: {
+    sectionClass: 'uk-section-default uk-section-medium',
+    containerClass: '',
+    innerClass: 'section__inner--panel'
+  },
+  feature: {
+    sectionClass: 'uk-section-muted uk-section-large',
+    containerClass: 'uk-container-large',
+    innerClass: 'section__inner--card uk-card uk-card-default uk-card-body uk-box-shadow-medium'
+  },
+  highlight: {
+    sectionClass: 'uk-section-primary uk-section-large uk-light',
+    containerClass: 'uk-container-large',
+    innerClass: 'section__inner--accent'
+  },
+  hero: {
+    sectionClass: 'uk-section-secondary uk-section-large uk-light',
+    containerClass: 'uk-container-expand',
+    innerClass: 'section__inner--hero uk-card uk-card-primary uk-card-large uk-card-body'
+  }
+};
+
+function normalizeClassList(classes) {
+  if (Array.isArray(classes)) {
+    return classes.flatMap(normalizeClassList);
+  }
+  if (typeof classes === 'string') {
+    return classes.split(' ').filter(Boolean);
+  }
+  return [];
+}
+
+function resolveSectionIntentPreset(block) {
+  const intent = resolveSectionIntent(block);
+  return { intent, preset: SECTION_INTENT_PRESETS[intent] || SECTION_INTENT_PRESETS.content };
+}
+
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
   const background = resolveSectionBackground(block, layout);
   const backgroundStyle = resolveSectionBackgroundStyles(background);
+  const { intent, preset } = resolveSectionIntentPreset(block);
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const classes = [
     'section',
     'uk-section',
+    ...normalizeClassList(preset.sectionClass),
     `section--${layout}`,
     background.mode === 'color' ? `section--bg-${background.colorToken}` : '',
     background.mode === 'image' ? 'section--bg-image' : '',
     background.mode === 'image' && background.attachment === 'fixed' ? 'section--bg-fixed' : '',
-    sectionClass
+    ...normalizeClassList(sectionClass)
   ]
     .filter(Boolean)
     .join(' ');
@@ -318,6 +360,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     `data-block-id="${escapeAttribute(block.id)}"`,
     `data-block-type="${escapeAttribute(block.type)}"`,
     `data-block-variant="${escapeAttribute(variant)}"`,
+    `data-section-intent="${escapeAttribute(intent)}"`,
     `data-section-layout="${escapeAttribute(layout)}"`,
     `data-section-background-mode="${escapeAttribute(background.mode)}"`,
     background.mode === 'color' && background.colorToken
@@ -336,9 +379,14 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   ]
     .filter(Boolean)
     .join(' ');
-  const contentWrapper = `<div class="section__inner">${content}</div>`;
+  const innerClassName = ['section__inner', ...normalizeClassList(preset.innerClass)].filter(Boolean).join(' ');
+  const contentWrapper = `<div class="${innerClassName}">${content}</div>`;
+  const containerClasses = [
+    ...normalizeClassList(containerClass),
+    ...normalizeClassList(preset.containerClass)
+  ].filter(Boolean).join(' ');
   const inner = container
-    ? `<div class="uk-container${containerClass ? ` ${containerClass}` : ''}">${contentWrapper}</div>`
+    ? `<div class="uk-container${containerClasses ? ` ${containerClasses}` : ''}">${contentWrapper}</div>`
     : contentWrapper;
 
   const dataAttributesString = dataAttributes ? ` ${dataAttributes}` : '';
