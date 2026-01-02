@@ -133,18 +133,6 @@ class MarketingPageController
             $page = $this->pages->findByKey($namespace, $templateSlug);
             $contentSlug = $templateSlug;
         }
-        if ($page === null && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackNamespace = PageService::DEFAULT_NAMESPACE;
-            $page = $this->pages->findByKey($fallbackNamespace, $contentSlug);
-            if ($page === null && $contentSlug !== $templateSlug) {
-                $page = $this->pages->findByKey($fallbackNamespace, $templateSlug);
-                $contentSlug = $templateSlug;
-            }
-
-            if ($page !== null) {
-                $namespace = $fallbackNamespace;
-            }
-        }
         if ($page === null) {
             return $response->withStatus(404);
         }
