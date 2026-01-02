@@ -7,9 +7,6 @@ use App\Infrastructure\Database;
 use App\Service\CertificateZoneRegistry;
 use App\Support\AcmeDnsProvider;
 use App\Support\EnvLoader;
-use DateTimeImmutable;
-use DateTimeInterface;
-use DateTimeZone;
 
 require __DIR__ . '/../vendor/autoload.php';
 
