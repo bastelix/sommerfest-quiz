@@ -272,6 +272,7 @@ class MarketingPageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
+            'pageNamespace' => $page->getNamespace(),
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,

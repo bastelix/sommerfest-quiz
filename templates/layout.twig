@@ -211,6 +211,7 @@
     const blockRoot = document.querySelector('[data-page-blocks]');
     const basePath = window.basePath || '';
     const appearance = window.pageAppearance || {};
+    const namespace = document.documentElement?.dataset?.namespace || 'default';
 
     const parseBlocks = raw => {
       if (!raw) {
@@ -230,39 +231,57 @@
       return [];
     };
 
-    if (blockRoot && blockRoot.dataset.pageBlocks) {
+    const hydrateDesign = async () => {
+      try {
+        const design = await import(`${basePath}/js/components/namespace-design.js`);
+        const resolvedAppearance = design?.resolveNamespaceAppearance
+          ? design.resolveNamespaceAppearance(namespace, appearance)
+          : appearance;
+
+        if (design?.applyNamespaceDesign) {
+          design.applyNamespaceDesign(document.documentElement, namespace, resolvedAppearance);
+        }
+
+        return { design, resolvedAppearance };
+      } catch (error) {
+        console.error('Failed to apply namespace design', error);
+        return { design: null, resolvedAppearance: appearance };
+      }
+    };
+
+    const hydrateBlocks = async (resolvedAppearance) => {
+      if (!blockRoot || !blockRoot.dataset.pageBlocks) {
+        return;
+      }
+
       const blocks = parseBlocks(blockRoot.dataset.pageBlocks);
-      Promise.all([
-        import(`${basePath}/js/components/block-renderer-matrix.js`),
-        import(`${basePath}/js/effects/initEffects.js`),
-        import(`${basePath}/js/components/namespace-design.js`)
-      ])
-        .then(([matrix, effects, design]) => {
-          const namespace = document.documentElement?.dataset?.namespace || 'default';
-          const resolvedAppearance = design?.resolveNamespaceAppearance
-            ? design.resolveNamespaceAppearance(namespace, appearance)
-            : appearance;
-          if (design?.applyNamespaceDesign) {
-            design.applyNamespaceDesign(document.documentElement, namespace, resolvedAppearance);
-          }
-          const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
-            rendererMatrix: matrix.RENDERER_MATRIX,
-            context: 'frontend',
-            appearance: resolvedAppearance,
-          });
-          blockRoot.innerHTML = html;
-          if (effects?.initEffects) {
-            effects.initEffects(blockRoot, {
-              namespace,
-              mode: 'frontend'
-            });
-          }
-        })
-        .catch(error => {
-          console.error('Failed to render page blocks', error);
-          blockRoot.innerHTML = '';
+      try {
+        const [matrix, effects] = await Promise.all([
+          import(`${basePath}/js/components/block-renderer-matrix.js`),
+          import(`${basePath}/js/effects/initEffects.js`)
+        ]);
+
+        const html = matrix.renderPage(Array.isArray(blocks) ? blocks : [], {
+          rendererMatrix: matrix.RENDERER_MATRIX,
+          context: 'frontend',
+          appearance: resolvedAppearance,
         });
-    }
+        blockRoot.innerHTML = html;
+        if (effects?.initEffects) {
+          effects.initEffects(blockRoot, {
+            namespace,
+            mode: 'frontend'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to render page blocks', error);
+        blockRoot.innerHTML = '';
+      }
+    };
+
+    hydrateDesign().then(({ resolvedAppearance }) => {
+      hydrateBlocks(resolvedAppearance);
+    });
   </script>
   {% block scripts %}{% endblock %}
 </body>
