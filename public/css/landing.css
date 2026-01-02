@@ -1344,3 +1344,56 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
 .provenexpert-rating > * {
   max-width: 100%;
 }
+
+/* Stat strip cards */
+.stat-strip__grid {
+  row-gap: 28px;
+}
+
+.stat-strip__card {
+  gap: 14px;
+  padding: 28px;
+}
+
+.stat-strip__kpi {
+  gap: 6px;
+}
+
+.stat-strip__value {
+  font-size: clamp(2.2rem, 2.8vw, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.stat-strip__label-text {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.stat-strip__as-of {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.stat-strip__benefit {
+  margin-top: auto;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stat-strip__benefit-placeholder {
+  margin-top: auto;
+  display: block;
+  min-height: 3rem;
+  visibility: hidden;
+}
+
+.stat-strip__marquee {
+  padding-top: 20px;
+  border-top: 1px solid var(--surface-muted);
+}
