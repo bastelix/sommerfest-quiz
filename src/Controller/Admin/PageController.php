@@ -609,29 +609,27 @@ class PageController
     private function loadDesign(string $namespace): array
     {
         $config = $this->configService->getConfigForEvent($namespace);
-        $resolvedNamespace = $namespace;
 
         if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
             if ($fallbackConfig !== []) {
                 $config = $fallbackConfig;
-                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
             }
         }
 
         $appearance = [
-            'tokens' => $this->designTokens->getTokensForNamespace($resolvedNamespace),
+            'tokens' => $this->designTokens->getTokensForNamespace($namespace),
             'defaults' => $this->designTokens->getDefaults(),
         ];
-        $appearance['colors'] = $this->buildAppearanceColors($resolvedNamespace);
+        $appearance['colors'] = $this->buildAppearanceColors($namespace);
 
-        $effects = $this->effectsPolicy->getEffectsForNamespace($resolvedNamespace);
+        $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);
 
         return [
             'config' => $config,
             'appearance' => $appearance,
             'effects' => $effects,
-            'namespace' => $resolvedNamespace,
+            'namespace' => $namespace,
         ];
     }
 
