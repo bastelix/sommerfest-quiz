@@ -2,10 +2,13 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 
-const source = fs.readFileSync('public/js/components/block-renderer-matrix-data.js', 'utf8');
-const sandbox = { console };
+const source = fs
+  .readFileSync('public/js/components/block-renderer-matrix-data.js', 'utf8')
+  .replace(/^import[^;]+;\n/gm, '')
+  .replace(/export\s+/g, '');
+const sandbox = { console, resolveSectionIntent: () => 'content' };
 vm.createContext(sandbox);
-vm.runInContext(source.replace(/export\s+/g, ''), sandbox);
+vm.runInContext(source, sandbox);
 
 assert.strictEqual(typeof sandbox.renderInfoMedia, 'function', 'renderInfoMedia should be available');
 

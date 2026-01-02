@@ -689,6 +689,7 @@ const LAYOUT_PREVIEWS = {
   feature_list: {
     'detailed-cards': () => createColumnsPreview(3),
     'grid-bullets': createListPreview,
+    slider: () => createColumnsPreview(3),
     'text-columns': () => createColumnsPreview(2),
     'card-stack': createStackedCardsPreview,
     stacked_cards: createStackedCardsPreview,
@@ -696,7 +697,8 @@ const LAYOUT_PREVIEWS = {
   },
   process_steps: {
     'numbered-vertical': () => createStepsPreview('vertical'),
-    'numbered-horizontal': () => createStepsPreview('horizontal')
+    'numbered-horizontal': () => createStepsPreview('horizontal'),
+    timeline: () => createStepsPreview('vertical')
   },
   testimonial: {
     single_quote: () => createColumnsPreview(1),
@@ -708,7 +710,8 @@ const LAYOUT_PREVIEWS = {
   info_media: {
     stacked: createStackedMediaPreview,
     'image-left': () => createSplitPreview({ mediaFirst: true }),
-    'image-right': () => createSplitPreview({ mediaFirst: false })
+    'image-right': () => createSplitPreview({ mediaFirst: false }),
+    switcher: () => createColumnsPreview(2)
   },
   cta: {
     full_width: createCenteredCtaPreview,
@@ -3248,6 +3251,14 @@ export class BlockContentEditor {
     this.mountRichText(titleField, block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value));
     wrapper.append(this.wrapField('Titel', titleField));
 
+    wrapper.append(this.addLabeledInput('Untertitel', block.data.subtitle, value => this.updateBlockData(block.id, ['data', 'subtitle'], value)));
+    wrapper.append(
+      this.addLabeledInput('Lead', block.data.lead, value => this.updateBlockData(block.id, ['data', 'lead'], value), {
+        multiline: true,
+        rows: 2
+      })
+    );
+
     const introField = document.createElement('div');
     introField.dataset.field = 'intro';
     introField.dataset.richtext = 'true';
@@ -3296,6 +3307,7 @@ export class BlockContentEditor {
 
     wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
     wrapper.append(this.addLabeledInput('Zusammenfassung', block.data.summary, value => this.updateBlockData(block.id, ['data', 'summary'], value), { multiline: true }));
+    wrapper.append(this.addLabeledInput('Intro', block.data.intro, value => this.updateBlockData(block.id, ['data', 'intro'], value), { multiline: true, rows: 2 }));
 
     const stepsWrapper = document.createElement('div');
     stepsWrapper.dataset.field = 'steps';
@@ -3337,6 +3349,31 @@ export class BlockContentEditor {
     });
 
     wrapper.append(stepsWrapper);
+
+    const closingSection = createFieldSection('Abschluss & CTA', 'Abschließende Sicherheitstexte und Buttons.', { optional: true });
+    closingSection.append(
+      this.addLabeledInput('Abschluss-Titel', block.data.closing?.title, value => this.updateBlockData(block.id, ['data', 'closing', 'title'], value))
+    );
+    closingSection.append(
+      this.addLabeledInput('Abschluss-Text', block.data.closing?.body, value => this.updateBlockData(block.id, ['data', 'closing', 'body'], value), {
+        multiline: true,
+        rows: 3
+      })
+    );
+    closingSection.append(
+      this.addLabeledInput('Primärer CTA (Label)', block.data.ctaPrimary?.label, value => this.updateBlockData(block.id, ['data', 'ctaPrimary', 'label'], value))
+    );
+    closingSection.append(
+      this.addLabeledInput('Primärer CTA (Link)', block.data.ctaPrimary?.href, value => this.updateBlockData(block.id, ['data', 'ctaPrimary', 'href'], value))
+    );
+    closingSection.append(
+      this.addLabeledInput('Sekundärer CTA (Label)', block.data.ctaSecondary?.label, value => this.updateBlockData(block.id, ['data', 'ctaSecondary', 'label'], value))
+    );
+    closingSection.append(
+      this.addLabeledInput('Sekundärer CTA (Link)', block.data.ctaSecondary?.href, value => this.updateBlockData(block.id, ['data', 'ctaSecondary', 'href'], value))
+    );
+
+    wrapper.append(closingSection);
     return wrapper;
   }
 
