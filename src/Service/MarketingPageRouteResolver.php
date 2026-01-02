@@ -43,12 +43,8 @@ final class MarketingPageRouteResolver
         }
 
         $controllerKey = $page->getType();
-        if ($controllerKey === null || $controllerKey === '' || !isset(self::CONTROLLER_MAP[$controllerKey])) {
-            $controllerKey = $normalized;
-        }
-
-        $controllerClass = self::CONTROLLER_MAP[$controllerKey] ?? null;
-        if ($controllerClass !== null) {
+        if ($controllerKey !== null && $controllerKey !== '' && isset(self::CONTROLLER_MAP[$controllerKey])) {
+            $controllerClass = self::CONTROLLER_MAP[$controllerKey];
             return new $controllerClass($this->pages);
         }
 
