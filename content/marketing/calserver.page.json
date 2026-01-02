@@ -70,6 +70,9 @@
       "id": "timeline",
       "type": "process_steps",
       "variant": "timeline",
+      "meta": {
+        "anchor": "trust"
+      },
       "data": {
         "title": "So fühlt sich calServer im Alltag an",
         "intro": "Vom ersten Login bis zur entspannten Audit-Vorbereitung: calServer nimmt dir Schritt für Schritt den Druck aus der Kalibrier- und Inventarverwaltung.",
@@ -153,7 +156,10 @@
     {
       "id": "feature-grid",
       "type": "feature_list",
-      "variant": "grid-bullets",
+      "variant": "slider",
+      "meta": {
+        "anchor": "features"
+      },
       "data": {
         "title": "Funktionen, die den Alltag erleichtern",
         "subtitle": "Scroll & entdecke die wichtigsten Bereiche",
@@ -274,8 +280,11 @@
     },
     {
       "id": "modules",
-      "type": "feature_list",
-      "variant": "card-stack",
+      "type": "info_media",
+      "variant": "switcher",
+      "meta": {
+        "anchor": "modules"
+      },
       "data": {
         "title": "Module, die den Unterschied machen",
         "subtitle": "Individuell kombinierbar – ohne versteckte Kosten",

@@ -662,9 +662,180 @@ function renderFeatureListGridBullets(block, options = {}) {
   return renderSection({ block, variant: 'grid-bullets', content: `${header}${grid}` });
 }
 
+function renderFeatureListSlider(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const items = normalizeFeatureListItems(block);
+
+  if (!items.length) {
+    return renderSection({
+      block,
+      variant: 'slider',
+      content: '<div class="uk-alert-warning" role="alert">Keine Funktionskarten hinterlegt.</div>'
+    });
+  }
+
+  const sliderId = `feature-slider-${block.id ? escapeAttribute(block.id) : 'section'}`;
+  const navId = `${sliderId}-nav`;
+
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-line"><span${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</span></h2>`
+    : '';
+  const subtitle = block.data?.subtitle
+    ? `<span class="muted"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</span>`
+    : '';
+  const header = title || subtitle
+    ? `<div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">${title}${subtitle}</div>`
+    : '';
+
+  const introHeading = block.data?.intro
+    ? `<h3 class="uk-heading-bullet"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</h3>`
+    : '';
+  const lead = block.data?.lead
+    ? `<p class="muted"${buildEditableAttributes(block, 'data.lead', context)}>${escapeHtml(block.data.lead)}</p>`
+    : '';
+  const intro = introHeading || lead ? `<div class="uk-text-center uk-margin-medium-bottom">${introHeading}${lead}</div>` : '';
+
+  const nav = `<nav class="feature-nav" aria-label="Funktionsnavigation"><ul id="${escapeAttribute(navId)}" class="feature-nav__list">${items
+    .map(item => `<li><a class="feature-nav__pill" href="#" data-target="${escapeAttribute(item.id)}">${escapeHtml(item.title || '')}</a></li>`)
+    .join('')}</ul></nav>`;
+
+  const slides = items
+    .map(item => {
+      const content = renderFeatureListItemContent(item);
+      return `<li class="feature-slider__item" id="${escapeAttribute(item.id)}"><article class="feature-card">${content}</article></li>`;
+    })
+    .join('');
+
+  const slider = `
+    <div id="${escapeAttribute(sliderId)}" class="uk-position-relative uk-visible-toggle feature-slider" tabindex="-1" data-uk-slider="center: true; autoplay: true; autoplay-interval: 4200; finite: false">
+      <div class="uk-slider-container">
+        <ul class="uk-slider-items uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-3@l feature-slider__list" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .feature-slider__item; delay: 75; repeat: true">${slides}</ul>
+      </div>
+      <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" data-uk-slidenav-previous data-uk-slider-item="previous" aria-label="Vorherige Funktion"></a>
+      <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" data-uk-slidenav-next data-uk-slider-item="next" aria-label="Nächste Funktion"></a>
+    </div>`;
+
+  const script = `
+    <script>(function(){
+      const sliderId = ${JSON.stringify(sliderId)};
+      const navId = ${JSON.stringify(navId)};
+      const sliderElement = document.getElementById(sliderId);
+      const navElement = document.getElementById(navId);
+      if (!sliderElement || !navElement || typeof UIkit === 'undefined') {
+        return;
+      }
+      const slider = UIkit.slider(sliderElement);
+      const pills = Array.from(navElement.querySelectorAll('li'));
+      const slides = Array.from(sliderElement.querySelectorAll('.feature-slider__item'));
+      const itemsContainer = sliderElement.querySelector('.uk-slider-items');
+      if (!itemsContainer) {
+        return;
+      }
+
+      const indexById = new Map(slides.map((slide, index) => [slide.id, index]));
+
+      const applyFocusToCenter = () => {
+        const slideElements = Array.from(itemsContainer.children);
+        if (!slideElements.length) {
+          return;
+        }
+        const viewportElement = sliderElement.querySelector('.uk-slider-container') || sliderElement;
+        const viewportRect = viewportElement.getBoundingClientRect();
+        const midpoint = viewportRect.left + viewportRect.width / 2;
+        let nearest = null;
+        let minDistance = Number.POSITIVE_INFINITY;
+
+        slideElements.forEach(item => {
+          const card = item.querySelector('.feature-card');
+          if (!card) {
+            return;
+          }
+          const rect = item.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const distance = Math.abs(centerX - midpoint);
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearest = item;
+          }
+        });
+
+        slideElements.forEach(item => {
+          item.classList.remove('is-center');
+          const card = item.querySelector('.feature-card');
+          if (card) {
+            card.classList.remove('feature-card--focus');
+          }
+        });
+
+        if (nearest) {
+          nearest.classList.add('is-center');
+          const focusCard = nearest.querySelector('.feature-card');
+          if (focusCard) {
+            focusCard.classList.add('feature-card--focus');
+          }
+        }
+      };
+
+      const setActive = index => {
+        pills.forEach((li, i) => {
+          const isActive = i === index;
+          li.classList.toggle('uk-active', isActive);
+          const link = li.querySelector('.feature-nav__pill');
+          if (!link) {
+            return;
+          }
+          link.classList.toggle('is-active', isActive);
+          if (isActive) {
+            link.setAttribute('aria-current', 'true');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      };
+
+      const setCurrent = index => {
+        slides.forEach((slide, i) => slide.classList.toggle('uk-current', i === index));
+      };
+
+      pills.forEach(li => {
+        const link = li.querySelector('a[data-target]');
+        if (!link) {
+          return;
+        }
+        const targetId = link.dataset.target;
+        const targetIndex = indexById.get(targetId);
+        if (typeof targetIndex === 'undefined') {
+          return;
+        }
+        link.addEventListener('click', event => {
+          event.preventDefault();
+          slider.show(targetIndex);
+          setActive(targetIndex);
+          setCurrent(targetIndex);
+          applyFocusToCenter();
+        });
+      });
+
+      UIkit.util.on(sliderElement, 'itemshown', () => {
+        setActive(slider.index);
+        setCurrent(slider.index);
+        applyFocusToCenter();
+      });
+
+      const initialIndex = typeof slider.index === 'number' ? slider.index : 0;
+      setActive(initialIndex);
+      setCurrent(initialIndex);
+      applyFocusToCenter();
+      UIkit.util.on(window, 'resize', applyFocusToCenter);
+    })();</script>
+  `;
+
+  return renderSection({ block, variant: 'slider', content: `${header}${intro}${nav}${slider}${script}` });
+}
+
 function normalizeProcessStepsVariant(variant) {
   const mapping = {
-    'timeline': 'timeline_vertical',
+    'timeline': 'timeline',
     'timeline-vertical': 'timeline_vertical',
     'timeline_vertical': 'timeline_vertical',
     'timeline-horizontal': 'timeline_horizontal',
@@ -676,7 +847,7 @@ function normalizeProcessStepsVariant(variant) {
 
 function renderProcessSteps(block, variant, options = {}) {
   const normalizedVariant = normalizeProcessStepsVariant(variant);
-  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal', 'timeline_vertical', 'timeline_horizontal']);
+  const allowedVariants = new Set(['numbered-vertical', 'numbered-horizontal', 'timeline', 'timeline_vertical', 'timeline_horizontal']);
 
   if (!allowedVariants.has(normalizedVariant)) {
     throw new Error(`Unsupported process_steps variant: ${variant}`);
@@ -688,6 +859,10 @@ function renderProcessSteps(block, variant, options = {}) {
 
   if (!steps.length) {
     throw new Error('process_steps block requires at least one step');
+  }
+
+  if (normalizedVariant === 'timeline') {
+    return renderProcessStepsTimeline(block, options);
   }
 
   const title = block.data?.title
@@ -729,6 +904,82 @@ function renderProcessSteps(block, variant, options = {}) {
     : renderVerticalSteps();
 
   return renderSection({ block, variant: normalizedVariant, content: `${header}${layout}` });
+}
+
+function renderProcessStepsTimeline(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const steps = Array.isArray(block.data?.steps) ? block.data.steps : [];
+
+  if (!steps.length) {
+    throw new Error('process_steps block requires at least one step');
+  }
+
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-line uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}><span>${escapeHtml(block.data.title)}</span></h2>`
+    : '';
+  const intro = block.data?.intro
+    ? `<p class="trust-story__lead"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
+    : '';
+
+  const header = title || intro
+    ? `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${title ? `<div class="uk-width-1-1 uk-width-2-3@m">${title}</div>` : ''}${intro ? `<div class="uk-width-1-1 uk-width-1-3@m">${intro}</div>` : ''}</div>`
+    : '';
+
+  const stepsList = steps
+    .map((step, index) => {
+      const stepId = `${block.id || 'step'}-${step.id || index}`;
+      const labelId = `${stepId}-title`;
+      const descriptionId = `${stepId}-description`;
+      const badgeIcon = '<span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: check"></span>';
+
+      const marker = `
+        <div class="trust-story__marker" aria-hidden="true">
+          <span class="trust-story__connector trust-story__connector--before"></span>
+          <span class="trust-story__badge" data-step-index="${index + 1}">
+            ${badgeIcon}
+            <span class="trust-story__sr">Schritt ${index + 1}</span>
+          </span>
+          <span class="trust-story__connector trust-story__connector--after"></span>
+        </div>`;
+
+      const content = `
+        <div class="trust-story__content">
+          <h3 id="${escapeAttribute(labelId)}" class="trust-story__title">${escapeHtml(step.title || '')}</h3>
+          <p id="${escapeAttribute(descriptionId)}" class="trust-story__text">${escapeHtml(step.description || '')}</p>
+        </div>`;
+
+      return `
+        <li class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="${escapeAttribute(labelId)}" aria-describedby="${escapeAttribute(descriptionId)}">
+          ${marker}
+          ${content}
+        </li>`;
+    })
+    .join('');
+
+  const closingTitle = block.data?.closing?.title
+    ? `<h3 class="trust-story__closing-title"${buildEditableAttributes(block, 'data.closing.title', context)}>${escapeHtml(block.data.closing.title)}</h3>`
+    : '';
+  const closingBody = block.data?.closing?.body
+    ? `<p class="trust-story__closing-text"${buildEditableAttributes(block, 'data.closing.body', context)}>${escapeHtml(block.data.closing.body)}</p>`
+    : '';
+
+  const ctas = renderCtaButtons(block.data?.ctaPrimary, block.data?.ctaSecondary, {
+    alignment: 'uk-flex-left@m',
+    margin: 'uk-margin-medium-top'
+  });
+
+  const closing = closingTitle || closingBody || ctas
+    ? `<div class="trust-story__closing">${closingTitle}${closingBody}${ctas ? `<div class="trust-story__cta-group">${ctas}</div>` : ''}</div>`
+    : '';
+
+  const list = `<ul class="trust-story trust-story--timeline" role="list" aria-label="${escapeAttribute(block.data?.title || 'Prozess')}">${stepsList}</ul>`;
+
+  return renderSection({
+    block,
+    variant: 'timeline',
+    sectionClass: 'uk-section-muted',
+    content: `${header}${list}${closing}`
+  });
 }
 
 function renderContactForm(block, variant = 'default', options = {}) {
@@ -831,7 +1082,7 @@ function renderRichTextProse(block, options = {}) {
 }
 
 function renderInfoMedia(block, variant, options = {}) {
-  const allowedVariants = new Set(['stacked', 'image-left', 'image-right']);
+  const allowedVariants = new Set(['stacked', 'image-left', 'image-right', 'switcher']);
   const hasSupportedVariant = allowedVariants.has(variant);
   const context = options?.context || 'frontend';
   const displayVariant = hasSupportedVariant ? variant : 'unsupported';
@@ -841,6 +1092,10 @@ function renderInfoMedia(block, variant, options = {}) {
     const allowed = Array.from(allowedVariants).join(', ');
     const warning = `<div class="uk-alert-warning" role="alert">Unsupported info_media variant ${providedVariant}. Erlaubte Varianten: ${escapeHtml(allowed)}.</div>`;
     return renderSection({ block, variant: displayVariant, content: warning });
+  }
+
+  if (variant === 'switcher') {
+    return renderInfoMediaSwitcher(block, options);
   }
 
   const bodyContent = typeof block.data?.body === 'string' && block.data.body.trim()
@@ -873,6 +1128,63 @@ function renderInfoMedia(block, variant, options = {}) {
   const grid = `<div class="${gridClass}" data-uk-grid>${columnsByVariant[variant]}</div>`;
 
   return renderSection({ block, variant: displayVariant, content: grid });
+}
+
+function renderInfoMediaSwitcher(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const items = Array.isArray(block.data?.items)
+    ? block.data.items.filter(item => item && typeof item.title === 'string' && typeof item.description === 'string')
+    : [];
+
+  if (!items.length) {
+    return renderSection({
+      block,
+      variant: 'switcher',
+      sectionClass: 'uk-section-muted',
+      content: '<div class="uk-alert-warning" role="alert">Keine Module hinterlegt.</div>'
+    });
+  }
+
+  const switcherId = `info-media-switcher-${block.id ? escapeAttribute(block.id) : 'section'}`;
+
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-line"><span${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</span></h2>`
+    : '';
+  const subtitle = block.data?.subtitle
+    ? `<span class="muted"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</span>`
+    : '';
+  const header = title || subtitle
+    ? `<div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">${title}${subtitle}</div>`
+    : '';
+
+  const nav = `<ul class="uk-tab calserver-modules-nav" data-uk-switcher="connect: #${escapeAttribute(switcherId)}; animation: uk-animation-fade">${items
+    .map(item => {
+      const description = item.description
+        ? `<span class="calserver-modules-nav__desc">${escapeHtml(item.description)}</span>`
+        : '';
+      return `<li><a class="calserver-modules-nav__link" href="#${escapeAttribute(item.id)}"><span class="calserver-modules-nav__title">${escapeHtml(item.title)}</span>${description}</a></li>`;
+    })
+    .join('')}</ul>`;
+
+  const panels = items
+    .map(item => {
+      const visual = item.media?.image
+        ? `<div class="calserver-module-figure__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><img src="${escapeAttribute(item.media.image)}" alt="${item.media?.alt ? escapeAttribute(item.media.alt) : ''}" loading="lazy"></div>`
+        : `<div class="calserver-module-figure__visual" data-module="${escapeAttribute(item.id.replace('module-', ''))}"><div class="uk-placeholder uk-text-center uk-border-rounded"><span class="uk-text-muted">Kein Bild ausgewählt</span></div></div>`;
+
+      const bullets = renderFeatureBullets(item.bullets);
+
+      return `<li><figure id="${escapeAttribute(item.id)}" class="calserver-module-figure"><div class="calserver-module-figure__visual-wrapper">${visual}</div><figcaption><h3 class="uk-h3">${escapeHtml(item.title)}</h3>${item.description ? `<p class="muted">${escapeHtml(item.description)}</p>` : ''}${bullets}</figcaption></figure></li>`;
+    })
+    .join('');
+
+  const grid = `
+    <div class="calserver-modules-grid" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: > *; delay: 100; repeat: true">
+      <div>${nav}</div>
+      <div><ul id="${escapeAttribute(switcherId)}" class="uk-switcher calserver-modules-switcher">${panels}</ul></div>
+    </div>`;
+
+  return renderSection({ block, variant: 'switcher', sectionClass: 'uk-section-muted', content: `${header}${grid}` });
 }
 
 function renderCtaButton(cta, styleClass = 'uk-button-primary', additionalClasses = '') {
@@ -985,9 +1297,21 @@ function renderStatStripMarquee(block) {
     return '';
   }
 
-  return `<div class="uk-margin-large-top"><div class="uk-flex uk-flex-middle uk-flex-center uk-flex-wrap uk-text-muted uk-text-small">${marqueeItems
-    .map(text => `<span class="uk-margin-small-left uk-margin-small-right">${escapeHtml(text)}</span>`)
-    .join('<span class="uk-text-muted">•</span>')}</div></div>`;
+  const duplicatedItems = marqueeItems.concat(marqueeItems);
+
+  const track = duplicatedItems
+    .map((text, index) => {
+      const ariaHidden = index >= marqueeItems.length ? ' aria-hidden="true"' : '';
+      return `<div class="calserver-logo-marquee__item" role="listitem"${ariaHidden}>${escapeHtml(text)}</div>`;
+    })
+    .join('');
+
+  return `
+    <div class="uk-margin-large-top">
+      <div class="calserver-logo-marquee" aria-label="${escapeAttribute(block.data?.title || 'Leistungsversprechen')}">
+        <div class="calserver-logo-marquee__track" role="list">${track}</div>
+      </div>
+    </div>`;
 }
 
 function renderStatMetricValue(block, metric, index, context, options = {}) {
@@ -1420,12 +1744,15 @@ export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
     media_right: renderHeroMediaRight,
+    'media-right': renderHeroMediaRight,
     media_left: renderHeroMediaLeft,
+    'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal
   },
   feature_list: {
     'detailed-cards': renderFeatureListDetailedCards,
     'grid-bullets': renderFeatureListGridBullets,
+    slider: renderFeatureListSlider,
     'text-columns': (block, options) => renderFeatureList(block, 'text-columns', options),
     'card-stack': (block, options) => renderFeatureList(block, 'card-stack', options),
     stacked_cards: (block, options) => renderFeatureList(block, 'card-stack', options),
@@ -1434,8 +1761,10 @@ export const RENDERER_MATRIX = {
   process_steps: {
     'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),
     'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options),
-    timeline: (block, options) => renderProcessSteps(block, 'timeline', options),
+    timeline: renderProcessStepsTimeline,
+    'timeline-vertical': (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
     timeline_vertical: (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
+    'timeline-horizontal': (block, options) => renderProcessSteps(block, 'timeline_horizontal', options),
     timeline_horizontal: (block, options) => renderProcessSteps(block, 'timeline_horizontal', options)
   },
   testimonial: {
@@ -1448,7 +1777,8 @@ export const RENDERER_MATRIX = {
   info_media: {
     stacked: (block, options) => renderInfoMedia(block, 'stacked', options),
     'image-left': (block, options) => renderInfoMedia(block, 'image-left', options),
-    'image-right': (block, options) => renderInfoMedia(block, 'image-right', options)
+    'image-right': (block, options) => renderInfoMedia(block, 'image-right', options),
+    switcher: (block, options) => renderInfoMedia(block, 'switcher', options)
   },
   cta: {
     full_width: renderCta,
@@ -1457,7 +1787,9 @@ export const RENDERER_MATRIX = {
   stat_strip: {
     inline: renderStatStripInline,
     cards: renderStatStripCards,
-    centered: renderStatStripCentered
+    centered: renderStatStripCentered,
+    'three-up': renderStatStripCards,
+    three_up: renderStatStripCards
   },
   proof: {
     'metric-callout': renderProofMetricCallout

@@ -4,10 +4,11 @@ const assert = require('assert');
 
 const matrixSource = fs
   .readFileSync('public/js/components/block-renderer-matrix-data.js', 'utf8')
+  .replace(/^import[^;]+;\n/gm, '')
   .replace(/export\s+/g, '')
   .concat('\nthis.RENDERER_MATRIX = RENDERER_MATRIX;');
 
-const sandbox = {};
+const sandbox = { console, resolveSectionIntent: () => 'content' };
 vm.createContext(sandbox);
 vm.runInContext(matrixSource, sandbox);
 
@@ -35,3 +36,12 @@ assert.strictEqual(
   renderedBlocks.length,
   'Blocks should remain distinct after import'
 );
+
+const calServerPage = JSON.parse(fs.readFileSync('content/marketing/calserver.page.json', 'utf8'));
+assert.ok(Array.isArray(calServerPage.blocks), 'calServer page should contain blocks');
+
+calServerPage.blocks.forEach((block, index) => {
+  const renderer = RENDERER_MATRIX[block.type]?.[block.variant];
+  assert.ok(renderer, `Renderer missing for ${block.type}/${block.variant}`);
+  assert.doesNotThrow(() => renderer(block, { context: 'preview' }), `calServer renderer failed for block ${block.id || index}`);
+});

@@ -86,7 +86,8 @@
             "detailed-cards",
             "grid-bullets",
             "text-columns",
-            "card-stack"
+            "card-stack",
+            "slider"
           ]
         },
         "data": {
@@ -176,6 +177,8 @@
         "variant": {
           "enum": [
             "stacked",
+            "image-left",
+            "image-right",
             "switcher"
           ]
         },
@@ -222,7 +225,8 @@
             "inline",
             "cards",
             "centered",
-            "three-up"
+            "three-up",
+            "three_up"
           ]
         },
         "data": {
