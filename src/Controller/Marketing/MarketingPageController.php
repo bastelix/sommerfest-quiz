@@ -408,11 +408,18 @@ class MarketingPageController
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
+        [
+            'namespace' => $namespace,
+            'slug' => $slug,
+            'blocks' => $blocks,
+            'design' => $design,
+        ] = $data;
+
         $payload = [
-            'namespace' => $data['namespace'],
-            'slug' => $data['slug'],
-            'blocks' => $data['blocks'],
-            'design' => $data['design'],
+            'namespace' => $namespace,
+            'slug' => $slug,
+            'blocks' => $blocks,
+            'design' => $design,
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
