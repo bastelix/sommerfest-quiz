@@ -4,6 +4,7 @@ const DEFAULT_BRAND_PRIMARY = '#1e87f0';
 const DEFAULT_BRAND_ACCENT = '#f97316';
 
 const designRegistry = {};
+let hasBootstrappedRegistry = false;
 
 const normalizeNamespace = namespace => {
   if (!namespace) {
@@ -20,16 +21,35 @@ const mergeIntoRegistry = (namespace, design) => {
   designRegistry[normalized] = design;
 };
 
-const resolveDesignRegistry = () => {
-  if (Object.keys(designRegistry).length) {
-    return designRegistry;
+const bootstrapRegistryFromDocument = () => {
+  if (hasBootstrappedRegistry) {
+    return;
+  }
+  hasBootstrappedRegistry = true;
+
+  if (typeof document === 'undefined') {
+    return;
   }
 
-  if (typeof window !== 'undefined') {
-    const registry = window.namespaceDesign;
-    if (registry && typeof registry === 'object') {
-      Object.entries(registry).forEach(([ns, design]) => mergeIntoRegistry(ns, design));
-    }
+  const payload = document.documentElement?.dataset?.namespaceDesign;
+  if (!payload) {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(payload);
+    const candidates = Array.isArray(parsed) ? parsed : [parsed];
+    candidates
+      .filter(entry => entry && typeof entry === 'object')
+      .forEach(entry => mergeIntoRegistry(entry.namespace, entry));
+  } catch (error) {
+    console.error('Failed to bootstrap namespace design registry', error);
+  }
+};
+
+const resolveDesignRegistry = () => {
+  if (!Object.keys(designRegistry).length) {
+    bootstrapRegistryFromDocument();
   }
 
   return designRegistry;
@@ -44,6 +64,7 @@ const resolveDesignForNamespace = namespace => {
 const mergeAppearance = (namespace, appearance = {}) => {
   const design = resolveDesignForNamespace(namespace);
   const designAppearance = design?.appearance || design || {};
+  const configColors = design?.config?.colors || {};
   const baseAppearance = appearance && typeof appearance === 'object' ? appearance : {};
   const tokens = {
     ...(baseAppearance.tokens || {}),
@@ -52,6 +73,7 @@ const mergeAppearance = (namespace, appearance = {}) => {
   const colors = {
     ...(baseAppearance.colors || {}),
     ...(designAppearance.colors || {}),
+    ...(configColors || {}),
   };
   const variables = {
     ...(baseAppearance.variables || {}),
@@ -80,6 +102,8 @@ const applyColorsToRoot = (element, appearance) => {
   const accent = colors.secondary || colors.accent || brand.accent || DEFAULT_BRAND_ACCENT;
   const surface = colors.surface || appearance?.variables?.surface;
   const muted = colors.muted || appearance?.variables?.surfaceMuted;
+  const topbarLight = colors.topbar_light || colors.topbarLight || appearance?.variables?.topbarLight;
+  const topbarDark = colors.topbar_dark || colors.topbarDark || appearance?.variables?.topbarDark;
 
   element.style.setProperty('--brand-primary', primary);
   element.style.setProperty('--accent-primary', primary);
@@ -92,6 +116,14 @@ const applyColorsToRoot = (element, appearance) => {
 
   if (muted) {
     element.style.setProperty('--surface-muted', muted);
+  }
+
+  if (topbarLight) {
+    element.style.setProperty('--qr-landing-topbar-bg-light', topbarLight);
+  }
+
+  if (topbarDark) {
+    element.style.setProperty('--qr-landing-topbar-bg-dark', topbarDark);
   }
 };
 

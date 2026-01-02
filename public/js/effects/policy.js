@@ -1,3 +1,5 @@
+import { resolveNamespaceDesign } from '../components/namespace-design.js';
+
 // Centralized effects governance. Effects are resolved per-namespace and
 // activated only through declarative markers without touching page data.
 // Supported effect keys are whitelisted via EFFECT_TYPES; profiles outside
@@ -58,12 +60,7 @@ export function resolveEffectsProfile(namespace) {
 }
 
 function resolveDesignProfile(namespace) {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  const registry = window.namespaceDesign || {};
-  const design = registry?.[namespace];
+  const design = resolveNamespaceDesign(namespace);
   const profile = design?.effects?.effectsProfile || design?.effectsProfile;
   if (!profile || typeof profile !== 'string') {
     return null;
