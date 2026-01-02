@@ -1,7 +1,7 @@
 {% set hasBlocks = pageBlocks is defined and pageBlocks is not null %}
 {% set targetId = block_content_id|default('marketing-page-content') %}
 {% set targetClass = block_content_class|default('marketing-page-content') %}
-<div id="{{ targetId }}" class="{{ targetClass }}"{% if hasBlocks %} data-page-blocks="{{ pageBlocks|json_encode|e('html_attr') }}"{% endif %}>
+<div id="{{ targetId }}" class="{{ targetClass }}">
   {% if not hasBlocks %}
     {{ content|raw }}
   {% endif %}

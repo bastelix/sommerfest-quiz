@@ -41,10 +41,12 @@ use function html_entity_decode;
 use function htmlspecialchars;
 use function is_array;
 use function is_readable;
+use function json_encode;
 use function json_decode;
 use function max;
 use function preg_replace;
 use function rawurlencode;
+use function str_contains;
 use function str_replace;
 use function trim;
 
@@ -243,6 +245,14 @@ class MarketingPageController
         $design = $this->loadDesign($requestedNamespace);
 
         $pageBlocks = $this->extractPageBlocks($html);
+        if ($this->wantsJson($request)) {
+            return $this->renderJsonPage($response, [
+                'namespace' => $page->getNamespace(),
+                'slug' => $page->getSlug(),
+                'blocks' => $pageBlocks ?? [],
+                'design' => $design,
+            ]);
+        }
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
@@ -368,6 +378,46 @@ class MarketingPageController
         }
 
         return $blocks;
+    }
+
+    /**
+     * Determine whether the caller explicitly requested a JSON payload.
+     */
+    private function wantsJson(Request $request): bool
+    {
+        $query = $request->getQueryParams();
+        $format = isset($query['format']) ? strtolower((string) $query['format']) : '';
+        $jsonFlag = isset($query['json']) ? strtolower((string) $query['json']) : '';
+
+        if ($format === 'json') {
+            return true;
+        }
+
+        if (in_array($jsonFlag, ['1', 'true'], true)) {
+            return true;
+        }
+
+        $accept = strtolower($request->getHeaderLine('Accept'));
+        return str_contains($accept, 'application/json');
+    }
+
+    /**
+     * Render a marketing page payload without embedding it into the DOM.
+     *
+     * @param array{namespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>} $data
+     */
+    private function renderJsonPage(Response $response, array $data): Response
+    {
+        $payload = [
+            'namespace' => $data['namespace'] ?? PageService::DEFAULT_NAMESPACE,
+            'slug' => $data['slug'] ?? '',
+            'blocks' => $data['blocks'] ?? [],
+            'design' => $data['design'] ?? [],
+        ];
+
+        $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     private function buildMaintenanceWindowLabel(string $locale): string
