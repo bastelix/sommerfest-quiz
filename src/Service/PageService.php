@@ -714,7 +714,7 @@ class PageService
             return [null];
         }
 
-        return [$normalized, null];
+        return [$normalized];
     }
 
     private function normalizeStartpageDomain(?string $domain): ?string

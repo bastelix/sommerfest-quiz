@@ -81,7 +81,7 @@ class HomeController
             $isCustomDomain = $request->getAttribute('domainNamespace') !== null
                 || in_array((string) $request->getAttribute('domainType'), ['tenant', 'marketing'], true);
 
-            if ($startpageSlug === null && $catalogParam === '' && $isCustomDomain) {
+            if ($startpageSlug === null && $isCustomDomain) {
                 return $view->render($response, 'marketing/domain_maintenance.twig', [
                     'requestedHost' => $host,
                 ]);

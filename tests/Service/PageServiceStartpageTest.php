@@ -57,8 +57,7 @@ final class PageServiceStartpageTest extends TestCase
         $this->assertSame('example.org', $domainStartpage?->getStartpageDomain());
 
         $fallbackStartpage = $this->service->resolveStartpage('default', 'en', 'other.test');
-        $this->assertNotNull($fallbackStartpage);
-        $this->assertSame('fallback', $fallbackStartpage?->getSlug());
+        $this->assertNull($fallbackStartpage);
     }
 
     public function testMarkAndClearKeepDomainIsolation(): void
@@ -79,8 +78,7 @@ final class PageServiceStartpageTest extends TestCase
 
         $this->service->clearStartpageForNamespace('default', 'example.org');
         $clearedStartpage = $this->service->resolveStartpage('default', null, 'example.org');
-        $this->assertNotNull($clearedStartpage);
-        $this->assertSame('fallback', $clearedStartpage?->getSlug());
+        $this->assertNull($clearedStartpage);
     }
 
     public function testEmptyDomainStringIsHandledAsNull(): void
@@ -97,6 +95,16 @@ final class PageServiceStartpageTest extends TestCase
         $updated = $this->service->resolveStartpage('default', null, null);
         $this->assertNotNull($updated);
         $this->assertSame('new-home', $updated?->getSlug());
+    }
+
+    public function testNamespaceFallbackStillAvailableWithoutDomain(): void
+    {
+        $this->insertPage(1, 'default', 'fallback', true, null, 'de');
+
+        $resolved = $this->service->resolveStartpage('default', null, null);
+
+        $this->assertNotNull($resolved);
+        $this->assertSame('fallback', $resolved?->getSlug());
     }
 
     private function insertPage(
