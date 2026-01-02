@@ -1307,7 +1307,7 @@ function renderStatStripMarquee(block) {
     .join('');
 
   return `
-    <div class="uk-margin-large-top">
+    <div class="stat-strip__marquee uk-margin-large-top">
       <div class="calserver-logo-marquee" aria-label="${escapeAttribute(block.data?.title || 'Leistungsversprechen')}">
         <div class="calserver-logo-marquee__track" role="list">${track}</div>
       </div>
@@ -1343,7 +1343,8 @@ function renderStatMetricBenefit(block, metric, index, context, options = {}) {
   }
   const alignment = options.alignClass ? ` ${options.alignClass}` : '';
   const extraClass = options.extraClass ? ` ${options.extraClass}` : '';
-  return `<p class="uk-text-success uk-margin-small-top uk-margin-remove-bottom${alignment}${extraClass}"${buildEditableAttributes(
+  const textClass = options.textClass || 'uk-text-success';
+  return `<p class="${textClass} uk-margin-small-top uk-margin-remove-bottom${alignment}${extraClass}"${buildEditableAttributes(
     block,
     `data.metrics.${index}.benefit`,
     context
@@ -1414,28 +1415,33 @@ function renderStatStripCards(block, options = {}) {
 
   const metricCards = metrics
     .map((metric, index) => {
-      const value = renderStatMetricValue(block, metric, index, context, { alignClass: 'uk-text-left' });
-      const label = renderStatMetricLabel(block, metric, index, context, {
-        labelClass: 'uk-text-muted',
-        alignClass: 'uk-text-left',
-        extraClass: 'stat-strip__label'
+      const value = renderStatMetricValue(block, metric, index, context, {
+        valueSize: 'stat-strip__value uk-heading-large',
+        alignClass: 'uk-text-left'
       });
-      const benefit = renderStatMetricBenefit(block, metric, index, context, {
-        alignClass: 'uk-text-left',
-        extraClass: 'stat-strip__meta-item'
+      const label = renderStatMetricLabel(block, metric, index, context, {
+        labelClass: 'stat-strip__label-text uk-text-semibold',
+        alignClass: 'uk-text-left'
       });
       const asOf = renderStatMetricAsOf(block, metric, index, context, {
         alignClass: 'uk-text-left',
-        extraClass: 'stat-strip__meta-item stat-strip__meta-item--muted'
+        extraClass: 'stat-strip__as-of'
       });
-      const metaContent = benefit || asOf ? `${benefit}${asOf}` : '<span class="stat-strip__meta-placeholder" aria-hidden="true"></span>';
-      const meta = `<div class="stat-strip__meta">${metaContent}</div>`;
-      return `<div><div class="stat-strip__card uk-card uk-card-default uk-card-body uk-height-1-1 uk-flex uk-flex-column">${value}${label}${meta}</div></div>`;
+      const benefit = renderStatMetricBenefit(block, metric, index, context, {
+        alignClass: 'uk-text-left',
+        extraClass: 'stat-strip__benefit',
+        textClass: 'uk-text-secondary'
+      });
+      const benefitBlock = benefit || '<span class="stat-strip__benefit stat-strip__benefit-placeholder" aria-hidden="true"></span>';
+
+      return `<div role="listitem"><div class="stat-strip__card uk-card uk-card-default uk-card-body uk-height-1-1 uk-flex uk-flex-column">` +
+        `<div class="stat-strip__kpi uk-flex uk-flex-column">${value}${label}${asOf || ''}</div>` +
+        `${benefitBlock}</div></div>`;
     })
     .join('');
 
   const metricsGrid = metricCards
-    ? `<div class="stat-strip__grid uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match" data-uk-grid>${metricCards}</div>`
+    ? `<div class="stat-strip__grid uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match" data-uk-grid role="list">${metricCards}</div>`
     : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
 
   const marquee = renderStatStripMarquee(block);
