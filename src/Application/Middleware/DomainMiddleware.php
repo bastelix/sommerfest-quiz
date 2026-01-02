@@ -105,10 +105,7 @@ class DomainMiddleware implements MiddlewareInterface
 
         if (
             $domainType !== 'marketing'
-            && (
-                $effectiveMainDomain === ''
-                || $domainType === null
-            )
+            && $effectiveMainDomain === ''
             && !$allowLocalHost
         ) {
             $message = 'Main domain is not configured. Please set MAIN_DOMAIN (preferred) or DOMAIN to the canonical host.';
@@ -218,13 +215,13 @@ class DomainMiddleware implements MiddlewareInterface
         }
 
         $zone = $this->zoneResolver->deriveZone($host) ?? '';
-        $label = explode('.', $zone)[0] ?? '';
+        $label = explode('.', $zone)[0];
         $normalized = $this->namespaceValidator->normalizeCandidate($label);
         if ($normalized !== null) {
             return $normalized;
         }
 
-        $primaryLabel = explode('.', $this->normalizeHost($host, stripAdmin: false))[0] ?? '';
+        $primaryLabel = explode('.', $this->normalizeHost($host, stripAdmin: false))[0];
 
         return $this->namespaceValidator->normalizeCandidate($primaryLabel);
     }
