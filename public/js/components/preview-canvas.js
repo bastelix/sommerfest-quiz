@@ -1,5 +1,6 @@
 import { renderPage, RENDERER_MATRIX } from './block-renderer-matrix.js';
 import { initEffects } from '../effects/initEffects.js';
+import { applyNamespaceDesign, resolveNamespaceAppearance } from './namespace-design.js';
 
 const noop = () => {};
 
@@ -94,14 +95,17 @@ export class PreviewCanvas {
       this.cleanupEffects();
       this.cleanupEffects = null;
     }
+    const namespace = resolvePreviewNamespace(this.root);
+    const appearance = resolveNamespaceAppearance(namespace, this.appearance || window.pageAppearance || {});
+    applyNamespaceDesign(this.surface, namespace, appearance);
+
     const html = renderPage(Array.isArray(this.visibleBlocks) ? this.visibleBlocks : [], {
       rendererMatrix: RENDERER_MATRIX,
       context: 'preview',
-      appearance: this.appearance || window.pageAppearance || {},
+      appearance,
     });
     this.surface.innerHTML = html;
     this.applySelectionHighlight();
-    const namespace = resolvePreviewNamespace(this.root);
     const mode = this.intent === 'preview' ? 'preview' : (this.intent === 'design' ? 'design-preview' : 'edit');
     const effects = initEffects(this.surface, { namespace, mode });
     this.cleanupEffects = effects?.destroy || null;

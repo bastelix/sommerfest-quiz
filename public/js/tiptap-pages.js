@@ -2,6 +2,7 @@ import { Editor, Extension, Mark } from './vendor/tiptap/core.esm.js';
 import StarterKit from './vendor/tiptap/starter-kit.esm.js';
 import BlockContentEditor from './components/block-content-editor.js';
 import PreviewCanvas from './components/preview-canvas.js';
+import { applyNamespaceDesign, resolveNamespaceAppearance } from './components/namespace-design.js';
 import {
   normalizeBlockContract,
   normalizeBlockVariant,
@@ -3445,13 +3446,19 @@ export async function showPreview(formOverride = null, options = {}) {
     return;
   }
 
+  const namespace = previewContainer.dataset.namespace
+    || document.documentElement?.dataset?.namespace
+    || 'default';
+
   const editor = ensurePageEditorInitialized(activeForm) || getEditorInstance(activeForm);
   const editorEl = activeForm.querySelector('.page-editor');
   const { blocks } = readBlockEditorState(editor);
+  const appearance = resolveNamespaceAppearance(namespace, window.pageAppearance || {});
+  applyNamespaceDesign(previewContainer, namespace, appearance);
   const rendererOptions = {
     rendererMatrix: RENDERER_MATRIX,
     context: 'preview',
-    appearance: window.pageAppearance || {},
+    appearance,
   };
   const html = USE_BLOCK_EDITOR
     ? renderPage(Array.isArray(blocks) ? blocks : [], rendererOptions)
