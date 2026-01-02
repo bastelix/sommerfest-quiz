@@ -1,0 +1,44 @@
+{% extends 'layout.twig' %}
+
+{% set normalizedNamespace = pageNamespace|default('default') %}
+{% set pageTitle = metaTitle|default('') %}
+
+{% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <script type="module">
+    import { renderPage } from '{{ basePath }}/js/components/page-renderer.js';
+    import { applyNamespaceDesign, resolveNamespaceAppearance } from '{{ basePath }}/js/components/namespace-design.js';
+
+    const namespaceKey = {{ normalizedNamespace|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+    const blocks = {{ pageJson|default([])|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+    const effects = {{ design.effects|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+
+    const appearance = resolveNamespaceAppearance(namespaceKey);
+    applyNamespaceDesign(document.documentElement, namespaceKey, appearance);
+
+    const target = document.getElementById('page-render-target');
+    if (target) {
+      target.innerHTML = renderPage(Array.isArray(blocks) ? blocks : [], {
+        namespace: namespaceKey,
+        appearance,
+        effects,
+        basePath: {{ basePath|json_encode(constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }},
+      });
+    }
+  </script>
+{% endblock %}
+
+{% block body_class %}qr-landing marketing-page uk-background-default{% endblock %}
+
+{% block body %}
+  <main class="qr-page-renderer" id="page-render-target" aria-label="Page content">
+    {% if pageJson is empty %}
+      <p class="uk-text-center uk-padding">{{ 'Keine Inhalte für diese Seite vorhanden.' }}</p>
+    {% endif %}
+  </main>
+{% endblock %}

@@ -209,16 +209,7 @@ class MarketingPageController
         }
 
         $view = Twig::fromRequest($request);
-        $template = sprintf('marketing/%s.twig', $templateSlug);
-        $loader = $view->getEnvironment()->getLoader();
-        if (!$loader->exists($template)) {
-            $defaultTemplate = 'marketing/default.twig';
-            if ($template !== $defaultTemplate && $loader->exists($defaultTemplate)) {
-                $template = $defaultTemplate;
-            } else {
-                return $response->withStatus(404);
-            }
-        }
+        $template = 'pages/render.twig';
 
         $headerContent = '';
         $isAdmin = false;
@@ -251,9 +242,11 @@ class MarketingPageController
 
         $design = $this->loadDesign($requestedNamespace);
 
+        $pageBlocks = $this->extractPageBlocks($html);
         $data = [
             'content' => $html,
-            'pageBlocks' => $this->extractPageBlocks($html),
+            'pageBlocks' => $pageBlocks,
+            'pageJson' => $pageBlocks,
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),
