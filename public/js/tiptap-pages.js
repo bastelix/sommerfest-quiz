@@ -10,13 +10,19 @@ import {
 } from './components/block-contract.js';
 import { renderPage, RENDERER_MATRIX } from './components/block-renderer-matrix.js';
 
-const notify = typeof window !== 'undefined' && typeof window.notify === 'function'
-  ? window.notify.bind(window)
-  : (message, status) => {
+const resolveNotify = () => {
+  if (typeof window !== 'undefined' && typeof window.notify === 'function') {
+    return window.notify.bind(window);
+  }
+
+  return (message, status) => {
     if (typeof window !== 'undefined' && window.console) {
       window.console.log(status ? `[${status}] ${message}` : message);
     }
   };
+};
+
+const notify = (message, status) => resolveNotify()(message, status);
 
 // Define custom UIkit templates for the page editor
 const DOMPURIFY_PAGE_EDITOR_CONFIG = {
