@@ -12,9 +12,9 @@ use App\Service\MarketingMenuService;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceResolver;
 use App\Service\ConfigService;
-use App\Service\DesignTokenService;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
@@ -75,10 +75,10 @@ class MarketingPageController
     private MarketingPageWikiArticleService $wikiArticles;
     private PageContentLoader $contentLoader;
     private PageModuleService $pageModules;
+    private NamespaceAppearanceService $namespaceAppearance;
     private NamespaceResolver $namespaceResolver;
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
-    private DesignTokenService $designTokens;
     private EffectsPolicyService $effectsPolicy;
 
     public function __construct(
@@ -93,10 +93,10 @@ class MarketingPageController
         ?MarketingPageWikiArticleService $wikiArticles = null,
         ?PageContentLoader $contentLoader = null,
         ?PageModuleService $pageModules = null,
+        ?NamespaceAppearanceService $namespaceAppearance = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?ProjectSettingsService $projectSettings = null,
         ?ConfigService $configService = null,
-        ?DesignTokenService $designTokens = null,
         ?EffectsPolicyService $effectsPolicy = null
     ) {
         $this->slug = $slug;
@@ -110,11 +110,11 @@ class MarketingPageController
         $this->wikiArticles = $wikiArticles ?? new MarketingPageWikiArticleService();
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
         $this->pageModules = $pageModules ?? new PageModuleService();
+        $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
         $pdo = Database::connectFromEnv();
         $this->configService = $configService ?? new ConfigService($pdo);
-        $this->designTokens = $designTokens ?? new DesignTokenService($pdo, $this->configService);
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
     }
 
@@ -1137,17 +1137,7 @@ class MarketingPageController
             }
         }
 
-        $tokens = $this->designTokens->getTokensForNamespace($requestedNamespace);
-        $appearance = [
-            'tokens' => $tokens,
-            'defaults' => $this->designTokens->getDefaults(),
-            'colors' => [
-                'primary' => $tokens['brand']['primary'] ?? null,
-                'secondary' => $tokens['brand']['accent'] ?? null,
-                'accent' => $tokens['brand']['accent'] ?? null,
-            ],
-        ];
-
+        $appearance = $this->namespaceAppearance->load($requestedNamespace);
         $effects = $this->effectsPolicy->getEffectsForNamespace($requestedNamespace);
 
         return [
