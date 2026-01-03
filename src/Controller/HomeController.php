@@ -13,6 +13,7 @@ use App\Service\EventService;
 use App\Service\PageService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceAppearanceService;
 use App\Service\PageContentLoader;
 use App\Service\ResultService;
 use App\Infrastructure\Database;
@@ -40,6 +41,7 @@ class HomeController
         $namespaceContext = $namespaceResolver->resolve($request);
         $namespace = $namespaceContext->getNamespace();
         $host = $namespaceContext->getHost();
+        $appearance = (new NamespaceAppearanceService())->load($namespace);
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -227,19 +229,23 @@ class HomeController
 
         if ($uid !== '' && $catalogParam === '') {
             return $view->render($response, 'event_catalogs.twig', [
+                'appearance' => $appearance,
                 'config' => $cfg,
                 'catalogs' => $catalogs,
                 'event' => $event,
+                'pageNamespace' => $namespace,
                 'csrf_token' => $_SESSION['csrf_token'] ?? '',
             ]);
         }
 
         return $view->render($response, 'index.twig', [
+            'appearance' => $appearance,
             'config' => $cfg,
             'catalogs' => $catalogs,
             'event' => $event,
             'csrf_token' => $_SESSION['csrf_token'] ?? '',
             'player_name' => $_SESSION['player_name'] ?? '',
+            'pageNamespace' => $namespace,
         ]);
     }
 }

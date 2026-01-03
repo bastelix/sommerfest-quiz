@@ -9,6 +9,8 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\NamespaceResolver;
+use App\Service\NamespaceAppearanceService;
 use App\Infrastructure\Database;
 use PDO;
 
@@ -28,6 +30,8 @@ class HelpController
         }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $appearance = (new NamespaceAppearanceService())->load($namespace);
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
@@ -63,8 +67,10 @@ class HelpController
         }
 
         return $view->render($response, 'help.twig', [
+            'appearance' => $appearance,
             'config' => $cfg,
             'event' => $event,
+            'pageNamespace' => $namespace,
         ]);
     }
 }

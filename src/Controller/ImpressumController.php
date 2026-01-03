@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\LegalPageResolver;
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceAppearanceService;
 use App\Service\PageVariableService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -27,11 +28,14 @@ class ImpressumController
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $appearance = (new NamespaceAppearanceService())->load($namespace);
         $html = PageVariableService::apply($html, $namespace);
 
         $view = Twig::fromRequest($request);
         return $view->render($response, 'impressum.twig', [
             'content' => $html,
+            'appearance' => $appearance,
+            'pageNamespace' => $namespace,
         ]);
     }
 }

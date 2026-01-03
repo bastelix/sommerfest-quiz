@@ -15,12 +15,12 @@
   {% set typography = tokens.typography|default({}) %}
   {% set components = tokens.components|default({}) %}
 
-  {% set brandPrimary = colors.primary|default(brand.primary|default(defaultBrand.primary|default('#1e87f0')))|trim %}
-  {% set brandAccent = colors.secondary|default(colors.accent|default(brand.accent|default(defaultBrand.accent|default('#f97316'))))|trim %}
-  {% set layoutProfile = layout.profile|default(defaultLayout.profile|default('standard'))|trim %}
-  {% set typographyPreset = typography.preset|default(defaultTypography.preset|default('modern'))|trim %}
-  {% set cardStyle = components.cardStyle|default(defaultComponents.cardStyle|default('rounded'))|trim %}
-  {% set buttonStyle = components.buttonStyle|default(defaultComponents.buttonStyle|default('filled'))|trim %}
+  {% set brandPrimary = colors.primary ?? brand.primary ?? defaultBrand.primary ?? null %}
+  {% set brandAccent = colors.secondary ?? colors.accent ?? brand.accent ?? defaultBrand.accent ?? null %}
+  {% set layoutProfile = layout.profile ?? defaultLayout.profile ?? null %}
+  {% set typographyPreset = typography.preset ?? defaultTypography.preset ?? null %}
+  {% set cardStyle = components.cardStyle ?? defaultComponents.cardStyle ?? null %}
+  {% set buttonStyle = components.buttonStyle ?? defaultComponents.buttonStyle ?? null %}
 
   {% set surface = colors.surface|default(variables.surface|default(null))|trim %}
   {% set surfaceMuted = colors.muted|default(variables.surfaceMuted|default(null))|trim %}
@@ -29,14 +29,14 @@
 
   <style data-namespace-appearance>
     [data-namespace="{{ namespace|e('css') }}"] {
-      --brand-primary: {{ brandPrimary|e('css') }};
-      --accent-primary: {{ brandPrimary|e('css') }};
-      --brand-accent: {{ brandAccent|e('css') }};
-      --accent-secondary: {{ brandAccent|e('css') }};
-      --layout-profile: {{ layoutProfile|e('css') }};
-      --typography-preset: {{ typographyPreset|e('css') }};
-      --components-card-style: {{ cardStyle|e('css') }};
-      --components-button-style: {{ buttonStyle|e('css') }};
+      --brand-primary: {{ brandPrimary|trim|e('css') }};
+      --accent-primary: {{ brandPrimary|trim|e('css') }};
+      --brand-accent: {{ brandAccent|trim|e('css') }};
+      --accent-secondary: {{ brandAccent|trim|e('css') }};
+      --layout-profile: {{ layoutProfile|trim|e('css') }};
+      --typography-preset: {{ typographyPreset|trim|e('css') }};
+      --components-card-style: {{ cardStyle|trim|e('css') }};
+      --components-button-style: {{ buttonStyle|trim|e('css') }};
       {% if surface %}
       --surface: {{ surface|e('css') }};
       {% endif %}

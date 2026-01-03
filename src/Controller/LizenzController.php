@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\NamespaceResolver;
+use App\Service\NamespaceAppearanceService;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -20,6 +21,7 @@ class LizenzController
     public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
         $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $appearance = (new NamespaceAppearanceService())->load($namespace);
         $html = $service->getByKey($namespace, 'lizenz');
         if ($html === null) {
             return $response->withStatus(404);
@@ -30,6 +32,8 @@ class LizenzController
         $view = Twig::fromRequest($request);
         return $view->render($response, 'lizenz.twig', [
             'content' => $html,
+            'appearance' => $appearance,
+            'pageNamespace' => $namespace,
         ]);
     }
 }
