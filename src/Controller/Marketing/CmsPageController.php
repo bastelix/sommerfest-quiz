@@ -242,7 +242,7 @@ class CmsPageController
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
-        $design = $this->loadDesign($requestedNamespace);
+        $design = $this->loadDesign($page->getNamespace());
 
         $pageBlocks = $this->extractPageBlocks($html);
         if ($this->wantsJson($request)) {
@@ -1127,24 +1127,24 @@ class CmsPageController
     /**
      * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
      */
-    private function loadDesign(string $requestedNamespace): array
+    private function loadDesign(string $namespace): array
     {
-        $config = $this->configService->getConfigForEvent($requestedNamespace);
-        if ($config === [] && $requestedNamespace !== PageService::DEFAULT_NAMESPACE) {
+        $config = $this->configService->getConfigForEvent($namespace);
+        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
             if ($fallbackConfig !== []) {
                 $config = $fallbackConfig;
             }
         }
 
-        $appearance = $this->namespaceAppearance->load($requestedNamespace);
-        $effects = $this->effectsPolicy->getEffectsForNamespace($requestedNamespace);
+        $appearance = $this->namespaceAppearance->load($namespace);
+        $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);
 
         return [
             'config' => $config,
             'appearance' => $appearance,
             'effects' => $effects,
-            'namespace' => $requestedNamespace,
+            'namespace' => $namespace,
         ];
     }
 }
