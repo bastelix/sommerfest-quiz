@@ -253,12 +253,35 @@ body.qr-landing { color: var(--qr-fg); }
   box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
 }
 
+.section[data-section-intent="hero"] {
+  --section-hero-surface: color-mix(
+    in srgb,
+    var(--section-surface, var(--surface)) 88%,
+    var(--section-surface-muted, var(--surface-muted)) 12%
+  );
+  --section-hero-border: color-mix(
+    in srgb,
+    var(--section-surface-muted, var(--surface-muted)) 68%,
+    var(--section-surface, var(--surface)) 32%
+  );
+  --section-hero-glow: color-mix(
+    in srgb,
+    var(--accent-secondary, var(--accent-primary, var(--brand-primary, #1e87f0))) 22%,
+    rgba(0, 0, 0, 0.18)
+  );
+}
+
 .section__inner--hero {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--section-hero-surface);
+  color: var(--section-text-color, var(--color-text));
+  border: 1px solid var(--section-hero-border);
   border-radius: calc(var(--card-radius) + 4px);
-  box-shadow: 0 34px 76px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 34px 76px color-mix(in srgb, var(--section-hero-glow) 55%, rgba(0, 0, 0, 0.24));
   backdrop-filter: blur(4px);
+}
+
+.section[data-section-intent="hero"] .section__inner--hero a {
+  color: inherit;
 }
 
 .section--contained .section__inner {
@@ -1357,6 +1380,13 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
 }
 
 /* Stat strip cards */
+.section[data-block-type="stat_strip"] {
+  --stat-card-surface: var(--section-surface, var(--surface));
+  --stat-card-surface-muted: var(--section-surface-muted, var(--surface-muted));
+  --stat-card-text: var(--section-text-color, var(--color-text));
+  --stat-card-accent: var(--accent-primary, var(--brand-primary, #1e87f0));
+}
+
 .stat-strip__grid {
   row-gap: 28px;
 }
@@ -1417,13 +1447,21 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   position: relative;
   padding: clamp(24px, 3vw, 34px);
   gap: clamp(16px, 2vw, 20px);
-  background: color-mix(in srgb, var(--surface) 90%, var(--surface-muted) 10%);
-  border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
+  background: color-mix(in srgb, var(--stat-card-surface) 90%, var(--stat-card-surface-muted) 10%);
+  color: var(--stat-card-text);
+  border: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 72%, var(--stat-card-surface) 28%);
   border-radius: calc(var(--card-radius) + 2px);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--surface-muted) 70%, transparent),
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
     0 18px 38px rgba(15, 23, 42, 0.08);
   isolation: isolate;
   transition: none;
+}
+
+.section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__card:focus-within,
+.section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__card:hover {
+  border-color: color-mix(in srgb, var(--stat-card-accent) 55%, var(--stat-card-surface-muted) 45%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
+    0 22px 48px color-mix(in srgb, var(--stat-card-accent) 18%, rgba(15, 23, 42, 0.18));
 }
 
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__card::before {
@@ -1434,8 +1472,8 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   border-radius: 999px;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 85%, transparent) 0%,
-    color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 65%, transparent) 100%
+    color-mix(in srgb, var(--stat-card-accent) 85%, transparent) 0%,
+    color-mix(in srgb, var(--stat-card-accent) 65%, transparent) 100%
   );
   opacity: 0.85;
 }
@@ -1455,32 +1493,32 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: color-mix(in srgb, var(--accent-primary, var(--brand-primary, #1e87f0)) 75%, var(--color-text) 25%);
+  color: color-mix(in srgb, var(--stat-card-accent) 75%, var(--stat-card-text) 25%);
 }
 
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__label-text {
   font-size: clamp(1.05rem, 1.2vw, 1.18rem);
   line-height: 1.4;
-  color: color-mix(in srgb, var(--color-text) 82%, transparent);
+  color: color-mix(in srgb, var(--stat-card-text) 82%, transparent);
 }
 
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__as-of {
   font-size: 0.95rem;
   letter-spacing: 0.01em;
-  color: color-mix(in srgb, var(--color-text) 65%, transparent);
+  color: color-mix(in srgb, var(--stat-card-text) 65%, transparent);
 }
 
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__benefit,
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__benefit-placeholder {
   margin-top: clamp(16px, 2vw, 20px);
   padding-top: clamp(12px, 1.6vw, 16px);
-  border-top: 1px solid color-mix(in srgb, var(--surface-muted) 76%, var(--surface) 24%);
+  border-top: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 76%, var(--stat-card-surface) 24%);
 }
 
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__benefit {
   font-size: 1rem;
   line-height: 1.55;
-  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+  color: color-mix(in srgb, var(--stat-card-text) 78%, transparent);
 }
 
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__benefit-placeholder {
@@ -1490,6 +1528,6 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
 .section[data-block-type="stat_strip"][data-block-variant="cards"] .stat-strip__marquee {
   margin-top: clamp(14px, 2vw, 18px);
   padding-top: clamp(14px, 2vw, 18px);
-  border-top: 1px solid color-mix(in srgb, var(--surface-muted) 78%, var(--surface) 22%);
-  color: color-mix(in srgb, var(--color-text) 62%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 78%, var(--stat-card-surface) 22%);
+  color: color-mix(in srgb, var(--stat-card-text) 62%, transparent);
 }

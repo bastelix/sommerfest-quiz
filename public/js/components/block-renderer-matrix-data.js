@@ -323,7 +323,7 @@ const SECTION_INTENT_CONFIG = {
   hero: {
     sectionClass: 'uk-section-large',
     containerClass: 'uk-container-expand',
-    innerClass: 'section__inner--hero uk-card uk-card-primary uk-card-large uk-card-body',
+    innerClass: 'section__inner--hero uk-card uk-card-large uk-card-body',
     surfaceToken: 'secondary',
     textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, #ffffff)' }
   }
@@ -1494,7 +1494,7 @@ function renderStatStripCards(block, options = {}) {
       });
       const benefitBlock = benefit || '<span class="stat-strip__benefit stat-strip__benefit-placeholder" aria-hidden="true"></span>';
 
-      return `<div role="listitem"><div class="stat-strip__card uk-card uk-card-default uk-card-body uk-height-1-1 uk-flex uk-flex-column">` +
+      return `<div role="listitem"><div class="stat-strip__card stat-strip__card--surface uk-card uk-card-body uk-height-1-1 uk-flex uk-flex-column">` +
         `<div class="stat-strip__kpi uk-flex uk-flex-column">${value}${label}${asOf || ''}</div>` +
         `${benefitBlock}</div></div>`;
     })
