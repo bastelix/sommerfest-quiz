@@ -1,15 +1,11 @@
-{% extends 'layout.twig' %}
+{% extends 'layouts/app_base.twig' %}
 
 {% set normalizedNamespace = pageNamespace|default('default') %}
 {% set pageTitle = metaTitle|default('') %}
 
 {% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
 
-{% block head %}
-  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
-{% endblock %}
-
-{% block body_class %}qr-landing marketing-page uk-background-default{% endblock %}
+{% block body_class %}page-render uk-background-default{% endblock %}
 
 {% block body %}
   <div class="uk-container">
