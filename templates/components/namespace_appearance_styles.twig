@@ -1,0 +1,54 @@
+{% set activeAppearance = appearance ?? null %}
+{% if activeAppearance is iterable %}
+  {% set tokens = activeAppearance.tokens|default({}) %}
+  {% set defaults = activeAppearance.defaults|default({}) %}
+  {% set colors = activeAppearance.colors|default({}) %}
+  {% set variables = activeAppearance.variables|default({}) %}
+
+  {% set defaultBrand = defaults.brand|default({}) %}
+  {% set defaultLayout = defaults.layout|default({}) %}
+  {% set defaultTypography = defaults.typography|default({}) %}
+  {% set defaultComponents = defaults.components|default({}) %}
+
+  {% set brand = tokens.brand|default({}) %}
+  {% set layout = tokens.layout|default({}) %}
+  {% set typography = tokens.typography|default({}) %}
+  {% set components = tokens.components|default({}) %}
+
+  {% set brandPrimary = colors.primary|default(brand.primary|default(defaultBrand.primary|default('#1e87f0')))|trim %}
+  {% set brandAccent = colors.secondary|default(colors.accent|default(brand.accent|default(defaultBrand.accent|default('#f97316'))))|trim %}
+  {% set layoutProfile = layout.profile|default(defaultLayout.profile|default('standard'))|trim %}
+  {% set typographyPreset = typography.preset|default(defaultTypography.preset|default('modern'))|trim %}
+  {% set cardStyle = components.cardStyle|default(defaultComponents.cardStyle|default('rounded'))|trim %}
+  {% set buttonStyle = components.buttonStyle|default(defaultComponents.buttonStyle|default('filled'))|trim %}
+
+  {% set surface = colors.surface|default(variables.surface|default(null))|trim %}
+  {% set surfaceMuted = colors.muted|default(variables.surfaceMuted|default(null))|trim %}
+  {% set topbarLight = colors.topbar_light|default(colors.topbarLight|default(variables.topbarLight|default(null)))|trim %}
+  {% set topbarDark = colors.topbar_dark|default(colors.topbarDark|default(variables.topbarDark|default(null)))|trim %}
+
+  <style data-namespace-appearance>
+    [data-namespace="{{ namespace|e('css') }}"] {
+      --brand-primary: {{ brandPrimary|e('css') }};
+      --accent-primary: {{ brandPrimary|e('css') }};
+      --brand-accent: {{ brandAccent|e('css') }};
+      --accent-secondary: {{ brandAccent|e('css') }};
+      --layout-profile: {{ layoutProfile|e('css') }};
+      --typography-preset: {{ typographyPreset|e('css') }};
+      --components-card-style: {{ cardStyle|e('css') }};
+      --components-button-style: {{ buttonStyle|e('css') }};
+      {% if surface %}
+      --surface: {{ surface|e('css') }};
+      {% endif %}
+      {% if surfaceMuted %}
+      --surface-muted: {{ surfaceMuted|e('css') }};
+      {% endif %}
+      {% if topbarLight %}
+      --qr-landing-topbar-bg-light: {{ topbarLight|e('css') }};
+      {% endif %}
+      {% if topbarDark %}
+      --qr-landing-topbar-bg-dark: {{ topbarDark|e('css') }};
+      {% endif %}
+    }
+  </style>
+{% endif %}
