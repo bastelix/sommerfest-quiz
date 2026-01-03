@@ -18,9 +18,9 @@ use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
-use App\Service\DesignTokenService;
 use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
+use App\Service\NamespaceAppearanceService;
 use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use App\Service\TenantService;
@@ -57,7 +57,7 @@ class ProjectPagesController
     private ProjectSettingsService $projectSettings;
     private CmsPageMenuService $cmsMenu;
     private ConfigService $configService;
-    private DesignTokenService $designTokens;
+    private NamespaceAppearanceService $namespaceAppearance;
     private EffectsPolicyService $effectsPolicy;
 
     public function __construct(
@@ -73,7 +73,7 @@ class ProjectPagesController
         ?ProjectSettingsService $projectSettings = null,
         ?CmsPageMenuService $cmsMenu = null,
         ?ConfigService $configService = null,
-        ?DesignTokenService $designTokens = null,
+        ?NamespaceAppearanceService $namespaceAppearance = null,
         ?EffectsPolicyService $effectsPolicy = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
@@ -88,7 +88,7 @@ class ProjectPagesController
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pageService);
         $this->configService = $configService ?? new ConfigService($pdo);
-        $this->designTokens = $designTokens ?? new DesignTokenService($pdo, $this->configService);
+        $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
     }
 
@@ -833,16 +833,7 @@ class ProjectPagesController
             }
         }
 
-        $tokens = $this->designTokens->getTokensForNamespace($namespace);
-        $appearance = [
-            'tokens' => $tokens,
-            'defaults' => $this->designTokens->getDefaults(),
-            'colors' => [
-                'primary' => $tokens['brand']['primary'] ?? null,
-                'secondary' => $tokens['brand']['accent'] ?? null,
-                'accent' => $tokens['brand']['accent'] ?? null,
-            ],
-        ];
+        $appearance = $this->namespaceAppearance->load($namespace);
 
         $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);
 
