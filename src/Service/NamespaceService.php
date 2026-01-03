@@ -14,10 +14,16 @@ use RuntimeException;
 final class NamespaceService
 {
     private NamespaceValidator $validator;
+    private DesignTokenService $designTokenService;
 
-    public function __construct(private NamespaceRepository $repository, ?NamespaceValidator $validator = null)
+    public function __construct(
+        private NamespaceRepository $repository,
+        ?NamespaceValidator $validator = null,
+        ?DesignTokenService $designTokenService = null
+    )
     {
         $this->validator = $validator ?? new NamespaceValidator();
+        $this->designTokenService = $designTokenService ?? new DesignTokenService($this->repository->getConnection());
     }
 
     /**
@@ -74,6 +80,7 @@ final class NamespaceService
         }
 
         $this->repository->create($normalized, $normalizedLabel);
+        $this->designTokenService->resetToDefaults($normalized);
 
         return $this->repository->find($normalized) ?? [
             'namespace' => $normalized,

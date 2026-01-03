@@ -13,6 +13,11 @@ final class NamespaceRepository
     {
     }
 
+    public function getConnection(): PDO
+    {
+        return $this->pdo;
+    }
+
     /**
      * @return list<array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}>
      */
