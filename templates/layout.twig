@@ -128,6 +128,10 @@
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
+  {% include 'components/namespace_appearance_styles.twig' with {
+    appearance: appearance is defined ? appearance : (design.appearance ?? null),
+    namespace: normalizedNamespace
+  } %}
   {% block head %}{% endblock %}
 </head>
 <body
