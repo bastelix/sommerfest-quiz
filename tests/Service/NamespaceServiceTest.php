@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Repository\NamespaceRepository;
+use App\Exception\NamespaceInUseException;
 use App\Service\ConfigService;
 use App\Service\DesignTokenService;
 use App\Service\NamespaceService;
@@ -42,5 +43,39 @@ class NamespaceServiceTest extends TestCase
 
         $this->assertSame($result['namespace'], $config['event_uid']);
         $this->assertSame($designTokenService->getDefaults(), $config['designTokens']);
+    }
+
+    public function testDeleteFailsWhenConfigExists(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $service = new NamespaceService($repository);
+        $namespace = 'tenant-x';
+        $repository->create($namespace);
+
+        $configService = new ConfigService($pdo);
+        $configService->ensureConfigForEvent($namespace);
+
+        $this->expectException(NamespaceInUseException::class);
+        $service->delete($namespace);
+    }
+
+    public function testDeleteSucceedsAfterRemovingConfig(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $namespace = 'tenant-y';
+        $repository->create($namespace);
+
+        $configService = new ConfigService($pdo);
+        $configService->ensureConfigForEvent($namespace);
+        $pdo->prepare('DELETE FROM config WHERE event_uid = ?')->execute([$namespace]);
+
+        $service = new NamespaceService($repository);
+        $service->delete($namespace);
+
+        $entry = $repository->find($namespace);
+        $this->assertNotNull($entry);
+        $this->assertFalse($entry['is_active']);
     }
 }
