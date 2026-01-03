@@ -1805,6 +1805,84 @@ body.qr-landing.calserver-theme .calserver-stats-strip__tooltip:focus-visible {
     outline-offset: 2px;
 }
 
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__grid {
+    display: grid;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 640px) {
+    body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__card {
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: var(--cs-highlight-card-bg);
+    border: 1px solid var(--cs-highlight-card-border);
+    box-shadow: var(--cs-highlight-card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 120px;
+    color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+}
+
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__kpi {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__value {
+    font-size: clamp(2rem, 2.2vw + 1.2rem, 3rem);
+    font-weight: 700;
+    color: var(--qr-landing-primary);
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+}
+
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+    [data-block-type="stat_strip"]
+    .stat-strip__value,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+    [data-block-type="stat_strip"]
+    .stat-strip__value {
+    color: var(--qr-text);
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+    [data-block-type="stat_strip"]
+    .stat-strip__value,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    [data-block-type="stat_strip"]
+    .stat-strip__value {
+    color: color-mix(in oklab, var(--calserver-primary) 86%, #0c1a3a 14%);
+}
+
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__label-text {
+    color: var(--qr-text);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__as-of {
+    color: var(--qr-muted);
+    font-size: 0.9rem;
+}
+
+body.qr-landing.calserver-theme [data-block-type="stat_strip"] .stat-strip__benefit {
+    margin-top: 8px;
+    color: var(--qr-text);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
 body.qr-landing.calserver-theme .calserver-logo-marquee {
     margin-top: 34px;
     position: relative;
