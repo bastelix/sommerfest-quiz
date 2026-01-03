@@ -18,7 +18,19 @@ import {
 } from './block-renderer-matrix-data.js';
 import { resolveSectionIntent } from './section-intents.js';
 
-const RENDERER_MATRIX = { ...BASE_RENDERER_MATRIX, proof: BASE_RENDERER_MATRIX.proof };
+const RENDERER_MATRIX = {
+  ...BASE_RENDERER_MATRIX,
+  stat_strip: {
+    ...BASE_RENDERER_MATRIX.stat_strip,
+    cards: BASE_RENDERER_MATRIX?.stat_strip?.cards
+  },
+  proof: BASE_RENDERER_MATRIX.proof
+};
+
+if (typeof RENDERER_MATRIX?.stat_strip?.cards !== 'function') {
+  console.error('Missing renderer for stat_strip.cards in renderer matrix');
+  throw new Error('Missing renderer for stat_strip.cards');
+}
 
 const CONTEXTS = {
   FRONTEND: 'frontend',
@@ -57,6 +69,8 @@ function assertRenderable(block, rendererMatrix) {
   const normalizedVariant = normalizeBlockVariant(normalized.type, normalized.variant);
   const renderer = variants[normalizedVariant];
   if (!renderer) {
+    const missingRendererMessage = `Missing renderer for ${normalized.type}.${normalizedVariant}`;
+    console.error(missingRendererMessage, block);
     const allowedVariants = getBlockVariants(normalized.type).join(', ');
     throw new Error(`Unsupported variant for ${normalized.type}: ${normalized.variant}. Allowed: ${allowedVariants}`);
   }
