@@ -129,7 +129,6 @@ class CmsPageController
 
         $namespaceContext = $this->namespaceResolver->resolve($request);
         $namespace = $namespaceContext->getNamespace();
-        $requestedNamespace = $namespace;
         $page = $this->pages->findByKey($namespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
             $page = $this->pages->findByKey($namespace, $templateSlug);
@@ -138,6 +137,8 @@ class CmsPageController
         if ($page === null) {
             return $response->withStatus(404);
         }
+
+        $pageNamespace = $page->getNamespace();
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -168,7 +169,7 @@ class CmsPageController
         if ($landingNews === []) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($landingNewsOwnerSlug);
             if ($baseSlug !== $landingNewsOwnerSlug) {
-                $basePage = $this->pages->findByKey($namespace, $baseSlug);
+                $basePage = $this->pages->findByKey($pageNamespace, $baseSlug);
                 if ($basePage !== null) {
                     $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 3);
                     if ($fallbackNews !== []) {
@@ -230,13 +231,13 @@ class CmsPageController
         }
 
         $cmsMenuItems = $this->cmsMenu->getMenuTreeForSlug(
-            $namespace,
+            $pageNamespace,
             $page->getSlug(),
             $locale,
             true
         );
 
-        $cookieSettings = $this->projectSettings->getCookieConsentSettings($namespace);
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($pageNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
@@ -275,7 +276,7 @@ class CmsPageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'pageNamespace' => $page->getNamespace(),
+            'pageNamespace' => $pageNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
@@ -300,7 +301,7 @@ class CmsPageController
         $wikiPage = $page;
         $baseWikiSlug = MarketingSlugResolver::resolveBaseSlug($wikiSlug);
         if ($baseWikiSlug !== $wikiSlug) {
-            $baseWikiPage = $this->pages->findByKey($namespace, $baseWikiSlug);
+            $baseWikiPage = $this->pages->findByKey($pageNamespace, $baseWikiSlug);
             if ($baseWikiPage !== null) {
                 $wikiPage = $baseWikiPage;
                 $wikiSlug = $baseWikiSlug;
