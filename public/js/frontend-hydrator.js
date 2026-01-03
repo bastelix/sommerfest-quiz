@@ -77,6 +77,7 @@ const hydratePage = async () => {
     ]);
 
     if (!payload) {
+      console.error('Marketing payload missing – cannot render page');
       return;
     }
 
@@ -89,12 +90,20 @@ const hydratePage = async () => {
       ? designModule.applyNamespaceDesign(root, designNamespace, payload.design?.appearance || {})
       : payload.design?.appearance || {};
 
+    if (!Array.isArray(payload.blocks) || payload.blocks.length === 0) {
+      console.error('Marketing payload contains no blocks');
+    }
+
     const html = matrixModule.renderPage(payload.blocks, {
       rendererMatrix: matrixModule.RENDERER_MATRIX,
       context: 'frontend',
       appearance: resolvedAppearance,
       basePath
     });
+
+    if (!html || typeof html !== 'string' || html.trim() === '') {
+      console.error('renderPage returned empty markup for marketing payload');
+    }
     blockRoot.innerHTML = html;
 
     if (effectsModule?.initEffects) {
