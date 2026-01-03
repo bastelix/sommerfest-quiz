@@ -300,28 +300,85 @@ function resolveSectionBackgroundStyles(background) {
   return { style, dataAttributes };
 }
 
-const SECTION_INTENT_PRESETS = {
+const SECTION_INTENT_CONFIG = {
   content: {
-    sectionClass: 'uk-section-default uk-section-medium',
+    sectionClass: 'uk-section-medium',
     containerClass: '',
-    innerClass: 'section__inner--panel'
+    innerClass: 'section__inner--panel',
+    surfaceToken: 'surface'
   },
   feature: {
-    sectionClass: 'uk-section-muted uk-section-large',
+    sectionClass: 'uk-section-large',
     containerClass: 'uk-container-large',
-    innerClass: 'section__inner--card uk-card uk-card-default uk-card-body uk-box-shadow-medium'
+    innerClass: 'section__inner--card uk-card uk-card-default uk-card-body uk-box-shadow-medium',
+    surfaceToken: 'muted'
   },
   highlight: {
-    sectionClass: 'uk-section-primary uk-section-large uk-light',
+    sectionClass: 'uk-section-large',
     containerClass: 'uk-container-large',
-    innerClass: 'section__inner--accent'
+    innerClass: 'section__inner--accent',
+    surfaceToken: 'primary',
+    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, #ffffff)' }
   },
   hero: {
-    sectionClass: 'uk-section-secondary uk-section-large uk-light',
+    sectionClass: 'uk-section-large',
     containerClass: 'uk-container-expand',
-    innerClass: 'section__inner--hero uk-card uk-card-primary uk-card-large uk-card-body'
+    innerClass: 'section__inner--hero uk-card uk-card-primary uk-card-large uk-card-body',
+    surfaceToken: 'secondary',
+    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, #ffffff)' }
   }
 };
+
+function resolveAppearanceValue(token, fallback) {
+  if (!token) {
+    return fallback;
+  }
+
+  const palette = resolveActiveAppearance().colors || {};
+  const normalizedToken = token.startsWith('--') ? token.slice(2) : token;
+  const resolved = palette[normalizedToken];
+
+  if (typeof resolved === 'string' && resolved.trim() !== '') {
+    return resolved.trim();
+  }
+
+  const cssVariable = `var(--${normalizedToken})`;
+  if (fallback && typeof fallback === 'string') {
+    return fallback;
+  }
+
+  return cssVariable;
+}
+
+function resolveSectionIntentPreset(block) {
+  const intent = resolveSectionIntent(block);
+  const basePreset = SECTION_INTENT_CONFIG[intent] || SECTION_INTENT_CONFIG.content;
+  const surface = resolveAppearanceValue(basePreset.surfaceToken, DEFAULT_APPEARANCE.colors[basePreset.surfaceToken]);
+  const textColor = basePreset.textToken
+    ? resolveAppearanceValue(basePreset.textToken.token, basePreset.textToken.fallback)
+    : undefined;
+  const styleVariables = [];
+
+  if (surface) {
+    styleVariables.push(`--section-surface:${surface}`);
+  }
+
+  if (textColor) {
+    styleVariables.push(`--section-text-color:${textColor}`);
+  }
+
+  return {
+    intent,
+    preset: {
+      ...basePreset,
+      appearanceTokens: {
+        surface: basePreset.surfaceToken,
+        text: basePreset.textToken?.token
+      },
+      styleVariables
+    }
+  };
+}
 
 function normalizeClassList(classes) {
   if (Array.isArray(classes)) {
@@ -333,16 +390,12 @@ function normalizeClassList(classes) {
   return [];
 }
 
-function resolveSectionIntentPreset(block) {
-  const intent = resolveSectionIntent(block);
-  return { intent, preset: SECTION_INTENT_PRESETS[intent] || SECTION_INTENT_PRESETS.content };
-}
-
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
   const background = resolveSectionBackground(block, layout);
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const { intent, preset } = resolveSectionIntentPreset(block);
+  const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const classes = [
     'section',
@@ -363,6 +416,12 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     `data-section-intent="${escapeAttribute(intent)}"`,
     `data-section-layout="${escapeAttribute(layout)}"`,
     `data-section-background-mode="${escapeAttribute(background.mode)}"`,
+    preset.appearanceTokens?.surface
+      ? `data-section-surface-token="${escapeAttribute(preset.appearanceTokens.surface)}"`
+      : null,
+    preset.appearanceTokens?.text
+      ? `data-section-text-token="${escapeAttribute(preset.appearanceTokens.text)}"`
+      : null,
     background.mode === 'color' && background.colorToken
       ? `data-section-background-color-token="${escapeAttribute(background.colorToken)}"`
       : null,
@@ -391,7 +450,8 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
 
   const dataAttributesString = dataAttributes ? ` ${dataAttributes}` : '';
 
-  const style = backgroundStyle.style ? ` style="${backgroundStyle.style}"` : '';
+  const styleSegments = [presetStyle, backgroundStyle.style].filter(Boolean).map(value => value.trim().replace(/;$/, ''));
+  const style = styleSegments.length ? ` style="${styleSegments.join('; ')};"` : '';
 
   return `<section${anchor} class="${classes}"${dataAttributesString}${style}>${inner}</section>`;
 }
