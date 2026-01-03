@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\RagChat;
 
-use App\Domain\MarketingPageWikiArticle;
-use App\Service\MarketingPageWikiArticleService;
+use App\Domain\CmsPageWikiArticle;
+use App\Service\CmsPageWikiArticleService;
 use InvalidArgumentException;
 use RuntimeException;
 
@@ -36,14 +36,14 @@ final class DomainIndexManager
 
     private ?DomainWikiSelectionService $wikiSelection;
 
-    private ?MarketingPageWikiArticleService $wikiArticles;
+    private ?CmsPageWikiArticleService $wikiArticles;
 
     public function __construct(
         DomainDocumentStorage $storage,
         ?string $projectRoot = null,
         string $pythonBinary = 'python3',
         ?DomainWikiSelectionService $wikiSelection = null,
-        ?MarketingPageWikiArticleService $wikiArticles = null
+        ?CmsPageWikiArticleService $wikiArticles = null
     ) {
         $this->storage = $storage;
         $this->projectRoot = $projectRoot ?? dirname(__DIR__, 3);
@@ -227,7 +227,7 @@ final class DomainIndexManager
         return $writtenFiles;
     }
 
-    private function writeWikiDocument(string $uploadsDir, string $domain, MarketingPageWikiArticle $article): string
+    private function writeWikiDocument(string $uploadsDir, string $domain, CmsPageWikiArticle $article): string
     {
         $slug = $this->sanitizeSlug($article->getSlug());
         $filename = sprintf(
@@ -264,7 +264,7 @@ final class DomainIndexManager
         }
     }
 
-    private function renderWikiMarkdown(string $domain, MarketingPageWikiArticle $article): string
+    private function renderWikiMarkdown(string $domain, CmsPageWikiArticle $article): string
     {
         $title = trim($article->getTitle());
         $excerpt = $article->getExcerpt();

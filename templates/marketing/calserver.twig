@@ -1,7 +1,7 @@
 {% extends 'layout.twig' %}
 
 {% import 'marketing/partials/menu.twig' as menu %}
-{% set menuItems = marketingMenuItems|default([]) %}
+{% set menuItems = cmsMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('calServer – Kalibrier- und Inventarverwaltung für Teams') }}{% endblock %}
 

@@ -6,13 +6,13 @@ namespace App\Controller\Admin;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
-use App\Domain\MarketingPageMenuItem;
+use App\Domain\CmsPageMenuItem;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
 use App\Service\Marketing\MarketingMenuAiErrorMapper;
 use App\Service\Marketing\PageAiPromptTemplateService;
-use App\Service\MarketingMenuService;
+use App\Service\CmsPageMenuService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
@@ -35,7 +35,7 @@ use Slim\Views\Twig;
 
 class ProjectPagesController
 {
-    private const FIXED_MARKETING_SLUGS = [
+    private const FIXED_CMS_SLUGS = [
         'landing',
         'calserver',
         'calhelp',
@@ -55,7 +55,7 @@ class ProjectPagesController
     private TenantService $tenantService;
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
-    private MarketingMenuService $marketingMenu;
+    private CmsPageMenuService $cmsMenu;
     private ConfigService $configService;
     private DesignTokenService $designTokens;
     private EffectsPolicyService $effectsPolicy;
@@ -71,7 +71,7 @@ class ProjectPagesController
         ?TenantService $tenantService = null,
         ?PageAiPromptTemplateService $promptTemplateService = null,
         ?ProjectSettingsService $projectSettings = null,
-        ?MarketingMenuService $marketingMenu = null,
+        ?CmsPageMenuService $cmsMenu = null,
         ?ConfigService $configService = null,
         ?DesignTokenService $designTokens = null,
         ?EffectsPolicyService $effectsPolicy = null
@@ -86,7 +86,7 @@ class ProjectPagesController
         $this->tenantService = $tenantService ?? new TenantService($pdo);
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
-        $this->marketingMenu = $marketingMenu ?? new MarketingMenuService($pdo, $this->pageService);
+        $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pageService);
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->designTokens = $designTokens ?? new DesignTokenService($pdo, $this->configService);
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
@@ -159,7 +159,7 @@ class ProjectPagesController
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $pages = $this->pageService->getAllForNamespace($namespace);
-        $marketingPages = $this->filterMarketingPages($pages);
+        $marketingPages = $this->filterCmsPages($pages);
         $query = $request->getQueryParams();
         $selectedSeoSlug = isset($query['seoPage']) ? (string) $query['seoPage'] : '';
         $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
@@ -255,7 +255,7 @@ class ProjectPagesController
         $overwrite = $this->parseBooleanFlag($payload['overwrite'] ?? false);
 
         try {
-            $items = $this->marketingMenu->generateMenuFromPage($page, $locale, $overwrite);
+            $items = $this->cmsMenu->generateMenuFromPage($page, $locale, $overwrite);
         } catch (\RuntimeException $exception) {
             $mapper = new MarketingMenuAiErrorMapper();
             $mapped = $mapper->map($exception);
@@ -272,7 +272,7 @@ class ProjectPagesController
         }
 
         $response->getBody()->write(json_encode([
-            'items' => array_map(fn (MarketingPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
+            'items' => array_map(fn (CmsPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
         ], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
@@ -303,7 +303,7 @@ class ProjectPagesController
         $overwrite = $this->parseBooleanFlag($payload['overwrite'] ?? true);
 
         try {
-            $items = $this->marketingMenu->translateMenuFromLocale($page, $sourceLocale, $targetLocale, $overwrite);
+            $items = $this->cmsMenu->translateMenuFromLocale($page, $sourceLocale, $targetLocale, $overwrite);
         } catch (\RuntimeException $exception) {
             $mapper = new MarketingMenuAiErrorMapper();
             $mapped = $mapper->map($exception);
@@ -320,7 +320,7 @@ class ProjectPagesController
         }
 
         $response->getBody()->write(json_encode([
-            'items' => array_map(fn (MarketingPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
+            'items' => array_map(fn (CmsPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
         ], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
@@ -687,7 +687,7 @@ class ProjectPagesController
         return (bool) $value;
     }
 
-    private function serializeMenuItem(MarketingPageMenuItem $item): array
+    private function serializeMenuItem(CmsPageMenuItem $item): array
     {
         return [
             'id' => $item->getId(),
@@ -743,7 +743,7 @@ class ProjectPagesController
      * @param Page[] $pages
      * @return Page[]
      */
-    private function filterMarketingPages(array $pages): array
+    private function filterCmsPages(array $pages): array
     {
         return array_values(array_filter(
             $pages,
@@ -870,7 +870,7 @@ class ProjectPagesController
 
     private function resolvePreviewPath(string $slug, string $baseSlug): string
     {
-        if (in_array($baseSlug, self::FIXED_MARKETING_SLUGS, true)) {
+        if (in_array($baseSlug, self::FIXED_CMS_SLUGS, true)) {
             return '/' . $baseSlug;
         }
 

@@ -7,7 +7,7 @@
   {{ assets[path]|default(basePath ~ path) }}
 {% endmacro %}
 
-{% set menuItems = marketingMenuItems|default([]) %}
+{% set menuItems = cmsMenuItems|default([]) %}
 {% set laborAssetMap = laborAssets|default({}) %}
 {% set contactLink = { 'label': 'Kalibrierung anfragen', 'href': '#kontakt' } %}
 {% set laborLogoUrl = basePath ~ '/uploads/labor/labor-logo.png' %}

@@ -56,7 +56,7 @@ class LandingpageController
     public function page(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $pages = $this->getMarketingPages($namespace);
+        $pages = $this->getCmsPages($namespace);
         if ($pages === []) {
             return $view->render($response, 'admin/landingpage/edit.html.twig', [
                 'config' => [],
@@ -228,7 +228,7 @@ class LandingpageController
     /**
      * @return Page[]
      */
-    private function getMarketingPages(string $namespace): array {
+    private function getCmsPages(string $namespace): array {
         $pages = $this->pageService->getAllForNamespace($namespace);
 
         return array_values(array_filter(

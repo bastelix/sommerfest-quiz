@@ -6,7 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\LandingNews;
-use App\Domain\MarketingPageWikiArticle;
+use App\Domain\CmsPageWikiArticle;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
@@ -15,7 +15,7 @@ use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use App\Service\ImageUploadService;
 use App\Service\MarketingNewsletterConfigService;
-use App\Service\MarketingPageWikiArticleService;
+use App\Service\CmsPageWikiArticleService;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceValidator;
@@ -38,7 +38,7 @@ class ProjectController
 {
     private PageService $pageService;
     private MarketingNewsletterConfigService $newsletterService;
-    private MarketingPageWikiArticleService $wikiService;
+    private CmsPageWikiArticleService $wikiService;
     private LandingNewsService $landingNewsService;
     private LandingMediaReferenceService $mediaReferenceService;
     private NamespaceRepository $namespaceRepository;
@@ -49,7 +49,7 @@ class ProjectController
         ?PDO $pdo = null,
         ?PageService $pageService = null,
         ?MarketingNewsletterConfigService $newsletterService = null,
-        ?MarketingPageWikiArticleService $wikiService = null,
+        ?CmsPageWikiArticleService $wikiService = null,
         ?LandingNewsService $landingNewsService = null,
         ?LandingMediaReferenceService $mediaReferenceService = null,
         ?NamespaceRepository $namespaceRepository = null,
@@ -59,7 +59,7 @@ class ProjectController
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->pageService = $pageService ?? new PageService($pdo);
         $this->newsletterService = $newsletterService ?? new MarketingNewsletterConfigService($pdo);
-        $this->wikiService = $wikiService ?? new MarketingPageWikiArticleService($pdo);
+        $this->wikiService = $wikiService ?? new CmsPageWikiArticleService($pdo);
         $this->landingNewsService = $landingNewsService ?? new LandingNewsService($pdo);
         $this->mediaReferenceService = $mediaReferenceService ?? new LandingMediaReferenceService(
             $this->pageService,
@@ -469,7 +469,7 @@ class ProjectController
             $entries[] = [
                 'page' => $this->mapPage($page, $basePath, $namespace),
                 'articles' => array_map(
-                    fn (MarketingPageWikiArticle $article): array => $this->mapWikiArticle(
+                    fn (CmsPageWikiArticle $article): array => $this->mapWikiArticle(
                         $article,
                         $basePath,
                         $namespace,
@@ -582,7 +582,7 @@ class ProjectController
      * @return array{id:int,slug:string,title:string,locale:string,status:string,isStartDocument:bool,editUrl:?string}
      */
     private function mapWikiArticle(
-        MarketingPageWikiArticle $article,
+        CmsPageWikiArticle $article,
         string $basePath,
         string $namespace,
         int $pageId

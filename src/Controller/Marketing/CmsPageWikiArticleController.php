@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
-use App\Service\MarketingPageWikiArticleService;
-use App\Service\MarketingPageWikiSettingsService;
+use App\Service\CmsPageWikiArticleService;
+use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\MarketingWikiThemeConfigService;
 use App\Service\NamespaceResolver;
@@ -17,13 +17,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
-final class MarketingPageWikiListController
+final class CmsPageWikiArticleController
 {
     private PageService $pageService;
 
-    private MarketingPageWikiSettingsService $settingsService;
+    private CmsPageWikiSettingsService $settingsService;
 
-    private MarketingPageWikiArticleService $articleService;
+    private CmsPageWikiArticleService $articleService;
 
     private NamespaceResolver $namespaceResolver;
 
@@ -31,14 +31,14 @@ final class MarketingPageWikiListController
 
     public function __construct(
         ?PageService $pageService = null,
-        ?MarketingPageWikiSettingsService $settingsService = null,
-        ?MarketingPageWikiArticleService $articleService = null,
+        ?CmsPageWikiSettingsService $settingsService = null,
+        ?CmsPageWikiArticleService $articleService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?MarketingWikiThemeConfigService $themeConfigService = null
     ) {
         $this->pageService = $pageService ?? new PageService();
-        $this->settingsService = $settingsService ?? new MarketingPageWikiSettingsService();
-        $this->articleService = $articleService ?? new MarketingPageWikiArticleService();
+        $this->settingsService = $settingsService ?? new CmsPageWikiSettingsService();
+        $this->articleService = $articleService ?? new CmsPageWikiArticleService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
     }
@@ -46,7 +46,8 @@ final class MarketingPageWikiListController
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $slug = (string) ($args['slug'] ?? '');
-        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+        $articleSlug = (string) ($args['articleSlug'] ?? '');
+        if (!preg_match('/^[a-z0-9-]+$/', $slug) || !preg_match('/^[a-z0-9-]+$/', $articleSlug)) {
             return $response->withStatus(404);
         }
 
@@ -81,32 +82,21 @@ final class MarketingPageWikiListController
             return $response->withStatus(404);
         }
 
-        $query = $request->getQueryParams();
-        $search = trim((string) ($query['q'] ?? ''));
-
-        $articles = $this->articleService->getPublishedArticles($settingsPage->getId(), $locale);
-        if ($search !== '') {
-            $articles = array_values(array_filter($articles, static function ($article) use ($search) {
-                $haystack = strtolower($article->getTitle() . ' ' . ($article->getExcerpt() ?? ''));
-                return str_contains($haystack, strtolower($search));
-            }));
-        }
-
-        if ($articles === []) {
+        $article = $this->articleService->findPublishedArticle($settingsPage->getId(), $locale, $articleSlug);
+        if ($article === null) {
             return $response->withStatus(404);
         }
 
+        $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
         $view = Twig::fromRequest($request);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
-        $menuLabel = $settings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
 
         $themeOverrides = $this->themeConfigService->getThemeForSlug($namespace, $settingsPage->getSlug());
         $theme = MarketingWikiThemeResolver::resolve($themeOverrides);
 
-        return $view->render($response, 'marketing/wiki/index.twig', [
+        return $view->render($response, 'marketing/wiki/show.twig', [
             'page' => $page,
-            'articles' => $articles,
-            'searchTerm' => $search,
+            'article' => $article,
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
             'breadcrumbs' => [
@@ -117,6 +107,10 @@ final class MarketingPageWikiListController
                 [
                     'url' => $basePath . '/pages/' . $wikiSlug . '/wiki',
                     'label' => $menuLabel,
+                ],
+                [
+                    'url' => $basePath . '/pages/' . $wikiSlug . '/wiki/' . $article->getSlug(),
+                    'label' => $article->getTitle(),
                 ],
             ],
         ]);

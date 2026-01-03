@@ -1,7 +1,7 @@
 {% extends 'layout.twig' %}
 
 {% import 'marketing/partials/menu.twig' as menu %}
-{% set menuItems = marketingMenuItems|default([]) %}
+{% set menuItems = cmsMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('Future is Green – Urbane Logistik für lebenswerte Städte') }}{% endblock %}
 

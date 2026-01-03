@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Domain\MarketingPageWikiArticle;
+use App\Domain\CmsPageWikiArticle;
 use App\Domain\Page;
-use App\Service\MarketingPageWikiArticleService;
+use App\Service\CmsPageWikiArticleService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceContext;
 use App\Service\NamespaceResolver;
@@ -41,7 +41,7 @@ final class DomainChatKnowledgeController
 
     private ?DomainWikiSelectionService $wikiSelection;
 
-    private ?MarketingPageWikiArticleService $wikiArticles;
+    private ?CmsPageWikiArticleService $wikiArticles;
 
     private ?PageService $pageService;
 
@@ -51,7 +51,7 @@ final class DomainChatKnowledgeController
         DomainDocumentStorage $storage,
         DomainIndexManager $indexManager,
         ?DomainWikiSelectionService $wikiSelection = null,
-        ?MarketingPageWikiArticleService $wikiArticles = null,
+        ?CmsPageWikiArticleService $wikiArticles = null,
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null
     ) {
@@ -296,7 +296,7 @@ final class DomainChatKnowledgeController
         $selectedIds = $this->wikiSelection->getSelectedArticleIds($domain);
         $selectedLookup = $selectedIds !== [] ? array_flip($selectedIds) : [];
 
-        /** @var list<MarketingPageWikiArticle> $articles */
+        /** @var list<CmsPageWikiArticle> $articles */
         $articles = $this->wikiArticles->getArticlesForPage($page->getId());
 
         $entries = [];

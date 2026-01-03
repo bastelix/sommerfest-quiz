@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Domain\MarketingPageWikiSettings;
+use App\Domain\CmsPageWikiSettings;
 use App\Infrastructure\Database;
 use DateTimeImmutable;
 use PDO;
 use RuntimeException;
 
-final class MarketingPageWikiSettingsService
+final class CmsPageWikiSettingsService
 {
     private PDO $pdo;
 
@@ -19,7 +19,7 @@ final class MarketingPageWikiSettingsService
         $this->pdo = $pdo ?? Database::connectFromEnv();
     }
 
-    public function getSettingsForPage(int $pageId): MarketingPageWikiSettings
+    public function getSettingsForPage(int $pageId): CmsPageWikiSettings
     {
         $stmt = $this->pdo->prepare(
             'SELECT page_id, is_active, menu_label, menu_labels, updated_at '
@@ -29,7 +29,7 @@ final class MarketingPageWikiSettingsService
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row === false) {
-            return new MarketingPageWikiSettings($pageId, false, null, [], null);
+            return new CmsPageWikiSettings($pageId, false, null, [], null);
         }
 
         $updatedAt = null;
@@ -39,7 +39,7 @@ final class MarketingPageWikiSettingsService
 
         $menuLabels = $this->normalizeMenuLabels($row['menu_labels'] ?? null);
 
-        return new MarketingPageWikiSettings(
+        return new CmsPageWikiSettings(
             (int) $row['page_id'],
             (bool) $row['is_active'],
             isset($row['menu_label']) ? (string) $row['menu_label'] : null,
@@ -56,7 +56,7 @@ final class MarketingPageWikiSettingsService
         bool $isActive,
         ?string $menuLabel = null,
         ?array $menuLabels = null
-    ): MarketingPageWikiSettings {
+    ): CmsPageWikiSettings {
         $normalizedLabel = $menuLabel !== null ? trim($menuLabel) : null;
         if ($normalizedLabel !== null && $normalizedLabel !== '' && mb_strlen($normalizedLabel) > 64) {
             throw new RuntimeException('Menu label must not exceed 64 characters.');

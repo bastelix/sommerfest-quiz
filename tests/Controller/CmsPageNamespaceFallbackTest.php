@@ -6,7 +6,7 @@ namespace Tests\Controller;
 
 use Tests\TestCase;
 
-class MarketingPageNamespaceFallbackTest extends TestCase
+class CmsPageNamespaceFallbackTest extends TestCase
 {
     protected function setUp(): void
     {

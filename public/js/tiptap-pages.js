@@ -2175,7 +2175,7 @@ const showPagesEmptyMessage = () => {
   removePagesEmptyMessage(container);
   const alert = document.createElement('div');
   alert.className = 'uk-alert uk-alert-warning pages-empty-alert';
-  alert.textContent = getTranslation('transMarketingPagesEmpty', 'Keine Marketing-Seiten gefunden.');
+  alert.textContent = getTranslation('transCmsPagesEmpty', 'Keine Marketing-Seiten gefunden.');
   container.append(alert);
 };
 

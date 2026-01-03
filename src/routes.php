@@ -13,7 +13,7 @@ use App\Controller\AdminCatalogController;
 use App\Controller\AdminMediaController;
 use App\Controller\AdminLogsController;
 use App\Controller\Admin\PagesDesignController;
-use App\Controller\Admin\MarketingPageWikiController;
+use App\Controller\Admin\CmsPageWikiController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
@@ -70,10 +70,10 @@ use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Service\MarketingNewsletterConfigService;
-use App\Service\MarketingPageWikiArticleService;
+use App\Service\CmsPageWikiArticleService;
 use App\Service\MarketingDomainProvider;
 use App\Service\UsernameBlocklistService;
-use App\Service\MarketingPageRouteResolver;
+use App\Service\CmsPageRouteResolver;
 use App\Service\NamespaceValidator;
 use App\Service\NamespaceResolver;
 use App\Infrastructure\Database;
@@ -126,9 +126,9 @@ use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
-use App\Controller\Marketing\MarketingPageController;
-use App\Controller\Marketing\MarketingPageWikiArticleController;
-use App\Controller\Marketing\MarketingPageWikiListController;
+use App\Controller\Marketing\CmsPageController;
+use App\Controller\Marketing\CmsPageWikiArticleController;
+use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
 use App\Controller\Marketing\MarketingChatController;
@@ -193,7 +193,7 @@ require_once __DIR__ . '/Controller/Admin/MarketingNewsletterConfigController.ph
 require_once __DIR__ . '/Controller/Admin/NewsletterCampaignController.php';
 require_once __DIR__ . '/Controller/Admin/DomainController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
-require_once __DIR__ . '/Controller/Admin/MarketingPageWikiController.php';
+require_once __DIR__ . '/Controller/Admin/CmsPageWikiController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingMenuController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
@@ -210,11 +210,11 @@ require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
-require_once __DIR__ . '/Controller/Marketing/MarketingPageController.php';
+require_once __DIR__ . '/Controller/Marketing/CmsPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
-require_once __DIR__ . '/Controller/Marketing/MarketingPageWikiListController.php';
-require_once __DIR__ . '/Controller/Marketing/MarketingPageWikiArticleController.php';
+require_once __DIR__ . '/Controller/Marketing/CmsPageWikiListController.php';
+require_once __DIR__ . '/Controller/Marketing/CmsPageWikiArticleController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
 require_once __DIR__ . '/Controller/Marketing/NewsletterController.php';
@@ -290,7 +290,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return [$request, in_array($domainType, ['main', 'marketing'], true)];
     };
-    $marketingPageRouteResolver = new MarketingPageRouteResolver();
+    $cmsPageRouteResolver = new CmsPageRouteResolver();
     $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
         if ($request->getUri()->getPath() === '/healthz') {
             return $handler->handle($request);
@@ -567,7 +567,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             new LandingNewsService($pdo)
         );
         $domainDocumentStorage = new DomainDocumentStorage();
-        $wikiArticleService = new MarketingPageWikiArticleService($pdo);
+        $wikiArticleService = new CmsPageWikiArticleService($pdo);
         $domainWikiSelectionService = new DomainWikiSelectionService($pdo);
         $domainIndexManager = new DomainIndexManager(
             $domainDocumentStorage,
@@ -911,7 +911,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $controller = new MarketingPageWikiListController();
+        $controller = new CmsPageWikiListController();
 
         return $controller($request, $response, $args);
     });
@@ -925,7 +925,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $controller = new MarketingPageWikiArticleController();
+        $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
     });
@@ -951,7 +951,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $controller = new MarketingPageWikiListController();
+        $controller = new CmsPageWikiListController();
 
         return $controller($request, $response, $args);
     });
@@ -965,7 +965,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
 
-        $controller = new MarketingPageWikiArticleController();
+        $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
     });
@@ -988,7 +988,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             if (!$allowed) {
                 return $response->withStatus(404);
             }
-            $controller = new MarketingPageController();
+            $controller = new CmsPageController();
             return $controller($request, $response, $args);
         }
     );
@@ -1301,7 +1301,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $pageService = new PageService($pdo);
         $newsletterService = new MarketingNewsletterConfigService($pdo);
-        $wikiService = new MarketingPageWikiArticleService($pdo);
+        $wikiService = new CmsPageWikiArticleService($pdo);
         $landingNewsService = new LandingNewsService($pdo);
         $mediaReferenceService = new LandingMediaReferenceService(
             $pageService,
@@ -1757,7 +1757,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{pageId:[0-9]+}/wiki', function (Request $request, Response $response, array $args) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->index($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
@@ -1825,7 +1825,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->updateTheme($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1835,7 +1835,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->updateSettings($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1845,7 +1845,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->saveArticle($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1855,7 +1855,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->updateStatus($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1865,7 +1865,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->updateStartDocument($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1875,7 +1875,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->duplicate($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1885,7 +1885,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->showArticle($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
@@ -1895,7 +1895,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->download($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
@@ -1905,7 +1905,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -1915,7 +1915,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new MarketingPageWikiController();
+        $controller = new CmsPageWikiController();
 
         return $controller->sort($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
@@ -3511,7 +3511,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             array $args
         ) use (
             $resolveMarketingAccess,
-            $marketingPageRouteResolver
+            $cmsPageRouteResolver
         ) {
             [$request, $allowed] = $resolveMarketingAccess($request);
             if (!$allowed) {
@@ -3519,7 +3519,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             }
 
             $slug = isset($args['slug']) ? (string) $args['slug'] : '';
-            $controller = $marketingPageRouteResolver->resolveController($request, $slug);
+            $controller = $cmsPageRouteResolver->resolveController($request, $slug);
             if ($controller === null) {
                 return $response->withStatus(404);
             }

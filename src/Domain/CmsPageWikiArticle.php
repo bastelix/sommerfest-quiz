@@ -7,7 +7,7 @@ namespace App\Domain;
 use DateTimeImmutable;
 use JsonSerializable;
 
-final class MarketingPageWikiArticle implements JsonSerializable
+final class CmsPageWikiArticle implements JsonSerializable
 {
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';

@@ -258,7 +258,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testUpcomingEventShowsMarketingPage(): void {
+    public function testUpcomingEventShowsCmsPage(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
@@ -284,7 +284,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testFinishedEventShowsMarketingPage(): void {
+    public function testFinishedEventShowsCmsPage(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();

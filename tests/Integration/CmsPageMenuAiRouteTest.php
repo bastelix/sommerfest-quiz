@@ -6,7 +6,7 @@ namespace Tests\Integration;
 
 use App\Controller\Admin\ProjectPagesController;
 use App\Service\Marketing\MarketingMenuAiGenerator;
-use App\Service\MarketingMenuService;
+use App\Service\CmsPageMenuService;
 use App\Service\PageService;
 use App\Service\RagChat\ChatResponderInterface;
 use PDO;
@@ -32,7 +32,7 @@ final class MarketingMenuAiRouteTest extends TestCase
                 ['label' => 'Neu', 'href' => '#neu', 'layout' => 'link'],
             ],
         ])), '{{slug}}');
-        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
         $controller = new ProjectPagesController(
             $pdo,
             $pageService,
@@ -95,7 +95,7 @@ final class MarketingMenuAiRouteTest extends TestCase
                 ['label' => 'Unbekannt', 'href' => '#unbekannt', 'layout' => 'link'],
             ],
         ])), '{{slug}}');
-        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
         $controller = new ProjectPagesController(
             $pdo,
             $pageService,
@@ -138,7 +138,7 @@ final class MarketingMenuAiRouteTest extends TestCase
                 ['label' => 'Neu', 'href' => 'neu', 'layout' => 'link'],
             ],
         ])), '{{slug}}');
-        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
         $controller = new ProjectPagesController(
             $pdo,
             $pageService,
@@ -188,7 +188,7 @@ final class MarketingMenuAiRouteTest extends TestCase
         };
 
         $generator = new MarketingMenuAiGenerator(null, $timeoutResponder, '{{slug}}');
-        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
         $controller = new ProjectPagesController(
             $pdo,
             $pageService,
@@ -238,7 +238,7 @@ final class MarketingMenuAiRouteTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $menuService = new MarketingMenuService($pdo, $pageService, $generator);
+        $menuService = new CmsPageMenuService($pdo, $pageService, $generator);
         $controller = new ProjectPagesController(
             $pdo,
             $pageService,

@@ -6,7 +6,7 @@ namespace App\Domain;
 
 use DateTimeImmutable;
 
-final class MarketingPageWikiSettings
+final class CmsPageWikiSettings
 {
     private int $pageId;
 
