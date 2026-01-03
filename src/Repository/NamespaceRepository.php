@@ -209,6 +209,12 @@ final class NamespaceRepository
         if ($this->hasTable('user_namespaces') && $this->hasNamespaceReference('user_namespaces', 'namespace', $namespace)) {
             $usage[] = 'user_namespaces';
         }
+        if ($this->hasTable('config') && $this->hasNamespaceReference('config', 'event_uid', $namespace)) {
+            $usage[] = 'config';
+        }
+        if ($this->hasTable('active_event') && $this->hasNamespaceReference('active_event', 'event_uid', $namespace)) {
+            $usage[] = 'active_event';
+        }
 
         return $usage;
     }
