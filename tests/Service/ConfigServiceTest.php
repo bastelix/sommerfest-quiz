@@ -566,4 +566,35 @@ class ConfigServiceTest extends TestCase
         $this->assertTrue($config['dashboardShareEnabled']);
         $this->assertFalse($config['dashboardSponsorEnabled']);
     }
+
+    public function testEnsureConfigCreatesNamespaceWhenMissing(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT)');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE namespaces(
+                namespace TEXT PRIMARY KEY,
+                label TEXT,
+                is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at TEXT,
+                updated_at TEXT
+            )
+            SQL
+        );
+
+        $service = new ConfigService($pdo);
+        $service->ensureConfigForEvent('Fresh-Namespace');
+
+        $configCount = (int) $pdo->query(
+            "SELECT COUNT(*) FROM config WHERE event_uid = 'fresh-namespace'"
+        )->fetchColumn();
+        $namespace = $pdo->query(
+            "SELECT namespace FROM namespaces WHERE namespace = 'fresh-namespace'"
+        )->fetchColumn();
+
+        $this->assertSame(1, $configCount);
+        $this->assertSame('fresh-namespace', $namespace);
+    }
 }

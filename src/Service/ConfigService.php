@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\NamespaceRepository;
+use App\Support\TokenCipher;
 use JsonException;
 use PDO;
 use PDOException;
 use RuntimeException;
 use Throwable;
-use App\Support\TokenCipher;
 
 /**
  * Handles reading and writing application configuration values.
@@ -456,11 +457,14 @@ class ConfigService
         }
 
         $uid = (string)($filtered['event_uid']['value'] ?? $this->getActiveEventUid());
+        $uid = $uid === '' ? '' : ($this->eventExists($uid) ? $uid : $this->normalizeNamespaceIdentifier($uid));
         $filtered['event_uid'] = ['key' => 'event_uid', 'value' => $uid];
 
-        if ($uid === '' || (!$this->eventExists($uid) && !$this->namespaceExists($uid))) {
+        if ($uid === '') {
             throw new RuntimeException('Cannot save config because event does not exist: ' . $uid);
         }
+
+        $this->ensureConfigForEvent($uid);
 
         $randomNameBefore = null;
         $randomNameAfter = null;
@@ -613,24 +617,31 @@ class ConfigService
             return;
         }
 
-        if (!$this->eventExists($uid) && !$this->namespaceExists($uid)) {
-            throw new RuntimeException('Cannot create config because event or namespace does not exist: ' . $uid);
+        $isEvent = $this->eventExists($uid);
+        $target = $isEvent ? $uid : $this->normalizeNamespaceIdentifier($uid);
+
+        if (!$isEvent) {
+            $this->ensureNamespaceExists($target);
         }
 
         $stmt = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid = ? LIMIT 1');
-        $stmt->execute([$uid]);
+        $stmt->execute([$target]);
         if ($stmt->fetchColumn() === false) {
             $insert = $this->pdo->prepare('INSERT INTO config(event_uid) VALUES(?)');
-            $insert->execute([$uid]);
+            $insert->execute([$target]);
         }
     }
 
     private function eventExists(string $uid): bool
     {
-        $stmt = $this->pdo->prepare('SELECT 1 FROM events WHERE uid = ? LIMIT 1');
-        $stmt->execute([$uid]);
+        try {
+            $stmt = $this->pdo->prepare('SELECT 1 FROM events WHERE uid = ? LIMIT 1');
+            $stmt->execute([$uid]);
 
-        return $stmt->fetchColumn() !== false;
+            return $stmt->fetchColumn() !== false;
+        } catch (PDOException) {
+            return false;
+        }
     }
 
     private function namespaceExists(string $namespace): bool
@@ -643,6 +654,23 @@ class ConfigService
         } catch (PDOException) {
             return false;
         }
+    }
+
+    private function ensureNamespaceExists(string $namespace): void
+    {
+        $validator = new NamespaceValidator();
+        $normalized = $validator->normalize($namespace);
+        $validator->assertValid($normalized);
+
+        $repository = new NamespaceRepository($this->pdo);
+        if (!$repository->exists($normalized)) {
+            $repository->create($normalized);
+        }
+    }
+
+    private function normalizeNamespaceIdentifier(string $namespace): string
+    {
+        return (new NamespaceValidator())->normalize($namespace);
     }
 
     /**
