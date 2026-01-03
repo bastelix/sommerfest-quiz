@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Infrastructure\Database;
-use App\Service\DesignTokenService;
 use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
+use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceResolver;
 use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
@@ -28,8 +28,8 @@ class PageController
     private NamespaceResolver $namespaceResolver;
     private PageBlockContractMigrator $blockMigrator;
     private AuditLogger $audit;
-    private DesignTokenService $designTokens;
     private ConfigService $configService;
+    private NamespaceAppearanceService $namespaceAppearance;
     private EffectsPolicyService $effectsPolicy;
 
     /** @var array<string, string[]> */
@@ -50,7 +50,6 @@ class PageController
         ?NamespaceResolver $namespaceResolver = null,
         ?PageBlockContractMigrator $blockMigrator = null,
         ?AuditLogger $audit = null,
-        ?DesignTokenService $designTokens = null,
         ?ConfigService $configService = null,
         ?EffectsPolicyService $effectsPolicy = null
     ) {
@@ -59,8 +58,8 @@ class PageController
         $this->blockMigrator = $blockMigrator ?? new PageBlockContractMigrator($this->pageService);
         $pdo = Database::connectFromEnv();
         $this->audit = $audit ?? new AuditLogger($pdo);
-        $this->designTokens = $designTokens ?? new DesignTokenService($pdo);
         $this->configService = $configService ?? new ConfigService($pdo);
+        $this->namespaceAppearance = new NamespaceAppearanceService();
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
     }
 
@@ -618,10 +617,8 @@ class PageController
         }
 
         $appearance = [
-            'tokens' => $this->designTokens->getTokensForNamespace($namespace),
-            'defaults' => $this->designTokens->getDefaults(),
+            ...$this->namespaceAppearance->load($namespace),
         ];
-        $appearance['colors'] = $this->buildAppearanceColors($namespace);
 
         $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);
 
@@ -630,20 +627,6 @@ class PageController
             'appearance' => $appearance,
             'effects' => $effects,
             'namespace' => $namespace,
-        ];
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    private function buildAppearanceColors(string $namespace): array
-    {
-        $tokens = $this->designTokens->getTokensForNamespace($namespace);
-
-        return [
-            'primary' => $tokens['brand']['primary'] ?? null,
-            'secondary' => $tokens['brand']['accent'] ?? null,
-            'accent' => $tokens['brand']['accent'] ?? null,
         ];
     }
 
