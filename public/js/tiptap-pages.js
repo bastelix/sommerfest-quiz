@@ -3364,7 +3364,7 @@ const buildNamespacedCssCandidates = filename => {
   const namespace = resolvePageNamespace();
   const normalized = (namespace || '').trim().toLowerCase();
   const candidates = [];
-  if (normalized && normalized !== 'default' && LANDING_NAMESPACE_ASSET_FOLDERS.has(normalized)) {
+  if (normalized && normalized !== 'default') {
     candidates.push(withBase(`/css/${encodeURIComponent(normalized)}/${filename}`));
   }
   candidates.push(withBase(`/css/${filename}`));
@@ -3382,25 +3382,26 @@ const ensurePreviewAssets = () => {
   const uikitCss = withBase('/css/uikit.min.css');
   const uikitJs = withBase('/js/uikit.min.js');
   const uikitIconsJs = withBase('/js/uikit-icons.min.js');
-  const landingHighcontrastCss = withBase('/css/highcontrast.css');
-
   const styles = [
-    ensureStylesheetWithFallback('preview-uikit-css', uikitCss),
-    ensureStylesheetWithFallback('preview-landing-css', buildNamespacedCssCandidates('landing.css'), {
+    ensureStylesheetWithFallback('preview-uikit-css', uikitCss, {
       media: 'print',
-      dataset: { previewAsset: 'landing' }
+      dataset: { previewAsset: 'page-preview' }
     }),
-    ensureStylesheetWithFallback('preview-landing-topbar-css', buildNamespacedCssCandidates('topbar.landing.css'), {
+    ensureStylesheetWithFallback('preview-variables-css', withBase('/css/variables.css'), {
       media: 'print',
-      dataset: { previewAsset: 'landing' }
+      dataset: { previewAsset: 'page-preview' }
     }),
-    ensureStylesheetWithFallback('preview-landing-onboarding-css', buildNamespacedCssCandidates('onboarding.css'), {
+    ensureStylesheetWithFallback('preview-namespace-tokens-css', buildNamespacedCssCandidates('namespace-tokens.css'), {
       media: 'print',
-      dataset: { previewAsset: 'landing' }
+      dataset: { previewAsset: 'page-preview' }
     }),
-    ensureStylesheetWithFallback('preview-landing-highcontrast-css', landingHighcontrastCss, {
+    ensureStylesheetWithFallback('preview-table-css', withBase('/css/table.css'), {
       media: 'print',
-      dataset: { previewAsset: 'landing' }
+      dataset: { previewAsset: 'page-preview' }
+    }),
+    ensureStylesheetWithFallback('preview-topbar-css', withBase('/css/topbar.css'), {
+      media: 'print',
+      dataset: { previewAsset: 'page-preview' }
     })
   ];
 
@@ -3413,9 +3414,9 @@ const ensurePreviewAssets = () => {
   return previewAssetsPromises[cacheKey];
 };
 
-const setLandingPreviewMedia = enabled => {
+const setPagePreviewMedia = enabled => {
   const targetMedia = enabled ? 'all' : 'print';
-  document.querySelectorAll('link[data-preview-asset="landing"]').forEach(link => {
+  document.querySelectorAll('link[data-preview-asset="page-preview"]').forEach(link => {
     link.media = targetMedia;
   });
 };
@@ -3426,7 +3427,7 @@ const bindPreviewModal = () => {
     return;
   }
   modalEl.addEventListener('hidden', () => {
-    setLandingPreviewMedia(false);
+    setPagePreviewMedia(false);
   });
   modalEl.dataset.previewBound = '1';
 };
@@ -3472,7 +3473,7 @@ export async function showPreview(formOverride = null, options = {}) {
   previewContainer.innerHTML = html;
 
   await ensurePreviewAssets();
-  setLandingPreviewMedia(true);
+  setPagePreviewMedia(true);
   bindPreviewModal();
   if (window.UIkit && typeof window.UIkit.modal === 'function') {
     window.UIkit.modal(modalEl).show();
