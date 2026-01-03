@@ -4,7 +4,7 @@
 
 {% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
 
-{% set menuItems = marketingMenuItems|default([]) %}
+{% set menuItems = cmsMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('FLUKE MET/CAL mit calServer – Migration & Integration') }}{% endblock %}
 

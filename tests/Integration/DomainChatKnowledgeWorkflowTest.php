@@ -7,7 +7,7 @@ namespace Tests\Integration;
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Marketing\MarketingChatController;
 use App\Service\DomainService;
-use App\Service\MarketingPageWikiArticleService;
+use App\Service\CmsPageWikiArticleService;
 use App\Service\PageService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
@@ -228,7 +228,7 @@ PHP_SCRIPT;
         $storage = new DomainDocumentStorage($domainsDir);
         $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
         $wikiSelection = new DomainWikiSelectionService($pdo);
-        $wikiArticles = new MarketingPageWikiArticleService($pdo);
+        $wikiArticles = new CmsPageWikiArticleService($pdo);
         $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
 
         $responseFactory = new ResponseFactory();
@@ -273,7 +273,7 @@ PHP_SCRIPT;
         $storage = new DomainDocumentStorage($domainsDir);
         $indexManager = new DomainIndexManager($storage, dirname(__DIR__, 2), 'php');
         $wikiSelection = new DomainWikiSelectionService($pdo);
-        $wikiArticles = new MarketingPageWikiArticleService($pdo);
+        $wikiArticles = new CmsPageWikiArticleService($pdo);
         $controller = new DomainChatKnowledgeController($storage, $indexManager, $wikiSelection, $wikiArticles, $pageService);
 
         $responseFactory = new ResponseFactory();
@@ -488,7 +488,7 @@ PHP_SCRIPT;
         $wikiSelection = new DomainWikiSelectionService($pdo);
         $wikiSelection->replaceSelection('calserver.com', [$articleId]);
 
-        $wikiArticles = new MarketingPageWikiArticleService($pdo);
+        $wikiArticles = new CmsPageWikiArticleService($pdo);
         $storage = new DomainDocumentStorage($domainsDir);
         $indexManager = new DomainIndexManager($storage, $projectRoot, 'php', $wikiSelection, $wikiArticles);
 

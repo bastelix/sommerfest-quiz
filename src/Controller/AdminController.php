@@ -244,7 +244,7 @@ class AdminController
             $marketingPages = [];
             if ($loadMarketingData || $loadDomainChatData) {
                 $allPages = $pageSvc->getAllForNamespace($namespace);
-                $marketingPages = $this->filterMarketingPages($allPages);
+                $marketingPages = $this->filterCmsPages($allPages);
             }
 
             if ($loadDomainChatData) {
@@ -538,7 +538,7 @@ class AdminController
      * @param Page[] $pages
      * @return Page[]
      */
-    private function filterMarketingPages(array $pages): array {
+    private function filterCmsPages(array $pages): array {
         return array_values(array_filter(
             $pages,
             static fn (Page $page): bool => !in_array($page->getSlug(), LandingpageSeoController::EXCLUDED_SLUGS, true)

@@ -7,13 +7,13 @@ namespace Tests\Service;
 use App\Domain\Page;
 use App\Service\Marketing\MarketingMenuAiException;
 use App\Service\Marketing\MarketingMenuAiGenerator;
-use App\Service\MarketingMenuService;
+use App\Service\CmsPageMenuService;
 use App\Service\PageService;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use Tests\Stubs\StaticChatResponder;
 
-final class MarketingMenuServiceGenerationTest extends TestCase
+final class CmsPageMenuServiceGenerationTest extends TestCase
 {
     private PDO $pdo;
 
@@ -40,7 +40,7 @@ final class MarketingMenuServiceGenerationTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $service = new MarketingMenuService($this->pdo, $this->pageService, $generator);
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, $generator);
         $items = $service->generateMenuFromPage($page, 'de', true);
 
         $this->assertCount(1, $items);
@@ -59,7 +59,7 @@ final class MarketingMenuServiceGenerationTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $service = new MarketingMenuService($this->pdo, $this->pageService, $generator);
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, $generator);
         $items = $service->generateMenuFromPage($page, 'de', false);
 
         $this->assertCount(2, $items);
@@ -82,7 +82,7 @@ final class MarketingMenuServiceGenerationTest extends TestCase
             ],
         ])), '{{slug}}');
 
-        $service = new MarketingMenuService($this->pdo, $this->pageService, $generator);
+        $service = new CmsPageMenuService($this->pdo, $this->pageService, $generator);
 
         try {
             $service->generateMenuFromPage($page, 'de', false);

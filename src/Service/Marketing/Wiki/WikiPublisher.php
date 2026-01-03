@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Marketing\Wiki;
 
-use App\Domain\MarketingPageWikiArticle;
+use App\Domain\CmsPageWikiArticle;
 use DateTimeImmutable;
 use RuntimeException;
 
@@ -18,7 +18,7 @@ final class WikiPublisher
         $this->contentRoot = rtrim($contentRoot ?? $defaultRoot, '/');
     }
 
-    public function publish(string $pageSlug, MarketingPageWikiArticle $article): void
+    public function publish(string $pageSlug, CmsPageWikiArticle $article): void
     {
         if (!$article->isPublished()) {
             return;

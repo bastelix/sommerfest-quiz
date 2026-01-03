@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Service;
 
-use App\Domain\MarketingPageWikiArticle;
-use App\Service\MarketingPageWikiArticleService;
+use App\Domain\CmsPageWikiArticle;
+use App\Service\CmsPageWikiArticleService;
 use App\Service\Marketing\Wiki\EditorJsToMarkdown;
 use App\Service\Marketing\Wiki\WikiPublisher;
 use PDO;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-final class MarketingPageWikiArticleServiceTest extends TestCase
+final class CmsPageWikiArticleServiceTest extends TestCase
 {
     private string $exportDir;
 
@@ -45,7 +45,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
     public function testSavesAndPublishesArticle(): void
     {
         $pdo = $this->createDatabase();
-        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), new WikiPublisher($this->exportDir));
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), new WikiPublisher($this->exportDir));
 
         $pageId = $this->createPage($pdo, 'landing', 'Landing');
         $editorState = [
@@ -62,7 +62,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
             'Erste Schritte',
             'So startest du in wenigen Minuten.',
             $editorState,
-            MarketingPageWikiArticle::STATUS_PUBLISHED
+            CmsPageWikiArticle::STATUS_PUBLISHED
         );
 
         $this->assertTrue($article->isPublished());
@@ -80,7 +80,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
         $markdown = $service->exportMarkdown($article->getId());
         $this->assertStringContainsString('Willkommen bei QuizRace.', $markdown);
 
-        $service->updateStatus($article->getId(), MarketingPageWikiArticle::STATUS_ARCHIVED);
+        $service->updateStatus($article->getId(), CmsPageWikiArticle::STATUS_ARCHIVED);
         $archived = $service->getPublishedArticles($pageId, 'de');
         $this->assertCount(0, $archived);
 
@@ -91,7 +91,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
     public function testDuplicateArticleCreatesDraftWithUniqueSlug(): void
     {
         $pdo = $this->createDatabase();
-        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
 
         $pageId = $this->createPage($pdo, 'landing', 'Landing');
         $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Original content.']]]];
@@ -103,12 +103,12 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
             'Handbuch',
             null,
             $editorState,
-            MarketingPageWikiArticle::STATUS_PUBLISHED
+            CmsPageWikiArticle::STATUS_PUBLISHED
         );
 
         $duplicate = $service->duplicateArticle($pageId, $original->getId());
 
-        $this->assertSame(MarketingPageWikiArticle::STATUS_DRAFT, $duplicate->getStatus());
+        $this->assertSame(CmsPageWikiArticle::STATUS_DRAFT, $duplicate->getStatus());
         $this->assertSame('handbuch-copy', $duplicate->getSlug());
         $this->assertSame('Handbuch', $duplicate->getTitle());
         $this->assertGreaterThan($original->getSortIndex(), $duplicate->getSortIndex());
@@ -129,7 +129,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
     public function testSaveArticleNormalizesProvidedSlug(): void
     {
         $pdo = $this->createDatabase();
-        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
 
         $pageId = $this->createPage($pdo, 'wissen', 'Wissen');
         $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Inhalt']]]];
@@ -154,7 +154,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
     public function testSetStartDocumentSwitchesArticles(): void
     {
         $pdo = $this->createDatabase();
-        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
 
         $pageId = $this->createPage($pdo, 'landing', 'Landing');
         $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Intro']]]];
@@ -166,7 +166,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
             'Intro',
             null,
             $editorState,
-            MarketingPageWikiArticle::STATUS_PUBLISHED,
+            CmsPageWikiArticle::STATUS_PUBLISHED,
             null,
             null,
             null,
@@ -180,7 +180,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
             'Handbuch',
             null,
             $editorState,
-            MarketingPageWikiArticle::STATUS_PUBLISHED
+            CmsPageWikiArticle::STATUS_PUBLISHED
         );
 
         $this->assertTrue($first->isStartDocument());
@@ -205,7 +205,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
     public function testReorderArticlesUpdatesSortIndexes(): void
     {
         $pdo = $this->createDatabase();
-        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
 
         $pageId = $this->createPage($pdo, 'landing', 'Landing');
         $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Text']]]];
@@ -232,7 +232,7 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
     public function testMarkdownImportPreservesInlineFormatting(): void
     {
         $pdo = $this->createDatabase();
-        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+        $service = new CmsPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
 
         $pageId = $this->createPage($pdo, 'guide', 'Guide');
         $markdown = <<<MD

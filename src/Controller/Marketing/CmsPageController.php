@@ -8,9 +8,9 @@ use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Roles;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
-use App\Service\MarketingMenuService;
-use App\Service\MarketingPageWikiArticleService;
-use App\Service\MarketingPageWikiSettingsService;
+use App\Service\CmsPageMenuService;
+use App\Service\CmsPageWikiArticleService;
+use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceResolver;
@@ -50,7 +50,7 @@ use function str_contains;
 use function str_replace;
 use function trim;
 
-class MarketingPageController
+class CmsPageController
 {
     private const CALHELP_NEWS_PLACEHOLDER = '__CALHELP_NEWS_SECTION__';
 
@@ -70,9 +70,9 @@ class MarketingPageController
     private TurnstileConfig $turnstileConfig;
     private ProvenExpertRatingService $provenExpert;
     private LandingNewsService $landingNews;
-    private MarketingMenuService $marketingMenu;
-    private MarketingPageWikiSettingsService $wikiSettings;
-    private MarketingPageWikiArticleService $wikiArticles;
+    private CmsPageMenuService $cmsMenu;
+    private CmsPageWikiSettingsService $wikiSettings;
+    private CmsPageWikiArticleService $wikiArticles;
     private PageContentLoader $contentLoader;
     private PageModuleService $pageModules;
     private NamespaceAppearanceService $namespaceAppearance;
@@ -88,9 +88,9 @@ class MarketingPageController
         ?TurnstileConfig $turnstileConfig = null,
         ?ProvenExpertRatingService $provenExpert = null,
         ?LandingNewsService $landingNews = null,
-        ?MarketingMenuService $marketingMenu = null,
-        ?MarketingPageWikiSettingsService $wikiSettings = null,
-        ?MarketingPageWikiArticleService $wikiArticles = null,
+        ?CmsPageMenuService $cmsMenu = null,
+        ?CmsPageWikiSettingsService $wikiSettings = null,
+        ?CmsPageWikiArticleService $wikiArticles = null,
         ?PageContentLoader $contentLoader = null,
         ?PageModuleService $pageModules = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
@@ -105,9 +105,9 @@ class MarketingPageController
         $this->turnstileConfig = $turnstileConfig ?? TurnstileConfig::fromEnv();
         $this->provenExpert = $provenExpert ?? new ProvenExpertRatingService();
         $this->landingNews = $landingNews ?? new LandingNewsService();
-        $this->marketingMenu = $marketingMenu ?? new MarketingMenuService();
-        $this->wikiSettings = $wikiSettings ?? new MarketingPageWikiSettingsService();
-        $this->wikiArticles = $wikiArticles ?? new MarketingPageWikiArticleService();
+        $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService();
+        $this->wikiSettings = $wikiSettings ?? new CmsPageWikiSettingsService();
+        $this->wikiArticles = $wikiArticles ?? new CmsPageWikiArticleService();
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
         $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
@@ -229,7 +229,7 @@ class MarketingPageController
             $chatPath = sprintf('/m/%s/chat', $templateSlug);
         }
 
-        $marketingMenuItems = $this->marketingMenu->getMenuTreeForSlug(
+        $cmsMenuItems = $this->cmsMenu->getMenuTreeForSlug(
             $namespace,
             $page->getSlug(),
             $locale,
@@ -270,8 +270,8 @@ class MarketingPageController
             'turnstileSiteKey' => $this->turnstileConfig->isEnabled() ? $this->turnstileConfig->getSiteKey() : null,
             'turnstileEnabled' => $this->turnstileConfig->isEnabled(),
             'csrf_token' => $csrf,
-            'marketingSlug' => $templateSlug,
-            'marketingChatEndpoint' => $basePath . $chatPath,
+            'cmsSlug' => $templateSlug,
+            'cmsChatEndpoint' => $basePath . $chatPath,
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
@@ -313,27 +313,27 @@ class MarketingPageController
             if ($wikiArticles !== []) {
                 $label = $wikiSettings->getMenuLabelForLocale($locale) ?? 'Dokumentation';
                 $wikiUrl = sprintf('%s/pages/%s/wiki', $basePath, $wikiSlug);
-                $data['marketingWikiMenu'] = [
+                $data['cmsWikiMenu'] = [
                     'label' => $label,
                     'url' => $wikiUrl,
                 ];
-                $data['marketingWikiArticles'] = $wikiArticles;
-                $marketingMenuItems = $this->appendWikiMenuItem($marketingMenuItems, $label, $wikiUrl);
+                $data['cmsWikiArticles'] = $wikiArticles;
+                $cmsMenuItems = $this->appendWikiMenuItem($cmsMenuItems, $label, $wikiUrl);
             }
         }
 
         if ($templateSlug === 'landing') {
-            $menuMarkup = $this->renderMarketingMenuMarkup($view, $marketingMenuItems, 'uk-navbar-nav uk-visible@m');
+            $menuMarkup = $this->renderCmsMenuMarkup($view, $cmsMenuItems, 'uk-navbar-nav uk-visible@m');
             $headerContent = $this->loadHeaderContent($view, $menuMarkup, $headerConfig, $headerLogo);
         }
 
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
             $data['isAdmin'] = $isAdmin;
-            $data['marketingNamespace'] = $page->getNamespace();
+            $data['cmsNamespace'] = $page->getNamespace();
         }
 
-        $data['marketingMenuItems'] = $marketingMenuItems;
+        $data['cmsMenuItems'] = $cmsMenuItems;
 
         $data['calhelpNewsPlaceholder'] = $calhelpNewsPlaceholderActive ? self::CALHELP_NEWS_PLACEHOLDER : null;
         $data['calhelpNewsPlaceholderActive'] = $calhelpNewsPlaceholderActive;
@@ -458,7 +458,7 @@ class MarketingPageController
      * @param array<string, bool> $headerConfig
      * @param array<string, mixed> $headerLogo
      */
-    private function loadHeaderContent(Twig $view, string $marketingMenuMarkup, array $headerConfig, array $headerLogo): string
+    private function loadHeaderContent(Twig $view, string $cmsMenuMarkup, array $headerConfig, array $headerLogo): string
     {
         $filePath = dirname(__DIR__, 3) . '/content/header.html';
         if (!is_readable($filePath)) {
@@ -477,7 +477,7 @@ class MarketingPageController
             'show_contrast_toggle' => $headerConfig['show_contrast_toggle'] ?? true,
         ]);
         $lockedMenu = '<div class="qr-header-config-menu" contenteditable="false">' . $configMenu . '</div>';
-        $fileContent = str_replace('{{ marketing_menu }}', $marketingMenuMarkup, $fileContent);
+        $fileContent = str_replace('{{ cms_menu }}', $cmsMenuMarkup, $fileContent);
         $fileContent = str_replace('{{ header_logo }}', $this->renderHeaderLogo($headerLogo), $fileContent);
 
         return str_replace('{{ config_menu }}', $lockedMenu, $fileContent);
@@ -574,7 +574,7 @@ class MarketingPageController
         return ($normalizedBase !== '' ? $normalizedBase : '') . '/' . ltrim($normalized, '/');
     }
 
-    private function renderMarketingMenuMarkup(Twig $view, array $menuItems, string $navClass): string
+    private function renderCmsMenuMarkup(Twig $view, array $menuItems, string $navClass): string
     {
         return $view->fetch('marketing/partials/menu-main.twig', [
             'menuItems' => $menuItems,

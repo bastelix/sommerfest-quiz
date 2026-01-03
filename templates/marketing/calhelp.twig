@@ -3,7 +3,7 @@
 {% import 'marketing/partials/menu.twig' as menu %}
 
 {% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
-{% set menuItems = marketingMenuItems|default([]) %}
+{% set menuItems = cmsMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('calHelp – Ein System. Klare Prozesse. Beratung für Kalibrier-, Prüf- & Inventarprozesse') }}{% endblock %}
 

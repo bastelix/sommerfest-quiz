@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Domain\MarketingPageWikiArticle;
-use App\Service\MarketingPageWikiArticleService;
-use App\Service\MarketingPageWikiSettingsService;
+use App\Domain\CmsPageWikiArticle;
+use App\Service\CmsPageWikiArticleService;
+use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingWikiThemeConfigService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
@@ -18,11 +18,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 
-final class MarketingPageWikiController
+final class CmsPageWikiController
 {
-    private MarketingPageWikiSettingsService $settingsService;
+    private CmsPageWikiSettingsService $settingsService;
 
-    private MarketingPageWikiArticleService $articleService;
+    private CmsPageWikiArticleService $articleService;
 
     private PageService $pageService;
 
@@ -31,14 +31,14 @@ final class MarketingPageWikiController
     private MarketingWikiThemeConfigService $themeConfigService;
 
     public function __construct(
-        ?MarketingPageWikiSettingsService $settingsService = null,
-        ?MarketingPageWikiArticleService $articleService = null,
+        ?CmsPageWikiSettingsService $settingsService = null,
+        ?CmsPageWikiArticleService $articleService = null,
         ?PageService $pageService = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?MarketingWikiThemeConfigService $themeConfigService = null
     ) {
-        $this->settingsService = $settingsService ?? new MarketingPageWikiSettingsService();
-        $this->articleService = $articleService ?? new MarketingPageWikiArticleService();
+        $this->settingsService = $settingsService ?? new CmsPageWikiSettingsService();
+        $this->articleService = $articleService ?? new CmsPageWikiArticleService();
         $this->pageService = $pageService ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
@@ -76,7 +76,7 @@ final class MarketingPageWikiController
             ],
             'theme' => $theme,
             'themeDefaults' => $themeDefaults,
-            'articles' => array_map(fn (MarketingPageWikiArticle $article): array => $this->serializeArticle($article, false), $articles),
+            'articles' => array_map(fn (CmsPageWikiArticle $article): array => $this->serializeArticle($article, false), $articles),
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -175,7 +175,7 @@ final class MarketingPageWikiController
         $slug = (string) ($body['slug'] ?? '');
         $title = (string) ($body['title'] ?? '');
         $excerpt = isset($body['excerpt']) ? (string) $body['excerpt'] : null;
-        $status = isset($body['status']) ? (string) $body['status'] : MarketingPageWikiArticle::STATUS_DRAFT;
+        $status = isset($body['status']) ? (string) $body['status'] : CmsPageWikiArticle::STATUS_DRAFT;
         $sortIndex = isset($body['sortIndex']) ? (int) $body['sortIndex'] : null;
         $isStartDocument = $this->normalizeBoolean($body['isStartDocument'] ?? false);
         $editorState = $this->decodeEditorState($body['editor'] ?? $body['editorState'] ?? null);
@@ -224,7 +224,7 @@ final class MarketingPageWikiController
             return $response->withStatus(400);
         }
 
-        $status = isset($body['status']) ? (string) $body['status'] : MarketingPageWikiArticle::STATUS_DRAFT;
+        $status = isset($body['status']) ? (string) $body['status'] : CmsPageWikiArticle::STATUS_DRAFT;
         try {
             $article = $this->articleService->updateStatus($articleId, $status);
         } catch (RuntimeException $exception) {
@@ -483,15 +483,15 @@ final class MarketingPageWikiController
         if ($locale === '') {
             $locale = 'de';
         }
-        $status = isset($body['status']) && is_string($body['status']) ? trim($body['status']) : MarketingPageWikiArticle::STATUS_DRAFT;
+        $status = isset($body['status']) && is_string($body['status']) ? trim($body['status']) : CmsPageWikiArticle::STATUS_DRAFT;
         if (
             !in_array($status, [
-            MarketingPageWikiArticle::STATUS_DRAFT,
-            MarketingPageWikiArticle::STATUS_PUBLISHED,
-            MarketingPageWikiArticle::STATUS_ARCHIVED,
+            CmsPageWikiArticle::STATUS_DRAFT,
+            CmsPageWikiArticle::STATUS_PUBLISHED,
+            CmsPageWikiArticle::STATUS_ARCHIVED,
             ], true)
         ) {
-            $status = MarketingPageWikiArticle::STATUS_DRAFT;
+            $status = CmsPageWikiArticle::STATUS_DRAFT;
         }
 
         $isStartDocument = $this->normalizeBoolean($body['isStartDocument'] ?? false);
@@ -734,7 +734,7 @@ final class MarketingPageWikiController
     /**
      * @return array<string,mixed>
      */
-    private function serializeArticle(MarketingPageWikiArticle $article, bool $includeHeavyFields = true): array
+    private function serializeArticle(CmsPageWikiArticle $article, bool $includeHeavyFields = true): array
     {
         $payload = [
             'id' => $article->getId(),

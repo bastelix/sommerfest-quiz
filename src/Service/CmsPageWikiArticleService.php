@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Domain\MarketingPageWikiArticle;
-use App\Domain\MarketingPageWikiVersion;
+use App\Domain\CmsPageWikiArticle;
+use App\Domain\CmsPageWikiVersion;
 use App\Infrastructure\Database;
 use App\Service\Marketing\Wiki\EditorJsToMarkdown;
 use App\Service\Marketing\Wiki\WikiPublisher;
@@ -15,7 +15,7 @@ use PDO;
 use PDOException;
 use RuntimeException;
 
-final class MarketingPageWikiArticleService
+final class CmsPageWikiArticleService
 {
     private PDO $pdo;
 
@@ -34,7 +34,7 @@ final class MarketingPageWikiArticleService
     }
 
     /**
-     * @return MarketingPageWikiArticle[]
+     * @return CmsPageWikiArticle[]
      */
     public function getArticlesForPage(int $pageId): array
     {
@@ -48,7 +48,7 @@ final class MarketingPageWikiArticleService
         return array_map([$this, 'hydrateArticle'], $rows);
     }
 
-    public function getArticleById(int $articleId): ?MarketingPageWikiArticle
+    public function getArticleById(int $articleId): ?CmsPageWikiArticle
     {
         $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_wiki_articles WHERE id = ?');
         $stmt->execute([$articleId]);
@@ -61,7 +61,7 @@ final class MarketingPageWikiArticleService
     }
 
     /**
-     * @return MarketingPageWikiArticle[]
+     * @return CmsPageWikiArticle[]
      */
     public function getPublishedArticles(int $pageId, string $locale): array
     {
@@ -74,18 +74,18 @@ final class MarketingPageWikiArticleService
             'SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND status = ? '
             . 'ORDER BY is_start_document DESC, sort_index ASC, (published_at IS NULL), published_at DESC, id ASC'
         );
-        $stmt->execute([$pageId, $locale, MarketingPageWikiArticle::STATUS_PUBLISHED]);
+        $stmt->execute([$pageId, $locale, CmsPageWikiArticle::STATUS_PUBLISHED]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         return array_map([$this, 'hydrateArticle'], $rows);
     }
 
-    public function findPublishedArticle(int $pageId, string $locale, string $slug): ?MarketingPageWikiArticle
+    public function findPublishedArticle(int $pageId, string $locale, string $slug): ?CmsPageWikiArticle
     {
         $stmt = $this->pdo->prepare(
             'SELECT * FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND slug = ? AND status = ?'
         );
-        $stmt->execute([$pageId, strtolower($locale), strtolower($slug), MarketingPageWikiArticle::STATUS_PUBLISHED]);
+        $stmt->execute([$pageId, strtolower($locale), strtolower($slug), CmsPageWikiArticle::STATUS_PUBLISHED]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
@@ -104,12 +104,12 @@ final class MarketingPageWikiArticleService
         string $title,
         ?string $excerpt,
         array $editorState,
-        string $status = MarketingPageWikiArticle::STATUS_DRAFT,
+        string $status = CmsPageWikiArticle::STATUS_DRAFT,
         ?int $articleId = null,
         ?DateTimeImmutable $publishedAt = null,
         ?int $sortIndex = null,
         bool $isStartDocument = false
-    ): MarketingPageWikiArticle {
+    ): CmsPageWikiArticle {
         $normalizedLocale = strtolower(trim($locale)) ?: 'de';
         $normalizedSlug = $this->normalizeSlug($slug);
         if ($normalizedSlug === '' || !preg_match('/^[a-z0-9][a-z0-9-]{0,127}$/', $normalizedSlug)) {
@@ -128,9 +128,9 @@ final class MarketingPageWikiArticleService
 
         if (
             !in_array($status, [
-            MarketingPageWikiArticle::STATUS_DRAFT,
-            MarketingPageWikiArticle::STATUS_PUBLISHED,
-            MarketingPageWikiArticle::STATUS_ARCHIVED,
+            CmsPageWikiArticle::STATUS_DRAFT,
+            CmsPageWikiArticle::STATUS_PUBLISHED,
+            CmsPageWikiArticle::STATUS_ARCHIVED,
             ], true)
         ) {
             throw new RuntimeException('Invalid article status.');
@@ -144,10 +144,10 @@ final class MarketingPageWikiArticleService
         $markdown = $conversion['markdown'];
         $html = $conversion['html'];
 
-        if ($status === MarketingPageWikiArticle::STATUS_PUBLISHED && $publishedAt === null) {
+        if ($status === CmsPageWikiArticle::STATUS_PUBLISHED && $publishedAt === null) {
             $publishedAt = new DateTimeImmutable();
         }
-        if ($status !== MarketingPageWikiArticle::STATUS_PUBLISHED) {
+        if ($status !== CmsPageWikiArticle::STATUS_PUBLISHED) {
             $publishedAt = null;
         }
 
@@ -241,11 +241,11 @@ final class MarketingPageWikiArticleService
         string $title,
         string $markdown,
         ?string $excerpt = null,
-        string $status = MarketingPageWikiArticle::STATUS_DRAFT,
+        string $status = CmsPageWikiArticle::STATUS_DRAFT,
         ?int $articleId = null,
         ?int $sortIndex = null,
         bool $isStartDocument = false
-    ): MarketingPageWikiArticle {
+    ): CmsPageWikiArticle {
         $editorState = $this->convertMarkdownToEditorState($markdown);
 
         return $this->saveArticle(
@@ -263,13 +263,13 @@ final class MarketingPageWikiArticleService
         );
     }
 
-    public function updateStatus(int $articleId, string $status): MarketingPageWikiArticle
+    public function updateStatus(int $articleId, string $status): CmsPageWikiArticle
     {
         if (
             !in_array($status, [
-            MarketingPageWikiArticle::STATUS_DRAFT,
-            MarketingPageWikiArticle::STATUS_PUBLISHED,
-            MarketingPageWikiArticle::STATUS_ARCHIVED,
+            CmsPageWikiArticle::STATUS_DRAFT,
+            CmsPageWikiArticle::STATUS_PUBLISHED,
+            CmsPageWikiArticle::STATUS_ARCHIVED,
             ], true)
         ) {
             throw new RuntimeException('Invalid status');
@@ -281,10 +281,10 @@ final class MarketingPageWikiArticleService
         }
 
         $publishedAt = $article->getPublishedAt();
-        if ($status === MarketingPageWikiArticle::STATUS_PUBLISHED && $publishedAt === null) {
+        if ($status === CmsPageWikiArticle::STATUS_PUBLISHED && $publishedAt === null) {
             $publishedAt = new DateTimeImmutable();
         }
-        if ($status !== MarketingPageWikiArticle::STATUS_PUBLISHED) {
+        if ($status !== CmsPageWikiArticle::STATUS_PUBLISHED) {
             $publishedAt = null;
         }
 
@@ -351,7 +351,7 @@ final class MarketingPageWikiArticleService
         int $articleId,
         ?string $desiredSlug = null,
         ?string $titleOverride = null
-    ): MarketingPageWikiArticle {
+    ): CmsPageWikiArticle {
         $article = $this->getArticleById($articleId);
         if ($article === null || $article->getPageId() !== $pageId) {
             throw new RuntimeException('Article not found');
@@ -376,7 +376,7 @@ final class MarketingPageWikiArticleService
             $title,
             $article->getExcerpt(),
             $editorState,
-            MarketingPageWikiArticle::STATUS_DRAFT,
+            CmsPageWikiArticle::STATUS_DRAFT,
             null,
             null,
             $sortIndex,
@@ -384,7 +384,7 @@ final class MarketingPageWikiArticleService
         );
     }
 
-    public function setStartDocument(int $articleId, bool $isStartDocument): MarketingPageWikiArticle
+    public function setStartDocument(int $articleId, bool $isStartDocument): CmsPageWikiArticle
     {
         $article = $this->getArticleById($articleId);
         if ($article === null) {
@@ -459,7 +459,7 @@ final class MarketingPageWikiArticleService
     }
 
     /**
-     * @return MarketingPageWikiVersion[]
+     * @return CmsPageWikiVersion[]
      */
     public function getVersions(int $articleId, int $limit = 10): array
     {
@@ -543,7 +543,7 @@ final class MarketingPageWikiArticleService
     /**
      * @param array<string,mixed> $row
      */
-    private function hydrateArticle(array $row): MarketingPageWikiArticle
+    private function hydrateArticle(array $row): CmsPageWikiArticle
     {
         $editorState = null;
         if (isset($row['editor_json']) && $row['editor_json'] !== '') {
@@ -560,7 +560,7 @@ final class MarketingPageWikiArticleService
             ? new DateTimeImmutable((string) $row['updated_at'])
             : null;
 
-        return new MarketingPageWikiArticle(
+        return new CmsPageWikiArticle(
             (int) $row['id'],
             (int) $row['page_id'],
             (string) $row['slug'],
@@ -581,7 +581,7 @@ final class MarketingPageWikiArticleService
     /**
      * @param array<string,mixed> $row
      */
-    private function hydrateVersion(array $row): MarketingPageWikiVersion
+    private function hydrateVersion(array $row): CmsPageWikiVersion
     {
         $editorState = null;
         if (isset($row['editor_json']) && $row['editor_json'] !== '') {
@@ -591,7 +591,7 @@ final class MarketingPageWikiArticleService
             }
         }
 
-        return new MarketingPageWikiVersion(
+        return new CmsPageWikiVersion(
             (int) $row['id'],
             (int) $row['article_id'],
             $editorState,

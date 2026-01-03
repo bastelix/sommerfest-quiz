@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Service;
 
-use App\Service\MarketingPageWikiSettingsService;
+use App\Service\CmsPageWikiSettingsService;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
-final class MarketingPageWikiSettingsServiceTest extends TestCase
+final class CmsPageWikiSettingsServiceTest extends TestCase
 {
     public function testDefaultsAndUpdatesSettings(): void
     {
@@ -21,7 +21,7 @@ final class MarketingPageWikiSettingsServiceTest extends TestCase
             updated_at TEXT DEFAULT CURRENT_TIMESTAMP
         )');
 
-        $service = new MarketingPageWikiSettingsService($pdo);
+        $service = new CmsPageWikiSettingsService($pdo);
 
         $settings = $service->getSettingsForPage(42);
         $this->assertFalse($settings->isActive());

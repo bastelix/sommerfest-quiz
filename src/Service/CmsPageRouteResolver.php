@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Controller\Marketing\LandingController;
-use App\Controller\Marketing\MarketingPageController;
+use App\Controller\Marketing\CmsPageController;
 use App\Domain\Page;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
-final class MarketingPageRouteResolver
+final class CmsPageRouteResolver
 {
     /** @var array<string, class-string> */
     private const CONTROLLER_MAP = [
@@ -44,7 +44,7 @@ final class MarketingPageRouteResolver
             return new $controllerClass($this->pages);
         }
 
-        return new MarketingPageController($normalized, $this->pages);
+        return new CmsPageController($normalized, $this->pages);
     }
 
     private function resolvePage(Request $request, string $slug): ?Page {

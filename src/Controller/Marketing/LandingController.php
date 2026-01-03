@@ -7,7 +7,7 @@ namespace App\Controller\Marketing;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\PageService;
 
-class LandingController extends MarketingPageController
+class LandingController extends CmsPageController
 {
     public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null) {
         parent::__construct('landing', $pages, $seo);

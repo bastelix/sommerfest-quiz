@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Domain\MarketingPageMenuItem;
+use App\Domain\CmsPageMenuItem;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Service\Marketing\MarketingMenuAiGenerator;
@@ -15,7 +15,7 @@ use PDO;
 use PDOException;
 use RuntimeException;
 
-final class MarketingMenuService
+final class CmsPageMenuService
 {
     private const DEFAULT_LAYOUT = 'link';
     private const ALLOWED_LAYOUTS = ['link', 'dropdown', 'mega', 'column'];
@@ -61,7 +61,7 @@ final class MarketingMenuService
     /**
      * Load menu items for a page slug with namespace fallback support.
      *
-     * @return MarketingPageMenuItem[]
+     * @return CmsPageMenuItem[]
      */
     public function getMenuItemsForSlug(
         string $namespace,
@@ -105,7 +105,7 @@ final class MarketingMenuService
     /**
      * Load menu items for a page id.
      *
-     * @return MarketingPageMenuItem[]
+     * @return CmsPageMenuItem[]
      */
     public function getMenuItemsForPage(int $pageId, ?string $locale = null, bool $onlyActive = true): array
     {
@@ -228,7 +228,7 @@ final class MarketingMenuService
     /**
      * Generate menu entries from page HTML via AI and persist them.
      *
-     * @return MarketingPageMenuItem[]
+     * @return CmsPageMenuItem[]
      */
     public function generateMenuFromPage(Page $page, ?string $locale, bool $overwrite): array
     {
@@ -272,7 +272,7 @@ final class MarketingMenuService
     /**
      * Translate an existing menu into another locale via AI and persist the result.
      *
-     * @return MarketingPageMenuItem[]
+     * @return CmsPageMenuItem[]
      */
     public function translateMenuFromLocale(
         Page $page,
@@ -368,7 +368,7 @@ final class MarketingMenuService
         string $namespace,
         ?string $locale = null,
         bool $requireExplicit = false
-    ): ?MarketingPageMenuItem {
+    ): ?CmsPageMenuItem {
         $normalizedNamespace = trim($namespace);
         if ($normalizedNamespace === '') {
             return null;
@@ -450,7 +450,7 @@ final class MarketingMenuService
     /**
      * Fetch a single menu item by its id.
      */
-    public function getMenuItemById(int $id): ?MarketingPageMenuItem
+    public function getMenuItemById(int $id): ?CmsPageMenuItem
     {
         if ($id <= 0) {
             return null;
@@ -485,7 +485,7 @@ final class MarketingMenuService
         ?string $locale = null,
         bool $isActive = true,
         bool $isStartpage = false
-    ): MarketingPageMenuItem {
+    ): CmsPageMenuItem {
         $page = $this->pages->findById($pageId);
         if ($page === null) {
             throw new RuntimeException('Page not found.');
@@ -567,7 +567,7 @@ final class MarketingMenuService
         ?string $locale = null,
         bool $isActive = true,
         bool $isStartpage = false
-    ): MarketingPageMenuItem {
+    ): CmsPageMenuItem {
         $existing = $this->getMenuItemById($id);
         if ($existing === null) {
             throw new RuntimeException('Menu item not found.');
@@ -751,7 +751,7 @@ final class MarketingMenuService
     }
 
     /**
-     * @return MarketingPageMenuItem[]
+     * @return CmsPageMenuItem[]
      */
     private function fetchItemsForPageId(int $pageId, string $namespace, ?string $locale, bool $onlyActive): array
     {
@@ -813,13 +813,13 @@ final class MarketingMenuService
     /**
      * @param array<string, mixed> $row
      */
-    private function hydrateItem(array $row): MarketingPageMenuItem
+    private function hydrateItem(array $row): CmsPageMenuItem
     {
         $updatedAt = isset($row['updated_at'])
             ? new DateTimeImmutable((string) $row['updated_at'])
             : null;
 
-        return new MarketingPageMenuItem(
+        return new CmsPageMenuItem(
             (int) $row['id'],
             (int) $row['page_id'],
             (string) $row['namespace'],
@@ -978,7 +978,7 @@ final class MarketingMenuService
         return $normalized !== '' ? $normalized : null;
     }
 
-    private function normalizeParent(int $pageId, ?int $parentId, ?int $itemId = null): ?MarketingPageMenuItem
+    private function normalizeParent(int $pageId, ?int $parentId, ?int $itemId = null): ?CmsPageMenuItem
     {
         if ($parentId === null || $parentId <= 0) {
             return null;
@@ -1024,7 +1024,7 @@ final class MarketingMenuService
     }
 
     /**
-     * @param MarketingPageMenuItem[] $items
+     * @param CmsPageMenuItem[] $items
      * @return array<int, array<string, mixed>>
      */
     private function buildMenuTree(array $items, bool $applyStartpageFallback = false): array
@@ -1045,7 +1045,7 @@ final class MarketingMenuService
         }
 
         foreach ($grouped as &$group) {
-            usort($group, static function (MarketingPageMenuItem $a, MarketingPageMenuItem $b): int {
+            usort($group, static function (CmsPageMenuItem $a, CmsPageMenuItem $b): int {
                 if ($a->getPosition() === $b->getPosition()) {
                     return $a->getId() <=> $b->getId();
                 }
@@ -1238,7 +1238,7 @@ final class MarketingMenuService
     }
 
     /**
-     * @param MarketingPageMenuItem[] $items
+     * @param CmsPageMenuItem[] $items
      */
     private function resolveFallbackStartpageId(array $items): ?int
     {
@@ -1293,7 +1293,7 @@ final class MarketingMenuService
         string $namespace,
         string $locale,
         bool $requireStartpage
-    ): ?MarketingPageMenuItem {
+    ): ?CmsPageMenuItem {
         $sql = 'SELECT * FROM marketing_page_menu_items WHERE namespace = ? AND locale = ?'
             . ' AND is_active = TRUE AND is_external = FALSE';
 

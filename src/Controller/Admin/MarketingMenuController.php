@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Domain\MarketingPageMenuItem;
-use App\Service\MarketingMenuService;
+use App\Domain\CmsPageMenuItem;
+use App\Service\CmsPageMenuService;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -27,12 +27,12 @@ final class MarketingMenuController
     private const ALLOWED_SCHEMES = ['http', 'https', 'mailto', 'tel'];
     private const ALLOWED_LAYOUTS = ['link', 'dropdown', 'mega', 'column'];
 
-    private MarketingMenuService $menuService;
+    private CmsPageMenuService $menuService;
     private PageService $pageService;
 
-    public function __construct(?MarketingMenuService $menuService = null, ?PageService $pageService = null)
+    public function __construct(?CmsPageMenuService $menuService = null, ?PageService $pageService = null)
     {
-        $this->menuService = $menuService ?? new MarketingMenuService();
+        $this->menuService = $menuService ?? new CmsPageMenuService();
         $this->pageService = $pageService ?? new PageService();
     }
 
@@ -60,7 +60,7 @@ final class MarketingMenuController
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
             ],
-            'items' => array_map(fn (MarketingPageMenuItem $item): array => $this->serializeItem($item), $items),
+            'items' => array_map(fn (CmsPageMenuItem $item): array => $this->serializeItem($item), $items),
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -399,7 +399,7 @@ final class MarketingMenuController
     /**
      * @return array<string, mixed>
      */
-    private function serializeItem(MarketingPageMenuItem $item): array
+    private function serializeItem(CmsPageMenuItem $item): array
     {
         return [
             'id' => $item->getId(),

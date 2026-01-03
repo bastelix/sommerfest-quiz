@@ -7,7 +7,7 @@ namespace App\Controller\Marketing;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\PageService;
 
-class FutureIsGreenController extends MarketingPageController
+class FutureIsGreenController extends CmsPageController
 {
     public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null) {
         parent::__construct('future-is-green', $pages, $seo);

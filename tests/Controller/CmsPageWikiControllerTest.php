@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
-use App\Controller\Admin\MarketingPageWikiController;
+use App\Controller\Admin\CmsPageWikiController;
 use App\Service\Marketing\Wiki\EditorJsToMarkdown;
 use App\Service\Marketing\Wiki\WikiPublisher;
-use App\Service\MarketingPageWikiArticleService;
-use App\Service\MarketingPageWikiSettingsService;
+use App\Service\CmsPageWikiArticleService;
+use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingWikiThemeConfigService;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceValidator;
@@ -24,7 +24,7 @@ use Slim\Psr7\Stream;
 use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
 
-final class MarketingPageWikiControllerTest extends TestCase
+final class CmsPageWikiControllerTest extends TestCase
 {
     public function testUpdateSettingsAcceptsJsonPayload(): void
     {
@@ -576,12 +576,12 @@ final class MarketingPageWikiControllerTest extends TestCase
         return $pdo;
     }
 
-    private function createController(PDO $pdo): MarketingPageWikiController
+    private function createController(PDO $pdo): CmsPageWikiController
     {
         $contentRoot = $this->createPublisherRoot();
 
-        $settingsService = new MarketingPageWikiSettingsService($pdo);
-        $articleService = new MarketingPageWikiArticleService(
+        $settingsService = new CmsPageWikiSettingsService($pdo);
+        $articleService = new CmsPageWikiArticleService(
             $pdo,
             new EditorJsToMarkdown(),
             new WikiPublisher($contentRoot)
@@ -590,7 +590,7 @@ final class MarketingPageWikiControllerTest extends TestCase
         $themeConfig = new MarketingWikiThemeConfigService($pdo, new ProjectSettingsRepository($pdo), new NamespaceValidator());
         $namespaceResolver = new NamespaceResolver();
 
-        return new MarketingPageWikiController($settingsService, $articleService, $pageService, $namespaceResolver, $themeConfig);
+        return new CmsPageWikiController($settingsService, $articleService, $pageService, $namespaceResolver, $themeConfig);
     }
 
     private function createJsonRequest(array $payload): \Psr\Http\Message\ServerRequestInterface

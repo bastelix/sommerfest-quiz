@@ -6,7 +6,7 @@ namespace App\Domain;
 
 use DateTimeImmutable;
 
-final class MarketingPageMenuItem
+final class CmsPageMenuItem
 {
     private int $id;
 
