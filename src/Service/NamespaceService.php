@@ -36,26 +36,20 @@ final class NamespaceService
         } catch (RuntimeException) {
             $entries = [];
         }
+
         $existing = [];
         foreach ($entries as $entry) {
             $existing[$entry['namespace']] = true;
         }
 
-        $knownNamespaces = $this->repository->listKnownNamespaces();
-        $knownNamespaces[] = PageService::DEFAULT_NAMESPACE;
-        foreach ($knownNamespaces as $candidate) {
-            $normalized = $this->validator->normalizeCandidate($candidate);
-            if ($normalized === null || isset($existing[$normalized])) {
-                continue;
-            }
+        if (!array_key_exists(PageService::DEFAULT_NAMESPACE, $existing)) {
             $entries[] = [
-                'namespace' => $normalized,
+                'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
                 'is_active' => true,
                 'created_at' => null,
                 'updated_at' => null,
             ];
-            $existing[$normalized] = true;
         }
 
         usort(

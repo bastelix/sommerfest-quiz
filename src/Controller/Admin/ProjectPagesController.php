@@ -552,60 +552,14 @@ class ProjectPagesController
         } catch (\RuntimeException $exception) {
             $availableNamespaces = [];
         }
+        $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
-        if (
-            $accessService->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
-            && !array_filter(
-                $availableNamespaces,
-                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )
-        ) {
-            $availableNamespaces[] = [
-                'namespace' => PageService::DEFAULT_NAMESPACE,
-                'label' => null,
-                'is_active' => true,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-
-        $currentNamespaceExists = array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === $namespace
-        );
-        if (
-            !$currentNamespaceExists
-            && $accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
-        ) {
-            $availableNamespaces[] = [
-                'namespace' => $namespace,
-                'label' => 'nicht gespeichert',
-                'is_active' => false,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-
-        if ($allowedNamespaces !== []) {
-            foreach ($allowedNamespaces as $allowedNamespace) {
-                if (
-                    !array_filter(
-                        $availableNamespaces,
-                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                    )
-                ) {
-                    $availableNamespaces[] = [
-                        'namespace' => $allowedNamespace,
-                        'label' => 'nicht gespeichert',
-                        'is_active' => false,
-                        'created_at' => null,
-                        'updated_at' => null,
-                    ];
-                }
+        if ($availableNamespaces !== []) {
+            $namespaces = array_column($availableNamespaces, 'namespace');
+            if (!in_array($namespace, $namespaces, true)) {
+                $namespace = $namespaces[0];
             }
         }
-
-        $availableNamespaces = $accessService->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
 
         return [$availableNamespaces, $namespace];
     }

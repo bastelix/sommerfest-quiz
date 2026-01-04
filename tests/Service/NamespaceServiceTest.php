@@ -9,6 +9,7 @@ use App\Exception\NamespaceInUseException;
 use App\Service\ConfigService;
 use App\Service\DesignTokenService;
 use App\Service\NamespaceService;
+use PDO;
 use Tests\TestCase;
 
 class NamespaceServiceTest extends TestCase
@@ -77,5 +78,54 @@ class NamespaceServiceTest extends TestCase
         $entry = $repository->find($namespace);
         $this->assertNotNull($entry);
         $this->assertFalse($entry['is_active']);
+    }
+
+    public function testAllReturnsPersistedNamespacesOnly(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $service = new NamespaceService($repository);
+
+        $userId = $this->createUser($pdo, 'user-all-namespaces');
+        $pdo->prepare('INSERT INTO user_namespaces (user_id, namespace, is_default) VALUES (?, ?, FALSE)')
+            ->execute([$userId, 'ephemeral']);
+
+        $namespaces = $service->all();
+
+        $this->assertSame([], array_values(array_filter(
+            $namespaces,
+            static fn (array $entry): bool => $entry['namespace'] === 'ephemeral'
+        )));
+    }
+
+    public function testDeleteIgnoresUserNamespaceAssignments(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $namespace = 'temp-usage';
+        $repository->create($namespace);
+
+        $userId = $this->createUser($pdo, 'user-temp-usage');
+        $pdo->prepare('INSERT INTO user_namespaces (user_id, namespace, is_default) VALUES (?, ?, FALSE)')
+            ->execute([$userId, $namespace]);
+
+        $service = new NamespaceService($repository);
+        $service->delete($namespace);
+
+        $entry = $repository->find($namespace);
+        $this->assertNotNull($entry);
+        $this->assertFalse($entry['is_active']);
+    }
+
+    private function createUser(PDO $pdo, string $username): int
+    {
+        $stmt = $pdo->prepare(
+            'INSERT INTO users (username, password, role, active) VALUES (?, ?, ?, TRUE) RETURNING id'
+        );
+        $stmt->execute([$username, 'secret', 'catalog-editor']);
+        $id = (int) $stmt->fetchColumn();
+        $stmt->closeCursor();
+
+        return $id;
     }
 }
