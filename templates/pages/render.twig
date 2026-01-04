@@ -3,7 +3,11 @@
 {% set normalizedNamespace = pageNamespace|default('default') %}
 {% set pageTitle = metaTitle|default('') %}
 {% set effectiveAppearance = appearance|default({}) %}
-{% set design = { theme: effectiveAppearance.theme|default('light'), appearance: effectiveAppearance } %}
+{% set design = { theme: pageTheme|default('light'), appearance: effectiveAppearance } %}
+
+{% block body_theme %}
+  {{ pageTheme|default('light') }}
+{% endblock %}
 
 {% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
 

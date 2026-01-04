@@ -124,6 +124,15 @@ class PageController
         $pageBlocks = $this->extractPageBlocks($html);
 
         $design = $this->loadDesign($resolvedNamespace);
+        $theme = 'light';
+        if (
+            isset($design['config']['startTheme'])
+            && in_array($design['config']['startTheme'], ['light', 'dark'], true)
+        ) {
+            $theme = $design['config']['startTheme'];
+        }
+
+        $design['theme'] = $theme;
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $resolvedNamespace,
@@ -192,6 +201,7 @@ class PageController
             'headerLogo' => $headerLogo,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'pageTheme' => $theme,
             'menu' => $menu,
             'cmsFooterNavigation' => $navigation['footer'],
             'cmsLegalNavigation' => $navigation['legal'],
