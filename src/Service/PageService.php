@@ -234,6 +234,10 @@ class PageService
         $page = $this->resolveStartpage($namespace, $locale, $domain);
 
         if ($page === null) {
+            if ($this->normalizeNamespaceInput($namespace) === self::DEFAULT_NAMESPACE) {
+                return 'events';
+            }
+
             throw new RuntimeException(sprintf('Start page missing for namespace "%s".', $this->normalizeNamespaceInput($namespace)));
         }
 
