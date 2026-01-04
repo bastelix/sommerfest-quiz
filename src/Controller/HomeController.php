@@ -103,12 +103,12 @@ class HomeController
 
             if ($catalogParam === '') {
                 if ($hasCustomStartpage) {
-                    $ctrl = new \App\Controller\Marketing\CmsPageController($startpageSlug);
+                    $ctrl = new \App\Controller\Cms\PageController($startpageSlug);
                     return $ctrl($request, $response);
                 }
 
                 if (!$isSpecialStartpage) {
-                    $ctrl = new \App\Controller\Marketing\CmsPageController($startpageSlug);
+                    $ctrl = new \App\Controller\Cms\PageController($startpageSlug);
                     return $ctrl($request, $response);
                 }
             }
@@ -124,7 +124,7 @@ class HomeController
                 $ctrl = new HelpController();
                 return $ctrl($request, $response);
             } elseif ($catalogParam === '') {
-                $ctrl = new \App\Controller\Marketing\CmsPageController($startpageSlug);
+                $ctrl = new \App\Controller\Cms\PageController($startpageSlug);
                 return $ctrl($request, $response);
             }
         }

@@ -126,7 +126,7 @@ use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
-use App\Controller\Marketing\CmsPageController;
+use App\Controller\Cms\PageController;
 use App\Controller\Marketing\CmsPageWikiArticleController;
 use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
@@ -210,6 +210,7 @@ require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
+require_once __DIR__ . '/Controller/Cms/PageController.php';
 require_once __DIR__ . '/Controller/Marketing/CmsPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
@@ -983,12 +984,8 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add($namespaceQueryMiddleware);
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
-        function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
-            [$request, $allowed] = $resolveMarketingAccess($request);
-            if (!$allowed) {
-                return $response->withStatus(404);
-            }
-            $controller = new CmsPageController();
+        function (Request $request, Response $response, array $args) {
+            $controller = new PageController();
             return $controller($request, $response, $args);
         }
     )->add($namespaceQueryMiddleware);
@@ -3510,14 +3507,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             Response $response,
             array $args
         ) use (
-            $resolveMarketingAccess,
             $cmsPageRouteResolver
         ) {
-            [$request, $allowed] = $resolveMarketingAccess($request);
-            if (!$allowed) {
-                return $response->withStatus(404);
-            }
-
             $slug = isset($args['slug']) ? (string) $args['slug'] : '';
             $controller = $cmsPageRouteResolver->resolveController($request, $slug);
             if ($controller === null) {

@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Controller\Marketing\LandingController;
-use App\Controller\Marketing\CmsPageController;
+use App\Controller\Cms\PageController;
 use App\Domain\Page;
+use App\Service\MarketingSlugResolver;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class CmsPageRouteResolver
@@ -44,7 +45,7 @@ final class CmsPageRouteResolver
             return new $controllerClass($this->pages);
         }
 
-        return new CmsPageController($normalized, $this->pages);
+        return new PageController($normalized, $this->pages);
     }
 
     private function resolvePage(Request $request, string $slug): ?Page {
