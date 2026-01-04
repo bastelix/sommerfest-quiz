@@ -587,19 +587,12 @@ class PageController
 
     private function extractPageBlocks(string $html): ?array
     {
-        $token = '<script type="application/json" data-json="page">';
-        $start = strpos($html, $token);
-        if ($start === false) {
+        $pattern = '/<script\\b[^>]*\\bdata-json=["\']page["\'][^>]*>(.*?)<\\/script>/si';
+        if (!preg_match($pattern, $html, $matches)) {
             return null;
         }
 
-        $start += strlen($token);
-        $end = strpos($html, '</script>', $start);
-        if ($end === false) {
-            return null;
-        }
-
-        $json = substr($html, $start, $end - $start);
+        $json = $matches[1];
         $decoded = json_decode(html_entity_decode($json, ENT_QUOTES), true);
         if ($decoded === null) {
             return null;
