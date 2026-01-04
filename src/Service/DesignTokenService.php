@@ -100,19 +100,28 @@ class DesignTokenService
     public function getTokensForNamespace(string $namespace): array
     {
         $normalized = $this->normalizeNamespace($namespace);
-        $existingConfig = $this->configService->getConfigForEvent($normalized);
-        $this->configService->ensureConfigForEvent($normalized);
         $stored = $this->fetchStoredTokens($normalized);
 
-        if ($stored === [] && $existingConfig === []) {
-            $stored = $this->resetToDefaults($normalized);
+        if ($normalized === PageService::DEFAULT_NAMESPACE) {
+            return $stored !== []
+                ? $this->mergeWithDefaults($stored)
+                : self::DEFAULT_TOKENS;
         }
 
-        if ($stored === []) {
-            throw new RuntimeException(sprintf('Design tokens missing for namespace "%s".', $normalized));
+        $defaultTokens = $this->fetchStoredTokens(PageService::DEFAULT_NAMESPACE);
+        $baseTokens = $defaultTokens !== []
+            ? $this->mergeWithDefaults($defaultTokens)
+            : self::DEFAULT_TOKENS;
+
+        if ($stored !== []) {
+            return $this->mergeTokens($baseTokens, $stored);
         }
 
-        return $stored;
+        if ($defaultTokens !== []) {
+            return $baseTokens;
+        }
+
+        return self::DEFAULT_TOKENS;
     }
 
     /**
@@ -208,8 +217,18 @@ class DesignTokenService
      */
     private function mergeWithDefaults(array $tokens): array
     {
-        $merged = self::DEFAULT_TOKENS;
-        foreach ($tokens as $group => $values) {
+        return $this->mergeTokens(self::DEFAULT_TOKENS, $tokens);
+    }
+
+    /**
+     * @param array<string, mixed> $baseTokens
+     * @param array<string, mixed> $overrides
+     * @return array<string, mixed>
+     */
+    private function mergeTokens(array $baseTokens, array $overrides): array
+    {
+        $merged = $baseTokens;
+        foreach ($overrides as $group => $values) {
             if (!is_array($values) || !array_key_exists($group, $merged)) {
                 continue;
             }
