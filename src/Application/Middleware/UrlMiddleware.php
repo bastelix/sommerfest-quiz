@@ -48,6 +48,7 @@ class UrlMiddleware implements MiddlewareInterface
         $env = $this->twig->getEnvironment();
         $env->addGlobal('baseUrl', $baseUrl);
         $env->addGlobal('canonicalUrl', $canonicalUrl);
+        $env->addGlobal('namespaceTokensVersion', $this->getNamespaceTokensVersion());
 
         $privacyUrl = rtrim($basePath, '/') . '/datenschutz';
         try {
@@ -61,5 +62,18 @@ class UrlMiddleware implements MiddlewareInterface
         $env->addGlobal('privacyUrl', $privacyUrl);
 
         return $handler->handle($request);
+    }
+
+    private function getNamespaceTokensVersion(): string
+    {
+        $path = dirname(__DIR__, 3) . '/public/css/namespace-tokens.css';
+        clearstatcache(false, $path);
+        if (!file_exists($path)) {
+            return (string) time();
+        }
+
+        $timestamp = filemtime($path);
+
+        return $timestamp === false ? (string) time() : (string) $timestamp;
     }
 }

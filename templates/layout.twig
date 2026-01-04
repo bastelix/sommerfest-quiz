@@ -125,7 +125,7 @@
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensVersion|default('') }}">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% include 'components/namespace_appearance_styles.twig' with {

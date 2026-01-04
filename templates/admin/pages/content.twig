@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css" id="preview-variables-css" data-preview-asset="page-preview" media="print">
   <link
     rel="stylesheet"
-    href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css"
-    data-default-href="{{ basePath }}/css/namespace-tokens.css"
+    href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensVersion|default('') }}"
+    data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensVersion|default('') }}"
     id="preview-namespace-tokens-css"
     data-preview-asset="page-preview"
     media="print"
