@@ -1451,6 +1451,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (currentNamespace && namespaceSelect.value !== currentNamespace) {
       namespaceSelect.value = currentNamespace;
     }
+    if (namespaceSelect.dataset.namespaceListenerAttached === '1') {
+      return;
+    }
+
+    namespaceSelect.dataset.namespaceListenerAttached = '1';
+
     namespaceSelect.addEventListener('change', () => {
       const selectedNamespace = namespaceSelect.value || '';
       if (!selectedNamespace) {
