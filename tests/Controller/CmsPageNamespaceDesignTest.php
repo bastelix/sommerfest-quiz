@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
-use App\Controller\Marketing\CmsPageController;
+use App\Controller\Cms\PageController;
 use App\Domain\CmsPageWikiSettings;
 use App\Domain\Page;
 use App\Application\Seo\PageSeoConfigService;
@@ -84,7 +84,7 @@ class CmsPageNamespaceDesignTest extends TestCase
     /**
      * @return array{0: \Slim\App, 1: \Psr\Http\Message\ServerRequestInterface}
      */
-    private function buildAppWithController(CmsPageController $controller, string $path, array $headers = ['HTTP_ACCEPT' => 'text/html']): array
+    private function buildAppWithController(PageController $controller, string $path, array $headers = ['HTTP_ACCEPT' => 'text/html']): array
     {
         $app = AppFactory::create();
         $twig = Twig::create(__DIR__ . '/../../templates', ['cache' => false]);
@@ -104,7 +104,7 @@ class CmsPageNamespaceDesignTest extends TestCase
         return [$app, $request];
     }
 
-    private function createController(string $resolvedNamespace, string $contentNamespace): CmsPageController
+    private function createController(string $resolvedNamespace, string $contentNamespace): PageController
     {
         $page = new Page(1, $contentNamespace, 'styled', 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, false);
 
@@ -218,7 +218,7 @@ class CmsPageNamespaceDesignTest extends TestCase
 
         Database::setFactory(static fn (): PDO => $pdo);
 
-        $controller = new CmsPageController(
+        $controller = new PageController(
             slug: 'styled',
             pages: $pageService,
             seo: $seo,
