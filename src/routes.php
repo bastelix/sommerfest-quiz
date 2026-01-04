@@ -970,6 +970,15 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller($request, $response, $args);
     })->add($namespaceQueryMiddleware);
+    $app->get('/cms/pages/{slug:[a-z0-9-]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
+        $controller = new PageController();
+
+        return $controller($request, $response, $args);
+    })->add($namespaceQueryMiddleware);
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
