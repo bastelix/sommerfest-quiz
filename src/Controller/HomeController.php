@@ -90,13 +90,10 @@ class HomeController
                     $host !== '' ? $host : 'n/a'
                 ));
             }
-            $startpageBaseSlug = $startpageSlug !== null
-                ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)
-                : '';
 
-            $startpagePage = $startpageSlug !== null
-                ? $pageService->findByKey($namespace, $startpageSlug)
-                : null;
+            $startpageBaseSlug = MarketingSlugResolver::resolveBaseSlug($startpageSlug);
+
+            $startpagePage = $pageService->findByKey($namespace, $startpageSlug);
             $hasCustomStartpage = $startpagePage !== null
                 && $startpagePage->getContentSource() !== PageContentLoader::SOURCE_FILE;
             $isSpecialStartpage = in_array($startpageBaseSlug, [
@@ -104,7 +101,7 @@ class HomeController
                 'help',
             ], true);
 
-            if ($startpageSlug !== null && $catalogParam === '') {
+            if ($catalogParam === '') {
                 if ($hasCustomStartpage) {
                     $ctrl = new \App\Controller\Marketing\CmsPageController($startpageSlug);
                     return $ctrl($request, $response);
@@ -126,7 +123,7 @@ class HomeController
             } elseif ($startpageBaseSlug === 'help') {
                 $ctrl = new HelpController();
                 return $ctrl($request, $response);
-            } elseif ($startpageSlug !== null && $catalogParam === '') {
+            } elseif ($catalogParam === '') {
                 $ctrl = new \App\Controller\Marketing\CmsPageController($startpageSlug);
                 return $ctrl($request, $response);
             }

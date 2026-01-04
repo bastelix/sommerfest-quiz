@@ -650,18 +650,6 @@ class ConfigService
         }
     }
 
-    private function namespaceExists(string $namespace): bool
-    {
-        try {
-            $stmt = $this->pdo->prepare('SELECT 1 FROM namespaces WHERE namespace = ? LIMIT 1');
-            $stmt->execute([$namespace]);
-
-            return $stmt->fetchColumn() !== false;
-        } catch (PDOException) {
-            return false;
-        }
-    }
-
     private function ensureNamespaceExists(string $namespace): void
     {
         $validator = new NamespaceValidator();
