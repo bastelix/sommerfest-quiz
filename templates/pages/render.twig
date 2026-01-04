@@ -17,11 +17,18 @@
 
 {% block body %}
   <div class="uk-container">
-    <main
-      class="qr-page-renderer"
-      id="page-render-target"
-      aria-label="Page content"
-    >
+    <main class="cms-page">
+      <div
+        id="cms-page-root"
+        data-page-root
+        data-page-slug="{{ cmsSlug }}"
+        data-page-namespace="{{ pageNamespace }}"
+        data-content-namespace="{{ contentNamespace }}"
+      ></div>
     </main>
+
+    <noscript>
+      {{ content|raw }}
+    </noscript>
   </div>
 {% endblock %}
