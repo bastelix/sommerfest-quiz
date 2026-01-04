@@ -231,14 +231,21 @@ class PageService
 
     public function resolveStartpageSlug(string $namespace, ?string $locale = null, ?string $domain = null): ?string
     {
-        $page = $this->resolveStartpage($namespace, $locale, $domain);
+        $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
+        $page = $this->resolveStartpage($normalizedNamespace, $locale, $domain);
 
         if ($page === null) {
-            if ($this->normalizeNamespaceInput($namespace) === self::DEFAULT_NAMESPACE) {
+            if ($normalizedNamespace !== self::DEFAULT_NAMESPACE) {
+                $fallbackPage = $this->resolveStartpage(self::DEFAULT_NAMESPACE, $locale, $domain);
+                if ($fallbackPage !== null) {
+                    return $fallbackPage->getSlug();
+                }
+
                 return 'events';
             }
 
-            throw new RuntimeException(sprintf('Start page missing for namespace "%s".', $this->normalizeNamespaceInput($namespace)));
+            return 'events';
+
         }
 
         return $page->getSlug();
