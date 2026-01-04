@@ -37,6 +37,10 @@
       --typography-preset: {{ typographyPreset|trim|e('css') }};
       --components-card-style: {{ cardStyle|trim|e('css') }};
       --components-button-style: {{ buttonStyle|trim|e('css') }};
+      --bg-page: var(--surface);
+      --bg-section: var(--surface);
+      --bg-card: var(--surface);
+      --bg-accent: var(--brand-primary);
       {% if surface %}
       --surface: {{ surface|e('css') }};
       {% endif %}
