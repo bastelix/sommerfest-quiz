@@ -914,7 +914,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiListController();
 
         return $controller($request, $response, $args);
-    });
+    })->add($namespaceQueryMiddleware);
     $app->get('/pages/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
@@ -928,7 +928,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
-    });
+    })->add($namespaceQueryMiddleware);
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (
         Request $request,
         Response $response,
@@ -940,7 +940,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingLandingNewsController();
         return $controller->index($request, $response, $args);
-    });
+    })->add($namespaceQueryMiddleware);
     $app->get('/m/{slug:[a-z0-9-]+}/wiki', function (
         Request $request,
         Response $response,
@@ -954,7 +954,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiListController();
 
         return $controller($request, $response, $args);
-    });
+    })->add($namespaceQueryMiddleware);
     $app->get('/m/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
@@ -968,7 +968,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
-    });
+    })->add($namespaceQueryMiddleware);
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
@@ -980,7 +980,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, $args);
-    });
+    })->add($namespaceQueryMiddleware);
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
         function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
@@ -991,7 +991,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             $controller = new CmsPageController();
             return $controller($request, $response, $args);
         }
-    );
+    )->add($namespaceQueryMiddleware);
     $app->post('/landing/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
