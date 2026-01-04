@@ -127,4 +127,4 @@ const hydratePage = async () => {
   }
 };
 
-hydratePage();
+document.addEventListener('DOMContentLoaded', hydratePage);
