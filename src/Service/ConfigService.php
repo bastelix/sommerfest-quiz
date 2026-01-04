@@ -340,6 +340,8 @@ class ConfigService
      * Replace stored configuration with new values.
      */
     public function saveConfig(array $data): void {
+        $hasDesignTokens = array_key_exists('designTokens', $data);
+
         if (isset($data['pageTitle']) && !isset($data['title'])) {
             $data['title'] = $data['pageTitle'];
         }
@@ -573,6 +575,10 @@ class ConfigService
         }
 
         $this->setActiveEventUid($uid);
+
+        if ($hasDesignTokens) {
+            (new DesignTokenService($this->pdo, $this))->rebuildStylesheet();
+        }
     }
 
     /**
