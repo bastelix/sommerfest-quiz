@@ -12,7 +12,6 @@ use App\Repository\NamespaceRepository;
 use App\Repository\UserNamespaceRepository;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
-use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Service\TranslationService;
 use InvalidArgumentException;
@@ -375,7 +374,7 @@ final class NamespaceController
      */
     private function loadNamespaces(Request $request): array
     {
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $namespace = PageService::DEFAULT_NAMESPACE;
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
@@ -397,20 +396,6 @@ final class NamespaceController
                 'namespace' => PageService::DEFAULT_NAMESPACE,
                 'label' => null,
                 'is_active' => true,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-
-        $currentNamespaceExists = array_filter(
-            $availableNamespaces,
-            static fn (array $entry): bool => $entry['namespace'] === $namespace
-        );
-        if (!$currentNamespaceExists) {
-            $availableNamespaces[] = [
-                'namespace' => $namespace,
-                'label' => 'nicht gespeichert',
-                'is_active' => false,
                 'created_at' => null,
                 'updated_at' => null,
             ];
