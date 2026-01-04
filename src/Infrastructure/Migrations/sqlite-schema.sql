@@ -2212,6 +2212,17 @@ INSERT OR IGNORE INTO pages (namespace, slug, title, content) VALUES (
     </div>
 '
 );
+INSERT OR IGNORE INTO pages (namespace, slug, title, content, language, is_startpage)
+SELECT
+    'calserver' AS namespace,
+    slug,
+    title,
+    content,
+    'de' AS language,
+    1 AS is_startpage
+FROM pages
+WHERE namespace = 'default'
+  AND slug = 'calserver';
 INSERT OR REPLACE INTO pages (slug, title, content)
 VALUES (
     'fluke-metcal',
