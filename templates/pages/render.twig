@@ -18,6 +18,19 @@
 {% block body %}
   <div class="uk-container">
     <main class="cms-page">
+      <script
+        type="application/json"
+        data-json="page"
+        data-page-slug="{{ cmsSlug }}"
+        data-page-namespace="{{ pageNamespace }}"
+      >
+        {{ {
+          namespace: pageNamespace,
+          slug: cmsSlug,
+          blocks: pageBlocks ?? []
+        }|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
+      </script>
+
       <div
         id="cms-page-root"
         data-page-root
