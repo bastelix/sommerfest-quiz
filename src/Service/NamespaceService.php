@@ -66,6 +66,11 @@ final class NamespaceService
         return $entries;
     }
 
+    public function exists(string $namespace): bool
+    {
+        return $this->repository->exists($this->validator->normalize($namespace));
+    }
+
     /**
      * @return array{namespace:string,label:?string,is_active:bool,created_at:?string,updated_at:?string}
      */

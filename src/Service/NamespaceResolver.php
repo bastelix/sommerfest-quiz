@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Infrastructure\Database;
+use App\Repository\NamespaceRepository;
+use App\Service\DesignTokenService;
+use App\Service\NamespaceService;
 use App\Support\DomainNameHelper;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -12,6 +16,8 @@ use RuntimeException;
 final class NamespaceResolver
 {
     private NamespaceValidator $validator;
+
+    private ?NamespaceService $namespaceService = null;
 
     public function __construct(?NamespaceValidator $validator = null)
     {
@@ -23,10 +29,10 @@ final class NamespaceResolver
         $candidates = $this->collectCandidates($request);
 
         if ($candidates === []) {
-            $candidates[] = PageService::DEFAULT_NAMESPACE;
+            throw new RuntimeException('Namespace could not be resolved for request.');
         }
 
-        $namespace = $candidates[0];
+        $namespace = $this->selectNamespace($candidates);
 
         $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
 
@@ -39,9 +45,6 @@ final class NamespaceResolver
     private function collectCandidates(Request $request): array
     {
         $candidates = [];
-
-        $queryNamespace = $this->normalizeNamespace($request->getQueryParams()['namespace'] ?? null);
-        $this->pushCandidate($candidates, $queryNamespace);
 
         $explicit = $this->normalizeNamespace(
             $request->getAttribute('legalPageNamespace')
@@ -56,15 +59,23 @@ final class NamespaceResolver
         $routeNamespace = $this->resolveRouteNamespace($request);
         $this->pushCandidate($candidates, $routeNamespace);
 
-        $tenantNamespace = $this->resolveTenantNamespace($request);
-        $this->pushCandidate($candidates, $tenantNamespace);
-
-        $sessionNamespace = $this->normalizeNamespace($request->getAttribute('active_namespace'));
-        $this->pushCandidate($candidates, $sessionNamespace);
-
-        $this->pushCandidate($candidates, PageService::DEFAULT_NAMESPACE);
-
         return $candidates;
+    }
+
+    private function selectNamespace(array $candidates): string
+    {
+        foreach ($candidates as $candidate) {
+            $normalized = $this->normalizeNamespace($candidate);
+            if ($normalized === null) {
+                continue;
+            }
+
+            $this->ensureNamespaceExists($normalized);
+
+            return $normalized;
+        }
+
+        throw new RuntimeException('No valid namespace candidate available.');
     }
 
     private function resolveRouteNamespace(Request $request): ?string
@@ -89,31 +100,6 @@ final class NamespaceResolver
         return $this->normalizeNamespace($candidate);
     }
 
-    private function resolveTenantNamespace(Request $request): ?string
-    {
-        $candidate = $request->getAttribute('tenant')
-            ?? $request->getAttribute('tenantNamespace');
-        $normalized = $this->normalizeNamespace($candidate);
-        if ($normalized !== null) {
-            return $normalized;
-        }
-
-        $domainType = (string) $request->getAttribute('domainType');
-        if ($domainType !== 'tenant') {
-            return null;
-        }
-
-        $host = DomainNameHelper::normalize($request->getUri()->getHost());
-        if ($host === '') {
-            return null;
-        }
-
-        $parts = explode('.', $host);
-        $subdomain = $parts[0];
-
-        return $this->normalizeNamespace($subdomain);
-    }
-
     private function normalizeNamespace(mixed $candidate): ?string
     {
         return $this->validator->normalizeCandidate($candidate);
@@ -133,5 +119,23 @@ final class NamespaceResolver
         }
 
         $candidates[] = $candidate;
+    }
+
+    private function ensureNamespaceExists(string $namespace): void
+    {
+        $service = $this->namespaceService;
+        if ($service === null) {
+            $pdo = Database::connectFromEnv();
+            $repository = new NamespaceRepository($pdo);
+            $service = $this->namespaceService = new NamespaceService(
+                $repository,
+                $this->validator,
+                new DesignTokenService($pdo)
+            );
+        }
+
+        if (!$service->exists($namespace)) {
+            $service->create($namespace);
+        }
     }
 }

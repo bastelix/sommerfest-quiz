@@ -15,7 +15,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
-use Throwable;
 
 /**
  * Determines domain type based on request host.
@@ -146,15 +145,11 @@ class DomainMiddleware implements MiddlewareInterface
         }
 
         $domainNamespace = null;
-        try {
-            $pdo = Database::connectFromEnv();
-            $service = new DomainService($pdo);
-            $domain = $service->getDomainForHost($originalHost, includeInactive: true);
-            if ($domain !== null && $domain['namespace'] !== null) {
-                $domainNamespace = $domain['namespace'];
-            }
-        } catch (Throwable $e) {
-            // Ignore errors so the request can continue even if the table is missing.
+        $pdo = Database::connectFromEnv();
+        $service = new DomainService($pdo);
+        $domain = $service->getDomainForHost($originalHost, includeInactive: true);
+        if ($domain !== null && $domain['namespace'] !== null) {
+            $domainNamespace = $domain['namespace'];
         }
 
         if ($domainNamespace === null) {

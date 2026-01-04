@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\NamespaceRepository;
+use App\Service\DesignTokenService;
+use App\Service\NamespaceService;
 use App\Support\DomainNameHelper;
 use App\Support\DomainZoneResolver;
 use InvalidArgumentException;
 use PDO;
+use RuntimeException;
 
 /**
  * Provides persistence for admin-managed domain records.
@@ -20,14 +24,18 @@ class DomainService
 
     private DomainZoneResolver $zoneResolver;
 
+    private ?NamespaceService $namespaceService = null;
+
     public function __construct(
         PDO $pdo,
         ?NamespaceValidator $namespaceValidator = null,
-        ?DomainZoneResolver $zoneResolver = null
+        ?DomainZoneResolver $zoneResolver = null,
+        ?NamespaceService $namespaceService = null
     ) {
         $this->pdo = $pdo;
         $this->namespaceValidator = $namespaceValidator ?? new NamespaceValidator();
         $this->zoneResolver = $zoneResolver ?? new DomainZoneResolver();
+        $this->namespaceService = $namespaceService;
     }
 
     /**
@@ -66,7 +74,7 @@ class DomainService
     ): array {
         [$displayHost, $normalizedHost, $zone] = $this->prepareHost($host);
         $labelValue = $this->normalizeLabel($label);
-        $namespaceValue = $this->normalizeNamespace($namespace);
+        $namespaceValue = $this->requireNamespace($namespace);
 
         $stmt = $this->pdo->prepare(
             'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active)
@@ -100,7 +108,7 @@ class DomainService
     ): ?array {
         [$displayHost, $normalizedHost, $zone] = $this->prepareHost($host);
         $labelValue = $this->normalizeLabel($label);
-        $namespaceValue = $this->normalizeNamespace($namespace);
+        $namespaceValue = $this->requireNamespace($namespace);
 
         $conflict = $this->getDomainByNormalized($normalizedHost);
         if ($conflict !== null && $conflict['id'] !== $id) {
@@ -194,6 +202,10 @@ class DomainService
         foreach ($candidates as $candidate) {
             $domain = $this->getDomainByNormalized($candidate, $includeInactive);
             if ($domain !== null) {
+                if ($domain['namespace'] === null) {
+                    throw new RuntimeException('Domain mapping missing namespace association.');
+                }
+
                 return $domain;
             }
         }
@@ -361,20 +373,24 @@ class DomainService
         return $trimmed === '' ? null : $trimmed;
     }
 
-    private function normalizeNamespace(?string $namespace): ?string
+    private function requireNamespace(?string $namespace): string
     {
-        if ($namespace === null) {
-            return null;
-        }
-
         $normalized = $this->namespaceValidator->normalizeCandidate($namespace);
         if ($normalized === null) {
-            $trimmed = trim($namespace);
-            if ($trimmed !== '') {
-                throw new InvalidArgumentException('Invalid namespace supplied.');
-            }
+            throw new InvalidArgumentException('Namespace is required for domain assignment.');
+        }
 
-            return null;
+        $service = $this->namespaceService;
+        if ($service === null) {
+            $service = $this->namespaceService = new NamespaceService(
+                new NamespaceRepository($this->pdo),
+                $this->namespaceValidator,
+                new DesignTokenService($this->pdo)
+            );
+        }
+
+        if (!$service->exists($normalized)) {
+            $service->create($normalized);
         }
 
         return $normalized;
