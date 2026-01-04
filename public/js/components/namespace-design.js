@@ -78,6 +78,10 @@ const applyColorsToRoot = (element, appearance) => {
   element.style.setProperty('--accent-primary', primary);
   element.style.setProperty('--brand-accent', accent);
   element.style.setProperty('--accent-secondary', accent);
+  element.style.setProperty('--bg-page', 'var(--surface)');
+  element.style.setProperty('--bg-section', 'var(--surface)');
+  element.style.setProperty('--bg-card', 'var(--surface)');
+  element.style.setProperty('--bg-accent', 'var(--brand-primary)');
 
   if (surface) {
     element.style.setProperty('--surface', surface);
