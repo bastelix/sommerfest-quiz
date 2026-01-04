@@ -259,6 +259,7 @@ class CmsPageController
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
+                'content' => $html,
             ]);
         }
         $data = [
@@ -428,7 +429,7 @@ class CmsPageController
     /**
      * Render a marketing page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -438,6 +439,7 @@ class CmsPageController
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
+            'content' => $content,
         ] = $data;
 
         $payload = [
@@ -446,6 +448,7 @@ class CmsPageController
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
+            'content' => $content,
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));

@@ -120,6 +120,7 @@ class PageController
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
+                'content' => $html,
             ]);
         }
 
@@ -209,7 +210,7 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -219,6 +220,7 @@ class PageController
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
+            'content' => $content,
         ] = $data;
 
         $payload = [
@@ -227,6 +229,7 @@ class PageController
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
+            'content' => $content,
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));

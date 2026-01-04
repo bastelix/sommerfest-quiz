@@ -51,7 +51,9 @@ const fetchPagePayload = async () => {
     const namespace = typeof payload.namespace === 'string' ? payload.namespace : null;
     const slug = typeof payload.slug === 'string' ? payload.slug : null;
 
-    return { blocks, design, namespace, slug };
+    const content = typeof payload.content === 'string' ? payload.content : '';
+
+    return { blocks, design, namespace, slug, content };
   } catch (error) {
     console.error('Failed to parse page payload', error);
     return null;
@@ -82,6 +84,7 @@ const hydratePage = async () => {
     }
 
     const designNamespace = payload.design?.namespace || payload.namespace || namespace;
+    const fallbackHtml = typeof payload.content === 'string' ? payload.content : '';
     if (payload.design && designModule?.registerNamespaceDesign) {
       designModule.registerNamespaceDesign(designNamespace, payload.design);
     }
@@ -90,20 +93,30 @@ const hydratePage = async () => {
       ? designModule.applyNamespaceDesign(root, designNamespace, payload.design?.appearance || {})
       : payload.design?.appearance || {};
 
-    if (!Array.isArray(payload.blocks) || payload.blocks.length === 0) {
+    const hasBlocks = Array.isArray(payload.blocks) && payload.blocks.length > 0;
+    if (!hasBlocks && fallbackHtml.trim() === '') {
       console.error('Marketing payload contains no blocks');
     }
 
-    const html = matrixModule.renderPage(payload.blocks, {
-      rendererMatrix: matrixModule.RENDERER_MATRIX,
-      context: 'frontend',
-      appearance: resolvedAppearance,
-      basePath
-    });
+    let html = '';
+    if (hasBlocks) {
+      html = matrixModule.renderPage(payload.blocks, {
+        rendererMatrix: matrixModule.RENDERER_MATRIX,
+        context: 'frontend',
+        appearance: resolvedAppearance,
+        basePath
+      });
+    }
 
     if (!html || typeof html !== 'string' || html.trim() === '') {
-      console.error('renderPage returned empty markup for marketing payload');
+      if (fallbackHtml.trim() !== '') {
+        console.warn('renderPage returned empty markup for marketing payload – falling back to raw content');
+        html = fallbackHtml;
+      } else {
+        console.error('renderPage returned empty markup for marketing payload');
+      }
     }
+
     blockRoot.innerHTML = html;
 
     if (effectsModule?.initEffects) {
