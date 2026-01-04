@@ -5,6 +5,14 @@
 
 {% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
 
+{% block body_theme %}
+  {% set namespaceThemeRaw = config.startTheme|default(null) %}
+  {{ namespaceThemeRaw is same as(null)
+    ? 'light'
+    : (namespaceThemeRaw|lower == 'dark' ? 'dark' : 'light')
+  }}
+{% endblock %}
+
 {% block head %}
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
