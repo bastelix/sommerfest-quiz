@@ -233,7 +233,11 @@ class PageService
     {
         $page = $this->resolveStartpage($namespace, $locale, $domain);
 
-        return $page?->getSlug();
+        if ($page === null) {
+            throw new RuntimeException(sprintf('Start page missing for namespace "%s".', $this->normalizeNamespaceInput($namespace)));
+        }
+
+        return $page->getSlug();
     }
 
     public function resolveStartpage(string $namespace, ?string $locale = null, ?string $domain = null): ?Page

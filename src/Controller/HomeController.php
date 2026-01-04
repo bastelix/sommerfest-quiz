@@ -83,10 +83,12 @@ class HomeController
             $isCustomDomain = $request->getAttribute('domainNamespace') !== null
                 || in_array((string) $request->getAttribute('domainType'), ['tenant', 'marketing'], true);
 
-            if ($startpageSlug === null && $isCustomDomain) {
-                return $view->render($response, 'marketing/domain_maintenance.twig', [
-                    'requestedHost' => $host,
-                ]);
+            if ($startpageSlug === null) {
+                throw new \RuntimeException(sprintf(
+                    'Start page missing for namespace "%s" (domain: %s).',
+                    $namespace,
+                    $host !== '' ? $host : 'n/a'
+                ));
             }
             $startpageBaseSlug = $startpageSlug !== null
                 ? MarketingSlugResolver::resolveBaseSlug($startpageSlug)

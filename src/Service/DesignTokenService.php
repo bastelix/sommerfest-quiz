@@ -100,9 +100,19 @@ class DesignTokenService
     public function getTokensForNamespace(string $namespace): array
     {
         $normalized = $this->normalizeNamespace($namespace);
+        $existingConfig = $this->configService->getConfigForEvent($normalized);
+        $this->configService->ensureConfigForEvent($normalized);
         $stored = $this->fetchStoredTokens($normalized);
 
-        return $this->mergeWithDefaults($stored);
+        if ($stored === [] && $existingConfig === []) {
+            $stored = $this->resetToDefaults($normalized);
+        }
+
+        if ($stored === []) {
+            throw new RuntimeException(sprintf('Design tokens missing for namespace "%s".', $normalized));
+        }
+
+        return $stored;
     }
 
     /**
@@ -117,7 +127,7 @@ class DesignTokenService
         $this->configService->saveConfig($payload);
         $this->rebuildStylesheet();
 
-        return $this->mergeWithDefaults($validated);
+        return $validated;
     }
 
     public function resetToDefaults(string $namespace): array
