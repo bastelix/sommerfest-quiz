@@ -242,8 +242,6 @@
   </style>
 {% endblock %}
 
-{% block body_theme %}{{ dashboardTheme == 'dark' ? 'dark' : 'light' }}{% endblock %}
-
 {% block body_class %}dashboard-page{% if dashboardTheme != 'dark' %} uk-background-muted{% endif %}{% if hasDashboardFixedHeight %} dashboard-fixed{% endif %}{% endblock %}
 
 {% block body %}

@@ -2,8 +2,6 @@
 
 {% block title %}FAQ{% endblock %}
 
-{% block body_theme %}{% set cfg = config is defined ? config : {} %}{% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}{{ theme == 'dark' ? 'dark' : 'light' }}{% endblock %}
-
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">

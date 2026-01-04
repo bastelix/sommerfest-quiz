@@ -2,8 +2,6 @@
 
 {% block title %}{{ event.name }}{% endblock %}
 
-{% block body_theme %}{% set cfg = config is defined ? config : {} %}{% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}{{ theme == 'dark' ? 'dark' : 'light' }}{% endblock %}
-
 {% block head %}
   <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">

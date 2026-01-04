@@ -1,6 +1,10 @@
 <!DOCTYPE html>
-{% set bodyThemeValue %}{% block body_theme %}light{% endblock %}{% endset %}
-{% set normalizedBodyTheme = bodyThemeValue|trim|lower %}
+{% set cfg = config is defined ? config : {} %}
+{% set namespaceThemeRaw = attribute(cfg, 'startTheme')|default(null) %}
+{% set normalizedBodyTheme = namespaceThemeRaw is same as(null)
+  ? 'light'
+  : (namespaceThemeRaw|lower == 'dark' ? 'dark' : 'light')
+%}
 {% set namespaceCandidate = pageNamespace|default(marketingNamespace|default(config.namespace|default('default'))) %}
 {% set normalizedNamespace = namespaceCandidate|default('default')|trim|lower %}
 {% set bodyClassRaw %}{% block body_class %}{% endblock %}{% endset %}
