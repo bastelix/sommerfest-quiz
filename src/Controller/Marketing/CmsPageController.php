@@ -47,6 +47,7 @@ use function max;
 use function preg_replace;
 use function rawurlencode;
 use function str_contains;
+use function str_starts_with;
 use function str_replace;
 use function trim;
 
@@ -238,6 +239,10 @@ class CmsPageController
             true
         );
 
+        $cmsSideNavigation = [];
+        $cmsFooterNavigation = [];
+        $cmsLegalNavigation = [];
+
         $cookieSettings = $this->projectSettings->getCookieConsentSettings($resolvedNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
@@ -285,6 +290,9 @@ class CmsPageController
             'headerLogo' => $headerLogo,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'cmsFooterNavigation' => $cmsFooterNavigation,
+            'cmsLegalNavigation' => $cmsLegalNavigation,
+            'cmsSidebarNavigation' => $cmsSideNavigation,
         ];
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
@@ -325,6 +333,18 @@ class CmsPageController
                 $cmsMenuItems = $this->appendWikiMenuItem($cmsMenuItems, $label, $wikiUrl);
             }
         }
+
+        $navigation = $this->loadNavigationSections(
+            $contentNamespace,
+            $page->getSlug(),
+            $locale,
+            $basePath,
+            $privacyUrl,
+            $cmsMenuItems
+        );
+        $cmsFooterNavigation = $navigation['footer'];
+        $cmsLegalNavigation = $navigation['legal'];
+        $cmsSideNavigation = $navigation['sidebar'];
 
         if ($templateSlug === 'landing') {
             $menuMarkup = $this->renderCmsMenuMarkup($view, $cmsMenuItems, 'uk-navbar-nav uk-visible@m');
@@ -431,6 +451,219 @@ class CmsPageController
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $cmsMenuItems
+     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     */
+    private function loadNavigationSections(
+        string $contentNamespace,
+        string $slug,
+        string $locale,
+        string $basePath,
+        string $privacyUrl,
+        array $cmsMenuItems
+    ): array {
+        $navigation = $this->loadNavigationFromContent($contentNamespace, $slug, $locale, $basePath);
+
+        $footerNavigation = $navigation['footer'];
+        if ($footerNavigation === []) {
+            $footerNavigation = $this->mapMenuItemsToLinks($cmsMenuItems, $basePath);
+        }
+
+        $legalNavigation = $navigation['legal'];
+        if ($legalNavigation === []) {
+            $legalNavigation = $this->buildDefaultLegalNavigation($basePath, $privacyUrl);
+        }
+
+        $sidebarNavigation = $navigation['sidebar'];
+        if ($sidebarNavigation === []) {
+            $sidebarNavigation = $this->mapMenuItemsToLinks($cmsMenuItems, $basePath);
+        }
+
+        return [
+            'footer' => $footerNavigation,
+            'legal' => $legalNavigation,
+            'sidebar' => $sidebarNavigation,
+        ];
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $menuItems
+     * @return array<int, array<string, mixed>>
+     */
+    private function mapMenuItemsToLinks(array $menuItems, string $basePath): array
+    {
+        $links = [];
+        foreach ($menuItems as $item) {
+            $label = isset($item['label']) ? trim((string) $item['label']) : '';
+            $href = isset($item['href']) ? trim((string) $item['href']) : '';
+            if ($label === '' || $href === '') {
+                continue;
+            }
+
+            $children = [];
+            if (isset($item['children']) && is_array($item['children'])) {
+                $children = $this->mapMenuItemsToLinks($item['children'], $basePath);
+            }
+
+            $links[] = [
+                'label' => $label,
+                'href' => $this->normalizeMenuHref($href, $basePath),
+                'isExternal' => (bool) ($item['isExternal'] ?? false),
+                'children' => $children,
+            ];
+        }
+
+        return $links;
+    }
+
+    /**
+     * @return array<int, array<string, string|bool>>
+     */
+    private function buildDefaultLegalNavigation(string $basePath, string $privacyUrl): array
+    {
+        return [
+            [
+                'label' => 'Impressum',
+                'href' => $this->normalizeMenuHref('/impressum', $basePath),
+                'isExternal' => false,
+            ],
+            [
+                'label' => 'Datenschutz',
+                'href' => $this->normalizeMenuHref($privacyUrl, $basePath),
+                'isExternal' => false,
+            ],
+            [
+                'label' => 'Lizenz',
+                'href' => $this->normalizeMenuHref('/lizenz', $basePath),
+                'isExternal' => false,
+            ],
+        ];
+    }
+
+    /**
+     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     */
+    private function loadNavigationFromContent(
+        string $contentNamespace,
+        string $slug,
+        string $locale,
+        string $basePath
+    ): array {
+        $baseDir = dirname(__DIR__, 3) . '/content/navigation';
+        $normalizedSlug = trim($slug);
+        $normalizedLocale = trim($locale) !== '' ? trim($locale) : 'de';
+
+        $candidates = [
+            sprintf('%s/%s/%s.%s.json', $baseDir, $contentNamespace, $normalizedSlug, $normalizedLocale),
+            sprintf('%s/%s/%s.json', $baseDir, $contentNamespace, $normalizedSlug),
+            sprintf('%s/%s.%s.json', $baseDir, $normalizedSlug, $normalizedLocale),
+            sprintf('%s/%s.json', $baseDir, $normalizedSlug),
+        ];
+
+        foreach ($candidates as $path) {
+            if (!is_readable($path)) {
+                continue;
+            }
+
+            $content = file_get_contents($path);
+            if ($content === false) {
+                continue;
+            }
+
+            $decoded = json_decode($content, true);
+            if (!is_array($decoded)) {
+                continue;
+            }
+
+            return $this->normalizeNavigationPayload($decoded, $basePath);
+        }
+
+        return [
+            'footer' => [],
+            'legal' => [],
+            'sidebar' => [],
+        ];
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     */
+    private function normalizeNavigationPayload(array $payload, string $basePath): array
+    {
+        $normalized = [
+            'footer' => [],
+            'legal' => [],
+            'sidebar' => [],
+        ];
+
+        foreach (['footer', 'legal', 'sidebar'] as $key) {
+            if (isset($payload[$key]) && is_array($payload[$key])) {
+                $normalized[$key] = $this->normalizeMenuEntries($payload[$key], $basePath);
+            }
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<int, mixed> $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeMenuEntries(array $items, string $basePath): array
+    {
+        $normalized = [];
+
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $label = trim((string) ($item['label'] ?? ''));
+            $href = trim((string) ($item['href'] ?? ''));
+            if ($label === '' || $href === '') {
+                continue;
+            }
+
+            $normalized[] = [
+                'label' => $label,
+                'href' => $this->normalizeMenuHref($href, $basePath),
+                'isExternal' => (bool) ($item['isExternal'] ?? false),
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeMenuHref(string $href, string $basePath): string
+    {
+        $trimmedHref = trim($href);
+        $trimmedBase = rtrim($basePath, '/');
+
+        if ($trimmedHref === '') {
+            return '#';
+        }
+
+        $lowerHref = strtolower($trimmedHref);
+        $specialPrefixes = ['http://', 'https://', 'mailto:', 'tel:', '#'];
+        foreach ($specialPrefixes as $prefix) {
+            if (str_starts_with($lowerHref, $prefix)) {
+                return $trimmedHref;
+            }
+        }
+
+        if (!str_starts_with($trimmedHref, '/')) {
+            return $trimmedHref;
+        }
+
+        if ($trimmedBase === '') {
+            return $trimmedHref;
+        }
+
+        return $trimmedBase . $trimmedHref;
     }
 
     private function buildMaintenanceWindowLabel(string $locale): string

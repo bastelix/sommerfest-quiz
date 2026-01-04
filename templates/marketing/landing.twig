@@ -2,6 +2,9 @@
 
 {% import 'marketing/partials/menu.twig' as menu %}
 {% set menuItems = cmsMenuItems|default([]) %}
+{% set footerNavigation = cmsFooterNavigation|default([]) %}
+{% set legalNavigation = cmsLegalNavigation|default([]) %}
+{% import 'marketing/partials/footer-menu.twig' as footerMenu %}
 
 {% block title %}{{ metaTitle|default('QuizRace – Das interaktive Team-Quiz für Events') }}{% endblock %}
 
@@ -102,13 +105,15 @@
         <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
       </p>
     </div>
+    {% if footerNavigation %}
+      <div class="footer-section footer-navigation">
+        <strong>{{ t('navigation') }}</strong>
+        {{ footerMenu.render_links(footerNavigation) }}
+      </div>
+    {% endif %}
     <div class="footer-section footer-legal">
       <strong>Rechtliches</strong>
-      <ul>
-        <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
-        <li><a href="{{ privacyUrl }}">{{ t('privacy') }}</a></li>
-        <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
-      </ul>
+      {{ footerMenu.render_links(legalNavigation) }}
     </div>
   </div>
 {% endblock %}

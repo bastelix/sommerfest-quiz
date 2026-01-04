@@ -1,9 +1,12 @@
 {% extends 'layout.twig' %}
 
 {% import 'marketing/partials/menu.twig' as menu %}
+{% import 'marketing/partials/footer-menu.twig' as footerMenu %}
 
 {% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
 {% set menuItems = cmsMenuItems|default([]) %}
+{% set footerNavigation = cmsFooterNavigation|default([]) %}
+{% set legalNavigation = cmsLegalNavigation|default([]) %}
 
 {% block title %}{{ metaTitle|default('calHelp – Ein System. Klare Prozesse. Beratung für Kalibrier-, Prüf- & Inventarprozesse') }}{% endblock %}
 
@@ -592,10 +595,9 @@
     </div>
     <div class="footer-section footer-navigation">
       <strong>Navigation</strong>
+      {% set navigationLinks = footerNavigation is not empty ? footerNavigation : menuItems %}
+      {{ footerMenu.render_links(navigationLinks) }}
       <ul>
-        {% for link in menuItems %}
-          <li><a href="{{ link.href }}">{{ link.label }}</a></li>
-        {% endfor %}
         <li>
           <a href="https://calhelp.de/go/framework?utm_source=calhelp&amp;utm_medium=site&amp;utm_campaign=crosslink&amp;utm_content=framework-footer"
              target="_blank"
@@ -605,11 +607,7 @@
     </div>
     <div class="footer-section footer-legal">
       <strong>Rechtliches</strong>
-      <ul>
-        <li><a href="{{ basePath }}/impressum">Impressum</a></li>
-        <li><a href="{{ privacyUrl|default(basePath ~ '/datenschutz') }}">Datenschutz</a></li>
-        <li><a href="{{ basePath }}/lizenz">Lizenz</a></li>
-      </ul>
+      {{ footerMenu.render_links(legalNavigation) }}
     </div>
   </div>
 {% endblock %}

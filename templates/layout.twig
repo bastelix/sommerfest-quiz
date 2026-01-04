@@ -150,11 +150,32 @@
     </main>
     <footer class="site-footer">
       {% block footer %}
-        <div class="uk-text-center">
-          <a href="{{ basePath }}/impressum">{{ t('imprint') }}</a> |
-          <a href="{{ privacyUrl }}">{{ t('privacy') }}</a> |
-          <a href="{{ basePath }}/lizenz">{{ t('license') }}</a>
-        </div>
+        {% import 'marketing/partials/footer-menu.twig' as footerMenu %}
+        {% set footerLinks = cmsFooterNavigation|default([]) %}
+        {% set legalLinks = cmsLegalNavigation|default([]) %}
+
+        {% if footerLinks or legalLinks %}
+          <div class="footer-columns">
+            {% if footerLinks %}
+              <div class="footer-section footer-navigation">
+                <strong>{{ t('navigation') }}</strong>
+                {{ footerMenu.render_links(footerLinks) }}
+              </div>
+            {% endif %}
+            {% if legalLinks %}
+              <div class="footer-section footer-legal">
+                <strong>{{ t('privacy') }}</strong>
+                {{ footerMenu.render_links(legalLinks) }}
+              </div>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="uk-text-center">
+            <a href="{{ basePath }}/impressum">{{ t('imprint') }}</a> |
+            <a href="{{ privacyUrl }}">{{ t('privacy') }}</a> |
+            <a href="{{ basePath }}/lizenz">{{ t('license') }}</a>
+          </div>
+        {% endif %}
       {% endblock %}
     </footer>
   </div>
