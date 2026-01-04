@@ -30,5 +30,10 @@ deny from all
 
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} ^/css/[^/]+/namespace-tokens\.css
+  RewriteRule ^css/[^/]+/namespace-tokens\.css$ /css/namespace-tokens.css [L]
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^ index.php [QSA,L]
 </IfModule>
