@@ -128,17 +128,18 @@ class CmsPageController
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
         $namespaceContext = $this->namespaceResolver->resolve($request);
-        $namespace = $namespaceContext->getNamespace();
-        $page = $this->pages->findByKey($namespace, $contentSlug);
+        $resolvedNamespace = $namespaceContext->getNamespace();
+
+        $page = $this->pages->findByKey($resolvedNamespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
-            $page = $this->pages->findByKey($namespace, $templateSlug);
+            $page = $this->pages->findByKey($resolvedNamespace, $templateSlug);
             $contentSlug = $templateSlug;
         }
         if ($page === null) {
             return $response->withStatus(404);
         }
 
-        $pageNamespace = $page->getNamespace();
+        $contentNamespace = $page->getNamespace();
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -169,7 +170,7 @@ class CmsPageController
         if ($landingNews === []) {
             $baseSlug = MarketingSlugResolver::resolveBaseSlug($landingNewsOwnerSlug);
             if ($baseSlug !== $landingNewsOwnerSlug) {
-                $basePage = $this->pages->findByKey($pageNamespace, $baseSlug);
+                $basePage = $this->pages->findByKey($contentNamespace, $baseSlug);
                 if ($basePage !== null) {
                     $fallbackNews = $this->landingNews->getPublishedForPage($basePage->getId(), 3);
                     if ($fallbackNews !== []) {
@@ -231,24 +232,25 @@ class CmsPageController
         }
 
         $cmsMenuItems = $this->cmsMenu->getMenuTreeForSlug(
-            $pageNamespace,
+            $contentNamespace,
             $page->getSlug(),
             $locale,
             true
         );
 
-        $cookieSettings = $this->projectSettings->getCookieConsentSettings($pageNamespace);
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($resolvedNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
-        $design = $this->loadDesign($page->getNamespace());
+        $design = $this->loadDesign($resolvedNamespace);
 
         $pageBlocks = $this->extractPageBlocks($html);
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
-                'namespace' => $page->getNamespace(),
+                'namespace' => $resolvedNamespace,
+                'contentNamespace' => $contentNamespace,
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
@@ -276,7 +278,8 @@ class CmsPageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'pageNamespace' => $pageNamespace,
+            'pageNamespace' => $resolvedNamespace,
+            'contentNamespace' => $contentNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
@@ -301,7 +304,7 @@ class CmsPageController
         $wikiPage = $page;
         $baseWikiSlug = MarketingSlugResolver::resolveBaseSlug($wikiSlug);
         if ($baseWikiSlug !== $wikiSlug) {
-            $baseWikiPage = $this->pages->findByKey($pageNamespace, $baseWikiSlug);
+            $baseWikiPage = $this->pages->findByKey($contentNamespace, $baseWikiSlug);
             if ($baseWikiPage !== null) {
                 $wikiPage = $baseWikiPage;
                 $wikiSlug = $baseWikiSlug;
@@ -331,7 +334,7 @@ class CmsPageController
         if ($templateSlug === 'landing') {
             $data['headerContent'] = $headerContent;
             $data['isAdmin'] = $isAdmin;
-            $data['cmsNamespace'] = $page->getNamespace();
+            $data['cmsNamespace'] = $contentNamespace;
         }
 
         $data['cmsMenuItems'] = $cmsMenuItems;
@@ -405,12 +408,13 @@ class CmsPageController
     /**
      * Render a marketing page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
         [
             'namespace' => $namespace,
+            'contentNamespace' => $contentNamespace,
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
@@ -418,6 +422,7 @@ class CmsPageController
 
         $payload = [
             'namespace' => $namespace,
+            'contentNamespace' => $contentNamespace,
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
