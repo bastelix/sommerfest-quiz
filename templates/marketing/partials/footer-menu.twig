@@ -1,0 +1,11 @@
+{% macro render_links(items) %}
+  <ul>
+    {% for link in items %}
+      {% set href = link.href|default('#') %}
+      {% set isExternal = link.isExternal|default(false) %}
+      <li>
+        <a href="{{ href }}"{% if isExternal %} target="_blank" rel="noopener"{% endif %}>{{ link.label }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endmacro %}
