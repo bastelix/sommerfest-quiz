@@ -59,6 +59,8 @@ final class NamespaceResolver
         $routeNamespace = $this->resolveRouteNamespace($request);
         $this->pushCandidate($candidates, $routeNamespace);
 
+        $this->pushCandidate($candidates, PageService::DEFAULT_NAMESPACE);
+
         return $candidates;
     }
 
