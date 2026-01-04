@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 {% set cfg = config is defined ? config : {} %}
-{% set namespaceThemeRaw = attribute(cfg, 'startTheme')|default(null) %}
+{% set bodyThemeOverride %}{% block body_theme %}{% endblock %}{% endset %}
+{% set namespaceThemeRaw = bodyThemeOverride|trim is not empty
+  ? bodyThemeOverride|trim
+  : attribute(cfg, 'startTheme')|default(null)
+%}
 {% set normalizedBodyTheme = namespaceThemeRaw is same as(null)
   ? 'light'
   : (namespaceThemeRaw|lower == 'dark' ? 'dark' : 'light')
