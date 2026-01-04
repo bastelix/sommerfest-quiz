@@ -47,12 +47,16 @@ class DesignTokenServiceTest extends TestCase
             "SELECT design_tokens FROM config WHERE event_uid = 'new-namespace'"
         )->fetchColumn();
         $stylesheet = file_get_contents($cssPath);
+        $namespacedCss = dirname($cssPath) . '/new-namespace/namespace-tokens.css';
+        $namespacedStylesheet = is_string($namespacedCss) ? @file_get_contents($namespacedCss) : false;
 
         $this->assertSame('new-namespace', $namespace);
         $this->assertNotFalse($configTokens);
         $this->assertSame('#222222', $tokens['brand']['primary']);
         $this->assertStringContainsString('[data-namespace="new-namespace"]', (string) $stylesheet);
         $this->assertStringContainsString('--brand-primary: #222222', (string) $stylesheet);
+        $this->assertNotFalse($namespacedStylesheet);
+        $this->assertStringContainsString("@import '../namespace-tokens.css';", (string) $namespacedStylesheet);
 
         putenv('DASHBOARD_TOKEN_SECRET');
         unset($_ENV['DASHBOARD_TOKEN_SECRET']);
