@@ -975,7 +975,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new PageController();
+        $controller = new CmsPageController();
 
         return $controller($request, $response, $args);
     })->add($namespaceQueryMiddleware);
