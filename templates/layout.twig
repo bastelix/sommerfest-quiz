@@ -2,7 +2,8 @@
 {% set cfg = config is defined ? config : {} %}
 {% set lang = lang|default(locale()) %}
 {% set normalizedNamespace = namespace|default(pageNamespace|default(marketingNamespace|default(cfg.namespace|default('default'))))|trim|lower %}
-{% set resolvedTheme = design is defined ? design.theme : null %}
+{% set themeValue %}{% block body_theme %}{{ pageTheme|default(design.theme|default('light')) }}{% endblock %}{% endset %}
+{% set resolvedTheme = themeValue|trim %}
 {% set bodyClassRaw %}{% block body_class %}{% endblock %}{% endset %}
 {% set normalizedBodyClass = bodyClassRaw|trim %}
 {% set isAdminPage = 'admin-page' in normalizedBodyClass %}
