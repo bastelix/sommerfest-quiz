@@ -157,9 +157,8 @@ class DesignTokenService
         $namespaces = $this->fetchAllNamespaceTokens();
         $css = $this->buildCss($namespaces);
 
-        if (file_put_contents($this->cssPath, $css) === false) {
-            throw new RuntimeException('Unable to write namespace token stylesheet');
-        }
+        $this->writeCssFile($this->cssPath, $css);
+        $this->mirrorCssToNamespacePaths(array_keys($namespaces));
     }
 
     /**
@@ -364,5 +363,35 @@ class DesignTokenService
     private function escapeCssValue(string $value): string
     {
         return str_replace(['\n', '\r'], '', $value);
+    }
+
+    private function writeCssFile(string $path, string $contents): void
+    {
+        if (file_put_contents($path, $contents) === false) {
+            throw new RuntimeException('Unable to write namespace token stylesheet');
+        }
+    }
+
+    /**
+     * @param list<string> $namespaces
+     */
+    private function mirrorCssToNamespacePaths(array $namespaces): void
+    {
+        $baseDirectory = dirname($this->cssPath);
+        $import = "@import '../namespace-tokens.css';\n";
+
+        foreach ($namespaces as $namespace) {
+            if ($namespace === PageService::DEFAULT_NAMESPACE) {
+                continue;
+            }
+
+            $namespaceDirectory = $baseDirectory . '/' . $namespace;
+            if (!is_dir($namespaceDirectory) && !mkdir($namespaceDirectory, 0777, true) && !is_dir($namespaceDirectory)) {
+                throw new RuntimeException('Unable to create namespace directory for tokens');
+            }
+
+            $namespacedPath = $namespaceDirectory . '/namespace-tokens.css';
+            $this->writeCssFile($namespacedPath, $import);
+        }
     }
 }
