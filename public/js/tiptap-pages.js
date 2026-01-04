@@ -672,7 +672,7 @@ const buildPagePreviewUrl = slug => {
   if (!safeSlug) {
     return null;
   }
-  const path = withNamespace(`/m/${encodeURIComponent(safeSlug)}`);
+  const path = withNamespace(`/cms/pages/${encodeURIComponent(safeSlug)}`);
   return withBase(path);
 };
 
