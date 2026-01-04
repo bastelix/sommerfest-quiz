@@ -11,10 +11,8 @@ use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\EventService;
 use App\Service\PageService;
-use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceAppearanceService;
-use App\Service\PageContentLoader;
 use App\Service\ResultService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
@@ -41,6 +39,7 @@ class HomeController
         $namespaceContext = $namespaceResolver->resolve($request);
         $namespace = $namespaceContext->getNamespace();
         $host = $namespaceContext->getHost();
+        $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
         $appearance = (new NamespaceAppearanceService())->load($namespace);
 
         /** @var array<string, string> $params Query string values */
@@ -78,54 +77,11 @@ class HomeController
                 $cfg['event_uid'] = (string) $event['uid'];
             }
 
-            $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
-            $startpageSlug = $pageService->resolveStartpageSlug($namespace, $locale, $host);
-            $isCustomDomain = $request->getAttribute('domainNamespace') !== null
-                || in_array((string) $request->getAttribute('domainType'), ['tenant', 'marketing'], true);
+            $startpage = $pageService->resolveStartpage($namespace, $locale, $host);
 
-            if ($startpageSlug === null) {
-                throw new \RuntimeException(sprintf(
-                    'Start page missing for namespace "%s" (domain: %s).',
-                    $namespace,
-                    $host !== '' ? $host : 'n/a'
-                ));
-            }
-
-            $startpageBaseSlug = MarketingSlugResolver::resolveBaseSlug($startpageSlug);
-
-            $startpagePage = $pageService->findByKey($namespace, $startpageSlug);
-            $hasCustomStartpage = $startpagePage !== null
-                && $startpagePage->getContentSource() !== PageContentLoader::SOURCE_FILE;
-            $isSpecialStartpage = in_array($startpageBaseSlug, [
-                'events',
-                'help',
-            ], true);
-
-            if ($catalogParam === '') {
-                if ($hasCustomStartpage) {
-                    $ctrl = new \App\Controller\Cms\PageController($startpageSlug);
-                    return $ctrl($request, $response);
-                }
-
-                if (!$isSpecialStartpage) {
-                    $ctrl = new \App\Controller\Cms\PageController($startpageSlug);
-                    return $ctrl($request, $response);
-                }
-            }
-
-            if ($startpageBaseSlug === 'events') {
-                $events = $eventSvc->getAll();
-                return $view->render($response, 'events_overview.twig', [
-                    'events' => $events,
-                    'config' => $cfg,
-                    'role' => $role,
-                ]);
-            } elseif ($startpageBaseSlug === 'help') {
-                $ctrl = new HelpController();
-                return $ctrl($request, $response);
-            } elseif ($catalogParam === '') {
-                $ctrl = new \App\Controller\Cms\PageController($startpageSlug);
-                return $ctrl($request, $response);
+            if ($startpage !== null) {
+                $cmsController = new \App\Controller\Cms\PageController($startpage->getSlug(), $pageService);
+                return $cmsController($request, $response);
             }
         }
         if (array_key_exists('inviteText', $cfg)) {
