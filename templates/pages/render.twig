@@ -13,15 +13,6 @@
   }}
 {% endblock %}
 
-{% block head %}
-  {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
-  <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
-  {% include 'components/namespace_appearance_styles.twig' with {
-    appearance: appearance is defined ? appearance : (design.appearance ?? null),
-    namespace: normalizedNamespace
-  } %}
-{% endblock %}
-
 {% block body_class %}page-render uk-background-default{% endblock %}
 
 {% block body %}
