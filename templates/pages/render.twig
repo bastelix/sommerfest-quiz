@@ -2,16 +2,10 @@
 
 {% set normalizedNamespace = pageNamespace|default('default') %}
 {% set pageTitle = metaTitle|default('') %}
+{% set effectiveAppearance = appearance|default({}) %}
+{% set design = { theme: effectiveAppearance.theme|default('light'), appearance: effectiveAppearance } %}
 
 {% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
-
-{% block body_theme %}
-  {% set namespaceThemeRaw = config.startTheme|default(null) %}
-  {{ namespaceThemeRaw is same as(null)
-    ? 'light'
-    : (namespaceThemeRaw|lower == 'dark' ? 'dark' : 'light')
-  }}
-{% endblock %}
 
 {% block body_class %}page-render uk-background-default{% endblock %}
 
@@ -32,7 +26,6 @@
       </script>
 
       <div
-        id="cms-page-root"
         data-page-root
         data-page-slug="{{ cmsSlug }}"
         data-page-namespace="{{ pageNamespace }}"
