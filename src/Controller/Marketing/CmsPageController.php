@@ -422,8 +422,7 @@ class CmsPageController
             return true;
         }
 
-        $accept = strtolower($request->getHeaderLine('Accept'));
-        return str_contains($accept, 'application/json');
+        return false;
     }
 
     /**
