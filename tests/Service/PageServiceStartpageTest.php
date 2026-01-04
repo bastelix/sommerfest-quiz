@@ -81,6 +81,16 @@ final class PageServiceStartpageTest extends TestCase
         $this->assertNull($clearedStartpage);
     }
 
+    public function testHostlessStartpageIsPreferredOverDefaultFallback(): void
+    {
+        $this->insertPage(1, 'default', 'default-home', true, null, 'de');
+        $this->insertPage(2, 'calserver', 'namespace-home', true, null, 'de');
+
+        $resolved = $this->service->resolveStartpageSlug('calserver', null, 'calserver.com');
+
+        $this->assertSame('namespace-home', $resolved);
+    }
+
     public function testEmptyDomainStringIsHandledAsNull(): void
     {
         $this->insertPage(1, 'default', 'legacy-empty', true, '', 'de');
