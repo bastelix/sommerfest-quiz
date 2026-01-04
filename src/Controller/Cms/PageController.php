@@ -82,6 +82,7 @@ class PageController
 
     public function __invoke(Request $request, Response $response, array $args = []): Response
     {
+        error_log('CMS CONTROLLER HIT: ' . ($args['slug'] ?? 'no-slug'));
         $templateSlug = $this->slug ?? (string) ($args['slug'] ?? '');
         if ($templateSlug === '' || !preg_match('/^[a-z0-9-]+$/', $templateSlug)) {
             return $response->withStatus(404);
