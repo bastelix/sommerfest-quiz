@@ -1810,9 +1810,7 @@ export const RENDERER_MATRIX = {
   hero: {
     centered_cta: renderHeroCenteredCta,
     media_right: renderHeroMediaRight,
-    'media-right': renderHeroMediaRight,
     media_left: renderHeroMediaLeft,
-    'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal
   },
   feature_list: {
