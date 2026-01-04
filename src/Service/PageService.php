@@ -234,21 +234,18 @@ class PageService
         $normalizedNamespace = $this->normalizeNamespaceInput($namespace);
         $page = $this->resolveStartpage($normalizedNamespace, $locale, $domain);
 
-        if ($page === null) {
-            if ($normalizedNamespace !== self::DEFAULT_NAMESPACE) {
-                $fallbackPage = $this->resolveStartpage(self::DEFAULT_NAMESPACE, $locale, $domain);
-                if ($fallbackPage !== null) {
-                    return $fallbackPage->getSlug();
-                }
-
-                return 'events';
-            }
-
-            return 'events';
-
+        if ($page !== null) {
+            return $page->getSlug();
         }
 
-        return $page->getSlug();
+        if ($normalizedNamespace !== self::DEFAULT_NAMESPACE) {
+            $fallbackPage = $this->resolveStartpage(self::DEFAULT_NAMESPACE, $locale, $domain);
+            if ($fallbackPage !== null) {
+                return $fallbackPage->getSlug();
+            }
+        }
+
+        return null;
     }
 
     public function resolveStartpage(string $namespace, ?string $locale = null, ?string $domain = null): ?Page
