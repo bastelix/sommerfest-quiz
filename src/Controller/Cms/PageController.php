@@ -11,7 +11,6 @@ use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceResolver;
-use App\Service\PagesDesignService;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
@@ -123,8 +122,7 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $designService = new PagesDesignService($pdo, $this->configService, $this->namespaceAppearance, $this->effectsPolicy);
-        $design = $designService->getDesignForNamespace($resolvedNamespace);
+        $design = $this->loadDesign($resolvedNamespace);
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $resolvedNamespace,
@@ -137,8 +135,7 @@ class PageController
         }
 
         $view = Twig::fromRequest($request);
-        $seoService = new PageSeoConfigService($pdo);
-        $config = $seoService->load($page->getId());
+        $config = $this->seo->load($page->getId());
         $globals = $view->getEnvironment()->getGlobals();
         $canonicalFallback = isset($globals['canonicalUrl']) ? (string) $globals['canonicalUrl'] : null;
         $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
