@@ -33,7 +33,7 @@ final class CmsPageRouteResolver
             return null;
         }
 
-        return new PageController($normalized, $this->pages);
+        return new PageController();
     }
 
     private function resolvePage(Request $request, string $slug): ?Page {

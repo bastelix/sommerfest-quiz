@@ -80,8 +80,11 @@ class HomeController
             $startpage = $pageService->resolveStartpage($namespace, $locale, $host);
 
             if ($startpage !== null) {
-                $cmsController = new \App\Controller\Cms\PageController($startpage->getSlug(), $pageService);
-                return $cmsController($request, $response);
+                return (new \App\Controller\Cms\PageController())(
+                    $request,
+                    $response,
+                    ['slug' => $startpage->getSlug()]
+                );
             }
         }
         if (array_key_exists('inviteText', $cfg)) {
