@@ -38,7 +38,11 @@ final class CmsPageRouteResolver
 
     private function resolvePage(Request $request, string $slug): ?Page {
         $locale = (string) $request->getAttribute('lang');
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespace = (string) ($request->getAttribute('pageNamespace') ?? $request->getAttribute('namespace') ?? '');
+
+        if ($namespace === '') {
+            $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        }
         $contentSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
 
         $page = $this->pages->findByKey($namespace, $contentSlug);
