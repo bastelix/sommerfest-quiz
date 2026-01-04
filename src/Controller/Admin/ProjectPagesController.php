@@ -13,7 +13,6 @@ use App\Service\DomainService;
 use App\Service\Marketing\MarketingMenuAiErrorMapper;
 use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\CmsPageMenuService;
-use App\Service\MarketingSlugResolver;
 use App\Service\NamespaceAccessService;
 use App\Service\NamespaceService;
 use App\Service\NamespaceValidator;
@@ -35,17 +34,6 @@ use Slim\Views\Twig;
 
 class ProjectPagesController
 {
-    private const FIXED_CMS_SLUGS = [
-        'landing',
-        'calserver',
-        'calhelp',
-        'future-is-green',
-        'labor',
-        'fluke-metcal',
-        'calserver-maintenance',
-        'calserver-accessibility',
-    ];
-
     private PageService $pageService;
     private PageSeoConfigService $seoService;
     private DomainService $domainService;
@@ -852,20 +840,15 @@ class ProjectPagesController
             return '';
         }
 
-        $baseSlug = MarketingSlugResolver::resolveBaseSlug($slug);
-        $path = $this->resolvePreviewPath($slug, $baseSlug);
+        $path = $this->resolvePreviewPath($slug);
         $query = http_build_query(['namespace' => $namespace]);
 
         return $basePath . $path . ($query !== '' ? '?' . $query : '');
     }
 
-    private function resolvePreviewPath(string $slug, string $baseSlug): string
+    private function resolvePreviewPath(string $slug): string
     {
-        if (in_array($baseSlug, self::FIXED_CMS_SLUGS, true)) {
-            return '/' . $baseSlug;
-        }
-
-        return '/m/' . $slug;
+        return '/cms/pages/' . $slug;
     }
 
     private function ensureCsrfToken(): string
