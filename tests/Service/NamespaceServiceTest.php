@@ -31,6 +31,20 @@ class NamespaceServiceTest extends TestCase
         $this->assertTrue($default[0]['is_active']);
     }
 
+    public function testAllSkipsNamespacesWithoutPersistedRows(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $service = new NamespaceService($repository);
+
+        $pdo->prepare('INSERT INTO namespace_profile (namespace) VALUES (?)')->execute(['shadow-tenant']);
+
+        $namespaces = $service->all();
+        $names = array_column($namespaces, 'namespace');
+
+        $this->assertNotContains('shadow-tenant', $names);
+    }
+
     public function testCreatePersistsDesignTokenConfig(): void
     {
         $pdo = $this->createDatabase();
@@ -70,6 +84,26 @@ class NamespaceServiceTest extends TestCase
         $configService = new ConfigService($pdo);
         $configService->ensureConfigForEvent($namespace);
         $pdo->prepare('DELETE FROM config WHERE event_uid = ?')->execute([$namespace]);
+
+        $service = new NamespaceService($repository);
+        $service->delete($namespace);
+
+        $entry = $repository->find($namespace);
+        $this->assertNotNull($entry);
+        $this->assertFalse($entry['is_active']);
+    }
+
+    public function testDeleteIgnoresUserNamespaceAssignments(): void
+    {
+        $pdo = $this->createDatabase();
+        $repository = new NamespaceRepository($pdo);
+        $namespace = 'temporary';
+        $repository->create($namespace);
+
+        $pdo->prepare('INSERT INTO users (username, password) VALUES (?, ?)')->execute(['tester', 'secret']);
+        $userId = (int) $pdo->lastInsertId();
+        $pdo->prepare('INSERT INTO user_namespaces (user_id, namespace, is_default) VALUES (?, ?, FALSE)')
+            ->execute([$userId, $namespace]);
 
         $service = new NamespaceService($repository);
         $service->delete($namespace);
