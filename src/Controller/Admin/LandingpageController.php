@@ -56,10 +56,13 @@ class LandingpageController
     public function page(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $pageNamespaceQuery = $namespace !== '' ? '?namespace=' . rawurlencode($namespace) : '';
         $pages = $this->getCmsPages($namespace);
         if ($pages === []) {
             return $view->render($response, 'admin/landingpage/edit.html.twig', [
                 'config' => [],
+                'pageNamespace' => $namespace,
+                'pageNamespaceQuery' => $pageNamespaceQuery,
                 'seoPages' => [],
                 'selectedPageId' => null,
             ]);
@@ -74,6 +77,8 @@ class LandingpageController
 
         return $view->render($response, 'admin/landingpage/edit.html.twig', [
             'config' => $config,
+            'pageNamespace' => $namespace,
+            'pageNamespaceQuery' => $pageNamespaceQuery,
             'seoPages' => array_values($seoPages),
             'selectedPageId' => $selectedPage->getId(),
         ]);

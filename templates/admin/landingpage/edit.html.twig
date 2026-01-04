@@ -64,10 +64,12 @@
       <div class="uk-container uk-container-large">
         <div class="uk-container uk-container-small">
           <h1 class="uk-heading-bullet">Landingpage bearbeiten</h1>
+          {% set activePageNamespace = pageNamespace|default('default') %}
+          {% set pageNamespaceQuery = pageNamespaceQuery|default(activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '') %}
           {% if seoPages|default([]) is empty %}
             <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
           {% else %}
-          <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
+          <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo{{ pageNamespaceQuery }}" method="post">
             <input type="hidden" name="pageId" value="{{ config.pageId|default(selectedPageId)|default('') }}">
             <input type="hidden" name="domain" id="seoDomain" value="{{ config.domain|default('') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
