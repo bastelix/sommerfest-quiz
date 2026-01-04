@@ -106,7 +106,7 @@ use App\Controller\EventListController;
 use App\Controller\EventConfigController;
 use App\Controller\DashboardController;
 use App\Controller\SettingsController;
-use App\Controller\Admin\PageController;
+use App\Controller\Admin\PageController as AdminPageController;
 use App\Controller\Admin\PageAiController;
 use App\Controller\Admin\ProjectPagesController;
 use App\Controller\Admin\ProjectController;
@@ -126,7 +126,7 @@ use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
-use App\Controller\Cms\PageController;
+use App\Controller\Cms\PageController as CmsPageController;
 use App\Controller\Marketing\CmsPageWikiArticleController;
 use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
@@ -985,7 +985,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
         function (Request $request, Response $response, array $args) {
-            $controller = new PageController();
+            $controller = new CmsPageController();
             return $controller($request, $response, $args);
         }
     )->add($namespaceQueryMiddleware);
@@ -1739,7 +1739,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->get('/admin/pages/tree', function (Request $request, Response $response) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->tree($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
@@ -1749,7 +1749,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->edit($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
@@ -1930,42 +1930,42 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/copy', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->copy($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/move', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->move($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{slug}/export', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->export($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/import', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->import($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{slug}/namespace', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->updateNamespace($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->delete('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages', function (Request $request, Response $response) {
-        $controller = new PageController();
+        $controller = new AdminPageController();
         return $controller->create($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
