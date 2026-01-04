@@ -207,11 +207,11 @@
 {% set accordionGroups = groups|slice(1) %}
 {% set namespaceSelectId = namespaceSelectId|default('namespaceSelect-' ~ random()) %}
 
-<div class="qr-sidebar-nav">
-  <div class="uk-margin-small">
-    <label class="uk-form-label" for="{{ namespaceSelectId }}">{{ t('label_project_namespace') }}</label>
-    <div class="uk-form-controls">
-      <select
+  <div class="qr-sidebar-nav">
+    <div class="uk-margin-small">
+      <label class="uk-form-label" for="{{ namespaceSelectId }}">{{ t('label_project_namespace') }}</label>
+      <div class="uk-form-controls">
+        <select
         id="{{ namespaceSelectId }}"
         class="uk-select"
         data-namespace="{{ activeNamespace|e('html_attr') }}"
@@ -234,6 +234,37 @@
       </select>
     </div>
     <div class="uk-text-meta uk-margin-small-top">{{ t('text_project_namespace_hint') }}</div>
+    <script>
+      (function () {
+        const attachNamespaceHandlers = () => {
+          const selects = document.querySelectorAll('[data-namespace-select]');
+          selects.forEach(select => {
+            if (select.dataset.namespaceListenerAttached === '1') {
+              return;
+            }
+
+            select.dataset.namespaceListenerAttached = '1';
+
+            select.addEventListener('change', () => {
+              const namespace = select.value || '';
+              if (!namespace) {
+                return;
+              }
+
+              const url = new URL(window.location.href);
+              url.searchParams.set('namespace', namespace);
+              window.location.assign(url.toString());
+            });
+          });
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', attachNamespaceHandlers);
+        } else {
+          attachNamespaceHandlers();
+        }
+      })();
+    </script>
   </div>
   <ul class="uk-nav uk-nav-default uk-margin-remove-bottom">
     {% for it in startGroup.items %}
