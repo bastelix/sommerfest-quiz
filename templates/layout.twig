@@ -1,16 +1,8 @@
 <!DOCTYPE html>
 {% set cfg = config is defined ? config : {} %}
-{% set bodyThemeOverride %}{% block body_theme %}{% endblock %}{% endset %}
-{% set namespaceThemeRaw = bodyThemeOverride|trim is not empty
-  ? bodyThemeOverride|trim
-  : attribute(cfg, 'startTheme')|default(null)
-%}
-{% set normalizedBodyTheme = namespaceThemeRaw is same as(null)
-  ? 'light'
-  : (namespaceThemeRaw|lower == 'dark' ? 'dark' : 'light')
-%}
-{% set namespaceCandidate = pageNamespace|default(marketingNamespace|default(config.namespace|default('default'))) %}
-{% set normalizedNamespace = namespaceCandidate|default('default')|trim|lower %}
+{% set lang = lang|default(locale()) %}
+{% set normalizedNamespace = namespace|default(pageNamespace|default(marketingNamespace|default(cfg.namespace|default('default'))))|trim|lower %}
+{% set resolvedTheme = design is defined ? design.theme : null %}
 {% set bodyClassRaw %}{% block body_class %}{% endblock %}{% endset %}
 {% set normalizedBodyClass = bodyClassRaw|trim %}
 {% set isAdminPage = 'admin-page' in normalizedBodyClass %}
@@ -29,9 +21,9 @@
 {% endif %}
 {% set mergedBodyClass = normalizedBodyClass ~ (isAdminPage ? (normalizedBodyClass ? ' ' : '') ~ 'admin-shell' : '') %}
 <html
-  lang="{{ locale() }}"
-  data-theme="{{ normalizedBodyTheme }}"
+  lang="{{ lang }}"
   data-namespace="{{ normalizedNamespace }}"
+  data-theme="{{ resolvedTheme }}"
   data-base-path="{{ basePath }}"
 >
 <head>
@@ -144,7 +136,7 @@
   {% block head %}{% endblock %}
 </head>
 <body
-  data-theme="{{ normalizedBodyTheme }}"
+  data-theme="{{ resolvedTheme }}"
   class="{{ mergedBodyClass }}"
   {% if resolvedAdminLayout %}data-admin-layout="{{ resolvedAdminLayout }}"{% endif %}
 >

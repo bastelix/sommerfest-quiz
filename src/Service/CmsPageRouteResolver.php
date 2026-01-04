@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Controller\Marketing\LandingController;
 use App\Controller\Cms\PageController;
 use App\Domain\Page;
 use App\Service\MarketingSlugResolver;
@@ -12,11 +11,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class CmsPageRouteResolver
 {
-    /** @var array<string, class-string> */
-    private const CONTROLLER_MAP = [
-        'landing' => LandingController::class,
-    ];
-
     private PageService $pages;
     private NamespaceResolver $namespaceResolver;
 
@@ -37,12 +31,6 @@ final class CmsPageRouteResolver
         $page = $this->resolvePage($request, $normalized);
         if ($page === null) {
             return null;
-        }
-
-        $controllerKey = $page->getType();
-        if ($controllerKey !== null && $controllerKey !== '' && isset(self::CONTROLLER_MAP[$controllerKey])) {
-            $controllerClass = self::CONTROLLER_MAP[$controllerKey];
-            return new $controllerClass($this->pages);
         }
 
         return new PageController($normalized, $this->pages);

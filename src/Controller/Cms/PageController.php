@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Controller\Cms;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Service\CmsMenuService;
 use App\Service\CmsPageMenuService;
 use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceResolver;
+use App\Service\PagesDesignService;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
@@ -17,6 +19,7 @@ use App\Service\ProjectSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Infrastructure\Database;
 use App\Support\BasePathHelper;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -88,8 +91,16 @@ class PageController
         $locale = (string) $request->getAttribute('lang');
         $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
 
-        $namespaceContext = $this->namespaceResolver->resolve($request);
-        $resolvedNamespace = $namespaceContext->getNamespace();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        $resolvedNamespace = (string) ($request->getAttribute('namespace') ?? '');
+        if ($resolvedNamespace === '') {
+            $namespaceContext = $this->namespaceResolver->resolve($request);
+            $resolvedNamespace = $namespaceContext->getNamespace();
+        }
 
         $page = $this->pages->findByKey($resolvedNamespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
@@ -112,7 +123,8 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $design = $this->loadDesign($resolvedNamespace);
+        $designService = new PagesDesignService($pdo, $this->configService, $this->namespaceAppearance, $this->effectsPolicy);
+        $design = $designService->getDesignForNamespace($resolvedNamespace);
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $resolvedNamespace,
@@ -125,7 +137,8 @@ class PageController
         }
 
         $view = Twig::fromRequest($request);
-        $config = $this->seo->load($page->getId());
+        $seoService = new PageSeoConfigService($pdo);
+        $config = $seoService->load($page->getId());
         $globals = $view->getEnvironment()->getGlobals();
         $canonicalFallback = isset($globals['canonicalUrl']) ? (string) $globals['canonicalUrl'] : null;
         $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
@@ -151,6 +164,9 @@ class PageController
             $privacyUrl,
             $cmsMenuItems
         );
+
+        $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
+        $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
 
         $data = [
             'content' => $html,
@@ -178,6 +194,7 @@ class PageController
             'headerLogo' => $headerLogo,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'menu' => $menu,
             'cmsFooterNavigation' => $navigation['footer'],
             'cmsLegalNavigation' => $navigation['legal'],
             'cmsSidebarNavigation' => $navigation['sidebar'],
