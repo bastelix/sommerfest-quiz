@@ -451,7 +451,16 @@ const assignValueAtPath = (target, pathSegments, value) => {
   return target;
 };
 
-const getRendererVariants = type => Object.keys(RENDERER_MATRIX[type] || {});
+const getRendererVariants = type => {
+  const variants = Object.keys(RENDERER_MATRIX[type] || {});
+
+  if (!variants.length) {
+    return variants;
+  }
+
+  const normalizedVariants = variants.map(variant => normalizeVariant(type, variant));
+  return Array.from(new Set(normalizedVariants));
+};
 
 const humanizeToken = token =>
   (token || '')

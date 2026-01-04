@@ -1826,9 +1826,7 @@ export const RENDERER_MATRIX = {
     'numbered-vertical': (block, options) => renderProcessSteps(block, 'numbered-vertical', options),
     'numbered-horizontal': (block, options) => renderProcessSteps(block, 'numbered-horizontal', options),
     timeline: renderProcessStepsTimeline,
-    'timeline-vertical': (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
     timeline_vertical: (block, options) => renderProcessSteps(block, 'timeline_vertical', options),
-    'timeline-horizontal': (block, options) => renderProcessSteps(block, 'timeline_horizontal', options),
     timeline_horizontal: (block, options) => renderProcessSteps(block, 'timeline_horizontal', options)
   },
   testimonial: {
@@ -1851,9 +1849,7 @@ export const RENDERER_MATRIX = {
   stat_strip: {
     inline: renderStatStripInline,
     cards: renderStatStripCards,
-    centered: renderStatStripCentered,
-    'three-up': renderStatStripCards,
-    three_up: renderStatStripCards
+    centered: renderStatStripCentered
   },
   proof: {
     'metric-callout': renderProofMetricCallout
