@@ -12,7 +12,7 @@ SELECT
     COALESCE(NULLIF(language, ''), 'de') AS language,
     content_source,
     NULL AS startpage_domain,
-    1 AS is_startpage
+    TRUE AS is_startpage
 FROM pages
 WHERE namespace = 'default'
   AND slug = 'calserver'
