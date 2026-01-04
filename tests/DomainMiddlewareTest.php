@@ -298,6 +298,8 @@ class DomainMiddlewareTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('marketing', $handler->request->getAttribute('domainType'));
         $this->assertSame('promo', $handler->request->getAttribute('domainNamespace'));
+        $this->assertSame('promo', $handler->request->getAttribute('namespace'));
+        $this->assertSame('promo', $handler->request->getAttribute('pageNamespace'));
     }
 
     public function testRequestToUnknownMarketingDomainIsRejected(): void {

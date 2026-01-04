@@ -70,6 +70,8 @@ final class DomainMiddlewareTest extends TestCase
         self::assertNotNull($handler->captured);
         self::assertSame('marketing', $handler->captured->getAttribute('domainType'));
         self::assertSame('calserver', $handler->captured->getAttribute('domainNamespace'));
+        self::assertSame('calserver', $handler->captured->getAttribute('namespace'));
+        self::assertSame('calserver', $handler->captured->getAttribute('pageNamespace'));
     }
 
     private function createRequest(string $method, string $uri, array $headers = []): Request
