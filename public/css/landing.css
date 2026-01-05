@@ -1,5 +1,15 @@
 /* Design-Tokens NUR für die Landing */
 
+html[data-theme] {
+  color: var(--color-text, var(--text-primary, #111827));
+  background-color: var(--bg-page, var(--color-bg, #ffffff));
+}
+
+html[data-theme] body {
+  color: inherit;
+  background-color: inherit;
+}
+
 body.qr-landing{
   --qr-brand-50:#eff6ff;
   --qr-brand-100:#dbeafe;
@@ -165,8 +175,9 @@ body.qr-landing { color: var(--qr-fg); }
   --section-padding-outer: var(--section-padding-tight);
   --section-padding-inner: var(--section-padding);
   --section-bg-overlay: 0;
-  --section-text-color: inherit;
-  color: var(--section-text-color, inherit);
+  --section-overlay-color: color-mix(in srgb, var(--color-text, #0b1728) 16%, transparent);
+  --section-text-color: var(--color-text, inherit);
+  color: var(--section-text-color, var(--color-text, inherit));
   padding: var(--section-padding-outer) 0;
   background: var(--section-bg-color);
 }
@@ -221,6 +232,11 @@ body.qr-landing { color: var(--qr-fg); }
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, var(--section-bg-overlay, 0));
+  background: color-mix(
+    in srgb,
+    var(--section-overlay-color, rgba(15, 23, 42, 0.12)) calc(var(--section-bg-overlay, 0) * 100%),
+    transparent
+  );
   pointer-events: none;
   z-index: 0;
 }
