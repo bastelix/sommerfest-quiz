@@ -123,7 +123,7 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $design = $this->loadDesign($resolvedNamespace);
+        $design = $this->loadDesign($contentNamespace);
         $theme = 'light';
         if (
             isset($design['config']['startTheme'])
@@ -157,7 +157,7 @@ class PageController
             true
         );
 
-        $cookieSettings = $this->projectSettings->getCookieConsentSettings($resolvedNamespace);
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($contentNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
@@ -173,7 +173,7 @@ class PageController
         );
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
-        $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
+        $menu = $cmsMenuService->getMenuForNamespace($contentNamespace, $locale);
 
         $data = [
             'content' => $html,
@@ -194,7 +194,7 @@ class PageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'pageNamespace' => $resolvedNamespace,
+            'pageNamespace' => $contentNamespace,
             'contentNamespace' => $contentNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
