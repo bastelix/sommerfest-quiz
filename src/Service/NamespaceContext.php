@@ -13,14 +13,17 @@ final class NamespaceContext
 
     private string $host;
 
+    private bool $usedFallback;
+
     /**
      * @param list<string> $candidates
      */
-    public function __construct(string $namespace, array $candidates, string $host = '')
+    public function __construct(string $namespace, array $candidates, string $host = '', bool $usedFallback = false)
     {
         $this->namespace = $namespace;
         $this->candidates = $candidates;
         $this->host = $host;
+        $this->usedFallback = $usedFallback;
     }
 
     public function getNamespace(): string
@@ -39,5 +42,10 @@ final class NamespaceContext
     public function getHost(): string
     {
         return $this->host;
+    }
+
+    public function usedFallback(): bool
+    {
+        return $this->usedFallback;
     }
 }

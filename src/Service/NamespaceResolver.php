@@ -32,11 +32,13 @@ final class NamespaceResolver
             throw new RuntimeException('Namespace could not be resolved for request.');
         }
 
-        $namespace = $this->selectNamespace($candidates);
+        $selection = $this->selectNamespace($candidates);
+        $namespace = $selection['namespace'];
+        $usedFallback = $selection['usedFallback'];
 
         $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
 
-        return new NamespaceContext($namespace, $candidates, $host);
+        return new NamespaceContext($namespace, $candidates, $host, $usedFallback);
     }
 
     /**
@@ -64,9 +66,12 @@ final class NamespaceResolver
         return $candidates;
     }
 
-    private function selectNamespace(array $candidates): string
+    /**
+     * @return array{namespace: string, usedFallback: bool}
+     */
+    private function selectNamespace(array $candidates): array
     {
-        foreach ($candidates as $candidate) {
+        foreach ($candidates as $index => $candidate) {
             $normalized = $this->normalizeNamespace($candidate);
             if ($normalized === null) {
                 continue;
@@ -74,7 +79,10 @@ final class NamespaceResolver
 
             $this->ensureNamespaceExists($normalized);
 
-            return $normalized;
+            return [
+                'namespace' => $normalized,
+                'usedFallback' => $index > 0,
+            ];
         }
 
         throw new RuntimeException('No valid namespace candidate available.');
