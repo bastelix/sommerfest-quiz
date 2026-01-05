@@ -18,6 +18,7 @@ if (container) {
     const previewTree = document.querySelector('[data-menu-preview-tree]');
     const previewEmpty = document.querySelector('[data-menu-preview-empty]');
     const previewSummary = document.querySelector('[data-menu-preview-summary]');
+    const variantSelect = document.querySelector('[data-menu-variant-select]');
     const generateButton = container.querySelector('[data-menu-generate-ai]');
 
     const normalizeBasePath = (candidate = '') => {
@@ -38,6 +39,28 @@ if (container) {
       return trimmed.replace(/\/$/, '');
     };
 
+    const parseVariantOptions = () => {
+      const raw = container.dataset.navigationVariantOptions || '[]';
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('Failed to parse navigation variant options', error);
+        return [];
+      }
+    };
+
+    const variantOptions = parseVariantOptions();
+
+    const resolveSelectedVariant = () => {
+      const requested = container.dataset.selectedNavigationVariant || variantSelect?.dataset.selected || '';
+      if (!requested && variantOptions.length) {
+        return variantOptions[0].value || '';
+      }
+      const found = variantOptions.find(option => option.value === requested);
+      return found ? found.value : requested;
+    };
+
     const state = {
       pageId: null,
       pageSlug: '',
@@ -50,6 +73,8 @@ if (container) {
       basePath: normalizeBasePath(container.dataset.basePath || window.basePath || ''),
       namespace: container.dataset.namespace || '',
       locale: container.dataset.locale || '',
+      variant: resolveSelectedVariant(),
+      variantOptions,
     };
 
     const iconOptions = [
@@ -109,7 +134,7 @@ if (container) {
         const parsed = JSON.parse(container.dataset.pages || '[]');
         state.pages = Array.isArray(parsed) ? parsed : [];
       } catch (error) {
-        console.warn('Failed to parse marketing pages', error);
+        console.warn('Failed to parse CMS pages', error);
         state.pages = [];
       }
     };
@@ -155,6 +180,16 @@ if (container) {
 
     const withNamespace = path => appendQueryParam(path, 'namespace', state.namespace);
 
+    const withVariant = path => appendQueryParam(path, 'variant', state.variant);
+
+    const withMenuParams = (path, localeValue) => {
+      let resolved = withNamespace(withVariant(path));
+      if (localeValue !== undefined) {
+        resolved = appendQueryParam(resolved, 'locale', localeValue);
+      }
+      return resolved;
+    };
+
     const buildPath = (pageId, suffix = '') => {
       const path = `/admin/pages/${pageId}${suffix}`;
       if (typeof window.apiFetch === 'function') {
@@ -184,7 +219,7 @@ if (container) {
         return;
       }
       if (!page) {
-        pageLabel.textContent = 'Keine Marketing-Seite vorhanden.';
+        pageLabel.textContent = 'Keine Seite vorhanden.';
         return;
       }
       pageLabel.textContent = `Seite: ${formatPageLabel(page)} (${page.slug})`;
@@ -241,6 +276,33 @@ if (container) {
       return href;
     };
 
+    const resolveVariantColumns = variant => {
+      const option = state.variantOptions.find(entry => entry?.value === variant);
+      if (option && Number.isFinite(Number(option.columns))) {
+        const parsed = Number(option.columns);
+        return parsed > 0 ? parsed : 1;
+      }
+      const match = String(variant || '').match(/_(\d+)/);
+      if (match) {
+        const parsed = Number(match[1]);
+        if (Number.isFinite(parsed) && parsed > 0) {
+          return parsed;
+        }
+      }
+      return 1;
+    };
+
+    const splitIntoColumns = (nodes, columnCount) => {
+      if (!columnCount || columnCount <= 1) {
+        return [nodes];
+      }
+      const columns = Array.from({ length: columnCount }, () => []);
+      nodes.forEach((node, index) => {
+        columns[index % columnCount].push(node);
+      });
+      return columns;
+    };
+
     const renderPreview = items => {
       if (!previewTree) {
         return;
@@ -254,7 +316,7 @@ if (container) {
           return;
         }
         if (!state.pageId) {
-          previewSummary.textContent = 'Bitte Marketing-Seite auswählen.';
+          previewSummary.textContent = 'Bitte Seite auswählen.';
           return;
         }
         const label = pageLabel?.textContent?.trim() || 'Aktuelle Navigation';
@@ -329,8 +391,28 @@ if (container) {
         previewEmpty.hidden = true;
       }
 
-      const tree = renderBranch(roots, null);
-      previewTree.appendChild(tree);
+      const columnCount = resolveVariantColumns(state.variant);
+      const columns = splitIntoColumns(roots, columnCount);
+
+      const grid = document.createElement('div');
+      if (columnCount > 1) {
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = `repeat(${columnCount}, minmax(0, 1fr))`;
+        grid.style.gap = '12px';
+      }
+
+      columns.forEach((nodes, index) => {
+        const column = document.createElement('div');
+        column.className = 'menu-preview__column';
+        const heading = document.createElement('div');
+        heading.className = 'uk-text-meta uk-margin-small-bottom';
+        heading.textContent = columnCount > 1 ? `Spalte ${index + 1}` : 'Navigation';
+        column.appendChild(heading);
+        column.appendChild(renderBranch(nodes, null));
+        grid.appendChild(column);
+      });
+
+      previewTree.appendChild(grid);
       updateSummary();
     };
 
@@ -715,7 +797,7 @@ if (container) {
         return;
       }
       if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
         return;
       }
 
@@ -733,7 +815,7 @@ if (container) {
         button.disabled = true;
       }
 
-      apiFetch(withNamespace(buildPath(state.pageId, '/menu')), {
+      apiFetch(withMenuParams(buildPath(state.pageId, '/menu'), state.locale), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: numericId })
@@ -774,7 +856,7 @@ if (container) {
       if (!state.pageId) {
         const message = document.createElement('div');
         message.className = 'uk-text-meta';
-        message.textContent = 'Bitte zuerst eine Marketing-Seite auswählen.';
+        message.textContent = 'Bitte zuerst eine Seite auswählen.';
         treeRoot.appendChild(message);
         return;
       }
@@ -809,7 +891,7 @@ if (container) {
       }
       hideFeedback();
       treeRoot.textContent = 'Lädt…';
-      const path = appendQueryParam(withNamespace(buildPath(state.pageId, '/menu')), 'locale', locale);
+      const path = withMenuParams(buildPath(state.pageId, '/menu'), locale);
       apiFetch(path)
         .then(response => {
           if (!response.ok) {
@@ -824,7 +906,7 @@ if (container) {
           renderTree();
         })
         .catch(error => {
-          console.error('Failed to load marketing menu', error);
+          console.error('Failed to load CMS menu', error);
           setFeedback('Menüeinträge konnten nicht geladen werden.', 'danger');
           treeRoot.textContent = 'Menüeinträge konnten nicht geladen werden.';
         });
@@ -850,7 +932,7 @@ if (container) {
       }
 
       setFeedback('Menü wird automatisch generiert…', 'primary');
-      apiFetch(withNamespace(buildPath(state.pageId, '/menu/ai')), {
+      apiFetch(withMenuParams(buildPath(state.pageId, '/menu/ai'), state.locale), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -887,6 +969,19 @@ if (container) {
         });
     };
 
+    const applyVariantSelection = () => {
+      if (!variantSelect) {
+        return;
+      }
+      if (state.variant) {
+        variantSelect.value = state.variant;
+      }
+      variantSelect.addEventListener('change', event => {
+        state.variant = event.target?.value || '';
+        loadMenuItems(state.locale);
+      });
+    };
+
     const collectTreeOrder = () => {
       treeRoot.querySelectorAll('.menu-tree__branch').forEach(branch => {
         const parentValue = branch.dataset.parentId ?? '';
@@ -918,10 +1013,11 @@ if (container) {
         isExternal: item.isExternal === true,
         locale: item.locale || null,
         isActive: item.isActive !== false,
-        isStartpage: item.isStartpage === true
+        isStartpage: item.isStartpage === true,
+        variant: state.variant || null
       };
 
-      return apiFetch(withNamespace(buildPath(state.pageId, '/menu')), {
+      return apiFetch(withMenuParams(buildPath(state.pageId, '/menu'), item.locale || state.locale), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -963,7 +1059,7 @@ if (container) {
           setFeedback('Änderungen gespeichert.', 'success');
         })
         .catch(error => {
-          console.error('Failed to save marketing menu', error);
+          console.error('Failed to save CMS menu', error);
           setFeedback('Speichern fehlgeschlagen.', 'danger');
         });
     };
@@ -978,7 +1074,7 @@ if (container) {
 
     const addNode = () => {
       if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
         return;
       }
       const tempId = `new-${Date.now()}`;
@@ -1000,11 +1096,11 @@ if (container) {
 
     const downloadMenu = () => {
       if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
         return;
       }
 
-      const path = appendQueryParam(withNamespace(buildPath(state.pageId, '/menu/export')), 'locale', state.locale);
+      const path = withMenuParams(buildPath(state.pageId, '/menu/export'), state.locale);
       apiFetch(path, { headers: { Accept: 'application/json' } })
         .then(async response => {
           if (!response.ok) {
@@ -1018,7 +1114,7 @@ if (container) {
           const namespace = state.namespace || 'default';
           const locale = state.locale || 'all';
           const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-          const filename = `marketing-menu-${slug}-${namespace}-${locale}-${timestamp}.json`;
+          const filename = `cms-menu-${slug}-${namespace}-${locale}-${timestamp}.json`;
 
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
@@ -1031,7 +1127,7 @@ if (container) {
           setFeedback('Menü exportiert.', 'success');
         })
         .catch(error => {
-          console.error('Failed to export marketing menu', error);
+          console.error('Failed to export CMS menu', error);
           setFeedback(error.message || 'Export fehlgeschlagen.', 'danger');
         });
     };
@@ -1042,7 +1138,7 @@ if (container) {
       const { allowNamespaceMismatch = false } = options;
 
       if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
         return;
       }
 
@@ -1050,7 +1146,7 @@ if (container) {
         ? { ...payload, allowNamespaceMismatch: true }
         : { ...payload, allowNamespaceMismatch: false };
 
-      apiFetch(withNamespace(buildPath(state.pageId, '/menu/import')), {
+      apiFetch(withMenuParams(buildPath(state.pageId, '/menu/import'), state.locale), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -1085,7 +1181,7 @@ if (container) {
             }
           }
 
-          console.error('Failed to import marketing menu', error);
+          console.error('Failed to import CMS menu', error);
           setFeedback(error.message || 'Import fehlgeschlagen.', 'danger');
         });
     };
@@ -1098,7 +1194,7 @@ if (container) {
           const payload = JSON.parse(content);
           submitImportPayload(payload);
         } catch (error) {
-          console.error('Invalid marketing menu import file', error);
+          console.error('Invalid CMS menu import file', error);
           setFeedback('Die Datei konnte nicht gelesen werden. Bitte gültiges JSON hochladen.', 'danger');
         } finally {
           if (importInput) {
@@ -1177,7 +1273,7 @@ if (container) {
     exportButton?.addEventListener('click', downloadMenu);
     importButton?.addEventListener('click', () => {
       if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Marketing-Seite auswählen.', 'warning');
+        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
         return;
       }
       importInput?.click();
@@ -1201,6 +1297,7 @@ if (container) {
       triggerAutoGeneration(overwrite);
     });
 
+    applyVariantSelection();
     parsePages();
     updateSelectedPage();
   })();
