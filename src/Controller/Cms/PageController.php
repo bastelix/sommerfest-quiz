@@ -123,7 +123,7 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $design = $this->loadDesign($contentNamespace);
+        $design = $this->loadDesign($resolvedNamespace);
         $theme = 'light';
         if (
             isset($design['config']['startTheme'])
@@ -133,17 +133,6 @@ class PageController
         }
 
         $design['theme'] = $theme;
-        if ($this->wantsJson($request)) {
-            return $this->renderJsonPage($response, [
-                'namespace' => $resolvedNamespace,
-                'contentNamespace' => $contentNamespace,
-                'slug' => $page->getSlug(),
-                'blocks' => $pageBlocks ?? [],
-                'design' => $design,
-                'content' => $html,
-            ]);
-        }
-
         $view = Twig::fromRequest($request);
         $config = $this->seo->load($page->getId());
         $globals = $view->getEnvironment()->getGlobals();
@@ -151,13 +140,13 @@ class PageController
         $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
 
         $cmsMenuItems = $this->cmsMenu->getMenuTreeForSlug(
-            $contentNamespace,
+            $resolvedNamespace,
             $page->getSlug(),
             $locale,
             true
         );
 
-        $cookieSettings = $this->projectSettings->getCookieConsentSettings($contentNamespace);
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($resolvedNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
@@ -173,7 +162,20 @@ class PageController
         );
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
-        $menu = $cmsMenuService->getMenuForNamespace($contentNamespace, $locale);
+        $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
+
+        if ($this->wantsJson($request)) {
+            return $this->renderJsonPage($response, [
+                'namespace' => $resolvedNamespace,
+                'contentNamespace' => $contentNamespace,
+                'slug' => $page->getSlug(),
+                'blocks' => $pageBlocks ?? [],
+                'design' => $design,
+                'content' => $html,
+                'menu' => $menu,
+                'navigation' => $navigation,
+            ]);
+        }
 
         $data = [
             'content' => $html,
@@ -194,7 +196,8 @@ class PageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'pageNamespace' => $contentNamespace,
+            'namespace' => $resolvedNamespace,
+            'pageNamespace' => $resolvedNamespace,
             'contentNamespace' => $contentNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
@@ -235,7 +238,7 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -246,6 +249,8 @@ class PageController
             'blocks' => $blocks,
             'design' => $design,
             'content' => $content,
+            'menu' => $menu,
+            'navigation' => $navigation,
         ] = $data;
 
         $payload = [
@@ -255,6 +260,8 @@ class PageController
             'blocks' => $blocks,
             'design' => $design,
             'content' => $content,
+            'menu' => $menu ?? [],
+            'navigation' => $navigation ?? [],
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
