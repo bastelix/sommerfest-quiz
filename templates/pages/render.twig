@@ -2,8 +2,12 @@
 
 {% set normalizedNamespace = pageNamespace|default('default') %}
 {% set pageTitle = metaTitle|default('') %}
-{% set effectiveAppearance = appearance|default({}) %}
-{% set design = { theme: pageTheme|default('light'), appearance: effectiveAppearance } %}
+{% set incomingDesign = design|default({}) %}
+{% set effectiveAppearance = incomingDesign.appearance|default(appearance|default({})) %}
+{% set design = incomingDesign|merge({
+  theme: pageTheme|default(incomingDesign.theme|default('light')),
+  appearance: effectiveAppearance
+}) %}
 {% set headerTheme = pageTheme|default(design.theme|default('light')) %}
 {% import 'marketing/partials/menu.twig' as menuMacros %}
 
