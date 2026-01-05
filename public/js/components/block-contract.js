@@ -33,6 +33,7 @@ const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION
 const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
 const SECTION_BACKGROUND_MODES = ['none', 'color', 'image'];
 const SECTION_BACKGROUND_ATTACHMENTS = ['scroll', 'fixed'];
+const CTA_GROUP_TYPES = ['hero'];
 
 const TOKEN_ENUMS = {
   background: ['primary', 'secondary', 'muted', 'accent', 'surface'],
@@ -732,13 +733,24 @@ function normalizeBlockData(type, data) {
   }
 
   if (isPlainObject(normalized.cta) && !['process_steps', 'package_summary'].includes(type)) {
-    const primary = normalizeCallToAction(normalized.cta.primary);
+    const primary = normalizeCallToAction(normalized.cta.primary ?? normalized.cta);
     const secondary = normalizeCallToAction(normalized.cta.secondary);
-    const collapsed = normalizeCallToAction(normalized.cta);
-    normalized.cta = primary || collapsed || normalized.cta;
-    if (secondary && !normalized.ctaSecondary) {
-      normalized.ctaSecondary = secondary;
+
+    if (CTA_GROUP_TYPES.includes(type)) {
+      const groupedCta = {};
+      if (primary) {
+        groupedCta.primary = primary;
+        if (secondary) {
+          groupedCta.secondary = secondary;
+        }
+      }
+
+      normalized.cta = Object.keys(groupedCta).length ? groupedCta : undefined;
+    } else {
+      normalized.cta = primary || normalized.cta;
     }
+
+    delete normalized.ctaSecondary;
   }
 
   delete normalized.subline;
