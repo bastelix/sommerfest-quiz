@@ -153,7 +153,7 @@ class PageController
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
         $navigation = $this->loadNavigationSections(
-            $contentNamespace,
+            $resolvedNamespace,
             $page->getSlug(),
             $locale,
             $basePath,
@@ -273,14 +273,14 @@ class PageController
      * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationSections(
-        string $contentNamespace,
+        string $resolvedNamespace,
         string $slug,
         string $locale,
         string $basePath,
         string $privacyUrl,
         array $cmsMenuItems
     ): array {
-        $navigation = $this->loadNavigationFromContent($contentNamespace, $slug, $locale, $basePath);
+        $navigation = $this->loadNavigationFromContent($resolvedNamespace, $slug, $locale, $basePath);
 
         $footerNavigation = $navigation['footer'];
         if ($footerNavigation === []) {
@@ -375,7 +375,7 @@ class PageController
      * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationFromContent(
-        string $contentNamespace,
+        string $resolvedNamespace,
         string $slug,
         string $locale,
         string $basePath
@@ -385,8 +385,8 @@ class PageController
         $normalizedLocale = trim($locale) !== '' ? trim($locale) : 'de';
 
         $candidates = [
-            sprintf('%s/%s/%s.%s.json', $baseDir, $contentNamespace, $normalizedSlug, $normalizedLocale),
-            sprintf('%s/%s/%s.json', $baseDir, $contentNamespace, $normalizedSlug),
+            sprintf('%s/%s/%s.%s.json', $baseDir, $resolvedNamespace, $normalizedSlug, $normalizedLocale),
+            sprintf('%s/%s/%s.json', $baseDir, $resolvedNamespace, $normalizedSlug),
             sprintf('%s/%s.%s.json', $baseDir, $normalizedSlug, $normalizedLocale),
             sprintf('%s/%s.json', $baseDir, $normalizedSlug),
         ];
