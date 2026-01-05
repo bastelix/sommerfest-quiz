@@ -54,4 +54,56 @@ class CmsPageControllerExtractBlocksTest extends TestCase
             ['type' => 'text', 'data' => ['text' => 'Hello']],
         ], $blocks);
     }
+
+    public function testExtractPageBlocksParsesRawJsonPayload(): void
+    {
+        $controller = new PageController(
+            null,
+            $this->createMock(PageService::class),
+            $this->createMock(PageSeoConfigService::class),
+            $this->createMock(PageContentLoader::class),
+            $this->createMock(PageModuleService::class),
+            $this->createMock(NamespaceAppearanceService::class),
+            $this->createMock(NamespaceResolver::class),
+            $this->createMock(ProjectSettingsService::class),
+            $this->createMock(ConfigService::class),
+            $this->createMock(EffectsPolicyService::class),
+            $this->createMock(CmsPageMenuService::class)
+        );
+
+        $json = '{"blocks": [{"type": "hero", "data": {"headline": "Welcome"}}]}';
+
+        $method = new ReflectionMethod(PageController::class, 'extractPageBlocks');
+        $method->setAccessible(true);
+
+        $blocks = $method->invoke($controller, $json);
+
+        $this->assertSame([
+            ['type' => 'hero', 'data' => ['headline' => 'Welcome']],
+        ], $blocks);
+    }
+
+    public function testExtractPageBlocksReturnsNullForMalformedJson(): void
+    {
+        $controller = new PageController(
+            null,
+            $this->createMock(PageService::class),
+            $this->createMock(PageSeoConfigService::class),
+            $this->createMock(PageContentLoader::class),
+            $this->createMock(PageModuleService::class),
+            $this->createMock(NamespaceAppearanceService::class),
+            $this->createMock(NamespaceResolver::class),
+            $this->createMock(ProjectSettingsService::class),
+            $this->createMock(ConfigService::class),
+            $this->createMock(EffectsPolicyService::class),
+            $this->createMock(CmsPageMenuService::class)
+        );
+
+        $method = new ReflectionMethod(PageController::class, 'extractPageBlocks');
+        $method->setAccessible(true);
+
+        $blocks = $method->invoke($controller, '{invalid');
+
+        $this->assertNull($blocks);
+    }
 }
