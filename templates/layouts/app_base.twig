@@ -6,11 +6,14 @@
 #}
 
 {% block head %}
+  {% set includeLandingStyles = includeLandingStyles|default(true) %}
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  {% if includeLandingStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  {% endif %}
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
   {% set cfg = config is defined ? config : {} %}
   {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}
