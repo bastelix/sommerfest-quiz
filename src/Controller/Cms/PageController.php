@@ -164,6 +164,13 @@ class PageController
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
 
+        $pageJson = [
+            'namespace' => $resolvedNamespace,
+            'contentNamespace' => $contentNamespace,
+            'slug' => $page->getSlug(),
+            'blocks' => $pageBlocks ?? [],
+        ];
+
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $resolvedNamespace,
@@ -180,7 +187,7 @@ class PageController
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
-            'pageJson' => $pageBlocks,
+            'pageJson' => $pageJson,
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),
