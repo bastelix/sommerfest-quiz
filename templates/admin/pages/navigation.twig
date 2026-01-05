@@ -115,8 +115,11 @@
         {% if selectedSlug == '' and hasPages %}
           {% set selectedSlug = (pagesList|first).slug %}
         {% endif %}
+        {% set navigationMode = navigation_mode|default('cms') %}
+        {% set navigationVariants = navigation_variants|default([]) %}
+        {% set selectedVariant = selected_navigation_variant|default(navigationVariants|first.value|default('footer_columns_2')) %}
         <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
+          <label class="uk-form-label" for="pageContentSelect">CMS-Seite</label>
           <div class="uk-form-controls">
             <select
               id="pageContentSelect"
@@ -125,7 +128,7 @@
               {% if not hasPages %}disabled{% endif %}
             >
               {% if not hasPages %}
-                <option value="" selected>Keine Marketing-Seiten vorhanden</option>
+                <option value="" selected>Keine Seiten vorhanden</option>
               {% endif %}
               {% for page in pagesList %}
                 {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
@@ -135,6 +138,29 @@
                 >{{ pageLabel }}</option>
               {% endfor %}
             </select>
+          </div>
+        </div>
+
+        <div class="uk-card uk-card-default uk-card-body uk-margin">
+          <label class="uk-form-label" for="menuVariantSelect">Footer-Layout</label>
+          <div class="uk-form-controls">
+            <select
+              id="menuVariantSelect"
+              class="uk-select"
+              data-selected="{{ selectedVariant }}"
+              data-menu-variant-select
+            >
+              {% for variant in navigationVariants %}
+                {% set variantValue = variant.value|default('') %}
+                <option
+                  value="{{ variantValue|e('html_attr') }}"
+                  {% if variantValue == selectedVariant %}selected{% endif %}
+                >{{ variant.label|default(variantValue) }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="uk-text-meta uk-margin-small-top">
+            Steuert, wie viele Spalten im Footer befüllt werden können (z. B. 2 oder 3 Listen).
           </div>
         </div>
 
@@ -162,17 +188,19 @@
           <div class="uk-grid-medium" uk-grid>
             <div class="uk-width-expand@m">
               <div
-                class="uk-card uk-card-default uk-card-body uk-margin"
-                data-marketing-menu-tree
-                data-base-path="{{ basePath }}"
-                data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
-                data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
-                data-namespace="{{ activePageNamespace|e('html_attr') }}"
-                data-locale="{{ selectedMenuLocale|e('html_attr') }}"
-              >
+              class="uk-card uk-card-default uk-card-body uk-margin"
+              data-marketing-menu-tree
+              data-base-path="{{ basePath }}"
+              data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+              data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+              data-namespace="{{ activePageNamespace|e('html_attr') }}"
+              data-locale="{{ selectedMenuLocale|e('html_attr') }}"
+              data-navigation-variant-options="{{ navigationVariants|json_encode|e('html_attr') }}"
+              data-selected-navigation-variant="{{ selectedVariant|e('html_attr') }}"
+            >
                   <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap" style="gap: 12px;">
                   <div>
-                    <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+                    <h3 class="uk-card-title uk-margin-remove">Navigation</h3>
                     <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
                   </div>
                   <div class="uk-flex uk-flex-middle uk-flex-wrap" style="gap: 8px;">
@@ -199,19 +227,19 @@
                     </div>
                     <div class="uk-button-group">
                       <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedSlug == '' %}disabled{% endif %}>Menü exportieren</button>
-                      <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedSlug == '' %}disabled{% endif %}>Menü importieren</button>
-                    </div>
-                    <input type="file" accept="application/json" data-menu-import-input hidden>
-                    <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedSlug == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
+                    <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedSlug == '' %}disabled{% endif %}>Menü importieren</button>
+                  </div>
+                  <input type="file" accept="application/json" data-menu-import-input hidden>
+                  <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedSlug == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
                   </div>
                 </div>
                 {% if not hasPages %}
                   <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                    Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+                    Erstelle zuerst eine Seite, um die Navigation zu bearbeiten.
                   </div>
                 {% endif %}
                 <p class="uk-text-meta uk-margin-small-top">
-                  Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop pro Ebene passt die Reihenfolgen an.
+                  Pflege der Navigationslinks für die ausgewählte Seite. Drag &amp; Drop pro Ebene passt die Reihenfolgen an.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
                   Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
@@ -239,23 +267,25 @@
                 <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-preview-empty hidden>
                   Noch keine Menüeinträge vorhanden.
                 </div>
-                <ul class="uk-nav uk-nav-default" data-menu-preview-tree></ul>
+                <div class="menu-preview" data-menu-preview-tree></div>
               </div>
             </aside>
           </div>
         {% else %}
           <div
-            class="uk-card uk-card-default uk-card-body uk-margin"
-            data-marketing-menu-manager
-            data-base-path="{{ basePath }}"
-            data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
-            data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
-            data-namespace="{{ activePageNamespace|e('html_attr') }}"
-            data-locale="{{ selectedMenuLocale|e('html_attr') }}"
+              class="uk-card uk-card-default uk-card-body uk-margin"
+              data-marketing-menu-manager
+              data-base-path="{{ basePath }}"
+              data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+              data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+              data-namespace="{{ activePageNamespace|e('html_attr') }}"
+              data-locale="{{ selectedMenuLocale|e('html_attr') }}"
+              data-navigation-variant-options="{{ navigationVariants|json_encode|e('html_attr') }}"
+              data-selected-navigation-variant="{{ selectedVariant|e('html_attr') }}"
           >
             <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
               <div>
-                <h3 class="uk-card-title uk-margin-remove">Hauptmenü</h3>
+                <h3 class="uk-card-title uk-margin-remove">Navigation</h3>
                 <div class="uk-text-meta uk-margin-small-top" data-menu-page-label></div>
               </div>
               <div class="uk-flex uk-flex-middle" style="gap: 8px; flex-wrap: wrap;">
@@ -290,11 +320,11 @@
             </div>
             {% if not hasPages %}
               <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                Erstelle zuerst eine Marketing-Seite, um das Hauptmenü zu bearbeiten.
+                Erstelle zuerst eine Seite, um die Navigation zu bearbeiten.
               </div>
             {% endif %}
             <p class="uk-text-meta uk-margin-small-top">
-              Pflege der Navigationslinks für die ausgewählte Marketing-Seite. Drag &amp; Drop ändert die Reihenfolge.
+              Pflege der Navigationslinks für die ausgewählte Seite. Drag &amp; Drop ändert die Reihenfolge.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
               Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.

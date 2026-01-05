@@ -180,7 +180,11 @@ class ProjectPagesController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $pages = $this->pageService->getAllForNamespace($namespace);
+        $mode = (string) ($request->getQueryParams()['mode'] ?? 'cms');
+        $isCmsMode = $mode === 'cms';
+        $pages = $isCmsMode
+            ? $this->pageService->getAllForNamespace($namespace)
+            : $this->filterCmsPages($this->pageService->getAllForNamespace($namespace));
         $pageList = array_map(
             static fn (Page $page): array => [
                 'id' => $page->getId(),
@@ -209,6 +213,11 @@ class ProjectPagesController
             $pages
         );
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
+        $navigationVariants = [
+            ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
+            ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
+        ];
+        $selectedVariant = (string) ($request->getQueryParams()['variant'] ?? $navigationVariants[0]['value']);
 
         return $view->render($response, 'admin/pages/navigation.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -225,6 +234,9 @@ class ProjectPagesController
             'tenant' => $this->resolveTenant($request),
             'use_navigation_tree' => FeatureFlags::marketingNavigationTreeEnabled(),
             'navigation_settings' => $this->projectSettings->getCookieConsentSettings($namespace),
+            'navigation_mode' => $isCmsMode ? 'cms' : 'marketing',
+            'navigation_variants' => $navigationVariants,
+            'selected_navigation_variant' => $selectedVariant,
         ]);
     }
 
