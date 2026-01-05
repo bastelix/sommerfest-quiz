@@ -588,13 +588,28 @@ class PageController
     private function extractPageBlocks(string $html): ?array
     {
         $pattern = '/<script\\b[^>]*\\bdata-json=["\']page["\'][^>]*>(.*?)<\\/script>/si';
-        if (!preg_match($pattern, $html, $matches)) {
+        if (preg_match($pattern, $html, $matches)) {
+            $json = $matches[1];
+            $decoded = json_decode(html_entity_decode($json, ENT_QUOTES), true);
+            if ($decoded === null) {
+                return null;
+            }
+
+            $blocks = array_key_exists('blocks', $decoded) ? $decoded['blocks'] : $decoded;
+            if (!is_array($blocks)) {
+                return null;
+            }
+
+            return $blocks;
+        }
+
+        $trimmed = trim($html);
+        if ($trimmed === '' || !str_starts_with($trimmed, '{')) {
             return null;
         }
 
-        $json = $matches[1];
-        $decoded = json_decode(html_entity_decode($json, ENT_QUOTES), true);
-        if ($decoded === null) {
+        $decoded = json_decode($trimmed, true);
+        if (!is_array($decoded)) {
             return null;
         }
 
