@@ -209,20 +209,6 @@ class AdminController
             } catch (\RuntimeException $exception) {
                 $availableNamespaces = [];
             }
-            if (
-                !array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-                )
-            ) {
-                $availableNamespaces[] = [
-                    'namespace' => PageService::DEFAULT_NAMESPACE,
-                    'label' => null,
-                    'is_active' => true,
-                    'created_at' => null,
-                    'updated_at' => null,
-                ];
-            }
         }
 
         if ($loadMarketingData || $loadMediaLandingSlugs || $loadDomainChatData) {
@@ -269,19 +255,6 @@ class AdminController
 
             if ($loadMarketingData) {
                 $newsletterConfigService = new MarketingNewsletterConfigService($pdo);
-                $currentNamespaceExists = array_filter(
-                    $availableNamespaces,
-                    static fn (array $entry): bool => $entry['namespace'] === $namespace
-                );
-                if (!$currentNamespaceExists) {
-                    $availableNamespaces[] = [
-                        'namespace' => $namespace,
-                        'label' => 'nicht gespeichert',
-                        'is_active' => false,
-                        'created_at' => null,
-                        'updated_at' => null,
-                    ];
-                }
                 $marketingNewsletterConfigs = $newsletterConfigService->getAllGrouped($namespace);
                 $marketingNewsletterSlugs = array_keys($marketingNewsletterConfigs);
                 sort($marketingNewsletterSlugs);
@@ -359,57 +332,6 @@ class AdminController
         foreach ($availableNamespaces as $index => $entry) {
             $entry['namespace'] = strtolower(trim((string) $entry['namespace']));
             $availableNamespaces[$index] = $entry;
-        }
-
-        if (
-            $namespaceAccess->shouldExposeNamespace(PageService::DEFAULT_NAMESPACE, $allowedNamespaces, $role)
-            && !array_filter(
-                $availableNamespaces,
-                static fn (array $entry): bool => $entry['namespace'] === PageService::DEFAULT_NAMESPACE
-            )
-        ) {
-            $availableNamespaces[] = [
-                'namespace' => PageService::DEFAULT_NAMESPACE,
-                'label' => null,
-                'is_active' => true,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-
-        if (
-            $namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role)
-            && !array_filter(
-                $availableNamespaces,
-                static fn (array $entry): bool => $entry['namespace'] === $namespace
-            )
-        ) {
-            $availableNamespaces[] = [
-                'namespace' => $namespace,
-                'label' => 'nicht gespeichert',
-                'is_active' => false,
-                'created_at' => null,
-                'updated_at' => null,
-            ];
-        }
-
-        if ($allowedNamespaces !== []) {
-            foreach ($allowedNamespaces as $allowedNamespace) {
-                if (
-                    !array_filter(
-                        $availableNamespaces,
-                        static fn (array $entry): bool => $entry['namespace'] === $allowedNamespace
-                    )
-                ) {
-                    $availableNamespaces[] = [
-                        'namespace' => $allowedNamespace,
-                        'label' => 'nicht gespeichert',
-                        'is_active' => false,
-                        'created_at' => null,
-                        'updated_at' => null,
-                    ];
-                }
-            }
         }
 
         $availableNamespaces = $namespaceAccess->filterNamespaceEntries($availableNamespaces, $allowedNamespaces, $role);
