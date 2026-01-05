@@ -20,3 +20,10 @@
     <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   {% endif %}
 {% endblock %}
+
+{% block footer %}
+  {% include 'pages/partials/footer.twig' with {
+    cmsFooterNavigation: cmsFooterNavigation|default([]),
+    cmsLegalNavigation: cmsLegalNavigation|default([])
+  } only %}
+{% endblock %}

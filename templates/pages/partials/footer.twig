@@ -1,0 +1,30 @@
+{% set footerLinks = cmsFooterNavigation|default([]) %}
+{% set legalLinks = cmsLegalNavigation|default([]) %}
+
+{% if footerLinks or legalLinks %}
+  <div class="cms-footer">
+    {% if footerLinks %}
+      <div class="cms-footer__section">
+        <ul class="uk-subnav uk-subnav-divider">
+          {% for link in footerLinks %}
+            <li>
+              <a href="{{ link.href|default('#') }}"{% if link.isExternal|default(false) %} target="_blank" rel="noopener"{% endif %}>{{ link.label }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if legalLinks %}
+      <div class="cms-footer__section">
+        <ul class="uk-subnav uk-subnav-divider">
+          {% for link in legalLinks %}
+            <li>
+              <a href="{{ link.href|default('#') }}"{% if link.isExternal|default(false) %} target="_blank" rel="noopener"{% endif %}>{{ link.label }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
