@@ -86,6 +86,15 @@ const schema = {
       "required": ["type", "variant", "data"]
     },
     {
+      "title": "Content slider block",
+      "properties": {
+        "type": { "const": "content_slider" },
+        "variant": { "enum": ["words", "images"] },
+        "data": { "$ref": "#/definitions/ContentSliderData" }
+      },
+      "required": ["type", "variant", "data"]
+    },
+    {
       "title": "Process steps block",
       "properties": {
         "type": { "const": "process_steps" },
@@ -436,6 +445,34 @@ const schema = {
         "followUp": { "$ref": "#/definitions/FaqFollowUp" }
       }
     },
+    "ContentSliderData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slides"],
+      "properties": {
+        "title": { "type": "string" },
+        "eyebrow": { "type": "string" },
+        "intro": { "type": "string" },
+        "slides": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ContentSlide" },
+          "minItems": 1
+        }
+      }
+    },
+    "ContentSlide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "body": { "type": "string" },
+        "imageId": { "type": "string" },
+        "imageAlt": { "type": "string" },
+        "link": { "$ref": "#/definitions/CallToAction" }
+      }
+    },
     "Media": {
       "type": "object",
       "additionalProperties": false,
@@ -708,6 +745,42 @@ function normalizeCtaBlockData(data) {
   return normalized;
 }
 
+function normalizeContentSliderData(data) {
+  if (!isPlainObject(data)) {
+    return data;
+  }
+
+  const slides = Array.isArray(data.slides)
+    ? data.slides
+        .map(slide => {
+          if (!isPlainObject(slide)) {
+            return null;
+          }
+
+          const normalizedSlide = { ...slide };
+          if (normalizedSlide.link) {
+            const link = normalizeCallToAction(normalizedSlide.link);
+            normalizedSlide.link = link || undefined;
+          }
+
+          if (typeof normalizedSlide.imageAlt === 'string' && normalizedSlide.imageAlt.trim() === '') {
+            delete normalizedSlide.imageAlt;
+          }
+
+          return normalizedSlide;
+        })
+        .filter(Boolean)
+    : undefined;
+
+  const normalized = { ...data };
+
+  if (slides) {
+    normalized.slides = slides;
+  }
+
+  return normalized;
+}
+
 function normalizeBlockData(type, data) {
   if (!isPlainObject(data)) {
     return data;
@@ -729,6 +802,10 @@ function normalizeBlockData(type, data) {
 
   if (type === 'cta') {
     normalized = normalizeCtaBlockData(normalized);
+  }
+
+  if (type === 'content_slider') {
+    normalized = normalizeContentSliderData(normalized);
   }
 
   if (isPlainObject(normalized.cta) && !['process_steps', 'package_summary'].includes(type)) {
@@ -1135,12 +1212,21 @@ function validateProcessStepsData(data) {
   return data.steps.every(step => hasContent(step?.id) && hasContent(step?.title) && hasContent(step?.description));
 }
 
+function validateContentSliderData(data) {
+  if (!Array.isArray(data?.slides) || data.slides.length === 0) {
+    return false;
+  }
+
+  return data.slides.every(slide => hasContent(slide?.id) && hasContent(slide?.label));
+}
+
 const DATA_VALIDATORS = {
   hero: validateHeroData,
   feature_list: validateFeatureListData,
   process_steps: validateProcessStepsData,
   testimonial: data => hasContent(data?.quote) && hasContent(data?.author?.name),
   rich_text: data => hasContent(data?.body),
+  content_slider: validateContentSliderData,
   contact_form: data => (
     hasContent(data?.title)
     && hasContent(data?.intro)

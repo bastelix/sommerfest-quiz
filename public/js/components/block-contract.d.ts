@@ -11,6 +11,7 @@ export type ProcessStepsVariant = VariantsFor<'process_steps'>;
 export type TestimonialVariant = VariantsFor<'testimonial'>;
 export type RichTextVariant = VariantsFor<'rich_text'>;
 export type InfoMediaVariant = VariantsFor<'info_media'>;
+export type ContentSliderVariant = VariantsFor<'content_slider'>;
 export type CtaVariant = VariantsFor<'cta'>;
 export type StatStripVariant = VariantsFor<'stat_strip'>;
 export type AudienceSpotlightVariant = VariantsFor<'audience_spotlight'>;
@@ -99,6 +100,22 @@ export interface FeatureListBlockData {
   intro?: string;
   items: FeatureItem[];
   cta?: CallToAction;
+}
+
+export interface ContentSliderSlide {
+  id: string;
+  label: string;
+  body?: string;
+  imageId?: string;
+  imageAlt?: string;
+  link?: CallToAction;
+}
+
+export interface ContentSliderBlockData {
+  title?: string;
+  eyebrow?: string;
+  intro?: string;
+  slides: ContentSliderSlide[];
 }
 
 export interface ProcessStep {
@@ -256,6 +273,7 @@ export type ProcessStepsBlock = BaseBlock<'process_steps', ProcessStepsVariant, 
 export type TestimonialBlock = BaseBlock<'testimonial', TestimonialVariant, TestimonialBlockData>;
 export type RichTextBlock = BaseBlock<'rich_text', RichTextVariant, RichTextBlockData>;
 export type InfoMediaBlock = BaseBlock<'info_media', InfoMediaVariant, InfoMediaBlockData>;
+export type ContentSliderBlock = BaseBlock<'content_slider', ContentSliderVariant, ContentSliderBlockData>;
 export type CtaBlock = BaseBlock<'cta', CtaVariant, CallToAction>;
 export type StatStripBlock = BaseBlock<'stat_strip', StatStripVariant, StatStripBlockData>;
 export type AudienceSpotlightBlock = BaseBlock<'audience_spotlight', AudienceSpotlightVariant, AudienceSpotlightBlockData>;
@@ -267,6 +285,7 @@ export type CaseShowcaseBlock = BaseBlock<'case_showcase', CaseShowcaseVariant, 
 export type BlockContract =
   | HeroBlock
   | FeatureListBlock
+  | ContentSliderBlock
   | ProcessStepsBlock
   | TestimonialBlock
   | RichTextBlock

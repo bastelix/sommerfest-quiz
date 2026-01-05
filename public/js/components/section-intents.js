@@ -8,6 +8,7 @@ export const DEFAULT_SECTION_INTENT_BY_TYPE = {
   testimonial: 'feature',
   package_summary: 'feature',
   contact_form: 'feature',
+  content_slider: 'feature',
   stat_strip: 'highlight',
   proof: 'highlight',
   cta: 'highlight',

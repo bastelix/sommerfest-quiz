@@ -13,6 +13,7 @@ import { RENDERER_MATRIX } from './block-renderer-matrix.js';
 const BLOCK_TYPE_LABELS = {
   hero: 'Hero',
   feature_list: 'Funktionen',
+  content_slider: 'Slider',
   process_steps: 'Ablauf',
   testimonial: 'Stimmen',
   rich_text: 'Text',
@@ -42,6 +43,10 @@ const VARIANT_LABELS = {
     'card-stack': 'Karten',
     stacked_cards: 'Karten',
     icon_grid: 'Icon-Raster'
+  },
+  content_slider: {
+    words: 'Text-Slider',
+    images: 'Bild-Slider'
   },
   process_steps: {
     'numbered-vertical': 'Vertikaler Ablauf',
@@ -1006,6 +1011,26 @@ function buildDefaultBlock(type, variant) {
         ]
       }
     }),
+    content_slider: () => ({
+      id: createId(),
+      type: 'content_slider',
+      variant,
+      data: {
+        title: 'Highlights',
+        eyebrow: '',
+        intro: '',
+        slides: [
+          {
+            id: createId(),
+            label: 'Slide 1',
+            body: '<p>Text für den ersten Slide.</p>',
+            imageId: '',
+            imageAlt: '',
+            link: { label: 'Mehr erfahren', href: '#' }
+          }
+        ]
+      }
+    }),
     process_steps: () => ({
       id: createId(),
       type: 'process_steps',
@@ -1343,6 +1368,23 @@ const SECTION_TEMPLATES = [
         { id: createId(), title: 'Funktion 1', description: 'Erklären Sie den Nutzen.' },
         { id: createId(), title: 'Funktion 2', description: 'Welche Aufgabe wird damit gelöst?' },
         { id: createId(), title: 'Funktion 3', description: 'Warum ist das relevant?' }
+      ];
+      return block;
+    }
+  },
+  {
+    id: 'content-slider',
+    label: 'Slider',
+    description: 'Geordnete Slides mit Texten oder Bildern.',
+    type: 'content_slider',
+    variant: 'words',
+    build: variant => {
+      const block = getDefaultBlock('content_slider', variant);
+      block.data.title = 'Highlights im Überblick';
+      block.data.intro = 'Fasse die wichtigsten Aussagen in einem Slider zusammen.';
+      block.data.slides = [
+        { id: createId(), label: 'Slide eins', body: '<p>Kurzer Text pro Slide.</p>', imageId: '', imageAlt: '', link: { label: 'Mehr lesen', href: '#' } },
+        { id: createId(), label: 'Slide zwei', body: '<p>Weitere Details zum Thema.</p>', imageId: '', imageAlt: '', link: { label: 'Mehr lesen', href: '#' } }
       ];
       return block;
     }
@@ -2502,6 +2544,8 @@ export class BlockContentEditor {
         return this.buildRichTextForm(block);
       case 'info_media':
         return this.buildInfoMediaForm(block);
+      case 'content_slider':
+        return this.buildContentSliderForm(block);
       case 'feature_list':
         return this.buildFeatureListForm(block);
       case 'process_steps':
@@ -2574,6 +2618,60 @@ export class BlockContentEditor {
     );
 
     wrapper.append(introSection, settingsSection);
+    return wrapper;
+  }
+
+  buildContentSliderForm(block) {
+    const wrapper = document.createElement('div');
+
+    wrapper.append(this.addLabeledInput('Titel', block.data.title, value => this.updateBlockData(block.id, ['data', 'title'], value)));
+    wrapper.append(this.addLabeledInput('Eyebrow', block.data.eyebrow, value => this.updateBlockData(block.id, ['data', 'eyebrow'], value)));
+
+    const introField = document.createElement('div');
+    introField.dataset.field = 'intro';
+    introField.dataset.richtext = 'true';
+    this.mountRichText(introField, block.data.intro, value => this.updateBlockData(block.id, ['data', 'intro'], value));
+    wrapper.append(this.wrapField('Einleitung (optional)', introField));
+
+    const slidesWrapper = document.createElement('div');
+    slidesWrapper.dataset.field = 'slides';
+    slidesWrapper.className = 'collection-list';
+
+    (block.data.slides || []).forEach((slide, index) => {
+      const bodyField = document.createElement('div');
+      bodyField.dataset.field = 'body';
+      bodyField.dataset.richtext = 'true';
+      this.mountRichText(bodyField, slide.body, value => this.updateContentSliderSlide(block.id, slide.id, ['body'], value));
+
+      const slideBody = [
+        this.addLabeledInput('Label', slide.label, value => this.updateContentSliderSlide(block.id, slide.id, ['label'], value)),
+        this.wrapField('Text / HTML', bodyField),
+        this.addLabeledInput('Bild-ID', slide.imageId, value => this.updateContentSliderSlide(block.id, slide.id, ['imageId'], value), {
+          placeholder: 'z. B. upload_12345'
+        }),
+        this.addLabeledInput('Alt-Text', slide.imageAlt, value => this.updateContentSliderSlide(block.id, slide.id, ['imageAlt'], value)),
+        this.addLabeledInput('Link-Label', slide.link?.label, value => this.updateContentSliderSlide(block.id, slide.id, ['link', 'label'], value)),
+        this.addLabeledInput('Link-URL', slide.link?.href, value => this.updateContentSliderSlide(block.id, slide.id, ['link', 'href'], value))
+      ];
+
+      const card = this.createCollectionCard({
+        title: (slide.label || '').trim() || `Slide ${index + 1}`,
+        meta: `Slide ${index + 1}`,
+        body: slideBody,
+        onRemove: () => this.removeContentSliderSlide(block.id, slide.id),
+        onMoveUp: () => this.moveContentSliderSlide(block.id, slide.id, -1),
+        onMoveDown: () => this.moveContentSliderSlide(block.id, slide.id, 1),
+        moveUpDisabled: index === 0,
+        moveDownDisabled: index === (block.data.slides || []).length - 1,
+        removeDisabled: (block.data.slides || []).length <= 1
+      });
+
+      slidesWrapper.append(card);
+    });
+
+    slidesWrapper.append(this.createCollectionAddButton('Slide hinzufügen', () => this.addContentSliderSlide(block.id)));
+    wrapper.append(slidesWrapper);
+
     return wrapper;
   }
 
@@ -4457,6 +4555,92 @@ export class BlockContentEditor {
       const [entry] = items.splice(index, 1);
       items.splice(target, 0, entry);
       updated.data.items = items;
+      return updated;
+    });
+    this.render();
+  }
+
+  addContentSliderSlide(blockId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const slides = Array.isArray(updated.data.slides) ? [...updated.data.slides] : [];
+      slides.push({
+        id: createId(),
+        label: 'Neuer Slide',
+        body: '<p>Inhalt einfügen.</p>',
+        imageId: '',
+        imageAlt: '',
+        link: { label: 'Mehr erfahren', href: '#' }
+      });
+      updated.data.slides = slides;
+      return updated;
+    });
+    this.render();
+  }
+
+  updateContentSliderSlide(blockId, slideId, field, value) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      updated.data.slides = (updated.data.slides || []).map(slide => {
+        if (slide.id !== slideId) {
+          return slide;
+        }
+        if (Array.isArray(field)) {
+          const clone = { ...slide };
+          let cursor = clone;
+          for (let i = 0; i < field.length - 1; i += 1) {
+            const key = field[i];
+            if (!cursor[key] || typeof cursor[key] !== 'object') {
+              cursor[key] = {};
+            }
+            cursor = cursor[key];
+          }
+          cursor[field[field.length - 1]] = value;
+          return clone;
+        }
+        return { ...slide, [field]: value };
+      });
+      return updated;
+    });
+  }
+
+  removeContentSliderSlide(blockId, slideId) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const slides = Array.isArray(updated.data.slides) ? [...updated.data.slides] : [];
+      if (slides.length <= 1) {
+        return block;
+      }
+      updated.data.slides = slides.filter(slide => slide.id !== slideId);
+      return updated;
+    });
+    this.render();
+  }
+
+  moveContentSliderSlide(blockId, slideId, delta) {
+    this.state.blocks = this.state.blocks.map(block => {
+      if (block.id !== blockId) {
+        return block;
+      }
+      const updated = deepClone(block);
+      const slides = Array.isArray(updated.data.slides) ? [...updated.data.slides] : [];
+      const index = slides.findIndex(slide => slide.id === slideId);
+      const target = index + delta;
+      if (index < 0 || target < 0 || target >= slides.length) {
+        return block;
+      }
+      const [entry] = slides.splice(index, 1);
+      slides.splice(target, 0, entry);
+      updated.data.slides = slides;
       return updated;
     });
     this.render();

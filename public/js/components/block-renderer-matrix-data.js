@@ -501,6 +501,98 @@ function renderHeroSection({ block, variant, content, sectionModifiers = '' }) {
   return renderSection({ block, variant, content, sectionClass: sectionModifiers });
 }
 
+function renderContentSliderHeader(block, context = 'frontend') {
+  const eyebrow = block?.data?.eyebrow
+    ? `<p class="uk-text-meta uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.eyebrow', context)}>${escapeHtml(block.data.eyebrow)}</p>`
+    : '';
+  const title = block?.data?.title
+    ? `<h2 class="uk-heading-medium uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+    : '';
+  const intro = block?.data?.intro
+    ? `<p class="uk-text-lead uk-margin-small-top"${buildEditableAttributes(block, 'data.intro', context)}>${escapeHtml(block.data.intro)}</p>`
+    : '';
+
+  const content = [eyebrow, title, intro].filter(Boolean).join('');
+  if (!content) {
+    return '';
+  }
+
+  return `<div class="uk-margin-medium-bottom uk-text-center">${content}</div>`;
+}
+
+function resolveContentSliderImage(slide) {
+  const source = typeof slide?.imageId === 'string' && slide.imageId.trim() !== '' ? slide.imageId.trim() : '';
+  if (!source) {
+    return '';
+  }
+
+  return resolveBackgroundImage(source) || source;
+}
+
+function renderContentSliderSlide(block, slide, index, variant, context = 'frontend') {
+  if (!slide || typeof slide !== 'object') {
+    return '';
+  }
+
+  const labelAttributes = buildEditableAttributes(block, `data.slides.${index}.label`, context);
+  const bodyAttributes = buildEditableAttributes(block, `data.slides.${index}.body`, context, { type: 'richtext' });
+  const label = slide.label ? `<h3 class="uk-h4 uk-margin-remove-bottom"${labelAttributes}>${escapeHtml(slide.label)}</h3>` : '';
+  const body = slide.body
+    ? `<div class="uk-margin-small-top"${bodyAttributes}>${slide.body}</div>`
+    : '';
+
+  const link = slide.link?.label && slide.link?.href
+    ? `<div class="uk-margin-top"><a class="uk-button uk-button-text" href="${escapeAttribute(slide.link.href)}">${escapeHtml(slide.link.label)}</a></div>`
+    : '';
+
+  const imageSrc = resolveContentSliderImage(slide);
+  const imageAlt = slide.imageAlt ? escapeAttribute(slide.imageAlt) : slide.label ? escapeAttribute(slide.label) : '';
+  const image = imageSrc
+    ? `<div class="content-slider__media"><img class="uk-border-rounded uk-width-1-1" src="${escapeAttribute(imageSrc)}" alt="${imageAlt}" loading="lazy"></div>`
+    : '';
+
+  const textContent = `<div class="content-slider__body">${label}${body}${link}</div>`;
+  const cardContent = variant === 'images' && image
+    ? `<div class="uk-card uk-card-default uk-overflow-hidden">${image}<div class="uk-card-body">${textContent}</div></div>`
+    : `<div class="uk-card uk-card-default uk-card-body">${image}${textContent}</div>`;
+
+  const itemId = slide.id ? ` id="${escapeAttribute(slide.id)}"` : '';
+  return `<li class="content-slider__item"${itemId}>${cardContent}</li>`;
+}
+
+function renderContentSlider(block, variant = 'words', options = {}) {
+  const context = options?.context || 'frontend';
+  const slides = Array.isArray(block?.data?.slides) ? block.data.slides : [];
+
+  const header = renderContentSliderHeader(block, context);
+  const sliderItems = slides
+    .map((slide, index) => renderContentSliderSlide(block, slide, index, variant, context))
+    .filter(Boolean)
+    .join('');
+
+  const fallback = '<li><div class="uk-alert-warning" role="alert">Keine Slides hinterlegt.</div></li>';
+
+  const slider = `
+    <div class="content-slider content-slider--${escapeAttribute(variant)}" data-uk-slider="finite: false">
+      <div class="uk-position-relative">
+        <div class="uk-slider-container uk-slider-container-offset">
+          <ul class="uk-slider-items uk-grid uk-grid-small uk-child-width-1-1">${sliderItems || fallback}</ul>
+        </div>
+        <div class="uk-visible@s">
+          <a class="uk-position-center-left uk-position-small uk-slidenav-large" href="#" data-uk-slidenav-previous data-uk-slider-item="previous"></a>
+          <a class="uk-position-center-right uk-position-small uk-slidenav-large" href="#" data-uk-slidenav-next data-uk-slider-item="next"></a>
+        </div>
+        <div class="uk-hidden@s uk-light">
+          <a class="uk-position-center-left uk-position-small" href="#" data-uk-slidenav-previous data-uk-slider-item="previous"></a>
+          <a class="uk-position-center-right uk-position-small" href="#" data-uk-slidenav-next data-uk-slider-item="next"></a>
+        </div>
+        <ul class="uk-slider-nav uk-dotnav uk-flex-center uk-margin-top"></ul>
+      </div>
+    </div>`;
+
+  return renderSection({ block, variant, content: `${header}${slider}` });
+}
+
 function renderEyebrow(block, alignmentClass = '', context = 'frontend') {
   const eyebrow = block?.data?.eyebrow;
   if (!eyebrow) {
@@ -1852,6 +1944,8 @@ export const RENDERER_MATRIX = {
     centered_cta: renderHeroCenteredCta,
     media_right: renderHeroMediaRight,
     media_left: renderHeroMediaLeft,
+    'media-right': renderHeroMediaRight,
+    'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal
   },
   feature_list: {
@@ -1883,6 +1977,10 @@ export const RENDERER_MATRIX = {
     'image-right': (block, options) => renderInfoMedia(block, 'image-right', options),
     switcher: (block, options) => renderInfoMedia(block, 'switcher', options)
   },
+  content_slider: {
+    words: (block, options) => renderContentSlider(block, 'words', options),
+    images: (block, options) => renderContentSlider(block, 'images', options)
+  },
   cta: {
     full_width: renderCta,
     split: renderCtaSplit
@@ -1890,7 +1988,8 @@ export const RENDERER_MATRIX = {
   stat_strip: {
     inline: renderStatStripInline,
     cards: renderStatStripCards,
-    centered: renderStatStripCentered
+    centered: renderStatStripCentered,
+    'three-up': renderStatStripCards
   },
   proof: {
     'metric-callout': renderProofMetricCallout

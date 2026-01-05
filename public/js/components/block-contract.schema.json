@@ -101,6 +101,28 @@
       ]
     },
     {
+      "title": "Content slider block",
+      "properties": {
+        "type": {
+          "const": "content_slider"
+        },
+        "variant": {
+          "enum": [
+            "words",
+            "images"
+          ]
+        },
+        "data": {
+          "$ref": "#/definitions/ContentSliderData"
+        }
+      },
+      "required": [
+        "type",
+        "variant",
+        "data"
+      ]
+    },
+    {
       "title": "Process steps block",
       "properties": {
         "type": {
@@ -863,6 +885,61 @@
         },
         "followUp": {
           "$ref": "#/definitions/FaqFollowUp"
+        }
+      }
+    },
+    "ContentSliderData": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slides"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "eyebrow": {
+          "type": "string"
+        },
+        "intro": {
+          "type": "string"
+        },
+        "slides": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentSlide"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "ContentSlide": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body": {
+          "type": "string"
+        },
+        "imageId": {
+          "type": "string"
+        },
+        "imageAlt": {
+          "type": "string"
+        },
+        "link": {
+          "$ref": "#/definitions/CallToAction"
         }
       }
     },
