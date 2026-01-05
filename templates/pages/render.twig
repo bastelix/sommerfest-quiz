@@ -12,6 +12,7 @@
 {% import 'marketing/partials/menu.twig' as menuMacros %}
 
 {% set menuItems = menu|default([]) %}
+{% set cmsMenuItems = menuItems|default([]) %}
 {% set logoSettings = headerLogo|default({}) %}
 {% set logoMode = logoSettings.mode|default('text') %}
 {% set logoSrc = logoSettings.src|default(null) %}
@@ -40,7 +41,6 @@
       {% endblock %}
 
       {% block center %}
-        {% set cmsMenuItems = menuItems|default([]) %}
         {% if cmsMenuItems %}
           {{ menuMacros.render_menu(cmsMenuItems, 'uk-navbar-nav uk-visible@m') }}
         {% endif %}
