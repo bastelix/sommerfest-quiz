@@ -163,6 +163,9 @@ class PageController
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
+        if ($menu === [] && $cmsMenuItems !== []) {
+            $menu = $cmsMenuItems;
+        }
 
         $pageType = $page->getType();
         $pageTypeConfig = $design['config']['pageTypes'] ?? [];
