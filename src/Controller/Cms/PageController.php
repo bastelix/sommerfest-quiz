@@ -258,7 +258,7 @@ class PageController
             'content' => $content,
             'menu' => $menu,
             'navigation' => $navigation,
-        ] = $data;
+        ] = $data + ['menu' => [], 'navigation' => []];
 
         $payload = [
             'namespace' => $namespace,
@@ -267,8 +267,8 @@ class PageController
             'blocks' => $blocks,
             'design' => $design,
             'content' => $content,
-            'menu' => $menu ?? [],
-            'navigation' => $navigation ?? [],
+            'menu' => $menu,
+            'navigation' => $navigation,
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
