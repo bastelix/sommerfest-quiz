@@ -1,0 +1,12 @@
+{
+  "main": [
+    {"label": "Content Home", "href": "/content-home"},
+    {"label": "Docs", "href": "#docs", "children": [
+      {"label": "API", "href": "/docs/api"},
+      {"label": "Guide", "href": "https://example.com/guide", "isExternal": true}
+    ]}
+  ],
+  "footer": [
+    {"label": "Footer Policy", "href": "/policies"}
+  ]
+}

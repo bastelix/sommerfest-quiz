@@ -8,7 +8,8 @@
   {{ assets[path]|default(basePath ~ path) }}
 {% endmacro %}
 
-{% set menuItems = cmsMenuItems|default([]) %}
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set menuItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems|default([]) %}
 {% set footerNavigation = cmsFooterNavigation|default([]) %}
 {% set legalNavigation = cmsLegalNavigation|default([]) %}
 {% set laborAssetMap = laborAssets|default({}) %}
