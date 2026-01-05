@@ -81,6 +81,50 @@ class CmsPageNamespaceDesignTest extends TestCase
         $this->assertStringContainsString('data-namespace="tenant-space"', $html);
     }
 
+    public function testMenusFollowRequestNamespaceWhenContentFallsBack(): void
+    {
+        $resolvedNamespace = 'tenant-space';
+        $contentNamespace = 'default';
+
+        $cmsMenuNamespaces = [];
+        $cmsMenu = $this->createMock(CmsPageMenuService::class);
+        $cmsMenu->method('getMenuTreeForSlug')->willReturnCallback(
+            static function (string $namespace, string $slug, ?string $locale = null, bool $onlyActive = true) use (&$cmsMenuNamespaces): array {
+                $cmsMenuNamespaces[] = $namespace;
+
+                return [
+                    [
+                        'label' => sprintf('%s::%s', $namespace, $slug),
+                        'href' => '/' . $slug,
+                        'isExternal' => false,
+                    ],
+                ];
+            }
+        );
+        $cmsMenu->method('resolveStartpageSlug')->willReturnCallback(
+            static fn (string $namespace, ?string $locale = null, ?string $domain = null): string => 'home-' . $namespace
+        );
+
+        $controller = $this->createController(
+            $resolvedNamespace,
+            $contentNamespace,
+            cmsMenuOverride: $cmsMenu
+        );
+        [$app, $request] = $this->buildAppWithController($controller, '/styled?format=json', ['HTTP_ACCEPT' => 'application/json']);
+
+        $response = $app->handle($request->withAttribute('lang', 'de'));
+
+        $this->assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true);
+
+        $this->assertSame($resolvedNamespace, $payload['namespace']);
+        $this->assertSame($contentNamespace, $payload['contentNamespace']);
+        $this->assertSame('tenant-space::styled', $payload['navigation']['footer'][0]['label'] ?? null);
+        $this->assertSame('tenant-space::home-tenant-space', $payload['menu'][0]['label'] ?? null);
+        $this->assertSame(['tenant-space'], array_values(array_unique($cmsMenuNamespaces)));
+    }
+
     /**
      * @return array{0: \Slim\App, 1: \Psr\Http\Message\ServerRequestInterface}
      */
@@ -104,11 +148,16 @@ class CmsPageNamespaceDesignTest extends TestCase
         return [$app, $request];
     }
 
-    private function createController(string $resolvedNamespace, string $contentNamespace): PageController
+    private function createController(
+        string $resolvedNamespace,
+        string $contentNamespace,
+        ?CmsPageMenuService $cmsMenuOverride = null,
+        ?PageService $pageServiceOverride = null
+    ): PageController
     {
         $page = new Page(1, $contentNamespace, 'styled', 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, false);
 
-        $pageService = $this->createMock(PageService::class);
+        $pageService = $pageServiceOverride ?? $this->createMock(PageService::class);
         $pageService->method('findByKey')->willReturn($page);
 
         $configService = $this->createMock(ConfigService::class);
@@ -204,7 +253,7 @@ class CmsPageNamespaceDesignTest extends TestCase
         $ragChatService = new RagChatService(null, null, $chatResponder, static fn (): array => []);
         $menuAiGenerator = new MarketingMenuAiGenerator($ragChatService, $chatResponder);
         $menuAiTranslator = new MarketingMenuAiTranslator($ragChatService, $chatResponder);
-        $cmsMenu = new CmsPageMenuService($pdo, $pageService, $menuAiGenerator, $menuAiTranslator);
+        $cmsMenu = $cmsMenuOverride ?? new CmsPageMenuService($pdo, $pageService, $menuAiGenerator, $menuAiTranslator);
 
         $wikiSettings = new CmsPageWikiSettingsService($pdo);
         $wikiArticles = new CmsPageWikiArticleService($pdo);
