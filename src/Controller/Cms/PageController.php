@@ -159,6 +159,7 @@ class PageController
             $basePath,
             $cmsMenuItems
         );
+        $cmsMainNavigation = $navigation['main'];
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
@@ -193,6 +194,7 @@ class PageController
                 'pageType' => $pageType,
                 'sectionStyleDefaults' => $sectionStyleDefaults,
                 'menu' => $menu,
+                'mainNavigation' => $cmsMainNavigation,
                 'navigation' => $navigation,
             ]);
         }
@@ -228,6 +230,7 @@ class PageController
             'sectionStyleDefaults' => $sectionStyleDefaults,
             'pageTheme' => $theme,
             'menu' => $menu,
+            'cmsMainNavigation' => $cmsMainNavigation,
             'cmsFooterNavigation' => $navigation['footer'],
             'cmsLegalNavigation' => $navigation['legal'],
             'cmsSidebarNavigation' => $navigation['sidebar'],
@@ -260,7 +263,7 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -275,7 +278,8 @@ class PageController
             'sectionStyleDefaults' => $sectionStyleDefaults,
             'menu' => $menu,
             'navigation' => $navigation,
-        ] = $data + ['menu' => [], 'navigation' => [], 'pageType' => null, 'sectionStyleDefaults' => []];
+            'mainNavigation' => $mainNavigation,
+        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => []];
 
         $payload = [
             'namespace' => $namespace,
@@ -287,6 +291,7 @@ class PageController
             'pageType' => $pageType,
             'sectionStyleDefaults' => $sectionStyleDefaults,
             'menu' => $menu,
+            'mainNavigation' => $mainNavigation,
             'navigation' => $navigation,
         ];
 
@@ -296,7 +301,7 @@ class PageController
     }
 
     /**
-     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationSections(
         string $resolvedNamespace,
@@ -306,6 +311,11 @@ class PageController
         array $cmsMenuItems
     ): array {
         $navigation = $this->loadNavigationFromContent($resolvedNamespace, $slug, $locale, $basePath);
+
+        $mainNavigation = $navigation['main'];
+        if ($mainNavigation === []) {
+            $mainNavigation = $this->mapMenuItemsToLinks($cmsMenuItems, $basePath);
+        }
 
         $footerNavigation = $navigation['footer'];
         if ($footerNavigation === []) {
@@ -320,6 +330,7 @@ class PageController
         }
 
         return [
+            'main' => $mainNavigation,
             'footer' => $footerNavigation,
             'legal' => $legalNavigation,
             'sidebar' => $sidebarNavigation,
@@ -373,7 +384,7 @@ class PageController
     }
 
     /**
-     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationFromContent(
         string $resolvedNamespace,
@@ -411,6 +422,7 @@ class PageController
         }
 
         return [
+            'main' => [],
             'footer' => [],
             'legal' => [],
             'sidebar' => [],
@@ -419,15 +431,23 @@ class PageController
 
     /**
      * @param array<string, mixed> $payload
-     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function normalizeNavigationPayload(array $payload, string $basePath): array
     {
         $normalized = [
+            'main' => [],
             'footer' => [],
             'legal' => [],
             'sidebar' => [],
         ];
+
+        foreach (['main', 'primary', 'menu'] as $mainKey) {
+            if (isset($payload[$mainKey]) && is_array($payload[$mainKey])) {
+                $normalized['main'] = $this->normalizeMenuEntries($payload[$mainKey], $basePath);
+                break;
+            }
+        }
 
         foreach (['footer', 'legal', 'sidebar'] as $key) {
             if (isset($payload[$key]) && is_array($payload[$key])) {
@@ -457,10 +477,16 @@ class PageController
                 continue;
             }
 
+            $children = [];
+            if (isset($item['children']) && is_array($item['children'])) {
+                $children = $this->normalizeMenuEntries($item['children'], $basePath);
+            }
+
             $normalized[] = [
                 'label' => $label,
                 'href' => $this->normalizeMenuHref($href, $basePath),
                 'isExternal' => (bool) ($item['isExternal'] ?? false),
+                'children' => $children,
             ];
         }
 

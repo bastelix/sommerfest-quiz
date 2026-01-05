@@ -4,7 +4,8 @@
 {% import 'marketing/partials/footer-menu.twig' as footerMenu %}
 
 {% set calserverContactHref = basePath ~ '/calserver#contact-us' %}
-{% set menuItems = cmsMenuItems|default([]) %}
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set menuItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems|default([]) %}
 {% set footerNavigation = cmsFooterNavigation|default([]) %}
 {% set legalNavigation = cmsLegalNavigation|default([]) %}
 

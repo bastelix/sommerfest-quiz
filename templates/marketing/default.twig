@@ -1,7 +1,8 @@
 {% extends 'layout.twig' %}
 
 {% import 'marketing/partials/menu.twig' as menu %}
-{% set menuItems = cmsMenuItems|default([]) %}
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set menuItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems|default([]) %}
 
 {% block title %}{{ metaTitle|default('QuizRace – Marketingseite') }}{% endblock %}
 

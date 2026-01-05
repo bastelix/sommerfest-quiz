@@ -342,12 +342,13 @@ class CmsPageController
             $basePath,
             $cmsMenuItems
         );
+        $cmsMainNavigation = $navigation['main'];
         $cmsFooterNavigation = $navigation['footer'];
         $cmsLegalNavigation = $navigation['legal'];
         $cmsSideNavigation = $navigation['sidebar'];
 
         if ($templateSlug === 'landing') {
-            $menuMarkup = $this->renderCmsMenuMarkup($view, $cmsMenuItems, 'uk-navbar-nav uk-visible@m');
+            $menuMarkup = $this->renderCmsMenuMarkup($view, $cmsMainNavigation, 'uk-navbar-nav uk-visible@m');
             $headerContent = $this->loadHeaderContent($view, $menuMarkup, $headerConfig, $headerLogo);
         }
 
@@ -358,6 +359,7 @@ class CmsPageController
         }
 
         $data['cmsMenuItems'] = $cmsMenuItems;
+        $data['cmsMainNavigation'] = $cmsMainNavigation;
 
         $data['calhelpNewsPlaceholder'] = $calhelpNewsPlaceholderActive ? self::CALHELP_NEWS_PLACEHOLDER : null;
         $data['calhelpNewsPlaceholderActive'] = $calhelpNewsPlaceholderActive;
@@ -456,7 +458,7 @@ class CmsPageController
 
     /**
      * @param array<int, array<string, mixed>> $cmsMenuItems
-     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationSections(
         string $contentNamespace,
@@ -466,6 +468,11 @@ class CmsPageController
         array $cmsMenuItems
     ): array {
         $navigation = $this->loadNavigationFromContent($contentNamespace, $slug, $locale, $basePath);
+
+        $mainNavigation = $navigation['main'];
+        if ($mainNavigation === []) {
+            $mainNavigation = $this->mapMenuItemsToLinks($cmsMenuItems, $basePath);
+        }
 
         $footerNavigation = $navigation['footer'];
         if ($footerNavigation === []) {
@@ -480,6 +487,7 @@ class CmsPageController
         }
 
         return [
+            'main' => $mainNavigation,
             'footer' => $footerNavigation,
             'legal' => $legalNavigation,
             'sidebar' => $sidebarNavigation,
@@ -517,7 +525,7 @@ class CmsPageController
     }
 
     /**
-     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationFromContent(
         string $contentNamespace,
@@ -555,6 +563,7 @@ class CmsPageController
         }
 
         return [
+            'main' => [],
             'footer' => [],
             'legal' => [],
             'sidebar' => [],
@@ -563,15 +572,23 @@ class CmsPageController
 
     /**
      * @param array<string, mixed> $payload
-     * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
+     * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function normalizeNavigationPayload(array $payload, string $basePath): array
     {
         $normalized = [
+            'main' => [],
             'footer' => [],
             'legal' => [],
             'sidebar' => [],
         ];
+
+        foreach (['main', 'primary', 'menu'] as $mainKey) {
+            if (isset($payload[$mainKey]) && is_array($payload[$mainKey])) {
+                $normalized['main'] = $this->normalizeMenuEntries($payload[$mainKey], $basePath);
+                break;
+            }
+        }
 
         foreach (['footer', 'legal', 'sidebar'] as $key) {
             if (isset($payload[$key]) && is_array($payload[$key])) {
@@ -601,10 +618,16 @@ class CmsPageController
                 continue;
             }
 
+            $children = [];
+            if (isset($item['children']) && is_array($item['children'])) {
+                $children = $this->normalizeMenuEntries($item['children'], $basePath);
+            }
+
             $normalized[] = [
                 'label' => $label,
                 'href' => $this->normalizeMenuHref($href, $basePath),
                 'isExternal' => (bool) ($item['isExternal'] ?? false),
+                'children' => $children,
             ];
         }
 

@@ -1,5 +1,7 @@
 {% import 'pages/partials/menu.twig' as cmsMenu %}
 {% set cmsMenuItems = cmsMenuItems|default([]) %}
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set cmsNavigationItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems %}
 {% set headerLogo = headerLogo|default({}) %}
 {% set headerTheme = headerTheme|default('light') %}
 {% set headerConfig = headerConfig|default({}) %}
@@ -26,8 +28,8 @@
     {% endblock %}
 
     {% block center %}
-      {% if cmsMenuItems %}
-        {{ cmsMenu.render_menu(cmsMenuItems, 'uk-navbar-nav uk-visible@m') }}
+      {% if cmsNavigationItems %}
+        {{ cmsMenu.render_menu(cmsNavigationItems, 'uk-navbar-nav uk-visible@m') }}
       {% endif %}
     {% endblock %}
 
@@ -41,11 +43,11 @@
     {% endblock %}
 
     {% block offcanvas %}
-      {% if cmsMenuItems %}
+      {% if cmsNavigationItems %}
         <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
           <div class="uk-offcanvas-bar">
             <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-            {{ cmsMenu.render_offcanvas(cmsMenuItems, 'uk-nav uk-nav-default') }}
+            {{ cmsMenu.render_offcanvas(cmsNavigationItems, 'uk-nav uk-nav-default') }}
           </div>
         </div>
       {% endif %}

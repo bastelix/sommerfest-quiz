@@ -2,7 +2,8 @@
 
 {% import 'marketing/partials/menu.twig' as menu %}
 {% import 'marketing/partials/footer-menu.twig' as footerMenu %}
-{% set menuItems = cmsMenuItems|default([]) %}
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set menuItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems|default([]) %}
 {% set footerNavigation = cmsFooterNavigation|default([]) %}
 {% set legalNavigation = cmsLegalNavigation|default([]) %}
 

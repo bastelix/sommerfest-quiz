@@ -125,11 +125,60 @@ class CmsPageNamespaceDesignTest extends TestCase
         $this->assertSame(['tenant-space'], array_values(array_unique($cmsMenuNamespaces)));
     }
 
+    public function testContentNavigationProvidesMainMenu(): void
+    {
+        $cmsMenu = $this->createMock(CmsPageMenuService::class);
+        $cmsMenu->method('getMenuTreeForSlug')->willReturn([
+            [
+                'label' => 'Fallback Menu',
+                'href' => '/fallback',
+                'isExternal' => false,
+            ],
+        ]);
+        $cmsMenu->method('resolveStartpageSlug')->willReturn('home-tenant-space');
+
+        $controller = $this->createController(
+            resolvedNamespace: 'tenant-space',
+            contentNamespace: 'tenant-space',
+            cmsMenuOverride: $cmsMenu,
+            pageServiceOverride: null,
+            slug: 'navtest'
+        );
+
+        [$app, $jsonRequest] = $this->buildAppWithController(
+            $controller,
+            '/navtest?format=json',
+            ['HTTP_ACCEPT' => 'application/json'],
+            'navtest'
+        );
+
+        $jsonResponse = $app->handle($jsonRequest->withAttribute('lang', 'de'));
+        $this->assertSame(200, $jsonResponse->getStatusCode());
+
+        $payload = json_decode((string) $jsonResponse->getBody(), true);
+        $this->assertSame('Content Home', $payload['navigation']['main'][0]['label'] ?? null);
+        $this->assertSame('Content Home', $payload['mainNavigation'][0]['label'] ?? null);
+        $this->assertSame('#docs', $payload['navigation']['main'][1]['href'] ?? null);
+        $this->assertSame('/docs/api', $payload['navigation']['main'][1]['children'][0]['href'] ?? null);
+
+        [$htmlApp, $htmlRequest] = $this->buildAppWithController($controller, '/navtest', ['HTTP_ACCEPT' => 'text/html'], 'navtest');
+        $htmlResponse = $htmlApp->handle($htmlRequest->withAttribute('lang', 'de'));
+        $this->assertSame(200, $htmlResponse->getStatusCode());
+
+        $html = (string) $htmlResponse->getBody();
+        $this->assertStringContainsString('Content Home', $html);
+        $this->assertStringNotContainsString('Fallback Menu', $html);
+    }
+
     /**
      * @return array{0: \Slim\App, 1: \Psr\Http\Message\ServerRequestInterface}
      */
-    private function buildAppWithController(PageController $controller, string $path, array $headers = ['HTTP_ACCEPT' => 'text/html']): array
-    {
+    private function buildAppWithController(
+        PageController $controller,
+        string $path,
+        array $headers = ['HTTP_ACCEPT' => 'text/html'],
+        string $slug = 'styled'
+    ): array {
         $app = AppFactory::create();
         $twig = Twig::create(__DIR__ . '/../../templates', ['cache' => false]);
         $translator = new TranslationService();
@@ -138,8 +187,8 @@ class CmsPageNamespaceDesignTest extends TestCase
         $twig->addExtension(new TranslationExtension($translator));
         $app->add(TwigMiddleware::create($app, $twig));
 
-        $app->get('/styled', function ($request, $response) use ($controller) {
-            return $controller($request, $response, ['slug' => 'styled']);
+        $app->get('/' . $slug, function ($request, $response) use ($controller, $slug) {
+            return $controller($request, $response, ['slug' => $slug]);
         });
 
         $request = $this->createRequest('GET', $path, $headers)
@@ -152,10 +201,11 @@ class CmsPageNamespaceDesignTest extends TestCase
         string $resolvedNamespace,
         string $contentNamespace,
         ?CmsPageMenuService $cmsMenuOverride = null,
-        ?PageService $pageServiceOverride = null
+        ?PageService $pageServiceOverride = null,
+        string $slug = 'styled'
     ): PageController
     {
-        $page = new Page(1, $contentNamespace, 'styled', 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, false);
+        $page = new Page(1, $contentNamespace, $slug, 'Styled', '<p>Styled</p>', null, null, 0, null, null, null, null, false);
 
         $pageService = $pageServiceOverride ?? $this->createMock(PageService::class);
         $pageService->method('findByKey')->willReturn($page);
