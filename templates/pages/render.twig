@@ -68,8 +68,8 @@
     {% endembed %}
   </header>
 
-  <div class="uk-container">
-    <main class="cms-page">
+  <div class="uk-container uk-container-expand">
+    <main class="cms-page qr-page-renderer">
       <script
         type="application/json"
         data-json="page"
@@ -81,6 +81,7 @@
       </script>
 
       <div
+        class="qr-page-renderer"
         data-page-root
         data-page-slug="{{ cmsSlug }}"
         data-page-namespace="{{ pageNamespace }}"
