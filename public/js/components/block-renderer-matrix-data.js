@@ -28,6 +28,8 @@ const DEFAULT_APPEARANCE = {
 };
 
 let activeAppearance = DEFAULT_APPEARANCE;
+const DEFAULT_PAGE_CONTEXT = { sectionStyleDefaults: {} };
+let activePageContext = DEFAULT_PAGE_CONTEXT;
 
 function resolveComputedAppearance() {
   if (typeof window === 'undefined' || typeof window.getComputedStyle !== 'function') {
@@ -89,6 +91,23 @@ export function setActiveAppearance(appearance) {
   return previous;
 }
 
+export function setPageContext(context) {
+  const normalized = context && typeof context === 'object' ? context : {};
+  const sectionStyleDefaults = normalized.sectionStyleDefaults && typeof normalized.sectionStyleDefaults === 'object'
+    ? normalized.sectionStyleDefaults
+    : {};
+  const previous = activePageContext;
+  activePageContext = { ...DEFAULT_PAGE_CONTEXT, ...normalized, sectionStyleDefaults };
+  return previous;
+}
+
+export function withPageContext(context, callback) {
+  const previous = setPageContext(context);
+  const result = callback();
+  activePageContext = previous;
+  return result;
+}
+
 export function withAppearance(appearance, callback) {
   const previous = setActiveAppearance(appearance);
   const result = callback();
@@ -98,6 +117,10 @@ export function withAppearance(appearance, callback) {
 
 function resolveActiveAppearance() {
   return activeAppearance || DEFAULT_APPEARANCE;
+}
+
+function resolveActivePageContext() {
+  return activePageContext || DEFAULT_PAGE_CONTEXT;
 }
 
 const PREVIEW_CONTEXT = 'preview';
@@ -178,14 +201,32 @@ function clampBackgroundOverlay(value) {
   return Math.min(1, Math.max(0, numeric));
 }
 
+function normalizeSectionStyle(block) {
+  const defaults = resolveActivePageContext().sectionStyleDefaults;
+  const baseStyle = defaults && typeof defaults === 'object' ? defaults : {};
+  const blockStyle = block?.meta?.sectionStyle && typeof block.meta.sectionStyle === 'object'
+    ? block.meta.sectionStyle
+    : {};
+
+  const baseBackground = baseStyle.background && typeof baseStyle.background === 'object' ? baseStyle.background : {};
+  const blockBackground = blockStyle.background && typeof blockStyle.background === 'object' ? blockStyle.background : {};
+
+  return {
+    ...baseStyle,
+    ...blockStyle,
+    background: { ...baseBackground, ...blockBackground }
+  };
+}
+
 function resolveSectionLayout(block) {
-  const layout = typeof block?.meta?.sectionStyle?.layout === 'string' ? block.meta.sectionStyle.layout.trim() : '';
+  const sectionStyle = normalizeSectionStyle(block);
+  const layout = typeof sectionStyle.layout === 'string' ? sectionStyle.layout.trim() : '';
   return SECTION_LAYOUTS.includes(layout) ? layout : 'normal';
 }
 
 function resolveSectionBackground(block, layout) {
   const allowedModes = BACKGROUND_MODES_BY_LAYOUT[layout] || ['none'];
-  const background = block?.meta?.sectionStyle?.background || {};
+  const background = normalizeSectionStyle(block).background || {};
   const rawMode = typeof background.mode === 'string'
     ? background.mode.trim()
     : typeof background.type === 'string'
