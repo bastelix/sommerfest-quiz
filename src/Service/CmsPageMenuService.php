@@ -221,7 +221,9 @@ final class CmsPageMenuService
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
 
-            throw new RuntimeException('Menu import failed.', 0, $exception);
+            $message = $this->formatImportError($exception);
+
+            throw new RuntimeException($message, 0, $exception);
         }
     }
 
@@ -1178,6 +1180,26 @@ final class CmsPageMenuService
         }
 
         return $normalized;
+    }
+
+    private function formatImportError(\Throwable $exception): string
+    {
+        $messages = [];
+        $current = $exception;
+
+        while ($current !== null) {
+            $message = trim($current->getMessage());
+            if ($message !== '') {
+                $messages[] = $message;
+            }
+
+            $current = $current->getPrevious();
+        }
+
+        $uniqueMessages = array_values(array_unique($messages));
+        $details = $uniqueMessages !== [] ? sprintf(': %s', implode(' | ', $uniqueMessages)) : '';
+
+        return 'Menu import failed' . $details;
     }
 
     /**
