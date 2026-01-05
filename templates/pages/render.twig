@@ -4,6 +4,15 @@
 {% set pageTitle = metaTitle|default('') %}
 {% set effectiveAppearance = appearance|default({}) %}
 {% set design = { theme: pageTheme|default('light'), appearance: effectiveAppearance } %}
+{% set headerTheme = pageTheme|default(design.theme|default('light')) %}
+{% import 'marketing/partials/menu.twig' as menuMacros %}
+
+{% set menuItems = menu|default([]) %}
+{% set logoSettings = headerLogo|default({}) %}
+{% set logoMode = logoSettings.mode|default('text') %}
+{% set logoSrc = logoSettings.src|default(null) %}
+{% set logoLabel = logoSettings.label|default(pageTitle|default('QuizRace')) %}
+{% set logoAlt = logoSettings.alt|default(logoLabel) %}
 
 {% block body_theme %}
   {{ pageTheme|default('light') }}
@@ -14,6 +23,47 @@
 {% block body_class %}page-render uk-background-default{% endblock %}
 
 {% block body %}
+  <header class="qr-topbar" data-namespace="{{ normalizedNamespace }}" data-theme="{{ headerTheme }}">
+    {% embed 'topbar.twig' %}
+      {% block left %}
+        <a class="uk-logo" href="{{ basePath }}/{{ cmsSlug }}">
+          {% if logoMode == 'image' and logoSrc %}
+            <img src="{{ logoSrc }}" alt="{{ logoAlt }}">
+          {% else %}
+            {{ logoLabel }}
+          {% endif %}
+        </a>
+      {% endblock %}
+
+      {% block center %}
+        {% set cmsMenuItems = menuItems|default([]) %}
+        {% if cmsMenuItems %}
+          {{ menuMacros.render_menu(cmsMenuItems, 'uk-navbar-nav uk-visible@m') }}
+        {% endif %}
+      {% endblock %}
+
+      {% block switches %}
+        {% include 'components/config-menu.twig' with {
+          show_help: headerConfig.show_help|default(false),
+          show_language: headerConfig.show_language|default(true),
+          show_theme_toggle: headerConfig.show_theme_toggle|default(true),
+          show_contrast_toggle: headerConfig.show_contrast_toggle|default(true)
+        } %}
+      {% endblock %}
+
+      {% block offcanvas %}
+        {% if cmsMenuItems %}
+          <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
+            <div class="uk-offcanvas-bar">
+              <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+              {{ menuMacros.render_offcanvas(cmsMenuItems, 'uk-nav uk-nav-default') }}
+            </div>
+          </div>
+        {% endif %}
+      {% endblock %}
+    {% endembed %}
+  </header>
+
   <div class="uk-container">
     <main class="cms-page">
       <script
