@@ -6,6 +6,9 @@ namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Roles;
+use App\Domain\Page;
+use App\Domain\CmsBuilderRuntimeGuard;
+use App\Domain\PageRuntimeType;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\CmsPageMenuService;
@@ -130,6 +133,7 @@ class CmsPageController
 
         $namespaceContext = $this->namespaceResolver->resolve($request);
         $resolvedNamespace = $namespaceContext->getNamespace();
+        $namespaceFallbackUsed = $namespaceContext->usedFallback();
 
         $page = $this->pages->findByKey($resolvedNamespace, $contentSlug);
         if ($page === null && $contentSlug !== $templateSlug) {
@@ -143,6 +147,8 @@ class CmsPageController
         $contentNamespace = $page->getNamespace();
 
         $html = $this->contentLoader->load($page);
+        $runtimeType = $this->determinePageRuntimeType($page, $html);
+        CmsBuilderRuntimeGuard::assert($page, $runtimeType, $html, $namespaceFallbackUsed);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
 
@@ -404,6 +410,25 @@ class CmsPageController
         }
 
         return $blocks;
+    }
+
+    private function determinePageRuntimeType(Page $page, string $rawContent): string
+    {
+        $decoded = json_decode($rawContent, true);
+        if (
+            is_array($decoded)
+            && isset($decoded['meta']['schemaVersion'])
+            && isset($decoded['blocks'])
+            && is_array($decoded['blocks'])
+        ) {
+            return PageRuntimeType::CMS_BUILDER;
+        }
+
+        if ($page->getType() === 'system') {
+            return PageRuntimeType::SYSTEM;
+        }
+
+        return PageRuntimeType::LEGACY_MARKETING;
     }
 
     /**
