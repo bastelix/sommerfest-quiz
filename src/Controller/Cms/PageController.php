@@ -153,7 +153,7 @@ class PageController
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
         $navigation = $this->loadNavigationSections(
-            $contentNamespace,
+            $resolvedNamespace,
             $page->getSlug(),
             $locale,
             $basePath,
@@ -163,6 +163,13 @@ class PageController
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
+
+        $pageJson = [
+            'namespace' => $resolvedNamespace,
+            'contentNamespace' => $contentNamespace,
+            'slug' => $page->getSlug(),
+            'blocks' => $pageBlocks ?? [],
+        ];
 
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
@@ -180,7 +187,7 @@ class PageController
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
-            'pageJson' => $pageBlocks,
+            'pageJson' => $pageJson,
             'pageFavicon' => $config?->getFaviconPath(),
             'metaTitle' => $config?->getMetaTitle(),
             'metaDescription' => $config?->getMetaDescription(),
@@ -273,14 +280,14 @@ class PageController
      * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationSections(
-        string $contentNamespace,
+        string $namespace,
         string $slug,
         string $locale,
         string $basePath,
         string $privacyUrl,
         array $cmsMenuItems
     ): array {
-        $navigation = $this->loadNavigationFromContent($contentNamespace, $slug, $locale, $basePath);
+        $navigation = $this->loadNavigationFromContent($namespace, $slug, $locale, $basePath);
 
         $footerNavigation = $navigation['footer'];
         if ($footerNavigation === []) {
@@ -375,7 +382,7 @@ class PageController
      * @return array{footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationFromContent(
-        string $contentNamespace,
+        string $namespace,
         string $slug,
         string $locale,
         string $basePath
@@ -385,8 +392,8 @@ class PageController
         $normalizedLocale = trim($locale) !== '' ? trim($locale) : 'de';
 
         $candidates = [
-            sprintf('%s/%s/%s.%s.json', $baseDir, $contentNamespace, $normalizedSlug, $normalizedLocale),
-            sprintf('%s/%s/%s.json', $baseDir, $contentNamespace, $normalizedSlug),
+            sprintf('%s/%s/%s.%s.json', $baseDir, $namespace, $normalizedSlug, $normalizedLocale),
+            sprintf('%s/%s/%s.json', $baseDir, $namespace, $normalizedSlug),
             sprintf('%s/%s.%s.json', $baseDir, $normalizedSlug, $normalizedLocale),
             sprintf('%s/%s.json', $baseDir, $normalizedSlug),
         ];

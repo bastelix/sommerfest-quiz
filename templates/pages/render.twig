@@ -20,13 +20,10 @@
         type="application/json"
         data-json="page"
         data-page-slug="{{ cmsSlug }}"
-        data-page-namespace="{{ pageNamespace }}"
+        data-page-namespace="{{ pageJson.namespace ?? pageNamespace }}"
+        data-content-namespace="{{ pageJson.contentNamespace ?? contentNamespace }}"
       >
-        {{ {
-          namespace: pageNamespace,
-          slug: cmsSlug,
-          blocks: pageBlocks ?? []
-        }|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
+        {{ pageJson|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
       </script>
 
       <div
