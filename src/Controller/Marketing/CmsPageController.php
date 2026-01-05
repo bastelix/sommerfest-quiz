@@ -340,7 +340,6 @@ class CmsPageController
             $page->getSlug(),
             $locale,
             $basePath,
-            $privacyUrl,
             $cmsMenuItems
         );
         $cmsFooterNavigation = $navigation['footer'];
@@ -464,7 +463,6 @@ class CmsPageController
         string $slug,
         string $locale,
         string $basePath,
-        string $privacyUrl,
         array $cmsMenuItems
     ): array {
         $navigation = $this->loadNavigationFromContent($contentNamespace, $slug, $locale, $basePath);
@@ -475,9 +473,6 @@ class CmsPageController
         }
 
         $legalNavigation = $navigation['legal'];
-        if ($legalNavigation === []) {
-            $legalNavigation = $this->buildDefaultLegalNavigation($basePath, $privacyUrl);
-        }
 
         $sidebarNavigation = $navigation['sidebar'];
         if ($sidebarNavigation === []) {
@@ -519,30 +514,6 @@ class CmsPageController
         }
 
         return $links;
-    }
-
-    /**
-     * @return array<int, array<string, string|bool>>
-     */
-    private function buildDefaultLegalNavigation(string $basePath, string $privacyUrl): array
-    {
-        return [
-            [
-                'label' => 'Impressum',
-                'href' => $this->normalizeMenuHref('/impressum', $basePath),
-                'isExternal' => false,
-            ],
-            [
-                'label' => 'Datenschutz',
-                'href' => $this->normalizeMenuHref($privacyUrl, $basePath),
-                'isExternal' => false,
-            ],
-            [
-                'label' => 'Lizenz',
-                'href' => $this->normalizeMenuHref('/lizenz', $basePath),
-                'isExternal' => false,
-            ],
-        ];
     }
 
     /**

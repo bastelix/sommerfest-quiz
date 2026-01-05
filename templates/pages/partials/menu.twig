@@ -1,0 +1,87 @@
+{% macro render_menu(items, navClass) %}
+  {% import _self as menu %}
+  <ul class="{{ navClass }}">
+    {% for item in items %}
+      {{ menu.render_item(item) }}
+    {% endfor %}
+  </ul>
+{% endmacro %}
+
+{% macro render_item(item) %}
+  {% import _self as menu %}
+  {% set children = item.children|default([]) %}
+  {% set href = item.href|default('#') %}
+  {% set isExternal = item.isExternal|default(false) %}
+  {% set hasChildren = children is not empty %}
+  {% set linkAttrs = [] %}
+  {% if href starts with '#' %}
+    {% set linkAttrs = linkAttrs|merge(['uk-scroll']) %}
+  {% endif %}
+  {% if isExternal %}
+    {% set linkAttrs = linkAttrs|merge(['target="_blank"', 'rel="noopener"']) %}
+  {% endif %}
+
+  <li{% if hasChildren %} class="uk-parent"{% endif %}>
+    <a href="{{ href }}"{% if linkAttrs is not empty %} {{ linkAttrs|join(' ')|raw }}{% endif %}>{{ item.label }}</a>
+
+    {% if hasChildren %}
+      <div class="uk-navbar-dropdown" uk-dropdown="offset: 10">
+        <ul class="uk-nav uk-navbar-dropdown-nav">
+          {% for child in children %}
+            {{ menu.render_nav_link(child) }}
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </li>
+{% endmacro %}
+
+{% macro render_nav_link(item) %}
+  {% set href = item.href|default('#') %}
+  {% set isExternal = item.isExternal|default(false) %}
+  {% set linkAttrs = [] %}
+  {% if href starts with '#' %}
+    {% set linkAttrs = linkAttrs|merge(['uk-scroll']) %}
+  {% endif %}
+  {% if isExternal %}
+    {% set linkAttrs = linkAttrs|merge(['target="_blank"', 'rel="noopener"']) %}
+  {% endif %}
+
+  <li>
+    <a href="{{ href }}"{% if linkAttrs is not empty %} {{ linkAttrs|join(' ')|raw }}{% endif %}>{{ item.label }}</a>
+  </li>
+{% endmacro %}
+
+{% macro render_offcanvas(items, navClass) %}
+  {% import _self as menu %}
+  <ul class="{{ navClass }}">
+    {% for item in items %}
+      {{ menu.render_offcanvas_item(item) }}
+    {% endfor %}
+  </ul>
+{% endmacro %}
+
+{% macro render_offcanvas_item(item) %}
+  {% import _self as menu %}
+  {% set href = item.href|default('#') %}
+  {% set isExternal = item.isExternal|default(false) %}
+  {% set children = item.children|default([]) %}
+  {% set linkAttrs = [] %}
+  {% if href starts with '#' %}
+    {% set linkAttrs = linkAttrs|merge(['uk-scroll']) %}
+  {% endif %}
+  {% if isExternal %}
+    {% set linkAttrs = linkAttrs|merge(['target="_blank"', 'rel="noopener"']) %}
+  {% endif %}
+
+  <li>
+    <a href="{{ href }}"{% if linkAttrs is not empty %} {{ linkAttrs|join(' ')|raw }}{% endif %}>{{ item.label }}</a>
+    {% if children is not empty %}
+      <ul class="uk-nav-sub">
+        {% for child in children %}
+          {{ menu.render_offcanvas_item(child) }}
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </li>
+{% endmacro %}
