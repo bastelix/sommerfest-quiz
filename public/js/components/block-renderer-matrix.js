@@ -14,6 +14,7 @@ import {
   escapeAttribute,
   escapeHtml,
   setActiveAppearance,
+  withPageContext,
   withAppearance,
 } from './block-renderer-matrix-data.js';
 import { resolveSectionIntent } from './section-intents.js';
@@ -82,7 +83,7 @@ export function renderBlockStrict(block, options = {}) {
   const renderer = assertRenderable(block, rendererMatrix);
   const context = resolveContext(options.context);
   const appearance = options.appearance;
-  const html = withAppearance(appearance, () => renderer(block, { context }));
+  const html = withAppearance(appearance, () => withPageContext(options.page, () => renderer(block, { context })));
   return withPreviewStatus(block, html, context);
 }
 
@@ -124,9 +125,9 @@ export function renderBlock(block, options = {}) {
 
 export function renderPage(blocks = [], options = {}) {
   const { appearance } = options;
-  return withAppearance(appearance, () => (Array.isArray(blocks) ? blocks : [])
+  return withAppearance(appearance, () => withPageContext(options.page, () => (Array.isArray(blocks) ? blocks : [])
     .map(block => renderBlockSafe(block, options))
-    .join('\n'));
+    .join('\n')));
 }
 
 export function listSupportedBlocks(rendererMatrix = RENDERER_MATRIX) {

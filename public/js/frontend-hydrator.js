@@ -68,6 +68,10 @@ const fetchPagePayload = async () => {
     const design = payload.design && typeof payload.design === 'object' ? payload.design : null;
     const namespace = typeof payload.namespace === 'string' ? payload.namespace : null;
     const slug = typeof payload.slug === 'string' ? payload.slug : null;
+    const pageType = typeof payload.pageType === 'string' ? payload.pageType : (typeof payload.type === 'string' ? payload.type : null);
+    const sectionStyleDefaults = payload.sectionStyleDefaults && typeof payload.sectionStyleDefaults === 'object'
+      ? payload.sectionStyleDefaults
+      : {};
     const content = typeof payload.content === 'string' ? payload.content : '';
 
     if (blocks.length === 0 && content.trim() === '') {
@@ -75,7 +79,7 @@ const fetchPagePayload = async () => {
       return null;
     }
 
-    return { blocks, design, namespace, slug, content };
+    return { blocks, design, namespace, slug, content, pageType, sectionStyleDefaults };
   } catch (error) {
     console.error('[CMS] Failed to parse page payload', error);
     return null;
@@ -116,6 +120,15 @@ const hydratePage = async () => {
       ? designModule.applyNamespaceDesign(root, designNamespace, appearance)
       : appearance;
 
+    const pageContext = {
+      type: payload.pageType || payload.type,
+      sectionStyleDefaults: payload.sectionStyleDefaults || {}
+    };
+
+    if (typeof window !== 'undefined') {
+      window.pageContext = pageContext;
+    }
+
     const hasBlocks = Array.isArray(payload.blocks) && payload.blocks.length > 0;
 
     let html = '';
@@ -124,7 +137,11 @@ const hydratePage = async () => {
         rendererMatrix: matrixModule.RENDERER_MATRIX,
         context: 'frontend',
         appearance: resolvedAppearance || {},
-        basePath
+        basePath,
+        page: {
+          type: payload.pageType || payload.type,
+          sectionStyleDefaults: payload.sectionStyleDefaults || {}
+        }
       });
     }
 

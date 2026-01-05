@@ -31,6 +31,29 @@ const resolvePreviewNamespace = root => {
   return 'default';
 };
 
+const resolveGlobalPageContext = (root, override) => {
+  if (override && typeof override === 'object') {
+    return override;
+  }
+
+  if (typeof window !== 'undefined' && window.pageContext && typeof window.pageContext === 'object') {
+    return window.pageContext;
+  }
+
+  if (root?.dataset?.pageContext) {
+    try {
+      const parsed = JSON.parse(root.dataset.pageContext);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    } catch (error) {
+      // ignore parsing errors and fall back to defaults
+    }
+  }
+
+  return {};
+};
+
 export class PreviewCanvas {
   constructor(root, options = {}) {
     this.root = root;
@@ -39,6 +62,7 @@ export class PreviewCanvas {
     this.renderSelectionOnly = options.renderSelectionOnly === true;
     this.intent = ['preview', 'design'].includes(options.intent) ? options.intent : 'edit';
     this.appearance = options.appearance || null;
+    this.pageContext = resolveGlobalPageContext(root, options.pageContext);
     this.blocks = [];
     this.highlightBlockId = null;
     this.hoverBlockId = null;
@@ -103,6 +127,7 @@ export class PreviewCanvas {
       rendererMatrix: RENDERER_MATRIX,
       context: 'preview',
       appearance,
+      page: this.pageContext,
     });
     this.surface.innerHTML = html;
     this.applySelectionHighlight();

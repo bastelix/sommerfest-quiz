@@ -164,10 +164,19 @@ class PageController
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
 
+        $pageType = $page->getType();
+        $pageTypeConfig = $design['config']['pageTypes'] ?? [];
+        $sectionStyleDefaults = [];
+        if ($pageType !== null && isset($pageTypeConfig[$pageType]) && is_array($pageTypeConfig[$pageType])) {
+            $sectionStyleDefaults = $pageTypeConfig[$pageType]['sectionStyleDefaults'] ?? [];
+        }
+
         $pageJson = [
             'namespace' => $resolvedNamespace,
             'contentNamespace' => $contentNamespace,
             'slug' => $page->getSlug(),
+            'type' => $pageType,
+            'sectionStyleDefaults' => $sectionStyleDefaults,
             'blocks' => $pageBlocks ?? [],
         ];
 
@@ -179,6 +188,8 @@ class PageController
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
                 'content' => $html,
+                'pageType' => $pageType,
+                'sectionStyleDefaults' => $sectionStyleDefaults,
                 'menu' => $menu,
                 'navigation' => $navigation,
             ]);
@@ -211,6 +222,8 @@ class PageController
             'headerLogo' => $headerLogo,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'pageType' => $pageType,
+            'sectionStyleDefaults' => $sectionStyleDefaults,
             'pageTheme' => $theme,
             'menu' => $menu,
             'cmsFooterNavigation' => $navigation['footer'],
@@ -245,7 +258,7 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -256,9 +269,11 @@ class PageController
             'blocks' => $blocks,
             'design' => $design,
             'content' => $content,
+            'pageType' => $pageType,
+            'sectionStyleDefaults' => $sectionStyleDefaults,
             'menu' => $menu,
             'navigation' => $navigation,
-        ] = $data + ['menu' => [], 'navigation' => []];
+        ] = $data + ['menu' => [], 'navigation' => [], 'pageType' => null, 'sectionStyleDefaults' => []];
 
         $payload = [
             'namespace' => $namespace,
@@ -267,6 +282,8 @@ class PageController
             'blocks' => $blocks,
             'design' => $design,
             'content' => $content,
+            'pageType' => $pageType,
+            'sectionStyleDefaults' => $sectionStyleDefaults,
             'menu' => $menu,
             'navigation' => $navigation,
         ];
