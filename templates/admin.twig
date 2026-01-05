@@ -1555,37 +1555,42 @@
         {% set activePageNamespace = pageNamespace|default('default') %}
         {% set pageNamespaceQuery = activePageNamespace is not empty ? '?namespace=' ~ activePageNamespace|url_encode : '' %}
         {% set pageNamespaceOptions = available_namespaces|default([]) %}
-        {% if pageNamespaceOptions is empty %}
-          {% set pageNamespaceOptions = [{
-            namespace: activePageNamespace,
-            label: null,
-            is_active: true
-          }] %}
-        {% endif %}
         <div class="uk-card uk-card-default uk-card-body uk-margin-small">
           <div class="uk-grid-small uk-flex-middle" uk-grid>
             <div class="uk-width-1-1 uk-width-expand@m">
               <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
               <div class="uk-form-controls">
-                <select
-                  id="pageNamespaceSelect"
-                  class="uk-select"
-                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                >
-                  {% for entry in pageNamespaceOptions %}
-                    {% set entryNamespace = entry.namespace|default('') %}
-                    {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                    <option
-                      value="{{ entryNamespace|e('html_attr') }}"
-                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                    >
-                      {{ entryNamespace }}
-                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      {% if entryIsInactive %} – inaktiv{% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
+                {% if pageNamespaceOptions is not empty %}
+                  <select
+                    id="pageNamespaceSelect"
+                    class="uk-select"
+                    data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                  >
+                    {% for entry in pageNamespaceOptions %}
+                      {% set entryNamespace = entry.namespace|default('') %}
+                      {% set entryLabel = entry.label|default('') %}
+                      {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                      <option
+                        value="{{ entryNamespace|e('html_attr') }}"
+                        {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                      >
+                        {{ entryNamespace }}
+                        {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                        {% if entryIsInactive %} – inaktiv{% endif %}
+                      </option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  <select
+                    id="pageNamespaceSelect"
+                    class="uk-select"
+                    data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                    disabled
+                  >
+                    <option>{{ t('action_select') }} …</option>
+                  </select>
+                  <div class="uk-text-meta uk-margin-small-top">Konfiguriere zuerst einen Namespace im Management.</div>
+                {% endif %}
               </div>
             </div>
             <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
