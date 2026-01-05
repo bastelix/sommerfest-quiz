@@ -1,0 +1,22 @@
+{% extends 'layout.twig' %}
+
+{#
+  Base layout for CMS-rendered pages. Minimises the head to essential styles
+  and skips marketing bundles unless explicitly requested by the page.
+#}
+
+{% block head %}
+  {% set includeDarkStyles = includeDarkStyles|default(false) %}
+  {% set includeHighContrastStyles = includeHighContrastStyles|default(false) %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  {% if includeDarkStyles %}
+    {% set cfg = config is defined ? config : {} %}
+    {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}
+    {% set prefersDark = theme == 'dark' %}
+    {% set darkMedia = prefersDark ? 'all' : '(prefers-color-scheme: dark)' %}
+    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark %} disabled{% endif %}>
+  {% endif %}
+  {% if includeHighContrastStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  {% endif %}
+{% endblock %}
