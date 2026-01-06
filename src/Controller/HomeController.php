@@ -80,7 +80,7 @@ class HomeController
             $startpage = $pageService->resolveStartpage($namespace, $locale, $host);
 
             if ($startpage !== null) {
-                return (new \App\Controller\Cms\PageController())(
+                return (new \App\Controller\Marketing\PageController())(
                     $request,
                     $response,
                     ['slug' => $startpage->getSlug()]

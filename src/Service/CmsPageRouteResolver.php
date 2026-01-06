@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Controller\Cms\PageController;
+use App\Controller\Marketing\PageController;
 use App\Domain\Page;
 use App\Service\MarketingSlugResolver;
 use Psr\Http\Message\ServerRequestInterface as Request;
