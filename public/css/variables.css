@@ -6,6 +6,8 @@
   --bg-subtle: #f8fafc;
   --bg-muted: #eef2f7;
   --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #1e87f0)) 16%, transparent);
+  --text-default: var(--text-primary);
+  --text-link: var(--accent-primary);
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-heading: #0b1728;
@@ -44,6 +46,8 @@
   --bg-subtle: #0f172a;
   --bg-muted: #0b1018;
   --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #63a4ff)) 18%, transparent);
+  --text-default: var(--text-primary);
+  --text-link: var(--accent-primary);
   --text-primary: #e5e7eb;
   --text-secondary: #cbd5e1;
   --text-heading: #f8fafc;

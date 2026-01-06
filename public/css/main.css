@@ -9,19 +9,24 @@ html {
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: var(--bg-page, #ffffff);
+  background-color: var(--surface, var(--bg-page, #ffffff));
+  color: var(--text-default, var(--text-primary, #111827));
+}
+
+a {
+  color: var(--text-link, var(--accent-primary, var(--brand-primary, #1e87f0)));
 }
 
 h1,
 h2,
 h3,
 h4 {
-  color: var(--text-heading, var(--text-primary, #111827));
+  color: var(--text-heading, var(--text-default, var(--text-primary, #111827)));
 }
 
 .uk-offcanvas-content {
   min-height: 100vh;
-  background: var(--bg-page, #ffffff);
+  background: var(--surface, var(--bg-page, #ffffff));
 }
 
 .uk-button-primary {
