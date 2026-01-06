@@ -7,6 +7,7 @@ namespace Tests\Service;
 use App\Infrastructure\Database;
 use App\Service\ConfigService;
 use App\Service\DesignTokenService;
+use App\Service\NamespaceDesignFileRepository;
 use App\Service\NamespaceAppearanceService;
 use App\Service\PageService;
 use PDO;
@@ -21,6 +22,8 @@ class NamespaceAppearanceServiceTest extends TestCase
     {
         parent::tearDown();
         Database::setFactory(null);
+        putenv('DASHBOARD_TOKEN_SECRET');
+        unset($_ENV['DASHBOARD_TOKEN_SECRET']);
     }
 
     public function testLoadThrowsWhenNamespaceConfigIsMissing(): void
@@ -80,6 +83,48 @@ class NamespaceAppearanceServiceTest extends TestCase
         $this->assertSame('#abcdef', $appearance['variables']['surfaceMuted']);
         $this->assertSame('#111111', $appearance['variables']['topbarLight']);
         $this->assertSame('#222222', $appearance['variables']['topbarDark']);
+    }
+
+    public function testLoadUsesFileBasedDesignWhenConfigIsMissing(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE namespaces (namespace TEXT PRIMARY KEY, label TEXT, is_active INTEGER, created_at TEXT, updated_at TEXT)');
+        $pdo->exec('CREATE TABLE config (event_uid TEXT PRIMARY KEY, design_tokens TEXT, colors TEXT, backgroundColor TEXT, buttonColor TEXT)');
+
+        $designRoot = sys_get_temp_dir() . '/namespace-design-' . uniqid();
+        mkdir($designRoot . '/content/design', 0777, true);
+
+        $designPayload = json_encode([
+            'config' => [
+                'colors' => [
+                    'surface' => '#101010',
+                    'muted' => '#202020',
+                ],
+            ],
+            'tokens' => [
+                'brand' => ['primary' => '#333333', 'accent' => '#444444'],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        file_put_contents($designRoot . '/content/design/wiki.json', $designPayload);
+
+        Database::setFactory(static fn (): PDO => $pdo);
+
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+
+        $designFiles = new NamespaceDesignFileRepository($designRoot);
+        $configService = new ConfigService($pdo, designFiles: $designFiles);
+        $designTokens = new DesignTokenService($pdo, $configService, null, $designFiles);
+        $service = new NamespaceAppearanceService($designTokens, $configService);
+
+        $appearance = $service->load('wiki');
+
+        $this->assertSame('#101010', $appearance['colors']['surface']);
+        $this->assertSame('#202020', $appearance['colors']['muted']);
+        $this->assertSame('#333333', $appearance['colors']['primary']);
+        $this->assertSame('#444444', $appearance['colors']['accent']);
     }
 
     private function createServiceWithoutConstructor(

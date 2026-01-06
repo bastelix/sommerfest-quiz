@@ -20,6 +20,7 @@ class ConfigService
     private PDO $pdo;
     private ?string $activeEvent = null;
     private TokenCipher $tokenCipher;
+    private NamespaceDesignFileRepository $designFiles;
     private ?TeamNameService $teamNameService = null;
     private ?TeamNameWarmupDispatcher $teamNameWarmupDispatcher = null;
 
@@ -98,9 +99,14 @@ class ConfigService
     /**
      * Inject PDO instance used for database operations.
      */
-    public function __construct(PDO $pdo, ?TokenCipher $tokenCipher = null) {
+    public function __construct(
+        PDO $pdo,
+        ?TokenCipher $tokenCipher = null,
+        ?NamespaceDesignFileRepository $designFiles = null
+    ) {
         $this->pdo = $pdo;
         $this->tokenCipher = $tokenCipher ?? new TokenCipher();
+        $this->designFiles = $designFiles ?? new NamespaceDesignFileRepository();
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS active_event(' .
             'event_uid TEXT PRIMARY KEY' .
@@ -188,6 +194,11 @@ class ConfigService
         $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
         if ($row !== null) {
             return $this->applyDashboardModuleFallback($this->normalizeKeys($row));
+        }
+
+        $fileConfig = $this->designFiles->loadConfig($uid);
+        if ($fileConfig !== []) {
+            return $fileConfig;
         }
         return [];
     }

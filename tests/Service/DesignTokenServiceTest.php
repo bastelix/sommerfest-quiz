@@ -6,6 +6,7 @@ namespace Tests\Service;
 
 use App\Service\ConfigService;
 use App\Service\DesignTokenService;
+use App\Service\NamespaceDesignFileRepository;
 use App\Service\PageService;
 use PDO;
 use Tests\TestCase;
@@ -179,6 +180,35 @@ class DesignTokenServiceTest extends TestCase
         $tokens = $service->getTokensForNamespace(PageService::DEFAULT_NAMESPACE);
 
         $this->assertSame($service->getDefaults(), $tokens);
+    }
+
+    public function testLoadsTokensFromContentDesignWhenDatabaseIsEmpty(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT)');
+
+        $designRoot = sys_get_temp_dir() . '/namespace-design-' . uniqid();
+        mkdir($designRoot . '/content/design', 0777, true);
+
+        $designPayload = json_encode([
+            'tokens' => [
+                'brand' => ['primary' => '#aa00bb', 'accent' => '#bbccdd'],
+                'layout' => ['profile' => 'narrow'],
+            ],
+        ], JSON_THROW_ON_ERROR);
+
+        file_put_contents($designRoot . '/content/design/tenant.json', $designPayload);
+
+        $designFiles = new NamespaceDesignFileRepository($designRoot);
+        $configService = new ConfigService($pdo, designFiles: $designFiles);
+        $service = new DesignTokenService($pdo, $configService, tempnam(sys_get_temp_dir(), 'namespace-tokens-'), $designFiles);
+
+        $tokens = $service->getTokensForNamespace('tenant');
+
+        $this->assertSame('#aa00bb', $tokens['brand']['primary']);
+        $this->assertSame('#bbccdd', $tokens['brand']['accent']);
+        $this->assertSame('narrow', $tokens['layout']['profile']);
     }
 
     public function testRejectsEmptyNamespace(): void
