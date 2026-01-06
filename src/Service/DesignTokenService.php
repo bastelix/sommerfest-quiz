@@ -334,19 +334,17 @@ class DesignTokenService
     {
         $blocks = [];
         $blocks[] = "/**\n * Auto-generated. Do not edit manually.\n */";
+
+        $defaultTokens = $this->mergeWithDefaults($namespaces[PageService::DEFAULT_NAMESPACE] ?? []);
+        $blocks[] = $this->renderTokenCssBlock(':root', $defaultTokens);
+
         foreach ($namespaces as $namespace => $tokens) {
-            $selector = $namespace === PageService::DEFAULT_NAMESPACE ? ':root' : '[data-namespace="' . $namespace . '"]';
-            $lines = [
-                $selector . ' {',
-                '  --brand-primary: ' . $this->escapeCssValue($tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary']) . ';',
-                '  --brand-accent: ' . $this->escapeCssValue($tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent']) . ';',
-                '  --layout-profile: ' . $this->escapeCssValue($tokens['layout']['profile'] ?? self::DEFAULT_TOKENS['layout']['profile']) . ';',
-                '  --typography-preset: ' . $this->escapeCssValue($tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']) . ';',
-                '  --components-card-style: ' . $this->escapeCssValue($tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']) . ';',
-                '  --components-button-style: ' . $this->escapeCssValue($tokens['components']['buttonStyle'] ?? self::DEFAULT_TOKENS['components']['buttonStyle']) . ';',
-                '}',
-            ];
-            $blocks[] = implode("\n", $lines);
+            if ($namespace === PageService::DEFAULT_NAMESPACE) {
+                continue;
+            }
+
+            $mergedTokens = $this->mergeTokens($defaultTokens, $this->mergeWithDefaults($tokens));
+            $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . $namespace . '"]', $mergedTokens);
         }
 
         $blocks[] = ':root {';
@@ -358,6 +356,25 @@ class DesignTokenService
         $blocks[] = '}';
 
         return implode("\n\n", $blocks) . "\n";
+    }
+
+    /**
+     * @param array<string, array<string, string>> $tokens
+     */
+    private function renderTokenCssBlock(string $selector, array $tokens): string
+    {
+        $lines = [
+            $selector . ' {',
+            '  --brand-primary: ' . $this->escapeCssValue($tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary']) . ';',
+            '  --brand-accent: ' . $this->escapeCssValue($tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent']) . ';',
+            '  --layout-profile: ' . $this->escapeCssValue($tokens['layout']['profile'] ?? self::DEFAULT_TOKENS['layout']['profile']) . ';',
+            '  --typography-preset: ' . $this->escapeCssValue($tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']) . ';',
+            '  --components-card-style: ' . $this->escapeCssValue($tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']) . ';',
+            '  --components-button-style: ' . $this->escapeCssValue($tokens['components']['buttonStyle'] ?? self::DEFAULT_TOKENS['components']['buttonStyle']) . ';',
+            '}',
+        ];
+
+        return implode("\n", $lines);
     }
 
     private function escapeCssValue(string $value): string
