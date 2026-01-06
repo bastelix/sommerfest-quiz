@@ -6,6 +6,7 @@ namespace Tests\Service;
 
 use App\Service\ConfigService;
 use App\Service\DesignTokenService;
+use App\Service\PageService;
 use PDO;
 use Tests\TestCase;
 
@@ -108,7 +109,7 @@ class DesignTokenServiceTest extends TestCase
         unset($_ENV['DASHBOARD_TOKEN_SECRET']);
     }
 
-    public function testFallsBackToDefaultNamespaceTokens(): void
+    public function testThrowsWhenNamespaceTokensAreMissing(): void
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -127,14 +128,9 @@ class DesignTokenServiceTest extends TestCase
         $configService = new ConfigService($pdo);
         $service = new DesignTokenService($pdo, $configService, tempnam(sys_get_temp_dir(), 'namespace-tokens-'));
 
-        $tokens = $service->getTokensForNamespace('partner');
+        $this->expectExceptionMessage('No design tokens configured for namespace: partner');
 
-        $this->assertSame('#111111', $tokens['brand']['primary']);
-        $this->assertSame('wide', $tokens['layout']['profile']);
-        $this->assertSame('classic', $tokens['typography']['preset']);
-
-        $count = $pdo->query("SELECT COUNT(*) FROM config WHERE event_uid = 'partner'")->fetchColumn();
-        $this->assertSame(0, (int) $count);
+        $service->getTokensForNamespace('partner');
     }
 
     public function testNamespaceTokensOverrideDefaults(): void
@@ -171,7 +167,7 @@ class DesignTokenServiceTest extends TestCase
         $this->assertSame('ghost', $tokens['components']['buttonStyle']);
     }
 
-    public function testFactoryDefaultsUsedOnlyWhenNoDesignExists(): void
+    public function testDefaultNamespaceUsesFactoryTokensWhenMissing(): void
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -180,11 +176,46 @@ class DesignTokenServiceTest extends TestCase
         $configService = new ConfigService($pdo);
         $service = new DesignTokenService($pdo, $configService, tempnam(sys_get_temp_dir(), 'namespace-tokens-'));
 
-        $tokens = $service->getTokensForNamespace('new-namespace');
+        $tokens = $service->getTokensForNamespace(PageService::DEFAULT_NAMESPACE);
 
         $this->assertSame($service->getDefaults(), $tokens);
+    }
 
-        $count = $pdo->query('SELECT COUNT(*) FROM config')->fetchColumn();
-        $this->assertSame(0, (int) $count);
+    public function testRejectsEmptyNamespace(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT)');
+
+        $configService = new ConfigService($pdo);
+        $service = new DesignTokenService($pdo, $configService, tempnam(sys_get_temp_dir(), 'namespace-tokens-'));
+
+        $this->expectExceptionMessage('namespace-empty');
+
+        $service->getTokensForNamespace('');
+    }
+
+    public function testRejectsUnknownNamespacesEvenWhenDefaultExists(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT)');
+
+        $defaultTokens = [
+            'brand' => ['primary' => '#111111'],
+            'layout' => ['profile' => 'wide'],
+            'typography' => ['preset' => 'classic'],
+            'components' => ['cardStyle' => 'square', 'buttonStyle' => 'ghost'],
+        ];
+
+        $pdo->prepare('INSERT INTO config(event_uid, design_tokens) VALUES(?, ?)')
+            ->execute(['default', json_encode($defaultTokens, JSON_THROW_ON_ERROR)]);
+
+        $configService = new ConfigService($pdo);
+        $service = new DesignTokenService($pdo, $configService, tempnam(sys_get_temp_dir(), 'namespace-tokens-'));
+
+        $this->expectExceptionMessage('No design tokens configured for namespace: namespace-b');
+
+        $service->getTokensForNamespace('namespace-b');
     }
 }
