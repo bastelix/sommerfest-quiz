@@ -49,6 +49,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpButtons = document.querySelectorAll('.help-toggle');
   const teamNameBtn = document.getElementById('teamNameBtn');
   const isLaborLanding = document.body.classList.contains('labor-landing');
+  const PAGE_EDITOR_THEME_KEY = 'pageEditorTheme';
+  const pageEditorElement = document.querySelector('.page-editor');
+  const pageEditorThemeToggle = document.querySelector('[data-theme-toggle]');
+  const isPageEditorContext = Boolean(pageEditorElement || pageEditorThemeToggle);
 
   if (offcanvasToggles.length) {
     offcanvasToggles.forEach((toggle) => {
@@ -97,8 +101,42 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const hasStorage = typeof STORAGE_KEYS !== 'undefined' && typeof getStored === 'function';
+
+  const readPageEditorTheme = () => {
+    if (!isPageEditorContext) {
+      return null;
+    }
+    try {
+      return window.localStorage?.getItem?.(PAGE_EDITOR_THEME_KEY);
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const normalizeEditorTheme = (value) => {
+    if (typeof value !== 'string') {
+      return 'light';
+    }
+    const normalized = value.trim().toLowerCase();
+    if (normalized === 'dark' || normalized === 'high-contrast') {
+      return normalized;
+    }
+    return 'light';
+  };
+
+  const editorThemePreference = readPageEditorTheme();
+  const normalizedEditorTheme = editorThemePreference ? normalizeEditorTheme(editorThemePreference) : null;
   const storedTheme = hasStorage ? getStored(STORAGE_KEYS.DARK_MODE) : null;
   let dark;
+
+  const persistPageEditorTheme = (theme) => {
+    if (!isPageEditorContext) {
+      return;
+    }
+    try {
+      window.localStorage?.setItem?.(PAGE_EDITOR_THEME_KEY, normalizeEditorTheme(theme));
+    } catch (e) { /* empty */ }
+  };
 
   const prefersDark = () => {
     try {
@@ -108,14 +146,21 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  if (storedTheme === null || storedTheme === undefined) {
-    dark = document.body.dataset.theme === 'dark' || document.body.classList.contains('dark-mode');
+  if (normalizedEditorTheme) {
+    dark = normalizedEditorTheme === 'dark' || normalizedEditorTheme === 'high-contrast';
+  } else if (storedTheme === null || storedTheme === undefined) {
+    const currentTheme = (document.body.dataset.theme || document.documentElement.dataset.theme || '').toLowerCase();
+    dark = currentTheme === 'dark' || document.body.classList.contains('dark-mode');
     if (!dark) {
       dark = prefersDark();
     }
   } else {
     const normalizedTheme = String(storedTheme).toLowerCase();
     dark = normalizedTheme === 'true' || normalizedTheme === '1' || normalizedTheme === 'dark';
+  }
+
+  if (normalizedEditorTheme && typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.DARK_MODE) {
+    setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
   }
 
   function syncDarkStylesheet () {
@@ -135,8 +180,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   syncDarkStylesheet();
 
-  document.body.dataset.theme = dark ? 'dark' : 'light';
-  document.documentElement.dataset.theme = document.body.dataset.theme;
+  const resolvedTheme = dark ? 'dark' : 'light';
+  if (document.body.dataset.theme !== resolvedTheme) {
+    document.body.dataset.theme = resolvedTheme;
+  }
+  if (document.documentElement.dataset.theme !== resolvedTheme) {
+    document.documentElement.dataset.theme = resolvedTheme;
+  }
   document.body.classList.toggle('dark-mode', dark);
   if (uikitStylesheet) {
     if (isLaborLanding) {
@@ -183,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const storedBarrierFree = (typeof STORAGE_KEYS !== 'undefined' && typeof getStored === 'function' && STORAGE_KEYS.BARRIER_FREE)
     ? getStored(STORAGE_KEYS.BARRIER_FREE)
     : null;
-  let accessible = storedBarrierFree === 'true' || storedBarrierFree === '1';
+  let accessible = (normalizedEditorTheme === 'high-contrast') || storedBarrierFree === 'true' || storedBarrierFree === '1';
   if (accessible) {
     document.body.classList.add('high-contrast');
   }
@@ -235,8 +285,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (themeBtn) {
       event.preventDefault();
       dark = document.body.dataset.theme !== 'dark';
-      document.body.dataset.theme = dark ? 'dark' : 'light';
-      document.documentElement.dataset.theme = document.body.dataset.theme;
+      const updatedTheme = dark ? 'dark' : 'light';
+      document.body.dataset.theme = updatedTheme;
+      document.documentElement.dataset.theme = updatedTheme;
       document.body.classList.toggle('dark-mode', dark);
       if (uikitStylesheet) {
         if (isLaborLanding) {
@@ -249,6 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (typeof setStored === 'function' && typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.DARK_MODE) {
         setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
       }
+      persistPageEditorTheme(updatedTheme);
       if (themeIcons.length) {
         themeIcons.forEach((icon) => {
           icon.innerHTML = dark ? sunSVG : moonSVG;
