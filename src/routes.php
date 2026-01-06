@@ -127,6 +127,7 @@ use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
 use App\Controller\Cms\PageController as CmsPageController;
+use App\Controller\Marketing\CmsPageController as MarketingCmsPageController;
 use App\Controller\Marketing\CmsPageWikiArticleController;
 use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
@@ -994,7 +995,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
         function (Request $request, Response $response, array $args) {
-            $controller = new CmsPageController();
+            $controller = new MarketingCmsPageController();
             return $controller($request, $response, $args);
         }
     )->add($namespaceQueryMiddleware);
