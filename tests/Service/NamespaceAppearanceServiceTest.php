@@ -10,6 +10,9 @@ use App\Service\DesignTokenService;
 use App\Service\NamespaceAppearanceService;
 use App\Service\PageService;
 use PDO;
+use ReflectionClass;
+use ReflectionProperty;
+use RuntimeException;
 use Tests\TestCase;
 
 class NamespaceAppearanceServiceTest extends TestCase
@@ -18,6 +21,25 @@ class NamespaceAppearanceServiceTest extends TestCase
     {
         parent::tearDown();
         Database::setFactory(null);
+    }
+
+    public function testLoadThrowsWhenNamespaceConfigIsMissing(): void
+    {
+        $designTokens = $this->createMock(DesignTokenService::class);
+        $designTokens->expects($this->never())->method('getTokensForNamespace');
+
+        $configService = $this->createMock(ConfigService::class);
+        $configService->expects($this->once())
+            ->method('getConfigForEvent')
+            ->with('tenant')
+            ->willReturn([]);
+
+        $service = $this->createServiceWithoutConstructor($designTokens, $configService);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No design configuration found for namespace: tenant');
+
+        $service->load('tenant');
     }
 
     public function testLoadMergesSurfaceAndTopbarColors(): void
@@ -58,5 +80,25 @@ class NamespaceAppearanceServiceTest extends TestCase
         $this->assertSame('#abcdef', $appearance['variables']['surfaceMuted']);
         $this->assertSame('#111111', $appearance['variables']['topbarLight']);
         $this->assertSame('#222222', $appearance['variables']['topbarDark']);
+    }
+
+    private function createServiceWithoutConstructor(
+        DesignTokenService $designTokens,
+        ConfigService $configService
+    ): NamespaceAppearanceService {
+        $reflection = new ReflectionClass(NamespaceAppearanceService::class);
+
+        /** @var NamespaceAppearanceService $service */
+        $service = $reflection->newInstanceWithoutConstructor();
+
+        $designTokensProperty = new ReflectionProperty(NamespaceAppearanceService::class, 'designTokens');
+        $designTokensProperty->setAccessible(true);
+        $designTokensProperty->setValue($service, $designTokens);
+
+        $configServiceProperty = new ReflectionProperty(NamespaceAppearanceService::class, 'configService');
+        $configServiceProperty->setAccessible(true);
+        $configServiceProperty->setValue($service, $configService);
+
+        return $service;
     }
 }
