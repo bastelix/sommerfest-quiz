@@ -130,14 +130,6 @@
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
-  {% set resolvedAppearance =
-    appearance is defined and appearance is iterable ? appearance :
-    (renderContext.design.appearance ?? design.appearance ?? null)
-  %}
-  {% include 'components/namespace_appearance_styles.twig' with {
-    appearance: resolvedAppearance,
-    namespace: normalizedNamespace
-  } %}
   {% block head %}{% endblock %}
 </head>
 <body
