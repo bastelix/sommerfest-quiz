@@ -379,8 +379,8 @@ class PageController
             'menu' => $menu,
             'mainNavigation' => $mainNavigation,
             'navigation' => $navigation,
-            'featureFlags' => $featureFlags ?? [],
-            'featureData' => $featureData ?? [],
+            'featureFlags' => $featureFlags,
+            'featureData' => $featureData,
         ];
 
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
