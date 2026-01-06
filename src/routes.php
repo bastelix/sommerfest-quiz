@@ -292,13 +292,13 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return [$request, in_array($domainType, ['main', 'marketing'], true)];
     };
-    $cmsPageRouteResolver = new CmsPageRouteResolver();
-    $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
-        if ($request->getUri()->getPath() === '/healthz') {
-            return $handler->handle($request);
-        }
+        $cmsPageRouteResolver = new CmsPageRouteResolver();
+        $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
+            if ($request->getUri()->getPath() === '/healthz') {
+                return $handler->handle($request);
+            }
 
-        $base = Database::connectFromEnv();
+            $base = Database::connectFromEnv();
         MigrationRuntime::ensureUpToDate($base, __DIR__ . '/../migrations', 'base');
 
         $host = $request->getUri()->getHost();
