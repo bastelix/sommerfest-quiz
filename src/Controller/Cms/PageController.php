@@ -10,6 +10,7 @@ use App\Service\CmsPageMenuService;
 use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
+use App\Service\NamespaceRenderContextService;
 use App\Service\NamespaceResolver;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
@@ -47,6 +48,7 @@ class PageController
     private PageContentLoader $contentLoader;
     private PageModuleService $pageModules;
     private NamespaceAppearanceService $namespaceAppearance;
+    private NamespaceRenderContextService $namespaceRenderContext;
     private NamespaceResolver $namespaceResolver;
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
@@ -60,6 +62,7 @@ class PageController
         ?PageContentLoader $contentLoader = null,
         ?PageModuleService $pageModules = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
+        ?NamespaceRenderContextService $namespaceRenderContext = null,
         ?NamespaceResolver $namespaceResolver = null,
         ?ProjectSettingsService $projectSettings = null,
         ?ConfigService $configService = null,
@@ -73,6 +76,7 @@ class PageController
         $this->contentLoader = $contentLoader ?? new PageContentLoader();
         $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
+        $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->configService = $configService ?? new ConfigService($pdo);
@@ -124,13 +128,10 @@ class PageController
         $pageBlocks = $this->extractPageBlocks($html);
 
         $design = $this->loadDesign($resolvedNamespace);
-        $theme = 'light';
-        if (
-            isset($design['config']['startTheme'])
-            && in_array($design['config']['startTheme'], ['light', 'dark'], true)
-        ) {
-            $theme = $design['config']['startTheme'];
-        }
+        $renderContext = $this->namespaceRenderContext->build($resolvedNamespace);
+        $theme = is_string($renderContext['design']['theme'] ?? null)
+            ? (string) $renderContext['design']['theme']
+            : 'light';
 
         $design['theme'] = $theme;
         $view = Twig::fromRequest($request);
@@ -190,6 +191,7 @@ class PageController
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
+                'renderContext' => $renderContext,
                 'content' => $html,
                 'pageType' => $pageType,
                 'sectionStyleDefaults' => $sectionStyleDefaults,
@@ -226,6 +228,7 @@ class PageController
             'headerLogo' => $headerLogo,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'renderContext' => $renderContext,
             'pageType' => $pageType,
             'sectionStyleDefaults' => $sectionStyleDefaults,
             'pageTheme' => $theme,
@@ -263,7 +266,7 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -279,7 +282,8 @@ class PageController
             'menu' => $menu,
             'navigation' => $navigation,
             'mainNavigation' => $mainNavigation,
-        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => []];
+            'renderContext' => $renderContext,
+        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => []];
 
         $payload = [
             'namespace' => $namespace,
@@ -287,6 +291,7 @@ class PageController
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
+            'renderContext' => $renderContext,
             'content' => $content,
             'pageType' => $pageType,
             'sectionStyleDefaults' => $sectionStyleDefaults,
