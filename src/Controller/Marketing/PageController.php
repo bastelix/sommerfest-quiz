@@ -148,6 +148,9 @@ class PageController
         }
 
         $contentNamespace = $page->getNamespace();
+        $pageNamespace = $contentNamespace !== ''
+            ? $contentNamespace
+            : ($resolvedNamespace !== '' ? $resolvedNamespace : PageService::DEFAULT_NAMESPACE);
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -157,14 +160,14 @@ class PageController
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
-        $design = $this->loadDesign($resolvedNamespace);
+        $design = $this->loadDesign($pageNamespace);
         $pageType = $page->getType();
         $pageFeatures = $this->resolvePageFeatures($page, $templateSlug, $design);
         $marketingPayload = $this->applyMarketingFeatures(
             $request,
             $page,
             $templateSlug,
-            $contentNamespace,
+            $pageNamespace,
             $locale,
             $basePath,
             $html,
@@ -174,7 +177,7 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $renderContext = $this->namespaceRenderContext->build($resolvedNamespace);
+        $renderContext = $this->namespaceRenderContext->build($pageNamespace);
         $theme = is_string($renderContext['design']['theme'] ?? null)
             ? (string) $renderContext['design']['theme']
             : 'light';
@@ -187,7 +190,7 @@ class PageController
         $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
 
         $cmsMenuItems = $this->cmsMenu->getMenuTreeForSlug(
-            $resolvedNamespace,
+            $pageNamespace,
             $page->getSlug(),
             $locale,
             true
@@ -202,14 +205,14 @@ class PageController
             );
         }
 
-        $cookieSettings = $this->projectSettings->getCookieConsentSettings($resolvedNamespace);
+        $cookieSettings = $this->projectSettings->getCookieConsentSettings($pageNamespace);
         $cookieConsentConfig = $this->buildCookieConsentConfig($cookieSettings, $locale);
         $privacyUrl = $this->projectSettings->resolvePrivacyUrlForSettings($cookieSettings, $locale, $basePath);
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
         $navigation = $this->loadNavigationSections(
-            $resolvedNamespace,
+            $pageNamespace,
             $page->getSlug(),
             $locale,
             $basePath,
@@ -218,7 +221,7 @@ class PageController
         $cmsMainNavigation = $navigation['main'];
 
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
-        $menu = $cmsMenuService->getMenuForNamespace($resolvedNamespace, $locale);
+        $menu = $cmsMenuService->getMenuForNamespace($pageNamespace, $locale);
         if ($menu === [] && $cmsMenuItems !== []) {
             $menu = $cmsMenuItems;
         }
@@ -230,8 +233,8 @@ class PageController
         }
 
         $pageJson = [
-            'namespace' => $resolvedNamespace,
-            'contentNamespace' => $contentNamespace,
+            'namespace' => $pageNamespace,
+            'contentNamespace' => $pageNamespace,
             'slug' => $page->getSlug(),
             'type' => $pageType,
             'sectionStyleDefaults' => $sectionStyleDefaults,
@@ -242,8 +245,8 @@ class PageController
 
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
-                'namespace' => $resolvedNamespace,
-                'contentNamespace' => $contentNamespace,
+                'namespace' => $pageNamespace,
+                'contentNamespace' => $pageNamespace,
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
@@ -278,9 +281,9 @@ class PageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'namespace' => $resolvedNamespace,
-            'pageNamespace' => $resolvedNamespace,
-            'contentNamespace' => $contentNamespace,
+            'namespace' => $pageNamespace,
+            'pageNamespace' => $pageNamespace,
+            'contentNamespace' => $pageNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
@@ -616,13 +619,13 @@ class PageController
      * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationSections(
-        string $resolvedNamespace,
+        string $namespace,
         string $slug,
         string $locale,
         string $basePath,
         array $cmsMenuItems
     ): array {
-        $navigation = $this->loadNavigationFromContent($resolvedNamespace, $slug, $locale, $basePath);
+        $navigation = $this->loadNavigationFromContent($namespace, $slug, $locale, $basePath);
 
         $mainNavigation = $navigation['main'];
         if ($mainNavigation === []) {
@@ -699,7 +702,7 @@ class PageController
      * @return array{main: array<int, array<string, mixed>>, footer: array<int, array<string, mixed>>, legal: array<int, array<string, mixed>>, sidebar: array<int, array<string, mixed>>}
      */
     private function loadNavigationFromContent(
-        string $resolvedNamespace,
+        string $namespace,
         string $slug,
         string $locale,
         string $basePath
@@ -709,8 +712,8 @@ class PageController
         $normalizedLocale = trim($locale) !== '' ? trim($locale) : 'de';
 
         $candidates = [
-            sprintf('%s/%s/%s.%s.json', $baseDir, $resolvedNamespace, $normalizedSlug, $normalizedLocale),
-            sprintf('%s/%s/%s.json', $baseDir, $resolvedNamespace, $normalizedSlug),
+            sprintf('%s/%s/%s.%s.json', $baseDir, $namespace, $normalizedSlug, $normalizedLocale),
+            sprintf('%s/%s/%s.json', $baseDir, $namespace, $normalizedSlug),
             sprintf('%s/%s.%s.json', $baseDir, $normalizedSlug, $normalizedLocale),
             sprintf('%s/%s.json', $baseDir, $normalizedSlug),
         ];
