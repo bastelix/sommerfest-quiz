@@ -127,7 +127,6 @@ use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
 use App\Controller\Cms\PageController as CmsPageController;
-use App\Controller\Marketing\CmsPageController as MarketingCmsPageController;
 use App\Controller\Marketing\CmsPageWikiArticleController;
 use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
@@ -212,7 +211,6 @@ require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Cms/PageController.php';
-require_once __DIR__ . '/Controller/Marketing/CmsPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
 require_once __DIR__ . '/Controller/Marketing/CmsPageWikiListController.php';
@@ -995,7 +993,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
         function (Request $request, Response $response, array $args) {
-            $controller = new MarketingCmsPageController();
+            $controller = new CmsPageController();
             return $controller($request, $response, $args);
         }
     )->add($namespaceQueryMiddleware);
