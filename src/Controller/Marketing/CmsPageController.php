@@ -24,6 +24,7 @@ use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\ProjectSettingsService;
 use App\Service\TurnstileConfig;
+use App\Service\NamespaceRenderContextService;
 use App\Service\EffectsPolicyService;
 use App\Infrastructure\Database;
 use App\Support\BasePathHelper;
@@ -81,6 +82,7 @@ class CmsPageController
     private PageModuleService $pageModules;
     private NamespaceAppearanceService $namespaceAppearance;
     private NamespaceResolver $namespaceResolver;
+    private NamespaceRenderContextService $namespaceRenderContext;
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
     private EffectsPolicyService $effectsPolicy;
@@ -99,6 +101,7 @@ class CmsPageController
         ?PageModuleService $pageModules = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
         ?NamespaceResolver $namespaceResolver = null,
+        ?NamespaceRenderContextService $namespaceRenderContext = null,
         ?ProjectSettingsService $projectSettings = null,
         ?ConfigService $configService = null,
         ?EffectsPolicyService $effectsPolicy = null
@@ -116,6 +119,7 @@ class CmsPageController
         $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService();
         $pdo = Database::connectFromEnv();
         $this->configService = $configService ?? new ConfigService($pdo);
@@ -256,6 +260,7 @@ class CmsPageController
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
         $design = $this->loadDesign($resolvedNamespace);
+        $renderContext = $this->namespaceRenderContext->build($resolvedNamespace);
 
         $pageBlocks = $this->extractPageBlocks($html);
         if ($this->wantsJson($request)) {
@@ -265,6 +270,7 @@ class CmsPageController
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
+                'renderContext' => $renderContext,
                 'content' => $html,
             ]);
         }
@@ -297,6 +303,7 @@ class CmsPageController
             'headerLogo' => $headerLogo,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'renderContext' => $renderContext,
             'cmsFooterNavigation' => $cmsFooterNavigation,
             'cmsLegalNavigation' => $cmsLegalNavigation,
             'cmsSidebarNavigation' => $cmsSideNavigation,
@@ -454,7 +461,7 @@ class CmsPageController
     /**
      * Render a marketing page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, renderContext?: array<string, mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -465,7 +472,8 @@ class CmsPageController
             'blocks' => $blocks,
             'design' => $design,
             'content' => $content,
-        ] = $data;
+            'renderContext' => $renderContext,
+        ] = $data + ['renderContext' => []];
 
         $payload = [
             'namespace' => $namespace,
@@ -473,6 +481,7 @@ class CmsPageController
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
+            'renderContext' => $renderContext,
             'content' => $content,
         ];
 

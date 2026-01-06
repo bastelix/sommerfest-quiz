@@ -9,6 +9,7 @@ use App\Service\CmsPageMenuService;
 use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
+use App\Service\NamespaceRenderContextService;
 use App\Service\NamespaceResolver;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
@@ -31,6 +32,7 @@ class CmsPageControllerExtractBlocksTest extends TestCase
             $this->createMock(PageContentLoader::class),
             $this->createMock(PageModuleService::class),
             $this->createMock(NamespaceAppearanceService::class),
+            $this->createMock(NamespaceRenderContextService::class),
             $this->createMock(NamespaceResolver::class),
             $this->createMock(ProjectSettingsService::class),
             $this->createMock(ConfigService::class),
@@ -64,6 +66,7 @@ class CmsPageControllerExtractBlocksTest extends TestCase
             $this->createMock(PageContentLoader::class),
             $this->createMock(PageModuleService::class),
             $this->createMock(NamespaceAppearanceService::class),
+            $this->createMock(NamespaceRenderContextService::class),
             $this->createMock(NamespaceResolver::class),
             $this->createMock(ProjectSettingsService::class),
             $this->createMock(ConfigService::class),
@@ -92,6 +95,7 @@ class CmsPageControllerExtractBlocksTest extends TestCase
             $this->createMock(PageContentLoader::class),
             $this->createMock(PageModuleService::class),
             $this->createMock(NamespaceAppearanceService::class),
+            $this->createMock(NamespaceRenderContextService::class),
             $this->createMock(NamespaceResolver::class),
             $this->createMock(ProjectSettingsService::class),
             $this->createMock(ConfigService::class),

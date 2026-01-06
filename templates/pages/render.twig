@@ -27,6 +27,39 @@
 {% block body_class %}page-render uk-background-default{% endblock %}
 
 {% block body %}
+  {% set renderContextData = renderContext is defined ? renderContext : {} %}
+  {% set renderContextDesign = renderContextData.design|default({}) %}
+  {% set renderTokens = renderContextDesign.tokens|default({}) %}
+  {% set renderBrand = renderTokens.brand|default({}) %}
+  {% set renderLayout = renderContextDesign.layout|default(renderTokens.layout|default({})) %}
+  {% set renderTypography = renderTokens.typography|default({}) %}
+  {% set renderComponents = renderTokens.components|default({}) %}
+
+  {% if renderContextData is not empty %}
+    <style data-render-context>
+      [data-namespace="{{ renderContextData.namespace|default(normalizedNamespace)|e('css') }}"] {
+        {% if renderBrand.primary is defined %}
+        --brand-primary: {{ renderBrand.primary|e('css') }};
+        {% endif %}
+        {% if renderBrand.accent is defined %}
+        --brand-accent: {{ renderBrand.accent|e('css') }};
+        {% endif %}
+        {% if renderLayout.profile is defined %}
+        --layout-profile: {{ renderLayout.profile|e('css') }};
+        {% endif %}
+        {% if renderTypography.preset is defined %}
+        --typography-preset: {{ renderTypography.preset|e('css') }};
+        {% endif %}
+        {% if renderComponents.cardStyle is defined %}
+        --components-card-style: {{ renderComponents.cardStyle|e('css') }};
+        {% endif %}
+        {% if renderComponents.buttonStyle is defined %}
+        --components-button-style: {{ renderComponents.buttonStyle|e('css') }};
+        {% endif %}
+      }
+    </style>
+  {% endif %}
+
   {% include 'pages/partials/header.twig' with {
     normalizedNamespace: normalizedNamespace,
     headerTheme: headerTheme,
