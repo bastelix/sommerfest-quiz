@@ -3384,23 +3384,23 @@ const ensurePreviewAssets = () => {
   const uikitIconsJs = withBase('/js/uikit-icons.min.js');
   const styles = [
     ensureStylesheetWithFallback('preview-uikit-css', uikitCss, {
-      media: 'print',
+      media: 'all',
       dataset: { previewAsset: 'page-preview' }
     }),
     ensureStylesheetWithFallback('preview-variables-css', withBase('/css/variables.css'), {
-      media: 'print',
+      media: 'all',
       dataset: { previewAsset: 'page-preview' }
     }),
     ensureStylesheetWithFallback('preview-namespace-tokens-css', buildNamespacedCssCandidates('namespace-tokens.css'), {
-      media: 'print',
+      media: 'all',
       dataset: { previewAsset: 'page-preview' }
     }),
     ensureStylesheetWithFallback('preview-table-css', withBase('/css/table.css'), {
-      media: 'print',
+      media: 'all',
       dataset: { previewAsset: 'page-preview' }
     }),
     ensureStylesheetWithFallback('preview-topbar-css', withBase('/css/topbar.css'), {
-      media: 'print',
+      media: 'all',
       dataset: { previewAsset: 'page-preview' }
     })
   ];
@@ -3414,10 +3414,9 @@ const ensurePreviewAssets = () => {
   return previewAssetsPromises[cacheKey];
 };
 
-const setPagePreviewMedia = enabled => {
-  const targetMedia = enabled ? 'all' : 'print';
+const setPagePreviewMedia = () => {
   document.querySelectorAll('link[data-preview-asset="page-preview"]').forEach(link => {
-    link.media = targetMedia;
+    link.media = 'all';
   });
 };
 
