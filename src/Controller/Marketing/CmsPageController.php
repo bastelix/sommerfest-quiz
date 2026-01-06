@@ -1399,11 +1399,9 @@ class CmsPageController
     private function loadDesign(string $namespace): array
     {
         $config = $this->configService->getConfigForEvent($namespace);
+
         if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($fallbackConfig !== []) {
-                $config = $fallbackConfig;
-            }
+            throw new \RuntimeException(sprintf('No design configuration found for namespace: %s', $namespace));
         }
 
         $appearance = $this->namespaceAppearance->load($namespace);
