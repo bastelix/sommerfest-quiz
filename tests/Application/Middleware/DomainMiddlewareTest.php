@@ -26,7 +26,7 @@ final class DomainMiddlewareTest extends TestCase
         Database::setFactory(null);
     }
 
-    public function testDerivesNamespaceForMarketingDomainWhenNoDatabaseRecordExists(): void
+    public function testMissingDomainReturnsNotFoundJsonWithContext(): void
     {
         Database::setFactory(static fn (): PDO => new PDO('sqlite::memory:'));
         $provider = new class([]) extends MarketingDomainProvider {
@@ -52,26 +52,79 @@ final class DomainMiddlewareTest extends TestCase
         };
 
         $middleware = new DomainMiddleware($provider);
-        $request = $this->createRequest('GET', 'https://calserver.com/');
+        $request = $this->createRequest('GET', 'https://calserver.com/', ['Accept' => ['application/json']]);
 
         $handler = new class implements RequestHandler {
-            public ?Request $captured = null;
+            public bool $handled = false;
 
             public function handle(Request $request): ResponseInterface
             {
-                $this->captured = $request;
+                $this->handled = true;
 
                 return new SlimResponse();
             }
         };
 
-        $middleware->process($request, $handler);
+        $response = $middleware->process($request, $handler);
 
-        self::assertNotNull($handler->captured);
-        self::assertSame('marketing', $handler->captured->getAttribute('domainType'));
-        self::assertSame('calserver', $handler->captured->getAttribute('domainNamespace'));
-        self::assertSame('calserver', $handler->captured->getAttribute('namespace'));
-        self::assertSame('calserver', $handler->captured->getAttribute('pageNamespace'));
+        self::assertFalse($handler->handled);
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertJsonStringEqualsJsonString(
+            json_encode([
+                'error' => 'Requested domain "calserver.com" is not registered.',
+                'host' => 'calserver.com',
+                'mainDomain' => 'example.com',
+            ]),
+            (string) $response->getBody()
+        );
+    }
+
+    public function testLightweightHealthCheckIsReturnedEarly(): void
+    {
+        Database::setFactory(static fn (): PDO => new PDO('sqlite::memory:'));
+        $provider = new class([]) extends MarketingDomainProvider {
+            /** @param list<string> $domains */
+            public function __construct(private array $domains)
+            {
+            }
+
+            public function getMainDomain(): ?string
+            {
+                return null;
+            }
+
+            public function getMainDomainSource(): ?string
+            {
+                return null;
+            }
+
+            public function getMarketingDomains(bool $stripAdmin = true): array
+            {
+                return $this->domains;
+            }
+        };
+
+        $middleware = new DomainMiddleware($provider);
+        $request = $this->createRequest('HEAD', 'https://unknown.test/healthz-lite');
+
+        $handler = new class implements RequestHandler {
+            public bool $handled = false;
+
+            public function handle(Request $request): ResponseInterface
+            {
+                $this->handled = true;
+
+                return new SlimResponse();
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+
+        self::assertFalse($handler->handled);
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertSame('', (string) $response->getBody());
     }
 
     private function createRequest(string $method, string $uri, array $headers = []): Request
