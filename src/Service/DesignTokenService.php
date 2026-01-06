@@ -50,12 +50,20 @@ class DesignTokenService
 
     private NamespaceValidator $namespaceValidator;
 
-    public function __construct(PDO $pdo, ?ConfigService $configService = null, ?string $cssPath = null)
+    private NamespaceDesignFileRepository $designFiles;
+
+    public function __construct(
+        PDO $pdo,
+        ?ConfigService $configService = null,
+        ?string $cssPath = null,
+        ?NamespaceDesignFileRepository $designFiles = null
+    )
     {
         $this->pdo = $pdo;
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->cssPath = $cssPath ?? dirname(__DIR__, 2) . '/public/css/namespace-tokens.css';
         $this->namespaceValidator = new NamespaceValidator();
+        $this->designFiles = $designFiles ?? new NamespaceDesignFileRepository();
     }
 
     /**
@@ -108,6 +116,13 @@ class DesignTokenService
         if ($normalized === PageService::DEFAULT_NAMESPACE) {
             $storedDefault = $this->fetchStoredTokens($normalized);
 
+            if ($storedDefault === []) {
+                $fileTokens = $this->designFiles->loadTokens($normalized);
+                if ($fileTokens !== []) {
+                    return $this->mergeWithDefaults($this->validateTokens($fileTokens));
+                }
+            }
+
             return $storedDefault !== []
                 ? $this->mergeWithDefaults($storedDefault)
                 : self::DEFAULT_TOKENS;
@@ -116,6 +131,16 @@ class DesignTokenService
         $stored = $this->fetchStoredTokens($normalized);
 
         if ($stored === []) {
+            $fileTokens = $this->designFiles->loadTokens($normalized);
+            if ($fileTokens !== []) {
+                $defaultTokens = $this->fetchStoredTokens(PageService::DEFAULT_NAMESPACE);
+                $baseTokens = $defaultTokens !== []
+                    ? $this->mergeWithDefaults($defaultTokens)
+                    : self::DEFAULT_TOKENS;
+
+                return $this->mergeTokens($baseTokens, $this->validateTokens($fileTokens));
+            }
+
             throw new RuntimeException('No design tokens configured for namespace: ' . $normalized);
         }
 
@@ -185,6 +210,20 @@ class DesignTokenService
             if (!is_array($tokens)) {
                 $tokens = [];
             }
+            $namespaces[$namespace] = $this->mergeWithDefaults($this->validateTokens($tokens));
+        }
+
+        $fileNamespaces = $this->designFiles->listNamespaces();
+        foreach ($fileNamespaces as $namespace) {
+            if (array_key_exists($namespace, $namespaces)) {
+                continue;
+            }
+
+            $tokens = $this->designFiles->loadTokens($namespace);
+            if ($tokens === []) {
+                continue;
+            }
+
             $namespaces[$namespace] = $this->mergeWithDefaults($this->validateTokens($tokens));
         }
 
