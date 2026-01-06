@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Cms;
+namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;

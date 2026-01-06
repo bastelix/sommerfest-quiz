@@ -126,7 +126,7 @@ use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
 use App\Controller\TenantController;
-use App\Controller\Cms\PageController as CmsPageController;
+use App\Controller\Marketing\PageController as MarketingPageController;
 use App\Controller\Marketing\CmsPageWikiArticleController;
 use App\Controller\Marketing\CmsPageWikiListController;
 use App\Controller\Marketing\ContactController;
@@ -210,7 +210,7 @@ require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
-require_once __DIR__ . '/Controller/Cms/PageController.php';
+require_once __DIR__ . '/Controller/Marketing/PageController.php';
 require_once __DIR__ . '/Controller/Marketing/CmsPageWikiListController.php';
 require_once __DIR__ . '/Controller/Marketing/CmsPageWikiArticleController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
@@ -988,7 +988,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         Response $response,
         array $args
     ) {
-        $controller = new CmsPageController();
+        $controller = new MarketingPageController();
 
         return $controller($request, $response, $args);
     })->add($namespaceQueryMiddleware);
@@ -1007,7 +1007,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
         function (Request $request, Response $response, array $args) {
-            $controller = new CmsPageController();
+            $controller = new MarketingPageController();
             return $controller($request, $response, $args);
         }
     )->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
