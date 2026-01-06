@@ -4,45 +4,25 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use App\Service\NamespaceService;
 use App\Service\NamespaceResolver;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use ReflectionProperty;
+use RuntimeException;
 
 final class NamespaceResolverTest extends TestCase
 {
-    public function testPrefersActiveNamespaceFromSessionAttributeWhenQueryMissing(): void
+    public function testResolvesExplicitNamespaceWhenItExists(): void
     {
         $request = (new ServerRequestFactory())
             ->createServerRequest('GET', 'https://quizrace.app/admin/dashboard')
-            ->withAttribute('active_namespace', 'calserver')
-            ->withAttribute('domainType', 'main');
+            ->withAttribute('namespace', 'calserver');
 
         $resolver = new NamespaceResolver();
-        $context = $resolver->resolve($request);
 
-        self::assertSame('calserver', $context->getNamespace());
-    }
-
-    public function testFallsBackToDefaultNamespaceWhenNoCandidatesPresent(): void
-    {
-        $request = (new ServerRequestFactory())->createServerRequest('GET', 'https://quizrace.app/');
-        $resolver = new NamespaceResolver();
-
-        $namespaceService = new class() {
-            /** @var list<string> */
-            public array $created = [];
-
-            public function exists(string $namespace): bool
-            {
-                return false;
-            }
-
-            public function create(string $namespace): void
-            {
-                $this->created[] = $namespace;
-            }
-        };
+        $namespaceService = $this->createMock(NamespaceService::class);
+        $namespaceService->method('exists')->with('calserver')->willReturn(true);
 
         $namespaceServiceProperty = new ReflectionProperty(NamespaceResolver::class, 'namespaceService');
         $namespaceServiceProperty->setAccessible(true);
@@ -50,8 +30,40 @@ final class NamespaceResolverTest extends TestCase
 
         $context = $resolver->resolve($request);
 
-        self::assertSame('default', $context->getNamespace());
-        self::assertSame(['default'], $context->getCandidates());
-        self::assertSame(['default'], $namespaceService->created);
+        self::assertSame('calserver', $context->getNamespace());
+        self::assertSame(['calserver'], $context->getCandidates());
+        self::assertFalse($context->usedFallback());
+    }
+
+    public function testThrowsWhenNamespaceDoesNotExist(): void
+    {
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', 'https://quizrace.app/admin/dashboard')
+            ->withAttribute('namespace', 'missing');
+
+        $resolver = new NamespaceResolver();
+
+        $namespaceService = $this->createMock(NamespaceService::class);
+        $namespaceService->method('exists')->with('missing')->willReturn(false);
+
+        $namespaceServiceProperty = new ReflectionProperty(NamespaceResolver::class, 'namespaceService');
+        $namespaceServiceProperty->setAccessible(true);
+        $namespaceServiceProperty->setValue($resolver, $namespaceService);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('No valid namespace candidate available.');
+
+        $resolver->resolve($request);
+    }
+
+    public function testThrowsWhenNoNamespaceCandidatesAreProvided(): void
+    {
+        $request = (new ServerRequestFactory())->createServerRequest('GET', 'https://quizrace.app/');
+        $resolver = new NamespaceResolver();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Namespace could not be resolved for request.');
+
+        $resolver->resolve($request);
     }
 }
