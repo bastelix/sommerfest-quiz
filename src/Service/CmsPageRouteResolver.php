@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Controller\Cms\PageController;
+use App\Controller\Marketing\CmsPageController;
 use App\Domain\Page;
 use App\Service\MarketingSlugResolver;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,6 +23,10 @@ final class CmsPageRouteResolver
      * Resolve a marketing slug to the corresponding controller.
      */
     public function resolveController(Request $request, string $slug): ?callable {
+        if ($request->getAttribute('domainType') !== 'marketing') {
+            return null;
+        }
+
         $normalized = trim($slug);
         if ($normalized === '' || !preg_match('/^[a-z0-9-]+$/', $normalized)) {
             return null;
@@ -33,7 +37,7 @@ final class CmsPageRouteResolver
             return null;
         }
 
-        return new PageController();
+        return new CmsPageController($page->getSlug());
     }
 
     private function resolvePage(Request $request, string $slug): ?Page {
