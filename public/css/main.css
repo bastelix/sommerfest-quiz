@@ -93,7 +93,7 @@ body.uk-padding {
 .mc-option {
   cursor: grab;
   background: var(--qr-row);
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: var(--card-radius, 8px);
   padding: calc(var(--section-gap, 2.25rem) / 2);
   margin-bottom: calc(var(--section-gap, 2.25rem) / 3);
@@ -113,7 +113,7 @@ body.uk-padding {
   .sortable-list li:nth-child(2n),
   .terms li:nth-child(2n),
   .mc-option:nth-child(2n) {
-    background: var(--qr-row-alt);
+    background: var(--surface-muted, #f5f5f5);
   }
 
   .sortable-list li,
@@ -129,7 +129,7 @@ body.uk-padding {
 .dropzone {
   min-height: 3.5em;
   background: var(--qr-row);
-  border: 1.5px dashed var(--qr-border);
+  border: 1.5px dashed var(--border-muted, #dfe3eb);
   border-radius: var(--card-radius, 8px);
   margin-bottom: calc(var(--section-gap, 2.25rem) / 3);
   display: flex;
@@ -140,7 +140,7 @@ body.uk-padding {
 
 .dropzone.over {
   border-color: var(--brand-primary);
-  background: var(--qr-row-alt);
+  background: var(--surface-muted, #f5f5f5);
 }
 
 .dropzone:focus {
@@ -160,7 +160,7 @@ body.uk-padding {
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--brand-primary, #1e87f0) 12%, transparent);
-  color: var(--brand-primary, var(--brand-primary, #1e87f0));
+  color: var(--brand-primary, #1e87f0);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   margin-bottom: 0.75rem;
@@ -509,7 +509,7 @@ a.uk-accordion-title {
 /* Vorschau innerhalb der Fragekarte */
 .question-preview {
   min-height: 100px;
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: var(--card-radius, 8px);
   margin-top: 8px;
 }
@@ -525,7 +525,7 @@ a.uk-accordion-title {
 }
 
 .export-card {
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   padding: calc(var(--section-gap, 2.25rem) / 1.2);
   text-align: center;
   page-break-inside: avoid;
@@ -569,7 +569,7 @@ a.uk-accordion-title {
 .logo-frame {
   width: 160px;
   height: 240px;
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -636,7 +636,7 @@ a.uk-accordion-title {
 .modern-info-card {
   border-radius: 1.5rem;
   box-shadow: 0 6px 30px rgba(0,0,0,0.08);
-  border: 1.5px solid var(--qr-border);
+  border: 1.5px solid var(--border-muted, #dfe3eb);
   padding: 1.1rem 0.7rem;
   margin: 1.5rem auto;
   max-width: 98vw;
@@ -691,7 +691,7 @@ body .uk-alert-danger {
 .onboarding-step {
   border-radius: 1rem;
   box-shadow: 0 6px 30px rgba(0,0,0,0.08);
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   background: linear-gradient(135deg, var(--surface-card, #ffffff) 0%, color-mix(in srgb, var(--surface-card, #fafafa) 90%, #fafafa) 100%);
 }
 
@@ -1031,7 +1031,7 @@ body.admin-page {
   display: block;
 }
 #teamsList tr {
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
@@ -1039,7 +1039,7 @@ body.admin-page {
   position: relative;
 }
 #teamsList tr:nth-child(even) {
-  background: var(--qr-row-alt);
+  background: var(--surface-muted, #f5f5f5);
 }
 #teamsList td {
   padding: 4px 0;
@@ -1083,7 +1083,7 @@ body.admin-page {
 
 /* Page editor styles */
 .page-editor {
-  border: 1px solid var(--border-muted, var(--qr-border));
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: 4px;
   padding: 10px;
   background: var(--surface-card, #fff);
@@ -1102,13 +1102,13 @@ body.admin-page {
 }
 
 .page-editor.landing-editor {
-  background: var(--surface-card, var(--qr-bg));
-  color: var(--text-body, var(--qr-text));
-  border-color: var(--border-muted, var(--qr-border));
+  background: var(--surface-card, #fff);
+  color: var(--text-body, #111827);
+  border-color: var(--border-muted, #dfe3eb);
 }
 
 .page-editor.landing-editor a {
-  color: var(--qr-link);
+  color: var(--brand-primary, #1e87f0);
 }
 
 /* Prevent huge heights from UIkit's height-viewport plugin inside the editor */
@@ -1619,14 +1619,14 @@ body.admin-page {
 .uk-panel {
   background: var(--qr-card);
   color: inherit;
-  border: 1px solid var(--qr-border);
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: 12px;
 }
 
 }
 
 .section--muted {
-  background: var(--qr-bg-soft);
+  background: var(--surface-muted, #f5f5f5);
 }
 
 .section--transparent {
