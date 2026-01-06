@@ -35,6 +35,11 @@ class DomainMiddleware implements MiddlewareInterface
         DomainNameHelper::setMarketingDomainProvider($this->domainProvider);
         $host = $this->normalizeHost($originalHost);
         $marketingHost = $this->normalizeHost($originalHost, stripAdmin: false);
+        $path = $this->normalizePath($request);
+
+        if ($this->isLightweightHealthCheck($path)) {
+            return $this->createLightweightHealthResponse($request);
+        }
 
         $mainDomainRaw = $this->domainProvider->getMainDomain();
         $mainDomainSource = $this->domainProvider->getMainDomainSource();
@@ -139,7 +144,17 @@ class DomainMiddleware implements MiddlewareInterface
         $domain = $service->getDomainForHost($originalHost, includeInactive: true);
 
         if ($domain === null || $domain['namespace'] === null) {
-            throw new \RuntimeException('Namespace could not be resolved for request.');
+            error_log(sprintf(
+                'DomainMiddleware missing domain mapping for host "%s" (normalized: "%s")',
+                $originalHost !== '' ? $originalHost : '(empty)',
+                $marketingHost !== '' ? $marketingHost : $host
+            ));
+
+            return $this->createMissingDomainResponse(
+                $request,
+                $marketingHost !== '' ? $marketingHost : $host,
+                $effectiveMainDomain
+            );
         }
 
         $domainNamespace = $domain['namespace'];
@@ -177,6 +192,92 @@ class DomainMiddleware implements MiddlewareInterface
 
     private function normalizeHost(string $host, bool $stripAdmin = true): string {
         return DomainNameHelper::normalize($host, $stripAdmin);
+    }
+
+    private function normalizePath(Request $request): string
+    {
+        $path = $request->getUri()->getPath();
+
+        return $path === '' ? '/' : $path;
+    }
+
+    private function isLightweightHealthCheck(string $path): bool
+    {
+        $normalized = rtrim($path, '/');
+        if ($normalized === '') {
+            $normalized = '/';
+        }
+
+        return in_array($normalized, ['/healthz-lite', '/healthz/ping'], true);
+    }
+
+    private function createLightweightHealthResponse(Request $request): Response
+    {
+        $payload = [
+            'status' => 'ok',
+            'app' => 'quizrace',
+            'time' => gmdate('c'),
+        ];
+
+        $response = new SlimResponse(200);
+
+        if (strtoupper($request->getMethod()) !== 'HEAD') {
+            $response->getBody()->write(json_encode($payload));
+        }
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function createMissingDomainResponse(Request $request, string $requestedHost, string $mainDomain): Response
+    {
+        $isApi = $this->isApiRequest($request);
+        $isRedirectCandidate = !$isApi
+            && $mainDomain !== ''
+            && $requestedHost !== ''
+            && $requestedHost !== $mainDomain
+            && !str_ends_with($requestedHost, '.' . $mainDomain);
+
+        $status = $isRedirectCandidate ? 302 : 404;
+        $response = new SlimResponse($status);
+        $message = sprintf('Requested domain "%s" is not registered.', $requestedHost !== '' ? $requestedHost : '(unknown)');
+
+        if ($isRedirectCandidate) {
+            $target = $request->getUri()->withHost($mainDomain)->withPort(null);
+            $response = $response->withHeader('Location', (string) $target);
+        }
+
+        if ($isApi) {
+            $response->getBody()->write(json_encode([
+                'error' => $message,
+                'host' => $requestedHost,
+                'mainDomain' => $mainDomain !== '' ? $mainDomain : null,
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $response->getBody()->write(
+            '<p>'
+            . htmlspecialchars($message, ENT_QUOTES, 'UTF-8')
+            . '</p>'
+            . ($mainDomain !== ''
+                ? '<p>Try the main domain <a href="https://' . htmlspecialchars($mainDomain, ENT_QUOTES, 'UTF-8')
+                    . '">' . htmlspecialchars($mainDomain, ENT_QUOTES, 'UTF-8') . '</a>.</p>'
+                : '<p>No main domain is configured.</p>')
+        );
+
+        return $response->withHeader('Content-Type', 'text/html');
+    }
+
+    private function isApiRequest(Request $request): bool
+    {
+        $accept = $request->getHeaderLine('Accept');
+        $path = $request->getUri()->getPath();
+        $xhr = $request->getHeaderLine('X-Requested-With');
+
+        return str_starts_with($path, '/api/')
+            || str_contains($accept, 'application/json')
+            || $xhr === 'fetch';
     }
 
     private function isLocalHost(string $host): bool

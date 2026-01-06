@@ -9,6 +9,7 @@ use App\Application\Middleware\DomainMiddleware;
 use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
 use App\Support\DomainNameHelper;
+use App\Support\DomainZoneResolver;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -159,6 +160,31 @@ class DomainMiddlewareTest extends TestCase
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
         $this->assertStringContainsString('Main domain is not configured', (string) $response->getBody());
+    }
+
+    public function testUnknownDomainRedirectsToMainForHtmlRequests(): void
+    {
+        $middleware = new DomainMiddleware($this->createProvider([], 'main-domain.tld'));
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('GET', 'https://unknown.example/path?q=1');
+
+        $handler = new class implements RequestHandlerInterface {
+            public bool $handled = false;
+
+            public function handle(Request $request): ResponseInterface
+            {
+                $this->handled = true;
+
+                return new Response();
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+
+        $this->assertFalse($handler->handled);
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('https://main-domain.tld/path?q=1', $response->getHeaderLine('Location'));
+        $this->assertStringContainsString('Requested domain', (string) $response->getBody());
     }
 
     public function testDomainEnvActsAsFallbackWhenMainDomainMissing(): void
@@ -318,7 +344,7 @@ class DomainMiddlewareTest extends TestCase
 
         $response = $middleware->process($request, $handler);
 
-        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     private function restoreEnv(string $variable, mixed $value): void {
@@ -355,15 +381,39 @@ class DomainMiddlewareTest extends TestCase
             . 'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
 
-        $service = new DomainService($pdo);
-
         if ($mainDomain !== null) {
             $stmt = $pdo->prepare('INSERT INTO settings(key, value) VALUES(?, ?)');
             $stmt->execute(['main_domain', $mainDomain]);
         }
 
+        $zoneResolver = new DomainZoneResolver();
+
+        if ($mainDomain !== null) {
+            $normalizedMain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
+            $pdo->prepare(
+                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES (?, ?, ?, ?, ?, ?)'
+            )->execute([
+                $mainDomain,
+                DomainNameHelper::normalize($mainDomain),
+                $zoneResolver->deriveZone($mainDomain) ?? $normalizedMain,
+                'default',
+                'Main domain',
+                true,
+            ]);
+        }
+
         foreach ($marketingDomains as $domain) {
-            $service->createDomain($domain);
+            $pdo->prepare(
+                'INSERT INTO domains (host, normalized_host, zone, namespace, label, is_active) VALUES (?, ?, ?, ?, ?, ?) '
+                    . 'ON CONFLICT(normalized_host) DO UPDATE SET namespace = EXCLUDED.namespace'
+            )->execute([
+                $domain,
+                DomainNameHelper::normalize($domain),
+                $zoneResolver->deriveZone($domain) ?? DomainNameHelper::normalize($domain, stripAdmin: false),
+                'default',
+                null,
+                true,
+            ]);
         }
 
         $provider = new MarketingDomainProvider(static fn (): PDO => $pdo, 0);
