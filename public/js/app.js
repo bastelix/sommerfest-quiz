@@ -102,17 +102,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const hasStorage = typeof STORAGE_KEYS !== 'undefined' && typeof getStored === 'function';
 
-  const readPageEditorTheme = () => {
-    if (!isPageEditorContext) {
-      return null;
-    }
-    try {
-      return window.localStorage?.getItem?.(PAGE_EDITOR_THEME_KEY);
-    } catch (e) {
-      return null;
-    }
-  };
-
   const normalizeEditorTheme = (value) => {
     if (typeof value !== 'string') {
       return 'light';
@@ -124,9 +113,21 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'light';
   };
 
+  const readPageEditorTheme = () => {
+    if (!isPageEditorContext) {
+      return null;
+    }
+    try {
+      return window.localStorage?.getItem?.(PAGE_EDITOR_THEME_KEY);
+    } catch (e) {
+      return null;
+    }
+  };
+
   const editorThemePreference = readPageEditorTheme();
   const normalizedEditorTheme = editorThemePreference ? normalizeEditorTheme(editorThemePreference) : null;
-  const storedTheme = hasStorage ? getStored(STORAGE_KEYS.DARK_MODE) : null;
+  const hasEditorThemePreference = Boolean(isPageEditorContext && normalizedEditorTheme);
+  const storedTheme = (!hasEditorThemePreference && hasStorage) ? getStored(STORAGE_KEYS.DARK_MODE) : null;
   let dark;
 
   const persistPageEditorTheme = (theme) => {
