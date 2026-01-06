@@ -9,9 +9,9 @@ use App\Exception\NamespaceNotFoundException;
 use App\Repository\NamespaceRepository;
 use App\Service\DesignTokenService;
 use App\Service\NamespaceService;
+use App\Service\DomainService;
 use App\Support\DomainNameHelper;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Routing\RouteContext;
 use RuntimeException;
 
 final class NamespaceResolver
@@ -27,26 +27,6 @@ final class NamespaceResolver
 
     public function resolve(Request $request): NamespaceContext
     {
-        $candidates = $this->collectCandidates($request);
-
-        if ($candidates === []) {
-            throw new RuntimeException('Namespace could not be resolved for request.');
-        }
-
-        $selection = $this->selectNamespace($candidates);
-        $namespace = $selection['namespace'];
-        $usedFallback = $selection['usedFallback'];
-
-        $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
-
-        return new NamespaceContext($namespace, $candidates, $host, $usedFallback);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function collectCandidates(Request $request): array
-    {
         $candidates = [];
 
         $explicit = $this->normalizeNamespace(
@@ -54,63 +34,23 @@ final class NamespaceResolver
                 ?? $request->getAttribute('pageNamespace')
                 ?? $request->getAttribute('namespace')
         );
+
         $this->pushCandidate($candidates, $explicit);
 
-        $domainNamespace = $this->normalizeNamespace($request->getAttribute('domainNamespace'));
+        $domainNamespace = $this->normalizeNamespace($request->getAttribute('domainNamespace'))
+            ?? $this->resolveDomainNamespace($request);
         $this->pushCandidate($candidates, $domainNamespace);
 
-        $routeNamespace = $this->resolveRouteNamespace($request);
-        $this->pushCandidate($candidates, $routeNamespace);
-
-        return $candidates;
-    }
-
-    /**
-     * @return array{namespace: string, usedFallback: bool}
-     */
-    private function selectNamespace(array $candidates): array
-    {
-        foreach ($candidates as $index => $candidate) {
-            $normalized = $this->normalizeNamespace($candidate);
-            if ($normalized === null) {
-                continue;
-            }
-
-            try {
-                $this->ensureNamespaceExists($normalized);
-            } catch (NamespaceNotFoundException) {
-                continue;
-            }
-
-            return [
-                'namespace' => $normalized,
-                'usedFallback' => $index > 0,
-            ];
+        if ($candidates === []) {
+            throw new RuntimeException('Namespace could not be resolved for request.');
         }
 
-        throw new RuntimeException('No valid namespace candidate available.');
-    }
+        $namespace = $candidates[0];
+        $this->ensureNamespaceExists($namespace);
 
-    private function resolveRouteNamespace(Request $request): ?string
-    {
-        try {
-            $route = RouteContext::fromRequest($request)->getRoute();
-        } catch (RuntimeException) {
-            return null;
-        }
-        if ($route === null) {
-            return null;
-        }
+        $host = DomainNameHelper::normalize($request->getUri()->getHost(), stripAdmin: false);
 
-        $arguments = $route->getArguments();
-
-        $candidate = $arguments['namespace']
-            ?? $arguments['tenantNamespace']
-            ?? $arguments['tenant']
-            ?? $arguments['subdomain']
-            ?? null;
-
-        return $this->normalizeNamespace($candidate);
+        return new NamespaceContext($namespace, $candidates, $host, false);
     }
 
     private function normalizeNamespace(mixed $candidate): ?string
@@ -132,6 +72,19 @@ final class NamespaceResolver
         }
 
         $candidates[] = $candidate;
+    }
+
+    private function resolveDomainNamespace(Request $request): ?string
+    {
+        $pdo = Database::connectFromEnv();
+        $service = new DomainService($pdo, $this->validator);
+        $domain = $service->getDomainForHost($request->getUri()->getHost(), includeInactive: true);
+
+        if ($domain === null || !isset($domain['namespace'])) {
+            return null;
+        }
+
+        return $this->normalizeNamespace($domain['namespace']);
     }
 
     private function ensureNamespaceExists(string $namespace): void

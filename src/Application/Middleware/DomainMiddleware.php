@@ -7,9 +7,7 @@ namespace App\Application\Middleware;
 use App\Infrastructure\Database;
 use App\Service\DomainService;
 use App\Service\MarketingDomainProvider;
-use App\Service\NamespaceValidator;
 use App\Support\DomainNameHelper;
-use App\Support\DomainZoneResolver;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
@@ -23,18 +21,10 @@ class DomainMiddleware implements MiddlewareInterface
 {
     private MarketingDomainProvider $domainProvider;
 
-    private NamespaceValidator $namespaceValidator;
-
-    private DomainZoneResolver $zoneResolver;
-
     public function __construct(
-        MarketingDomainProvider $domainProvider,
-        ?NamespaceValidator $namespaceValidator = null,
-        ?DomainZoneResolver $zoneResolver = null
+        MarketingDomainProvider $domainProvider
     ) {
         $this->domainProvider = $domainProvider;
-        $this->namespaceValidator = $namespaceValidator ?? new NamespaceValidator();
-        $this->zoneResolver = $zoneResolver ?? new DomainZoneResolver();
     }
 
     /**
@@ -144,26 +134,24 @@ class DomainMiddleware implements MiddlewareInterface
             return $response->withHeader('Content-Type', 'text/html');
         }
 
-        $domainNamespace = null;
         $pdo = Database::connectFromEnv();
         $service = new DomainService($pdo);
         $domain = $service->getDomainForHost($originalHost, includeInactive: true);
-        if ($domain !== null && $domain['namespace'] !== null) {
-            $domainNamespace = $domain['namespace'];
+
+        if ($domain === null || $domain['namespace'] === null) {
+            throw new \RuntimeException('Namespace could not be resolved for request.');
         }
 
-        if ($domainNamespace === null) {
-            $domainNamespace = $this->deriveNamespaceFromHost($originalHost);
-        }
+        $domainNamespace = $domain['namespace'];
 
         $request = $request
             ->withAttribute('domainType', $domainType);
 
         if ($domainNamespace !== null) {
             $request = $request
-                ->withAttribute('domainNamespace', $domainNamespace)
-                ->withAttribute('namespace', $domainNamespace)
-                ->withAttribute('pageNamespace', $domainNamespace);
+            ->withAttribute('domainNamespace', $domainNamespace)
+            ->withAttribute('namespace', $domainNamespace)
+            ->withAttribute('pageNamespace', $domainNamespace);
         }
 
         return $handler->handle($request);
@@ -204,23 +192,4 @@ class DomainMiddleware implements MiddlewareInterface
         return str_ends_with($host, '.localhost');
     }
 
-    private function deriveNamespaceFromHost(string $host): ?string
-    {
-        $canonical = DomainNameHelper::canonicalizeSlug($host);
-        $normalized = $this->namespaceValidator->normalizeCandidate($canonical);
-        if ($normalized !== null) {
-            return $normalized;
-        }
-
-        $zone = $this->zoneResolver->deriveZone($host) ?? '';
-        $label = explode('.', $zone)[0];
-        $normalized = $this->namespaceValidator->normalizeCandidate($label);
-        if ($normalized !== null) {
-            return $normalized;
-        }
-
-        $primaryLabel = explode('.', $this->normalizeHost($host, stripAdmin: false))[0];
-
-        return $this->namespaceValidator->normalizeCandidate($primaryLabel);
-    }
 }
