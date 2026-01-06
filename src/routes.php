@@ -211,8 +211,6 @@ require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Cms/PageController.php';
-require_once __DIR__ . '/Controller/Marketing/LandingController.php';
-require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
 require_once __DIR__ . '/Controller/Marketing/CmsPageWikiListController.php';
 require_once __DIR__ . '/Controller/Marketing/CmsPageWikiArticleController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
@@ -248,6 +246,22 @@ return function (\Slim\App $app, TranslationService $translator) {
             $request = $request->withAttribute('namespace', $namespace);
             $request = $request->withAttribute('pageNamespace', $namespace);
             $request = $request->withAttribute('domainNamespace', $namespace);
+        }
+
+        return $handler->handle($request);
+    };
+
+    $marketingNamespaceMiddleware = static function (Request $request, RequestHandlerInterface $handler): Response {
+        $route = RouteContext::fromRequest($request)->getRoute();
+        $marketingSlug = $route?->getArgument('marketingSlug')
+            ?? $route?->getArgument('landingSlug')
+            ?? $route?->getArgument('slug');
+
+        if (is_string($marketingSlug) && $marketingSlug !== '') {
+            $request = $request
+                ->withAttribute('namespace', $marketingSlug)
+                ->withAttribute('pageNamespace', $marketingSlug)
+                ->withAttribute('domainNamespace', $marketingSlug);
         }
 
         return $handler->handle($request);
@@ -914,7 +928,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiListController();
 
         return $controller($request, $response, $args);
-    })->add($namespaceQueryMiddleware);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/pages/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
@@ -928,7 +942,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
-    })->add($namespaceQueryMiddleware);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (
         Request $request,
         Response $response,
@@ -940,7 +954,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingLandingNewsController();
         return $controller->index($request, $response, $args);
-    })->add($namespaceQueryMiddleware);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/m/{slug:[a-z0-9-]+}/wiki', function (
         Request $request,
         Response $response,
@@ -954,7 +968,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiListController();
 
         return $controller($request, $response, $args);
-    })->add($namespaceQueryMiddleware);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/m/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
@@ -968,7 +982,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new CmsPageWikiArticleController();
 
         return $controller($request, $response, $args);
-    })->add($namespaceQueryMiddleware);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get('/cms/pages/{slug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
@@ -989,14 +1003,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingLandingNewsController();
         return $controller->show($request, $response, $args);
-    })->add($namespaceQueryMiddleware);
+    })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
         function (Request $request, Response $response, array $args) {
             $controller = new CmsPageController();
             return $controller($request, $response, $args);
         }
-    )->add($namespaceQueryMiddleware);
+    )->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->post('/landing/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
@@ -1054,7 +1068,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
     )
         ->add(new RateLimitMiddleware(10, 60))
-        ->add(new CsrfMiddleware());
+        ->add(new CsrfMiddleware())
+        ->add($marketingNamespaceMiddleware);
     $app->get('/onboarding', OnboardingController::class);
     $app->post('/onboarding/email', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->request($request, $response);
