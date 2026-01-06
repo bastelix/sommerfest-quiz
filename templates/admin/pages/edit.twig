@@ -32,45 +32,89 @@
   <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding{% endblock %}
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
 
 {% block body %}
-  <div class="uk-container uk-container-expand">
-    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-bottom">
-      <h1 class="uk-heading-bullet uk-margin-remove">Seite bearbeiten: {{ slug }}</h1>
-      <div class="uk-flex uk-flex-middle" role="group" aria-label="Ansicht umschalten">
-        <span class="uk-margin-small-right uk-text-meta" aria-hidden="true">Darstellung:</span>
-        <div class="uk-button-group" data-theme-toggle>
-          <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Hell</button>
-          <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dunkel</button>
-          <button type="button" class="uk-button uk-button-default" data-theme-choice="high-contrast" aria-pressed="false">High-Contrast</button>
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
         </div>
       </div>
-    </div>
-    <form
-      method="post"
-      class="uk-form-stacked page-form"
-      data-slug="{{ slug }}"
-      data-landing="{{ slug not in excludedLandingSlugs ? 'true' : 'false' }}"
-      data-page-namespace="{{ activeNamespace|e('html_attr') }}"
-    >
-      <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
-      <div class="page-editor" data-content="{{ content|e('html_attr') }}"></div>
-      <div class="uk-margin-top" data-editor-actions="true">
-        <button type="button" class="uk-button uk-button-primary save-page-btn">Speichern</button>
-        <button type="button" class="uk-button uk-button-default" onclick="showPreview()">Vorschau</button>
-      </div>
-    </form>
+    {% endblock %}
+  {% endembed %}
 
-    <div id="preview-modal" uk-modal>
-      <div class="uk-modal-dialog uk-modal-body">
-        <h3>Vorschau</h3>
-        <div id="preview-content"></div>
-        <button class="uk-button uk-button-default uk-modal-close" type="button">Schließen</button>
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
       </div>
-    </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">Seite bearbeiten: {{ slug }}</h1>
+      </div>
+      <div class="uk-container uk-container-large">
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap uk-margin-bottom">
+            <div class="uk-text-meta" aria-hidden="true">Darstellung:</div>
+            <div class="uk-button-group" role="group" aria-label="Ansicht umschalten" data-theme-toggle>
+              <button type="button" class="uk-button uk-button-default" data-theme-choice="light" aria-pressed="false">Hell</button>
+              <button type="button" class="uk-button uk-button-default" data-theme-choice="dark" aria-pressed="false">Dunkel</button>
+              <button type="button" class="uk-button uk-button-default" data-theme-choice="high-contrast" aria-pressed="false">High-Contrast</button>
+            </div>
+          </div>
+          <form
+            method="post"
+            class="uk-form-stacked page-form"
+            data-slug="{{ slug }}"
+            data-landing="{{ slug not in excludedLandingSlugs ? 'true' : 'false' }}"
+            data-page-namespace="{{ activeNamespace|e('html_attr') }}"
+          >
+            <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
+            <div class="page-editor" data-content="{{ content|e('html_attr') }}"></div>
+            <div class="uk-margin-top" data-editor-actions="true">
+              <button type="button" class="uk-button uk-button-primary save-page-btn">Speichern</button>
+              <button type="button" class="uk-button uk-button-default" onclick="showPreview()">Vorschau</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="uk-container uk-container-large">
+        <div id="preview-modal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h3>Vorschau</h3>
+            <div id="preview-content"></div>
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Schließen</button>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
   {# Page editor initialization handled by tiptap-pages.js #}
 {% endblock %}
