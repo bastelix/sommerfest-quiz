@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Infrastructure\Database;
+use App\Exception\NamespaceNotFoundException;
 use App\Repository\NamespaceRepository;
 use App\Service\DesignTokenService;
 use App\Service\NamespaceService;
@@ -61,8 +62,6 @@ final class NamespaceResolver
         $routeNamespace = $this->resolveRouteNamespace($request);
         $this->pushCandidate($candidates, $routeNamespace);
 
-        $this->pushCandidate($candidates, PageService::DEFAULT_NAMESPACE);
-
         return $candidates;
     }
 
@@ -77,7 +76,11 @@ final class NamespaceResolver
                 continue;
             }
 
-            $this->ensureNamespaceExists($normalized);
+            try {
+                $this->ensureNamespaceExists($normalized);
+            } catch (NamespaceNotFoundException) {
+                continue;
+            }
 
             return [
                 'namespace' => $normalized,
@@ -145,7 +148,7 @@ final class NamespaceResolver
         }
 
         if (!$service->exists($namespace)) {
-            $service->create($namespace);
+            throw new NamespaceNotFoundException('namespace-missing');
         }
     }
 }
