@@ -1,11 +1,4 @@
 :root {
-  /*
-   * Semantic foundation
-   * - Brand:   --brand-primary, --brand-secondary
-   * - Surface: --surface-page, --surface-section, --surface-card
-   * - Text:    --text-body, --text-heading, --text-muted
-   * - Spacing: --space-section
-   */
   --brand-primary: #1e87f0;
   --brand-secondary: #f97316;
 
@@ -19,11 +12,10 @@
 
   --space-section: 2.25rem;
 
-  /* Legacy tokens mapped to semantic layer */
   --bg-page: var(--surface-page);
   --bg-section: var(--surface-section);
   --bg-card: var(--surface-card);
-  --bg-surface: var(--bg-card);
+  --bg-surface: var(--surface-card);
   --bg-subtle: #f8fafc;
   --bg-muted: #eef2f7;
   --bg-accent-soft: color-mix(in srgb, var(--brand-secondary) 16%, transparent);
@@ -40,8 +32,8 @@
   --section-padding-tight: clamp(16px, 3vw, 28px);
   --card-radius: 18px;
   --card-radius-square: 12px;
-  --surface: var(--bg-section);
-  --surface-muted: var(--bg-page);
+  --surface: var(--surface-section);
+  --surface-muted: var(--surface-page);
 
   --primary-color: var(--accent-primary);
   --accent-color: var(--brand-primary);
@@ -61,13 +53,6 @@
 }
 
 :root[data-theme="dark"] {
-  /*
-   * Semantic foundation
-   * - Brand:   --brand-primary, --brand-secondary
-   * - Surface: --surface-page, --surface-section, --surface-card
-   * - Text:    --text-body, --text-heading, --text-muted
-   * - Spacing: --space-section
-   */
   --brand-primary: #63a4ff;
   --brand-secondary: #f97316;
 
@@ -81,11 +66,10 @@
 
   --space-section: 2.25rem;
 
-  /* Legacy tokens mapped to semantic layer */
   --bg-page: var(--surface-page);
   --bg-section: var(--surface-section);
   --bg-card: var(--surface-card);
-  --bg-surface: var(--bg-card);
+  --bg-surface: var(--surface-card);
   --bg-subtle: #0f172a;
   --bg-muted: #0b1018;
   --bg-accent-soft: color-mix(in srgb, var(--brand-secondary) 18%, transparent);
@@ -102,8 +86,8 @@
   --section-padding-tight: clamp(16px, 3vw, 28px);
   --card-radius: 18px;
   --card-radius-square: 12px;
-  --surface: var(--bg-section);
-  --surface-muted: var(--bg-page);
+  --surface: var(--surface-section);
+  --surface-muted: var(--surface-page);
 
   --primary-color: var(--accent-primary);
   --accent-color: var(--brand-primary);
