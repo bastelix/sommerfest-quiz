@@ -1,19 +1,39 @@
 :root {
-  --bg-page: #f7f9fb;
-  --bg-section: #ffffff;
-  --bg-card: #ffffff;
+  /*
+   * Semantic foundation
+   * - Brand:   --brand-primary, --brand-secondary
+   * - Surface: --surface-page, --surface-section, --surface-card
+   * - Text:    --text-body, --text-heading, --text-muted
+   * - Spacing: --space-section
+   */
+  --brand-primary: #1e87f0;
+  --brand-secondary: var(--brand-accent, var(--brand-primary));
+
+  --surface-page: #f7f9fb;
+  --surface-section: #ffffff;
+  --surface-card: #ffffff;
+
+  --text-body: #111827;
+  --text-heading: #0b1728;
+  --text-muted: #4b5563;
+
+  --space-section: 2.25rem;
+
+  /* Legacy tokens mapped to semantic layer */
+  --bg-page: var(--surface-page);
+  --bg-section: var(--surface-section);
+  --bg-card: var(--surface-card);
   --bg-surface: var(--bg-card);
   --bg-subtle: #f8fafc;
   --bg-muted: #eef2f7;
-  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #1e87f0)) 16%, transparent);
-  --text-default: var(--text-primary);
-  --text-link: var(--accent-primary);
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-heading: #0b1728;
+  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary)) 16%, transparent);
+  --text-default: var(--text-body);
+  --text-link: var(--brand-primary);
+  --text-primary: var(--text-body);
+  --text-secondary: var(--text-muted);
   --border-muted: #dfe3eb;
-  --accent-primary: var(--brand-primary, #1e87f0);
-  --accent-secondary: var(--brand-accent, var(--brand-primary, #1e87f0));
+  --accent-primary: var(--brand-primary);
+  --accent-secondary: var(--brand-secondary);
   --text-on-primary: #ffffff;
   --section-padding: clamp(24px, 4vw, 48px);
   --section-padding-tight: clamp(16px, 3vw, 28px);
@@ -23,10 +43,11 @@
   --surface-muted: var(--bg-page);
 
   --primary-color: var(--accent-primary);
-  --accent-color: var(--accent-secondary);
+  --accent-color: var(--brand-primary);
   --color-bg: var(--bg-page);
   --color-primary: var(--accent-primary);
   --color-text: var(--text-primary);
+  --section-gap: var(--space-section);
   --danger-500: #8b0000;
   --danger-600: #660000;
   --qr-card: var(--bg-card);
@@ -39,21 +60,41 @@
 }
 
 :root[data-theme="dark"] {
-  --bg-page: #0e1218;
-  --bg-section: #111827;
-  --bg-card: #161b22;
+  /*
+   * Semantic foundation
+   * - Brand:   --brand-primary, --brand-secondary
+   * - Surface: --surface-page, --surface-section, --surface-card
+   * - Text:    --text-body, --text-heading, --text-muted
+   * - Spacing: --space-section
+   */
+  --brand-primary: #63a4ff;
+  --brand-secondary: var(--brand-accent, var(--brand-primary));
+
+  --surface-page: #0e1218;
+  --surface-section: #111827;
+  --surface-card: #161b22;
+
+  --text-body: #e5e7eb;
+  --text-heading: #f8fafc;
+  --text-muted: #cbd5e1;
+
+  --space-section: 2.25rem;
+
+  /* Legacy tokens mapped to semantic layer */
+  --bg-page: var(--surface-page);
+  --bg-section: var(--surface-section);
+  --bg-card: var(--surface-card);
   --bg-surface: var(--bg-card);
   --bg-subtle: #0f172a;
   --bg-muted: #0b1018;
-  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary, #63a4ff)) 18%, transparent);
-  --text-default: var(--text-primary);
-  --text-link: var(--accent-primary);
-  --text-primary: #e5e7eb;
-  --text-secondary: #cbd5e1;
-  --text-heading: #f8fafc;
+  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary)) 18%, transparent);
+  --text-default: var(--text-body);
+  --text-link: var(--brand-primary);
+  --text-primary: var(--text-body);
+  --text-secondary: var(--text-muted);
   --border-muted: #2c3a4b;
-  --accent-primary: var(--brand-primary, #63a4ff);
-  --accent-secondary: var(--brand-accent, var(--brand-primary, #63a4ff));
+  --accent-primary: var(--brand-primary);
+  --accent-secondary: var(--brand-secondary);
   --text-on-primary: #ffffff;
   --section-padding: clamp(24px, 4vw, 48px);
   --section-padding-tight: clamp(16px, 3vw, 28px);
@@ -63,10 +104,11 @@
   --surface-muted: var(--bg-page);
 
   --primary-color: var(--accent-primary);
-  --accent-color: var(--accent-secondary);
+  --accent-color: var(--brand-primary);
   --color-bg: var(--bg-page);
   --color-primary: var(--accent-primary);
   --color-text: var(--text-primary);
+  --section-gap: var(--space-section);
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
   --qr-card: var(--bg-card);
