@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use InvalidArgumentException;
 use PDO;
 use RuntimeException;
 
@@ -47,11 +48,14 @@ class DesignTokenService
 
     private string $cssPath;
 
+    private NamespaceValidator $namespaceValidator;
+
     public function __construct(PDO $pdo, ?ConfigService $configService = null, ?string $cssPath = null)
     {
         $this->pdo = $pdo;
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->cssPath = $cssPath ?? dirname(__DIR__, 2) . '/public/css/namespace-tokens.css';
+        $this->namespaceValidator = new NamespaceValidator();
     }
 
     /**
@@ -100,12 +104,19 @@ class DesignTokenService
     public function getTokensForNamespace(string $namespace): array
     {
         $normalized = $this->normalizeNamespace($namespace);
-        $stored = $this->fetchStoredTokens($normalized);
 
         if ($normalized === PageService::DEFAULT_NAMESPACE) {
-            return $stored !== []
-                ? $this->mergeWithDefaults($stored)
+            $storedDefault = $this->fetchStoredTokens($normalized);
+
+            return $storedDefault !== []
+                ? $this->mergeWithDefaults($storedDefault)
                 : self::DEFAULT_TOKENS;
+        }
+
+        $stored = $this->fetchStoredTokens($normalized);
+
+        if ($stored === []) {
+            throw new RuntimeException('No design tokens configured for namespace: ' . $normalized);
         }
 
         $defaultTokens = $this->fetchStoredTokens(PageService::DEFAULT_NAMESPACE);
@@ -113,15 +124,7 @@ class DesignTokenService
             ? $this->mergeWithDefaults($defaultTokens)
             : self::DEFAULT_TOKENS;
 
-        if ($stored !== []) {
-            return $this->mergeTokens($baseTokens, $stored);
-        }
-
-        if ($defaultTokens !== []) {
-            return $baseTokens;
-        }
-
-        return self::DEFAULT_TOKENS;
+        return $this->mergeTokens($baseTokens, $stored);
     }
 
     /**
@@ -294,7 +297,15 @@ class DesignTokenService
 
     private function normalizeNamespace(string $namespace): string
     {
-        return trim(strtolower($namespace ?: PageService::DEFAULT_NAMESPACE));
+        $normalized = $this->namespaceValidator->normalize($namespace);
+
+        if ($normalized === '') {
+            throw new InvalidArgumentException('namespace-empty');
+        }
+
+        $this->namespaceValidator->assertValid($normalized);
+
+        return $normalized;
     }
 
     /**
