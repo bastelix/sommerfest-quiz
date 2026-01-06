@@ -7,7 +7,7 @@
    * - Spacing: --space-section
    */
   --brand-primary: #1e87f0;
-  --brand-secondary: var(--brand-accent, var(--brand-primary));
+  --brand-secondary: #f97316;
 
   --surface-page: #f7f9fb;
   --surface-section: #ffffff;
@@ -26,12 +26,13 @@
   --bg-surface: var(--bg-card);
   --bg-subtle: #f8fafc;
   --bg-muted: #eef2f7;
-  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary)) 16%, transparent);
+  --bg-accent-soft: color-mix(in srgb, var(--brand-secondary) 16%, transparent);
   --text-default: var(--text-body);
   --text-link: var(--brand-primary);
   --text-primary: var(--text-body);
   --text-secondary: var(--text-muted);
   --border-muted: #dfe3eb;
+  --brand-accent: var(--brand-secondary);
   --accent-primary: var(--brand-primary);
   --accent-secondary: var(--brand-secondary);
   --text-on-primary: #ffffff;
@@ -68,7 +69,7 @@
    * - Spacing: --space-section
    */
   --brand-primary: #63a4ff;
-  --brand-secondary: var(--brand-accent, var(--brand-primary));
+  --brand-secondary: #f97316;
 
   --surface-page: #0e1218;
   --surface-section: #111827;
@@ -87,12 +88,13 @@
   --bg-surface: var(--bg-card);
   --bg-subtle: #0f172a;
   --bg-muted: #0b1018;
-  --bg-accent-soft: color-mix(in srgb, var(--brand-accent, var(--brand-primary)) 18%, transparent);
+  --bg-accent-soft: color-mix(in srgb, var(--brand-secondary) 18%, transparent);
   --text-default: var(--text-body);
   --text-link: var(--brand-primary);
   --text-primary: var(--text-body);
   --text-secondary: var(--text-muted);
   --border-muted: #2c3a4b;
+  --brand-accent: var(--brand-secondary);
   --accent-primary: var(--brand-primary);
   --accent-secondary: var(--brand-secondary);
   --text-on-primary: #ffffff;
