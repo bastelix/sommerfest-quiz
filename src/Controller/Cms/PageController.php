@@ -342,7 +342,7 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>, featureFlags?: array<string, bool>, featureData?: array<string, mixed>} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
@@ -361,7 +361,7 @@ class PageController
             'renderContext' => $renderContext,
             'featureFlags' => $featureFlags,
             'featureData' => $featureData,
-        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => []];
+        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => [], 'featureFlags' => [], 'featureData' => []];
 
         $payload = [
             'namespace' => $namespace,
