@@ -37,16 +37,12 @@
       --typography-preset: {{ typographyPreset|trim|e('css') }};
       --components-card-style: {{ cardStyle|trim|e('css') }};
       --components-button-style: {{ buttonStyle|trim|e('css') }};
-      --bg-page: var(--surface);
-      --bg-section: var(--surface);
-      --bg-card: var(--surface);
+      --bg-page: var(--surface, var(--brand-surface, #fff));
+      --bg-section: var(--surface, var(--brand-surface, #fff));
+      --bg-card: var(--surface, var(--brand-surface, #fff));
       --bg-accent: var(--brand-primary);
-      {% if surface %}
-      --surface: {{ surface|e('css') }};
-      {% endif %}
-      {% if surfaceMuted %}
-      --surface-muted: {{ surfaceMuted|e('css') }};
-      {% endif %}
+      --surface: {{ surface ? surface|e('css') : 'var(--brand-surface, #fff)' }};
+      --surface-muted: {{ surfaceMuted ? surfaceMuted|e('css') : 'var(--surface, var(--brand-surface, #fff))' }};
       {% if topbarLight %}
       --qr-landing-topbar-bg-light: {{ topbarLight|e('css') }};
       {% endif %}
