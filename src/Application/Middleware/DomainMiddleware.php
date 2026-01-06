@@ -145,14 +145,10 @@ class DomainMiddleware implements MiddlewareInterface
         $domainNamespace = $domain['namespace'];
 
         $request = $request
-            ->withAttribute('domainType', $domainType);
-
-        if ($domainNamespace !== null) {
-            $request = $request
+            ->withAttribute('domainType', $domainType)
             ->withAttribute('domainNamespace', $domainNamespace)
             ->withAttribute('namespace', $domainNamespace)
             ->withAttribute('pageNamespace', $domainNamespace);
-        }
 
         return $handler->handle($request);
     }
