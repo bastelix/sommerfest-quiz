@@ -439,11 +439,12 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const { intent, preset } = resolveSectionIntentPreset(block);
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
+  const layoutFlag = layout === 'card' ? 'card' : '';
   const classes = [
     'section',
     'uk-section',
     ...normalizeClassList(preset.sectionClass),
-    `section--${layout}`,
+    layoutFlag ? `section--${layoutFlag}` : '',
     background.mode === 'color' ? `section--bg-${background.colorToken}` : '',
     background.mode === 'image' ? 'section--bg-image' : '',
     background.mode === 'image' && background.attachment === 'fixed' ? 'section--bg-fixed' : '',
@@ -456,7 +457,9 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     `data-block-type="${escapeAttribute(block.type)}"`,
     `data-block-variant="${escapeAttribute(variant)}"`,
     `data-section-intent="${escapeAttribute(intent)}"`,
-    `data-section-layout="${escapeAttribute(layout)}"`,
+    layoutFlag
+      ? `data-section-layout="${escapeAttribute(layoutFlag)}"`
+      : null,
     `data-section-background-mode="${escapeAttribute(background.mode)}"`,
     preset.appearanceTokens?.surface
       ? `data-section-surface-token="${escapeAttribute(preset.appearanceTokens.surface)}"`
