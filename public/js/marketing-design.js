@@ -109,6 +109,11 @@ const applyMarketingDesign = () => {
     '--marketing-topbar-dark',
     resolveFallbackToken(root, '--qr-landing-topbar-bg-dark', ''),
   );
+  const fallbackOnAccent = resolveFallbackToken(
+    root,
+    '--marketing-on-accent',
+    resolveFallbackToken(root, '--text-on-primary', ''),
+  );
 
   const primary = configColors.primary || colors.primary || brand.primary || fallbackPrimary;
   const accent =
@@ -144,9 +149,29 @@ const applyMarketingDesign = () => {
     colors.topbar_dark ||
     variables.topbarDark ||
     fallbackTopbarDark;
+  const onAccent =
+    configColors.onAccent ||
+    configColors.on_accent ||
+    configColors.contrastOnPrimary ||
+    configColors.onPrimary ||
+    configColors.on_primary ||
+    colors.onAccent ||
+    colors.on_accent ||
+    colors.contrastOnPrimary ||
+    colors.onPrimary ||
+    colors.on_primary ||
+    colors.textOnPrimary ||
+    colors.text_on_primary ||
+    variables.onAccent ||
+    variables.onPrimary ||
+    variables.textOnPrimary ||
+    fallbackOnAccent;
 
   root.style.setProperty('--marketing-primary', primary);
   root.style.setProperty('--marketing-accent', accent);
+  if (onAccent) {
+    root.style.setProperty('--marketing-on-accent', onAccent);
+  }
   root.style.setProperty('--marketing-surface', surface);
   root.style.setProperty('--marketing-surface-muted', surfaceMuted);
   root.style.setProperty('--brand-primary', 'var(--marketing-primary)');
