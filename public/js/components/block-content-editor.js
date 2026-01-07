@@ -102,22 +102,29 @@ const VARIANT_LABELS = {
 const SECTION_LAYOUT_OPTIONS = [
   {
     value: 'normal',
+    payload: 'normal',
     label: 'Normal',
     description: 'Hintergrund und Padding sind an die Inhaltsbreite gekoppelt.'
   },
   {
     value: 'full',
+    payload: 'full',
     label: 'Hintergrund volle Breite',
     description: 'Hintergrund läuft über die gesamte Breite, der Inhalt bleibt eingerückt. Greift nur bei gewähltem Hintergrund.'
   },
   {
     value: 'card',
+    payload: 'card',
     label: 'Als Card anzeigen',
     description: 'Der Abschnitt erscheint als Karte mit Innenabstand.'
   }
 ];
 
+const DEFAULT_SECTION_LAYOUT = 'normal';
 const SECTION_LAYOUTS = SECTION_LAYOUT_OPTIONS.map(option => option.value);
+const SECTION_LAYOUT_PAYLOADS = Object.fromEntries(
+  SECTION_LAYOUT_OPTIONS.map(option => [option.value, option.payload])
+);
 
 const LEGACY_APPEARANCE_ALIASES = {
   default: 'contained',
@@ -271,7 +278,7 @@ const resolveLayout = (block, appearance = undefined) => {
   }
 
   const preset = resolveAppearanceOption(normalizeAppearance(appearance ?? block.sectionAppearance));
-  return APPEARANCE_TO_LAYOUT[preset] || 'normal';
+  return APPEARANCE_TO_LAYOUT[preset] || DEFAULT_SECTION_LAYOUT;
 };
 
 const normalizeBackgroundForLayout = (background, layout, legacyBackgroundImage, legacyAppearance) => {
@@ -4237,10 +4244,8 @@ export class BlockContentEditor {
   }
 
   updateSectionLayout(blockId, layout) {
-    const normalizedLayout = normalizeLayout(layout);
-    if (!normalizedLayout) {
-      return;
-    }
+    const normalizedLayout = normalizeLayout(layout) || DEFAULT_SECTION_LAYOUT;
+    const payloadLayout = SECTION_LAYOUT_PAYLOADS[normalizedLayout] || DEFAULT_SECTION_LAYOUT;
 
     this.state.blocks = this.state.blocks.map(block => {
       if (block.id !== blockId) {
@@ -4251,8 +4256,7 @@ export class BlockContentEditor {
       const adjustedBackground = normalizedLayout === 'full' && normalizedBackground.mode === 'none'
         ? { mode: 'color', colorToken: 'surface' }
         : normalizedBackground;
-      const rawLayout = normalizedLayout === 'full' ? 'fullwidth' : normalizedLayout;
-      return applySectionStyle(block, { layout: rawLayout, background: adjustedBackground });
+      return applySectionStyle(block, { layout: payloadLayout, background: adjustedBackground });
     });
 
     this.render();
