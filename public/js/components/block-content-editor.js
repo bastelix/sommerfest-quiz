@@ -108,7 +108,7 @@ const SECTION_LAYOUT_OPTIONS = [
   {
     value: 'full',
     label: 'Hintergrund volle Breite',
-    description: 'Hintergrund läuft über die gesamte Breite, der Inhalt bleibt eingerückt.'
+    description: 'Hintergrund läuft über die gesamte Breite, der Inhalt bleibt eingerückt. Greift nur bei gewähltem Hintergrund.'
   },
   {
     value: 'card',
@@ -346,21 +346,26 @@ const resolveBackgroundIntent = (background, layout) => {
 
 const applySectionStyle = (block, sectionStyle) => {
   const baseSectionStyle = block?.meta?.sectionStyle || {};
-  const layout = sectionStyle.layout || baseSectionStyle.layout || resolveLayout(block);
+  const rawLayout = typeof sectionStyle.layout === 'string'
+    ? sectionStyle.layout
+    : typeof baseSectionStyle.layout === 'string'
+      ? baseSectionStyle.layout
+      : resolveLayout(block);
+  const normalizedLayout = normalizeLayout(rawLayout) || resolveLayout(block);
   const intent = normalizeSectionIntent(sectionStyle.intent)
     || normalizeSectionIntent(baseSectionStyle.intent)
     || resolveSectionIntent(block);
 
   return sanitizeBlock({
     ...block,
-    sectionAppearance: LAYOUT_TO_APPEARANCE[layout],
+    sectionAppearance: LAYOUT_TO_APPEARANCE[normalizedLayout],
     meta: {
       ...(block.meta || {}),
       sectionStyle: {
         ...baseSectionStyle,
         ...sectionStyle,
         intent,
-        layout
+        layout: rawLayout
       }
     }
   });
@@ -1333,6 +1338,12 @@ function sanitizeBlock(block) {
     sectionAppearance: sanitizedAppearance ?? legacyAppearance,
     backgroundImage: legacyBackgroundImage
   });
+  const rawLayout = typeof sanitizedMeta?.sectionStyle?.layout === 'string'
+    ? sanitizedMeta.sectionStyle.layout.trim()
+    : '';
+  if (rawLayout && normalizeLayout(rawLayout)) {
+    resolvedSectionStyle.layout = rawLayout;
+  }
 
   const mergedMeta = {
     ...(sanitizedMeta || {}),
@@ -4237,7 +4248,11 @@ export class BlockContentEditor {
       }
 
       const normalizedBackground = resolveSectionBackground(block, normalizedLayout);
-      return applySectionStyle(block, { layout: normalizedLayout, background: normalizedBackground });
+      const adjustedBackground = normalizedLayout === 'full' && normalizedBackground.mode === 'none'
+        ? { mode: 'color', colorToken: 'surface' }
+        : normalizedBackground;
+      const rawLayout = normalizedLayout === 'full' ? 'fullwidth' : normalizedLayout;
+      return applySectionStyle(block, { layout: rawLayout, background: adjustedBackground });
     });
 
     this.render();
@@ -4256,7 +4271,8 @@ export class BlockContentEditor {
 
       const layout = resolveLayout(block);
       const background = resolveSectionBackground(block, layout);
-      return applySectionStyle(block, { layout, background, intent: normalizedIntent });
+      const rawLayout = block?.meta?.sectionStyle?.layout || layout;
+      return applySectionStyle(block, { layout: rawLayout, background, intent: normalizedIntent });
     });
 
     this.render();
@@ -4321,7 +4337,7 @@ export class BlockContentEditor {
           block?.sectionAppearance
         );
 
-        return applySectionStyle(block, { layout, background: normalizedBackground });
+        return applySectionStyle(block, { background: normalizedBackground });
       });
 
       this.render();
