@@ -27,11 +27,50 @@ const resolveDesignForNamespace = namespace => {
   return registry[normalized] || null;
 };
 
+const resolveFirstValue = (...values) => {
+  return values.find(value => value !== null && value !== undefined && value !== '');
+};
+
 const mergeAppearance = (namespace, appearance = {}) => {
   const design = resolveDesignForNamespace(namespace);
   const designAppearance = design?.appearance || design || {};
   const configColors = design?.config?.colors || {};
   const baseAppearance = appearance && typeof appearance === 'object' ? appearance : {};
+  const sectionDefaults = {
+    surface: resolveFirstValue(
+      designAppearance?.colors?.surface,
+      designAppearance?.variables?.surface,
+      configColors.surface,
+      configColors.background,
+      configColors.backgroundColor,
+      baseAppearance?.colors?.surface,
+      baseAppearance?.variables?.surface,
+    ),
+    muted: resolveFirstValue(
+      designAppearance?.colors?.surfaceMuted,
+      designAppearance?.colors?.muted,
+      designAppearance?.variables?.surfaceMuted,
+      designAppearance?.variables?.muted,
+      configColors.surfaceMuted,
+      configColors.muted,
+      baseAppearance?.colors?.surfaceMuted,
+      baseAppearance?.colors?.muted,
+      baseAppearance?.variables?.surfaceMuted,
+      baseAppearance?.variables?.muted,
+    ),
+    accent: resolveFirstValue(
+      designAppearance?.colors?.accent,
+      designAppearance?.colors?.primary,
+      designAppearance?.variables?.accent,
+      designAppearance?.variables?.primary,
+      configColors.accent,
+      configColors.primary,
+      baseAppearance?.colors?.accent,
+      baseAppearance?.colors?.primary,
+      baseAppearance?.variables?.accent,
+      baseAppearance?.variables?.primary,
+    ),
+  };
   const tokens = {
     ...(baseAppearance.tokens || {}),
     ...(designAppearance.tokens || {}),
@@ -46,6 +85,51 @@ const mergeAppearance = (namespace, appearance = {}) => {
     ...(designAppearance.variables || {}),
   };
 
+  if (sectionDefaults.surface) {
+    variables.sectionDefaultSurface = sectionDefaults.surface;
+    if (!colors.surface) {
+      colors.surface = 'var(--section-default-surface)';
+    }
+    if (!variables.surface) {
+      variables.surface = 'var(--section-default-surface)';
+    }
+  }
+
+  if (sectionDefaults.muted) {
+    variables.sectionDefaultMuted = sectionDefaults.muted;
+    if (!colors.surfaceMuted) {
+      colors.surfaceMuted = 'var(--section-default-muted)';
+    }
+    if (!colors.muted) {
+      colors.muted = 'var(--section-default-muted)';
+    }
+    if (!variables.surfaceMuted) {
+      variables.surfaceMuted = 'var(--section-default-muted)';
+    }
+  }
+
+  if (sectionDefaults.accent) {
+    variables.sectionDefaultAccent = sectionDefaults.accent;
+    if (!colors.primary) {
+      colors.primary = 'var(--section-default-accent)';
+    }
+    if (!colors.accent) {
+      colors.accent = 'var(--section-default-accent)';
+    }
+    if (!colors.brandPrimary) {
+      colors.brandPrimary = 'var(--section-default-accent)';
+    }
+    if (!variables.primary) {
+      variables.primary = 'var(--section-default-accent)';
+    }
+    if (!variables.accent) {
+      variables.accent = 'var(--section-default-accent)';
+    }
+    if (!variables.brandPrimary) {
+      variables.brandPrimary = 'var(--section-default-accent)';
+    }
+  }
+
   return {
     ...baseAppearance,
     ...designAppearance,
@@ -55,8 +139,8 @@ const mergeAppearance = (namespace, appearance = {}) => {
   };
 };
 
-const resolveFirstValue = (...values) => {
-  return values.find(value => value !== null && value !== undefined && value !== '');
+const isSectionDefaultReference = value => {
+  return typeof value === 'string' && value.includes('--section-default-');
 };
 
 const applyColorsToRoot = (element, appearance) => {
@@ -158,6 +242,41 @@ const applyColorsToRoot = (element, appearance) => {
     muted,
     'var(--surface-muted)',
   );
+
+  const sectionDefaultSurface = resolveFirstValue(
+    appearance?.variables?.sectionDefaultSurface,
+    colors.sectionDefaultSurface,
+    surface,
+    colors.surface,
+    appearance?.variables?.surface,
+  );
+  const sectionDefaultMuted = resolveFirstValue(
+    appearance?.variables?.sectionDefaultMuted,
+    colors.sectionDefaultMuted,
+    muted,
+    colors.surfaceMuted,
+    colors.muted,
+    appearance?.variables?.surfaceMuted,
+  );
+  const sectionDefaultAccent = resolveFirstValue(
+    appearance?.variables?.sectionDefaultAccent,
+    colors.sectionDefaultAccent,
+    accent,
+    colors.primary,
+    colors.accent,
+    appearance?.variables?.primary,
+    appearance?.variables?.accent,
+  );
+
+  if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
+    element.style.setProperty('--section-default-surface', sectionDefaultSurface);
+  }
+  if (sectionDefaultMuted && !isSectionDefaultReference(sectionDefaultMuted)) {
+    element.style.setProperty('--section-default-muted', sectionDefaultMuted);
+  }
+  if (sectionDefaultAccent && !isSectionDefaultReference(sectionDefaultAccent)) {
+    element.style.setProperty('--section-default-accent', sectionDefaultAccent);
+  }
 
   if (primary) {
     element.style.setProperty('--brand-primary', primary);
