@@ -35,13 +35,17 @@ export function resolveDefaultSectionIntent(type) {
 }
 
 export function resolveSectionIntent(blockOrType) {
+  return resolveSectionIntentInfo(blockOrType).intent;
+}
+
+export function resolveSectionIntentInfo(blockOrType) {
   const rawIntent = blockOrType?.meta?.sectionStyle?.intent
     ?? (typeof blockOrType === 'object' ? blockOrType?.sectionIntent : undefined);
   const normalizedIntent = normalizeSectionIntent(rawIntent);
   if (normalizedIntent) {
-    return normalizedIntent;
+    return { intent: normalizedIntent, isExplicit: true };
   }
 
   const type = typeof blockOrType === 'string' ? blockOrType : blockOrType?.type;
-  return resolveDefaultSectionIntent(type);
+  return { intent: resolveDefaultSectionIntent(type), isExplicit: false };
 }
