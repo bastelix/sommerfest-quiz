@@ -78,6 +78,8 @@ const applyColorsToRoot = (element, appearance) => {
   element.style.setProperty('--accent-primary', primary);
   element.style.setProperty('--brand-accent', accent);
   element.style.setProperty('--accent-secondary', accent);
+  element.style.setProperty('--marketing-primary', primary);
+  element.style.setProperty('--marketing-accent', accent);
   element.style.setProperty('--bg-page', 'var(--surface)');
   element.style.setProperty('--bg-section', 'var(--surface)');
   element.style.setProperty('--bg-card', 'var(--surface)');
@@ -85,17 +87,21 @@ const applyColorsToRoot = (element, appearance) => {
 
   if (surface) {
     element.style.setProperty('--surface', surface);
+    element.style.setProperty('--marketing-surface', surface);
   }
 
   if (muted) {
     element.style.setProperty('--surface-muted', muted);
+    element.style.setProperty('--marketing-surface-muted', muted);
   }
 
   if (topbarLight) {
+    element.style.setProperty('--marketing-topbar-light', topbarLight);
     element.style.setProperty('--qr-landing-topbar-bg-light', topbarLight);
   }
 
   if (topbarDark) {
+    element.style.setProperty('--marketing-topbar-dark', topbarDark);
     element.style.setProperty('--qr-landing-topbar-bg-dark', topbarDark);
   }
 };
