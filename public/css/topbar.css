@@ -41,12 +41,6 @@ body[data-theme="dark"].high-contrast{
   --topbar-focus-ring: rgba(140,200,255,0.8);
 }
 
-.topbar-debug-strip{
-  height: 2mm;
-  background: #0066ff;
-  width: 100%;
-}
-
 .page-render .qr-topbar{
   background: var(--bg-card);
   color: var(--text-primary);
