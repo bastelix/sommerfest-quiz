@@ -166,6 +166,9 @@ body.marketing-page.high-contrast {
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
   --qr-link: var(--marketing-link-contrast-light);
   --qr-contrast-on-primary: var(--marketing-white);
+  --marketing-primary: var(--marketing-black);
+  --marketing-on-accent: var(--marketing-white);
+  --marketing-text: var(--marketing-black);
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
@@ -198,6 +201,9 @@ body.marketing-page.dark-mode.high-contrast {
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
   --qr-link: var(--marketing-link-contrast-dark);
   --qr-contrast-on-primary: var(--marketing-black);
+  --marketing-primary: var(--marketing-white);
+  --marketing-on-accent: var(--marketing-black);
+  --marketing-text: var(--marketing-white);
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
@@ -593,12 +599,12 @@ body.marketing-page .site-footer {
 }
 .scenario-cloud a:hover{
   transform:translateY(-1px);
-  border-color:color-mix(in oklab, var(--qr-landing-primary) 40%, var(--pill-border));
+  border-color:color-mix(in oklab, var(--marketing-primary) 40%, var(--pill-border));
 }
 
 .scenario-cloud li.uk-active a{
-  border-color:color-mix(in oklab, var(--qr-landing-primary) 40%, var(--pill-border));
-  background:color-mix(in oklab, var(--qr-landing-primary) 15%, var(--pill-bg));
+  border-color:color-mix(in oklab, var(--marketing-primary) 40%, var(--pill-border));
+  background:color-mix(in oklab, var(--marketing-primary) 15%, var(--pill-bg));
 }
 
 /* Slider cards */
@@ -652,10 +658,10 @@ body.marketing-page .site-footer {
   font-size:14px;
   font-weight:600;
   border-radius:999px;
-  background:color-mix(in oklab, var(--qr-landing-primary) 12%, transparent);
+  background:color-mix(in oklab, var(--marketing-primary) 12%, transparent);
   color:color-mix(in oklab, var(--qr-fg) 75%, transparent);
   text-decoration:none;
-  border:1px solid color-mix(in oklab, var(--qr-landing-primary) 32%, transparent);
+  border:1px solid color-mix(in oklab, var(--marketing-primary) 32%, transparent);
   box-shadow: var(--marketing-shadow-pill);
   transition:transform .16s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
 }
@@ -663,9 +669,9 @@ body.marketing-page .site-footer {
 .feature-nav__pill:hover,
 .feature-nav__pill:focus{
   transform:translateY(-2px);
-  background:color-mix(in oklab, var(--qr-landing-primary) 32%, transparent);
-  color:var(--qr-contrast-on-primary);
-  box-shadow:0 18px 36px -24px color-mix(in oklab, var(--qr-landing-primary) 55%, transparent);
+  background:color-mix(in oklab, var(--marketing-primary) 32%, transparent);
+  color:var(--marketing-on-accent);
+  box-shadow:0 18px 36px -24px color-mix(in oklab, var(--marketing-primary) 55%, transparent);
 }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
@@ -715,7 +721,7 @@ body.marketing-page .site-footer {
   height: auto;
   margin: 0 auto clamp(0.75rem, 2vw, 1.5rem);
   object-fit: contain;
-  filter: drop-shadow(0 14px 32px color-mix(in oklab, var(--qr-landing-primary) 18%, transparent));
+  filter: drop-shadow(0 14px 32px color-mix(in oklab, var(--marketing-primary) 18%, transparent));
 }
 
 .marketing-event-hero__title {
@@ -1171,7 +1177,7 @@ body.dark-mode.marketing-page .qr-badge{
 .cta-ghost:focus{
   background:var(--landing-btn-fg);
   color:var(--landing-btn-bg-hover)!important;
-  box-shadow:0 6px 18px color-mix(in oklab, var(--qr-landing-primary) 35%, transparent);
+  box-shadow:0 6px 18px color-mix(in oklab, var(--marketing-primary) 35%, transparent);
   text-decoration:none;
 }
 @media (max-width: 640px) {
@@ -1394,17 +1400,17 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox::after{
   transition:opacity .15s ease;
 }
 body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:checked{
-  background:var(--qr-landing-primary);
-  border-color:color-mix(in oklab, var(--qr-landing-primary) 75%, transparent);
-  box-shadow:0 0 0 1px color-mix(in oklab, var(--qr-landing-primary) 55%, transparent);
+  background:var(--marketing-primary);
+  border-color:color-mix(in oklab, var(--marketing-primary) 75%, transparent);
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--marketing-primary) 55%, transparent);
 }
 body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:checked::after{
-  border-color:color-mix(in oklab, var(--qr-contrast-on-primary) 92%, transparent);
+  border-color:color-mix(in oklab, var(--marketing-on-accent) 92%, transparent);
   opacity:1;
 }
 body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   box-shadow:0 0 0 3px var(--qr-ring);
-  border-color: color-mix(in oklab, var(--qr-landing-primary) 50%, transparent);
+  border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
 }
 .marketing-page a:focus-visible,
 .marketing-page button:focus-visible,
