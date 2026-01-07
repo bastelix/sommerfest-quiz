@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityIcons = document.querySelectorAll('.accessibility-icon');
   const helpButtons = document.querySelectorAll('.help-toggle');
   const teamNameBtn = document.getElementById('teamNameBtn');
-  const isLaborLanding = document.body.classList.contains('labor-landing');
+  const isLaborLanding = document.body.classList.contains('labor-marketing');
   const PAGE_EDITOR_THEME_KEY = 'pageEditorTheme';
   const pageEditorElement = document.querySelector('.page-editor');
   const pageEditorThemeToggle = document.querySelector('[data-theme-toggle]');

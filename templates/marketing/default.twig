@@ -19,7 +19,7 @@
 {% block body_class %}marketing-page generic-marketing uk-background-default{% endblock %}
 
 {% block body %}
-  <div class="landing-content">
+  <div class="marketing-layout">
     {% set logoSettings = headerLogo|default({}) %}
     {% set logoMode = logoSettings.mode|default('text') %}
     {% set logoSrc = logoSettings.src|default(null) %}
@@ -95,7 +95,7 @@
     } %}
 
     {% if landingNews is defined and landingNews %}
-      <section id="landing-news" class="uk-section uk-section-muted">
+      <section id="landing-news" class="marketing-section uk-section uk-section-muted">
         <div class="uk-container">
           <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
             <h2 class="uk-heading-medium uk-margin-remove">Neuigkeiten</h2>

@@ -19,11 +19,11 @@
 {% block body_class %}marketing-page {% if isCalserverTheme %}calserver-theme calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
 
 {% block body %}
-  <div class="landing-content">
+  <div class="marketing-layout">
     {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
-    {% set sectionClasses = 'uk-section uk-section-default landing-news' %}
+    {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
     {% if isCalserverTheme %}
-      {% set sectionClasses = 'uk-section uk-section-muted landing-news calserver-news calserver-news--listing' %}
+      {% set sectionClasses = 'marketing-section uk-section uk-section-muted marketing-news calserver-news calserver-news--listing' %}
     {% endif %}
     <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container">

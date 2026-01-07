@@ -23,7 +23,7 @@
 {% block allow_config_background %}false{% endblock %}
 
 {% block body %}
-  <div class="landing-content">
+  <div class="marketing-layout">
     {% set headerMarkup = headerContent is defined and headerContent ? headerContent : '' %}
     <header class="qr-topbar">
       {{ headerMarkup|raw }}
@@ -54,7 +54,7 @@
       position: 'before-content'
     } %}
 
-    <div class="landing-page-content">
+    <div class="marketing-content">
       {% include 'marketing/partials/block-content.twig' %}
     </div>
     {% include 'marketing/partials/page-modules.twig' with {
@@ -63,7 +63,7 @@
     } %}
 
     {% if landingNews is defined and landingNews %}
-      <section id="landing-news" class="uk-section uk-section-muted landing-news">
+      <section id="landing-news" class="marketing-section uk-section uk-section-muted marketing-news">
         <div class="uk-container">
           <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-bottom">
             <h2 class="uk-heading-medium uk-margin-remove">Neuigkeiten</h2>

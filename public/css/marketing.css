@@ -1,4 +1,4 @@
-/* Design-Tokens NUR für die Landing */
+/* Design-Tokens für Marketing-Pages */
 
 html[data-theme] {
   color: var(--color-text, var(--text-primary, #111827));
@@ -174,6 +174,17 @@ body.marketing-page {
   background-color: var(--qr-hero-grad-start);
 }
 body.marketing-page { color: var(--qr-fg); }
+.marketing-layout {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.marketing-content {
+  width: 100%;
+}
+.marketing-section {
+  background: var(--section-bg-color, var(--section-surface, transparent));
+}
 .qr-page-renderer {
   box-sizing: border-box;
   max-width: 1200px;
@@ -747,7 +758,7 @@ body.marketing-page[data-theme="dark"] .uk-text-muted {
   color: currentColor;
 }
 
-/* Navbar NUR auf Landing, damit Kontrast stimmt */
+/* Navbar NUR auf Marketing-Pages, damit Kontrast stimmt */
 .marketing-page .uk-navbar,
 .marketing-page .uk-navbar-container {
   background: var(--qr-landing-topbar-bg);
