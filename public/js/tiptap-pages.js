@@ -1083,9 +1083,9 @@ window.pageIndex = pageIndex;
 
 const UIKIT_FILENAME = 'uikit.min.css';
 const LANDING_STYLE_FILENAMES = [
-  'landing.css',
+  'marketing.css',
   'onboarding.css',
-  'topbar.landing.css'
+  'topbar.marketing.css'
 ];
 
 const LANDING_NAMESPACE_ASSET_FOLDERS = new Set([

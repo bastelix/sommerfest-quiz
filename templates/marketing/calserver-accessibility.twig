@@ -4,11 +4,12 @@
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding{% endblock %}
+{% block body_class %}marketing-page uk-background-muted uk-padding{% endblock %}
 
 {% block body %}
   {% set backLabel = locale() == 'en' ? 'Back' : 'Zurück' %}

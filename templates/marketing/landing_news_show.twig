@@ -7,16 +7,16 @@
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   {% if isCalserverTheme %}
     <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
   {% endif %}
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
 {% endblock %}
 
-{% block body_class %}qr-landing {% if isCalserverTheme %}calserver-theme calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
+{% block body_class %}marketing-page {% if isCalserverTheme %}calserver-theme calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
 
 {% block body %}
   <div class="landing-content">
