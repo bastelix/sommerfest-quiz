@@ -1137,6 +1137,20 @@ body.dark-mode.marketing-page .qr-badge{
   border:1px solid color-mix(in oklab,var(--marketing-primary) 60%,transparent);
 }
 
+.marketing-page .marketing-btn-primary{
+  background:var(--marketing-accent);
+  color:var(--marketing-on-accent);
+  border:1px solid color-mix(in oklab,var(--marketing-accent) 65%, transparent);
+  transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease;
+}
+.marketing-page .marketing-btn-primary:hover{
+  background:color-mix(in oklab, var(--marketing-accent) 88%, var(--marketing-black));
+}
+.marketing-page .marketing-btn-primary:active{
+  background:color-mix(in oklab, var(--marketing-accent) 78%, var(--marketing-black));
+  transform:translateY(1px);
+}
+
 .marketing-page .cta-main.uk-button-primary{
   box-shadow:0 10px 24px color-mix(in oklab, var(--marketing-primary) 22%, transparent);
   border-radius:12px;
@@ -1415,8 +1429,9 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
 .marketing-page a:focus-visible,
 .marketing-page button:focus-visible,
 .marketing-page .uk-button:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px var(--qr-ring);
+  outline:3px solid var(--marketing-accent);
+  outline-offset:2px;
+  box-shadow:none;
   border-radius:8px;
 }
 @media (prefers-reduced-motion: reduce){ .marketing-page *{ animation:none!important; transition:none!important; } }
