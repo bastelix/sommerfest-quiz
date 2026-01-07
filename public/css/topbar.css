@@ -1,4 +1,5 @@
-body:not([data-theme="dark"]){
+body:not([data-theme="dark"]),
+.qr-topbar:not([data-theme="dark"]){
   --topbar-bg: var(--bg-card);
   --topbar-btn-bg: transparent;
   --topbar-btn-border: var(--border-muted);
@@ -9,7 +10,8 @@ body:not([data-theme="dark"]){
   --topbar-drop-border: var(--border-muted);
   --topbar-text: var(--text-primary);
 }
-body[data-theme="dark"]{
+body[data-theme="dark"],
+.qr-topbar[data-theme="dark"]{
   --topbar-bg: var(--bg-card);
   --topbar-btn-bg: var(--bg-card);
   --topbar-btn-border: var(--border-muted);
@@ -20,7 +22,8 @@ body[data-theme="dark"]{
   --topbar-drop-border: var(--border-muted);
   --topbar-text: var(--text-primary);
 }
-body.high-contrast{
+body.high-contrast,
+.high-contrast .qr-topbar{
   --topbar-bg: #ffffff;
   --topbar-text: #0a0a0a;
   --topbar-drop-bg: #ffffff;
@@ -30,7 +33,8 @@ body.high-contrast{
   --topbar-btn-bg-hover: #e6e6e6;
   --topbar-focus-ring: rgba(0,120,255,0.6);
 }
-body[data-theme="dark"].high-contrast{
+body[data-theme="dark"].high-contrast,
+.high-contrast .qr-topbar[data-theme="dark"]{
   --topbar-bg: #000000;
   --topbar-text: #ffffff;
   --topbar-drop-bg: #000000;
@@ -112,6 +116,11 @@ body:not([data-theme="dark"]) .topbar .uk-button,
 body:not([data-theme="dark"]) .topbar .uk-navbar-nav>li>a{
   color: #0f172a;
   border-color: rgba(0,0,0,0.12);
+}
+.qr-topbar[data-theme="dark"] .topbar .uk-button,
+.qr-topbar[data-theme="dark"] .topbar .uk-navbar-nav>li>a{
+  color: var(--topbar-text);
+  border-color: var(--topbar-btn-border);
 }
 
 /* Dropdown/Offcanvas */
