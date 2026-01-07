@@ -6,6 +6,7 @@
 
 {% block head %}
   <meta name="page-name" content="Domain maintenance">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
   <style>
     .maintenance-wrapper {
       min-height: 80vh;
@@ -42,6 +43,7 @@
 {% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   <div class="maintenance-wrapper">
     <section class="maintenance-card" role="status" aria-live="polite">
       <h1>Wir richten diese Seite gerade ein</h1>

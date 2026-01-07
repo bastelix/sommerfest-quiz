@@ -18,11 +18,13 @@
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/future-is-green.css">
   <meta name="page-name" content="Future is Green – Landingpage">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page future-is-green-theme{% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   <div class="marketing-layout">
     <header class="qr-topbar uk-position-sticky uk-top" id="start" uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
       <nav class="uk-navbar-container" uk-navbar>
