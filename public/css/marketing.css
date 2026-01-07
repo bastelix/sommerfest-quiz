@@ -323,8 +323,6 @@ body.page-render .qr-page-renderer table {
 .marketing-page .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
 .section {
-  --section-surface: transparent;
-  --section-bg-color: var(--section-surface);
   --section-padding-outer: var(--section-padding-tight);
   --section-padding-inner: var(--section-padding);
   --section-bg-overlay: 0;
@@ -332,34 +330,26 @@ body.page-render .qr-page-renderer table {
   --section-text-color: var(--color-text, inherit);
   color: var(--section-text-color, var(--color-text, inherit));
   padding: var(--section-padding-outer) 0;
-  background: var(--section-bg-color);
+  background: var(--section-bg-color, var(--section-surface, transparent));
 }
 
 .section[data-section-intent="content"] {
-  --section-surface: var(--surface);
   --section-padding-outer: clamp(20px, 4vw, 48px);
   --section-padding-inner: clamp(22px, 4vw, 44px);
 }
 
 .section[data-section-intent="feature"] {
-  --section-surface: var(--surface-muted);
   --section-padding-outer: clamp(28px, 5vw, 64px);
   --section-padding-inner: clamp(28px, 5vw, 60px);
 }
 
 .section[data-section-intent="highlight"] {
-  --section-surface: var(--accent-primary, var(--marketing-primary));
   --section-padding-outer: clamp(32px, 6vw, 72px);
   --section-padding-inner: clamp(32px, 6vw, 68px);
   --section-text-color: var(--marketing-on-accent);
 }
 
 .section[data-section-intent="hero"] {
-  --section-surface: color-mix(
-    in srgb,
-    var(--accent-secondary, var(--accent-primary, var(--marketing-primary))) 85%,
-    var(--marketing-ink)
-  );
   --section-padding-outer: clamp(36px, 7vw, 88px);
   --section-padding-inner: clamp(36px, 7vw, 80px);
   --section-text-color: var(--marketing-on-accent);
@@ -367,7 +357,7 @@ body.page-render .qr-page-renderer table {
 
 .section[data-section-background] {
   position: relative;
-  background-color: var(--section-bg-color, var(--section-surface));
+  background-color: var(--section-bg-color, var(--section-surface, transparent));
   background-image: var(--section-bg-image, none);
   background-size: cover;
   background-position: center;
