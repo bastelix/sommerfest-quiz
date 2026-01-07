@@ -1,8 +1,54 @@
 /* Design-Tokens für Marketing-Pages */
 
+:root {
+  --marketing-primary-default: #1e87f0;
+  --marketing-accent-default: #f97316;
+  --marketing-surface-default: #ffffff;
+  --marketing-surface-muted-default: #eef2f7;
+  --marketing-text-default: #111827;
+  --marketing-text-on-primary-default: #ffffff;
+  --marketing-white: #ffffff;
+  --marketing-black: #000000;
+  --marketing-black-rgb: 0 0 0;
+  --marketing-ink: #0b1728;
+  --marketing-danger-500: #ff6b6b;
+  --marketing-danger-600: #ff4c4c;
+  --marketing-link-contrast-light: #0000ee;
+  --marketing-link-contrast-dark: #ffff00;
+  --marketing-surface-glass: rgba(255, 255, 255, 0.96);
+  --marketing-surface-glass-dark: rgba(15, 36, 27, 0.96);
+  --marketing-surface-accent-soft: rgba(255, 255, 255, 0.08);
+  --marketing-border-light: rgba(255, 255, 255, 0.18);
+  --marketing-ring-strong: rgba(0, 0, 0, 0.6);
+  --marketing-ring-strong-dark: rgba(255, 255, 255, 0.72);
+  --marketing-overlay-soft: rgba(15, 23, 42, 0.12);
+  --marketing-overlay-strong: rgba(0, 0, 0, 0.18);
+  --marketing-overlay-hero: rgba(0, 0, 0, 0.24);
+  --marketing-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.05);
+  --marketing-shadow-dark: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --marketing-shadow-panel: 0 16px 32px rgba(15, 23, 42, 0.08);
+  --marketing-shadow-card: 0 22px 48px rgba(15, 23, 42, 0.09);
+  --marketing-shadow-accent: 0 28px 60px rgba(0, 0, 0, 0.18);
+  --marketing-shadow-card-soft: 0 16px 36px rgba(0, 0, 0, 0.05);
+  --marketing-shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.08);
+  --marketing-shadow-hero-mockup: 0 20px 60px rgba(2, 6, 23, 0.45);
+  --marketing-shadow-pill: 0 12px 24px -22px rgba(15, 23, 42, 0.4);
+  --marketing-shadow-callout: 0 16px 32px rgba(0, 0, 0, 0.18);
+  --marketing-shadow-stat: 0 18px 38px rgba(15, 23, 42, 0.08);
+  --marketing-shadow-stat-accent: rgba(15, 23, 42, 0.18);
+  --marketing-marker-underline: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
+  --marketing-primary: var(--brand-primary, var(--marketing-primary-default));
+  --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
+  --marketing-surface: var(--surface, var(--marketing-surface-default));
+  --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
+  --marketing-text: var(--text-primary, var(--marketing-text-default));
+  --marketing-text-on-primary: var(--text-on-primary, var(--marketing-text-on-primary-default));
+  --marketing-link: var(--brand-primary, var(--marketing-primary));
+}
+
 html[data-theme] {
-  color: var(--color-text, var(--text-primary, #111827));
-  background-color: var(--bg-page, var(--color-bg, #ffffff));
+  color: var(--color-text, var(--text-primary, var(--marketing-text)));
+  background-color: var(--bg-page, var(--color-bg, var(--marketing-surface)));
 }
 
 html[data-theme] body {
@@ -11,42 +57,42 @@ html[data-theme] body {
 }
 
 body.marketing-page {
-  --qr-brand-50: color-mix(in oklab, var(--marketing-primary, #1e87f0) 8%, #ffffff);
-  --qr-brand-100: color-mix(in oklab, var(--marketing-primary, #1e87f0) 16%, #ffffff);
-  --qr-brand-200: color-mix(in oklab, var(--marketing-primary, #1e87f0) 24%, #ffffff);
-  --qr-brand-300: color-mix(in oklab, var(--marketing-primary, #1e87f0) 32%, #ffffff);
-  --qr-brand-400: color-mix(in oklab, var(--marketing-primary, #1e87f0) 40%, #ffffff);
-  --qr-brand-500: var(--marketing-primary, #1e87f0);
-  --qr-brand-600: color-mix(in oklab, var(--marketing-primary, #1e87f0) 85%, #000000);
-  --qr-brand-700: color-mix(in oklab, var(--marketing-primary, #1e87f0) 92%, #000000);
-  --qr-brand-800: color-mix(in oklab, var(--marketing-primary, #1e87f0) 96%, #000000);
-  --qr-brand-900: color-mix(in oklab, var(--marketing-primary, #1e87f0) 98%, #000000);
-  --qr-bg: color-mix(in oklab, var(--marketing-surface, #ffffff) 90%, var(--marketing-primary, #138f52) 10%);
-  --qr-fg: color-mix(in oklab, #000000 80%, var(--marketing-primary, #138f52) 20%);
+  --qr-brand-50: color-mix(in oklab, var(--marketing-primary) 8%, var(--marketing-white));
+  --qr-brand-100: color-mix(in oklab, var(--marketing-primary) 16%, var(--marketing-white));
+  --qr-brand-200: color-mix(in oklab, var(--marketing-primary) 24%, var(--marketing-white));
+  --qr-brand-300: color-mix(in oklab, var(--marketing-primary) 32%, var(--marketing-white));
+  --qr-brand-400: color-mix(in oklab, var(--marketing-primary) 40%, var(--marketing-white));
+  --qr-brand-500: var(--marketing-primary);
+  --qr-brand-600: color-mix(in oklab, var(--marketing-primary) 85%, var(--marketing-black));
+  --qr-brand-700: color-mix(in oklab, var(--marketing-primary) 92%, var(--marketing-black));
+  --qr-brand-800: color-mix(in oklab, var(--marketing-primary) 96%, var(--marketing-black));
+  --qr-brand-900: color-mix(in oklab, var(--marketing-primary) 98%, var(--marketing-black));
+  --qr-bg: color-mix(in oklab, var(--marketing-surface) 90%, var(--marketing-primary) 10%);
+  --qr-fg: color-mix(in oklab, var(--marketing-black) 80%, var(--marketing-primary) 20%);
   --qr-bg-soft: color-mix(
     in oklab,
     var(--qr-bg) 84%,
-    var(--marketing-surface, rgba(255, 255, 255, 0.96)) 16%
+    var(--marketing-surface-glass) 16%
   );
-  --qr-card: var(--marketing-surface, rgba(255, 255, 255, 0.96));
-  --qr-border: color-mix(in oklab, var(--marketing-primary, #138f52) 18%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary, #138f52) 45%, transparent);
+  --qr-card: var(--marketing-surface-glass);
+  --qr-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
+  --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
   --qr-text: var(--qr-fg);
   --qr-icon-color: var(--qr-text);
   --qr-section-bg: var(--qr-bg);
   --qr-card-border: var(--qr-border);
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
-  --qr-landing-primary: var(--marketing-primary, #138f52);
-  --qr-contrast-on-primary: #ffffff;
-  --qr-danger-500: #ff6b6b;
-  --qr-danger-600: #ff4c4c;
-  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary, #138f52) 30%);
-  --qr-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
-  --qr-link: var(--marketing-link, var(--marketing-primary, #138f52));
-  --accent-primary: var(--marketing-primary, #138f52);
-  --accent-secondary: var(--marketing-accent, var(--marketing-primary, #138f52));
-  --accent-color: var(--marketing-primary, #138f52);
+  --qr-landing-primary: var(--marketing-primary);
+  --qr-contrast-on-primary: var(--marketing-text-on-primary);
+  --qr-danger-500: var(--marketing-danger-500);
+  --qr-danger-600: var(--marketing-danger-600);
+  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary) 30%);
+  --qr-shadow: var(--marketing-shadow-soft);
+  --qr-link: var(--marketing-link);
+  --accent-primary: var(--marketing-primary);
+  --accent-secondary: var(--marketing-accent);
+  --accent-color: var(--marketing-primary);
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg-soft);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
@@ -61,24 +107,24 @@ body.marketing-page {
 
 body.marketing-page.dark-mode,
 body.marketing-page[data-theme="dark"]:not(.high-contrast) {
-  --qr-bg: color-mix(in oklab, #000000 82%, var(--marketing-primary, #4cc986) 18%);
-  --qr-fg: color-mix(in oklab, #ffffff 85%, var(--marketing-primary, #4cc986) 15%);
+  --qr-bg: color-mix(in oklab, var(--marketing-black) 82%, var(--marketing-primary) 18%);
+  --qr-fg: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
   --qr-bg-soft: color-mix(
     in oklab,
     var(--qr-bg) 70%,
-    var(--marketing-surface, rgba(15, 36, 27, 0.96)) 30%
+    var(--marketing-surface-glass-dark) 30%
   );
-  --qr-card: var(--marketing-surface, rgba(15, 36, 27, 0.96));
-  --qr-border: color-mix(in oklab, var(--marketing-primary, #4cc986) 30%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary, #4cc986) 55%, transparent);
+  --qr-card: var(--marketing-surface-glass-dark);
+  --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
+  --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
   --qr-text: var(--qr-fg);
-  --qr-landing-primary: var(--marketing-primary, #4cc986);
-  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary, #4cc986) 30%);
-  --qr-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-  --qr-link: var(--marketing-link, var(--marketing-primary, #4cc986));
-  --accent-primary: var(--marketing-primary, #4cc986);
-  --accent-secondary: var(--marketing-accent, var(--marketing-primary, #4cc986));
-  --accent-color: var(--marketing-primary, #4cc986);
+  --qr-landing-primary: var(--marketing-primary);
+  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary) 30%);
+  --qr-shadow: var(--marketing-shadow-dark);
+  --qr-link: var(--marketing-link);
+  --accent-primary: var(--marketing-primary);
+  --accent-secondary: var(--marketing-accent);
+  --accent-color: var(--marketing-primary);
   --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%);
   --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
@@ -94,23 +140,23 @@ body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"])
 }
 
 body.marketing-page.high-contrast {
-  --qr-bg: #ffffff;
-  --qr-fg: #000000;
-  --qr-text: #000000;
-  --qr-muted: #000000;
-  --qr-bg-soft: #ffffff;
-  --qr-card: #ffffff;
-  --qr-card-border: #000000;
-  --qr-ring: rgba(0, 0, 0, 0.6);
-  --qr-border: #000000;
-  --qr-landing-primary: #000000;
+  --qr-bg: var(--marketing-white);
+  --qr-fg: var(--marketing-black);
+  --qr-text: var(--marketing-black);
+  --qr-muted: var(--marketing-black);
+  --qr-bg-soft: var(--marketing-white);
+  --qr-card: var(--marketing-white);
+  --qr-card-border: var(--marketing-black);
+  --qr-ring: var(--marketing-ring-strong);
+  --qr-border: var(--marketing-black);
+  --qr-landing-primary: var(--marketing-black);
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link: #0000ee;
-  --qr-contrast-on-primary: #ffffff;
+  --qr-link: var(--marketing-link-contrast-light);
+  --qr-contrast-on-primary: var(--marketing-white);
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
@@ -126,23 +172,23 @@ body.marketing-page.high-contrast .cta-main.uk-button-primary {
 
 body.marketing-page[data-theme="dark"].high-contrast,
 body.marketing-page.dark-mode.high-contrast {
-  --qr-bg: #000000;
-  --qr-fg: #ffffff;
-  --qr-text: #ffffff;
-  --qr-muted: #ffffff;
-  --qr-bg-soft: #000000;
-  --qr-card: #000000;
-  --qr-card-border: #ffffff;
-  --qr-ring: rgba(255, 255, 255, 0.72);
-  --qr-border: #ffffff;
-  --qr-landing-primary: #ffffff;
+  --qr-bg: var(--marketing-black);
+  --qr-fg: var(--marketing-white);
+  --qr-text: var(--marketing-white);
+  --qr-muted: var(--marketing-white);
+  --qr-bg-soft: var(--marketing-black);
+  --qr-card: var(--marketing-black);
+  --qr-card-border: var(--marketing-white);
+  --qr-ring: var(--marketing-ring-strong-dark);
+  --qr-border: var(--marketing-white);
+  --qr-landing-primary: var(--marketing-white);
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link: #ffff00;
-  --qr-contrast-on-primary: #000000;
+  --qr-link: var(--marketing-link-contrast-dark);
+  --qr-contrast-on-primary: var(--marketing-black);
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
@@ -229,7 +275,7 @@ body.page-render .qr-page-renderer table {
   --section-padding-outer: var(--section-padding-tight);
   --section-padding-inner: var(--section-padding);
   --section-bg-overlay: 0;
-  --section-overlay-color: color-mix(in srgb, var(--color-text, #0b1728) 16%, transparent);
+  --section-overlay-color: color-mix(in srgb, var(--color-text, var(--marketing-ink)) 16%, transparent);
   --section-text-color: var(--color-text, inherit);
   color: var(--section-text-color, var(--color-text, inherit));
   padding: var(--section-padding-outer) 0;
@@ -249,17 +295,21 @@ body.page-render .qr-page-renderer table {
 }
 
 .section[data-section-intent="highlight"] {
-  --section-surface: var(--accent-primary, var(--marketing-primary, #1e87f0));
+  --section-surface: var(--accent-primary, var(--marketing-primary));
   --section-padding-outer: clamp(32px, 6vw, 72px);
   --section-padding-inner: clamp(32px, 6vw, 68px);
-  --section-text-color: var(--text-on-primary, #ffffff);
+  --section-text-color: var(--text-on-primary, var(--marketing-text-on-primary));
 }
 
 .section[data-section-intent="hero"] {
-  --section-surface: color-mix(in srgb, var(--accent-secondary, var(--accent-primary, #1e87f0)) 85%, #0b1728);
+  --section-surface: color-mix(
+    in srgb,
+    var(--accent-secondary, var(--accent-primary, var(--marketing-primary))) 85%,
+    var(--marketing-ink)
+  );
   --section-padding-outer: clamp(36px, 7vw, 88px);
   --section-padding-inner: clamp(36px, 7vw, 80px);
-  --section-text-color: var(--text-on-primary, #ffffff);
+  --section-text-color: var(--text-on-primary, var(--marketing-text-on-primary));
 }
 
 .section[data-section-background] {
@@ -285,10 +335,10 @@ body.page-render .qr-page-renderer table {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, var(--section-bg-overlay, 0));
+  background: rgb(var(--marketing-black-rgb) / var(--section-bg-overlay, 0));
   background: color-mix(
     in srgb,
-    var(--section-overlay-color, rgba(15, 23, 42, 0.12)) calc(var(--section-bg-overlay, 0) * 100%),
+    var(--section-overlay-color, var(--marketing-overlay-soft)) calc(var(--section-bg-overlay, 0) * 100%),
     transparent
   );
   pointer-events: none;
@@ -306,21 +356,21 @@ body.page-render .qr-page-renderer table {
   background: var(--surface);
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
-  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--marketing-shadow-panel);
 }
 
 .section__inner--card {
   background: var(--surface);
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
-  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.09);
+  box-shadow: var(--marketing-shadow-card);
 }
 
 .section__inner--accent {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--marketing-surface-accent-soft);
+  border: 1px solid var(--marketing-border-light);
   border-radius: var(--card-radius);
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--marketing-shadow-accent);
 }
 
 .section[data-section-intent="hero"] {
@@ -336,8 +386,8 @@ body.page-render .qr-page-renderer table {
   );
   --section-hero-glow: color-mix(
     in srgb,
-    var(--accent-secondary, var(--accent-primary, var(--marketing-primary, #1e87f0))) 22%,
-    rgba(0, 0, 0, 0.18)
+    var(--accent-secondary, var(--accent-primary, var(--marketing-primary))) 22%,
+    var(--marketing-overlay-strong)
   );
 }
 
@@ -346,7 +396,7 @@ body.page-render .qr-page-renderer table {
   color: var(--section-text-color, var(--color-text));
   border: 1px solid var(--section-hero-border);
   border-radius: calc(var(--card-radius) + 4px);
-  box-shadow: 0 34px 76px color-mix(in srgb, var(--section-hero-glow) 55%, rgba(0, 0, 0, 0.24));
+  box-shadow: 0 34px 76px color-mix(in srgb, var(--section-hero-glow) 55%, var(--marketing-overlay-hero));
   backdrop-filter: blur(4px);
 }
 
@@ -371,7 +421,7 @@ body.page-render .qr-page-renderer table {
   background: var(--surface);
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--marketing-shadow-card-soft);
 }
 
 .section[data-section-intent="highlight"] a,
@@ -380,8 +430,8 @@ body.page-render .qr-page-renderer table {
 }
 
 .section[data-appearance-legacy="contrast"] {
-  background: var(--marketing-primary, #1e87f0);
-  color: var(--text-on-primary, #ffffff);
+  background: var(--marketing-primary);
+  color: var(--text-on-primary, var(--marketing-text-on-primary));
 }
 
 .section[data-appearance-legacy="contrast"] a,
@@ -537,7 +587,7 @@ body.marketing-page .site-footer {
 
 .usecase-slider li.uk-current .uk-card-quizrace{
   transform:scale(1.08);
-  box-shadow:0 12px 28px rgba(0,0,0,.08);
+  box-shadow: var(--marketing-shadow-card-hover);
 }
 
 .usecase-slider li.uk-current .uk-card-quizrace:hover{
@@ -573,7 +623,7 @@ body.marketing-page .site-footer {
   color:color-mix(in oklab, var(--qr-fg) 75%, transparent);
   text-decoration:none;
   border:1px solid color-mix(in oklab, var(--qr-landing-primary) 32%, transparent);
-  box-shadow:0 12px 24px -22px rgba(15,23,42,.4);
+  box-shadow: var(--marketing-shadow-pill);
   transition:transform .16s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
 }
 
@@ -973,7 +1023,7 @@ body.dark-mode.marketing-page .qr-badge{
 .marketing-page .qr-mockup{
   background:var(--qr-card);
   border:1px solid var(--qr-card-border);
-  box-shadow:0 20px 60px rgba(2,6,23,.45);
+  box-shadow: var(--marketing-shadow-hero-mockup);
   border-radius:18px;
   overflow:hidden;
 }
@@ -1124,7 +1174,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
   transition:transform .15s ease, box-shadow .15s ease;
 }
 .marketing-page .uk-card-quizrace .uk-icon{ color:var(--qr-landing-primary); }
-.marketing-page .uk-card-quizrace:hover{ transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
+.marketing-page .uk-card-quizrace:hover{ transform:translateY(-2px); box-shadow: var(--marketing-shadow-card-hover); }
 
 /* Pricing & Steps */
 .marketing-page .pricing-grid>div{ display:flex; }
@@ -1342,7 +1392,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   bottom: -6px;
   height: 0.4em;
   width: 0;
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
+  background-image: var(--marketing-marker-underline);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   opacity: 0.7;
@@ -1377,7 +1427,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
 .marketing-page .live-dashboard__card {
   background: var(--qr-card);
   border: 1px solid var(--qr-card-border);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--marketing-shadow-callout);
   border-radius: 16px;
   padding: 0;
 }
@@ -1454,7 +1504,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   --stat-card-surface: var(--section-surface, var(--surface));
   --stat-card-surface-muted: var(--section-surface-muted, var(--surface-muted));
   --stat-card-text: var(--section-text-color, var(--color-text));
-  --stat-card-accent: var(--accent-primary, var(--marketing-primary, #1e87f0));
+  --stat-card-accent: var(--accent-primary, var(--marketing-primary));
 }
 
 .stat-strip__grid {
@@ -1522,7 +1572,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   border: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 72%, var(--stat-card-surface) 28%);
   border-radius: calc(var(--card-radius) + 2px);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
-    0 18px 38px rgba(15, 23, 42, 0.08);
+    var(--marketing-shadow-stat);
   isolation: isolate;
   transition: none;
 }
@@ -1531,7 +1581,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
 .section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card:hover {
   border-color: color-mix(in srgb, var(--stat-card-accent) 55%, var(--stat-card-surface-muted) 45%);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
-    0 22px 48px color-mix(in srgb, var(--stat-card-accent) 18%, rgba(15, 23, 42, 0.18));
+    0 22px 48px color-mix(in srgb, var(--stat-card-accent) 18%, var(--marketing-shadow-stat-accent));
 }
 
 .section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card::before {
