@@ -270,6 +270,18 @@ body.marketing-page p {
 .marketing-section + .marketing-section {
   margin-top: var(--marketing-section-gap);
 }
+.marketing-grid {
+  --marketing-grid-gap: clamp(20px, 3vw, 32px);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--marketing-grid-gap);
+}
+@media (max-width: 640px) {
+  .marketing-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
 .qr-page-renderer {
   box-sizing: border-box;
   max-width: 1200px;
