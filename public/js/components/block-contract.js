@@ -240,7 +240,7 @@ const schema = {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "layout": { "enum": SECTION_LAYOUTS },
+        "layout": { "enum": SECTION_LAYOUTS, "default": "normal" },
         "intent": { "enum": SECTION_INTENTS },
         "background": { "$ref": "#/definitions/SectionBackground" }
       }

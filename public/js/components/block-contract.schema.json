@@ -522,7 +522,8 @@
             "normal",
             "full",
             "card"
-          ]
+          ],
+          "default": "normal"
         },
         "intent": {
           "enum": [

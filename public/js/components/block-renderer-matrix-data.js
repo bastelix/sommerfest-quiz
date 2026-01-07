@@ -180,6 +180,7 @@ function resolveCsrfToken() {
 }
 
 const SECTION_LAYOUTS = ['normal', 'full', 'card'];
+// Keep background modes in sync with the layout options exposed in the editor UI.
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
   full: ['none', 'color', 'image'],
