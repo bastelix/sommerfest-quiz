@@ -6,8 +6,8 @@
 #}
 
 {% block head %}
-  {% set includeDarkStyles = includeDarkStyles|default(false) %}
-  {% set includeHighContrastStyles = includeHighContrastStyles|default(false) %}
+  {% set includeDarkStyles = includeDarkStyles|default(true) %}
+  {% set includeHighContrastStyles = includeHighContrastStyles|default(true) %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   {% if includeDarkStyles %}
     {% set cfg = config is defined ? config : {} %}
@@ -19,6 +19,7 @@
   {% if includeHighContrastStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   {% endif %}
+  <link rel="stylesheet" href="{{ basePath }}/css/calhelp.css">
 {% endblock %}
 
 {% block footer %}
