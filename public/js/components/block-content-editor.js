@@ -72,7 +72,8 @@ const VARIANT_LABELS = {
     inline: 'Inline (ruhig, sachlich)',
     cards: 'Cards (vergleichend)',
     'three-up': 'Three-up',
-    centered: 'Zentriert (signalstark)'
+    centered: 'Zentriert (signalstark)',
+    highlight: 'Highlight (Kennzahlen)'
   },
   proof: {
     'metric-callout': 'Kennzahl-Highlight'
@@ -694,6 +695,52 @@ const createMetricCalloutPreview = () => {
   return preview;
 };
 
+const createStatStripInlinePreview = () => {
+  const preview = createPreviewContainer('layout-preview--columns', 3);
+  for (let index = 0; index < 3; index += 1) {
+    const metric = document.createElement('div');
+    metric.className = 'layout-preview__metric';
+    metric.append(createPreviewLine('55%', true));
+    metric.append(createPreviewLine('80%'));
+    metric.append(createPreviewLine('45%'));
+    preview.append(metric);
+  }
+  return preview;
+};
+
+const createStatStripCenteredPreview = () => {
+  const preview = createPreviewContainer('layout-preview--columns', 3);
+  for (let index = 0; index < 3; index += 1) {
+    const metric = createPreviewCard();
+    metric.classList.add('layout-preview__card--centered');
+    metric.append(createPreviewLine('55%', true));
+    metric.append(createPreviewLine('75%'));
+    metric.append(createPreviewLine('45%'));
+    preview.append(metric);
+  }
+  return preview;
+};
+
+const createStatStripHighlightPreview = () => {
+  const preview = createPreviewContainer('layout-preview--columns', 2);
+  for (let index = 0; index < 2; index += 1) {
+    const metric = document.createElement('div');
+    metric.className = 'layout-preview__metric';
+    const row = document.createElement('div');
+    row.className = 'layout-preview__row';
+    row.append(createPreviewBadge('★'));
+    const column = document.createElement('div');
+    column.className = 'layout-preview__column';
+    column.append(createPreviewLine('60%', true));
+    column.append(createPreviewLine('80%'));
+    column.append(createPreviewLine('50%'));
+    row.append(column);
+    metric.append(row);
+    preview.append(metric);
+  }
+  return preview;
+};
+
 const LAYOUT_PREVIEWS = {
   hero: {
     centered_cta: createCenteredCtaPreview,
@@ -733,10 +780,11 @@ const LAYOUT_PREVIEWS = {
     split: () => createSplitPreview({ mediaFirst: false })
   },
   stat_strip: {
-    inline: () => createColumnsPreview(3),
+    inline: createStatStripInlinePreview,
     cards: () => createColumnsPreview(3),
     'three-up': () => createColumnsPreview(3),
-    centered: createCenteredCtaPreview
+    centered: createStatStripCenteredPreview,
+    highlight: createStatStripHighlightPreview
   },
   proof: {
     'metric-callout': createMetricCalloutPreview

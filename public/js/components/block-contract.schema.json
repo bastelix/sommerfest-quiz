@@ -247,6 +247,7 @@
             "inline",
             "cards",
             "centered",
+            "highlight",
             "three-up",
             "three_up"
           ]
