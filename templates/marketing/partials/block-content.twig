@@ -1,6 +1,6 @@
 {% set hasBlocks = pageBlocks is defined and pageBlocks is not null %}
 {% set targetId = block_content_id|default('marketing-page-content') %}
-{% set targetClass = block_content_class|default('marketing-page-content') %}
+{% set targetClass = (block_content_class|default('marketing-page-content')) ~ ' marketing-grid' %}
 <div id="{{ targetId }}" class="{{ targetClass }}">
   {% if not hasBlocks %}
     {{ content|raw }}
