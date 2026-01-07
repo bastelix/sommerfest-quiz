@@ -79,16 +79,36 @@ const applyMarketingDesign = () => {
   const configColors = config?.colors || {};
   const brand = tokens.brand || {};
 
-  const fallbackPrimary = resolveFallbackToken(root, '--brand-primary', DEFAULT_BRAND_PRIMARY);
-  const fallbackAccent = resolveFallbackToken(root, '--brand-accent', DEFAULT_BRAND_ACCENT);
+  const fallbackPrimary = resolveFallbackToken(
+    root,
+    '--marketing-primary',
+    resolveFallbackToken(root, '--brand-primary', DEFAULT_BRAND_PRIMARY),
+  );
+  const fallbackAccent = resolveFallbackToken(
+    root,
+    '--marketing-accent',
+    resolveFallbackToken(root, '--brand-accent', DEFAULT_BRAND_ACCENT),
+  );
   const fallbackSurface = resolveFallbackToken(
     root,
-    '--surface',
-    resolveFallbackToken(root, '--surface-card', DEFAULT_SURFACE),
+    '--marketing-surface',
+    resolveFallbackToken(root, '--surface', resolveFallbackToken(root, '--surface-card', DEFAULT_SURFACE)),
   );
-  const fallbackMuted = resolveFallbackToken(root, '--surface-muted', DEFAULT_SURFACE_MUTED);
-  const fallbackTopbarLight = resolveFallbackToken(root, '--qr-landing-topbar-bg-light', '');
-  const fallbackTopbarDark = resolveFallbackToken(root, '--qr-landing-topbar-bg-dark', '');
+  const fallbackMuted = resolveFallbackToken(
+    root,
+    '--marketing-surface-muted',
+    resolveFallbackToken(root, '--surface-muted', DEFAULT_SURFACE_MUTED),
+  );
+  const fallbackTopbarLight = resolveFallbackToken(
+    root,
+    '--marketing-topbar-light',
+    resolveFallbackToken(root, '--qr-landing-topbar-bg-light', ''),
+  );
+  const fallbackTopbarDark = resolveFallbackToken(
+    root,
+    '--marketing-topbar-dark',
+    resolveFallbackToken(root, '--qr-landing-topbar-bg-dark', ''),
+  );
 
   const primary = configColors.primary || colors.primary || brand.primary || fallbackPrimary;
   const accent =
@@ -125,22 +145,28 @@ const applyMarketingDesign = () => {
     variables.topbarDark ||
     fallbackTopbarDark;
 
-  root.style.setProperty('--brand-primary', primary);
-  root.style.setProperty('--accent-primary', primary);
-  root.style.setProperty('--brand-accent', accent);
-  root.style.setProperty('--accent-secondary', accent);
-  root.style.setProperty('--surface', surface);
-  root.style.setProperty('--surface-muted', surfaceMuted);
+  root.style.setProperty('--marketing-primary', primary);
+  root.style.setProperty('--marketing-accent', accent);
+  root.style.setProperty('--marketing-surface', surface);
+  root.style.setProperty('--marketing-surface-muted', surfaceMuted);
+  root.style.setProperty('--brand-primary', 'var(--marketing-primary)');
+  root.style.setProperty('--accent-primary', 'var(--marketing-primary)');
+  root.style.setProperty('--brand-accent', 'var(--marketing-accent)');
+  root.style.setProperty('--accent-secondary', 'var(--marketing-accent)');
+  root.style.setProperty('--surface', 'var(--marketing-surface)');
+  root.style.setProperty('--surface-muted', 'var(--marketing-surface-muted)');
   root.style.setProperty('--bg-page', 'var(--surface)');
   root.style.setProperty('--bg-section', 'var(--surface)');
   root.style.setProperty('--bg-card', 'var(--surface)');
   root.style.setProperty('--bg-accent', 'var(--brand-primary)');
 
   if (topbarLight) {
-    root.style.setProperty('--qr-landing-topbar-bg-light', topbarLight);
+    root.style.setProperty('--marketing-topbar-light', topbarLight);
+    root.style.setProperty('--qr-landing-topbar-bg-light', 'var(--marketing-topbar-light)');
   }
   if (topbarDark) {
-    root.style.setProperty('--qr-landing-topbar-bg-dark', topbarDark);
+    root.style.setProperty('--marketing-topbar-dark', topbarDark);
+    root.style.setProperty('--qr-landing-topbar-bg-dark', 'var(--marketing-topbar-dark)');
   }
 };
 

@@ -18,11 +18,11 @@ export function escapeAttribute(value) {
 
 const DEFAULT_APPEARANCE = {
   colors: {
-    primary: 'var(--accent-primary, var(--brand-primary, #1e87f0))',
-    secondary: 'var(--accent-secondary, var(--brand-accent, var(--brand-primary, #1e87f0)))',
-    accent: 'var(--brand-accent, var(--accent-secondary, var(--accent-primary, #1e87f0)))',
-    muted: 'var(--surface-muted, #f8fafc)',
-    surface: 'var(--surface, #ffffff)',
+    primary: 'var(--accent-primary, var(--brand-primary, var(--marketing-primary)))',
+    secondary: 'var(--accent-secondary, var(--brand-accent, var(--marketing-accent, var(--marketing-primary))))',
+    accent: 'var(--brand-accent, var(--accent-secondary, var(--accent-primary, var(--marketing-accent))))',
+    muted: 'var(--surface-muted, var(--marketing-surface-muted))',
+    surface: 'var(--surface, var(--marketing-surface))',
   },
   variables: {},
 };
@@ -359,14 +359,14 @@ const SECTION_INTENT_CONFIG = {
     containerClass: 'uk-container-large',
     innerClass: 'section__inner--accent',
     surfaceToken: 'primary',
-    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, #ffffff)' }
+    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, var(--marketing-text-on-primary))' }
   },
   hero: {
     sectionClass: 'uk-section-large',
     containerClass: 'uk-container-expand',
     innerClass: 'section__inner--hero uk-card uk-card-large uk-card-body',
     surfaceToken: 'secondary',
-    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, #ffffff)' }
+    textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, var(--marketing-text-on-primary))' }
   }
 };
 
