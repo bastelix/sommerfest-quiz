@@ -71,6 +71,7 @@ const VARIANT_LABELS = {
   stat_strip: {
     inline: 'Inline (ruhig, sachlich)',
     cards: 'Cards (vergleichend)',
+    'three-up': 'Three-up',
     centered: 'Zentriert (signalstark)'
   },
   proof: {
@@ -734,6 +735,7 @@ const LAYOUT_PREVIEWS = {
   stat_strip: {
     inline: () => createColumnsPreview(3),
     cards: () => createColumnsPreview(3),
+    'three-up': () => createColumnsPreview(3),
     centered: createCenteredCtaPreview
   },
   proof: {
