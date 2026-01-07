@@ -30,6 +30,8 @@ class DesignTokenService
         ],
     ];
 
+    private const DEFAULT_MARKETING_SURFACE = 'var(--surface-card, #ffffff)';
+
     /** @var list<string> */
     private const LAYOUT_PROFILES = ['narrow', 'standard', 'wide'];
 
@@ -413,10 +415,17 @@ class DesignTokenService
      */
     private function renderTokenCssBlock(string $selector, array $tokens): string
     {
+        $brandPrimary = $tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary'];
+        $brandAccent = $tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent'];
+
         $lines = [
             $selector . ' {',
-            '  --brand-primary: ' . $this->escapeCssValue($tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary']) . ';',
-            '  --brand-accent: ' . $this->escapeCssValue($tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent']) . ';',
+            '  --brand-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
+            '  --brand-accent: ' . $this->escapeCssValue($brandAccent) . ';',
+            '  --marketing-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
+            '  --marketing-accent: ' . $this->escapeCssValue($brandAccent) . ';',
+            '  --marketing-link: ' . $this->escapeCssValue($brandPrimary) . ';',
+            '  --marketing-surface: ' . $this->escapeCssValue(self::DEFAULT_MARKETING_SURFACE) . ';',
             '  --layout-profile: ' . $this->escapeCssValue($tokens['layout']['profile'] ?? self::DEFAULT_TOKENS['layout']['profile']) . ';',
             '  --typography-preset: ' . $this->escapeCssValue($tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']) . ';',
             '  --components-card-style: ' . $this->escapeCssValue($tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']) . ';',

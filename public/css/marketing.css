@@ -10,152 +10,40 @@ html[data-theme] body {
   background-color: inherit;
 }
 
-body.marketing-page{
-  --qr-brand-50:#eff6ff;
-  --qr-brand-100:#dbeafe;
-  --qr-brand-200:#bfdbfe;
-  --qr-brand-300:#93c5fd;
-  --qr-brand-400:#60a5fa;
-  --qr-brand-500:#3b82f6;
-  --qr-brand-600:#2563eb;
-  --qr-brand-700:#1d4ed8;
-  --qr-brand-800:#1e40af;
-  --qr-brand-900:#1e3a8a;
-  --qr-hero-grad-end:#6e40c9;
-  --qr-bg:#0d1117;
-  --qr-fg:#e6e9ef;
-  --qr-bg-soft:#11151b;
-  --qr-card:#161b22;
-  --qr-border:rgba(255,255,255,0.14);
-  --qr-hero-grad-start:#0d1117;
-  --qr-hero-gradient:linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link:#58a6ff;
-  --qr-ring:rgba(31,111,235,.35);
-  --qr-text:var(--qr-fg);
-  --qr-icon-color:var(--qr-text);
-  --qr-section-bg:var(--qr-bg);
-  --qr-card-border:var(--qr-border);
-  --qr-landing-bg:var(--qr-bg);
-  --qr-landing-text:var(--qr-fg);
-  --qr-landing-primary:#1f6feb;
-  --qr-contrast-on-primary:#ffffff;
-  --qr-danger-500:#ff6b6b;
-  --qr-danger-600:#ff4c4c;
-  --qr-muted:#e6eaf3;
-  --qr-shadow:0 6px 24px rgba(0,0,0,.35);
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg-light: var(--qr-landing-bg);
-  --qr-landing-topbar-bg-dark: var(--qr-landing-bg);
-  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
-}
-body.marketing-page:not(.dark-mode){
-  --qr-bg:#ffffff;
-  --qr-fg:#101418;
-  --qr-bg-soft:#f6f8fa;
-  --qr-card:#ffffff;
-  --qr-border:rgba(27,31,35,0.12);
-  --qr-hero-grad-start:var(--qr-brand-50);
-  --qr-hero-grad-end:var(--qr-brand-300);
-  --qr-hero-gradient:linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link:#1f6feb;
-  --qr-muted:#374151;
-  --qr-shadow:0 6px 24px rgba(0,0,0,0.05);
-  --qr-text:var(--qr-fg);
-  --qr-icon-color:var(--qr-text);
-  --qr-section-bg:var(--qr-bg);
-  --qr-card-border:var(--qr-border);
-  --qr-landing-bg:var(--qr-bg);
-  --qr-landing-text:var(--qr-fg);
-  --qr-contrast-on-primary:#ffffff;
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
-}
-
-body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary{
-  color:var(--qr-contrast-on-primary)!important;
-}
-
-body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon]{
-  color:inherit;
-}
-
-body.marketing-page.high-contrast{
-  --qr-bg:#ffffff;
-  --qr-fg:#000000;
-  --qr-bg-soft:#ffffff;
-  --qr-card:#ffffff;
-  --qr-border:#000000;
-  --qr-hero-grad-start:#ffffff;
-  --qr-hero-grad-end:#ffffff;
-  --qr-hero-gradient:linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link:#0000ee;
-  --qr-muted:#000000;
-  --qr-text:var(--qr-fg);
-  --qr-icon-color:var(--qr-text);
-  --qr-section-bg:var(--qr-bg);
-  --qr-card-border:var(--qr-border);
-  --qr-landing-bg:var(--qr-bg);
-  --qr-landing-text:var(--qr-fg);
-  --qr-landing-primary:#000000;
-  --qr-contrast-on-primary:#ffffff;
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
-}
-
-body.marketing-page.high-contrast .cta-main.uk-button-primary{
-  color:var(--qr-contrast-on-primary)!important;
-}
-
-body.marketing-page[data-theme="dark"].high-contrast{
-  --qr-bg:#000000;
-  --qr-fg:#ffffff;
-  --qr-bg-soft:#000000;
-  --qr-card:#000000;
-  --qr-border:#ffffff;
-  --qr-hero-grad-start:#000000;
-  --qr-hero-grad-end:#000000;
-  --qr-hero-gradient:linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link:#ffff00;
-  --qr-muted:#ffffff;
-  --qr-text:var(--qr-fg);
-  --qr-icon-color:var(--qr-text);
-  --qr-section-bg:var(--qr-bg);
-  --qr-card-border:var(--qr-border);
-  --qr-landing-bg:var(--qr-bg);
-  --qr-landing-text:var(--qr-fg);
-  --qr-landing-primary:#ffff00;
-  --qr-contrast-on-primary:#000000;
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
-}
-
-body.marketing-page[data-theme="dark"].high-contrast .cta-main.uk-button-primary{
-  color:var(--qr-contrast-on-primary)!important;
-}
-
 body.marketing-page {
-  --qr-bg: var(--marketing-background, #f0f9f3);
-  --qr-fg: var(--marketing-text, #123524);
-  --qr-text: var(--marketing-text, #123524);
-  --qr-muted: var(--marketing-muted, #3f5a4b);
+  --qr-brand-50: color-mix(in oklab, var(--marketing-primary, #1e87f0) 8%, #ffffff);
+  --qr-brand-100: color-mix(in oklab, var(--marketing-primary, #1e87f0) 16%, #ffffff);
+  --qr-brand-200: color-mix(in oklab, var(--marketing-primary, #1e87f0) 24%, #ffffff);
+  --qr-brand-300: color-mix(in oklab, var(--marketing-primary, #1e87f0) 32%, #ffffff);
+  --qr-brand-400: color-mix(in oklab, var(--marketing-primary, #1e87f0) 40%, #ffffff);
+  --qr-brand-500: var(--marketing-primary, #1e87f0);
+  --qr-brand-600: color-mix(in oklab, var(--marketing-primary, #1e87f0) 85%, #000000);
+  --qr-brand-700: color-mix(in oklab, var(--marketing-primary, #1e87f0) 92%, #000000);
+  --qr-brand-800: color-mix(in oklab, var(--marketing-primary, #1e87f0) 96%, #000000);
+  --qr-brand-900: color-mix(in oklab, var(--marketing-primary, #1e87f0) 98%, #000000);
+  --qr-bg: color-mix(in oklab, var(--marketing-surface, #ffffff) 90%, var(--marketing-primary, #138f52) 10%);
+  --qr-fg: color-mix(in oklab, #000000 80%, var(--marketing-primary, #138f52) 20%);
   --qr-bg-soft: color-mix(
     in oklab,
     var(--qr-bg) 84%,
     var(--marketing-surface, rgba(255, 255, 255, 0.96)) 16%
   );
   --qr-card: var(--marketing-surface, rgba(255, 255, 255, 0.96));
-  --qr-card-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #138f52) 18%, transparent));
-  --qr-ring: var(--marketing-ring, color-mix(in oklab, var(--marketing-primary, #138f52) 45%, transparent));
-  --qr-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #138f52) 18%, transparent));
-  --qr-landing-primary: var(--marketing-primary, #138f52);
+  --qr-border: color-mix(in oklab, var(--marketing-primary, #138f52) 18%, transparent);
+  --qr-ring: color-mix(in oklab, var(--marketing-primary, #138f52) 45%, transparent);
+  --qr-text: var(--qr-fg);
+  --qr-icon-color: var(--qr-text);
+  --qr-section-bg: var(--qr-bg);
+  --qr-card-border: var(--qr-border);
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
+  --qr-landing-primary: var(--marketing-primary, #138f52);
+  --qr-contrast-on-primary: #ffffff;
+  --qr-danger-500: #ff6b6b;
+  --qr-danger-600: #ff4c4c;
+  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary, #138f52) 30%);
+  --qr-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  --qr-link: var(--marketing-link, var(--marketing-primary, #138f52));
   --accent-primary: var(--marketing-primary, #138f52);
   --accent-secondary: var(--marketing-accent, var(--marketing-primary, #138f52));
   --accent-color: var(--marketing-primary, #138f52);
@@ -171,36 +59,38 @@ body.marketing-page {
   color-scheme: light;
 }
 
+body.marketing-page.dark-mode,
 body.marketing-page[data-theme="dark"]:not(.high-contrast) {
-  --qr-bg: var(--marketing-background, #071b12);
-  --qr-fg: var(--marketing-text, #e6fff3);
-  --qr-text: var(--marketing-text, #e6fff3);
-  --qr-muted: var(--marketing-muted, #b6d8c9);
+  --qr-bg: color-mix(in oklab, #000000 82%, var(--marketing-primary, #4cc986) 18%);
+  --qr-fg: color-mix(in oklab, #ffffff 85%, var(--marketing-primary, #4cc986) 15%);
   --qr-bg-soft: color-mix(
     in oklab,
     var(--qr-bg) 70%,
     var(--marketing-surface, rgba(15, 36, 27, 0.96)) 30%
   );
   --qr-card: var(--marketing-surface, rgba(15, 36, 27, 0.96));
-  --qr-card-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #4cc986) 30%, transparent));
-  --qr-ring: var(--marketing-ring, color-mix(in oklab, var(--marketing-primary, #4cc986) 55%, transparent));
-  --qr-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #4cc986) 30%, transparent));
+  --qr-border: color-mix(in oklab, var(--marketing-primary, #4cc986) 30%, transparent);
+  --qr-ring: color-mix(in oklab, var(--marketing-primary, #4cc986) 55%, transparent);
+  --qr-text: var(--qr-fg);
   --qr-landing-primary: var(--marketing-primary, #4cc986);
-  --qr-landing-bg: var(--qr-bg);
-  --qr-landing-text: var(--qr-fg);
+  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary, #4cc986) 30%);
+  --qr-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  --qr-link: var(--marketing-link, var(--marketing-primary, #4cc986));
   --accent-primary: var(--marketing-primary, #4cc986);
   --accent-secondary: var(--marketing-accent, var(--marketing-primary, #4cc986));
   --accent-color: var(--marketing-primary, #4cc986);
-  --qr-hero-grad-start: var(--qr-bg);
-  --qr-hero-grad-end: var(--qr-bg-soft);
-  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
   --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%);
   --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
   color-scheme: dark;
+}
+
+body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary {
+  color: var(--qr-contrast-on-primary) !important;
+}
+
+body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon] {
+  color: inherit;
 }
 
 body.marketing-page.high-contrast {
@@ -219,6 +109,8 @@ body.marketing-page.high-contrast {
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+  --qr-link: #0000ee;
+  --qr-contrast-on-primary: #ffffff;
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
@@ -228,7 +120,12 @@ body.marketing-page.high-contrast {
   color-scheme: light;
 }
 
-body.marketing-page[data-theme="dark"].high-contrast {
+body.marketing-page.high-contrast .cta-main.uk-button-primary {
+  color: var(--qr-contrast-on-primary) !important;
+}
+
+body.marketing-page[data-theme="dark"].high-contrast,
+body.marketing-page.dark-mode.high-contrast {
   --qr-bg: #000000;
   --qr-fg: #ffffff;
   --qr-text: #ffffff;
@@ -244,6 +141,8 @@ body.marketing-page[data-theme="dark"].high-contrast {
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+  --qr-link: #ffff00;
+  --qr-contrast-on-primary: #000000;
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
@@ -251,6 +150,11 @@ body.marketing-page[data-theme="dark"].high-contrast {
   --qr-landing-topbar-bg-dark: var(--qr-bg);
   --qr-landing-topbar-bg: var(--qr-bg);
   color-scheme: dark;
+}
+
+body.marketing-page[data-theme="dark"].high-contrast .cta-main.uk-button-primary,
+body.marketing-page.dark-mode.high-contrast .cta-main.uk-button-primary {
+  color: var(--qr-contrast-on-primary) !important;
 }
 
 body.dark-mode {
@@ -334,7 +238,7 @@ body.page-render .qr-page-renderer table {
 }
 
 .section[data-section-intent="highlight"] {
-  --section-surface: var(--accent-primary, var(--brand-primary, #1e87f0));
+  --section-surface: var(--accent-primary, var(--marketing-primary, #1e87f0));
   --section-padding-outer: clamp(32px, 6vw, 72px);
   --section-padding-inner: clamp(32px, 6vw, 68px);
   --section-text-color: var(--text-on-primary, #ffffff);
@@ -421,7 +325,7 @@ body.page-render .qr-page-renderer table {
   );
   --section-hero-glow: color-mix(
     in srgb,
-    var(--accent-secondary, var(--accent-primary, var(--brand-primary, #1e87f0))) 22%,
+    var(--accent-secondary, var(--accent-primary, var(--marketing-primary, #1e87f0))) 22%,
     rgba(0, 0, 0, 0.18)
   );
 }
@@ -465,7 +369,7 @@ body.page-render .qr-page-renderer table {
 }
 
 .section[data-appearance-legacy="contrast"] {
-  background: var(--brand-primary, #1e87f0);
+  background: var(--marketing-primary, #1e87f0);
   color: var(--text-on-primary, #ffffff);
 }
 
@@ -1539,7 +1443,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   --stat-card-surface: var(--section-surface, var(--surface));
   --stat-card-surface-muted: var(--section-surface-muted, var(--surface-muted));
   --stat-card-text: var(--section-text-color, var(--color-text));
-  --stat-card-accent: var(--accent-primary, var(--brand-primary, #1e87f0));
+  --stat-card-accent: var(--accent-primary, var(--marketing-primary, #1e87f0));
 }
 
 .stat-strip__grid {
