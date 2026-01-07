@@ -241,6 +241,8 @@ class PageController
             'blocks' => $pageBlocks ?? [],
             'features' => $pageFeatures,
             'featureData' => $marketingPayload['featureData'],
+            'design' => $design,
+            'renderContext' => $renderContext,
         ];
 
         if ($this->wantsJson($request)) {
