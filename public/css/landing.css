@@ -139,6 +139,128 @@ body.qr-landing[data-theme="dark"].high-contrast .cta-main.uk-button-primary{
   color:var(--qr-contrast-on-primary)!important;
 }
 
+body.qr-landing.marketing-page,
+body.qr-landing.generic-marketing,
+body.marketing-page:not(.qr-landing) {
+  --marketing-primary: #138f52;
+  --marketing-background: #f0f9f3;
+  --marketing-surface: rgba(255, 255, 255, 0.96);
+  --marketing-text: #123524;
+  --marketing-muted: #3f5a4b;
+  --marketing-border: rgba(19, 143, 82, 0.18);
+  --marketing-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
+  --qr-bg: var(--marketing-background);
+  --qr-fg: var(--marketing-text);
+  --qr-text: var(--marketing-text);
+  --qr-muted: var(--marketing-muted);
+  --qr-bg-soft: color-mix(in oklab, var(--marketing-background) 84%, var(--marketing-surface) 16%);
+  --qr-card: var(--marketing-surface);
+  --qr-card-border: var(--marketing-border);
+  --qr-ring: var(--marketing-ring);
+  --qr-border: var(--marketing-border);
+  --qr-landing-primary: var(--marketing-primary);
+  --qr-landing-bg: var(--qr-bg);
+  --qr-landing-text: var(--qr-fg);
+  --qr-hero-grad-start: var(--qr-bg);
+  --qr-hero-grad-end: var(--qr-bg-soft);
+  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
+  --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%);
+  --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
+  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+  color-scheme: light;
+}
+
+body.qr-landing.marketing-page[data-theme="dark"]:not(.high-contrast),
+body.qr-landing.generic-marketing[data-theme="dark"]:not(.high-contrast),
+body.marketing-page:not(.qr-landing)[data-theme="dark"]:not(.high-contrast) {
+  --marketing-primary: #4cc986;
+  --marketing-background: #071b12;
+  --marketing-surface: rgba(15, 36, 27, 0.96);
+  --marketing-text: #e6fff3;
+  --marketing-muted: #b6d8c9;
+  --marketing-border: rgba(76, 201, 134, 0.3);
+  --marketing-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
+  --qr-bg: var(--marketing-background);
+  --qr-fg: var(--marketing-text);
+  --qr-text: var(--marketing-text);
+  --qr-muted: var(--marketing-muted);
+  --qr-bg-soft: color-mix(in oklab, var(--marketing-background) 70%, var(--marketing-surface) 30%);
+  --qr-card: var(--marketing-surface);
+  --qr-card-border: var(--marketing-border);
+  --qr-ring: var(--marketing-ring);
+  --qr-border: var(--marketing-border);
+  --qr-landing-primary: var(--marketing-primary);
+  --qr-landing-bg: var(--qr-bg);
+  --qr-landing-text: var(--qr-fg);
+  --qr-hero-grad-start: var(--qr-bg);
+  --qr-hero-grad-end: var(--qr-bg-soft);
+  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
+  --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%);
+  --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
+  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
+  color-scheme: dark;
+}
+
+body.qr-landing.marketing-page.high-contrast,
+body.qr-landing.generic-marketing.high-contrast,
+body.marketing-page:not(.qr-landing).high-contrast {
+  --qr-bg: #ffffff;
+  --qr-fg: #000000;
+  --qr-text: #000000;
+  --qr-muted: #000000;
+  --qr-bg-soft: #ffffff;
+  --qr-card: #ffffff;
+  --qr-card-border: #000000;
+  --qr-ring: rgba(0, 0, 0, 0.6);
+  --qr-border: #000000;
+  --qr-landing-primary: #000000;
+  --qr-landing-bg: var(--qr-bg);
+  --qr-landing-text: var(--qr-fg);
+  --qr-hero-grad-start: var(--qr-bg);
+  --qr-hero-grad-end: var(--qr-bg);
+  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
+  --qr-landing-topbar-bg-light: var(--qr-bg);
+  --qr-landing-topbar-bg-dark: var(--qr-bg);
+  --qr-landing-topbar-bg: var(--qr-bg);
+  color-scheme: light;
+}
+
+body.qr-landing.marketing-page[data-theme="dark"].high-contrast,
+body.qr-landing.generic-marketing[data-theme="dark"].high-contrast,
+body.marketing-page:not(.qr-landing)[data-theme="dark"].high-contrast {
+  --qr-bg: #000000;
+  --qr-fg: #ffffff;
+  --qr-text: #ffffff;
+  --qr-muted: #ffffff;
+  --qr-bg-soft: #000000;
+  --qr-card: #000000;
+  --qr-card-border: #ffffff;
+  --qr-ring: rgba(255, 255, 255, 0.72);
+  --qr-border: #ffffff;
+  --qr-landing-primary: #ffffff;
+  --qr-landing-bg: var(--qr-bg);
+  --qr-landing-text: var(--qr-fg);
+  --qr-hero-grad-start: var(--qr-bg);
+  --qr-hero-grad-end: var(--qr-bg);
+  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
+  --qr-landing-topbar-bg-light: var(--qr-bg);
+  --qr-landing-topbar-bg-dark: var(--qr-bg);
+  --qr-landing-topbar-bg: var(--qr-bg);
+  color-scheme: dark;
+}
+
 body.dark-mode {
   background-color: var(--qr-bg);
   color: var(--qr-text);
