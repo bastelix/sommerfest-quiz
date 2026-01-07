@@ -1,8 +1,5 @@
 const DEFAULT_NAMESPACE = 'default';
 
-const DEFAULT_BRAND_PRIMARY = '#1e87f0';
-const DEFAULT_BRAND_ACCENT = '#f97316';
-
 const designRegistry = {};
 
 const normalizeNamespace = namespace => {
@@ -58,6 +55,10 @@ const mergeAppearance = (namespace, appearance = {}) => {
   };
 };
 
+const resolveFirstValue = (...values) => {
+  return values.find(value => value !== null && value !== undefined && value !== '');
+};
+
 const applyColorsToRoot = (element, appearance) => {
   if (!element || typeof element?.style?.setProperty !== 'function') {
     return;
@@ -67,32 +68,105 @@ const applyColorsToRoot = (element, appearance) => {
   const colors = appearance?.colors || {};
   const brand = tokens.brand || {};
 
-  const primary = colors.primary || brand.primary || DEFAULT_BRAND_PRIMARY;
-  const accent = colors.secondary || colors.accent || brand.accent || DEFAULT_BRAND_ACCENT;
-  const surface = colors.surface || appearance?.variables?.surface;
-  const muted = colors.muted || appearance?.variables?.surfaceMuted;
-  const topbarLight = colors.topbar_light || colors.topbarLight || appearance?.variables?.topbarLight;
-  const topbarDark = colors.topbar_dark || colors.topbarDark || appearance?.variables?.topbarDark;
-  const onAccent =
-    colors.on_accent ||
-    colors.onAccent ||
-    colors.on_primary ||
-    colors.onPrimary ||
-    colors.contrastOnPrimary ||
-    colors.text_on_primary ||
-    colors.textOnPrimary ||
-    appearance?.variables?.onAccent ||
-    appearance?.variables?.onPrimary ||
-    appearance?.variables?.textOnPrimary;
+  const primary = resolveFirstValue(
+    colors.primary,
+    colors.brandPrimary,
+    colors.brand_primary,
+    appearance?.variables?.primary,
+    appearance?.variables?.brandPrimary,
+    brand.primary,
+  );
+  const accent = resolveFirstValue(
+    colors.secondary,
+    colors.accent,
+    colors.brandAccent,
+    colors.brand_accent,
+    appearance?.variables?.secondary,
+    appearance?.variables?.accent,
+    appearance?.variables?.brandAccent,
+    brand.accent,
+  );
+  const surface = resolveFirstValue(
+    colors.surface,
+    appearance?.variables?.surface,
+  );
+  const muted = resolveFirstValue(
+    colors.surfaceMuted,
+    colors.muted,
+    appearance?.variables?.surfaceMuted,
+  );
+  const topbarLight = resolveFirstValue(
+    colors.topbar_light,
+    colors.topbarLight,
+    appearance?.variables?.topbarLight,
+  );
+  const topbarDark = resolveFirstValue(
+    colors.topbar_dark,
+    colors.topbarDark,
+    appearance?.variables?.topbarDark,
+  );
+  const onAccent = resolveFirstValue(
+    colors.on_accent,
+    colors.onAccent,
+    colors.on_primary,
+    colors.onPrimary,
+    colors.contrastOnPrimary,
+    colors.text_on_primary,
+    colors.textOnPrimary,
+    appearance?.variables?.onAccent,
+    appearance?.variables?.onPrimary,
+    appearance?.variables?.textOnPrimary,
+  );
 
-  const marketingPrimary = primary || 'var(--brand-primary)';
-  const marketingAccent = accent || 'var(--brand-accent)';
-  const marketingOnAccent = onAccent || 'var(--text-on-primary)';
+  const marketingPrimary = resolveFirstValue(
+    colors.marketingPrimary,
+    colors.marketing_primary,
+    appearance?.variables?.marketingPrimary,
+    appearance?.variables?.marketing_primary,
+    primary,
+    'var(--brand-primary)',
+  );
+  const marketingAccent = resolveFirstValue(
+    colors.marketingAccent,
+    colors.marketing_accent,
+    appearance?.variables?.marketingAccent,
+    appearance?.variables?.marketing_accent,
+    accent,
+    'var(--brand-accent)',
+  );
+  const marketingOnAccent = resolveFirstValue(
+    colors.marketingOnAccent,
+    colors.marketing_on_accent,
+    appearance?.variables?.marketingOnAccent,
+    appearance?.variables?.marketing_on_accent,
+    onAccent,
+    'var(--text-on-primary)',
+  );
+  const marketingSurface = resolveFirstValue(
+    colors.marketingSurface,
+    colors.marketing_surface,
+    appearance?.variables?.marketingSurface,
+    appearance?.variables?.marketing_surface,
+    surface,
+    'var(--surface)',
+  );
+  const marketingMuted = resolveFirstValue(
+    colors.marketingSurfaceMuted,
+    colors.marketing_surface_muted,
+    appearance?.variables?.marketingSurfaceMuted,
+    appearance?.variables?.marketing_surface_muted,
+    muted,
+    'var(--surface-muted)',
+  );
 
-  element.style.setProperty('--brand-primary', primary);
-  element.style.setProperty('--accent-primary', primary);
-  element.style.setProperty('--brand-accent', accent);
-  element.style.setProperty('--accent-secondary', accent);
+  if (primary) {
+    element.style.setProperty('--brand-primary', primary);
+    element.style.setProperty('--accent-primary', primary);
+  }
+  if (accent) {
+    element.style.setProperty('--brand-accent', accent);
+    element.style.setProperty('--accent-secondary', accent);
+  }
   element.style.setProperty('--marketing-primary', marketingPrimary);
   element.style.setProperty('--marketing-accent', marketingAccent);
   element.style.setProperty('--marketing-on-accent', marketingOnAccent);
@@ -100,9 +174,6 @@ const applyColorsToRoot = (element, appearance) => {
   element.style.setProperty('--bg-section', 'var(--surface)');
   element.style.setProperty('--bg-card', 'var(--surface)');
   element.style.setProperty('--bg-accent', 'var(--brand-primary)');
-
-  const marketingSurface = surface || 'var(--surface)';
-  const marketingMuted = muted || 'var(--surface-muted)';
 
   element.style.setProperty('--marketing-surface', marketingSurface);
   element.style.setProperty('--marketing-surface-muted', marketingMuted);
