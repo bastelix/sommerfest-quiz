@@ -36,6 +36,23 @@
     var(--brand-accent) 16%,
     transparent
   );
+  --preview-card-bg: var(--surface-card);
+  --preview-card-border: var(--border-muted);
+  --preview-line: #d1d5db;
+  --preview-line-accent: #94a3b8;
+  --preview-media-start: #dbeafe;
+  --preview-media-end: #bfdbfe;
+  --preview-media-border: #cbd5e1;
+  --preview-icon-bg: #c7d2fe;
+  --preview-icon-tile-bg: var(--surface-card);
+  --preview-icon-tile-border: #dfe7f3;
+  --preview-badge-bg: #e0e7ff;
+  --preview-badge-text: #1e3a8a;
+  --preview-pill-bg: #c7d2fe;
+  --preview-accordion-bg: var(--surface-card);
+  --preview-accordion-border: #e5e7eb;
+  --preview-metric-bg: var(--surface-card);
+  --preview-metric-border: #dfe7f3;
 
   /* ── Text ── */
   --text-body: #111827;
@@ -118,6 +135,23 @@
     var(--brand-accent) 24%,
     transparent
   );
+  --preview-card-bg: var(--surface-card);
+  --preview-card-border: var(--border-muted);
+  --preview-line: #4b5f7a;
+  --preview-line-accent: #6b7ea0;
+  --preview-media-start: #1f2a3d;
+  --preview-media-end: #2b3b57;
+  --preview-media-border: #31445f;
+  --preview-icon-bg: #42567a;
+  --preview-icon-tile-bg: var(--surface-card);
+  --preview-icon-tile-border: #31445f;
+  --preview-badge-bg: #2f3f5f;
+  --preview-badge-text: #e7efff;
+  --preview-pill-bg: #42567a;
+  --preview-accordion-bg: var(--surface-card);
+  --preview-accordion-border: #31445f;
+  --preview-metric-bg: var(--surface-card);
+  --preview-metric-border: #31445f;
 
   /* ── Text ── */
   --text-body: #f2f5fa;
