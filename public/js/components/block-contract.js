@@ -144,7 +144,7 @@ const schema = {
       "title": "Stat strip block",
       "properties": {
         "type": { "const": "stat_strip" },
-        "variant": { "enum": ["inline", "cards", "centered", "three-up"] },
+        "variant": { "enum": ["inline", "cards", "centered", "highlight", "three-up", "three_up"] },
         "data": { "$ref": "#/definitions/StatStripData" }
       },
       "required": ["type", "variant", "data"]
