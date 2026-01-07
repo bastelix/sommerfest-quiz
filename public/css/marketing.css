@@ -15,6 +15,14 @@
   --marketing-danger-600: #ff4c4c;
   --marketing-link-contrast-light: #0000ee;
   --marketing-link-contrast-dark: #ffff00;
+  --marketing-h1: clamp(2.4rem, 4vw, 3.6rem);
+  --marketing-h2: clamp(2rem, 3vw, 2.8rem);
+  --marketing-h3: clamp(1.5rem, 2.3vw, 2.2rem);
+  --marketing-body: clamp(1rem, 1.2vw, 1.125rem);
+  --marketing-heading-line-height: 1.15;
+  --marketing-body-line-height: 1.65;
+  --marketing-section-padding: clamp(32px, 6vw, 72px);
+  --marketing-section-gap: clamp(20px, 4vw, 40px);
   --marketing-surface-glass: rgba(255, 255, 255, 0.96);
   --marketing-surface-glass-dark: rgba(15, 36, 27, 0.96);
   --marketing-surface-accent-soft: rgba(255, 255, 255, 0.08);
@@ -220,6 +228,26 @@ body.marketing-page {
   background-color: var(--qr-hero-grad-start);
 }
 body.marketing-page { color: var(--qr-fg); }
+body.marketing-page h1 {
+  font-size: var(--marketing-h1);
+  line-height: var(--marketing-heading-line-height);
+  margin: 0 0 0.6em;
+}
+body.marketing-page h2 {
+  font-size: var(--marketing-h2);
+  line-height: var(--marketing-heading-line-height);
+  margin: 0 0 0.6em;
+}
+body.marketing-page h3 {
+  font-size: var(--marketing-h3);
+  line-height: var(--marketing-heading-line-height);
+  margin: 0 0 0.5em;
+}
+body.marketing-page p {
+  font-size: var(--marketing-body);
+  line-height: var(--marketing-body-line-height);
+  margin: 0 0 1em;
+}
 .marketing-layout {
   min-height: 100%;
   display: flex;
@@ -230,6 +258,10 @@ body.marketing-page { color: var(--qr-fg); }
 }
 .marketing-section {
   background: var(--section-bg-color, var(--section-surface, transparent));
+  padding-block: var(--marketing-section-padding);
+}
+.marketing-section + .marketing-section {
+  margin-top: var(--marketing-section-gap);
 }
 .qr-page-renderer {
   box-sizing: border-box;
