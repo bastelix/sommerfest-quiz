@@ -106,7 +106,7 @@ const SECTION_LAYOUT_OPTIONS = [
     description: 'Hintergrund und Padding sind an die Inhaltsbreite gekoppelt.'
   },
   {
-    value: 'fullwidth',
+    value: 'full',
     label: 'Hintergrund volle Breite',
     description: 'Hintergrund läuft über die gesamte Breite, der Inhalt bleibt eingerückt.'
   },
@@ -129,13 +129,13 @@ const LEGACY_APPEARANCE_ALIASES = {
 
 const LAYOUT_TO_APPEARANCE = {
   normal: 'contained',
-  fullwidth: 'full',
+  full: 'full',
   card: 'card'
 };
 
 const APPEARANCE_TO_LAYOUT = {
   contained: 'normal',
-  full: 'fullwidth',
+  full: 'full',
   card: 'card'
 };
 
@@ -234,7 +234,7 @@ const BACKGROUND_INTENT_BY_COLOR = {
 
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
-  fullwidth: ['none', 'color', 'image'],
+  full: ['none', 'color', 'image'],
   card: ['none', 'color']
 };
 
@@ -255,7 +255,13 @@ const clampOverlayValue = value => {
   return Math.min(1, Math.max(0, numeric));
 };
 
-const normalizeLayout = layout => (SECTION_LAYOUTS.includes(layout) ? layout : undefined);
+const normalizeLayout = layout => {
+  const normalized = typeof layout === 'string' ? layout.trim() : '';
+  if (normalized === 'fullwidth') {
+    return 'full';
+  }
+  return SECTION_LAYOUTS.includes(normalized) ? normalized : undefined;
+};
 
 const resolveLayout = (block, appearance = undefined) => {
   const rawLayout = typeof block?.meta?.sectionStyle?.layout === 'string' ? block.meta.sectionStyle.layout.trim() : '';
@@ -301,7 +307,7 @@ const normalizeBackgroundForLayout = (background, layout, legacyBackgroundImage,
     return { mode, colorToken };
   }
 
-  if (mode === 'image' && layout === 'fullwidth' && imageId) {
+  if (mode === 'image' && layout === 'full' && imageId) {
     const normalized = { mode, imageId, attachment };
     if (overlay !== undefined) {
       normalized.overlay = overlay;
@@ -327,7 +333,7 @@ const resolveSectionStyle = block => {
 };
 
 const resolveBackgroundIntent = (background, layout) => {
-  if (layout === 'fullwidth' && background.mode === 'image') {
+  if (layout === 'full' && background.mode === 'image') {
     return 'image';
   }
 
@@ -2381,7 +2387,7 @@ export class BlockContentEditor {
       const backgroundIntent = resolveBackgroundIntent(background, layout);
       const intentOptions = BACKGROUND_INTENT_OPTIONS.filter(option => {
         if (option.preset.mode === 'image') {
-          return layout === 'fullwidth' && allowedBackgroundModes.includes('image');
+          return layout === 'full' && allowedBackgroundModes.includes('image');
         }
         if (option.preset.mode === 'color') {
           return allowedBackgroundModes.includes('color');
@@ -2428,7 +2434,7 @@ export class BlockContentEditor {
           colorField.hidden = mode !== 'color';
         }
         if (imageControls) {
-          imageControls.hidden = !(layout === 'fullwidth' && mode === 'image');
+          imageControls.hidden = !(layout === 'full' && mode === 'image');
         }
       };
 
@@ -2461,7 +2467,7 @@ export class BlockContentEditor {
         const nextMode = event.target.value;
         this.updateSectionBackground(block.id, { mode: nextMode });
         toggleBackgroundFields(nextMode);
-        if (nextMode === 'image' && layout === 'fullwidth' && !background.imageId && imageInput) {
+        if (nextMode === 'image' && layout === 'full' && !background.imageId && imageInput) {
           imageInput.focus();
         }
       });
@@ -2520,7 +2526,7 @@ export class BlockContentEditor {
         advancedBody.append(colorField);
       }
 
-      if (allowedBackgroundModes.includes('image') && layout === 'fullwidth') {
+      if (allowedBackgroundModes.includes('image') && layout === 'full') {
         imageControls = document.createElement('div');
         imageControls.className = 'background-image-fields';
 
@@ -4268,7 +4274,7 @@ export class BlockContentEditor {
     }
 
     const layout = resolveLayout(targetBlock);
-    if (preset.mode === 'image' && layout !== 'fullwidth') {
+    if (preset.mode === 'image' && layout !== 'full') {
       return;
     }
 

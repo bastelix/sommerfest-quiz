@@ -30,7 +30,10 @@ const SECTION_APPEARANCE_ALIASES = {
 };
 
 const SECTION_APPEARANCES = ['contained', 'full', 'card', ...Object.keys(SECTION_APPEARANCE_ALIASES)];
-const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
+const SECTION_LAYOUTS = ['normal', 'full', 'card'];
+const SECTION_LAYOUT_ALIASES = {
+  fullwidth: 'full'
+};
 const SECTION_BACKGROUND_MODES = ['none', 'color', 'image'];
 const SECTION_BACKGROUND_ATTACHMENTS = ['scroll', 'fixed'];
 const CTA_GROUP_TYPES = ['hero'];
@@ -902,14 +905,15 @@ export function resolveSectionAppearancePreset(appearance) {
 
 const APPEARANCE_TO_LAYOUT = {
   contained: 'normal',
-  full: 'fullwidth',
+  full: 'full',
   card: 'card'
 };
 
 function normalizeSectionLayout(layout, legacyAppearance) {
   const normalizedLayout = typeof layout === 'string' ? layout.trim() : undefined;
-  if (SECTION_LAYOUTS.includes(normalizedLayout)) {
-    return normalizedLayout;
+  const mappedLayout = normalizedLayout ? SECTION_LAYOUT_ALIASES[normalizedLayout] || normalizedLayout : undefined;
+  if (mappedLayout && SECTION_LAYOUTS.includes(mappedLayout)) {
+    return mappedLayout;
   }
 
   const preset = normalizeSectionAppearance(legacyAppearance);
@@ -979,7 +983,7 @@ export function normalizeSectionBackground(background, legacyBackgroundImage, la
     mode = 'none';
   }
 
-  const layoutSupportsImages = layout === 'fullwidth';
+  const layoutSupportsImages = layout === 'full';
 
   const normalized = { mode };
 
@@ -1099,7 +1103,7 @@ export function validateSectionBackground(background, layout) {
     return false;
   }
 
-  const overlayAllowed = layout === 'fullwidth' && background.mode === 'image';
+  const overlayAllowed = layout === 'full' && background.mode === 'image';
   if (background.overlay !== undefined) {
     const numericOverlay = Number.parseFloat(background.overlay);
     if (!overlayAllowed || !Number.isFinite(numericOverlay) || numericOverlay < 0 || numericOverlay > 1) {
@@ -1108,7 +1112,7 @@ export function validateSectionBackground(background, layout) {
   }
 
   if (background.attachment !== undefined) {
-    if (background.mode !== 'image' || layout !== 'fullwidth') {
+    if (background.mode !== 'image' || layout !== 'full') {
       return false;
     }
     if (!SECTION_BACKGROUND_ATTACHMENTS.includes(background.attachment)) {
@@ -1132,7 +1136,7 @@ export function validateSectionBackground(background, layout) {
   }
 
   if (background.mode === 'image') {
-    if (layout !== 'fullwidth') {
+    if (layout !== 'full') {
       return false;
     }
 
@@ -1156,11 +1160,8 @@ function validateSectionStyle(style) {
     return false;
   }
 
-  const layout = typeof style.layout === 'string' ? style.layout.trim() : undefined;
+  const layout = normalizeSectionLayout(style.layout);
   if (!layout) {
-    return false;
-  }
-  if (!SECTION_LAYOUTS.includes(layout)) {
     return false;
   }
 

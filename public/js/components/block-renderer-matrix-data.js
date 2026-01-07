@@ -179,10 +179,10 @@ function resolveCsrfToken() {
   return '';
 }
 
-const SECTION_LAYOUTS = ['normal', 'fullwidth', 'card'];
+const SECTION_LAYOUTS = ['normal', 'full', 'card'];
 const BACKGROUND_MODES_BY_LAYOUT = {
   normal: ['none', 'color'],
-  fullwidth: ['none', 'color', 'image'],
+  full: ['none', 'color', 'image'],
   card: ['none', 'color']
 };
 
@@ -220,7 +220,8 @@ function normalizeSectionStyle(block) {
 
 function resolveSectionLayout(block) {
   const sectionStyle = normalizeSectionStyle(block);
-  const layout = typeof sectionStyle.layout === 'string' ? sectionStyle.layout.trim() : '';
+  const rawLayout = typeof sectionStyle.layout === 'string' ? sectionStyle.layout.trim() : '';
+  const layout = rawLayout === 'fullwidth' ? 'full' : rawLayout;
   return SECTION_LAYOUTS.includes(layout) ? layout : 'normal';
 }
 
@@ -266,7 +267,7 @@ function resolveSectionBackground(block, layout) {
   }
 
   if (mode === 'image') {
-    if (layout !== 'fullwidth' || !imageId) {
+    if (layout !== 'full' || !imageId) {
       return { mode: 'none' };
     }
 
@@ -437,7 +438,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const background = resolveSectionBackground(block, layout);
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const { intent, preset } = resolveSectionIntentPreset(block);
-  const bleed = layout === 'fullwidth' ? 'full' : null;
+  const bleed = layout === 'full' ? 'full' : null;
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const layoutFlag = layout === 'card' ? 'card' : '';
@@ -485,7 +486,12 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   ]
     .filter(Boolean)
     .join(' ');
-  const innerClassName = ['section__inner', ...normalizeClassList(preset.innerClass)].filter(Boolean).join(' ');
+  const layoutInnerClass = layout === 'card' ? 'section__inner--card' : '';
+  const innerClassName = [
+    'section__inner',
+    ...normalizeClassList(preset.innerClass),
+    ...normalizeClassList(layoutInnerClass)
+  ].filter(Boolean).join(' ');
   const contentWrapper = `<div class="${innerClassName}">${content}</div>`;
   const containerClasses = [
     ...normalizeClassList(containerClass),
