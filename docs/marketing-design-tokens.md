@@ -14,6 +14,17 @@ Page-Editor Marketing-Seiten binden ausschließlich `public/css/marketing.css` e
 der alleinige Style-Entry für diese Marketing-Pages und soll ohne Abhängigkeit zu `landing.css`
 gepflegt werden.
 
+## Build hook for marketing.css
+
+When you need a production bundle for marketing pages, run a dedicated minify step that targets
+only `public/css/marketing.css`. For example, add a CI hook or local script step such as:
+
+```bash
+npx postcss public/css/marketing.css --env production --no-map -o public/css/marketing.min.css
+```
+
+This keeps the marketing pipeline isolated and avoids touching `public/css/landing.css`.
+
 ## Managing marketing tokens
 
 1. Open the **Page Design** editor for the marketing namespace you want to adjust.
