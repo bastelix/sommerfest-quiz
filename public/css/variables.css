@@ -79,35 +79,35 @@
   /* ── Semantic foundation ── */
 
   /* Brand */
-  --brand-primary: #63a4ff;
-  --brand-secondary: #f97316;
+  --brand-primary: #9fc5ff;
+  --brand-secondary: #ff8a33;
   --brand-accent: var(--brand-secondary);
 
   /* Surface */
-  --surface-page: #0e1218;
-  --surface-section: #111827;
-  --surface-card: #161b22;
-  --surface-muted: #0b1018;
-  --surface-subtle: #0f172a;
+  --surface-page: #0a0d12;
+  --surface-section: #111a24;
+  --surface-card: #1a2636;
+  --surface-muted: #0b111a;
+  --surface-subtle: #0f1722;
   --surface-accent-soft: color-mix(
     in srgb,
-    var(--brand-accent) 18%,
+    var(--brand-accent) 24%,
     transparent
   );
 
   /* Text */
-  --text-body: #e5e7eb;
-  --text-heading: #f8fafc;
-  --text-muted: #cbd5e1;
+  --text-body: #f2f5fa;
+  --text-heading: #ffffff;
+  --text-muted: #e0e6f1;
   --text-on-primary: #ffffff;
 
   /* Spacing */
   --space-section: 2.25rem;
 
-  /* Status / Utility */
-  --border-muted: #2c3a4b;
-  --danger-500: #ff6b6b;
-  --danger-600: #ff4c4c;
+  /* Utility */
+  --border-muted: #3b4c63;
+  --danger-500: #ff7b86;
+  --danger-600: #ff5c6b;
 
   /* ── Legacy aliases (one-way only) ── */
 
