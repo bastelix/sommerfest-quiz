@@ -1,0 +1,72 @@
+{% set appearanceData = appearance|default(design.appearance|default({})) %}
+{% set appearanceColors = appearanceData.colors|default({}) %}
+{% set appearanceVars = appearanceData.variables|default({}) %}
+
+{% set cssVars = [] %}
+{% for key, value in appearanceColors if value %}
+  {% set cssVars = cssVars|merge(['--appearance-color-' ~ (key|replace({'_': '-'})|lower) ~ ': ' ~ value]) %}
+{% endfor %}
+{% for key, value in appearanceVars if value %}
+  {% set cssVars = cssVars|merge(['--appearance-var-' ~ (key|replace({'_': '-'})|lower) ~ ': ' ~ value]) %}
+{% endfor %}
+
+{% if appearanceColors.primary is defined and appearanceColors.primary %}
+  {% set cssVars = cssVars|merge(['--brand-primary: ' ~ appearanceColors.primary]) %}
+{% endif %}
+{% if appearanceColors.secondary is defined and appearanceColors.secondary %}
+  {% set cssVars = cssVars|merge(['--brand-secondary: ' ~ appearanceColors.secondary]) %}
+{% endif %}
+{% if appearanceColors.accent is defined and appearanceColors.accent %}
+  {% set cssVars = cssVars|merge(['--brand-accent: ' ~ appearanceColors.accent]) %}
+{% endif %}
+
+{% if appearanceVars.surface is defined and appearanceVars.surface %}
+  {% set cssVars = cssVars|merge(['--surface: ' ~ appearanceVars.surface]) %}
+{% endif %}
+{% if appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted %}
+  {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
+{% endif %}
+{% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}
+  {% set cssVars = cssVars|merge(['--topbar-bg-light: ' ~ appearanceVars.topbarLight]) %}
+{% endif %}
+{% if appearanceVars.topbarDark is defined and appearanceVars.topbarDark %}
+  {% set cssVars = cssVars|merge(['--topbar-bg-dark: ' ~ appearanceVars.topbarDark]) %}
+{% endif %}
+
+{% set marketingPrimary = appearanceColors.primary is defined and appearanceColors.primary
+  ? appearanceColors.primary
+  : 'var(--brand-primary)'
+%}
+{% set marketingAccent = appearanceColors.accent is defined and appearanceColors.accent
+  ? appearanceColors.accent
+  : (appearanceColors.secondary is defined and appearanceColors.secondary ? appearanceColors.secondary : 'var(--brand-accent)')
+%}
+{% set marketingSurface = appearanceVars.surface is defined and appearanceVars.surface
+  ? appearanceVars.surface
+  : 'var(--surface-card)'
+%}
+{% set marketingMuted = appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted
+  ? appearanceVars.surfaceMuted
+  : 'var(--surface-muted)'
+%}
+{% set marketingBackground = appearanceColors.background is defined and appearanceColors.background
+  ? appearanceColors.background
+  : 'var(--surface-page)'
+%}
+
+{% set cssVars = cssVars|merge([
+  '--marketing-primary: ' ~ marketingPrimary,
+  '--marketing-accent: ' ~ marketingAccent,
+  '--marketing-surface: ' ~ marketingSurface,
+  '--marketing-muted: ' ~ marketingMuted,
+  '--marketing-background: ' ~ marketingBackground
+]) %}
+
+{% if cssVars is not empty %}
+  <style>
+    html,
+    body {
+      {{ cssVars|join(';' ~ '\n      ') }};
+    }
+  </style>
+{% endif %}
