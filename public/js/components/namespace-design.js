@@ -73,26 +73,46 @@ const applyColorsToRoot = (element, appearance) => {
   const muted = colors.muted || appearance?.variables?.surfaceMuted;
   const topbarLight = colors.topbar_light || colors.topbarLight || appearance?.variables?.topbarLight;
   const topbarDark = colors.topbar_dark || colors.topbarDark || appearance?.variables?.topbarDark;
+  const onAccent =
+    colors.on_accent ||
+    colors.onAccent ||
+    colors.on_primary ||
+    colors.onPrimary ||
+    colors.contrastOnPrimary ||
+    colors.text_on_primary ||
+    colors.textOnPrimary ||
+    appearance?.variables?.onAccent ||
+    appearance?.variables?.onPrimary ||
+    appearance?.variables?.textOnPrimary;
+
+  const marketingPrimary = primary || 'var(--brand-primary)';
+  const marketingAccent = accent || 'var(--brand-accent)';
+  const marketingOnAccent = onAccent || 'var(--text-on-primary)';
 
   element.style.setProperty('--brand-primary', primary);
   element.style.setProperty('--accent-primary', primary);
   element.style.setProperty('--brand-accent', accent);
   element.style.setProperty('--accent-secondary', accent);
-  element.style.setProperty('--marketing-primary', primary);
-  element.style.setProperty('--marketing-accent', accent);
+  element.style.setProperty('--marketing-primary', marketingPrimary);
+  element.style.setProperty('--marketing-accent', marketingAccent);
+  element.style.setProperty('--marketing-on-accent', marketingOnAccent);
   element.style.setProperty('--bg-page', 'var(--surface)');
   element.style.setProperty('--bg-section', 'var(--surface)');
   element.style.setProperty('--bg-card', 'var(--surface)');
   element.style.setProperty('--bg-accent', 'var(--brand-primary)');
 
+  const marketingSurface = surface || 'var(--surface)';
+  const marketingMuted = muted || 'var(--surface-muted)';
+
+  element.style.setProperty('--marketing-surface', marketingSurface);
+  element.style.setProperty('--marketing-surface-muted', marketingMuted);
+
   if (surface) {
     element.style.setProperty('--surface', surface);
-    element.style.setProperty('--marketing-surface', surface);
   }
 
   if (muted) {
     element.style.setProperty('--surface-muted', muted);
-    element.style.setProperty('--marketing-surface-muted', muted);
   }
 
   if (topbarLight) {

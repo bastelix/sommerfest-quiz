@@ -50,7 +50,8 @@
   --marketing-surface: var(--surface, var(--marketing-surface-default));
   --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
   --marketing-text: var(--text-primary, var(--marketing-text-default));
-  --marketing-text-on-primary: var(--text-on-primary, var(--marketing-text-on-primary-default));
+  --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default));
+  --marketing-text-on-primary: var(--marketing-on-accent);
   --marketing-link: var(--brand-primary, var(--marketing-primary));
 }
 
@@ -92,7 +93,7 @@ body.marketing-page {
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
   --qr-landing-primary: var(--marketing-primary);
-  --qr-contrast-on-primary: var(--marketing-text-on-primary);
+  --qr-contrast-on-primary: var(--marketing-on-accent);
   --qr-danger-500: var(--marketing-danger-500);
   --qr-danger-600: var(--marketing-danger-600);
   --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary) 30%);
@@ -330,7 +331,7 @@ body.page-render .qr-page-renderer table {
   --section-surface: var(--accent-primary, var(--marketing-primary));
   --section-padding-outer: clamp(32px, 6vw, 72px);
   --section-padding-inner: clamp(32px, 6vw, 68px);
-  --section-text-color: var(--text-on-primary, var(--marketing-text-on-primary));
+  --section-text-color: var(--marketing-on-accent);
 }
 
 .section[data-section-intent="hero"] {
@@ -341,7 +342,7 @@ body.page-render .qr-page-renderer table {
   );
   --section-padding-outer: clamp(36px, 7vw, 88px);
   --section-padding-inner: clamp(36px, 7vw, 80px);
-  --section-text-color: var(--text-on-primary, var(--marketing-text-on-primary));
+  --section-text-color: var(--marketing-on-accent);
 }
 
 .section[data-section-background] {
@@ -463,7 +464,7 @@ body.page-render .qr-page-renderer table {
 
 .section[data-appearance-legacy="contrast"] {
   background: var(--marketing-primary);
-  color: var(--text-on-primary, var(--marketing-text-on-primary));
+  color: var(--marketing-on-accent);
 }
 
 .section[data-appearance-legacy="contrast"] a,
@@ -1125,13 +1126,13 @@ body.dark-mode.marketing-page .qr-badge{
 }
 
 .marketing-page .uk-button-primary{
-  background:var(--qr-landing-primary)!important;
-  color:var(--qr-landing-text)!important;
-  border:1px solid color-mix(in oklab,var(--qr-landing-primary) 60%,transparent);
+  background:var(--marketing-primary)!important;
+  color:var(--marketing-on-accent)!important;
+  border:1px solid color-mix(in oklab,var(--marketing-primary) 60%,transparent);
 }
 
 .marketing-page .cta-main.uk-button-primary{
-  box-shadow:0 10px 24px color-mix(in oklab, var(--qr-landing-primary) 22%, transparent);
+  box-shadow:0 10px 24px color-mix(in oklab, var(--marketing-primary) 22%, transparent);
   border-radius:12px;
   padding:0 22px;
   line-height:46px;
