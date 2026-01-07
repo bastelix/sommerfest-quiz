@@ -1,4 +1,4 @@
-import { resolveSectionIntent } from './section-intents.js';
+import { resolveSectionIntentInfo } from './section-intents.js';
 
 export function escapeHtml(value) {
   if (value === null || value === undefined) {
@@ -392,7 +392,7 @@ function resolveAppearanceValue(token, fallback) {
 }
 
 function resolveSectionIntentPreset(block) {
-  const intent = resolveSectionIntent(block);
+  const { intent, isExplicit } = resolveSectionIntentInfo(block);
   const basePreset = SECTION_INTENT_CONFIG[intent] || SECTION_INTENT_CONFIG.content;
   const surface = resolveAppearanceValue(basePreset.surfaceToken, DEFAULT_APPEARANCE.colors[basePreset.surfaceToken]);
   const textColor = basePreset.textToken
@@ -400,11 +400,12 @@ function resolveSectionIntentPreset(block) {
     : undefined;
   const styleVariables = [];
 
-  if (surface) {
+  if (isExplicit && surface) {
     styleVariables.push(`--section-surface:${surface}`);
+    styleVariables.push(`--section-bg-color:${surface}`);
   }
 
-  if (textColor) {
+  if (isExplicit && textColor) {
     styleVariables.push(`--section-text-color:${textColor}`);
   }
 
