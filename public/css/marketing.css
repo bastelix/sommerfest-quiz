@@ -44,6 +44,7 @@
   --marketing-shadow-callout: 0 16px 32px rgba(0, 0, 0, 0.18);
   --marketing-shadow-stat: 0 18px 38px rgba(15, 23, 42, 0.08);
   --marketing-shadow-stat-accent: rgba(15, 23, 42, 0.18);
+  --marketing-font-stack: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
   --marketing-marker-underline: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
   --marketing-primary: var(--brand-primary, var(--marketing-primary-default));
   --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
@@ -111,6 +112,7 @@ body.marketing-page {
   --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%);
   --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+  font-family: var(--marketing-font-stack);
   color-scheme: light;
 }
 
