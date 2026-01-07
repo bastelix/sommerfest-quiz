@@ -31,7 +31,7 @@ export interface Tokens {
 }
 
 export type SectionIntent = 'content' | 'feature' | 'highlight' | 'hero';
-export type SectionLayout = 'normal' | 'fullwidth' | 'card';
+export type SectionLayout = 'normal' | 'full' | 'card';
 export type SectionBackgroundMode = 'none' | 'color' | 'image';
 export type SectionBackgroundAttachment = 'scroll' | 'fixed';
 
