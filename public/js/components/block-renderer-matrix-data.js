@@ -436,6 +436,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const background = resolveSectionBackground(block, layout);
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const { intent, preset } = resolveSectionIntentPreset(block);
+  const bleed = layout === 'fullwidth' ? 'full' : null;
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const classes = [
@@ -457,6 +458,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     `data-section-intent="${escapeAttribute(intent)}"`,
     `data-section-layout="${escapeAttribute(layout)}"`,
     `data-section-background-mode="${escapeAttribute(background.mode)}"`,
+    bleed ? `data-section-bleed="${escapeAttribute(bleed)}"` : null,
     preset.appearanceTokens?.surface
       ? `data-section-surface-token="${escapeAttribute(preset.appearanceTokens.surface)}"`
       : null,

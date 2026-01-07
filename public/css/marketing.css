@@ -333,6 +333,29 @@ body.page-render .qr-page-renderer table {
   background: var(--section-bg-color, var(--section-surface, transparent));
 }
 
+.section[data-section-bleed="full"] {
+  position: relative;
+}
+
+.section[data-section-bleed="full"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  background-color: var(--section-bg-color, var(--section-surface, transparent));
+  background-image: var(--section-bg-image, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: var(--section-bg-attachment, scroll);
+  z-index: 0;
+}
+
 .section[data-section-intent="content"] {
   --section-padding-outer: clamp(20px, 4vw, 48px);
   --section-padding-inner: clamp(22px, 4vw, 44px);
@@ -365,16 +388,21 @@ body.page-render .qr-page-renderer table {
   background-attachment: var(--section-bg-attachment, scroll);
 }
 
+.section[data-section-bleed="full"] {
+  background: transparent;
+}
+
 .section .uk-container {
   position: relative;
 }
 
-.section[data-section-background] .section__inner {
+.section[data-section-background] .section__inner,
+.section[data-section-bleed="full"] .section__inner {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
-.section[data-section-background]::before {
+.section[data-section-background]::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -385,7 +413,15 @@ body.page-render .qr-page-renderer table {
     transparent
   );
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
+}
+
+.section[data-section-bleed="full"][data-section-background]::after {
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
 }
 
 .section__inner {
