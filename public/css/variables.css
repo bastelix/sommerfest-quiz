@@ -1,21 +1,21 @@
 /* ========================================================================== */
 /*  Design Tokens – Semantic Foundation + Legacy Aliases                       */
-/*  Rule: Every token is defined exactly once                                  */
-/*  Rule: Semantic tokens are the single source of truth                        */
-/*  Rule: Legacy tokens are one-way aliases only                                */
+/*  Rules:                                                                    */
+/*  - Every token is defined exactly once per scope                            */
+/*  - Semantic tokens are the single source of truth                           */
+/*  - Legacy tokens are one-way aliases only                                   */
 /* ========================================================================== */
+
 
 /* ───────────────────────────── LIGHT THEME ───────────────────────────── */
 
 :root {
-  /* ── Semantic foundation ── */
-
-  /* Brand */
+  /* ── Brand ── */
   --brand-primary: #1e87f0;
   --brand-secondary: #f97316;
   --brand-accent: var(--brand-secondary);
 
-  /* Surface */
+  /* ── Surface ── */
   --surface-page: #f7f9fb;
   --surface-section: #ffffff;
   --surface-card: #ffffff;
@@ -27,21 +27,21 @@
     transparent
   );
 
-  /* Text */
+  /* ── Text ── */
   --text-body: #111827;
   --text-heading: #0b1728;
   --text-muted: #4b5563;
   --text-on-primary: #ffffff;
 
-  /* Spacing */
+  /* ── Spacing ── */
   --space-section: 2.25rem;
 
-  /* Status / Utility */
+  /* ── Utility ── */
   --border-muted: #dfe3eb;
   --danger-500: #8b0000;
   --danger-600: #660000;
 
-  /* ── Legacy aliases (one-way only) ── */
+  /* ── Legacy aliases (one-way) ── */
 
   /* Backgrounds */
   --bg-page: var(--surface-page);
@@ -76,40 +76,38 @@
 /* ───────────────────────────── DARK THEME ───────────────────────────── */
 
 :root[data-theme="dark"] {
-  /* ── Semantic foundation ── */
-
-  /* Brand */
-  --brand-primary: #63a4ff;
-  --brand-secondary: #f97316;
+  /* ── Brand ── */
+  --brand-primary: #9fc5ff;
+  --brand-secondary: #ff8a33;
   --brand-accent: var(--brand-secondary);
 
-  /* Surface */
-  --surface-page: #0e1218;
-  --surface-section: #111827;
-  --surface-card: #161b22;
-  --surface-muted: #0b1018;
-  --surface-subtle: #0f172a;
+  /* ── Surface ── */
+  --surface-page: #0a0d12;
+  --surface-section: #111a24;
+  --surface-card: #1a2636;
+  --surface-muted: #0b111a;
+  --surface-subtle: #0f1722;
   --surface-accent-soft: color-mix(
     in srgb,
-    var(--brand-accent) 18%,
+    var(--brand-accent) 24%,
     transparent
   );
 
-  /* Text */
-  --text-body: #e5e7eb;
-  --text-heading: #f8fafc;
-  --text-muted: #cbd5e1;
+  /* ── Text ── */
+  --text-body: #f2f5fa;
+  --text-heading: #ffffff;
+  --text-muted: #e0e6f1;
   --text-on-primary: #ffffff;
 
-  /* Spacing */
+  /* ── Spacing ── */
   --space-section: 2.25rem;
 
-  /* Status / Utility */
-  --border-muted: #2c3a4b;
-  --danger-500: #ff6b6b;
-  --danger-600: #ff4c4c;
+  /* ── Utility ── */
+  --border-muted: #3b4c63;
+  --danger-500: #ff7b86;
+  --danger-600: #ff5c6b;
 
-  /* ── Legacy aliases (one-way only) ── */
+  /* ── Legacy aliases (one-way) ── */
 
   /* Backgrounds */
   --bg-page: var(--surface-page);
