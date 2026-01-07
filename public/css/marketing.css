@@ -140,25 +140,25 @@ body.marketing-page[data-theme="dark"].high-contrast .cta-main.uk-button-primary
 }
 
 body.marketing-page {
-  --marketing-primary: #138f52;
-  --marketing-background: #f0f9f3;
-  --marketing-surface: rgba(255, 255, 255, 0.96);
-  --marketing-text: #123524;
-  --marketing-muted: #3f5a4b;
-  --marketing-border: rgba(19, 143, 82, 0.18);
-  --marketing-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
-  --qr-bg: var(--marketing-background);
-  --qr-fg: var(--marketing-text);
-  --qr-text: var(--marketing-text);
-  --qr-muted: var(--marketing-muted);
-  --qr-bg-soft: color-mix(in oklab, var(--marketing-background) 84%, var(--marketing-surface) 16%);
-  --qr-card: var(--marketing-surface);
-  --qr-card-border: var(--marketing-border);
-  --qr-ring: var(--marketing-ring);
-  --qr-border: var(--marketing-border);
-  --qr-landing-primary: var(--marketing-primary);
+  --qr-bg: var(--marketing-background, #f0f9f3);
+  --qr-fg: var(--marketing-text, #123524);
+  --qr-text: var(--marketing-text, #123524);
+  --qr-muted: var(--marketing-muted, #3f5a4b);
+  --qr-bg-soft: color-mix(
+    in oklab,
+    var(--qr-bg) 84%,
+    var(--marketing-surface, rgba(255, 255, 255, 0.96)) 16%
+  );
+  --qr-card: var(--marketing-surface, rgba(255, 255, 255, 0.96));
+  --qr-card-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #138f52) 18%, transparent));
+  --qr-ring: var(--marketing-ring, color-mix(in oklab, var(--marketing-primary, #138f52) 45%, transparent));
+  --qr-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #138f52) 18%, transparent));
+  --qr-landing-primary: var(--marketing-primary, #138f52);
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
+  --accent-primary: var(--marketing-primary, #138f52);
+  --accent-secondary: var(--marketing-accent, var(--marketing-primary, #138f52));
+  --accent-color: var(--marketing-primary, #138f52);
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg-soft);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
@@ -172,25 +172,25 @@ body.marketing-page {
 }
 
 body.marketing-page[data-theme="dark"]:not(.high-contrast) {
-  --marketing-primary: #4cc986;
-  --marketing-background: #071b12;
-  --marketing-surface: rgba(15, 36, 27, 0.96);
-  --marketing-text: #e6fff3;
-  --marketing-muted: #b6d8c9;
-  --marketing-border: rgba(76, 201, 134, 0.3);
-  --marketing-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
-  --qr-bg: var(--marketing-background);
-  --qr-fg: var(--marketing-text);
-  --qr-text: var(--marketing-text);
-  --qr-muted: var(--marketing-muted);
-  --qr-bg-soft: color-mix(in oklab, var(--marketing-background) 70%, var(--marketing-surface) 30%);
-  --qr-card: var(--marketing-surface);
-  --qr-card-border: var(--marketing-border);
-  --qr-ring: var(--marketing-ring);
-  --qr-border: var(--marketing-border);
-  --qr-landing-primary: var(--marketing-primary);
+  --qr-bg: var(--marketing-background, #071b12);
+  --qr-fg: var(--marketing-text, #e6fff3);
+  --qr-text: var(--marketing-text, #e6fff3);
+  --qr-muted: var(--marketing-muted, #b6d8c9);
+  --qr-bg-soft: color-mix(
+    in oklab,
+    var(--qr-bg) 70%,
+    var(--marketing-surface, rgba(15, 36, 27, 0.96)) 30%
+  );
+  --qr-card: var(--marketing-surface, rgba(15, 36, 27, 0.96));
+  --qr-card-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #4cc986) 30%, transparent));
+  --qr-ring: var(--marketing-ring, color-mix(in oklab, var(--marketing-primary, #4cc986) 55%, transparent));
+  --qr-border: var(--marketing-border, color-mix(in oklab, var(--marketing-primary, #4cc986) 30%, transparent));
+  --qr-landing-primary: var(--marketing-primary, #4cc986);
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
+  --accent-primary: var(--marketing-primary, #4cc986);
+  --accent-secondary: var(--marketing-accent, var(--marketing-primary, #4cc986));
+  --accent-color: var(--marketing-primary, #4cc986);
   --qr-hero-grad-start: var(--qr-bg);
   --qr-hero-grad-end: var(--qr-bg-soft);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
