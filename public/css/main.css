@@ -2071,13 +2071,13 @@ body.admin-page {
   flex-direction: column;
   gap: 12px;
   padding: 12px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--surface-card, #ffffff);
 }
 
 .section-background-config__hint {
-  color: #4b5563;
+  color: var(--text-muted, #4b5563);
   margin-top: -4px;
 }
 
@@ -2093,38 +2093,40 @@ body.admin-page {
   align-items: center;
   gap: 10px;
   width: 100%;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-muted, #dfe3eb);
   border-radius: 10px;
   padding: 10px 12px;
-  background: #f9fafb;
+  background: var(--surface-subtle, #f8fafc);
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
   text-align: left;
 }
 
 .color-token-chip:hover {
-  border-color: #cbd2d9;
-  background: #f3f4f6;
+  border-color: var(--border-strong, #cbd2d9);
+  background: var(--surface-card-hover, #f3f4f6);
 }
 
 .color-token-chip:focus-visible {
-  outline: 2px solid #1e87f0;
+  outline: 2px solid var(--brand-primary, #1e87f0);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(30, 135, 240, 0.25);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--brand-primary, #1e87f0) 25%, transparent);
 }
 
 .color-token-chip[data-selected="true"] {
-  border-color: #1e87f0;
-  background: #f0f7ff;
-  box-shadow: 0 8px 18px rgba(30, 135, 240, 0.12);
+  border-color: var(--brand-primary, #1e87f0);
+  background: var(--surface-accent-primary-soft, #f0f7ff);
+  box-shadow: 0 8px 18px
+    color-mix(in srgb, var(--brand-primary, #1e87f0) 18%, transparent);
 }
 
 .color-token-chip__swatch {
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 2px solid var(--surface-card, #ffffff);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--text-body, #111827) 8%, transparent);
   flex-shrink: 0;
 }
 
@@ -2137,12 +2139,12 @@ body.admin-page {
 
 .color-token-chip__label {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-body, #111827);
 }
 
 .color-token-chip__hint {
   font-size: 0.9rem;
-  color: #6b7280;
+  color: var(--text-muted, #6b7280);
 }
 
 .background-image-fields {
@@ -2153,7 +2155,7 @@ body.admin-page {
 
 .layout-style-picker__label {
   font-weight: 600;
-  color: #111827;
+  color: var(--text-body, #111827);
 }
 
 .layout-style-picker__options {
@@ -2163,8 +2165,8 @@ body.admin-page {
 }
 
 .layout-style-card {
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
+  border: 1px solid var(--border-muted, #dfe3eb);
+  background: var(--surface-card, #ffffff);
   border-radius: 10px;
   padding: 12px;
   display: flex;
@@ -2180,40 +2182,42 @@ body.admin-page {
 }
 
 .layout-style-card:hover {
-  border-color: #cbd2d9;
+  border-color: var(--border-strong, #cbd2d9);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
 }
 
 .layout-style-card:focus-visible {
-  outline: 2px solid #1e87f0;
+  outline: 2px solid var(--brand-primary, #1e87f0);
   outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(30, 135, 240, 0.25);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--brand-primary, #1e87f0) 25%, transparent);
 }
 
 .layout-style-card[data-selected="true"] {
-  border-color: #1e87f0;
-  box-shadow: 0 8px 18px rgba(30, 135, 240, 0.12);
-  background: #f0f7ff;
+  border-color: var(--brand-primary, #1e87f0);
+  box-shadow: 0 8px 18px
+    color-mix(in srgb, var(--brand-primary, #1e87f0) 18%, transparent);
+  background: var(--surface-accent-primary-soft, #f0f7ff);
 }
 
 .layout-style-card__title {
   font-weight: 600;
-  color: #111827;
+  color: var(--text-body, #111827);
 }
 
 .layout-style-card__description {
-  color: #4b5563;
+  color: var(--text-muted, #4b5563);
   font-size: 0.95rem;
   line-height: 1.45;
 }
 
 .layout-style-card[data-selected="true"] .layout-style-card__description {
-  color: #0f172a;
+  color: var(--text-body, #111827);
 }
 
 .layout-style-card__preview {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
+  background: var(--surface-subtle, #f8fafc);
+  border: 1px solid var(--preview-outline, #e5e7eb);
   border-radius: 8px;
   padding: 8px;
   min-height: 88px;

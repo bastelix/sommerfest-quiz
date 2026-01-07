@@ -21,6 +21,16 @@
   --surface-card: #ffffff;
   --surface-muted: #eef2f7;
   --surface-subtle: #f8fafc;
+  --surface-card-hover: color-mix(
+    in srgb,
+    var(--surface-card) 84%,
+    var(--surface-muted)
+  );
+  --surface-accent-primary-soft: color-mix(
+    in srgb,
+    var(--brand-primary) 12%,
+    transparent
+  );
   --surface-accent-soft: color-mix(
     in srgb,
     var(--brand-accent) 16%,
@@ -38,6 +48,12 @@
 
   /* ── Utility ── */
   --border-muted: #dfe3eb;
+  --border-strong: color-mix(in srgb, var(--border-muted) 70%, #0b1728);
+  --preview-outline: color-mix(
+    in srgb,
+    var(--border-muted) 80%,
+    var(--brand-primary) 20%
+  );
   --danger-500: #8b0000;
   --danger-600: #660000;
 
@@ -87,6 +103,16 @@
   --surface-card: #1a2636;
   --surface-muted: #0b111a;
   --surface-subtle: #0f1722;
+  --surface-card-hover: color-mix(
+    in srgb,
+    var(--surface-card) 78%,
+    var(--surface-muted)
+  );
+  --surface-accent-primary-soft: color-mix(
+    in srgb,
+    var(--brand-primary) 20%,
+    transparent
+  );
   --surface-accent-soft: color-mix(
     in srgb,
     var(--brand-accent) 24%,
@@ -104,6 +130,12 @@
 
   /* ── Utility ── */
   --border-muted: #3b4c63;
+  --border-strong: color-mix(in srgb, var(--border-muted) 60%, #ffffff);
+  --preview-outline: color-mix(
+    in srgb,
+    var(--border-muted) 70%,
+    var(--brand-primary) 30%
+  );
   --danger-500: #ff7b86;
   --danger-600: #ff5c6b;
 
