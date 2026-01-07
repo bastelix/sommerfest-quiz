@@ -2284,8 +2284,8 @@ body.admin-page {
 }
 
 .layout-preview__card {
-  border: 1px solid #dce3ed;
-  background: #ffffff;
+  border: 1px solid var(--preview-card-border);
+  background: var(--preview-card-bg);
   border-radius: 6px;
   padding: 6px;
   display: grid;
@@ -2313,16 +2313,20 @@ body.admin-page {
 .layout-preview__line {
   height: 6px;
   border-radius: 999px;
-  background: #d1d5db;
+  background: var(--preview-line);
 }
 
 .layout-preview__line[data-accent="true"] {
-  background: #94a3b8;
+  background: var(--preview-line-accent);
 }
 
 .layout-preview__media {
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  border: 1px solid #cbd5e1;
+  background: linear-gradient(
+    135deg,
+    var(--preview-media-start),
+    var(--preview-media-end)
+  );
+  border: 1px solid var(--preview-media-border);
   border-radius: 8px;
   min-height: 52px;
 }
@@ -2339,7 +2343,7 @@ body.admin-page {
   width: 14px;
   height: 14px;
   border-radius: 4px;
-  background: #c7d2fe;
+  background: var(--preview-icon-bg);
 }
 
 .layout-preview__icon-tile {
@@ -2348,8 +2352,8 @@ body.admin-page {
   gap: 6px;
   padding: 10px;
   border-radius: 8px;
-  border: 1px dashed #dfe7f3;
-  background: #ffffff;
+  border: 1px dashed var(--preview-icon-tile-border);
+  background: var(--preview-icon-tile-bg);
 }
 
 .layout-preview__badge {
@@ -2359,8 +2363,8 @@ body.admin-page {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: #e0e7ff;
-  color: #1e3a8a;
+  background: var(--preview-badge-bg);
+  color: var(--preview-badge-text);
   font-weight: 700;
   font-size: 12px;
 }
@@ -2369,7 +2373,7 @@ body.admin-page {
   width: 58px;
   height: 10px;
   border-radius: 999px;
-  background: #c7d2fe;
+  background: var(--preview-pill-bg);
 }
 
 .layout-style-picker--appearance {
@@ -2397,8 +2401,8 @@ body.admin-page {
   gap: 8px;
   padding: 6px 8px;
   border-radius: 6px;
-  background: #ffffff;
-  border: 1px dashed #e5e7eb;
+  background: var(--preview-accordion-bg);
+  border: 1px dashed var(--preview-accordion-border);
 }
 
 .layout-preview__toggle-header {
@@ -2419,8 +2423,8 @@ body.admin-page {
   gap: 6px;
   padding: 8px;
   border-radius: 8px;
-  border: 1px dashed #dfe7f3;
-  background: #ffffff;
+  border: 1px dashed var(--preview-metric-border);
+  background: var(--preview-metric-bg);
 }
 
 
