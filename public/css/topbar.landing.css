@@ -40,12 +40,6 @@ body.qr-landing[data-theme="dark"].high-contrast{
   --topbar-focus-ring: rgba(140,200,255,0.8);
 }
 
-.topbar-debug-strip{
-  height: 2mm;
-  background: #0066ff;
-  width: 100%;
-}
-
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast),
 body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast){
   --topbar-btn-bg: color-mix(in oklab, rgba(12,19,35,0.92) 76%, var(--calserver-primary) 24%);
