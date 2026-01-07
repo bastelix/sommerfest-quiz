@@ -13,7 +13,7 @@
   --labor-logo-offset-y: 5px;
 }
 
-body.labor-landing {
+body.labor-marketing {
   font-family: 'Poppins', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--labor-bg);
   color: var(--labor-text);
@@ -215,12 +215,12 @@ body.labor-landing {
   opacity: 0.78;
 }
 
-.labor-landing section[id] {
+.labor-marketing section[id] {
   scroll-margin-top: 128px;
 }
 
 @media (max-width: 959px) {
-  .labor-landing section[id] {
+  .labor-marketing section[id] {
     scroll-margin-top: 96px;
   }
 }

@@ -1,8 +1,8 @@
-<article class="landing-news-card uk-card uk-card-default uk-card-body">
+<article class="marketing-news-card uk-card uk-card-default uk-card-body">
   {% set detailPath = newsBasePath is defined and newsBasePath ? newsBasePath ~ '/' ~ entry.slug : null %}
   {% set linkHref = detailPath ? basePath ~ detailPath : null %}
   {% if linkHref %}
-    <a class="landing-news-card__title" href="{{ linkHref }}">
+    <a class="marketing-news-card__title" href="{{ linkHref }}">
       <h3 class="uk-card-title">{{ entry.title }}</h3>
     </a>
   {% else %}
@@ -10,10 +10,10 @@
   {% endif %}
   {% set published = entry.publishedAt %}
   {% if published %}
-    <p class="landing-news-card__date uk-text-meta">{{ published|date('d.m.Y') }}</p>
+    <p class="marketing-news-card__date uk-text-meta">{{ published|date('d.m.Y') }}</p>
   {% endif %}
   {% if entry.excerpt %}
-    <div class="landing-news-card__excerpt">{{ entry.excerpt|raw }}</div>
+    <div class="marketing-news-card__excerpt">{{ entry.excerpt|raw }}</div>
   {% endif %}
   {% if linkHref %}
     <p class="uk-margin-top"><a class="uk-button uk-button-text" href="{{ linkHref }}">Weiterlesen</a></p>

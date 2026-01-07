@@ -19,11 +19,11 @@
 {% block body_class %}marketing-page {% if isCalserverTheme %}calserver-theme calserver-news-page{% else %}dark-mode{% endif %}{% endblock %}
 
 {% block body %}
-  <div class="landing-content">
+  <div class="marketing-layout">
     {% set sectionId = isCalserverTheme ? 'calserver-news' : 'landing-news' %}
-    {% set sectionClasses = 'uk-section uk-section-default landing-news' %}
+    {% set sectionClasses = 'marketing-section uk-section uk-section-default marketing-news' %}
     {% if isCalserverTheme %}
-      {% set sectionClasses = 'uk-section uk-section-muted landing-news calserver-news calserver-news--detail' %}
+      {% set sectionClasses = 'marketing-section uk-section uk-section-muted marketing-news calserver-news calserver-news--detail' %}
     {% endif %}
     <section id="{{ sectionId }}" class="{{ sectionClasses }}">
       <div class="uk-container uk-container-small">
@@ -31,15 +31,15 @@
           <a class="uk-button uk-button-text" href="{{ newsIndexUrl }}">&larr; Zur Übersicht</a>
           <a class="uk-button uk-button-text uk-margin-left" href="{{ landingPageUrl|default(basePath ~ '/' ~ page.slug) }}">Landingpage</a>
         </nav>
-        <article class="landing-news-entry uk-article{% if isCalserverTheme %} calserver-news-entry{% endif %}">
+        <article class="marketing-news-entry uk-article{% if isCalserverTheme %} calserver-news-entry{% endif %}">
           <h1 class="uk-article-title">{{ entry.title }}</h1>
           {% if entry.publishedAt %}
             <p class="uk-article-meta">Veröffentlicht am {{ entry.publishedAt|date('d.m.Y') }}</p>
           {% endif %}
           {% if entry.excerpt %}
-            <div class="landing-news-entry__excerpt uk-text-lead">{{ entry.excerpt|raw }}</div>
+            <div class="marketing-news-entry__excerpt uk-text-lead">{{ entry.excerpt|raw }}</div>
           {% endif %}
-          <div class="landing-news-entry__content uk-margin-top">{{ entry.content|raw }}</div>
+          <div class="marketing-news-entry__content uk-margin-top">{{ entry.content|raw }}</div>
         </article>
       </div>
     </section>

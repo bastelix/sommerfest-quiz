@@ -8,6 +8,12 @@ stylesheet exposes the following marketing tokens for each namespace:
 * `--marketing-link` – defaults to the namespace `brand.primary`.
 * `--marketing-surface` – defaults to the shared surface token (`--surface-card`).
 
+## Marketing stylesheet entry point
+
+Page-Editor Marketing-Seiten binden ausschließlich `public/css/marketing.css` ein. Die Datei ist
+der alleinige Style-Entry für diese Marketing-Pages und soll ohne Abhängigkeit zu `landing.css`
+gepflegt werden.
+
 ## Managing marketing tokens
 
 1. Open the **Page Design** editor for the marketing namespace you want to adjust.
