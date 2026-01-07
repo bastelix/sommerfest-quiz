@@ -460,7 +460,7 @@ body.page-render .qr-page-renderer table {
   padding: var(--section-padding-inner);
 }
 
-.section--card .section__inner {
+.section[data-section-layout="card"] .section__inner {
   background: var(--surface);
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
