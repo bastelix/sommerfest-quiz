@@ -42,6 +42,7 @@
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
   {% for stylesheet in stylesheets %}
     {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
     <link rel="stylesheet" href="{{ href }}">
@@ -153,6 +154,7 @@
 {% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   <div class="marketing-wiki__header uk-section uk-section-medium">
     <div class="uk-container uk-container-small">
       <nav aria-label="Breadcrumb" class="marketing-wiki__breadcrumb uk-margin-small">

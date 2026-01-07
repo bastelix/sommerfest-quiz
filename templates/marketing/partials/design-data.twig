@@ -1,0 +1,9 @@
+{% set appearanceData = appearance|default(design.appearance|default({})) %}
+{% set designConfig = design.config|default({}) %}
+
+<div
+  id="marketing-design-data"
+  data-appearance="{{ appearanceData|json_encode|e('html_attr') }}"
+  data-config="{{ designConfig|json_encode|e('html_attr') }}"
+  hidden
+></div>

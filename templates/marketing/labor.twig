@@ -396,11 +396,13 @@
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/labor.css">
   <meta name="page-name" content="Labor Landing Page">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page labor-marketing{% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   <header class="labor-header labor-topbar qr-topbar uk-position-sticky uk-top" id="start"
           uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky">
     <nav class="labor-nav uk-navbar-container" uk-navbar>

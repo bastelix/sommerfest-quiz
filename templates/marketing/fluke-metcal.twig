@@ -23,11 +23,13 @@
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   <meta name="page-name" content="FLUKE MET/CAL mit calServer">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page calserver-theme{% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   {% set heroLocale = locale() == 'en' ? 'en' : 'de' %}
   {% set heroCopy = {
     'de': {

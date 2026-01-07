@@ -8,6 +8,7 @@
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <meta name="page-name" content="Event upcoming marketing">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
   {% set eventConfig = config|default({}) %}
   {% set colorConfig = eventConfig.colors|default({}) %}
   {% set landingPrimary = eventConfig.buttonColor|default(colorConfig.accent|default(null)) %}
@@ -35,6 +36,7 @@
 {% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   {% set eventConfig = config|default({}) %}
   {% set heroSubtitleSource = event.description|default(null) %}
   {% set heroCommentSource = eventConfig.inviteText|default(null) %}

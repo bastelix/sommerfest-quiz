@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page dark-mode{% endblock %}
@@ -23,6 +24,7 @@
 {% block allow_config_background %}false{% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   <div class="marketing-layout">
     {% set headerMarkup = headerContent is defined and headerContent ? headerContent : '' %}
     <header class="qr-topbar">

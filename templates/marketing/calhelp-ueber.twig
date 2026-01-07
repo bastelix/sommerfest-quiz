@@ -15,11 +15,13 @@
   <link rel="stylesheet" href="{{ basePath }}/css/calhelp-about.css">
   <meta name="page-name" content="calHelp – Über mich">
   <meta name="description" content="Kurz, persönlich und klar: René über calHelp, Projekte und Arbeitsweise.">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body_class %}marketing-page calhelp-about-page uk-background-default{% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   <div class="calhelp-about">
     <header class="calhelp-about__header uk-section uk-section-small">
       <div class="uk-container uk-container-small">
