@@ -3,11 +3,15 @@
 {% set appearanceVars = appearanceData.variables|default({}) %}
 
 {% set cssVars = [] %}
-{% for key, value in appearanceColors if value %}
-  {% set cssVars = cssVars|merge(['--appearance-color-' ~ (key|replace({'_': '-'})|lower) ~ ': ' ~ value]) %}
+{% for key, value in appearanceColors %}
+  {% if value %}
+    {% set cssVars = cssVars|merge(['--appearance-color-' ~ (key|replace({'_': '-'})|lower) ~ ': ' ~ value]) %}
+  {% endif %}
 {% endfor %}
-{% for key, value in appearanceVars if value %}
-  {% set cssVars = cssVars|merge(['--appearance-var-' ~ (key|replace({'_': '-'})|lower) ~ ': ' ~ value]) %}
+{% for key, value in appearanceVars %}
+  {% if value %}
+    {% set cssVars = cssVars|merge(['--appearance-var-' ~ (key|replace({'_': '-'})|lower) ~ ': ' ~ value]) %}
+  {% endif %}
 {% endfor %}
 
 {% if appearanceColors.primary is defined and appearanceColors.primary %}
