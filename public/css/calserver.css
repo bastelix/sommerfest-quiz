@@ -1,6 +1,6 @@
 /* calServer marketing overrides for landing layout */
 
-body.qr-landing.calserver-theme {
+body.marketing-page.calserver-theme {
     --calserver-primary: #1f63e6;
     --cs-card-dark: #0f1625;
     --cs-card-dark-border: #1b2437;
@@ -48,11 +48,11 @@ body.qr-landing.calserver-theme {
     scroll-behavior: smooth;
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast) {
+body.marketing-page.calserver-theme:not(.high-contrast) {
     --qr-landing-primary: var(--calserver-primary);
 }
 
-.qr-landing .hero-bg-calserver {
+.marketing-page .hero-bg-calserver {
     background:
         radial-gradient(420px 320px at 12% 18%, color-mix(in oklab, var(--calserver-primary) 36%, rgba(12, 18, 33, 0.25)) 0%, transparent 68%),
         radial-gradient(520px 360px at 88% 12%, color-mix(in oklab, #5ae1ff 32%, transparent) 0%, transparent 70%),
@@ -62,7 +62,7 @@ body.qr-landing.calserver-theme:not(.high-contrast) {
     overflow: hidden;
 }
 
-.qr-landing .hero-bg-calserver::after {
+.marketing-page .hero-bg-calserver::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -71,7 +71,7 @@ body.qr-landing.calserver-theme:not(.high-contrast) {
     opacity: 0.82;
 }
 
-.qr-landing .calserver-hero-bg__canvas {
+.marketing-page .calserver-hero-bg__canvas {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -82,19 +82,19 @@ body.qr-landing.calserver-theme:not(.high-contrast) {
     transition: opacity 0.3s ease;
 }
 
-.qr-landing .hero-bg-calserver.is-static .calserver-hero-bg__canvas {
+.marketing-page .hero-bg-calserver.is-static .calserver-hero-bg__canvas {
     opacity: 0;
     display: none;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-bg__canvas,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-bg__canvas,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-bg__canvas,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-bg__canvas,
 body.high-contrast .calserver-hero-bg__canvas {
     display: none !important;
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast),
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast),
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) {
     --qr-hero-grad-start: #0b101a;
     --qr-hero-grad-end: color-mix(in oklab, var(--calserver-primary) 70%, #0b101a 30%);
     --qr-hero-gradient: linear-gradient(
@@ -129,8 +129,8 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) {
     --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 32%, rgba(255, 255, 255, 0.16));
 }
 
-body.qr-landing.calserver-theme.high-contrast,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] {
+body.marketing-page.calserver-theme.high-contrast,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     --cs-logo-bg: #ffffff;
     --cs-logo-border: #000000;
     --cs-logo-shadow: none;
@@ -334,12 +334,12 @@ body.qr-landing.calserver-theme[data-theme="high-contrast"] {
     outline-offset: 3px;
 }
 
-body.qr-landing.calserver-theme.high-contrast .qr-topbar,
-body.qr-landing.calserver-theme.high-contrast .uk-navbar,
-body.qr-landing.calserver-theme.high-contrast .uk-navbar-container,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .qr-topbar,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .uk-navbar,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .uk-navbar-container {
+body.marketing-page.calserver-theme.high-contrast .qr-topbar,
+body.marketing-page.calserver-theme.high-contrast .uk-navbar,
+body.marketing-page.calserver-theme.high-contrast .uk-navbar-container,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .qr-topbar,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .uk-navbar,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .uk-navbar-container {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
@@ -355,8 +355,8 @@ body.qr-landing.calserver-theme[data-theme="high-contrast"] .uk-navbar-container
     }
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary {
     background: linear-gradient(
             135deg,
             color-mix(in oklab, var(--calserver-primary) 56%, #1c2f55 44%) 0%,
@@ -368,8 +368,8 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-
         0 24px 44px -32px rgba(5, 13, 30, 0.72);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight {
     background: linear-gradient(
             145deg,
             color-mix(in oklab, var(--calserver-primary) 68%, #233a6b 32%) 0%,
@@ -436,22 +436,22 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-
     color: color-mix(in oklab, var(--calserver-primary) 88%, #0f172a 12%);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary p,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary li,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .muted,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary p,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary li,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .muted {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary li,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .muted,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary li,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .muted {
     color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.68) 8%) !important;
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
     border-color: color-mix(in oklab, #ffffff 80%, rgba(31, 99, 230, 0.36) 20%);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default {
     background: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
     color: color-mix(in oklab, var(--calserver-primary) 90%, #030a1c 10%);
     border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.45));
@@ -459,8 +459,8 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-
         0 16px 30px -20px rgba(19, 71, 179, 0.6);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
     background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(10, 16, 32, 0.92) 18%);
     color: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
     border-color: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.28));
@@ -468,69 +468,69 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-
     transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
     background: color-mix(in oklab, var(--calserver-primary) 94%, rgba(12, 22, 42, 0.9) 6%);
     color: #ffffff;
     box-shadow: 0 28px 52px -26px color-mix(in oklab, var(--calserver-primary) 82%, rgba(17, 37, 78, 0.92));
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 78%, rgba(126, 170, 255, 0.45));
     outline-offset: 2px;
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.24)),
         0 24px 48px -26px color-mix(in oklab, var(--calserver-primary) 78%, rgba(17, 37, 78, 0.88));
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
     background: color-mix(in oklab, #ffffff 74%, var(--calserver-primary) 26%);
     color: color-mix(in oklab, var(--calserver-primary) 94%, #050b1e 6%);
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.48)) inset,
         0 22px 36px -22px rgba(31, 99, 230, 0.65);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, #7eaaff 25%);
     outline-offset: 2px;
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, rgba(255, 255, 255, 0.4));
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .pill--badge,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .pill--badge {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .pill--badge,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .pill--badge {
     background: color-mix(in oklab, #ffffff 90%, var(--calserver-primary) 10%);
     color: color-mix(in oklab, var(--calserver-primary) 78%, #020817 22%);
     border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(255, 255, 255, 0.6));
     box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.55);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card .uk-card-title,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card h3,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card h4,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card .uk-card-title,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card h3,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card h4 {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card h4,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card h4 {
     color: var(--cs-text-on-dark) !important;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card .uk-card-title,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card h3,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card h4,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card .uk-card-title,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h3,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h4 {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card h4,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h4 {
     color: color-mix(in oklab, var(--calserver-primary) 22%, #0b1532 78%) !important;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-default,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-default {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-default,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-default {
     background: #ffffff !important;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary {
     background: linear-gradient(
             135deg,
             color-mix(in oklab, var(--calserver-primary) 86%, #11326a 14%) 0%,
@@ -541,66 +541,66 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card
     box-shadow: 0 26px 46px -30px rgba(17, 50, 106, 0.42);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary h3,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary p,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary li,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary h3,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary p,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary li {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary h3,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary li,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary h3,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary li {
     color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.72) 8%) !important;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default {
     background: #ffffff;
     color: color-mix(in oklab, var(--calserver-primary) 82%, #0a1c4a 18%);
     border-color: transparent;
     box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default:hover,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default:hover,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
     background: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
     color: color-mix(in oklab, var(--calserver-primary) 88%, #071440 12%);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
     border-color: rgba(255, 255, 255, 0.7);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .site-footer,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .site-footer a,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section p,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section li,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .footer-section strong,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer a,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section p,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section li,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section strong {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .site-footer,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section strong,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section strong {
     color: #ffffff;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer a,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section p,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section li,
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section strong,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer a,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section p,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section li,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section strong {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section strong,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section strong {
     color: color-mix(in oklab, var(--qr-text, #1c2131) 92%, var(--calserver-primary) 8%);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast),
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast),
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) {
     --qr-hero-grad-start: var(--qr-brand-50);
     --qr-hero-grad-end: var(--qr-brand-300);
     --qr-hero-gradient: linear-gradient(
@@ -639,7 +639,7 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) {
     --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 68%, #97b8ff 32%);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
+body.marketing-page.calserver-theme:not(.high-contrast) .hero-bg-calserver {
     background:
         radial-gradient(
             580px 360px at 0% 0%,
@@ -657,19 +657,19 @@ body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
     box-shadow: var(--cs-hero-shadow);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-grid {
+body.marketing-page.calserver-theme .calserver-hero-grid {
     align-items: stretch;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-grid__media {
+body.marketing-page.calserver-theme .calserver-hero-grid__media {
     display: flex;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-grid__media > * {
+body.marketing-page.calserver-theme .calserver-hero-grid__media > * {
     width: 100%;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video {
+body.marketing-page.calserver-theme .calserver-hero-video {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -686,25 +686,25 @@ body.qr-landing.calserver-theme .calserver-hero-video {
     overflow: hidden;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__badge {
+body.marketing-page.calserver-theme .calserver-hero-video__badge {
     align-self: flex-start;
     font-weight: 600;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__frame {
+body.marketing-page.calserver-theme .calserver-hero-video__frame {
     position: relative;
     border-radius: 22px;
     overflow: hidden;
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 38%, transparent);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__frame::before {
+body.marketing-page.calserver-theme .calserver-hero-video__frame::before {
     content: "";
     display: block;
     padding-top: 56.25%;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__embed {
+body.marketing-page.calserver-theme .calserver-hero-video__embed {
     position: absolute;
     inset: 0;
     display: flex;
@@ -722,14 +722,14 @@ body.qr-landing.calserver-theme .calserver-hero-video__embed {
     color: rgba(255, 255, 255, 0.94);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__embed.is-loaded {
+body.marketing-page.calserver-theme .calserver-hero-video__embed.is-loaded {
     display: block;
     padding: 0;
     background: transparent;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__frame iframe,
-body.qr-landing.calserver-theme .calserver-hero-video__embed iframe {
+body.marketing-page.calserver-theme .calserver-hero-video__frame iframe,
+body.marketing-page.calserver-theme .calserver-hero-video__embed iframe {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -737,7 +737,7 @@ body.qr-landing.calserver-theme .calserver-hero-video__embed iframe {
     border: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__preview {
+body.marketing-page.calserver-theme .calserver-hero-video__preview {
     display: grid;
     gap: 6px;
     justify-items: center;
@@ -747,42 +747,42 @@ body.qr-landing.calserver-theme .calserver-hero-video__preview {
     background: rgba(255, 255, 255, 0.08);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__preview-title {
+body.marketing-page.calserver-theme .calserver-hero-video__preview-title {
     font-size: 1.05rem;
     font-weight: 600;
     letter-spacing: 0.01em;
     color: rgba(255, 255, 255, 0.94);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__preview-subtitle {
+body.marketing-page.calserver-theme .calserver-hero-video__preview-subtitle {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.72);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__hint,
-body.qr-landing.calserver-theme .calserver-hero-video__privacy-note,
-body.qr-landing.calserver-theme .calserver-hero-video__noscript-note {
+body.marketing-page.calserver-theme .calserver-hero-video__hint,
+body.marketing-page.calserver-theme .calserver-hero-video__privacy-note,
+body.marketing-page.calserver-theme .calserver-hero-video__noscript-note {
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.86);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__hint {
+body.marketing-page.calserver-theme .calserver-hero-video__hint {
     max-width: 420px;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__privacy-note {
+body.marketing-page.calserver-theme .calserver-hero-video__privacy-note {
     font-size: 0.78rem;
     opacity: 0.9;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__noscript-note a {
+body.marketing-page.calserver-theme .calserver-hero-video__noscript-note a {
     color: inherit;
     text-decoration: underline;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__meta {
+body.marketing-page.calserver-theme .calserver-hero-video__meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -790,23 +790,23 @@ body.qr-landing.calserver-theme .calserver-hero-video__meta {
     gap: 12px 18px;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__meta-text {
+body.marketing-page.calserver-theme .calserver-hero-video__meta-text {
     display: grid;
     gap: 4px;
     color: rgba(255, 255, 255, 0.92);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__meta-text strong {
+body.marketing-page.calserver-theme .calserver-hero-video__meta-text strong {
     font-size: 1.12rem;
     letter-spacing: 0.01em;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__meta-text span {
+body.marketing-page.calserver-theme .calserver-hero-video__meta-text span {
     font-size: 0.95rem;
     color: color-mix(in oklab, #ffffff 86%, rgba(255, 255, 255, 0.4) 14%);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__link {
+body.marketing-page.calserver-theme .calserver-hero-video__link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -820,100 +820,100 @@ body.qr-landing.calserver-theme .calserver-hero-video__link {
     transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__link:hover,
-body.qr-landing.calserver-theme .calserver-hero-video__link:focus-visible {
+body.marketing-page.calserver-theme .calserver-hero-video__link:hover,
+body.marketing-page.calserver-theme .calserver-hero-video__link:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255, 255, 255, 0.08));
     border-color: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.6));
     box-shadow: 0 18px 36px -24px rgba(9, 15, 32, 0.45);
     transform: translateY(-1px);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__footnote {
+body.marketing-page.calserver-theme .calserver-hero-video__footnote {
     margin: 0;
     font-size: 0.9rem;
     color: color-mix(in oklab, #ffffff 78%, rgba(255, 255, 255, 0.4) 22%);
 }
 
 @media (max-width: 959px) {
-    body.qr-landing.calserver-theme .calserver-hero-video {
+    body.marketing-page.calserver-theme .calserver-hero-video {
         padding: 24px;
     }
 
-    body.qr-landing.calserver-theme .calserver-hero-video__meta {
+    body.marketing-page.calserver-theme .calserver-hero-video__meta {
         flex-direction: column;
         align-items: stretch;
     }
 
-    body.qr-landing.calserver-theme .calserver-hero-video__link {
+    body.marketing-page.calserver-theme .calserver-hero-video__link {
         justify-content: center;
     }
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video {
     background: var(--qr-card);
     border-color: currentColor;
     box-shadow: none;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__embed,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__embed {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__embed,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__embed {
     background: var(--qr-card);
     color: currentColor;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__hint,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__hint,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__privacy-note,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__privacy-note,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__noscript-note,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__noscript-note {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__hint,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__hint,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__privacy-note,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__privacy-note,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__noscript-note,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__noscript-note {
     color: currentColor;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__preview,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview {
     background: currentColor;
     color: var(--qr-bg);
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview-title,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-title,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview-subtitle,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-subtitle {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__preview-title,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-title,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__preview-subtitle,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-subtitle {
     color: inherit;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text span,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text span,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__footnote,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__footnote {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__meta-text,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__meta-text span,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text span,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__footnote,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__footnote {
     color: currentColor;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__link,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link {
     color: currentColor;
     background: transparent;
     border-color: currentColor;
     box-shadow: none;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link:hover,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link:focus-visible,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:hover,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:focus-visible {
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__link:hover,
+body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__link:focus-visible,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:hover,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:focus-visible {
     background: currentColor;
     color: var(--qr-bg);
 }
 
-body.qr-landing.calserver-theme .hero-list li {
+body.marketing-page.calserver-theme .hero-list li {
     color: var(--qr-muted);
 }
 
-body.qr-landing.calserver-theme .pill {
+body.marketing-page.calserver-theme .pill {
     display: inline-block;
     padding: 4px 12px;
     border-radius: 999px;
@@ -922,30 +922,30 @@ body.qr-landing.calserver-theme .pill {
     letter-spacing: 0.02em;
 }
 
-body.qr-landing.calserver-theme .pill--soft {
+body.marketing-page.calserver-theme .pill--soft {
     background: color-mix(in oklab, var(--calserver-primary) 15%, transparent);
     color: var(--qr-landing-primary);
 }
 
-body.qr-landing.calserver-theme .pill--accent {
+body.marketing-page.calserver-theme .pill--accent {
     background: var(--qr-card);
     color: var(--qr-landing-primary);
     box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.45);
 }
 
-body.qr-landing.calserver-theme .pill--badge {
+body.marketing-page.calserver-theme .pill--badge {
     background: rgba(255, 255, 255, 0.86);
     color: color-mix(in oklab, var(--calserver-primary) 70%, #0c1a3a 30%);
     border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
-body.qr-landing.calserver-theme .shadow-soft {
+body.marketing-page.calserver-theme .shadow-soft {
     box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.35),
         0 12px 24px -18px rgba(15, 23, 42, 0.25);
     border-radius: 18px;
 }
 
-body.qr-landing.calserver-theme .pricing-card--featured {
+body.marketing-page.calserver-theme .pricing-card--featured {
     position: relative;
     z-index: 1;
     padding: clamp(36px, 3vw, 52px);
@@ -957,21 +957,21 @@ body.qr-landing.calserver-theme .pricing-card--featured {
     transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-body.qr-landing.calserver-theme .pricing-card--featured h3 {
+body.marketing-page.calserver-theme .pricing-card--featured h3 {
     font-size: clamp(1.7rem, 1.2vw + 1.2rem, 2.2rem);
 }
 
-body.qr-landing.calserver-theme .pricing-card--featured p,
-body.qr-landing.calserver-theme .pricing-card--featured li {
+body.marketing-page.calserver-theme .pricing-card--featured p,
+body.marketing-page.calserver-theme .pricing-card--featured li {
     font-size: 1.08rem;
 }
 
 @media (min-width: 960px) {
-    body.qr-landing.calserver-theme .pricing-card--featured {
+    body.marketing-page.calserver-theme .pricing-card--featured {
         transform: scale(1.06) translateY(-10px);
     }
 
-    body.qr-landing.calserver-theme .pricing-card--featured:hover {
+    body.marketing-page.calserver-theme .pricing-card--featured:hover {
         transform: scale(1.08) translateY(-14px);
         box-shadow: 0 36px 78px -28px rgba(12, 25, 48, 0.6),
             0 20px 42px -24px rgba(10, 22, 44, 0.45);
@@ -979,13 +979,13 @@ body.qr-landing.calserver-theme .pricing-card--featured li {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.qr-landing.calserver-theme .pricing-card--featured {
+    body.marketing-page.calserver-theme .pricing-card--featured {
         transition: none;
         transform: none !important;
     }
 }
 
-body.qr-landing.calserver-theme .calserver-highlight {
+body.marketing-page.calserver-theme .calserver-highlight {
     padding: 32px 0 28px;
     background: var(--cs-highlight-bg);
     border-top: 1px solid var(--cs-highlight-border-top);
@@ -993,13 +993,13 @@ body.qr-landing.calserver-theme .calserver-highlight {
     box-shadow: var(--cs-highlight-shadow);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill {
     gap: 12px;
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
@@ -1021,12 +1021,12 @@ body.qr-landing.calserver-theme:not(.high-contrast)
         border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
     > a:hover,
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
@@ -1038,7 +1038,7 @@ body.qr-landing.calserver-theme:not(.high-contrast)
     transform: translateY(-1px);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
@@ -1047,17 +1047,17 @@ body.qr-landing.calserver-theme:not(.high-contrast)
     outline-offset: 3px;
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > .uk-active
     > a,
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > .uk-active
     > a:hover,
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > .uk-active
@@ -1069,12 +1069,12 @@ body.qr-landing.calserver-theme:not(.high-contrast)
     transform: translateY(-1px);
 }
 
-body.qr-landing.calserver-theme .calserver-highlight__intro {
+body.marketing-page.calserver-theme .calserver-highlight__intro {
     max-width: 720px;
     margin: 0 auto 42px;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight__intro p {
+body.marketing-page.calserver-theme .calserver-highlight__intro p {
     color: color-mix(in oklab, rgba(255, 255, 255, 0.92) 92%, rgba(255, 255, 255, 0.62) 8%);
 }
 
@@ -1273,21 +1273,21 @@ body.qr-landing.calserver-theme .calserver-highlight__intro p {
     opacity: 0.75;
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-dialog,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-dialog,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1332,21 +1332,21 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
         0 18px 36px -28px rgba(15, 23, 42, 0.28);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-title,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-title,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1356,7 +1356,7 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
     color: var(--cs-hosting-modal-title);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1364,7 +1364,7 @@ body.qr-landing.calserver-theme:not(.high-contrast)
     )
     .uk-list-bullet
     > li::before,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1372,7 +1372,7 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
     )
     .uk-list-bullet
     > li::before,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1383,21 +1383,21 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
     border-color: var(--cs-hosting-modal-bullet);
 }
 
-body.qr-landing.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-theme:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     p,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     p,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1407,8 +1407,8 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
     color: var(--cs-hosting-modal-muted);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .marketing-chat__dialog,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .marketing-chat__dialog,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
     --marketing-chat-surface: color-mix(
         in oklab,
         var(--qr-card, #101a2d) 85%,
@@ -1441,22 +1441,22 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketin
     );
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
     #modal-standard-hosting
     .uk-modal-dialog,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     #modal-standard-hosting
     .uk-modal-dialog,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
     #modal-performance-hosting
     .uk-modal-dialog,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     #modal-performance-hosting
     .uk-modal-dialog,
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
     #modal-enterprise-hosting
     .uk-modal-dialog,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     #modal-enterprise-hosting
     .uk-modal-dialog {
     --cs-hosting-modal-surface: color-mix(
@@ -1500,14 +1500,14 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
         0 22px 44px -30px rgba(7, 14, 28, 0.7);
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     p,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1527,35 +1527,35 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast)
     }
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight__intro
     p,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight__intro
     p {
     color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-highlight.uk-light,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-highlight.uk-light {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-highlight.uk-light,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-highlight.uk-light {
     color: var(--qr-text);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight.uk-light
     :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
         .uk-heading-line > span, .uk-text-lead) {
     color: inherit;
 }
 
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight.uk-light
     :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
         .uk-heading-line > span, .uk-text-lead) {
     color: inherit;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-card {
+body.marketing-page.calserver-theme .calserver-highlight-card {
     background: var(--cs-highlight-card-bg) !important;
     border: 1px solid var(--cs-highlight-card-border) !important;
     border-radius: 22px;
@@ -1567,16 +1567,16 @@ body.qr-landing.calserver-theme .calserver-highlight-card {
     color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-bg) 12%);
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-card .uk-card-title {
+body.marketing-page.calserver-theme .calserver-highlight-card .uk-card-title {
     color: color-mix(in oklab, var(--calserver-primary) 32%, var(--qr-text) 68%);
     letter-spacing: -0.01em;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-card .uk-list-bullet > li::before {
+body.marketing-page.calserver-theme .calserver-highlight-card .uk-list-bullet > li::before {
     border-color: color-mix(in oklab, var(--calserver-primary) 48%, transparent);
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-card__actions {
+body.marketing-page.calserver-theme .calserver-highlight-card__actions {
     margin-top: auto;
     display: flex;
     flex-wrap: wrap;
@@ -1584,14 +1584,14 @@ body.qr-landing.calserver-theme .calserver-highlight-card__actions {
     align-items: center;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-card__actions .muted {
+body.marketing-page.calserver-theme .calserver-highlight-card__actions .muted {
     font-size: 0.85rem;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary {
     background: color-mix(in oklab, var(--calserver-primary) 88%, #103b99 12%);
@@ -1601,20 +1601,20 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
         color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.7));
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:hover,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:hover {
     background: color-mix(in oklab, var(--calserver-primary) 78%, #0a2d86 22%);
     border-color: color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.34));
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:focus-visible,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, #8ab3ff 25%);
@@ -1622,10 +1622,10 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.18));
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default {
     background: #ffffff;
@@ -1635,10 +1635,10 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
         0 14px 28px -24px rgba(15, 23, 42, 0.32);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:hover,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:hover {
     background: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
@@ -1646,10 +1646,10 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
     border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.16));
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:focus-visible,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 62%, #9bbdff 38%);
@@ -1658,37 +1658,37 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
 }
 
 @media (max-width: 959px) {
-    body.qr-landing.calserver-theme .calserver-highlight-card {
+    body.marketing-page.calserver-theme .calserver-highlight-card {
         padding: 28px;
     }
 }
 
 @media (max-width: 639px) {
-    body.qr-landing.calserver-theme .calserver-highlight-card__actions {
+    body.marketing-page.calserver-theme .calserver-highlight-card__actions {
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
     }
 
-    body.qr-landing.calserver-theme .calserver-highlight-card__actions .uk-button {
+    body.marketing-page.calserver-theme .calserver-highlight-card__actions .uk-button {
         width: 100%;
         justify-content: center;
     }
 }
 
-body.qr-landing.calserver-theme .calserver-section-glow {
+body.marketing-page.calserver-theme .calserver-section-glow {
     position: relative;
     overflow: hidden;
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-section-glow > * {
+body.marketing-page.calserver-theme .calserver-section-glow > * {
     position: relative;
     z-index: 1;
 }
 
-body.qr-landing.calserver-theme .calserver-section-glow::before,
-body.qr-landing.calserver-theme .calserver-section-glow::after {
+body.marketing-page.calserver-theme .calserver-section-glow::before,
+body.marketing-page.calserver-theme .calserver-section-glow::after {
     content: "";
     position: absolute;
     top: 0;
@@ -1703,16 +1703,16 @@ body.qr-landing.calserver-theme .calserver-section-glow::after {
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-section-glow::before {
+body.marketing-page.calserver-theme .calserver-section-glow::before {
     left: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-section-glow::after {
+body.marketing-page.calserver-theme .calserver-section-glow::after {
     right: 0;
     transform: scaleX(-1);
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip {
+body.marketing-page.calserver-theme .calserver-stats-strip {
     display: grid;
     gap: 18px;
     position: relative;
@@ -1720,12 +1720,12 @@ body.qr-landing.calserver-theme .calserver-stats-strip {
 }
 
 @media (min-width: 640px) {
-    body.qr-landing.calserver-theme .calserver-stats-strip {
+    body.marketing-page.calserver-theme .calserver-stats-strip {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__item {
+body.marketing-page.calserver-theme .calserver-stats-strip__item {
     padding: 18px 20px;
     border-radius: 18px;
     background: var(--cs-highlight-card-bg);
@@ -1737,14 +1737,14 @@ body.qr-landing.calserver-theme .calserver-stats-strip__item {
     min-height: 120px;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__header {
+body.marketing-page.calserver-theme .calserver-stats-strip__header {
     display: flex;
     align-items: flex-end;
     gap: 14px;
     flex-wrap: wrap;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__title-group {
+body.marketing-page.calserver-theme .calserver-stats-strip__title-group {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -1752,7 +1752,7 @@ body.qr-landing.calserver-theme .calserver-stats-strip__title-group {
     min-width: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__value {
+body.marketing-page.calserver-theme .calserver-stats-strip__value {
     font-size: clamp(2rem, 2.2vw + 1.2rem, 3rem);
     font-weight: 700;
     color: var(--qr-landing-primary);
@@ -1760,38 +1760,38 @@ body.qr-landing.calserver-theme .calserver-stats-strip__value {
     flex-shrink: 0;
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .calserver-stats-strip__value,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-stats-strip__value {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .calserver-stats-strip__value,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-stats-strip__value {
     color: var(--qr-text);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-stats-strip__value,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-stats-strip__value {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-stats-strip__value,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-stats-strip__value {
     color: color-mix(in oklab, var(--calserver-primary) 86%, #0c1a3a 14%);
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__title {
+body.marketing-page.calserver-theme .calserver-stats-strip__title {
     color: var(--qr-text);
     font-size: 1.05rem;
     font-weight: 600;
     line-height: 1.3;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__label {
+body.marketing-page.calserver-theme .calserver-stats-strip__label {
     color: var(--qr-muted);
     font-size: 0.95rem;
     line-height: 1.35;
     display: block;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__benefit {
+body.marketing-page.calserver-theme .calserver-stats-strip__benefit {
     margin: 8px 0 0;
     color: var(--qr-text);
     font-size: 0.95rem;
     line-height: 1.45;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__tooltip {
+body.marketing-page.calserver-theme .calserver-stats-strip__tooltip {
     color: var(--qr-muted);
     display: inline-flex;
     align-items: center;
@@ -1800,20 +1800,20 @@ body.qr-landing.calserver-theme .calserver-stats-strip__tooltip {
     cursor: help;
 }
 
-body.qr-landing.calserver-theme .calserver-stats-strip__tooltip:focus-visible {
+body.marketing-page.calserver-theme .calserver-stats-strip__tooltip:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 65%, transparent);
     outline-offset: 2px;
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee {
+body.marketing-page.calserver-theme .calserver-logo-marquee {
     margin-top: 34px;
     position: relative;
     overflow: hidden;
     padding: 6px 0;
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee::before,
-body.qr-landing.calserver-theme .calserver-logo-marquee::after {
+body.marketing-page.calserver-theme .calserver-logo-marquee::before,
+body.marketing-page.calserver-theme .calserver-logo-marquee::after {
     content: "";
     position: absolute;
     top: 0;
@@ -1824,23 +1824,23 @@ body.qr-landing.calserver-theme .calserver-logo-marquee::after {
     background: linear-gradient(90deg, var(--qr-card), transparent);
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee::before {
+body.marketing-page.calserver-theme .calserver-logo-marquee::before {
     left: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee::after {
+body.marketing-page.calserver-theme .calserver-logo-marquee::after {
     right: 0;
     transform: scaleX(-1);
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee__track {
+body.marketing-page.calserver-theme .calserver-logo-marquee__track {
     display: flex;
     align-items: center;
     gap: 48px;
     animation: calserver-marquee 26s linear infinite;
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee__item {
+body.marketing-page.calserver-theme .calserver-logo-marquee__item {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
@@ -1857,17 +1857,17 @@ body.qr-landing.calserver-theme .calserver-logo-marquee__item {
     opacity: 0.96;
 }
 
-body.qr-landing.calserver-theme .calserver-logo-marquee__item img {
+body.marketing-page.calserver-theme .calserver-logo-marquee__item img {
     max-height: 40px;
     width: auto;
     filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.25));
 }
 
-body.qr-landing.calserver-theme .calserver-pricing__header {
+body.marketing-page.calserver-theme .calserver-pricing__header {
     gap: 12px;
 }
 
-body.qr-landing.calserver-theme .calserver-pricing-card {
+body.marketing-page.calserver-theme .calserver-pricing-card {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -1875,17 +1875,17 @@ body.qr-landing.calserver-theme .calserver-pricing-card {
     padding: clamp(24px, 3vw, 32px);
 }
 
-body.qr-landing.calserver-theme .calserver-pricing-card .uk-list {
+body.marketing-page.calserver-theme .calserver-pricing-card .uk-list {
     margin-top: 4px;
     flex-grow: 1;
 }
 
-body.qr-landing.calserver-theme .calserver-pricing-card .uk-button {
+body.marketing-page.calserver-theme .calserver-pricing-card .uk-button {
     margin-top: auto;
     align-self: center;
 }
 
-body.qr-landing.calserver-theme .calserver-pricing-card .uk-text-bold {
+body.marketing-page.calserver-theme .calserver-pricing-card .uk-text-bold {
     font-size: clamp(1.4rem, 1.1vw + 1.1rem, 2rem);
 }
 
@@ -1899,12 +1899,12 @@ body.qr-landing.calserver-theme .calserver-pricing-card .uk-text-bold {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.qr-landing.calserver-theme .calserver-logo-marquee__track {
+    body.marketing-page.calserver-theme .calserver-logo-marquee__track {
         animation: none;
     }
 }
 
-body.qr-landing.calserver-theme #trust {
+body.marketing-page.calserver-theme #trust {
     --trust-step-accent: color-mix(in oklab, var(--calserver-primary) 72%, var(--qr-text) 28%);
     --trust-axis-color: color-mix(in oklab, var(--trust-step-accent) 45%, var(--qr-bg) 55%);
     --trust-step-marker-bg: color-mix(in oklab, var(--qr-bg) 78%, var(--trust-step-accent) 22%);
@@ -1913,7 +1913,7 @@ body.qr-landing.calserver-theme #trust {
     --trust-step-surface-hover: color-mix(in oklab, var(--trust-step-marker-bg) 30%, var(--trust-step-surface) 70%);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story {
+body.marketing-page.calserver-theme #trust .trust-story {
     position: relative;
     list-style: none;
     margin: 44px 0 0;
@@ -1923,14 +1923,14 @@ body.qr-landing.calserver-theme #trust .trust-story {
     gap: 36px;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__lead {
+body.marketing-page.calserver-theme #trust .trust-story__lead {
     margin: 12px 0 0;
     font-size: 1.1rem;
     line-height: 1.7;
     color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step {
+body.marketing-page.calserver-theme #trust .trust-story__step {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 72px) minmax(0, 1fr);
@@ -1943,7 +1943,7 @@ body.qr-landing.calserver-theme #trust .trust-story__step {
     transition: color 220ms ease;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__marker {
+body.marketing-page.calserver-theme #trust .trust-story__marker {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1951,7 +1951,7 @@ body.qr-landing.calserver-theme #trust .trust-story__marker {
     min-width: 64px;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__connector {
+body.marketing-page.calserver-theme #trust .trust-story__connector {
     width: 2px;
     flex: 1 1 24px;
     min-height: 24px;
@@ -1960,12 +1960,12 @@ body.qr-landing.calserver-theme #trust .trust-story__connector {
     transition: background 220ms ease;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step:first-child .trust-story__connector--before,
-body.qr-landing.calserver-theme #trust .trust-story__step:last-child .trust-story__connector--after {
+body.marketing-page.calserver-theme #trust .trust-story__step:first-child .trust-story__connector--before,
+body.marketing-page.calserver-theme #trust .trust-story__step:last-child .trust-story__connector--after {
     display: none;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__badge {
+body.marketing-page.calserver-theme #trust .trust-story__badge {
     position: relative;
     display: grid;
     place-items: center;
@@ -1978,7 +1978,7 @@ body.qr-landing.calserver-theme #trust .trust-story__badge {
     transition: transform 220ms ease, background 220ms ease, border-color 220ms ease, color 220ms ease;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__badge::after {
+body.marketing-page.calserver-theme #trust .trust-story__badge::after {
     content: attr(data-step-index);
     position: absolute;
     inset-inline-end: -8px;
@@ -1996,7 +1996,7 @@ body.qr-landing.calserver-theme #trust .trust-story__badge::after {
     transition: background 220ms ease, color 220ms ease, box-shadow 220ms ease;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__badge-icon {
+body.marketing-page.calserver-theme #trust .trust-story__badge-icon {
     display: grid;
     place-items: center;
     width: 26px;
@@ -2004,12 +2004,12 @@ body.qr-landing.calserver-theme #trust .trust-story__badge-icon {
     color: inherit;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__badge-icon svg {
+body.marketing-page.calserver-theme #trust .trust-story__badge-icon svg {
     width: 24px;
     height: 24px;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__sr {
+body.marketing-page.calserver-theme #trust .trust-story__sr {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -2021,7 +2021,7 @@ body.qr-landing.calserver-theme #trust .trust-story__sr {
     border: 0;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__content {
+body.marketing-page.calserver-theme #trust .trust-story__content {
     background: var(--trust-step-surface);
     border-radius: 18px;
     padding: 18px 22px;
@@ -2029,54 +2029,54 @@ body.qr-landing.calserver-theme #trust .trust-story__content {
     transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__title {
+body.marketing-page.calserver-theme #trust .trust-story__title {
     margin: 0 0 12px;
     font-size: 1.35rem;
     line-height: 1.35;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__text {
+body.marketing-page.calserver-theme #trust .trust-story__text {
     margin: 0;
     color: color-mix(in oklab, var(--qr-text) 74%, var(--qr-bg) 26%);
     line-height: 1.65;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__content,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__content,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__content {
+body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__content,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__content,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__content {
     background: var(--trust-step-surface-hover);
     border-color: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--trust-step-accent) 45%, transparent);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__badge,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge {
+body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__badge,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge {
     background: color-mix(in oklab, var(--trust-step-marker-bg) 40%, var(--trust-step-accent) 60%);
     border-color: color-mix(in oklab, var(--trust-step-accent) 80%, #ffffff 20%);
     color: color-mix(in oklab, #ffffff 70%, var(--trust-step-marker-icon) 30%);
     transform: translateY(-2px);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__badge::after,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge::after,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge::after {
+body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__badge::after,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge::after {
     background: color-mix(in oklab, var(--trust-step-accent) 88%, var(--qr-bg) 12%);
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--qr-bg) 85%, transparent 15%);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__connector,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__connector,
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__connector {
+body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__connector,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__connector,
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__connector {
     background: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible {
+body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--trust-step-accent) 68%, transparent);
     outline-offset: 10px;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__closing {
+body.marketing-page.calserver-theme #trust .trust-story__closing {
     background: color-mix(in oklab, var(--qr-card) 88%, var(--calserver-primary) 12%);
     border-radius: 24px;
     padding: 36px 40px;
@@ -2085,28 +2085,28 @@ body.qr-landing.calserver-theme #trust .trust-story__closing {
     border: 1px solid color-mix(in oklab, var(--trust-step-accent) 35%, transparent);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__closing-title {
+body.marketing-page.calserver-theme #trust .trust-story__closing-title {
     margin: 0 0 12px;
     font-size: 1.6rem;
     line-height: 1.4;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__closing-text {
+body.marketing-page.calserver-theme #trust .trust-story__closing-text {
     margin: 0;
     font-size: 1.05rem;
     line-height: 1.7;
     color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__cta-group {
+body.marketing-page.calserver-theme #trust .trust-story__cta-group {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     justify-content: flex-start;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__cta-group .uk-button,
-body.qr-landing.calserver-theme #trust .trust-story__cta-group .btn {
+body.marketing-page.calserver-theme #trust .trust-story__cta-group .uk-button,
+body.marketing-page.calserver-theme #trust .trust-story__cta-group .btn {
     flex: 1 1 auto;
     min-width: 180px;
     text-align: center;
@@ -2192,13 +2192,13 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
 }
 
 @media (min-width: 960px) {
-    body.qr-landing.calserver-theme #trust .trust-story {
+    body.marketing-page.calserver-theme #trust .trust-story {
         flex-direction: row;
         align-items: stretch;
         gap: 40px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__step {
+    body.marketing-page.calserver-theme #trust .trust-story__step {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -2208,7 +2208,7 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
         padding: 16px 12px 24px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__marker {
+    body.marketing-page.calserver-theme #trust .trust-story__marker {
         flex-direction: row;
         justify-content: center;
         align-items: center;
@@ -2216,103 +2216,103 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
         gap: 18px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__connector {
+    body.marketing-page.calserver-theme #trust .trust-story__connector {
         min-height: 2px;
         height: 2px;
         width: 100%;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__content {
+    body.marketing-page.calserver-theme #trust .trust-story__content {
         max-width: 360px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__title {
+    body.marketing-page.calserver-theme #trust .trust-story__title {
         margin: 0 0 10px;
     }
 }
 
 @media (max-width: 1200px) {
-    body.qr-landing.calserver-theme #trust .trust-story__closing {
+    body.marketing-page.calserver-theme #trust .trust-story__closing {
         padding: 32px;
     }
 }
 
 @media (max-width: 959px) {
-    body.qr-landing.calserver-theme #trust .trust-story {
+    body.marketing-page.calserver-theme #trust .trust-story {
         margin-top: 36px;
         gap: 32px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__step {
+    body.marketing-page.calserver-theme #trust .trust-story__step {
         grid-template-columns: minmax(0, 60px) minmax(0, 1fr);
         gap: 18px;
         padding: 4px 0;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__badge {
+    body.marketing-page.calserver-theme #trust .trust-story__badge {
         width: 54px;
         height: 54px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__badge::after {
+    body.marketing-page.calserver-theme #trust .trust-story__badge::after {
         width: 24px;
         height: 24px;
         font-size: 0.8rem;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__content {
+    body.marketing-page.calserver-theme #trust .trust-story__content {
         padding: 16px 18px;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__closing {
+    body.marketing-page.calserver-theme #trust .trust-story__closing {
         margin-top: 44px;
     }
 }
 
 @media (max-width: 640px) {
-    body.qr-landing.calserver-theme #trust .trust-story__lead {
+    body.marketing-page.calserver-theme #trust .trust-story__lead {
         font-size: 1rem;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__title {
+    body.marketing-page.calserver-theme #trust .trust-story__title {
         font-size: 1.2rem;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__text {
+    body.marketing-page.calserver-theme #trust .trust-story__text {
         font-size: 1rem;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__cta-group {
+    body.marketing-page.calserver-theme #trust .trust-story__cta-group {
         flex-direction: column;
         align-items: stretch;
     }
 }
 
-body.qr-landing.calserver-theme .muted {
+body.marketing-page.calserver-theme .muted {
     color: color-mix(in oklab, var(--qr-text) 60%, var(--qr-bg) 40%);
 }
 
-body.qr-landing.calserver-theme .quick-cta {
+body.marketing-page.calserver-theme .quick-cta {
     border-radius: 18px;
     background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
     padding: 24px 32px;
 }
 
-body.qr-landing.calserver-theme .uk-card-hover {
+body.marketing-page.calserver-theme .uk-card-hover {
     transition: transform 220ms ease, box-shadow 220ms ease;
 }
 
-body.qr-landing.calserver-theme .uk-card-hover:hover {
+body.marketing-page.calserver-theme .uk-card-hover:hover {
     transform: translateY(-6px);
     box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
 }
 
-body.qr-landing.calserver-theme .feature-nav {
+body.marketing-page.calserver-theme .feature-nav {
     margin: 0 auto 12px;
     max-width: 1024px;
 }
 
-body.qr-landing.calserver-theme .feature-nav__list {
+body.marketing-page.calserver-theme .feature-nav__list {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
@@ -2322,7 +2322,7 @@ body.qr-landing.calserver-theme .feature-nav__list {
     list-style: none;
 }
 
-body.qr-landing.calserver-theme .feature-nav__pill {
+body.marketing-page.calserver-theme .feature-nav__pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2339,32 +2339,32 @@ body.qr-landing.calserver-theme .feature-nav__pill {
         transform 180ms ease, box-shadow 180ms ease;
 }
 
-body.qr-landing.calserver-theme .feature-nav__pill.is-active {
+body.marketing-page.calserver-theme .feature-nav__pill.is-active {
     background: var(--qr-landing-primary);
     color: #fff;
     box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
         0 20px 34px -24px rgba(31, 99, 230, 0.95);
 }
 
-body.qr-landing.calserver-theme .feature-nav__pill:hover,
-body.qr-landing.calserver-theme .feature-nav__pill:focus {
+body.marketing-page.calserver-theme .feature-nav__pill:hover,
+body.marketing-page.calserver-theme .feature-nav__pill:focus {
     background: var(--qr-landing-primary);
     color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.9);
 }
 
-body.qr-landing.calserver-theme .feature-slider {
+body.marketing-page.calserver-theme .feature-slider {
     margin-top: 40px;
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li {
+body.marketing-page.calserver-theme .feature-slider__list > li {
     display: flex;
     position: relative;
     padding: 12px;
 }
 
-body.qr-landing.calserver-theme .feature-card {
+body.marketing-page.calserver-theme .feature-card {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -2380,32 +2380,32 @@ body.qr-landing.calserver-theme .feature-card {
         transform 250ms ease, opacity 200ms ease;
 }
 
-body.qr-landing.calserver-theme .feature-card__title,
-body.qr-landing.calserver-theme .feature-card p,
-body.qr-landing.calserver-theme .feature-card li {
+body.marketing-page.calserver-theme .feature-card__title,
+body.marketing-page.calserver-theme .feature-card p,
+body.marketing-page.calserver-theme .feature-card li {
     color: var(--cs-text-on-dark);
 }
 
-body.qr-landing.calserver-theme .feature-card .uk-list-bullet > li::before {
+body.marketing-page.calserver-theme .feature-card .uk-list-bullet > li::before {
     border-color: var(--cs-text-on-dark);
 }
 
-body.qr-landing.calserver-theme .feature-card--focus {
+body.marketing-page.calserver-theme .feature-card--focus {
     background: var(--cs-card-focus-bg);
     border-color: var(--cs-card-focus-border);
     box-shadow: var(--cs-card-focus-shadow);
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card {
+body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card {
     transform: scale(1.04);
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card.feature-card--focus {
+body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card.feature-card--focus {
     transform: scale(1.04) translateY(-2px);
     box-shadow: var(--cs-card-focus-shadow);
 }
 
-body.qr-landing.calserver-theme #modules .calserver-modules-grid {
+body.marketing-page.calserver-theme #modules .calserver-modules-grid {
     display: grid;
     gap: 32px;
     grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
@@ -2413,7 +2413,7 @@ body.qr-landing.calserver-theme #modules .calserver-modules-grid {
     align-items: start;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav {
+body.marketing-page.calserver-theme .calserver-modules-nav {
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -2425,7 +2425,7 @@ body.qr-landing.calserver-theme .calserver-modules-nav {
     z-index: 2;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav__link {
+body.marketing-page.calserver-theme .calserver-modules-nav__link {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -2443,44 +2443,44 @@ body.qr-landing.calserver-theme .calserver-modules-nav__link {
         transform 200ms ease;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav__title {
+body.marketing-page.calserver-theme .calserver-modules-nav__title {
     font-weight: 600;
     letter-spacing: 0.01em;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav__desc {
+body.marketing-page.calserver-theme .calserver-modules-nav__desc {
     color: color-mix(in oklab, var(--qr-text) 68%, var(--qr-bg) 32%);
     font-size: 0.92rem;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav li.uk-active .calserver-modules-nav__link,
-body.qr-landing.calserver-theme .calserver-modules-nav__link:hover {
+body.marketing-page.calserver-theme .calserver-modules-nav li.uk-active .calserver-modules-nav__link,
+body.marketing-page.calserver-theme .calserver-modules-nav__link:hover {
     background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
     border-color: color-mix(in oklab, var(--calserver-primary) 45%, transparent);
     box-shadow: 0 24px 48px -30px rgba(15, 23, 42, 0.42);
     transform: translateY(-2px);
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav__link:focus-visible {
+body.marketing-page.calserver-theme .calserver-modules-nav__link:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, #ffffff 40%);
     outline-offset: 3px;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-nav > li {
+body.marketing-page.calserver-theme .calserver-modules-nav > li {
     margin: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-switcher {
+body.marketing-page.calserver-theme .calserver-modules-switcher {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-body.qr-landing.calserver-theme .calserver-modules-switcher > li {
+body.marketing-page.calserver-theme .calserver-modules-switcher > li {
     list-style: none;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure {
+body.marketing-page.calserver-theme .calserver-module-figure {
     position: relative;
     isolation: isolate;
     margin: 0;
@@ -2491,7 +2491,7 @@ body.qr-landing.calserver-theme .calserver-module-figure {
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure::before {
+body.marketing-page.calserver-theme .calserver-module-figure::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -2503,17 +2503,17 @@ body.qr-landing.calserver-theme .calserver-module-figure::before {
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure img,
-body.qr-landing.calserver-theme .calserver-module-figure video,
-body.qr-landing.calserver-theme .calserver-module-figure .calserver-module-figure__visual,
-body.qr-landing.calserver-theme .calserver-module-figure figcaption {
+body.marketing-page.calserver-theme .calserver-module-figure img,
+body.marketing-page.calserver-theme .calserver-module-figure video,
+body.marketing-page.calserver-theme .calserver-module-figure .calserver-module-figure__visual,
+body.marketing-page.calserver-theme .calserver-module-figure figcaption {
     position: relative;
     z-index: 1;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure img,
-body.qr-landing.calserver-theme .calserver-module-figure video,
-body.qr-landing.calserver-theme .calserver-module-figure .calserver-module-figure__visual {
+body.marketing-page.calserver-theme .calserver-module-figure img,
+body.marketing-page.calserver-theme .calserver-module-figure video,
+body.marketing-page.calserver-theme .calserver-module-figure .calserver-module-figure__visual {
     display: block;
     width: 100%;
     height: auto;
@@ -2522,11 +2522,11 @@ body.qr-landing.calserver-theme .calserver-module-figure .calserver-module-figur
     box-shadow: 0 18px 32px -24px rgba(15, 23, 42, 0.45);
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure video {
+body.marketing-page.calserver-theme .calserver-module-figure video {
     background: #000;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual {
+body.marketing-page.calserver-theme .calserver-module-figure__visual {
     aspect-ratio: 16 / 9;
     background: radial-gradient(circle at 20% 20%, rgba(12, 96, 125, 0.6), rgba(6, 20, 37, 0.92));
     border-radius: 22px 22px 0 0;
@@ -2539,7 +2539,7 @@ body.qr-landing.calserver-theme .calserver-module-figure__visual {
     position: relative;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual::after {
+body.marketing-page.calserver-theme .calserver-module-figure__visual::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -2550,27 +2550,27 @@ body.qr-landing.calserver-theme .calserver-module-figure__visual::after {
     opacity: 0.85;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual[data-module="device-management"] {
+body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="device-management"] {
     background: radial-gradient(circle at 12% 18%, rgba(0, 148, 170, 0.7), rgba(5, 22, 39, 0.92)),
         linear-gradient(145deg, rgba(6, 117, 138, 0.85), rgba(3, 35, 52, 0.95));
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual[data-module="calendar-resources"] {
+body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="calendar-resources"] {
     background: radial-gradient(circle at 82% 22%, rgba(62, 173, 247, 0.6), rgba(12, 45, 84, 0.96)),
         linear-gradient(135deg, rgba(9, 61, 133, 0.88), rgba(7, 24, 52, 0.95));
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual[data-module="order-ticketing"] {
+body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="order-ticketing"] {
     background: radial-gradient(circle at 18% 78%, rgba(237, 127, 63, 0.68), rgba(54, 20, 6, 0.94)),
         linear-gradient(140deg, rgba(191, 71, 34, 0.82), rgba(36, 16, 6, 0.92));
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual[data-module="self-service"] {
+body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="self-service"] {
     background: radial-gradient(circle at 78% 24%, rgba(154, 129, 255, 0.65), rgba(41, 10, 70, 0.93)),
         linear-gradient(135deg, rgba(109, 74, 199, 0.84), rgba(31, 10, 53, 0.92));
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__visual-label {
+body.marketing-page.calserver-theme .calserver-module-figure__visual-label {
     font-size: clamp(1.4rem, 2vw + 1rem, 2.35rem);
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -2581,16 +2581,16 @@ body.qr-landing.calserver-theme .calserver-module-figure__visual-label {
     z-index: 1;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__video--manual {
+body.marketing-page.calserver-theme .calserver-module-figure__video--manual {
     cursor: pointer;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure--manual .calserver-module-figure__fullscreen-button {
+body.marketing-page.calserver-theme .calserver-module-figure--manual .calserver-module-figure__fullscreen-button {
     top: 14px;
     right: 14px;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button {
+body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button {
     position: absolute;
     top: 18px;
     right: 18px;
@@ -2609,30 +2609,30 @@ body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button {
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button:hover,
-body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
+body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:hover,
+body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 60%, rgba(8, 13, 24, 0.9));
     border-color: color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.3));
     box-shadow: 0 18px 36px -20px rgba(15, 23, 42, 0.62);
     transform: translateY(-1px);
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
+body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.28));
     outline-offset: 2px;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button[data-state="active"] {
+body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button[data-state="active"] {
     background: color-mix(in oklab, var(--calserver-primary) 72%, rgba(8, 13, 24, 0.94));
     border-color: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.34));
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-icon {
+body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-icon {
     font-size: 1.35rem;
     line-height: 1;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure figcaption {
+body.marketing-page.calserver-theme .calserver-module-figure figcaption {
     padding: 28px;
     display: flex;
     flex-direction: column;
@@ -2643,48 +2643,48 @@ body.qr-landing.calserver-theme .calserver-module-figure figcaption {
     border-radius: 0 0 22px 22px;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure h3 {
+body.marketing-page.calserver-theme .calserver-module-figure h3 {
     margin: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
+body.marketing-page.calserver-theme .calserver-module-figure .uk-list {
     margin-bottom: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__download {
+body.marketing-page.calserver-theme .calserver-module-figure__download {
     margin: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__download-link {
+body.marketing-page.calserver-theme .calserver-module-figure__download-link {
     font-weight: 600;
     text-decoration: none;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__download-link:hover,
-body.qr-landing.calserver-theme .calserver-module-figure__download-link:focus {
+body.marketing-page.calserver-theme .calserver-module-figure__download-link:hover,
+body.marketing-page.calserver-theme .calserver-module-figure__download-link:focus {
     text-decoration: underline;
 }
 
 @media (max-width: 1024px) {
-    body.qr-landing.calserver-theme #modules .calserver-modules-grid {
+    body.marketing-page.calserver-theme #modules .calserver-modules-grid {
         grid-template-columns: 1fr;
     }
 
-    body.qr-landing.calserver-theme .calserver-modules-nav {
+    body.marketing-page.calserver-theme .calserver-modules-nav {
         flex-direction: row;
         overflow-x: auto;
         padding-bottom: 8px;
         margin-bottom: 12px;
     }
 
-    body.qr-landing.calserver-theme .calserver-modules-nav > li {
+    body.marketing-page.calserver-theme .calserver-modules-nav > li {
         min-width: 240px;
         flex: 0 0 auto;
     }
 }
 
 @media (max-width: 640px) {
-    body.qr-landing.calserver-theme .calserver-modules-nav {
+    body.marketing-page.calserver-theme .calserver-modules-nav {
         flex-direction: column;
         align-items: center;
         overflow-x: visible;
@@ -2694,60 +2694,60 @@ body.qr-landing.calserver-theme .calserver-module-figure__download-link:focus {
         width: 100%;
     }
 
-    body.qr-landing.calserver-theme .calserver-modules-nav > li {
+    body.marketing-page.calserver-theme .calserver-modules-nav > li {
         min-width: 0;
         width: min(100%, 360px);
         margin-inline: auto;
     }
 
-    body.qr-landing.calserver-theme .calserver-modules-nav__link {
+    body.marketing-page.calserver-theme .calserver-modules-nav__link {
         padding: 16px;
         padding-inline-start: 0;
     }
 
-    body.qr-landing.calserver-theme .calserver-module-figure figcaption {
+    body.marketing-page.calserver-theme .calserver-module-figure figcaption {
         padding: 22px;
     }
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
+body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
     box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.45);
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card:hover {
+body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card:hover {
     transform: scale(1.04) translateY(-2px);
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card {
+body.marketing-page.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card {
     opacity: 0.92;
 }
 
-body.qr-landing.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card:hover {
+body.marketing-page.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card:hover {
     transform: translateY(-4px);
 }
 
-body.qr-landing.calserver-theme .testimonial-card {
+body.marketing-page.calserver-theme .testimonial-card {
     min-height: 240px;
 }
 
-body.qr-landing.calserver-theme .usecase-card--visual {
+body.marketing-page.calserver-theme .usecase-card--visual {
     display: none;
     padding: 0;
     overflow: hidden;
 }
 
-body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual {
+body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual {
     margin: 0;
 }
 
-body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
+body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image {
     display: block;
     width: 100%;
     height: auto;
 }
 
 @media (max-width: 959px) {
-    body.qr-landing.calserver-theme .quick-cta {
+    body.marketing-page.calserver-theme .quick-cta {
         padding: 20px;
     }
 }
@@ -2828,16 +2828,16 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     box-shadow: 0 16px 36px rgba(9, 15, 28, 0.28), 0 6px 14px rgba(9, 15, 28, 0.24);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button {
     color: #ffffff;
     border-color: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
     background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
     box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button svg,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button svg {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button svg,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button svg {
     color: inherit;
     stroke: currentColor;
 }
@@ -2864,8 +2864,8 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserv
     }
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-floating-button,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-floating-button,
+body.marketing-page.calserver-theme.high-contrast .calserver-floating-button,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-floating-button,
 body.high-contrast .calserver-floating-button {
     background: #000000;
     color: #ffffff;
@@ -2873,8 +2873,8 @@ body.high-contrast .calserver-floating-button {
     border: 2px solid currentColor;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-trigger.calserver-cookie-trigger--active,
+body.marketing-page.calserver-theme.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-trigger.calserver-cookie-trigger--active,
 body.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active {
     background: #111111;
 }
@@ -2937,8 +2937,8 @@ body.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active {
     }
 }
 
-body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .calserver-cookie-banner,
-body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-cookie-banner {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .calserver-cookie-banner,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-cookie-banner {
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 28%, rgba(10, 16, 28, 0.95)) 0%,
@@ -2948,8 +2948,8 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserve
     color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.08)) !important;
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-banner,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-banner {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-banner,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-banner {
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 12%, #ffffff 88%) 0%,
@@ -2959,8 +2959,8 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserv
     color: color-mix(in oklab, #0b1532 88%, var(--calserver-primary) 12%) !important;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-cookie-banner,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner,
+body.marketing-page.calserver-theme.high-contrast .calserver-cookie-banner,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner,
 body.high-contrast .calserver-cookie-banner {
     background: var(--qr-card, #000000);
     color: var(--qr-text, #ffffff);
@@ -2968,8 +2968,8 @@ body.high-contrast .calserver-cookie-banner {
     box-shadow: none;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-cookie-banner__link,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner__link,
+body.marketing-page.calserver-theme.high-contrast .calserver-cookie-banner__link,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner__link,
 body.high-contrast .calserver-cookie-banner__link {
     text-decoration-thickness: 2px;
 }

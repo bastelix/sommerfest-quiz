@@ -1,4 +1,4 @@
-body.qr-landing.future-is-green-theme {
+body.marketing-page.future-is-green-theme {
   --fig-primary: #138f52;
   --fig-primary-dark: #0c6f3f;
   --fig-secondary: #ffffff;
@@ -49,7 +49,7 @@ body.qr-landing.future-is-green-theme {
   color-scheme: light;
 }
 
-body.qr-landing.future-is-green-theme[data-theme='dark']:not(.high-contrast) {
+body.marketing-page.future-is-green-theme[data-theme='dark']:not(.high-contrast) {
   --fig-primary: #4cc986;
   --fig-primary-dark: #34ad6c;
   --fig-secondary: #ffffff;
@@ -93,7 +93,7 @@ body.qr-landing.future-is-green-theme[data-theme='dark']:not(.high-contrast) {
   color-scheme: dark;
 }
 
-body.qr-landing.future-is-green-theme.high-contrast {
+body.marketing-page.future-is-green-theme.high-contrast {
   --qr-bg: #ffffff;
   --qr-bg-soft: #ffffff;
   --qr-card: #ffffff;
@@ -105,7 +105,7 @@ body.qr-landing.future-is-green-theme.high-contrast {
   color-scheme: light;
 }
 
-body.qr-landing.future-is-green-theme[data-theme='dark'].high-contrast {
+body.marketing-page.future-is-green-theme[data-theme='dark'].high-contrast {
   --qr-bg: #000000;
   --qr-bg-soft: #000000;
   --qr-card: #000000;
@@ -117,7 +117,7 @@ body.qr-landing.future-is-green-theme[data-theme='dark'].high-contrast {
   color-scheme: dark;
 }
 
-body.qr-landing.future-is-green-theme .landing-content {
+body.marketing-page.future-is-green-theme .landing-content {
   background: transparent;
 }
 
@@ -319,7 +319,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 }
 
 @media (max-width: 640px) {
-  body.qr-landing.future-is-green-theme {
+  body.marketing-page.future-is-green-theme {
     --fig-logo-size: clamp(54px, 18vw, 68px);
     --fig-logo-expanded-scale: 1.35;
   }
