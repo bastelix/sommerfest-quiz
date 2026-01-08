@@ -49,6 +49,7 @@ body.qr-landing{
   --qr-landing-topbar-bg-light: var(--qr-landing-bg);
   --qr-landing-topbar-bg-dark: var(--qr-landing-bg);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
+  --section-gap: clamp(32px, 6vw, 64px);
 }
 body.qr-landing:not(.dark-mode){
   --qr-bg:#ffffff;
@@ -73,6 +74,18 @@ body.qr-landing:not(.dark-mode){
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+}
+
+@media (max-width: 959px) {
+  body.qr-landing {
+    --section-gap: clamp(28px, 7vw, 56px);
+  }
+}
+
+@media (max-width: 639px) {
+  body.qr-landing {
+    --section-gap: clamp(24px, 8vw, 52px);
+  }
 }
 
 body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary{
@@ -327,6 +340,10 @@ body.page-render .qr-page-renderer table {
   color: var(--section-text-color, var(--color-text, inherit));
   padding: var(--section-padding-outer) 0;
   background: var(--section-bg-color);
+}
+
+.qr-landing .section + .section {
+  margin-top: var(--marketing-section-gap, var(--section-gap));
 }
 
 .section[data-section-intent="content"] {
