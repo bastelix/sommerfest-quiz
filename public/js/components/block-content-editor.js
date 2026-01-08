@@ -6,6 +6,7 @@ import {
   normalizeBlockContract,
   normalizeVariant,
   SECTION_APPEARANCE_PRESETS,
+  TOKEN_ALIASES,
   validateBlockContract
 } from './block-contract.js';
 import { normalizeSectionIntent, resolveSectionIntent } from './section-intents.js';
@@ -1040,7 +1041,23 @@ function sanitizeTokens(tokens) {
     return undefined;
   }
   const tokensSchema = BLOCK_CONTRACT_SCHEMA.definitions?.Tokens;
-  return sanitizeValue(tokens, tokensSchema);
+  const normalizedTokens = normalizeTokenAliases(tokens);
+  return sanitizeValue(normalizedTokens, tokensSchema);
+}
+
+function normalizeTokenAliases(tokens) {
+  if (!isPlainObject(tokens)) {
+    return tokens;
+  }
+
+  const normalized = { ...tokens };
+  Object.entries(normalized).forEach(([key, value]) => {
+    if (typeof value !== 'string') {
+      return;
+    }
+    normalized[key] = TOKEN_ALIASES[key]?.[value] || value;
+  });
+  return normalized;
 }
 
 function buildDefaultBlock(type, variant) {
