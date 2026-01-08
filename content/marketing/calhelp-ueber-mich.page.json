@@ -1,0 +1,188 @@
+{
+  "meta": {
+    "namespace": "calhelp",
+    "slug": "ueber-mich",
+    "title": "Über mich – calHelp",
+    "schemaVersion": "block-contract-v1"
+  },
+  "blocks": [
+    {
+      "id": "hero",
+      "type": "hero",
+      "variant": "media_right",
+      "data": {
+        "eyebrow": "Über mich",
+        "headline": "Hi, ich bin René.",
+        "subheadline": "calHelp begann vor rund 20 Jahren als „calibration help“ – damals ganz praktisch: Software, Schulung und Support rund um Kalibrierung. Heute ist calHelp mein Rahmen, um Digitalisierung so zu machen, dass sie im Alltag wirklich hilft: klar, verlässlich und langfristig.",
+        "cta": {
+          "primary": {
+            "label": "Termin vereinbaren",
+            "href": "/termin"
+          },
+          "secondary": {
+            "label": "Kontakt aufnehmen",
+            "href": "/kontakt"
+          }
+        },
+        "media": {
+          "image": "/uploads/rene-buske-portrait.jpg",
+          "alt": "Porträt von René Buske"
+        }
+      }
+    },
+    {
+      "id": "working-style",
+      "type": "rich_text",
+      "variant": "prose",
+      "data": {
+        "body": "<p class=\"uk-text-lead uk-margin-remove-bottom\">Ein System. Klare Prozesse.</p><p class=\"uk-text-muted uk-margin-small-top\">Nicht als Spruch – eher als meine Art zu arbeiten.</p><div class=\"uk-margin-medium-top uk-flex uk-flex-middle uk-flex-wrap\"><a class=\"uk-button uk-button-default\" href=\"/newsletter\">Newsletter abonnieren</a></div>"
+      }
+    },
+    {
+      "id": "expectations",
+      "type": "feature_list",
+      "variant": "text-columns",
+      "data": {
+        "title": "Was du von mir erwarten kannst",
+        "lead": "Ich mag Dinge, die verständlich sind. Und ich mag Systeme, die nicht nur „irgendwie laufen“, sondern sich sauber nutzen und weiterentwickeln lassen.",
+        "items": [
+          {
+            "id": "expectations-clarity",
+            "title": "Verständlichkeit statt Fachchinesisch",
+            "description": "Wir übersetzen Anforderungen so, dass Entscheidungen leichter fallen und alle Beteiligten wissen, was als Nächstes passiert."
+          },
+          {
+            "id": "expectations-structure",
+            "title": "Struktur in gewachsene Themen",
+            "description": "Ich bringe Ordnung in Abläufe, Daten und Verantwortlichkeiten, damit Systeme nicht nur laufen, sondern sauber skalieren."
+          },
+          {
+            "id": "expectations-evolution",
+            "title": "Weiterentwicklung ohne Chaos",
+            "description": "Prozesse werden so gebaut, dass sie im Alltag genutzt, angepasst und langfristig getragen werden können."
+          }
+        ]
+      }
+    },
+    {
+      "id": "why-calhelp",
+      "type": "process_steps",
+      "variant": "timeline_vertical",
+      "data": {
+        "title": "Warum calHelp",
+        "intro": "calHelp hieß am Anfang „calibration help“. Vor rund 20 Jahren ist daraus mein Weg entstanden: Software, Schulung und Support – nah an echten Teams und echten Fragen.",
+        "steps": [
+          {
+            "id": "why-start",
+            "title": "Der Start: Praxis statt Theorie",
+            "description": "Software, Schulung und Support waren immer direkt im Alltag verankert – das hat den Blick für echte Probleme geschärft."
+          },
+          {
+            "id": "why-realization",
+            "title": "Die Erkenntnis: Einzelteile reichen nicht",
+            "description": "Nur Software allein löst die Sache nicht. Nur Support auch nicht. Und selbst 100 Schulungen ändern wenig, wenn das System dahinter weiterhin kompliziert bleibt."
+          },
+          {
+            "id": "why-breakthrough",
+            "title": "Der Durchbruch: Zusammenspiel zählt",
+            "description": "Daten, Abläufe, Zuständigkeiten und Dokumente müssen zusammenpassen – sonst entsteht eine Dauerbaustelle."
+          },
+          {
+            "id": "why-today",
+            "title": "Heute: Ruhe durch klare Prozesse",
+            "description": "Genau daraus ist calHelp geworden: ein Rahmen, der Probleme nicht nur teilweise löst, sondern für echte Entlastung sorgt."
+          }
+        ],
+        "closing": {
+          "title": "Ein System. Klare Prozesse.",
+          "body": "Als Konsequenz aus Erfahrung – und als Versprechen für den Alltag."
+        }
+      }
+    },
+    {
+      "id": "projects",
+      "type": "feature_list",
+      "variant": "detailed-cards",
+      "data": {
+        "title": "Meine Projekte (als Orientierung)",
+        "items": [
+          {
+            "id": "project-calserver",
+            "title": "calServer",
+            "description": "Mein System für klare Abläufe und saubere Daten, damit man im Alltag nicht ständig nacharbeiten muss.",
+            "bullets": [
+              "Systeme",
+              "Prozesse",
+              "Praxis"
+            ]
+          },
+          {
+            "id": "project-quizrace",
+            "title": "QuizRace",
+            "description": "Eine Agentursoftware für Webseiten und richtig gute Online-Quizze: Inhalte erstellen, veröffentlichen, spielen – alles in einem System.",
+            "bullets": [
+              "Content & Publishing",
+              "Interaktive Erlebnisse",
+              "Ein System für Teams"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "about-me",
+      "type": "info_media",
+      "variant": "stacked",
+      "data": {
+        "title": "Das bin ich – und damit muss man leben",
+        "items": [
+          {
+            "id": "about-family",
+            "title": "Familie zuerst",
+            "description": "Ich bin nicht immer sofort erreichbar. Familie ist mir wichtiger. Und dann ist da noch Ty, mein Beagle."
+          },
+          {
+            "id": "about-nerdy",
+            "title": "Nerdig und manchmal später",
+            "description": "Ich arbeite gern nerdig – und oft später. Wenn zum Feierabend noch nichts fertig ist: keine Sorge. Bei mir passiert das Finale manchmal nach 18 Uhr."
+          },
+          {
+            "id": "about-sports",
+            "title": "Sport ohne Handy",
+            "description": "Ich liebe Sport. Und ich liebe Sport ohne Handy. Nur Musik und ich."
+          },
+          {
+            "id": "about-music",
+            "title": "Elektronische Musik",
+            "description": "Und wenn wir schon bei Musik sind: elektronisch. Schon immer. Vielleicht sieht man sich mal beim Airbeat One."
+          }
+        ]
+      }
+    },
+    {
+      "id": "closing-cta",
+      "type": "cta",
+      "variant": "split",
+      "data": {
+        "title": "Lust auf Austausch?",
+        "body": "Wenn du beim Lesen dachtest: „Das passt“, dann melde dich gern. Direkt, unkompliziert, ohne Umwege.",
+        "primary": {
+          "label": "Kontakt aufnehmen",
+          "href": "/kontakt"
+        },
+        "secondary": {
+          "label": "Termin vereinbaren",
+          "href": "/termin"
+        }
+      }
+    },
+    {
+      "id": "closing-newsletter",
+      "type": "rich_text",
+      "variant": "prose",
+      "data": {
+        "body": "<div class=\"uk-flex uk-flex-center uk-flex-wrap uk-margin-medium-top\"><a class=\"uk-button uk-button-default\" href=\"/newsletter\">Newsletter abonnieren</a></div>"
+      }
+    }
+  ]
+}
