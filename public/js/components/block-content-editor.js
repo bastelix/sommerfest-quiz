@@ -1225,6 +1225,7 @@ function buildDefaultBlock(type, variant) {
       data: {
         title: 'Kennzahlen',
         lede: '',
+        columns: 3,
         metrics: [
           { id: createId(), value: '100%', label: 'Zuverlässig', icon: '', asOf: '', tooltip: '', benefit: '' }
         ],
@@ -3829,6 +3830,33 @@ export class BlockContentEditor {
         multiline: true
       })
     );
+
+    const columnsField = document.createElement('label');
+    columnsField.dataset.fieldLabel = 'true';
+    const columnsLabel = document.createElement('div');
+    columnsLabel.className = 'field-label';
+    columnsLabel.textContent = 'Spalten (Desktop)';
+    const columnsHelp = createHelperText('Auf Mobilgeräten wird immer eine Spalte angezeigt.');
+    const columnsSelect = document.createElement('select');
+    columnsSelect.className = 'uk-select';
+    const allowedColumns = [1, 2, 3, 4, 5, 6];
+    const currentColumns = allowedColumns.includes(Number(block.data.columns)) ? Number(block.data.columns) : 3;
+    allowedColumns.forEach(value => {
+      const option = document.createElement('option');
+      option.value = String(value);
+      option.textContent = `${value} ${value === 1 ? 'Spalte' : 'Spalten'}`;
+      option.selected = value === currentColumns;
+      columnsSelect.append(option);
+    });
+    columnsSelect.addEventListener('change', event => {
+      this.updateBlockData(block.id, ['data', 'columns'], Number(event.target.value));
+    });
+    columnsField.append(columnsLabel);
+    if (columnsHelp) {
+      columnsField.append(columnsHelp);
+    }
+    columnsField.append(columnsSelect);
+    wrapper.append(columnsField);
 
     const metricsWrapper = document.createElement('div');
     metricsWrapper.dataset.field = 'metrics';

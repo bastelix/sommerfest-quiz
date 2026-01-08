@@ -1573,10 +1573,24 @@ function getValidMetrics(block) {
   );
 }
 
+function getStatStripColumns(block) {
+  const raw = Number(block.data?.columns);
+  if (!Number.isFinite(raw)) {
+    return 3;
+  }
+  return Math.min(6, Math.max(1, Math.round(raw)));
+}
+
+function buildStatStripGridClass(block, baseClass) {
+  const columns = getStatStripColumns(block);
+  return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@m`;
+}
+
 function renderStatStripInline(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderStatStripHeader(block, context, 'left');
   const metrics = getValidMetrics(block);
+  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid stat-strip__grid--inline uk-grid uk-grid-small');
 
   const items = metrics
     .map((metric, index) => {
@@ -1606,7 +1620,7 @@ function renderStatStripInline(block, options = {}) {
     .join('');
 
   const metricsInline = items
-    ? `<div class="stat-strip__grid stat-strip__grid--inline uk-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid role="list">${items}</div>`
+    ? `<div class="${gridClass}" data-uk-grid role="list">${items}</div>`
     : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
 
   const marquee = renderStatStripMarquee(block);
@@ -1617,6 +1631,7 @@ function renderStatStripCards(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderStatStripHeader(block, context, 'center');
   const metrics = getValidMetrics(block);
+  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid uk-grid uk-grid-large uk-grid-match');
 
   const metricCards = metrics
     .map((metric, index) => {
@@ -1646,7 +1661,7 @@ function renderStatStripCards(block, options = {}) {
     .join('');
 
   const metricsGrid = metricCards
-    ? `<div class="stat-strip__grid uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match" data-uk-grid role="list">${metricCards}</div>`
+    ? `<div class="${gridClass}" data-uk-grid role="list">${metricCards}</div>`
     : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
 
   const marquee = renderStatStripMarquee(block);
@@ -1657,6 +1672,7 @@ function renderStatStripCentered(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderStatStripHeader(block, context, 'center');
   const metrics = getValidMetrics(block);
+  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid stat-strip__grid--centered uk-grid uk-grid-large');
 
   const items = metrics
     .map((metric, index) => {
@@ -1687,7 +1703,7 @@ function renderStatStripCentered(block, options = {}) {
     .join('');
 
   const layout = items
-    ? `<div class="stat-strip__grid stat-strip__grid--centered uk-grid uk-grid-large uk-child-width-1-1 uk-child-width-1-3@m" data-uk-grid role="list">${items}</div>`
+    ? `<div class="${gridClass}" data-uk-grid role="list">${items}</div>`
     : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
 
   const marquee = renderStatStripMarquee(block);
@@ -1698,6 +1714,7 @@ function renderStatStripHighlight(block, options = {}) {
   const context = options?.context || 'frontend';
   const header = renderStatStripHeader(block, context, 'left');
   const metrics = getValidMetrics(block);
+  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid stat-strip__grid--highlight uk-grid uk-grid-small');
 
   const items = metrics
     .map((metric, index) => {
@@ -1731,7 +1748,7 @@ function renderStatStripHighlight(block, options = {}) {
     .join('');
 
   const layout = items
-    ? `<div class="stat-strip__grid stat-strip__grid--highlight uk-grid uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m" data-uk-grid role="list">${items}</div>`
+    ? `<div class="${gridClass}" data-uk-grid role="list">${items}</div>`
     : '<div class="uk-alert-warning" role="alert">Keine Kennzahlen hinterlegt.</div>';
 
   const marquee = renderStatStripMarquee(block);
