@@ -46,7 +46,7 @@ const TOKEN_ENUMS = {
   accent: ['brandA', 'brandB', 'brandC']
 };
 
-const TOKEN_ALIASES = {
+export const TOKEN_ALIASES = {
   background: {
     default: 'surface'
   }
@@ -854,6 +854,10 @@ export function normalizeBlockContract(block) {
     normalized.data = normalizeBlockData(type, normalized.data);
   }
 
+  if (normalized.tokens !== undefined) {
+    normalized.tokens = normalizeTokens(normalized.tokens) || normalized.tokens;
+  }
+
   const appearance = normalizeSectionAppearance(normalized.sectionAppearance);
   if (appearance) {
     normalized.sectionAppearance = appearance;
@@ -1083,6 +1087,22 @@ function validateTokens(tokens) {
     const normalizedValue = TOKEN_ALIASES[key]?.[value] || value;
     return TOKEN_ENUMS[key]?.includes(normalizedValue);
   });
+}
+
+function normalizeTokens(tokens) {
+  if (!isPlainObject(tokens)) {
+    return undefined;
+  }
+
+  const normalized = { ...tokens };
+  Object.entries(normalized).forEach(([key, value]) => {
+    if (typeof value !== 'string') {
+      return;
+    }
+    normalized[key] = TOKEN_ALIASES[key]?.[value] || value;
+  });
+
+  return normalized;
 }
 
 function hasContent(value) {
