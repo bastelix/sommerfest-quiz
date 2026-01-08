@@ -272,6 +272,9 @@ body.marketing-page p {
 .marketing-section + .marketing-section {
   margin-top: var(--marketing-section-gap);
 }
+.marketing-page .section + .section {
+  margin-top: var(--marketing-section-gap);
+}
 .marketing-grid {
   --marketing-grid-gap: clamp(20px, 3vw, 32px);
   display: grid;
@@ -1089,13 +1092,13 @@ body.dark-mode.marketing-page .qr-badge{
   font-weight:700;
   font-size:clamp(2.5rem,5vw,3.5rem);
   line-height:1.2;
-  margin:0 0 16px;
+  margin:0 0 clamp(12px, 2vw, 20px);
   max-width:46ch;
 }
 .marketing-page .qr-sub{
-  font-size:1.25rem;
+  font-size:clamp(1.15rem, 2vw, 1.35rem);
   line-height:1.6;
-  margin-bottom:32px;
+  margin-bottom:clamp(24px, 4vw, 40px);
   max-width:46ch;
   color:var(--qr-muted);
 }
@@ -1176,6 +1179,17 @@ body.dark-mode.marketing-page .qr-badge{
   color:var(--marketing-on-accent)!important;
   border:1px solid color-mix(in oklab,var(--marketing-primary) 60%,transparent);
 }
+.marketing-page .uk-button-primary:hover{
+  background:color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black))!important;
+  border-color:color-mix(in oklab, var(--marketing-primary) 70%, transparent);
+}
+.marketing-page .uk-button-primary:focus-visible{
+  background:color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black))!important;
+}
+.marketing-page .uk-button-primary:active{
+  background:color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black))!important;
+  transform:translateY(1px);
+}
 
 .marketing-page .marketing-btn-primary{
   background:var(--marketing-accent);
@@ -1197,11 +1211,15 @@ body.dark-mode.marketing-page .qr-badge{
   padding:0 22px;
   line-height:46px;
   height:48px;
-  transition:opacity .2s,transform .2s;
+  transition:opacity .2s,transform .2s,box-shadow .2s;
 }
 .marketing-page .cta-main.uk-button-primary:hover{
-  opacity:.85;
+  opacity:1;
+  box-shadow:0 16px 32px color-mix(in oklab, var(--marketing-primary) 28%, transparent);
   transform:translateY(-1px);
+}
+.marketing-page .cta-main.uk-button-primary:focus-visible{
+  box-shadow:0 0 0 3px var(--qr-ring), 0 16px 32px color-mix(in oklab, var(--marketing-primary) 28%, transparent);
 }
 
 .marketing-page .onboarding-btn {
@@ -1603,6 +1621,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
 
 .stat-strip__grid {
   row-gap: 28px;
+  column-gap: clamp(18px, 3vw, 32px);
 }
 
 .stat-strip__card {
@@ -1810,6 +1829,7 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
 
 .section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__grid {
   row-gap: clamp(24px, 4vw, 36px);
+  column-gap: clamp(20px, 3vw, 36px);
 }
 
 .section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card {
