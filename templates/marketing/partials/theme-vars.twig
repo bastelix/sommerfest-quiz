@@ -55,7 +55,7 @@
 %}
 {% set marketingBackground = appearanceColors.background is defined and appearanceColors.background
   ? appearanceColors.background
-  : 'var(--surface-page)'
+  : (appearanceVars.background is defined and appearanceVars.background ? appearanceVars.background : 'var(--surface-page)')
 %}
 
 {% set cssVars = cssVars|merge([
