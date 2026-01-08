@@ -1619,6 +1619,14 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   border-top: 1px solid var(--surface-muted);
 }
 
+.stat-strip__marquee-tags {
+  gap: 8px 12px;
+}
+
+.stat-strip__marquee-tag {
+  white-space: nowrap;
+}
+
 .section[data-block-type="stat_strip"]:is([data-block-variant="inline"], [data-block-variant="centered"], [data-block-variant="highlight"]) .stat-strip__grid {
   row-gap: clamp(18px, 3vw, 26px);
 }

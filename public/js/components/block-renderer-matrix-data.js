@@ -1500,19 +1500,10 @@ function renderStatStripMarquee(block) {
     return '';
   }
 
-  const duplicatedItems = marqueeItems.concat(marqueeItems);
-
-  const track = duplicatedItems
-    .map((text, index) => {
-      const ariaHidden = index >= marqueeItems.length ? ' aria-hidden="true"' : '';
-      return `<div class="calserver-logo-marquee__item" role="listitem"${ariaHidden}>${escapeHtml(text)}</div>`;
-    })
-    .join('');
-
   return `
     <div class="stat-strip__marquee uk-margin-large-top">
-      <div class="calserver-logo-marquee" aria-label="${escapeAttribute(block.data?.title || 'Leistungsversprechen')}">
-        <div class="calserver-logo-marquee__track" role="list">${track}</div>
+      <div class="stat-strip__marquee-tags uk-flex uk-flex-center uk-flex-middle uk-flex-wrap" aria-label="${escapeAttribute(block.data?.title || 'Leistungsversprechen')}">
+        ${marqueeItems.map(text => `<span class="qr-badge pill pill--soft stat-strip__marquee-tag">${escapeHtml(text)}</span>`).join('')}
       </div>
     </div>`;
 }
