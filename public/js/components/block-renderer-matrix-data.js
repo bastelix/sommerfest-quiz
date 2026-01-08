@@ -1262,8 +1262,7 @@ function renderTestimonialSingle(block) {
   return renderSection({
     block,
     variant: 'single_quote',
-    content: `<!-- testimonial:single_quote${author} -->`,
-    container: false
+    content: `<!-- testimonial:single_quote${author} -->`
   });
 }
 
@@ -1271,8 +1270,7 @@ function renderTestimonialWall(block) {
   return renderSection({
     block,
     variant: 'quote_wall',
-    content: '<!-- testimonial:quote_wall | grouped quotes -->',
-    container: false
+    content: '<!-- testimonial:quote_wall | grouped quotes -->'
   });
 }
 
@@ -1282,8 +1280,7 @@ function renderRichTextProse(block, options = {}) {
   return renderSection({
     block,
     variant: 'prose',
-    content: `<!-- rich_text:prose -->${block.data.body || ''}`,
-    container: false
+    content: `<!-- rich_text:prose -->${block.data.body || ''}`
   });
 }
 
