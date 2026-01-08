@@ -58,12 +58,12 @@
 
 html[data-theme] {
   color: var(--color-text, var(--text-primary, var(--marketing-text)));
-  background-color: var(--bg-page, var(--color-bg, var(--marketing-surface)));
+  background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
 
 html[data-theme] body {
   color: inherit;
-  background-color: inherit;
+  background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
 
 body.marketing-page {
@@ -77,13 +77,9 @@ body.marketing-page {
   --qr-brand-700: color-mix(in oklab, var(--marketing-primary) 92%, var(--marketing-black));
   --qr-brand-800: color-mix(in oklab, var(--marketing-primary) 96%, var(--marketing-black));
   --qr-brand-900: color-mix(in oklab, var(--marketing-primary) 98%, var(--marketing-black));
-  --qr-bg: color-mix(in oklab, var(--marketing-surface) 90%, var(--marketing-primary) 10%);
+  --qr-bg: var(--marketing-background, var(--marketing-surface));
   --qr-fg: color-mix(in oklab, var(--marketing-black) 80%, var(--marketing-primary) 20%);
-  --qr-bg-soft: color-mix(
-    in oklab,
-    var(--qr-bg) 84%,
-    var(--marketing-surface-glass) 16%
-  );
+  --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-surface-glass);
   --qr-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
@@ -118,13 +114,9 @@ body.marketing-page {
 
 body.marketing-page.dark-mode,
 body.marketing-page[data-theme="dark"]:not(.high-contrast) {
-  --qr-bg: color-mix(in oklab, var(--marketing-black) 82%, var(--marketing-primary) 18%);
+  --qr-bg: var(--marketing-background, var(--marketing-surface));
   --qr-fg: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
-  --qr-bg-soft: color-mix(
-    in oklab,
-    var(--qr-bg) 70%,
-    var(--marketing-surface-glass-dark) 30%
-  );
+  --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-surface-glass-dark);
   --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
