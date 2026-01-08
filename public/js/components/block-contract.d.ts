@@ -188,6 +188,7 @@ export interface StatMetric {
 export interface StatStripBlockData {
   title?: string;
   lede?: string;
+  columns?: number;
   metrics: StatMetric[];
   marquee?: string[];
 }
