@@ -134,6 +134,12 @@ const LEGACY_APPEARANCE_ALIASES = {
   'image-fixed': 'full'
 };
 
+const LEGACY_TOKEN_ALIASES = {
+  background: {
+    default: 'surface'
+  }
+};
+
 const LAYOUT_TO_APPEARANCE = {
   normal: 'contained',
   full: 'full',
@@ -870,6 +876,42 @@ const buildRecoverableVariantBlock = (block, error) => {
   }
 
   return recoverable;
+};
+
+const normalizeLegacyBlockForRepair = block => {
+  if (!isPlainObject(block)) {
+    return block;
+  }
+
+  const normalized = deepClone(block);
+  const deprecatedReplacement = DEPRECATED_BLOCK_MAP[normalized.type]?.replacement;
+  if (deprecatedReplacement?.type) {
+    normalized.type = deprecatedReplacement.type;
+  }
+  if (deprecatedReplacement?.variant) {
+    normalized.variant = deprecatedReplacement.variant;
+  }
+
+  if (typeof normalized.type === 'string' && normalized.variant !== undefined) {
+    normalized.variant = normalizeVariant(normalized.type, normalized.variant);
+  }
+
+  if (normalized.tokens && typeof normalized.tokens.background === 'string') {
+    const alias = LEGACY_TOKEN_ALIASES.background[normalized.tokens.background];
+    if (alias) {
+      normalized.tokens.background = alias;
+    }
+  }
+
+  const backgroundToken = normalized?.meta?.sectionStyle?.background?.colorToken;
+  if (typeof backgroundToken === 'string') {
+    const alias = LEGACY_TOKEN_ALIASES.background[backgroundToken];
+    if (alias) {
+      normalized.meta.sectionStyle.background.colorToken = alias;
+    }
+  }
+
+  return normalized;
 };
 
 const resolveBlockSchema = (type, variant) => {
@@ -1830,6 +1872,123 @@ export class BlockContentEditor {
     }
   }
 
+  repairInvalidBlocks() {
+    const skippedEntries = Array.isArray(this.state.skippedBlocks) ? this.state.skippedBlocks : [];
+    const totalCount = this.state.blocks.length + skippedEntries.length;
+    const skippedByIndex = new Map();
+    const skippedOverflow = [];
+
+    skippedEntries.forEach(entry => {
+      if (Number.isInteger(entry?.index) && entry.index >= 0 && entry.index < totalCount) {
+        skippedByIndex.set(entry.index, entry);
+      } else {
+        skippedOverflow.push(entry);
+      }
+    });
+
+    const orderedEntries = [];
+    let blockCursor = 0;
+    for (let index = 0; index < totalCount; index += 1) {
+      if (skippedByIndex.has(index)) {
+        const entry = skippedByIndex.get(index);
+        orderedEntries.push({
+          block: entry.block,
+          index,
+          previousMessage: entry.message
+        });
+        continue;
+      }
+
+      if (blockCursor < this.state.blocks.length) {
+        orderedEntries.push({
+          block: this.state.blocks[blockCursor],
+          index
+        });
+        blockCursor += 1;
+      }
+    }
+
+    while (blockCursor < this.state.blocks.length) {
+      orderedEntries.push({
+        block: this.state.blocks[blockCursor],
+        index: orderedEntries.length
+      });
+      blockCursor += 1;
+    }
+
+    skippedOverflow.forEach(entry => {
+      orderedEntries.push({
+        block: entry.block,
+        index: orderedEntries.length,
+        previousMessage: entry.message
+      });
+    });
+
+    const repairedBlocks = [];
+    const skippedBlocks = [];
+    const validationErrors = [];
+
+    orderedEntries.forEach(entry => {
+      try {
+        const normalized = normalizeLegacyBlockForRepair(entry.block);
+        repairedBlocks.push(sanitizeBlock(normalized));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unbekannter Fehler';
+        const blockLabel = typeof entry.block?.id === 'string' ? entry.block.id : entry.index + 1;
+        const detailParts = [];
+        if (entry.previousMessage) {
+          detailParts.push(`Vorheriger Fehler: ${entry.previousMessage}`);
+        }
+        detailParts.push(`Reparaturfehler: ${message}`);
+        validationErrors.push({
+          message: `Block ${blockLabel} konnte nicht repariert werden`,
+          detail: detailParts.join(' | ')
+        });
+        skippedBlocks.push({
+          index: entry.index,
+          block: entry.block,
+          message
+        });
+        console.warn('Skipping invalid block during repair', { index: entry.index, block: entry.block, error });
+      }
+    });
+
+    this.validationErrors = validationErrors;
+    this.status = validationErrors.length > 0 ? 'invalid' : 'ok';
+
+    const preservedActive = this.state.activeSectionId
+      && repairedBlocks.some(block => block.id === this.state.activeSectionId)
+      ? this.state.activeSectionId
+      : null;
+    const nextActive = preservedActive || repairedBlocks[0]?.id || null;
+    const nextEditorMode = repairedBlocks.length ? 'edit' : 'structure';
+
+    this.state = {
+      ...this.state,
+      blocks: repairedBlocks,
+      skippedBlocks,
+      activeSectionId: this.status === 'invalid' ? null : nextActive,
+      editorMode: this.status === 'invalid' ? 'structure' : nextEditorMode
+    };
+
+    if (typeof notify === 'function') {
+      const repairedCount = repairedBlocks.length;
+      const skippedCount = skippedBlocks.length;
+      const repairedLabel = repairedCount === 1 ? 'Block' : 'Blöcke';
+      const skippedLabel = skippedCount === 1 ? 'Block' : 'Blöcke';
+      notify(
+        `Reparatur abgeschlossen: ${repairedCount} ${repairedLabel} repariert, ${skippedCount} ${skippedLabel} verworfen.`,
+        skippedCount ? 'warning' : 'success'
+      );
+    }
+
+    this.emitValidationState();
+    this.render();
+    if (this.status !== 'invalid') {
+      this.emitModeChange();
+    }
+  }
+
   getContent() {
     if (this.status === 'invalid') {
       const summary = this.validationErrors.map(error => error.message).join('; ');
@@ -1975,6 +2134,14 @@ export class BlockContentEditor {
     actions.className = 'uk-margin-top uk-flex uk-flex-wrap';
     actions.style.gap = '8px';
 
+    const repairButton = document.createElement('button');
+    repairButton.type = 'button';
+    repairButton.className = 'uk-button uk-button-default';
+    repairButton.textContent = 'Blöcke reparieren';
+    repairButton.addEventListener('click', () => {
+      this.repairInvalidBlocks();
+    });
+
     const reopenButton = document.createElement('button');
     reopenButton.type = 'button';
     reopenButton.className = 'uk-button uk-button-primary';
@@ -2012,6 +2179,7 @@ export class BlockContentEditor {
     });
 
     actions.append(reopenButton, resetButton);
+    actions.prepend(repairButton);
 
     container.append(heading, description, list, actions);
     return container;
