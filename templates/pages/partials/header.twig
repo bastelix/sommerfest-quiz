@@ -1,55 +1,10 @@
-{% import 'pages/partials/menu.twig' as cmsMenu %}
-{% set cmsMenuItems = cmsMenuItems|default([]) %}
-{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
-{% set cmsNavigationItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems %}
-{% set headerLogo = headerLogo|default({}) %}
-{% set headerTheme = headerTheme|default('light') %}
-{% set headerConfig = headerConfig|default({}) %}
-{% set logoMode = headerLogo.mode|default('text') %}
-{% set logoSrc = headerLogo.src|default(null) %}
-{% set logoLabel = headerLogo.label|default(pageTitle|default('QuizRace')) %}
-{% set logoAlt = headerLogo.alt|default(logoLabel) %}
-
-<header
-  class="qr-topbar uk-position-sticky uk-top"
-  data-theme="{{ headerTheme }}"
-  uk-sticky="sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;"
->
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <a class="uk-logo" href="{{ basePath }}/{{ cmsSlug }}">
-        {% if logoMode == 'image' and logoSrc %}
-          <img src="{{ logoSrc }}" alt="{{ logoAlt }}">
-        {% else %}
-          {{ logoLabel }}
-        {% endif %}
-      </a>
-    {% endblock %}
-
-    {% block center %}
-      {% if cmsNavigationItems %}
-        {{ cmsMenu.render_menu(cmsNavigationItems, 'uk-navbar-nav uk-visible@s') }}
-      {% endif %}
-    {% endblock %}
-
-    {% block switches %}
-      {% include 'components/config-menu.twig' with {
-        show_help: headerConfig.show_help|default(false),
-        show_language: headerConfig.show_language|default(true),
-        show_theme_toggle: headerConfig.show_theme_toggle|default(true),
-        show_contrast_toggle: headerConfig.show_contrast_toggle|default(true)
-      } %}
-    {% endblock %}
-
-    {% block offcanvas %}
-      {% if cmsNavigationItems %}
-        <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
-          <div class="uk-offcanvas-bar">
-            <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-            {{ cmsMenu.render_offcanvas(cmsNavigationItems, 'uk-nav uk-nav-default') }}
-          </div>
-        </div>
-      {% endif %}
-    {% endblock %}
-  {% endembed %}
-</header>
+{% include 'pages/partials/marketing_topbar.twig' with {
+  cmsMenuItems: cmsMenuItems|default([]),
+  cmsMainNavigation: cmsMainNavigation|default([]),
+  headerLogo: headerLogo|default({}),
+  headerTheme: headerTheme|default('light'),
+  headerConfig: headerConfig|default({}),
+  basePath: basePath,
+  cmsSlug: cmsSlug,
+  pageTitle: pageTitle|default('QuizRace')
+} only %}

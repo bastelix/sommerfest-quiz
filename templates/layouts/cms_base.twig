@@ -9,7 +9,7 @@
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
   {% set includeHighContrastStyles = includeHighContrastStyles|default(true) %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   {% if includeDarkStyles %}
     {% set cfg = config is defined ? config : {} %}
     {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}

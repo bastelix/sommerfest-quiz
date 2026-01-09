@@ -1,4 +1,5 @@
-body.marketing-page:not([data-theme="dark"]){
+body.marketing-page:not([data-theme="dark"]),
+body.cms-page-render:not([data-theme="dark"]){
   --topbar-btn-bg: transparent;
   --topbar-btn-border: var(--qr-card-border);
   --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 40%, transparent);
@@ -8,7 +9,8 @@ body.marketing-page:not([data-theme="dark"]){
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
 }
-body.marketing-page[data-theme="dark"]{
+body.marketing-page[data-theme="dark"],
+body.cms-page-render[data-theme="dark"]{
   --topbar-btn-bg: #1f232a;
   --topbar-btn-border: var(--qr-card-border);
   --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 60%, transparent);
@@ -18,10 +20,28 @@ body.marketing-page[data-theme="dark"]{
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
 }
-.marketing-page .qr-topbar{
+.marketing-page .qr-topbar,
+.cms-page-render .qr-topbar{
   padding-top: env(safe-area-inset-top);
 }
-body.marketing-page.high-contrast{
+
+body.cms-page-render{
+  --qr-card: var(--marketing-surface-glass);
+  --qr-card-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
+  --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
+  --qr-text: var(--marketing-text, var(--marketing-text-default));
+  --qr-landing-topbar-bg: color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 92%, var(--marketing-surface-glass) 8%);
+}
+
+body.cms-page-render[data-theme="dark"]{
+  --qr-card: var(--marketing-surface-glass-dark);
+  --qr-card-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
+  --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
+  --qr-text: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
+  --qr-landing-topbar-bg: color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 90%, var(--marketing-surface-glass-dark) 10%);
+}
+body.marketing-page.high-contrast,
+body.cms-page-render.high-contrast{
   --topbar-text: #0a0a0a;
   --topbar-drop-bg: #ffffff;
   --topbar-drop-border: #000000;
@@ -30,7 +50,8 @@ body.marketing-page.high-contrast{
   --topbar-btn-bg-hover: #e6e6e6;
   --topbar-focus-ring: rgba(0,120,255,0.6);
 }
-body.marketing-page[data-theme="dark"].high-contrast{
+body.marketing-page[data-theme="dark"].high-contrast,
+body.cms-page-render[data-theme="dark"].high-contrast{
   --topbar-text: #ffffff;
   --topbar-drop-bg: #000000;
   --topbar-drop-border: #ffffff;
@@ -41,7 +62,9 @@ body.marketing-page[data-theme="dark"].high-contrast{
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast),
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast){
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast),
+body.cms-page-render.calserver-theme.dark-mode:not(.high-contrast),
+body.cms-page-render.calserver-theme[data-theme="dark"]:not(.high-contrast){
   --topbar-btn-bg: color-mix(in oklab, rgba(12,19,35,0.92) 76%, var(--calserver-primary) 24%);
   --topbar-btn-bg-hover: color-mix(in oklab, rgba(12,19,35,0.86) 62%, var(--calserver-primary) 38%);
   --topbar-btn-border: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255,255,255,0.28));
@@ -52,7 +75,8 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast){
   --topbar-focus-ring: color-mix(in oklab, var(--calserver-primary) 84%, rgba(126,170,255,0.32));
 }
 
-body.marketing-page.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not(.high-contrast){
+body.marketing-page.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not(.high-contrast),
+body.cms-page-render.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not(.high-contrast){
   --topbar-btn-bg: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
   --topbar-btn-bg-hover: color-mix(in oklab, #ffffff 78%, var(--calserver-primary) 22%);
   --topbar-btn-border: color-mix(in oklab, var(--calserver-primary) 54%, rgba(15,23,42,0.18));
@@ -74,7 +98,8 @@ body.marketing-page.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not
   padding:0 12px;
   height:auto;
 }
-.marketing-page .qr-topbar .lang-option.git-btn{
+.marketing-page .qr-topbar .lang-option.git-btn,
+.cms-page-render .qr-topbar .lang-option.git-btn{
   width:100%;
   min-width:160px;
   min-height:48px;
@@ -102,6 +127,106 @@ body.marketing-page.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not
   text-align:left;
 }
 body.marketing-page.high-contrast .lang-option__icon,
-body.marketing-page[data-theme="dark"].high-contrast .lang-option__icon{
+body.marketing-page[data-theme="dark"].high-contrast .lang-option__icon,
+body.cms-page-render.high-contrast .lang-option__icon,
+body.cms-page-render[data-theme="dark"].high-contrast .lang-option__icon{
   box-shadow:0 0 0 1px currentColor;
+}
+
+.cms-page-render .qr-topbar{
+  background: var(--qr-landing-topbar-bg);
+  backdrop-filter: blur(8px);
+  color: var(--qr-text);
+  min-height:64px;
+  height:64px;
+  border-bottom: 1px solid var(--qr-card-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+.cms-page-render .qr-topbar nav.topbar{
+  --topbar-height: 64px;
+}
+.cms-page-render .qr-topbar .uk-navbar,
+.cms-page-render .qr-topbar .uk-navbar-container{
+  background: var(--qr-landing-topbar-bg);
+}
+@media (max-width: 959px) {
+  .cms-page-render .qr-topbar{
+    min-height:56px;
+    height:56px;
+  }
+  .cms-page-render .qr-topbar nav.topbar{
+    --topbar-height: 56px;
+  }
+}
+.cms-page-render .qr-topbar .uk-navbar-container,
+.cms-page-render .qr-topbar .uk-navbar-right,
+.cms-page-render .qr-topbar .uk-navbar-center{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:12px;
+}
+.cms-page-render .qr-topbar .uk-navbar-right{
+  flex:1 1 auto;
+  min-width:0;
+  justify-content:flex-end;
+}
+.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav,
+.cms-page-render .qr-topbar .uk-navbar-center .uk-navbar-nav{
+  display:flex;
+  flex:1 1 auto;
+  min-width:0;
+  flex-wrap:nowrap;
+  gap:8px;
+}
+.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav{
+  justify-content:flex-end;
+}
+.cms-page-render .qr-topbar .uk-navbar-center .uk-navbar-nav{
+  justify-content:center;
+}
+.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav>li{
+  flex:0 0 auto;
+}
+.cms-page-render .qr-topbar .top-cta,
+.cms-page-render .qr-topbar .config-menu{
+  flex:0 0 auto;
+}
+.cms-page-render .qr-topbar .uk-navbar-nav>li>a{
+  color:var(--qr-text)!important;
+  font-weight:500;
+  opacity:.9;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:0 10px;
+  line-height:38px;
+  height:40px;
+  border:1px solid transparent;
+  border-radius:6px;
+  transition:opacity .2s,background .12s,border-color .12s;
+}
+.cms-page-render .qr-topbar .uk-navbar-nav>li>a:hover,
+.cms-page-render .qr-topbar .uk-navbar-nav>li.uk-active>a{
+  opacity:1;
+  background:color-mix(in oklab,var(--qr-text) 8%,transparent);
+  border-color:color-mix(in oklab,var(--qr-text) 40%,transparent);
+  text-decoration:none;
+}
+.cms-page-render .qr-topbar .uk-navbar-nav>li>a:focus-visible,
+.cms-page-render .qr-topbar #configMenuToggle:focus-visible,
+.cms-page-render .qr-topbar .uk-navbar-toggle:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 3px var(--qr-ring);
+  border-radius:6px;
+}
+.cms-page-render .qr-topbar .uk-navbar-toggle{
+  color:var(--qr-text)!important;
+}
+.cms-page-render .qr-topbar .git-btn{
+  width:48px;
+  height:48px;
 }
