@@ -2,6 +2,9 @@ const DEFAULT_BRAND_PRIMARY = '#1e87f0';
 const DEFAULT_BRAND_ACCENT = '#f97316';
 const DEFAULT_SURFACE = '#ffffff';
 const DEFAULT_SURFACE_MUTED = '#eef2f7';
+const DEFAULT_SURFACE_DARK = '#0f172a';
+const DEFAULT_SURFACE_MUTED_DARK = '#111827';
+const DEFAULT_CARD_DARK = '#0b1728';
 
 const parseJson = value => {
   if (!value || typeof value !== 'string') {
@@ -143,6 +146,21 @@ const applyMarketingDesign = () => {
     root,
     '--marketing-text-muted-on-background-dark',
     fallbackTextMutedOnSurfaceDark,
+  );
+  const fallbackSurfaceDark = resolveFallbackToken(
+    root,
+    '--marketing-surface-dark',
+    resolveFallbackToken(root, '--surface-dark', DEFAULT_SURFACE_DARK),
+  );
+  const fallbackSurfaceMutedDark = resolveFallbackToken(
+    root,
+    '--marketing-surface-muted-dark',
+    resolveFallbackToken(root, '--surface-muted-dark', DEFAULT_SURFACE_MUTED_DARK),
+  );
+  const fallbackCardDark = resolveFallbackToken(
+    root,
+    '--marketing-card-dark',
+    resolveFallbackToken(root, '--marketing-surface-glass-dark', DEFAULT_CARD_DARK),
   );
   const fallbackTopbarLight = resolveFallbackToken(
     root,
@@ -330,6 +348,48 @@ const applyMarketingDesign = () => {
     variables.marketingTextMutedOnBackgroundDark ||
     variables.marketing_text_muted_on_background_dark ||
     fallbackTextMutedOnBackgroundDark;
+  const surfaceDark =
+    configColors.surfaceDark ||
+    configColors.surface_dark ||
+    configColors.marketingSurfaceDark ||
+    configColors.marketing_surface_dark ||
+    colors.surfaceDark ||
+    colors.surface_dark ||
+    colors.marketingSurfaceDark ||
+    colors.marketing_surface_dark ||
+    variables.surfaceDark ||
+    variables.surface_dark ||
+    variables.marketingSurfaceDark ||
+    variables.marketing_surface_dark ||
+    fallbackSurfaceDark;
+  const surfaceMutedDark =
+    configColors.surfaceMutedDark ||
+    configColors.surface_muted_dark ||
+    configColors.marketingSurfaceMutedDark ||
+    configColors.marketing_surface_muted_dark ||
+    colors.surfaceMutedDark ||
+    colors.surface_muted_dark ||
+    colors.marketingSurfaceMutedDark ||
+    colors.marketing_surface_muted_dark ||
+    variables.surfaceMutedDark ||
+    variables.surface_muted_dark ||
+    variables.marketingSurfaceMutedDark ||
+    variables.marketing_surface_muted_dark ||
+    fallbackSurfaceMutedDark;
+  const cardDark =
+    configColors.cardDark ||
+    configColors.card_dark ||
+    configColors.marketingCardDark ||
+    configColors.marketing_card_dark ||
+    colors.cardDark ||
+    colors.card_dark ||
+    colors.marketingCardDark ||
+    colors.marketing_card_dark ||
+    variables.cardDark ||
+    variables.card_dark ||
+    variables.marketingCardDark ||
+    variables.marketing_card_dark ||
+    fallbackCardDark;
 
   root.style.setProperty('--marketing-primary', primary);
   root.style.setProperty('--marketing-accent', accent);
@@ -362,6 +422,15 @@ const applyMarketingDesign = () => {
   }
   if (textMutedOnBackgroundDark) {
     root.style.setProperty('--marketing-text-muted-on-background-dark', textMutedOnBackgroundDark);
+  }
+  if (surfaceDark) {
+    root.style.setProperty('--marketing-surface-dark', surfaceDark);
+  }
+  if (surfaceMutedDark) {
+    root.style.setProperty('--marketing-surface-muted-dark', surfaceMutedDark);
+  }
+  if (cardDark) {
+    root.style.setProperty('--marketing-card-dark', cardDark);
   }
   root.style.setProperty('--brand-primary', 'var(--marketing-primary)');
   root.style.setProperty('--accent-primary', 'var(--marketing-primary)');
