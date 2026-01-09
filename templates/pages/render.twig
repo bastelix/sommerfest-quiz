@@ -45,29 +45,25 @@
     pageTitle: pageTitle
   } only %}
 
-  <div class="uk-container uk-container-expand">
-    <section class="cms-page qr-page-renderer">
-      <script
-        type="application/json"
-        data-json="page"
-        data-page-slug="{{ cmsSlug }}"
-        data-page-namespace="{{ pageJson.namespace ?? pageNamespace }}"
-        data-content-namespace="{{ pageJson.contentNamespace ?? contentNamespace }}"
-      >
-        {{ pageJson|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
-      </script>
-
-      <div
-        class="qr-page-renderer"
-        data-page-root
-        data-page-slug="{{ cmsSlug }}"
-        data-page-namespace="{{ pageNamespace }}"
-        data-content-namespace="{{ contentNamespace }}"
-      ></div>
-    </section>
-
-    <noscript>
-      {{ content|raw }}
-    </noscript>
+  <div
+    class="cms-page qr-page-renderer"
+    data-page-root
+    data-page-slug="{{ cmsSlug }}"
+    data-page-namespace="{{ pageNamespace }}"
+    data-content-namespace="{{ contentNamespace }}"
+  >
+    <script
+      type="application/json"
+      data-json="page"
+      data-page-slug="{{ cmsSlug }}"
+      data-page-namespace="{{ pageJson.namespace ?? pageNamespace }}"
+      data-content-namespace="{{ pageJson.contentNamespace ?? contentNamespace }}"
+    >
+      {{ pageJson|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
+    </script>
   </div>
+
+  <noscript>
+    {{ content|raw }}
+  </noscript>
 {% endblock %}
