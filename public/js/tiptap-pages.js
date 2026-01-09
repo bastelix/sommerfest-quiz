@@ -938,6 +938,11 @@ const updatePageEditorTheme = theme => {
     preview.dataset.theme = resolvedTheme;
     preview.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
   }
+
+  document.querySelectorAll('[data-preview-canvas="true"]').forEach(previewCanvas => {
+    previewCanvas.dataset.theme = resolvedTheme;
+    previewCanvas.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
+  });
 };
 
 const applyThemePreference = theme => {
@@ -1320,32 +1325,6 @@ function applyLandingStyling(element, theme = getCurrentTheme()) {
   element.classList.add('landing-editor');
   element.setAttribute('data-theme', resolvedTheme);
   element.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-}
-
-const PREVIEW_LANDING_CLASS = 'landing-preview';
-
-function ensureLandingPreviewStyles() {
-  return ensureScopedLandingStyles('landing-preview-styles', `.${PREVIEW_LANDING_CLASS}`);
-}
-
-function applyLandingPreviewStyling(element, theme = getCurrentTheme()) {
-  if (!element) {
-    return;
-  }
-  ensureLandingPreviewStyles();
-  const activeTheme = normalizeTheme(theme);
-  const resolvedTheme = resolveBaseTheme(activeTheme);
-  element.classList.add(PREVIEW_LANDING_CLASS);
-  element.setAttribute('data-theme', resolvedTheme);
-  element.classList.toggle('high-contrast', activeTheme === THEME_HIGH_CONTRAST);
-}
-
-function resetLandingPreviewStyling(element) {
-  if (!element) {
-    return;
-  }
-  element.classList.remove(PREVIEW_LANDING_CLASS, 'high-contrast');
-  element.removeAttribute('data-theme');
 }
 
 const getEditorElement = form => (form ? form.querySelector('.page-editor') : null);
@@ -3400,6 +3379,10 @@ const ensurePreviewAssets = () => {
       dataset: { previewAsset: 'page-preview' }
     }),
     ensureStylesheetWithFallback('preview-topbar-css', withBase('/css/topbar.css'), {
+      media: 'all',
+      dataset: { previewAsset: 'page-preview' }
+    }),
+    ensureStylesheetWithFallback('preview-marketing-css', withBase('/css/marketing.css'), {
       media: 'all',
       dataset: { previewAsset: 'page-preview' }
     })
