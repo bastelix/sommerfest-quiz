@@ -1464,24 +1464,27 @@ function renderCta(block, options = {}) {
 
 function renderCtaSplit(block, options = {}) {
   const context = options?.context || 'frontend';
-  const title = block.data?.title
-    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
+  const titleValue = typeof block.data?.title === 'string' ? block.data.title.trim() : '';
+  const bodyValue = typeof block.data?.body === 'string' ? block.data.body.trim() : '';
+  const title = titleValue
+    ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(titleValue)}</h2>`
     : '';
-  const body = block.data?.body
-    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(block.data.body)}</p>`
+  const body = bodyValue
+    ? `<p class="uk-text-lead uk-margin-small-top uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.body', context)}>${escapeHtml(bodyValue)}</p>`
     : '';
-  const textColumn = `<div class="uk-width-expand">${title}${body}</div>`;
+  const hasText = Boolean(title || body);
   const primary = block.data?.primary;
   const secondary = block.data?.secondary;
   const buttons = renderCtaButtons(primary, secondary, {
-    alignment: 'uk-flex-right@m',
-    margin: 'uk-margin-small-top'
+    alignment: hasText ? 'uk-flex-right@m' : 'uk-flex-center uk-flex-right@m',
+    margin: hasText ? 'uk-margin-small-top' : ''
   });
   if (!buttons) {
     throw new Error('CTA split variant requires at least one valid action');
   }
-  const ctaColumn = `<div class="uk-width-1-1 uk-width-auto@m">${buttons}</div>`;
-  const layout = `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${ctaColumn}</div>`;
+  const layout = hasText
+    ? `<div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid><div class="uk-width-expand">${title}${body}</div><div class="uk-width-1-1 uk-width-auto@m">${buttons}</div></div>`
+    : buttons;
 
   return renderSection({ block, variant: 'split', content: layout });
 }
