@@ -189,6 +189,12 @@ const applyColorsToRoot = (element, appearance) => {
     colors.topbarDark,
     appearance?.variables?.topbarDark,
   );
+  const pageBackground = resolveFirstValue(
+    colors.background,
+    colors.backgroundColor,
+    appearance?.variables?.background,
+    appearance?.variables?.backgroundColor,
+  );
   const onAccent = resolveFirstValue(
     colors.on_accent,
     colors.onAccent,
@@ -233,6 +239,12 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketing_surface,
     surface,
     'var(--surface)',
+  );
+  const marketingBackground = resolveFirstValue(
+    colors.marketingBackground,
+    colors.marketing_background,
+    appearance?.variables?.marketingBackground,
+    appearance?.variables?.marketing_background,
   );
   const marketingMuted = resolveFirstValue(
     colors.marketingSurfaceMuted,
@@ -289,13 +301,17 @@ const applyColorsToRoot = (element, appearance) => {
   element.style.setProperty('--marketing-primary', marketingPrimary);
   element.style.setProperty('--marketing-accent', marketingAccent);
   element.style.setProperty('--marketing-on-accent', marketingOnAccent);
-  element.style.setProperty('--bg-page', 'var(--surface)');
-  element.style.setProperty('--bg-section', 'var(--surface)');
-  element.style.setProperty('--bg-card', 'var(--surface)');
+  element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
+  element.style.setProperty('--bg-section', 'var(--surface-section, var(--surface))');
+  element.style.setProperty('--bg-card', 'var(--surface-card, var(--surface))');
   element.style.setProperty('--bg-accent', 'var(--brand-primary)');
 
   element.style.setProperty('--marketing-surface', marketingSurface);
   element.style.setProperty('--marketing-surface-muted', marketingMuted);
+  element.style.setProperty(
+    '--marketing-background',
+    marketingBackground || 'var(--surface-page, var(--marketing-surface))',
+  );
 
   if (surface) {
     element.style.setProperty('--surface', surface);
