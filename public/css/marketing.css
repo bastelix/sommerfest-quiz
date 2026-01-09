@@ -6,6 +6,14 @@
   --marketing-surface-default: #ffffff;
   --marketing-surface-muted-default: #eef2f7;
   --marketing-text-default: #111827;
+  --marketing-text-on-surface-default: #111827;
+  --marketing-text-on-background-default: #111827;
+  --marketing-text-muted-on-surface-default: #475569;
+  --marketing-text-muted-on-background-default: #475569;
+  --marketing-text-on-surface-dark-default: #f8fafc;
+  --marketing-text-on-background-dark-default: #f8fafc;
+  --marketing-text-muted-on-surface-dark-default: #cbd5e1;
+  --marketing-text-muted-on-background-dark-default: #cbd5e1;
   --marketing-text-on-primary-default: #ffffff;
   --marketing-white: #ffffff;
   --marketing-black: #000000;
@@ -51,6 +59,14 @@
   --marketing-surface: var(--surface, var(--marketing-surface-default));
   --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
   --marketing-text: var(--text-primary, var(--marketing-text-default));
+  --marketing-text-on-surface: var(--text-on-surface, var(--marketing-text-on-surface-default));
+  --marketing-text-on-background: var(--text-on-background, var(--marketing-text-on-background-default));
+  --marketing-text-muted-on-surface: var(--text-muted-on-surface, var(--marketing-text-muted-on-surface-default));
+  --marketing-text-muted-on-background: var(--text-muted-on-background, var(--marketing-text-muted-on-background-default));
+  --marketing-text-on-surface-dark: var(--text-on-surface-dark, var(--marketing-text-on-surface-dark-default));
+  --marketing-text-on-background-dark: var(--text-on-background-dark, var(--marketing-text-on-background-dark-default));
+  --marketing-text-muted-on-surface-dark: var(--text-muted-on-surface-dark, var(--marketing-text-muted-on-surface-dark-default));
+  --marketing-text-muted-on-background-dark: var(--text-muted-on-background-dark, var(--marketing-text-muted-on-background-dark-default));
   --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default));
   --marketing-text-on-primary: var(--marketing-on-accent);
   --marketing-link: var(--brand-primary, var(--marketing-primary));
@@ -78,12 +94,12 @@ body.marketing-page {
   --qr-brand-800: color-mix(in oklab, var(--marketing-primary) 96%, var(--marketing-black));
   --qr-brand-900: color-mix(in oklab, var(--marketing-primary) 98%, var(--marketing-black));
   --qr-bg: var(--marketing-background, var(--marketing-surface));
-  --qr-fg: color-mix(in oklab, var(--marketing-black) 80%, var(--marketing-primary) 20%);
+  --qr-fg: var(--marketing-text-on-background);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-surface-glass);
   --qr-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
-  --qr-text: var(--qr-fg);
+  --qr-text: var(--marketing-text-on-background);
   --qr-icon-color: var(--qr-text);
   --qr-section-bg: var(--qr-bg);
   --qr-card-border: var(--qr-border);
@@ -93,7 +109,7 @@ body.marketing-page {
   --qr-contrast-on-primary: var(--marketing-on-accent);
   --qr-danger-500: var(--marketing-danger-500);
   --qr-danger-600: var(--marketing-danger-600);
-  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary) 30%);
+  --qr-muted: var(--marketing-text-muted-on-background);
   --qr-shadow: var(--marketing-shadow-soft);
   --qr-link: var(--marketing-link);
   --accent-primary: var(--marketing-primary);
@@ -115,14 +131,14 @@ body.marketing-page {
 body.marketing-page.dark-mode,
 body.marketing-page[data-theme="dark"]:not(.high-contrast) {
   --qr-bg: var(--marketing-background, var(--marketing-surface));
-  --qr-fg: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
+  --qr-fg: var(--marketing-text-on-background-dark);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-surface-glass-dark);
   --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
-  --qr-text: var(--qr-fg);
+  --qr-text: var(--marketing-text-on-background-dark);
   --qr-landing-primary: var(--marketing-primary);
-  --qr-muted: color-mix(in oklab, var(--qr-fg) 70%, var(--marketing-primary) 30%);
+  --qr-muted: var(--marketing-text-muted-on-background-dark);
   --qr-shadow: var(--marketing-shadow-dark);
   --qr-link: var(--marketing-link);
   --accent-primary: var(--marketing-primary);
@@ -147,6 +163,10 @@ body.marketing-page.high-contrast {
   --qr-fg: var(--marketing-black);
   --qr-text: var(--marketing-black);
   --qr-muted: var(--marketing-black);
+  --marketing-text-on-surface: var(--marketing-black);
+  --marketing-text-on-background: var(--marketing-black);
+  --marketing-text-muted-on-surface: var(--marketing-black);
+  --marketing-text-muted-on-background: var(--marketing-black);
   --qr-bg-soft: var(--marketing-white);
   --qr-card: var(--marketing-white);
   --qr-card-border: var(--marketing-black);
@@ -182,6 +202,10 @@ body.marketing-page.dark-mode.high-contrast {
   --qr-fg: var(--marketing-white);
   --qr-text: var(--marketing-white);
   --qr-muted: var(--marketing-white);
+  --marketing-text-on-surface: var(--marketing-white);
+  --marketing-text-on-background: var(--marketing-white);
+  --marketing-text-muted-on-surface: var(--marketing-white);
+  --marketing-text-muted-on-background: var(--marketing-white);
   --qr-bg-soft: var(--marketing-black);
   --qr-card: var(--marketing-black);
   --qr-card-border: var(--marketing-white);
@@ -330,6 +354,9 @@ body.page-render .cms-page table {
   --section-bg-color: var(--section-surface);
   --section-bg-overlay: 0;
   --section-overlay-color: color-mix(in srgb, var(--color-text, var(--marketing-ink)) 16%, transparent);
+  --qr-text: var(--marketing-text-on-surface);
+  --qr-muted: var(--marketing-text-muted-on-surface);
+  --color-text: var(--qr-text);
   --section-text-color: var(--color-text, inherit);
   color: var(--section-text-color, var(--color-text, inherit));
   padding: var(--section-padding-outer) 0;
@@ -617,7 +644,7 @@ body.marketing-page .site-footer {
 .scenario-cloud{
   --pill-bg: transparent;
   --pill-border: var(--qr-border);
-  --pill-fg: color-mix(in oklab, var(--qr-fg) 85%, transparent);
+  --pill-fg: var(--qr-muted);
   display:flex;
   flex-wrap:wrap;
   gap:8px 10px;
@@ -702,7 +729,7 @@ body.marketing-page .site-footer {
   font-weight:600;
   border-radius:999px;
   background:color-mix(in oklab, var(--marketing-primary) 12%, transparent);
-  color:color-mix(in oklab, var(--qr-fg) 75%, transparent);
+  color:var(--qr-text);
   text-decoration:none;
   border:1px solid color-mix(in oklab, var(--marketing-primary) 32%, transparent);
   box-shadow: var(--marketing-shadow-pill);
@@ -721,6 +748,8 @@ body.marketing-page .site-footer {
 .marketing-page .uk-card,
 .marketing-page .qr-card,
 .marketing-page .feature-box {
+  --qr-text: var(--marketing-text-on-surface);
+  --qr-muted: var(--marketing-text-muted-on-surface);
   background: var(--qr-card) !important;
   color: var(--qr-text) !important;
   border: 1px solid var(--qr-card-border);
@@ -752,7 +781,7 @@ body.marketing-page .site-footer {
   max-width: 680px;
   margin: 0 auto;
   text-align: center;
-  color: var(--qr-text);
+  color: var(--qr-fg);
   gap: clamp(0.75rem, 2vw, 1.5rem);
 }
 
@@ -772,12 +801,12 @@ body.marketing-page .site-footer {
 }
 
 .marketing-event-hero__subtitle {
-  color: color-mix(in oklab, var(--qr-text) 82%, var(--qr-bg) 18%);
+  color: var(--qr-muted);
   margin-top: 0.75rem;
 }
 
 .marketing-event-hero__comment {
-  color: color-mix(in oklab, var(--qr-text) 55%, var(--qr-bg) 45%);
+  color: var(--qr-muted);
   margin-top: 0.5rem;
 }
 
@@ -791,22 +820,22 @@ body.marketing-page .marketing-event-hero__comment {
 }
 
 body.marketing-page .marketing-event-hero__subtitle {
-  color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-bg) 12%);
+  color: var(--qr-muted);
 }
 
 body.marketing-page .marketing-event-hero__comment {
-  color: color-mix(in oklab, var(--qr-text) 76%, var(--qr-bg) 24%);
+  color: var(--qr-muted);
 }
 
 body.marketing-page .marketing-event-schedule p,
 body.marketing-page .marketing-event-teaser p {
-  color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+  color: var(--qr-muted);
 }
 
 .marketing-event-story {
   max-width: min(720px, 100%);
   margin: clamp(2.5rem, 6vw, 4rem) auto 0;
-  color: color-mix(in oklab, var(--qr-text) 94%, var(--qr-bg) 6%);
+  color: var(--qr-muted);
   line-height: 1.6;
 }
 
@@ -816,7 +845,7 @@ body.marketing-page .marketing-event-teaser p {
   font-weight: 700;
   letter-spacing: -0.01em;
   text-align: left;
-  color: color-mix(in oklab, var(--qr-text) 98%, var(--qr-bg) 2%);
+  color: var(--qr-text);
 }
 
 .marketing-event-story .uk-heading-bullet {
@@ -831,7 +860,7 @@ body.marketing-page .marketing-event-teaser p {
 .marketing-event-story p {
   margin-bottom: clamp(0.85rem, 2.2vw, 1.35rem);
   font-size: clamp(1.05rem, 2.4vw, 1.2rem);
-  color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
+  color: var(--qr-muted);
 }
 
 .marketing-event-story p:last-child {
@@ -840,7 +869,7 @@ body.marketing-page .marketing-event-teaser p {
 
 .marketing-event-story strong,
 .marketing-event-story .uk-text-bold {
-  color: color-mix(in oklab, var(--qr-text) 99%, var(--qr-bg) 1%);
+  color: var(--qr-text);
   font-weight: 700;
 }
 
@@ -848,7 +877,7 @@ body.marketing-page .marketing-event-teaser p {
 .marketing-event-story ol {
   margin: clamp(1rem, 2.5vw, 1.5rem) 0 clamp(1.5rem, 3vw, 2rem);
   padding-left: 1.2em;
-  color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
+  color: var(--qr-muted);
 }
 
 .marketing-event-story li {
@@ -857,21 +886,13 @@ body.marketing-page .marketing-event-teaser p {
 
 body.marketing-page .marketing-event-schedule .uk-text-muted,
 body.marketing-page .marketing-event-teaser .uk-text-muted {
-  color: color-mix(in oklab, var(--qr-text) 84%, var(--qr-bg) 16%);
-}
-
-body.marketing-page[data-theme="dark"] .marketing-event-schedule .uk-text-muted,
-body.marketing-page[data-theme="dark"] .marketing-event-teaser .uk-text-muted {
-  color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+  color: var(--qr-muted);
 }
 
 body.marketing-page .uk-text-muted {
-  color: color-mix(in oklab, var(--qr-text) 80%, var(--qr-bg) 20%);
+  color: var(--qr-muted);
 }
 
-body.marketing-page[data-theme="dark"] .uk-text-muted {
-  color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
-}
 .marketing-page .uk-icon,
 .marketing-page .feature-box svg {
   color: var(--qr-icon-color);
@@ -1287,7 +1308,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 .marketing-page .qr-hero{ padding-top:96px; }
 
 .marketing-page .uk-card-quizrace{
-  background:var(--qr-card); color:var(--qr-landing-text); border:1px solid var(--qr-card-border);
+  background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
   box-shadow:var(--qr-shadow); border-radius:14px; padding:24px;
   transition:transform .15s ease, box-shadow .15s ease;
 }
@@ -1433,10 +1454,6 @@ body.marketing-page:not([data-theme="dark"]) .contact-card span{
   color:var(--qr-muted);
 }
 
-body.marketing-page:not([data-theme="dark"]) .calserver-proseal[data-state="error"] .calserver-proseal__error{
-  color:color-mix(in oklab, var(--qr-text) 85%, transparent);
-}
-
 /* Form & A11y */
 .marketing-page #contact-form .uk-input,
 .marketing-page #contact-form .uk-textarea{
@@ -1456,9 +1473,6 @@ body.marketing-page:not([data-theme="dark"]) .calserver-proseal[data-state="erro
 .marketing-page #contact-form .turnstile-hint{
   margin:0;
   color:var(--qr-muted);
-}
-body.marketing-page:not([data-theme="dark"]) #contact-form .turnstile-hint{
-  color:color-mix(in oklab, var(--qr-text) 85%, transparent);
 }
 .marketing-page #contact-form.is-turnstile-disabled button[type="submit"]{
   opacity:0.65;
