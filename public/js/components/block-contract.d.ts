@@ -30,7 +30,7 @@ export interface Tokens {
   accent?: 'brandA' | 'brandB' | 'brandC';
 }
 
-export type SectionIntent = 'content' | 'feature' | 'highlight' | 'hero';
+export type SectionIntent = 'content' | 'feature' | 'highlight' | 'hero' | 'plain';
 export type SectionLayout = 'normal' | 'full' | 'card';
 export type SectionBackgroundMode = 'none' | 'color' | 'image';
 export type SectionBackgroundAttachment = 'scroll' | 'fixed';

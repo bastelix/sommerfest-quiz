@@ -157,6 +157,11 @@
       "id": "faq",
       "type": "faq",
       "variant": "accordion",
+      "meta": {
+        "sectionStyle": {
+          "intent": "plain"
+        }
+      },
       "data": {
         "title": "Häufige Fragen",
         "items": [
