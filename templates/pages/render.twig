@@ -17,6 +17,7 @@
 {% set logoSrc = logoSettings.src|default(null) %}
 {% set logoLabel = logoSettings.label|default(pageTitle|default('QuizRace')) %}
 {% set logoAlt = logoSettings.alt|default(logoLabel) %}
+{% set cmsChatEnabled = (cmsChatEndpoint is defined and cmsChatEndpoint) or (featureFlags.chatEndpoint|default(false) == true) %}
 {% set cookieConsent = cookieConsentConfig|default({}) %}
 {% set cookieConsentEnabled = cookieConsent.enabled|default(false) %}
 
@@ -69,6 +70,8 @@
     {{ content|raw }}
   </noscript>
 
+  {% if cmsChatEnabled %}
+    {% include 'marketing/partials/marketing-chat.twig' %}
   {% if cookieConsentEnabled %}
     {% include 'marketing/partials/cookie-consent.twig' with {
       privacyUrl: privacyUrl,
@@ -78,6 +81,28 @@
 {% endblock %}
 
 {% block scripts %}
+  {% if cmsChatEnabled %}
+    <script>
+      window.marketingChatConfig = {
+        endpoint: '{{ cmsChatEndpoint|default('')|e('js') }}',
+        slug: '{{ cmsSlug|e('js') }}',
+        csrfToken: '{{ csrf_token|default('')|e('js') }}',
+        locale: '{{ locale() }}',
+        texts: {
+          intro: '{{ t('marketing_chat_intro_message')|e('js') }}',
+          loading: '{{ t('marketing_chat_loading')|e('js') }}',
+          errorGeneric: '{{ t('marketing_chat_error_generic')|e('js') }}',
+          errorValidation: '{{ t('marketing_chat_error_validation')|e('js') }}',
+          errorRateLimited: '{{ t('marketing_chat_error_rate_limited')|e('js') }}',
+          sources: '{{ t('marketing_chat_sources')|e('js') }}',
+          sourcesToggle: '{{ t('marketing_chat_sources_toggle')|e('js') }}',
+          score: '{{ t('marketing_chat_score')|e('js') }}',
+          empty: '{{ t('marketing_chat_empty')|e('js') }}',
+          question: '{{ t('marketing_chat_question_label')|e('js') }}'
+        }
+      };
+    </script>
+    <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
   {% if cookieConsentEnabled %}
     <script>
       window.cookieConsentConfig = {{ cookieConsent|json_encode|raw }};

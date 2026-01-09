@@ -1,0 +1,47 @@
+{% set chatButtonClass = chatButtonClass|default('calserver-floating-button marketing-chat-fab') %}
+
+<div id="marketing-chat-modal" class="uk-flex-top marketing-chat-modal" data-uk-modal>
+  <div class="uk-modal-dialog uk-modal-body marketing-chat__dialog" role="dialog" aria-modal="true" aria-label="{{ t('marketing_chat_title') }}">
+    <button class="uk-modal-close-default" type="button" data-uk-close aria-label="{{ t('marketing_chat_close') }}"></button>
+    <h2 class="uk-modal-title">{{ t('marketing_chat_title') }}</h2>
+    <p class="marketing-chat__intro">{{ t('marketing_chat_intro') }}</p>
+    <div class="marketing-chat__messages" data-marketing-chat-messages aria-live="polite"></div>
+    <p class="marketing-chat__status" data-marketing-chat-status aria-live="assertive"></p>
+    <form class="marketing-chat__form" data-marketing-chat-form>
+      <label class="uk-form-label" for="marketing-chat-question">{{ t('marketing_chat_question_label') }}</label>
+      <div class="marketing-chat__honeypot" aria-hidden="true">
+        <label for="marketing-chat-company">Company</label>
+        <input type="text"
+               id="marketing-chat-company"
+               name="company"
+               class="uk-input"
+               autocomplete="off"
+               tabindex="-1"
+               data-marketing-chat-honeypot>
+      </div>
+      <textarea class="uk-textarea"
+                id="marketing-chat-question"
+                name="question"
+                rows="3"
+                autocomplete="off"
+                placeholder="{{ t('marketing_chat_placeholder') }}"
+                data-marketing-chat-input
+                required></textarea>
+      <div class="marketing-chat__form-actions">
+        <button type="submit" class="uk-button uk-button-primary">
+          <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>{{ t('marketing_chat_submit') }}
+        </button>
+        <button type="button" class="uk-button uk-button-default uk-modal-close">{{ t('marketing_chat_close') }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<button class="{{ chatButtonClass }}"
+        type="button"
+        data-marketing-chat-open
+        aria-haspopup="dialog"
+        aria-controls="marketing-chat-modal"
+        aria-label="{{ t('marketing_chat_title') }}">
+  <span aria-hidden="true" data-uk-icon="icon: commenting"></span>
+</button>

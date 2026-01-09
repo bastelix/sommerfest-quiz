@@ -6,6 +6,7 @@
 {% set menuItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems|default([]) %}
 {% set footerNavigation = cmsFooterNavigation|default([]) %}
 {% set legalNavigation = cmsLegalNavigation|default([]) %}
+{% set marketingChatEnabled = marketingChatEndpoint is defined and marketingChatEndpoint %}
 
 {% block title %}{{ metaTitle|default('calServer – Kalibrier- und Inventarverwaltung für Teams') }}{% endblock %}
 
@@ -234,42 +235,9 @@
       </div>
     </section>
 
-    <div id="marketing-chat-modal" class="uk-flex-top marketing-chat-modal" data-uk-modal>
-      <div class="uk-modal-dialog uk-modal-body marketing-chat__dialog" role="dialog" aria-modal="true" aria-label="{{ t('marketing_chat_title') }}">
-        <button class="uk-modal-close-default" type="button" data-uk-close aria-label="{{ t('marketing_chat_close') }}"></button>
-        <h2 class="uk-modal-title">{{ t('marketing_chat_title') }}</h2>
-        <p class="marketing-chat__intro">{{ t('marketing_chat_intro') }}</p>
-        <div class="marketing-chat__messages" data-marketing-chat-messages aria-live="polite"></div>
-        <p class="marketing-chat__status" data-marketing-chat-status aria-live="assertive"></p>
-        <form class="marketing-chat__form" data-marketing-chat-form>
-          <label class="uk-form-label" for="marketing-chat-question">{{ t('marketing_chat_question_label') }}</label>
-          <div class="marketing-chat__honeypot" aria-hidden="true">
-            <label for="marketing-chat-company">Company</label>
-            <input type="text"
-                   id="marketing-chat-company"
-                   name="company"
-                   class="uk-input"
-                   autocomplete="off"
-                   tabindex="-1"
-                   data-marketing-chat-honeypot>
-          </div>
-          <textarea class="uk-textarea"
-                    id="marketing-chat-question"
-                    name="question"
-                    rows="3"
-                    autocomplete="off"
-                    placeholder="{{ t('marketing_chat_placeholder') }}"
-                    data-marketing-chat-input
-                    required></textarea>
-          <div class="marketing-chat__form-actions">
-            <button type="submit" class="uk-button uk-button-primary">
-              <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>{{ t('marketing_chat_submit') }}
-            </button>
-            <button type="button" class="uk-button uk-button-default uk-modal-close">{{ t('marketing_chat_close') }}</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    {% if marketingChatEnabled %}
+      {% include 'marketing/partials/marketing-chat.twig' %}
+    {% endif %}
 
     {% set pageContent = content %}
     {% set newsSection = '' %}
@@ -318,14 +286,6 @@
     } %}
 
     {% include 'marketing/partials/cookie-consent.twig' %}
-    <button class="calserver-floating-button marketing-chat-fab"
-            type="button"
-            data-marketing-chat-open
-            aria-haspopup="dialog"
-            aria-controls="marketing-chat-modal"
-            aria-label="{{ t('marketing_chat_title') }}">
-      <span aria-hidden="true" data-uk-icon="icon: commenting"></span>
-    </button>
   </div>
 {% endblock %}
 
@@ -465,31 +425,35 @@
       }
     });
   </script>
-  <script>
-    window.marketingChatConfig = {
-      endpoint: '{{ marketingChatEndpoint|e('js') }}',
-      slug: '{{ marketingSlug|e('js') }}',
-      csrfToken: '{{ csrf_token|default('')|e('js') }}',
-      locale: '{{ locale() }}',
-      texts: {
-        intro: '{{ t('marketing_chat_intro_message')|e('js') }}',
-        loading: '{{ t('marketing_chat_loading')|e('js') }}',
-        errorGeneric: '{{ t('marketing_chat_error_generic')|e('js') }}',
-        errorValidation: '{{ t('marketing_chat_error_validation')|e('js') }}',
-        errorRateLimited: '{{ t('marketing_chat_error_rate_limited')|e('js') }}',
-        sources: '{{ t('marketing_chat_sources')|e('js') }}',
-        sourcesToggle: '{{ t('marketing_chat_sources_toggle')|e('js') }}',
-        score: '{{ t('marketing_chat_score')|e('js') }}',
-        empty: '{{ t('marketing_chat_empty')|e('js') }}',
-        question: '{{ t('marketing_chat_question_label')|e('js') }}'
-      }
-    };
-  </script>
+  {% if marketingChatEnabled %}
+    <script>
+      window.marketingChatConfig = {
+        endpoint: '{{ marketingChatEndpoint|e('js') }}',
+        slug: '{{ marketingSlug|e('js') }}',
+        csrfToken: '{{ csrf_token|default('')|e('js') }}',
+        locale: '{{ locale() }}',
+        texts: {
+          intro: '{{ t('marketing_chat_intro_message')|e('js') }}',
+          loading: '{{ t('marketing_chat_loading')|e('js') }}',
+          errorGeneric: '{{ t('marketing_chat_error_generic')|e('js') }}',
+          errorValidation: '{{ t('marketing_chat_error_validation')|e('js') }}',
+          errorRateLimited: '{{ t('marketing_chat_error_rate_limited')|e('js') }}',
+          sources: '{{ t('marketing_chat_sources')|e('js') }}',
+          sourcesToggle: '{{ t('marketing_chat_sources_toggle')|e('js') }}',
+          score: '{{ t('marketing_chat_score')|e('js') }}',
+          empty: '{{ t('marketing_chat_empty')|e('js') }}',
+          question: '{{ t('marketing_chat_question_label')|e('js') }}'
+        }
+      };
+    </script>
+  {% endif %}
   <script>
     window.cookieConsentConfig = {{ cookieConsentConfig|default({})|json_encode|raw }};
   </script>
   <script src="{{ basePath }}/js/marketing-cookie.js" defer></script>
   <script src="{{ basePath }}/js/marketing-consent.js" defer></script>
-  <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
+  {% if marketingChatEnabled %}
+    <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
+  {% endif %}
   <script src="{{ basePath }}/js/landing.js" defer></script>
 {% endblock %}
