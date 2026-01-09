@@ -2591,7 +2591,7 @@ export class BlockContentEditor {
       const backgroundIntent = resolveBackgroundIntent(background, layout);
       const intentOptions = BACKGROUND_INTENT_OPTIONS.filter(option => {
         if (option.preset.mode === 'image') {
-          return layout === 'full' && allowedBackgroundModes.includes('image');
+          return allowedBackgroundModes.includes('image');
         }
         if (option.preset.mode === 'color') {
           return allowedBackgroundModes.includes('color');
@@ -2628,6 +2628,14 @@ export class BlockContentEditor {
       });
 
       backgroundSection.append(intentCards);
+
+      if (allowedBackgroundModes.includes('image')) {
+        const imageIntentHint = createHelperText('„Bildfläche“ setzt das Abschnittslayout automatisch auf „Vollbreite“.');
+        if (imageIntentHint) {
+          imageIntentHint.classList.add('section-background-config__hint');
+          backgroundSection.append(imageIntentHint);
+        }
+      }
 
       let colorField;
       let imageControls;
@@ -4506,9 +4514,13 @@ export class BlockContentEditor {
       return;
     }
 
-    const layout = resolveLayout(targetBlock);
+    let layout = resolveLayout(targetBlock);
     if (preset.mode === 'image' && layout !== 'full') {
-      return;
+      this.updateSectionLayout(blockId, 'full');
+      layout = 'full';
+      if (typeof notify === 'function') {
+        notify('Layout auf „Vollbreite“ gestellt, damit die Bildfläche funktioniert.', 'info');
+      }
     }
 
     if (preset.mode === 'none') {
@@ -4521,12 +4533,13 @@ export class BlockContentEditor {
       return;
     }
 
-    const currentBackground = resolveSectionBackground(targetBlock, layout);
+    const updatedBlock = this.state.blocks.find(block => block.id === blockId) || targetBlock;
+    const currentBackground = resolveSectionBackground(updatedBlock, layout);
     const attachment = currentBackground.attachment || 'scroll';
     const overlay = currentBackground.overlay;
     const changes = {
       mode: 'image',
-      imageId: currentBackground.imageId || targetBlock?.backgroundImage || '',
+      imageId: currentBackground.imageId || updatedBlock?.backgroundImage || '',
       attachment
     };
 
