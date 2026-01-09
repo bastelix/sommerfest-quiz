@@ -1239,14 +1239,22 @@ body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
 /* Pricing & Steps */
 .qr-landing .pricing-grid>div{ display:flex; }
 .qr-landing .uk-card-price, .qr-landing .uk-card-popular{
-  display:flex; flex-direction:column; align-items:stretch;
+  display:flex; flex-direction:column; align-items:stretch; flex:1;
   background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
   box-shadow:var(--qr-shadow); border-radius:16px; padding:28px;
 }
 .qr-landing .uk-card-popular{
+  position:relative;
   background: var(--qr-card);
   outline:2px solid color-mix(in oklab, var(--qr-landing-primary) 35%, transparent);
   box-shadow:0 18px 36px color-mix(in oklab, var(--qr-landing-primary) 16%, transparent);
+}
+@media (min-width:960px){
+  .qr-landing .uk-card-popular{
+    transform:scale(1.04);
+    transform-origin:center;
+    z-index:1;
+  }
 }
 .qr-landing .uk-card-price .uk-button,
 .qr-landing .uk-card-popular .uk-button{ margin-top:auto; }
