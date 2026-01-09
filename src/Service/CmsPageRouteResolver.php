@@ -6,7 +6,9 @@ namespace App\Service;
 
 use App\Controller\Marketing\PageController;
 use App\Domain\Page;
+use App\Infrastructure\Database;
 use App\Service\MarketingSlugResolver;
+use PDO;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class CmsPageRouteResolver
@@ -49,16 +51,22 @@ final class CmsPageRouteResolver
         }
         $contentSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
 
-        $page = $this->pages->findByKey($namespace, $contentSlug);
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+
+        $pages = new PageService($pdo);
+        $page = $pages->findByKey($namespace, $contentSlug);
         if ($page === null && $contentSlug !== $slug) {
-            $page = $this->pages->findByKey($namespace, $slug);
+            $page = $pages->findByKey($namespace, $slug);
         }
 
         if ($page === null && $namespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackNamespace = PageService::DEFAULT_NAMESPACE;
-            $page = $this->pages->findByKey($fallbackNamespace, $contentSlug);
+            $page = $pages->findByKey($fallbackNamespace, $contentSlug);
             if ($page === null && $contentSlug !== $slug) {
-                $page = $this->pages->findByKey($fallbackNamespace, $slug);
+                $page = $pages->findByKey($fallbackNamespace, $slug);
             }
         }
 
