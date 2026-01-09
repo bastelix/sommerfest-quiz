@@ -211,17 +211,19 @@ class PageController
         $headerConfig = $this->buildHeaderConfig($cookieSettings);
         $headerLogo = $this->buildHeaderLogoSettings($cookieSettings, $basePath);
 
+        $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
+        $menu = $cmsMenuService->getMenuForNamespace($pageNamespace, $locale);
+
         $navigation = $this->loadNavigationSections(
             $pageNamespace,
             $page->getSlug(),
             $locale,
             $basePath,
-            $cmsMenuItems
+            $cmsMenuItems,
+            $menu
         );
         $cmsMainNavigation = $navigation['main'];
 
-        $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
-        $menu = $cmsMenuService->getMenuForNamespace($pageNamespace, $locale);
         if ($menu === [] && $cmsMenuItems !== []) {
             $menu = $cmsMenuItems;
         }
@@ -625,13 +627,14 @@ class PageController
         string $slug,
         string $locale,
         string $basePath,
-        array $cmsMenuItems
+        array $cmsMenuItems,
+        array $menu
     ): array {
         $navigation = $this->loadNavigationFromContent($namespace, $slug, $locale, $basePath);
 
         $mainNavigation = $navigation['main'];
         if ($mainNavigation === []) {
-            $mainNavigation = $this->mapMenuItemsToLinks($cmsMenuItems, $basePath);
+            $mainNavigation = $this->mapMenuItemsToLinks($menu, $basePath);
         }
 
         $footerNavigation = $navigation['footer'];
