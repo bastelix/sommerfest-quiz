@@ -24,7 +24,7 @@
 
 {% block title %}{{ pageTitle|default('QuizRace') }}{% endblock %}
 
-{% block body_class %}marketing-page page-render uk-background-default{% endblock %}
+{% block body_class %}page-render uk-background-default{% endblock %}
 
 {% block head %}
   {{ parent() }}
@@ -46,7 +46,7 @@
   } only %}
 
   <div
-    class="cms-page qr-page-renderer"
+    class="cms-page"
     data-page-root
     data-page-slug="{{ cmsSlug }}"
     data-page-namespace="{{ pageNamespace }}"
