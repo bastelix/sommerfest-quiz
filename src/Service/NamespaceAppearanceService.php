@@ -39,7 +39,7 @@ class NamespaceAppearanceService
             'defaults' => $this->designTokens->getDefaults(),
             'colors' => array_filter([
                 'primary' => $tokens['brand']['primary'] ?? null,
-                'secondary' => $tokens['brand']['accent'] ?? null,
+                'secondary' => $tokens['brand']['secondary'] ?? null,
                 'accent' => $tokens['brand']['accent'] ?? null,
                 ...$designColors['colors'],
             ], static fn (?string $value): bool => $value !== null && $value !== ''),

@@ -70,8 +70,15 @@
     const typography = tokens.typography;
     const components = tokens.components;
 
-    preview.style.setProperty('--brand-primary', brand.primary || '#1e87f0');
-    preview.style.setProperty('--brand-accent', brand.accent || brand.primary || '#f97316');
+    const primary = brand.primary || '#1e87f0';
+    const accent = brand.accent || brand.primary || '#f97316';
+    const secondary = brand.secondary || brand.accent || brand.primary || '#f97316';
+
+    preview.style.setProperty('--brand-primary', primary);
+    preview.style.setProperty('--brand-accent', accent);
+    preview.style.setProperty('--brand-secondary', secondary);
+    preview.style.setProperty('--accent-primary', primary);
+    preview.style.setProperty('--accent-secondary', secondary);
     preview.dataset.layoutProfile = layout.profile || 'standard';
     preview.dataset.typographyPreset = typography.preset || 'modern';
     preview.dataset.cardStyle = components.cardStyle || 'rounded';
