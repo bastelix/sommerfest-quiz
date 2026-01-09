@@ -18,6 +18,20 @@ stylesheet exposes the following marketing tokens for each namespace:
 * `--marketing-text-muted-on-surface-dark` – dark-mode muted copy on cards/sections.
 * `--marketing-text-muted-on-background-dark` – dark-mode muted copy on the page background.
 
+## Marketing presets
+
+The Admin-Design UI includes predefined marketing palettes. Selecting a preset stores the choice in
+`appearance.variables.marketingScheme` and overwrites the following tokens for light/dark mode:
+
+* `--marketing-primary`, `--marketing-accent`, `--marketing-surface`, `--marketing-background`,
+  `--marketing-on-accent`
+* `--marketing-text-on-surface`, `--marketing-text-on-background`,
+  `--marketing-text-muted-on-surface`, `--marketing-text-muted-on-background`
+* `--marketing-text-on-surface-dark`, `--marketing-text-on-background-dark`,
+  `--marketing-text-muted-on-surface-dark`, `--marketing-text-muted-on-background-dark`
+
+Clear the preset to fall back to the regular namespace brand tokens.
+
 ## Marketing stylesheet entry point
 
 Page-Editor Marketing-Seiten binden ausschließlich `public/css/marketing.css` ein. Die Datei ist

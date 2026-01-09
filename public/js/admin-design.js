@@ -28,6 +28,70 @@
     'quizrace.calm': 'calm',
     'quizrace.marketing': 'marketing',
   };
+  const marketingSchemes = {
+    aurora: {
+      primary: '#0ea5e9',
+      accent: '#22c55e',
+      surface: '#f8fafc',
+      background: '#eef2ff',
+      onAccent: '#ffffff',
+      textOnSurface: '#0f172a',
+      textOnBackground: '#0f172a',
+      textMutedOnSurface: '#475569',
+      textMutedOnBackground: '#475569',
+      textOnSurfaceDark: '#f8fafc',
+      textOnBackgroundDark: '#f8fafc',
+      textMutedOnSurfaceDark: '#cbd5e1',
+      textMutedOnBackgroundDark: '#cbd5e1',
+    },
+    sunset: {
+      primary: '#f97316',
+      accent: '#ec4899',
+      surface: '#fff7ed',
+      background: '#ffedd5',
+      onAccent: '#1f2937',
+      textOnSurface: '#1f2937',
+      textOnBackground: '#1f2937',
+      textMutedOnSurface: '#6b7280',
+      textMutedOnBackground: '#6b7280',
+      textOnSurfaceDark: '#f8fafc',
+      textOnBackgroundDark: '#f8fafc',
+      textMutedOnSurfaceDark: '#cbd5e1',
+      textMutedOnBackgroundDark: '#cbd5e1',
+    },
+    midnight: {
+      primary: '#6366f1',
+      accent: '#14b8a6',
+      surface: '#0f172a',
+      background: '#020617',
+      onAccent: '#f8fafc',
+      textOnSurface: '#e2e8f0',
+      textOnBackground: '#e2e8f0',
+      textMutedOnSurface: '#94a3b8',
+      textMutedOnBackground: '#94a3b8',
+      textOnSurfaceDark: '#f8fafc',
+      textOnBackgroundDark: '#f8fafc',
+      textMutedOnSurfaceDark: '#cbd5e1',
+      textMutedOnBackgroundDark: '#cbd5e1',
+    },
+  };
+  const marketingTokenKeys = [
+    '--marketing-primary',
+    '--marketing-accent',
+    '--marketing-secondary',
+    '--marketing-surface',
+    '--marketing-background',
+    '--marketing-on-accent',
+    '--marketing-text',
+    '--marketing-text-on-surface',
+    '--marketing-text-on-background',
+    '--marketing-text-muted-on-surface',
+    '--marketing-text-muted-on-background',
+    '--marketing-text-on-surface-dark',
+    '--marketing-text-on-background-dark',
+    '--marketing-text-muted-on-surface-dark',
+    '--marketing-text-muted-on-background-dark',
+  ];
   const activeTab = editor.dataset.activeTab === 'behavior' ? 'behavior' : 'appearance';
 
   const resolveTokens = () => ({
@@ -86,6 +150,30 @@
 
     updateMeta('layout', preview.dataset.layoutProfile);
     updateMeta('typography', preview.dataset.typographyPreset);
+  };
+
+  const applyMarketingSchemeToPreview = schemeKey => {
+    if (!preview) return;
+    const scheme = marketingSchemes[schemeKey];
+    if (!scheme) {
+      marketingTokenKeys.forEach(token => preview.style.removeProperty(token));
+      return;
+    }
+    preview.style.setProperty('--marketing-primary', scheme.primary);
+    preview.style.setProperty('--marketing-accent', scheme.accent);
+    preview.style.setProperty('--marketing-secondary', scheme.accent);
+    preview.style.setProperty('--marketing-surface', scheme.surface);
+    preview.style.setProperty('--marketing-background', scheme.background);
+    preview.style.setProperty('--marketing-on-accent', scheme.onAccent);
+    preview.style.setProperty('--marketing-text', scheme.textOnBackground);
+    preview.style.setProperty('--marketing-text-on-surface', scheme.textOnSurface);
+    preview.style.setProperty('--marketing-text-on-background', scheme.textOnBackground);
+    preview.style.setProperty('--marketing-text-muted-on-surface', scheme.textMutedOnSurface);
+    preview.style.setProperty('--marketing-text-muted-on-background', scheme.textMutedOnBackground);
+    preview.style.setProperty('--marketing-text-on-surface-dark', scheme.textOnSurfaceDark);
+    preview.style.setProperty('--marketing-text-on-background-dark', scheme.textOnBackgroundDark);
+    preview.style.setProperty('--marketing-text-muted-on-surface-dark', scheme.textMutedOnSurfaceDark);
+    preview.style.setProperty('--marketing-text-muted-on-background-dark', scheme.textMutedOnBackgroundDark);
   };
 
   const applyEffectsToPreview = () => {
@@ -267,6 +355,25 @@
     });
   };
 
+  const initMarketingSchemeSelect = () => {
+    const select = document.querySelector('[data-marketing-scheme-select]');
+    if (!select) return;
+
+    const applySelection = value => {
+      applyMarketingSchemeToPreview(value);
+    };
+
+    if (!isReadOnly) {
+      select.addEventListener('change', event => {
+        const target = event.target;
+        if (!(target instanceof HTMLSelectElement)) return;
+        applySelection(target.value);
+      });
+    }
+
+    applySelection(select.value || select.dataset.currentMarketingScheme || '');
+  };
+
   applyTokensToPreview();
   applyEffectsToPreview();
   initThemeToggle();
@@ -274,5 +381,6 @@
   initTokenInputs();
   initEffectsInputs();
   initNamespaceSelect();
+  initMarketingSchemeSelect();
   initTabs();
 })();

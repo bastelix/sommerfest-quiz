@@ -1,6 +1,53 @@
 const DEFAULT_NAMESPACE = 'default';
 
 const designRegistry = {};
+const MARKETING_SCHEMES = {
+  aurora: {
+    primary: '#0ea5e9',
+    accent: '#22c55e',
+    surface: '#f8fafc',
+    background: '#eef2ff',
+    onAccent: '#ffffff',
+    textOnSurface: '#0f172a',
+    textOnBackground: '#0f172a',
+    textMutedOnSurface: '#475569',
+    textMutedOnBackground: '#475569',
+    textOnSurfaceDark: '#f8fafc',
+    textOnBackgroundDark: '#f8fafc',
+    textMutedOnSurfaceDark: '#cbd5e1',
+    textMutedOnBackgroundDark: '#cbd5e1',
+  },
+  sunset: {
+    primary: '#f97316',
+    accent: '#ec4899',
+    surface: '#fff7ed',
+    background: '#ffedd5',
+    onAccent: '#1f2937',
+    textOnSurface: '#1f2937',
+    textOnBackground: '#1f2937',
+    textMutedOnSurface: '#6b7280',
+    textMutedOnBackground: '#6b7280',
+    textOnSurfaceDark: '#f8fafc',
+    textOnBackgroundDark: '#f8fafc',
+    textMutedOnSurfaceDark: '#cbd5e1',
+    textMutedOnBackgroundDark: '#cbd5e1',
+  },
+  midnight: {
+    primary: '#6366f1',
+    accent: '#14b8a6',
+    surface: '#0f172a',
+    background: '#020617',
+    onAccent: '#f8fafc',
+    textOnSurface: '#e2e8f0',
+    textOnBackground: '#e2e8f0',
+    textMutedOnSurface: '#94a3b8',
+    textMutedOnBackground: '#94a3b8',
+    textOnSurfaceDark: '#f8fafc',
+    textOnBackgroundDark: '#f8fafc',
+    textMutedOnSurfaceDark: '#cbd5e1',
+    textMutedOnBackgroundDark: '#cbd5e1',
+  },
+};
 
 const normalizeNamespace = namespace => {
   if (!namespace) {
@@ -296,7 +343,16 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketing_text_muted_on_background_dark,
   );
 
+  const marketingScheme = resolveFirstValue(
+    appearance?.variables?.marketingScheme,
+    appearance?.variables?.marketing_scheme,
+    colors.marketingScheme,
+    colors.marketing_scheme,
+  );
+  const marketingSchemeValues = marketingScheme ? MARKETING_SCHEMES[marketingScheme] : null;
+
   const marketingPrimary = resolveFirstValue(
+    marketingSchemeValues?.primary,
     colors.marketingPrimary,
     colors.marketing_primary,
     appearance?.variables?.marketingPrimary,
@@ -305,6 +361,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--brand-primary)',
   );
   const marketingAccent = resolveFirstValue(
+    marketingSchemeValues?.accent,
     colors.marketingAccent,
     colors.marketing_accent,
     appearance?.variables?.marketingAccent,
@@ -313,6 +370,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--brand-accent)',
   );
   const marketingSecondary = resolveFirstValue(
+    marketingSchemeValues?.accent,
     colors.marketingSecondary,
     colors.marketing_secondary,
     appearance?.variables?.marketingSecondary,
@@ -321,6 +379,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--brand-secondary)',
   );
   const marketingOnAccent = resolveFirstValue(
+    marketingSchemeValues?.onAccent,
     colors.marketingOnAccent,
     colors.marketing_on_accent,
     appearance?.variables?.marketingOnAccent,
@@ -329,6 +388,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--text-on-primary)',
   );
   const marketingSurface = resolveFirstValue(
+    marketingSchemeValues?.surface,
     colors.marketingSurface,
     colors.marketing_surface,
     appearance?.variables?.marketingSurface,
@@ -337,6 +397,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--surface)',
   );
   const marketingBackground = resolveFirstValue(
+    marketingSchemeValues?.background,
     colors.marketingBackground,
     colors.marketing_background,
     appearance?.variables?.marketingBackground,
@@ -349,6 +410,43 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketing_surface_muted,
     muted,
     'var(--surface-muted)',
+  );
+  const marketingText = resolveFirstValue(
+    marketingSchemeValues?.textOnBackground,
+    textOnBackground,
+    textOnSurface,
+  );
+  const marketingTextOnSurface = resolveFirstValue(
+    marketingSchemeValues?.textOnSurface,
+    textOnSurface,
+  );
+  const marketingTextOnBackground = resolveFirstValue(
+    marketingSchemeValues?.textOnBackground,
+    textOnBackground,
+  );
+  const marketingTextMutedOnSurface = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnSurface,
+    textMutedOnSurface,
+  );
+  const marketingTextMutedOnBackground = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnBackground,
+    textMutedOnBackground,
+  );
+  const marketingTextOnSurfaceDark = resolveFirstValue(
+    marketingSchemeValues?.textOnSurfaceDark,
+    textOnSurfaceDark,
+  );
+  const marketingTextOnBackgroundDark = resolveFirstValue(
+    marketingSchemeValues?.textOnBackgroundDark,
+    textOnBackgroundDark,
+  );
+  const marketingTextMutedOnSurfaceDark = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnSurfaceDark,
+    textMutedOnSurfaceDark,
+  );
+  const marketingTextMutedOnBackgroundDark = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnBackgroundDark,
+    textMutedOnBackgroundDark,
   );
 
   const sectionDefaultSurface = resolveFirstValue(
@@ -401,29 +499,32 @@ const applyColorsToRoot = (element, appearance) => {
   element.style.setProperty('--marketing-accent', marketingAccent);
   element.style.setProperty('--marketing-secondary', marketingSecondary);
   element.style.setProperty('--marketing-on-accent', marketingOnAccent);
-  if (textOnSurface) {
-    element.style.setProperty('--marketing-text-on-surface', textOnSurface);
+  if (marketingText) {
+    element.style.setProperty('--marketing-text', marketingText);
   }
-  if (textOnBackground) {
-    element.style.setProperty('--marketing-text-on-background', textOnBackground);
+  if (marketingTextOnSurface) {
+    element.style.setProperty('--marketing-text-on-surface', marketingTextOnSurface);
   }
-  if (textMutedOnSurface) {
-    element.style.setProperty('--marketing-text-muted-on-surface', textMutedOnSurface);
+  if (marketingTextOnBackground) {
+    element.style.setProperty('--marketing-text-on-background', marketingTextOnBackground);
   }
-  if (textMutedOnBackground) {
-    element.style.setProperty('--marketing-text-muted-on-background', textMutedOnBackground);
+  if (marketingTextMutedOnSurface) {
+    element.style.setProperty('--marketing-text-muted-on-surface', marketingTextMutedOnSurface);
   }
-  if (textOnSurfaceDark) {
-    element.style.setProperty('--marketing-text-on-surface-dark', textOnSurfaceDark);
+  if (marketingTextMutedOnBackground) {
+    element.style.setProperty('--marketing-text-muted-on-background', marketingTextMutedOnBackground);
   }
-  if (textOnBackgroundDark) {
-    element.style.setProperty('--marketing-text-on-background-dark', textOnBackgroundDark);
+  if (marketingTextOnSurfaceDark) {
+    element.style.setProperty('--marketing-text-on-surface-dark', marketingTextOnSurfaceDark);
   }
-  if (textMutedOnSurfaceDark) {
-    element.style.setProperty('--marketing-text-muted-on-surface-dark', textMutedOnSurfaceDark);
+  if (marketingTextOnBackgroundDark) {
+    element.style.setProperty('--marketing-text-on-background-dark', marketingTextOnBackgroundDark);
   }
-  if (textMutedOnBackgroundDark) {
-    element.style.setProperty('--marketing-text-muted-on-background-dark', textMutedOnBackgroundDark);
+  if (marketingTextMutedOnSurfaceDark) {
+    element.style.setProperty('--marketing-text-muted-on-surface-dark', marketingTextMutedOnSurfaceDark);
+  }
+  if (marketingTextMutedOnBackgroundDark) {
+    element.style.setProperty('--marketing-text-muted-on-background-dark', marketingTextMutedOnBackgroundDark);
   }
   element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
   element.style.setProperty('--bg-section', 'var(--surface-section, var(--surface))');

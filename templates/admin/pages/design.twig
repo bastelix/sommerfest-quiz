@@ -283,6 +283,52 @@
                         <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_brand">Panel zurücksetzen</button>
                       </div>
                     </li>
+                    {% set marketingSchemes = {
+                      aurora: {
+                        label: 'Aurora',
+                        description: 'Frisches Blau mit grünem Akzent.'
+                      },
+                      sunset: {
+                        label: 'Sunset',
+                        description: 'Warme Orange-/Pink-Töne für starke CTAs.'
+                      },
+                      midnight: {
+                        label: 'Midnight',
+                        description: 'Dunkler Look mit kühlem Akzent.'
+                      }
+                    } %}
+                    <li>
+                      <a class="uk-accordion-title" href="#">Marketing-Palette</a>
+                      <div class="uk-accordion-content">
+                        <p class="uk-text-meta uk-margin-remove-top">
+                          Presets setzen die Marketing-Tokens für Primär-, Akzent- und Surface-Farben sowie die Textfarben
+                          für Light- und Dark-Modus.
+                        </p>
+                        <label class="uk-form-label" for="marketingScheme">Preset auswählen</label>
+                        <div class="uk-form-controls">
+                          <select
+                            id="marketingScheme"
+                            class="uk-select"
+                            name="appearance[variables][marketingScheme]"
+                            data-marketing-scheme-select
+                            data-current-marketing-scheme="{{ marketingScheme|default('')|e('html_attr') }}"
+                          >
+                            <option value="" {% if marketingScheme is empty %}selected{% endif %}>Automatisch (Brand-Tokens)</option>
+                            {% for schemeKey, scheme in marketingSchemes %}
+                              <option
+                                value="{{ schemeKey|e('html_attr') }}"
+                                {% if schemeKey == marketingScheme %}selected{% endif %}
+                              >
+                                {{ scheme.label }} – {{ scheme.description }}
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="uk-text-meta uk-margin-small-top">
+                          Die Auswahl wird als Marketing-Design im Namespace gespeichert.
+                        </div>
+                      </div>
+                    </li>
                     <li>
                       <a class="uk-accordion-title" href="#">Layout</a>
                       <div class="uk-accordion-content">
