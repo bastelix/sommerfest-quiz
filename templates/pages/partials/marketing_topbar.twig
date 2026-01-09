@@ -1,0 +1,61 @@
+{% import 'marketing/partials/menu.twig' as menu %}
+
+{% set cmsMenuItems = cmsMenuItems|default([]) %}
+{% set cmsMainNavigation = cmsMainNavigation|default([]) %}
+{% set cmsNavigationItems = cmsMainNavigation is not empty ? cmsMainNavigation : cmsMenuItems %}
+{% set headerLogo = headerLogo|default({}) %}
+{% set headerTheme = headerTheme|default('light') %}
+{% set headerConfig = headerConfig|default({}) %}
+{% set logoMode = headerLogo.mode|default('text') %}
+{% set logoSrc = headerLogo.src|default(null) %}
+{% set logoLabel = headerLogo.label|default(pageTitle|default('QuizRace')) %}
+{% set logoAlt = headerLogo.alt|default(logoLabel) %}
+
+<header
+  class="qr-topbar uk-position-sticky uk-top"
+  data-theme="{{ headerTheme }}"
+  uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;"
+>
+  <nav class="uk-navbar-container uk-padding-small topbar" role="navigation" aria-label="{{ t('primary_navigation') }}" uk-navbar>
+    <div class="uk-navbar-left">
+      <div class="uk-navbar-item">
+        <button id="offcanvas-toggle"
+                class="uk-navbar-toggle uk-hidden@m git-btn"
+                uk-navbar-toggle-icon
+                uk-toggle="target: #qr-offcanvas"
+                aria-controls="qr-offcanvas"
+                aria-expanded="false"
+                aria-label="{{ t('menu') }}"></button>
+        <a class="uk-logo" href="{{ basePath }}/{{ cmsSlug }}">
+          {% if logoMode == 'image' and logoSrc %}
+            <img src="{{ logoSrc }}" alt="{{ logoAlt }}">
+          {% else %}
+            {{ logoLabel }}
+          {% endif %}
+        </a>
+      </div>
+    </div>
+    <div class="uk-navbar-center">
+      {% if cmsNavigationItems %}
+        {{ menu.render_menu(cmsNavigationItems, 'uk-navbar-nav uk-visible@m', 'uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left"') }}
+      {% endif %}
+    </div>
+    <div class="uk-navbar-right">
+      {% include 'components/config-menu.twig' with {
+        show_help: headerConfig.show_help|default(false),
+        show_language: headerConfig.show_language|default(true),
+        show_theme_toggle: headerConfig.show_theme_toggle|default(true),
+        show_contrast_toggle: headerConfig.show_contrast_toggle|default(true)
+      } %}
+    </div>
+  </nav>
+</header>
+
+{% if cmsNavigationItems %}
+  <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
+    <div class="uk-offcanvas-bar">
+      <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+      {{ menu.render_offcanvas(cmsNavigationItems, 'uk-nav uk-nav-default') }}
+    </div>
+  </div>
+{% endif %}
