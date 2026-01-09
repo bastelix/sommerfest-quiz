@@ -43,10 +43,27 @@ class PagesDesignController
         $defaults = $designService->getDefaults();
         $config = $this->configService->getConfigForEvent($namespace);
         $marketingScheme = null;
+        $appearanceColors = [];
         if (is_array($config['colors'] ?? null)) {
             $marketingScheme = $config['colors']['marketingScheme']
                 ?? $config['colors']['marketing_scheme']
                 ?? null;
+            $appearanceColors = [
+                'textOnSurface' => $config['colors']['textOnSurface']
+                    ?? $config['colors']['text_on_surface']
+                    ?? null,
+                'textOnBackground' => $config['colors']['textOnBackground']
+                    ?? $config['colors']['text_on_background']
+                    ?? null,
+                'textOnPrimary' => $config['colors']['textOnPrimary']
+                    ?? $config['colors']['text_on_primary']
+                    ?? $config['colors']['onAccent']
+                    ?? $config['colors']['on_accent']
+                    ?? $config['colors']['onPrimary']
+                    ?? $config['colors']['on_primary']
+                    ?? $config['colors']['contrastOnPrimary']
+                    ?? null,
+            ];
         }
         $effectsService = new EffectsPolicyService($this->configService);
         $effectsDefaults = $effectsService->getDefaults();
@@ -69,6 +86,7 @@ class PagesDesignController
             'tokens' => $tokens,
             'tokenDefaults' => $defaults,
             'marketingScheme' => $marketingScheme,
+            'appearanceColors' => $appearanceColors,
             'effects' => $effects,
             'effectsDefaults' => $effectsDefaults,
             'effectsProfiles' => $effectsService->getProfiles(),
@@ -118,7 +136,7 @@ class PagesDesignController
             $message = 'Verhalten-Einstellungen gespeichert.';
         } else {
             $incoming = $this->extractTokens($parsedBody);
-            [$hasMarketingScheme, $marketingScheme] = $this->extractMarketingScheme($parsedBody);
+            [$hasAppearanceVariables, $appearanceVariables] = $this->extractAppearanceVariables($parsedBody);
             $tokensToPersist = $currentTokens;
             foreach ($incoming as $group => $values) {
                 if (!array_key_exists($group, $tokensToPersist)) {
@@ -142,14 +160,27 @@ class PagesDesignController
             }
 
             $designService->persistTokens($namespace, $tokensToPersist);
-            if ($hasMarketingScheme) {
+            if ($hasAppearanceVariables) {
                 $config = $this->configService->getConfigForEvent($namespace);
                 $colors = is_array($config['colors'] ?? null) ? $config['colors'] : [];
-                if ($marketingScheme === null) {
-                    unset($colors['marketingScheme'], $colors['marketing_scheme']);
-                } else {
-                    $colors['marketingScheme'] = $marketingScheme;
-                    unset($colors['marketing_scheme']);
+                if (array_key_exists('marketingScheme', $appearanceVariables)) {
+                    $marketingScheme = $appearanceVariables['marketingScheme'];
+                    if ($marketingScheme === null) {
+                        unset($colors['marketingScheme'], $colors['marketing_scheme']);
+                    } else {
+                        $colors['marketingScheme'] = $marketingScheme;
+                        unset($colors['marketing_scheme']);
+                    }
+                }
+                foreach (['textOnSurface', 'textOnBackground', 'textOnPrimary'] as $key) {
+                    if (!array_key_exists($key, $appearanceVariables)) {
+                        continue;
+                    }
+                    if ($appearanceVariables[$key] === null) {
+                        unset($colors[$key]);
+                    } else {
+                        $colors[$key] = $appearanceVariables[$key];
+                    }
                 }
                 $this->configService->saveConfig([
                     'event_uid' => $namespace,
@@ -346,21 +377,31 @@ class PagesDesignController
      * @param array<string, mixed> $parsedBody
      * @return array{0: bool, 1: ?string}
      */
-    private function extractMarketingScheme(array $parsedBody): array
+    private function extractAppearanceVariables(array $parsedBody): array
     {
         $appearance = $parsedBody['appearance'] ?? null;
         if (!is_array($appearance)) {
-            return [false, null];
+            return [false, []];
         }
         $variables = $appearance['variables'] ?? null;
         if (!is_array($variables)) {
-            return [false, null];
-        }
-        if (!array_key_exists('marketingScheme', $variables)) {
-            return [false, null];
+            return [false, []];
         }
 
-        return [true, $this->sanitizeString($variables['marketingScheme'])];
+        $allowedKeys = ['marketingScheme', 'textOnSurface', 'textOnBackground', 'textOnPrimary'];
+        $result = [];
+        foreach ($allowedKeys as $key) {
+            if (!array_key_exists($key, $variables)) {
+                continue;
+            }
+            $result[$key] = $this->sanitizeString($variables[$key]);
+        }
+
+        if ($result === []) {
+            return [false, []];
+        }
+
+        return [true, $result];
     }
 
     /**
