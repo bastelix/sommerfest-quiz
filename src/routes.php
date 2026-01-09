@@ -1513,6 +1513,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectPagesController();
         return $controller->content($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->post('/admin/pages/page-types', function (Request $request, Response $response) {
+        $controller = new ProjectPagesController();
+        return $controller->savePageTypes($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/cookies', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
         return $controller->cookies($request, $response);

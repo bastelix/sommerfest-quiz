@@ -65,6 +65,7 @@ class ConfigService
         'dashboardSponsorModules',
         'randomNameDomains',
         'randomNameTones',
+        'pageTypes',
     ];
 
     /**
@@ -94,6 +95,7 @@ class ConfigService
         'randomNameStrategy' => 'random_name_strategy',
         'effectsProfile' => 'effects_profile',
         'sliderProfile' => 'slider_profile',
+        'pageTypes' => 'page_types',
     ];
 
     /**
@@ -395,6 +397,7 @@ class ConfigService
             'randomNameBuffer',
             'randomNameLocale',
             'randomNameStrategy',
+            'pageTypes',
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
@@ -1127,6 +1130,7 @@ class ConfigService
             'dashboardVisibilityEnd',
             'dashboardShareToken',
             'dashboardSponsorToken',
+            'pageTypes',
             'effectsProfile',
             'sliderProfile',
         ];

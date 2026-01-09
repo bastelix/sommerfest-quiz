@@ -68,6 +68,9 @@
   <script>
     window.pageAppearance = {{ appearance|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
   </script>
+  <script>
+    window.pageDesignConfig = {{ design.config|default({})|json_encode(constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_HEX_TAG') b-or constant('JSON_HEX_APOS') b-or constant('JSON_HEX_AMP') b-or constant('JSON_HEX_QUOT'))|raw }};
+  </script>
   <script type="module" src="{{ basePath }}/js/tiptap-pages.js"></script>
 {% endblock %}
 
@@ -259,6 +262,171 @@
             </label>
           </div>
         </div>
+        {% set pageTypeDefaultsList = pageTypeDefaults|default([]) %}
+        {% set hasPageTypes = pageTypeDefaultsList is not empty %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <h3 class="uk-margin-remove-top">Page Types</h3>
+          <p class="uk-text-meta">
+            Definiere Standardwerte für Layout und Hintergrund je Page-Type. Diese Defaults steuern die Vorschau und
+            das Rendering der Marketing-Seiten.
+          </p>
+          {% if pageTypeFlash is defined and pageTypeFlash %}
+            <div class="uk-alert-{{ pageTypeFlash.type == 'success' ? 'success' : 'danger' }} uk-margin-small" uk-alert>
+              {{ pageTypeFlash.message|default('') }}
+            </div>
+          {% endif %}
+          {% set layoutLabels = { normal: 'Normal', full: 'Fullwidth', card: 'Card' } %}
+          {% set intentLabels = { content: 'Content', feature: 'Feature', highlight: 'Highlight', hero: 'Hero' } %}
+          {% set backgroundLabels = { surface: 'Surface', muted: 'Muted', primary: 'Primary', secondary: 'Secondary', accent: 'Accent' } %}
+          <form
+            class="uk-form-stacked"
+            method="post"
+            action="{{ basePath }}/admin/pages/page-types"
+            data-page-types-form
+            data-page-type-index="{{ pageTypeDefaultsList|length }}"
+          >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="namespace" value="{{ pageNamespace|e('html_attr') }}">
+            <div data-page-type-list>
+              <div class="uk-alert uk-alert-warning" data-page-type-empty {% if hasPageTypes %}hidden{% endif %}>
+                Noch keine Page Types definiert.
+              </div>
+              {% for entry in pageTypeDefaultsList %}
+                {% set sectionDefaults = entry.sectionStyleDefaults|default({}) %}
+                {% set backgroundDefaults = sectionDefaults.background|default({}) %}
+                {% set backgroundSelection = '' %}
+                {% if backgroundDefaults.mode|default('') == 'none' %}
+                  {% set backgroundSelection = 'none' %}
+                {% elseif backgroundDefaults.mode|default('') == 'color' and backgroundDefaults.colorToken is defined %}
+                  {% set backgroundSelection = backgroundDefaults.colorToken %}
+                {% endif %}
+                <div class="uk-card uk-card-muted uk-card-body uk-margin-small" data-page-type-row>
+                  <div class="uk-grid-small uk-flex-middle" uk-grid>
+                    <div class="uk-width-1-1 uk-width-1-4@m">
+                      <label class="uk-form-label" for="pageTypeName-{{ loop.index0 }}">Page Type</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="pageTypeName-{{ loop.index0 }}"
+                          class="uk-input"
+                          type="text"
+                          name="pageTypes[{{ loop.index0 }}][type]"
+                          value="{{ entry.type|e('html_attr') }}"
+                          required
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2 uk-width-1-4@m">
+                      <label class="uk-form-label" for="pageTypeLayout-{{ loop.index0 }}">Layout-Default</label>
+                      <div class="uk-form-controls">
+                        <select id="pageTypeLayout-{{ loop.index0 }}" class="uk-select" name="pageTypes[{{ loop.index0 }}][layout]">
+                          <option value="">Standard</option>
+                          {% for layout in pageTypeLayoutOptions|default([]) %}
+                            <option value="{{ layout }}" {% if sectionDefaults.layout|default('') == layout %}selected{% endif %}>
+                              {{ layoutLabels[layout]|default(layout) }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2 uk-width-1-4@m">
+                      <label class="uk-form-label" for="pageTypeBackground-{{ loop.index0 }}">Hintergrund-Token</label>
+                      <div class="uk-form-controls">
+                        <select
+                          id="pageTypeBackground-{{ loop.index0 }}"
+                          class="uk-select"
+                          name="pageTypes[{{ loop.index0 }}][backgroundToken]"
+                        >
+                          <option value="">Standard</option>
+                          <option value="none" {% if backgroundSelection == 'none' %}selected{% endif %}>Kein Hintergrund</option>
+                          {% for token in pageTypeBackgroundTokens|default([]) %}
+                            <option value="{{ token }}" {% if backgroundSelection == token %}selected{% endif %}>
+                              {{ backgroundLabels[token]|default(token) }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2 uk-width-1-4@m">
+                      <label class="uk-form-label" for="pageTypeIntent-{{ loop.index0 }}">Akzent (Intent)</label>
+                      <div class="uk-form-controls">
+                        <select id="pageTypeIntent-{{ loop.index0 }}" class="uk-select" name="pageTypes[{{ loop.index0 }}][intent]">
+                          <option value="">Standard</option>
+                          {% for intent in pageTypeIntentOptions|default([]) %}
+                            <option value="{{ intent }}" {% if sectionDefaults.intent|default('') == intent %}selected{% endif %}>
+                              {{ intentLabels[intent]|default(intent) }}
+                            </option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="uk-width-auto uk-flex uk-flex-bottom">
+                      <button type="button" class="uk-button uk-button-default" data-page-type-remove>Entfernen</button>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="uk-margin-small-top">
+              <button type="button" class="uk-button uk-button-default" data-page-type-add>Page Type hinzufügen</button>
+              <button type="submit" class="uk-button uk-button-primary uk-margin-small-left">Defaults speichern</button>
+            </div>
+            <template data-page-type-template>
+              <div class="uk-card uk-card-muted uk-card-body uk-margin-small" data-page-type-row>
+                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                  <div class="uk-width-1-1 uk-width-1-4@m">
+                    <label class="uk-form-label" for="pageTypeName-__INDEX__">Page Type</label>
+                    <div class="uk-form-controls">
+                      <input
+                        id="pageTypeName-__INDEX__"
+                        class="uk-input"
+                        type="text"
+                        name="pageTypes[__INDEX__][type]"
+                        required
+                      >
+                    </div>
+                  </div>
+                  <div class="uk-width-1-2 uk-width-1-4@m">
+                    <label class="uk-form-label" for="pageTypeLayout-__INDEX__">Layout-Default</label>
+                    <div class="uk-form-controls">
+                      <select id="pageTypeLayout-__INDEX__" class="uk-select" name="pageTypes[__INDEX__][layout]">
+                        <option value="">Standard</option>
+                        {% for layout in pageTypeLayoutOptions|default([]) %}
+                          <option value="{{ layout }}">{{ layoutLabels[layout]|default(layout) }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-2 uk-width-1-4@m">
+                    <label class="uk-form-label" for="pageTypeBackground-__INDEX__">Hintergrund-Token</label>
+                    <div class="uk-form-controls">
+                      <select id="pageTypeBackground-__INDEX__" class="uk-select" name="pageTypes[__INDEX__][backgroundToken]">
+                        <option value="">Standard</option>
+                        <option value="none">Kein Hintergrund</option>
+                        {% for token in pageTypeBackgroundTokens|default([]) %}
+                          <option value="{{ token }}">{{ backgroundLabels[token]|default(token) }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="uk-width-1-2 uk-width-1-4@m">
+                    <label class="uk-form-label" for="pageTypeIntent-__INDEX__">Akzent (Intent)</label>
+                    <div class="uk-form-controls">
+                      <select id="pageTypeIntent-__INDEX__" class="uk-select" name="pageTypes[__INDEX__][intent]">
+                        <option value="">Standard</option>
+                        {% for intent in pageTypeIntentOptions|default([]) %}
+                          <option value="{{ intent }}">{{ intentLabels[intent]|default(intent) }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="uk-width-auto uk-flex uk-flex-bottom">
+                    <button type="button" class="uk-button uk-button-default" data-page-type-remove>Entfernen</button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </form>
+        </div>
         <div id="pageFormsContainer">
           {% if pagesList is empty %}
             <div class="uk-alert uk-alert-warning pages-empty-alert">{{ t('text_no_marketing_pages') }}</div>
@@ -269,6 +437,7 @@
             data-slug="{{ page.slug }}"
             data-landing="{{ page.slug not in excludedLandingSlugs ? 'true' : 'false' }}"
             data-page-id="{{ page.id }}"
+            data-page-type="{{ page.type|default('')|e('html_attr') }}"
           >
             <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
             <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
