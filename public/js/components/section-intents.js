@@ -1,4 +1,4 @@
-export const SECTION_INTENTS = ['content', 'feature', 'highlight', 'hero'];
+export const SECTION_INTENTS = ['content', 'feature', 'highlight', 'hero', 'plain'];
 
 export const DEFAULT_SECTION_INTENT_BY_TYPE = {
   hero: 'hero',
@@ -14,7 +14,7 @@ export const DEFAULT_SECTION_INTENT_BY_TYPE = {
   cta: 'highlight',
   process_steps: 'content',
   rich_text: 'content',
-  faq: 'content'
+  faq: 'plain'
 };
 
 export function normalizeSectionIntent(intent) {

@@ -530,7 +530,8 @@
             "content",
             "feature",
             "highlight",
-            "hero"
+            "hero",
+            "plain"
           ]
         },
         "background": {

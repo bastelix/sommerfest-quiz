@@ -202,6 +202,11 @@ const SECTION_INTENT_OPTIONS = [
     value: 'content',
     label: 'Inhalt',
     description: 'Neutraler Flussbereich für erklärende Texte, FAQs und Prozesse.'
+  },
+  {
+    value: 'plain',
+    label: 'Einfach',
+    description: 'Schlanker Abschnitt ohne Kartenrahmen, ideal für FAQ-Listen.'
   }
 ];
 
@@ -1274,6 +1279,11 @@ function buildDefaultBlock(type, variant) {
       id: createId(),
       type: 'faq',
       variant,
+      meta: {
+        sectionStyle: {
+          intent: 'plain'
+        }
+      },
       data: {
         title: 'FAQ',
         items: [{ id: createId(), question: 'Frage', answer: 'Antwort' }],

@@ -350,6 +350,12 @@ const SECTION_INTENT_CONFIG = {
     innerClass: 'section__inner--panel',
     surfaceToken: 'surface'
   },
+  plain: {
+    sectionClass: 'uk-section-medium',
+    containerClass: '',
+    innerClass: '',
+    surfaceToken: 'surface'
+  },
   feature: {
     sectionClass: 'uk-section-large',
     containerClass: 'uk-container-large',
