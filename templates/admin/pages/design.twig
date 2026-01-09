@@ -304,6 +304,10 @@
                           Presets setzen die Marketing-Tokens für Primär-, Akzent- und Surface-Farben sowie die Textfarben
                           für Light- und Dark-Modus.
                         </p>
+                        <p class="uk-text-meta uk-margin-remove-top">
+                          Achte auf ausreichenden Kontrast zwischen Text, Surface und Primärfarben – die Lesbarkeit sollte
+                          mindestens WCAG AA erfüllen.
+                        </p>
                         <label class="uk-form-label" for="marketingScheme">Preset auswählen</label>
                         <div class="uk-form-controls">
                           <select
@@ -327,6 +331,83 @@
                         <div class="uk-text-meta uk-margin-small-top">
                           Die Auswahl wird als Marketing-Design im Namespace gespeichert.
                         </div>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="uk-accordion-title" href="#">Lesbarkeit &amp; Kontrast</a>
+                      <div class="uk-accordion-content">
+                        <p class="uk-text-meta uk-margin-remove-top">
+                          Prüfe, ob Textfarben auf Surface, Background und Primary mindestens WCAG AA (4,5:1) erreichen.
+                          AAA (7:1) ist ideal für besonders gut lesbare Inhalte.
+                        </p>
+                        <div class="design-contrast" data-contrast-panel>
+                          <div class="design-contrast__row" data-contrast-row="text-on-surface">
+                            <div>
+                              <div class="design-contrast__label">Text auf Surface</div>
+                              <div class="design-contrast__meta">Prüft Haupttext auf Surface-Flächen.</div>
+                            </div>
+                            <div class="design-contrast__metrics">
+                              <div class="design-contrast__ratio" data-contrast-ratio>–</div>
+                              <div class="design-contrast__badges">
+                                <span class="design-contrast__badge" data-contrast-aa>AA</span>
+                                <span class="design-contrast__badge" data-contrast-aaa>AAA</span>
+                              </div>
+                            </div>
+                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                          </div>
+                          <div class="design-contrast__row" data-contrast-row="text-on-background">
+                            <div>
+                              <div class="design-contrast__label">Text auf Background</div>
+                              <div class="design-contrast__meta">Prüft Fließtext auf Seitenhintergrund.</div>
+                            </div>
+                            <div class="design-contrast__metrics">
+                              <div class="design-contrast__ratio" data-contrast-ratio>–</div>
+                              <div class="design-contrast__badges">
+                                <span class="design-contrast__badge" data-contrast-aa>AA</span>
+                                <span class="design-contrast__badge" data-contrast-aaa>AAA</span>
+                              </div>
+                            </div>
+                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                          </div>
+                          <div class="design-contrast__row" data-contrast-row="text-on-primary">
+                            <div>
+                              <div class="design-contrast__label">Text auf Primary</div>
+                              <div class="design-contrast__meta">Prüft Kontrast für Buttons/CTAs.</div>
+                            </div>
+                            <div class="design-contrast__metrics">
+                              <div class="design-contrast__ratio" data-contrast-ratio>–</div>
+                              <div class="design-contrast__badges">
+                                <span class="design-contrast__badge" data-contrast-aa>AA</span>
+                                <span class="design-contrast__badge" data-contrast-aaa>AAA</span>
+                              </div>
+                            </div>
+                            <button type="button" class="uk-button uk-button-default uk-button-small" data-contrast-fix>Auto-Fix</button>
+                          </div>
+                        </div>
+                        {% set textOnSurfaceValue = appearanceColors.textOnSurface|default('') %}
+                        {% set textOnBackgroundValue = appearanceColors.textOnBackground|default('') %}
+                        {% set textOnPrimaryValue = appearanceColors.textOnPrimary|default('') %}
+                        <input
+                          type="hidden"
+                          name="appearance[variables][textOnSurface]"
+                          value="{{ textOnSurfaceValue|e('html_attr') }}"
+                          data-contrast-input="text-on-surface"
+                          {% if textOnSurfaceValue is empty %}disabled{% endif %}
+                        >
+                        <input
+                          type="hidden"
+                          name="appearance[variables][textOnBackground]"
+                          value="{{ textOnBackgroundValue|e('html_attr') }}"
+                          data-contrast-input="text-on-background"
+                          {% if textOnBackgroundValue is empty %}disabled{% endif %}
+                        >
+                        <input
+                          type="hidden"
+                          name="appearance[variables][textOnPrimary]"
+                          value="{{ textOnPrimaryValue|e('html_attr') }}"
+                          data-contrast-input="text-on-primary"
+                          {% if textOnPrimaryValue is empty %}disabled{% endif %}
+                        >
                       </div>
                     </li>
                     <li>

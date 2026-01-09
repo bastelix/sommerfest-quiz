@@ -126,6 +126,228 @@
     }
   };
 
+  let refreshContrastChecks = () => {};
+
+  const parseColor = value => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (trimmed === '' || trimmed.startsWith('var(')) {
+      return null;
+    }
+    const hexMatch = trimmed.match(/^#([0-9a-f]{3,8})$/i);
+    if (hexMatch) {
+      const hex = hexMatch[1];
+      if (hex.length === 3 || hex.length === 4) {
+        const r = parseInt(hex[0] + hex[0], 16);
+        const g = parseInt(hex[1] + hex[1], 16);
+        const b = parseInt(hex[2] + hex[2], 16);
+        return { r, g, b };
+      }
+      if (hex.length >= 6) {
+        const r = parseInt(hex.slice(0, 2), 16);
+        const g = parseInt(hex.slice(2, 4), 16);
+        const b = parseInt(hex.slice(4, 6), 16);
+        return { r, g, b };
+      }
+    }
+    const rgbMatch = trimmed.match(/^rgba?\((.+)\)$/i);
+    if (rgbMatch) {
+      const parts = rgbMatch[1].split(/[\s,\/]+/).filter(Boolean);
+      if (parts.length >= 3) {
+        const toChannel = part => {
+          if (part.endsWith('%')) {
+            return Math.round((parseFloat(part) / 100) * 255);
+          }
+          return Math.round(parseFloat(part));
+        };
+        const r = toChannel(parts[0]);
+        const g = toChannel(parts[1]);
+        const b = toChannel(parts[2]);
+        if ([r, g, b].every(channel => !Number.isNaN(channel))) {
+          return { r, g, b };
+        }
+      }
+    }
+    return null;
+  };
+
+  const formatHex = ({ r, g, b }) => {
+    const toHex = channel => Math.max(0, Math.min(255, Math.round(channel))).toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toLowerCase();
+  };
+
+  const relativeLuminance = ({ r, g, b }) => {
+    const srgb = [r, g, b].map(channel => {
+      const normalized = channel / 255;
+      return normalized <= 0.03928
+        ? normalized / 12.92
+        : Math.pow((normalized + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+  };
+
+  const contrastRatio = (foreground, background) => {
+    const lum1 = relativeLuminance(foreground);
+    const lum2 = relativeLuminance(background);
+    const lighter = Math.max(lum1, lum2);
+    const darker = Math.min(lum1, lum2);
+    return (lighter + 0.05) / (darker + 0.05);
+  };
+
+  const resolveCssValue = (style, names) => {
+    for (const name of names) {
+      const value = style.getPropertyValue(name).trim();
+      if (value) {
+        return value;
+      }
+    }
+    return null;
+  };
+
+  const initContrastControls = () => {
+    const panel = editor.querySelector('[data-contrast-panel]');
+    if (!panel || !preview) return;
+
+    const inputMap = {};
+    editor.querySelectorAll('[data-contrast-input]').forEach(input => {
+      if (input instanceof HTMLInputElement && input.dataset.contrastInput) {
+        inputMap[input.dataset.contrastInput] = input;
+      }
+    });
+
+    const targets = {
+      'text-on-surface': {
+        textVars: ['--marketing-text-on-surface', '--text-on-surface', '--marketing-text'],
+        backgroundVars: ['--marketing-surface', '--surface', '--bg-subtle', '--preview-surface-bg'],
+        applyVars: ['--marketing-text-on-surface', '--text-on-surface'],
+      },
+      'text-on-background': {
+        textVars: ['--marketing-text-on-background', '--text-on-background', '--marketing-text'],
+        backgroundVars: ['--marketing-background', '--surface-page', '--bg-page', '--marketing-surface'],
+        applyVars: ['--marketing-text-on-background', '--text-on-background'],
+      },
+      'text-on-primary': {
+        textVars: ['--marketing-text-on-primary', '--marketing-on-accent', '--text-on-primary'],
+        backgroundVars: ['--marketing-primary', '--brand-primary'],
+        applyVars: ['--marketing-on-accent', '--marketing-text-on-primary', '--text-on-primary'],
+      },
+    };
+
+    const applyOverridesFromInputs = () => {
+      Object.entries(inputMap).forEach(([key, input]) => {
+        if (!input.value || input.disabled) {
+          return;
+        }
+        const config = targets[key];
+        if (!config) return;
+        config.applyVars.forEach(variable => {
+          preview.style.setProperty(variable, input.value);
+        });
+      });
+    };
+
+    const updateRow = (row, config) => {
+      const style = getComputedStyle(preview);
+      const textValue = resolveCssValue(style, config.textVars);
+      const backgroundValue = resolveCssValue(style, config.backgroundVars);
+      const ratioElement = row.querySelector('[data-contrast-ratio]');
+      const aaBadge = row.querySelector('[data-contrast-aa]');
+      const aaaBadge = row.querySelector('[data-contrast-aaa]');
+      const fixButton = row.querySelector('[data-contrast-fix]');
+
+      const textColor = parseColor(textValue);
+      const backgroundColor = parseColor(backgroundValue);
+
+      if (!textColor || !backgroundColor) {
+        if (ratioElement) ratioElement.textContent = '–';
+        if (aaBadge) {
+          aaBadge.textContent = 'AA n/a';
+          aaBadge.classList.remove('design-contrast__badge--warn');
+          aaBadge.classList.add('design-contrast__badge--muted');
+        }
+        if (aaaBadge) {
+          aaaBadge.textContent = 'AAA n/a';
+          aaaBadge.classList.remove('design-contrast__badge--warn');
+          aaaBadge.classList.add('design-contrast__badge--muted');
+        }
+        row.classList.remove('design-contrast__row--warn');
+        if (fixButton instanceof HTMLButtonElement) {
+          fixButton.disabled = true;
+        }
+        return;
+      }
+
+      const ratio = contrastRatio(textColor, backgroundColor);
+      if (ratioElement) {
+        ratioElement.textContent = `${ratio.toFixed(2)}:1`;
+      }
+
+      const meetsAA = ratio >= 4.5;
+      const meetsAAA = ratio >= 7;
+
+      if (aaBadge) {
+        aaBadge.textContent = meetsAA ? 'AA ✓' : 'AA ✕';
+        aaBadge.classList.toggle('design-contrast__badge--warn', !meetsAA);
+        aaBadge.classList.toggle('design-contrast__badge--muted', false);
+      }
+      if (aaaBadge) {
+        aaaBadge.textContent = meetsAAA ? 'AAA ✓' : 'AAA ✕';
+        aaaBadge.classList.toggle('design-contrast__badge--warn', !meetsAAA);
+        aaaBadge.classList.toggle('design-contrast__badge--muted', false);
+      }
+      row.classList.toggle('design-contrast__row--warn', !meetsAA);
+      if (fixButton instanceof HTMLButtonElement) {
+        fixButton.disabled = meetsAA;
+      }
+    };
+
+    const rows = Array.from(panel.querySelectorAll('[data-contrast-row]'));
+    rows.forEach(row => {
+      const key = row.dataset.contrastRow;
+      const config = key ? targets[key] : null;
+      if (!config) return;
+      const fixButton = row.querySelector('[data-contrast-fix]');
+      if (fixButton instanceof HTMLButtonElement) {
+        fixButton.addEventListener('click', () => {
+          const style = getComputedStyle(preview);
+          const backgroundValue = resolveCssValue(style, config.backgroundVars);
+          const backgroundColor = parseColor(backgroundValue);
+          if (!backgroundColor) {
+            return;
+          }
+          const black = { r: 0, g: 0, b: 0 };
+          const white = { r: 255, g: 255, b: 255 };
+          const blackRatio = contrastRatio(black, backgroundColor);
+          const whiteRatio = contrastRatio(white, backgroundColor);
+          const chosen = blackRatio >= whiteRatio ? black : white;
+          const hex = formatHex(chosen);
+          config.applyVars.forEach(variable => {
+            preview.style.setProperty(variable, hex);
+          });
+          const input = inputMap[key];
+          if (input instanceof HTMLInputElement) {
+            input.value = hex;
+            input.disabled = false;
+          }
+          refreshContrastChecks();
+        });
+      }
+    });
+
+    refreshContrastChecks = () => {
+      applyOverridesFromInputs();
+      rows.forEach(row => {
+        const key = row.dataset.contrastRow;
+        const config = key ? targets[key] : null;
+        if (config) {
+          updateRow(row, config);
+        }
+      });
+    };
+
+    refreshContrastChecks();
+  };
+
   const applyTokensToPreview = () => {
     if (!preview) return;
     const tokens = resolveTokens();
@@ -150,6 +372,7 @@
 
     updateMeta('layout', preview.dataset.layoutProfile);
     updateMeta('typography', preview.dataset.typographyPreset);
+    refreshContrastChecks();
   };
 
   const applyMarketingSchemeToPreview = schemeKey => {
@@ -157,6 +380,7 @@
     const scheme = marketingSchemes[schemeKey];
     if (!scheme) {
       marketingTokenKeys.forEach(token => preview.style.removeProperty(token));
+      refreshContrastChecks();
       return;
     }
     preview.style.setProperty('--marketing-primary', scheme.primary);
@@ -174,6 +398,7 @@
     preview.style.setProperty('--marketing-text-on-background-dark', scheme.textOnBackgroundDark);
     preview.style.setProperty('--marketing-text-muted-on-surface-dark', scheme.textMutedOnSurfaceDark);
     preview.style.setProperty('--marketing-text-muted-on-background-dark', scheme.textMutedOnBackgroundDark);
+    refreshContrastChecks();
   };
 
   const applyEffectsToPreview = () => {
@@ -214,6 +439,7 @@
       const normalized = theme === 'dark' ? 'dark' : 'light';
       preview.dataset.theme = normalized;
       updateToggleState(toggle, 'theme', normalized);
+      refreshContrastChecks();
     };
 
     toggle.addEventListener('click', event => {
@@ -382,5 +608,6 @@
   initEffectsInputs();
   initNamespaceSelect();
   initMarketingSchemeSelect();
+  initContrastControls();
   initTabs();
 })();
