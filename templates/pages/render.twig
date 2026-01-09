@@ -72,6 +72,7 @@
 
   {% if cmsChatEnabled %}
     {% include 'marketing/partials/marketing-chat.twig' %}
+  {% endif %}
   {% if cookieConsentEnabled %}
     {% include 'marketing/partials/cookie-consent.twig' with {
       privacyUrl: privacyUrl,
@@ -103,6 +104,7 @@
       };
     </script>
     <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
+  {% endif %}
   {% if cookieConsentEnabled %}
     <script>
       window.cookieConsentConfig = {{ cookieConsent|json_encode|raw }};
