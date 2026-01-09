@@ -208,6 +208,74 @@ const parseDatasetJson = (value, fallback = []) => {
   }
 };
 
+const initPageTypeDefaultsForm = () => {
+  const form = document.querySelector('[data-page-types-form]');
+  if (!form) {
+    return;
+  }
+
+  const list = form.querySelector('[data-page-type-list]');
+  const template = form.querySelector('[data-page-type-template]');
+  const addBtn = form.querySelector('[data-page-type-add]');
+  const emptyState = form.querySelector('[data-page-type-empty]');
+
+  if (!list || !template) {
+    return;
+  }
+
+  const resolveNextIndex = () => {
+    const current = Number.parseInt(form.dataset.pageTypeIndex || '0', 10);
+    const next = Number.isNaN(current) ? 0 : current;
+    form.dataset.pageTypeIndex = String(next + 1);
+    return next;
+  };
+
+  const updateEmptyState = () => {
+    if (!emptyState) {
+      return;
+    }
+    const hasRows = list.querySelectorAll('[data-page-type-row]').length > 0;
+    emptyState.hidden = hasRows;
+  };
+
+  const addRow = () => {
+    const index = resolveNextIndex();
+    const html = template.innerHTML.replace(/__INDEX__/g, String(index));
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html.trim();
+    const row = wrapper.firstElementChild;
+    if (row) {
+      list.append(row);
+      updateEmptyState();
+      const input = row.querySelector('input[type="text"]');
+      if (input) {
+        input.focus();
+      }
+    }
+  };
+
+  addBtn?.addEventListener('click', event => {
+    event.preventDefault();
+    addRow();
+  });
+
+  form.addEventListener('click', event => {
+    const target = event.target instanceof Element ? event.target : null;
+    const removeBtn = target?.closest?.('[data-page-type-remove]');
+    if (!removeBtn) {
+      return;
+    }
+    event.preventDefault();
+    const row = removeBtn.closest('[data-page-type-row]');
+    if (row) {
+      row.remove();
+      updateEmptyState();
+    }
+  });
+
+  updateEmptyState();
+};
+
 const normalizeTreeNamespace = (namespace) => (namespace || 'default').trim() || 'default';
 
 const normalizeTreePosition = value => {
@@ -11391,6 +11459,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
+  initPageTypeDefaultsForm();
   initProjectTree();
   initBackupDropdowns(backupTableBody);
   loadBackups();

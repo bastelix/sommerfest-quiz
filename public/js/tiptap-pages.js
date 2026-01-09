@@ -602,6 +602,7 @@ const attachBlockPreview = (form, editor) => {
   let preview = null;
 
   try {
+    const pageContext = resolvePageContextForForm(form);
     preview = new PreviewCanvas(slots.previewRoot, {
       renderSelectionOnly: false,
       onSelect: blockId => {
@@ -610,7 +611,8 @@ const attachBlockPreview = (form, editor) => {
         }
       },
       onInlineEdit: payload => (typeof editor.applyInlineEdit === 'function' ? editor.applyInlineEdit(payload) : false),
-      intent: slots.previewPane?.dataset.previewIntent || 'edit'
+      intent: slots.previewPane?.dataset.previewIntent || 'edit',
+      pageContext
     });
   } catch (error) {
     notify(error?.message || 'Live-Vorschau konnte nicht initialisiert werden.', 'warning');
@@ -666,6 +668,27 @@ const USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
 
 const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
+
+const resolvePageTypeDefaults = (pageType) => {
+  if (!pageType) {
+    return {};
+  }
+  const config = window.pageDesignConfig && typeof window.pageDesignConfig === 'object'
+    ? window.pageDesignConfig.pageTypes
+    : window.pageTypeConfig;
+  if (!config || typeof config !== 'object') {
+    return {};
+  }
+  const entry = config[pageType];
+  const sectionStyleDefaults = entry?.sectionStyleDefaults;
+  return sectionStyleDefaults && typeof sectionStyleDefaults === 'object' ? sectionStyleDefaults : {};
+};
+
+const resolvePageContextForForm = (form) => {
+  const pageType = (form?.dataset?.pageType || '').trim();
+  const sectionStyleDefaults = resolvePageTypeDefaults(pageType);
+  return { sectionStyleDefaults };
+};
 
 const buildPagePreviewUrl = slug => {
   const safeSlug = typeof slug === 'string' ? slug.trim() : '';
@@ -2169,6 +2192,9 @@ const buildPageForm = page => {
   if (page?.id) {
     form.dataset.pageId = String(page.id);
   }
+  if (page?.type) {
+    form.dataset.pageType = String(page.type);
+  }
 
   const hiddenInput = document.createElement('input');
   hiddenInput.type = 'hidden';
@@ -3448,6 +3474,7 @@ export async function showPreview(formOverride = null, options = {}) {
     rendererMatrix: RENDERER_MATRIX,
     context: 'preview',
     appearance,
+    page: resolvePageContextForForm(activeForm),
   };
   const html = USE_BLOCK_EDITOR
     ? renderPage(Array.isArray(blocks) ? blocks : [], rendererOptions)
