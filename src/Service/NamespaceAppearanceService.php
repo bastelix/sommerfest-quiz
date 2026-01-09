@@ -59,6 +59,7 @@ class NamespaceAppearanceService
         $muted = $this->pickColor($colors, 'muted', 'surfaceMuted');
         $topbarLight = $this->pickColor($colors, 'topbar_light', 'topbarLight');
         $topbarDark = $this->pickColor($colors, 'topbar_dark', 'topbarDark');
+        $marketingScheme = $this->pickColor($colors, 'marketingScheme', 'marketing_scheme');
 
         $normalizedColors = array_filter([
             'surface' => $surface,
@@ -75,6 +76,7 @@ class NamespaceAppearanceService
             'surfaceMuted' => $muted,
             'topbarLight' => $topbarLight,
             'topbarDark' => $topbarDark,
+            'marketingScheme' => $marketingScheme,
         ], static fn (?string $value): bool => $value !== null && $value !== '');
 
         return [

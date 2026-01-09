@@ -41,6 +41,13 @@ class PagesDesignController
         $designService = $this->getDesignService($request);
         $tokens = $designService->getTokensForNamespace($namespace);
         $defaults = $designService->getDefaults();
+        $config = $this->configService->getConfigForEvent($namespace);
+        $marketingScheme = null;
+        if (is_array($config['colors'] ?? null)) {
+            $marketingScheme = $config['colors']['marketingScheme']
+                ?? $config['colors']['marketing_scheme']
+                ?? null;
+        }
         $effectsService = new EffectsPolicyService($this->configService);
         $effectsDefaults = $effectsService->getDefaults();
         $effects = $effectsService->getEffectsForNamespace($namespace);
@@ -61,6 +68,7 @@ class PagesDesignController
             'pageNamespace' => $namespace,
             'tokens' => $tokens,
             'tokenDefaults' => $defaults,
+            'marketingScheme' => $marketingScheme,
             'effects' => $effects,
             'effectsDefaults' => $effectsDefaults,
             'effectsProfiles' => $effectsService->getProfiles(),
@@ -110,6 +118,7 @@ class PagesDesignController
             $message = 'Verhalten-Einstellungen gespeichert.';
         } else {
             $incoming = $this->extractTokens($parsedBody);
+            [$hasMarketingScheme, $marketingScheme] = $this->extractMarketingScheme($parsedBody);
             $tokensToPersist = $currentTokens;
             foreach ($incoming as $group => $values) {
                 if (!array_key_exists($group, $tokensToPersist)) {
@@ -133,6 +142,20 @@ class PagesDesignController
             }
 
             $designService->persistTokens($namespace, $tokensToPersist);
+            if ($hasMarketingScheme) {
+                $config = $this->configService->getConfigForEvent($namespace);
+                $colors = is_array($config['colors'] ?? null) ? $config['colors'] : [];
+                if ($marketingScheme === null) {
+                    unset($colors['marketingScheme'], $colors['marketing_scheme']);
+                } else {
+                    $colors['marketingScheme'] = $marketingScheme;
+                    unset($colors['marketing_scheme']);
+                }
+                $this->configService->saveConfig([
+                    'event_uid' => $namespace,
+                    'colors' => $colors,
+                ]);
+            }
             $message = 'Design-Einstellungen gespeichert.';
         }
 
@@ -317,6 +340,27 @@ class PagesDesignController
         }
 
         return $tokens;
+    }
+
+    /**
+     * @param array<string, mixed> $parsedBody
+     * @return array{0: bool, 1: ?string}
+     */
+    private function extractMarketingScheme(array $parsedBody): array
+    {
+        $appearance = $parsedBody['appearance'] ?? null;
+        if (!is_array($appearance)) {
+            return [false, null];
+        }
+        $variables = $appearance['variables'] ?? null;
+        if (!is_array($variables)) {
+            return [false, null];
+        }
+        if (!array_key_exists('marketingScheme', $variables)) {
+            return [false, null];
+        }
+
+        return [true, $this->sanitizeString($variables['marketingScheme'])];
     }
 
     /**
