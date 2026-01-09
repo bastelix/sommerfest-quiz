@@ -396,15 +396,23 @@ function resolveAppearanceValue(token, fallback) {
 function resolveSectionIntentPreset(block) {
   const { intent, isExplicit } = resolveSectionIntentInfo(block);
   const basePreset = SECTION_INTENT_CONFIG[intent] || SECTION_INTENT_CONFIG.content;
+  const activeAppearance = resolveActiveAppearance();
   const surface = resolveAppearanceValue(basePreset.surfaceToken, DEFAULT_APPEARANCE.colors[basePreset.surfaceToken]);
   const textColor = basePreset.textToken
     ? resolveAppearanceValue(basePreset.textToken.token, basePreset.textToken.fallback)
     : undefined;
+  const sectionDefaultSurface = activeAppearance?.variables?.sectionDefaultSurface
+    || activeAppearance?.colors?.sectionDefaultSurface;
   const styleVariables = [];
 
   if (isExplicit && surface) {
     styleVariables.push(`--section-surface:${surface}`);
     styleVariables.push(`--section-bg-color:${surface}`);
+  }
+
+  if (!isExplicit && sectionDefaultSurface) {
+    styleVariables.push('--section-surface:var(--section-default-surface)');
+    styleVariables.push('--section-bg-color:var(--section-default-surface)');
   }
 
   if (isExplicit && textColor) {
