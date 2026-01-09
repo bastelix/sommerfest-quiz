@@ -315,11 +315,19 @@ body.page-render .qr-page-renderer table {
   width: 100%;
 }
 .marketing-page .uk-section { background: var(--section-bg-color, var(--section-surface, transparent)); }
-.marketing-page .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
+.marketing-page .section--alt,
+.marketing-page .uk-section-muted {
+  --section-surface: var(--section-default-muted, var(--surface-muted, var(--marketing-surface-muted)));
+  --section-bg-color: var(--section-surface);
+  background: var(--section-bg-color);
+  color: var(--qr-fg);
+}
 
 .section {
   --section-padding-outer: var(--section-padding-tight);
   --section-padding-inner: var(--section-padding);
+  --section-surface: var(--section-default-surface, var(--surface-section, var(--surface)));
+  --section-bg-color: var(--section-surface);
   --section-bg-overlay: 0;
   --section-overlay-color: color-mix(in srgb, var(--color-text, var(--marketing-ink)) 16%, transparent);
   --section-text-color: var(--color-text, inherit);
