@@ -791,11 +791,35 @@ if (manager) {
       return list;
     };
 
+    const renderHamburgerPreview = nodes => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'menu-preview__hamburger';
+
+      const header = document.createElement('div');
+      header.className = 'uk-flex uk-flex-middle uk-margin-small-bottom';
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'uk-button uk-button-default uk-button-small';
+      toggle.setAttribute('aria-label', 'Menü öffnen');
+      toggle.textContent = '☰';
+
+      header.appendChild(toggle);
+      wrapper.appendChild(header);
+
+      const panel = document.createElement('div');
+      panel.className = 'uk-border-rounded uk-padding-small uk-background-muted';
+      panel.appendChild(renderBranch(nodes, null));
+      wrapper.appendChild(panel);
+
+      return wrapper;
+    };
+
     if (!roots.length) {
       if (previewEmpty) {
         previewEmpty.hidden = false;
       }
-      previewTree.appendChild(renderBranch([], null));
+      previewTree.appendChild(renderHamburgerPreview([]));
       updateSummary();
       return;
     }
@@ -804,7 +828,7 @@ if (manager) {
       previewEmpty.hidden = true;
     }
 
-    const tree = renderBranch(roots, null);
+    const tree = renderHamburgerPreview(roots);
     previewTree.appendChild(tree);
     updateSummary();
   };

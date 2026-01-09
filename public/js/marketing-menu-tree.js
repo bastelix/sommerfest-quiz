@@ -276,33 +276,6 @@ if (container) {
       return href;
     };
 
-    const resolveVariantColumns = variant => {
-      const option = state.variantOptions.find(entry => entry?.value === variant);
-      if (option && Number.isFinite(Number(option.columns))) {
-        const parsed = Number(option.columns);
-        return parsed > 0 ? parsed : 1;
-      }
-      const match = String(variant || '').match(/_(\d+)/);
-      if (match) {
-        const parsed = Number(match[1]);
-        if (Number.isFinite(parsed) && parsed > 0) {
-          return parsed;
-        }
-      }
-      return 1;
-    };
-
-    const splitIntoColumns = (nodes, columnCount) => {
-      if (!columnCount || columnCount <= 1) {
-        return [nodes];
-      }
-      const columns = Array.from({ length: columnCount }, () => []);
-      nodes.forEach((node, index) => {
-        columns[index % columnCount].push(node);
-      });
-      return columns;
-    };
-
     const renderPreview = items => {
       if (!previewTree) {
         return;
@@ -378,11 +351,35 @@ if (container) {
         return list;
       };
 
+      const renderHamburgerPreview = nodes => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'menu-preview__hamburger';
+
+        const header = document.createElement('div');
+        header.className = 'uk-flex uk-flex-middle uk-margin-small-bottom';
+
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'uk-button uk-button-default uk-button-small';
+        toggle.setAttribute('aria-label', 'Menü öffnen');
+        toggle.textContent = '☰';
+
+        header.appendChild(toggle);
+        wrapper.appendChild(header);
+
+        const panel = document.createElement('div');
+        panel.className = 'uk-border-rounded uk-padding-small uk-background-muted';
+        panel.appendChild(renderBranch(nodes, null));
+        wrapper.appendChild(panel);
+
+        return wrapper;
+      };
+
       if (!roots.length) {
         if (previewEmpty) {
           previewEmpty.hidden = false;
         }
-        previewTree.appendChild(renderBranch([], null));
+        previewTree.appendChild(renderHamburgerPreview([]));
         updateSummary();
         return;
       }
@@ -391,28 +388,7 @@ if (container) {
         previewEmpty.hidden = true;
       }
 
-      const columnCount = resolveVariantColumns(state.variant);
-      const columns = splitIntoColumns(roots, columnCount);
-
-      const grid = document.createElement('div');
-      if (columnCount > 1) {
-        grid.style.display = 'grid';
-        grid.style.gridTemplateColumns = `repeat(${columnCount}, minmax(0, 1fr))`;
-        grid.style.gap = '12px';
-      }
-
-      columns.forEach((nodes, index) => {
-        const column = document.createElement('div');
-        column.className = 'menu-preview__column';
-        const heading = document.createElement('div');
-        heading.className = 'uk-text-meta uk-margin-small-bottom';
-        heading.textContent = columnCount > 1 ? `Spalte ${index + 1}` : 'Navigation';
-        column.appendChild(heading);
-        column.appendChild(renderBranch(nodes, null));
-        grid.appendChild(column);
-      });
-
-      previewTree.appendChild(grid);
+      previewTree.appendChild(renderHamburgerPreview(roots));
       updateSummary();
     };
 
