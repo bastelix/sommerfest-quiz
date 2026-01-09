@@ -132,6 +132,11 @@ class PageController
             $pdo = Database::connectFromEnv();
         }
 
+        $this->pages = new PageService($pdo);
+        $this->seo = new PageSeoConfigService($pdo, null, null, null, null, $this->pages);
+        $this->pageModules = new PageModuleService($pdo, $this->pages);
+        $this->cmsMenu = new CmsPageMenuService($pdo, $this->pages);
+
         $resolvedNamespace = (string) ($request->getAttribute('namespace') ?? '');
         if ($resolvedNamespace === '') {
             $namespaceContext = $this->namespaceResolver->resolve($request);

@@ -18,6 +18,8 @@
 {% set logoLabel = logoSettings.label|default(pageTitle|default('QuizRace')) %}
 {% set logoAlt = logoSettings.alt|default(logoLabel) %}
 {% set cmsChatEnabled = (cmsChatEndpoint is defined and cmsChatEndpoint) or (featureFlags.chatEndpoint|default(false) == true) %}
+{% set cookieConsent = cookieConsentConfig|default({}) %}
+{% set cookieConsentEnabled = cookieConsent.enabled|default(false) %}
 
 {% block body_theme %}
   {{ pageTheme|default('light') }}
@@ -70,6 +72,11 @@
 
   {% if cmsChatEnabled %}
     {% include 'marketing/partials/marketing-chat.twig' %}
+  {% if cookieConsentEnabled %}
+    {% include 'marketing/partials/cookie-consent.twig' with {
+      privacyUrl: privacyUrl,
+      cookieConsentConfig: cookieConsent
+    } %}
   {% endif %}
 {% endblock %}
 
@@ -96,5 +103,11 @@
       };
     </script>
     <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
+  {% if cookieConsentEnabled %}
+    <script>
+      window.cookieConsentConfig = {{ cookieConsent|json_encode|raw }};
+    </script>
+    <script src="{{ basePath }}/js/marketing-cookie.js" defer></script>
+    <script src="{{ basePath }}/js/marketing-consent.js" defer></script>
   {% endif %}
 {% endblock %}

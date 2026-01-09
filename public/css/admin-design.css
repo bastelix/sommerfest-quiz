@@ -383,6 +383,77 @@
   font-weight: 600;
 }
 
+.design-contrast {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.design-contrast__row {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border-muted, #e5e7eb);
+  background: var(--bg-subtle, #f8fafc);
+  box-sizing: border-box;
+}
+
+.design-contrast__row--warn {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(254, 242, 242, 0.8);
+}
+
+.design-contrast__label {
+  font-weight: 600;
+}
+
+.design-contrast__meta {
+  font-size: 13px;
+  color: var(--text-secondary, #4b5563);
+}
+
+.design-contrast__metrics {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.design-contrast__ratio {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.design-contrast__badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.design-contrast__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.16);
+  color: #047857;
+}
+
+.design-contrast__badge--warn {
+  background: rgba(239, 68, 68, 0.16);
+  color: #b91c1c;
+}
+
+.design-contrast__badge--muted {
+  background: rgba(148, 163, 184, 0.2);
+  color: #475569;
+}
+
 .design-preview__viewport[data-effects-profile="quizrace.marketing"] .design-preview__surface {
   animation: pulse-highlight 3s infinite;
 }
