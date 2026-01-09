@@ -496,7 +496,7 @@ VALUES (
     <div class="uk-container">
       <h2 class="uk-heading-medium uk-text-center text-black" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
       <p class="uk-text-center uk-text-lead uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-fade; delay: 150">Einfacher Start – faire Preise – alle Abos 7 Tage kostenlos testen!</p>
-      <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center uk-grid-match pricing-grid" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
+      <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center pricing-grid" uk-grid uk-grid-match="target: > div" uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
       <!-- Starter -->
       <div>
         <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
