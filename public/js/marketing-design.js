@@ -6,6 +6,54 @@ const DEFAULT_SURFACE_DARK = '#0f172a';
 const DEFAULT_SURFACE_MUTED_DARK = '#111827';
 const DEFAULT_CARD_DARK = '#0b1728';
 
+const MARKETING_SCHEMES = {
+  aurora: {
+    primary: '#0ea5e9',
+    accent: '#22c55e',
+    surface: '#f8fafc',
+    background: '#eef2ff',
+    onAccent: '#ffffff',
+    textOnSurface: '#0f172a',
+    textOnBackground: '#0f172a',
+    textMutedOnSurface: '#475569',
+    textMutedOnBackground: '#475569',
+    textOnSurfaceDark: '#f8fafc',
+    textOnBackgroundDark: '#f8fafc',
+    textMutedOnSurfaceDark: '#cbd5e1',
+    textMutedOnBackgroundDark: '#cbd5e1',
+  },
+  sunset: {
+    primary: '#f97316',
+    accent: '#ec4899',
+    surface: '#fff7ed',
+    background: '#ffedd5',
+    onAccent: '#1f2937',
+    textOnSurface: '#1f2937',
+    textOnBackground: '#1f2937',
+    textMutedOnSurface: '#6b7280',
+    textMutedOnBackground: '#6b7280',
+    textOnSurfaceDark: '#f8fafc',
+    textOnBackgroundDark: '#f8fafc',
+    textMutedOnSurfaceDark: '#cbd5e1',
+    textMutedOnBackgroundDark: '#cbd5e1',
+  },
+  midnight: {
+    primary: '#6366f1',
+    accent: '#14b8a6',
+    surface: '#0f172a',
+    background: '#020617',
+    onAccent: '#f8fafc',
+    textOnSurface: '#e2e8f0',
+    textOnBackground: '#e2e8f0',
+    textMutedOnSurface: '#94a3b8',
+    textMutedOnBackground: '#94a3b8',
+    textOnSurfaceDark: '#f8fafc',
+    textOnBackgroundDark: '#f8fafc',
+    textMutedOnSurfaceDark: '#cbd5e1',
+    textMutedOnBackgroundDark: '#cbd5e1',
+  },
+};
+
 const parseJson = value => {
   if (!value || typeof value !== 'string') {
     return null;
@@ -102,6 +150,11 @@ const applyMarketingDesign = () => {
     '--marketing-surface',
     resolveFallbackToken(root, '--surface', resolveFallbackToken(root, '--surface-card', DEFAULT_SURFACE)),
   );
+  const fallbackBackground = resolveFallbackToken(
+    root,
+    '--marketing-background',
+    resolveFallbackToken(root, '--bg-page', fallbackSurface),
+  );
   const fallbackMuted = resolveFallbackToken(
     root,
     '--marketing-surface-muted',
@@ -178,8 +231,17 @@ const applyMarketingDesign = () => {
     resolveFallbackToken(root, '--text-on-primary', ''),
   );
 
-  const primary = configColors.primary || colors.primary || brand.primary || fallbackPrimary;
+  const marketingScheme = variables.marketingScheme || variables.marketing_scheme || colors.marketingScheme || colors.marketing_scheme;
+  const marketingSchemeValues = marketingScheme ? MARKETING_SCHEMES[marketingScheme] : null;
+
+  const primary =
+    marketingSchemeValues?.primary ||
+    configColors.primary ||
+    colors.primary ||
+    brand.primary ||
+    fallbackPrimary;
   const accent =
+    marketingSchemeValues?.accent ||
     configColors.accent ||
     configColors.secondary ||
     colors.accent ||
@@ -187,6 +249,7 @@ const applyMarketingDesign = () => {
     brand.accent ||
     fallbackAccent;
   const secondary =
+    marketingSchemeValues?.accent ||
     configColors.secondary ||
     colors.secondary ||
     brand.secondary ||
@@ -195,10 +258,20 @@ const applyMarketingDesign = () => {
     accent;
 
   const surface =
+    marketingSchemeValues?.surface ||
     configColors.surface ||
     colors.surface ||
     variables.surface ||
     fallbackSurface;
+  const background =
+    marketingSchemeValues?.background ||
+    configColors.background ||
+    configColors.backgroundColor ||
+    colors.background ||
+    colors.backgroundColor ||
+    variables.background ||
+    variables.backgroundColor ||
+    fallbackBackground;
   const surfaceMuted =
     configColors.surfaceMuted ||
     colors.surfaceMuted ||
@@ -220,6 +293,7 @@ const applyMarketingDesign = () => {
     variables.topbarDark ||
     fallbackTopbarDark;
   const onAccent =
+    marketingSchemeValues?.onAccent ||
     configColors.onAccent ||
     configColors.on_accent ||
     configColors.contrastOnPrimary ||
@@ -237,6 +311,7 @@ const applyMarketingDesign = () => {
     variables.textOnPrimary ||
     fallbackOnAccent;
   const textOnSurface =
+    marketingSchemeValues?.textOnSurface ||
     configColors.textOnSurface ||
     configColors.text_on_surface ||
     configColors.marketingTextOnSurface ||
@@ -251,6 +326,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_on_surface ||
     fallbackTextOnSurface;
   const textOnBackground =
+    marketingSchemeValues?.textOnBackground ||
     configColors.textOnBackground ||
     configColors.text_on_background ||
     configColors.marketingTextOnBackground ||
@@ -265,6 +341,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_on_background ||
     fallbackTextOnBackground;
   const textMutedOnSurface =
+    marketingSchemeValues?.textMutedOnSurface ||
     configColors.textMutedOnSurface ||
     configColors.text_muted_on_surface ||
     configColors.marketingTextMutedOnSurface ||
@@ -279,6 +356,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_muted_on_surface ||
     fallbackTextMutedOnSurface;
   const textMutedOnBackground =
+    marketingSchemeValues?.textMutedOnBackground ||
     configColors.textMutedOnBackground ||
     configColors.text_muted_on_background ||
     configColors.marketingTextMutedOnBackground ||
@@ -293,6 +371,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_muted_on_background ||
     fallbackTextMutedOnBackground;
   const textOnSurfaceDark =
+    marketingSchemeValues?.textOnSurfaceDark ||
     configColors.textOnSurfaceDark ||
     configColors.text_on_surface_dark ||
     configColors.marketingTextOnSurfaceDark ||
@@ -307,6 +386,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_on_surface_dark ||
     fallbackTextOnSurfaceDark;
   const textOnBackgroundDark =
+    marketingSchemeValues?.textOnBackgroundDark ||
     configColors.textOnBackgroundDark ||
     configColors.text_on_background_dark ||
     configColors.marketingTextOnBackgroundDark ||
@@ -321,6 +401,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_on_background_dark ||
     fallbackTextOnBackgroundDark;
   const textMutedOnSurfaceDark =
+    marketingSchemeValues?.textMutedOnSurfaceDark ||
     configColors.textMutedOnSurfaceDark ||
     configColors.text_muted_on_surface_dark ||
     configColors.marketingTextMutedOnSurfaceDark ||
@@ -335,6 +416,7 @@ const applyMarketingDesign = () => {
     variables.marketing_text_muted_on_surface_dark ||
     fallbackTextMutedOnSurfaceDark;
   const textMutedOnBackgroundDark =
+    marketingSchemeValues?.textMutedOnBackgroundDark ||
     configColors.textMutedOnBackgroundDark ||
     configColors.text_muted_on_background_dark ||
     configColors.marketingTextMutedOnBackgroundDark ||
@@ -394,6 +476,7 @@ const applyMarketingDesign = () => {
   root.style.setProperty('--marketing-primary', primary);
   root.style.setProperty('--marketing-accent', accent);
   root.style.setProperty('--marketing-secondary', secondary);
+  root.style.setProperty('--marketing-background', background);
   if (onAccent) {
     root.style.setProperty('--marketing-on-accent', onAccent);
   }
