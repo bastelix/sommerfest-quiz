@@ -279,6 +279,7 @@ class PagesDesignController
             'brand' => [
                 'primary' => null,
                 'accent' => null,
+                'secondary' => null,
             ],
             'layout' => [
                 'profile' => null,
@@ -296,6 +297,7 @@ class PagesDesignController
         if (is_array($brand)) {
             $tokens['brand']['primary'] = $this->sanitizeString($brand['primary'] ?? null);
             $tokens['brand']['accent'] = $this->sanitizeString($brand['accent'] ?? null);
+            $tokens['brand']['secondary'] = $this->sanitizeString($brand['secondary'] ?? null);
         }
 
         $layout = $parsedBody['layout'] ?? [];
