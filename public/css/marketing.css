@@ -5,6 +5,9 @@
   --marketing-accent-default: #f97316;
   --marketing-surface-default: #ffffff;
   --marketing-surface-muted-default: #eef2f7;
+  --marketing-surface-dark-default: #0f172a;
+  --marketing-surface-muted-dark-default: #111827;
+  --marketing-card-dark-default: #0b1728;
   --marketing-text-default: #111827;
   --marketing-text-on-surface-default: #111827;
   --marketing-text-on-background-default: #111827;
@@ -33,6 +36,7 @@
   --marketing-section-gap: clamp(20px, 4vw, 40px);
   --marketing-surface-glass: rgba(255, 255, 255, 0.96);
   --marketing-surface-glass-dark: rgba(15, 36, 27, 0.96);
+  --marketing-card-default: var(--marketing-surface-glass);
   --marketing-surface-accent-soft: rgba(255, 255, 255, 0.08);
   --marketing-border-light: rgba(255, 255, 255, 0.18);
   --marketing-ring-strong: rgba(0, 0, 0, 0.6);
@@ -58,6 +62,10 @@
   --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
   --marketing-surface: var(--surface, var(--marketing-surface-default));
   --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
+  --marketing-surface-dark: var(--surface-dark, var(--marketing-surface-dark-default));
+  --marketing-surface-muted-dark: var(--surface-muted-dark, var(--marketing-surface-muted-dark-default));
+  --marketing-card-dark: var(--marketing-card-dark-default);
+  --marketing-card: var(--marketing-card-default);
   --marketing-text: var(--text-primary, var(--marketing-text-default));
   --marketing-text-on-surface: var(--text-on-surface, var(--marketing-text-on-surface-default));
   --marketing-text-on-background: var(--text-on-background, var(--marketing-text-on-background-default));
@@ -96,7 +104,8 @@ body.marketing-page {
   --qr-bg: var(--marketing-background, var(--marketing-surface));
   --qr-fg: var(--marketing-text-on-background);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
-  --qr-card: var(--marketing-surface-glass);
+  --marketing-card: var(--marketing-card-default);
+  --qr-card: var(--marketing-card, var(--marketing-surface-glass));
   --qr-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
   --qr-text: var(--marketing-text-on-background);
@@ -124,16 +133,24 @@ body.marketing-page {
   --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%);
   --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+  --section-card-surface: var(--marketing-surface);
+  --section-default-surface: var(--marketing-surface);
+  --section-default-muted: var(--marketing-surface-muted);
+  --surface: var(--marketing-surface);
+  --surface-muted: var(--marketing-surface-muted);
   font-family: var(--marketing-font-stack);
   color-scheme: light;
 }
 
 body.marketing-page.dark-mode,
 body.marketing-page[data-theme="dark"]:not(.high-contrast) {
+  --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
+  --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
+  --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
   --qr-bg: var(--marketing-background, var(--marketing-surface));
   --qr-fg: var(--marketing-text-on-background-dark);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
-  --qr-card: var(--marketing-surface-glass-dark);
+  --qr-card: var(--marketing-card, var(--marketing-surface-glass-dark));
   --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
   --qr-text: var(--marketing-text-on-background-dark);
@@ -147,6 +164,11 @@ body.marketing-page[data-theme="dark"]:not(.high-contrast) {
   --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%);
   --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
+  --section-card-surface: var(--marketing-card, var(--marketing-surface));
+  --section-default-surface: var(--marketing-surface);
+  --section-default-muted: var(--marketing-surface-muted);
+  --surface: var(--marketing-surface);
+  --surface-muted: var(--marketing-surface-muted);
   color-scheme: dark;
 }
 
@@ -462,14 +484,14 @@ body.page-render .cms-page table {
 }
 
 .section__inner--panel {
-  background: var(--surface);
+  background: var(--section-card-surface, var(--section-surface));
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
   box-shadow: var(--marketing-shadow-panel);
 }
 
 .section__inner--card {
-  background: var(--surface);
+  background: var(--section-card-surface, var(--section-surface));
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card);
@@ -527,7 +549,7 @@ body.page-render .cms-page table {
 }
 
 .section[data-section-layout="card"] .section__inner {
-  background: var(--surface);
+  background: var(--section-card-surface, var(--section-surface));
   border-radius: var(--card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card-soft);

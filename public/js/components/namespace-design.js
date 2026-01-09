@@ -396,6 +396,17 @@ const applyColorsToRoot = (element, appearance) => {
     surface,
     'var(--surface)',
   );
+  const marketingSurfaceDark = resolveFirstValue(
+    marketingSchemeValues?.surfaceDark,
+    colors.marketingSurfaceDark,
+    colors.marketing_surface_dark,
+    colors.surfaceDark,
+    colors.surface_dark,
+    appearance?.variables?.marketingSurfaceDark,
+    appearance?.variables?.marketing_surface_dark,
+    appearance?.variables?.surfaceDark,
+    appearance?.variables?.surface_dark,
+  );
   const marketingBackground = resolveFirstValue(
     marketingSchemeValues?.background,
     colors.marketingBackground,
@@ -410,6 +421,26 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketing_surface_muted,
     muted,
     'var(--surface-muted)',
+  );
+  const marketingSurfaceMutedDark = resolveFirstValue(
+    colors.marketingSurfaceMutedDark,
+    colors.marketing_surface_muted_dark,
+    colors.surfaceMutedDark,
+    colors.surface_muted_dark,
+    appearance?.variables?.marketingSurfaceMutedDark,
+    appearance?.variables?.marketing_surface_muted_dark,
+    appearance?.variables?.surfaceMutedDark,
+    appearance?.variables?.surface_muted_dark,
+  );
+  const marketingCardDark = resolveFirstValue(
+    colors.marketingCardDark,
+    colors.marketing_card_dark,
+    colors.cardDark,
+    colors.card_dark,
+    appearance?.variables?.marketingCardDark,
+    appearance?.variables?.marketing_card_dark,
+    appearance?.variables?.cardDark,
+    appearance?.variables?.card_dark,
   );
   const marketingText = resolveFirstValue(
     marketingSchemeValues?.textOnBackground,
@@ -533,6 +564,15 @@ const applyColorsToRoot = (element, appearance) => {
 
   element.style.setProperty('--marketing-surface', marketingSurface);
   element.style.setProperty('--marketing-surface-muted', marketingMuted);
+  if (marketingSurfaceDark) {
+    element.style.setProperty('--marketing-surface-dark', marketingSurfaceDark);
+  }
+  if (marketingSurfaceMutedDark) {
+    element.style.setProperty('--marketing-surface-muted-dark', marketingSurfaceMutedDark);
+  }
+  if (marketingCardDark) {
+    element.style.setProperty('--marketing-card-dark', marketingCardDark);
+  }
   element.style.setProperty(
     '--marketing-background',
     marketingBackground || 'var(--surface-page, var(--marketing-surface))',
