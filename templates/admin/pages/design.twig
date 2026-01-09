@@ -236,6 +236,8 @@
                       <code>{{ tokens.brand.primary }}</code>
                       <span class="design-summary__swatch design-summary__swatch--accent" style="background: {{ tokens.brand.accent }}"></span>
                       <code>{{ tokens.brand.accent }}</code>
+                      <span class="design-summary__swatch design-summary__swatch--secondary" style="background: {{ tokens.brand.secondary }}"></span>
+                      <code>{{ tokens.brand.secondary }}</code>
                     </dd>
                   </div>
                 </dl>
@@ -256,18 +258,25 @@
                       <a class="uk-accordion-title" href="#">Brand</a>
                       <div class="uk-accordion-content">
                         <div class="uk-grid-small" uk-grid>
-                          <div class="uk-width-1-2@s">
+                          <div class="uk-width-1-3@s">
                             <label class="uk-form-label" for="brandPrimary">Primary Color</label>
                             <div class="uk-flex uk-flex-middle design-color-input">
                               <input id="brandPrimary" class="uk-input" type="color" name="brand[primary]" value="{{ tokens.brand.primary|e('html_attr') }}" data-token-input data-group="brand" data-key="primary">
                               <code class="uk-margin-small-left" data-token-preview="brand.primary">{{ tokens.brand.primary }}</code>
                             </div>
                           </div>
-                          <div class="uk-width-1-2@s">
+                          <div class="uk-width-1-3@s">
                             <label class="uk-form-label" for="brandAccent">Accent Color</label>
                             <div class="uk-flex uk-flex-middle design-color-input">
                               <input id="brandAccent" class="uk-input" type="color" name="brand[accent]" value="{{ tokens.brand.accent|e('html_attr') }}" data-token-input data-group="brand" data-key="accent">
                               <code class="uk-margin-small-left" data-token-preview="brand.accent">{{ tokens.brand.accent }}</code>
+                            </div>
+                          </div>
+                          <div class="uk-width-1-3@s">
+                            <label class="uk-form-label" for="brandSecondary">Secondary Color</label>
+                            <div class="uk-flex uk-flex-middle design-color-input">
+                              <input id="brandSecondary" class="uk-input" type="color" name="brand[secondary]" value="{{ tokens.brand.secondary|e('html_attr') }}" data-token-input data-group="brand" data-key="secondary">
+                              <code class="uk-margin-small-left" data-token-preview="brand.secondary">{{ tokens.brand.secondary }}</code>
                             </div>
                           </div>
                         </div>

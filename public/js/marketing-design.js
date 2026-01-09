@@ -89,6 +89,11 @@ const applyMarketingDesign = () => {
     '--marketing-accent',
     resolveFallbackToken(root, '--brand-accent', DEFAULT_BRAND_ACCENT),
   );
+  const fallbackSecondary = resolveFallbackToken(
+    root,
+    '--marketing-secondary',
+    resolveFallbackToken(root, '--brand-secondary', fallbackAccent),
+  );
   const fallbackSurface = resolveFallbackToken(
     root,
     '--marketing-surface',
@@ -123,6 +128,13 @@ const applyMarketingDesign = () => {
     colors.secondary ||
     brand.accent ||
     fallbackAccent;
+  const secondary =
+    configColors.secondary ||
+    colors.secondary ||
+    brand.secondary ||
+    brand.accent ||
+    fallbackSecondary ||
+    accent;
 
   const surface =
     configColors.surface ||
@@ -169,6 +181,7 @@ const applyMarketingDesign = () => {
 
   root.style.setProperty('--marketing-primary', primary);
   root.style.setProperty('--marketing-accent', accent);
+  root.style.setProperty('--marketing-secondary', secondary);
   if (onAccent) {
     root.style.setProperty('--marketing-on-accent', onAccent);
   }
@@ -177,7 +190,8 @@ const applyMarketingDesign = () => {
   root.style.setProperty('--brand-primary', 'var(--marketing-primary)');
   root.style.setProperty('--accent-primary', 'var(--marketing-primary)');
   root.style.setProperty('--brand-accent', 'var(--marketing-accent)');
-  root.style.setProperty('--accent-secondary', 'var(--marketing-accent)');
+  root.style.setProperty('--brand-secondary', 'var(--marketing-secondary)');
+  root.style.setProperty('--accent-secondary', 'var(--marketing-secondary)');
   root.style.setProperty('--surface', 'var(--marketing-surface)');
   root.style.setProperty('--surface-muted', 'var(--marketing-surface-muted)');
   root.style.setProperty('--bg-page', 'var(--surface)');

@@ -160,15 +160,23 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.brandPrimary,
     brand.primary,
   );
-  const accent = resolveFirstValue(
+  const secondary = resolveFirstValue(
     colors.secondary,
+    colors.brandSecondary,
+    colors.brand_secondary,
+    appearance?.variables?.secondary,
+    appearance?.variables?.brandSecondary,
+    brand.secondary,
+    brand.accent,
+  );
+  const accent = resolveFirstValue(
     colors.accent,
     colors.brandAccent,
     colors.brand_accent,
-    appearance?.variables?.secondary,
     appearance?.variables?.accent,
     appearance?.variables?.brandAccent,
     brand.accent,
+    brand.secondary,
   );
   const surface = resolveFirstValue(
     colors.surface,
@@ -223,6 +231,14 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketing_accent,
     accent,
     'var(--brand-accent)',
+  );
+  const marketingSecondary = resolveFirstValue(
+    colors.marketingSecondary,
+    colors.marketing_secondary,
+    appearance?.variables?.marketingSecondary,
+    appearance?.variables?.marketing_secondary,
+    secondary,
+    'var(--brand-secondary)',
   );
   const marketingOnAccent = resolveFirstValue(
     colors.marketingOnAccent,
@@ -294,12 +310,16 @@ const applyColorsToRoot = (element, appearance) => {
     element.style.setProperty('--brand-primary', primary);
     element.style.setProperty('--accent-primary', primary);
   }
+  if (secondary) {
+    element.style.setProperty('--brand-secondary', secondary);
+    element.style.setProperty('--accent-secondary', secondary);
+  }
   if (accent) {
     element.style.setProperty('--brand-accent', accent);
-    element.style.setProperty('--accent-secondary', accent);
   }
   element.style.setProperty('--marketing-primary', marketingPrimary);
   element.style.setProperty('--marketing-accent', marketingAccent);
+  element.style.setProperty('--marketing-secondary', marketingSecondary);
   element.style.setProperty('--marketing-on-accent', marketingOnAccent);
   element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
   element.style.setProperty('--bg-section', 'var(--surface-section, var(--surface))');

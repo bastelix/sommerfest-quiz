@@ -17,6 +17,7 @@ class DesignTokenService
         'brand' => [
             'primary' => '#1e87f0',
             'accent' => '#f97316',
+            'secondary' => '#f97316',
         ],
         'layout' => [
             'profile' => 'standard',
@@ -297,11 +298,15 @@ class DesignTokenService
         if (is_array($brand)) {
             $primary = $this->normalizeColor($brand['primary'] ?? null);
             $accent = $this->normalizeColor($brand['accent'] ?? null);
+            $secondary = $this->normalizeColor($brand['secondary'] ?? null);
             if ($primary !== null) {
                 $validated['brand']['primary'] = $primary;
             }
             if ($accent !== null) {
                 $validated['brand']['accent'] = $accent;
+            }
+            if ($secondary !== null) {
+                $validated['brand']['secondary'] = $secondary;
             }
         }
 
@@ -417,13 +422,16 @@ class DesignTokenService
     {
         $brandPrimary = $tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary'];
         $brandAccent = $tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent'];
+        $brandSecondary = $tokens['brand']['secondary'] ?? self::DEFAULT_TOKENS['brand']['secondary'];
 
         $lines = [
             $selector . ' {',
             '  --brand-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --brand-accent: ' . $this->escapeCssValue($brandAccent) . ';',
+            '  --brand-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
             '  --marketing-primary: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --marketing-accent: ' . $this->escapeCssValue($brandAccent) . ';',
+            '  --marketing-secondary: ' . $this->escapeCssValue($brandSecondary) . ';',
             '  --marketing-link: ' . $this->escapeCssValue($brandPrimary) . ';',
             '  --marketing-surface: ' . $this->escapeCssValue(self::DEFAULT_MARKETING_SURFACE) . ';',
             '  --layout-profile: ' . $this->escapeCssValue($tokens['layout']['profile'] ?? self::DEFAULT_TOKENS['layout']['profile']) . ';',
