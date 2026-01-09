@@ -444,6 +444,7 @@ function normalizeClassList(classes) {
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
+  const layoutClassFlag = layout === 'full' ? 'section--full' : '';
   const background = resolveSectionBackground(block, layout);
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const { intent, preset } = resolveSectionIntentPreset(block);
@@ -456,6 +457,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     'uk-section',
     ...normalizeClassList(preset.sectionClass),
     layoutFlag ? `section--${layoutFlag}` : '',
+    layoutClassFlag,
     background.mode === 'color' ? `section--bg-${background.colorToken}` : '',
     background.mode === 'image' ? 'section--bg-image' : '',
     background.mode === 'image' && background.attachment === 'fixed' ? 'section--bg-fixed' : '',
