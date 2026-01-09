@@ -9,6 +9,14 @@ stylesheet exposes the following marketing tokens for each namespace:
 * `--marketing-surface` – defaults to the shared surface token (`--surface-card`).
 * `--marketing-background` – defaults to the shared page background token (`--surface-page`) and
   powers the marketing page canvas.
+* `--marketing-text-on-surface` – primary text color for content on cards/sections.
+* `--marketing-text-on-background` – primary text color for content on the page background.
+* `--marketing-text-muted-on-surface` – muted copy on cards/sections.
+* `--marketing-text-muted-on-background` – muted copy on the page background.
+* `--marketing-text-on-surface-dark` – dark-mode text color for cards/sections.
+* `--marketing-text-on-background-dark` – dark-mode text color for the page background.
+* `--marketing-text-muted-on-surface-dark` – dark-mode muted copy on cards/sections.
+* `--marketing-text-muted-on-background-dark` – dark-mode muted copy on the page background.
 
 ## Marketing stylesheet entry point
 

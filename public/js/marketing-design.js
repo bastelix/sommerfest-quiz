@@ -104,6 +104,46 @@ const applyMarketingDesign = () => {
     '--marketing-surface-muted',
     resolveFallbackToken(root, '--surface-muted', DEFAULT_SURFACE_MUTED),
   );
+  const fallbackTextOnSurface = resolveFallbackToken(
+    root,
+    '--marketing-text-on-surface',
+    resolveFallbackToken(root, '--text-primary', ''),
+  );
+  const fallbackTextOnBackground = resolveFallbackToken(
+    root,
+    '--marketing-text-on-background',
+    fallbackTextOnSurface,
+  );
+  const fallbackTextMutedOnSurface = resolveFallbackToken(
+    root,
+    '--marketing-text-muted-on-surface',
+    fallbackTextOnSurface,
+  );
+  const fallbackTextMutedOnBackground = resolveFallbackToken(
+    root,
+    '--marketing-text-muted-on-background',
+    fallbackTextMutedOnSurface,
+  );
+  const fallbackTextOnSurfaceDark = resolveFallbackToken(
+    root,
+    '--marketing-text-on-surface-dark',
+    fallbackTextOnSurface,
+  );
+  const fallbackTextOnBackgroundDark = resolveFallbackToken(
+    root,
+    '--marketing-text-on-background-dark',
+    fallbackTextOnSurfaceDark,
+  );
+  const fallbackTextMutedOnSurfaceDark = resolveFallbackToken(
+    root,
+    '--marketing-text-muted-on-surface-dark',
+    fallbackTextOnSurfaceDark,
+  );
+  const fallbackTextMutedOnBackgroundDark = resolveFallbackToken(
+    root,
+    '--marketing-text-muted-on-background-dark',
+    fallbackTextMutedOnSurfaceDark,
+  );
   const fallbackTopbarLight = resolveFallbackToken(
     root,
     '--marketing-topbar-light',
@@ -178,6 +218,118 @@ const applyMarketingDesign = () => {
     variables.onPrimary ||
     variables.textOnPrimary ||
     fallbackOnAccent;
+  const textOnSurface =
+    configColors.textOnSurface ||
+    configColors.text_on_surface ||
+    configColors.marketingTextOnSurface ||
+    configColors.marketing_text_on_surface ||
+    colors.textOnSurface ||
+    colors.text_on_surface ||
+    colors.marketingTextOnSurface ||
+    colors.marketing_text_on_surface ||
+    variables.textOnSurface ||
+    variables.text_on_surface ||
+    variables.marketingTextOnSurface ||
+    variables.marketing_text_on_surface ||
+    fallbackTextOnSurface;
+  const textOnBackground =
+    configColors.textOnBackground ||
+    configColors.text_on_background ||
+    configColors.marketingTextOnBackground ||
+    configColors.marketing_text_on_background ||
+    colors.textOnBackground ||
+    colors.text_on_background ||
+    colors.marketingTextOnBackground ||
+    colors.marketing_text_on_background ||
+    variables.textOnBackground ||
+    variables.text_on_background ||
+    variables.marketingTextOnBackground ||
+    variables.marketing_text_on_background ||
+    fallbackTextOnBackground;
+  const textMutedOnSurface =
+    configColors.textMutedOnSurface ||
+    configColors.text_muted_on_surface ||
+    configColors.marketingTextMutedOnSurface ||
+    configColors.marketing_text_muted_on_surface ||
+    colors.textMutedOnSurface ||
+    colors.text_muted_on_surface ||
+    colors.marketingTextMutedOnSurface ||
+    colors.marketing_text_muted_on_surface ||
+    variables.textMutedOnSurface ||
+    variables.text_muted_on_surface ||
+    variables.marketingTextMutedOnSurface ||
+    variables.marketing_text_muted_on_surface ||
+    fallbackTextMutedOnSurface;
+  const textMutedOnBackground =
+    configColors.textMutedOnBackground ||
+    configColors.text_muted_on_background ||
+    configColors.marketingTextMutedOnBackground ||
+    configColors.marketing_text_muted_on_background ||
+    colors.textMutedOnBackground ||
+    colors.text_muted_on_background ||
+    colors.marketingTextMutedOnBackground ||
+    colors.marketing_text_muted_on_background ||
+    variables.textMutedOnBackground ||
+    variables.text_muted_on_background ||
+    variables.marketingTextMutedOnBackground ||
+    variables.marketing_text_muted_on_background ||
+    fallbackTextMutedOnBackground;
+  const textOnSurfaceDark =
+    configColors.textOnSurfaceDark ||
+    configColors.text_on_surface_dark ||
+    configColors.marketingTextOnSurfaceDark ||
+    configColors.marketing_text_on_surface_dark ||
+    colors.textOnSurfaceDark ||
+    colors.text_on_surface_dark ||
+    colors.marketingTextOnSurfaceDark ||
+    colors.marketing_text_on_surface_dark ||
+    variables.textOnSurfaceDark ||
+    variables.text_on_surface_dark ||
+    variables.marketingTextOnSurfaceDark ||
+    variables.marketing_text_on_surface_dark ||
+    fallbackTextOnSurfaceDark;
+  const textOnBackgroundDark =
+    configColors.textOnBackgroundDark ||
+    configColors.text_on_background_dark ||
+    configColors.marketingTextOnBackgroundDark ||
+    configColors.marketing_text_on_background_dark ||
+    colors.textOnBackgroundDark ||
+    colors.text_on_background_dark ||
+    colors.marketingTextOnBackgroundDark ||
+    colors.marketing_text_on_background_dark ||
+    variables.textOnBackgroundDark ||
+    variables.text_on_background_dark ||
+    variables.marketingTextOnBackgroundDark ||
+    variables.marketing_text_on_background_dark ||
+    fallbackTextOnBackgroundDark;
+  const textMutedOnSurfaceDark =
+    configColors.textMutedOnSurfaceDark ||
+    configColors.text_muted_on_surface_dark ||
+    configColors.marketingTextMutedOnSurfaceDark ||
+    configColors.marketing_text_muted_on_surface_dark ||
+    colors.textMutedOnSurfaceDark ||
+    colors.text_muted_on_surface_dark ||
+    colors.marketingTextMutedOnSurfaceDark ||
+    colors.marketing_text_muted_on_surface_dark ||
+    variables.textMutedOnSurfaceDark ||
+    variables.text_muted_on_surface_dark ||
+    variables.marketingTextMutedOnSurfaceDark ||
+    variables.marketing_text_muted_on_surface_dark ||
+    fallbackTextMutedOnSurfaceDark;
+  const textMutedOnBackgroundDark =
+    configColors.textMutedOnBackgroundDark ||
+    configColors.text_muted_on_background_dark ||
+    configColors.marketingTextMutedOnBackgroundDark ||
+    configColors.marketing_text_muted_on_background_dark ||
+    colors.textMutedOnBackgroundDark ||
+    colors.text_muted_on_background_dark ||
+    colors.marketingTextMutedOnBackgroundDark ||
+    colors.marketing_text_muted_on_background_dark ||
+    variables.textMutedOnBackgroundDark ||
+    variables.text_muted_on_background_dark ||
+    variables.marketingTextMutedOnBackgroundDark ||
+    variables.marketing_text_muted_on_background_dark ||
+    fallbackTextMutedOnBackgroundDark;
 
   root.style.setProperty('--marketing-primary', primary);
   root.style.setProperty('--marketing-accent', accent);
@@ -187,6 +339,30 @@ const applyMarketingDesign = () => {
   }
   root.style.setProperty('--marketing-surface', surface);
   root.style.setProperty('--marketing-surface-muted', surfaceMuted);
+  if (textOnSurface) {
+    root.style.setProperty('--marketing-text-on-surface', textOnSurface);
+  }
+  if (textOnBackground) {
+    root.style.setProperty('--marketing-text-on-background', textOnBackground);
+  }
+  if (textMutedOnSurface) {
+    root.style.setProperty('--marketing-text-muted-on-surface', textMutedOnSurface);
+  }
+  if (textMutedOnBackground) {
+    root.style.setProperty('--marketing-text-muted-on-background', textMutedOnBackground);
+  }
+  if (textOnSurfaceDark) {
+    root.style.setProperty('--marketing-text-on-surface-dark', textOnSurfaceDark);
+  }
+  if (textOnBackgroundDark) {
+    root.style.setProperty('--marketing-text-on-background-dark', textOnBackgroundDark);
+  }
+  if (textMutedOnSurfaceDark) {
+    root.style.setProperty('--marketing-text-muted-on-surface-dark', textMutedOnSurfaceDark);
+  }
+  if (textMutedOnBackgroundDark) {
+    root.style.setProperty('--marketing-text-muted-on-background-dark', textMutedOnBackgroundDark);
+  }
   root.style.setProperty('--brand-primary', 'var(--marketing-primary)');
   root.style.setProperty('--accent-primary', 'var(--marketing-primary)');
   root.style.setProperty('--brand-accent', 'var(--marketing-accent)');

@@ -215,6 +215,86 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.onPrimary,
     appearance?.variables?.textOnPrimary,
   );
+  const textOnSurface = resolveFirstValue(
+    colors.textOnSurface,
+    colors.text_on_surface,
+    colors.marketingTextOnSurface,
+    colors.marketing_text_on_surface,
+    appearance?.variables?.textOnSurface,
+    appearance?.variables?.text_on_surface,
+    appearance?.variables?.marketingTextOnSurface,
+    appearance?.variables?.marketing_text_on_surface,
+  );
+  const textOnBackground = resolveFirstValue(
+    colors.textOnBackground,
+    colors.text_on_background,
+    colors.marketingTextOnBackground,
+    colors.marketing_text_on_background,
+    appearance?.variables?.textOnBackground,
+    appearance?.variables?.text_on_background,
+    appearance?.variables?.marketingTextOnBackground,
+    appearance?.variables?.marketing_text_on_background,
+  );
+  const textMutedOnSurface = resolveFirstValue(
+    colors.textMutedOnSurface,
+    colors.text_muted_on_surface,
+    colors.marketingTextMutedOnSurface,
+    colors.marketing_text_muted_on_surface,
+    appearance?.variables?.textMutedOnSurface,
+    appearance?.variables?.text_muted_on_surface,
+    appearance?.variables?.marketingTextMutedOnSurface,
+    appearance?.variables?.marketing_text_muted_on_surface,
+  );
+  const textMutedOnBackground = resolveFirstValue(
+    colors.textMutedOnBackground,
+    colors.text_muted_on_background,
+    colors.marketingTextMutedOnBackground,
+    colors.marketing_text_muted_on_background,
+    appearance?.variables?.textMutedOnBackground,
+    appearance?.variables?.text_muted_on_background,
+    appearance?.variables?.marketingTextMutedOnBackground,
+    appearance?.variables?.marketing_text_muted_on_background,
+  );
+  const textOnSurfaceDark = resolveFirstValue(
+    colors.textOnSurfaceDark,
+    colors.text_on_surface_dark,
+    colors.marketingTextOnSurfaceDark,
+    colors.marketing_text_on_surface_dark,
+    appearance?.variables?.textOnSurfaceDark,
+    appearance?.variables?.text_on_surface_dark,
+    appearance?.variables?.marketingTextOnSurfaceDark,
+    appearance?.variables?.marketing_text_on_surface_dark,
+  );
+  const textOnBackgroundDark = resolveFirstValue(
+    colors.textOnBackgroundDark,
+    colors.text_on_background_dark,
+    colors.marketingTextOnBackgroundDark,
+    colors.marketing_text_on_background_dark,
+    appearance?.variables?.textOnBackgroundDark,
+    appearance?.variables?.text_on_background_dark,
+    appearance?.variables?.marketingTextOnBackgroundDark,
+    appearance?.variables?.marketing_text_on_background_dark,
+  );
+  const textMutedOnSurfaceDark = resolveFirstValue(
+    colors.textMutedOnSurfaceDark,
+    colors.text_muted_on_surface_dark,
+    colors.marketingTextMutedOnSurfaceDark,
+    colors.marketing_text_muted_on_surface_dark,
+    appearance?.variables?.textMutedOnSurfaceDark,
+    appearance?.variables?.text_muted_on_surface_dark,
+    appearance?.variables?.marketingTextMutedOnSurfaceDark,
+    appearance?.variables?.marketing_text_muted_on_surface_dark,
+  );
+  const textMutedOnBackgroundDark = resolveFirstValue(
+    colors.textMutedOnBackgroundDark,
+    colors.text_muted_on_background_dark,
+    colors.marketingTextMutedOnBackgroundDark,
+    colors.marketing_text_muted_on_background_dark,
+    appearance?.variables?.textMutedOnBackgroundDark,
+    appearance?.variables?.text_muted_on_background_dark,
+    appearance?.variables?.marketingTextMutedOnBackgroundDark,
+    appearance?.variables?.marketing_text_muted_on_background_dark,
+  );
 
   const marketingPrimary = resolveFirstValue(
     colors.marketingPrimary,
@@ -321,6 +401,30 @@ const applyColorsToRoot = (element, appearance) => {
   element.style.setProperty('--marketing-accent', marketingAccent);
   element.style.setProperty('--marketing-secondary', marketingSecondary);
   element.style.setProperty('--marketing-on-accent', marketingOnAccent);
+  if (textOnSurface) {
+    element.style.setProperty('--marketing-text-on-surface', textOnSurface);
+  }
+  if (textOnBackground) {
+    element.style.setProperty('--marketing-text-on-background', textOnBackground);
+  }
+  if (textMutedOnSurface) {
+    element.style.setProperty('--marketing-text-muted-on-surface', textMutedOnSurface);
+  }
+  if (textMutedOnBackground) {
+    element.style.setProperty('--marketing-text-muted-on-background', textMutedOnBackground);
+  }
+  if (textOnSurfaceDark) {
+    element.style.setProperty('--marketing-text-on-surface-dark', textOnSurfaceDark);
+  }
+  if (textOnBackgroundDark) {
+    element.style.setProperty('--marketing-text-on-background-dark', textOnBackgroundDark);
+  }
+  if (textMutedOnSurfaceDark) {
+    element.style.setProperty('--marketing-text-muted-on-surface-dark', textMutedOnSurfaceDark);
+  }
+  if (textMutedOnBackgroundDark) {
+    element.style.setProperty('--marketing-text-muted-on-background-dark', textMutedOnBackgroundDark);
+  }
   element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
   element.style.setProperty('--bg-section', 'var(--surface-section, var(--surface))');
   element.style.setProperty('--bg-card', 'var(--surface-card, var(--surface))');
