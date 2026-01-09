@@ -279,14 +279,14 @@ body.marketing-page p {
     gap: 16px;
   }
 }
-.qr-page-renderer {
+.cms-page {
   box-sizing: border-box;
   max-width: 1200px;
   margin: 0 auto;
   padding-inline: var(--cms-content-padding, clamp(16px, 3vw, 32px));
   width: 100%;
 }
-.uk-container .qr-page-renderer {
+.uk-container .cms-page {
   padding-inline: 0;
 }
 
@@ -294,24 +294,24 @@ body.page-render {
   --cms-content-padding: clamp(16px, 4vw, 28px);
 }
 
-body.page-render .qr-page-renderer {
+body.page-render .cms-page {
   max-width: min(1200px, calc(100vw - var(--cms-content-padding) * 2));
   padding-inline: var(--cms-content-padding);
   overflow-wrap: anywhere;
 }
 
-body.page-render .uk-container .qr-page-renderer {
+body.page-render .uk-container .cms-page {
   padding-inline: var(--cms-content-padding);
 }
 
-body.page-render .qr-page-renderer img,
-body.page-render .qr-page-renderer video,
-body.page-render .qr-page-renderer iframe {
+body.page-render .cms-page img,
+body.page-render .cms-page video,
+body.page-render .cms-page iframe {
   max-width: 100%;
   height: auto;
 }
 
-body.page-render .qr-page-renderer table {
+body.page-render .cms-page table {
   width: 100%;
 }
 .marketing-page .uk-section { background: var(--section-bg-color, var(--section-surface, transparent)); }
