@@ -870,50 +870,44 @@ return function (\Slim\App $app, TranslationService $translator) {
             'csrf_token' => $csrf,
         ]);
     });
-    $app->get('/landing/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
+    $redirectToCmsPage = static function (
+        Request $request,
+        Response $response,
+        string $slug,
+        int $status = 302
+    ): Response {
+        $base = RouteContext::fromRequest($request)->getBasePath();
+        $target = $base . '/cms/pages/' . rawurlencode($slug);
+        $query = $request->getUri()->getQuery();
+        if ($query !== '') {
+            $target .= '?' . $query;
         }
-        $controller = new MarketingLandingNewsController();
-        return $controller->index($request, $response, ['landingSlug' => 'landing']);
+
+        return $response->withHeader('Location', $target)->withStatus($status);
+    };
+    $app->get('/landing/news', function (Request $request, Response $response) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, 'landing');
     });
     $app->get('/landing/news/{newsSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingLandingNewsController();
-        $args['landingSlug'] = 'landing';
-        return $controller->show($request, $response, $args);
+    ) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, (string) $args['newsSlug']);
     });
     $app->get('/{landingSlug:[a-z0-9-]+}/news', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingLandingNewsController();
-        return $controller->index($request, $response, $args);
+    ) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, (string) $args['landingSlug']);
     });
     $app->get('/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (
         Request $request,
         Response $response,
         array $args
-    ) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
-        }
-        $controller = new MarketingLandingNewsController();
-        return $controller->show($request, $response, $args);
+    ) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, (string) $args['newsSlug']);
     });
     $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (
         Request $request,
@@ -1006,20 +1000,19 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
-        function (Request $request, Response $response, array $args) {
-            $controller = new MarketingPageController();
-            return $controller($request, $response, $args);
+        function (Request $request, Response $response, array $args) use ($redirectToCmsPage) {
+            return $redirectToCmsPage($request, $response, (string) $args['slug']);
         }
-    )->add($namespaceQueryMiddleware)->add($marketingNamespaceMiddleware);
-    $app->post('/landing/contact', ContactController::class)
-        ->add(new RateLimitMiddleware(3, 3600))
-        ->add(new CsrfMiddleware());
-    $app->post('/future-is-green/contact', ContactController::class)
-        ->add(new RateLimitMiddleware(3, 3600))
-        ->add(new CsrfMiddleware());
-    $app->post('/calserver/contact', ContactController::class)
-        ->add(new RateLimitMiddleware(3, 3600))
-        ->add(new CsrfMiddleware());
+    );
+    $app->post('/landing/contact', function (Request $request, Response $response) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, 'contact', 303);
+    });
+    $app->post('/future-is-green/contact', function (Request $request, Response $response) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, 'contact', 303);
+    });
+    $app->post('/calserver/contact', function (Request $request, Response $response) use ($redirectToCmsPage) {
+        return $redirectToCmsPage($request, $response, 'contact', 303);
+    });
     $app->post('/newsletter/unsubscribe', function (Request $request, Response $response): Response {
         $controller = new NewsletterController();
 
