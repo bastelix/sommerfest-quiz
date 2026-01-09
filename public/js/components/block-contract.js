@@ -378,6 +378,7 @@ const schema = {
       "properties": {
         "title": { "type": "string" },
         "lede": { "type": "string" },
+        "columns": { "type": "integer", "minimum": 1, "maximum": 6 },
         "metrics": {
           "type": "array",
           "items": { "$ref": "#/definitions/Metric" },
