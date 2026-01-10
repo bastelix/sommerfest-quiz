@@ -531,6 +531,7 @@ body.page-render .cms-page table {
 .section__inner {
   background: var(--section-surface-inner, transparent);
   border-radius: var(--card-radius-square);
+  box-sizing: border-box;
   padding: var(--section-padding-inner);
   width: 100%;
 }
