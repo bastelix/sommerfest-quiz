@@ -408,6 +408,7 @@ body.page-render .qr-page-renderer table {
 .section__inner {
   background: var(--section-surface-inner, transparent);
   border-radius: var(--card-radius-square);
+  box-sizing: border-box;
   padding: var(--section-padding-inner);
   width: 100%;
 }
