@@ -459,7 +459,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const background = resolveSectionBackground(block, layout);
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const { intent, preset } = resolveSectionIntentPreset(block);
-  const presetInnerClass = intent === 'feature' && layout === 'full' ? '' : preset.innerClass;
+  const shouldNeutralizeInnerClass = layout === 'full' && ['content', 'feature', 'highlight', 'hero'].includes(intent);
   const bleed = layout === 'full' ? 'full' : null;
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
@@ -512,7 +512,7 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
   const layoutInnerClass = layout === 'card' ? 'section__inner--card' : '';
   const innerClassName = [
     'section__inner',
-    ...normalizeClassList(presetInnerClass),
+    ...normalizeClassList(shouldNeutralizeInnerClass ? '' : preset.innerClass),
     ...normalizeClassList(layoutInnerClass)
   ].filter(Boolean).join(' ');
   const contentWrapper = `<div class="${innerClassName}">${content}</div>`;
