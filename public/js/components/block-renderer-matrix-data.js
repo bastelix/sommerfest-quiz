@@ -1848,17 +1848,94 @@ function renderAudienceSpotlightCard(item) {
   return `<div><div class="uk-card uk-card-default uk-height-1-1">${media}${content}</div></div>`;
 }
 
+function renderAudienceSpotlightTabs(block, cases, context) {
+  const title = block.data?.title
+    ? `<h2 class="uk-heading-line"><span${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</span></h2>`
+    : '';
+  const subtitle = block.data?.subtitle
+    ? `<span class="muted"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</span>`
+    : '';
+  const header = title || subtitle
+    ? `<div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">${title}${subtitle}</div>`
+    : '';
+
+  if (cases.length === 0) {
+    return renderSection({
+      block,
+      variant: 'tabs',
+      content: `${header}<div class="uk-alert-warning" role="alert">Keine Anwendungsfälle hinterlegt.</div>`
+    });
+  }
+
+  const tabs = cases
+    .map((item, index) => {
+      const label = item.title || `Fallstudie ${index + 1}`;
+      return `<li><a href="#">${escapeHtml(label)}</a></li>`;
+    })
+    .join('');
+  const tabList = `<ul class="uk-subnav uk-subnav-pill uk-margin-large-top usecase-tabs" data-uk-switcher="animation: uk-animation-fade">${tabs}</ul>`;
+
+  const switcherItems = cases
+    .map(item => {
+      const badge = item.badge ? `<span class="pill pill--badge uk-margin-small-bottom">${escapeHtml(item.badge)}</span>` : '';
+      const titleText = `<h3 class="uk-h2">${escapeHtml(item.title || '')}</h3>`;
+      const lead = item.lead ? `<p class="uk-text-lead">${escapeHtml(item.lead)}</p>` : '';
+      const body = item.body ? `<p>${escapeHtml(item.body)}</p>` : '';
+      const bullets = Array.isArray(item.bullets)
+        ? item.bullets
+            .filter(text => typeof text === 'string' && text.trim() !== '')
+            .map(text => `<li>${escapeHtml(text)}</li>`)
+            .join('')
+        : '';
+      const bulletList = bullets ? `<ul class="uk-list uk-list-bullet muted">${bullets}</ul>` : '';
+      const story = `<div class="usecase-story uk-first-column uk-scrollspy-inview">${badge}${titleText}${lead}${body}${bulletList}</div>`;
+
+      const keyFacts = Array.isArray(item.keyFacts)
+        ? item.keyFacts
+            .filter(text => typeof text === 'string' && text.trim() !== '')
+            .map(text => `<li>${escapeHtml(text)}</li>`)
+            .join('')
+        : '';
+      const keyFactList = keyFacts ? `<ul class="uk-list uk-list-divider">${keyFacts}</ul>` : '';
+      const pdfData = item.pdf && typeof item.pdf === 'object' ? item.pdf : null;
+      const pdfHref = typeof pdfData?.href === 'string' && pdfData.href.trim() !== '' ? pdfData.href : null;
+      const pdfLabel = typeof pdfData?.label === 'string' && pdfData.label.trim() !== ''
+        ? pdfData.label
+        : 'Highlights als PDF';
+      const pdfLink = pdfHref
+        ? `<a class="uk-button uk-button-text uk-margin-top" href="${escapeAttribute(pdfHref)}"${pdfData?.ariaLabel ? ` aria-label="${escapeAttribute(pdfData.ariaLabel)}"` : ''}><span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>${escapeHtml(pdfLabel)}</a>`
+        : '';
+
+      const keyFactsCard = `<div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card"><h4 class="uk-heading-bullet">Key Facts</h4>${keyFactList}${pdfLink}</div>`;
+      const media = item.media?.image
+        ? `<div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top"><div class="usecase-visual"><img class="uk-border-rounded usecase-visual__image" src="${escapeAttribute(item.media.image)}" width="960" height="540" loading="lazy" decoding="async" alt="${item.media.alt ? escapeAttribute(item.media.alt) : ''}"></div></div>`
+        : '';
+      const highlight = `<div class="usecase-highlight">${keyFactsCard}${media}</div>`;
+
+      return `<li><div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>${story}${highlight}</div></li>`;
+    })
+    .join('');
+
+  const switcher = `<ul class="uk-switcher uk-margin-large-top" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .usecase-story, .usecase-highlight; delay: 100; repeat: true">${switcherItems}</ul>`;
+
+  return renderSection({ block, variant: 'tabs', content: `${header}${tabList}${switcher}` });
+}
+
 function renderAudienceSpotlight(block, variant = block.variant || 'tabs', options = {}) {
   const context = options?.context || 'frontend';
   const safeVariant = escapeAttribute(variant);
+
+  const cases = Array.isArray(block.data?.cases) ? block.data.cases : [];
+  if (variant === 'tabs') {
+    return renderAudienceSpotlightTabs(block, cases, context);
+  }
+
   const sectionTitle = block.data?.title
     ? `<h2 class="uk-heading-medium uk-margin-remove-bottom"${buildEditableAttributes(block, 'data.title', context)}>${escapeHtml(block.data.title)}</h2>`
     : '';
   const sectionSubtitle = block.data?.subtitle
     ? `<p class="uk-text-lead uk-margin-small-top uk-margin-medium-bottom"${buildEditableAttributes(block, 'data.subtitle', context)}>${escapeHtml(block.data.subtitle)}</p>`
     : '';
-
-  const cases = Array.isArray(block.data?.cases) ? block.data.cases : [];
   const gridVariants = {
     tabs: 'uk-child-width-1-1 uk-child-width-1-2@m',
     tiles: 'uk-child-width-1-1 uk-child-width-1-3@m',
