@@ -2213,12 +2213,12 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   gap: 16px;
   --marketing-chat-surface: color-mix(
     in oklab,
-    var(--qr-card, var(--marketing-surface-muted)) 96%,
+    var(--marketing-card, var(--marketing-surface-muted)) 96%,
     color-mix(in oklab, var(--marketing-white) 94%, transparent)
   );
   --marketing-chat-surface-alt: color-mix(
     in oklab,
-    var(--qr-card, var(--marketing-surface-muted)) 92%,
+    var(--marketing-card, var(--marketing-surface-muted)) 92%,
     color-mix(in oklab, var(--marketing-white) 82%, transparent)
   );
   --marketing-chat-emphasis: color-mix(
@@ -2228,17 +2228,17 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   );
   --marketing-chat-strong: color-mix(
     in oklab,
-    var(--qr-text, var(--marketing-text-on-surface)) 90%,
+    var(--marketing-text-on-surface) 90%,
     color-mix(in oklab, var(--marketing-ink) 10%, transparent)
   );
   --marketing-chat-muted: color-mix(
     in oklab,
-    var(--qr-muted, var(--marketing-text-muted-on-surface)) 92%,
+    var(--marketing-text-muted-on-surface) 92%,
     color-mix(in oklab, var(--marketing-ink) 60%, transparent)
   );
   --marketing-chat-border: color-mix(
     in oklab,
-    var(--qr-card-border, var(--marketing-border)) 85%,
+    var(--marketing-border-light) 85%,
     transparent
   );
   background: var(--marketing-chat-surface);
@@ -2399,7 +2399,7 @@ body:is(.marketing-page, .cms-page-render).dark-mode:not(.high-contrast) .market
 body:is(.marketing-page, .cms-page-render)[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
   --marketing-chat-surface: color-mix(
     in oklab,
-    var(--qr-card, var(--marketing-surface-dark)) 85%,
+    var(--marketing-card, var(--marketing-surface-dark)) 85%,
     color-mix(in oklab, var(--marketing-ink) 92%, transparent)
   );
   --marketing-chat-surface-alt: color-mix(
