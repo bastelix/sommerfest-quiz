@@ -1,7 +1,7 @@
 {% set moduleItems = modules|default([]) %}
 {% if moduleItems %}
-  <section class="page-modules"
-           data-page-modules-position="{{ position|default('')|e('html_attr') }}">
+  <div class="page-modules"
+       data-page-modules-position="{{ position|default('')|e('html_attr') }}">
     <div class="uk-container">
       <div class="page-modules__grid marketing-grid">
         {% for module in moduleItems %}
@@ -14,5 +14,5 @@
         {% endfor %}
       </div>
     </div>
-  </section>
+  </div>
 {% endif %}
