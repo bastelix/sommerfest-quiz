@@ -1586,6 +1586,10 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   row-gap: 28px;
 }
 
+.stat-strip__grid > * {
+  min-width: 0;
+}
+
 .stat-strip__card {
   gap: 14px;
   padding: 28px;
@@ -1600,11 +1604,17 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .stat-strip__label-text {
   font-size: 1.05rem;
   line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .stat-strip__as-of {
@@ -1620,6 +1630,9 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .stat-strip__benefit-placeholder {
