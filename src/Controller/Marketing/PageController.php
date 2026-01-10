@@ -853,8 +853,8 @@ class PageController
                 'moduleFigure' => '.calserver-module-figure',
             ],
             'classes' => [
-                'bannerVisible' => 'calserver-cookie-banner--visible',
-                'triggerActive' => 'calserver-cookie-trigger--active',
+                'bannerVisible' => 'marketing-cookie-banner--visible',
+                'triggerActive' => 'marketing-cookie-trigger--active',
             ],
         ];
     }
