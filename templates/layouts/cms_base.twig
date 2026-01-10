@@ -8,7 +8,7 @@
 {% block head %}
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
   {% set includeHighContrastStyles = includeHighContrastStyles|default(true) %}
-  {% set includeLegacyMarketingStyles = includeLegacyMarketingStyles|default(true) %}
+  {% set includeLegacyMarketingStyles = includeLegacyMarketingStyles|default(false) %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   {% if includeLegacyMarketingStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
