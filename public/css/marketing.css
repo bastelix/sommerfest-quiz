@@ -310,29 +310,6 @@ body.cms-page-render[data-theme="dark"].high-contrast {
   --topbar-focus-ring: rgba(140, 200, 255, 0.8);
 }
 
-body.cms-page-render.calserver-theme.dark-mode:not(.high-contrast),
-body.cms-page-render.calserver-theme[data-theme="dark"]:not(.high-contrast) {
-  --topbar-btn-bg: color-mix(in oklab, rgba(12, 19, 35, 0.92) 76%, var(--calserver-primary) 24%);
-  --topbar-btn-bg-hover: color-mix(in oklab, rgba(12, 19, 35, 0.86) 62%, var(--calserver-primary) 38%);
-  --topbar-btn-border: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255, 255, 255, 0.28));
-  --topbar-btn-border-hover: color-mix(in oklab, var(--calserver-primary) 76%, rgba(255, 255, 255, 0.32));
-  --topbar-drop-bg: color-mix(in oklab, rgba(10, 16, 30, 0.94) 72%, var(--calserver-primary) 28%);
-  --topbar-drop-border: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
-  --topbar-text: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
-  --topbar-focus-ring: color-mix(in oklab, var(--calserver-primary) 84%, rgba(126, 170, 255, 0.32));
-}
-
-body.cms-page-render.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not(.high-contrast) {
-  --topbar-btn-bg: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
-  --topbar-btn-bg-hover: color-mix(in oklab, #ffffff 78%, var(--calserver-primary) 22%);
-  --topbar-btn-border: color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.18));
-  --topbar-btn-border-hover: color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 23, 42, 0.2));
-  --topbar-drop-bg: color-mix(in oklab, #ffffff 90%, var(--calserver-primary) 10%);
-  --topbar-drop-border: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.12));
-  --topbar-text: color-mix(in oklab, #101828 84%, var(--calserver-primary) 16%);
-  --topbar-focus-ring: color-mix(in oklab, var(--calserver-primary) 76%, rgba(31, 111, 235, 0.35));
-}
-
 body.dark-mode {
   background-color: var(--qr-bg);
   color: var(--qr-text);

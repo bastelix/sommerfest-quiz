@@ -1,55 +1,11 @@
 /* calServer marketing overrides for landing layout */
 
-body.marketing-page.calserver-theme {
-    --calserver-primary: var(--marketing-primary);
-    --cs-card-dark: var(--marketing-card-dark);
-    --cs-card-dark-border: color-mix(in oklab, var(--marketing-card-dark) 72%, var(--marketing-white) 28%);
-    --cs-text-on-dark: var(--marketing-text-on-surface-dark);
-    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
-    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
-    --cs-card-focus-shadow: 0 22px 48px -32px color-mix(in oklab, var(--marketing-ink) 55%, transparent),
-        0 14px 25px rgb(var(--marketing-black-rgb) / 0.16);
-    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
-    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 4%, transparent);
-    --cs-hero-shadow: 0 42px 82px -58px color-mix(in oklab, var(--marketing-ink) 60%, transparent);
-    --cs-highlight-bg: color-mix(in oklab, var(--calserver-primary) 12%, var(--qr-card) 88%);
-    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 22%, transparent);
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 14%, transparent);
-    --cs-highlight-shadow: 0 -18px 46px -38px color-mix(in oklab, var(--marketing-ink) 40%, transparent),
-        0 24px 52px -40px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 30%, transparent);
-    --cs-highlight-card-shadow: 0 18px 34px -28px color-mix(in oklab, var(--marketing-ink) 50%, transparent);
+body.marketing-page.calserver-layout {
+    --calserver-primary: var(--qr-landing-primary);
     --cs-logo-size: clamp(48px, 7vw, 72px);
     --cs-logo-gap: clamp(12px, 2.6vw, 22px);
-    --cs-logo-bg: color-mix(in oklab, var(--calserver-primary) 8%, color-mix(in oklab, var(--marketing-white) 94%, transparent));
-    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 16%, transparent));
-    --cs-logo-shadow: 0 20px 42px -30px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
-    --cs-logo-text: color-mix(in oklab, var(--calserver-primary) 24%, var(--marketing-ink) 76%);
     --cs-anchor-offset: calc(var(--cs-logo-size) + 32px);
-    --cs-topbar-bg: color-mix(in oklab, var(--marketing-surface) 92%, transparent);
-    --cs-topbar-border: color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 12%, transparent));
-    --cs-topbar-text: color-mix(in oklab, var(--marketing-text-on-surface) 85%, var(--calserver-primary) 15%);
-    --cs-topbar-muted: color-mix(in oklab, var(--marketing-text-muted-on-surface) 80%, var(--calserver-primary) 20%);
-    --cs-mega-highlight-bg: color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 98%, transparent));
-    --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 12%, color-mix(in oklab, var(--marketing-ink) 8%, transparent));
-    --cs-mode-pill-bg: color-mix(in oklab, var(--calserver-primary) 18%, transparent);
-    --cs-mode-pill-hover-bg: color-mix(in oklab, var(--calserver-primary) 32%, transparent);
-    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
-    --cs-mode-pill-text: color-mix(in oklab, var(--marketing-white) 92%, transparent);
-    --cs-mode-pill-hover-text: var(--marketing-white);
-    --cs-mode-pill-active-text: var(--marketing-white);
-    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 30%, transparent));
-    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 34%, transparent));
-    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
-    --cs-mode-pill-shadow: 0 16px 32px -28px color-mix(in oklab, var(--marketing-ink) 72%, transparent);
-    --cs-mode-pill-hover-shadow: 0 20px 40px -30px color-mix(in oklab, var(--marketing-ink) 78%, transparent);
-    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 78%, var(--marketing-white) 22%);
     scroll-behavior: smooth;
-}
-
-body.marketing-page.calserver-theme:not(.high-contrast) {
-    --qr-landing-primary: var(--calserver-primary);
 }
 
 .marketing-page .hero-bg-calserver {
@@ -87,63 +43,13 @@ body.marketing-page.calserver-theme:not(.high-contrast) {
     display: none;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-bg__canvas,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-bg__canvas,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-bg__canvas,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-bg__canvas,
 body.high-contrast .calserver-hero-bg__canvas {
     display: none !important;
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast),
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) {
-    --qr-hero-grad-start: var(--marketing-surface-dark);
-    --qr-hero-grad-end: color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-surface-dark) 30%);
-    --qr-hero-gradient: linear-gradient(
-        135deg,
-        var(--qr-hero-grad-start) 0%,
-        color-mix(in oklab, var(--calserver-primary) 55%, var(--marketing-surface-muted-dark) 45%) 100%
-    );
-    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
-    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
-    --cs-hero-shadow: 0 48px 90px -60px color-mix(in oklab, var(--marketing-ink) 85%, transparent);
-    --cs-highlight-bg: linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 96%, transparent)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 94%, transparent)) 100%
-    );
-    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 14%, transparent));
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-white) 12%, transparent));
-    --cs-highlight-shadow: 0 -28px 72px -54px color-mix(in oklab, var(--marketing-ink) 78%, transparent),
-        0 36px 84px -52px color-mix(in oklab, var(--marketing-ink) 88%, transparent);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 86%, transparent));
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 60%, color-mix(in oklab, var(--marketing-white) 18%, transparent));
-    --cs-highlight-card-shadow: 0 26px 46px -30px color-mix(in oklab, var(--marketing-ink) 72%, transparent);
-    --cs-logo-bg: color-mix(in oklab, color-mix(in oklab, var(--marketing-ink) 88%, transparent) 68%, var(--calserver-primary) 32%);
-    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
-    --cs-logo-shadow: 0 24px 48px -32px color-mix(in oklab, var(--marketing-ink) 75%, transparent);
-    --cs-logo-text: color-mix(in oklab, var(--marketing-white) 88%, var(--calserver-primary) 12%);
-    --cs-topbar-bg: color-mix(in oklab, var(--marketing-surface-dark) 90%, transparent);
-    --cs-topbar-border: color-mix(in oklab, var(--calserver-primary) 38%, color-mix(in oklab, var(--marketing-white) 16%, transparent));
-    --cs-topbar-text: color-mix(in oklab, var(--marketing-text-on-background-dark) 82%, var(--calserver-primary) 18%);
-    --cs-topbar-muted: color-mix(in oklab, var(--marketing-text-muted-on-background-dark) 70%, var(--calserver-primary) 30%);
-    --cs-mega-highlight-bg: color-mix(in oklab, color-mix(in oklab, var(--marketing-ink) 88%, transparent) 72%, var(--calserver-primary) 28%);
-    --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-white) 16%, transparent));
-}
-
-body.marketing-page.calserver-theme.high-contrast,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] {
-    --cs-logo-bg: var(--marketing-white);
-    --cs-logo-border: var(--marketing-black);
-    --cs-logo-shadow: none;
-    --cs-logo-text: currentColor;
-    --cs-topbar-bg: var(--marketing-white);
-    --cs-topbar-border: var(--marketing-black);
-    --cs-topbar-text: var(--marketing-black);
-    --cs-topbar-muted: var(--marketing-black);
-    --cs-mega-highlight-bg: var(--marketing-white);
-    --cs-mega-highlight-muted: color-mix(in oklab, var(--marketing-black) 18%, transparent);
-}
-
-.calserver-theme .cs-logo {
+.calserver-layout .cs-logo {
     display: inline-flex;
     align-items: center;
     gap: var(--cs-logo-gap);
@@ -155,7 +61,7 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     line-height: 1;
 }
 
-.calserver-theme .cs-logo__image {
+.calserver-layout .cs-logo__image {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -168,21 +74,21 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     overflow: hidden;
 }
 
-.calserver-theme .cs-logo__img {
+.calserver-layout .cs-logo__img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
 
-.calserver-theme .cs-logo__wordmark {
+.calserver-layout .cs-logo__wordmark {
     display: inline-flex;
     align-items: center;
     color: inherit;
     text-transform: none;
 }
 
-.calserver-theme .cs-logo__sr {
+.calserver-layout .cs-logo__sr {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -195,14 +101,14 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
 }
 
 @media (max-width: 960px) {
-    .calserver-theme .cs-logo__wordmark {
+    .calserver-layout .cs-logo__wordmark {
         display: none;
     }
 }
 
-.calserver-theme .qr-topbar,
-.calserver-theme .uk-navbar,
-.calserver-theme .uk-navbar-container {
+.calserver-layout .qr-topbar,
+.calserver-layout .uk-navbar,
+.calserver-layout .uk-navbar-container {
     background: var(--cs-topbar-bg);
     color: var(--cs-topbar-text);
     border-bottom: 1px solid var(--cs-topbar-border);
@@ -211,33 +117,33 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.calserver-theme .uk-navbar a {
+.calserver-layout .uk-navbar a {
     color: var(--cs-topbar-text);
     transition: color 0.18s ease;
 }
 
-.calserver-theme .uk-navbar a:hover,
-.calserver-theme .uk-navbar a:focus {
+.calserver-layout .uk-navbar a:hover,
+.calserver-layout .uk-navbar a:focus {
     color: color-mix(in oklab, var(--calserver-primary) 70%, var(--cs-topbar-text) 30%);
 }
 
-.calserver-theme .uk-navbar a:focus-visible {
+.calserver-layout .uk-navbar a:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 60%, transparent);
     outline-offset: 2px;
 }
 
-.calserver-theme .cs-mega-nav > li > a {
+.calserver-layout .cs-mega-nav > li > a {
     font-weight: 600;
     padding: 0 16px;
     text-transform: none;
 }
 
-.calserver-theme .cs-mega-nav > li > a:hover,
-.calserver-theme .cs-mega-nav > li > a:focus {
+.calserver-layout .cs-mega-nav > li > a:hover,
+.calserver-layout .cs-mega-nav > li > a:focus {
     color: color-mix(in oklab, var(--calserver-primary) 75%, var(--cs-topbar-text) 25%);
 }
 
-.calserver-theme .cs-mega-nav .uk-navbar-dropdown {
+.calserver-layout .cs-mega-nav .uk-navbar-dropdown {
     width: 720px;
     padding: 16px 0;
     box-sizing: border-box;
@@ -247,7 +153,7 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     box-shadow: 0 22px 48px -34px color-mix(in oklab, var(--marketing-ink) 40%, transparent);
 }
 
-.calserver-theme .cs-mega-nav .uk-navbar-dropdown-nav > li > a {
+.calserver-layout .cs-mega-nav .uk-navbar-dropdown-nav > li > a {
     padding: 10px 18px;
     line-height: 1.35;
     font-weight: 500;
@@ -255,60 +161,60 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.calserver-theme .cs-mega-nav .uk-navbar-dropdown-nav > li + li {
+.calserver-layout .cs-mega-nav .uk-navbar-dropdown-nav > li + li {
     margin-top: 2px;
 }
 
-.calserver-theme .cs-mega-nav .uk-navbar-dropdown-nav > li > a:hover,
-.calserver-theme .cs-mega-nav .uk-navbar-dropdown-nav > li > a:focus {
+.calserver-layout .cs-mega-nav .uk-navbar-dropdown-nav > li > a:hover,
+.calserver-layout .cs-mega-nav .uk-navbar-dropdown-nav > li > a:focus {
     background: var(--cs-mega-highlight-muted);
 }
 
-.calserver-theme .cs-mega-nav .uk-navbar-dropdown-nav > li > a:focus-visible {
+.calserver-layout .cs-mega-nav .uk-navbar-dropdown-nav > li > a:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 55%, transparent);
     outline-offset: 2px;
 }
 
-.calserver-theme .menu-explain {
+.calserver-layout .menu-explain {
     padding: 18px;
     border-left: 1px solid var(--cs-topbar-border);
     background: color-mix(in oklab, var(--cs-mega-highlight-bg) 92%, color-mix(in oklab, var(--marketing-white) 96%, transparent) 8%);
     min-height: 220px;
 }
 
-.calserver-theme .menu-explain h5 {
+.calserver-layout .menu-explain h5 {
     margin: 0 0 6px;
     font-size: 15px;
     font-weight: 600;
 }
 
-.calserver-theme .menu-explain p {
+.calserver-layout .menu-explain p {
     margin: 0;
     font-size: 13px;
     line-height: 1.5;
     color: var(--cs-topbar-muted);
 }
 
-.calserver-theme .menu-explain p.menu-explain__subline {
+.calserver-layout .menu-explain p.menu-explain__subline {
     margin-top: 8px;
     font-size: 12.5px;
     opacity: 0.78;
 }
 
-.calserver-theme .menu-explain .explain-pane.uk-hidden {
+.calserver-layout .menu-explain .explain-pane.uk-hidden {
     display: none !important;
 }
 
-.calserver-theme section[id] {
+.calserver-layout section[id] {
     scroll-margin-top: var(--cs-anchor-offset);
 }
 
-.calserver-theme .cs-cta {
+.calserver-layout .cs-cta {
     display: flex;
     align-items: center;
 }
 
-.calserver-theme .cs-cta .cs-primary-link {
+.calserver-layout .cs-cta .cs-primary-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -322,41 +228,41 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
-.calserver-theme .cs-cta .cs-primary-link:hover,
-.calserver-theme .cs-cta .cs-primary-link:focus {
+.calserver-layout .cs-cta .cs-primary-link:hover,
+.calserver-layout .cs-cta .cs-primary-link:focus {
     background: color-mix(in oklab, var(--calserver-primary) 82%, var(--marketing-ink) 18%);
     transform: translateY(-1px);
     box-shadow: 0 20px 42px -24px color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-ink) 60%, transparent));
 }
 
-.calserver-theme .cs-cta .cs-primary-link:focus-visible {
+.calserver-layout .cs-cta .cs-primary-link:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--marketing-white) 70%, var(--calserver-primary) 30%);
     outline-offset: 3px;
 }
 
-body.marketing-page.calserver-theme.high-contrast .qr-topbar,
-body.marketing-page.calserver-theme.high-contrast .uk-navbar,
-body.marketing-page.calserver-theme.high-contrast .uk-navbar-container,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .qr-topbar,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .uk-navbar,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .uk-navbar-container {
+body.marketing-page.calserver-layout.high-contrast .qr-topbar,
+body.marketing-page.calserver-layout.high-contrast .uk-navbar,
+body.marketing-page.calserver-layout.high-contrast .uk-navbar-container,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .qr-topbar,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .uk-navbar,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .uk-navbar-container {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
 
 @media (max-width: 960px) {
-    .calserver-theme .cs-mega-nav .uk-navbar-dropdown {
+    .calserver-layout .cs-mega-nav .uk-navbar-dropdown {
         width: 100%;
     }
 
-    .calserver-theme .menu-explain {
+    .calserver-layout .menu-explain {
         border-left: 0;
         border-top: 1px solid var(--cs-topbar-border);
     }
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary {
     background: linear-gradient(
             135deg,
             color-mix(in oklab, var(--calserver-primary) 56%, var(--marketing-surface-muted-dark) 44%) 0%,
@@ -368,8 +274,8 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-c
         0 24px 44px -32px color-mix(in oklab, var(--marketing-ink) 72%, transparent);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight {
     background: linear-gradient(
             145deg,
             color-mix(in oklab, var(--calserver-primary) 68%, var(--marketing-surface-muted-dark) 32%) 0%,
@@ -380,7 +286,7 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-c
         0 26px 52px -34px color-mix(in oklab, var(--marketing-ink) 82%, transparent);
 }
 
-.calserver-theme .calserver-news {
+.calserver-layout .calserver-news {
     background: linear-gradient(
             180deg,
             color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 94%, transparent)) 0%,
@@ -390,31 +296,31 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-c
     border-bottom: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 8%, transparent));
 }
 
-.calserver-theme .calserver-news .uk-heading-medium {
+.calserver-layout .calserver-news .uk-heading-medium {
     font-weight: 600;
     color: color-mix(in oklab, var(--calserver-primary) 68%, var(--marketing-ink) 32%);
 }
 
-.calserver-theme .calserver-news .uk-button-text {
+.calserver-layout .calserver-news .uk-button-text {
     color: color-mix(in oklab, var(--calserver-primary) 74%, var(--marketing-text-on-surface) 26%);
 }
 
-.calserver-theme .calserver-news .uk-button-text:hover,
-.calserver-theme .calserver-news .uk-button-text:focus {
+.calserver-layout .calserver-news .uk-button-text:hover,
+.calserver-layout .calserver-news .uk-button-text:focus {
     color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
     text-decoration: none;
 }
 
-.calserver-theme .calserver-news--listing .marketing-news-card {
+.calserver-layout .calserver-news--listing .marketing-news-card {
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 10%, transparent));
     box-shadow: 0 24px 40px -32px color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 42%, transparent));
 }
 
-.calserver-theme .calserver-news--listing .marketing-news-card__date {
+.calserver-layout .calserver-news--listing .marketing-news-card__date {
     color: color-mix(in oklab, var(--calserver-primary) 32%, var(--marketing-text-muted-on-surface) 68%);
 }
 
-.calserver-theme .calserver-news-entry {
+.calserver-layout .calserver-news-entry {
     background: color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 96%, transparent) 94%);
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 10%, transparent));
     border-radius: 18px;
@@ -423,35 +329,35 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-c
         0 22px 36px -30px color-mix(in oklab, var(--marketing-ink) 22%, transparent);
 }
 
-.calserver-theme .calserver-news-entry .uk-article-meta {
+.calserver-layout .calserver-news-entry .uk-article-meta {
     color: color-mix(in oklab, var(--calserver-primary) 28%, var(--marketing-text-muted-on-surface) 72%);
 }
 
-.calserver-theme .calserver-news-entry a {
+.calserver-layout .calserver-news-entry a {
     color: color-mix(in oklab, var(--calserver-primary) 72%, var(--marketing-text-on-surface) 28%);
 }
 
-.calserver-theme .calserver-news-entry a:hover,
-.calserver-theme .calserver-news-entry a:focus {
+.calserver-layout .calserver-news-entry a:hover,
+.calserver-layout .calserver-news-entry a:focus {
     color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary p,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary li,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .muted,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary p,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary li,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .muted {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary li,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary .muted,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary li,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary .muted {
     color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 68%, transparent) 8%) !important;
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
     border-color: color-mix(in oklab, var(--marketing-white) 80%, color-mix(in oklab, var(--marketing-primary) 36%, transparent) 20%);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default {
     background: color-mix(in oklab, var(--marketing-white) 88%, var(--calserver-primary) 12%);
     color: color-mix(in oklab, var(--calserver-primary) 90%, var(--marketing-ink) 10%);
     border-color: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-white) 45%, transparent));
@@ -459,8 +365,8 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-c
         0 16px 30px -20px color-mix(in oklab, var(--marketing-primary) 60%, transparent);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
     background: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-ink) 92%, transparent) 18%);
     color: color-mix(in oklab, var(--marketing-white) 92%, var(--calserver-primary) 8%);
     border-color: color-mix(in oklab, var(--calserver-primary) 70%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
@@ -468,69 +374,69 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #cont
     transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
     background: color-mix(in oklab, var(--calserver-primary) 94%, color-mix(in oklab, var(--marketing-ink) 90%, transparent) 6%);
     color: var(--marketing-white);
     box-shadow: 0 28px 52px -26px color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-primary) 45%, transparent));
     outline-offset: 2px;
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 24%, transparent)),
         0 24px 48px -26px color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-ink) 88%, transparent));
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
     background: color-mix(in oklab, var(--marketing-white) 74%, var(--calserver-primary) 26%);
     color: color-mix(in oklab, var(--calserver-primary) 94%, var(--marketing-ink) 6%);
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 48%, transparent)) inset,
         0 22px 36px -22px color-mix(in oklab, var(--marketing-primary) 65%, transparent);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, var(--marketing-white) 25%);
     outline-offset: 2px;
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .pill--badge,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .pill--badge {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card-primary .pill--badge,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card-primary .pill--badge {
     background: color-mix(in oklab, var(--marketing-white) 90%, var(--calserver-primary) 10%);
     color: color-mix(in oklab, var(--calserver-primary) 78%, var(--marketing-ink) 22%);
     border-color: color-mix(in oklab, var(--calserver-primary) 46%, color-mix(in oklab, var(--marketing-white) 60%, transparent));
     box-shadow: 0 18px 32px -22px color-mix(in oklab, var(--marketing-primary) 55%, transparent);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card .uk-card-title,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card h3,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card h4,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card .uk-card-title,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card h3,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card h4 {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .uk-card h4,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .uk-card h4 {
     color: var(--cs-text-on-dark) !important;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card .uk-card-title,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card h3,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card h4,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card .uk-card-title,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h3,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h4 {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card h4,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card .uk-card-title,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card h3,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card h4 {
     color: color-mix(in oklab, var(--calserver-primary) 22%, var(--marketing-ink) 78%) !important;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-default,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-default {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-default,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-default {
     background: var(--marketing-white) !important;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary {
     background: linear-gradient(
             135deg,
             color-mix(in oklab, var(--calserver-primary) 86%, var(--marketing-ink) 14%) 0%,
@@ -541,105 +447,65 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-
     box-shadow: 0 26px 46px -30px color-mix(in oklab, var(--calserver-primary) 42%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary h3,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary p,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary li,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary h3,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary p,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary li {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary h3,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary li,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary h3,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary p,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary li {
     color: color-mix(in oklab, var(--marketing-white) 92%, transparent) !important;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default {
     background: var(--marketing-white);
     color: color-mix(in oklab, var(--calserver-primary) 82%, var(--marketing-ink) 18%);
     border-color: transparent;
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--marketing-white) 55%, transparent) inset;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default:hover,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default:hover,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
     background: color-mix(in oklab, var(--marketing-white) 88%, var(--calserver-primary) 12%);
     color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
     border-color: color-mix(in oklab, var(--marketing-white) 70%, transparent);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .site-footer,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .site-footer a,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section p,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section li,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .footer-section strong,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .site-footer a,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section p,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section li,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section strong {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .site-footer,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .footer-section,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .footer-section strong,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .site-footer,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .footer-section,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .footer-section strong {
     color: var(--marketing-white);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer a,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section p,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section li,
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .footer-section strong,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .site-footer a,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section p,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section li,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section strong {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .site-footer,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .footer-section,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .footer-section strong,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .site-footer,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .site-footer a,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .footer-section,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .footer-section p,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .footer-section li,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .footer-section strong {
     color: color-mix(in oklab, var(--qr-text, var(--marketing-text-on-surface)) 92%, var(--calserver-primary) 8%);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast),
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) {
-    --qr-hero-grad-start: var(--qr-brand-50);
-    --qr-hero-grad-end: var(--qr-brand-300);
-    --qr-hero-gradient: linear-gradient(
-        135deg,
-        var(--qr-hero-grad-start) 0%,
-        var(--qr-hero-grad-end) 100%
-    );
-    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 62%, var(--cs-card-dark) 38%);
-    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 68%, transparent);
-    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-white) 94%, transparent));
-    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 8%, color-mix(in oklab, var(--marketing-white) 96%, transparent));
-    --cs-hero-shadow: 0 34px 76px -54px color-mix(in oklab, var(--calserver-primary) 45%, transparent);
-    --cs-highlight-bg: linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--calserver-primary) 10%, color-mix(in oklab, var(--marketing-white) 96%, transparent)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 98%, transparent)) 100%
-    );
-    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 34%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 14%, transparent));
-    --cs-highlight-shadow: 0 -20px 48px -36px color-mix(in oklab, var(--calserver-primary) 22%, transparent),
-        0 26px 54px -38px color-mix(in oklab, var(--calserver-primary) 18%, transparent);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 9%, color-mix(in oklab, var(--marketing-white) 96%, transparent));
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 12%, transparent));
-    --cs-highlight-card-shadow: 0 22px 42px -28px color-mix(in oklab, var(--calserver-primary) 22%, transparent);
-    --cs-mode-pill-bg: color-mix(in oklab, var(--marketing-white) 86%, var(--calserver-primary) 14%);
-    --cs-mode-pill-hover-bg: color-mix(in oklab, var(--marketing-white) 72%, var(--calserver-primary) 28%);
-    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 92%, var(--marketing-white) 8%);
-    --cs-mode-pill-text: color-mix(in oklab, var(--calserver-primary) 72%, var(--marketing-ink) 28%);
-    --cs-mode-pill-hover-text: color-mix(in oklab, var(--calserver-primary) 94%, var(--marketing-ink) 6%);
-    --cs-mode-pill-active-text: var(--marketing-white);
-    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
-    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 48%, color-mix(in oklab, var(--marketing-ink) 20%, transparent));
-    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-ink) 24%, transparent));
-    --cs-mode-pill-shadow: 0 16px 28px -24px color-mix(in oklab, var(--calserver-primary) 18%, transparent);
-    --cs-mode-pill-hover-shadow: 0 20px 36px -26px color-mix(in oklab, var(--calserver-primary) 24%, transparent);
-    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 68%, var(--marketing-white) 32%);
-}
-
-body.marketing-page.calserver-theme:not(.high-contrast) .hero-bg-calserver {
+body.marketing-page.calserver-layout:not(.high-contrast) .hero-bg-calserver {
     background:
         radial-gradient(
             580px 360px at 0% 0%,
@@ -657,19 +523,19 @@ body.marketing-page.calserver-theme:not(.high-contrast) .hero-bg-calserver {
     box-shadow: var(--cs-hero-shadow);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-grid {
+body.marketing-page.calserver-layout .calserver-hero-grid {
     align-items: stretch;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-grid__media {
+body.marketing-page.calserver-layout .calserver-hero-grid__media {
     display: flex;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-grid__media > * {
+body.marketing-page.calserver-layout .calserver-hero-grid__media > * {
     width: 100%;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video {
+body.marketing-page.calserver-layout .calserver-hero-video {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -686,25 +552,25 @@ body.marketing-page.calserver-theme .calserver-hero-video {
     overflow: hidden;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__badge {
+body.marketing-page.calserver-layout .calserver-hero-video__badge {
     align-self: flex-start;
     font-weight: 600;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__frame {
+body.marketing-page.calserver-layout .calserver-hero-video__frame {
     position: relative;
     border-radius: 22px;
     overflow: hidden;
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 38%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__frame::before {
+body.marketing-page.calserver-layout .calserver-hero-video__frame::before {
     content: "";
     display: block;
     padding-top: 56.25%;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__embed {
+body.marketing-page.calserver-layout .calserver-hero-video__embed {
     position: absolute;
     inset: 0;
     display: flex;
@@ -722,14 +588,14 @@ body.marketing-page.calserver-theme .calserver-hero-video__embed {
     color: color-mix(in oklab, var(--marketing-white) 94%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__embed.is-loaded {
+body.marketing-page.calserver-layout .calserver-hero-video__embed.is-loaded {
     display: block;
     padding: 0;
     background: transparent;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__frame iframe,
-body.marketing-page.calserver-theme .calserver-hero-video__embed iframe {
+body.marketing-page.calserver-layout .calserver-hero-video__frame iframe,
+body.marketing-page.calserver-layout .calserver-hero-video__embed iframe {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -737,7 +603,7 @@ body.marketing-page.calserver-theme .calserver-hero-video__embed iframe {
     border: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__preview {
+body.marketing-page.calserver-layout .calserver-hero-video__preview {
     display: grid;
     gap: 6px;
     justify-items: center;
@@ -747,42 +613,42 @@ body.marketing-page.calserver-theme .calserver-hero-video__preview {
     background: color-mix(in oklab, var(--marketing-white) 8%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__preview-title {
+body.marketing-page.calserver-layout .calserver-hero-video__preview-title {
     font-size: 1.05rem;
     font-weight: 600;
     letter-spacing: 0.01em;
     color: color-mix(in oklab, var(--marketing-white) 94%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__preview-subtitle {
+body.marketing-page.calserver-layout .calserver-hero-video__preview-subtitle {
     font-size: 0.85rem;
     color: color-mix(in oklab, var(--marketing-white) 72%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__hint,
-body.marketing-page.calserver-theme .calserver-hero-video__privacy-note,
-body.marketing-page.calserver-theme .calserver-hero-video__noscript-note {
+body.marketing-page.calserver-layout .calserver-hero-video__hint,
+body.marketing-page.calserver-layout .calserver-hero-video__privacy-note,
+body.marketing-page.calserver-layout .calserver-hero-video__noscript-note {
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.5;
     color: color-mix(in oklab, var(--marketing-white) 86%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__hint {
+body.marketing-page.calserver-layout .calserver-hero-video__hint {
     max-width: 420px;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__privacy-note {
+body.marketing-page.calserver-layout .calserver-hero-video__privacy-note {
     font-size: 0.78rem;
     opacity: 0.9;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__noscript-note a {
+body.marketing-page.calserver-layout .calserver-hero-video__noscript-note a {
     color: inherit;
     text-decoration: underline;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__meta {
+body.marketing-page.calserver-layout .calserver-hero-video__meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -790,23 +656,23 @@ body.marketing-page.calserver-theme .calserver-hero-video__meta {
     gap: 12px 18px;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__meta-text {
+body.marketing-page.calserver-layout .calserver-hero-video__meta-text {
     display: grid;
     gap: 4px;
     color: color-mix(in oklab, var(--marketing-white) 92%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__meta-text strong {
+body.marketing-page.calserver-layout .calserver-hero-video__meta-text strong {
     font-size: 1.12rem;
     letter-spacing: 0.01em;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__meta-text span {
+body.marketing-page.calserver-layout .calserver-hero-video__meta-text span {
     font-size: 0.95rem;
     color: color-mix(in oklab, var(--marketing-white) 86%, color-mix(in oklab, var(--marketing-white) 40%, transparent) 14%);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__link {
+body.marketing-page.calserver-layout .calserver-hero-video__link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -820,100 +686,100 @@ body.marketing-page.calserver-theme .calserver-hero-video__link {
     transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__link:hover,
-body.marketing-page.calserver-theme .calserver-hero-video__link:focus-visible {
+body.marketing-page.calserver-layout .calserver-hero-video__link:hover,
+body.marketing-page.calserver-layout .calserver-hero-video__link:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 56%, color-mix(in oklab, var(--marketing-white) 8%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-white) 60%, transparent));
     box-shadow: 0 18px 36px -24px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
     transform: translateY(-1px);
 }
 
-body.marketing-page.calserver-theme .calserver-hero-video__footnote {
+body.marketing-page.calserver-layout .calserver-hero-video__footnote {
     margin: 0;
     font-size: 0.9rem;
     color: color-mix(in oklab, var(--marketing-white) 78%, color-mix(in oklab, var(--marketing-white) 40%, transparent) 22%);
 }
 
 @media (max-width: 959px) {
-    body.marketing-page.calserver-theme .calserver-hero-video {
+    body.marketing-page.calserver-layout .calserver-hero-video {
         padding: 24px;
     }
 
-    body.marketing-page.calserver-theme .calserver-hero-video__meta {
+    body.marketing-page.calserver-layout .calserver-hero-video__meta {
         flex-direction: column;
         align-items: stretch;
     }
 
-    body.marketing-page.calserver-theme .calserver-hero-video__link {
+    body.marketing-page.calserver-layout .calserver-hero-video__link {
         justify-content: center;
     }
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video {
     background: var(--qr-card);
     border-color: currentColor;
     box-shadow: none;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__embed,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__embed {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__embed,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__embed {
     background: var(--qr-card);
     color: currentColor;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__hint,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__hint,
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__privacy-note,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__privacy-note,
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__noscript-note,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__noscript-note {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__hint,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__hint,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__privacy-note,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__privacy-note,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__noscript-note,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__noscript-note {
     color: currentColor;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__preview,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__preview,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__preview {
     background: currentColor;
     color: var(--qr-bg);
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__preview-title,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-title,
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__preview-subtitle,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-subtitle {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__preview-title,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__preview-title,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__preview-subtitle,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__preview-subtitle {
     color: inherit;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__meta-text,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text,
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__meta-text span,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text span,
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__footnote,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__footnote {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__meta-text,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__meta-text,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__meta-text span,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__meta-text span,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__footnote,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__footnote {
     color: currentColor;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__link,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__link,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__link {
     color: currentColor;
     background: transparent;
     border-color: currentColor;
     box-shadow: none;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__link:hover,
-body.marketing-page.calserver-theme.high-contrast .calserver-hero-video__link:focus-visible,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:hover,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:focus-visible {
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__link:hover,
+body.marketing-page.calserver-layout.high-contrast .calserver-hero-video__link:focus-visible,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__link:hover,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .calserver-hero-video__link:focus-visible {
     background: currentColor;
     color: var(--qr-bg);
 }
 
-body.marketing-page.calserver-theme .hero-list li {
+body.marketing-page.calserver-layout .hero-list li {
     color: var(--qr-muted);
 }
 
-body.marketing-page.calserver-theme .pill {
+body.marketing-page.calserver-layout .pill {
     display: inline-block;
     padding: 4px 12px;
     border-radius: 999px;
@@ -922,30 +788,30 @@ body.marketing-page.calserver-theme .pill {
     letter-spacing: 0.02em;
 }
 
-body.marketing-page.calserver-theme .pill--soft {
+body.marketing-page.calserver-layout .pill--soft {
     background: color-mix(in oklab, var(--calserver-primary) 15%, transparent);
     color: var(--qr-landing-primary);
 }
 
-body.marketing-page.calserver-theme .pill--accent {
+body.marketing-page.calserver-layout .pill--accent {
     background: var(--qr-card);
     color: var(--qr-landing-primary);
     box-shadow: 0 6px 18px -10px rgb(var(--marketing-black-rgb) / 0.45);
 }
 
-body.marketing-page.calserver-theme .pill--badge {
+body.marketing-page.calserver-layout .pill--badge {
     background: color-mix(in oklab, var(--marketing-white) 86%, transparent);
     color: color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-ink) 30%);
     border: 1px solid color-mix(in oklab, var(--marketing-white) 60%, transparent);
 }
 
-body.marketing-page.calserver-theme .shadow-soft {
+body.marketing-page.calserver-layout .shadow-soft {
     box-shadow: 0 18px 36px -24px color-mix(in oklab, var(--marketing-ink) 35%, transparent),
         0 12px 24px -18px color-mix(in oklab, var(--marketing-ink) 25%, transparent);
     border-radius: 18px;
 }
 
-body.marketing-page.calserver-theme .pricing-card--featured {
+body.marketing-page.calserver-layout .pricing-card--featured {
     position: relative;
     z-index: 1;
     padding: clamp(36px, 3vw, 52px);
@@ -957,21 +823,21 @@ body.marketing-page.calserver-theme .pricing-card--featured {
     transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-body.marketing-page.calserver-theme .pricing-card--featured h3 {
+body.marketing-page.calserver-layout .pricing-card--featured h3 {
     font-size: clamp(1.7rem, 1.2vw + 1.2rem, 2.2rem);
 }
 
-body.marketing-page.calserver-theme .pricing-card--featured p,
-body.marketing-page.calserver-theme .pricing-card--featured li {
+body.marketing-page.calserver-layout .pricing-card--featured p,
+body.marketing-page.calserver-layout .pricing-card--featured li {
     font-size: 1.08rem;
 }
 
 @media (min-width: 960px) {
-    body.marketing-page.calserver-theme .pricing-card--featured {
+    body.marketing-page.calserver-layout .pricing-card--featured {
         transform: scale(1.06) translateY(-10px);
     }
 
-    body.marketing-page.calserver-theme .pricing-card--featured:hover {
+    body.marketing-page.calserver-layout .pricing-card--featured:hover {
         transform: scale(1.08) translateY(-14px);
         box-shadow: 0 36px 78px -28px color-mix(in oklab, var(--marketing-ink) 60%, transparent),
             0 20px 42px -24px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
@@ -979,13 +845,13 @@ body.marketing-page.calserver-theme .pricing-card--featured li {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.marketing-page.calserver-theme .pricing-card--featured {
+    body.marketing-page.calserver-layout .pricing-card--featured {
         transition: none;
         transform: none !important;
     }
 }
 
-body.marketing-page.calserver-theme .calserver-highlight {
+body.marketing-page.calserver-layout .calserver-highlight {
     padding: 32px 0 28px;
     background: var(--cs-highlight-bg);
     border-top: 1px solid var(--cs-highlight-border-top);
@@ -993,13 +859,13 @@ body.marketing-page.calserver-theme .calserver-highlight {
     box-shadow: var(--cs-highlight-shadow);
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill {
     gap: 12px;
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
@@ -1021,12 +887,12 @@ body.marketing-page.calserver-theme:not(.high-contrast)
         border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
     > a:hover,
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
@@ -1038,7 +904,7 @@ body.marketing-page.calserver-theme:not(.high-contrast)
     transform: translateY(-1px);
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > *
@@ -1047,17 +913,17 @@ body.marketing-page.calserver-theme:not(.high-contrast)
     outline-offset: 3px;
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > .uk-active
     > a,
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > .uk-active
     > a:hover,
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     .calserver-highlight
     .uk-subnav.uk-subnav-pill
     > .uk-active
@@ -1069,12 +935,12 @@ body.marketing-page.calserver-theme:not(.high-contrast)
     transform: translateY(-1px);
 }
 
-body.marketing-page.calserver-theme .calserver-highlight__intro {
+body.marketing-page.calserver-layout .calserver-highlight__intro {
     max-width: 720px;
     margin: 0 auto 42px;
 }
 
-body.marketing-page.calserver-theme .calserver-highlight__intro p {
+body.marketing-page.calserver-layout .calserver-highlight__intro p {
     color: color-mix(in oklab, color-mix(in oklab, var(--marketing-white) 92%, transparent) 92%, color-mix(in oklab, var(--marketing-white) 62%, transparent) 8%);
 }
 
@@ -1273,21 +1139,21 @@ body.marketing-page.calserver-theme .calserver-highlight__intro p {
     opacity: 0.75;
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-dialog,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-dialog,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1332,21 +1198,21 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
         0 18px 36px -28px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-title,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     .uk-modal-title,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1356,7 +1222,7 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     color: var(--cs-hosting-modal-title);
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1364,7 +1230,7 @@ body.marketing-page.calserver-theme:not(.high-contrast)
     )
     .uk-list-bullet
     > li::before,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1372,7 +1238,7 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     )
     .uk-list-bullet
     > li::before,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1383,21 +1249,21 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     border-color: var(--cs-hosting-modal-bullet);
 }
 
-body.marketing-page.calserver-theme:not(.high-contrast)
+body.marketing-page.calserver-layout:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     p,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     p,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1407,8 +1273,8 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     color: var(--cs-hosting-modal-muted);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .marketing-chat__dialog,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .marketing-chat__dialog,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
     --marketing-chat-surface: color-mix(
         in oklab,
         var(--qr-card, var(--marketing-surface-dark)) 85%,
@@ -1441,22 +1307,22 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .mark
     );
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast)
     #modal-standard-hosting
     .uk-modal-dialog,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     #modal-standard-hosting
     .uk-modal-dialog,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast)
     #modal-performance-hosting
     .uk-modal-dialog,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     #modal-performance-hosting
     .uk-modal-dialog,
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast)
     #modal-enterprise-hosting
     .uk-modal-dialog,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     #modal-enterprise-hosting
     .uk-modal-dialog {
     --cs-hosting-modal-surface: color-mix(
@@ -1500,14 +1366,14 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
         0 22px 44px -30px color-mix(in oklab, var(--marketing-ink) 70%, transparent);
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
         #modal-enterprise-hosting
     )
     p,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast)
     :is(
         #modal-standard-hosting,
         #modal-performance-hosting,
@@ -1527,35 +1393,35 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     }
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight__intro
     p,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight__intro
     p {
     color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-highlight.uk-light,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-highlight.uk-light {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .calserver-highlight.uk-light,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .calserver-highlight.uk-light {
     color: var(--qr-text);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight.uk-light
     :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
         .uk-heading-line > span, .uk-text-lead) {
     color: inherit;
 }
 
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight.uk-light
     :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
         .uk-heading-line > span, .uk-text-lead) {
     color: inherit;
 }
 
-body.marketing-page.calserver-theme .calserver-highlight-card {
+body.marketing-page.calserver-layout .calserver-highlight-card {
     background: var(--cs-highlight-card-bg) !important;
     border: 1px solid var(--cs-highlight-card-border) !important;
     border-radius: 22px;
@@ -1567,16 +1433,16 @@ body.marketing-page.calserver-theme .calserver-highlight-card {
     color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-bg) 12%);
 }
 
-body.marketing-page.calserver-theme .calserver-highlight-card .uk-card-title {
+body.marketing-page.calserver-layout .calserver-highlight-card .uk-card-title {
     color: color-mix(in oklab, var(--calserver-primary) 32%, var(--qr-text) 68%);
     letter-spacing: -0.01em;
 }
 
-body.marketing-page.calserver-theme .calserver-highlight-card .uk-list-bullet > li::before {
+body.marketing-page.calserver-layout .calserver-highlight-card .uk-list-bullet > li::before {
     border-color: color-mix(in oklab, var(--calserver-primary) 48%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-highlight-card__actions {
+body.marketing-page.calserver-layout .calserver-highlight-card__actions {
     margin-top: auto;
     display: flex;
     flex-wrap: wrap;
@@ -1584,14 +1450,14 @@ body.marketing-page.calserver-theme .calserver-highlight-card__actions {
     align-items: center;
 }
 
-body.marketing-page.calserver-theme .calserver-highlight-card__actions .muted {
+body.marketing-page.calserver-layout .calserver-highlight-card__actions .muted {
     font-size: 0.85rem;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary {
     background: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
@@ -1601,20 +1467,20 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
         color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-ink) 70%, transparent));
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:hover,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:hover {
     background: color-mix(in oklab, var(--calserver-primary) 78%, var(--marketing-ink) 22%);
     border-color: color-mix(in oklab, var(--calserver-primary) 72%, color-mix(in oklab, var(--marketing-ink) 34%, transparent));
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:focus-visible,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, var(--marketing-white) 25%);
@@ -1622,10 +1488,10 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default {
     background: var(--marketing-white);
@@ -1635,10 +1501,10 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
         0 14px 28px -24px color-mix(in oklab, var(--marketing-ink) 32%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:hover,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:hover {
     background: color-mix(in oklab, var(--marketing-white) 86%, var(--calserver-primary) 14%);
@@ -1646,10 +1512,10 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     border-color: color-mix(in oklab, var(--calserver-primary) 46%, color-mix(in oklab, var(--marketing-ink) 16%, transparent));
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:focus-visible,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 62%, var(--marketing-white) 38%);
@@ -1658,37 +1524,37 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
 }
 
 @media (max-width: 959px) {
-    body.marketing-page.calserver-theme .calserver-highlight-card {
+    body.marketing-page.calserver-layout .calserver-highlight-card {
         padding: 28px;
     }
 }
 
 @media (max-width: 639px) {
-    body.marketing-page.calserver-theme .calserver-highlight-card__actions {
+    body.marketing-page.calserver-layout .calserver-highlight-card__actions {
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
     }
 
-    body.marketing-page.calserver-theme .calserver-highlight-card__actions .uk-button {
+    body.marketing-page.calserver-layout .calserver-highlight-card__actions .uk-button {
         width: 100%;
         justify-content: center;
     }
 }
 
-body.marketing-page.calserver-theme .calserver-section-glow {
+body.marketing-page.calserver-layout .calserver-section-glow {
     position: relative;
     overflow: hidden;
     z-index: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-section-glow > * {
+body.marketing-page.calserver-layout .calserver-section-glow > * {
     position: relative;
     z-index: 1;
 }
 
-body.marketing-page.calserver-theme .calserver-section-glow::before,
-body.marketing-page.calserver-theme .calserver-section-glow::after {
+body.marketing-page.calserver-layout .calserver-section-glow::before,
+body.marketing-page.calserver-layout .calserver-section-glow::after {
     content: "";
     position: absolute;
     top: 0;
@@ -1703,16 +1569,16 @@ body.marketing-page.calserver-theme .calserver-section-glow::after {
     z-index: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-section-glow::before {
+body.marketing-page.calserver-layout .calserver-section-glow::before {
     left: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-section-glow::after {
+body.marketing-page.calserver-layout .calserver-section-glow::after {
     right: 0;
     transform: scaleX(-1);
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip {
+body.marketing-page.calserver-layout .calserver-stats-strip {
     display: grid;
     gap: 18px;
     position: relative;
@@ -1720,12 +1586,12 @@ body.marketing-page.calserver-theme .calserver-stats-strip {
 }
 
 @media (min-width: 640px) {
-    body.marketing-page.calserver-theme .calserver-stats-strip {
+    body.marketing-page.calserver-layout .calserver-stats-strip {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__item {
+body.marketing-page.calserver-layout .calserver-stats-strip__item {
     padding: 18px 20px;
     border-radius: 18px;
     background: var(--cs-highlight-card-bg);
@@ -1737,14 +1603,14 @@ body.marketing-page.calserver-theme .calserver-stats-strip__item {
     min-height: 120px;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__header {
+body.marketing-page.calserver-layout .calserver-stats-strip__header {
     display: flex;
     align-items: flex-end;
     gap: 14px;
     flex-wrap: wrap;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__title-group {
+body.marketing-page.calserver-layout .calserver-stats-strip__title-group {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -1752,7 +1618,7 @@ body.marketing-page.calserver-theme .calserver-stats-strip__title-group {
     min-width: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__value {
+body.marketing-page.calserver-layout .calserver-stats-strip__value {
     font-size: clamp(2rem, 2.2vw + 1.2rem, 3rem);
     font-weight: 700;
     color: var(--qr-landing-primary);
@@ -1760,38 +1626,38 @@ body.marketing-page.calserver-theme .calserver-stats-strip__value {
     flex-shrink: 0;
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .calserver-stats-strip__value,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-stats-strip__value {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .calserver-stats-strip__value,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .calserver-stats-strip__value {
     color: var(--qr-text);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-stats-strip__value,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-stats-strip__value {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .calserver-stats-strip__value,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .calserver-stats-strip__value {
     color: color-mix(in oklab, var(--calserver-primary) 86%, var(--marketing-ink) 14%);
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__title {
+body.marketing-page.calserver-layout .calserver-stats-strip__title {
     color: var(--qr-text);
     font-size: 1.05rem;
     font-weight: 600;
     line-height: 1.3;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__label {
+body.marketing-page.calserver-layout .calserver-stats-strip__label {
     color: var(--qr-muted);
     font-size: 0.95rem;
     line-height: 1.35;
     display: block;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__benefit {
+body.marketing-page.calserver-layout .calserver-stats-strip__benefit {
     margin: 8px 0 0;
     color: var(--qr-text);
     font-size: 0.95rem;
     line-height: 1.45;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__tooltip {
+body.marketing-page.calserver-layout .calserver-stats-strip__tooltip {
     color: var(--qr-muted);
     display: inline-flex;
     align-items: center;
@@ -1800,20 +1666,20 @@ body.marketing-page.calserver-theme .calserver-stats-strip__tooltip {
     cursor: help;
 }
 
-body.marketing-page.calserver-theme .calserver-stats-strip__tooltip:focus-visible {
+body.marketing-page.calserver-layout .calserver-stats-strip__tooltip:focus-visible {
     outline: 2px solid color-mix(in oklab, var(--calserver-primary) 65%, transparent);
     outline-offset: 2px;
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee {
+body.marketing-page.calserver-layout .calserver-logo-marquee {
     margin-top: 34px;
     position: relative;
     overflow: hidden;
     padding: 6px 0;
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee::before,
-body.marketing-page.calserver-theme .calserver-logo-marquee::after {
+body.marketing-page.calserver-layout .calserver-logo-marquee::before,
+body.marketing-page.calserver-layout .calserver-logo-marquee::after {
     content: "";
     position: absolute;
     top: 0;
@@ -1824,23 +1690,23 @@ body.marketing-page.calserver-theme .calserver-logo-marquee::after {
     background: linear-gradient(90deg, var(--qr-card), transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee::before {
+body.marketing-page.calserver-layout .calserver-logo-marquee::before {
     left: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee::after {
+body.marketing-page.calserver-layout .calserver-logo-marquee::after {
     right: 0;
     transform: scaleX(-1);
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee__track {
+body.marketing-page.calserver-layout .calserver-logo-marquee__track {
     display: flex;
     align-items: center;
     gap: 48px;
     animation: calserver-marquee 26s linear infinite;
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee__item {
+body.marketing-page.calserver-layout .calserver-logo-marquee__item {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
@@ -1857,17 +1723,17 @@ body.marketing-page.calserver-theme .calserver-logo-marquee__item {
     opacity: 0.96;
 }
 
-body.marketing-page.calserver-theme .calserver-logo-marquee__item img {
+body.marketing-page.calserver-layout .calserver-logo-marquee__item img {
     max-height: 40px;
     width: auto;
     filter: drop-shadow(0 4px 10px color-mix(in oklab, var(--marketing-ink) 25%, transparent));
 }
 
-body.marketing-page.calserver-theme .calserver-pricing__header {
+body.marketing-page.calserver-layout .calserver-pricing__header {
     gap: 12px;
 }
 
-body.marketing-page.calserver-theme .calserver-pricing-card {
+body.marketing-page.calserver-layout .calserver-pricing-card {
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -1875,17 +1741,17 @@ body.marketing-page.calserver-theme .calserver-pricing-card {
     padding: clamp(24px, 3vw, 32px);
 }
 
-body.marketing-page.calserver-theme .calserver-pricing-card .uk-list {
+body.marketing-page.calserver-layout .calserver-pricing-card .uk-list {
     margin-top: 4px;
     flex-grow: 1;
 }
 
-body.marketing-page.calserver-theme .calserver-pricing-card .uk-button {
+body.marketing-page.calserver-layout .calserver-pricing-card .uk-button {
     margin-top: auto;
     align-self: center;
 }
 
-body.marketing-page.calserver-theme .calserver-pricing-card .uk-text-bold {
+body.marketing-page.calserver-layout .calserver-pricing-card .uk-text-bold {
     font-size: clamp(1.4rem, 1.1vw + 1.1rem, 2rem);
 }
 
@@ -1899,12 +1765,12 @@ body.marketing-page.calserver-theme .calserver-pricing-card .uk-text-bold {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.marketing-page.calserver-theme .calserver-logo-marquee__track {
+    body.marketing-page.calserver-layout .calserver-logo-marquee__track {
         animation: none;
     }
 }
 
-body.marketing-page.calserver-theme #trust {
+body.marketing-page.calserver-layout #trust {
     --trust-step-accent: color-mix(in oklab, var(--calserver-primary) 72%, var(--qr-text) 28%);
     --trust-axis-color: color-mix(in oklab, var(--trust-step-accent) 45%, var(--qr-bg) 55%);
     --trust-step-marker-bg: color-mix(in oklab, var(--qr-bg) 78%, var(--trust-step-accent) 22%);
@@ -1913,7 +1779,7 @@ body.marketing-page.calserver-theme #trust {
     --trust-step-surface-hover: color-mix(in oklab, var(--trust-step-marker-bg) 30%, var(--trust-step-surface) 70%);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story {
+body.marketing-page.calserver-layout #trust .trust-story {
     position: relative;
     list-style: none;
     margin: 44px 0 0;
@@ -1923,14 +1789,14 @@ body.marketing-page.calserver-theme #trust .trust-story {
     gap: 36px;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__lead {
+body.marketing-page.calserver-layout #trust .trust-story__lead {
     margin: 12px 0 0;
     font-size: 1.1rem;
     line-height: 1.7;
     color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step {
+body.marketing-page.calserver-layout #trust .trust-story__step {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 72px) minmax(0, 1fr);
@@ -1943,7 +1809,7 @@ body.marketing-page.calserver-theme #trust .trust-story__step {
     transition: color 220ms ease;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__marker {
+body.marketing-page.calserver-layout #trust .trust-story__marker {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1951,7 +1817,7 @@ body.marketing-page.calserver-theme #trust .trust-story__marker {
     min-width: 64px;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__connector {
+body.marketing-page.calserver-layout #trust .trust-story__connector {
     width: 2px;
     flex: 1 1 24px;
     min-height: 24px;
@@ -1960,12 +1826,12 @@ body.marketing-page.calserver-theme #trust .trust-story__connector {
     transition: background 220ms ease;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step:first-child .trust-story__connector--before,
-body.marketing-page.calserver-theme #trust .trust-story__step:last-child .trust-story__connector--after {
+body.marketing-page.calserver-layout #trust .trust-story__step:first-child .trust-story__connector--before,
+body.marketing-page.calserver-layout #trust .trust-story__step:last-child .trust-story__connector--after {
     display: none;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__badge {
+body.marketing-page.calserver-layout #trust .trust-story__badge {
     position: relative;
     display: grid;
     place-items: center;
@@ -1978,7 +1844,7 @@ body.marketing-page.calserver-theme #trust .trust-story__badge {
     transition: transform 220ms ease, background 220ms ease, border-color 220ms ease, color 220ms ease;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__badge::after {
+body.marketing-page.calserver-layout #trust .trust-story__badge::after {
     content: attr(data-step-index);
     position: absolute;
     inset-inline-end: -8px;
@@ -1996,7 +1862,7 @@ body.marketing-page.calserver-theme #trust .trust-story__badge::after {
     transition: background 220ms ease, color 220ms ease, box-shadow 220ms ease;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__badge-icon {
+body.marketing-page.calserver-layout #trust .trust-story__badge-icon {
     display: grid;
     place-items: center;
     width: 26px;
@@ -2004,12 +1870,12 @@ body.marketing-page.calserver-theme #trust .trust-story__badge-icon {
     color: inherit;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__badge-icon svg {
+body.marketing-page.calserver-layout #trust .trust-story__badge-icon svg {
     width: 24px;
     height: 24px;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__sr {
+body.marketing-page.calserver-layout #trust .trust-story__sr {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -2021,7 +1887,7 @@ body.marketing-page.calserver-theme #trust .trust-story__sr {
     border: 0;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__content {
+body.marketing-page.calserver-layout #trust .trust-story__content {
     background: var(--trust-step-surface);
     border-radius: 18px;
     padding: 18px 22px;
@@ -2029,54 +1895,54 @@ body.marketing-page.calserver-theme #trust .trust-story__content {
     transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__title {
+body.marketing-page.calserver-layout #trust .trust-story__title {
     margin: 0 0 12px;
     font-size: 1.35rem;
     line-height: 1.35;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__text {
+body.marketing-page.calserver-layout #trust .trust-story__text {
     margin: 0;
     color: color-mix(in oklab, var(--qr-text) 74%, var(--qr-bg) 26%);
     line-height: 1.65;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__content,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__content,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__content {
+body.marketing-page.calserver-layout #trust .trust-story__step:hover .trust-story__content,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-visible .trust-story__content,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-within .trust-story__content {
     background: var(--trust-step-surface-hover);
     border-color: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
     box-shadow: 0 0 0 1px color-mix(in oklab, var(--trust-step-accent) 45%, transparent);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__badge,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge {
+body.marketing-page.calserver-layout #trust .trust-story__step:hover .trust-story__badge,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-visible .trust-story__badge,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-within .trust-story__badge {
     background: color-mix(in oklab, var(--trust-step-marker-bg) 40%, var(--trust-step-accent) 60%);
     border-color: color-mix(in oklab, var(--trust-step-accent) 80%, var(--marketing-white) 20%);
     color: color-mix(in oklab, var(--marketing-white) 70%, var(--trust-step-marker-icon) 30%);
     transform: translateY(-2px);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__badge::after,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge::after,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge::after {
+body.marketing-page.calserver-layout #trust .trust-story__step:hover .trust-story__badge::after,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-within .trust-story__badge::after {
     background: color-mix(in oklab, var(--trust-step-accent) 88%, var(--qr-bg) 12%);
     box-shadow: 0 0 0 2px color-mix(in oklab, var(--qr-bg) 85%, transparent 15%);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story__connector,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__connector,
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__connector {
+body.marketing-page.calserver-layout #trust .trust-story__step:hover .trust-story__connector,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-visible .trust-story__connector,
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-within .trust-story__connector {
     background: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible {
+body.marketing-page.calserver-layout #trust .trust-story__step:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--trust-step-accent) 68%, transparent);
     outline-offset: 10px;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__closing {
+body.marketing-page.calserver-layout #trust .trust-story__closing {
     background: color-mix(in oklab, var(--qr-card) 88%, var(--calserver-primary) 12%);
     border-radius: 24px;
     padding: 36px 40px;
@@ -2085,28 +1951,28 @@ body.marketing-page.calserver-theme #trust .trust-story__closing {
     border: 1px solid color-mix(in oklab, var(--trust-step-accent) 35%, transparent);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__closing-title {
+body.marketing-page.calserver-layout #trust .trust-story__closing-title {
     margin: 0 0 12px;
     font-size: 1.6rem;
     line-height: 1.4;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__closing-text {
+body.marketing-page.calserver-layout #trust .trust-story__closing-text {
     margin: 0;
     font-size: 1.05rem;
     line-height: 1.7;
     color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__cta-group {
+body.marketing-page.calserver-layout #trust .trust-story__cta-group {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     justify-content: flex-start;
 }
 
-body.marketing-page.calserver-theme #trust .trust-story__cta-group .uk-button,
-body.marketing-page.calserver-theme #trust .trust-story__cta-group .btn {
+body.marketing-page.calserver-layout #trust .trust-story__cta-group .uk-button,
+body.marketing-page.calserver-layout #trust .trust-story__cta-group .btn {
     flex: 1 1 auto;
     min-width: 180px;
     text-align: center;
@@ -2192,13 +2058,13 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
 }
 
 @media (min-width: 960px) {
-    body.marketing-page.calserver-theme #trust .trust-story {
+    body.marketing-page.calserver-layout #trust .trust-story {
         flex-direction: row;
         align-items: stretch;
         gap: 40px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__step {
+    body.marketing-page.calserver-layout #trust .trust-story__step {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -2208,7 +2074,7 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
         padding: 16px 12px 24px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__marker {
+    body.marketing-page.calserver-layout #trust .trust-story__marker {
         flex-direction: row;
         justify-content: center;
         align-items: center;
@@ -2216,103 +2082,103 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
         gap: 18px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__connector {
+    body.marketing-page.calserver-layout #trust .trust-story__connector {
         min-height: 2px;
         height: 2px;
         width: 100%;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__content {
+    body.marketing-page.calserver-layout #trust .trust-story__content {
         max-width: 360px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__title {
+    body.marketing-page.calserver-layout #trust .trust-story__title {
         margin: 0 0 10px;
     }
 }
 
 @media (max-width: 1200px) {
-    body.marketing-page.calserver-theme #trust .trust-story__closing {
+    body.marketing-page.calserver-layout #trust .trust-story__closing {
         padding: 32px;
     }
 }
 
 @media (max-width: 959px) {
-    body.marketing-page.calserver-theme #trust .trust-story {
+    body.marketing-page.calserver-layout #trust .trust-story {
         margin-top: 36px;
         gap: 32px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__step {
+    body.marketing-page.calserver-layout #trust .trust-story__step {
         grid-template-columns: minmax(0, 60px) minmax(0, 1fr);
         gap: 18px;
         padding: 4px 0;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__badge {
+    body.marketing-page.calserver-layout #trust .trust-story__badge {
         width: 54px;
         height: 54px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__badge::after {
+    body.marketing-page.calserver-layout #trust .trust-story__badge::after {
         width: 24px;
         height: 24px;
         font-size: 0.8rem;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__content {
+    body.marketing-page.calserver-layout #trust .trust-story__content {
         padding: 16px 18px;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__closing {
+    body.marketing-page.calserver-layout #trust .trust-story__closing {
         margin-top: 44px;
     }
 }
 
 @media (max-width: 640px) {
-    body.marketing-page.calserver-theme #trust .trust-story__lead {
+    body.marketing-page.calserver-layout #trust .trust-story__lead {
         font-size: 1rem;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__title {
+    body.marketing-page.calserver-layout #trust .trust-story__title {
         font-size: 1.2rem;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__text {
+    body.marketing-page.calserver-layout #trust .trust-story__text {
         font-size: 1rem;
     }
 
-    body.marketing-page.calserver-theme #trust .trust-story__cta-group {
+    body.marketing-page.calserver-layout #trust .trust-story__cta-group {
         flex-direction: column;
         align-items: stretch;
     }
 }
 
-body.marketing-page.calserver-theme .muted {
+body.marketing-page.calserver-layout .muted {
     color: color-mix(in oklab, var(--qr-text) 60%, var(--qr-bg) 40%);
 }
 
-body.marketing-page.calserver-theme .quick-cta {
+body.marketing-page.calserver-layout .quick-cta {
     border-radius: 18px;
     background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
     padding: 24px 32px;
 }
 
-body.marketing-page.calserver-theme .uk-card-hover {
+body.marketing-page.calserver-layout .uk-card-hover {
     transition: transform 220ms ease, box-shadow 220ms ease;
 }
 
-body.marketing-page.calserver-theme .uk-card-hover:hover {
+body.marketing-page.calserver-layout .uk-card-hover:hover {
     transform: translateY(-6px);
     box-shadow: 0 22px 48px -28px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
 }
 
-body.marketing-page.calserver-theme .feature-nav {
+body.marketing-page.calserver-layout .feature-nav {
     margin: 0 auto 12px;
     max-width: 1024px;
 }
 
-body.marketing-page.calserver-theme .feature-nav__list {
+body.marketing-page.calserver-layout .feature-nav__list {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
@@ -2322,7 +2188,7 @@ body.marketing-page.calserver-theme .feature-nav__list {
     list-style: none;
 }
 
-body.marketing-page.calserver-theme .feature-nav__pill {
+body.marketing-page.calserver-layout .feature-nav__pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2339,32 +2205,32 @@ body.marketing-page.calserver-theme .feature-nav__pill {
         transform 180ms ease, box-shadow 180ms ease;
 }
 
-body.marketing-page.calserver-theme .feature-nav__pill.is-active {
+body.marketing-page.calserver-layout .feature-nav__pill.is-active {
     background: var(--qr-landing-primary);
     color: var(--marketing-white);
     box-shadow: 0 1px 0 0 color-mix(in oklab, var(--marketing-white) 40%, transparent) inset,
         0 20px 34px -24px color-mix(in oklab, var(--marketing-primary) 95%, transparent);
 }
 
-body.marketing-page.calserver-theme .feature-nav__pill:hover,
-body.marketing-page.calserver-theme .feature-nav__pill:focus {
+body.marketing-page.calserver-layout .feature-nav__pill:hover,
+body.marketing-page.calserver-layout .feature-nav__pill:focus {
     background: var(--qr-landing-primary);
     color: var(--marketing-white);
     transform: translateY(-2px);
     box-shadow: 0 18px 32px -22px color-mix(in oklab, var(--marketing-primary) 90%, transparent);
 }
 
-body.marketing-page.calserver-theme .feature-slider {
+body.marketing-page.calserver-layout .feature-slider {
     margin-top: 40px;
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li {
+body.marketing-page.calserver-layout .feature-slider__list > li {
     display: flex;
     position: relative;
     padding: 12px;
 }
 
-body.marketing-page.calserver-theme .feature-card {
+body.marketing-page.calserver-layout .feature-card {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -2380,32 +2246,32 @@ body.marketing-page.calserver-theme .feature-card {
         transform 250ms ease, opacity 200ms ease;
 }
 
-body.marketing-page.calserver-theme .feature-card__title,
-body.marketing-page.calserver-theme .feature-card p,
-body.marketing-page.calserver-theme .feature-card li {
+body.marketing-page.calserver-layout .feature-card__title,
+body.marketing-page.calserver-layout .feature-card p,
+body.marketing-page.calserver-layout .feature-card li {
     color: var(--cs-text-on-dark);
 }
 
-body.marketing-page.calserver-theme .feature-card .uk-list-bullet > li::before {
+body.marketing-page.calserver-layout .feature-card .uk-list-bullet > li::before {
     border-color: var(--cs-text-on-dark);
 }
 
-body.marketing-page.calserver-theme .feature-card--focus {
+body.marketing-page.calserver-layout .feature-card--focus {
     background: var(--cs-card-focus-bg);
     border-color: var(--cs-card-focus-border);
     box-shadow: var(--cs-card-focus-shadow);
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card {
+body.marketing-page.calserver-layout .feature-slider__list > li.is-center .feature-card {
     transform: scale(1.04);
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card.feature-card--focus {
+body.marketing-page.calserver-layout .feature-slider__list > li.is-center .feature-card.feature-card--focus {
     transform: scale(1.04) translateY(-2px);
     box-shadow: var(--cs-card-focus-shadow);
 }
 
-body.marketing-page.calserver-theme #modules .calserver-modules-grid {
+body.marketing-page.calserver-layout #modules .calserver-modules-grid {
     display: grid;
     gap: 32px;
     grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
@@ -2413,7 +2279,7 @@ body.marketing-page.calserver-theme #modules .calserver-modules-grid {
     align-items: start;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav {
+body.marketing-page.calserver-layout .calserver-modules-nav {
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -2425,7 +2291,7 @@ body.marketing-page.calserver-theme .calserver-modules-nav {
     z-index: 2;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav__link {
+body.marketing-page.calserver-layout .calserver-modules-nav__link {
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -2443,44 +2309,44 @@ body.marketing-page.calserver-theme .calserver-modules-nav__link {
         transform 200ms ease;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav__title {
+body.marketing-page.calserver-layout .calserver-modules-nav__title {
     font-weight: 600;
     letter-spacing: 0.01em;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav__desc {
+body.marketing-page.calserver-layout .calserver-modules-nav__desc {
     color: color-mix(in oklab, var(--qr-text) 68%, var(--qr-bg) 32%);
     font-size: 0.92rem;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav li.uk-active .calserver-modules-nav__link,
-body.marketing-page.calserver-theme .calserver-modules-nav__link:hover {
+body.marketing-page.calserver-layout .calserver-modules-nav li.uk-active .calserver-modules-nav__link,
+body.marketing-page.calserver-layout .calserver-modules-nav__link:hover {
     background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
     border-color: color-mix(in oklab, var(--calserver-primary) 45%, transparent);
     box-shadow: 0 24px 48px -30px color-mix(in oklab, var(--marketing-ink) 42%, transparent);
     transform: translateY(-2px);
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav__link:focus-visible {
+body.marketing-page.calserver-layout .calserver-modules-nav__link:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, var(--marketing-white) 40%);
     outline-offset: 3px;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-nav > li {
+body.marketing-page.calserver-layout .calserver-modules-nav > li {
     margin: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-switcher {
+body.marketing-page.calserver-layout .calserver-modules-switcher {
     margin: 0;
     padding: 0;
     list-style: none;
 }
 
-body.marketing-page.calserver-theme .calserver-modules-switcher > li {
+body.marketing-page.calserver-layout .calserver-modules-switcher > li {
     list-style: none;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure {
+body.marketing-page.calserver-layout .calserver-module-figure {
     position: relative;
     isolation: isolate;
     margin: 0;
@@ -2491,7 +2357,7 @@ body.marketing-page.calserver-theme .calserver-module-figure {
     z-index: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure::before {
+body.marketing-page.calserver-layout .calserver-module-figure::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -2503,17 +2369,17 @@ body.marketing-page.calserver-theme .calserver-module-figure::before {
     z-index: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure img,
-body.marketing-page.calserver-theme .calserver-module-figure video,
-body.marketing-page.calserver-theme .calserver-module-figure .calserver-module-figure__visual,
-body.marketing-page.calserver-theme .calserver-module-figure figcaption {
+body.marketing-page.calserver-layout .calserver-module-figure img,
+body.marketing-page.calserver-layout .calserver-module-figure video,
+body.marketing-page.calserver-layout .calserver-module-figure .calserver-module-figure__visual,
+body.marketing-page.calserver-layout .calserver-module-figure figcaption {
     position: relative;
     z-index: 1;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure img,
-body.marketing-page.calserver-theme .calserver-module-figure video,
-body.marketing-page.calserver-theme .calserver-module-figure .calserver-module-figure__visual {
+body.marketing-page.calserver-layout .calserver-module-figure img,
+body.marketing-page.calserver-layout .calserver-module-figure video,
+body.marketing-page.calserver-layout .calserver-module-figure .calserver-module-figure__visual {
     display: block;
     width: 100%;
     height: auto;
@@ -2522,11 +2388,11 @@ body.marketing-page.calserver-theme .calserver-module-figure .calserver-module-f
     box-shadow: 0 18px 32px -24px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure video {
+body.marketing-page.calserver-layout .calserver-module-figure video {
     background: var(--marketing-black);
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual {
+body.marketing-page.calserver-layout .calserver-module-figure__visual {
     aspect-ratio: 16 / 9;
     background: radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--marketing-primary) 60%, transparent), color-mix(in oklab, var(--marketing-ink) 92%, transparent));
     border-radius: 22px 22px 0 0;
@@ -2539,7 +2405,7 @@ body.marketing-page.calserver-theme .calserver-module-figure__visual {
     position: relative;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual::after {
+body.marketing-page.calserver-layout .calserver-module-figure__visual::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -2550,27 +2416,27 @@ body.marketing-page.calserver-theme .calserver-module-figure__visual::after {
     opacity: 0.85;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="device-management"] {
+body.marketing-page.calserver-layout .calserver-module-figure__visual[data-module="device-management"] {
     background: radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--marketing-primary) 70%, transparent), color-mix(in oklab, var(--marketing-ink) 92%, transparent)),
         linear-gradient(145deg, color-mix(in oklab, var(--marketing-primary) 85%, transparent), color-mix(in oklab, var(--marketing-ink) 95%, transparent));
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="calendar-resources"] {
+body.marketing-page.calserver-layout .calserver-module-figure__visual[data-module="calendar-resources"] {
     background: radial-gradient(circle at 82% 22%, color-mix(in oklab, var(--marketing-primary) 60%, transparent), color-mix(in oklab, var(--marketing-ink) 96%, transparent)),
         linear-gradient(135deg, color-mix(in oklab, var(--marketing-primary) 88%, transparent), color-mix(in oklab, var(--marketing-ink) 95%, transparent));
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="order-ticketing"] {
+body.marketing-page.calserver-layout .calserver-module-figure__visual[data-module="order-ticketing"] {
     background: radial-gradient(circle at 18% 78%, color-mix(in oklab, var(--marketing-accent) 68%, transparent), color-mix(in oklab, var(--marketing-accent) 94%, transparent)),
         linear-gradient(140deg, color-mix(in oklab, var(--marketing-accent) 82%, transparent), color-mix(in oklab, var(--marketing-accent) 92%, transparent));
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="self-service"] {
+body.marketing-page.calserver-layout .calserver-module-figure__visual[data-module="self-service"] {
     background: radial-gradient(circle at 78% 24%, color-mix(in oklab, var(--marketing-primary) 65%, transparent), color-mix(in oklab, var(--marketing-ink) 93%, transparent)),
         linear-gradient(135deg, color-mix(in oklab, var(--marketing-primary) 84%, transparent), color-mix(in oklab, var(--marketing-ink) 92%, transparent));
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__visual-label {
+body.marketing-page.calserver-layout .calserver-module-figure__visual-label {
     font-size: clamp(1.4rem, 2vw + 1rem, 2.35rem);
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -2581,16 +2447,16 @@ body.marketing-page.calserver-theme .calserver-module-figure__visual-label {
     z-index: 1;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__video--manual {
+body.marketing-page.calserver-layout .calserver-module-figure__video--manual {
     cursor: pointer;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure--manual .calserver-module-figure__fullscreen-button {
+body.marketing-page.calserver-layout .calserver-module-figure--manual .calserver-module-figure__fullscreen-button {
     top: 14px;
     right: 14px;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button {
+body.marketing-page.calserver-layout .calserver-module-figure__fullscreen-button {
     position: absolute;
     top: 18px;
     right: 18px;
@@ -2609,30 +2475,30 @@ body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button 
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:hover,
-body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
+body.marketing-page.calserver-layout .calserver-module-figure__fullscreen-button:hover,
+body.marketing-page.calserver-layout .calserver-module-figure__fullscreen-button:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 60%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 30%, transparent));
     box-shadow: 0 18px 36px -20px color-mix(in oklab, var(--marketing-ink) 62%, transparent);
     transform: translateY(-1px);
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
+body.marketing-page.calserver-layout .calserver-module-figure__fullscreen-button:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
     outline-offset: 2px;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button[data-state="active"] {
+body.marketing-page.calserver-layout .calserver-module-figure__fullscreen-button[data-state="active"] {
     background: color-mix(in oklab, var(--calserver-primary) 72%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-white) 34%, transparent));
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-icon {
+body.marketing-page.calserver-layout .calserver-module-figure__fullscreen-icon {
     font-size: 1.35rem;
     line-height: 1;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure figcaption {
+body.marketing-page.calserver-layout .calserver-module-figure figcaption {
     padding: 28px;
     display: flex;
     flex-direction: column;
@@ -2643,48 +2509,48 @@ body.marketing-page.calserver-theme .calserver-module-figure figcaption {
     border-radius: 0 0 22px 22px;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure h3 {
+body.marketing-page.calserver-layout .calserver-module-figure h3 {
     margin: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure .uk-list {
+body.marketing-page.calserver-layout .calserver-module-figure .uk-list {
     margin-bottom: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__download {
+body.marketing-page.calserver-layout .calserver-module-figure__download {
     margin: 0;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__download-link {
+body.marketing-page.calserver-layout .calserver-module-figure__download-link {
     font-weight: 600;
     text-decoration: none;
 }
 
-body.marketing-page.calserver-theme .calserver-module-figure__download-link:hover,
-body.marketing-page.calserver-theme .calserver-module-figure__download-link:focus {
+body.marketing-page.calserver-layout .calserver-module-figure__download-link:hover,
+body.marketing-page.calserver-layout .calserver-module-figure__download-link:focus {
     text-decoration: underline;
 }
 
 @media (max-width: 1024px) {
-    body.marketing-page.calserver-theme #modules .calserver-modules-grid {
+    body.marketing-page.calserver-layout #modules .calserver-modules-grid {
         grid-template-columns: 1fr;
     }
 
-    body.marketing-page.calserver-theme .calserver-modules-nav {
+    body.marketing-page.calserver-layout .calserver-modules-nav {
         flex-direction: row;
         overflow-x: auto;
         padding-bottom: 8px;
         margin-bottom: 12px;
     }
 
-    body.marketing-page.calserver-theme .calserver-modules-nav > li {
+    body.marketing-page.calserver-layout .calserver-modules-nav > li {
         min-width: 240px;
         flex: 0 0 auto;
     }
 }
 
 @media (max-width: 640px) {
-    body.marketing-page.calserver-theme .calserver-modules-nav {
+    body.marketing-page.calserver-layout .calserver-modules-nav {
         flex-direction: column;
         align-items: center;
         overflow-x: visible;
@@ -2694,65 +2560,65 @@ body.marketing-page.calserver-theme .calserver-module-figure__download-link:focu
         width: 100%;
     }
 
-    body.marketing-page.calserver-theme .calserver-modules-nav > li {
+    body.marketing-page.calserver-layout .calserver-modules-nav > li {
         min-width: 0;
         width: min(100%, 360px);
         margin-inline: auto;
     }
 
-    body.marketing-page.calserver-theme .calserver-modules-nav__link {
+    body.marketing-page.calserver-layout .calserver-modules-nav__link {
         padding: 16px;
         padding-inline-start: 0;
     }
 
-    body.marketing-page.calserver-theme .calserver-module-figure figcaption {
+    body.marketing-page.calserver-layout .calserver-module-figure figcaption {
         padding: 22px;
     }
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
+body.marketing-page.calserver-layout .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
     box-shadow: 0 22px 48px -32px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card:hover {
+body.marketing-page.calserver-layout .feature-slider__list > li.is-center .feature-card:hover {
     transform: scale(1.04) translateY(-2px);
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card {
+body.marketing-page.calserver-layout .feature-slider__list > li:not(.is-center) .feature-card {
     opacity: 0.92;
 }
 
-body.marketing-page.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card:hover {
+body.marketing-page.calserver-layout .feature-slider__list > li:not(.is-center) .feature-card:hover {
     transform: translateY(-4px);
 }
 
-body.marketing-page.calserver-theme .testimonial-card {
+body.marketing-page.calserver-layout .testimonial-card {
     min-height: 240px;
 }
 
-body.marketing-page.calserver-theme .usecase-card--visual {
+body.marketing-page.calserver-layout .usecase-card--visual {
     display: none;
     padding: 0;
     overflow: hidden;
 }
 
-body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual {
+body.marketing-page.calserver-layout .usecase-card--visual .usecase-visual {
     margin: 0;
 }
 
-body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image {
+body.marketing-page.calserver-layout .usecase-card--visual .usecase-visual__image {
     display: block;
     width: 100%;
     height: auto;
 }
 
 @media (max-width: 959px) {
-    body.marketing-page.calserver-theme .quick-cta {
+    body.marketing-page.calserver-layout .quick-cta {
         padding: 20px;
     }
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner {
+body.marketing-page.calserver-layout .marketing-cookie-banner {
     position: fixed;
     inset: auto 24px 24px auto;
     width: min(360px, calc(100% - 48px));
@@ -2768,7 +2634,7 @@ body.marketing-page.calserver-theme .marketing-cookie-banner {
     z-index: 1050;
 }
 
-body.marketing-page.calserver-theme .marketing-floating-button {
+body.marketing-page.calserver-layout .marketing-floating-button {
     position: fixed;
     bottom: clamp(1rem, 4vw, 1.75rem);
     z-index: 1040;
@@ -2786,7 +2652,7 @@ body.marketing-page.calserver-theme .marketing-floating-button {
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-body.marketing-page.calserver-theme .marketing-floating-button svg {
+body.marketing-page.calserver-layout .marketing-floating-button svg {
     width: 1.45rem;
     height: 1.45rem;
     color: inherit;
@@ -2794,27 +2660,27 @@ body.marketing-page.calserver-theme .marketing-floating-button svg {
     fill: none;
 }
 
-body.marketing-page.calserver-theme .marketing-floating-button .uk-icon {
+body.marketing-page.calserver-layout .marketing-floating-button .uk-icon {
     color: inherit !important;
 }
 
-body.marketing-page.calserver-theme .marketing-floating-button:hover,
-body.marketing-page.calserver-theme .marketing-floating-button:focus-visible {
+body.marketing-page.calserver-layout .marketing-floating-button:hover,
+body.marketing-page.calserver-layout .marketing-floating-button:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
     box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent), 0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
 }
 
-body.marketing-page.calserver-theme .marketing-floating-button:focus-visible {
+body.marketing-page.calserver-layout .marketing-floating-button:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-white) 30%);
     outline-offset: 3px;
 }
 
-body.marketing-page.calserver-theme .marketing-floating-button:active {
+body.marketing-page.calserver-layout .marketing-floating-button:active {
     transform: scale(0.96);
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-trigger {
+body.marketing-page.calserver-layout .marketing-cookie-trigger {
     left: clamp(1rem, 4vw, 1.75rem);
 }
 
@@ -2822,40 +2688,40 @@ body.marketing-page.calserver-theme .marketing-cookie-trigger {
     right: clamp(1rem, 4vw, 1.75rem);
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-trigger--active {
+body.marketing-page.calserver-layout .marketing-cookie-trigger--active {
     background: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
     box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent), 0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .marketing-floating-button,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .marketing-floating-button,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
     color: var(--marketing-white);
     border-color: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
     background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
     box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent), 0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
     color: inherit;
     stroke: currentColor;
 }
 
 @media (max-width: 640px) {
-    body.marketing-page.calserver-theme .marketing-floating-button {
+    body.marketing-page.calserver-layout .marketing-floating-button {
         width: 3rem;
         height: 3rem;
         bottom: clamp(0.85rem, 6vw, 1.25rem);
         box-shadow: 0 14px 28px color-mix(in oklab, var(--marketing-ink) 30%, transparent), 0 6px 16px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
     }
 
-    body.marketing-page.calserver-theme .marketing-floating-button svg {
+    body.marketing-page.calserver-layout .marketing-floating-button svg {
         width: 1.35rem;
         height: 1.35rem;
     }
 
-    body.marketing-page.calserver-theme .marketing-cookie-trigger {
+    body.marketing-page.calserver-layout .marketing-cookie-trigger {
         left: clamp(0.85rem, 6vw, 1.25rem);
     }
 
@@ -2864,8 +2730,8 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .mar
     }
 }
 
-body.marketing-page.calserver-theme.high-contrast .marketing-floating-button,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-floating-button,
+body.marketing-page.calserver-layout.high-contrast .marketing-floating-button,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .marketing-floating-button,
 body.high-contrast .marketing-floating-button {
     background: var(--marketing-black);
     color: var(--marketing-white);
@@ -2873,18 +2739,18 @@ body.high-contrast .marketing-floating-button {
     border: 2px solid currentColor;
 }
 
-body.marketing-page.calserver-theme.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
+body.marketing-page.calserver-layout.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
 body.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active {
     background: var(--marketing-ink);
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner--visible {
+body.marketing-page.calserver-layout .marketing-cookie-banner--visible {
     opacity: 1;
     transform: translate3d(0, 0, 0);
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__headline {
+body.marketing-page.calserver-layout .marketing-cookie-banner__headline {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -2893,52 +2759,52 @@ body.marketing-page.calserver-theme .marketing-cookie-banner__headline {
     margin: 0 0 4px;
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__icon {
+body.marketing-page.calserver-layout .marketing-cookie-banner__icon {
     color: var(--calserver-primary);
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__copy {
+body.marketing-page.calserver-layout .marketing-cookie-banner__copy {
     margin: 0;
     font-size: 0.95rem;
     line-height: 1.45;
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__fineprint {
+body.marketing-page.calserver-layout .marketing-cookie-banner__fineprint {
     margin: 0;
     font-size: 0.85rem;
     color: color-mix(in oklab, currentColor 72%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__link {
+body.marketing-page.calserver-layout .marketing-cookie-banner__link {
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__link:focus-visible {
+body.marketing-page.calserver-layout .marketing-cookie-banner__link:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__actions {
+body.marketing-page.calserver-layout .marketing-cookie-banner__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
 }
 
-body.marketing-page.calserver-theme .marketing-cookie-banner__button {
+body.marketing-page.calserver-layout .marketing-cookie-banner__button {
     flex: 1 1 140px;
 }
 
 @media (max-width: 640px) {
-    body.marketing-page.calserver-theme .marketing-cookie-banner {
+    body.marketing-page.calserver-layout .marketing-cookie-banner {
         inset: auto 16px 16px 16px;
         width: auto;
     }
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .marketing-cookie-banner,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-cookie-banner {
+body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .marketing-cookie-banner,
+body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .marketing-cookie-banner {
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
@@ -2948,8 +2814,8 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .mark
     color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 8%, transparent)) !important;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
+body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
+body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 12%, var(--marketing-white) 88%) 0%,
@@ -2959,8 +2825,8 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .mar
     color: color-mix(in oklab, var(--marketing-ink) 88%, var(--calserver-primary) 12%) !important;
 }
 
-body.marketing-page.calserver-theme.high-contrast .marketing-cookie-banner,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-cookie-banner,
+body.marketing-page.calserver-layout.high-contrast .marketing-cookie-banner,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .marketing-cookie-banner,
 body.high-contrast .marketing-cookie-banner {
     background: var(--qr-card, var(--marketing-black));
     color: var(--qr-text, var(--marketing-white));
@@ -2968,8 +2834,8 @@ body.high-contrast .marketing-cookie-banner {
     box-shadow: none;
 }
 
-body.marketing-page.calserver-theme.high-contrast .marketing-cookie-banner__link,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-cookie-banner__link,
+body.marketing-page.calserver-layout.high-contrast .marketing-cookie-banner__link,
+body.marketing-page.calserver-layout[data-theme="high-contrast"] .marketing-cookie-banner__link,
 body.high-contrast .marketing-cookie-banner__link {
     text-decoration-thickness: 2px;
 }
@@ -3106,7 +2972,7 @@ body.high-contrast .marketing-cookie-banner__link {
     background: var(--marketing-white);
 }
 
-.calserver-theme .calserver-metcal__note {
+.calserver-layout .calserver-metcal__note {
     margin-top: 16px;
     font-size: 0.9rem;
     color: color-mix(in oklab, var(--marketing-white) 88%, transparent);
