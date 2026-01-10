@@ -526,6 +526,7 @@ const schema = {
         "body": { "type": "string" },
         "bullets": { "type": "array", "items": { "type": "string" } },
         "keyFacts": { "type": "array", "items": { "type": "string" } },
+        "pdf": { "$ref": "#/definitions/CallToAction" },
         "media": { "$ref": "#/definitions/Media" }
       }
     },
