@@ -369,7 +369,6 @@ body.page-render .qr-page-renderer table {
   --section-surface: color-mix(in srgb, var(--accent-secondary, var(--accent-primary, #1e87f0)) 85%, #0b1728);
   --section-padding-outer: clamp(36px, 7vw, 88px);
   --section-padding-inner: clamp(36px, 7vw, 80px);
-  --section-text-color: var(--text-on-primary, #ffffff);
 }
 
 .section[data-section-background] {

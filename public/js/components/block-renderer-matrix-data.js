@@ -188,6 +188,7 @@ const BACKGROUND_MODES_BY_LAYOUT = {
 };
 
 const BACKGROUND_COLOR_TOKENS = ['primary', 'secondary', 'muted', 'accent', 'surface'];
+const DARK_SURFACE_TOKENS = new Set(['primary', 'secondary', 'accent']);
 
 function clampBackgroundOverlay(value) {
   if (value === null || value === undefined) {
@@ -407,6 +408,10 @@ function resolveSectionIntentPreset(block) {
   const textColor = basePreset.textToken
     ? resolveAppearanceValue(basePreset.textToken.token, basePreset.textToken.fallback)
     : undefined;
+  const explicitBackgroundToken = typeof block?.meta?.sectionStyle?.background?.colorToken === 'string'
+    ? block.meta.sectionStyle.background.colorToken.trim()
+    : '';
+  const hasDarkSurfaceToken = DARK_SURFACE_TOKENS.has(explicitBackgroundToken);
   const sectionDefaultSurface = activeAppearance?.variables?.sectionDefaultSurface
     || activeAppearance?.colors?.sectionDefaultSurface;
   const styleVariables = [];
@@ -421,7 +426,7 @@ function resolveSectionIntentPreset(block) {
     styleVariables.push('--section-bg-color:var(--section-default-surface)');
   }
 
-  if (isExplicit && textColor) {
+  if (textColor && (isExplicit || (intent === 'hero' && hasDarkSurfaceToken))) {
     styleVariables.push(`--section-text-color:${textColor}`);
   }
 
