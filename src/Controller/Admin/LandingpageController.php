@@ -58,11 +58,13 @@ class LandingpageController
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
         $pageNamespaceQuery = $namespace !== '' ? '?namespace=' . rawurlencode($namespace) : '';
         $pages = $this->getCmsPages($namespace);
+        $csrfToken = $this->ensureCsrfToken();
         if ($pages === []) {
             return $view->render($response, 'admin/landingpage/edit.html.twig', [
                 'config' => [],
                 'pageNamespace' => $namespace,
                 'pageNamespaceQuery' => $pageNamespaceQuery,
+                'csrf_token' => $csrfToken,
                 'seoPages' => [],
                 'selectedPageId' => null,
             ]);
@@ -79,6 +81,7 @@ class LandingpageController
             'config' => $config,
             'pageNamespace' => $namespace,
             'pageNamespaceQuery' => $pageNamespaceQuery,
+            'csrf_token' => $csrfToken,
             'seoPages' => array_values($seoPages),
             'selectedPageId' => $selectedPage->getId(),
         ]);
@@ -349,5 +352,13 @@ class LandingpageController
         $decoded = json_decode($raw, true);
 
         return is_array($decoded) ? $decoded : null;
+    }
+
+    private function ensureCsrfToken(): string
+    {
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
+
+        return $csrf;
     }
 }
