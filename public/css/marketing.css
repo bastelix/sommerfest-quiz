@@ -520,6 +520,12 @@ body.page-render .cms-page table {
   z-index: 1;
 }
 
+.section[data-block-type="stat_strip"],
+.section[data-block-type="faq"] {
+  --section-bg-color: var(--section-surface, transparent);
+  --section-bg-overlay: 0;
+}
+
 .section[data-section-bleed="full"][data-section-background]::after {
   left: 50%;
   right: 50%;

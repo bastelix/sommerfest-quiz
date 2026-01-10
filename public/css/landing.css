@@ -405,6 +405,12 @@ body.page-render .qr-page-renderer table {
   z-index: 0;
 }
 
+.section[data-block-type="stat_strip"],
+.section[data-block-type="faq"] {
+  --section-bg-color: var(--section-surface, transparent);
+  --section-bg-overlay: 0;
+}
+
 .section__inner {
   background: var(--section-surface-inner, transparent);
   border-radius: var(--card-radius-square);
