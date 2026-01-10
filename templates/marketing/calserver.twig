@@ -23,7 +23,7 @@
   <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
-{% block body_class %}marketing-page calserver-theme{% endblock %}
+{% block body_class %}marketing-page calserver-layout{% endblock %}
 
 {% block body %}
   {% include 'marketing/partials/design-data.twig' %}
@@ -363,7 +363,7 @@
   </script>
   <script>
     (function () {
-      if (!document.body.classList.contains('calserver-theme')) {
+      if (!document.body.classList.contains('calserver-layout')) {
         return;
       }
 
