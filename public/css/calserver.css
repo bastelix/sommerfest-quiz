@@ -2752,7 +2752,7 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     }
 }
 
-.calserver-cookie-banner {
+body.marketing-page.calserver-theme .marketing-cookie-banner {
     position: fixed;
     inset: auto 24px 24px auto;
     width: min(360px, calc(100% - 48px));
@@ -2768,7 +2768,7 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     z-index: 1050;
 }
 
-.calserver-floating-button {
+body.marketing-page.calserver-theme .marketing-floating-button {
     position: fixed;
     bottom: clamp(1rem, 4vw, 1.75rem);
     z-index: 1040;
@@ -2786,7 +2786,7 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.calserver-floating-button svg {
+body.marketing-page.calserver-theme .marketing-floating-button svg {
     width: 1.45rem;
     height: 1.45rem;
     color: inherit;
@@ -2794,27 +2794,27 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     fill: none;
 }
 
-.calserver-floating-button .uk-icon {
+body.marketing-page.calserver-theme .marketing-floating-button .uk-icon {
     color: inherit !important;
 }
 
-.calserver-floating-button:hover,
-.calserver-floating-button:focus-visible {
+body.marketing-page.calserver-theme .marketing-floating-button:hover,
+body.marketing-page.calserver-theme .marketing-floating-button:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
     box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent), 0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
 }
 
-.calserver-floating-button:focus-visible {
+body.marketing-page.calserver-theme .marketing-floating-button:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-white) 30%);
     outline-offset: 3px;
 }
 
-.calserver-floating-button:active {
+body.marketing-page.calserver-theme .marketing-floating-button:active {
     transform: scale(0.96);
 }
 
-.calserver-cookie-trigger {
+body.marketing-page.calserver-theme .marketing-cookie-trigger {
     left: clamp(1rem, 4vw, 1.75rem);
 }
 
@@ -2822,40 +2822,40 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     right: clamp(1rem, 4vw, 1.75rem);
 }
 
-.calserver-cookie-trigger--active {
+body.marketing-page.calserver-theme .marketing-cookie-trigger--active {
     background: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
     border-color: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
     box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent), 0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .marketing-floating-button,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
     color: var(--marketing-white);
     border-color: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
     background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
     box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent), 0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button svg,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button svg {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
     color: inherit;
     stroke: currentColor;
 }
 
 @media (max-width: 640px) {
-    .calserver-floating-button {
+    body.marketing-page.calserver-theme .marketing-floating-button {
         width: 3rem;
         height: 3rem;
         bottom: clamp(0.85rem, 6vw, 1.25rem);
         box-shadow: 0 14px 28px color-mix(in oklab, var(--marketing-ink) 30%, transparent), 0 6px 16px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
     }
 
-    .calserver-floating-button svg {
+    body.marketing-page.calserver-theme .marketing-floating-button svg {
         width: 1.35rem;
         height: 1.35rem;
     }
 
-    .calserver-cookie-trigger {
+    body.marketing-page.calserver-theme .marketing-cookie-trigger {
         left: clamp(0.85rem, 6vw, 1.25rem);
     }
 
@@ -2864,27 +2864,27 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .cal
     }
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-floating-button,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-floating-button,
-body.high-contrast .calserver-floating-button {
+body.marketing-page.calserver-theme.high-contrast .marketing-floating-button,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-floating-button,
+body.high-contrast .marketing-floating-button {
     background: var(--marketing-black);
     color: var(--marketing-white);
     box-shadow: none;
     border: 2px solid currentColor;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-trigger.calserver-cookie-trigger--active,
-body.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active {
+body.marketing-page.calserver-theme.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
+body.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active {
     background: var(--marketing-ink);
 }
 
-.calserver-cookie-banner--visible {
+body.marketing-page.calserver-theme .marketing-cookie-banner--visible {
     opacity: 1;
     transform: translate3d(0, 0, 0);
 }
 
-.calserver-cookie-banner__headline {
+body.marketing-page.calserver-theme .marketing-cookie-banner__headline {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -2893,52 +2893,52 @@ body.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active {
     margin: 0 0 4px;
 }
 
-.calserver-cookie-banner__icon {
+body.marketing-page.calserver-theme .marketing-cookie-banner__icon {
     color: var(--calserver-primary);
 }
 
-.calserver-cookie-banner__copy {
+body.marketing-page.calserver-theme .marketing-cookie-banner__copy {
     margin: 0;
     font-size: 0.95rem;
     line-height: 1.45;
 }
 
-.calserver-cookie-banner__fineprint {
+body.marketing-page.calserver-theme .marketing-cookie-banner__fineprint {
     margin: 0;
     font-size: 0.85rem;
     color: color-mix(in oklab, currentColor 72%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
 }
 
-.calserver-cookie-banner__link {
+body.marketing-page.calserver-theme .marketing-cookie-banner__link {
     color: inherit;
     text-decoration: underline;
     text-decoration-thickness: 1px;
 }
 
-.calserver-cookie-banner__link:focus-visible {
+body.marketing-page.calserver-theme .marketing-cookie-banner__link:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
 }
 
-.calserver-cookie-banner__actions {
+body.marketing-page.calserver-theme .marketing-cookie-banner__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
 }
 
-.calserver-cookie-banner__button {
+body.marketing-page.calserver-theme .marketing-cookie-banner__button {
     flex: 1 1 140px;
 }
 
 @media (max-width: 640px) {
-    .calserver-cookie-banner {
+    body.marketing-page.calserver-theme .marketing-cookie-banner {
         inset: auto 16px 16px 16px;
         width: auto;
     }
 }
 
-body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .calserver-cookie-banner,
-body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-cookie-banner {
+body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .marketing-cookie-banner,
+body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-cookie-banner {
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
@@ -2948,8 +2948,8 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .cals
     color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 8%, transparent)) !important;
 }
 
-body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-banner,
-body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-banner {
+body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
+body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 12%, var(--marketing-white) 88%) 0%,
@@ -2959,18 +2959,18 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .cal
     color: color-mix(in oklab, var(--marketing-ink) 88%, var(--calserver-primary) 12%) !important;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-cookie-banner,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner,
-body.high-contrast .calserver-cookie-banner {
+body.marketing-page.calserver-theme.high-contrast .marketing-cookie-banner,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-cookie-banner,
+body.high-contrast .marketing-cookie-banner {
     background: var(--qr-card, var(--marketing-black));
     color: var(--qr-text, var(--marketing-white));
     border: 2px solid currentColor;
     box-shadow: none;
 }
 
-body.marketing-page.calserver-theme.high-contrast .calserver-cookie-banner__link,
-body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner__link,
-body.high-contrast .calserver-cookie-banner__link {
+body.marketing-page.calserver-theme.high-contrast .marketing-cookie-banner__link,
+body.marketing-page.calserver-theme[data-theme="high-contrast"] .marketing-cookie-banner__link,
+body.high-contrast .marketing-cookie-banner__link {
     text-decoration-thickness: 2px;
 }
 

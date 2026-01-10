@@ -1,37 +1,37 @@
 {% set consent = cookieConsentConfig|default({}) %}
 {% if consent.enabled %}
-  <div class="calserver-cookie-banner uk-card uk-card-default uk-card-body"
+  <div class="marketing-cookie-banner uk-card uk-card-default uk-card-body"
        id="calserver-cookie-banner"
        data-calserver-cookie-banner
        role="region"
        aria-live="polite"
        tabindex="-1"
        hidden>
-    <div class="calserver-cookie-banner__text">
-      <p class="calserver-cookie-banner__headline">
-        <span class="calserver-cookie-banner__icon" aria-hidden="true" data-uk-icon="icon: lock"></span>
+    <div class="marketing-cookie-banner__text">
+      <p class="marketing-cookie-banner__headline">
+        <span class="marketing-cookie-banner__icon" aria-hidden="true" data-uk-icon="icon: lock"></span>
         Externe Inhalte &amp; Cookies
       </p>
-      <p class="calserver-cookie-banner__copy">{{ consent.bannerText|default('')|e }}</p>
-      <p class="calserver-cookie-banner__fineprint">
+      <p class="marketing-cookie-banner__copy">{{ consent.bannerText|default('')|e }}</p>
+      <p class="marketing-cookie-banner__fineprint">
         Mehr erfährst du in unserer
-        <a href="{{ privacyUrl|default(basePath ~ '/datenschutz') }}" class="calserver-cookie-banner__link">Datenschutzerklärung</a>.
+        <a href="{{ privacyUrl|default(basePath ~ '/datenschutz') }}" class="marketing-cookie-banner__link">Datenschutzerklärung</a>.
       </p>
     </div>
-    <div class="calserver-cookie-banner__actions" role="group" aria-label="Cookie-Auswahl">
-      <button class="uk-button uk-button-primary calserver-cookie-banner__button"
+    <div class="marketing-cookie-banner__actions" role="group" aria-label="Cookie-Auswahl">
+      <button class="uk-button uk-button-primary marketing-cookie-banner__button"
               type="button"
               data-calserver-cookie-accept>
         Akzeptieren
       </button>
-      <button class="uk-button uk-button-default calserver-cookie-banner__button"
+      <button class="uk-button uk-button-default marketing-cookie-banner__button"
               type="button"
               data-calserver-cookie-necessary>
         Nur notwendige
       </button>
     </div>
   </div>
-  <button class="calserver-floating-button calserver-cookie-trigger"
+  <button class="marketing-floating-button marketing-cookie-trigger"
           type="button"
           aria-controls="calserver-cookie-banner"
           aria-expanded="false"

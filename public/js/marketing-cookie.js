@@ -169,13 +169,13 @@
     if (!state.preferences && !bannerVisible) {
       state.trigger.setAttribute('hidden', '');
       state.trigger.setAttribute('aria-expanded', 'false');
-      state.trigger.classList.remove(classes.triggerActive || 'calserver-cookie-trigger--active');
+      state.trigger.classList.remove(classes.triggerActive || 'marketing-cookie-trigger--active');
       return;
     }
 
     state.trigger.removeAttribute('hidden');
     state.trigger.setAttribute('aria-expanded', bannerVisible ? 'true' : 'false');
-    state.trigger.classList.toggle(classes.triggerActive || 'calserver-cookie-trigger--active', bannerVisible);
+    state.trigger.classList.toggle(classes.triggerActive || 'marketing-cookie-trigger--active', bannerVisible);
   }
 
   function setBannerVisibility(visible, options) {
@@ -185,13 +185,13 @@
 
     if (visible) {
       state.banner.removeAttribute('hidden');
-      state.banner.classList.add(classes.bannerVisible || 'calserver-cookie-banner--visible');
+      state.banner.classList.add(classes.bannerVisible || 'marketing-cookie-banner--visible');
       if (options && options.focus === true) {
         focusBanner();
       }
     } else {
       state.banner.setAttribute('hidden', '');
-      state.banner.classList.remove(classes.bannerVisible || 'calserver-cookie-banner--visible');
+      state.banner.classList.remove(classes.bannerVisible || 'marketing-cookie-banner--visible');
     }
 
     refreshTriggerState();

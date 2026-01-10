@@ -521,7 +521,7 @@
       </div>
     </section>
 
-    <a class="calserver-floating-button calhelp-floating-button calhelp-sticky-cta"
+    <a class="marketing-floating-button marketing-floating-button--calhelp calhelp-sticky-cta"
        href="{{ calserverContactHref }}"
        data-sticky-cta
        aria-label="Gespräch starten">
@@ -531,7 +531,7 @@
 
     {% if marketingChatEnabled %}
       {% include 'marketing/partials/marketing-chat.twig' with {
-        chatButtonClass: 'calserver-floating-button calhelp-floating-button marketing-chat-fab'
+        chatButtonClass: 'marketing-floating-button marketing-floating-button--calhelp marketing-chat-fab'
       } %}
     {% endif %}
   </div>
