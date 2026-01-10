@@ -244,7 +244,12 @@ const applyMarketingDesign = () => {
     resolveFallbackToken(root, '--text-on-primary', ''),
   );
 
-  const marketingScheme = variables.marketingScheme || variables.marketing_scheme || colors.marketingScheme || colors.marketing_scheme;
+  const marketingScheme = resolveFirstValue(
+    variables.marketingScheme,
+    variables.marketing_scheme,
+    colors.marketingScheme,
+    colors.marketing_scheme,
+  );
   const marketingSchemeValues = marketingScheme ? MARKETING_SCHEMES[marketingScheme] : null;
   const marketingBackgroundToken =
     configColors['--marketing-background'] ||
@@ -326,13 +331,82 @@ const applyMarketingDesign = () => {
     variables.background ||
     variables.backgroundColor ||
     fallbackBackground;
-  const marketingText = marketingTextToken || fallbackMarketingText;
+  const marketingPrimary = resolveFirstValue(
+    marketingSchemeValues?.primary,
+    configColors.marketingPrimary,
+    configColors.marketing_primary,
+    colors.marketingPrimary,
+    colors.marketing_primary,
+    variables.marketingPrimary,
+    variables.marketing_primary,
+    primary,
+  );
+  const marketingAccent = resolveFirstValue(
+    marketingSchemeValues?.accent,
+    configColors.marketingAccent,
+    configColors.marketing_accent,
+    colors.marketingAccent,
+    colors.marketing_accent,
+    variables.marketingAccent,
+    variables.marketing_accent,
+    accent,
+  );
+  const marketingSecondary = resolveFirstValue(
+    marketingSchemeValues?.accent,
+    configColors.marketingSecondary,
+    configColors.marketing_secondary,
+    colors.marketingSecondary,
+    colors.marketing_secondary,
+    variables.marketingSecondary,
+    variables.marketing_secondary,
+    secondary,
+  );
+  const marketingOnAccent = resolveFirstValue(
+    marketingSchemeValues?.onAccent,
+    configColors.marketingOnAccent,
+    configColors.marketing_on_accent,
+    colors.marketingOnAccent,
+    colors.marketing_on_accent,
+    variables.marketingOnAccent,
+    variables.marketing_on_accent,
+    onAccent,
+  );
+  const marketingSurface = resolveFirstValue(
+    marketingSchemeValues?.surface,
+    configColors.marketingSurface,
+    configColors.marketing_surface,
+    colors.marketingSurface,
+    colors.marketing_surface,
+    variables.marketingSurface,
+    variables.marketing_surface,
+    surface,
+  );
+  const marketingBackground = resolveFirstValue(
+    marketingBackgroundToken,
+    marketingSchemeValues?.background,
+    configColors.marketingBackground,
+    configColors.marketing_background,
+    colors.marketingBackground,
+    colors.marketing_background,
+    variables.marketingBackground,
+    variables.marketing_background,
+    background,
+  );
   const surfaceMuted =
     configColors.surfaceMuted ||
     colors.surfaceMuted ||
     colors.muted ||
     variables.surfaceMuted ||
     fallbackMuted;
+  const marketingSurfaceMuted = resolveFirstValue(
+    configColors.marketingSurfaceMuted,
+    configColors.marketing_surface_muted,
+    colors.marketingSurfaceMuted,
+    colors.marketing_surface_muted,
+    variables.marketingSurfaceMuted,
+    variables.marketing_surface_muted,
+    surfaceMuted,
+  );
   const topbarLight =
     configColors.topbarLight ||
     configColors.topbar_light ||
@@ -493,6 +567,53 @@ const applyMarketingDesign = () => {
     variables.marketingTextMutedOnBackgroundDark ||
     variables.marketing_text_muted_on_background_dark ||
     fallbackTextMutedOnBackgroundDark;
+  const marketingTextOnSurface = resolveFirstValue(
+    marketingSchemeValues?.textOnSurface,
+    textOnSurface,
+    fallbackTextOnSurface,
+  );
+  const marketingTextOnBackground = resolveFirstValue(
+    marketingSchemeValues?.textOnBackground,
+    textOnBackground,
+    fallbackTextOnBackground,
+  );
+  const marketingTextMutedOnSurface = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnSurface,
+    textMutedOnSurface,
+    fallbackTextMutedOnSurface,
+  );
+  const marketingTextMutedOnBackground = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnBackground,
+    textMutedOnBackground,
+    fallbackTextMutedOnBackground,
+  );
+  const marketingTextOnSurfaceDark = resolveFirstValue(
+    marketingSchemeValues?.textOnSurfaceDark,
+    textOnSurfaceDark,
+    fallbackTextOnSurfaceDark,
+  );
+  const marketingTextOnBackgroundDark = resolveFirstValue(
+    marketingSchemeValues?.textOnBackgroundDark,
+    textOnBackgroundDark,
+    fallbackTextOnBackgroundDark,
+  );
+  const marketingTextMutedOnSurfaceDark = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnSurfaceDark,
+    textMutedOnSurfaceDark,
+    fallbackTextMutedOnSurfaceDark,
+  );
+  const marketingTextMutedOnBackgroundDark = resolveFirstValue(
+    marketingSchemeValues?.textMutedOnBackgroundDark,
+    textMutedOnBackgroundDark,
+    fallbackTextMutedOnBackgroundDark,
+  );
+  const marketingText = resolveFirstValue(
+    marketingTextToken,
+    marketingSchemeValues?.textOnBackground,
+    marketingTextOnBackground,
+    marketingTextOnSurface,
+    fallbackMarketingText,
+  );
   const surfaceDark =
     configColors.surfaceDark ||
     configColors.surface_dark ||
@@ -571,42 +692,22 @@ const applyMarketingDesign = () => {
     root.style.setProperty('--section-default-accent', sectionDefaultAccent);
   }
 
-  root.style.setProperty('--marketing-primary', primary);
-  root.style.setProperty('--marketing-accent', accent);
-  root.style.setProperty('--marketing-secondary', secondary);
-  root.style.setProperty('--marketing-background', background);
-  if (onAccent) {
-    root.style.setProperty('--marketing-on-accent', onAccent);
-  }
-  if (marketingText) {
-    root.style.setProperty('--marketing-text', marketingText);
-  }
-  root.style.setProperty('--marketing-surface', surface);
-  root.style.setProperty('--marketing-surface-muted', surfaceMuted);
-  if (textOnSurface) {
-    root.style.setProperty('--marketing-text-on-surface', textOnSurface);
-  }
-  if (textOnBackground) {
-    root.style.setProperty('--marketing-text-on-background', textOnBackground);
-  }
-  if (textMutedOnSurface) {
-    root.style.setProperty('--marketing-text-muted-on-surface', textMutedOnSurface);
-  }
-  if (textMutedOnBackground) {
-    root.style.setProperty('--marketing-text-muted-on-background', textMutedOnBackground);
-  }
-  if (textOnSurfaceDark) {
-    root.style.setProperty('--marketing-text-on-surface-dark', textOnSurfaceDark);
-  }
-  if (textOnBackgroundDark) {
-    root.style.setProperty('--marketing-text-on-background-dark', textOnBackgroundDark);
-  }
-  if (textMutedOnSurfaceDark) {
-    root.style.setProperty('--marketing-text-muted-on-surface-dark', textMutedOnSurfaceDark);
-  }
-  if (textMutedOnBackgroundDark) {
-    root.style.setProperty('--marketing-text-muted-on-background-dark', textMutedOnBackgroundDark);
-  }
+  root.style.setProperty('--marketing-primary', marketingPrimary);
+  root.style.setProperty('--marketing-accent', marketingAccent);
+  root.style.setProperty('--marketing-secondary', marketingSecondary);
+  root.style.setProperty('--marketing-background', marketingBackground);
+  root.style.setProperty('--marketing-on-accent', marketingOnAccent);
+  root.style.setProperty('--marketing-text', marketingText);
+  root.style.setProperty('--marketing-surface', marketingSurface);
+  root.style.setProperty('--marketing-surface-muted', marketingSurfaceMuted);
+  root.style.setProperty('--marketing-text-on-surface', marketingTextOnSurface);
+  root.style.setProperty('--marketing-text-on-background', marketingTextOnBackground);
+  root.style.setProperty('--marketing-text-muted-on-surface', marketingTextMutedOnSurface);
+  root.style.setProperty('--marketing-text-muted-on-background', marketingTextMutedOnBackground);
+  root.style.setProperty('--marketing-text-on-surface-dark', marketingTextOnSurfaceDark);
+  root.style.setProperty('--marketing-text-on-background-dark', marketingTextOnBackgroundDark);
+  root.style.setProperty('--marketing-text-muted-on-surface-dark', marketingTextMutedOnSurfaceDark);
+  root.style.setProperty('--marketing-text-muted-on-background-dark', marketingTextMutedOnBackgroundDark);
   if (surfaceDark) {
     root.style.setProperty('--marketing-surface-dark', surfaceDark);
   }
