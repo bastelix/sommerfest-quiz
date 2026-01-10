@@ -65,6 +65,14 @@ const parseJson = value => {
   }
 };
 
+const resolveFirstValue = (...values) => {
+  return values.find(value => value !== null && value !== undefined && value !== '');
+};
+
+const isSectionDefaultReference = value => {
+  return typeof value === 'string' && value.includes('--section-default-');
+};
+
 const resolveWindowAppearance = () => {
   if (typeof window === 'undefined') {
     return null;
@@ -527,6 +535,41 @@ const applyMarketingDesign = () => {
     variables.marketingCardDark ||
     variables.marketing_card_dark ||
     fallbackCardDark;
+
+  const sectionDefaultSurface = resolveFirstValue(
+    variables.sectionDefaultSurface,
+    colors.sectionDefaultSurface,
+    surface,
+    colors.surface,
+    variables.surface,
+  );
+  const sectionDefaultMuted = resolveFirstValue(
+    variables.sectionDefaultMuted,
+    colors.sectionDefaultMuted,
+    surfaceMuted,
+    colors.surfaceMuted,
+    colors.muted,
+    variables.surfaceMuted,
+  );
+  const sectionDefaultAccent = resolveFirstValue(
+    variables.sectionDefaultAccent,
+    colors.sectionDefaultAccent,
+    accent,
+    colors.primary,
+    colors.accent,
+    variables.primary,
+    variables.accent,
+  );
+
+  if (sectionDefaultSurface && !isSectionDefaultReference(sectionDefaultSurface)) {
+    root.style.setProperty('--section-default-surface', sectionDefaultSurface);
+  }
+  if (sectionDefaultMuted && !isSectionDefaultReference(sectionDefaultMuted)) {
+    root.style.setProperty('--section-default-muted', sectionDefaultMuted);
+  }
+  if (sectionDefaultAccent && !isSectionDefaultReference(sectionDefaultAccent)) {
+    root.style.setProperty('--section-default-accent', sectionDefaultAccent);
+  }
 
   root.style.setProperty('--marketing-primary', primary);
   root.style.setProperty('--marketing-accent', accent);
