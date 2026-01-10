@@ -2,7 +2,7 @@
 {% if consent.enabled %}
   <div class="marketing-cookie-banner uk-card uk-card-default uk-card-body"
        id="calserver-cookie-banner"
-       data-calserver-cookie-banner
+       data-marketing-cookie-banner
        role="region"
        aria-live="polite"
        tabindex="-1"
@@ -21,12 +21,12 @@
     <div class="marketing-cookie-banner__actions" role="group" aria-label="Cookie-Auswahl">
       <button class="uk-button uk-button-primary marketing-cookie-banner__button"
               type="button"
-              data-calserver-cookie-accept>
+              data-marketing-cookie-accept>
         Akzeptieren
       </button>
       <button class="uk-button uk-button-default marketing-cookie-banner__button"
               type="button"
-              data-calserver-cookie-necessary>
+              data-marketing-cookie-necessary>
         Nur notwendige
       </button>
     </div>
@@ -36,7 +36,7 @@
           aria-controls="calserver-cookie-banner"
           aria-expanded="false"
           aria-label="Cookie-Einstellungen öffnen"
-          data-calserver-cookie-open
+          data-marketing-cookie-open
           hidden>
     <span aria-hidden="true" data-uk-icon="icon: fingerprint"></span>
   </button>

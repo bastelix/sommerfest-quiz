@@ -2199,10 +2199,6 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
 
 /* Marketing chat + cookie consent handlers (marketing pages + CMS rendering). */
 
-:is(.calserver-chat-trigger, .calhelp-chat-trigger) {
-  white-space: nowrap;
-}
-
 .marketing-chat-modal .uk-modal-dialog {
   max-width: 720px;
 }

@@ -2,6 +2,18 @@
   const config = globalThis.cookieConsentConfig || {};
   const selectors = config.selectors || {};
   const classes = config.classes || {};
+  const defaultSelectors = {
+    banner: '[data-marketing-cookie-banner]',
+    trigger: '[data-marketing-cookie-open]',
+    accept: '[data-marketing-cookie-accept]',
+    necessary: '[data-marketing-cookie-necessary]'
+  };
+  const legacySelectors = {
+    banner: '[data-calserver-cookie-banner]',
+    trigger: '[data-calserver-cookie-open]',
+    accept: '[data-calserver-cookie-accept]',
+    necessary: '[data-calserver-cookie-necessary]'
+  };
   const EVENT_NAME = (typeof config.eventName === 'string' && config.eventName.trim())
     ? config.eventName.trim()
     : 'marketing:cookie-preference-changed';
@@ -10,6 +22,21 @@
     : ((globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices');
   const enabled = config.enabled !== false;
   const state = { banner: null, trigger: null, preferences: null };
+
+  function resolveSelector(name) {
+    const base = selectors[name] || defaultSelectors[name];
+    const legacy = legacySelectors[name];
+
+    if (!legacy) {
+      return base;
+    }
+
+    if (typeof base === 'string' && base.includes(legacy)) {
+      return base;
+    }
+
+    return base ? `${base}, ${legacy}` : legacy;
+  }
 
   function normalize(preferences) {
     const normalized = {
@@ -226,13 +253,13 @@
       return;
     }
 
-    state.banner = document.querySelector(selectors.banner || '[data-calserver-cookie-banner]');
+    state.banner = document.querySelector(resolveSelector('banner'));
     if (!state.banner) {
       return;
     }
 
     const existing = getPreferences();
-    state.trigger = document.querySelector(selectors.trigger || '[data-calserver-cookie-open]');
+    state.trigger = document.querySelector(resolveSelector('trigger'));
 
     if (state.trigger) {
       state.trigger.addEventListener('click', function () {
@@ -253,14 +280,14 @@
 
     updateBannerVisibility(existing);
 
-    const acceptAll = state.banner.querySelector(selectors.accept || '[data-calserver-cookie-accept]');
+    const acceptAll = state.banner.querySelector(resolveSelector('accept'));
     if (acceptAll) {
       acceptAll.addEventListener('click', function () {
         allowMarketing();
       });
     }
 
-    const necessaryOnly = state.banner.querySelector(selectors.necessary || '[data-calserver-cookie-necessary]');
+    const necessaryOnly = state.banner.querySelector(resolveSelector('necessary'));
     if (necessaryOnly) {
       necessaryOnly.addEventListener('click', function () {
         setPreferences({ marketing: false });
