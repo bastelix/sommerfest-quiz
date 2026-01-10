@@ -201,6 +201,7 @@ export interface AudienceCase {
   body?: string;
   bullets?: string[];
   keyFacts?: string[];
+  pdf?: CallToAction;
   media?: Media;
 }
 
