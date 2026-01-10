@@ -12,6 +12,7 @@
 
 {% set menuItems = menu|default([]) %}
 {% set cmsMenuItems = menuItems|default([]) %}
+{% set includeLegacyMarketingStyles = false %}
 {% set logoSettings = headerLogo|default({}) %}
 {% set logoMode = logoSettings.mode|default('text') %}
 {% set logoSrc = logoSettings.src|default(null) %}
