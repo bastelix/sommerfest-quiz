@@ -1,50 +1,50 @@
 /* calServer marketing overrides for landing layout */
 
 body.marketing-page.calserver-theme {
-    --calserver-primary: #1f63e6;
-    --cs-card-dark: #0f1625;
-    --cs-card-dark-border: #1b2437;
-    --cs-text-on-dark: #ffffff;
+    --calserver-primary: var(--marketing-primary);
+    --cs-card-dark: var(--marketing-card-dark);
+    --cs-card-dark-border: color-mix(in oklab, var(--marketing-card-dark) 72%, var(--marketing-white) 28%);
+    --cs-text-on-dark: var(--marketing-text-on-surface-dark);
     --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
     --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
-    --cs-card-focus-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.55),
-        0 14px 25px rgba(0, 0, 0, 0.16);
+    --cs-card-focus-shadow: 0 22px 48px -32px color-mix(in oklab, var(--marketing-ink) 55%, transparent),
+        0 14px 25px rgb(var(--marketing-black-rgb) / 0.16);
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 4%, transparent);
-    --cs-hero-shadow: 0 42px 82px -58px rgba(15, 23, 42, 0.6);
+    --cs-hero-shadow: 0 42px 82px -58px color-mix(in oklab, var(--marketing-ink) 60%, transparent);
     --cs-highlight-bg: color-mix(in oklab, var(--calserver-primary) 12%, var(--qr-card) 88%);
     --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 22%, transparent);
     --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 14%, transparent);
-    --cs-highlight-shadow: 0 -18px 46px -38px rgba(15, 23, 42, 0.4),
-        0 24px 52px -40px rgba(15, 23, 42, 0.45);
+    --cs-highlight-shadow: 0 -18px 46px -38px color-mix(in oklab, var(--marketing-ink) 40%, transparent),
+        0 24px 52px -40px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
     --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
     --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 30%, transparent);
-    --cs-highlight-card-shadow: 0 18px 34px -28px rgba(15, 23, 42, 0.5);
+    --cs-highlight-card-shadow: 0 18px 34px -28px color-mix(in oklab, var(--marketing-ink) 50%, transparent);
     --cs-logo-size: clamp(48px, 7vw, 72px);
     --cs-logo-gap: clamp(12px, 2.6vw, 22px);
-    --cs-logo-bg: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.94));
-    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.16));
-    --cs-logo-shadow: 0 20px 42px -30px rgba(10, 19, 38, 0.55);
-    --cs-logo-text: color-mix(in oklab, var(--calserver-primary) 24%, #0d172b 76%);
+    --cs-logo-bg: color-mix(in oklab, var(--calserver-primary) 8%, color-mix(in oklab, var(--marketing-white) 94%, transparent));
+    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 16%, transparent));
+    --cs-logo-shadow: 0 20px 42px -30px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
+    --cs-logo-text: color-mix(in oklab, var(--calserver-primary) 24%, var(--marketing-ink) 76%);
     --cs-anchor-offset: calc(var(--cs-logo-size) + 32px);
-    --cs-topbar-bg: rgba(255, 255, 255, 0.92);
-    --cs-topbar-border: color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.12));
-    --cs-topbar-text: color-mix(in oklab, #0f1625 85%, var(--calserver-primary) 15%);
-    --cs-topbar-muted: color-mix(in oklab, #3d4a66 80%, var(--calserver-primary) 20%);
-    --cs-mega-highlight-bg: color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.98));
-    --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 12%, rgba(15, 22, 37, 0.08));
-    --cs-mode-pill-bg: rgba(31, 99, 230, 0.18);
-    --cs-mode-pill-hover-bg: rgba(31, 99, 230, 0.32);
-    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 82%, rgba(12, 19, 35, 0.18));
-    --cs-mode-pill-text: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.7) 8%);
-    --cs-mode-pill-hover-text: #ffffff;
-    --cs-mode-pill-active-text: #ffffff;
-    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.3));
-    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.34));
-    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.4));
-    --cs-mode-pill-shadow: 0 16px 32px -28px rgba(9, 16, 32, 0.72);
-    --cs-mode-pill-hover-shadow: 0 20px 40px -30px rgba(9, 16, 32, 0.78);
-    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 78%, #7eaaff 22%);
+    --cs-topbar-bg: color-mix(in oklab, var(--marketing-surface) 92%, transparent);
+    --cs-topbar-border: color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 12%, transparent));
+    --cs-topbar-text: color-mix(in oklab, var(--marketing-text-on-surface) 85%, var(--calserver-primary) 15%);
+    --cs-topbar-muted: color-mix(in oklab, var(--marketing-text-muted-on-surface) 80%, var(--calserver-primary) 20%);
+    --cs-mega-highlight-bg: color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 98%, transparent));
+    --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 12%, color-mix(in oklab, var(--marketing-ink) 8%, transparent));
+    --cs-mode-pill-bg: color-mix(in oklab, var(--calserver-primary) 18%, transparent);
+    --cs-mode-pill-hover-bg: color-mix(in oklab, var(--calserver-primary) 32%, transparent);
+    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
+    --cs-mode-pill-text: color-mix(in oklab, var(--marketing-white) 92%, transparent);
+    --cs-mode-pill-hover-text: var(--marketing-white);
+    --cs-mode-pill-active-text: var(--marketing-white);
+    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 30%, transparent));
+    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 34%, transparent));
+    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
+    --cs-mode-pill-shadow: 0 16px 32px -28px color-mix(in oklab, var(--marketing-ink) 72%, transparent);
+    --cs-mode-pill-hover-shadow: 0 20px 40px -30px color-mix(in oklab, var(--marketing-ink) 78%, transparent);
+    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 78%, var(--marketing-white) 22%);
     scroll-behavior: smooth;
 }
 
@@ -54,9 +54,9 @@ body.marketing-page.calserver-theme:not(.high-contrast) {
 
 .marketing-page .hero-bg-calserver {
     background:
-        radial-gradient(420px 320px at 12% 18%, color-mix(in oklab, var(--calserver-primary) 36%, rgba(12, 18, 33, 0.25)) 0%, transparent 68%),
-        radial-gradient(520px 360px at 88% 12%, color-mix(in oklab, #5ae1ff 32%, transparent) 0%, transparent 70%),
-        radial-gradient(540px 420px at 48% 108%, color-mix(in oklab, var(--calserver-primary) 28%, rgba(8, 14, 28, 0.8)) 0%, transparent 74%),
+        radial-gradient(420px 320px at 12% 18%, color-mix(in oklab, var(--calserver-primary) 36%, color-mix(in oklab, var(--marketing-ink) 25%, transparent)) 0%, transparent 68%),
+        radial-gradient(520px 360px at 88% 12%, color-mix(in oklab, color-mix(in oklab, var(--marketing-primary) 35%, var(--marketing-white) 65%) 32%, transparent) 0%, transparent 70%),
+        radial-gradient(540px 420px at 48% 108%, color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 80%, transparent)) 0%, transparent 74%),
         var(--qr-hero-gradient);
     background-color: var(--qr-hero-grad-start);
     overflow: hidden;
@@ -95,52 +95,52 @@ body.high-contrast .calserver-hero-bg__canvas {
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast),
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) {
-    --qr-hero-grad-start: #0b101a;
-    --qr-hero-grad-end: color-mix(in oklab, var(--calserver-primary) 70%, #0b101a 30%);
+    --qr-hero-grad-start: var(--marketing-surface-dark);
+    --qr-hero-grad-end: color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-surface-dark) 30%);
     --qr-hero-gradient: linear-gradient(
         135deg,
         var(--qr-hero-grad-start) 0%,
-        color-mix(in oklab, var(--calserver-primary) 55%, #111827 45%) 100%
+        color-mix(in oklab, var(--calserver-primary) 55%, var(--marketing-surface-muted-dark) 45%) 100%
     );
-    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 42%, rgba(7, 12, 26, 0.9));
-    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(5, 9, 19, 0.92));
-    --cs-hero-shadow: 0 48px 90px -60px rgba(5, 10, 22, 0.85);
+    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
+    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
+    --cs-hero-shadow: 0 48px 90px -60px color-mix(in oklab, var(--marketing-ink) 85%, transparent);
     --cs-highlight-bg: linear-gradient(
         180deg,
-        color-mix(in oklab, var(--calserver-primary) 26%, rgba(7, 12, 26, 0.96)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 18%, rgba(5, 10, 21, 0.94)) 100%
+        color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 96%, transparent)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 94%, transparent)) 100%
     );
-    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.14));
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.12));
-    --cs-highlight-shadow: 0 -28px 72px -54px rgba(5, 10, 20, 0.78),
-        0 36px 84px -52px rgba(6, 12, 28, 0.88);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 28%, rgba(6, 12, 26, 0.86));
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.18));
-    --cs-highlight-card-shadow: 0 26px 46px -30px rgba(4, 10, 24, 0.72);
-    --cs-logo-bg: color-mix(in oklab, rgba(8, 14, 28, 0.88) 68%, var(--calserver-primary) 32%);
-    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.26));
-    --cs-logo-shadow: 0 24px 48px -32px rgba(3, 9, 22, 0.75);
-    --cs-logo-text: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
-    --cs-topbar-bg: rgba(11, 16, 26, 0.9);
-    --cs-topbar-border: color-mix(in oklab, var(--calserver-primary) 38%, rgba(255, 255, 255, 0.16));
-    --cs-topbar-text: color-mix(in oklab, #f6f7ff 82%, var(--calserver-primary) 18%);
-    --cs-topbar-muted: color-mix(in oklab, #a9b8dd 70%, var(--calserver-primary) 30%);
-    --cs-mega-highlight-bg: color-mix(in oklab, rgba(12, 18, 33, 0.88) 72%, var(--calserver-primary) 28%);
-    --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 32%, rgba(255, 255, 255, 0.16));
+    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 14%, transparent));
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-white) 12%, transparent));
+    --cs-highlight-shadow: 0 -28px 72px -54px color-mix(in oklab, var(--marketing-ink) 78%, transparent),
+        0 36px 84px -52px color-mix(in oklab, var(--marketing-ink) 88%, transparent);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 86%, transparent));
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 60%, color-mix(in oklab, var(--marketing-white) 18%, transparent));
+    --cs-highlight-card-shadow: 0 26px 46px -30px color-mix(in oklab, var(--marketing-ink) 72%, transparent);
+    --cs-logo-bg: color-mix(in oklab, color-mix(in oklab, var(--marketing-ink) 88%, transparent) 68%, var(--calserver-primary) 32%);
+    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
+    --cs-logo-shadow: 0 24px 48px -32px color-mix(in oklab, var(--marketing-ink) 75%, transparent);
+    --cs-logo-text: color-mix(in oklab, var(--marketing-white) 88%, var(--calserver-primary) 12%);
+    --cs-topbar-bg: color-mix(in oklab, var(--marketing-surface-dark) 90%, transparent);
+    --cs-topbar-border: color-mix(in oklab, var(--calserver-primary) 38%, color-mix(in oklab, var(--marketing-white) 16%, transparent));
+    --cs-topbar-text: color-mix(in oklab, var(--marketing-text-on-background-dark) 82%, var(--calserver-primary) 18%);
+    --cs-topbar-muted: color-mix(in oklab, var(--marketing-text-muted-on-background-dark) 70%, var(--calserver-primary) 30%);
+    --cs-mega-highlight-bg: color-mix(in oklab, color-mix(in oklab, var(--marketing-ink) 88%, transparent) 72%, var(--calserver-primary) 28%);
+    --cs-mega-highlight-muted: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-white) 16%, transparent));
 }
 
 body.marketing-page.calserver-theme.high-contrast,
 body.marketing-page.calserver-theme[data-theme="high-contrast"] {
-    --cs-logo-bg: #ffffff;
-    --cs-logo-border: #000000;
+    --cs-logo-bg: var(--marketing-white);
+    --cs-logo-border: var(--marketing-black);
     --cs-logo-shadow: none;
     --cs-logo-text: currentColor;
-    --cs-topbar-bg: #ffffff;
-    --cs-topbar-border: #000000;
-    --cs-topbar-text: #000000;
-    --cs-topbar-muted: #000000;
-    --cs-mega-highlight-bg: #ffffff;
-    --cs-mega-highlight-muted: rgba(0, 0, 0, 0.18);
+    --cs-topbar-bg: var(--marketing-white);
+    --cs-topbar-border: var(--marketing-black);
+    --cs-topbar-text: var(--marketing-black);
+    --cs-topbar-muted: var(--marketing-black);
+    --cs-mega-highlight-bg: var(--marketing-white);
+    --cs-mega-highlight-muted: color-mix(in oklab, var(--marketing-black) 18%, transparent);
 }
 
 .calserver-theme .cs-logo {
@@ -244,7 +244,7 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     background: var(--cs-mega-highlight-bg);
     color: var(--cs-topbar-text);
     border: 1px solid var(--cs-topbar-border);
-    box-shadow: 0 22px 48px -34px rgba(15, 22, 37, 0.4);
+    box-shadow: 0 22px 48px -34px color-mix(in oklab, var(--marketing-ink) 40%, transparent);
 }
 
 .calserver-theme .cs-mega-nav .uk-navbar-dropdown-nav > li > a {
@@ -272,7 +272,7 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
 .calserver-theme .menu-explain {
     padding: 18px;
     border-left: 1px solid var(--cs-topbar-border);
-    background: color-mix(in oklab, var(--cs-mega-highlight-bg) 92%, rgba(255, 255, 255, 0.96) 8%);
+    background: color-mix(in oklab, var(--cs-mega-highlight-bg) 92%, color-mix(in oklab, var(--marketing-white) 96%, transparent) 8%);
     min-height: 220px;
 }
 
@@ -316,21 +316,21 @@ body.marketing-page.calserver-theme[data-theme="high-contrast"] {
     padding: 10px 20px;
     border-radius: 999px;
     background: var(--calserver-primary);
-    color: #ffffff;
+    color: var(--marketing-text-on-primary);
     font-weight: 600;
-    box-shadow: 0 16px 36px -24px color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 22, 37, 0.55));
+    box-shadow: 0 16px 36px -24px color-mix(in oklab, var(--calserver-primary) 70%, color-mix(in oklab, var(--marketing-ink) 55%, transparent));
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 
 .calserver-theme .cs-cta .cs-primary-link:hover,
 .calserver-theme .cs-cta .cs-primary-link:focus {
-    background: color-mix(in oklab, var(--calserver-primary) 82%, #1a3c7c 18%);
+    background: color-mix(in oklab, var(--calserver-primary) 82%, var(--marketing-ink) 18%);
     transform: translateY(-1px);
-    box-shadow: 0 20px 42px -24px color-mix(in oklab, var(--calserver-primary) 78%, rgba(15, 22, 37, 0.6));
+    box-shadow: 0 20px 42px -24px color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-ink) 60%, transparent));
 }
 
 .calserver-theme .cs-cta .cs-primary-link:focus-visible {
-    outline: 2px solid color-mix(in oklab, #ffffff 70%, var(--calserver-primary) 30%);
+    outline: 2px solid color-mix(in oklab, var(--marketing-white) 70%, var(--calserver-primary) 30%);
     outline-offset: 3px;
 }
 
@@ -359,81 +359,81 @@ body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-prima
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary {
     background: linear-gradient(
             135deg,
-            color-mix(in oklab, var(--calserver-primary) 56%, #1c2f55 44%) 0%,
-            color-mix(in oklab, var(--calserver-primary) 82%, #0c1529 18%) 100%
+            color-mix(in oklab, var(--calserver-primary) 56%, var(--marketing-surface-muted-dark) 44%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 82%, var(--marketing-surface-dark) 18%) 100%
         ) !important;
-    border-color: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.26)) !important;
+    border-color: color-mix(in oklab, var(--calserver-primary) 60%, color-mix(in oklab, var(--marketing-white) 26%, transparent)) !important;
     color: var(--cs-text-on-dark);
-    box-shadow: 0 32px 58px -34px rgba(20, 66, 153, 0.65),
-        0 24px 44px -32px rgba(5, 13, 30, 0.72);
+    box-shadow: 0 32px 58px -34px color-mix(in oklab, var(--calserver-primary) 65%, transparent),
+        0 24px 44px -32px color-mix(in oklab, var(--marketing-ink) 72%, transparent);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight {
     background: linear-gradient(
             145deg,
-            color-mix(in oklab, var(--calserver-primary) 68%, #233a6b 32%) 0%,
-            color-mix(in oklab, var(--calserver-primary) 94%, #142348 6%) 100%
+            color-mix(in oklab, var(--calserver-primary) 68%, var(--marketing-surface-muted-dark) 32%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 94%, var(--marketing-ink) 6%) 100%
         ) !important;
-    border-color: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.38)) !important;
-    box-shadow: 0 42px 72px -36px color-mix(in oklab, var(--calserver-primary) 52%, rgba(28, 108, 255, 0.65)),
-        0 26px 52px -34px rgba(4, 10, 25, 0.82);
+    border-color: color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-white) 38%, transparent)) !important;
+    box-shadow: 0 42px 72px -36px color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-primary) 65%, transparent)),
+        0 26px 52px -34px color-mix(in oklab, var(--marketing-ink) 82%, transparent);
 }
 
 .calserver-theme .calserver-news {
     background: linear-gradient(
             180deg,
-            color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.94)) 0%,
-            rgba(255, 255, 255, 0.92) 100%
+            color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 94%, transparent)) 0%,
+            color-mix(in oklab, var(--marketing-white) 92%, transparent) 100%
     );
-    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.08));
-    border-bottom: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.08));
+    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 8%, transparent));
+    border-bottom: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 8%, transparent));
 }
 
 .calserver-theme .calserver-news .uk-heading-medium {
     font-weight: 600;
-    color: color-mix(in oklab, var(--calserver-primary) 68%, #0f172a 32%);
+    color: color-mix(in oklab, var(--calserver-primary) 68%, var(--marketing-ink) 32%);
 }
 
 .calserver-theme .calserver-news .uk-button-text {
-    color: color-mix(in oklab, var(--calserver-primary) 74%, #1f2937 26%);
+    color: color-mix(in oklab, var(--calserver-primary) 74%, var(--marketing-text-on-surface) 26%);
 }
 
 .calserver-theme .calserver-news .uk-button-text:hover,
 .calserver-theme .calserver-news .uk-button-text:focus {
-    color: color-mix(in oklab, var(--calserver-primary) 88%, #0f172a 12%);
+    color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
     text-decoration: none;
 }
 
 .calserver-theme .calserver-news--listing .marketing-news-card {
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.1));
-    box-shadow: 0 24px 40px -32px color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 23, 42, 0.42));
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 10%, transparent));
+    box-shadow: 0 24px 40px -32px color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 42%, transparent));
 }
 
 .calserver-theme .calserver-news--listing .marketing-news-card__date {
-    color: color-mix(in oklab, var(--calserver-primary) 32%, #475569 68%);
+    color: color-mix(in oklab, var(--calserver-primary) 32%, var(--marketing-text-muted-on-surface) 68%);
 }
 
 .calserver-theme .calserver-news-entry {
-    background: color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.96) 94%);
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 22, 37, 0.1));
+    background: color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 96%, transparent) 94%);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 10%, transparent));
     border-radius: 18px;
     padding: clamp(1.5rem, 3vw, 3rem);
-    box-shadow: 0 32px 58px -36px rgba(20, 66, 153, 0.28),
-        0 22px 36px -30px rgba(15, 23, 42, 0.22);
+    box-shadow: 0 32px 58px -36px color-mix(in oklab, var(--marketing-primary) 28%, transparent),
+        0 22px 36px -30px color-mix(in oklab, var(--marketing-ink) 22%, transparent);
 }
 
 .calserver-theme .calserver-news-entry .uk-article-meta {
-    color: color-mix(in oklab, var(--calserver-primary) 28%, #475569 72%);
+    color: color-mix(in oklab, var(--calserver-primary) 28%, var(--marketing-text-muted-on-surface) 72%);
 }
 
 .calserver-theme .calserver-news-entry a {
-    color: color-mix(in oklab, var(--calserver-primary) 72%, #1f2937 28%);
+    color: color-mix(in oklab, var(--calserver-primary) 72%, var(--marketing-text-on-surface) 28%);
 }
 
 .calserver-theme .calserver-news-entry a:hover,
 .calserver-theme .calserver-news-entry a:focus {
-    color: color-mix(in oklab, var(--calserver-primary) 88%, #0f172a 12%);
+    color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary p,
@@ -442,68 +442,68 @@ body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-prima
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary p,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary li,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .muted {
-    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.68) 8%) !important;
+    color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 68%, transparent) 8%) !important;
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
-    border-color: color-mix(in oklab, #ffffff 80%, rgba(31, 99, 230, 0.36) 20%);
+    border-color: color-mix(in oklab, var(--marketing-white) 80%, color-mix(in oklab, var(--marketing-primary) 36%, transparent) 20%);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default {
-    background: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
-    color: color-mix(in oklab, var(--calserver-primary) 90%, #030a1c 10%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.45));
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 46%, rgba(255, 255, 255, 0.42)) inset,
-        0 16px 30px -20px rgba(19, 71, 179, 0.6);
+    background: color-mix(in oklab, var(--marketing-white) 88%, var(--calserver-primary) 12%);
+    color: color-mix(in oklab, var(--calserver-primary) 90%, var(--marketing-ink) 10%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-white) 45%, transparent));
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 46%, color-mix(in oklab, var(--marketing-white) 42%, transparent)) inset,
+        0 16px 30px -20px color-mix(in oklab, var(--marketing-primary) 60%, transparent);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
-    background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(10, 16, 32, 0.92) 18%);
-    color: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.28));
-    box-shadow: 0 22px 46px -28px color-mix(in oklab, var(--calserver-primary) 72%, rgba(17, 37, 78, 0.85));
+    background: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-ink) 92%, transparent) 18%);
+    color: color-mix(in oklab, var(--marketing-white) 92%, var(--calserver-primary) 8%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 70%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
+    box-shadow: 0 22px 46px -28px color-mix(in oklab, var(--calserver-primary) 72%, color-mix(in oklab, var(--marketing-ink) 85%, transparent));
     transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
-    background: color-mix(in oklab, var(--calserver-primary) 94%, rgba(12, 22, 42, 0.9) 6%);
-    color: #ffffff;
-    box-shadow: 0 28px 52px -26px color-mix(in oklab, var(--calserver-primary) 82%, rgba(17, 37, 78, 0.92));
+    background: color-mix(in oklab, var(--calserver-primary) 94%, color-mix(in oklab, var(--marketing-ink) 90%, transparent) 6%);
+    color: var(--marketing-white);
+    box-shadow: 0 28px 52px -26px color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
-    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 78%, rgba(126, 170, 255, 0.45));
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-primary) 45%, transparent));
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.24)),
-        0 24px 48px -26px color-mix(in oklab, var(--calserver-primary) 78%, rgba(17, 37, 78, 0.88));
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 24%, transparent)),
+        0 24px 48px -26px color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-ink) 88%, transparent));
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
-    background: color-mix(in oklab, #ffffff 74%, var(--calserver-primary) 26%);
-    color: color-mix(in oklab, var(--calserver-primary) 94%, #050b1e 6%);
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.48)) inset,
-        0 22px 36px -22px rgba(31, 99, 230, 0.65);
+    background: color-mix(in oklab, var(--marketing-white) 74%, var(--calserver-primary) 26%);
+    color: color-mix(in oklab, var(--calserver-primary) 94%, var(--marketing-ink) 6%);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 48%, transparent)) inset,
+        0 22px 36px -22px color-mix(in oklab, var(--marketing-primary) 65%, transparent);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible {
-    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, #7eaaff 25%);
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, var(--marketing-white) 25%);
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, rgba(255, 255, 255, 0.4));
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .pill--badge,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .pill--badge {
-    background: color-mix(in oklab, #ffffff 90%, var(--calserver-primary) 10%);
-    color: color-mix(in oklab, var(--calserver-primary) 78%, #020817 22%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(255, 255, 255, 0.6));
-    box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.55);
+    background: color-mix(in oklab, var(--marketing-white) 90%, var(--calserver-primary) 10%);
+    color: color-mix(in oklab, var(--calserver-primary) 78%, var(--marketing-ink) 22%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 46%, color-mix(in oklab, var(--marketing-white) 60%, transparent));
+    box-shadow: 0 18px 32px -22px color-mix(in oklab, var(--marketing-primary) 55%, transparent);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .uk-card .uk-card-title,
@@ -521,24 +521,24 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card .uk-card-title,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h3,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card h4 {
-    color: color-mix(in oklab, var(--calserver-primary) 22%, #0b1532 78%) !important;
+    color: color-mix(in oklab, var(--calserver-primary) 22%, var(--marketing-ink) 78%) !important;
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-default,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-default {
-    background: #ffffff !important;
+    background: var(--marketing-white) !important;
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary {
     background: linear-gradient(
             135deg,
-            color-mix(in oklab, var(--calserver-primary) 86%, #11326a 14%) 0%,
-            color-mix(in oklab, var(--calserver-primary) 70%, #0a1c4a 30%) 100%
+            color-mix(in oklab, var(--calserver-primary) 86%, var(--marketing-ink) 14%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-ink) 30%) 100%
         ) !important;
     border-color: color-mix(in oklab, var(--calserver-primary) 65%, transparent) !important;
-    color: #ffffff;
-    box-shadow: 0 26px 46px -30px rgba(17, 50, 106, 0.42);
+    color: var(--marketing-text-on-primary);
+    box-shadow: 0 26px 46px -30px color-mix(in oklab, var(--calserver-primary) 42%, transparent);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary h3,
@@ -547,26 +547,26 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary h3,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary p,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary li {
-    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.72) 8%) !important;
+    color: color-mix(in oklab, var(--marketing-white) 92%, transparent) !important;
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default {
-    background: #ffffff;
-    color: color-mix(in oklab, var(--calserver-primary) 82%, #0a1c4a 18%);
+    background: var(--marketing-white);
+    color: color-mix(in oklab, var(--calserver-primary) 82%, var(--marketing-ink) 18%);
     border-color: transparent;
-    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--marketing-white) 55%, transparent) inset;
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default:hover,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
-    background: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
-    color: color-mix(in oklab, var(--calserver-primary) 88%, #071440 12%);
+    background: color-mix(in oklab, var(--marketing-white) 88%, var(--calserver-primary) 12%);
+    color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
-    border-color: rgba(255, 255, 255, 0.7);
+    border-color: color-mix(in oklab, var(--marketing-white) 70%, transparent);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .site-footer,
@@ -581,7 +581,7 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .foot
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section p,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section li,
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .footer-section strong {
-    color: #ffffff;
+    color: var(--marketing-white);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .site-footer,
@@ -596,7 +596,7 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .foo
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section p,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section li,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .footer-section strong {
-    color: color-mix(in oklab, var(--qr-text, #1c2131) 92%, var(--calserver-primary) 8%);
+    color: color-mix(in oklab, var(--qr-text, var(--marketing-text-on-surface)) 92%, var(--calserver-primary) 8%);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast),
@@ -610,33 +610,33 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) {
     );
     --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 62%, var(--cs-card-dark) 38%);
     --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 68%, transparent);
-    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 18%, rgba(248, 251, 255, 0.94));
-    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.96));
-    --cs-hero-shadow: 0 34px 76px -54px rgba(38, 72, 150, 0.45);
+    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-white) 94%, transparent));
+    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 8%, color-mix(in oklab, var(--marketing-white) 96%, transparent));
+    --cs-hero-shadow: 0 34px 76px -54px color-mix(in oklab, var(--calserver-primary) 45%, transparent);
     --cs-highlight-bg: linear-gradient(
         180deg,
-        color-mix(in oklab, var(--calserver-primary) 10%, rgba(243, 247, 255, 0.96)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.98)) 100%
+        color-mix(in oklab, var(--calserver-primary) 10%, color-mix(in oklab, var(--marketing-white) 96%, transparent)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 6%, color-mix(in oklab, var(--marketing-white) 98%, transparent)) 100%
     );
-    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 34%, rgba(17, 49, 105, 0.18));
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(17, 49, 105, 0.14));
-    --cs-highlight-shadow: 0 -20px 48px -36px rgba(58, 100, 200, 0.22),
-        0 26px 54px -38px rgba(34, 68, 140, 0.18);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 9%, rgba(255, 255, 255, 0.96));
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 26%, rgba(17, 49, 105, 0.12));
-    --cs-highlight-card-shadow: 0 22px 42px -28px rgba(31, 73, 160, 0.22);
-    --cs-mode-pill-bg: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
-    --cs-mode-pill-hover-bg: color-mix(in oklab, #ffffff 72%, var(--calserver-primary) 28%);
-    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 92%, #ffffff 8%);
-    --cs-mode-pill-text: color-mix(in oklab, var(--calserver-primary) 72%, #061440 28%);
-    --cs-mode-pill-hover-text: color-mix(in oklab, var(--calserver-primary) 94%, #061440 6%);
-    --cs-mode-pill-active-text: #ffffff;
-    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 32%, rgba(17, 49, 105, 0.18));
-    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 48%, rgba(17, 49, 105, 0.2));
-    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 68%, rgba(17, 49, 105, 0.24));
-    --cs-mode-pill-shadow: 0 16px 28px -24px rgba(34, 68, 140, 0.18);
-    --cs-mode-pill-hover-shadow: 0 20px 36px -26px rgba(34, 68, 140, 0.24);
-    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 68%, #97b8ff 32%);
+    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 34%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 14%, transparent));
+    --cs-highlight-shadow: 0 -20px 48px -36px color-mix(in oklab, var(--calserver-primary) 22%, transparent),
+        0 26px 54px -38px color-mix(in oklab, var(--calserver-primary) 18%, transparent);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 9%, color-mix(in oklab, var(--marketing-white) 96%, transparent));
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 12%, transparent));
+    --cs-highlight-card-shadow: 0 22px 42px -28px color-mix(in oklab, var(--calserver-primary) 22%, transparent);
+    --cs-mode-pill-bg: color-mix(in oklab, var(--marketing-white) 86%, var(--calserver-primary) 14%);
+    --cs-mode-pill-hover-bg: color-mix(in oklab, var(--marketing-white) 72%, var(--calserver-primary) 28%);
+    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 92%, var(--marketing-white) 8%);
+    --cs-mode-pill-text: color-mix(in oklab, var(--calserver-primary) 72%, var(--marketing-ink) 28%);
+    --cs-mode-pill-hover-text: color-mix(in oklab, var(--calserver-primary) 94%, var(--marketing-ink) 6%);
+    --cs-mode-pill-active-text: var(--marketing-white);
+    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
+    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 48%, color-mix(in oklab, var(--marketing-ink) 20%, transparent));
+    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-ink) 24%, transparent));
+    --cs-mode-pill-shadow: 0 16px 28px -24px color-mix(in oklab, var(--calserver-primary) 18%, transparent);
+    --cs-mode-pill-hover-shadow: 0 20px 36px -26px color-mix(in oklab, var(--calserver-primary) 24%, transparent);
+    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 68%, var(--marketing-white) 32%);
 }
 
 body.marketing-page.calserver-theme:not(.high-contrast) .hero-bg-calserver {
@@ -677,12 +677,12 @@ body.marketing-page.calserver-theme .calserver-hero-video {
     padding: 28px 32px 32px;
     background: linear-gradient(
             132deg,
-            color-mix(in oklab, var(--calserver-primary) 34%, #0c1734 66%) 0%,
-            color-mix(in oklab, var(--calserver-primary) 48%, #050b1f 52%) 100%
+            color-mix(in oklab, var(--calserver-primary) 34%, var(--marketing-ink) 66%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 48%, var(--marketing-ink) 52%) 100%
         );
     border-radius: 26px;
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 46%, transparent);
-    box-shadow: 0 26px 60px -32px rgba(9, 15, 32, 0.65);
+    box-shadow: 0 26px 60px -32px color-mix(in oklab, var(--marketing-ink) 65%, transparent);
     overflow: hidden;
 }
 
@@ -716,10 +716,10 @@ body.marketing-page.calserver-theme .calserver-hero-video__embed {
     text-align: center;
     background: linear-gradient(
             144deg,
-            color-mix(in oklab, var(--calserver-primary) 28%, rgba(0, 10, 32, 0.86)) 0%,
-            color-mix(in oklab, var(--calserver-primary) 52%, rgba(1, 5, 18, 0.82)) 100%
+            color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 86%, transparent)) 0%,
+            color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-ink) 82%, transparent)) 100%
         );
-    color: rgba(255, 255, 255, 0.94);
+    color: color-mix(in oklab, var(--marketing-white) 94%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__embed.is-loaded {
@@ -744,19 +744,19 @@ body.marketing-page.calserver-theme .calserver-hero-video__preview {
     padding: 18px 24px;
     width: 100%;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.08);
+    background: color-mix(in oklab, var(--marketing-white) 8%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__preview-title {
     font-size: 1.05rem;
     font-weight: 600;
     letter-spacing: 0.01em;
-    color: rgba(255, 255, 255, 0.94);
+    color: color-mix(in oklab, var(--marketing-white) 94%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__preview-subtitle {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.72);
+    color: color-mix(in oklab, var(--marketing-white) 72%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__hint,
@@ -765,7 +765,7 @@ body.marketing-page.calserver-theme .calserver-hero-video__noscript-note {
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.5;
-    color: rgba(255, 255, 255, 0.86);
+    color: color-mix(in oklab, var(--marketing-white) 86%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__hint {
@@ -793,7 +793,7 @@ body.marketing-page.calserver-theme .calserver-hero-video__meta {
 body.marketing-page.calserver-theme .calserver-hero-video__meta-text {
     display: grid;
     gap: 4px;
-    color: rgba(255, 255, 255, 0.92);
+    color: color-mix(in oklab, var(--marketing-white) 92%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__meta-text strong {
@@ -803,7 +803,7 @@ body.marketing-page.calserver-theme .calserver-hero-video__meta-text strong {
 
 body.marketing-page.calserver-theme .calserver-hero-video__meta-text span {
     font-size: 0.95rem;
-    color: color-mix(in oklab, #ffffff 86%, rgba(255, 255, 255, 0.4) 14%);
+    color: color-mix(in oklab, var(--marketing-white) 86%, color-mix(in oklab, var(--marketing-white) 40%, transparent) 14%);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__link {
@@ -812,9 +812,9 @@ body.marketing-page.calserver-theme .calserver-hero-video__link {
     gap: 8px;
     padding: 10px 18px;
     border-radius: 999px;
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.45));
-    background: color-mix(in oklab, var(--calserver-primary) 38%, rgba(255, 255, 255, 0.05));
-    color: rgba(255, 255, 255, 0.96);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 45%, transparent));
+    background: color-mix(in oklab, var(--calserver-primary) 38%, color-mix(in oklab, var(--marketing-white) 5%, transparent));
+    color: color-mix(in oklab, var(--marketing-white) 96%, transparent);
     font-weight: 600;
     text-decoration: none;
     transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
@@ -822,16 +822,16 @@ body.marketing-page.calserver-theme .calserver-hero-video__link {
 
 body.marketing-page.calserver-theme .calserver-hero-video__link:hover,
 body.marketing-page.calserver-theme .calserver-hero-video__link:focus-visible {
-    background: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255, 255, 255, 0.08));
-    border-color: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.6));
-    box-shadow: 0 18px 36px -24px rgba(9, 15, 32, 0.45);
+    background: color-mix(in oklab, var(--calserver-primary) 56%, color-mix(in oklab, var(--marketing-white) 8%, transparent));
+    border-color: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-white) 60%, transparent));
+    box-shadow: 0 18px 36px -24px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
     transform: translateY(-1px);
 }
 
 body.marketing-page.calserver-theme .calserver-hero-video__footnote {
     margin: 0;
     font-size: 0.9rem;
-    color: color-mix(in oklab, #ffffff 78%, rgba(255, 255, 255, 0.4) 22%);
+    color: color-mix(in oklab, var(--marketing-white) 78%, color-mix(in oklab, var(--marketing-white) 40%, transparent) 22%);
 }
 
 @media (max-width: 959px) {
@@ -930,18 +930,18 @@ body.marketing-page.calserver-theme .pill--soft {
 body.marketing-page.calserver-theme .pill--accent {
     background: var(--qr-card);
     color: var(--qr-landing-primary);
-    box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 6px 18px -10px rgb(var(--marketing-black-rgb) / 0.45);
 }
 
 body.marketing-page.calserver-theme .pill--badge {
-    background: rgba(255, 255, 255, 0.86);
-    color: color-mix(in oklab, var(--calserver-primary) 70%, #0c1a3a 30%);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: color-mix(in oklab, var(--marketing-white) 86%, transparent);
+    color: color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-ink) 30%);
+    border: 1px solid color-mix(in oklab, var(--marketing-white) 60%, transparent);
 }
 
 body.marketing-page.calserver-theme .shadow-soft {
-    box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.35),
-        0 12px 24px -18px rgba(15, 23, 42, 0.25);
+    box-shadow: 0 18px 36px -24px color-mix(in oklab, var(--marketing-ink) 35%, transparent),
+        0 12px 24px -18px color-mix(in oklab, var(--marketing-ink) 25%, transparent);
     border-radius: 18px;
 }
 
@@ -950,8 +950,8 @@ body.marketing-page.calserver-theme .pricing-card--featured {
     z-index: 1;
     padding: clamp(36px, 3vw, 52px);
     border-radius: 22px;
-    box-shadow: 0 28px 64px -28px rgba(15, 30, 56, 0.55),
-        0 18px 38px -24px rgba(10, 22, 44, 0.4);
+    box-shadow: 0 28px 64px -28px color-mix(in oklab, var(--marketing-ink) 55%, transparent),
+        0 18px 38px -24px color-mix(in oklab, var(--marketing-ink) 40%, transparent);
     transform: none;
     transform-origin: center top;
     transition: transform 0.35s ease, box-shadow 0.35s ease;
@@ -973,8 +973,8 @@ body.marketing-page.calserver-theme .pricing-card--featured li {
 
     body.marketing-page.calserver-theme .pricing-card--featured:hover {
         transform: scale(1.08) translateY(-14px);
-        box-shadow: 0 36px 78px -28px rgba(12, 25, 48, 0.6),
-            0 20px 42px -24px rgba(10, 22, 44, 0.45);
+        box-shadow: 0 36px 78px -28px color-mix(in oklab, var(--marketing-ink) 60%, transparent),
+            0 20px 42px -24px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
     }
 }
 
@@ -1075,7 +1075,7 @@ body.marketing-page.calserver-theme .calserver-highlight__intro {
 }
 
 body.marketing-page.calserver-theme .calserver-highlight__intro p {
-    color: color-mix(in oklab, rgba(255, 255, 255, 0.92) 92%, rgba(255, 255, 255, 0.62) 8%);
+    color: color-mix(in oklab, color-mix(in oklab, var(--marketing-white) 92%, transparent) 92%, color-mix(in oklab, var(--marketing-white) 62%, transparent) 8%);
 }
 
 .calserver-chat-trigger {
@@ -1092,39 +1092,39 @@ body.marketing-page.calserver-theme .calserver-highlight__intro p {
     gap: 16px;
     --marketing-chat-surface: color-mix(
         in oklab,
-        var(--qr-card, #f5f7fb) 96%,
-        rgba(255, 255, 255, 0.94)
+        var(--qr-card, var(--marketing-surface-muted)) 96%,
+        color-mix(in oklab, var(--marketing-white) 94%, transparent)
     );
     --marketing-chat-surface-alt: color-mix(
         in oklab,
-        var(--qr-card, #f5f7fb) 92%,
-        rgba(255, 255, 255, 0.82)
+        var(--qr-card, var(--marketing-surface-muted)) 92%,
+        color-mix(in oklab, var(--marketing-white) 82%, transparent)
     );
     --marketing-chat-emphasis: color-mix(
         in oklab,
-        var(--calserver-primary, #1f63e6) 18%,
-        rgba(255, 255, 255, 0.94)
+        var(--calserver-primary, var(--marketing-primary)) 18%,
+        color-mix(in oklab, var(--marketing-white) 94%, transparent)
     );
     --marketing-chat-strong: color-mix(
         in oklab,
-        var(--qr-text, #1c2131) 90%,
-        rgba(28, 33, 49, 0.1)
+        var(--qr-text, var(--marketing-text-on-surface)) 90%,
+        color-mix(in oklab, var(--marketing-ink) 10%, transparent)
     );
     --marketing-chat-muted: color-mix(
         in oklab,
-        var(--qr-muted, #5c6580) 92%,
-        rgba(92, 101, 128, 0.6)
+        var(--qr-muted, var(--marketing-text-muted-on-surface)) 92%,
+        color-mix(in oklab, var(--marketing-ink) 60%, transparent)
     );
     --marketing-chat-border: color-mix(
         in oklab,
-        var(--qr-card-border, #d8deeb) 85%,
+        var(--qr-card-border, var(--marketing-border)) 85%,
         transparent
     );
     background: var(--marketing-chat-surface);
     color: var(--marketing-chat-strong);
     border: 1px solid var(--marketing-chat-border);
     border-radius: 12px;
-    box-shadow: 0 28px 64px -40px rgba(9, 20, 40, 0.55), 0 12px 32px -20px rgba(14, 30, 60, 0.35);
+    box-shadow: 0 28px 64px -40px color-mix(in oklab, var(--marketing-ink) 55%, transparent), 0 12px 32px -20px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
 }
 
 .marketing-chat__intro {
@@ -1220,7 +1220,7 @@ body.marketing-page.calserver-theme .calserver-highlight__intro p {
 }
 
 .marketing-chat__context-link {
-    color: var(--calserver-primary, #1f63e6);
+    color: var(--calserver-primary, var(--marketing-primary));
     text-decoration: none;
 }
 
@@ -1241,7 +1241,7 @@ body.marketing-page.calserver-theme .calserver-highlight__intro p {
 }
 
 .marketing-chat__status--error {
-    color: #c53030;
+    color: var(--marketing-danger-600);
 }
 
 .marketing-chat__honeypot {
@@ -1296,40 +1296,40 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     .uk-modal-dialog {
     --cs-hosting-modal-surface: color-mix(
         in oklab,
-        var(--qr-card, #f5f7fb) 94%,
-        rgba(255, 255, 255, 0.92)
+        var(--qr-card, var(--marketing-surface-muted)) 94%,
+        color-mix(in oklab, var(--marketing-white) 92%, transparent)
     );
     --cs-hosting-modal-text: color-mix(
         in oklab,
-        var(--qr-text, #1c2131) 92%,
-        rgba(28, 33, 49, 0.08)
+        var(--qr-text, var(--marketing-text-on-surface)) 92%,
+        color-mix(in oklab, var(--marketing-ink) 8%, transparent)
     );
     --cs-hosting-modal-muted: color-mix(
         in oklab,
-        var(--qr-muted, #5c6580) 90%,
-        rgba(92, 101, 128, 0.18)
+        var(--qr-muted, var(--marketing-text-muted-on-surface)) 90%,
+        color-mix(in oklab, var(--marketing-ink) 18%, transparent)
     );
     --cs-hosting-modal-border: color-mix(
         in oklab,
-        var(--qr-card-border, #d8deeb) 82%,
+        var(--qr-card-border, var(--marketing-border)) 82%,
         transparent
     );
     --cs-hosting-modal-bullet: color-mix(
         in oklab,
-        var(--calserver-primary, #1f63e6) 52%,
+        var(--calserver-primary, var(--marketing-primary)) 52%,
         transparent
     );
     --cs-hosting-modal-title: color-mix(
         in oklab,
-        var(--calserver-primary, #1f63e6) 32%,
+        var(--calserver-primary, var(--marketing-primary)) 32%,
         var(--cs-hosting-modal-text) 68%
     );
     background: var(--cs-hosting-modal-surface);
     color: var(--cs-hosting-modal-text);
     border: 1px solid var(--cs-hosting-modal-border);
     border-radius: 16px;
-    box-shadow: 0 32px 72px -48px rgba(12, 26, 54, 0.45),
-        0 18px 36px -28px rgba(15, 23, 42, 0.28);
+    box-shadow: 0 32px 72px -48px color-mix(in oklab, var(--marketing-ink) 45%, transparent),
+        0 18px 36px -28px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
 body.marketing-page.calserver-theme:not(.high-contrast)
@@ -1411,33 +1411,33 @@ body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .marketing-cha
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
     --marketing-chat-surface: color-mix(
         in oklab,
-        var(--qr-card, #101a2d) 85%,
-        rgba(8, 14, 28, 0.92)
+        var(--qr-card, var(--marketing-surface-dark)) 85%,
+        color-mix(in oklab, var(--marketing-ink) 92%, transparent)
     );
     --marketing-chat-surface-alt: color-mix(
         in oklab,
-        rgba(9, 16, 30, 0.94) 82%,
-        color-mix(in oklab, var(--calserver-primary, #1f63e6) 22%, transparent) 18%
+        color-mix(in oklab, var(--marketing-ink) 94%, transparent) 82%,
+        color-mix(in oklab, var(--calserver-primary, var(--marketing-primary)) 22%, transparent) 18%
     );
     --marketing-chat-emphasis: color-mix(
         in oklab,
-        var(--calserver-primary, #1f63e6) 42%,
-        rgba(7, 13, 26, 0.88)
+        var(--calserver-primary, var(--marketing-primary)) 42%,
+        color-mix(in oklab, var(--marketing-ink) 88%, transparent)
     );
     --marketing-chat-strong: color-mix(
         in oklab,
-        #ffffff 94%,
-        rgba(255, 255, 255, 0.72) 6%
+        var(--marketing-white) 94%,
+        color-mix(in oklab, var(--marketing-white) 72%, transparent) 6%
     );
     --marketing-chat-muted: color-mix(
         in oklab,
-        rgba(198, 208, 232, 0.92) 88%,
-        rgba(255, 255, 255, 0.7) 12%
+        color-mix(in oklab, var(--marketing-white) 92%, transparent) 88%,
+        color-mix(in oklab, var(--marketing-white) 70%, transparent) 12%
     );
     --marketing-chat-border: color-mix(
         in oklab,
-        rgba(31, 99, 230, 0.45) 50%,
-        rgba(255, 255, 255, 0.18) 50%
+        color-mix(in oklab, var(--marketing-primary) 45%, transparent) 50%,
+        color-mix(in oklab, var(--marketing-white) 18%, transparent) 50%
     );
 }
 
@@ -1461,43 +1461,43 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast)
     .uk-modal-dialog {
     --cs-hosting-modal-surface: color-mix(
         in oklab,
-        rgba(8, 14, 28, 0.92) 82%,
-        color-mix(in oklab, var(--calserver-primary, #1f63e6) 24%, transparent) 18%
+        color-mix(in oklab, var(--marketing-ink) 92%, transparent) 82%,
+        color-mix(in oklab, var(--calserver-primary, var(--marketing-primary)) 24%, transparent) 18%
     );
     --cs-hosting-modal-text: color-mix(
         in oklab,
-        #ffffff 94%,
-        rgba(255, 255, 255, 0.72) 6%
+        var(--marketing-white) 94%,
+        color-mix(in oklab, var(--marketing-white) 72%, transparent) 6%
     );
     --cs-hosting-modal-muted: color-mix(
         in oklab,
-        rgba(203, 214, 245, 0.92) 86%,
-        rgba(255, 255, 255, 0.64) 14%
+        color-mix(in oklab, var(--marketing-white) 92%, transparent) 86%,
+        color-mix(in oklab, var(--marketing-white) 64%, transparent) 14%
     );
     --cs-hosting-modal-border: color-mix(
         in oklab,
-        rgba(31, 99, 230, 0.5) 54%,
-        rgba(255, 255, 255, 0.22) 46%
+        color-mix(in oklab, var(--marketing-primary) 50%, transparent) 54%,
+        color-mix(in oklab, var(--marketing-white) 22%, transparent) 46%
     );
     --cs-hosting-modal-bullet: color-mix(
         in oklab,
-        var(--calserver-primary, #1f63e6) 78%,
-        rgba(255, 255, 255, 0.28)
+        var(--calserver-primary, var(--marketing-primary)) 78%,
+        color-mix(in oklab, var(--marketing-white) 28%, transparent)
     );
     --cs-hosting-modal-title: color-mix(
         in oklab,
-        #ffffff 94%,
-        var(--calserver-primary, #1f63e6) 6%
+        var(--marketing-white) 94%,
+        var(--calserver-primary, var(--marketing-primary)) 6%
     );
     background: var(--cs-hosting-modal-surface);
     color: var(--cs-hosting-modal-text);
     border-color: var(--cs-hosting-modal-border);
     box-shadow: 0 42px 88px -52px color-mix(
             in oklab,
-            var(--calserver-primary, #1f63e6) 48%,
-            rgba(10, 18, 34, 0.82)
+            var(--calserver-primary, var(--marketing-primary)) 48%,
+            color-mix(in oklab, var(--marketing-ink) 82%, transparent)
         ),
-        0 22px 44px -30px rgba(7, 14, 28, 0.7);
+        0 22px 44px -30px color-mix(in oklab, var(--marketing-ink) 70%, transparent);
 }
 
 body.marketing-page.calserver-theme.dark-mode:not(.high-contrast)
@@ -1594,11 +1594,11 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary {
-    background: color-mix(in oklab, var(--calserver-primary) 88%, #103b99 12%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.24));
-    color: #ffffff;
+    background: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-ink) 24%, transparent));
+    color: var(--marketing-white);
     box-shadow: 0 18px 36px -24px
-        color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.7));
+        color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-ink) 70%, transparent));
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
@@ -1607,8 +1607,8 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:hover {
-    background: color-mix(in oklab, var(--calserver-primary) 78%, #0a2d86 22%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.34));
+    background: color-mix(in oklab, var(--calserver-primary) 78%, var(--marketing-ink) 22%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 72%, color-mix(in oklab, var(--marketing-ink) 34%, transparent));
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
@@ -1617,9 +1617,9 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-primary:focus-visible {
-    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, #8ab3ff 25%);
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, var(--marketing-white) 25%);
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.18));
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, color-mix(in oklab, var(--marketing-ink) 18%, transparent));
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
@@ -1628,11 +1628,11 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default {
-    background: #ffffff;
-    color: color-mix(in oklab, var(--calserver-primary) 82%, #071440 18%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.08));
-    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 23, 42, 0.16)) inset,
-        0 14px 28px -24px rgba(15, 23, 42, 0.32);
+    background: var(--marketing-white);
+    color: color-mix(in oklab, var(--calserver-primary) 82%, var(--marketing-ink) 18%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 8%, transparent));
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 16%, transparent)) inset,
+        0 14px 28px -24px color-mix(in oklab, var(--marketing-ink) 32%, transparent);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
@@ -1641,9 +1641,9 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:hover {
-    background: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
-    color: color-mix(in oklab, var(--calserver-primary) 88%, #041233 12%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.16));
+    background: color-mix(in oklab, var(--marketing-white) 86%, var(--calserver-primary) 14%);
+    color: color-mix(in oklab, var(--calserver-primary) 88%, var(--marketing-ink) 12%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 46%, color-mix(in oklab, var(--marketing-ink) 16%, transparent));
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
@@ -1652,9 +1652,9 @@ body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast)
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast)
     .calserver-highlight-card__actions
     .uk-button-default:focus-visible {
-    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 62%, #9bbdff 38%);
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 62%, var(--marketing-white) 38%);
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.22));
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 22%, transparent));
 }
 
 @media (max-width: 959px) {
@@ -1767,7 +1767,7 @@ body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .cals
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-stats-strip__value,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-stats-strip__value {
-    color: color-mix(in oklab, var(--calserver-primary) 86%, #0c1a3a 14%);
+    color: color-mix(in oklab, var(--calserver-primary) 86%, var(--marketing-ink) 14%);
 }
 
 body.marketing-page.calserver-theme .calserver-stats-strip__title {
@@ -1850,7 +1850,7 @@ body.marketing-page.calserver-theme .calserver-logo-marquee__item {
     border-radius: 999px;
     background: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 32%, transparent);
-    color: color-mix(in oklab, var(--calserver-primary) 85%, #f8fafc 15%);
+    color: color-mix(in oklab, var(--calserver-primary) 85%, var(--marketing-text-on-surface-dark) 15%);
     font-weight: 600;
     letter-spacing: 0.01em;
     text-align: center;
@@ -1860,7 +1860,7 @@ body.marketing-page.calserver-theme .calserver-logo-marquee__item {
 body.marketing-page.calserver-theme .calserver-logo-marquee__item img {
     max-height: 40px;
     width: auto;
-    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.25));
+    filter: drop-shadow(0 4px 10px color-mix(in oklab, var(--marketing-ink) 25%, transparent));
 }
 
 body.marketing-page.calserver-theme .calserver-pricing__header {
@@ -1987,7 +1987,7 @@ body.marketing-page.calserver-theme #trust .trust-story__badge::after {
     height: 28px;
     border-radius: 999px;
     background: color-mix(in oklab, var(--trust-step-accent) 75%, var(--qr-bg) 25%);
-    color: #ffffff;
+    color: var(--marketing-white);
     font-weight: 600;
     font-size: 0.9rem;
     display: grid;
@@ -2053,8 +2053,8 @@ body.marketing-page.calserver-theme #trust .trust-story__step:hover .trust-story
 body.marketing-page.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge,
 body.marketing-page.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge {
     background: color-mix(in oklab, var(--trust-step-marker-bg) 40%, var(--trust-step-accent) 60%);
-    border-color: color-mix(in oklab, var(--trust-step-accent) 80%, #ffffff 20%);
-    color: color-mix(in oklab, #ffffff 70%, var(--trust-step-marker-icon) 30%);
+    border-color: color-mix(in oklab, var(--trust-step-accent) 80%, var(--marketing-white) 20%);
+    color: color-mix(in oklab, var(--marketing-white) 70%, var(--trust-step-marker-icon) 30%);
     transform: translateY(-2px);
 }
 
@@ -2115,14 +2115,14 @@ body.marketing-page.calserver-theme #trust .trust-story__cta-group .btn {
 body.high-contrast #trust,
 body[data-theme="dark"].high-contrast #trust {
     --trust-step-surface: transparent;
-    --trust-step-surface-hover: rgba(0, 0, 0, 0.08);
+    --trust-step-surface-hover: rgb(var(--marketing-black-rgb) / 0.08);
     --trust-axis-color: currentColor;
     --trust-step-marker-bg: transparent;
     --trust-step-marker-icon: currentColor;
 }
 
 body[data-theme="dark"].high-contrast #trust {
-    --trust-step-surface-hover: rgba(255, 255, 255, 0.1);
+    --trust-step-surface-hover: color-mix(in oklab, var(--marketing-white) 10%, transparent);
 }
 
 body.high-contrast #trust .trust-story__badge,
@@ -2131,14 +2131,14 @@ body[data-theme="dark"].high-contrast #trust .trust-story__badge {
 }
 
 body.high-contrast #trust .trust-story__badge::after {
-    background: #000000;
-    color: #ffffff;
+    background: var(--marketing-black);
+    color: var(--marketing-white);
     box-shadow: none;
 }
 
 body[data-theme="dark"].high-contrast #trust .trust-story__badge::after {
-    background: #ffffff;
-    color: #000000;
+    background: var(--marketing-white);
+    color: var(--marketing-black);
 }
 
 body.high-contrast #trust .trust-story__connector,
@@ -2171,15 +2171,15 @@ body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .tr
 body.high-contrast #trust .trust-story__step:hover .trust-story__badge::after,
 body.high-contrast #trust .trust-story__step:focus-visible .trust-story__badge::after,
 body.high-contrast #trust .trust-story__step:focus-within .trust-story__badge::after {
-    background: #000000;
-    color: #ffffff;
+    background: var(--marketing-black);
+    color: var(--marketing-white);
 }
 
 body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__badge::after,
 body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__badge::after,
 body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__badge::after {
-    background: #ffffff;
-    color: #000000;
+    background: var(--marketing-white);
+    color: var(--marketing-black);
 }
 
 body.high-contrast #trust .trust-story__step:hover .trust-story__connector,
@@ -2304,7 +2304,7 @@ body.marketing-page.calserver-theme .uk-card-hover {
 
 body.marketing-page.calserver-theme .uk-card-hover:hover {
     transform: translateY(-6px);
-    box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
+    box-shadow: 0 22px 48px -28px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
 }
 
 body.marketing-page.calserver-theme .feature-nav {
@@ -2333,25 +2333,25 @@ body.marketing-page.calserver-theme .feature-nav__pill {
     font-weight: 600;
     letter-spacing: 0.01em;
     text-decoration: none;
-    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3) inset,
-        0 14px 28px -24px rgba(31, 99, 230, 0.9);
+    box-shadow: 0 1px 0 0 color-mix(in oklab, var(--marketing-white) 30%, transparent) inset,
+        0 14px 28px -24px color-mix(in oklab, var(--marketing-primary) 90%, transparent);
     transition: background-color 180ms ease, color 180ms ease,
         transform 180ms ease, box-shadow 180ms ease;
 }
 
 body.marketing-page.calserver-theme .feature-nav__pill.is-active {
     background: var(--qr-landing-primary);
-    color: #fff;
-    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
-        0 20px 34px -24px rgba(31, 99, 230, 0.95);
+    color: var(--marketing-white);
+    box-shadow: 0 1px 0 0 color-mix(in oklab, var(--marketing-white) 40%, transparent) inset,
+        0 20px 34px -24px color-mix(in oklab, var(--marketing-primary) 95%, transparent);
 }
 
 body.marketing-page.calserver-theme .feature-nav__pill:hover,
 body.marketing-page.calserver-theme .feature-nav__pill:focus {
     background: var(--qr-landing-primary);
-    color: #fff;
+    color: var(--marketing-white);
     transform: translateY(-2px);
-    box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.9);
+    box-shadow: 0 18px 32px -22px color-mix(in oklab, var(--marketing-primary) 90%, transparent);
 }
 
 body.marketing-page.calserver-theme .feature-slider {
@@ -2374,8 +2374,8 @@ body.marketing-page.calserver-theme .feature-card {
     border-radius: 14px;
     padding: 24px;
     color: var(--cs-text-on-dark);
-    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.35),
-        0 6px 12px -8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 12px 24px -12px rgb(var(--marketing-black-rgb) / 0.35),
+        0 6px 12px -8px rgb(var(--marketing-black-rgb) / 0.25);
     transition: background-color 250ms ease, border-color 250ms ease, box-shadow 250ms ease,
         transform 250ms ease, opacity 200ms ease;
 }
@@ -2436,7 +2436,7 @@ body.marketing-page.calserver-theme .calserver-modules-nav__link {
     border-radius: 18px;
     background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 15%, var(--qr-card-border) 85%);
-    box-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.28);
+    box-shadow: 0 18px 36px -28px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
     color: var(--qr-text);
     text-decoration: none;
     transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease,
@@ -2457,12 +2457,12 @@ body.marketing-page.calserver-theme .calserver-modules-nav li.uk-active .calserv
 body.marketing-page.calserver-theme .calserver-modules-nav__link:hover {
     background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
     border-color: color-mix(in oklab, var(--calserver-primary) 45%, transparent);
-    box-shadow: 0 24px 48px -30px rgba(15, 23, 42, 0.42);
+    box-shadow: 0 24px 48px -30px color-mix(in oklab, var(--marketing-ink) 42%, transparent);
     transform: translateY(-2px);
 }
 
 body.marketing-page.calserver-theme .calserver-modules-nav__link:focus-visible {
-    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, #ffffff 40%);
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, var(--marketing-white) 40%);
     outline-offset: 3px;
 }
 
@@ -2498,7 +2498,7 @@ body.marketing-page.calserver-theme .calserver-module-figure::before {
     border-radius: inherit;
     background: var(--qr-card);
     border: 1px solid var(--qr-card-border);
-    box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.35);
+    box-shadow: 0 22px 48px -28px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
     pointer-events: none;
     z-index: 0;
 }
@@ -2519,18 +2519,18 @@ body.marketing-page.calserver-theme .calserver-module-figure .calserver-module-f
     height: auto;
     object-fit: cover;
     border-radius: 0;
-    box-shadow: 0 18px 32px -24px rgba(15, 23, 42, 0.45);
+    box-shadow: 0 18px 32px -24px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure video {
-    background: #000;
+    background: var(--marketing-black);
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__visual {
     aspect-ratio: 16 / 9;
-    background: radial-gradient(circle at 20% 20%, rgba(12, 96, 125, 0.6), rgba(6, 20, 37, 0.92));
+    background: radial-gradient(circle at 20% 20%, color-mix(in oklab, var(--marketing-primary) 60%, transparent), color-mix(in oklab, var(--marketing-ink) 92%, transparent));
     border-radius: 22px 22px 0 0;
-    color: #fff;
+    color: var(--marketing-white);
     display: flex;
     align-items: flex-end;
     justify-content: flex-start;
@@ -2543,31 +2543,31 @@ body.marketing-page.calserver-theme .calserver-module-figure__visual::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.16), transparent 55%),
-        radial-gradient(circle at 12% 78%, rgba(255, 255, 255, 0.12), transparent 50%),
-        linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 60%);
+    background: radial-gradient(circle at 80% 18%, color-mix(in oklab, var(--marketing-white) 16%, transparent), transparent 55%),
+        radial-gradient(circle at 12% 78%, color-mix(in oklab, var(--marketing-white) 12%, transparent), transparent 50%),
+        linear-gradient(135deg, color-mix(in oklab, var(--marketing-white) 10%, transparent), transparent 60%);
     mix-blend-mode: screen;
     opacity: 0.85;
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="device-management"] {
-    background: radial-gradient(circle at 12% 18%, rgba(0, 148, 170, 0.7), rgba(5, 22, 39, 0.92)),
-        linear-gradient(145deg, rgba(6, 117, 138, 0.85), rgba(3, 35, 52, 0.95));
+    background: radial-gradient(circle at 12% 18%, color-mix(in oklab, var(--marketing-primary) 70%, transparent), color-mix(in oklab, var(--marketing-ink) 92%, transparent)),
+        linear-gradient(145deg, color-mix(in oklab, var(--marketing-primary) 85%, transparent), color-mix(in oklab, var(--marketing-ink) 95%, transparent));
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="calendar-resources"] {
-    background: radial-gradient(circle at 82% 22%, rgba(62, 173, 247, 0.6), rgba(12, 45, 84, 0.96)),
-        linear-gradient(135deg, rgba(9, 61, 133, 0.88), rgba(7, 24, 52, 0.95));
+    background: radial-gradient(circle at 82% 22%, color-mix(in oklab, var(--marketing-primary) 60%, transparent), color-mix(in oklab, var(--marketing-ink) 96%, transparent)),
+        linear-gradient(135deg, color-mix(in oklab, var(--marketing-primary) 88%, transparent), color-mix(in oklab, var(--marketing-ink) 95%, transparent));
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="order-ticketing"] {
-    background: radial-gradient(circle at 18% 78%, rgba(237, 127, 63, 0.68), rgba(54, 20, 6, 0.94)),
-        linear-gradient(140deg, rgba(191, 71, 34, 0.82), rgba(36, 16, 6, 0.92));
+    background: radial-gradient(circle at 18% 78%, color-mix(in oklab, var(--marketing-accent) 68%, transparent), color-mix(in oklab, var(--marketing-accent) 94%, transparent)),
+        linear-gradient(140deg, color-mix(in oklab, var(--marketing-accent) 82%, transparent), color-mix(in oklab, var(--marketing-accent) 92%, transparent));
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__visual[data-module="self-service"] {
-    background: radial-gradient(circle at 78% 24%, rgba(154, 129, 255, 0.65), rgba(41, 10, 70, 0.93)),
-        linear-gradient(135deg, rgba(109, 74, 199, 0.84), rgba(31, 10, 53, 0.92));
+    background: radial-gradient(circle at 78% 24%, color-mix(in oklab, var(--marketing-primary) 65%, transparent), color-mix(in oklab, var(--marketing-ink) 93%, transparent)),
+        linear-gradient(135deg, color-mix(in oklab, var(--marketing-primary) 84%, transparent), color-mix(in oklab, var(--marketing-ink) 92%, transparent));
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__visual-label {
@@ -2600,31 +2600,31 @@ body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button 
     width: 42px;
     height: 42px;
     border-radius: 999px;
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.24));
-    background: color-mix(in oklab, var(--calserver-primary) 46%, rgba(8, 13, 24, 0.92));
-    color: #fff;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
+    background: color-mix(in oklab, var(--calserver-primary) 46%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
+    color: var(--marketing-white);
     cursor: pointer;
     z-index: 2;
-    box-shadow: 0 16px 32px -22px rgba(15, 23, 42, 0.55);
+    box-shadow: 0 16px 32px -22px color-mix(in oklab, var(--marketing-ink) 55%, transparent);
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:hover,
 body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
-    background: color-mix(in oklab, var(--calserver-primary) 60%, rgba(8, 13, 24, 0.9));
-    border-color: color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.3));
-    box-shadow: 0 18px 36px -20px rgba(15, 23, 42, 0.62);
+    background: color-mix(in oklab, var(--calserver-primary) 60%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
+    border-color: color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 30%, transparent));
+    box-shadow: 0 18px 36px -20px color-mix(in oklab, var(--marketing-ink) 62%, transparent);
     transform: translateY(-1px);
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button:focus-visible {
-    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.28));
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 68%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
     outline-offset: 2px;
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-button[data-state="active"] {
-    background: color-mix(in oklab, var(--calserver-primary) 72%, rgba(8, 13, 24, 0.94));
-    border-color: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.34));
+    background: color-mix(in oklab, var(--calserver-primary) 72%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+    border-color: color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-white) 34%, transparent));
 }
 
 body.marketing-page.calserver-theme .calserver-module-figure__fullscreen-icon {
@@ -2639,7 +2639,7 @@ body.marketing-page.calserver-theme .calserver-module-figure figcaption {
     gap: 14px;
     background: var(--qr-card);
     border: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, var(--qr-card-border) 78%);
-    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 28%, rgba(15, 23, 42, 0.32));
+    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 32%, transparent));
     border-radius: 0 0 22px 22px;
 }
 
@@ -2711,7 +2711,7 @@ body.marketing-page.calserver-theme .calserver-module-figure__download-link:focu
 }
 
 body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
-    box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.45);
+    box-shadow: 0 22px 48px -32px color-mix(in oklab, var(--marketing-ink) 45%, transparent);
 }
 
 body.marketing-page.calserver-theme .feature-slider__list > li.is-center .feature-card:hover {
@@ -2757,8 +2757,8 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     inset: auto 24px 24px auto;
     width: min(360px, calc(100% - 48px));
     border-radius: 16px;
-    box-shadow: 0 24px 58px -34px rgba(15, 23, 42, 0.65),
-        0 18px 32px -28px rgba(12, 18, 32, 0.35);
+    box-shadow: 0 24px 58px -34px color-mix(in oklab, var(--marketing-ink) 65%, transparent),
+        0 18px 32px -28px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -2777,11 +2777,11 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
     justify-content: center;
     width: 3.25rem;
     height: 3.25rem;
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
     border-radius: 9999px;
-    background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
-    color: #ffffff;
-    box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
+    background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+    color: var(--marketing-white);
+    box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent), 0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
     cursor: pointer;
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -2800,13 +2800,13 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
 
 .calserver-floating-button:hover,
 .calserver-floating-button:focus-visible {
-    background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(8, 13, 24, 0.9));
-    border-color: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.28));
-    box-shadow: 0 22px 48px rgba(9, 15, 28, 0.36), 0 10px 20px rgba(9, 15, 28, 0.3);
+    background: color-mix(in oklab, var(--calserver-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
+    border-color: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
+    box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent), 0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
 }
 
 .calserver-floating-button:focus-visible {
-    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, #ffffff 30%);
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-white) 30%);
     outline-offset: 3px;
 }
 
@@ -2823,17 +2823,17 @@ body.marketing-page.calserver-theme .usecase-card--visual .usecase-visual__image
 }
 
 .calserver-cookie-trigger--active {
-    background: color-mix(in oklab, var(--calserver-primary) 26%, rgba(8, 13, 24, 0.92));
-    border-color: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.26));
-    box-shadow: 0 16px 36px rgba(9, 15, 28, 0.28), 0 6px 14px rgba(9, 15, 28, 0.24);
+    background: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
+    border-color: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
+    box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent), 0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button {
-    color: #ffffff;
-    border-color: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
-    background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
-    box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
+    color: var(--marketing-white);
+    border-color: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
+    background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+    box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent), 0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button svg,
@@ -2847,7 +2847,7 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .cal
         width: 3rem;
         height: 3rem;
         bottom: clamp(0.85rem, 6vw, 1.25rem);
-        box-shadow: 0 14px 28px rgba(9, 15, 28, 0.3), 0 6px 16px rgba(9, 15, 28, 0.28);
+        box-shadow: 0 14px 28px color-mix(in oklab, var(--marketing-ink) 30%, transparent), 0 6px 16px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
     }
 
     .calserver-floating-button svg {
@@ -2867,8 +2867,8 @@ body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .cal
 body.marketing-page.calserver-theme.high-contrast .calserver-floating-button,
 body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-floating-button,
 body.high-contrast .calserver-floating-button {
-    background: #000000;
-    color: #ffffff;
+    background: var(--marketing-black);
+    color: var(--marketing-white);
     box-shadow: none;
     border: 2px solid currentColor;
 }
@@ -2876,7 +2876,7 @@ body.high-contrast .calserver-floating-button {
 body.marketing-page.calserver-theme.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active,
 body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-trigger.calserver-cookie-trigger--active,
 body.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active {
-    background: #111111;
+    background: var(--marketing-ink);
 }
 
 .calserver-cookie-banner--visible {
@@ -2906,7 +2906,7 @@ body.high-contrast .calserver-cookie-trigger.calserver-cookie-trigger--active {
 .calserver-cookie-banner__fineprint {
     margin: 0;
     font-size: 0.85rem;
-    color: color-mix(in oklab, currentColor 72%, rgba(255, 255, 255, 0.4));
+    color: color-mix(in oklab, currentColor 72%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
 }
 
 .calserver-cookie-banner__link {
@@ -2941,29 +2941,29 @@ body.marketing-page.calserver-theme.dark-mode:not(.high-contrast) .calserver-coo
 body.marketing-page.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-cookie-banner {
     background: linear-gradient(
         160deg,
-        color-mix(in oklab, var(--calserver-primary) 28%, rgba(10, 16, 28, 0.95)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 18%, rgba(6, 10, 22, 0.96)) 100%
+        color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 96%, transparent)) 100%
     ) !important;
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, rgba(255, 255, 255, 0.18)) !important;
-    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.08)) !important;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, color-mix(in oklab, var(--marketing-white) 18%, transparent)) !important;
+    color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 8%, transparent)) !important;
 }
 
 body.marketing-page.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-banner,
 body.marketing-page.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-banner {
     background: linear-gradient(
         160deg,
-        color-mix(in oklab, var(--calserver-primary) 12%, #ffffff 88%) 0%,
-        color-mix(in oklab, var(--calserver-primary) 8%, #f5f7fb 92%) 100%
+        color-mix(in oklab, var(--calserver-primary) 12%, var(--marketing-white) 88%) 0%,
+        color-mix(in oklab, var(--calserver-primary) 8%, var(--marketing-surface-muted) 92%) 100%
     ) !important;
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 23, 42, 0.1)) !important;
-    color: color-mix(in oklab, #0b1532 88%, var(--calserver-primary) 12%) !important;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 10%, transparent)) !important;
+    color: color-mix(in oklab, var(--marketing-ink) 88%, var(--calserver-primary) 12%) !important;
 }
 
 body.marketing-page.calserver-theme.high-contrast .calserver-cookie-banner,
 body.marketing-page.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner,
 body.high-contrast .calserver-cookie-banner {
-    background: var(--qr-card, #000000);
-    color: var(--qr-text, #ffffff);
+    background: var(--qr-card, var(--marketing-black));
+    color: var(--qr-text, var(--marketing-white));
     border: 2px solid currentColor;
     box-shadow: none;
 }
@@ -2984,9 +2984,9 @@ body.high-contrast .calserver-cookie-banner__link {
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg,
-            color-mix(in oklab, var(--calserver-primary) 18%, rgba(7, 12, 24, 0.94)) 0%,
-            color-mix(in oklab, var(--calserver-primary) 32%, rgba(9, 15, 28, 0.92)) 46%,
-            color-mix(in oklab, var(--calserver-primary) 56%, rgba(8, 14, 25, 0.92)) 100%);
+            color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 94%, transparent)) 0%,
+            color-mix(in oklab, var(--calserver-primary) 32%, color-mix(in oklab, var(--marketing-ink) 92%, transparent)) 46%,
+            color-mix(in oklab, var(--calserver-primary) 56%, color-mix(in oklab, var(--marketing-ink) 92%, transparent)) 100%);
     opacity: 0.94;
     pointer-events: none;
 }
@@ -3002,12 +3002,12 @@ body.high-contrast .calserver-cookie-banner__link {
     gap: 8px;
     padding: 6px 14px;
     border-radius: 999px;
-    background: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.14) 36%);
+    background: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 14%, transparent) 36%);
     font-size: 0.75rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.92);
+    color: color-mix(in oklab, var(--marketing-white) 92%, transparent);
 }
 
 .calserver-metcal__title {
@@ -3015,14 +3015,14 @@ body.high-contrast .calserver-cookie-banner__link {
     margin-bottom: 16px;
     font-size: clamp(2rem, 2.8vw, 2.75rem);
     font-weight: 600;
-    color: #ffffff;
+    color: var(--marketing-white);
 }
 
 .calserver-metcal .calserver-metcal__lead {
     max-width: 880px;
     font-size: 1.1rem;
     line-height: 1.6;
-    color: #ffffff;
+    color: var(--marketing-white);
 }
 
 .calserver-metcal__grid {
@@ -3037,9 +3037,9 @@ body.high-contrast .calserver-cookie-banner__link {
     height: 100%;
     padding: 24px;
     border-radius: 20px;
-    background: color-mix(in oklab, rgba(9, 15, 28, 0.92) 68%, var(--calserver-primary) 32%);
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, rgba(255, 255, 255, 0.16));
-    box-shadow: 0 24px 68px -32px color-mix(in oklab, var(--calserver-primary) 48%, rgba(12, 23, 46, 0.82));
+    background: color-mix(in oklab, color-mix(in oklab, var(--marketing-ink) 92%, transparent) 68%, var(--calserver-primary) 32%);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, color-mix(in oklab, var(--marketing-white) 16%, transparent));
+    box-shadow: 0 24px 68px -32px color-mix(in oklab, var(--calserver-primary) 48%, color-mix(in oklab, var(--marketing-ink) 82%, transparent));
 }
 
 .calserver-metcal__card h3 {
@@ -3049,13 +3049,13 @@ body.high-contrast .calserver-cookie-banner__link {
     margin-bottom: 12px;
     font-size: 1.15rem;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.94);
+    color: color-mix(in oklab, var(--marketing-white) 94%, transparent);
 }
 
 .calserver-metcal__card p,
 .calserver-metcal__card ul {
     margin: 0;
-    color: rgba(255, 255, 255, 0.94);
+    color: color-mix(in oklab, var(--marketing-white) 94%, transparent);
     line-height: 1.6;
 }
 
@@ -3068,7 +3068,7 @@ body.high-contrast .calserver-cookie-banner__link {
 .calserver-metcal__card svg {
     width: 24px;
     height: 24px;
-    color: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+    color: color-mix(in oklab, var(--marketing-white) 86%, var(--calserver-primary) 14%);
 }
 
 .calserver-metcal__cta {
@@ -3084,32 +3084,32 @@ body.high-contrast .calserver-cookie-banner__link {
 }
 
 .calserver-metcal__cta .uk-button-primary {
-    background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.08) 18%);
-    border-color: color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.24) 12%);
+    background: color-mix(in oklab, var(--calserver-primary) 82%, color-mix(in oklab, var(--marketing-white) 8%, transparent) 18%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 88%, color-mix(in oklab, var(--marketing-white) 24%, transparent) 12%);
 }
 
 .calserver-metcal__cta .uk-button-primary:hover,
 .calserver-metcal__cta .uk-button-primary:focus {
-    background: color-mix(in oklab, var(--calserver-primary) 92%, rgba(255, 255, 255, 0.16) 8%);
-    color: #fff;
+    background: color-mix(in oklab, var(--calserver-primary) 92%, color-mix(in oklab, var(--marketing-white) 16%, transparent) 8%);
+    color: var(--marketing-white);
 }
 
 .calserver-metcal__cta .uk-button-default {
-    color: rgba(255, 255, 255, 0.92);
-    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.42) 58%);
+    color: color-mix(in oklab, var(--marketing-white) 92%, transparent);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, color-mix(in oklab, var(--marketing-white) 42%, transparent) 58%);
     background: transparent;
 }
 
 .calserver-metcal__cta .uk-button-default:hover,
 .calserver-metcal__cta .uk-button-default:focus {
-    color: #0b1532;
-    background: #fff;
+    color: var(--marketing-ink);
+    background: var(--marketing-white);
 }
 
 .calserver-theme .calserver-metcal__note {
     margin-top: 16px;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.88);
+    color: color-mix(in oklab, var(--marketing-white) 88%, transparent);
 }
 
 .calserver-metcal__badge {
@@ -3119,23 +3119,23 @@ body.high-contrast .calserver-cookie-banner__link {
     width: 36px;
     height: 36px;
     border-radius: 12px;
-    background: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.18) 22%);
-    color: rgba(255, 255, 255, 0.92);
+    background: color-mix(in oklab, var(--calserver-primary) 78%, color-mix(in oklab, var(--marketing-white) 18%, transparent) 22%);
+    color: color-mix(in oklab, var(--marketing-white) 92%, transparent);
     font-weight: 600;
 }
 
 .calserver-metcal__card strong {
     display: block;
     margin-bottom: 4px;
-    color: rgba(255, 255, 255, 0.96);
+    color: color-mix(in oklab, var(--marketing-white) 96%, transparent);
 }
 
 .calserver-metcal__card--dark {
-    background: color-mix(in oklab, rgba(8, 14, 28, 0.94) 86%, var(--calserver-primary) 14%);
+    background: color-mix(in oklab, color-mix(in oklab, var(--marketing-ink) 94%, transparent) 86%, var(--calserver-primary) 14%);
 }
 
 .calserver-metcal__card--outline {
-    background: rgba(12, 18, 32, 0.72);
+    background: color-mix(in oklab, var(--marketing-ink) 72%, transparent);
 }
 
 .calserver-metcal__icon-circle {
@@ -3145,14 +3145,14 @@ body.high-contrast .calserver-cookie-banner__link {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.12) 42%);
-    color: #fff;
+    background: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 12%, transparent) 42%);
+    color: var(--marketing-white);
 }
 
 .calserver-metcal__footnote {
     margin-top: 10px;
     font-size: 0.85rem;
-    color: color-mix(in oklab, #ffffff 68%, var(--calserver-primary) 32%);
+    color: color-mix(in oklab, var(--marketing-white) 68%, var(--calserver-primary) 32%);
 }
 
 .calserver-metcal__cta .uk-button .uk-icon {
