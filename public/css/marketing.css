@@ -1527,6 +1527,8 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 
 .marketing-page .uk-section{ padding-top:72px; padding-bottom:72px; }
 @media (min-width:1200px){ .marketing-page .uk-section{ padding-top:88px; padding-bottom:88px; } }
+.marketing-page .page-modules{ padding-top:72px; padding-bottom:72px; }
+@media (min-width:1200px){ .marketing-page .page-modules{ padding-top:88px; padding-bottom:88px; } }
 /* Hero spacing */
 .marketing-page .qr-hero{ padding-top:96px; }
 
