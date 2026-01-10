@@ -8,9 +8,9 @@
 {% block head %}
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
   {% set includeHighContrastStyles = includeHighContrastStyles|default(true) %}
-  {% set includeLegacyMarketingStyles = includeLegacyMarketingStyles|default(false) %}
+  {% set includeMarketingTopbarStyles = includeMarketingTopbarStyles|default(true) %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  {% if includeLegacyMarketingStyles %}
+  {% if includeMarketingTopbarStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/topbar.marketing.css">
   {% endif %}
   {% if includeDarkStyles %}
@@ -22,9 +22,6 @@
   {% endif %}
   {% if includeHighContrastStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  {% endif %}
-  {% if includeLegacyMarketingStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/calhelp.css">
   {% endif %}
 {% endblock %}
 
