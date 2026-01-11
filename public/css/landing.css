@@ -490,6 +490,13 @@ body.page-render .qr-page-renderer table {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
 }
 
+.section--full[data-section-layout="card"] .section__inner {
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.05);
+}
+
 .section[data-section-intent="highlight"] a,
 .section[data-section-intent="hero"] a {
   color: inherit;

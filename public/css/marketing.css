@@ -613,6 +613,13 @@ body.page-render .cms-page table {
   box-shadow: var(--marketing-shadow-card-soft);
 }
 
+.section--full[data-section-layout="card"] .section__inner {
+  background: var(--section-card-surface, var(--section-surface));
+  border-radius: var(--card-radius);
+  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
+  box-shadow: var(--marketing-shadow-card-soft);
+}
+
 .section[data-section-intent="highlight"] a,
 .section[data-section-intent="hero"] a {
   color: inherit;
