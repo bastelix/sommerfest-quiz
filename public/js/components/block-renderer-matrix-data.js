@@ -360,7 +360,7 @@ const SECTION_INTENT_CONFIG = {
   feature: {
     sectionClass: 'uk-section-large',
     containerClass: 'uk-container-large',
-    innerClass: 'section__inner--card uk-card uk-card-default uk-card-body uk-box-shadow-medium',
+    innerClass: '',
     surfaceToken: 'muted'
   },
   highlight: {
@@ -373,7 +373,7 @@ const SECTION_INTENT_CONFIG = {
   hero: {
     sectionClass: 'uk-section-large',
     containerClass: 'uk-container-expand',
-    innerClass: 'section__inner--hero uk-card uk-card-large uk-card-body',
+    innerClass: '',
     surfaceToken: 'secondary',
     textToken: { token: 'text-on-primary', fallback: 'var(--text-on-primary, var(--marketing-text-on-primary))' }
   }
@@ -455,12 +455,14 @@ function normalizeClassList(classes) {
 
 function renderSection({ block, variant, content, sectionClass = '', containerClass = '', container = true }) {
   const layout = resolveSectionLayout(block);
-  const layoutClassFlag = layout === 'full' ? 'section--full' : '';
-  const background = resolveSectionBackground(block, layout);
+  const backgroundLayout = layout === 'card' ? 'full' : layout;
+  const background = resolveSectionBackground(block, backgroundLayout);
+  const hasFullBleed = layout === 'full' || (layout === 'card' && background.mode !== 'none');
+  const layoutClassFlag = hasFullBleed ? 'section--full' : '';
   const backgroundStyle = resolveSectionBackgroundStyles(background);
   const { intent, preset } = resolveSectionIntentPreset(block);
   const shouldNeutralizeInnerClass = layout === 'full' && ['content', 'feature', 'highlight', 'hero'].includes(intent);
-  const bleed = layout === 'full' ? 'full' : null;
+  const bleed = hasFullBleed ? 'full' : null;
   const presetStyle = preset.styleVariables.length ? `${preset.styleVariables.join('; ')};` : '';
   const anchor = block?.meta?.anchor ? ` id="${escapeAttribute(block.meta.anchor)}"` : '';
   const layoutFlag = layout === 'card' ? 'card' : '';
@@ -510,10 +512,12 @@ function renderSection({ block, variant, content, sectionClass = '', containerCl
     .filter(Boolean)
     .join(' ');
   const layoutInnerClass = layout === 'card' ? 'section__inner--card' : '';
+  const heroInnerClass = layout === 'card' && intent === 'hero' ? 'section__inner--hero' : '';
   const innerClassName = [
     'section__inner',
     ...normalizeClassList(shouldNeutralizeInnerClass ? '' : preset.innerClass),
-    ...normalizeClassList(layoutInnerClass)
+    ...normalizeClassList(layoutInnerClass),
+    ...normalizeClassList(heroInnerClass)
   ].filter(Boolean).join(' ');
   const contentWrapper = `<div class="${innerClassName}">${content}</div>`;
   const containerClasses = [
