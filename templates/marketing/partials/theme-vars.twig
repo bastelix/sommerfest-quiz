@@ -1,6 +1,7 @@
 {% set appearanceData = appearance|default(design.appearance|default({})) %}
 {% set appearanceColors = appearanceData.colors|default({}) %}
 {% set appearanceVars = appearanceData.variables|default({}) %}
+{% set marketingSchemes = marketingSchemes|default({}) %}
 
 {% set cssVars = [] %}
 {% for key, value in appearanceColors %}
@@ -37,6 +38,12 @@
   {% set cssVars = cssVars|merge(['--topbar-bg-dark: ' ~ appearanceVars.topbarDark]) %}
 {% endif %}
 
+{% set marketingSchemeKey = appearanceVars.marketingScheme|default(appearanceVars.marketing_scheme|default('')) %}
+{% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
+  ? marketingSchemes[marketingSchemeKey]
+  : null
+%}
+
 {% set marketingPrimary = appearanceColors.primary is defined and appearanceColors.primary
   ? appearanceColors.primary
   : 'var(--brand-primary)'
@@ -57,14 +64,36 @@
   ? appearanceColors.background
   : (appearanceVars.background is defined and appearanceVars.background ? appearanceVars.background : 'var(--surface-page)')
 %}
+{% if marketingScheme %}
+  {% set marketingPrimary = marketingScheme.primary %}
+  {% set marketingAccent = marketingScheme.accent %}
+  {% set marketingSurface = marketingScheme.surface %}
+  {% set marketingBackground = marketingScheme.background %}
+{% endif %}
 
 {% set cssVars = cssVars|merge([
   '--marketing-primary: ' ~ marketingPrimary,
   '--marketing-accent: ' ~ marketingAccent,
+  '--marketing-secondary: ' ~ marketingAccent,
   '--marketing-surface: ' ~ marketingSurface,
   '--marketing-muted: ' ~ marketingMuted,
   '--marketing-background: ' ~ marketingBackground
 ]) %}
+
+{% if marketingScheme %}
+  {% set cssVars = cssVars|merge([
+    '--marketing-on-accent: ' ~ marketingScheme.onAccent,
+    '--marketing-text: ' ~ marketingScheme.textOnBackground,
+    '--marketing-text-on-surface: ' ~ marketingScheme.textOnSurface,
+    '--marketing-text-on-background: ' ~ marketingScheme.textOnBackground,
+    '--marketing-text-muted-on-surface: ' ~ marketingScheme.textMutedOnSurface,
+    '--marketing-text-muted-on-background: ' ~ marketingScheme.textMutedOnBackground,
+    '--marketing-text-on-surface-dark: ' ~ marketingScheme.textOnSurfaceDark,
+    '--marketing-text-on-background-dark: ' ~ marketingScheme.textOnBackgroundDark,
+    '--marketing-text-muted-on-surface-dark: ' ~ marketingScheme.textMutedOnSurfaceDark,
+    '--marketing-text-muted-on-background-dark: ' ~ marketingScheme.textMutedOnBackgroundDark
+  ]) %}
+{% endif %}
 
 {% if cssVars is not empty %}
   <style>

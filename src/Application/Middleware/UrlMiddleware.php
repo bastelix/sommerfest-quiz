@@ -49,6 +49,7 @@ class UrlMiddleware implements MiddlewareInterface
         $env->addGlobal('baseUrl', $baseUrl);
         $env->addGlobal('canonicalUrl', $canonicalUrl);
         $env->addGlobal('namespaceTokensVersion', $this->getNamespaceTokensVersion());
+        $env->addGlobal('marketingSchemes', $this->getMarketingSchemes());
 
         $privacyUrl = rtrim($basePath, '/') . '/datenschutz';
         try {
@@ -75,5 +76,20 @@ class UrlMiddleware implements MiddlewareInterface
         $timestamp = filemtime($path);
 
         return $timestamp === false ? (string) time() : (string) $timestamp;
+    }
+
+    /**
+     * @return array<string, array<string, string>>
+     */
+    private function getMarketingSchemes(): array
+    {
+        $path = dirname(__DIR__, 3) . '/config/marketing-design-tokens.php';
+        if (!is_file($path)) {
+            return [];
+        }
+
+        $schemes = require $path;
+
+        return is_array($schemes) ? $schemes : [];
     }
 }
