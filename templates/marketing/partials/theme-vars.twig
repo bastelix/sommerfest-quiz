@@ -31,6 +31,24 @@
 {% if appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted %}
   {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
 {% endif %}
+{% if appearanceVars.textOnSurface is defined and appearanceVars.textOnSurface %}
+  {% set cssVars = cssVars|merge([
+    '--text-on-surface: ' ~ appearanceVars.textOnSurface,
+    '--marketing-text-on-surface: ' ~ appearanceVars.textOnSurface
+  ]) %}
+{% endif %}
+{% if appearanceVars.textOnBackground is defined and appearanceVars.textOnBackground %}
+  {% set cssVars = cssVars|merge([
+    '--text-on-background: ' ~ appearanceVars.textOnBackground,
+    '--marketing-text-on-background: ' ~ appearanceVars.textOnBackground
+  ]) %}
+{% endif %}
+{% if appearanceVars.textOnPrimary is defined and appearanceVars.textOnPrimary %}
+  {% set cssVars = cssVars|merge([
+    '--text-on-primary: ' ~ appearanceVars.textOnPrimary,
+    '--marketing-on-accent: ' ~ appearanceVars.textOnPrimary
+  ]) %}
+{% endif %}
 {% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}
   {% set cssVars = cssVars|merge(['--topbar-bg-light: ' ~ appearanceVars.topbarLight]) %}
 {% endif %}
