@@ -13,11 +13,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 final class CmsPageRouteResolver
 {
-    private PageService $pages;
     private NamespaceResolver $namespaceResolver;
 
-    public function __construct(?PageService $pages = null, ?NamespaceResolver $namespaceResolver = null) {
-        $this->pages = $pages ?? new PageService();
+    public function __construct(?NamespaceResolver $namespaceResolver = null) {
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
     }
 
