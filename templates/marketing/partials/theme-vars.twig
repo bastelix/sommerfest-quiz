@@ -78,6 +78,7 @@
   ? appearanceVars.surfaceMuted
   : 'var(--surface-muted)'
 %}
+{% set marketingSurfaceMuted = marketingMuted %}
 {% set marketingBackground = appearanceColors.background is defined and appearanceColors.background
   ? appearanceColors.background
   : (appearanceVars.background is defined and appearanceVars.background ? appearanceVars.background : 'var(--surface-page)')
@@ -86,6 +87,10 @@
   {% set marketingPrimary = marketingScheme.primary %}
   {% set marketingAccent = marketingScheme.accent %}
   {% set marketingSurface = marketingScheme.surface %}
+  {% set marketingSurfaceMuted = marketingScheme.surfaceMuted is defined and marketingScheme.surfaceMuted
+    ? marketingScheme.surfaceMuted
+    : marketingSurface
+  %}
   {% set marketingBackground = marketingScheme.background %}
 {% endif %}
 
@@ -94,12 +99,17 @@
   '--marketing-accent: ' ~ marketingAccent,
   '--marketing-secondary: ' ~ marketingAccent,
   '--marketing-surface: ' ~ marketingSurface,
+  '--marketing-surface-muted: ' ~ marketingSurfaceMuted,
   '--marketing-muted: ' ~ marketingMuted,
   '--marketing-background: ' ~ marketingBackground
 ]) %}
 
 {% if marketingScheme %}
   {% set cssVars = cssVars|merge([
+    '--brand-primary: ' ~ marketingPrimary,
+    '--brand-accent: ' ~ marketingAccent,
+    '--surface: ' ~ marketingSurface,
+    '--surface-muted: ' ~ marketingSurfaceMuted,
     '--marketing-on-accent: ' ~ marketingScheme.onAccent,
     '--marketing-text: ' ~ marketingScheme.textOnBackground,
     '--marketing-text-on-surface: ' ~ marketingScheme.textOnSurface,
