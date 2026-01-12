@@ -19,7 +19,7 @@
   <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
-{% block body_class %}marketing-page dark-mode{% endblock %}
+{% block body_class %}marketing-page{% if (pageTheme|default(design.theme|default('light')))|trim|lower == 'dark' %} dark-mode{% endif %}{% endblock %}
 
 {% block allow_config_background %}false{% endblock %}
 
