@@ -1,4 +1,10 @@
 const DEFAULT_NAMESPACE = 'default';
+const DEFAULT_TYPOGRAPHY_PRESET = 'modern';
+const DEFAULT_CARD_STYLE = 'rounded';
+const DEFAULT_BUTTON_STYLE = 'filled';
+const TYPOGRAPHY_PRESETS = ['modern', 'classic', 'tech'];
+const CARD_STYLES = ['rounded', 'square', 'pill'];
+const BUTTON_STYLES = ['filled', 'outline', 'ghost'];
 
 const designRegistry = {};
 const MARKETING_SCHEMES = {
@@ -76,6 +82,39 @@ const resolveDesignForNamespace = namespace => {
 
 const resolveFirstValue = (...values) => {
   return values.find(value => value !== null && value !== undefined && value !== '');
+};
+
+const normalizeTokenValue = (value, allowedValues, fallback) => {
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+  const normalized = value.replace(/['"]/g, '').trim().toLowerCase();
+  return allowedValues.includes(normalized) ? normalized : fallback;
+};
+
+const syncComponentTokens = root => {
+  if (typeof window === 'undefined' || !root) {
+    return;
+  }
+  const styles = window.getComputedStyle(root);
+  if (!styles) {
+    return;
+  }
+  root.dataset.typographyPreset = normalizeTokenValue(
+    styles.getPropertyValue('--typography-preset'),
+    TYPOGRAPHY_PRESETS,
+    DEFAULT_TYPOGRAPHY_PRESET,
+  );
+  root.dataset.cardStyle = normalizeTokenValue(
+    styles.getPropertyValue('--components-card-style'),
+    CARD_STYLES,
+    DEFAULT_CARD_STYLE,
+  );
+  root.dataset.buttonStyle = normalizeTokenValue(
+    styles.getPropertyValue('--components-button-style'),
+    BUTTON_STYLES,
+    DEFAULT_BUTTON_STYLE,
+  );
 };
 
 const mergeAppearance = (namespace, appearance = {}) => {
@@ -608,6 +647,7 @@ export function applyNamespaceDesign(target, namespace = DEFAULT_NAMESPACE, appe
   const root = target || (typeof document !== 'undefined' ? document.documentElement : null);
 
   applyColorsToRoot(root, resolvedAppearance);
+  syncComponentTokens(root);
 
   return resolvedAppearance;
 }

@@ -80,6 +80,81 @@
   --marketing-link: var(--brand-primary, var(--marketing-primary));
 }
 
+:root {
+  --marketing-heading-font-stack: var(--marketing-font-stack);
+  --marketing-heading-weight: var(--font-heading-weight, 700);
+  --marketing-heading-letter-spacing: 0;
+  --card-radius-square: 8px;
+  --card-radius-pill: 28px;
+  --marketing-button-primary-bg: var(--marketing-primary);
+  --marketing-button-primary-text: var(--marketing-on-accent);
+  --marketing-button-primary-border-color: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
+  --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
+  --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
+  --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
+  --marketing-button-secondary-bg: transparent;
+  --marketing-button-secondary-text: var(--marketing-primary);
+  --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
+  --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+}
+
+:root[data-typography-preset="classic"] {
+  --marketing-font-stack: "Georgia", "Times New Roman", serif;
+  --marketing-heading-font-stack: "Georgia", "Times New Roman", serif;
+  --marketing-heading-weight: 600;
+}
+
+:root[data-typography-preset="tech"] {
+  --marketing-font-stack: "Inter", "Segoe UI", system-ui, sans-serif;
+  --marketing-heading-font-stack: "Inter", "Segoe UI", system-ui, sans-serif;
+  --marketing-heading-weight: 700;
+  --marketing-heading-letter-spacing: 0.01em;
+}
+
+:root[data-typography-preset="modern"] {
+  --marketing-font-stack: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --marketing-heading-font-stack: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --marketing-heading-weight: 700;
+}
+
+:root[data-card-style="square"] {
+  --card-radius: var(--card-radius-square);
+  --marketing-shadow-card: var(--marketing-shadow-card-soft);
+  --marketing-shadow-card-soft: var(--marketing-shadow-soft);
+}
+
+:root[data-card-style="pill"] {
+  --card-radius: var(--card-radius-pill);
+  --marketing-shadow-card: var(--marketing-shadow-callout);
+  --marketing-shadow-card-soft: var(--marketing-shadow-card);
+}
+
+:root[data-button-style="outline"] {
+  --marketing-button-primary-bg: transparent;
+  --marketing-button-primary-text: var(--marketing-primary);
+  --marketing-button-primary-border-color: var(--marketing-primary);
+  --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+  --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 16%, transparent);
+  --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 20%, transparent);
+  --marketing-button-secondary-bg: transparent;
+  --marketing-button-secondary-text: var(--marketing-primary);
+  --marketing-button-secondary-border-color: var(--marketing-primary);
+  --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+}
+
+:root[data-button-style="ghost"] {
+  --marketing-button-primary-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+  --marketing-button-primary-text: var(--marketing-primary);
+  --marketing-button-primary-border-color: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
+  --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
+  --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
+  --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 28%, transparent);
+  --marketing-button-secondary-bg: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
+  --marketing-button-secondary-text: var(--marketing-primary);
+  --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 35%, transparent);
+  --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 14%, transparent);
+}
+
 html[data-theme] {
   color: var(--color-text, var(--text-primary, var(--marketing-text)));
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
@@ -172,11 +247,11 @@ body.marketing-page[data-theme="dark"]:not(.high-contrast) {
   color-scheme: dark;
 }
 
-body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary {
-  color: var(--qr-contrast-on-primary) !important;
+body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary {
+  color: var(--marketing-button-primary-text) !important;
 }
 
-body.marketing-page:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon] {
+body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon] {
   color: inherit;
 }
 
@@ -272,6 +347,7 @@ body.cms-page-render {
   --topbar-drop-bg: var(--qr-card);
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
+  font-family: var(--marketing-font-stack);
 }
 
 body.cms-page-render[data-theme="dark"] {
@@ -326,23 +402,32 @@ body.marketing-page {
   background: var(--qr-hero-gradient);
   background-color: var(--qr-hero-grad-start);
 }
-body.marketing-page { color: var(--qr-fg); }
-body.marketing-page h1 {
+body:is(.marketing-page, .cms-page-render) { color: var(--qr-fg); }
+body:is(.marketing-page, .cms-page-render) h1 {
   font-size: var(--marketing-h1);
   line-height: var(--marketing-heading-line-height);
+  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
+  font-weight: var(--marketing-heading-weight);
+  letter-spacing: var(--marketing-heading-letter-spacing);
   margin: 0 0 0.6em;
 }
-body.marketing-page h2 {
+body:is(.marketing-page, .cms-page-render) h2 {
   font-size: var(--marketing-h2);
   line-height: var(--marketing-heading-line-height);
+  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
+  font-weight: var(--marketing-heading-weight);
+  letter-spacing: var(--marketing-heading-letter-spacing);
   margin: 0 0 0.6em;
 }
-body.marketing-page h3 {
+body:is(.marketing-page, .cms-page-render) h3 {
   font-size: var(--marketing-h3);
   line-height: var(--marketing-heading-line-height);
+  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
+  font-weight: var(--marketing-heading-weight);
+  letter-spacing: var(--marketing-heading-letter-spacing);
   margin: 0 0 0.5em;
 }
-body.marketing-page p {
+body:is(.marketing-page, .cms-page-render) p {
   font-size: var(--marketing-body);
   line-height: var(--marketing-body-line-height);
   margin: 0 0 1em;
@@ -832,34 +917,34 @@ body.marketing-page .site-footer {
 }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
-.marketing-page .uk-card,
-.marketing-page .qr-card,
-.marketing-page .feature-box {
+body:is(.marketing-page, .cms-page-render) .uk-card,
+body:is(.marketing-page, .cms-page-render) .qr-card,
+body:is(.marketing-page, .cms-page-render) .feature-box {
   --qr-text: var(--marketing-text-on-surface);
   --qr-muted: var(--marketing-text-muted-on-surface);
   background: var(--qr-card) !important;
   color: var(--qr-text) !important;
   border: 1px solid var(--qr-card-border);
-  box-shadow: var(--qr-shadow);
-  border-radius: 12px;
+  box-shadow: var(--marketing-shadow-card);
+  border-radius: var(--card-radius);
 }
 
 /* Headings, Copy & Icons */
-.marketing-page h1,
-.marketing-page h2,
-.marketing-page h3 { color: var(--qr-text); }
+body:is(.marketing-page, .cms-page-render) h1,
+body:is(.marketing-page, .cms-page-render) h2,
+body:is(.marketing-page, .cms-page-render) h3 { color: var(--qr-text); }
 
-.marketing-page {
+body:is(.marketing-page, .cms-page-render) {
   font-size: 18px;
   line-height: 1.5;
 }
 
-.marketing-page h1 {
+body:is(.marketing-page, .cms-page-render) h1 {
   font-size: clamp(2.5rem, 4vw, 3.25rem);
   line-height: 1.15;
 }
 
-.marketing-page h2 {
+body:is(.marketing-page, .cms-page-render) h2 {
   font-size: clamp(1.75rem, 3vw, 2.125rem);
   line-height: 1.2;
 }
@@ -980,21 +1065,21 @@ body.marketing-page .uk-text-muted {
   color: var(--qr-muted);
 }
 
-.marketing-page .uk-icon,
-.marketing-page .feature-box svg {
+body:is(.marketing-page, .cms-page-render) .uk-icon,
+body:is(.marketing-page, .cms-page-render) .feature-box svg {
   color: var(--qr-icon-color);
   stroke: currentColor;
   fill: currentColor;
 }
-.marketing-page .uk-icon [fill="none"],
-.marketing-page .feature-box svg [fill="none"] {
+body:is(.marketing-page, .cms-page-render) .uk-icon [fill="none"],
+body:is(.marketing-page, .cms-page-render) .feature-box svg [fill="none"] {
   fill: none;
 }
-.marketing-page .uk-button .uk-icon {
+body:is(.marketing-page, .cms-page-render) .uk-button .uk-icon {
   color: currentColor;
 }
 
-.marketing-page .btn .uk-icon {
+body:is(.marketing-page, .cms-page-render) .btn .uk-icon {
   color: currentColor;
 }
 
@@ -1409,43 +1494,52 @@ body.dark-mode.marketing-page .qr-badge{
 .marketing-page .marker-text::after{ /* vorhandene Unterstreichung beibehalten */ }
 
 /* Buttons, Links, Sections, Cards */
-.marketing-page a{
+body:is(.marketing-page, .cms-page-render) a{
   color:var(--qr-link);
   text-decoration:underline;
   text-decoration-color:transparent;
   transition:opacity .2s,text-decoration-color .2s;
 }
-.marketing-page a:hover{
+body:is(.marketing-page, .cms-page-render) a:hover{
   opacity:.8;
   text-decoration-color:currentColor;
 }
 
 
-.marketing-page .uk-button{
+body:is(.marketing-page, .cms-page-render) .uk-button{
   transition:opacity .2s,transform .2s;
   display:inline-flex;
   align-items:center;
   gap:6px;
 }
-.marketing-page .uk-button:hover{
+body:is(.marketing-page, .cms-page-render) .uk-button:hover{
   opacity:.85;
 }
 
-.marketing-page .uk-button-primary{
-  background:var(--marketing-primary)!important;
-  color:var(--marketing-on-accent)!important;
-  border:1px solid color-mix(in oklab,var(--marketing-primary) 60%,transparent);
+body:is(.marketing-page, .cms-page-render) .uk-button-primary{
+  background:var(--marketing-button-primary-bg)!important;
+  color:var(--marketing-button-primary-text)!important;
+  border:1px solid var(--marketing-button-primary-border-color);
 }
-.marketing-page .uk-button-primary:hover{
-  background:color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black))!important;
-  border-color:color-mix(in oklab, var(--marketing-primary) 70%, transparent);
+body:is(.marketing-page, .cms-page-render) .uk-button-primary:hover{
+  background:var(--marketing-button-primary-hover-bg)!important;
+  border-color:var(--marketing-button-primary-border-color);
 }
-.marketing-page .uk-button-primary:focus-visible{
-  background:color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black))!important;
+body:is(.marketing-page, .cms-page-render) .uk-button-primary:focus-visible{
+  background:var(--marketing-button-primary-focus-bg)!important;
 }
-.marketing-page .uk-button-primary:active{
-  background:color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black))!important;
+body:is(.marketing-page, .cms-page-render) .uk-button-primary:active{
+  background:var(--marketing-button-primary-active-bg)!important;
   transform:translateY(1px);
+}
+
+body:is(.marketing-page, .cms-page-render) .uk-button-default{
+  background:var(--marketing-button-secondary-bg)!important;
+  color:var(--marketing-button-secondary-text)!important;
+  border:1px solid var(--marketing-button-secondary-border-color);
+}
+body:is(.marketing-page, .cms-page-render) .uk-button-default:hover{
+  background:var(--marketing-button-secondary-hover-bg)!important;
 }
 
 .marketing-page .marketing-btn-primary{
@@ -1540,7 +1634,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 
 .marketing-page .uk-card-quizrace{
   background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
-  box-shadow:var(--qr-shadow); border-radius:14px; padding:24px;
+  box-shadow:var(--marketing-shadow-card); border-radius:var(--card-radius); padding:24px;
   transition:transform .15s ease, box-shadow .15s ease;
 }
 .marketing-page .uk-card-quizrace .uk-icon{ color:var(--qr-landing-primary); }
@@ -1551,7 +1645,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 .marketing-page .uk-card-price, .marketing-page .uk-card-popular{
   display:flex; flex-direction:column; align-items:stretch; flex:1;
   background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
-  box-shadow:var(--qr-shadow); border-radius:16px; padding:28px;
+  box-shadow:var(--marketing-shadow-card); border-radius:var(--card-radius); padding:28px;
 }
 .marketing-page .uk-card-popular{
   position:relative;
@@ -1744,15 +1838,15 @@ body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible
   box-shadow:0 0 0 3px var(--qr-ring);
   border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
 }
-.marketing-page a:focus-visible,
-.marketing-page button:focus-visible,
-.marketing-page .uk-button:focus-visible{
+body:is(.marketing-page, .cms-page-render) a:focus-visible,
+body:is(.marketing-page, .cms-page-render) button:focus-visible,
+body:is(.marketing-page, .cms-page-render) .uk-button:focus-visible{
   outline:3px solid var(--marketing-accent);
   outline-offset:2px;
   box-shadow:none;
   border-radius:8px;
 }
-@media (prefers-reduced-motion: reduce){ .marketing-page *{ animation:none!important; transition:none!important; } }
+@media (prefers-reduced-motion: reduce){ body:is(.marketing-page, .cms-page-render) *{ animation:none!important; transition:none!important; } }
 
 /* Rotierendes Wort */
 .marketing-page #rotating-word { transition: opacity 1s ease; }
