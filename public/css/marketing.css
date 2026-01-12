@@ -47,16 +47,20 @@
   --marketing-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.05);
   --marketing-shadow-dark: 0 6px 24px rgba(0, 0, 0, 0.35);
   --marketing-shadow-panel: 0 16px 32px rgba(15, 23, 42, 0.08);
-  --marketing-shadow-card: 0 22px 48px rgba(15, 23, 42, 0.09);
+  --marketing-shadow-card-base: 0 22px 48px rgba(15, 23, 42, 0.09);
+  --marketing-shadow-card-soft-base: 0 16px 36px rgba(0, 0, 0, 0.05);
+  --marketing-shadow-card: var(--marketing-shadow-card-base);
   --marketing-shadow-accent: 0 28px 60px rgba(0, 0, 0, 0.18);
-  --marketing-shadow-card-soft: 0 16px 36px rgba(0, 0, 0, 0.05);
+  --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
   --marketing-shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.08);
   --marketing-shadow-hero-mockup: 0 20px 60px rgba(2, 6, 23, 0.45);
   --marketing-shadow-pill: 0 12px 24px -22px rgba(15, 23, 42, 0.4);
   --marketing-shadow-callout: 0 16px 32px rgba(0, 0, 0, 0.18);
   --marketing-shadow-stat: 0 18px 38px rgba(15, 23, 42, 0.08);
   --marketing-shadow-stat-accent: rgba(15, 23, 42, 0.18);
-  --marketing-font-stack: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --marketing-font-stack-modern: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  --marketing-font-stack-classic: "Georgia", "Times New Roman", serif;
+  --marketing-font-stack-tech: "Inter", "Segoe UI", system-ui, sans-serif;
   --marketing-marker-underline: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
   --marketing-primary: var(--brand-primary, var(--marketing-primary-default));
   --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
@@ -81,52 +85,84 @@
 }
 
 :root {
-  --marketing-heading-font-stack: var(--marketing-font-stack);
+  --marketing-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
   --marketing-heading-weight: var(--font-heading-weight, 700);
   --marketing-heading-letter-spacing: 0;
+  --marketing-card-radius: var(--card-radius, 10px);
   --card-radius-square: 8px;
   --card-radius-pill: 28px;
-  --marketing-button-primary-bg: var(--marketing-primary);
-  --marketing-button-primary-text: var(--marketing-on-accent);
-  --marketing-button-primary-border-color: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
-  --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
-  --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
-  --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
-  --marketing-button-secondary-bg: transparent;
-  --marketing-button-secondary-text: var(--marketing-primary);
-  --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
-  --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+  --marketing-button-primary-bg-filled: var(--marketing-primary);
+  --marketing-button-primary-text-filled: var(--marketing-on-accent);
+  --marketing-button-primary-border-color-filled: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
+  --marketing-button-primary-hover-bg-filled: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
+  --marketing-button-primary-focus-bg-filled: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
+  --marketing-button-primary-active-bg-filled: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
+  --marketing-button-secondary-bg-filled: transparent;
+  --marketing-button-secondary-text-filled: var(--marketing-primary);
+  --marketing-button-secondary-border-color-filled: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
+  --marketing-button-secondary-hover-bg-filled: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+  --marketing-button-primary-bg: var(--marketing-button-primary-bg-filled);
+  --marketing-button-primary-text: var(--marketing-button-primary-text-filled);
+  --marketing-button-primary-border-color: var(--marketing-button-primary-border-color-filled);
+  --marketing-button-primary-hover-bg: var(--marketing-button-primary-hover-bg-filled);
+  --marketing-button-primary-focus-bg: var(--marketing-button-primary-focus-bg-filled);
+  --marketing-button-primary-active-bg: var(--marketing-button-primary-active-bg-filled);
+  --marketing-button-secondary-bg: var(--marketing-button-secondary-bg-filled);
+  --marketing-button-secondary-text: var(--marketing-button-secondary-text-filled);
+  --marketing-button-secondary-border-color: var(--marketing-button-secondary-border-color-filled);
+  --marketing-button-secondary-hover-bg: var(--marketing-button-secondary-hover-bg-filled);
 }
 
 :root[data-typography-preset="classic"] {
-  --marketing-font-stack: "Georgia", "Times New Roman", serif;
-  --marketing-heading-font-stack: "Georgia", "Times New Roman", serif;
+  --marketing-font-stack: var(--marketing-font-stack-classic);
+  --marketing-heading-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-weight: 600;
 }
 
 :root[data-typography-preset="tech"] {
-  --marketing-font-stack: "Inter", "Segoe UI", system-ui, sans-serif;
-  --marketing-heading-font-stack: "Inter", "Segoe UI", system-ui, sans-serif;
+  --marketing-font-stack: var(--marketing-font-stack-tech);
+  --marketing-heading-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-weight: 700;
   --marketing-heading-letter-spacing: 0.01em;
 }
 
 :root[data-typography-preset="modern"] {
-  --marketing-font-stack: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
-  --marketing-heading-font-stack: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
-  --marketing-heading-weight: 700;
+  --marketing-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-weight: var(--font-heading-weight, 700);
+  --marketing-heading-letter-spacing: 0;
+}
+
+:root[data-card-style="rounded"] {
+  --marketing-card-radius: var(--card-radius, 10px);
+  --marketing-shadow-card: var(--marketing-shadow-card-base);
+  --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
 }
 
 :root[data-card-style="square"] {
-  --card-radius: var(--card-radius-square);
-  --marketing-shadow-card: var(--marketing-shadow-card-soft);
+  --marketing-card-radius: var(--card-radius-square);
+  --marketing-shadow-card: var(--marketing-shadow-soft);
   --marketing-shadow-card-soft: var(--marketing-shadow-soft);
 }
 
 :root[data-card-style="pill"] {
-  --card-radius: var(--card-radius-pill);
+  --marketing-card-radius: var(--card-radius-pill);
   --marketing-shadow-card: var(--marketing-shadow-callout);
   --marketing-shadow-card-soft: var(--marketing-shadow-card);
+}
+
+:root[data-button-style="filled"] {
+  --marketing-button-primary-bg: var(--marketing-button-primary-bg-filled);
+  --marketing-button-primary-text: var(--marketing-button-primary-text-filled);
+  --marketing-button-primary-border-color: var(--marketing-button-primary-border-color-filled);
+  --marketing-button-primary-hover-bg: var(--marketing-button-primary-hover-bg-filled);
+  --marketing-button-primary-focus-bg: var(--marketing-button-primary-focus-bg-filled);
+  --marketing-button-primary-active-bg: var(--marketing-button-primary-active-bg-filled);
+  --marketing-button-secondary-bg: var(--marketing-button-secondary-bg-filled);
+  --marketing-button-secondary-text: var(--marketing-button-secondary-text-filled);
+  --marketing-button-secondary-border-color: var(--marketing-button-secondary-border-color-filled);
+  --marketing-button-secondary-hover-bg: var(--marketing-button-secondary-hover-bg-filled);
 }
 
 :root[data-button-style="outline"] {
@@ -620,7 +656,7 @@ body.page-render .cms-page table {
 
 .section__inner {
   background: var(--section-surface-inner, transparent);
-  border-radius: var(--card-radius-square);
+  border-radius: var(--marketing-card-radius);
   box-sizing: border-box;
   padding: var(--section-padding-inner);
   width: 100%;
@@ -628,14 +664,14 @@ body.page-render .cms-page table {
 
 .section__inner--panel {
   background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
   box-shadow: var(--marketing-shadow-panel);
 }
 
 .section__inner--card {
   background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card);
 }
@@ -643,7 +679,7 @@ body.page-render .cms-page table {
 .section__inner--accent {
   background: var(--marketing-surface-accent-soft);
   border: 1px solid var(--marketing-border-light);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius);
   box-shadow: var(--marketing-shadow-accent);
 }
 
@@ -669,7 +705,7 @@ body.page-render .cms-page table {
   background: var(--section-hero-surface);
   color: var(--section-text-color, var(--color-text));
   border: 1px solid var(--section-hero-border);
-  border-radius: calc(var(--card-radius) + 4px);
+  border-radius: calc(var(--marketing-card-radius) + 4px);
   box-shadow: 0 34px 76px color-mix(in srgb, var(--section-hero-glow) 55%, var(--marketing-overlay-hero));
   backdrop-filter: blur(4px);
 }
@@ -693,14 +729,14 @@ body.page-render .cms-page table {
 
 .section[data-section-layout="card"] .section__inner {
   background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card-soft);
 }
 
 .section--full[data-section-layout="card"] .section__inner {
   background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius);
   border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
   box-shadow: var(--marketing-shadow-card-soft);
 }
@@ -919,14 +955,15 @@ body.marketing-page .site-footer {
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
 body:is(.marketing-page, .cms-page-render) .uk-card,
 body:is(.marketing-page, .cms-page-render) .qr-card,
-body:is(.marketing-page, .cms-page-render) .feature-box {
+body:is(.marketing-page, .cms-page-render) .feature-box,
+body:is(.marketing-page, .cms-page-render) .feature-card {
   --qr-text: var(--marketing-text-on-surface);
   --qr-muted: var(--marketing-text-muted-on-surface);
   background: var(--qr-card) !important;
   color: var(--qr-text) !important;
   border: 1px solid var(--qr-card-border);
   box-shadow: var(--marketing-shadow-card);
-  border-radius: var(--card-radius);
+  border-radius: var(--marketing-card-radius);
 }
 
 /* Headings, Copy & Icons */
@@ -1634,7 +1671,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 
 .marketing-page .uk-card-quizrace{
   background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
-  box-shadow:var(--marketing-shadow-card); border-radius:var(--card-radius); padding:24px;
+  box-shadow:var(--marketing-shadow-card); border-radius:var(--marketing-card-radius); padding:24px;
   transition:transform .15s ease, box-shadow .15s ease;
 }
 .marketing-page .uk-card-quizrace .uk-icon{ color:var(--qr-landing-primary); }
@@ -1645,7 +1682,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 .marketing-page .uk-card-price, .marketing-page .uk-card-popular{
   display:flex; flex-direction:column; align-items:stretch; flex:1;
   background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
-  box-shadow:var(--marketing-shadow-card); border-radius:var(--card-radius); padding:28px;
+  box-shadow:var(--marketing-shadow-card); border-radius:var(--marketing-card-radius); padding:28px;
 }
 .marketing-page .uk-card-popular{
   position:relative;
@@ -2141,7 +2178,7 @@ body:is(.marketing-page, .cms-page-render) .uk-button:focus-visible{
   align-items: flex-start;
   gap: 16px;
   padding: clamp(18px, 3vw, 26px);
-  border-radius: calc(var(--card-radius) + 6px);
+  border-radius: calc(var(--marketing-card-radius) + 6px);
   background: color-mix(in srgb, var(--stat-card-surface) 92%, var(--stat-card-accent) 8%);
   border: 1px solid color-mix(in srgb, var(--stat-card-accent) 30%, var(--stat-card-surface-muted) 70%);
   box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
@@ -2214,7 +2251,7 @@ body:is(.marketing-page, .cms-page-render) .uk-button:focus-visible{
   background: color-mix(in srgb, var(--stat-card-surface) 90%, var(--stat-card-surface-muted) 10%);
   color: var(--stat-card-text);
   border: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 72%, var(--stat-card-surface) 28%);
-  border-radius: calc(var(--card-radius) + 2px);
+  border-radius: calc(var(--marketing-card-radius) + 2px);
   box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
     var(--marketing-shadow-stat);
   isolation: isolate;

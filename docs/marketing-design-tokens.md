@@ -46,8 +46,8 @@ attribute sync happens in `public/js/marketing-design.js` (marketing pages) plus
 
 * `--typography-preset` → `data-typography-preset` → `--marketing-font-stack`,
   `--marketing-heading-font-stack`, `--marketing-heading-weight`, `--marketing-heading-letter-spacing`
-* `--components-card-style` → `data-card-style` → `--card-radius`, `--marketing-shadow-card`,
-  `--marketing-shadow-card-soft`
+* `--components-card-style` → `data-card-style` → `--marketing-card-radius`, `--marketing-shadow-card`,
+  `--marketing-shadow-card-soft` (rounded, square, pill)
 * `--components-button-style` → `data-button-style` → button surface variables for
   `uk-button-primary`/`uk-button-default` (filled, outline, ghost)
 
