@@ -30,6 +30,11 @@ The Admin-Design UI includes predefined marketing palettes. Selecting a preset s
 * `--marketing-text-on-surface-dark`, `--marketing-text-on-background-dark`,
   `--marketing-text-muted-on-surface-dark`, `--marketing-text-muted-on-background-dark`
 
+The palette values live in `config/marketing-design-tokens.php` and are shared by the admin preview
+and marketing theme variable output. The mapping applies only to marketing pages (templates that
+include `templates/marketing/partials/theme-vars.twig`) and only when
+`appearance.variables.marketingScheme` points at a known palette key.
+
 Clear the preset to fall back to the regular namespace brand tokens.
 
 ## Marketing stylesheet entry point

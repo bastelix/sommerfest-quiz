@@ -1,0 +1,51 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'aurora' => [
+        'primary' => '#0ea5e9',
+        'accent' => '#22c55e',
+        'surface' => '#f8fafc',
+        'background' => '#eef2ff',
+        'onAccent' => '#ffffff',
+        'textOnSurface' => '#0f172a',
+        'textOnBackground' => '#0f172a',
+        'textMutedOnSurface' => '#475569',
+        'textMutedOnBackground' => '#475569',
+        'textOnSurfaceDark' => '#f8fafc',
+        'textOnBackgroundDark' => '#f8fafc',
+        'textMutedOnSurfaceDark' => '#cbd5e1',
+        'textMutedOnBackgroundDark' => '#cbd5e1',
+    ],
+    'sunset' => [
+        'primary' => '#f97316',
+        'accent' => '#ec4899',
+        'surface' => '#fff7ed',
+        'background' => '#ffedd5',
+        'onAccent' => '#1f2937',
+        'textOnSurface' => '#1f2937',
+        'textOnBackground' => '#1f2937',
+        'textMutedOnSurface' => '#6b7280',
+        'textMutedOnBackground' => '#6b7280',
+        'textOnSurfaceDark' => '#f8fafc',
+        'textOnBackgroundDark' => '#f8fafc',
+        'textMutedOnSurfaceDark' => '#cbd5e1',
+        'textMutedOnBackgroundDark' => '#cbd5e1',
+    ],
+    'midnight' => [
+        'primary' => '#6366f1',
+        'accent' => '#14b8a6',
+        'surface' => '#0f172a',
+        'background' => '#020617',
+        'onAccent' => '#f8fafc',
+        'textOnSurface' => '#e2e8f0',
+        'textOnBackground' => '#e2e8f0',
+        'textMutedOnSurface' => '#94a3b8',
+        'textMutedOnBackground' => '#94a3b8',
+        'textOnSurfaceDark' => '#f8fafc',
+        'textOnBackgroundDark' => '#f8fafc',
+        'textMutedOnSurfaceDark' => '#cbd5e1',
+        'textMutedOnBackgroundDark' => '#cbd5e1',
+    ],
+];
