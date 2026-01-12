@@ -1785,8 +1785,8 @@ function renderProofMetricCallout(block, options = {}) {
     : '';
   const header = title || subtitle ? `<div class="uk-width-1-1 uk-text-center uk-margin-medium-bottom">${title}${subtitle}</div>` : '';
 
-  const metricCards = (Array.isArray(block.data?.metrics) ? block.data.metrics : [])
-    .filter(metric => metric && typeof metric.value === 'string' && typeof metric.label === 'string')
+  const metrics = getValidMetrics(block);
+  const metricCards = metrics
     .map(metric => {
       const tooltip = metric.tooltip ? ` title="${escapeAttribute(metric.tooltip)}" data-uk-tooltip` : '';
       const value = `<div class="uk-heading-large uk-margin-remove"${tooltip}>${escapeHtml(metric.value)}</div>`;
