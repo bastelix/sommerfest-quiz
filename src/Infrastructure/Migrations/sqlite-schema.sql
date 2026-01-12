@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS prompt_templates (
 );
 INSERT OR IGNORE INTO prompt_templates(name, prompt) VALUES
 ('Standard', 'Erstelle deutsches UIkit-HTML für eine Marketing-Landingpage. Der HTML-Code wird in den Content-Block von
-templates/marketing/landing.twig eingefügt (Header/Footer existieren). Orientiere dich am Landing-Layout:
+templates/marketing/default.twig eingefügt (Header/Footer existieren). Orientiere dich am Landing-Layout:
 - Verwende mehrere <section>-Blöcke mit uk-section und verschachtelten uk-container.
 - Liefere eine Hero-Section mit Headline, Lead-Text und primärem Call-to-Action.
 - Füge Sektionen mit den IDs innovations, how-it-works, scenarios, pricing, faq, contact-us hinzu (wenn relevant).
@@ -173,7 +173,7 @@ Color scheme: {{colorScheme}}
 Color tokens: Primary={{primaryColor}}, Background={{backgroundColor}}, Accent={{accentColor}}
 Problem to address: {{problem}}'),
 ('Kompakt', 'Erstelle eine kompakte deutsche UIkit-Landingpage mit klaren Nutzenargumenten. Die HTML-Ausgabe wird in
-templates/marketing/landing.twig eingesetzt. Anforderungen:
+templates/marketing/default.twig eingesetzt. Anforderungen:
 - Maximal 4 bis 5 <section>-Blöcke mit uk-section und uk-container.
 - Eine kurze Hero-Section mit Headline, Subline und primärem Button.
 - Eine Nutzenliste, eine Ablaufsektion und eine FAQ-Sektion (wenn relevant).
@@ -192,7 +192,7 @@ Color scheme: {{colorScheme}}
 Color tokens: Primary={{primaryColor}}, Background={{backgroundColor}}, Accent={{accentColor}}
 Problem to address: {{problem}}'),
 ('Storytelling', 'Erstelle deutsches UIkit-HTML für eine Marketing-Landingpage, die eine kurze Story erzählt. Die HTML-Ausgabe
-wird in templates/marketing/landing.twig eingefügt. Anforderungen:
+wird in templates/marketing/default.twig eingefügt. Anforderungen:
 - Nutze <section>-Blöcke mit uk-section und uk-container.
 - Hero-Section mit Story-Hook, Lead-Text und primärem CTA.
 - Eine "Warum"-Sektion, eine "So funktioniert es"-Sektion und eine "Ergebnisse"-Sektion (wenn relevant).

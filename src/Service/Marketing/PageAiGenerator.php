@@ -28,7 +28,7 @@ final class PageAiGenerator
 
     private const PROMPT_TEMPLATE = <<<'PROMPT'
 Create German UIkit HTML for a marketing landing page. The HTML is injected into the content block of
-templates/marketing/landing.twig (header/footer already exist). Base the structure on the landing layout:
+templates/marketing/default.twig (header/footer already exist). Base the structure on the landing layout:
 - The layout consists of multiple <section> blocks using uk-section and nested uk-container.
 - Provide a hero section with headline, lead text, and primary call-to-action button.
 - Add sections with the ids: innovations, how-it-works, scenarios, pricing, faq, contact-us (use when relevant).
