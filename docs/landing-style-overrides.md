@@ -5,7 +5,7 @@ title: "Landing-Seite: Styles"
 
 ## CSS-Variablen der Landing-Seite
 
-Die Marketing-Seite nutzt eigene CSS-Variablen, um Farben für Text und Dropdown-Menüs festzulegen. Die Werte werden direkt im Template `templates/marketing/landing.twig` innerhalb eines `:root`-Blocks gesetzt:
+Die Marketing-Seite nutzt eigene CSS-Variablen, um Farben für Text und Dropdown-Menüs festzulegen. Die Werte werden direkt im Template `templates/marketing/default.twig` innerhalb eines `:root`-Blocks gesetzt:
 
 ```twig
 <style>
