@@ -137,6 +137,7 @@ class PagesDesignController
         } else {
             $incoming = $this->extractTokens($parsedBody);
             [$hasAppearanceVariables, $appearanceVariables] = $this->extractAppearanceVariables($parsedBody);
+            /** @var array{marketingScheme?: ?string, textOnSurface?: ?string, textOnBackground?: ?string, textOnPrimary?: ?string} $appearanceVariables */
             $tokensToPersist = $currentTokens;
             foreach ($incoming as $group => $values) {
                 if (!array_key_exists($group, $tokensToPersist)) {
@@ -375,7 +376,7 @@ class PagesDesignController
 
     /**
      * @param array<string, mixed> $parsedBody
-     * @return array{0: bool, 1: ?string}
+     * @return array{0: bool, 1: array{marketingScheme?: ?string, textOnSurface?: ?string, textOnBackground?: ?string, textOnPrimary?: ?string}}
      */
     private function extractAppearanceVariables(array $parsedBody): array
     {
