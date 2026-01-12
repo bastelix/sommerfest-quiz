@@ -1807,15 +1807,7 @@ function renderProofMetricCallout(block, options = {}) {
     ? `<div class="${gridClass}" data-uk-grid>${metricCards}</div>`
     : '';
 
-  const marqueeItems = Array.isArray(block.data?.marquee)
-    ? block.data.marquee.filter(item => typeof item === 'string' && item.trim() !== '')
-    : [];
-
-  const marquee = marqueeItems.length
-    ? `<div class="uk-margin-large-top"><div class="uk-flex uk-flex-middle uk-flex-center uk-flex-wrap uk-text-muted uk-text-small">${marqueeItems
-        .map(text => `<span class="uk-margin-small-left uk-margin-small-right">${escapeHtml(text)}</span>`)
-        .join('<span class="uk-text-muted">•</span>')}</div></div>`
-    : '';
+  const marquee = renderStatStripMarquee(block);
 
   return renderSection({ block, variant: 'metric-callout', content: `${header}${metricsGrid}${marquee}` });
 }
