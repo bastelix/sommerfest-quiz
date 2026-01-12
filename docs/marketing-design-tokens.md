@@ -37,6 +37,23 @@ include `templates/marketing/partials/theme-vars.twig`) and only when
 
 Clear the preset to fall back to the regular namespace brand tokens.
 
+## Live mappings for typography + component styles
+
+The namespace tokens for typography and component styles are mapped to live CSS variables via
+data-attributes on the document root. The mapping is applied in `public/css/marketing.css` and the
+attribute sync happens in `public/js/marketing-design.js` (marketing pages) plus
+`public/js/components/namespace-design.js` (CMS page renderer).
+
+* `--typography-preset` → `data-typography-preset` → `--marketing-font-stack`,
+  `--marketing-heading-font-stack`, `--marketing-heading-weight`, `--marketing-heading-letter-spacing`
+* `--components-card-style` → `data-card-style` → `--card-radius`, `--marketing-shadow-card`,
+  `--marketing-shadow-card-soft`
+* `--components-button-style` → `data-button-style` → button surface variables for
+  `uk-button-primary`/`uk-button-default` (filled, outline, ghost)
+
+Marketing blocks already render cards/buttons with UIkit classes (`uk-card`, `uk-button`), so the
+token mappings immediately affect the block renderer output when the page is hydrated.
+
 ## Marketing stylesheet entry point
 
 Page-Editor Marketing-Seiten binden ausschließlich `public/css/marketing.css` ein. Die Datei ist

@@ -5,6 +5,12 @@ const DEFAULT_SURFACE_MUTED = '#eef2f7';
 const DEFAULT_SURFACE_DARK = '#0f172a';
 const DEFAULT_SURFACE_MUTED_DARK = '#111827';
 const DEFAULT_CARD_DARK = '#0b1728';
+const DEFAULT_TYPOGRAPHY_PRESET = 'modern';
+const DEFAULT_CARD_STYLE = 'rounded';
+const DEFAULT_BUTTON_STYLE = 'filled';
+const TYPOGRAPHY_PRESETS = ['modern', 'classic', 'tech'];
+const CARD_STYLES = ['rounded', 'square', 'pill'];
+const BUTTON_STYLES = ['filled', 'outline', 'ghost'];
 
 const MARKETING_SCHEMES = {
   aurora: {
@@ -108,6 +114,39 @@ const resolveFallbackToken = (root, cssVar, fallback) => {
   }
   const value = getComputedStyle(root).getPropertyValue(cssVar).trim();
   return value || fallback;
+};
+
+const normalizeTokenValue = (value, allowedValues, fallback) => {
+  if (typeof value !== 'string') {
+    return fallback;
+  }
+  const normalized = value.replace(/['"]/g, '').trim().toLowerCase();
+  return allowedValues.includes(normalized) ? normalized : fallback;
+};
+
+const applyComponentTokens = root => {
+  if (!root || typeof window === 'undefined') {
+    return;
+  }
+  const styles = window.getComputedStyle(root);
+  if (!styles) {
+    return;
+  }
+  root.dataset.typographyPreset = normalizeTokenValue(
+    styles.getPropertyValue('--typography-preset'),
+    TYPOGRAPHY_PRESETS,
+    DEFAULT_TYPOGRAPHY_PRESET,
+  );
+  root.dataset.cardStyle = normalizeTokenValue(
+    styles.getPropertyValue('--components-card-style'),
+    CARD_STYLES,
+    DEFAULT_CARD_STYLE,
+  );
+  root.dataset.buttonStyle = normalizeTokenValue(
+    styles.getPropertyValue('--components-button-style'),
+    BUTTON_STYLES,
+    DEFAULT_BUTTON_STYLE,
+  );
 };
 
 const resolveMarketingAppearance = () => {
@@ -737,6 +776,8 @@ const applyMarketingDesign = () => {
     root.style.setProperty('--marketing-topbar-dark', topbarDark);
     root.style.setProperty('--qr-landing-topbar-bg-dark', 'var(--marketing-topbar-dark)');
   }
+
+  applyComponentTokens(root);
 };
 
 applyMarketingDesign();
