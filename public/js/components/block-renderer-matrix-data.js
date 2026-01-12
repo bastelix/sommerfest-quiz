@@ -1798,12 +1798,13 @@ function renderProofMetricCallout(block, options = {}) {
         ? `<p class="uk-text-meta uk-margin-small-top uk-margin-remove-bottom">${escapeHtml(metric.asOf)}</p>`
         : '';
 
-      return `<div class="uk-width-1-1 uk-width-1-3@m"><div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">${value}${label}${benefit}${asOf}</div></div>`;
+      return `<div><div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">${value}${label}${benefit}${asOf}</div></div>`;
     })
     .join('');
 
+  const gridClass = buildStatStripGridClass(block, 'uk-grid uk-grid-medium');
   const metricsGrid = metricCards
-    ? `<div class="uk-grid uk-child-width-1-1 uk-child-width-1-3@m uk-grid-medium" data-uk-grid>${metricCards}</div>`
+    ? `<div class="${gridClass}" data-uk-grid>${metricCards}</div>`
     : '';
 
   const marqueeItems = Array.isArray(block.data?.marquee)
