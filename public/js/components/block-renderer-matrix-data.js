@@ -1684,9 +1684,9 @@ function renderStatStripCards(block, options = {}) {
       });
       const benefitBlock = benefit || '<span class="stat-strip__benefit stat-strip__benefit-placeholder" aria-hidden="true"></span>';
 
-      return `<div role="listitem"><div class="stat-strip__card stat-strip__card--surface uk-card uk-card-body uk-height-1-1 uk-flex uk-flex-column">` +
+      return `<div role="listitem" class="stat-strip__card stat-strip__card--surface uk-card uk-card-body uk-height-1-1 uk-flex uk-flex-column">` +
         `<div class="stat-strip__kpi uk-flex uk-flex-column">${value}${label}${asOf || ''}</div>` +
-        `${benefitBlock}</div></div>`;
+        `${benefitBlock}</div>`;
     })
     .join('');
 
