@@ -72,6 +72,22 @@
       shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
       shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      fontStack: 'var(--marketing-font-stack-modern)',
+      headingFontStack: 'var(--marketing-font-stack-modern)',
+      headingWeight: '700',
+      headingLetterSpacing: '0',
+      headingLineHeight: '1.15',
+      cardRadius: 'var(--card-radius, 10px)',
+      buttonPrimaryBg: 'var(--marketing-primary)',
+      buttonPrimaryText: 'var(--marketing-on-accent)',
+      buttonPrimaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 60%, transparent)',
+      buttonPrimaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black))',
+      buttonPrimaryFocusBg: 'color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black))',
+      buttonPrimaryActiveBg: 'color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black))',
+      buttonSecondaryBg: 'transparent',
+      buttonSecondaryText: 'var(--marketing-primary)',
+      buttonSecondaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 50%, transparent)',
+      buttonSecondaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 12%, transparent)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
       topbarTextContrastLight: '#0a0a0a',
@@ -130,6 +146,22 @@
       shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
       shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      fontStack: 'var(--marketing-font-stack-classic)',
+      headingFontStack: 'var(--marketing-font-stack-classic)',
+      headingWeight: '600',
+      headingLetterSpacing: '0',
+      headingLineHeight: '1.15',
+      cardRadius: 'var(--card-radius, 10px)',
+      buttonPrimaryBg: 'var(--marketing-primary)',
+      buttonPrimaryText: 'var(--marketing-on-accent)',
+      buttonPrimaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 60%, transparent)',
+      buttonPrimaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black))',
+      buttonPrimaryFocusBg: 'color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black))',
+      buttonPrimaryActiveBg: 'color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black))',
+      buttonSecondaryBg: 'transparent',
+      buttonSecondaryText: 'var(--marketing-primary)',
+      buttonSecondaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 50%, transparent)',
+      buttonSecondaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 12%, transparent)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
       topbarTextContrastLight: '#0a0a0a',
@@ -188,6 +220,22 @@
       shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
       shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      fontStack: 'var(--marketing-font-stack-tech)',
+      headingFontStack: 'var(--marketing-font-stack-tech)',
+      headingWeight: '700',
+      headingLetterSpacing: '0.01em',
+      headingLineHeight: '1.15',
+      cardRadius: 'var(--card-radius, 10px)',
+      buttonPrimaryBg: 'var(--marketing-primary)',
+      buttonPrimaryText: 'var(--marketing-on-accent)',
+      buttonPrimaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 60%, transparent)',
+      buttonPrimaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black))',
+      buttonPrimaryFocusBg: 'color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black))',
+      buttonPrimaryActiveBg: 'color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black))',
+      buttonSecondaryBg: 'transparent',
+      buttonSecondaryText: 'var(--marketing-primary)',
+      buttonSecondaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 50%, transparent)',
+      buttonSecondaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 12%, transparent)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
       topbarTextContrastLight: '#0a0a0a',
@@ -246,6 +294,22 @@
       shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
       shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      fontStack: 'var(--marketing-font-stack-classic)',
+      headingFontStack: 'var(--marketing-font-stack-classic)',
+      headingWeight: '600',
+      headingLetterSpacing: '0',
+      headingLineHeight: '1.15',
+      cardRadius: 'var(--card-radius, 10px)',
+      buttonPrimaryBg: 'var(--marketing-primary)',
+      buttonPrimaryText: 'var(--marketing-on-accent)',
+      buttonPrimaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 60%, transparent)',
+      buttonPrimaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black))',
+      buttonPrimaryFocusBg: 'color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black))',
+      buttonPrimaryActiveBg: 'color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black))',
+      buttonSecondaryBg: 'transparent',
+      buttonSecondaryText: 'var(--marketing-primary)',
+      buttonSecondaryBorderColor: 'color-mix(in oklab, var(--marketing-primary) 50%, transparent)',
+      buttonSecondaryHoverBg: 'color-mix(in oklab, var(--marketing-primary) 12%, transparent)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
       topbarTextContrastLight: '#0a0a0a',
@@ -307,6 +371,22 @@
     '--marketing-shadow-callout',
     '--marketing-shadow-stat',
     '--marketing-shadow-stat-accent',
+    '--marketing-font-stack',
+    '--marketing-heading-font-stack',
+    '--marketing-heading-weight',
+    '--marketing-heading-letter-spacing',
+    '--marketing-heading-line-height',
+    '--marketing-card-radius',
+    '--marketing-button-primary-bg',
+    '--marketing-button-primary-text',
+    '--marketing-button-primary-border-color',
+    '--marketing-button-primary-hover-bg',
+    '--marketing-button-primary-focus-bg',
+    '--marketing-button-primary-active-bg',
+    '--marketing-button-secondary-bg',
+    '--marketing-button-secondary-text',
+    '--marketing-button-secondary-border-color',
+    '--marketing-button-secondary-hover-bg',
     '--marketing-link-contrast-light',
     '--marketing-link-contrast-dark',
     '--marketing-topbar-text-contrast-light',
@@ -709,6 +789,22 @@
     applySchemeToken('--marketing-shadow-callout', scheme.shadowCallout);
     applySchemeToken('--marketing-shadow-stat', scheme.shadowStat);
     applySchemeToken('--marketing-shadow-stat-accent', scheme.shadowStatAccent);
+    applySchemeToken('--marketing-font-stack', scheme.fontStack);
+    applySchemeToken('--marketing-heading-font-stack', scheme.headingFontStack);
+    applySchemeToken('--marketing-heading-weight', scheme.headingWeight);
+    applySchemeToken('--marketing-heading-letter-spacing', scheme.headingLetterSpacing);
+    applySchemeToken('--marketing-heading-line-height', scheme.headingLineHeight);
+    applySchemeToken('--marketing-card-radius', scheme.cardRadius);
+    applySchemeToken('--marketing-button-primary-bg', scheme.buttonPrimaryBg);
+    applySchemeToken('--marketing-button-primary-text', scheme.buttonPrimaryText);
+    applySchemeToken('--marketing-button-primary-border-color', scheme.buttonPrimaryBorderColor);
+    applySchemeToken('--marketing-button-primary-hover-bg', scheme.buttonPrimaryHoverBg);
+    applySchemeToken('--marketing-button-primary-focus-bg', scheme.buttonPrimaryFocusBg);
+    applySchemeToken('--marketing-button-primary-active-bg', scheme.buttonPrimaryActiveBg);
+    applySchemeToken('--marketing-button-secondary-bg', scheme.buttonSecondaryBg);
+    applySchemeToken('--marketing-button-secondary-text', scheme.buttonSecondaryText);
+    applySchemeToken('--marketing-button-secondary-border-color', scheme.buttonSecondaryBorderColor);
+    applySchemeToken('--marketing-button-secondary-hover-bg', scheme.buttonSecondaryHoverBg);
     applySchemeToken('--marketing-link-contrast-light', scheme.linkContrastLight);
     applySchemeToken('--marketing-link-contrast-dark', scheme.linkContrastDark);
     applySchemeToken('--marketing-topbar-text-contrast-light', scheme.topbarTextContrastLight);
