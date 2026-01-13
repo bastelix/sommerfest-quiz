@@ -1802,7 +1802,7 @@ function renderProofMetricCallout(block, options = {}) {
     })
     .join('');
 
-  const gridClass = buildStatStripGridClass(block, 'uk-grid uk-grid-medium');
+  const gridClass = buildStatStripGridClass(block, 'stat-strip__grid uk-grid uk-grid-medium');
   const metricsGrid = metricCards
     ? `<div class="${gridClass}" data-uk-grid>${metricCards}</div>`
     : '';
