@@ -288,6 +288,8 @@ const applyMarketingDesign = () => {
     variables.marketing_scheme,
     colors.marketingScheme,
     colors.marketing_scheme,
+    configColors.marketingScheme,
+    configColors.marketing_scheme,
   );
   const marketingSchemeValues = marketingScheme ? MARKETING_SCHEMES[marketingScheme] : null;
   const marketingBackgroundToken =

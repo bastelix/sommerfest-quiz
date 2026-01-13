@@ -56,7 +56,14 @@
   {% set cssVars = cssVars|merge(['--topbar-bg-dark: ' ~ appearanceVars.topbarDark]) %}
 {% endif %}
 
-{% set marketingSchemeKey = appearanceVars.marketingScheme|default(appearanceVars.marketing_scheme|default('')) %}
+{% set designConfig = design.config|default({}) %}
+{% set designColors = designConfig.colors|default({}) %}
+
+{% set marketingSchemeKey = appearanceVars.marketingScheme
+  |default(appearanceVars.marketing_scheme
+  |default(designColors.marketingScheme
+  |default(designColors.marketing_scheme
+  |default('')))) %}
 {% set marketingScheme = marketingSchemeKey and marketingSchemes[marketingSchemeKey] is defined
   ? marketingSchemes[marketingSchemeKey]
   : null
