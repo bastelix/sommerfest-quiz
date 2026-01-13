@@ -8,6 +8,9 @@ body.cms-page-render:not([data-theme="dark"]){
   --topbar-drop-bg: var(--qr-card);
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
+  --drop-bg: var(--topbar-drop-bg);
+  --drop-border: var(--topbar-drop-border);
+  --drop-color: var(--topbar-text);
 }
 body.marketing-page[data-theme="dark"],
 body.cms-page-render[data-theme="dark"]{
@@ -19,6 +22,9 @@ body.cms-page-render[data-theme="dark"]{
   --topbar-drop-bg: var(--qr-card);
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
+  --drop-bg: var(--topbar-drop-bg);
+  --drop-border: var(--topbar-drop-border);
+  --drop-color: var(--topbar-text);
 }
 .marketing-page .qr-topbar,
 .cms-page-render .qr-topbar{
@@ -49,6 +55,9 @@ body.cms-page-render.high-contrast{
   --topbar-btn-border-hover: #000000;
   --topbar-btn-bg-hover: #e6e6e6;
   --topbar-focus-ring: rgba(0,120,255,0.6);
+  --drop-bg: var(--topbar-drop-bg);
+  --drop-border: var(--topbar-drop-border);
+  --drop-color: var(--topbar-text);
 }
 body.marketing-page[data-theme="dark"].high-contrast,
 body.cms-page-render[data-theme="dark"].high-contrast{
@@ -59,6 +68,9 @@ body.cms-page-render[data-theme="dark"].high-contrast{
   --topbar-btn-border-hover: #ffffff;
   --topbar-btn-bg-hover: rgba(255,255,255,0.16);
   --topbar-focus-ring: rgba(140,200,255,0.8);
+  --drop-bg: var(--topbar-drop-bg);
+  --drop-border: var(--topbar-drop-border);
+  --drop-color: var(--topbar-text);
 }
 
 .lang-option{
