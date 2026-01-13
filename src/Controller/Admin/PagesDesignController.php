@@ -139,7 +139,6 @@ class PagesDesignController
             [$hasAppearanceVariables, $appearanceVariables] = $this->extractAppearanceVariables($parsedBody);
             /** @var array{marketingScheme?: ?string, textOnSurface?: ?string, textOnBackground?: ?string, textOnPrimary?: ?string} $appearanceVariables */
             $tokensToPersist = $currentTokens;
-            $brandWasChanged = $this->hasBrandChanges($incoming['brand'] ?? [], $currentTokens['brand'] ?? []);
             foreach ($incoming as $group => $values) {
                 if (!array_key_exists($group, $tokensToPersist)) {
                     continue;
@@ -169,35 +168,6 @@ class PagesDesignController
                     $currentMarketingScheme = $config['colors']['marketingScheme']
                         ?? $config['colors']['marketing_scheme']
                         ?? null;
-                }
-            }
-
-            $requestedMarketingScheme = null;
-            if (array_key_exists('marketingScheme', $appearanceVariables)) {
-                $requestedMarketingScheme = $appearanceVariables['marketingScheme'];
-            }
-
-            if (
-                $requestedMarketingScheme !== null
-                && !$brandWasChanged
-                && $action !== 'reset_brand'
-            ) {
-                $marketingSchemes = $this->loadMarketingSchemes();
-                $schemeTokens = $marketingSchemes[$requestedMarketingScheme] ?? null;
-                $brandFromScheme = $this->resolveBrandTokensFromScheme(is_array($schemeTokens) ? $schemeTokens : null);
-                if ($brandFromScheme !== null) {
-                    $currentSchemeTokens = $marketingSchemes[$currentMarketingScheme] ?? null;
-                    $brandIsAuto = $this->brandTokensMatch(
-                        $currentTokens['brand'] ?? [],
-                        $this->resolveBrandTokensFromScheme(is_array($currentSchemeTokens) ? $currentSchemeTokens : null)
-                    );
-
-                    if (
-                        $brandIsAuto
-                        || $this->brandTokensMatch($currentTokens['brand'] ?? [], $defaults['brand'] ?? [])
-                    ) {
-                        $tokensToPersist['brand'] = $brandFromScheme;
-                    }
                 }
             }
 
@@ -466,90 +436,6 @@ class PagesDesignController
             'effectsProfile' => $effectsProfile,
             'sliderProfile' => $sliderProfile,
         ];
-    }
-
-    /**
-     * @param array<string, ?string> $incoming
-     * @param array<string, ?string> $current
-     */
-    private function hasBrandChanges(array $incoming, array $current): bool
-    {
-        foreach (['primary', 'accent', 'secondary'] as $key) {
-            if (!array_key_exists($key, $incoming)) {
-                continue;
-            }
-            $incomingValue = $this->normalizeColorValue($incoming[$key] ?? null);
-            $currentValue = $this->normalizeColorValue($current[$key] ?? null);
-            if ($incomingValue !== '' && $incomingValue !== $currentValue) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return array<string, array<string, string>>
-     */
-    private function loadMarketingSchemes(): array
-    {
-        $path = dirname(__DIR__, 3) . '/config/marketing-design-tokens.php';
-        if (!is_file($path)) {
-            return [];
-        }
-
-        $schemes = require $path;
-
-        return is_array($schemes) ? $schemes : [];
-    }
-
-    /**
-     * @param array<string, string>|null $scheme
-     * @return array{primary: string, accent: string, secondary: string}|null
-     */
-    private function resolveBrandTokensFromScheme(?array $scheme): ?array
-    {
-        if ($scheme === null) {
-            return null;
-        }
-
-        $primary = $scheme['primary'] ?? '';
-        $accent = $scheme['accent'] ?? $primary;
-        $secondary = $scheme['secondary'] ?? $scheme['accent'] ?? $primary;
-
-        if ($primary === '' && $accent === '' && $secondary === '') {
-            return null;
-        }
-
-        return [
-            'primary' => $primary,
-            'accent' => $accent,
-            'secondary' => $secondary,
-        ];
-    }
-
-    /**
-     * @param array<string, ?string> $brand
-     * @param array{primary: string, accent: string, secondary: string}|null $target
-     */
-    private function brandTokensMatch(array $brand, ?array $target): bool
-    {
-        if ($target === null) {
-            return false;
-        }
-
-        foreach (['primary', 'accent', 'secondary'] as $key) {
-            if ($this->normalizeColorValue($brand[$key] ?? null) !== $this->normalizeColorValue($target[$key] ?? null)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private function normalizeColorValue(?string $value): string
-    {
-        return strtolower(trim($value ?? ''));
     }
 
     private function sanitizeString(mixed $value): ?string
