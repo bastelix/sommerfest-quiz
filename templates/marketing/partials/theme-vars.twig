@@ -50,10 +50,16 @@
   ]) %}
 {% endif %}
 {% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}
-  {% set cssVars = cssVars|merge(['--topbar-bg-light: ' ~ appearanceVars.topbarLight]) %}
+  {% set cssVars = cssVars|merge([
+    '--marketing-topbar-light: ' ~ appearanceVars.topbarLight,
+    '--qr-landing-topbar-bg-light: ' ~ appearanceVars.topbarLight
+  ]) %}
 {% endif %}
 {% if appearanceVars.topbarDark is defined and appearanceVars.topbarDark %}
-  {% set cssVars = cssVars|merge(['--topbar-bg-dark: ' ~ appearanceVars.topbarDark]) %}
+  {% set cssVars = cssVars|merge([
+    '--marketing-topbar-dark: ' ~ appearanceVars.topbarDark,
+    '--qr-landing-topbar-bg-dark: ' ~ appearanceVars.topbarDark
+  ]) %}
 {% endif %}
 
 {% set designConfig = design.config|default({}) %}
