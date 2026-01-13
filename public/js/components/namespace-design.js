@@ -52,6 +52,14 @@ const MARKETING_SCHEMES = {
     shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
     linkContrastLight: '#0000ee',
     linkContrastDark: '#ffff00',
+    topbarTextContrastLight: '#0a0a0a',
+    topbarTextContrastDark: '#ffffff',
+    topbarDropBgContrastLight: '#ffffff',
+    topbarDropBgContrastDark: '#000000',
+    topbarBtnBorderContrastLight: '#000000',
+    topbarBtnBorderContrastDark: '#ffffff',
+    topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+    topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
     danger500: '#ff6b6b',
     danger600: '#ff4c4c',
     white: '#ffffff',
@@ -102,6 +110,14 @@ const MARKETING_SCHEMES = {
     shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
     linkContrastLight: '#0000ee',
     linkContrastDark: '#ffff00',
+    topbarTextContrastLight: '#0a0a0a',
+    topbarTextContrastDark: '#ffffff',
+    topbarDropBgContrastLight: '#ffffff',
+    topbarDropBgContrastDark: '#000000',
+    topbarBtnBorderContrastLight: '#000000',
+    topbarBtnBorderContrastDark: '#ffffff',
+    topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+    topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
     danger500: '#ff6b6b',
     danger600: '#ff4c4c',
     white: '#ffffff',
@@ -152,6 +168,14 @@ const MARKETING_SCHEMES = {
     shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
     linkContrastLight: '#0000ee',
     linkContrastDark: '#ffff00',
+    topbarTextContrastLight: '#0a0a0a',
+    topbarTextContrastDark: '#ffffff',
+    topbarDropBgContrastLight: '#ffffff',
+    topbarDropBgContrastDark: '#000000',
+    topbarBtnBorderContrastLight: '#000000',
+    topbarBtnBorderContrastDark: '#ffffff',
+    topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+    topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
     danger500: '#ff6b6b',
     danger600: '#ff4c4c',
     white: '#ffffff',
@@ -202,6 +226,14 @@ const MARKETING_SCHEMES = {
     shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
     linkContrastLight: '#0000ee',
     linkContrastDark: '#ffff00',
+    topbarTextContrastLight: '#0a0a0a',
+    topbarTextContrastDark: '#ffffff',
+    topbarDropBgContrastLight: '#ffffff',
+    topbarDropBgContrastDark: '#000000',
+    topbarBtnBorderContrastLight: '#000000',
+    topbarBtnBorderContrastDark: '#ffffff',
+    topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+    topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
     danger500: '#ff6b6b',
     danger600: '#ff4c4c',
     white: '#ffffff',
@@ -869,6 +901,62 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketingLinkContrastDark,
     appearance?.variables?.marketing_link_contrast_dark,
   );
+  const marketingTopbarTextContrastLight = resolveFirstValue(
+    marketingSchemeValues?.topbarTextContrastLight,
+    colors.marketingTopbarTextContrastLight,
+    colors.marketing_topbar_text_contrast_light,
+    appearance?.variables?.marketingTopbarTextContrastLight,
+    appearance?.variables?.marketing_topbar_text_contrast_light,
+  );
+  const marketingTopbarTextContrastDark = resolveFirstValue(
+    marketingSchemeValues?.topbarTextContrastDark,
+    colors.marketingTopbarTextContrastDark,
+    colors.marketing_topbar_text_contrast_dark,
+    appearance?.variables?.marketingTopbarTextContrastDark,
+    appearance?.variables?.marketing_topbar_text_contrast_dark,
+  );
+  const marketingTopbarDropBgContrastLight = resolveFirstValue(
+    marketingSchemeValues?.topbarDropBgContrastLight,
+    colors.marketingTopbarDropBgContrastLight,
+    colors.marketing_topbar_drop_bg_contrast_light,
+    appearance?.variables?.marketingTopbarDropBgContrastLight,
+    appearance?.variables?.marketing_topbar_drop_bg_contrast_light,
+  );
+  const marketingTopbarDropBgContrastDark = resolveFirstValue(
+    marketingSchemeValues?.topbarDropBgContrastDark,
+    colors.marketingTopbarDropBgContrastDark,
+    colors.marketing_topbar_drop_bg_contrast_dark,
+    appearance?.variables?.marketingTopbarDropBgContrastDark,
+    appearance?.variables?.marketing_topbar_drop_bg_contrast_dark,
+  );
+  const marketingTopbarBtnBorderContrastLight = resolveFirstValue(
+    marketingSchemeValues?.topbarBtnBorderContrastLight,
+    colors.marketingTopbarBtnBorderContrastLight,
+    colors.marketing_topbar_btn_border_contrast_light,
+    appearance?.variables?.marketingTopbarBtnBorderContrastLight,
+    appearance?.variables?.marketing_topbar_btn_border_contrast_light,
+  );
+  const marketingTopbarBtnBorderContrastDark = resolveFirstValue(
+    marketingSchemeValues?.topbarBtnBorderContrastDark,
+    colors.marketingTopbarBtnBorderContrastDark,
+    colors.marketing_topbar_btn_border_contrast_dark,
+    appearance?.variables?.marketingTopbarBtnBorderContrastDark,
+    appearance?.variables?.marketing_topbar_btn_border_contrast_dark,
+  );
+  const marketingTopbarFocusRingContrastLight = resolveFirstValue(
+    marketingSchemeValues?.topbarFocusRingContrastLight,
+    colors.marketingTopbarFocusRingContrastLight,
+    colors.marketing_topbar_focus_ring_contrast_light,
+    appearance?.variables?.marketingTopbarFocusRingContrastLight,
+    appearance?.variables?.marketing_topbar_focus_ring_contrast_light,
+  );
+  const marketingTopbarFocusRingContrastDark = resolveFirstValue(
+    marketingSchemeValues?.topbarFocusRingContrastDark,
+    colors.marketingTopbarFocusRingContrastDark,
+    colors.marketing_topbar_focus_ring_contrast_dark,
+    appearance?.variables?.marketingTopbarFocusRingContrastDark,
+    appearance?.variables?.marketing_topbar_focus_ring_contrast_dark,
+  );
   const marketingDanger500 = resolveFirstValue(
     marketingSchemeValues?.danger500,
     colors.marketingDanger500,
@@ -1059,6 +1147,30 @@ const applyColorsToRoot = (element, appearance) => {
   }
   if (marketingLinkContrastDark) {
     element.style.setProperty('--marketing-link-contrast-dark', marketingLinkContrastDark);
+  }
+  if (marketingTopbarTextContrastLight) {
+    element.style.setProperty('--marketing-topbar-text-contrast-light', marketingTopbarTextContrastLight);
+  }
+  if (marketingTopbarTextContrastDark) {
+    element.style.setProperty('--marketing-topbar-text-contrast-dark', marketingTopbarTextContrastDark);
+  }
+  if (marketingTopbarDropBgContrastLight) {
+    element.style.setProperty('--marketing-topbar-drop-bg-contrast-light', marketingTopbarDropBgContrastLight);
+  }
+  if (marketingTopbarDropBgContrastDark) {
+    element.style.setProperty('--marketing-topbar-drop-bg-contrast-dark', marketingTopbarDropBgContrastDark);
+  }
+  if (marketingTopbarBtnBorderContrastLight) {
+    element.style.setProperty('--marketing-topbar-btn-border-contrast-light', marketingTopbarBtnBorderContrastLight);
+  }
+  if (marketingTopbarBtnBorderContrastDark) {
+    element.style.setProperty('--marketing-topbar-btn-border-contrast-dark', marketingTopbarBtnBorderContrastDark);
+  }
+  if (marketingTopbarFocusRingContrastLight) {
+    element.style.setProperty('--marketing-topbar-focus-ring-contrast-light', marketingTopbarFocusRingContrastLight);
+  }
+  if (marketingTopbarFocusRingContrastDark) {
+    element.style.setProperty('--marketing-topbar-focus-ring-contrast-dark', marketingTopbarFocusRingContrastDark);
   }
   if (marketingDanger500) {
     element.style.setProperty('--marketing-danger-500', marketingDanger500);

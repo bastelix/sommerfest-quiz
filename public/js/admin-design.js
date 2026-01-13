@@ -74,6 +74,14 @@
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
+      topbarTextContrastLight: '#0a0a0a',
+      topbarTextContrastDark: '#ffffff',
+      topbarDropBgContrastLight: '#ffffff',
+      topbarDropBgContrastDark: '#000000',
+      topbarBtnBorderContrastLight: '#000000',
+      topbarBtnBorderContrastDark: '#ffffff',
+      topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+      topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
       danger500: '#ff6b6b',
       danger600: '#ff4c4c',
       white: '#ffffff',
@@ -124,6 +132,14 @@
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
+      topbarTextContrastLight: '#0a0a0a',
+      topbarTextContrastDark: '#ffffff',
+      topbarDropBgContrastLight: '#ffffff',
+      topbarDropBgContrastDark: '#000000',
+      topbarBtnBorderContrastLight: '#000000',
+      topbarBtnBorderContrastDark: '#ffffff',
+      topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+      topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
       danger500: '#ff6b6b',
       danger600: '#ff4c4c',
       white: '#ffffff',
@@ -174,6 +190,14 @@
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
+      topbarTextContrastLight: '#0a0a0a',
+      topbarTextContrastDark: '#ffffff',
+      topbarDropBgContrastLight: '#ffffff',
+      topbarDropBgContrastDark: '#000000',
+      topbarBtnBorderContrastLight: '#000000',
+      topbarBtnBorderContrastDark: '#ffffff',
+      topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+      topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
       danger500: '#ff6b6b',
       danger600: '#ff4c4c',
       white: '#ffffff',
@@ -224,6 +248,14 @@
       shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
       linkContrastLight: '#0000ee',
       linkContrastDark: '#ffff00',
+      topbarTextContrastLight: '#0a0a0a',
+      topbarTextContrastDark: '#ffffff',
+      topbarDropBgContrastLight: '#ffffff',
+      topbarDropBgContrastDark: '#000000',
+      topbarBtnBorderContrastLight: '#000000',
+      topbarBtnBorderContrastDark: '#ffffff',
+      topbarFocusRingContrastLight: 'rgba(0, 120, 255, 0.6)',
+      topbarFocusRingContrastDark: 'rgba(140, 200, 255, 0.8)',
       danger500: '#ff6b6b',
       danger600: '#ff4c4c',
       white: '#ffffff',
@@ -277,6 +309,14 @@
     '--marketing-shadow-stat-accent',
     '--marketing-link-contrast-light',
     '--marketing-link-contrast-dark',
+    '--marketing-topbar-text-contrast-light',
+    '--marketing-topbar-text-contrast-dark',
+    '--marketing-topbar-drop-bg-contrast-light',
+    '--marketing-topbar-drop-bg-contrast-dark',
+    '--marketing-topbar-btn-border-contrast-light',
+    '--marketing-topbar-btn-border-contrast-dark',
+    '--marketing-topbar-focus-ring-contrast-light',
+    '--marketing-topbar-focus-ring-contrast-dark',
     '--marketing-danger-500',
     '--marketing-danger-600',
     '--marketing-white',
@@ -671,6 +711,14 @@
     applySchemeToken('--marketing-shadow-stat-accent', scheme.shadowStatAccent);
     applySchemeToken('--marketing-link-contrast-light', scheme.linkContrastLight);
     applySchemeToken('--marketing-link-contrast-dark', scheme.linkContrastDark);
+    applySchemeToken('--marketing-topbar-text-contrast-light', scheme.topbarTextContrastLight);
+    applySchemeToken('--marketing-topbar-text-contrast-dark', scheme.topbarTextContrastDark);
+    applySchemeToken('--marketing-topbar-drop-bg-contrast-light', scheme.topbarDropBgContrastLight);
+    applySchemeToken('--marketing-topbar-drop-bg-contrast-dark', scheme.topbarDropBgContrastDark);
+    applySchemeToken('--marketing-topbar-btn-border-contrast-light', scheme.topbarBtnBorderContrastLight);
+    applySchemeToken('--marketing-topbar-btn-border-contrast-dark', scheme.topbarBtnBorderContrastDark);
+    applySchemeToken('--marketing-topbar-focus-ring-contrast-light', scheme.topbarFocusRingContrastLight);
+    applySchemeToken('--marketing-topbar-focus-ring-contrast-dark', scheme.topbarFocusRingContrastDark);
     applySchemeToken('--marketing-danger-500', scheme.danger500);
     applySchemeToken('--marketing-danger-600', scheme.danger600);
     applySchemeToken('--marketing-white', scheme.white);
