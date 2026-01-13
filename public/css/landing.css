@@ -410,6 +410,7 @@ body.page-render .qr-page-renderer table {
   background: var(--section-surface-inner, transparent);
   border-radius: var(--card-radius-square);
   box-sizing: border-box;
+  max-width: 100%;
   padding: var(--section-padding-inner);
   width: 100%;
 }
