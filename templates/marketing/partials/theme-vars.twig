@@ -119,6 +119,11 @@
 
 {% if marketingScheme %}
   {% set cssVars = cssVars|merge([
+    '--surface: ' ~ marketingScheme.surface,
+    '--surface-muted: ' ~ marketingSurfaceMuted,
+    '--text-on-surface: ' ~ marketingScheme.textOnSurface,
+    '--text-on-background: ' ~ marketingScheme.textOnBackground,
+    '--text-on-primary: ' ~ marketingScheme.onAccent,
     '--marketing-on-accent: ' ~ marketingScheme.onAccent,
     '--marketing-text: ' ~ marketingScheme.textOnBackground,
     '--marketing-text-on-surface: ' ~ marketingScheme.textOnSurface,
@@ -131,10 +136,16 @@
     '--marketing-text-muted-on-background-dark: ' ~ marketingScheme.textMutedOnBackgroundDark
   ]) %}
   {% if marketingScheme.surfaceDark is defined %}
-    {% set cssVars = cssVars|merge(['--marketing-surface-dark: ' ~ marketingScheme.surfaceDark]) %}
+    {% set cssVars = cssVars|merge([
+      '--surface-dark: ' ~ marketingScheme.surfaceDark,
+      '--marketing-surface-dark: ' ~ marketingScheme.surfaceDark
+    ]) %}
   {% endif %}
   {% if marketingScheme.surfaceMutedDark is defined %}
-    {% set cssVars = cssVars|merge(['--marketing-surface-muted-dark: ' ~ marketingScheme.surfaceMutedDark]) %}
+    {% set cssVars = cssVars|merge([
+      '--surface-muted-dark: ' ~ marketingScheme.surfaceMutedDark,
+      '--marketing-surface-muted-dark: ' ~ marketingScheme.surfaceMutedDark
+    ]) %}
   {% endif %}
   {% if marketingScheme.backgroundDark is defined %}
     {% set cssVars = cssVars|merge(['--marketing-background-dark: ' ~ marketingScheme.backgroundDark]) %}
