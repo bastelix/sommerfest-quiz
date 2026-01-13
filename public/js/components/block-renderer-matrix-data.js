@@ -1601,9 +1601,19 @@ function getStatStripColumns(block) {
   return Math.min(6, Math.max(1, Math.round(raw)));
 }
 
+function getStatStripColumnsBreakpoint(block) {
+  const raw = block.data?.columnsBreakpoint;
+  if (typeof raw !== 'string') {
+    return 's';
+  }
+  const breakpoint = raw.trim();
+  return breakpoint !== '' ? breakpoint : 's';
+}
+
 function buildStatStripGridClass(block, baseClass) {
   const columns = getStatStripColumns(block);
-  return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@m`;
+  const breakpoint = getStatStripColumnsBreakpoint(block);
+  return `${baseClass} uk-child-width-1-1 uk-child-width-1-${columns}@${breakpoint}`;
 }
 
 function renderStatStripInline(block, options = {}) {
