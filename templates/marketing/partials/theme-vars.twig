@@ -119,10 +119,6 @@
 
 {% if marketingScheme %}
   {% set cssVars = cssVars|merge([
-    '--brand-primary: ' ~ marketingPrimary,
-    '--brand-accent: ' ~ marketingAccent,
-    '--surface: ' ~ marketingSurface,
-    '--surface-muted: ' ~ marketingSurfaceMuted,
     '--marketing-on-accent: ' ~ marketingScheme.onAccent,
     '--marketing-text: ' ~ marketingScheme.textOnBackground,
     '--marketing-text-on-surface: ' ~ marketingScheme.textOnSurface,

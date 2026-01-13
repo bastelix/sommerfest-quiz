@@ -18,6 +18,13 @@ stylesheet exposes the following marketing tokens for each namespace:
 * `--marketing-text-muted-on-surface-dark` – dark-mode muted copy on cards/sections.
 * `--marketing-text-muted-on-background-dark` – dark-mode muted copy on the page background.
 
+The tokens are emitted in `templates/marketing/partials/theme-vars.twig`, which reads the namespace
+design payload (`appearance.colors` + `appearance.variables`) and maps the values to `--marketing-*`
+CSS variables. Global brand/surface tokens (`--brand-*`, `--surface*`) stay sourced from the base
+namespace design and are not overridden by marketing presets; marketing pages that need app
+components to follow marketing colors should rely on the scoped mappings in
+`public/css/marketing.css` instead.
+
 ## Marketing presets
 
 The Admin-Design UI includes predefined marketing palettes. Selecting a preset stores the choice in
