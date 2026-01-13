@@ -9,7 +9,7 @@ body.qr-landing:not([data-theme="dark"]){
   --topbar-text: var(--qr-text);
 }
 body.qr-landing[data-theme="dark"]{
-  --topbar-btn-bg: #1f232a;
+  --topbar-btn-bg: var(--qr-landing-topbar-btn-bg-dark, #1f232a);
   --topbar-btn-border: var(--qr-card-border);
   --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 60%, transparent);
   --topbar-btn-bg-hover: color-mix(in oklab,var(--qr-text) 16%, transparent);
@@ -22,22 +22,22 @@ body.qr-landing[data-theme="dark"]{
   padding-top: env(safe-area-inset-top);
 }
 body.qr-landing.high-contrast{
-  --topbar-text: #0a0a0a;
-  --topbar-drop-bg: #ffffff;
-  --topbar-drop-border: #000000;
-  --topbar-btn-border: #000000;
-  --topbar-btn-border-hover: #000000;
-  --topbar-btn-bg-hover: #e6e6e6;
-  --topbar-focus-ring: rgba(0,120,255,0.6);
+  --topbar-text: var(--qr-landing-topbar-text-contrast-light, #0a0a0a);
+  --topbar-drop-bg: var(--qr-landing-topbar-drop-bg-contrast-light, #ffffff);
+  --topbar-drop-border: var(--qr-landing-topbar-drop-border-contrast-light, #000000);
+  --topbar-btn-border: var(--qr-landing-topbar-btn-border-contrast-light, #000000);
+  --topbar-btn-border-hover: var(--qr-landing-topbar-btn-border-hover-contrast-light, #000000);
+  --topbar-btn-bg-hover: var(--qr-landing-topbar-btn-bg-hover-contrast-light, #e6e6e6);
+  --topbar-focus-ring: var(--qr-landing-topbar-focus-ring-contrast-light, rgba(0,120,255,0.6));
 }
 body.qr-landing[data-theme="dark"].high-contrast{
-  --topbar-text: #ffffff;
-  --topbar-drop-bg: #000000;
-  --topbar-drop-border: #ffffff;
-  --topbar-btn-border: #ffffff;
-  --topbar-btn-border-hover: #ffffff;
-  --topbar-btn-bg-hover: rgba(255,255,255,0.16);
-  --topbar-focus-ring: rgba(140,200,255,0.8);
+  --topbar-text: var(--qr-landing-topbar-text-contrast-dark, #ffffff);
+  --topbar-drop-bg: var(--qr-landing-topbar-drop-bg-contrast-dark, #000000);
+  --topbar-drop-border: var(--qr-landing-topbar-drop-border-contrast-dark, #ffffff);
+  --topbar-btn-border: var(--qr-landing-topbar-btn-border-contrast-dark, #ffffff);
+  --topbar-btn-border-hover: var(--qr-landing-topbar-btn-border-hover-contrast-dark, #ffffff);
+  --topbar-btn-bg-hover: var(--qr-landing-topbar-btn-bg-hover-contrast-dark, rgba(255,255,255,0.16));
+  --topbar-focus-ring: var(--qr-landing-topbar-focus-ring-contrast-dark, rgba(140,200,255,0.8));
 }
 
 .lang-option{

@@ -14,7 +14,7 @@ body.cms-page-render:not([data-theme="dark"]){
 }
 body.marketing-page[data-theme="dark"],
 body.cms-page-render[data-theme="dark"]{
-  --topbar-btn-bg: #1f232a;
+  --topbar-btn-bg: var(--marketing-topbar-btn-bg-dark, var(--marketing-topbar-btn-bg, #1f232a));
   --topbar-btn-border: var(--qr-card-border);
   --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 60%, transparent);
   --topbar-btn-bg-hover: color-mix(in oklab,var(--qr-text) 16%, transparent);
@@ -36,7 +36,7 @@ body.cms-page-render{
   --qr-card-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
   --qr-text: var(--marketing-text, var(--marketing-text-default));
-  --qr-landing-topbar-bg: color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 92%, var(--marketing-surface-glass) 8%);
+  --qr-landing-topbar-bg: var(--marketing-topbar-light, color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 92%, var(--marketing-surface-glass) 8%));
 }
 
 body.cms-page-render[data-theme="dark"]{
@@ -44,30 +44,30 @@ body.cms-page-render[data-theme="dark"]{
   --qr-card-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
   --qr-text: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
-  --qr-landing-topbar-bg: color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 90%, var(--marketing-surface-glass-dark) 10%);
+  --qr-landing-topbar-bg: var(--marketing-topbar-dark, color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 90%, var(--marketing-surface-glass-dark) 10%));
 }
 body.marketing-page.high-contrast,
 body.cms-page-render.high-contrast{
-  --topbar-text: #0a0a0a;
-  --topbar-drop-bg: #ffffff;
-  --topbar-drop-border: #000000;
-  --topbar-btn-border: #000000;
-  --topbar-btn-border-hover: #000000;
-  --topbar-btn-bg-hover: #e6e6e6;
-  --topbar-focus-ring: rgba(0,120,255,0.6);
+  --topbar-text: var(--marketing-topbar-text-contrast-light, #0a0a0a);
+  --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-light, #ffffff);
+  --topbar-drop-border: var(--marketing-topbar-drop-border-contrast-light, #000000);
+  --topbar-btn-border: var(--marketing-topbar-btn-border-contrast-light, #000000);
+  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-contrast-light, #000000);
+  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-contrast-light, #e6e6e6);
+  --topbar-focus-ring: var(--marketing-topbar-focus-ring-contrast-light, rgba(0,120,255,0.6));
   --drop-bg: var(--topbar-drop-bg);
   --drop-border: var(--topbar-drop-border);
   --drop-color: var(--topbar-text);
 }
 body.marketing-page[data-theme="dark"].high-contrast,
 body.cms-page-render[data-theme="dark"].high-contrast{
-  --topbar-text: #ffffff;
-  --topbar-drop-bg: #000000;
-  --topbar-drop-border: #ffffff;
-  --topbar-btn-border: #ffffff;
-  --topbar-btn-border-hover: #ffffff;
-  --topbar-btn-bg-hover: rgba(255,255,255,0.16);
-  --topbar-focus-ring: rgba(140,200,255,0.8);
+  --topbar-text: var(--marketing-topbar-text-contrast-dark, #ffffff);
+  --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-dark, #000000);
+  --topbar-drop-border: var(--marketing-topbar-drop-border-contrast-dark, #ffffff);
+  --topbar-btn-border: var(--marketing-topbar-btn-border-contrast-dark, #ffffff);
+  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-contrast-dark, #ffffff);
+  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-contrast-dark, rgba(255,255,255,0.16));
+  --topbar-focus-ring: var(--marketing-topbar-focus-ring-contrast-dark, rgba(140,200,255,0.8));
   --drop-bg: var(--topbar-drop-bg);
   --drop-border: var(--topbar-drop-border);
   --drop-color: var(--topbar-text);

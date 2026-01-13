@@ -82,6 +82,22 @@
   --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default));
   --marketing-text-on-primary: var(--marketing-on-accent);
   --marketing-link: var(--brand-primary, var(--marketing-primary));
+  --marketing-topbar-btn-bg: transparent;
+  --marketing-topbar-btn-bg-dark: #1f232a;
+  --marketing-topbar-text-contrast-light: #0a0a0a;
+  --marketing-topbar-text-contrast-dark: #ffffff;
+  --marketing-topbar-drop-bg-contrast-light: #ffffff;
+  --marketing-topbar-drop-bg-contrast-dark: #000000;
+  --marketing-topbar-drop-border-contrast-light: #000000;
+  --marketing-topbar-drop-border-contrast-dark: #ffffff;
+  --marketing-topbar-btn-border-contrast-light: #000000;
+  --marketing-topbar-btn-border-contrast-dark: #ffffff;
+  --marketing-topbar-btn-border-hover-contrast-light: #000000;
+  --marketing-topbar-btn-border-hover-contrast-dark: #ffffff;
+  --marketing-topbar-btn-bg-hover-contrast-light: #e6e6e6;
+  --marketing-topbar-btn-bg-hover-contrast-dark: rgba(255, 255, 255, 0.16);
+  --marketing-topbar-focus-ring-contrast-light: rgba(0, 120, 255, 0.6);
+  --marketing-topbar-focus-ring-contrast-dark: rgba(140, 200, 255, 0.8);
 }
 
 :root {
@@ -241,8 +257,8 @@ body.marketing-page {
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%);
-  --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
+  --qr-landing-topbar-bg-light: var(--marketing-topbar-light, color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%));
+  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
   --section-card-surface: var(--marketing-surface);
   --section-default-surface: var(--marketing-surface);
@@ -272,8 +288,8 @@ body.marketing-page[data-theme="dark"]:not(.high-contrast) {
   --accent-primary: var(--marketing-primary);
   --accent-secondary: var(--marketing-accent);
   --accent-color: var(--marketing-primary);
-  --qr-landing-topbar-bg-light: color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%);
-  --qr-landing-topbar-bg-dark: var(--qr-landing-topbar-bg-light);
+  --qr-landing-topbar-bg-light: var(--marketing-topbar-light, color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%));
+  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
   --section-card-surface: var(--marketing-card, var(--marketing-surface));
   --section-default-surface: var(--marketing-surface);
@@ -374,15 +390,15 @@ body.cms-page-render {
   --qr-card-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
   --qr-text: var(--marketing-text, var(--marketing-text-default));
-  --qr-landing-topbar-bg: color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 92%, var(--marketing-surface-glass) 8%);
-  --topbar-btn-bg: transparent;
-  --topbar-btn-border: var(--qr-card-border);
-  --topbar-btn-border-hover: color-mix(in oklab, var(--qr-text) 40%, transparent);
-  --topbar-btn-bg-hover: color-mix(in oklab, var(--qr-text) 8%, transparent);
-  --topbar-focus-ring: var(--qr-ring);
-  --topbar-drop-bg: var(--qr-card);
-  --topbar-drop-border: var(--qr-card-border);
-  --topbar-text: var(--qr-text);
+  --qr-landing-topbar-bg: var(--marketing-topbar-light, color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 92%, var(--marketing-surface-glass) 8%));
+  --topbar-btn-bg: var(--marketing-topbar-btn-bg, transparent);
+  --topbar-btn-border: var(--marketing-topbar-btn-border, var(--qr-card-border));
+  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover, color-mix(in oklab, var(--qr-text) 40%, transparent));
+  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover, color-mix(in oklab, var(--qr-text) 8%, transparent));
+  --topbar-focus-ring: var(--marketing-topbar-focus-ring, var(--qr-ring));
+  --topbar-drop-bg: var(--marketing-topbar-drop-bg, var(--qr-card));
+  --topbar-drop-border: var(--marketing-topbar-drop-border, var(--qr-card-border));
+  --topbar-text: var(--marketing-topbar-text, var(--qr-text));
   font-family: var(--marketing-font-stack);
 }
 
@@ -391,35 +407,35 @@ body.cms-page-render[data-theme="dark"] {
   --qr-card-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
   --qr-text: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
-  --qr-landing-topbar-bg: color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 90%, var(--marketing-surface-glass-dark) 10%);
-  --topbar-btn-bg: #1f232a;
-  --topbar-btn-border: var(--qr-card-border);
-  --topbar-btn-border-hover: color-mix(in oklab, var(--qr-text) 60%, transparent);
-  --topbar-btn-bg-hover: color-mix(in oklab, var(--qr-text) 16%, transparent);
-  --topbar-focus-ring: var(--qr-ring);
-  --topbar-drop-bg: var(--qr-card);
-  --topbar-drop-border: var(--qr-card-border);
-  --topbar-text: var(--qr-text);
+  --qr-landing-topbar-bg: var(--marketing-topbar-dark, color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 90%, var(--marketing-surface-glass-dark) 10%));
+  --topbar-btn-bg: var(--marketing-topbar-btn-bg-dark, var(--marketing-topbar-btn-bg, #1f232a));
+  --topbar-btn-border: var(--marketing-topbar-btn-border-dark, var(--marketing-topbar-btn-border, var(--qr-card-border)));
+  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-dark, var(--marketing-topbar-btn-border-hover, color-mix(in oklab, var(--qr-text) 60%, transparent)));
+  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-dark, var(--marketing-topbar-btn-bg-hover, color-mix(in oklab, var(--qr-text) 16%, transparent)));
+  --topbar-focus-ring: var(--marketing-topbar-focus-ring-dark, var(--marketing-topbar-focus-ring, var(--qr-ring)));
+  --topbar-drop-bg: var(--marketing-topbar-drop-bg-dark, var(--marketing-topbar-drop-bg, var(--qr-card)));
+  --topbar-drop-border: var(--marketing-topbar-drop-border-dark, var(--marketing-topbar-drop-border, var(--qr-card-border)));
+  --topbar-text: var(--marketing-topbar-text-dark, var(--marketing-topbar-text, var(--qr-text)));
 }
 
 body.cms-page-render.high-contrast {
-  --topbar-text: #0a0a0a;
-  --topbar-drop-bg: #ffffff;
-  --topbar-drop-border: #000000;
-  --topbar-btn-border: #000000;
-  --topbar-btn-border-hover: #000000;
-  --topbar-btn-bg-hover: #e6e6e6;
-  --topbar-focus-ring: rgba(0, 120, 255, 0.6);
+  --topbar-text: var(--marketing-topbar-text-contrast-light, #0a0a0a);
+  --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-light, #ffffff);
+  --topbar-drop-border: var(--marketing-topbar-drop-border-contrast-light, #000000);
+  --topbar-btn-border: var(--marketing-topbar-btn-border-contrast-light, #000000);
+  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-contrast-light, #000000);
+  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-contrast-light, #e6e6e6);
+  --topbar-focus-ring: var(--marketing-topbar-focus-ring-contrast-light, rgba(0, 120, 255, 0.6));
 }
 
 body.cms-page-render[data-theme="dark"].high-contrast {
-  --topbar-text: #ffffff;
-  --topbar-drop-bg: #000000;
-  --topbar-drop-border: #ffffff;
-  --topbar-btn-border: #ffffff;
-  --topbar-btn-border-hover: #ffffff;
-  --topbar-btn-bg-hover: rgba(255, 255, 255, 0.16);
-  --topbar-focus-ring: rgba(140, 200, 255, 0.8);
+  --topbar-text: var(--marketing-topbar-text-contrast-dark, #ffffff);
+  --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-dark, #000000);
+  --topbar-drop-border: var(--marketing-topbar-drop-border-contrast-dark, #ffffff);
+  --topbar-btn-border: var(--marketing-topbar-btn-border-contrast-dark, #ffffff);
+  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-contrast-dark, #ffffff);
+  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-contrast-dark, rgba(255, 255, 255, 0.16));
+  --topbar-focus-ring: var(--marketing-topbar-focus-ring-contrast-dark, rgba(140, 200, 255, 0.8));
 }
 
 body.dark-mode {
