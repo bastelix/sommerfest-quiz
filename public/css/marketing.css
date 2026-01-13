@@ -677,6 +677,7 @@ body.page-render .cms-page table {
   background: var(--section-surface-inner, transparent);
   border-radius: var(--marketing-card-radius);
   box-sizing: border-box;
+  max-width: 100%;
   padding: var(--section-padding-inner);
   width: 100%;
 }

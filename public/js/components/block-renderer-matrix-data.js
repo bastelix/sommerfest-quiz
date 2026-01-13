@@ -1604,10 +1604,10 @@ function getStatStripColumns(block) {
 function getStatStripColumnsBreakpoint(block) {
   const raw = block.data?.columnsBreakpoint;
   if (typeof raw !== 'string') {
-    return 's';
+    return 'm';
   }
   const breakpoint = raw.trim();
-  return breakpoint !== '' ? breakpoint : 's';
+  return breakpoint !== '' ? breakpoint : 'm';
 }
 
 function buildStatStripGridClass(block, baseClass) {
