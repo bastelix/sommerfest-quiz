@@ -48,6 +48,37 @@
       textOnBackgroundDark: '#f8fafc',
       textMutedOnSurfaceDark: '#cbd5e1',
       textMutedOnBackgroundDark: '#cbd5e1',
+      marketingInk: '#0b1728',
+      surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+      surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+      surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+      borderLight: 'rgba(255, 255, 255, 0.18)',
+      ringStrong: 'rgba(0, 0, 0, 0.6)',
+      ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+      overlaySoft: 'rgba(15, 23, 42, 0.12)',
+      overlayStrong: 'rgba(0, 0, 0, 0.18)',
+      overlayHero: 'rgba(0, 0, 0, 0.24)',
+      shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+      shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+      shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+      shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+      shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+      shadowCard: 'var(--marketing-shadow-card-base)',
+      shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+      shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+      shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+      shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+      shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+      shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+      shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+      shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      linkContrastLight: '#0000ee',
+      linkContrastDark: '#ffff00',
+      danger500: '#ff6b6b',
+      danger600: '#ff4c4c',
+      white: '#ffffff',
+      black: '#000000',
+      blackRgb: '0 0 0',
     },
     sunset: {
       primary: '#f97316',
@@ -67,6 +98,37 @@
       textOnBackgroundDark: '#f8fafc',
       textMutedOnSurfaceDark: '#cbd5e1',
       textMutedOnBackgroundDark: '#cbd5e1',
+      marketingInk: '#0b1728',
+      surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+      surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+      surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+      borderLight: 'rgba(255, 255, 255, 0.18)',
+      ringStrong: 'rgba(0, 0, 0, 0.6)',
+      ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+      overlaySoft: 'rgba(15, 23, 42, 0.12)',
+      overlayStrong: 'rgba(0, 0, 0, 0.18)',
+      overlayHero: 'rgba(0, 0, 0, 0.24)',
+      shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+      shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+      shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+      shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+      shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+      shadowCard: 'var(--marketing-shadow-card-base)',
+      shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+      shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+      shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+      shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+      shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+      shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+      shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+      shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      linkContrastLight: '#0000ee',
+      linkContrastDark: '#ffff00',
+      danger500: '#ff6b6b',
+      danger600: '#ff4c4c',
+      white: '#ffffff',
+      black: '#000000',
+      blackRgb: '0 0 0',
     },
     midnight: {
       primary: '#6366f1',
@@ -86,6 +148,37 @@
       textOnBackgroundDark: '#f8fafc',
       textMutedOnSurfaceDark: '#cbd5e1',
       textMutedOnBackgroundDark: '#cbd5e1',
+      marketingInk: '#0b1728',
+      surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+      surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+      surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+      borderLight: 'rgba(255, 255, 255, 0.18)',
+      ringStrong: 'rgba(0, 0, 0, 0.6)',
+      ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+      overlaySoft: 'rgba(15, 23, 42, 0.12)',
+      overlayStrong: 'rgba(0, 0, 0, 0.18)',
+      overlayHero: 'rgba(0, 0, 0, 0.24)',
+      shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+      shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+      shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+      shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+      shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+      shadowCard: 'var(--marketing-shadow-card-base)',
+      shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+      shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+      shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+      shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+      shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+      shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+      shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+      shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      linkContrastLight: '#0000ee',
+      linkContrastDark: '#ffff00',
+      danger500: '#ff6b6b',
+      danger600: '#ff4c4c',
+      white: '#ffffff',
+      black: '#000000',
+      blackRgb: '0 0 0',
     },
     monochrome: {
       primary: '#111111',
@@ -105,6 +198,37 @@
       textOnBackgroundDark: '#f5f5f5',
       textMutedOnSurfaceDark: '#bdbdbd',
       textMutedOnBackgroundDark: '#bdbdbd',
+      marketingInk: '#0b1728',
+      surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+      surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+      surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+      borderLight: 'rgba(255, 255, 255, 0.18)',
+      ringStrong: 'rgba(0, 0, 0, 0.6)',
+      ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+      overlaySoft: 'rgba(15, 23, 42, 0.12)',
+      overlayStrong: 'rgba(0, 0, 0, 0.18)',
+      overlayHero: 'rgba(0, 0, 0, 0.24)',
+      shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+      shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+      shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+      shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+      shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+      shadowCard: 'var(--marketing-shadow-card-base)',
+      shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+      shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+      shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+      shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+      shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+      shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+      shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+      shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+      linkContrastLight: '#0000ee',
+      linkContrastDark: '#ffff00',
+      danger500: '#ff6b6b',
+      danger600: '#ff4c4c',
+      white: '#ffffff',
+      black: '#000000',
+      blackRgb: '0 0 0',
     },
   };
   const marketingTokenKeys = [
@@ -127,6 +251,37 @@
     '--marketing-text-on-background-dark',
     '--marketing-text-muted-on-surface-dark',
     '--marketing-text-muted-on-background-dark',
+    '--marketing-ink',
+    '--marketing-surface-glass',
+    '--marketing-surface-glass-dark',
+    '--marketing-surface-accent-soft',
+    '--marketing-border-light',
+    '--marketing-ring-strong',
+    '--marketing-ring-strong-dark',
+    '--marketing-overlay-soft',
+    '--marketing-overlay-strong',
+    '--marketing-overlay-hero',
+    '--marketing-shadow-soft',
+    '--marketing-shadow-dark',
+    '--marketing-shadow-panel',
+    '--marketing-shadow-card-base',
+    '--marketing-shadow-card-soft-base',
+    '--marketing-shadow-card',
+    '--marketing-shadow-accent',
+    '--marketing-shadow-card-soft',
+    '--marketing-shadow-card-hover',
+    '--marketing-shadow-hero-mockup',
+    '--marketing-shadow-pill',
+    '--marketing-shadow-callout',
+    '--marketing-shadow-stat',
+    '--marketing-shadow-stat-accent',
+    '--marketing-link-contrast-light',
+    '--marketing-link-contrast-dark',
+    '--marketing-danger-500',
+    '--marketing-danger-600',
+    '--marketing-white',
+    '--marketing-black',
+    '--marketing-black-rgb',
   ];
   const activeTab = editor.dataset.activeTab === 'behavior' ? 'behavior' : 'appearance';
   const marketingSchemeTokens = marketingThemeMap && Object.keys(marketingThemeMap).length
@@ -452,6 +607,13 @@
       refreshContrastChecks();
       return;
     }
+    const applySchemeToken = (token, value) => {
+      if (value) {
+        preview.style.setProperty(token, value);
+      } else {
+        preview.style.removeProperty(token);
+      }
+    };
     preview.style.setProperty('--marketing-primary', scheme.primary);
     preview.style.setProperty('--marketing-accent', scheme.accent);
     preview.style.setProperty('--marketing-secondary', scheme.accent);
@@ -483,6 +645,37 @@
     preview.style.setProperty('--marketing-text-on-background-dark', scheme.textOnBackgroundDark);
     preview.style.setProperty('--marketing-text-muted-on-surface-dark', scheme.textMutedOnSurfaceDark);
     preview.style.setProperty('--marketing-text-muted-on-background-dark', scheme.textMutedOnBackgroundDark);
+    applySchemeToken('--marketing-ink', scheme.marketingInk || scheme.ink);
+    applySchemeToken('--marketing-surface-glass', scheme.surfaceGlass);
+    applySchemeToken('--marketing-surface-glass-dark', scheme.surfaceGlassDark);
+    applySchemeToken('--marketing-surface-accent-soft', scheme.surfaceAccentSoft);
+    applySchemeToken('--marketing-border-light', scheme.borderLight);
+    applySchemeToken('--marketing-ring-strong', scheme.ringStrong);
+    applySchemeToken('--marketing-ring-strong-dark', scheme.ringStrongDark);
+    applySchemeToken('--marketing-overlay-soft', scheme.overlaySoft);
+    applySchemeToken('--marketing-overlay-strong', scheme.overlayStrong);
+    applySchemeToken('--marketing-overlay-hero', scheme.overlayHero);
+    applySchemeToken('--marketing-shadow-soft', scheme.shadowSoft);
+    applySchemeToken('--marketing-shadow-dark', scheme.shadowDark);
+    applySchemeToken('--marketing-shadow-panel', scheme.shadowPanel);
+    applySchemeToken('--marketing-shadow-card-base', scheme.shadowCardBase);
+    applySchemeToken('--marketing-shadow-card-soft-base', scheme.shadowCardSoftBase);
+    applySchemeToken('--marketing-shadow-card', scheme.shadowCard);
+    applySchemeToken('--marketing-shadow-accent', scheme.shadowAccent);
+    applySchemeToken('--marketing-shadow-card-soft', scheme.shadowCardSoft);
+    applySchemeToken('--marketing-shadow-card-hover', scheme.shadowCardHover);
+    applySchemeToken('--marketing-shadow-hero-mockup', scheme.shadowHeroMockup);
+    applySchemeToken('--marketing-shadow-pill', scheme.shadowPill);
+    applySchemeToken('--marketing-shadow-callout', scheme.shadowCallout);
+    applySchemeToken('--marketing-shadow-stat', scheme.shadowStat);
+    applySchemeToken('--marketing-shadow-stat-accent', scheme.shadowStatAccent);
+    applySchemeToken('--marketing-link-contrast-light', scheme.linkContrastLight);
+    applySchemeToken('--marketing-link-contrast-dark', scheme.linkContrastDark);
+    applySchemeToken('--marketing-danger-500', scheme.danger500);
+    applySchemeToken('--marketing-danger-600', scheme.danger600);
+    applySchemeToken('--marketing-white', scheme.white);
+    applySchemeToken('--marketing-black', scheme.black);
+    applySchemeToken('--marketing-black-rgb', scheme.blackRgb);
     refreshContrastChecks();
   };
 

@@ -26,6 +26,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f8fafc',
     textMutedOnSurfaceDark: '#cbd5e1',
     textMutedOnBackgroundDark: '#cbd5e1',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
   sunset: {
     primary: '#f97316',
@@ -45,6 +76,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f8fafc',
     textMutedOnSurfaceDark: '#cbd5e1',
     textMutedOnBackgroundDark: '#cbd5e1',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
   midnight: {
     primary: '#6366f1',
@@ -64,6 +126,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f8fafc',
     textMutedOnSurfaceDark: '#cbd5e1',
     textMutedOnBackgroundDark: '#cbd5e1',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
   monochrome: {
     primary: '#111111',
@@ -83,6 +176,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f5f5f5',
     textMutedOnSurfaceDark: '#bdbdbd',
     textMutedOnBackgroundDark: '#bdbdbd',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
 };
 
@@ -562,6 +686,224 @@ const applyColorsToRoot = (element, appearance) => {
     marketingSchemeValues?.textMutedOnBackgroundDark,
     textMutedOnBackgroundDark,
   );
+  const marketingInk = resolveFirstValue(
+    marketingSchemeValues?.marketingInk,
+    marketingSchemeValues?.ink,
+    colors.marketingInk,
+    colors.marketing_ink,
+    appearance?.variables?.marketingInk,
+    appearance?.variables?.marketing_ink,
+  );
+  const marketingSurfaceGlass = resolveFirstValue(
+    marketingSchemeValues?.surfaceGlass,
+    colors.marketingSurfaceGlass,
+    colors.marketing_surface_glass,
+    appearance?.variables?.marketingSurfaceGlass,
+    appearance?.variables?.marketing_surface_glass,
+  );
+  const marketingSurfaceGlassDark = resolveFirstValue(
+    marketingSchemeValues?.surfaceGlassDark,
+    colors.marketingSurfaceGlassDark,
+    colors.marketing_surface_glass_dark,
+    appearance?.variables?.marketingSurfaceGlassDark,
+    appearance?.variables?.marketing_surface_glass_dark,
+  );
+  const marketingSurfaceAccentSoft = resolveFirstValue(
+    marketingSchemeValues?.surfaceAccentSoft,
+    colors.marketingSurfaceAccentSoft,
+    colors.marketing_surface_accent_soft,
+    appearance?.variables?.marketingSurfaceAccentSoft,
+    appearance?.variables?.marketing_surface_accent_soft,
+  );
+  const marketingBorderLight = resolveFirstValue(
+    marketingSchemeValues?.borderLight,
+    colors.marketingBorderLight,
+    colors.marketing_border_light,
+    appearance?.variables?.marketingBorderLight,
+    appearance?.variables?.marketing_border_light,
+  );
+  const marketingRingStrong = resolveFirstValue(
+    marketingSchemeValues?.ringStrong,
+    colors.marketingRingStrong,
+    colors.marketing_ring_strong,
+    appearance?.variables?.marketingRingStrong,
+    appearance?.variables?.marketing_ring_strong,
+  );
+  const marketingRingStrongDark = resolveFirstValue(
+    marketingSchemeValues?.ringStrongDark,
+    colors.marketingRingStrongDark,
+    colors.marketing_ring_strong_dark,
+    appearance?.variables?.marketingRingStrongDark,
+    appearance?.variables?.marketing_ring_strong_dark,
+  );
+  const marketingOverlaySoft = resolveFirstValue(
+    marketingSchemeValues?.overlaySoft,
+    colors.marketingOverlaySoft,
+    colors.marketing_overlay_soft,
+    appearance?.variables?.marketingOverlaySoft,
+    appearance?.variables?.marketing_overlay_soft,
+  );
+  const marketingOverlayStrong = resolveFirstValue(
+    marketingSchemeValues?.overlayStrong,
+    colors.marketingOverlayStrong,
+    colors.marketing_overlay_strong,
+    appearance?.variables?.marketingOverlayStrong,
+    appearance?.variables?.marketing_overlay_strong,
+  );
+  const marketingOverlayHero = resolveFirstValue(
+    marketingSchemeValues?.overlayHero,
+    colors.marketingOverlayHero,
+    colors.marketing_overlay_hero,
+    appearance?.variables?.marketingOverlayHero,
+    appearance?.variables?.marketing_overlay_hero,
+  );
+  const marketingShadowSoft = resolveFirstValue(
+    marketingSchemeValues?.shadowSoft,
+    colors.marketingShadowSoft,
+    colors.marketing_shadow_soft,
+    appearance?.variables?.marketingShadowSoft,
+    appearance?.variables?.marketing_shadow_soft,
+  );
+  const marketingShadowDark = resolveFirstValue(
+    marketingSchemeValues?.shadowDark,
+    colors.marketingShadowDark,
+    colors.marketing_shadow_dark,
+    appearance?.variables?.marketingShadowDark,
+    appearance?.variables?.marketing_shadow_dark,
+  );
+  const marketingShadowPanel = resolveFirstValue(
+    marketingSchemeValues?.shadowPanel,
+    colors.marketingShadowPanel,
+    colors.marketing_shadow_panel,
+    appearance?.variables?.marketingShadowPanel,
+    appearance?.variables?.marketing_shadow_panel,
+  );
+  const marketingShadowCardBase = resolveFirstValue(
+    marketingSchemeValues?.shadowCardBase,
+    colors.marketingShadowCardBase,
+    colors.marketing_shadow_card_base,
+    appearance?.variables?.marketingShadowCardBase,
+    appearance?.variables?.marketing_shadow_card_base,
+  );
+  const marketingShadowCardSoftBase = resolveFirstValue(
+    marketingSchemeValues?.shadowCardSoftBase,
+    colors.marketingShadowCardSoftBase,
+    colors.marketing_shadow_card_soft_base,
+    appearance?.variables?.marketingShadowCardSoftBase,
+    appearance?.variables?.marketing_shadow_card_soft_base,
+  );
+  const marketingShadowCard = resolveFirstValue(
+    marketingSchemeValues?.shadowCard,
+    colors.marketingShadowCard,
+    colors.marketing_shadow_card,
+    appearance?.variables?.marketingShadowCard,
+    appearance?.variables?.marketing_shadow_card,
+  );
+  const marketingShadowAccent = resolveFirstValue(
+    marketingSchemeValues?.shadowAccent,
+    colors.marketingShadowAccent,
+    colors.marketing_shadow_accent,
+    appearance?.variables?.marketingShadowAccent,
+    appearance?.variables?.marketing_shadow_accent,
+  );
+  const marketingShadowCardSoft = resolveFirstValue(
+    marketingSchemeValues?.shadowCardSoft,
+    colors.marketingShadowCardSoft,
+    colors.marketing_shadow_card_soft,
+    appearance?.variables?.marketingShadowCardSoft,
+    appearance?.variables?.marketing_shadow_card_soft,
+  );
+  const marketingShadowCardHover = resolveFirstValue(
+    marketingSchemeValues?.shadowCardHover,
+    colors.marketingShadowCardHover,
+    colors.marketing_shadow_card_hover,
+    appearance?.variables?.marketingShadowCardHover,
+    appearance?.variables?.marketing_shadow_card_hover,
+  );
+  const marketingShadowHeroMockup = resolveFirstValue(
+    marketingSchemeValues?.shadowHeroMockup,
+    colors.marketingShadowHeroMockup,
+    colors.marketing_shadow_hero_mockup,
+    appearance?.variables?.marketingShadowHeroMockup,
+    appearance?.variables?.marketing_shadow_hero_mockup,
+  );
+  const marketingShadowPill = resolveFirstValue(
+    marketingSchemeValues?.shadowPill,
+    colors.marketingShadowPill,
+    colors.marketing_shadow_pill,
+    appearance?.variables?.marketingShadowPill,
+    appearance?.variables?.marketing_shadow_pill,
+  );
+  const marketingShadowCallout = resolveFirstValue(
+    marketingSchemeValues?.shadowCallout,
+    colors.marketingShadowCallout,
+    colors.marketing_shadow_callout,
+    appearance?.variables?.marketingShadowCallout,
+    appearance?.variables?.marketing_shadow_callout,
+  );
+  const marketingShadowStat = resolveFirstValue(
+    marketingSchemeValues?.shadowStat,
+    colors.marketingShadowStat,
+    colors.marketing_shadow_stat,
+    appearance?.variables?.marketingShadowStat,
+    appearance?.variables?.marketing_shadow_stat,
+  );
+  const marketingShadowStatAccent = resolveFirstValue(
+    marketingSchemeValues?.shadowStatAccent,
+    colors.marketingShadowStatAccent,
+    colors.marketing_shadow_stat_accent,
+    appearance?.variables?.marketingShadowStatAccent,
+    appearance?.variables?.marketing_shadow_stat_accent,
+  );
+  const marketingLinkContrastLight = resolveFirstValue(
+    marketingSchemeValues?.linkContrastLight,
+    colors.marketingLinkContrastLight,
+    colors.marketing_link_contrast_light,
+    appearance?.variables?.marketingLinkContrastLight,
+    appearance?.variables?.marketing_link_contrast_light,
+  );
+  const marketingLinkContrastDark = resolveFirstValue(
+    marketingSchemeValues?.linkContrastDark,
+    colors.marketingLinkContrastDark,
+    colors.marketing_link_contrast_dark,
+    appearance?.variables?.marketingLinkContrastDark,
+    appearance?.variables?.marketing_link_contrast_dark,
+  );
+  const marketingDanger500 = resolveFirstValue(
+    marketingSchemeValues?.danger500,
+    colors.marketingDanger500,
+    colors.marketing_danger_500,
+    appearance?.variables?.marketingDanger500,
+    appearance?.variables?.marketing_danger_500,
+  );
+  const marketingDanger600 = resolveFirstValue(
+    marketingSchemeValues?.danger600,
+    colors.marketingDanger600,
+    colors.marketing_danger_600,
+    appearance?.variables?.marketingDanger600,
+    appearance?.variables?.marketing_danger_600,
+  );
+  const marketingWhite = resolveFirstValue(
+    marketingSchemeValues?.white,
+    colors.marketingWhite,
+    colors.marketing_white,
+    appearance?.variables?.marketingWhite,
+    appearance?.variables?.marketing_white,
+  );
+  const marketingBlack = resolveFirstValue(
+    marketingSchemeValues?.black,
+    colors.marketingBlack,
+    colors.marketing_black,
+    appearance?.variables?.marketingBlack,
+    appearance?.variables?.marketing_black,
+  );
+  const marketingBlackRgb = resolveFirstValue(
+    marketingSchemeValues?.blackRgb,
+    colors.marketingBlackRgb,
+    colors.marketing_black_rgb,
+    appearance?.variables?.marketingBlackRgb,
+    appearance?.variables?.marketing_black_rgb,
+  );
 
   const sectionDefaultSurface = resolveFirstValue(
     appearance?.variables?.sectionDefaultSurface,
@@ -639,6 +981,99 @@ const applyColorsToRoot = (element, appearance) => {
   }
   if (marketingTextMutedOnBackgroundDark) {
     element.style.setProperty('--marketing-text-muted-on-background-dark', marketingTextMutedOnBackgroundDark);
+  }
+  if (marketingInk) {
+    element.style.setProperty('--marketing-ink', marketingInk);
+  }
+  if (marketingSurfaceGlass) {
+    element.style.setProperty('--marketing-surface-glass', marketingSurfaceGlass);
+  }
+  if (marketingSurfaceGlassDark) {
+    element.style.setProperty('--marketing-surface-glass-dark', marketingSurfaceGlassDark);
+  }
+  if (marketingSurfaceAccentSoft) {
+    element.style.setProperty('--marketing-surface-accent-soft', marketingSurfaceAccentSoft);
+  }
+  if (marketingBorderLight) {
+    element.style.setProperty('--marketing-border-light', marketingBorderLight);
+  }
+  if (marketingRingStrong) {
+    element.style.setProperty('--marketing-ring-strong', marketingRingStrong);
+  }
+  if (marketingRingStrongDark) {
+    element.style.setProperty('--marketing-ring-strong-dark', marketingRingStrongDark);
+  }
+  if (marketingOverlaySoft) {
+    element.style.setProperty('--marketing-overlay-soft', marketingOverlaySoft);
+  }
+  if (marketingOverlayStrong) {
+    element.style.setProperty('--marketing-overlay-strong', marketingOverlayStrong);
+  }
+  if (marketingOverlayHero) {
+    element.style.setProperty('--marketing-overlay-hero', marketingOverlayHero);
+  }
+  if (marketingShadowSoft) {
+    element.style.setProperty('--marketing-shadow-soft', marketingShadowSoft);
+  }
+  if (marketingShadowDark) {
+    element.style.setProperty('--marketing-shadow-dark', marketingShadowDark);
+  }
+  if (marketingShadowPanel) {
+    element.style.setProperty('--marketing-shadow-panel', marketingShadowPanel);
+  }
+  if (marketingShadowCardBase) {
+    element.style.setProperty('--marketing-shadow-card-base', marketingShadowCardBase);
+  }
+  if (marketingShadowCardSoftBase) {
+    element.style.setProperty('--marketing-shadow-card-soft-base', marketingShadowCardSoftBase);
+  }
+  if (marketingShadowCard) {
+    element.style.setProperty('--marketing-shadow-card', marketingShadowCard);
+  }
+  if (marketingShadowAccent) {
+    element.style.setProperty('--marketing-shadow-accent', marketingShadowAccent);
+  }
+  if (marketingShadowCardSoft) {
+    element.style.setProperty('--marketing-shadow-card-soft', marketingShadowCardSoft);
+  }
+  if (marketingShadowCardHover) {
+    element.style.setProperty('--marketing-shadow-card-hover', marketingShadowCardHover);
+  }
+  if (marketingShadowHeroMockup) {
+    element.style.setProperty('--marketing-shadow-hero-mockup', marketingShadowHeroMockup);
+  }
+  if (marketingShadowPill) {
+    element.style.setProperty('--marketing-shadow-pill', marketingShadowPill);
+  }
+  if (marketingShadowCallout) {
+    element.style.setProperty('--marketing-shadow-callout', marketingShadowCallout);
+  }
+  if (marketingShadowStat) {
+    element.style.setProperty('--marketing-shadow-stat', marketingShadowStat);
+  }
+  if (marketingShadowStatAccent) {
+    element.style.setProperty('--marketing-shadow-stat-accent', marketingShadowStatAccent);
+  }
+  if (marketingLinkContrastLight) {
+    element.style.setProperty('--marketing-link-contrast-light', marketingLinkContrastLight);
+  }
+  if (marketingLinkContrastDark) {
+    element.style.setProperty('--marketing-link-contrast-dark', marketingLinkContrastDark);
+  }
+  if (marketingDanger500) {
+    element.style.setProperty('--marketing-danger-500', marketingDanger500);
+  }
+  if (marketingDanger600) {
+    element.style.setProperty('--marketing-danger-600', marketingDanger600);
+  }
+  if (marketingWhite) {
+    element.style.setProperty('--marketing-white', marketingWhite);
+  }
+  if (marketingBlack) {
+    element.style.setProperty('--marketing-black', marketingBlack);
+  }
+  if (marketingBlackRgb) {
+    element.style.setProperty('--marketing-black-rgb', marketingBlackRgb);
   }
   element.style.setProperty('--bg-page', pageBackground || 'var(--surface-page, var(--surface))');
   element.style.setProperty('--bg-section', 'var(--surface-section, var(--surface))');
