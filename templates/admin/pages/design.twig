@@ -58,6 +58,7 @@
       data-effects-defaults='{{ effectsDefaults|json_encode|e('html_attr') }}'
       data-effects-current='{{ effects|json_encode|e('html_attr') }}'
       data-effects-map='{{ effectsProfiles|json_encode|e('html_attr') }}'
+      data-marketing-theme-map='{{ marketingSchemes|default({})|json_encode|e('html_attr') }}'
       data-namespace="{{ pageNamespace|e('html_attr') }}"
       data-read-only="{{ readOnly ? '1' : '0' }}"
       data-effects-read-only="{{ effectsReadOnly ? '1' : '0' }}"
@@ -283,7 +284,7 @@
                         <button class="uk-button uk-button-default uk-margin-small-top" type="submit" name="action" value="reset_brand">Panel zurücksetzen</button>
                       </div>
                     </li>
-                    {% set marketingSchemes = {
+                    {% set marketingSchemeOptions = {
                       aurora: {
                         label: 'Aurora',
                         description: 'Frisches Blau mit grünem Akzent.'
@@ -322,7 +323,7 @@
                             data-current-marketing-scheme="{{ marketingScheme|default('')|e('html_attr') }}"
                           >
                             <option value="" {% if marketingScheme is empty %}selected{% endif %}>Automatisch (Brand-Tokens)</option>
-                            {% for schemeKey, scheme in marketingSchemes %}
+                            {% for schemeKey, scheme in marketingSchemeOptions %}
                               <option
                                 value="{{ schemeKey|e('html_attr') }}"
                                 {% if schemeKey == marketingScheme %}selected{% endif %}

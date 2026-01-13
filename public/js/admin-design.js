@@ -20,6 +20,7 @@
   const effectsDefaults = parseJson(editor.dataset.effectsDefaults, {});
   const effectsCurrent = parseJson(editor.dataset.effectsCurrent, effectsDefaults);
   const effectsProfiles = parseJson(editor.dataset.effectsMap, {});
+  const marketingThemeMap = parseJson(editor.dataset.marketingThemeMap, null);
   const preview = document.getElementById('design-preview');
   const isReadOnly = editor.dataset.readOnly === '1';
   const isEffectsReadOnly = editor.dataset.effectsReadOnly === '1';
@@ -128,6 +129,9 @@
     '--marketing-text-muted-on-background-dark',
   ];
   const activeTab = editor.dataset.activeTab === 'behavior' ? 'behavior' : 'appearance';
+  const marketingSchemeTokens = marketingThemeMap && Object.keys(marketingThemeMap).length
+    ? marketingThemeMap
+    : marketingSchemes;
 
   const resolveTokens = () => ({
     brand: { ...(defaults.brand || {}), ...(current.brand || {}) },
@@ -161,7 +165,37 @@
     }
   };
 
+  const normalizeColorValue = value => (value || '').trim().toLowerCase();
+
+  const resolveBrandTokensFromScheme = schemeKey => {
+    const scheme = marketingSchemeTokens[schemeKey];
+    if (!scheme) {
+      return null;
+    }
+    const primary = scheme.primary;
+    const accent = scheme.accent || scheme.primary;
+    const secondary = scheme.secondary || scheme.accent || scheme.primary;
+    if (!primary && !accent && !secondary) {
+      return null;
+    }
+    return {
+      primary: primary || '',
+      accent: accent || primary || '',
+      secondary: secondary || accent || primary || '',
+    };
+  };
+
+  const brandTokensMatch = (brand, target) => {
+    if (!brand || !target) {
+      return false;
+    }
+    return ['primary', 'accent', 'secondary'].every(key => (
+      normalizeColorValue(brand[key]) === normalizeColorValue(target[key])
+    ));
+  };
+
   let refreshContrastChecks = () => {};
+  let brandIsAuto = false;
 
   const parseColor = value => {
     if (!value) return null;
@@ -412,7 +446,7 @@
 
   const applyMarketingSchemeToPreview = schemeKey => {
     if (!preview) return;
-    const scheme = marketingSchemes[schemeKey];
+    const scheme = marketingSchemeTokens[schemeKey];
     if (!scheme) {
       marketingTokenKeys.forEach(token => preview.style.removeProperty(token));
       refreshContrastChecks();
@@ -450,6 +484,35 @@
     preview.style.setProperty('--marketing-text-muted-on-surface-dark', scheme.textMutedOnSurfaceDark);
     preview.style.setProperty('--marketing-text-muted-on-background-dark', scheme.textMutedOnBackgroundDark);
     refreshContrastChecks();
+  };
+
+  const applyBrandSchemeToInputs = schemeKey => {
+    const brandTokens = resolveBrandTokensFromScheme(schemeKey);
+    if (!brandTokens) {
+      return;
+    }
+    if (!current.brand) {
+      current.brand = {};
+    }
+    Object.entries(brandTokens).forEach(([key, value]) => {
+      current.brand[key] = value;
+      const input = editor.querySelector(`[data-token-input][data-group="brand"][data-key="${key}"]`);
+      if (input instanceof HTMLInputElement) {
+        input.value = value;
+      }
+      updateTokenPreviewText(`brand.${key}`, value);
+    });
+    applyTokensToPreview();
+  };
+
+  const resolveBrandAutoState = schemeKey => {
+    const tokens = resolveTokens();
+    const brand = tokens.brand || {};
+    const schemeBrand = schemeKey ? resolveBrandTokensFromScheme(schemeKey) : null;
+    if (schemeBrand && brandTokensMatch(brand, schemeBrand)) {
+      return true;
+    }
+    return brandTokensMatch(brand, defaults.brand || {});
   };
 
   const applyEffectsToPreview = () => {
@@ -536,6 +599,9 @@
           current[group] = {};
         }
         current[group][key] = target.value;
+        if (group === 'brand') {
+          brandIsAuto = false;
+        }
         updateTokenPreviewText(`${group}.${key}`, target.value);
         applyTokensToPreview();
       });
@@ -635,9 +701,11 @@
   const initMarketingSchemeSelect = () => {
     const select = document.querySelector('[data-marketing-scheme-select]');
     if (!select) return;
-
     const applySelection = value => {
       applyMarketingSchemeToPreview(value);
+      if (brandIsAuto && value) {
+        applyBrandSchemeToInputs(value);
+      }
     };
 
     if (!isReadOnly) {
@@ -648,7 +716,9 @@
       });
     }
 
-    applySelection(select.value || select.dataset.currentMarketingScheme || '');
+    const initialScheme = select.value || select.dataset.currentMarketingScheme || '';
+    brandIsAuto = resolveBrandAutoState(initialScheme);
+    applySelection(initialScheme);
   };
 
   applyTokensToPreview();

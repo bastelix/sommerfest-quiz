@@ -175,10 +175,10 @@ const BACKGROUND_COLOR_TOKENS = [
 const BACKGROUND_COLOR_TOKEN_VALUES = BACKGROUND_COLOR_TOKENS.map(option => option.value);
 
 const BACKGROUND_COLOR_TOKEN_MAP = {
-  primary: 'var(--brand-primary, #1e87f0)',
-  secondary: 'var(--brand-accent, var(--brand-primary, #1e87f0))',
+  primary: 'var(--marketing-primary, var(--brand-primary, #1e87f0))',
+  secondary: 'var(--marketing-secondary, var(--marketing-accent, var(--brand-secondary, var(--brand-accent, var(--brand-primary, #1e87f0)))))',
   muted: 'var(--surface-muted)',
-  accent: 'var(--bg-accent-soft)',
+  accent: 'var(--marketing-accent, var(--bg-accent-soft))',
   surface: 'var(--surface)'
 };
 
