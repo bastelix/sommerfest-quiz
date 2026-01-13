@@ -218,6 +218,11 @@ html[data-theme] body {
 }
 
 body.marketing-page {
+  --brand-primary: var(--marketing-primary);
+  --brand-secondary: var(--marketing-accent);
+  --brand-accent: var(--marketing-accent);
+  --surface: var(--marketing-surface);
+  --surface-muted: var(--marketing-surface-muted);
   --qr-brand-50: color-mix(in oklab, var(--marketing-primary) 8%, var(--marketing-white));
   --qr-brand-100: color-mix(in oklab, var(--marketing-primary) 16%, var(--marketing-white));
   --qr-brand-200: color-mix(in oklab, var(--marketing-primary) 24%, var(--marketing-white));
@@ -263,8 +268,6 @@ body.marketing-page {
   --section-card-surface: var(--marketing-surface);
   --section-default-surface: var(--marketing-surface);
   --section-default-muted: var(--marketing-surface-muted);
-  --surface: var(--marketing-surface);
-  --surface-muted: var(--marketing-surface-muted);
   font-family: var(--marketing-font-stack);
   color-scheme: light;
 }
