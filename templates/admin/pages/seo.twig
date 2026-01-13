@@ -156,7 +156,13 @@
             </div>
             <div class="uk-alert uk-alert-primary uk-margin-small-top" data-page-namespace-feedback hidden role="status"></div>
           </div>
-          <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo{{ pageNamespaceQuery }}" method="post">
+          <form
+            class="uk-form-stacked seo-form"
+            action="{{ basePath }}/admin/landingpage/seo{{ pageNamespaceQuery }}"
+            method="post"
+            data-save-url="{{ basePath }}/admin/landingpage/seo{{ pageNamespaceQuery }}"
+            data-ai-url="{{ basePath }}/admin/landingpage/seo/ai-import{{ pageNamespaceQuery }}"
+          >
             <input type="hidden" name="pageId" value="{{ seo_config.pageId|default(selectedSeoPageId|default('')) }}">
             <input type="hidden" name="domain" id="seoDomain" value="{{ seo_config.domain|default('') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">

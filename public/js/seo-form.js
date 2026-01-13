@@ -4,6 +4,21 @@ export function initSeoForm() {
   const form = document.querySelector('.seo-form');
   if (!form) return;
 
+  const saveUrl = form.getAttribute('action') || form.dataset.saveUrl || '';
+  const deriveAiImportUrl = url => {
+    if (!url) return '';
+    try {
+      const parsed = new URL(url, window.location.origin);
+      parsed.pathname = parsed.pathname.replace(/\/seo\/?$/, '/seo/ai-import');
+      return parsed.toString();
+    } catch (error) {
+      return url.replace(/\/seo\/?$/, '/seo/ai-import');
+    }
+  };
+  const aiImportUrl = form.dataset.aiUrl
+    || form.dataset.aiImportUrl
+    || deriveAiImportUrl(saveUrl);
+
   const inputs = form.querySelectorAll('[data-maxlength]');
   inputs.forEach(input => {
     const max = parseInt(input.dataset.maxlength, 10);
@@ -636,6 +651,10 @@ export function initSeoForm() {
     aiButton.addEventListener('click', async () => {
       const activeId = getActivePageId();
       if (!activeId) return;
+      if (!aiImportUrl) {
+        notify(aiMessages.error, 'danger');
+        return;
+      }
 
       if (aiAbortController) {
         aiAbortController.abort();
@@ -648,7 +667,7 @@ export function initSeoForm() {
       const domain = determinePrimaryDomain(activeId);
 
       try {
-        const response = await apiFetch('/admin/landingpage/seo/ai-import', {
+        const response = await apiFetch(aiImportUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -698,6 +717,10 @@ export function initSeoForm() {
 
   form.addEventListener('submit', e => {
     e.preventDefault();
+    if (!saveUrl) {
+      notify('Fehler beim Speichern', 'danger');
+      return;
+    }
     let valid = true;
     inputs.forEach(input => {
       const max = parseInt(input.dataset.maxlength, 10);
@@ -718,7 +741,7 @@ export function initSeoForm() {
     });
     if (!valid) return;
     const body = new URLSearchParams(new FormData(form));
-    apiFetch('/admin/landingpage/seo', {
+    apiFetch(saveUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
