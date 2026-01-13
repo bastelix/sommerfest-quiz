@@ -258,7 +258,7 @@ body.marketing-page[data-theme="dark"]:not(.high-contrast) {
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
   --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
   --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
-  --qr-bg: var(--marketing-background, var(--marketing-surface));
+  --qr-bg: var(--marketing-background-dark, var(--marketing-background, var(--marketing-surface)));
   --qr-fg: var(--marketing-text-on-background-dark);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-card, var(--marketing-surface-glass-dark));

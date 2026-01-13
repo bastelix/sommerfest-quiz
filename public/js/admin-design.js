@@ -33,6 +33,7 @@
       primary: '#0ea5e9',
       accent: '#22c55e',
       surface: '#f8fafc',
+      surfaceMuted: '#e2e8f0',
       background: '#eef2ff',
       onAccent: '#ffffff',
       textOnSurface: '#0f172a',
@@ -48,6 +49,7 @@
       primary: '#f97316',
       accent: '#ec4899',
       surface: '#fff7ed',
+      surfaceMuted: '#fed7aa',
       background: '#ffedd5',
       onAccent: '#1f2937',
       textOnSurface: '#1f2937',
@@ -63,6 +65,7 @@
       primary: '#6366f1',
       accent: '#14b8a6',
       surface: '#0f172a',
+      surfaceMuted: '#1e293b',
       background: '#020617',
       onAccent: '#f8fafc',
       textOnSurface: '#e2e8f0',
@@ -74,13 +77,36 @@
       textMutedOnSurfaceDark: '#cbd5e1',
       textMutedOnBackgroundDark: '#cbd5e1',
     },
+    monochrome: {
+      primary: '#111111',
+      accent: '#1f1f1f',
+      surface: '#ffffff',
+      surfaceMuted: '#f2f2f2',
+      surfaceDark: '#111111',
+      surfaceMutedDark: '#1c1c1c',
+      background: '#f9f9f9',
+      backgroundDark: '#0a0a0a',
+      onAccent: '#ffffff',
+      textOnSurface: '#111111',
+      textOnBackground: '#111111',
+      textMutedOnSurface: '#4b4b4b',
+      textMutedOnBackground: '#4b4b4b',
+      textOnSurfaceDark: '#f5f5f5',
+      textOnBackgroundDark: '#f5f5f5',
+      textMutedOnSurfaceDark: '#bdbdbd',
+      textMutedOnBackgroundDark: '#bdbdbd',
+    },
   };
   const marketingTokenKeys = [
     '--marketing-primary',
     '--marketing-accent',
     '--marketing-secondary',
     '--marketing-surface',
+    '--marketing-surface-muted',
     '--marketing-background',
+    '--marketing-surface-dark',
+    '--marketing-surface-muted-dark',
+    '--marketing-background-dark',
     '--marketing-on-accent',
     '--marketing-text',
     '--marketing-text-on-surface',
@@ -387,7 +413,23 @@
     preview.style.setProperty('--marketing-accent', scheme.accent);
     preview.style.setProperty('--marketing-secondary', scheme.accent);
     preview.style.setProperty('--marketing-surface', scheme.surface);
+    preview.style.setProperty('--marketing-surface-muted', scheme.surfaceMuted || scheme.surface);
     preview.style.setProperty('--marketing-background', scheme.background);
+    if (scheme.surfaceDark) {
+      preview.style.setProperty('--marketing-surface-dark', scheme.surfaceDark);
+    } else {
+      preview.style.removeProperty('--marketing-surface-dark');
+    }
+    if (scheme.surfaceMutedDark) {
+      preview.style.setProperty('--marketing-surface-muted-dark', scheme.surfaceMutedDark);
+    } else {
+      preview.style.removeProperty('--marketing-surface-muted-dark');
+    }
+    if (scheme.backgroundDark) {
+      preview.style.setProperty('--marketing-background-dark', scheme.backgroundDark);
+    } else {
+      preview.style.removeProperty('--marketing-background-dark');
+    }
     preview.style.setProperty('--marketing-on-accent', scheme.onAccent);
     preview.style.setProperty('--marketing-text', scheme.textOnBackground);
     preview.style.setProperty('--marketing-text-on-surface', scheme.textOnSurface);

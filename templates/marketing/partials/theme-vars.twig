@@ -128,6 +128,15 @@
     '--marketing-text-muted-on-surface-dark: ' ~ marketingScheme.textMutedOnSurfaceDark,
     '--marketing-text-muted-on-background-dark: ' ~ marketingScheme.textMutedOnBackgroundDark
   ]) %}
+  {% if marketingScheme.surfaceDark is defined %}
+    {% set cssVars = cssVars|merge(['--marketing-surface-dark: ' ~ marketingScheme.surfaceDark]) %}
+  {% endif %}
+  {% if marketingScheme.surfaceMutedDark is defined %}
+    {% set cssVars = cssVars|merge(['--marketing-surface-muted-dark: ' ~ marketingScheme.surfaceMutedDark]) %}
+  {% endif %}
+  {% if marketingScheme.backgroundDark is defined %}
+    {% set cssVars = cssVars|merge(['--marketing-background-dark: ' ~ marketingScheme.backgroundDark]) %}
+  {% endif %}
 {% endif %}
 
 {% if cssVars is not empty %}
