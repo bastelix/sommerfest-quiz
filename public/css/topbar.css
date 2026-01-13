@@ -50,6 +50,9 @@ body[data-theme="dark"].high-contrast,
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-muted);
   z-index: var(--z-topbar, 1000);
+  --drop-bg: var(--topbar-drop-bg);
+  --drop-border: var(--topbar-drop-border);
+  --drop-color: var(--topbar-text);
 }
 
 .page-render[data-theme="dark"] .qr-topbar{
@@ -86,6 +89,9 @@ body[data-theme="dark"].high-contrast,
 
 .topbar{
   --topbar-height: 48px;
+  --drop-bg: var(--topbar-drop-bg);
+  --drop-border: var(--topbar-drop-border);
+  --drop-color: var(--topbar-text);
 }
 
 .admin-page .topbar{
