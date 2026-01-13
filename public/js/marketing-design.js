@@ -1,10 +1,10 @@
-const DEFAULT_BRAND_PRIMARY = '#1e87f0';
-const DEFAULT_BRAND_ACCENT = '#f97316';
-const DEFAULT_SURFACE = '#ffffff';
-const DEFAULT_SURFACE_MUTED = '#eef2f7';
-const DEFAULT_SURFACE_DARK = '#0f172a';
-const DEFAULT_SURFACE_MUTED_DARK = '#111827';
-const DEFAULT_CARD_DARK = '#0b1728';
+const DEFAULT_BRAND_PRIMARY = 'var(--brand-primary)';
+const DEFAULT_BRAND_ACCENT = 'var(--brand-secondary)';
+const DEFAULT_SURFACE = 'var(--surface-section)';
+const DEFAULT_SURFACE_MUTED = 'var(--surface-muted)';
+const DEFAULT_SURFACE_DARK = 'var(--surface-section)';
+const DEFAULT_SURFACE_MUTED_DARK = 'var(--surface-muted)';
+const DEFAULT_CARD_DARK = 'var(--surface-card)';
 const DEFAULT_TYPOGRAPHY_PRESET = 'modern';
 const DEFAULT_CARD_STYLE = 'rounded';
 const DEFAULT_BUTTON_STYLE = 'filled';
@@ -305,6 +305,10 @@ const applyMarketingDesign = () => {
     configColors['--marketing-background'] ||
     colors['--marketing-background'] ||
     variables['--marketing-background'];
+  const marketingBackgroundDarkToken =
+    configColors['--marketing-background-dark'] ||
+    colors['--marketing-background-dark'] ||
+    variables['--marketing-background-dark'];
   const marketingTextToken =
     configColors['--marketing-text'] ||
     colors['--marketing-text'] ||
@@ -440,6 +444,24 @@ const applyMarketingDesign = () => {
     colors.marketing_background,
     variables.marketingBackground,
     variables.marketing_background,
+    background,
+  );
+  const marketingBackgroundDark = resolveFirstValue(
+    marketingBackgroundDarkToken,
+    marketingSchemeValues?.backgroundDark,
+    configColors.marketingBackgroundDark,
+    configColors.marketing_background_dark,
+    configColors.backgroundDark,
+    configColors.background_dark,
+    colors.marketingBackgroundDark,
+    colors.marketing_background_dark,
+    colors.backgroundDark,
+    colors.background_dark,
+    variables.marketingBackgroundDark,
+    variables.marketing_background_dark,
+    variables.backgroundDark,
+    variables.background_dark,
+    marketingBackground,
     background,
   );
   const surfaceMuted =
@@ -746,6 +768,9 @@ const applyMarketingDesign = () => {
   root.style.setProperty('--marketing-accent', marketingAccent);
   root.style.setProperty('--marketing-secondary', marketingSecondary);
   root.style.setProperty('--marketing-background', marketingBackground);
+  if (marketingBackgroundDark) {
+    root.style.setProperty('--marketing-background-dark', marketingBackgroundDark);
+  }
   root.style.setProperty('--marketing-on-accent', marketingOnAccent);
   root.style.setProperty('--marketing-text', marketingText);
   root.style.setProperty('--marketing-surface', marketingSurface);

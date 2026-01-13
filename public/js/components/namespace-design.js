@@ -462,6 +462,19 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketingBackground,
     appearance?.variables?.marketing_background,
   );
+  const marketingBackgroundDark = resolveFirstValue(
+    marketingSchemeValues?.backgroundDark,
+    colors.marketingBackgroundDark,
+    colors.marketing_background_dark,
+    colors.backgroundDark,
+    colors.background_dark,
+    appearance?.variables?.marketingBackgroundDark,
+    appearance?.variables?.marketing_background_dark,
+    appearance?.variables?.backgroundDark,
+    appearance?.variables?.background_dark,
+    marketingBackground,
+    pageBackground,
+  );
   const marketingMuted = resolveFirstValue(
     colors.marketingSurfaceMuted,
     colors.marketing_surface_muted,
@@ -625,6 +638,9 @@ const applyColorsToRoot = (element, appearance) => {
     '--marketing-background',
     marketingBackground || 'var(--surface-page, var(--marketing-surface))',
   );
+  if (marketingBackgroundDark) {
+    element.style.setProperty('--marketing-background-dark', marketingBackgroundDark);
+  }
 
   if (surface) {
     element.style.setProperty('--surface', surface);

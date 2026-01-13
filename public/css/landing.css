@@ -153,14 +153,13 @@ body.qr-landing[data-theme="dark"].high-contrast .cta-main.uk-button-primary{
 }
 
 body.qr-landing.marketing-page,
-body.qr-landing.generic-marketing,
-body.marketing-page:not(.qr-landing) {
-  --marketing-primary: #138f52;
-  --marketing-background: #f0f9f3;
-  --marketing-surface: rgba(255, 255, 255, 0.96);
-  --marketing-text: #123524;
-  --marketing-muted: #3f5a4b;
-  --marketing-border: rgba(19, 143, 82, 0.18);
+body.qr-landing.generic-marketing {
+  --marketing-primary: var(--brand-primary);
+  --marketing-background: var(--surface-page);
+  --marketing-surface: var(--surface-card);
+  --marketing-text: var(--text-body);
+  --marketing-muted: var(--text-muted);
+  --marketing-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --marketing-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
   --qr-bg: var(--marketing-background);
   --qr-fg: var(--marketing-text);
@@ -187,14 +186,13 @@ body.marketing-page:not(.qr-landing) {
 }
 
 body.qr-landing.marketing-page[data-theme="dark"]:not(.high-contrast),
-body.qr-landing.generic-marketing[data-theme="dark"]:not(.high-contrast),
-body.marketing-page:not(.qr-landing)[data-theme="dark"]:not(.high-contrast) {
-  --marketing-primary: #4cc986;
-  --marketing-background: #071b12;
-  --marketing-surface: rgba(15, 36, 27, 0.96);
-  --marketing-text: #e6fff3;
-  --marketing-muted: #b6d8c9;
-  --marketing-border: rgba(76, 201, 134, 0.3);
+body.qr-landing.generic-marketing[data-theme="dark"]:not(.high-contrast) {
+  --marketing-primary: var(--brand-primary);
+  --marketing-background: var(--surface-page);
+  --marketing-surface: var(--surface-card);
+  --marketing-text: var(--text-body);
+  --marketing-muted: var(--text-muted);
+  --marketing-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
   --marketing-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
   --qr-bg: var(--marketing-background);
   --qr-fg: var(--marketing-text);
@@ -221,8 +219,7 @@ body.marketing-page:not(.qr-landing)[data-theme="dark"]:not(.high-contrast) {
 }
 
 body.qr-landing.marketing-page.high-contrast,
-body.qr-landing.generic-marketing.high-contrast,
-body.marketing-page:not(.qr-landing).high-contrast {
+body.qr-landing.generic-marketing.high-contrast {
   --qr-bg: #ffffff;
   --qr-fg: #000000;
   --qr-text: #000000;
@@ -248,8 +245,7 @@ body.marketing-page:not(.qr-landing).high-contrast {
 }
 
 body.qr-landing.marketing-page[data-theme="dark"].high-contrast,
-body.qr-landing.generic-marketing[data-theme="dark"].high-contrast,
-body.marketing-page:not(.qr-landing)[data-theme="dark"].high-contrast {
+body.qr-landing.generic-marketing[data-theme="dark"].high-contrast {
   --qr-bg: #000000;
   --qr-fg: #ffffff;
   --qr-text: #ffffff;
