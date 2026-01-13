@@ -9,7 +9,6 @@
   {% set includeLandingStyles = includeLandingStyles|default(true) %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   {% if includeLandingStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
     <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
   {% endif %}
   {% set cfg = config is defined ? config : {} %}
