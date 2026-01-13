@@ -147,8 +147,7 @@
 
 {% if cssVars is not empty %}
   <style>
-    html,
-    body {
+    html[data-namespace="{{ normalizedNamespace }}"] {
       {{ cssVars|join(';' ~ '\n      ') }};
     }
   </style>
