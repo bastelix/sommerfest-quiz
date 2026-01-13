@@ -59,7 +59,9 @@ class NamespaceAppearanceService
         $muted = $this->pickColor($colors, 'muted', 'surfaceMuted');
         $topbarLight = $this->pickColor($colors, 'topbar_light', 'topbarLight');
         $topbarDark = $this->pickColor($colors, 'topbar_dark', 'topbarDark');
-        $marketingScheme = $this->pickColor($colors, 'marketingScheme', 'marketing_scheme');
+        $marketingScheme = $this->normalizeMarketingScheme(
+            $this->pickColor($colors, 'marketingScheme', 'marketing_scheme')
+        );
 
         $normalizedColors = array_filter([
             'surface' => $surface,
@@ -83,6 +85,23 @@ class NamespaceAppearanceService
             'colors' => $normalizedColors,
             'variables' => $variables,
         ];
+    }
+
+    private function normalizeMarketingScheme(?string $marketingScheme): ?string
+    {
+        if ($marketingScheme === null) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($marketingScheme));
+        if ($normalized === '') {
+            return null;
+        }
+        if ($normalized === 'monochrom') {
+            return 'monochrome';
+        }
+
+        return $normalized;
     }
 
     private function pickColor(array $colors, string ...$keys): ?string

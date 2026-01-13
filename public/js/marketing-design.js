@@ -311,6 +311,18 @@ const normalizeTokenValue = (value, allowedValues, fallback) => {
   return allowedValues.includes(normalized) ? normalized : fallback;
 };
 
+const normalizeMarketingScheme = value => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.replace(/['"]/g, '').trim().toLowerCase();
+  if (!normalized) {
+    return null;
+  }
+  const mapped = normalized === 'monochrom' ? 'monochrome' : normalized;
+  return Object.prototype.hasOwnProperty.call(MARKETING_SCHEMES, mapped) ? mapped : null;
+};
+
 const applyComponentTokens = root => {
   if (!root || typeof window === 'undefined') {
     return;
@@ -541,13 +553,15 @@ const applyMarketingDesign = () => {
   const fallbackMarketingBlack = resolveFallbackToken(root, '--marketing-black', '');
   const fallbackMarketingBlackRgb = resolveFallbackToken(root, '--marketing-black-rgb', '');
 
-  const marketingScheme = resolveFirstValue(
-    variables.marketingScheme,
-    variables.marketing_scheme,
-    colors.marketingScheme,
-    colors.marketing_scheme,
-    configColors.marketingScheme,
-    configColors.marketing_scheme,
+  const marketingScheme = normalizeMarketingScheme(
+    resolveFirstValue(
+      variables.marketingScheme,
+      variables.marketing_scheme,
+      colors.marketingScheme,
+      colors.marketing_scheme,
+      configColors.marketingScheme,
+      configColors.marketing_scheme,
+    ),
   );
   const marketingSchemeValues = marketingScheme ? MARKETING_SCHEMES[marketingScheme] : null;
   const marketingBackgroundToken =

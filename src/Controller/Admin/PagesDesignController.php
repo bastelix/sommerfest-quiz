@@ -405,7 +405,11 @@ class PagesDesignController
             if (!array_key_exists($key, $variables)) {
                 continue;
             }
-            $result[$key] = $this->sanitizeString($variables[$key]);
+            if ($key === 'marketingScheme') {
+                $result[$key] = $this->normalizeMarketingScheme($variables[$key]);
+            } else {
+                $result[$key] = $this->sanitizeString($variables[$key]);
+            }
         }
 
         if ($result === []) {
@@ -413,6 +417,47 @@ class PagesDesignController
         }
 
         return [true, $result];
+    }
+
+    private function normalizeMarketingScheme(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        $normalized = strtolower($trimmed);
+        if ($normalized === 'monochrom') {
+            $normalized = 'monochrome';
+        }
+
+        $allowedSchemes = $this->getMarketingSchemeWhitelist();
+        if ($allowedSchemes !== [] && !in_array($normalized, $allowedSchemes, true)) {
+            return null;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function getMarketingSchemeWhitelist(): array
+    {
+        $path = dirname(__DIR__, 3) . '/config/marketing-design-tokens.php';
+        if (!is_file($path)) {
+            return [];
+        }
+
+        $schemes = require $path;
+        if (!is_array($schemes)) {
+            return [];
+        }
+
+        return array_keys($schemes);
     }
 
     /**
