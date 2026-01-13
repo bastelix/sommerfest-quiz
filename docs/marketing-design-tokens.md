@@ -64,7 +64,7 @@ token mappings immediately affect the block renderer output when the page is hyd
 ## Marketing stylesheet entry point
 
 Page-Editor Marketing-Seiten binden ausschließlich `public/css/marketing.css` ein. Die Datei ist
-der alleinige Style-Entry für diese Marketing-Pages und soll ohne Abhängigkeit zu `landing.css`
+der alleinige Style-Entry für diese Marketing-Pages und soll ohne Abhängigkeiten zu älteren Landing-Styles
 gepflegt werden.
 
 ## Build hook for marketing.css
@@ -76,7 +76,7 @@ only `public/css/marketing.css`. For example, add a CI hook or local script step
 npx postcss public/css/marketing.css --env production --no-map -o public/css/marketing.min.css
 ```
 
-This keeps the marketing pipeline isolated and avoids touching `public/css/landing.css`.
+This keeps the marketing pipeline isolated and avoids touching legacy landing styles.
 
 ## Managing marketing tokens
 
