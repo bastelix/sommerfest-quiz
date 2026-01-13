@@ -126,6 +126,11 @@
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
+  {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}
+  {% set prefersDark = theme == 'dark' %}
+  {% set includeDarkStyles = includeDarkStyles|default(true) %}
+  {% set darkMedia = includeDarkStyles ? (prefersDark ? 'all' : '(prefers-color-scheme: dark)') : 'not all' %}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not includeDarkStyles %} disabled{% endif %}>
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
