@@ -1234,8 +1234,7 @@ body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
 
 .qr-landing .uk-section{ padding-top:72px; padding-bottom:72px; }
 @media (min-width:1200px){ .qr-landing .uk-section{ padding-top:88px; padding-bottom:88px; } }
-/* Hero spacing */
-.qr-landing .qr-hero{ padding-top:96px; }
+/* Hero spacing handled by section padding */
 
 .qr-landing .uk-card-quizrace{
   background:var(--qr-card); color:var(--qr-landing-text); border:1px solid var(--qr-card-border);

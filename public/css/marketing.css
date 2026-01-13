@@ -1682,8 +1682,7 @@ body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
 @media (min-width:1200px){ .marketing-page .uk-section{ padding-top:88px; padding-bottom:88px; } }
 .marketing-page .page-modules{ padding-top:72px; padding-bottom:72px; }
 @media (min-width:1200px){ .marketing-page .page-modules{ padding-top:88px; padding-bottom:88px; } }
-/* Hero spacing */
-.marketing-page .qr-hero{ padding-top:96px; }
+/* Hero spacing handled by section padding */
 
 .marketing-page .uk-card-quizrace{
   background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
