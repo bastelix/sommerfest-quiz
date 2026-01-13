@@ -834,6 +834,10 @@ const applyMarketingDesign = () => {
     root.style.setProperty('--marketing-topbar-dark', topbarDark);
     root.style.setProperty('--qr-landing-topbar-bg-dark', 'var(--marketing-topbar-dark)');
   }
+  if (topbarLight || topbarDark) {
+    root.style.setProperty('--qr-hero-grad-start', 'var(--qr-landing-topbar-bg)');
+    root.style.setProperty('--qr-hero-grad-end', 'var(--qr-bg-soft)');
+  }
 
   applyComponentTokens(root);
 };

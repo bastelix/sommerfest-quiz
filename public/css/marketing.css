@@ -251,7 +251,7 @@ body.marketing-page {
   --accent-primary: var(--marketing-primary);
   --accent-secondary: var(--marketing-accent);
   --accent-color: var(--marketing-primary);
-  --qr-hero-grad-start: var(--qr-bg);
+  --qr-hero-grad-start: var(--qr-landing-topbar-bg);
   --qr-hero-grad-end: var(--qr-bg-soft);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
   --color-bg: var(--qr-bg);
