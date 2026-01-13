@@ -109,16 +109,6 @@ body[data-theme="dark"].high-contrast,
 /* Buttons in der Topbar */
 .topbar .uk-button,
 .topbar .uk-navbar-nav>li>a{
-  color: var(--qr-fg);
-  border-color: var(--btn-border, rgba(0,0,0,0.12));
-}
-body:not([data-theme="dark"]) .topbar .uk-button,
-body:not([data-theme="dark"]) .topbar .uk-navbar-nav>li>a{
-  color: #0f172a;
-  border-color: rgba(0,0,0,0.12);
-}
-.qr-topbar[data-theme="dark"] .topbar .uk-button,
-.qr-topbar[data-theme="dark"] .topbar .uk-navbar-nav>li>a{
   color: var(--topbar-text);
   border-color: var(--topbar-btn-border);
 }
