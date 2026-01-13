@@ -135,6 +135,44 @@
     '--marketing-text-muted-on-surface-dark: ' ~ marketingScheme.textMutedOnSurfaceDark,
     '--marketing-text-muted-on-background-dark: ' ~ marketingScheme.textMutedOnBackgroundDark
   ]) %}
+  {% set marketingExtraVars = {
+    marketingInk: 'ink',
+    surfaceGlass: 'surface-glass',
+    surfaceGlassDark: 'surface-glass-dark',
+    surfaceAccentSoft: 'surface-accent-soft',
+    borderLight: 'border-light',
+    ringStrong: 'ring-strong',
+    ringStrongDark: 'ring-strong-dark',
+    overlaySoft: 'overlay-soft',
+    overlayStrong: 'overlay-strong',
+    overlayHero: 'overlay-hero',
+    shadowSoft: 'shadow-soft',
+    shadowDark: 'shadow-dark',
+    shadowPanel: 'shadow-panel',
+    shadowCardBase: 'shadow-card-base',
+    shadowCardSoftBase: 'shadow-card-soft-base',
+    shadowCard: 'shadow-card',
+    shadowAccent: 'shadow-accent',
+    shadowCardSoft: 'shadow-card-soft',
+    shadowCardHover: 'shadow-card-hover',
+    shadowHeroMockup: 'shadow-hero-mockup',
+    shadowPill: 'shadow-pill',
+    shadowCallout: 'shadow-callout',
+    shadowStat: 'shadow-stat',
+    shadowStatAccent: 'shadow-stat-accent',
+    linkContrastLight: 'link-contrast-light',
+    linkContrastDark: 'link-contrast-dark',
+    danger500: 'danger-500',
+    danger600: 'danger-600',
+    white: 'white',
+    black: 'black',
+    blackRgb: 'black-rgb'
+  } %}
+  {% for schemeKey, cssKey in marketingExtraVars %}
+    {% if marketingScheme[schemeKey] is defined and marketingScheme[schemeKey] %}
+      {% set cssVars = cssVars|merge(['--marketing-' ~ cssKey ~ ': ' ~ marketingScheme[schemeKey]]) %}
+    {% endif %}
+  {% endfor %}
   {% if marketingScheme.surfaceDark is defined %}
     {% set cssVars = cssVars|merge([
       '--surface-dark: ' ~ marketingScheme.surfaceDark,

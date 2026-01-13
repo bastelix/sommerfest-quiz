@@ -31,6 +31,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f8fafc',
     textMutedOnSurfaceDark: '#cbd5e1',
     textMutedOnBackgroundDark: '#cbd5e1',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
   sunset: {
     primary: '#f97316',
@@ -50,6 +81,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f8fafc',
     textMutedOnSurfaceDark: '#cbd5e1',
     textMutedOnBackgroundDark: '#cbd5e1',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
   midnight: {
     primary: '#6366f1',
@@ -69,6 +131,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f8fafc',
     textMutedOnSurfaceDark: '#cbd5e1',
     textMutedOnBackgroundDark: '#cbd5e1',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
   monochrome: {
     primary: '#111111',
@@ -88,6 +181,37 @@ const MARKETING_SCHEMES = {
     textOnBackgroundDark: '#f5f5f5',
     textMutedOnSurfaceDark: '#bdbdbd',
     textMutedOnBackgroundDark: '#bdbdbd',
+    marketingInk: '#0b1728',
+    surfaceGlass: 'rgba(255, 255, 255, 0.96)',
+    surfaceGlassDark: 'rgba(15, 36, 27, 0.96)',
+    surfaceAccentSoft: 'rgba(255, 255, 255, 0.08)',
+    borderLight: 'rgba(255, 255, 255, 0.18)',
+    ringStrong: 'rgba(0, 0, 0, 0.6)',
+    ringStrongDark: 'rgba(255, 255, 255, 0.72)',
+    overlaySoft: 'rgba(15, 23, 42, 0.12)',
+    overlayStrong: 'rgba(0, 0, 0, 0.18)',
+    overlayHero: 'rgba(0, 0, 0, 0.24)',
+    shadowSoft: '0 6px 24px rgba(0, 0, 0, 0.05)',
+    shadowDark: '0 6px 24px rgba(0, 0, 0, 0.35)',
+    shadowPanel: '0 16px 32px rgba(15, 23, 42, 0.08)',
+    shadowCardBase: '0 22px 48px rgba(15, 23, 42, 0.09)',
+    shadowCardSoftBase: '0 16px 36px rgba(0, 0, 0, 0.05)',
+    shadowCard: 'var(--marketing-shadow-card-base)',
+    shadowAccent: '0 28px 60px rgba(0, 0, 0, 0.18)',
+    shadowCardSoft: 'var(--marketing-shadow-card-soft-base)',
+    shadowCardHover: '0 12px 28px rgba(0, 0, 0, 0.08)',
+    shadowHeroMockup: '0 20px 60px rgba(2, 6, 23, 0.45)',
+    shadowPill: '0 12px 24px -22px rgba(15, 23, 42, 0.4)',
+    shadowCallout: '0 16px 32px rgba(0, 0, 0, 0.18)',
+    shadowStat: '0 18px 38px rgba(15, 23, 42, 0.08)',
+    shadowStatAccent: 'rgba(15, 23, 42, 0.18)',
+    linkContrastLight: '#0000ee',
+    linkContrastDark: '#ffff00',
+    danger500: '#ff6b6b',
+    danger600: '#ff4c4c',
+    white: '#ffffff',
+    black: '#000000',
+    blackRgb: '0 0 0',
   },
 };
 
@@ -313,6 +437,37 @@ const applyMarketingDesign = () => {
     '--marketing-on-accent',
     resolveFallbackToken(root, '--text-on-primary', ''),
   );
+  const fallbackInk = resolveFallbackToken(root, '--marketing-ink', '');
+  const fallbackSurfaceGlass = resolveFallbackToken(root, '--marketing-surface-glass', '');
+  const fallbackSurfaceGlassDark = resolveFallbackToken(root, '--marketing-surface-glass-dark', '');
+  const fallbackSurfaceAccentSoft = resolveFallbackToken(root, '--marketing-surface-accent-soft', '');
+  const fallbackBorderLight = resolveFallbackToken(root, '--marketing-border-light', '');
+  const fallbackRingStrong = resolveFallbackToken(root, '--marketing-ring-strong', '');
+  const fallbackRingStrongDark = resolveFallbackToken(root, '--marketing-ring-strong-dark', '');
+  const fallbackOverlaySoft = resolveFallbackToken(root, '--marketing-overlay-soft', '');
+  const fallbackOverlayStrong = resolveFallbackToken(root, '--marketing-overlay-strong', '');
+  const fallbackOverlayHero = resolveFallbackToken(root, '--marketing-overlay-hero', '');
+  const fallbackShadowSoft = resolveFallbackToken(root, '--marketing-shadow-soft', '');
+  const fallbackShadowDark = resolveFallbackToken(root, '--marketing-shadow-dark', '');
+  const fallbackShadowPanel = resolveFallbackToken(root, '--marketing-shadow-panel', '');
+  const fallbackShadowCardBase = resolveFallbackToken(root, '--marketing-shadow-card-base', '');
+  const fallbackShadowCardSoftBase = resolveFallbackToken(root, '--marketing-shadow-card-soft-base', '');
+  const fallbackShadowCard = resolveFallbackToken(root, '--marketing-shadow-card', '');
+  const fallbackShadowAccent = resolveFallbackToken(root, '--marketing-shadow-accent', '');
+  const fallbackShadowCardSoft = resolveFallbackToken(root, '--marketing-shadow-card-soft', '');
+  const fallbackShadowCardHover = resolveFallbackToken(root, '--marketing-shadow-card-hover', '');
+  const fallbackShadowHeroMockup = resolveFallbackToken(root, '--marketing-shadow-hero-mockup', '');
+  const fallbackShadowPill = resolveFallbackToken(root, '--marketing-shadow-pill', '');
+  const fallbackShadowCallout = resolveFallbackToken(root, '--marketing-shadow-callout', '');
+  const fallbackShadowStat = resolveFallbackToken(root, '--marketing-shadow-stat', '');
+  const fallbackShadowStatAccent = resolveFallbackToken(root, '--marketing-shadow-stat-accent', '');
+  const fallbackLinkContrastLight = resolveFallbackToken(root, '--marketing-link-contrast-light', '');
+  const fallbackLinkContrastDark = resolveFallbackToken(root, '--marketing-link-contrast-dark', '');
+  const fallbackDanger500 = resolveFallbackToken(root, '--marketing-danger-500', '');
+  const fallbackDanger600 = resolveFallbackToken(root, '--marketing-danger-600', '');
+  const fallbackMarketingWhite = resolveFallbackToken(root, '--marketing-white', '');
+  const fallbackMarketingBlack = resolveFallbackToken(root, '--marketing-black', '');
+  const fallbackMarketingBlackRgb = resolveFallbackToken(root, '--marketing-black-rgb', '');
 
   const marketingScheme = resolveFirstValue(
     variables.marketingScheme,
@@ -661,6 +816,347 @@ const applyMarketingDesign = () => {
     variables.marketingTextMutedOnBackgroundDark ||
     variables.marketing_text_muted_on_background_dark ||
     fallbackTextMutedOnBackgroundDark;
+  const marketingInk = resolveFirstValue(
+    marketingSchemeValues?.marketingInk,
+    marketingSchemeValues?.ink,
+    configColors.marketingInk,
+    configColors.marketing_ink,
+    colors.marketingInk,
+    colors.marketing_ink,
+    variables.marketingInk,
+    variables.marketing_ink,
+    fallbackInk,
+  );
+  const marketingSurfaceGlass = resolveFirstValue(
+    marketingSchemeValues?.surfaceGlass,
+    marketingSchemeValues?.marketingSurfaceGlass,
+    configColors.marketingSurfaceGlass,
+    configColors.marketing_surface_glass,
+    colors.marketingSurfaceGlass,
+    colors.marketing_surface_glass,
+    variables.marketingSurfaceGlass,
+    variables.marketing_surface_glass,
+    fallbackSurfaceGlass,
+  );
+  const marketingSurfaceGlassDark = resolveFirstValue(
+    marketingSchemeValues?.surfaceGlassDark,
+    marketingSchemeValues?.marketingSurfaceGlassDark,
+    configColors.marketingSurfaceGlassDark,
+    configColors.marketing_surface_glass_dark,
+    colors.marketingSurfaceGlassDark,
+    colors.marketing_surface_glass_dark,
+    variables.marketingSurfaceGlassDark,
+    variables.marketing_surface_glass_dark,
+    fallbackSurfaceGlassDark,
+  );
+  const marketingSurfaceAccentSoft = resolveFirstValue(
+    marketingSchemeValues?.surfaceAccentSoft,
+    marketingSchemeValues?.marketingSurfaceAccentSoft,
+    configColors.marketingSurfaceAccentSoft,
+    configColors.marketing_surface_accent_soft,
+    colors.marketingSurfaceAccentSoft,
+    colors.marketing_surface_accent_soft,
+    variables.marketingSurfaceAccentSoft,
+    variables.marketing_surface_accent_soft,
+    fallbackSurfaceAccentSoft,
+  );
+  const marketingBorderLight = resolveFirstValue(
+    marketingSchemeValues?.borderLight,
+    marketingSchemeValues?.marketingBorderLight,
+    configColors.marketingBorderLight,
+    configColors.marketing_border_light,
+    colors.marketingBorderLight,
+    colors.marketing_border_light,
+    variables.marketingBorderLight,
+    variables.marketing_border_light,
+    fallbackBorderLight,
+  );
+  const marketingRingStrong = resolveFirstValue(
+    marketingSchemeValues?.ringStrong,
+    marketingSchemeValues?.marketingRingStrong,
+    configColors.marketingRingStrong,
+    configColors.marketing_ring_strong,
+    colors.marketingRingStrong,
+    colors.marketing_ring_strong,
+    variables.marketingRingStrong,
+    variables.marketing_ring_strong,
+    fallbackRingStrong,
+  );
+  const marketingRingStrongDark = resolveFirstValue(
+    marketingSchemeValues?.ringStrongDark,
+    marketingSchemeValues?.marketingRingStrongDark,
+    configColors.marketingRingStrongDark,
+    configColors.marketing_ring_strong_dark,
+    colors.marketingRingStrongDark,
+    colors.marketing_ring_strong_dark,
+    variables.marketingRingStrongDark,
+    variables.marketing_ring_strong_dark,
+    fallbackRingStrongDark,
+  );
+  const marketingOverlaySoft = resolveFirstValue(
+    marketingSchemeValues?.overlaySoft,
+    marketingSchemeValues?.marketingOverlaySoft,
+    configColors.marketingOverlaySoft,
+    configColors.marketing_overlay_soft,
+    colors.marketingOverlaySoft,
+    colors.marketing_overlay_soft,
+    variables.marketingOverlaySoft,
+    variables.marketing_overlay_soft,
+    fallbackOverlaySoft,
+  );
+  const marketingOverlayStrong = resolveFirstValue(
+    marketingSchemeValues?.overlayStrong,
+    marketingSchemeValues?.marketingOverlayStrong,
+    configColors.marketingOverlayStrong,
+    configColors.marketing_overlay_strong,
+    colors.marketingOverlayStrong,
+    colors.marketing_overlay_strong,
+    variables.marketingOverlayStrong,
+    variables.marketing_overlay_strong,
+    fallbackOverlayStrong,
+  );
+  const marketingOverlayHero = resolveFirstValue(
+    marketingSchemeValues?.overlayHero,
+    marketingSchemeValues?.marketingOverlayHero,
+    configColors.marketingOverlayHero,
+    configColors.marketing_overlay_hero,
+    colors.marketingOverlayHero,
+    colors.marketing_overlay_hero,
+    variables.marketingOverlayHero,
+    variables.marketing_overlay_hero,
+    fallbackOverlayHero,
+  );
+  const marketingShadowSoft = resolveFirstValue(
+    marketingSchemeValues?.shadowSoft,
+    marketingSchemeValues?.marketingShadowSoft,
+    configColors.marketingShadowSoft,
+    configColors.marketing_shadow_soft,
+    colors.marketingShadowSoft,
+    colors.marketing_shadow_soft,
+    variables.marketingShadowSoft,
+    variables.marketing_shadow_soft,
+    fallbackShadowSoft,
+  );
+  const marketingShadowDark = resolveFirstValue(
+    marketingSchemeValues?.shadowDark,
+    marketingSchemeValues?.marketingShadowDark,
+    configColors.marketingShadowDark,
+    configColors.marketing_shadow_dark,
+    colors.marketingShadowDark,
+    colors.marketing_shadow_dark,
+    variables.marketingShadowDark,
+    variables.marketing_shadow_dark,
+    fallbackShadowDark,
+  );
+  const marketingShadowPanel = resolveFirstValue(
+    marketingSchemeValues?.shadowPanel,
+    marketingSchemeValues?.marketingShadowPanel,
+    configColors.marketingShadowPanel,
+    configColors.marketing_shadow_panel,
+    colors.marketingShadowPanel,
+    colors.marketing_shadow_panel,
+    variables.marketingShadowPanel,
+    variables.marketing_shadow_panel,
+    fallbackShadowPanel,
+  );
+  const marketingShadowCardBase = resolveFirstValue(
+    marketingSchemeValues?.shadowCardBase,
+    marketingSchemeValues?.marketingShadowCardBase,
+    configColors.marketingShadowCardBase,
+    configColors.marketing_shadow_card_base,
+    colors.marketingShadowCardBase,
+    colors.marketing_shadow_card_base,
+    variables.marketingShadowCardBase,
+    variables.marketing_shadow_card_base,
+    fallbackShadowCardBase,
+  );
+  const marketingShadowCardSoftBase = resolveFirstValue(
+    marketingSchemeValues?.shadowCardSoftBase,
+    marketingSchemeValues?.marketingShadowCardSoftBase,
+    configColors.marketingShadowCardSoftBase,
+    configColors.marketing_shadow_card_soft_base,
+    colors.marketingShadowCardSoftBase,
+    colors.marketing_shadow_card_soft_base,
+    variables.marketingShadowCardSoftBase,
+    variables.marketing_shadow_card_soft_base,
+    fallbackShadowCardSoftBase,
+  );
+  const marketingShadowCard = resolveFirstValue(
+    marketingSchemeValues?.shadowCard,
+    marketingSchemeValues?.marketingShadowCard,
+    configColors.marketingShadowCard,
+    configColors.marketing_shadow_card,
+    colors.marketingShadowCard,
+    colors.marketing_shadow_card,
+    variables.marketingShadowCard,
+    variables.marketing_shadow_card,
+    fallbackShadowCard,
+  );
+  const marketingShadowAccent = resolveFirstValue(
+    marketingSchemeValues?.shadowAccent,
+    marketingSchemeValues?.marketingShadowAccent,
+    configColors.marketingShadowAccent,
+    configColors.marketing_shadow_accent,
+    colors.marketingShadowAccent,
+    colors.marketing_shadow_accent,
+    variables.marketingShadowAccent,
+    variables.marketing_shadow_accent,
+    fallbackShadowAccent,
+  );
+  const marketingShadowCardSoft = resolveFirstValue(
+    marketingSchemeValues?.shadowCardSoft,
+    marketingSchemeValues?.marketingShadowCardSoft,
+    configColors.marketingShadowCardSoft,
+    configColors.marketing_shadow_card_soft,
+    colors.marketingShadowCardSoft,
+    colors.marketing_shadow_card_soft,
+    variables.marketingShadowCardSoft,
+    variables.marketing_shadow_card_soft,
+    fallbackShadowCardSoft,
+  );
+  const marketingShadowCardHover = resolveFirstValue(
+    marketingSchemeValues?.shadowCardHover,
+    marketingSchemeValues?.marketingShadowCardHover,
+    configColors.marketingShadowCardHover,
+    configColors.marketing_shadow_card_hover,
+    colors.marketingShadowCardHover,
+    colors.marketing_shadow_card_hover,
+    variables.marketingShadowCardHover,
+    variables.marketing_shadow_card_hover,
+    fallbackShadowCardHover,
+  );
+  const marketingShadowHeroMockup = resolveFirstValue(
+    marketingSchemeValues?.shadowHeroMockup,
+    marketingSchemeValues?.marketingShadowHeroMockup,
+    configColors.marketingShadowHeroMockup,
+    configColors.marketing_shadow_hero_mockup,
+    colors.marketingShadowHeroMockup,
+    colors.marketing_shadow_hero_mockup,
+    variables.marketingShadowHeroMockup,
+    variables.marketing_shadow_hero_mockup,
+    fallbackShadowHeroMockup,
+  );
+  const marketingShadowPill = resolveFirstValue(
+    marketingSchemeValues?.shadowPill,
+    marketingSchemeValues?.marketingShadowPill,
+    configColors.marketingShadowPill,
+    configColors.marketing_shadow_pill,
+    colors.marketingShadowPill,
+    colors.marketing_shadow_pill,
+    variables.marketingShadowPill,
+    variables.marketing_shadow_pill,
+    fallbackShadowPill,
+  );
+  const marketingShadowCallout = resolveFirstValue(
+    marketingSchemeValues?.shadowCallout,
+    marketingSchemeValues?.marketingShadowCallout,
+    configColors.marketingShadowCallout,
+    configColors.marketing_shadow_callout,
+    colors.marketingShadowCallout,
+    colors.marketing_shadow_callout,
+    variables.marketingShadowCallout,
+    variables.marketing_shadow_callout,
+    fallbackShadowCallout,
+  );
+  const marketingShadowStat = resolveFirstValue(
+    marketingSchemeValues?.shadowStat,
+    marketingSchemeValues?.marketingShadowStat,
+    configColors.marketingShadowStat,
+    configColors.marketing_shadow_stat,
+    colors.marketingShadowStat,
+    colors.marketing_shadow_stat,
+    variables.marketingShadowStat,
+    variables.marketing_shadow_stat,
+    fallbackShadowStat,
+  );
+  const marketingShadowStatAccent = resolveFirstValue(
+    marketingSchemeValues?.shadowStatAccent,
+    marketingSchemeValues?.marketingShadowStatAccent,
+    configColors.marketingShadowStatAccent,
+    configColors.marketing_shadow_stat_accent,
+    colors.marketingShadowStatAccent,
+    colors.marketing_shadow_stat_accent,
+    variables.marketingShadowStatAccent,
+    variables.marketing_shadow_stat_accent,
+    fallbackShadowStatAccent,
+  );
+  const marketingLinkContrastLight = resolveFirstValue(
+    marketingSchemeValues?.linkContrastLight,
+    marketingSchemeValues?.marketingLinkContrastLight,
+    configColors.marketingLinkContrastLight,
+    configColors.marketing_link_contrast_light,
+    colors.marketingLinkContrastLight,
+    colors.marketing_link_contrast_light,
+    variables.marketingLinkContrastLight,
+    variables.marketing_link_contrast_light,
+    fallbackLinkContrastLight,
+  );
+  const marketingLinkContrastDark = resolveFirstValue(
+    marketingSchemeValues?.linkContrastDark,
+    marketingSchemeValues?.marketingLinkContrastDark,
+    configColors.marketingLinkContrastDark,
+    configColors.marketing_link_contrast_dark,
+    colors.marketingLinkContrastDark,
+    colors.marketing_link_contrast_dark,
+    variables.marketingLinkContrastDark,
+    variables.marketing_link_contrast_dark,
+    fallbackLinkContrastDark,
+  );
+  const marketingDanger500 = resolveFirstValue(
+    marketingSchemeValues?.danger500,
+    marketingSchemeValues?.marketingDanger500,
+    configColors.marketingDanger500,
+    configColors.marketing_danger_500,
+    colors.marketingDanger500,
+    colors.marketing_danger_500,
+    variables.marketingDanger500,
+    variables.marketing_danger_500,
+    fallbackDanger500,
+  );
+  const marketingDanger600 = resolveFirstValue(
+    marketingSchemeValues?.danger600,
+    marketingSchemeValues?.marketingDanger600,
+    configColors.marketingDanger600,
+    configColors.marketing_danger_600,
+    colors.marketingDanger600,
+    colors.marketing_danger_600,
+    variables.marketingDanger600,
+    variables.marketing_danger_600,
+    fallbackDanger600,
+  );
+  const marketingWhite = resolveFirstValue(
+    marketingSchemeValues?.white,
+    marketingSchemeValues?.marketingWhite,
+    configColors.marketingWhite,
+    configColors.marketing_white,
+    colors.marketingWhite,
+    colors.marketing_white,
+    variables.marketingWhite,
+    variables.marketing_white,
+    fallbackMarketingWhite,
+  );
+  const marketingBlack = resolveFirstValue(
+    marketingSchemeValues?.black,
+    marketingSchemeValues?.marketingBlack,
+    configColors.marketingBlack,
+    configColors.marketing_black,
+    colors.marketingBlack,
+    colors.marketing_black,
+    variables.marketingBlack,
+    variables.marketing_black,
+    fallbackMarketingBlack,
+  );
+  const marketingBlackRgb = resolveFirstValue(
+    marketingSchemeValues?.blackRgb,
+    marketingSchemeValues?.marketingBlackRgb,
+    configColors.marketingBlackRgb,
+    configColors.marketing_black_rgb,
+    colors.marketingBlackRgb,
+    colors.marketing_black_rgb,
+    variables.marketingBlackRgb,
+    variables.marketing_black_rgb,
+    fallbackMarketingBlackRgb,
+  );
   const marketingTextOnSurface = resolveFirstValue(
     marketingSchemeValues?.textOnSurface,
     textOnSurface,
@@ -805,6 +1301,99 @@ const applyMarketingDesign = () => {
   root.style.setProperty('--marketing-text-on-background-dark', marketingTextOnBackgroundDark);
   root.style.setProperty('--marketing-text-muted-on-surface-dark', marketingTextMutedOnSurfaceDark);
   root.style.setProperty('--marketing-text-muted-on-background-dark', marketingTextMutedOnBackgroundDark);
+  if (marketingInk) {
+    root.style.setProperty('--marketing-ink', marketingInk);
+  }
+  if (marketingSurfaceGlass) {
+    root.style.setProperty('--marketing-surface-glass', marketingSurfaceGlass);
+  }
+  if (marketingSurfaceGlassDark) {
+    root.style.setProperty('--marketing-surface-glass-dark', marketingSurfaceGlassDark);
+  }
+  if (marketingSurfaceAccentSoft) {
+    root.style.setProperty('--marketing-surface-accent-soft', marketingSurfaceAccentSoft);
+  }
+  if (marketingBorderLight) {
+    root.style.setProperty('--marketing-border-light', marketingBorderLight);
+  }
+  if (marketingRingStrong) {
+    root.style.setProperty('--marketing-ring-strong', marketingRingStrong);
+  }
+  if (marketingRingStrongDark) {
+    root.style.setProperty('--marketing-ring-strong-dark', marketingRingStrongDark);
+  }
+  if (marketingOverlaySoft) {
+    root.style.setProperty('--marketing-overlay-soft', marketingOverlaySoft);
+  }
+  if (marketingOverlayStrong) {
+    root.style.setProperty('--marketing-overlay-strong', marketingOverlayStrong);
+  }
+  if (marketingOverlayHero) {
+    root.style.setProperty('--marketing-overlay-hero', marketingOverlayHero);
+  }
+  if (marketingShadowSoft) {
+    root.style.setProperty('--marketing-shadow-soft', marketingShadowSoft);
+  }
+  if (marketingShadowDark) {
+    root.style.setProperty('--marketing-shadow-dark', marketingShadowDark);
+  }
+  if (marketingShadowPanel) {
+    root.style.setProperty('--marketing-shadow-panel', marketingShadowPanel);
+  }
+  if (marketingShadowCardBase) {
+    root.style.setProperty('--marketing-shadow-card-base', marketingShadowCardBase);
+  }
+  if (marketingShadowCardSoftBase) {
+    root.style.setProperty('--marketing-shadow-card-soft-base', marketingShadowCardSoftBase);
+  }
+  if (marketingShadowCard) {
+    root.style.setProperty('--marketing-shadow-card', marketingShadowCard);
+  }
+  if (marketingShadowAccent) {
+    root.style.setProperty('--marketing-shadow-accent', marketingShadowAccent);
+  }
+  if (marketingShadowCardSoft) {
+    root.style.setProperty('--marketing-shadow-card-soft', marketingShadowCardSoft);
+  }
+  if (marketingShadowCardHover) {
+    root.style.setProperty('--marketing-shadow-card-hover', marketingShadowCardHover);
+  }
+  if (marketingShadowHeroMockup) {
+    root.style.setProperty('--marketing-shadow-hero-mockup', marketingShadowHeroMockup);
+  }
+  if (marketingShadowPill) {
+    root.style.setProperty('--marketing-shadow-pill', marketingShadowPill);
+  }
+  if (marketingShadowCallout) {
+    root.style.setProperty('--marketing-shadow-callout', marketingShadowCallout);
+  }
+  if (marketingShadowStat) {
+    root.style.setProperty('--marketing-shadow-stat', marketingShadowStat);
+  }
+  if (marketingShadowStatAccent) {
+    root.style.setProperty('--marketing-shadow-stat-accent', marketingShadowStatAccent);
+  }
+  if (marketingLinkContrastLight) {
+    root.style.setProperty('--marketing-link-contrast-light', marketingLinkContrastLight);
+  }
+  if (marketingLinkContrastDark) {
+    root.style.setProperty('--marketing-link-contrast-dark', marketingLinkContrastDark);
+  }
+  if (marketingDanger500) {
+    root.style.setProperty('--marketing-danger-500', marketingDanger500);
+  }
+  if (marketingDanger600) {
+    root.style.setProperty('--marketing-danger-600', marketingDanger600);
+  }
+  if (marketingWhite) {
+    root.style.setProperty('--marketing-white', marketingWhite);
+  }
+  if (marketingBlack) {
+    root.style.setProperty('--marketing-black', marketingBlack);
+  }
+  if (marketingBlackRgb) {
+    root.style.setProperty('--marketing-black-rgb', marketingBlackRgb);
+  }
   if (surfaceDark) {
     root.style.setProperty('--marketing-surface-dark', surfaceDark);
   }
