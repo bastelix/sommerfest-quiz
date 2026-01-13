@@ -2096,6 +2096,14 @@ body:is(.marketing-page, .cms-page-render) .uk-button:focus-visible{
 }
 
 .stat-strip__marquee-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stat-card-accent) 12%, var(--stat-card-surface));
+  border: 1px solid color-mix(in srgb, var(--stat-card-accent) 28%, var(--stat-card-surface-muted));
+  color: color-mix(in srgb, var(--stat-card-accent) 70%, var(--stat-card-text));
+  font-weight: 600;
   white-space: nowrap;
 }
 
