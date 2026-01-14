@@ -46,7 +46,7 @@
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
+  <script type="module" src="{{ basePath }}/js/marketing-design.js"></script>
   {% for stylesheet in stylesheets %}
     {% set href = stylesheet matches '/^https?:\\/\\//i' or stylesheet starts with('//') ? stylesheet : (stylesheet starts with('/') ? stylesheet : basePath ~ '/css/' ~ stylesheet) %}
     <link rel="stylesheet" href="{{ href }}">
