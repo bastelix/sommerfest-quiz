@@ -136,7 +136,9 @@
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
   <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
+  {% if 'marketing-page' not in normalizedBodyClass %}
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
+  {% endif %}
   {% if 'marketing-page' in normalizedBodyClass %}
   <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin>
   {% endif %}
