@@ -8,6 +8,8 @@ use App\Service\CmsPageWikiArticleService;
 use App\Service\CmsPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\MarketingWikiThemeConfigService;
+use App\Service\NamespaceAppearanceService;
+use App\Service\NamespaceRenderContextService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\FeatureFlags;
@@ -29,18 +31,26 @@ final class CmsPageWikiListController
 
     private MarketingWikiThemeConfigService $themeConfigService;
 
+    private NamespaceAppearanceService $namespaceAppearance;
+
+    private NamespaceRenderContextService $namespaceRenderContext;
+
     public function __construct(
         ?PageService $pageService = null,
         ?CmsPageWikiSettingsService $settingsService = null,
         ?CmsPageWikiArticleService $articleService = null,
         ?NamespaceResolver $namespaceResolver = null,
-        ?MarketingWikiThemeConfigService $themeConfigService = null
+        ?MarketingWikiThemeConfigService $themeConfigService = null,
+        ?NamespaceAppearanceService $namespaceAppearance = null,
+        ?NamespaceRenderContextService $namespaceRenderContext = null
     ) {
         $this->pageService = $pageService ?? new PageService();
         $this->settingsService = $settingsService ?? new CmsPageWikiSettingsService();
         $this->articleService = $articleService ?? new CmsPageWikiArticleService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->themeConfigService = $themeConfigService ?? new MarketingWikiThemeConfigService();
+        $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
+        $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
     }
 
     public function __invoke(Request $request, Response $response, array $args): Response
@@ -56,7 +66,8 @@ final class CmsPageWikiListController
 
         $locale = (string) $request->getAttribute('lang', 'de');
         $pageSlug = MarketingSlugResolver::resolveLocalizedSlug($slug, $locale);
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+        $namespace = $namespaceContext->getNamespace();
         $page = $this->pageService->findByKey($namespace, $pageSlug);
         if ($page === null && $pageSlug !== $slug) {
             $page = $this->pageService->findByKey($namespace, $slug);
@@ -64,6 +75,14 @@ final class CmsPageWikiListController
         if ($page === null) {
             return $response->withStatus(404);
         }
+
+        $pageNamespace = $page->getNamespace();
+        if ($pageNamespace === '') {
+            $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
+        }
+        $appearance = $this->namespaceAppearance->load($pageNamespace);
+        $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $design = $renderContext['design'] ?? [];
 
         $settingsPage = $page;
         $wikiSlug = $slug;
@@ -109,6 +128,11 @@ final class CmsPageWikiListController
             'searchTerm' => $search,
             'menuLabel' => $menuLabel,
             'wikiTheme' => $theme,
+            'namespace' => $pageNamespace,
+            'pageNamespace' => $pageNamespace,
+            'appearance' => $appearance,
+            'design' => $design,
+            'renderContext' => $renderContext,
             'breadcrumbs' => [
                 [
                     'url' => $basePath . '/' . $page->getSlug(),
