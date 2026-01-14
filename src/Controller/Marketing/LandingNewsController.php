@@ -7,6 +7,8 @@ namespace App\Controller\Marketing;
 use App\Domain\Page;
 use App\Service\LandingNewsService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceAppearanceService;
+use App\Service\NamespaceRenderContextService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
@@ -25,24 +27,39 @@ class LandingNewsController
 
     private PageService $pages;
     private NamespaceResolver $namespaceResolver;
+    private NamespaceAppearanceService $namespaceAppearance;
+    private NamespaceRenderContextService $namespaceRenderContext;
 
     public function __construct(
         ?LandingNewsService $news = null,
         ?PageService $pages = null,
-        ?NamespaceResolver $namespaceResolver = null
+        ?NamespaceResolver $namespaceResolver = null,
+        ?NamespaceAppearanceService $namespaceAppearance = null,
+        ?NamespaceRenderContextService $namespaceRenderContext = null
     ) {
         $this->news = $news ?? new LandingNewsService();
         $this->pages = $pages ?? new PageService();
         $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
+        $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
+        $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
     }
 
     public function index(Request $request, Response $response, array $args = []): Response
     {
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+        $namespace = $namespaceContext->getNamespace();
         $page = $this->resolvePage($args, $namespace);
         if ($page === null) {
             return $response->withStatus(404);
         }
+
+        $pageNamespace = $page->getNamespace();
+        if ($pageNamespace === '') {
+            $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
+        }
+        $appearance = $this->namespaceAppearance->load($pageNamespace);
+        $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $design = $renderContext['design'] ?? [];
 
         $entries = $this->news->getPublishedForPage($page->getId(), 20);
         $newsOwnerPage = $page;
@@ -80,6 +97,11 @@ class LandingNewsController
             'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
             'newsOwnerSlug' => $newsOwnerPage->getSlug(),
             'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
+            'namespace' => $pageNamespace,
+            'pageNamespace' => $pageNamespace,
+            'appearance' => $appearance,
+            'design' => $design,
+            'renderContext' => $renderContext,
             'metaTitle' => sprintf('%s – Neuigkeiten', $page->getTitle()),
             'metaDescription' => sprintf('Aktuelles zu %s.', $page->getTitle()),
         ]);
@@ -87,11 +109,20 @@ class LandingNewsController
 
     public function show(Request $request, Response $response, array $args = []): Response
     {
-        $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
+        $namespaceContext = $this->namespaceResolver->resolve($request);
+        $namespace = $namespaceContext->getNamespace();
         $page = $this->resolvePage($args, $namespace);
         if ($page === null) {
             return $response->withStatus(404);
         }
+
+        $pageNamespace = $page->getNamespace();
+        if ($pageNamespace === '') {
+            $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
+        }
+        $appearance = $this->namespaceAppearance->load($pageNamespace);
+        $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $design = $renderContext['design'] ?? [];
 
         $newsSlug = isset($args['newsSlug']) ? (string) $args['newsSlug'] : '';
         if ($newsSlug === '') {
@@ -134,6 +165,11 @@ class LandingNewsController
             'landingPageUrl' => $basePath . '/' . $newsOwnerPage->getSlug(),
             'newsOwnerSlug' => $newsOwnerPage->getSlug(),
             'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
+            'namespace' => $pageNamespace,
+            'pageNamespace' => $pageNamespace,
+            'appearance' => $appearance,
+            'design' => $design,
+            'renderContext' => $renderContext,
             'metaTitle' => sprintf('%s – %s', $page->getTitle(), $entry->getTitle()),
             'metaDescription' => $description,
         ]);
