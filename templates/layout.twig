@@ -7,6 +7,8 @@
 {% set bodyClassRaw %}{% block body_class %}{% endblock %}{% endset %}
 {% set normalizedBodyClass = bodyClassRaw|trim %}
 {% set isAdminPage = 'admin-page' in normalizedBodyClass %}
+{% set includeMarketingThemeVars = includeMarketingThemeVars|default(false) %}
+{% set shouldIncludeMarketingThemeVars = (not isAdminPage) or ('marketing-page' in normalizedBodyClass) or includeMarketingThemeVars %}
 {# Allowed admin layout profiles: wide, standard, narrow. #}
 {% set allowedAdminLayouts = ['wide', 'standard', 'narrow'] %}
 {% set adminLayoutRaw = adminLayout|default('') %}
@@ -138,7 +140,9 @@
   {% if 'marketing-page' in normalizedBodyClass %}
   <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin>
   {% endif %}
-  {% include 'marketing/partials/theme-vars.twig' %}
+  {% if shouldIncludeMarketingThemeVars %}
+    {% include 'marketing/partials/theme-vars.twig' %}
+  {% endif %}
   {% block head %}{% endblock %}
 </head>
 <body
