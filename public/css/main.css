@@ -24,12 +24,12 @@ h4 {
   color: var(--text-heading, var(--text-body, #111827));
 }
 
-.uk-offcanvas-content {
+body:not(.marketing-page) .uk-offcanvas-content {
   min-height: 100vh;
   background: var(--surface-page, #ffffff);
 }
 
-.uk-button-primary {
+body:not(.marketing-page) .uk-button-primary {
   background-color: var(--brand-primary, #1e87f0);
   border-color: var(--brand-primary, #1e87f0);
 }
@@ -202,7 +202,7 @@ body.uk-padding {
 .qr-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
-.uk-text-truncate {
+body:not(.marketing-page) .uk-text-truncate {
   max-width: 36ch;
   display: inline-block;
   vertical-align: middle;
@@ -212,7 +212,7 @@ body.uk-padding {
   padding: 4px;
 }
 
-.uk-icon-button {
+body:not(.marketing-page) .uk-icon-button {
   width: 44px;
   height: 44px;
 }
@@ -320,7 +320,7 @@ body.uk-padding {
   flex-shrink: 0;
 }
 
-.uk-icon-button {
+body:not(.marketing-page) .uk-icon-button {
   border-radius: 6px;
   border: 1px solid var(--topbar-btn-border, var(--border-muted, #ddd));
 }
@@ -478,15 +478,15 @@ a.uk-accordion-title {
   }
 }
 
-.uk-container,
-.legal-container {
+body:not(.marketing-page) .uk-container,
+body:not(.marketing-page) .legal-container {
   padding-left: 8px;
   padding-right: 8px;
 }
 
 @media (min-width: 640px) {
-  .uk-container,
-  .legal-container {
+  body:not(.marketing-page) .uk-container,
+  body:not(.marketing-page) .legal-container {
     padding-left: 15px;
     padding-right: 15px;
   }
