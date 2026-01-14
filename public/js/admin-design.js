@@ -472,7 +472,7 @@
   let refreshContrastChecks = () => {};
   let brandIsAuto = false;
 
-  const parseColor = value => {
+  const parseColorWithAlpha = value => {
     if (!value) return null;
     const trimmed = value.trim();
     if (trimmed === '' || trimmed.startsWith('var(')) {
@@ -485,13 +485,14 @@
         const r = parseInt(hex[0] + hex[0], 16);
         const g = parseInt(hex[1] + hex[1], 16);
         const b = parseInt(hex[2] + hex[2], 16);
-        return { r, g, b };
+        return { r, g, b, a: 1 };
       }
       if (hex.length >= 6) {
         const r = parseInt(hex.slice(0, 2), 16);
         const g = parseInt(hex.slice(2, 4), 16);
         const b = parseInt(hex.slice(4, 6), 16);
-        return { r, g, b };
+        const a = hex.length >= 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+        return { r, g, b, a };
       }
     }
     const rgbMatch = trimmed.match(/^rgba?\((.+)\)$/i);
@@ -507,12 +508,23 @@
         const r = toChannel(parts[0]);
         const g = toChannel(parts[1]);
         const b = toChannel(parts[2]);
-        if ([r, g, b].every(channel => !Number.isNaN(channel))) {
-          return { r, g, b };
+        const alpha = parts[3]
+          ? (parts[3].endsWith('%') ? parseFloat(parts[3]) / 100 : parseFloat(parts[3]))
+          : 1;
+        if ([r, g, b].every(channel => !Number.isNaN(channel)) && !Number.isNaN(alpha)) {
+          return { r, g, b, a: alpha };
         }
       }
     }
     return null;
+  };
+
+  const parseColor = value => {
+    const parsed = parseColorWithAlpha(value);
+    if (!parsed) {
+      return null;
+    }
+    return { r: parsed.r, g: parsed.g, b: parsed.b };
   };
 
   const formatHex = ({ r, g, b }) => {
@@ -548,6 +560,38 @@
     return null;
   };
 
+  const resolveElementValue = (selector, property) => {
+    if (!preview || !selector) {
+      return null;
+    }
+    const element = preview.querySelector(selector);
+    if (!element) {
+      return null;
+    }
+    const value = getComputedStyle(element).getPropertyValue(property).trim();
+    return value || null;
+  };
+
+  const isTransparentValue = value => {
+    if (!value) return false;
+    const trimmed = value.trim().toLowerCase();
+    if (trimmed === 'transparent') {
+      return true;
+    }
+    const rgbaMatch = trimmed.match(/^rgba\((.+)\)$/);
+    if (!rgbaMatch) {
+      return false;
+    }
+    const parts = rgbaMatch[1].split(/[\s,\/]+/).filter(Boolean);
+    if (parts.length < 4) {
+      return false;
+    }
+    const alpha = parts[3].endsWith('%')
+      ? parseFloat(parts[3]) / 100
+      : parseFloat(parts[3]);
+    return !Number.isNaN(alpha) && alpha === 0;
+  };
+
   const initContrastControls = () => {
     const panel = editor.querySelector('[data-contrast-panel]');
     if (!panel || !preview) return;
@@ -565,6 +609,14 @@
         backgroundVars: ['--marketing-surface', '--surface', '--bg-subtle', '--preview-surface-bg'],
         applyVars: ['--marketing-text-on-surface', '--text-on-surface'],
       },
+      'text-on-card': {
+        textVars: ['--marketing-text-on-surface', '--text-on-surface', '--marketing-text'],
+        backgroundVars: ['--preview-card-bg', '--surface-card', '--bg-section'],
+        applyVars: ['--marketing-text-on-surface', '--text-on-surface'],
+        textSelector: '.design-preview__card',
+        backgroundSelector: '.design-preview__card',
+        inputKey: 'text-on-surface',
+      },
       'text-on-background': {
         textVars: ['--marketing-text-on-background', '--text-on-background', '--marketing-text'],
         backgroundVars: ['--marketing-background', '--surface-page', '--bg-page', '--marketing-surface'],
@@ -574,6 +626,14 @@
         textVars: ['--marketing-text-on-primary', '--marketing-on-accent', '--text-on-primary'],
         backgroundVars: ['--marketing-primary', '--brand-primary'],
         applyVars: ['--marketing-on-accent', '--marketing-text-on-primary', '--text-on-primary'],
+      },
+      'text-on-secondary': {
+        textVars: ['--marketing-text-on-primary', '--marketing-on-accent', '--text-on-primary'],
+        backgroundVars: ['--marketing-button-secondary-bg', '--brand-secondary', '--marketing-secondary', '--brand-accent'],
+        applyVars: ['--marketing-on-accent', '--marketing-text-on-primary', '--text-on-primary'],
+        textSelector: '.design-preview__button-secondary',
+        backgroundSelector: '.design-preview__button-secondary',
+        inputKey: 'text-on-primary',
       },
     };
 
@@ -590,17 +650,51 @@
       });
     };
 
-    const updateRow = (row, config) => {
+    const resolveTargetValue = (config, mode) => {
+      const selector = mode === 'text' ? config.textSelector : config.backgroundSelector;
+      const property = mode === 'text' ? 'color' : 'background-color';
+      const elementValue = resolveElementValue(selector, property);
+      if (elementValue && !isTransparentValue(elementValue)) {
+        return elementValue;
+      }
       const style = getComputedStyle(preview);
-      const textValue = resolveCssValue(style, config.textVars);
-      const backgroundValue = resolveCssValue(style, config.backgroundVars);
+      const names = mode === 'text' ? config.textVars : config.backgroundVars;
+      return resolveCssValue(style, names);
+    };
+
+    const resolveSurfaceBackground = () => {
+      const surfaceElement = preview.querySelector('.design-preview__surface') || preview;
+      const value = getComputedStyle(surfaceElement).getPropertyValue('background-color').trim();
+      return value || null;
+    };
+
+    const blendWithSurface = background => {
+      if (!background || background.a >= 1) {
+        return background ? { r: background.r, g: background.g, b: background.b } : null;
+      }
+      const surfaceValue = resolveSurfaceBackground();
+      const surface = parseColor(surfaceValue);
+      if (!surface) {
+        return { r: background.r, g: background.g, b: background.b };
+      }
+      const alpha = Math.max(0, Math.min(1, background.a));
+      return {
+        r: Math.round(background.r * alpha + surface.r * (1 - alpha)),
+        g: Math.round(background.g * alpha + surface.g * (1 - alpha)),
+        b: Math.round(background.b * alpha + surface.b * (1 - alpha)),
+      };
+    };
+
+    const updateRow = (row, config) => {
+      const textValue = resolveTargetValue(config, 'text');
+      const backgroundValue = resolveTargetValue(config, 'background');
       const ratioElement = row.querySelector('[data-contrast-ratio]');
       const aaBadge = row.querySelector('[data-contrast-aa]');
       const aaaBadge = row.querySelector('[data-contrast-aaa]');
       const fixButton = row.querySelector('[data-contrast-fix]');
 
       const textColor = parseColor(textValue);
-      const backgroundColor = parseColor(backgroundValue);
+      const backgroundColor = blendWithSurface(parseColorWithAlpha(backgroundValue));
 
       if (!textColor || !backgroundColor) {
         if (ratioElement) ratioElement.textContent = '–';
@@ -653,9 +747,8 @@
       const fixButton = row.querySelector('[data-contrast-fix]');
       if (fixButton instanceof HTMLButtonElement) {
         fixButton.addEventListener('click', () => {
-          const style = getComputedStyle(preview);
-          const backgroundValue = resolveCssValue(style, config.backgroundVars);
-          const backgroundColor = parseColor(backgroundValue);
+          const backgroundValue = resolveTargetValue(config, 'background');
+          const backgroundColor = blendWithSurface(parseColorWithAlpha(backgroundValue));
           if (!backgroundColor) {
             return;
           }
@@ -668,7 +761,7 @@
           config.applyVars.forEach(variable => {
             preview.style.setProperty(variable, hex);
           });
-          const input = inputMap[key];
+          const input = inputMap[config.inputKey || key];
           if (input instanceof HTMLInputElement) {
             input.value = hex;
             input.disabled = false;
