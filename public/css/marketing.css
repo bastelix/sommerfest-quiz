@@ -242,23 +242,23 @@
    Base page bindings (marketing + CMS render)
    ========================================================= */
 
-html[data-theme] {
+:where(html[data-theme], .marketing-scope[data-theme]) {
   color: var(--color-text, var(--text-primary, var(--marketing-text)));
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
-html[data-theme] body {
+:where(html[data-theme] body, .marketing-scope[data-theme]) {
   color: inherit;
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
 
 /* Shared typographic rules (define ONCE) */
-body:is(.marketing-page, .cms-page-render) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) {
   font-family: var(--marketing-font-stack);
   color: var(--qr-fg);
 }
-body:is(.marketing-page, .cms-page-render) h1,
-body:is(.marketing-page, .cms-page-render) h2,
-body:is(.marketing-page, .cms-page-render) h3 {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h1,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h2,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h3 {
   color: var(--qr-text);
   line-height: var(--marketing-heading-line-height);
   font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
@@ -266,10 +266,10 @@ body:is(.marketing-page, .cms-page-render) h3 {
   letter-spacing: var(--marketing-heading-letter-spacing);
   margin: 0 0 0.6em;
 }
-body:is(.marketing-page, .cms-page-render) h1 { font-size: var(--marketing-h1); }
-body:is(.marketing-page, .cms-page-render) h2 { font-size: var(--marketing-h2); }
-body:is(.marketing-page, .cms-page-render) h3 { font-size: var(--marketing-h3); margin-bottom: 0.5em; }
-body:is(.marketing-page, .cms-page-render) p {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h1 { font-size: var(--marketing-h1); }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h2 { font-size: var(--marketing-h2); }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) h3 { font-size: var(--marketing-h3); margin-bottom: 0.5em; }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) p {
   font-size: var(--marketing-body);
   line-height: var(--marketing-body-line-height);
   margin: 0 0 1em;
@@ -279,7 +279,7 @@ body:is(.marketing-page, .cms-page-render) p {
    Marketing page token binding (unchanged semantics)
    ========================================================= */
 
-body.marketing-page {
+:is(body, .marketing-scope).marketing-page {
   --brand-primary: var(--marketing-primary);
   --brand-secondary: var(--marketing-accent);
   --brand-accent: var(--marketing-accent);
@@ -353,7 +353,7 @@ body.marketing-page {
 }
 
 /* Dark mode (marketing-page) */
-body.marketing-page:is(.dark-mode, [data-theme="dark"]):not(.high-contrast) {
+:is(body, .marketing-scope).marketing-page:is(.dark-mode, [data-theme="dark"]):not(.high-contrast) {
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
   --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
   --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
@@ -384,52 +384,52 @@ body.marketing-page:is(.dark-mode, [data-theme="dark"]):not(.high-contrast) {
    Shared UI overrides (lower specificity via :where)
    ========================================================= */
 
-body:is(.marketing-page, .cms-page-render) :where(a) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(a) {
   color: var(--qr-link);
   text-decoration: underline;
   text-decoration-color: transparent;
   transition: opacity .2s, text-decoration-color .2s;
 }
-body:is(.marketing-page, .cms-page-render) :where(a:hover) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(a:hover) {
   opacity: .8;
   text-decoration-color: currentColor;
 }
 
-body:is(.marketing-page, .cms-page-render) :where(.uk-button) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button) {
   transition: opacity .2s, transform .2s;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
-body:is(.marketing-page, .cms-page-render) :where(.uk-button:hover) { opacity: .85; }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button:hover) { opacity: .85; }
 
-body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button-primary) {
   background: var(--marketing-button-primary-bg) !important;
   color: var(--marketing-button-primary-text) !important;
   border: 1px solid var(--marketing-button-primary-border-color);
 }
-body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:hover) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button-primary:hover) {
   background: var(--marketing-button-primary-hover-bg) !important;
 }
-body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:focus-visible) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button-primary:focus-visible) {
   background: var(--marketing-button-primary-focus-bg) !important;
 }
-body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:active) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button-primary:active) {
   background: var(--marketing-button-primary-active-bg) !important;
   transform: translateY(1px);
 }
 
-body:is(.marketing-page, .cms-page-render) :where(.uk-button-default) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button-default) {
   background: var(--marketing-button-secondary-bg) !important;
   color: var(--marketing-button-secondary-text) !important;
   border: 1px solid var(--marketing-button-secondary-border-color);
 }
-body:is(.marketing-page, .cms-page-render) :where(.uk-button-default:hover) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-button-default:hover) {
   background: var(--marketing-button-secondary-hover-bg) !important;
 }
 
 /* Cards on landing/cms */
-body:is(.marketing-page, .cms-page-render) :where(.uk-card, .qr-card, .feature-box, .feature-card) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) :where(.uk-card, .qr-card, .feature-box, .feature-card) {
   --qr-text: var(--marketing-text-on-surface);
   --qr-muted: var(--marketing-text-muted-on-surface);
   background: var(--qr-card) !important;
@@ -635,7 +635,7 @@ body:is(.marketing-page, .cms-page-render) :where(.uk-card, .qr-card, .feature-b
   opacity: 0.75;
 }
 
-body:is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
   .marketing-chat__dialog {
   --marketing-chat-surface: color-mix(
     in oklab,
@@ -679,7 +679,7 @@ body:is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):n
   }
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
   position: fixed;
   inset: auto 24px 24px auto;
   width: min(360px, calc(100% - 48px));
@@ -695,7 +695,7 @@ body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
   z-index: 1050;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button {
   position: fixed;
   bottom: clamp(1rem, 4vw, 1.75rem);
   z-index: 1040;
@@ -714,7 +714,7 @@ body:is(.marketing-page, .cms-page-render) .marketing-floating-button {
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
   width: 1.45rem;
   height: 1.45rem;
   color: inherit;
@@ -722,28 +722,28 @@ body:is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
   fill: none;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button .uk-icon {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button .uk-icon {
   color: inherit !important;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button:hover,
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:hover,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
   background: color-mix(in oklab, var(--calserver-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
   border-color: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
   box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent),
     0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
   outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-white) 30%);
   outline-offset: 3px;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-floating-button:active {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:active {
   transform: scale(0.96);
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
   left: clamp(1rem, 4vw, 1.75rem);
 }
 
@@ -751,15 +751,15 @@ body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
   right: clamp(1rem, 4vw, 1.75rem);
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger--active {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-trigger--active {
   background: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
   border-color: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
   box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent),
     0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
 }
 
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button,
-body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
   color: var(--marketing-white);
   border-color: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
   background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
@@ -767,14 +767,14 @@ body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contras
     0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
-body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
   color: inherit;
   stroke: currentColor;
 }
 
 @media (max-width: 640px) {
-  body:is(.marketing-page, .cms-page-render) .marketing-floating-button {
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button {
     width: 3rem;
     height: 3rem;
     bottom: clamp(0.85rem, 6vw, 1.25rem);
@@ -782,12 +782,12 @@ body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contras
       0 6px 16px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
   }
 
-  body:is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
     width: 1.35rem;
     height: 1.35rem;
   }
 
-  body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
     left: clamp(0.85rem, 6vw, 1.25rem);
   }
 
@@ -796,27 +796,27 @@ body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contras
   }
 }
 
-body:is(.marketing-page, .cms-page-render).high-contrast .marketing-floating-button,
-body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-floating-button,
-body.high-contrast .marketing-floating-button {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-floating-button,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-floating-button,
+:is(body, .marketing-scope).high-contrast .marketing-floating-button {
   background: var(--marketing-black);
   color: var(--marketing-white);
   box-shadow: none;
   border: 2px solid currentColor;
 }
 
-body:is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
-body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
-body.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
+:is(body, .marketing-scope).high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active {
   background: var(--marketing-ink);
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner--visible {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner--visible {
   opacity: 1;
   transform: translate3d(0, 0, 0);
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__headline {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__headline {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -825,51 +825,51 @@ body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__headline {
   margin: 0 0 4px;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__icon {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__icon {
   color: var(--calserver-primary);
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__copy {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__copy {
   margin: 0;
   font-size: 0.95rem;
   line-height: 1.45;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__fineprint {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__fineprint {
   margin: 0;
   font-size: 0.85rem;
   color: color-mix(in oklab, currentColor 72%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link {
   color: inherit;
   text-decoration: underline;
   text-decoration-thickness: 1px;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link:focus-visible {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__actions {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__button {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__button {
   flex: 1 1 140px;
 }
 
 @media (max-width: 640px) {
-  body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
     inset: auto 16px 16px 16px;
     width: auto;
   }
 }
 
-body:is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
   .marketing-cookie-banner {
   background: linear-gradient(
     160deg,
@@ -882,8 +882,8 @@ body:is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):n
     !important;
 }
 
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
-body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
   background: linear-gradient(
     160deg,
     color-mix(in oklab, var(--calserver-primary) 12%, var(--marketing-white) 88%) 0%,
@@ -894,18 +894,18 @@ body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contras
   color: color-mix(in oklab, var(--marketing-ink) 88%, var(--calserver-primary) 12%) !important;
 }
 
-body:is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner,
-body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner,
-body.high-contrast .marketing-cookie-banner {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner,
+:is(body, .marketing-scope).high-contrast .marketing-cookie-banner {
   background: var(--qr-card, var(--marketing-black));
   color: var(--qr-text, var(--marketing-white));
   border: 2px solid currentColor;
   box-shadow: none;
 }
 
-body:is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner__link,
-body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner__link,
-body.high-contrast .marketing-cookie-banner__link {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner__link,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner__link,
+:is(body, .marketing-scope).high-contrast .marketing-cookie-banner__link {
   text-decoration-thickness: 2px;
 }
 
@@ -913,7 +913,7 @@ body.high-contrast .marketing-cookie-banner__link {
    Topbar refactor (shared base, per-scope deltas)
    ========================================================= */
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar {
   padding-top: env(safe-area-inset-top);
   background: var(--qr-landing-topbar-bg);
   backdrop-filter: blur(8px);
@@ -922,46 +922,46 @@ body:is(.marketing-page, .cms-page-render) .qr-topbar {
   z-index: 1000;
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar {
   --topbar-height: 64px;
 }
-body:is(.marketing-page, .cms-page-render) .qr-topbar {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar {
   min-height: 64px;
   height: 64px;
 }
 @media (max-width: 959px) {
-  body:is(.marketing-page, .cms-page-render) .qr-topbar { min-height: 56px; height: 56px; }
-  body:is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar { --topbar-height: 56px; }
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar { min-height: 56px; height: 56px; }
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar { --topbar-height: 56px; }
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar, .uk-navbar-container) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar, .uk-navbar-container) {
   background: var(--qr-landing-topbar-bg);
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-container, .uk-navbar-right, .uk-navbar-center) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-container, .uk-navbar-right, .uk-navbar-center) {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
   gap: 12px;
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right {
   flex: 1 1 auto;
   min-width: 0;
   justify-content: flex-end;
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-right .uk-navbar-nav, .uk-navbar-center .uk-navbar-nav) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-right .uk-navbar-nav, .uk-navbar-center .uk-navbar-nav) {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
   flex-wrap: nowrap;
   gap: 8px;
 }
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right .uk-navbar-nav { justify-content: flex-end; }
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-center .uk-navbar-nav { justify-content: center; }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right .uk-navbar-nav { justify-content: flex-end; }
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-center .uk-navbar-nav { justify-content: center; }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a {
   color: var(--qr-text) !important;
   font-weight: 500;
   opacity: .9;
@@ -977,34 +977,34 @@ body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a {
   transition: opacity .2s, background .12s, border-color .12s;
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a:hover,
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li.uk-active > a {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a:hover,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li.uk-active > a {
   opacity: 1;
   background: color-mix(in oklab, var(--qr-text) 8%, transparent);
   border-color: color-mix(in oklab, var(--qr-text) 40%, transparent);
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-nav > li > a:focus-visible, #configMenuToggle:focus-visible, .uk-navbar-toggle:focus-visible) {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-nav > li > a:focus-visible, #configMenuToggle:focus-visible, .uk-navbar-toggle:focus-visible) {
   outline: none;
   box-shadow: 0 0 0 3px var(--qr-ring);
   border-radius: 6px;
 }
 
-body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-toggle {
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-toggle {
   color: var(--qr-text) !important;
 }
 
 /* Only marketing-page should be sticky */
-body.marketing-page .qr-topbar { position: sticky; top: 0; }
+:is(body, .marketing-scope).marketing-page .qr-topbar { position: sticky; top: 0; }
 
 /* =========================================================
    Section spacing (single place)
    ========================================================= */
 .marketing-section { padding-block: var(--marketing-section-padding); }
 .marketing-section + .marketing-section { margin-top: var(--marketing-section-gap); }
-body.marketing-page .uk-section,
-body.marketing-page .page-modules { padding-top: 72px; padding-bottom: 72px; }
+:is(body, .marketing-scope).marketing-page .uk-section,
+:is(body, .marketing-scope).marketing-page .page-modules { padding-top: 72px; padding-bottom: 72px; }
 @media (min-width: 1200px) {
-  body.marketing-page .uk-section,
-  body.marketing-page .page-modules { padding-top: 88px; padding-bottom: 88px; }
+  :is(body, .marketing-scope).marketing-page .uk-section,
+  :is(body, .marketing-scope).marketing-page .page-modules { padding-top: 88px; padding-bottom: 88px; }
 }
