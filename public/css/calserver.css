@@ -2805,6 +2805,7 @@ body.marketing-page.calserver-layout .marketing-cookie-banner__button {
 
 body.marketing-page.calserver-layout.dark-mode:not(.high-contrast) .marketing-cookie-banner,
 body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .marketing-cookie-banner {
+    background-color: var(--marketing-ink);
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
@@ -2816,6 +2817,7 @@ body.marketing-page.calserver-layout[data-theme="dark"]:not(.high-contrast) .mar
 
 body.marketing-page.calserver-layout:not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
 body.marketing-page.calserver-layout[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
+    background-color: var(--marketing-white);
     background: linear-gradient(
         160deg,
         color-mix(in oklab, var(--calserver-primary) 12%, var(--marketing-white) 88%) 0%,

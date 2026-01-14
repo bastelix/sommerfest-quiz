@@ -2945,6 +2945,7 @@ body:is(.marketing-page, .cms-page-render).dark-mode:not(.high-contrast)
   .marketing-cookie-banner,
 body:is(.marketing-page, .cms-page-render)[data-theme="dark"]:not(.high-contrast)
   .marketing-cookie-banner {
+  background-color: var(--marketing-ink);
   background: linear-gradient(
     160deg,
     color-mix(in oklab, var(--marketing-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
@@ -2962,6 +2963,7 @@ body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast)
   .marketing-cookie-banner,
 body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast)
   .marketing-cookie-banner {
+  background-color: var(--marketing-white);
   background: linear-gradient(
     160deg,
     color-mix(in oklab, var(--marketing-primary) 12%, var(--marketing-white) 88%) 0%,
