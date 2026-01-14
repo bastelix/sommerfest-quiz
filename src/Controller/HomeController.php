@@ -13,6 +13,7 @@ use App\Service\EventService;
 use App\Service\PageService;
 use App\Service\NamespaceResolver;
 use App\Service\NamespaceAppearanceService;
+use App\Service\NamespaceRenderContextService;
 use App\Service\ResultService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
@@ -41,6 +42,8 @@ class HomeController
         $host = $namespaceContext->getHost();
         $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
         $appearance = (new NamespaceAppearanceService())->load($namespace);
+        $renderContext = (new NamespaceRenderContextService())->build($namespace);
+        $design = $renderContext['design'] ?? [];
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -130,21 +133,31 @@ class HomeController
 
             if ($eventStart instanceof DateTimeImmutable && $now < $eventStart) {
                 return $view->render($response, 'marketing/event_upcoming.twig', [
+                    'appearance' => $appearance,
                     'config' => $cfg,
+                    'design' => $design,
                     'event' => $event,
+                    'namespace' => $namespace,
                     'start' => $eventStart,
                     'end' => $eventEnd,
                     'now' => $now,
+                    'pageNamespace' => $namespace,
+                    'renderContext' => $renderContext,
                 ]);
             }
 
             if ($eventEnd instanceof DateTimeImmutable && $now > $eventEnd) {
                 return $view->render($response, 'marketing/event_finished.twig', [
+                    'appearance' => $appearance,
                     'config' => $cfg,
+                    'design' => $design,
                     'event' => $event,
+                    'namespace' => $namespace,
                     'start' => $eventStart,
                     'end' => $eventEnd,
                     'now' => $now,
+                    'pageNamespace' => $namespace,
+                    'renderContext' => $renderContext,
                 ]);
             }
         }
