@@ -156,9 +156,7 @@ class PageController
         $pageNamespace = $contentNamespace !== ''
             ? $contentNamespace
             : ($resolvedNamespace !== '' ? $resolvedNamespace : PageService::DEFAULT_NAMESPACE);
-        $designNamespace = $resolvedNamespace !== ''
-            ? $resolvedNamespace
-            : PageService::DEFAULT_NAMESPACE;
+        $designNamespace = $pageNamespace;
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -243,7 +241,7 @@ class PageController
         }
 
         $pageJson = [
-            'namespace' => $designNamespace,
+            'namespace' => $pageNamespace,
             'contentNamespace' => $contentNamespace,
             'slug' => $page->getSlug(),
             'type' => $pageType,
@@ -257,7 +255,7 @@ class PageController
 
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
-                'namespace' => $designNamespace,
+                'namespace' => $pageNamespace,
                 'contentNamespace' => $contentNamespace,
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
@@ -293,8 +291,8 @@ class PageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'namespace' => $designNamespace,
-            'pageNamespace' => $designNamespace,
+            'namespace' => $pageNamespace,
+            'pageNamespace' => $pageNamespace,
             'contentNamespace' => $contentNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,

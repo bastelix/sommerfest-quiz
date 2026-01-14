@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Infrastructure\Database;
-use RuntimeException;
 
 class NamespaceAppearanceService
 {
@@ -25,12 +24,21 @@ class NamespaceAppearanceService
     public function load(string $namespace): array
     {
         $config = $this->configService->getConfigForEvent($namespace);
+        $resolvedNamespace = $namespace;
 
         if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            throw new RuntimeException(sprintf('No design configuration found for namespace: %s', $namespace));
+            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+            if ($fallbackConfig !== []) {
+                $config = $fallbackConfig;
+                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+            }
         }
 
-        $tokens = $this->designTokens->getTokensForNamespace($namespace);
+        if ($config === [] && $resolvedNamespace !== PageService::DEFAULT_NAMESPACE) {
+            $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+        }
+
+        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
 
         $designColors = $this->resolveDesignColors($config);
 
