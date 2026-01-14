@@ -6,10 +6,11 @@
 #}
 
 {% block head %}
-  {% set includeMainStyles = includeMainStyles|default(true) %}
+  {% set includeCmsBaseStyles = includeCmsBaseStyles|default(true) %}
+  {% set includeMainStyles = includeMainStyles|default(includeCmsBaseStyles) %}
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
   {% set includeHighContrastStyles = includeHighContrastStyles|default(true) %}
-  {% set includeMarketingTopbarStyles = includeMarketingTopbarStyles|default(true) %}
+  {% set includeMarketingTopbarStyles = includeMarketingTopbarStyles|default(includeCmsBaseStyles) %}
   {% if includeMainStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   {% endif %}
