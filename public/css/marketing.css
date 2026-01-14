@@ -222,6 +222,117 @@ html[data-theme] body {
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
 
+body.marketing-page.uk-offcanvas-content {
+  min-height: 100vh;
+  background: var(--surface-page, #ffffff);
+}
+
+body.marketing-page.uk-padding {
+  padding-top: 0;
+  padding-left: calc(var(--section-gap, 2.25rem) / 3);
+  padding-right: calc(var(--section-gap, 2.25rem) / 3);
+}
+
+body.marketing-page .uk-container,
+body.marketing-page .legal-container {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+@media (min-width: 640px) {
+  body.marketing-page .uk-container,
+  body.marketing-page .legal-container {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  body.marketing-page.uk-padding {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+body.marketing-page .topbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-height: var(--topbar-height, 48px);
+  padding: 0 0.5rem;
+  background: var(--topbar-bg, var(--surface-card, #fff));
+  box-sizing: border-box;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+body.marketing-page .topbar .uk-navbar-left,
+body.marketing-page .topbar .uk-navbar-right {
+  display: flex;
+  align-items: center;
+}
+
+body.marketing-page .topbar .uk-navbar-right {
+  margin-left: auto;
+}
+
+body.marketing-page .topbar .uk-navbar-right > * {
+  flex-shrink: 0;
+}
+
+body.marketing-page .topbar .uk-navbar-item,
+body.marketing-page .topbar .uk-navbar-nav > li > a,
+body.marketing-page .topbar .uk-navbar-toggle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--topbar-text, var(--text-body));
+}
+
+body.marketing-page .topbar .uk-navbar-item,
+body.marketing-page .topbar .uk-navbar-nav > li > a,
+body.marketing-page .topbar .uk-navbar-toggle:not(.git-btn) {
+  height: var(--topbar-height, 48px);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+body.marketing-page .topbar .uk-navbar-toggle.git-btn,
+body.marketing-page .uk-navbar-toggle.git-btn {
+  width: var(--topbar-height, 48px);
+  height: var(--topbar-height, 48px);
+  padding: 0;
+}
+
+body.marketing-page .topbar .uk-navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+body.marketing-page .topbar .uk-navbar-center .uk-navbar-item {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  body.marketing-page .topbar .uk-navbar-center {
+    flex: 0 1 auto;
+    width: auto;
+  }
+}
+
+body.marketing-page .uk-icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  border: 1px solid var(--topbar-btn-border, var(--border-muted, #ddd));
+}
+
 body.marketing-page {
   --brand-primary: var(--marketing-primary);
   --brand-secondary: var(--marketing-accent);
