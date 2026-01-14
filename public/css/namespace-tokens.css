@@ -4,6 +4,27 @@
 :root {
   --brand-primary: #1e87f0;
   --brand-accent: #f97316;
+  --brand-secondary: #f97316;
+  --marketing-primary: #1e87f0;
+  --marketing-accent: #f97316;
+  --marketing-secondary: #f97316;
+  --marketing-link: #1e87f0;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --layout-profile: standard;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+}
+
+[data-namespace="default"] {
+  --brand-primary: #1e87f0;
+  --brand-accent: #f97316;
+  --brand-secondary: #f97316;
+  --marketing-primary: #1e87f0;
+  --marketing-accent: #f97316;
+  --marketing-secondary: #f97316;
+  --marketing-link: #1e87f0;
+  --marketing-surface: var(--surface-card, #ffffff);
   --layout-profile: standard;
   --typography-preset: modern;
   --components-card-style: rounded;
