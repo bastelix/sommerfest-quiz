@@ -2446,14 +2446,7 @@ body.marketing-page.calhelp-theme :is(.calhelp-card, .calhelp-kpi) p {
     text-wrap: pretty;
 }
 
-body.marketing-page:is(.calserver-layout, .calhelp-theme).high-contrast .marketing-cookie-banner,
-body.marketing-page:is(.calserver-layout, .calhelp-theme)[data-theme="high-contrast"] .marketing-cookie-banner,
-body.high-contrast .marketing-cookie-banner {
-    background: var(--qr-card, var(--marketing-black));
-    color: var(--qr-text, var(--marketing-white));
-    border: 2px solid currentColor;
-    box-shadow: none;
-}
+/* Chat/Cookie styles are consolidated in marketing.css. */
 
 body.marketing-page.calhelp-theme.high-contrast .calhelp-process__nav-button,
 body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-process__nav-button,
@@ -2527,10 +2520,4 @@ body.marketing-page.calhelp-theme.high-contrast .calhelp-process__criteria span,
 body.marketing-page.calhelp-theme[data-theme="high-contrast"] .calhelp-process__criteria span,
 body.high-contrast .calhelp-process__criteria span {
     color: currentColor;
-}
-
-body.marketing-page:is(.calserver-layout, .calhelp-theme).high-contrast .marketing-cookie-banner__link,
-body.marketing-page:is(.calserver-layout, .calhelp-theme)[data-theme="high-contrast"] .marketing-cookie-banner__link,
-body.high-contrast .marketing-cookie-banner__link {
-    text-decoration-thickness: 2px;
 }

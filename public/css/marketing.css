@@ -440,6 +440,476 @@ body:is(.marketing-page, .cms-page-render) :where(.uk-card, .qr-card, .feature-b
 }
 
 /* =========================================================
+   Chat/Cookie
+   ========================================================= */
+
+.marketing-chat-modal .uk-modal-dialog {
+  max-width: 720px;
+}
+
+.marketing-chat__dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  --marketing-chat-surface: color-mix(
+    in oklab,
+    var(--qr-card, var(--marketing-surface-muted)) 96%,
+    color-mix(in oklab, var(--marketing-white) 94%, transparent)
+  );
+  --marketing-chat-surface-alt: color-mix(
+    in oklab,
+    var(--qr-card, var(--marketing-surface-muted)) 92%,
+    color-mix(in oklab, var(--marketing-white) 82%, transparent)
+  );
+  --marketing-chat-emphasis: color-mix(
+    in oklab,
+    var(--calserver-primary, var(--marketing-primary)) 18%,
+    color-mix(in oklab, var(--marketing-white) 94%, transparent)
+  );
+  --marketing-chat-strong: color-mix(
+    in oklab,
+    var(--qr-text, var(--marketing-text-on-surface)) 90%,
+    color-mix(in oklab, var(--marketing-ink) 10%, transparent)
+  );
+  --marketing-chat-muted: color-mix(
+    in oklab,
+    var(--qr-muted, var(--marketing-text-muted-on-surface)) 92%,
+    color-mix(in oklab, var(--marketing-ink) 60%, transparent)
+  );
+  --marketing-chat-border: color-mix(
+    in oklab,
+    var(--qr-card-border, var(--marketing-border)) 85%,
+    transparent
+  );
+  background: var(--marketing-chat-surface);
+  color: var(--marketing-chat-strong);
+  border: 1px solid var(--marketing-chat-border);
+  border-radius: 12px;
+  box-shadow: 0 28px 64px -40px color-mix(in oklab, var(--marketing-ink) 55%, transparent),
+    0 12px 32px -20px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
+}
+
+.marketing-chat__intro {
+  margin: 0;
+  color: var(--marketing-chat-muted);
+}
+
+.marketing-chat__messages {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 12px 16px;
+  background: var(--marketing-chat-surface-alt);
+  border: 1px solid color-mix(in oklab, var(--marketing-chat-border) 92%, transparent);
+  border-radius: 10px;
+}
+
+.marketing-chat__system {
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: var(--marketing-chat-emphasis);
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--marketing-chat-strong);
+}
+
+.marketing-chat__turn {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid color-mix(in oklab, var(--marketing-chat-border) 78%, transparent);
+}
+
+.marketing-chat__turn:last-child {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
+.marketing-chat__question {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.marketing-chat__answer p {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.marketing-chat__answer p:last-child {
+  margin-bottom: 0;
+}
+
+.marketing-chat__context {
+  margin-top: 12px;
+}
+
+.marketing-chat__context-toggle {
+  margin: 0;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--marketing-chat-muted);
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.marketing-chat__context-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.marketing-chat__context-toggle::before {
+  content: '\25B8';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.2s ease;
+}
+
+.marketing-chat__context[open] .marketing-chat__context-toggle::before {
+  transform: rotate(90deg);
+}
+
+.marketing-chat__context-list {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.marketing-chat__context-item {
+  font-size: 0.95rem;
+}
+
+.marketing-chat__context-link {
+  color: var(--calserver-primary, var(--marketing-primary));
+  text-decoration: none;
+}
+
+.marketing-chat__context-link:hover,
+.marketing-chat__context-link:focus {
+  text-decoration: underline;
+}
+
+.marketing-chat__context-label {
+  color: var(--marketing-chat-muted);
+}
+
+.marketing-chat__status {
+  min-height: 1.25em;
+  margin: 0;
+  font-weight: 600;
+  color: var(--marketing-chat-muted);
+}
+
+.marketing-chat__status--error {
+  color: var(--marketing-danger-600);
+}
+
+.marketing-chat__honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(100%);
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.marketing-chat__form textarea {
+  resize: vertical;
+}
+
+.marketing-chat__form-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.marketing-chat__form--loading textarea {
+  opacity: 0.75;
+}
+
+body:is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
+  .marketing-chat__dialog {
+  --marketing-chat-surface: color-mix(
+    in oklab,
+    var(--qr-card, var(--marketing-surface-dark)) 85%,
+    color-mix(in oklab, var(--marketing-ink) 92%, transparent)
+  );
+  --marketing-chat-surface-alt: color-mix(
+    in oklab,
+    color-mix(in oklab, var(--marketing-ink) 94%, transparent) 82%,
+    color-mix(in oklab, var(--calserver-primary, var(--marketing-primary)) 22%, transparent) 18%
+  );
+  --marketing-chat-emphasis: color-mix(
+    in oklab,
+    var(--calserver-primary, var(--marketing-primary)) 42%,
+    color-mix(in oklab, var(--marketing-ink) 88%, transparent)
+  );
+  --marketing-chat-strong: color-mix(
+    in oklab,
+    var(--marketing-white) 94%,
+    color-mix(in oklab, var(--marketing-white) 72%, transparent) 6%
+  );
+  --marketing-chat-muted: color-mix(
+    in oklab,
+    color-mix(in oklab, var(--marketing-white) 92%, transparent) 88%,
+    color-mix(in oklab, var(--marketing-white) 70%, transparent) 12%
+  );
+  --marketing-chat-border: color-mix(
+    in oklab,
+    color-mix(in oklab, var(--marketing-primary) 45%, transparent) 50%,
+    color-mix(in oklab, var(--marketing-white) 18%, transparent) 50%
+  );
+}
+
+@media (max-width: 640px) {
+  .marketing-chat__dialog {
+    padding: 20px 18px;
+  }
+
+  .marketing-chat__messages {
+    max-height: 240px;
+  }
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
+  position: fixed;
+  inset: auto 24px 24px auto;
+  width: min(360px, calc(100% - 48px));
+  border-radius: 16px;
+  box-shadow: 0 24px 58px -34px color-mix(in oklab, var(--marketing-ink) 65%, transparent),
+    0 18px 32px -28px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  z-index: 1050;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button {
+  position: fixed;
+  bottom: clamp(1rem, 4vw, 1.75rem);
+  z-index: 1040;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border: 1px solid color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
+  border-radius: 9999px;
+  background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+  color: var(--marketing-white);
+  box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent),
+    0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  color: inherit;
+  stroke: currentColor;
+  fill: none;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button .uk-icon {
+  color: inherit !important;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button:hover,
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
+  background: color-mix(in oklab, var(--calserver-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
+  border-color: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
+  box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent),
+    0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-white) 30%);
+  outline-offset: 3px;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-floating-button:active {
+  transform: scale(0.96);
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
+  left: clamp(1rem, 4vw, 1.75rem);
+}
+
+.marketing-chat-fab {
+  right: clamp(1rem, 4vw, 1.75rem);
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger--active {
+  background: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
+  border-color: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
+  box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent),
+    0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
+}
+
+body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button,
+body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
+  color: var(--marketing-white);
+  border-color: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
+  background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+  box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent),
+    0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
+}
+
+body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
+body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
+  color: inherit;
+  stroke: currentColor;
+}
+
+@media (max-width: 640px) {
+  body:is(.marketing-page, .cms-page-render) .marketing-floating-button {
+    width: 3rem;
+    height: 3rem;
+    bottom: clamp(0.85rem, 6vw, 1.25rem);
+    box-shadow: 0 14px 28px color-mix(in oklab, var(--marketing-ink) 30%, transparent),
+      0 6px 16px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
+  }
+
+  body:is(.marketing-page, .cms-page-render) .marketing-floating-button svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  body:is(.marketing-page, .cms-page-render) .marketing-cookie-trigger {
+    left: clamp(0.85rem, 6vw, 1.25rem);
+  }
+
+  .marketing-chat-fab {
+    right: clamp(0.85rem, 6vw, 1.25rem);
+  }
+}
+
+body:is(.marketing-page, .cms-page-render).high-contrast .marketing-floating-button,
+body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-floating-button,
+body.high-contrast .marketing-floating-button {
+  background: var(--marketing-black);
+  color: var(--marketing-white);
+  box-shadow: none;
+  border: 2px solid currentColor;
+}
+
+body:is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
+body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
+body.high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active {
+  background: var(--marketing-ink);
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner--visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__headline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__icon {
+  color: var(--calserver-primary);
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__copy {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__fineprint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: color-mix(in oklab, currentColor 72%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner__button {
+  flex: 1 1 140px;
+}
+
+@media (max-width: 640px) {
+  body:is(.marketing-page, .cms-page-render) .marketing-cookie-banner {
+    inset: auto 16px 16px 16px;
+    width: auto;
+  }
+}
+
+body:is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
+  .marketing-cookie-banner {
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--calserver-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
+    color-mix(in oklab, var(--calserver-primary) 18%, color-mix(in oklab, var(--marketing-ink) 96%, transparent)) 100%
+  ) !important;
+  border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, color-mix(in oklab, var(--marketing-white) 18%, transparent))
+    !important;
+  color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 8%, transparent))
+    !important;
+}
+
+body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
+body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
+  background: linear-gradient(
+    160deg,
+    color-mix(in oklab, var(--calserver-primary) 12%, var(--marketing-white) 88%) 0%,
+    color-mix(in oklab, var(--calserver-primary) 8%, var(--marketing-surface-muted) 92%) 100%
+  ) !important;
+  border: 1px solid color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 10%, transparent))
+    !important;
+  color: color-mix(in oklab, var(--marketing-ink) 88%, var(--calserver-primary) 12%) !important;
+}
+
+body:is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner,
+body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner,
+body.high-contrast .marketing-cookie-banner {
+  background: var(--qr-card, var(--marketing-black));
+  color: var(--qr-text, var(--marketing-white));
+  border: 2px solid currentColor;
+  box-shadow: none;
+}
+
+body:is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner__link,
+body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner__link,
+body.high-contrast .marketing-cookie-banner__link {
+  text-decoration-thickness: 2px;
+}
+
+/* =========================================================
    Topbar refactor (shared base, per-scope deltas)
    ========================================================= */
 
