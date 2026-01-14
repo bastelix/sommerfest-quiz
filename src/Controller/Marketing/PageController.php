@@ -156,6 +156,9 @@ class PageController
         $pageNamespace = $contentNamespace !== ''
             ? $contentNamespace
             : ($resolvedNamespace !== '' ? $resolvedNamespace : PageService::DEFAULT_NAMESPACE);
+        $designNamespace = $resolvedNamespace !== ''
+            ? $resolvedNamespace
+            : PageService::DEFAULT_NAMESPACE;
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -165,14 +168,14 @@ class PageController
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
-        $design = $this->loadDesign($pageNamespace);
+        $design = $this->loadDesign($designNamespace);
         $pageType = $page->getType();
         $pageFeatures = $this->resolvePageFeatures($page, $templateSlug, $design);
         $marketingPayload = $this->applyMarketingFeatures(
             $request,
             $page,
             $templateSlug,
-            $pageNamespace,
+            $contentNamespace,
             $locale,
             $basePath,
             $html,
@@ -182,7 +185,7 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $renderContext = $this->namespaceRenderContext->build($designNamespace);
         $theme = is_string($renderContext['design']['theme'] ?? null)
             ? (string) $renderContext['design']['theme']
             : 'light';
@@ -240,8 +243,8 @@ class PageController
         }
 
         $pageJson = [
-            'namespace' => $pageNamespace,
-            'contentNamespace' => $pageNamespace,
+            'namespace' => $designNamespace,
+            'contentNamespace' => $contentNamespace,
             'slug' => $page->getSlug(),
             'type' => $pageType,
             'sectionStyleDefaults' => $sectionStyleDefaults,
@@ -254,8 +257,8 @@ class PageController
 
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
-                'namespace' => $pageNamespace,
-                'contentNamespace' => $pageNamespace,
+                'namespace' => $designNamespace,
+                'contentNamespace' => $contentNamespace,
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
                 'design' => $design,
@@ -290,9 +293,9 @@ class PageController
             'pageModules' => $this->pageModules->getModulesByPosition($page->getId()),
             'cookieConsentConfig' => $cookieConsentConfig,
             'privacyUrl' => $privacyUrl,
-            'namespace' => $pageNamespace,
-            'pageNamespace' => $pageNamespace,
-            'contentNamespace' => $pageNamespace,
+            'namespace' => $designNamespace,
+            'pageNamespace' => $designNamespace,
+            'contentNamespace' => $contentNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
