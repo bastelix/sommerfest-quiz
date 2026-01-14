@@ -548,6 +548,38 @@
     return null;
   };
 
+  const resolveElementValue = (selector, property) => {
+    if (!preview || !selector) {
+      return null;
+    }
+    const element = preview.querySelector(selector);
+    if (!element) {
+      return null;
+    }
+    const value = getComputedStyle(element).getPropertyValue(property).trim();
+    return value || null;
+  };
+
+  const isTransparentValue = value => {
+    if (!value) return false;
+    const trimmed = value.trim().toLowerCase();
+    if (trimmed === 'transparent') {
+      return true;
+    }
+    const rgbaMatch = trimmed.match(/^rgba\((.+)\)$/);
+    if (!rgbaMatch) {
+      return false;
+    }
+    const parts = rgbaMatch[1].split(/[\s,\/]+/).filter(Boolean);
+    if (parts.length < 4) {
+      return false;
+    }
+    const alpha = parts[3].endsWith('%')
+      ? parseFloat(parts[3]) / 100
+      : parseFloat(parts[3]);
+    return !Number.isNaN(alpha) && alpha === 0;
+  };
+
   const initContrastControls = () => {
     const panel = editor.querySelector('[data-contrast-panel]');
     if (!panel || !preview) return;
@@ -565,6 +597,14 @@
         backgroundVars: ['--marketing-surface', '--surface', '--bg-subtle', '--preview-surface-bg'],
         applyVars: ['--marketing-text-on-surface', '--text-on-surface'],
       },
+      'text-on-card': {
+        textVars: ['--marketing-text-on-surface', '--text-on-surface', '--marketing-text'],
+        backgroundVars: ['--preview-card-bg', '--surface-card', '--bg-section'],
+        applyVars: ['--marketing-text-on-surface', '--text-on-surface'],
+        textSelector: '.design-preview__card',
+        backgroundSelector: '.design-preview__card',
+        inputKey: 'text-on-surface',
+      },
       'text-on-background': {
         textVars: ['--marketing-text-on-background', '--text-on-background', '--marketing-text'],
         backgroundVars: ['--marketing-background', '--surface-page', '--bg-page', '--marketing-surface'],
@@ -574,6 +614,14 @@
         textVars: ['--marketing-text-on-primary', '--marketing-on-accent', '--text-on-primary'],
         backgroundVars: ['--marketing-primary', '--brand-primary'],
         applyVars: ['--marketing-on-accent', '--marketing-text-on-primary', '--text-on-primary'],
+      },
+      'text-on-secondary': {
+        textVars: ['--marketing-text-on-primary', '--marketing-on-accent', '--text-on-primary'],
+        backgroundVars: ['--marketing-button-secondary-bg', '--brand-secondary', '--marketing-secondary', '--brand-accent'],
+        applyVars: ['--marketing-on-accent', '--marketing-text-on-primary', '--text-on-primary'],
+        textSelector: '.design-preview__button-secondary',
+        backgroundSelector: '.design-preview__button-secondary',
+        inputKey: 'text-on-primary',
       },
     };
 
@@ -590,10 +638,21 @@
       });
     };
 
-    const updateRow = (row, config) => {
+    const resolveTargetValue = (config, mode) => {
+      const selector = mode === 'text' ? config.textSelector : config.backgroundSelector;
+      const property = mode === 'text' ? 'color' : 'background-color';
+      const elementValue = resolveElementValue(selector, property);
+      if (elementValue && !isTransparentValue(elementValue)) {
+        return elementValue;
+      }
       const style = getComputedStyle(preview);
-      const textValue = resolveCssValue(style, config.textVars);
-      const backgroundValue = resolveCssValue(style, config.backgroundVars);
+      const names = mode === 'text' ? config.textVars : config.backgroundVars;
+      return resolveCssValue(style, names);
+    };
+
+    const updateRow = (row, config) => {
+      const textValue = resolveTargetValue(config, 'text');
+      const backgroundValue = resolveTargetValue(config, 'background');
       const ratioElement = row.querySelector('[data-contrast-ratio]');
       const aaBadge = row.querySelector('[data-contrast-aa]');
       const aaaBadge = row.querySelector('[data-contrast-aaa]');
@@ -653,8 +712,7 @@
       const fixButton = row.querySelector('[data-contrast-fix]');
       if (fixButton instanceof HTMLButtonElement) {
         fixButton.addEventListener('click', () => {
-          const style = getComputedStyle(preview);
-          const backgroundValue = resolveCssValue(style, config.backgroundVars);
+          const backgroundValue = resolveTargetValue(config, 'background');
           const backgroundColor = parseColor(backgroundValue);
           if (!backgroundColor) {
             return;
@@ -668,7 +726,7 @@
           config.applyVars.forEach(variable => {
             preview.style.setProperty(variable, hex);
           });
-          const input = inputMap[key];
+          const input = inputMap[config.inputKey || key];
           if (input instanceof HTMLInputElement) {
             input.value = hex;
             input.disabled = false;
