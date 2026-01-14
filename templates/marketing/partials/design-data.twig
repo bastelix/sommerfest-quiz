@@ -1,5 +1,6 @@
-{% set appearanceData = appearance|default(design.appearance|default({})) %}
-{% set designConfig = design.config|default({}) %}
+{% set resolvedDesign = design|default(renderContext.design|default({})) %}
+{% set appearanceData = appearance|default(resolvedDesign.appearance|default({})) %}
+{% set designConfig = resolvedDesign.config|default({}) %}
 
 <div
   id="marketing-design-data"
