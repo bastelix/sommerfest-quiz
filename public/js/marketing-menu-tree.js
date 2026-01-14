@@ -51,6 +51,15 @@ if (container) {
     };
 
     const variantOptions = parseVariantOptions();
+    const internalLinks = (() => {
+      try {
+        const parsed = JSON.parse(container.dataset.internalLinks || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('Failed to parse internal link options', error);
+        return [];
+      }
+    })();
 
     const resolveSelectedVariant = () => {
       const requested = container.dataset.selectedNavigationVariant || variantSelect?.dataset.selected || '';
@@ -76,6 +85,36 @@ if (container) {
       variant: resolveSelectedVariant(),
       variantOptions,
     };
+
+    const renderHrefOptions = options => {
+      if (!options.length) {
+        return null;
+      }
+      const list = document.createElement('datalist');
+      list.id = `menu-tree-href-options-${Math.random().toString(36).slice(2, 9)}`;
+      options.forEach(option => {
+        const value = typeof option?.value === 'string' ? option.value.trim() : '';
+        if (!value) {
+          return;
+        }
+        const label = typeof option?.label === 'string' ? option.label.trim() : value;
+        const group = typeof option?.group === 'string' ? option.group.trim() : '';
+        const displayLabel = group && label && group !== label ? `${group}: ${label}` : label;
+        const entry = document.createElement('option');
+        entry.value = value;
+        if (displayLabel && displayLabel !== value) {
+          entry.label = displayLabel;
+        }
+        list.appendChild(entry);
+      });
+      return list;
+    };
+
+    const hrefOptionsList = renderHrefOptions(internalLinks);
+    const hrefOptionsListId = hrefOptionsList?.id || '';
+    if (hrefOptionsList) {
+      container.appendChild(hrefOptionsList);
+    }
 
     const iconOptions = [
       '',
@@ -630,10 +669,13 @@ if (container) {
       hrefInput.type = 'text';
       hrefInput.className = 'uk-input uk-form-small menu-tree__href-input';
       hrefInput.value = node.href || '';
-      hrefInput.placeholder = '/pfad oder Link';
+      hrefInput.placeholder = '/pfad, #anker oder Link';
       hrefInput.dataset.field = 'href';
       hrefInput.setAttribute('aria-label', 'Link bearbeiten');
       hrefInput.id = hrefFieldId;
+      if (hrefOptionsListId) {
+        hrefInput.setAttribute('list', hrefOptionsListId);
+      }
 
       const errorHint = document.createElement('div');
       errorHint.className = 'uk-text-small uk-text-danger';

@@ -14,6 +14,15 @@ if (manager) {
         return [];
       }
     })();
+    const internalLinks = (() => {
+      try {
+        const parsed = JSON.parse(manager.dataset.internalLinks || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('Failed to parse internal link options', error);
+        return [];
+      }
+    })();
 
     const pageSelect = document.getElementById('pageContentSelect');
     const localeSelect = document.getElementById('menuLocaleSelect');
@@ -78,6 +87,36 @@ if (manager) {
       order: [],
       orderSignature: ''
     };
+
+    const renderHrefOptions = options => {
+      if (!options.length) {
+        return null;
+      }
+      const list = document.createElement('datalist');
+      list.id = `menu-href-options-${Math.random().toString(36).slice(2, 9)}`;
+      options.forEach(option => {
+        const value = typeof option?.value === 'string' ? option.value.trim() : '';
+        if (!value) {
+          return;
+        }
+        const label = typeof option?.label === 'string' ? option.label.trim() : value;
+        const group = typeof option?.group === 'string' ? option.group.trim() : '';
+        const displayLabel = group && label && group !== label ? `${group}: ${label}` : label;
+        const entry = document.createElement('option');
+        entry.value = value;
+        if (displayLabel && displayLabel !== value) {
+          entry.label = displayLabel;
+        }
+        list.appendChild(entry);
+      });
+      return list;
+    };
+
+    const hrefOptionsList = renderHrefOptions(internalLinks);
+    const hrefOptionsListId = hrefOptionsList?.id || '';
+    if (hrefOptionsList) {
+      manager.appendChild(hrefOptionsList);
+    }
 
     const findPageBySlug = slug => pagesData.find(page => page.slug === slug) || null;
     const resolveNamespace = () => {
@@ -973,9 +1012,12 @@ if (manager) {
     const hrefInput = document.createElement('input');
     hrefInput.className = 'uk-input uk-form-small';
     hrefInput.type = 'text';
-    hrefInput.placeholder = '/landing oder https://';
+    hrefInput.placeholder = '/landing, #anker oder https://';
     hrefInput.value = item?.href || '';
     hrefInput.dataset.menuHref = 'true';
+    if (hrefOptionsListId) {
+      hrefInput.setAttribute('list', hrefOptionsListId);
+    }
     const hrefError = document.createElement('div');
     hrefError.className = 'uk-text-danger uk-text-small';
     hrefError.dataset.menuLinkError = 'true';

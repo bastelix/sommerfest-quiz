@@ -192,6 +192,7 @@
               data-marketing-menu-tree
               data-base-path="{{ basePath }}"
               data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+              data-internal-links="{{ internal_links|default([])|json_encode|e('html_attr') }}"
               data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
               data-namespace="{{ activePageNamespace|e('html_attr') }}"
               data-locale="{{ selectedMenuLocale|e('html_attr') }}"
@@ -277,6 +278,7 @@
               data-marketing-menu-manager
               data-base-path="{{ basePath }}"
               data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+              data-internal-links="{{ internal_links|default([])|json_encode|e('html_attr') }}"
               data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
               data-namespace="{{ activePageNamespace|e('html_attr') }}"
               data-locale="{{ selectedMenuLocale|e('html_attr') }}"
