@@ -201,8 +201,15 @@ class HttpChatResponder implements ChatResponderInterface
      */
     private function extractAnswer(array $payload): ?string
     {
+        // The default RAG chat relay returns {"answer": "..."} while OpenAI-compatible gateways use choices/message.content.
         if (array_key_exists('answer', $payload) && is_string($payload['answer']) && trim($payload['answer']) !== '') {
             return $payload['answer'];
+        }
+
+        foreach (['response', 'result'] as $customKey) {
+            if (array_key_exists($customKey, $payload) && is_string($payload[$customKey]) && trim($payload[$customKey]) !== '') {
+                return $payload[$customKey];
+            }
         }
 
         if (array_key_exists('message', $payload) && is_array($payload['message'])) {
