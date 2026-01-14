@@ -26,6 +26,28 @@ body.cms-page-render[data-theme="dark"]{
   --drop-border: var(--topbar-drop-border);
   --drop-color: var(--topbar-text);
 }
+@media (max-width: 640px) {
+  body.marketing-page,
+  body.cms-page-render{
+    --topbar-drop-bg: var(--marketing-surface, #ffffff);
+  }
+  body.marketing-page[data-theme="dark"],
+  body.marketing-page.dark-mode,
+  body.cms-page-render[data-theme="dark"],
+  body.cms-page-render.dark-mode{
+    --topbar-drop-bg: var(--marketing-surface-dark, #0a0d12);
+  }
+  body.marketing-page.high-contrast,
+  body.cms-page-render.high-contrast{
+    --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-light, #ffffff);
+  }
+  body.marketing-page[data-theme="dark"].high-contrast,
+  body.marketing-page.dark-mode.high-contrast,
+  body.cms-page-render[data-theme="dark"].high-contrast,
+  body.cms-page-render.dark-mode.high-contrast{
+    --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-dark, #000000);
+  }
+}
 .marketing-page .qr-topbar,
 .cms-page-render .qr-topbar{
   padding-top: env(safe-area-inset-top);
