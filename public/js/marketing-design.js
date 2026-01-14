@@ -1379,6 +1379,7 @@ const applyMarketingDesign = () => {
     fallbackMarketingText,
   );
   const surfaceDark =
+    marketingSchemeValues?.surfaceDark ||
     configColors.surfaceDark ||
     configColors.surface_dark ||
     configColors.marketingSurfaceDark ||
@@ -1393,6 +1394,7 @@ const applyMarketingDesign = () => {
     variables.marketing_surface_dark ||
     fallbackSurfaceDark;
   const surfaceMutedDark =
+    marketingSchemeValues?.surfaceMutedDark ||
     configColors.surfaceMutedDark ||
     configColors.surface_muted_dark ||
     configColors.marketingSurfaceMutedDark ||
@@ -1407,6 +1409,8 @@ const applyMarketingDesign = () => {
     variables.marketing_surface_muted_dark ||
     fallbackSurfaceMutedDark;
   const cardDark =
+    marketingSchemeValues?.surfaceGlassDark ||
+    marketingSchemeValues?.cardDark ||
     configColors.cardDark ||
     configColors.card_dark ||
     configColors.marketingCardDark ||
