@@ -1,0 +1,16 @@
+/*
+  Minimal marketing utility tokens extracted to avoid loading the full main.css/variables.css
+  stack on CMS marketing pages.
+*/
+:root {
+  --surface-page: #f7f9fb;
+  --surface-section: #ffffff;
+  --surface-card: #ffffff;
+  --surface-muted: #eef2f7;
+
+  --text-body: #111827;
+  --text-primary: var(--text-body);
+  --text-heading: var(--text-body);
+  --text-muted: #4b5563;
+  --text-on-primary: #ffffff;
+}
