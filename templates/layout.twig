@@ -11,6 +11,7 @@
 {% set shouldIncludeMarketingThemeVars = (not isAdminPage) or ('marketing-page' in normalizedBodyClass) or includeMarketingThemeVars %}
 {% set includeUikitStyles = includeUikitStyles|default(true) %}
 {% set includeMainStyles = includeMainStyles|default(true) %}
+{% set includeVariablesStyles = includeVariablesStyles|default(true) %}
 {% set includeTableStyles = includeTableStyles|default(true) %}
 {% set includeTopbarStyles = includeTopbarStyles|default(true) %}
 {% set includeNamespaceTokensStyles = includeNamespaceTokensStyles|default(true) %}
@@ -134,15 +135,15 @@
   {% if includeUikitStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   {% endif %}
-  {% if includeMainStyles %}
+  {% if includeVariablesStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
   {% endif %}
   {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}
   {% set prefersDark = theme == 'dark' %}
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
-  {% set shouldIncludeDarkStyles = includeMainStyles and includeDarkStyles %}
+  {% set shouldIncludeDarkStyles = includeMainStyles and includeVariablesStyles and includeDarkStyles %}
   {% set darkMedia = shouldIncludeDarkStyles ? (prefersDark ? 'all' : '(prefers-color-scheme: dark)') : 'not all' %}
-  {% if includeMainStyles %}
+  {% if shouldIncludeDarkStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not shouldIncludeDarkStyles %} disabled{% endif %}>
   {% endif %}
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
