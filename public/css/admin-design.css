@@ -417,8 +417,22 @@
 
 .design-contrast__metrics {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-items: stretch;
+  gap: 8px 16px;
+}
+
+.design-contrast__metric {
+  display: grid;
   justify-items: end;
-  gap: 6px;
+  gap: 4px;
+}
+
+.design-contrast__metric-label {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #4b5563);
 }
 
 .design-contrast__ratio {
