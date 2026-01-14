@@ -13,6 +13,12 @@
 {% set menuItems = menu|default([]) %}
 {% set cmsMenuItems = menuItems|default([]) %}
 {% set includeLegacyMarketingStyles = false %}
+{% set includeUikitStyles = false %}
+{% set includeMainStyles = false %}
+{% set includeTableStyles = false %}
+{% set includeTopbarStyles = false %}
+{% set includeMarketingTopbarStyles = false %}
+{% set includeNamespaceTokensStyles = false %}
 {% set logoSettings = headerLogo|default({}) %}
 {% set logoMode = logoSettings.mode|default('text') %}
 {% set logoSrc = logoSettings.src|default(null) %}

@@ -9,6 +9,11 @@
 {% set isAdminPage = 'admin-page' in normalizedBodyClass %}
 {% set includeMarketingThemeVars = includeMarketingThemeVars|default(false) %}
 {% set shouldIncludeMarketingThemeVars = (not isAdminPage) or ('marketing-page' in normalizedBodyClass) or includeMarketingThemeVars %}
+{% set includeUikitStyles = includeUikitStyles|default(true) %}
+{% set includeMainStyles = includeMainStyles|default(true) %}
+{% set includeTableStyles = includeTableStyles|default(true) %}
+{% set includeTopbarStyles = includeTopbarStyles|default(true) %}
+{% set includeNamespaceTokensStyles = includeNamespaceTokensStyles|default(true) %}
 {# Allowed admin layout profiles: wide, standard, narrow. #}
 {% set allowedAdminLayouts = ['wide', 'standard', 'narrow'] %}
 {% set adminLayoutRaw = adminLayout|default('') %}
@@ -126,18 +131,29 @@
     {% set faviconType = 'image/svg+xml' %}
   {% endif %}
   <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
+  {% if includeUikitStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
+  {% endif %}
+  {% if includeMainStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
+  {% endif %}
   {% set theme = attribute(cfg, 'startTheme')|default('light')|lower %}
   {% set prefersDark = theme == 'dark' %}
   {% set includeDarkStyles = includeDarkStyles|default(true) %}
-  {% set darkMedia = includeDarkStyles ? (prefersDark ? 'all' : '(prefers-color-scheme: dark)') : 'not all' %}
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not includeDarkStyles %} disabled{% endif %}>
+  {% set shouldIncludeDarkStyles = includeMainStyles and includeDarkStyles %}
+  {% set darkMedia = shouldIncludeDarkStyles ? (prefersDark ? 'all' : '(prefers-color-scheme: dark)') : 'not all' %}
+  {% if includeMainStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not shouldIncludeDarkStyles %} disabled{% endif %}>
+  {% endif %}
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
-  <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/table.css">
-  {% if 'marketing-page' not in normalizedBodyClass %}
-  <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
+  {% if includeNamespaceTokensStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
+  {% endif %}
+  {% if includeTableStyles %}
+    <link rel="stylesheet" href="{{ basePath }}/css/table.css">
+  {% endif %}
+  {% if includeTopbarStyles and 'marketing-page' not in normalizedBodyClass %}
+    <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% endif %}
   {% if 'marketing-page' in normalizedBodyClass %}
   <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin>
