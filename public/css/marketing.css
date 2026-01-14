@@ -1,101 +1,174 @@
-/* Design-Tokens für Marketing-Pages */
+/* =========================================================
+   Marketing Design Tokens (single source of truth)
+   ========================================================= */
 
 :root {
+  /* --- Core defaults (derive from global system tokens) --- */
   --marketing-primary-default: var(--brand-primary);
   --marketing-accent-default: var(--brand-secondary);
   --marketing-surface-default: var(--surface-section);
   --marketing-surface-muted-default: var(--surface-muted);
+
+  /* Dark defaults: keep as explicit tokens for overrides */
   --marketing-surface-dark-default: var(--surface-section);
   --marketing-surface-muted-dark-default: var(--surface-muted);
   --marketing-card-dark-default: var(--surface-card);
+
+  /* Text defaults */
   --marketing-text-default: var(--text-body);
   --marketing-text-on-surface-default: var(--text-body);
   --marketing-text-on-background-default: var(--text-body);
   --marketing-text-muted-on-surface-default: var(--text-muted);
   --marketing-text-muted-on-background-default: var(--text-muted);
+
   --marketing-text-on-surface-dark-default: var(--text-body);
   --marketing-text-on-background-dark-default: var(--text-body);
   --marketing-text-muted-on-surface-dark-default: var(--text-muted);
   --marketing-text-muted-on-background-dark-default: var(--text-muted);
+
   --marketing-text-on-primary-default: var(--text-on-primary);
+
+  /* Neutrals / misc */
   --marketing-white: #ffffff;
   --marketing-black: #000000;
   --marketing-black-rgb: 0 0 0;
   --marketing-ink: #0b1728;
+
   --marketing-danger-500: #ff6b6b;
   --marketing-danger-600: #ff4c4c;
+
   --marketing-link-contrast-light: #0000ee;
   --marketing-link-contrast-dark: #ffff00;
+
+  /* Typography scale */
   --marketing-h1: clamp(2.4rem, 4vw, 3.6rem);
   --marketing-h2: clamp(2rem, 3vw, 2.8rem);
   --marketing-h3: clamp(1.5rem, 2.3vw, 2.2rem);
   --marketing-body: clamp(1rem, 1.2vw, 1.125rem);
   --marketing-heading-line-height: 1.15;
   --marketing-body-line-height: 1.65;
+
+  /* Layout scale */
   --marketing-section-padding: clamp(32px, 6vw, 72px);
   --marketing-section-gap: clamp(20px, 4vw, 40px);
+
+  /* Glass/cards */
   --marketing-surface-glass: rgba(255, 255, 255, 0.96);
   --marketing-surface-glass-dark: rgba(15, 36, 27, 0.96);
   --marketing-card-default: var(--marketing-surface-glass);
+
   --marketing-surface-accent-soft: rgba(255, 255, 255, 0.08);
   --marketing-border-light: rgba(255, 255, 255, 0.18);
+
+  /* Rings/overlays */
   --marketing-ring-strong: rgba(0, 0, 0, 0.6);
   --marketing-ring-strong-dark: rgba(255, 255, 255, 0.72);
   --marketing-overlay-soft: rgba(15, 23, 42, 0.12);
   --marketing-overlay-strong: rgba(0, 0, 0, 0.18);
   --marketing-overlay-hero: rgba(0, 0, 0, 0.24);
+
+  /* Shadows */
   --marketing-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.05);
   --marketing-shadow-dark: 0 6px 24px rgba(0, 0, 0, 0.35);
   --marketing-shadow-panel: 0 16px 32px rgba(15, 23, 42, 0.08);
+
   --marketing-shadow-card-base: 0 22px 48px rgba(15, 23, 42, 0.09);
   --marketing-shadow-card-soft-base: 0 16px 36px rgba(0, 0, 0, 0.05);
   --marketing-shadow-card: var(--marketing-shadow-card-base);
-  --marketing-shadow-accent: 0 28px 60px rgba(0, 0, 0, 0.18);
   --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
   --marketing-shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.08);
+
+  --marketing-shadow-accent: 0 28px 60px rgba(0, 0, 0, 0.18);
   --marketing-shadow-hero-mockup: 0 20px 60px rgba(2, 6, 23, 0.45);
   --marketing-shadow-pill: 0 12px 24px -22px rgba(15, 23, 42, 0.4);
   --marketing-shadow-callout: 0 16px 32px rgba(0, 0, 0, 0.18);
   --marketing-shadow-stat: 0 18px 38px rgba(15, 23, 42, 0.08);
   --marketing-shadow-stat-accent: rgba(15, 23, 42, 0.18);
+
+  /* Fonts */
   --marketing-font-stack-modern: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
   --marketing-font-stack-classic: "Georgia", "Times New Roman", serif;
   --marketing-font-stack-tech: "Inter", "Segoe UI", system-ui, sans-serif;
+
+  /* Marker underline */
   --marketing-marker-underline: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
+
+  /* --- Resolved marketing tokens (overrideable from system) --- */
   --marketing-primary: var(--brand-primary, var(--marketing-primary-default));
   --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
+
   --marketing-surface: var(--surface, var(--marketing-surface-default));
   --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
+
   --marketing-surface-dark: var(--surface-dark, var(--marketing-surface-dark-default));
   --marketing-surface-muted-dark: var(--surface-muted-dark, var(--marketing-surface-muted-dark-default));
+
   --marketing-card-dark: var(--marketing-card-dark-default);
   --marketing-card: var(--marketing-card-default);
+
   --marketing-text: var(--text-primary, var(--marketing-text-default));
   --marketing-text-on-surface: var(--text-on-surface, var(--marketing-text-on-surface-default));
   --marketing-text-on-background: var(--text-on-background, var(--marketing-text-on-background-default));
+
   --marketing-text-muted-on-surface: var(--text-muted-on-surface, var(--marketing-text-muted-on-surface-default));
   --marketing-text-muted-on-background: var(--text-muted-on-background, var(--marketing-text-muted-on-background-default));
+
   --marketing-text-on-surface-dark: var(--text-on-surface-dark, var(--marketing-text-on-surface-dark-default));
   --marketing-text-on-background-dark: var(--text-on-background-dark, var(--marketing-text-on-background-dark-default));
+
   --marketing-text-muted-on-surface-dark: var(--text-muted-on-surface-dark, var(--marketing-text-muted-on-surface-dark-default));
   --marketing-text-muted-on-background-dark: var(--text-muted-on-background-dark, var(--marketing-text-muted-on-background-dark-default));
+
   --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default));
   --marketing-text-on-primary: var(--marketing-on-accent);
+
   --marketing-link: var(--brand-primary, var(--marketing-primary));
+
+  /* --- Presets (default) --- */
+  --marketing-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-weight: var(--font-heading-weight, 700);
+  --marketing-heading-letter-spacing: 0;
+
+  --marketing-card-radius: var(--card-radius, 10px);
+  --card-radius-square: 8px;
+  --card-radius-pill: 28px;
+
+  /* Buttons (filled default) */
+  --marketing-button-primary-bg: var(--marketing-primary);
+  --marketing-button-primary-text: var(--marketing-on-accent);
+  --marketing-button-primary-border-color: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
+  --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
+  --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
+  --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
+
+  --marketing-button-secondary-bg: transparent;
+  --marketing-button-secondary-text: var(--marketing-primary);
+  --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
+  --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+
+  /* Topbar contrast hooks */
   --marketing-topbar-btn-bg: transparent;
   --marketing-topbar-btn-bg-dark: #1f232a;
+
   --marketing-topbar-text-contrast-light: #0a0a0a;
   --marketing-topbar-text-contrast-dark: #ffffff;
+
   --marketing-topbar-drop-bg-contrast-light: #ffffff;
   --marketing-topbar-drop-bg-contrast-dark: #000000;
+
   --marketing-topbar-drop-border-contrast-light: #000000;
   --marketing-topbar-drop-border-contrast-dark: #ffffff;
+
   --marketing-topbar-btn-border-contrast-light: #000000;
   --marketing-topbar-btn-border-contrast-dark: #ffffff;
+
   --marketing-topbar-btn-border-hover-contrast-light: #000000;
   --marketing-topbar-btn-border-hover-contrast-dark: #ffffff;
+
   --marketing-topbar-btn-bg-hover-contrast-light: #e6e6e6;
   --marketing-topbar-btn-bg-hover-contrast-dark: rgba(255, 255, 255, 0.16);
+
   --marketing-topbar-focus-ring-contrast-light: rgba(0, 120, 255, 0.6);
   --marketing-topbar-focus-ring-contrast-dark: rgba(140, 200, 255, 0.8);
 }
@@ -105,87 +178,39 @@
   --marketing-card-dark-default: var(--marketing-surface-dark);
 }
 
-:root {
-  --marketing-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-weight: var(--font-heading-weight, 700);
-  --marketing-heading-letter-spacing: 0;
-  --marketing-card-radius: var(--card-radius, 10px);
-  --card-radius-square: 8px;
-  --card-radius-pill: 28px;
-  --marketing-button-primary-bg-filled: var(--marketing-primary);
-  --marketing-button-primary-text-filled: var(--marketing-on-accent);
-  --marketing-button-primary-border-color-filled: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
-  --marketing-button-primary-hover-bg-filled: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
-  --marketing-button-primary-focus-bg-filled: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
-  --marketing-button-primary-active-bg-filled: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
-  --marketing-button-secondary-bg-filled: transparent;
-  --marketing-button-secondary-text-filled: var(--marketing-primary);
-  --marketing-button-secondary-border-color-filled: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
-  --marketing-button-secondary-hover-bg-filled: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
-  --marketing-button-primary-bg: var(--marketing-button-primary-bg-filled);
-  --marketing-button-primary-text: var(--marketing-button-primary-text-filled);
-  --marketing-button-primary-border-color: var(--marketing-button-primary-border-color-filled);
-  --marketing-button-primary-hover-bg: var(--marketing-button-primary-hover-bg-filled);
-  --marketing-button-primary-focus-bg: var(--marketing-button-primary-focus-bg-filled);
-  --marketing-button-primary-active-bg: var(--marketing-button-primary-active-bg-filled);
-  --marketing-button-secondary-bg: var(--marketing-button-secondary-bg-filled);
-  --marketing-button-secondary-text: var(--marketing-button-secondary-text-filled);
-  --marketing-button-secondary-border-color: var(--marketing-button-secondary-border-color-filled);
-  --marketing-button-secondary-hover-bg: var(--marketing-button-secondary-hover-bg-filled);
-}
-
 :root[data-typography-preset="classic"] {
   --marketing-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-weight: 600;
 }
-
 :root[data-typography-preset="tech"] {
   --marketing-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-weight: 700;
   --marketing-heading-letter-spacing: 0.01em;
 }
-
 :root[data-typography-preset="modern"] {
-  --marketing-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-weight: var(--font-heading-weight, 700);
-  --marketing-heading-letter-spacing: 0;
+  /* explicit for clarity; same as default */
 }
 
+/* Card style presets */
 :root[data-card-style="rounded"] {
   --marketing-card-radius: var(--card-radius, 10px);
   --marketing-shadow-card: var(--marketing-shadow-card-base);
   --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
 }
-
 :root[data-card-style="square"] {
   --marketing-card-radius: var(--card-radius-square);
   --marketing-shadow-card: var(--marketing-shadow-soft);
   --marketing-shadow-card-soft: var(--marketing-shadow-soft);
 }
-
 :root[data-card-style="pill"] {
   --marketing-card-radius: var(--card-radius-pill);
   --marketing-shadow-card: var(--marketing-shadow-callout);
   --marketing-shadow-card-soft: var(--marketing-shadow-card);
 }
 
-:root[data-button-style="filled"] {
-  --marketing-button-primary-bg: var(--marketing-button-primary-bg-filled);
-  --marketing-button-primary-text: var(--marketing-button-primary-text-filled);
-  --marketing-button-primary-border-color: var(--marketing-button-primary-border-color-filled);
-  --marketing-button-primary-hover-bg: var(--marketing-button-primary-hover-bg-filled);
-  --marketing-button-primary-focus-bg: var(--marketing-button-primary-focus-bg-filled);
-  --marketing-button-primary-active-bg: var(--marketing-button-primary-active-bg-filled);
-  --marketing-button-secondary-bg: var(--marketing-button-secondary-bg-filled);
-  --marketing-button-secondary-text: var(--marketing-button-secondary-text-filled);
-  --marketing-button-secondary-border-color: var(--marketing-button-secondary-border-color-filled);
-  --marketing-button-secondary-hover-bg: var(--marketing-button-secondary-hover-bg-filled);
-}
-
+/* Button style presets (override only the deltas) */
 :root[data-button-style="outline"] {
   --marketing-button-primary-bg: transparent;
   --marketing-button-primary-text: var(--marketing-primary);
@@ -193,12 +218,12 @@
   --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
   --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 16%, transparent);
   --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 20%, transparent);
+
   --marketing-button-secondary-bg: transparent;
   --marketing-button-secondary-text: var(--marketing-primary);
   --marketing-button-secondary-border-color: var(--marketing-primary);
   --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
 }
-
 :root[data-button-style="ghost"] {
   --marketing-button-primary-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
   --marketing-button-primary-text: var(--marketing-primary);
@@ -206,140 +231,63 @@
   --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
   --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 28%, transparent);
+
   --marketing-button-secondary-bg: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
   --marketing-button-secondary-text: var(--marketing-primary);
   --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 35%, transparent);
   --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 14%, transparent);
 }
 
+/* =========================================================
+   Base page bindings (marketing + CMS render)
+   ========================================================= */
+
 html[data-theme] {
   color: var(--color-text, var(--text-primary, var(--marketing-text)));
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
-
 html[data-theme] body {
   color: inherit;
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
 
-body.marketing-page.uk-offcanvas-content {
-  min-height: 100vh;
-  background: var(--surface-page, #ffffff);
+/* Shared typographic rules (define ONCE) */
+body:is(.marketing-page, .cms-page-render) {
+  font-family: var(--marketing-font-stack);
+  color: var(--qr-fg);
+}
+body:is(.marketing-page, .cms-page-render) h1,
+body:is(.marketing-page, .cms-page-render) h2,
+body:is(.marketing-page, .cms-page-render) h3 {
+  color: var(--qr-text);
+  line-height: var(--marketing-heading-line-height);
+  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
+  font-weight: var(--marketing-heading-weight);
+  letter-spacing: var(--marketing-heading-letter-spacing);
+  margin: 0 0 0.6em;
+}
+body:is(.marketing-page, .cms-page-render) h1 { font-size: var(--marketing-h1); }
+body:is(.marketing-page, .cms-page-render) h2 { font-size: var(--marketing-h2); }
+body:is(.marketing-page, .cms-page-render) h3 { font-size: var(--marketing-h3); margin-bottom: 0.5em; }
+body:is(.marketing-page, .cms-page-render) p {
+  font-size: var(--marketing-body);
+  line-height: var(--marketing-body-line-height);
+  margin: 0 0 1em;
 }
 
-body.marketing-page.uk-padding {
-  padding-top: 0;
-  padding-left: calc(var(--section-gap, 2.25rem) / 3);
-  padding-right: calc(var(--section-gap, 2.25rem) / 3);
-}
-
-body.marketing-page .uk-container,
-body.marketing-page .legal-container {
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-@media (min-width: 640px) {
-  body.marketing-page .uk-container,
-  body.marketing-page .legal-container {
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-
-  body.marketing-page.uk-padding {
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-body.marketing-page .topbar {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  min-height: var(--topbar-height, 48px);
-  padding: 0 0.5rem;
-  background: var(--topbar-bg, var(--surface-card, #fff));
-  box-sizing: border-box;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-}
-
-body.marketing-page .topbar .uk-navbar-left,
-body.marketing-page .topbar .uk-navbar-right {
-  display: flex;
-  align-items: center;
-}
-
-body.marketing-page .topbar .uk-navbar-right {
-  margin-left: auto;
-}
-
-body.marketing-page .topbar .uk-navbar-right > * {
-  flex-shrink: 0;
-}
-
-body.marketing-page .topbar .uk-navbar-item,
-body.marketing-page .topbar .uk-navbar-nav > li > a,
-body.marketing-page .topbar .uk-navbar-toggle {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--topbar-text, var(--text-body));
-}
-
-body.marketing-page .topbar .uk-navbar-item,
-body.marketing-page .topbar .uk-navbar-nav > li > a,
-body.marketing-page .topbar .uk-navbar-toggle:not(.git-btn) {
-  height: var(--topbar-height, 48px);
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-body.marketing-page .topbar .uk-navbar-toggle.git-btn,
-body.marketing-page .uk-navbar-toggle.git-btn {
-  width: var(--topbar-height, 48px);
-  height: var(--topbar-height, 48px);
-  padding: 0;
-}
-
-body.marketing-page .topbar .uk-navbar-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-body.marketing-page .topbar .uk-navbar-center .uk-navbar-item {
-  width: 100%;
-  justify-content: center;
-}
-
-@media (max-width: 640px) {
-  body.marketing-page .topbar .uk-navbar-center {
-    flex: 0 1 auto;
-    width: auto;
-  }
-}
-
-body.marketing-page .uk-icon-button {
-  width: 44px;
-  height: 44px;
-  border-radius: 6px;
-  border: 1px solid var(--topbar-btn-border, var(--border-muted, #ddd));
-}
+/* =========================================================
+   Marketing page token binding (unchanged semantics)
+   ========================================================= */
 
 body.marketing-page {
   --brand-primary: var(--marketing-primary);
   --brand-secondary: var(--marketing-accent);
   --brand-accent: var(--marketing-accent);
+
   --surface: var(--marketing-surface);
   --surface-muted: var(--marketing-surface-muted);
-  --qr-brand-50: color-mix(in oklab, var(--marketing-primary) 8%, var(--marketing-white));
+
+  --qr-brand-50:  color-mix(in oklab, var(--marketing-primary) 8%,  var(--marketing-white));
   --qr-brand-100: color-mix(in oklab, var(--marketing-primary) 16%, var(--marketing-white));
   --qr-brand-200: color-mix(in oklab, var(--marketing-primary) 24%, var(--marketing-white));
   --qr-brand-300: color-mix(in oklab, var(--marketing-primary) 32%, var(--marketing-white));
@@ -349,750 +297,139 @@ body.marketing-page {
   --qr-brand-700: color-mix(in oklab, var(--marketing-primary) 92%, var(--marketing-black));
   --qr-brand-800: color-mix(in oklab, var(--marketing-primary) 96%, var(--marketing-black));
   --qr-brand-900: color-mix(in oklab, var(--marketing-primary) 98%, var(--marketing-black));
+
   --qr-bg: var(--marketing-background, var(--marketing-surface));
   --qr-fg: var(--marketing-text-on-background);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
+
   --marketing-card: var(--marketing-card-default);
   --qr-card: var(--marketing-card, var(--marketing-surface-glass));
+
   --qr-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
-  --qr-text: var(--marketing-text-on-background);
+  --qr-ring:   color-mix(in oklab, var(--marketing-primary) 45%, transparent);
+
+  --qr-text:  var(--marketing-text-on-background);
+  --qr-muted: var(--marketing-text-muted-on-background);
+
   --qr-icon-color: var(--qr-text);
+
   --qr-section-bg: var(--qr-bg);
   --qr-card-border: var(--qr-border);
+
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
   --qr-landing-primary: var(--marketing-primary);
   --qr-contrast-on-primary: var(--marketing-on-accent);
+
   --qr-danger-500: var(--marketing-danger-500);
   --qr-danger-600: var(--marketing-danger-600);
-  --qr-muted: var(--marketing-text-muted-on-background);
+
   --qr-shadow: var(--marketing-shadow-soft);
   --qr-link: var(--marketing-link);
+
   --accent-primary: var(--marketing-primary);
   --accent-secondary: var(--marketing-accent);
   --accent-color: var(--marketing-primary);
+
+  --qr-landing-topbar-bg-light: var(--marketing-topbar-light,
+    color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%)
+  );
+  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
+  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+
   --qr-hero-grad-start: var(--qr-landing-topbar-bg);
   --qr-hero-grad-end: var(--qr-bg-soft);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg-light: var(--marketing-topbar-light, color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%));
-  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
-  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+
   --section-card-surface: var(--marketing-surface);
   --section-default-surface: var(--marketing-surface);
   --section-default-muted: var(--marketing-surface-muted);
-  font-family: var(--marketing-font-stack);
+
   color-scheme: light;
 }
 
-body.marketing-page.dark-mode,
-body.marketing-page[data-theme="dark"]:not(.high-contrast) {
+/* Dark mode (marketing-page) */
+body.marketing-page:is(.dark-mode, [data-theme="dark"]):not(.high-contrast) {
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
   --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
   --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
+
   --qr-bg: var(--marketing-background-dark, var(--marketing-background, var(--marketing-surface)));
   --qr-fg: var(--marketing-text-on-background-dark);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-card, var(--marketing-surface-glass-dark));
+
   --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
-  --qr-text: var(--marketing-text-on-background-dark);
-  --qr-landing-primary: var(--marketing-primary);
+  --qr-ring:   color-mix(in oklab, var(--marketing-primary) 55%, transparent);
+
+  --qr-text:  var(--marketing-text-on-background-dark);
   --qr-muted: var(--marketing-text-muted-on-background-dark);
+
   --qr-shadow: var(--marketing-shadow-dark);
-  --qr-link: var(--marketing-link);
-  --accent-primary: var(--marketing-primary);
-  --accent-secondary: var(--marketing-accent);
-  --accent-color: var(--marketing-primary);
-  --qr-landing-topbar-bg-light: var(--marketing-topbar-light, color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%));
-  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
+
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
+
   --section-card-surface: var(--marketing-card, var(--marketing-surface));
-  --section-default-surface: var(--marketing-surface);
-  --section-default-muted: var(--marketing-surface-muted);
   --surface: var(--marketing-surface);
   --surface-muted: var(--marketing-surface-muted);
+
   color-scheme: dark;
 }
 
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary {
+/* =========================================================
+   Shared UI overrides (lower specificity via :where)
+   ========================================================= */
+
+body:is(.marketing-page, .cms-page-render) :where(a) {
+  color: var(--qr-link);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: opacity .2s, text-decoration-color .2s;
+}
+body:is(.marketing-page, .cms-page-render) :where(a:hover) {
+  opacity: .8;
+  text-decoration-color: currentColor;
+}
+
+body:is(.marketing-page, .cms-page-render) :where(.uk-button) {
+  transition: opacity .2s, transform .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body:is(.marketing-page, .cms-page-render) :where(.uk-button:hover) { opacity: .85; }
+
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary) {
+  background: var(--marketing-button-primary-bg) !important;
   color: var(--marketing-button-primary-text) !important;
+  border: 1px solid var(--marketing-button-primary-border-color);
 }
-
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon] {
-  color: inherit;
-}
-
-body.marketing-page.high-contrast {
-  --qr-bg: var(--marketing-white);
-  --qr-fg: var(--marketing-black);
-  --qr-text: var(--marketing-black);
-  --qr-muted: var(--marketing-black);
-  --marketing-text-on-surface: var(--marketing-black);
-  --marketing-text-on-background: var(--marketing-black);
-  --marketing-text-muted-on-surface: var(--marketing-black);
-  --marketing-text-muted-on-background: var(--marketing-black);
-  --qr-bg-soft: var(--marketing-white);
-  --qr-card: var(--marketing-white);
-  --qr-card-border: var(--marketing-black);
-  --qr-ring: var(--marketing-ring-strong);
-  --qr-border: var(--marketing-black);
-  --qr-landing-primary: var(--marketing-black);
-  --qr-landing-bg: var(--qr-bg);
-  --qr-landing-text: var(--qr-fg);
-  --qr-hero-grad-start: var(--qr-bg);
-  --qr-hero-grad-end: var(--qr-bg);
-  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link: var(--marketing-link-contrast-light);
-  --qr-contrast-on-primary: var(--marketing-white);
-  --marketing-primary: var(--marketing-black);
-  --marketing-on-accent: var(--marketing-white);
-  --marketing-text: var(--marketing-black);
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg-light: var(--qr-bg);
-  --qr-landing-topbar-bg-dark: var(--qr-bg);
-  --qr-landing-topbar-bg: var(--qr-bg);
-  color-scheme: light;
-}
-
-body.marketing-page.high-contrast .cta-main.uk-button-primary {
-  color: var(--qr-contrast-on-primary) !important;
-}
-
-body.marketing-page[data-theme="dark"].high-contrast,
-body.marketing-page.dark-mode.high-contrast {
-  --qr-bg: var(--marketing-black);
-  --qr-fg: var(--marketing-white);
-  --qr-text: var(--marketing-white);
-  --qr-muted: var(--marketing-white);
-  --marketing-text-on-surface: var(--marketing-white);
-  --marketing-text-on-background: var(--marketing-white);
-  --marketing-text-muted-on-surface: var(--marketing-white);
-  --marketing-text-muted-on-background: var(--marketing-white);
-  --qr-bg-soft: var(--marketing-black);
-  --qr-card: var(--marketing-black);
-  --qr-card-border: var(--marketing-white);
-  --qr-ring: var(--marketing-ring-strong-dark);
-  --qr-border: var(--marketing-white);
-  --qr-landing-primary: var(--marketing-white);
-  --qr-landing-bg: var(--qr-bg);
-  --qr-landing-text: var(--qr-fg);
-  --qr-hero-grad-start: var(--qr-bg);
-  --qr-hero-grad-end: var(--qr-bg);
-  --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
-  --qr-link: var(--marketing-link-contrast-dark);
-  --qr-contrast-on-primary: var(--marketing-black);
-  --marketing-primary: var(--marketing-white);
-  --marketing-on-accent: var(--marketing-black);
-  --marketing-text: var(--marketing-white);
-  --color-bg: var(--qr-bg);
-  --color-text: var(--qr-text);
-  --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg-light: var(--qr-bg);
-  --qr-landing-topbar-bg-dark: var(--qr-bg);
-  --qr-landing-topbar-bg: var(--qr-bg);
-  color-scheme: dark;
-}
-
-body.marketing-page[data-theme="dark"].high-contrast .cta-main.uk-button-primary,
-body.marketing-page.dark-mode.high-contrast .cta-main.uk-button-primary {
-  color: var(--qr-contrast-on-primary) !important;
-}
-
-body.cms-page-render {
-  --qr-card: var(--marketing-surface-glass);
-  --qr-card-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
-  --qr-text: var(--marketing-text, var(--marketing-text-default));
-  --qr-landing-topbar-bg: var(--marketing-topbar-light, color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 92%, var(--marketing-surface-glass) 8%));
-  --topbar-btn-bg: var(--marketing-topbar-btn-bg, transparent);
-  --topbar-btn-border: var(--marketing-topbar-btn-border, var(--qr-card-border));
-  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover, color-mix(in oklab, var(--qr-text) 40%, transparent));
-  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover, color-mix(in oklab, var(--qr-text) 8%, transparent));
-  --topbar-focus-ring: var(--marketing-topbar-focus-ring, var(--qr-ring));
-  --topbar-drop-bg: var(--marketing-topbar-drop-bg, var(--qr-card));
-  --topbar-drop-border: var(--marketing-topbar-drop-border, var(--qr-card-border));
-  --topbar-text: var(--marketing-topbar-text, var(--qr-text));
-  font-family: var(--marketing-font-stack);
-}
-
-body.cms-page-render[data-theme="dark"] {
-  --qr-card: var(--marketing-surface-glass-dark);
-  --qr-card-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
-  --qr-text: color-mix(in oklab, var(--marketing-white) 85%, var(--marketing-primary) 15%);
-  --qr-landing-topbar-bg: var(--marketing-topbar-dark, color-mix(in oklab, var(--marketing-surface, var(--marketing-surface-default)) 90%, var(--marketing-surface-glass-dark) 10%));
-  --topbar-btn-bg: var(--marketing-topbar-btn-bg-dark, var(--marketing-topbar-btn-bg, #1f232a));
-  --topbar-btn-border: var(--marketing-topbar-btn-border-dark, var(--marketing-topbar-btn-border, var(--qr-card-border)));
-  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-dark, var(--marketing-topbar-btn-border-hover, color-mix(in oklab, var(--qr-text) 60%, transparent)));
-  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-dark, var(--marketing-topbar-btn-bg-hover, color-mix(in oklab, var(--qr-text) 16%, transparent)));
-  --topbar-focus-ring: var(--marketing-topbar-focus-ring-dark, var(--marketing-topbar-focus-ring, var(--qr-ring)));
-  --topbar-drop-bg: var(--marketing-topbar-drop-bg-dark, var(--marketing-topbar-drop-bg, var(--qr-card)));
-  --topbar-drop-border: var(--marketing-topbar-drop-border-dark, var(--marketing-topbar-drop-border, var(--qr-card-border)));
-  --topbar-text: var(--marketing-topbar-text-dark, var(--marketing-topbar-text, var(--qr-text)));
-}
-
-body.cms-page-render.high-contrast {
-  --topbar-text: var(--marketing-topbar-text-contrast-light, #0a0a0a);
-  --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-light, #ffffff);
-  --topbar-drop-border: var(--marketing-topbar-drop-border-contrast-light, #000000);
-  --topbar-btn-border: var(--marketing-topbar-btn-border-contrast-light, #000000);
-  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-contrast-light, #000000);
-  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-contrast-light, #e6e6e6);
-  --topbar-focus-ring: var(--marketing-topbar-focus-ring-contrast-light, rgba(0, 120, 255, 0.6));
-}
-
-body.cms-page-render[data-theme="dark"].high-contrast {
-  --topbar-text: var(--marketing-topbar-text-contrast-dark, #ffffff);
-  --topbar-drop-bg: var(--marketing-topbar-drop-bg-contrast-dark, #000000);
-  --topbar-drop-border: var(--marketing-topbar-drop-border-contrast-dark, #ffffff);
-  --topbar-btn-border: var(--marketing-topbar-btn-border-contrast-dark, #ffffff);
-  --topbar-btn-border-hover: var(--marketing-topbar-btn-border-hover-contrast-dark, #ffffff);
-  --topbar-btn-bg-hover: var(--marketing-topbar-btn-bg-hover-contrast-dark, rgba(255, 255, 255, 0.16));
-  --topbar-focus-ring: var(--marketing-topbar-focus-ring-contrast-dark, rgba(140, 200, 255, 0.8));
-}
-
-body.dark-mode {
-  background-color: var(--qr-bg);
-  color: var(--qr-text);
-}
-
-body.marketing-page[data-theme="dark"] {
-  --landing-btn-bg: var(--qr-bg-soft);
-  --landing-btn-bg-hover: color-mix(in oklab, var(--qr-bg) 70%, var(--qr-fg) 30%);
-  --landing-btn-fg: var(--qr-landing-text);
-}
-
-body[data-theme],
-body.marketing-page {
-  background: var(--qr-hero-gradient);
-  background-color: var(--qr-hero-grad-start);
-}
-body:is(.marketing-page, .cms-page-render) { color: var(--qr-fg); }
-body:is(.marketing-page, .cms-page-render) h1 {
-  font-size: var(--marketing-h1);
-  line-height: var(--marketing-heading-line-height);
-  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
-  font-weight: var(--marketing-heading-weight);
-  letter-spacing: var(--marketing-heading-letter-spacing);
-  margin: 0 0 0.6em;
-}
-body:is(.marketing-page, .cms-page-render) h2 {
-  font-size: var(--marketing-h2);
-  line-height: var(--marketing-heading-line-height);
-  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
-  font-weight: var(--marketing-heading-weight);
-  letter-spacing: var(--marketing-heading-letter-spacing);
-  margin: 0 0 0.6em;
-}
-body:is(.marketing-page, .cms-page-render) h3 {
-  font-size: var(--marketing-h3);
-  line-height: var(--marketing-heading-line-height);
-  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
-  font-weight: var(--marketing-heading-weight);
-  letter-spacing: var(--marketing-heading-letter-spacing);
-  margin: 0 0 0.5em;
-}
-body:is(.marketing-page, .cms-page-render) p {
-  font-size: var(--marketing-body);
-  line-height: var(--marketing-body-line-height);
-  margin: 0 0 1em;
-}
-.marketing-layout {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.marketing-content {
-  width: 100%;
-}
-.marketing-section {
-  background: var(--section-bg-color, var(--section-surface, transparent));
-  padding-block: var(--marketing-section-padding);
-}
-.marketing-section + .marketing-section {
-  margin-top: var(--marketing-section-gap);
-}
-.marketing-page .section + .section {
-  margin-top: var(--marketing-section-gap);
-}
-.marketing-grid {
-  --marketing-grid-gap: clamp(20px, 3vw, 32px);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--marketing-grid-gap);
-}
-@media (max-width: 640px) {
-  .marketing-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-}
-.cms-page {
-  box-sizing: border-box;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-inline: var(--cms-content-padding, clamp(16px, 3vw, 32px));
-  width: 100%;
-}
-.uk-container .cms-page {
-  padding-inline: 0;
-}
-
-body.page-render {
-  --cms-content-padding: clamp(16px, 4vw, 28px);
-}
-
-body.page-render .cms-page {
-  max-width: min(1200px, calc(100vw - var(--cms-content-padding) * 2));
-  padding-inline: var(--cms-content-padding);
-  overflow-wrap: anywhere;
-}
-
-body.page-render .uk-container .cms-page {
-  padding-inline: var(--cms-content-padding);
-}
-
-body.page-render .cms-page img,
-body.page-render .cms-page video,
-body.page-render .cms-page iframe {
-  max-width: 100%;
-  height: auto;
-}
-
-body.page-render .cms-page table {
-  width: 100%;
-}
-.marketing-page .uk-section { background: var(--section-bg-color, var(--section-surface, transparent)); }
-.marketing-page .section--alt,
-.marketing-page .uk-section-muted {
-  --section-surface: var(--section-default-muted, var(--surface-muted, var(--marketing-surface-muted)));
-  --section-bg-color: var(--section-surface);
-  background: var(--section-bg-color);
-  color: var(--qr-fg);
-}
-
-.section {
-  --section-padding-outer: var(--section-padding-tight);
-  --section-padding-inner: var(--section-padding);
-  --section-surface: var(--section-default-surface, var(--surface-section, var(--surface)));
-  --section-bg-color: var(--section-surface);
-  --section-bg-overlay: 0;
-  --section-overlay-color: color-mix(in srgb, var(--color-text, var(--marketing-ink)) 16%, transparent);
-  --qr-text: var(--marketing-text-on-surface);
-  --qr-muted: var(--marketing-text-muted-on-surface);
-  --color-text: var(--qr-text);
-  --section-text-color: var(--color-text, inherit);
-  color: var(--section-text-color, var(--color-text, inherit));
-  padding: var(--section-padding-outer) 0;
-  background: var(--section-bg-color, var(--section-surface, transparent));
-}
-
-.section[data-section-bleed="full"] {
-  position: relative;
-}
-
-.section[data-section-bleed="full"]::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  width: 100vw;
-  background-color: var(--section-bg-color, var(--section-surface, transparent));
-  background-image: var(--section-bg-image, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: var(--section-bg-attachment, scroll);
-  z-index: 0;
-}
-
-.section[data-section-intent="content"] {
-  --section-padding-outer: clamp(20px, 4vw, 48px);
-  --section-padding-inner: clamp(22px, 4vw, 44px);
-}
-
-.section[data-section-intent="feature"] {
-  --section-padding-outer: clamp(28px, 5vw, 64px);
-  --section-padding-inner: clamp(28px, 5vw, 60px);
-}
-
-.section[data-section-intent="highlight"] {
-  --section-padding-outer: clamp(32px, 6vw, 72px);
-  --section-padding-inner: clamp(32px, 6vw, 68px);
-  --section-text-color: var(--marketing-on-accent);
-}
-
-.section[data-section-intent="hero"] {
-  --section-padding-outer: clamp(36px, 7vw, 88px);
-  --section-padding-inner: clamp(36px, 7vw, 80px);
-}
-
-.section[data-section-background] {
-  position: relative;
-  background-color: var(--section-bg-color, var(--section-surface, transparent));
-  background-image: var(--section-bg-image, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: var(--section-bg-attachment, scroll);
-}
-
-.section[data-section-bleed="full"] {
-  background: transparent;
-}
-
-.section .uk-container {
-  position: relative;
-}
-
-.section[data-section-background] .section__inner,
-.section[data-section-bleed="full"] .section__inner {
-  position: relative;
-  z-index: 2;
-}
-
-.section[data-section-background]::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgb(var(--marketing-black-rgb) / var(--section-bg-overlay, 0));
-  background: color-mix(
-    in srgb,
-    var(--section-overlay-color, var(--marketing-overlay-soft)) calc(var(--section-bg-overlay, 0) * 100%),
-    transparent
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-.section[data-block-type="stat_strip"],
-.section[data-block-type="faq"] {
-  --section-bg-color: var(--section-surface, transparent);
-  --section-bg-overlay: 0;
-}
-
-.section[data-section-bleed="full"][data-section-background]::after {
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  width: 100vw;
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:hover) {
+  background: var(--marketing-button-primary-hover-bg) !important;
 }
-
-.section__inner {
-  background: var(--section-surface-inner, transparent);
-  border-radius: var(--marketing-card-radius);
-  box-sizing: border-box;
-  max-width: 100%;
-  padding: var(--section-padding-inner);
-  width: 100%;
-}
-
-.section__inner--panel {
-  background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--marketing-card-radius);
-  border: 1px solid color-mix(in srgb, var(--surface-muted) 72%, var(--surface) 28%);
-  box-shadow: var(--marketing-shadow-panel);
-}
-
-.section__inner--card {
-  background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--marketing-card-radius);
-  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
-  box-shadow: var(--marketing-shadow-card);
-}
-
-.section__inner--accent {
-  background: var(--marketing-surface-accent-soft);
-  border: 1px solid var(--marketing-border-light);
-  border-radius: var(--marketing-card-radius);
-  box-shadow: var(--marketing-shadow-accent);
-}
-
-.section[data-section-intent="hero"] {
-  --section-hero-surface: color-mix(
-    in srgb,
-    var(--section-surface, var(--surface)) 88%,
-    var(--section-surface-muted, var(--surface-muted)) 12%
-  );
-  --section-hero-border: color-mix(
-    in srgb,
-    var(--section-surface-muted, var(--surface-muted)) 68%,
-    var(--section-surface, var(--surface)) 32%
-  );
-  --section-hero-glow: color-mix(
-    in srgb,
-    var(--accent-secondary, var(--accent-primary, var(--marketing-primary))) 22%,
-    var(--marketing-overlay-strong)
-  );
-}
-
-.section__inner--hero {
-  background: var(--section-hero-surface);
-  color: var(--section-text-color, var(--color-text));
-  border: 1px solid var(--section-hero-border);
-  border-radius: calc(var(--marketing-card-radius) + 4px);
-  box-shadow: 0 34px 76px color-mix(in srgb, var(--section-hero-glow) 55%, var(--marketing-overlay-hero));
-  backdrop-filter: blur(4px);
-}
-
-.section[data-section-intent="hero"] .section__inner--hero a {
-  color: inherit;
-}
-
-.section--contained .section__inner {
-  background: var(--surface);
-}
-
-.section--full {
-  background: var(--section-bg-color, var(--surface-muted));
-  padding: var(--section-padding-outer) 0;
-}
-
-.section--full .section__inner {
-  padding: var(--section-padding-inner);
-}
-
-.section[data-section-layout="card"] .section__inner {
-  background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--marketing-card-radius);
-  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
-  box-shadow: var(--marketing-shadow-card-soft);
-}
-
-.section--full[data-section-layout="card"] .section__inner {
-  background: var(--section-card-surface, var(--section-surface));
-  border-radius: var(--marketing-card-radius);
-  border: 1px solid color-mix(in srgb, var(--surface-muted) 70%, var(--surface) 30%);
-  box-shadow: var(--marketing-shadow-card-soft);
-}
-
-.section[data-section-intent="highlight"] a,
-.section[data-section-intent="hero"] a {
-  color: inherit;
-}
-
-.section[data-appearance-legacy="contrast"] {
-  background: var(--marketing-primary);
-  color: var(--marketing-on-accent);
-}
-
-.section[data-appearance-legacy="contrast"] a,
-.section[data-appearance-legacy="contrast"] a:hover {
-  color: inherit;
-}
-
-.section[data-appearance-legacy="image"],
-.section[data-appearance-legacy="image-fixed"] {
-  background-image: var(--section-bg-image);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.section[data-appearance-legacy="image-fixed"] {
-  background-attachment: var(--section-bg-attachment, fixed);
-}
-
-@media (max-width: 959px), (prefers-reduced-motion: reduce) {
-  .section[data-appearance-legacy="image-fixed"] {
-    background-attachment: scroll;
-  }
-
-  .section[data-section-background] {
-    --section-bg-attachment: scroll;
-  }
-
-  .section__inner {
-    padding: var(--section-padding-tight);
-  }
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:focus-visible) {
+  background: var(--marketing-button-primary-focus-bg) !important;
 }
-
-/* Footer */
-body.marketing-page .site-footer {
-  background: var(--qr-bg);
-  color: var(--qr-fg);
-  padding: 2rem 1rem;
-  font-size: 0.875rem;
-}
-
-.marketing-page .footer-columns {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  text-align: center;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.footer-section strong {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.footer-section p {
-  margin: 0;
-}
-
-.footer-section ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.marketing-page .footer-section a {
-  color: var(--qr-fg);
-}
-
-@media (min-width: 640px) {
-  .marketing-page .footer-columns {
-    flex-direction: row;
-    justify-content: space-between;
-    text-align: left;
-  }
-  .marketing-page .footer-section {
-    flex: 1;
-  }
-}
-
-/* Divider zwischen Sektionen */
-.section-divider{
-  height:1px;
-  background:linear-gradient(90deg, transparent, var(--qr-border), transparent);
-  opacity:.5;
-}
-
-/* Eyebrow/Überzeile */
-.eyebrow{
-  display:inline-block;
-  font-size:12px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  opacity:.7;
-  border:1px solid var(--qr-border);
-  padding:4px 8px;
-  border-radius:999px;
-}
-
-/* Szenarien als Outline-Pills (Legacy Slider Support) */
-.scenario-cloud{
-  --pill-bg: transparent;
-  --pill-border: var(--qr-border);
-  --pill-fg: var(--qr-muted);
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px 10px;
-  justify-content:center;
-  max-width:1100px;
-  margin:18px auto 24px;
-  padding:0;
-  list-style:none;
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:active) {
+  background: var(--marketing-button-primary-active-bg) !important;
+  transform: translateY(1px);
 }
-.scenario-cloud a{
-  display:inline-block;
-  padding:6px 12px;
-  line-height:1.15;
-  font-size:14px;
-  white-space:nowrap;
-  border:1px solid var(--pill-border);
-  border-radius:999px;
-  background:var(--pill-bg);
-  color:var(--pill-fg);
-  text-decoration:none;
-  transition:transform .08s ease, background .2s ease, border-color .2s ease;
-}
-.scenario-cloud a:hover{
-  transform:translateY(-1px);
-  border-color:color-mix(in oklab, var(--marketing-primary) 40%, var(--pill-border));
-}
-
-.scenario-cloud li.uk-active a{
-  border-color:color-mix(in oklab, var(--marketing-primary) 40%, var(--pill-border));
-  background:color-mix(in oklab, var(--marketing-primary) 15%, var(--pill-bg));
-}
-
-/* Slider cards */
-.usecase-slider>li{
-  display:flex;
-  position:relative;
-}
-
-.usecase-slider>li .uk-card-quizrace{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  height:100%;
-}
-
-.usecase-slider li.uk-current{
-  z-index:1;
-}
-
-.usecase-slider li.uk-current .uk-card-quizrace{
-  transform:scale(1.08);
-  box-shadow: var(--marketing-shadow-card-hover);
-}
-
-.usecase-slider li.uk-current .uk-card-quizrace:hover{
-  transform:scale(1.08) translateY(-2px);
-}
 
-/* Feature navigation pills */
-.feature-nav{
-  margin:0 auto 12px;
-  max-width:1100px;
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-default) {
+  background: var(--marketing-button-secondary-bg) !important;
+  color: var(--marketing-button-secondary-text) !important;
+  border: 1px solid var(--marketing-button-secondary-border-color);
 }
-
-.feature-nav__list{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px 12px;
-  justify-content:center;
-  margin:0;
-  padding:0;
-  list-style:none;
-}
-
-.feature-nav__pill{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:7px 14px;
-  line-height:1.2;
-  font-size:14px;
-  font-weight:600;
-  border-radius:999px;
-  background:color-mix(in oklab, var(--marketing-primary) 12%, transparent);
-  color:var(--qr-text);
-  text-decoration:none;
-  border:1px solid color-mix(in oklab, var(--marketing-primary) 32%, transparent);
-  box-shadow: var(--marketing-shadow-pill);
-  transition:transform .16s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
-}
-
-.feature-nav__pill:hover,
-.feature-nav__pill:focus{
-  transform:translateY(-2px);
-  background:color-mix(in oklab, var(--marketing-primary) 32%, transparent);
-  color:var(--marketing-on-accent);
-  box-shadow:0 18px 36px -24px color-mix(in oklab, var(--marketing-primary) 55%, transparent);
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-default:hover) {
+  background: var(--marketing-button-secondary-hover-bg) !important;
 }
 
-/* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
-body:is(.marketing-page, .cms-page-render) .uk-card,
-body:is(.marketing-page, .cms-page-render) .qr-card,
-body:is(.marketing-page, .cms-page-render) .feature-box,
-body:is(.marketing-page, .cms-page-render) .feature-card {
+/* Cards on landing/cms */
+body:is(.marketing-page, .cms-page-render) :where(.uk-card, .qr-card, .feature-box, .feature-card) {
   --qr-text: var(--marketing-text-on-surface);
   --qr-muted: var(--marketing-text-muted-on-surface);
   background: var(--qr-card) !important;
@@ -1102,283 +439,62 @@ body:is(.marketing-page, .cms-page-render) .feature-card {
   border-radius: var(--marketing-card-radius);
 }
 
-/* Headings, Copy & Icons */
-body:is(.marketing-page, .cms-page-render) h1,
-body:is(.marketing-page, .cms-page-render) h2,
-body:is(.marketing-page, .cms-page-render) h3 { color: var(--qr-text); }
+/* =========================================================
+   Topbar refactor (shared base, per-scope deltas)
+   ========================================================= */
 
-body:is(.marketing-page, .cms-page-render) {
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-body:is(.marketing-page, .cms-page-render) h1 {
-  font-size: clamp(2.5rem, 4vw, 3.25rem);
-  line-height: 1.15;
-}
-
-body:is(.marketing-page, .cms-page-render) h2 {
-  font-size: clamp(1.75rem, 3vw, 2.125rem);
-  line-height: 1.2;
-}
-
-.marketing-event-hero {
-  max-width: 680px;
-  margin: 0 auto;
-  text-align: center;
-  color: var(--qr-fg);
-  gap: clamp(0.75rem, 2vw, 1.5rem);
-}
-
-.marketing-event-hero__logo {
-  display: block;
-  max-width: min(160px, 100%);
-  max-height: 160px;
-  width: auto;
-  height: auto;
-  margin: 0 auto clamp(0.75rem, 2vw, 1.5rem);
-  object-fit: contain;
-  filter: drop-shadow(0 14px 32px color-mix(in oklab, var(--marketing-primary) 18%, transparent));
-}
-
-.marketing-event-hero__title {
-  color: var(--qr-text);
-}
-
-.marketing-event-hero__subtitle {
-  color: var(--qr-muted);
-  margin-top: 0.75rem;
-}
-
-.marketing-event-hero__comment {
-  color: var(--qr-muted);
-  margin-top: 0.5rem;
-}
-
-.marketing-page p { color: var(--qr-muted); }
-
-/* Marketing event overrides */
-body.marketing-page .marketing-event-hero p,
-body.marketing-page .marketing-event-hero__subtitle,
-body.marketing-page .marketing-event-hero__comment {
-  color: var(--qr-text);
-}
-
-body.marketing-page .marketing-event-hero__subtitle {
-  color: var(--qr-muted);
-}
-
-body.marketing-page .marketing-event-hero__comment {
-  color: var(--qr-muted);
-}
-
-body.marketing-page .marketing-event-schedule p,
-body.marketing-page .marketing-event-teaser p {
-  color: var(--qr-muted);
-}
-
-.marketing-event-story {
-  max-width: min(720px, 100%);
-  margin: clamp(2.5rem, 6vw, 4rem) auto 0;
-  color: var(--qr-muted);
-  line-height: 1.6;
-}
-
-.marketing-event-story :is(h2, h3) {
-  margin: clamp(1.5rem, 4vw, 2.5rem) 0 clamp(0.75rem, 2vw, 1.25rem);
-  font-size: clamp(1.4rem, 3vw, 1.9rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  text-align: left;
-  color: var(--qr-text);
-}
-
-.marketing-event-story .uk-heading-bullet {
-  padding-left: 0;
-  border-left: none;
-}
-
-.marketing-event-story .uk-heading-bullet::before {
-  display: none;
-}
-
-.marketing-event-story p {
-  margin-bottom: clamp(0.85rem, 2.2vw, 1.35rem);
-  font-size: clamp(1.05rem, 2.4vw, 1.2rem);
-  color: var(--qr-muted);
-}
-
-.marketing-event-story p:last-child {
-  margin-bottom: 0;
-}
-
-.marketing-event-story strong,
-.marketing-event-story .uk-text-bold {
-  color: var(--qr-text);
-  font-weight: 700;
-}
-
-.marketing-event-story ul,
-.marketing-event-story ol {
-  margin: clamp(1rem, 2.5vw, 1.5rem) 0 clamp(1.5rem, 3vw, 2rem);
-  padding-left: 1.2em;
-  color: var(--qr-muted);
-}
-
-.marketing-event-story li {
-  margin-bottom: 0.75rem;
-}
-
-body.marketing-page .marketing-event-schedule .uk-text-muted,
-body.marketing-page .marketing-event-teaser .uk-text-muted {
-  color: var(--qr-muted);
-}
-
-body.marketing-page .uk-text-muted {
-  color: var(--qr-muted);
-}
-
-body:is(.marketing-page, .cms-page-render) .uk-icon,
-body:is(.marketing-page, .cms-page-render) .feature-box svg {
-  color: var(--qr-icon-color);
-  stroke: currentColor;
-  fill: currentColor;
-}
-body:is(.marketing-page, .cms-page-render) .uk-icon [fill="none"],
-body:is(.marketing-page, .cms-page-render) .feature-box svg [fill="none"] {
-  fill: none;
-}
-body:is(.marketing-page, .cms-page-render) .uk-button .uk-icon {
-  color: currentColor;
-}
-
-body:is(.marketing-page, .cms-page-render) .btn .uk-icon {
-  color: currentColor;
-}
-
-/* Navbar NUR auf Marketing-Pages, damit Kontrast stimmt */
-.marketing-page .uk-navbar,
-.marketing-page .uk-navbar-container {
-  background: var(--qr-landing-topbar-bg);
-  color: var(--qr-text);
-}
-.marketing-page .uk-navbar a { color: var(--qr-text); }
-
-/* Language option buttons for CMS/marketing topbars */
-.lang-option {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  width: 100%;
-  min-width: 160px;
-  min-height: 48px;
-  padding: 0 12px;
-  height: auto;
-}
-.cms-page-render .qr-topbar .lang-option.git-btn {
-  width: 100%;
-  min-width: 160px;
-  min-height: 48px;
-  padding: 0 12px;
-  height: auto;
-}
-.lang-option__icon {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 16px;
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: 0 0 0 1px color-mix(in oklab, var(--topbar-text) 25%, transparent);
-}
-.lang-option__svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.lang-option__label {
-  flex: 1;
-  text-align: left;
-}
-body.cms-page-render.high-contrast .lang-option__icon,
-body.cms-page-render[data-theme="dark"].high-contrast .lang-option__icon {
-  box-shadow: 0 0 0 1px currentColor;
-}
-
-/* Abstände/Responsiveness (klein & safe) */
-@media (min-width: 960px) {
-  .marketing-page .uk-section { padding-top: 72px; padding-bottom: 72px; }
-}
-
-
-/* Topbar */
-.cms-page-render .qr-topbar {
+body:is(.marketing-page, .cms-page-render) .qr-topbar {
   padding-top: env(safe-area-inset-top);
   background: var(--qr-landing-topbar-bg);
   backdrop-filter: blur(8px);
   color: var(--qr-text);
-  min-height: 64px;
-  height: 64px;
   border-bottom: 1px solid var(--qr-card-border);
   z-index: 1000;
 }
-.cms-page-render .qr-topbar nav.topbar {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar {
   --topbar-height: 64px;
 }
-.cms-page-render .qr-topbar .uk-navbar,
-.cms-page-render .qr-topbar .uk-navbar-container {
-  background: var(--qr-landing-topbar-bg);
+body:is(.marketing-page, .cms-page-render) .qr-topbar {
+  min-height: 64px;
+  height: 64px;
 }
 @media (max-width: 959px) {
-  .cms-page-render .qr-topbar {
-    min-height: 56px;
-    height: 56px;
-  }
-  .cms-page-render .qr-topbar nav.topbar {
-    --topbar-height: 56px;
-  }
+  body:is(.marketing-page, .cms-page-render) .qr-topbar { min-height: 56px; height: 56px; }
+  body:is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar { --topbar-height: 56px; }
 }
-.cms-page-render .qr-topbar .uk-navbar-container,
-.cms-page-render .qr-topbar .uk-navbar-right,
-.cms-page-render .qr-topbar .uk-navbar-center {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar, .uk-navbar-container) {
+  background: var(--qr-landing-topbar-bg);
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-container, .uk-navbar-right, .uk-navbar-center) {
   display: flex;
   align-items: center;
   flex-wrap: nowrap;
   gap: 12px;
 }
-.cms-page-render .qr-topbar .uk-navbar-right {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right {
   flex: 1 1 auto;
   min-width: 0;
   justify-content: flex-end;
 }
-.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav,
-.cms-page-render .qr-topbar .uk-navbar-center .uk-navbar-nav {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-right .uk-navbar-nav, .uk-navbar-center .uk-navbar-nav) {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
   flex-wrap: nowrap;
   gap: 8px;
 }
-.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav {
-  justify-content: flex-end;
-}
-.cms-page-render .qr-topbar .uk-navbar-center .uk-navbar-nav {
-  justify-content: center;
-}
-.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav > li {
-  flex: 0 0 auto;
-}
-.cms-page-render .qr-topbar .top-cta,
-.cms-page-render .qr-topbar .config-menu {
-  flex: 0 0 auto;
-}
-.cms-page-render .qr-topbar .uk-navbar-nav > li > a {
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right .uk-navbar-nav { justify-content: flex-end; }
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-center .uk-navbar-nav { justify-content: center; }
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a {
   color: var(--qr-text) !important;
   font-weight: 500;
-  opacity: 0.9;
+  opacity: .9;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -1388,1593 +504,37 @@ body.cms-page-render[data-theme="dark"].high-contrast .lang-option__icon {
   height: 40px;
   border: 1px solid transparent;
   border-radius: 6px;
-  transition: opacity 0.2s, background 0.12s, border-color 0.12s;
+  transition: opacity .2s, background .12s, border-color .12s;
 }
-.cms-page-render .qr-topbar .uk-navbar-nav > li > a:hover,
-.cms-page-render .qr-topbar .uk-navbar-nav > li.uk-active > a {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a:hover,
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li.uk-active > a {
   opacity: 1;
   background: color-mix(in oklab, var(--qr-text) 8%, transparent);
   border-color: color-mix(in oklab, var(--qr-text) 40%, transparent);
-  text-decoration: none;
 }
-.cms-page-render .qr-topbar .uk-navbar-nav > li > a:focus-visible,
-.cms-page-render .qr-topbar #configMenuToggle:focus-visible,
-.cms-page-render .qr-topbar .uk-navbar-toggle:focus-visible {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-nav > li > a:focus-visible, #configMenuToggle:focus-visible, .uk-navbar-toggle:focus-visible) {
   outline: none;
   box-shadow: 0 0 0 3px var(--qr-ring);
   border-radius: 6px;
 }
-.cms-page-render .qr-topbar .uk-navbar-toggle {
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-toggle {
   color: var(--qr-text) !important;
 }
-.cms-page-render .qr-topbar .git-btn {
-  width: 48px;
-  height: 48px;
-}
-.marketing-page .qr-topbar{
-  background: var(--qr-landing-topbar-bg);
-  backdrop-filter: blur(8px);
-  color:var(--qr-text);
-  min-height:64px;
-  height:64px;
-  border-bottom: 1px solid var(--qr-card-border);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-.marketing-page .qr-topbar nav.topbar{
-  --topbar-height: 64px;
-}
-.marketing-page .qr-topbar .uk-navbar,
-.marketing-page .qr-topbar .uk-navbar-container{
-  background: var(--qr-landing-topbar-bg);
-}
-@media (max-width: 959px) {
-  .marketing-page .qr-topbar{
-    min-height:56px;
-    height:56px;
-  }
-  .marketing-page .qr-topbar nav.topbar{
-    --topbar-height: 56px;
-  }
-}
-.marketing-page .qr-topbar .uk-navbar-container,
-.marketing-page .qr-topbar .uk-navbar-right,
-.marketing-page .qr-topbar .uk-navbar-center{
-  display:flex;
-  align-items:center;
-  flex-wrap:nowrap;
-  gap:12px;
-}
-.marketing-page .qr-topbar .uk-navbar-right{
-  flex:1 1 auto;
-  min-width:0;
-  justify-content:flex-end;
-}
-.marketing-page .qr-topbar .uk-navbar-right .uk-navbar-nav,
-.marketing-page .qr-topbar .uk-navbar-center .uk-navbar-nav{
-  display:flex;
-  flex:1 1 auto;
-  min-width:0;
-  flex-wrap:nowrap;
-  gap:8px;
-}
-.marketing-page .qr-topbar .uk-navbar-right .uk-navbar-nav{
-  justify-content:flex-end;
-}
-.marketing-page .qr-topbar .uk-navbar-center .uk-navbar-nav{
-  justify-content:center;
-}
-.marketing-page .qr-topbar .uk-navbar-right .uk-navbar-nav>li{
-  flex:0 0 auto;
-}
-.marketing-page .qr-topbar .top-cta,
-.marketing-page .qr-topbar .config-menu{
-  flex:0 0 auto;
-}
-.marketing-page .qr-topbar .uk-navbar-nav>li>a{
-  color:var(--qr-text)!important;
-  font-weight:500;
-  opacity:.9;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:0 10px;
-  line-height:38px;
-  height:40px;
-  border:1px solid transparent;
-  border-radius:6px;
-  transition:opacity .2s,background .12s,border-color .12s;
-}
-.marketing-page .qr-topbar .uk-navbar-nav>li>a:hover,
-.marketing-page .qr-topbar .uk-navbar-nav>li.uk-active>a{
-  opacity:1;
-  background:color-mix(in oklab,var(--qr-text) 8%,transparent);
-  border-color:color-mix(in oklab,var(--qr-text) 40%,transparent);
-  text-decoration:none;
-}
-.marketing-page .qr-topbar .uk-navbar-nav>li>a:focus-visible,
-.marketing-page .qr-topbar #configMenuToggle:focus-visible,
-.marketing-page .qr-topbar .uk-navbar-toggle:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px var(--qr-ring);
-  border-radius:6px;
-}
-.marketing-page .qr-topbar .uk-navbar-toggle{ color:var(--qr-text)!important; }
-.git-btn{
-  width:40px;height:40px;padding:0;
-  border-radius:6px;
-  border:1px solid var(--topbar-btn-border);
-  color:var(--topbar-text);
-  background:var(--topbar-btn-bg);
-  display:inline-flex;align-items:center;justify-content:center;
-  box-sizing:border-box;cursor:pointer;
-  transition:background .12s,border-color .12s,box-shadow .12s;
-}
-.git-btn:hover{
-  background:var(--topbar-btn-bg-hover);
-  border-color:var(--topbar-btn-border-hover);
-}
-.git-btn:focus{
-  outline:none;
-  box-shadow:0 0 0 3px var(--topbar-focus-ring);
-}
-.git-btn svg{width:24px;height:24px;}
-.marketing-page .qr-topbar .git-btn{
-  width:48px;
-  height:48px;
-  min-height:48px;
-  min-width:48px;
-  line-height:1;
-  padding:0;
-}
-.marketing-page .qr-topbar .git-btn svg{
-  width:26px;
-  height:26px;
-}
-.marketing-page .qr-topbar #offcanvas-toggle.git-btn{
-  width:56px;
-  height:56px;
-  min-height:56px;
-  aspect-ratio:1/1;
-  border-radius:6px;
-}
-.marketing-page .qr-topbar .uk-logo{
-  margin-left:8px;
-  font-family:'Poppins',sans-serif;
-  font-weight:700;
-  text-transform:uppercase;
-}
-.marketing-page .top-cta{
-  transition:opacity .2s,transform .2s;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-}
-.marketing-page .top-cta:hover{
-  opacity:.85;
-  transform:translateY(-1px);
-}
-.marketing-page .top-cta:focus-visible{ box-shadow:0 0 0 3px var(--qr-ring); }
 
-/* Offcanvas */
-#qr-offcanvas .uk-offcanvas-close.git-btn{
-  position:absolute;
-  top:8px;
-  right:8px;
-}
-#qr-offcanvas .offcanvas-cta.git-btn{
-  width:100%;
-  height:48px;
-}
-
-/* Hero */
-.marketing-page .qr-hero.uk-section{ background:transparent !important; position:relative; overflow:hidden; }
-.marketing-page .qr-hero-bg{
-  position:absolute;
-  inset:0;
-  z-index:0;
-  pointer-events:none;
-  background: var(--qr-hero-gradient);
-  background-color: var(--qr-hero-grad-start);
-}
-.marketing-page .hero-bg-quizrace {
-  background:
-    radial-gradient(600px 400px at 0% 0%, color-mix(in oklab, var(--qr-hero-grad-end) 35%, transparent), transparent),
-    radial-gradient(500px 350px at 100% 0%, color-mix(in oklab, var(--qr-landing-primary) 40%, transparent), transparent),
-    var(--qr-hero-gradient);
-  background-color: var(--qr-hero-grad-start);
-}
-.marketing-page .qr-hero>*{ position:relative; z-index:1; }
-.marketing-page .qr-badge{
-  display:inline-block;
-  padding:4px 12px;
-  background: color-mix(in oklab, var(--qr-brand-100) 60%, transparent);
-  color:var(--qr-brand-800);
-  font-size:.75rem;
-  font-weight:600;
-  border-radius:9999px;
-  margin-bottom:16px;
-}
-body.dark-mode.marketing-page .qr-badge{
-  background: color-mix(in oklab, var(--qr-brand-800) 40%, transparent);
-  color:var(--qr-brand-100);
-}
-.marketing-page .qr-h1{
-  font-weight:700;
-  font-size:clamp(2.5rem,5vw,3.5rem);
-  line-height:1.2;
-  margin:0 0 clamp(12px, 2vw, 20px);
-  max-width:46ch;
-}
-.marketing-page .qr-sub{
-  font-size:clamp(1.15rem, 2vw, 1.35rem);
-  line-height:1.6;
-  margin-bottom:clamp(24px, 4vw, 40px);
-  max-width:46ch;
-  color:var(--qr-muted);
-}
-.marketing-page .qr-mockup{
-  background:var(--qr-card);
-  border:1px solid var(--qr-card-border);
-  box-shadow: var(--marketing-shadow-hero-mockup);
-  border-radius:18px;
-  overflow:hidden;
-}
-.marketing-page .qr-mockup img{ display:block; width:100%; height:auto; }
-.marketing-page .qr-hero-gallery{
-  position:relative;
-  width:100%;
-  overflow:hidden;
-  border-radius:inherit;
-}
-.marketing-page .qr-hero-gallery::before{
-  content:"";
-  display:block;
-  padding-bottom:56.25%;
-}
-.marketing-page .qr-hero-gallery__item{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  opacity:0;
-  animation:qrHeroGalleryFade 12s ease-in-out infinite;
-}
-.marketing-page .qr-hero-gallery__item:first-child{ opacity:1; }
-.marketing-page .qr-hero-gallery__item:nth-child(2){ animation-delay:6s; }
-.marketing-page .qr-hero-gallery img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-@keyframes qrHeroGalleryFade{
-  0%,40%{ opacity:1; }
-  50%,100%{ opacity:0; }
-}
-@media (prefers-reduced-motion: reduce){
-  .marketing-page .qr-hero-gallery__item{
-    animation:none;
-    opacity:1;
-  }
-  .marketing-page .qr-hero-gallery__item:nth-child(n+2){
-    display:none;
-  }
-}
-.marketing-page .marker-text::after{ /* vorhandene Unterstreichung beibehalten */ }
-
-/* Buttons, Links, Sections, Cards */
-body:is(.marketing-page, .cms-page-render) a{
-  color:var(--qr-link);
-  text-decoration:underline;
-  text-decoration-color:transparent;
-  transition:opacity .2s,text-decoration-color .2s;
-}
-body:is(.marketing-page, .cms-page-render) a:hover{
-  opacity:.8;
-  text-decoration-color:currentColor;
-}
-
-
-body:is(.marketing-page, .cms-page-render) .uk-button{
-  transition:opacity .2s,transform .2s;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-}
-body:is(.marketing-page, .cms-page-render) .uk-button:hover{
-  opacity:.85;
-}
-
-body:is(.marketing-page, .cms-page-render) .uk-button-primary{
-  background:var(--marketing-button-primary-bg)!important;
-  color:var(--marketing-button-primary-text)!important;
-  border:1px solid var(--marketing-button-primary-border-color);
-}
-body:is(.marketing-page, .cms-page-render) .uk-button-primary:hover{
-  background:var(--marketing-button-primary-hover-bg)!important;
-  border-color:var(--marketing-button-primary-border-color);
-}
-body:is(.marketing-page, .cms-page-render) .uk-button-primary:focus-visible{
-  background:var(--marketing-button-primary-focus-bg)!important;
-}
-body:is(.marketing-page, .cms-page-render) .uk-button-primary:active{
-  background:var(--marketing-button-primary-active-bg)!important;
-  transform:translateY(1px);
-}
-
-body:is(.marketing-page, .cms-page-render) .uk-button-default{
-  background:var(--marketing-button-secondary-bg)!important;
-  color:var(--marketing-button-secondary-text)!important;
-  border:1px solid var(--marketing-button-secondary-border-color);
-}
-body:is(.marketing-page, .cms-page-render) .uk-button-default:hover{
-  background:var(--marketing-button-secondary-hover-bg)!important;
-}
-
-.marketing-page .marketing-btn-primary{
-  background:var(--marketing-accent);
-  color:var(--marketing-on-accent);
-  border:1px solid color-mix(in oklab,var(--marketing-accent) 65%, transparent);
-  transition:background-color .2s ease,transform .2s ease,box-shadow .2s ease;
-}
-.marketing-page .marketing-btn-primary:hover{
-  background:color-mix(in oklab, var(--marketing-accent) 88%, var(--marketing-black));
-}
-.marketing-page .marketing-btn-primary:active{
-  background:color-mix(in oklab, var(--marketing-accent) 78%, var(--marketing-black));
-  transform:translateY(1px);
-}
-
-.marketing-page .cta-main.uk-button-primary{
-  box-shadow:0 10px 24px color-mix(in oklab, var(--marketing-primary) 22%, transparent);
-  border-radius:12px;
-  padding:0 22px;
-  line-height:46px;
-  height:48px;
-  transition:opacity .2s,transform .2s,box-shadow .2s;
-}
-.marketing-page .cta-main.uk-button-primary:hover{
-  opacity:1;
-  box-shadow:0 16px 32px color-mix(in oklab, var(--marketing-primary) 28%, transparent);
-  transform:translateY(-1px);
-}
-.marketing-page .cta-main.uk-button-primary:focus-visible{
-  box-shadow:0 0 0 3px var(--qr-ring), 0 16px 32px color-mix(in oklab, var(--marketing-primary) 28%, transparent);
-}
-
-.marketing-page .onboarding-btn {
-  background: var(--landing-btn-bg);
-  color: var(--landing-btn-fg) !important;
-  border: 1px solid color-mix(in oklab, var(--landing-btn-bg) 80%, transparent);
-}
-.marketing-page .onboarding-btn:hover {
-  background: var(--landing-btn-bg-hover);
-}
-.cta-ghost{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:2px solid var(--landing-btn-fg);
-  color:var(--landing-btn-fg)!important;
-  background:transparent;
-  border-radius:12px;
-  font-weight:600;
-  font-size:1.05rem;
-  text-transform:none; /* kein ALL CAPS */
-  letter-spacing:0.2px;
-  padding:0.8em 1.6em;
-  transition:all .25s ease-in-out;
-}
-.cta-ghost:hover,
-.cta-ghost:focus{
-  background:var(--landing-btn-fg);
-  color:var(--landing-btn-bg-hover)!important;
-  box-shadow:0 6px 18px color-mix(in oklab, var(--marketing-primary) 35%, transparent);
-  text-decoration:none;
-}
-@media (max-width: 640px) {
-  .cta-ghost{
-    width:100%;
-  }
-}
-body.marketing-page:not(.dark-mode) .btn.btn-black.uk-button-secondary{
-  background-color:color-mix(in oklab, var(--qr-bg) 70%, var(--qr-fg) 30%);
-  color:var(--qr-landing-text);
-  border:1px solid color-mix(in oklab, var(--qr-border) 60%, transparent);
-  border-radius:12px;
-  line-height:46px;
-  height:48px;
-  transition:opacity .2s;
-}
-.marketing-page .btn.btn-black.uk-button-secondary:hover{ opacity:.85; }
-body.dark-mode.marketing-page .btn.btn-black.uk-button-secondary,
-body[data-theme="dark"].marketing-page .btn.btn-black.uk-button-secondary{
-  background-color:color-mix(in oklab, var(--qr-bg) 65%, var(--qr-bg-soft) 35%);
-  color:var(--qr-landing-text);
-  border:1px solid var(--qr-border);
-}
-
-.marketing-page .uk-section{ padding-top:72px; padding-bottom:72px; }
-@media (min-width:1200px){ .marketing-page .uk-section{ padding-top:88px; padding-bottom:88px; } }
-.marketing-page .page-modules{ padding-top:72px; padding-bottom:72px; }
-@media (min-width:1200px){ .marketing-page .page-modules{ padding-top:88px; padding-bottom:88px; } }
-/* Hero spacing handled by section padding */
-
-.marketing-page .uk-card-quizrace{
-  background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
-  box-shadow:var(--marketing-shadow-card); border-radius:var(--marketing-card-radius); padding:24px;
-  transition:transform .15s ease, box-shadow .15s ease;
-}
-.marketing-page .uk-card-quizrace .uk-icon{ color:var(--qr-landing-primary); }
-.marketing-page .uk-card-quizrace:hover{ transform:translateY(-2px); box-shadow: var(--marketing-shadow-card-hover); }
-
-/* Pricing & Steps */
-.marketing-page .pricing-grid>div{ display:flex; }
-.marketing-page .uk-card-price, .marketing-page .uk-card-popular{
-  display:flex; flex-direction:column; align-items:stretch; flex:1;
-  background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
-  box-shadow:var(--marketing-shadow-card); border-radius:var(--marketing-card-radius); padding:28px;
-}
-.marketing-page .uk-card-popular{
-  position:relative;
-  background: var(--qr-card);
-  outline:2px solid color-mix(in oklab, var(--qr-landing-primary) 35%, transparent);
-  box-shadow:0 18px 36px color-mix(in oklab, var(--qr-landing-primary) 16%, transparent);
-}
-@media (min-width:960px){
-  .marketing-page .uk-card-popular{
-    transform:scale(1.04);
-    transform-origin:center;
-    z-index:1;
-  }
-}
-.marketing-page .uk-card-price .uk-button,
-.marketing-page .uk-card-popular .uk-button{ margin-top:auto; }
-
-.marketing-page .uk-step-circle{
-  width:56px; height:56px; border-radius:50%;
-  display:inline-flex; align-items:center; justify-content:center;
-  background:var(--qr-landing-primary); color:var(--qr-contrast-on-primary); font-weight:700; font-size:1.1rem;
-  box-shadow:0 10px 24px color-mix(in oklab, var(--qr-landing-primary) 20%, transparent);
-}
-
-/* Contact details card */
-body.marketing-page:not([data-theme="dark"]) .contact-card,
-body.marketing-page:not([data-theme="dark"]) .contact-card a,
-body.marketing-page:not([data-theme="dark"]) .contact-card span{
-  color:var(--qr-text);
-}
-
-.calserver-proof-seals{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  justify-content:center;
-  gap:16px;
-  margin-top:12px;
-}
-
-.calserver-contact-card__entry{
-  display:flex;
-  flex-direction:column;
-}
-
-.calserver-contact-card__entry + .calserver-contact-card__entry{
-  margin-top:12px;
-}
-
-.calserver-proof-seals__badge-link,
-.calserver-proof-seals__widget{
-  flex:1 1 240px;
-  max-width:320px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.calserver-proof-seals__badge-link img{
-  display:block;
-  max-width:100%;
-  height:auto;
-}
-
-.calserver-proof-seals__widget{
-  flex-direction:column;
-  gap:8px;
-  min-height:180px;
-}
-
-.calserver-proof-seals__widget noscript{
-  width:100%;
-  text-align:center;
-}
-
-.calserver-proof-seals__widget #proSealWidget{
-  width:100%;
-}
-
-@media (min-width: 960px){
-  .calserver-proof-seals{
-    justify-content:flex-start;
-  }
-}
-
-.calserver-proof-seals__figure{
-  margin:0;
-  display:flex;
-}
-
-.calserver-proof-seals__badge{
-  display:block;
-  height:54px;
-  width:auto;
-}
-
-.calserver-proseal{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.calserver-proseal__placeholder{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.calserver-proseal__placeholder p{
-  margin:0;
-}
-
-.calserver-proseal__embed{
-  min-height:120px;
-}
-
-.calserver-proseal__embed[hidden]{
-  display:none !important;
-}
-
-.calserver-proseal[data-state="loading"] .calserver-proseal__placeholder,
-.calserver-proseal[data-state="loaded"] .calserver-proseal__placeholder{
-  display:none;
-}
-
-.calserver-proseal__error[hidden]{
-  display:none !important;
-}
-
-.calserver-proseal[data-state="error"] .calserver-proseal__error{
-  color:var(--qr-muted);
-}
-
-/* Form & A11y */
-.marketing-page #contact-form .uk-input,
-.marketing-page #contact-form .uk-textarea{
-  background:var(--qr-card); color:var(--qr-text);
-  border:1px solid var(--qr-card-border); border-radius:10px;
-}
-.marketing-page #contact-form .uk-input:focus,
-.marketing-page #contact-form .uk-textarea:focus{
-  box-shadow:0 0 0 3px var(--qr-ring);
-  border-color: color-mix(in oklab, var(--qr-brand-600) 50%, transparent);
-}
-.marketing-page #contact-form .turnstile-field{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.marketing-page #contact-form .turnstile-hint{
-  margin:0;
-  color:var(--qr-muted);
-}
-.marketing-page #contact-form.is-turnstile-disabled button[type="submit"]{
-  opacity:0.65;
-  cursor:not-allowed;
-}
-body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox{
-  appearance:none;
-  width:20px; height:20px;
-  border:1.5px solid var(--qr-muted);
-  border-radius:6px;
-  background:var(--qr-card);
-  display:inline-flex; align-items:center; justify-content:center;
-  position:relative;
-  margin-right:10px;
-  vertical-align:middle;
-  cursor:pointer;
-  transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease;
-}
-body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox::after{
-  content:'';
-  width:10px; height:6px;
-  border:2px solid transparent;
-  border-left:0; border-top:0;
-  transform:rotate(45deg);
-  opacity:0;
-  transition:opacity .15s ease;
-}
-body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:checked{
-  background:var(--marketing-primary);
-  border-color:color-mix(in oklab, var(--marketing-primary) 75%, transparent);
-  box-shadow:0 0 0 1px color-mix(in oklab, var(--marketing-primary) 55%, transparent);
-}
-body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:checked::after{
-  border-color:color-mix(in oklab, var(--marketing-on-accent) 92%, transparent);
-  opacity:1;
-}
-body.marketing-page:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
-  box-shadow:0 0 0 3px var(--qr-ring);
-  border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
-}
-body:is(.marketing-page, .cms-page-render) a:focus-visible,
-body:is(.marketing-page, .cms-page-render) button:focus-visible,
-body:is(.marketing-page, .cms-page-render) .uk-button:focus-visible{
-  outline:3px solid var(--marketing-accent);
-  outline-offset:2px;
-  box-shadow:none;
-  border-radius:8px;
-}
-@media (prefers-reduced-motion: reduce){ body:is(.marketing-page, .cms-page-render) *{ animation:none!important; transition:none!important; } }
-
-/* Rotierendes Wort */
-.marketing-page #rotating-word { transition: opacity 1s ease; }
-.marketing-page .marker-text { display: inline-block; font-weight: bold; position: relative; }
-.marketing-page .marker-text::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  height: 0.4em;
-  width: 0;
-  background-image: var(--marketing-marker-underline);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  opacity: 0.7;
-  pointer-events: none;
-  z-index: -1;
-}
-.marketing-page .underline-animate::after { animation: drawUnderline 0.6s ease-out forwards; animation-delay: 0.3s; }
-@keyframes drawUnderline { from { width: 0; } to { width: 100%; } }
-
-/* Proof badges */
-.marketing-page .qr-proof { display:flex; align-items:center; gap:16px; }
-.marketing-page .qr-proof img { height:28px; }
-
-.marketing-page .live-dashboard {
-  position: relative;
-}
-
-.marketing-page .live-dashboard::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at top left, color-mix(in oklab, var(--qr-landing-primary) 25%, transparent) 0%, transparent 65%);
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.marketing-page .live-dashboard .uk-container {
-  position: relative;
-  z-index: 1;
-}
-
-.marketing-page .live-dashboard__card {
-  background: var(--qr-card);
-  border: 1px solid var(--qr-card-border);
-  box-shadow: var(--marketing-shadow-callout);
-  border-radius: 16px;
-  padding: 0;
-}
-
-.marketing-page .live-dashboard__preview {
-  margin: 0;
-  position: relative;
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid color-mix(in oklab, var(--qr-card-border) 70%, transparent);
-  background: linear-gradient(135deg, color-mix(in oklab, var(--qr-bg-soft) 90%, transparent) 0%, color-mix(in oklab, var(--qr-card) 85%, transparent) 100%);
-}
-
-.marketing-page .live-dashboard__preview::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    -45deg,
-    color-mix(in oklab, var(--qr-card-border) 40%, transparent) 0,
-    color-mix(in oklab, var(--qr-card-border) 40%, transparent) 12px,
-    transparent 12px,
-    transparent 24px
-  );
-  opacity: 0.4;
-}
-
-.marketing-page .live-dashboard__preview-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px;
-  text-align: center;
-  color: var(--qr-muted);
-}
-
-.marketing-page .live-dashboard__preview-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--qr-text);
-}
-
-.marketing-page .live-dashboard__preview-text {
-  font-size: 0.95rem;
-}
-
-@media (max-width: 959px) {
-  .marketing-page .live-dashboard__card {
-    margin-top: 32px;
-  }
-}
-
-.provenexpert-rating {
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.provenexpert-rating iframe,
-.provenexpert-rating > * {
-  max-width: 100%;
-}
-
-/* Stat strip cards */
-.section[data-block-type="stat_strip"] {
-  --stat-card-surface: var(--section-surface, var(--surface));
-  --stat-card-surface-muted: var(--section-surface-muted, var(--surface-muted));
-  --stat-card-text: var(--section-text-color, var(--color-text));
-  --stat-card-accent: var(--accent-primary, var(--marketing-primary));
-}
-
-.stat-strip__grid {
-  row-gap: 28px;
-  column-gap: clamp(18px, 3vw, 32px);
-}
-
-.stat-strip__grid > * {
-  min-width: 0;
-}
-
-.stat-strip__card {
-  gap: 14px;
-  padding: 28px;
-}
-
-.stat-strip__kpi {
-  gap: 6px;
-}
-
-.stat-strip__value {
-  font-size: clamp(2.2rem, 2.8vw, 3rem);
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-.stat-strip__label-text {
-  font-size: 1.05rem;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-.stat-strip__as-of {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.stat-strip__benefit {
-  margin-top: auto;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  hyphens: auto;
-}
-
-.stat-strip__benefit-placeholder {
-  margin-top: auto;
-  display: block;
-  min-height: 3rem;
-  visibility: hidden;
-}
-
-.stat-strip__marquee {
-  padding-top: 20px;
-  border-top: 1px solid var(--surface-muted);
-}
-
-.stat-strip__marquee-tags {
-  gap: 8px 12px;
-}
-
-.stat-strip__marquee-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--stat-card-accent) 12%, var(--stat-card-surface));
-  border: 1px solid color-mix(in srgb, var(--stat-card-accent) 28%, var(--stat-card-surface-muted));
-  color: color-mix(in srgb, var(--stat-card-accent) 70%, var(--stat-card-text));
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="inline"], [data-block-variant="centered"], [data-block-variant="highlight"]) .stat-strip__grid {
-  row-gap: clamp(18px, 3vw, 26px);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-bar {
-  gap: 12px;
-  padding: 18px 0;
-  border-top: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 85%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 85%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-main {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-value {
-  font-size: clamp(2.1rem, 3vw, 2.7rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-label {
-  font-size: 1rem;
-  line-height: 1.4;
-  color: color-mix(in srgb, var(--stat-card-text) 85%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-meta-item {
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--stat-card-text) 78%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="inline"] .stat-strip__inline-meta-item--muted {
-  color: color-mix(in srgb, var(--stat-card-text) 62%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-stack {
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-  padding: 20px 8px;
-  border-top: 2px solid color-mix(in srgb, var(--stat-card-accent) 60%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 75%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-accent {
-  width: 44px;
-  height: 4px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--stat-card-accent) 80%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-value {
-  font-size: clamp(2.4rem, 3.6vw, 3.1rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-label {
-  font-size: 1.05rem;
-  line-height: 1.4;
-  color: color-mix(in srgb, var(--stat-card-text) 85%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-meta-item {
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--stat-card-text) 78%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="centered"] .stat-strip__centered-meta-item--muted {
-  color: color-mix(in srgb, var(--stat-card-text) 62%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-shell {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: clamp(18px, 3vw, 26px);
-  border-radius: calc(var(--marketing-card-radius) + 6px);
-  background: color-mix(in srgb, var(--stat-card-surface) 92%, var(--stat-card-accent) 8%);
-  border: 1px solid color-mix(in srgb, var(--stat-card-accent) 30%, var(--stat-card-surface-muted) 70%);
-  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-icon,
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-dot {
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--stat-card-accent) 14%, var(--stat-card-surface) 86%);
-  color: var(--stat-card-accent);
-  font-size: 1.2rem;
-  flex-shrink: 0;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-dot::before {
-  content: '';
-  width: 10px;
-  height: 10px;
-  border-radius: 999px;
-  background: var(--stat-card-accent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-main {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-value {
-  font-size: clamp(2.3rem, 3.3vw, 3rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-label {
-  font-size: 1.05rem;
-  line-height: 1.4;
-  color: color-mix(in srgb, var(--stat-card-text) 85%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-meta-item {
-  font-size: 0.95rem;
-  line-height: 1.45;
-  color: color-mix(in srgb, var(--stat-card-text) 78%, transparent);
-}
-
-.section[data-block-type="stat_strip"][data-block-variant="highlight"] .stat-strip__highlight-meta-item--muted {
-  color: color-mix(in srgb, var(--stat-card-text) 62%, transparent);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__grid {
-  row-gap: clamp(24px, 4vw, 36px);
-  column-gap: clamp(20px, 3vw, 36px);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card {
-  position: relative;
-  padding: clamp(24px, 3vw, 34px);
-  gap: clamp(16px, 2vw, 20px);
-  background: color-mix(in srgb, var(--stat-card-surface) 90%, var(--stat-card-surface-muted) 10%);
-  color: var(--stat-card-text);
-  border: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 72%, var(--stat-card-surface) 28%);
-  border-radius: calc(var(--marketing-card-radius) + 2px);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
-    var(--marketing-shadow-stat);
-  isolation: isolate;
-  transition: none;
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card:focus-within,
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card:hover {
-  border-color: color-mix(in srgb, var(--stat-card-accent) 55%, var(--stat-card-surface-muted) 45%);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--stat-card-surface-muted) 70%, transparent),
-    0 22px 48px color-mix(in srgb, var(--stat-card-accent) 18%, var(--marketing-shadow-stat-accent));
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card::before {
-  content: '';
-  position: absolute;
-  inset: clamp(18px, 2vw, 22px) auto clamp(18px, 2vw, 22px) clamp(18px, 2vw, 22px);
-  width: 4px;
-  border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--stat-card-accent) 85%, transparent) 0%,
-    color-mix(in srgb, var(--stat-card-accent) 65%, transparent) 100%
-  );
-  opacity: 0.85;
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card.uk-card,
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__card.uk-card-default {
-  background: transparent;
-  box-shadow: none;
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__kpi {
-  gap: clamp(8px, 1.4vw, 12px);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__value {
-  font-size: clamp(2.9rem, 4vw, 3.9rem);
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: color-mix(in srgb, var(--stat-card-accent) 75%, var(--stat-card-text) 25%);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__label-text {
-  font-size: clamp(1.05rem, 1.2vw, 1.18rem);
-  line-height: 1.4;
-  color: color-mix(in srgb, var(--stat-card-text) 82%, transparent);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__as-of {
-  font-size: 0.95rem;
-  letter-spacing: 0.01em;
-  color: color-mix(in srgb, var(--stat-card-text) 65%, transparent);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__benefit,
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__benefit-placeholder {
-  margin-top: clamp(16px, 2vw, 20px);
-  padding-top: clamp(12px, 1.6vw, 16px);
-  border-top: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 76%, var(--stat-card-surface) 24%);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__benefit {
-  font-size: 1rem;
-  line-height: 1.55;
-  color: color-mix(in srgb, var(--stat-card-text) 78%, transparent);
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__benefit-placeholder {
-  min-height: 3.25rem;
-}
-
-.section[data-block-type="stat_strip"]:is([data-block-variant="cards"], [data-block-variant="three-up"], [data-block-variant="three_up"]) .stat-strip__marquee {
-  margin-top: clamp(14px, 2vw, 18px);
-  padding-top: clamp(14px, 2vw, 18px);
-  border-top: 1px solid color-mix(in srgb, var(--stat-card-surface-muted) 78%, var(--stat-card-surface) 22%);
-  color: color-mix(in srgb, var(--stat-card-text) 62%, transparent);
-}
-
-/* Marketing chat + cookie consent handlers (marketing pages + CMS rendering). */
-
-.marketing-chat-modal .uk-modal-dialog {
-  max-width: 720px;
-}
-
-.marketing-chat__dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  --marketing-chat-surface: color-mix(
-    in oklab,
-    var(--marketing-card, var(--marketing-surface-muted)) 96%,
-    color-mix(in oklab, var(--marketing-white) 94%, transparent)
-  );
-  --marketing-chat-surface-alt: color-mix(
-    in oklab,
-    var(--marketing-card, var(--marketing-surface-muted)) 92%,
-    color-mix(in oklab, var(--marketing-white) 82%, transparent)
-  );
-  --marketing-chat-emphasis: color-mix(
-    in oklab,
-    var(--calserver-primary, var(--marketing-primary)) 18%,
-    color-mix(in oklab, var(--marketing-white) 94%, transparent)
-  );
-  --marketing-chat-strong: color-mix(
-    in oklab,
-    var(--marketing-text-on-surface) 90%,
-    color-mix(in oklab, var(--marketing-ink) 10%, transparent)
-  );
-  --marketing-chat-muted: color-mix(
-    in oklab,
-    var(--marketing-text-muted-on-surface) 92%,
-    color-mix(in oklab, var(--marketing-ink) 60%, transparent)
-  );
-  --marketing-chat-border: color-mix(
-    in oklab,
-    var(--marketing-border-light) 85%,
-    transparent
-  );
-  background: var(--marketing-chat-surface);
-  color: var(--marketing-chat-strong);
-  border: 1px solid var(--marketing-chat-border);
-  border-radius: 12px;
-  box-shadow: 0 28px 64px -40px color-mix(in oklab, var(--marketing-ink) 55%, transparent),
-    0 12px 32px -20px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
-}
-
-.marketing-chat__intro {
-  margin: 0;
-  color: var(--marketing-chat-muted);
-}
-
-.marketing-chat__messages {
-  max-height: 320px;
-  overflow-y: auto;
-  padding: 12px 16px;
-  background: var(--marketing-chat-surface-alt);
-  border: 1px solid color-mix(in oklab, var(--marketing-chat-border) 92%, transparent);
-  border-radius: 10px;
-}
-
-.marketing-chat__system {
-  margin-bottom: 12px;
-  padding: 12px 14px;
-  background: var(--marketing-chat-emphasis);
-  border-radius: 8px;
-  font-weight: 600;
-  color: var(--marketing-chat-strong);
-}
-
-.marketing-chat__turn {
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid color-mix(in oklab, var(--marketing-chat-border) 78%, transparent);
-}
-
-.marketing-chat__turn:last-child {
-  padding-bottom: 0;
-  margin-bottom: 0;
-  border-bottom: 0;
-}
-
-.marketing-chat__question {
-  margin: 0 0 8px;
-  font-size: 1.05rem;
-}
-
-.marketing-chat__answer p {
-  margin: 0 0 8px;
-  line-height: 1.5;
-}
-
-.marketing-chat__answer p:last-child {
-  margin-bottom: 0;
-}
-
-.marketing-chat__context {
-  margin-top: 12px;
-}
-
-.marketing-chat__context-toggle {
-  margin: 0;
-  font-size: 0.95rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--marketing-chat-muted);
-  cursor: pointer;
-  list-style: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.marketing-chat__context-toggle::-webkit-details-marker {
-  display: none;
-}
-
-.marketing-chat__context-toggle::before {
-  content: '\25B8';
-  display: inline-block;
-  margin-right: 6px;
-  transition: transform 0.2s ease;
-}
-
-.marketing-chat__context[open] .marketing-chat__context-toggle::before {
-  transform: rotate(90deg);
-}
-
-.marketing-chat__context-list {
-  margin: 8px 0 0;
-  padding-left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.marketing-chat__context-item {
-  font-size: 0.95rem;
-}
-
-.marketing-chat__context-link {
-  color: var(--calserver-primary, var(--marketing-primary));
-  text-decoration: none;
-}
-
-.marketing-chat__context-link:hover,
-.marketing-chat__context-link:focus {
-  text-decoration: underline;
-}
-
-.marketing-chat__context-label {
-  color: var(--marketing-chat-muted);
-}
-
-.marketing-chat__status {
-  min-height: 1.25em;
-  margin: 0;
-  font-weight: 600;
-  color: var(--marketing-chat-muted);
-}
-
-.marketing-chat__status--error {
-  color: var(--marketing-danger-600);
-}
-
-.marketing-chat__honeypot {
-  position: absolute;
-  left: -10000px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(100%);
-  border: 0;
-  padding: 0;
-  margin: 0;
-}
-
-.marketing-chat__form textarea {
-  resize: vertical;
-}
-
-.marketing-chat__form-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
-}
-
-.marketing-chat__form--loading textarea {
-  opacity: 0.75;
-}
-
-body:is(.marketing-page, .cms-page-render).dark-mode:not(.high-contrast) .marketing-chat__dialog,
-body:is(.marketing-page, .cms-page-render)[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
-  --marketing-chat-surface: color-mix(
-    in oklab,
-    var(--marketing-card, var(--marketing-surface-dark)) 85%,
-    color-mix(in oklab, var(--marketing-ink) 92%, transparent)
-  );
-  --marketing-chat-surface-alt: color-mix(
-    in oklab,
-    color-mix(in oklab, var(--marketing-ink) 94%, transparent) 82%,
-    color-mix(in oklab, var(--calserver-primary, var(--marketing-primary)) 22%, transparent) 18%
-  );
-  --marketing-chat-emphasis: color-mix(
-    in oklab,
-    var(--calserver-primary, var(--marketing-primary)) 42%,
-    color-mix(in oklab, var(--marketing-ink) 88%, transparent)
-  );
-  --marketing-chat-strong: color-mix(
-    in oklab,
-    var(--marketing-white) 94%,
-    color-mix(in oklab, var(--marketing-white) 72%, transparent) 6%
-  );
-  --marketing-chat-muted: color-mix(
-    in oklab,
-    color-mix(in oklab, var(--marketing-white) 92%, transparent) 88%,
-    color-mix(in oklab, var(--marketing-white) 70%, transparent) 12%
-  );
-  --marketing-chat-border: color-mix(
-    in oklab,
-    color-mix(in oklab, var(--marketing-primary) 45%, transparent) 50%,
-    color-mix(in oklab, var(--marketing-white) 18%, transparent) 50%
-  );
-}
-
-@media (max-width: 640px) {
-  .marketing-chat__dialog {
-    padding: 20px 18px;
-  }
-
-  .marketing-chat__messages {
-    max-height: 240px;
-  }
-}
-
-.marketing-cookie-banner {
-  position: fixed;
-  inset: auto 24px 24px auto;
-  width: min(360px, calc(100% - 48px));
-  border-radius: 16px;
-  box-shadow: 0 24px 58px -34px color-mix(in oklab, var(--marketing-ink) 65%, transparent),
-    0 18px 32px -28px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  transition: transform 0.25s ease, opacity 0.25s ease;
-  opacity: 0;
-  transform: translate3d(0, 12px, 0);
-  z-index: 1050;
-}
-
-.marketing-floating-button {
-  position: fixed;
-  bottom: clamp(1rem, 4vw, 1.75rem);
-  z-index: 1040;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border: 1px solid color-mix(
-    in oklab,
-    var(--marketing-primary) 52%,
-    color-mix(in oklab, var(--marketing-white) 24%, transparent)
-  );
-  border-radius: 9999px;
-  background: color-mix(
-    in oklab,
-    var(--marketing-primary) 22%,
-    color-mix(in oklab, var(--marketing-ink) 94%, transparent)
-  );
-  color: var(--marketing-white);
-  box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent),
-    0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
-  cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.marketing-floating-button svg {
-  width: 1.45rem;
-  height: 1.45rem;
-  color: inherit;
-  stroke: currentColor;
-  fill: none;
-}
-
-.marketing-floating-button .uk-icon {
-  color: inherit !important;
-}
-
-.marketing-floating-button:hover,
-.marketing-floating-button:focus-visible {
-  background: color-mix(
-    in oklab,
-    var(--marketing-primary) 30%,
-    color-mix(in oklab, var(--marketing-ink) 90%, transparent)
-  );
-  border-color: color-mix(
-    in oklab,
-    var(--marketing-primary) 64%,
-    color-mix(in oklab, var(--marketing-white) 28%, transparent)
-  );
-  box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent),
-    0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
-}
-
-.marketing-floating-button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--marketing-primary) 70%, var(--marketing-white) 30%);
-  outline-offset: 3px;
-}
-
-.marketing-floating-button:active {
-  transform: scale(0.96);
-}
-
-.marketing-cookie-trigger {
-  left: clamp(1rem, 4vw, 1.75rem);
-}
-
-.marketing-chat-fab {
-  right: clamp(1rem, 4vw, 1.75rem);
-}
-
-.marketing-cookie-trigger--active {
-  background: color-mix(
-    in oklab,
-    var(--marketing-primary) 26%,
-    color-mix(in oklab, var(--marketing-ink) 92%, transparent)
-  );
-  border-color: color-mix(
-    in oklab,
-    var(--marketing-primary) 58%,
-    color-mix(in oklab, var(--marketing-white) 26%, transparent)
-  );
-  box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent),
-    0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
-}
-
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast)
-  .marketing-floating-button,
-body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast)
-  .marketing-floating-button {
-  color: var(--marketing-white);
-  border-color: color-mix(
-    in oklab,
-    var(--marketing-primary) 52%,
-    color-mix(in oklab, var(--marketing-white) 24%, transparent)
-  );
-  background: color-mix(
-    in oklab,
-    var(--marketing-primary) 22%,
-    color-mix(in oklab, var(--marketing-ink) 94%, transparent)
-  );
-  box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent),
-    0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
-}
-
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast)
-  .marketing-floating-button svg,
-body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast)
-  .marketing-floating-button svg {
-  color: inherit;
-  stroke: currentColor;
-}
-
-@media (max-width: 640px) {
-  .marketing-floating-button {
-    width: 3rem;
-    height: 3rem;
-    bottom: clamp(0.85rem, 6vw, 1.25rem);
-    box-shadow: 0 14px 28px color-mix(in oklab, var(--marketing-ink) 30%, transparent),
-      0 6px 16px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
-  }
-
-  .marketing-floating-button svg {
-    width: 1.35rem;
-    height: 1.35rem;
-  }
-
-  .marketing-cookie-trigger {
-    left: clamp(0.85rem, 6vw, 1.25rem);
-  }
-
-  .marketing-chat-fab {
-    right: clamp(0.85rem, 6vw, 1.25rem);
-  }
-}
-
-body:is(.marketing-page, .cms-page-render).high-contrast .marketing-floating-button,
-body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-floating-button,
-body.high-contrast .marketing-floating-button {
-  background: var(--marketing-black);
-  color: var(--marketing-white);
-  box-shadow: none;
-  border: 2px solid currentColor;
-}
-
-body:is(.marketing-page, .cms-page-render).high-contrast
-  .marketing-cookie-trigger.marketing-cookie-trigger--active,
-body:is(.marketing-page, .cms-page-render)[data-theme="high-contrast"]
-  .marketing-cookie-trigger.marketing-cookie-trigger--active,
-body.high-contrast
-  .marketing-cookie-trigger.marketing-cookie-trigger--active {
-  background: var(--marketing-ink);
-}
-
-.marketing-cookie-banner--visible {
-  opacity: 1;
-  transform: translate3d(0, 0, 0);
-}
-
-.marketing-cookie-banner__headline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 4px;
-}
-
-.marketing-cookie-banner__icon {
-  color: var(--marketing-primary);
-}
-
-.marketing-cookie-banner__copy {
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.45;
-}
-
-.marketing-cookie-banner__fineprint {
-  margin: 0;
-  font-size: 0.85rem;
-  color: color-mix(in oklab, currentColor 72%, color-mix(in oklab, var(--marketing-white) 40%, transparent));
-}
-
-.marketing-cookie-banner__link {
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-}
-
-.marketing-cookie-banner__link:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
-}
-
-.marketing-cookie-banner__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.marketing-cookie-banner__button {
-  flex: 1 1 140px;
-}
-
-@media (max-width: 640px) {
-  .marketing-cookie-banner {
-    inset: auto 16px 16px 16px;
-    width: auto;
-  }
-}
-
-body:is(.marketing-page, .cms-page-render).dark-mode:not(.high-contrast)
-  .marketing-cookie-banner,
-body:is(.marketing-page, .cms-page-render)[data-theme="dark"]:not(.high-contrast)
-  .marketing-cookie-banner {
-  background: linear-gradient(
-    160deg,
-    color-mix(in oklab, var(--marketing-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
-    color-mix(in oklab, var(--marketing-primary) 18%, color-mix(in oklab, var(--marketing-ink) 96%, transparent)) 100%
-  ) !important;
-  border: 1px solid color-mix(
-    in oklab,
-    var(--marketing-primary) 48%,
-    color-mix(in oklab, var(--marketing-white) 18%, transparent)
-  ) !important;
-  color: color-mix(in oklab, var(--marketing-white) 92%, color-mix(in oklab, var(--marketing-white) 8%, transparent)) !important;
-}
-
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast)
-  .marketing-cookie-banner,
-body:is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast)
-  .marketing-cookie-banner {
-  background: linear-gradient(
-    160deg,
-    color-mix(in oklab, var(--marketing-primary) 12%, var(--marketing-white) 88%) 0%,
-    color-mix(
-      in oklab,
-      var(--marketing-primary) 8%,
-      var(--marketing-surface-muted) 92%
-    ) 100%
-  ) !important;
-  border: 1px solid color-mix(
-    in oklab,
-    var(--marketing-primary) 26%,
-    color-mix(in oklab, var(--marketing-ink) 10%, transparent)
-  ) !important;
-  color: color-mix(in oklab, var(--marketing-ink) 88%, var(--marketing-primary) 12%) !important;
+/* Only marketing-page should be sticky */
+body.marketing-page .qr-topbar { position: sticky; top: 0; }
+
+/* =========================================================
+   Section spacing (single place)
+   ========================================================= */
+.marketing-section { padding-block: var(--marketing-section-padding); }
+.marketing-section + .marketing-section { margin-top: var(--marketing-section-gap); }
+body.marketing-page .uk-section,
+body.marketing-page .page-modules { padding-top: 72px; padding-bottom: 72px; }
+@media (min-width: 1200px) {
+  body.marketing-page .uk-section,
+  body.marketing-page .page-modules { padding-top: 88px; padding-bottom: 88px; }
 }
