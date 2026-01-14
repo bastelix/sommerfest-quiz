@@ -685,18 +685,18 @@
       };
     };
 
-    const updateRow = (row, config) => {
-      const textValue = resolveTargetValue(config, 'text');
-      const backgroundValue = resolveTargetValue(config, 'background');
-      const ratioElement = row.querySelector('[data-contrast-ratio]');
-      const aaBadge = row.querySelector('[data-contrast-aa]');
-      const aaaBadge = row.querySelector('[data-contrast-aaa]');
-      const fixButton = row.querySelector('[data-contrast-fix]');
+    const themes = ['light', 'dark'];
 
-      const textColor = parseColor(textValue);
-      const backgroundColor = blendWithSurface(parseColorWithAlpha(backgroundValue));
+    const updateSlot = (row, theme, result) => {
+      const ratioElement = row.querySelector(`[data-contrast-ratio="${theme}"]`);
+      const aaBadge = row.querySelector(`[data-contrast-aa="${theme}"]`);
+      const aaaBadge = row.querySelector(`[data-contrast-aaa="${theme}"]`);
 
-      if (!textColor || !backgroundColor) {
+      if (!ratioElement && !aaBadge && !aaaBadge) {
+        return;
+      }
+
+      if (!result) {
         if (ratioElement) ratioElement.textContent = '–';
         if (aaBadge) {
           aaBadge.textContent = 'AA n/a';
@@ -708,35 +708,41 @@
           aaaBadge.classList.remove('design-contrast__badge--warn');
           aaaBadge.classList.add('design-contrast__badge--muted');
         }
-        row.classList.remove('design-contrast__row--warn');
-        if (fixButton instanceof HTMLButtonElement) {
-          fixButton.disabled = true;
-        }
         return;
       }
 
-      const ratio = contrastRatio(textColor, backgroundColor);
       if (ratioElement) {
-        ratioElement.textContent = `${ratio.toFixed(2)}:1`;
+        ratioElement.textContent = `${result.ratio.toFixed(2)}:1`;
       }
 
-      const meetsAA = ratio >= 4.5;
-      const meetsAAA = ratio >= 7;
-
       if (aaBadge) {
-        aaBadge.textContent = meetsAA ? 'AA ✓' : 'AA ✕';
-        aaBadge.classList.toggle('design-contrast__badge--warn', !meetsAA);
+        aaBadge.textContent = result.meetsAA ? 'AA ✓' : 'AA ✕';
+        aaBadge.classList.toggle('design-contrast__badge--warn', !result.meetsAA);
         aaBadge.classList.toggle('design-contrast__badge--muted', false);
       }
       if (aaaBadge) {
-        aaaBadge.textContent = meetsAAA ? 'AAA ✓' : 'AAA ✕';
-        aaaBadge.classList.toggle('design-contrast__badge--warn', !meetsAAA);
+        aaaBadge.textContent = result.meetsAAA ? 'AAA ✓' : 'AAA ✕';
+        aaaBadge.classList.toggle('design-contrast__badge--warn', !result.meetsAAA);
         aaaBadge.classList.toggle('design-contrast__badge--muted', false);
       }
-      row.classList.toggle('design-contrast__row--warn', !meetsAA);
-      if (fixButton instanceof HTMLButtonElement) {
-        fixButton.disabled = meetsAA;
+    };
+
+    const computeContrastForTheme = config => {
+      const textValue = resolveTargetValue(config, 'text');
+      const backgroundValue = resolveTargetValue(config, 'background');
+      const textColor = parseColor(textValue);
+      const backgroundColor = blendWithSurface(parseColorWithAlpha(backgroundValue));
+
+      if (!textColor || !backgroundColor) {
+        return null;
       }
+
+      const ratio = contrastRatio(textColor, backgroundColor);
+      return {
+        ratio,
+        meetsAA: ratio >= 4.5,
+        meetsAAA: ratio >= 7,
+      };
     };
 
     const rows = Array.from(panel.querySelectorAll('[data-contrast-row]'));
@@ -773,11 +779,45 @@
 
     refreshContrastChecks = () => {
       applyOverridesFromInputs();
+      if (!preview) {
+        return;
+      }
+
+      const originalTheme = preview.dataset.theme;
+      const resultsByRow = new Map();
+
+      themes.forEach(theme => {
+        preview.dataset.theme = theme;
+        rows.forEach(row => {
+          const key = row.dataset.contrastRow;
+          const config = key ? targets[key] : null;
+          if (!config) {
+            return;
+          }
+          const result = computeContrastForTheme(config);
+          updateSlot(row, theme, result);
+          if (!resultsByRow.has(row)) {
+            resultsByRow.set(row, {});
+          }
+          resultsByRow.get(row)[theme] = result;
+        });
+      });
+
+      if (originalTheme) {
+        preview.dataset.theme = originalTheme;
+      } else {
+        delete preview.dataset.theme;
+      }
+
       rows.forEach(row => {
-        const key = row.dataset.contrastRow;
-        const config = key ? targets[key] : null;
-        if (config) {
-          updateRow(row, config);
+        const stored = resultsByRow.get(row) || {};
+        const fixButton = row.querySelector('[data-contrast-fix]');
+        const results = themes.map(theme => stored[theme]).filter(Boolean);
+        const anyFailed = results.some(result => !result.meetsAA);
+        const meetsAll = results.length === themes.length && results.every(result => result.meetsAA);
+        row.classList.toggle('design-contrast__row--warn', anyFailed);
+        if (fixButton instanceof HTMLButtonElement) {
+          fixButton.disabled = !meetsAll;
         }
       });
     };
