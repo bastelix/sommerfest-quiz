@@ -100,6 +100,11 @@
   --marketing-topbar-focus-ring-contrast-dark: rgba(140, 200, 255, 0.8);
 }
 
+:root[data-marketing-scheme="monochrome"] {
+  --marketing-card-default: var(--marketing-surface);
+  --marketing-card-dark-default: var(--marketing-surface-dark);
+}
+
 :root {
   --marketing-font-stack: var(--marketing-font-stack-modern);
   --marketing-heading-font-stack: var(--marketing-font-stack-modern);
