@@ -26,6 +26,7 @@ use App\Service\TenantService;
 use App\Support\BasePathHelper;
 use App\Support\DomainNameHelper;
 use App\Support\FeatureFlags;
+use App\Support\PageAnchorExtractor;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -234,9 +235,10 @@ class ProjectPagesController
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $mode = (string) ($request->getQueryParams()['mode'] ?? 'cms');
         $isCmsMode = $mode === 'cms';
+        $allPages = $this->pageService->getAllForNamespace($namespace);
         $pages = $isCmsMode
-            ? $this->pageService->getAllForNamespace($namespace)
-            : $this->filterCmsPages($this->pageService->getAllForNamespace($namespace));
+            ? $allPages
+            : $this->filterCmsPages($allPages);
         $pageList = array_map(
             static fn (Page $page): array => [
                 'id' => $page->getId(),
@@ -264,6 +266,7 @@ class ProjectPagesController
             ],
             $pages
         );
+        $internalLinks = $this->buildInternalLinks($allPages);
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
         $navigationVariants = [
             ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
@@ -280,6 +283,7 @@ class ProjectPagesController
             'pages' => $pageList,
             'page_namespace_list' => $pageNamespaceList,
             'menu_pages' => $menuPages,
+            'internal_links' => $internalLinks,
             'selectedPageSlug' => $selectedSlug,
             'csrf_token' => $this->ensureCsrfToken(),
             'pageTab' => 'navigation',
@@ -290,6 +294,64 @@ class ProjectPagesController
             'navigation_variants' => $navigationVariants,
             'selected_navigation_variant' => $selectedVariant,
         ]);
+    }
+
+    /**
+     * @param array<int, Page> $pages
+     * @return array<int, array{value:string,label:string,group:string}>
+     */
+    private function buildInternalLinks(array $pages): array
+    {
+        $extractor = new PageAnchorExtractor();
+        $pagePaths = [];
+        $anchors = [];
+        $pageAnchors = [];
+
+        foreach ($pages as $page) {
+            $slug = $page->getSlug();
+            if ($slug === '') {
+                continue;
+            }
+            $path = '/' . ltrim($slug, '/');
+            $pagePaths[$path] = $path;
+
+            $anchorIds = $extractor->extractAnchorIds($page->getContent());
+            foreach ($anchorIds as $anchorId) {
+                $anchors[$anchorId] = $anchorId;
+                $pageAnchors[$path . '#' . $anchorId] = $anchorId;
+            }
+        }
+
+        $options = [];
+        foreach (array_values($pagePaths) as $path) {
+            $options[] = [
+                'value' => $path,
+                'label' => $path,
+                'group' => 'Seitenpfade',
+            ];
+        }
+
+        $anchorList = array_keys($anchors);
+        sort($anchorList, SORT_STRING);
+        foreach ($anchorList as $anchorId) {
+            $options[] = [
+                'value' => '#' . $anchorId,
+                'label' => '#' . $anchorId,
+                'group' => 'Anker',
+            ];
+        }
+
+        $pageAnchorList = array_keys($pageAnchors);
+        sort($pageAnchorList, SORT_STRING);
+        foreach ($pageAnchorList as $value) {
+            $options[] = [
+                'value' => $value,
+                'label' => $value,
+                'group' => 'Seiten + Anker',
+            ];
+        }
+
+        return $options;
     }
 
     public function generateMenu(Request $request, Response $response, array $args): Response
