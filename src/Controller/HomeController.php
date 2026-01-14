@@ -44,6 +44,13 @@ class HomeController
         $appearance = (new NamespaceAppearanceService())->load($namespace);
         $renderContext = (new NamespaceRenderContextService())->build($namespace);
         $design = $renderContext['design'] ?? [];
+        $namespaceContextPayload = [
+            'appearance' => $appearance,
+            'design' => $design,
+            'namespace' => $namespace,
+            'pageNamespace' => $namespace,
+            'renderContext' => $renderContext,
+        ];
 
         /** @var array<string, string> $params Query string values */
         $params = $request->getQueryParams();
@@ -133,31 +140,23 @@ class HomeController
 
             if ($eventStart instanceof DateTimeImmutable && $now < $eventStart) {
                 return $view->render($response, 'marketing/event_upcoming.twig', [
-                    'appearance' => $appearance,
                     'config' => $cfg,
-                    'design' => $design,
                     'event' => $event,
-                    'namespace' => $namespace,
                     'start' => $eventStart,
                     'end' => $eventEnd,
                     'now' => $now,
-                    'pageNamespace' => $namespace,
-                    'renderContext' => $renderContext,
+                    ...$namespaceContextPayload,
                 ]);
             }
 
             if ($eventEnd instanceof DateTimeImmutable && $now > $eventEnd) {
                 return $view->render($response, 'marketing/event_finished.twig', [
-                    'appearance' => $appearance,
                     'config' => $cfg,
-                    'design' => $design,
                     'event' => $event,
-                    'namespace' => $namespace,
                     'start' => $eventStart,
                     'end' => $eventEnd,
                     'now' => $now,
-                    'pageNamespace' => $namespace,
-                    'renderContext' => $renderContext,
+                    ...$namespaceContextPayload,
                 ]);
             }
         }
