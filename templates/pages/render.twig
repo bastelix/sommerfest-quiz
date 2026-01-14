@@ -34,9 +34,11 @@
   {{ parent() }}
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <script src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
 {% block body %}
+  {% include 'marketing/partials/design-data.twig' %}
   {% include 'pages/partials/header.twig' with {
     normalizedNamespace: normalizedNamespace,
     headerTheme: headerTheme,
