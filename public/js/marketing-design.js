@@ -564,6 +564,11 @@ const applyMarketingDesign = () => {
     ),
   );
   const marketingSchemeValues = marketingScheme ? MARKETING_SCHEMES[marketingScheme] : null;
+  if (marketingScheme) {
+    root.dataset.marketingScheme = marketingScheme;
+  } else {
+    delete root.dataset.marketingScheme;
+  }
   const marketingBackgroundToken =
     configColors['--marketing-background'] ||
     colors['--marketing-background'] ||
