@@ -590,14 +590,16 @@
       });
     };
 
-    const updateRow = (row, config) => {
-      const style = getComputedStyle(preview);
+    const getThemeElement = (row, attribute, theme) => (
+      row.querySelector(`[data-${attribute}="${theme}"]`) || row.querySelector(`[data-${attribute}]`)
+    );
+
+    const updateRow = (row, config, theme, style) => {
       const textValue = resolveCssValue(style, config.textVars);
       const backgroundValue = resolveCssValue(style, config.backgroundVars);
-      const ratioElement = row.querySelector('[data-contrast-ratio]');
-      const aaBadge = row.querySelector('[data-contrast-aa]');
-      const aaaBadge = row.querySelector('[data-contrast-aaa]');
-      const fixButton = row.querySelector('[data-contrast-fix]');
+      const ratioElement = getThemeElement(row, 'contrast-ratio', theme);
+      const aaBadge = getThemeElement(row, 'contrast-aa', theme);
+      const aaaBadge = getThemeElement(row, 'contrast-aaa', theme);
 
       const textColor = parseColor(textValue);
       const backgroundColor = parseColor(backgroundValue);
@@ -614,11 +616,7 @@
           aaaBadge.classList.remove('design-contrast__badge--warn');
           aaaBadge.classList.add('design-contrast__badge--muted');
         }
-        row.classList.remove('design-contrast__row--warn');
-        if (fixButton instanceof HTMLButtonElement) {
-          fixButton.disabled = true;
-        }
-        return;
+        return { hasData: false, meetsAA: false, meetsAAA: false };
       }
 
       const ratio = contrastRatio(textColor, backgroundColor);
@@ -639,10 +637,7 @@
         aaaBadge.classList.toggle('design-contrast__badge--warn', !meetsAAA);
         aaaBadge.classList.toggle('design-contrast__badge--muted', false);
       }
-      row.classList.toggle('design-contrast__row--warn', !meetsAA);
-      if (fixButton instanceof HTMLButtonElement) {
-        fixButton.disabled = meetsAA;
-      }
+      return { hasData: true, meetsAA, meetsAAA };
     };
 
     const rows = Array.from(panel.querySelectorAll('[data-contrast-row]'));
@@ -680,13 +675,31 @@
 
     refreshContrastChecks = () => {
       applyOverridesFromInputs();
+      const previousTheme = preview.dataset.theme;
+      const themes = ['light', 'dark'];
       rows.forEach(row => {
         const key = row.dataset.contrastRow;
         const config = key ? targets[key] : null;
         if (config) {
-          updateRow(row, config);
+          const results = themes.map(theme => {
+            preview.dataset.theme = theme;
+            const style = getComputedStyle(preview);
+            return updateRow(row, config, theme, style);
+          });
+          const hasData = results.some(result => result.hasData);
+          const meetsAllAA = results.every(result => !result.hasData || result.meetsAA);
+          row.classList.toggle('design-contrast__row--warn', hasData && !meetsAllAA);
+          const fixButton = row.querySelector('[data-contrast-fix]');
+          if (fixButton instanceof HTMLButtonElement) {
+            fixButton.disabled = !hasData || meetsAllAA;
+          }
         }
       });
+      if (previousTheme) {
+        preview.dataset.theme = previousTheme;
+      } else {
+        delete preview.dataset.theme;
+      }
     };
 
     refreshContrastChecks();
