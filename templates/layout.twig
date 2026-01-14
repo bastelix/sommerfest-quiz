@@ -160,10 +160,12 @@
   <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin>
   {% endif %}
   {% block head %}{% endblock %}
-  {% block theme_vars %}
-    {% if shouldIncludeMarketingThemeVars %}
-      {% include 'marketing/partials/theme-vars.twig' %}
-    {% endif %}
+  {% block head_end %}
+    {% block theme_vars %}
+      {% if shouldIncludeMarketingThemeVars %}
+        {% include 'marketing/partials/theme-vars.twig' %}
+      {% endif %}
+    {% endblock %}
   {% endblock %}
 </head>
 <body
