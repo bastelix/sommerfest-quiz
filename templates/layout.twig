@@ -159,10 +159,12 @@
   {% if 'marketing-page' in normalizedBodyClass %}
   <link rel="preload" href="https://fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2" as="font" type="font/woff2" crossorigin>
   {% endif %}
-  {% if shouldIncludeMarketingThemeVars %}
-    {% include 'marketing/partials/theme-vars.twig' %}
-  {% endif %}
   {% block head %}{% endblock %}
+  {% block theme_vars %}
+    {% if shouldIncludeMarketingThemeVars %}
+      {% include 'marketing/partials/theme-vars.twig' %}
+    {% endif %}
+  {% endblock %}
 </head>
 <body
   data-theme="{{ resolvedTheme }}"
