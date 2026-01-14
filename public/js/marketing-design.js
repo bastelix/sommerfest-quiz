@@ -678,6 +678,24 @@ const applyMarketingDesign = () => {
     variables.marketing_secondary,
     secondary,
   );
+  const onAccent =
+    marketingSchemeValues?.onAccent ||
+    configColors.onAccent ||
+    configColors.on_accent ||
+    configColors.contrastOnPrimary ||
+    configColors.onPrimary ||
+    configColors.on_primary ||
+    colors.onAccent ||
+    colors.on_accent ||
+    colors.contrastOnPrimary ||
+    colors.onPrimary ||
+    colors.on_primary ||
+    colors.textOnPrimary ||
+    colors.text_on_primary ||
+    variables.onAccent ||
+    variables.onPrimary ||
+    variables.textOnPrimary ||
+    fallbackOnAccent;
   const marketingOnAccent = resolveFirstValue(
     marketingSchemeValues?.onAccent,
     configColors.marketingOnAccent,
@@ -756,24 +774,6 @@ const applyMarketingDesign = () => {
     colors.topbar_dark ||
     variables.topbarDark ||
     fallbackTopbarDark;
-  const onAccent =
-    marketingSchemeValues?.onAccent ||
-    configColors.onAccent ||
-    configColors.on_accent ||
-    configColors.contrastOnPrimary ||
-    configColors.onPrimary ||
-    configColors.on_primary ||
-    colors.onAccent ||
-    colors.on_accent ||
-    colors.contrastOnPrimary ||
-    colors.onPrimary ||
-    colors.on_primary ||
-    colors.textOnPrimary ||
-    colors.text_on_primary ||
-    variables.onAccent ||
-    variables.onPrimary ||
-    variables.textOnPrimary ||
-    fallbackOnAccent;
   const textOnSurface =
     marketingTextOnSurfaceToken ||
     marketingSchemeValues?.textOnSurface ||
