@@ -1,101 +1,174 @@
-/* Design-Tokens für Marketing-Pages */
+/* =========================================================
+   Marketing Design Tokens (single source of truth)
+   ========================================================= */
 
 :root {
+  /* --- Core defaults (derive from global system tokens) --- */
   --marketing-primary-default: var(--brand-primary);
   --marketing-accent-default: var(--brand-secondary);
   --marketing-surface-default: var(--surface-section);
   --marketing-surface-muted-default: var(--surface-muted);
+
+  /* Dark defaults: keep as explicit tokens for overrides */
   --marketing-surface-dark-default: var(--surface-section);
   --marketing-surface-muted-dark-default: var(--surface-muted);
   --marketing-card-dark-default: var(--surface-card);
+
+  /* Text defaults */
   --marketing-text-default: var(--text-body);
   --marketing-text-on-surface-default: var(--text-body);
   --marketing-text-on-background-default: var(--text-body);
   --marketing-text-muted-on-surface-default: var(--text-muted);
   --marketing-text-muted-on-background-default: var(--text-muted);
+
   --marketing-text-on-surface-dark-default: var(--text-body);
   --marketing-text-on-background-dark-default: var(--text-body);
   --marketing-text-muted-on-surface-dark-default: var(--text-muted);
   --marketing-text-muted-on-background-dark-default: var(--text-muted);
+
   --marketing-text-on-primary-default: var(--text-on-primary);
+
+  /* Neutrals / misc */
   --marketing-white: #ffffff;
   --marketing-black: #000000;
   --marketing-black-rgb: 0 0 0;
   --marketing-ink: #0b1728;
+
   --marketing-danger-500: #ff6b6b;
   --marketing-danger-600: #ff4c4c;
+
   --marketing-link-contrast-light: #0000ee;
   --marketing-link-contrast-dark: #ffff00;
+
+  /* Typography scale */
   --marketing-h1: clamp(2.4rem, 4vw, 3.6rem);
   --marketing-h2: clamp(2rem, 3vw, 2.8rem);
   --marketing-h3: clamp(1.5rem, 2.3vw, 2.2rem);
   --marketing-body: clamp(1rem, 1.2vw, 1.125rem);
   --marketing-heading-line-height: 1.15;
   --marketing-body-line-height: 1.65;
+
+  /* Layout scale */
   --marketing-section-padding: clamp(32px, 6vw, 72px);
   --marketing-section-gap: clamp(20px, 4vw, 40px);
+
+  /* Glass/cards */
   --marketing-surface-glass: rgba(255, 255, 255, 0.96);
   --marketing-surface-glass-dark: rgba(15, 36, 27, 0.96);
   --marketing-card-default: var(--marketing-surface-glass);
+
   --marketing-surface-accent-soft: rgba(255, 255, 255, 0.08);
   --marketing-border-light: rgba(255, 255, 255, 0.18);
+
+  /* Rings/overlays */
   --marketing-ring-strong: rgba(0, 0, 0, 0.6);
   --marketing-ring-strong-dark: rgba(255, 255, 255, 0.72);
   --marketing-overlay-soft: rgba(15, 23, 42, 0.12);
   --marketing-overlay-strong: rgba(0, 0, 0, 0.18);
   --marketing-overlay-hero: rgba(0, 0, 0, 0.24);
+
+  /* Shadows */
   --marketing-shadow-soft: 0 6px 24px rgba(0, 0, 0, 0.05);
   --marketing-shadow-dark: 0 6px 24px rgba(0, 0, 0, 0.35);
   --marketing-shadow-panel: 0 16px 32px rgba(15, 23, 42, 0.08);
+
   --marketing-shadow-card-base: 0 22px 48px rgba(15, 23, 42, 0.09);
   --marketing-shadow-card-soft-base: 0 16px 36px rgba(0, 0, 0, 0.05);
   --marketing-shadow-card: var(--marketing-shadow-card-base);
-  --marketing-shadow-accent: 0 28px 60px rgba(0, 0, 0, 0.18);
   --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
   --marketing-shadow-card-hover: 0 12px 28px rgba(0, 0, 0, 0.08);
+
+  --marketing-shadow-accent: 0 28px 60px rgba(0, 0, 0, 0.18);
   --marketing-shadow-hero-mockup: 0 20px 60px rgba(2, 6, 23, 0.45);
   --marketing-shadow-pill: 0 12px 24px -22px rgba(15, 23, 42, 0.4);
   --marketing-shadow-callout: 0 16px 32px rgba(0, 0, 0, 0.18);
   --marketing-shadow-stat: 0 18px 38px rgba(15, 23, 42, 0.08);
   --marketing-shadow-stat-accent: rgba(15, 23, 42, 0.18);
+
+  /* Fonts */
   --marketing-font-stack-modern: "Poppins", "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
   --marketing-font-stack-classic: "Georgia", "Times New Roman", serif;
   --marketing-font-stack-tech: "Inter", "Segoe UI", system-ui, sans-serif;
+
+  /* Marker underline */
   --marketing-marker-underline: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
+
+  /* --- Resolved marketing tokens (overrideable from system) --- */
   --marketing-primary: var(--brand-primary, var(--marketing-primary-default));
   --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
+
   --marketing-surface: var(--surface, var(--marketing-surface-default));
   --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
+
   --marketing-surface-dark: var(--surface-dark, var(--marketing-surface-dark-default));
   --marketing-surface-muted-dark: var(--surface-muted-dark, var(--marketing-surface-muted-dark-default));
+
   --marketing-card-dark: var(--marketing-card-dark-default);
   --marketing-card: var(--marketing-card-default);
+
   --marketing-text: var(--text-primary, var(--marketing-text-default));
   --marketing-text-on-surface: var(--text-on-surface, var(--marketing-text-on-surface-default));
   --marketing-text-on-background: var(--text-on-background, var(--marketing-text-on-background-default));
+
   --marketing-text-muted-on-surface: var(--text-muted-on-surface, var(--marketing-text-muted-on-surface-default));
   --marketing-text-muted-on-background: var(--text-muted-on-background, var(--marketing-text-muted-on-background-default));
+
   --marketing-text-on-surface-dark: var(--text-on-surface-dark, var(--marketing-text-on-surface-dark-default));
   --marketing-text-on-background-dark: var(--text-on-background-dark, var(--marketing-text-on-background-dark-default));
+
   --marketing-text-muted-on-surface-dark: var(--text-muted-on-surface-dark, var(--marketing-text-muted-on-surface-dark-default));
   --marketing-text-muted-on-background-dark: var(--text-muted-on-background-dark, var(--marketing-text-muted-on-background-dark-default));
+
   --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default));
   --marketing-text-on-primary: var(--marketing-on-accent);
+
   --marketing-link: var(--brand-primary, var(--marketing-primary));
+
+  /* --- Presets (default) --- */
+  --marketing-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
+  --marketing-heading-weight: var(--font-heading-weight, 700);
+  --marketing-heading-letter-spacing: 0;
+
+  --marketing-card-radius: var(--card-radius, 10px);
+  --card-radius-square: 8px;
+  --card-radius-pill: 28px;
+
+  /* Buttons (filled default) */
+  --marketing-button-primary-bg: var(--marketing-primary);
+  --marketing-button-primary-text: var(--marketing-on-accent);
+  --marketing-button-primary-border-color: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
+  --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
+  --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
+  --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
+
+  --marketing-button-secondary-bg: transparent;
+  --marketing-button-secondary-text: var(--marketing-primary);
+  --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
+  --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
+
+  /* Topbar contrast hooks */
   --marketing-topbar-btn-bg: transparent;
   --marketing-topbar-btn-bg-dark: #1f232a;
+
   --marketing-topbar-text-contrast-light: #0a0a0a;
   --marketing-topbar-text-contrast-dark: #ffffff;
+
   --marketing-topbar-drop-bg-contrast-light: #ffffff;
   --marketing-topbar-drop-bg-contrast-dark: #000000;
+
   --marketing-topbar-drop-border-contrast-light: #000000;
   --marketing-topbar-drop-border-contrast-dark: #ffffff;
+
   --marketing-topbar-btn-border-contrast-light: #000000;
   --marketing-topbar-btn-border-contrast-dark: #ffffff;
+
   --marketing-topbar-btn-border-hover-contrast-light: #000000;
   --marketing-topbar-btn-border-hover-contrast-dark: #ffffff;
+
   --marketing-topbar-btn-bg-hover-contrast-light: #e6e6e6;
   --marketing-topbar-btn-bg-hover-contrast-dark: rgba(255, 255, 255, 0.16);
+
   --marketing-topbar-focus-ring-contrast-light: rgba(0, 120, 255, 0.6);
   --marketing-topbar-focus-ring-contrast-dark: rgba(140, 200, 255, 0.8);
 }
@@ -105,87 +178,39 @@
   --marketing-card-dark-default: var(--marketing-surface-dark);
 }
 
-:root {
-  --marketing-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-weight: var(--font-heading-weight, 700);
-  --marketing-heading-letter-spacing: 0;
-  --marketing-card-radius: var(--card-radius, 10px);
-  --card-radius-square: 8px;
-  --card-radius-pill: 28px;
-  --marketing-button-primary-bg-filled: var(--marketing-primary);
-  --marketing-button-primary-text-filled: var(--marketing-on-accent);
-  --marketing-button-primary-border-color-filled: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
-  --marketing-button-primary-hover-bg-filled: color-mix(in oklab, var(--marketing-primary) 88%, var(--marketing-black));
-  --marketing-button-primary-focus-bg-filled: color-mix(in oklab, var(--marketing-primary) 86%, var(--marketing-black));
-  --marketing-button-primary-active-bg-filled: color-mix(in oklab, var(--marketing-primary) 78%, var(--marketing-black));
-  --marketing-button-secondary-bg-filled: transparent;
-  --marketing-button-secondary-text-filled: var(--marketing-primary);
-  --marketing-button-secondary-border-color-filled: color-mix(in oklab, var(--marketing-primary) 50%, transparent);
-  --marketing-button-secondary-hover-bg-filled: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
-  --marketing-button-primary-bg: var(--marketing-button-primary-bg-filled);
-  --marketing-button-primary-text: var(--marketing-button-primary-text-filled);
-  --marketing-button-primary-border-color: var(--marketing-button-primary-border-color-filled);
-  --marketing-button-primary-hover-bg: var(--marketing-button-primary-hover-bg-filled);
-  --marketing-button-primary-focus-bg: var(--marketing-button-primary-focus-bg-filled);
-  --marketing-button-primary-active-bg: var(--marketing-button-primary-active-bg-filled);
-  --marketing-button-secondary-bg: var(--marketing-button-secondary-bg-filled);
-  --marketing-button-secondary-text: var(--marketing-button-secondary-text-filled);
-  --marketing-button-secondary-border-color: var(--marketing-button-secondary-border-color-filled);
-  --marketing-button-secondary-hover-bg: var(--marketing-button-secondary-hover-bg-filled);
-}
-
 :root[data-typography-preset="classic"] {
   --marketing-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-weight: 600;
 }
-
 :root[data-typography-preset="tech"] {
   --marketing-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-weight: 700;
   --marketing-heading-letter-spacing: 0.01em;
 }
-
 :root[data-typography-preset="modern"] {
-  --marketing-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-font-stack: var(--marketing-font-stack-modern);
-  --marketing-heading-weight: var(--font-heading-weight, 700);
-  --marketing-heading-letter-spacing: 0;
+  /* explicit for clarity; same as default */
 }
 
+/* Card style presets */
 :root[data-card-style="rounded"] {
   --marketing-card-radius: var(--card-radius, 10px);
   --marketing-shadow-card: var(--marketing-shadow-card-base);
   --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
 }
-
 :root[data-card-style="square"] {
   --marketing-card-radius: var(--card-radius-square);
   --marketing-shadow-card: var(--marketing-shadow-soft);
   --marketing-shadow-card-soft: var(--marketing-shadow-soft);
 }
-
 :root[data-card-style="pill"] {
   --marketing-card-radius: var(--card-radius-pill);
   --marketing-shadow-card: var(--marketing-shadow-callout);
   --marketing-shadow-card-soft: var(--marketing-shadow-card);
 }
 
-:root[data-button-style="filled"] {
-  --marketing-button-primary-bg: var(--marketing-button-primary-bg-filled);
-  --marketing-button-primary-text: var(--marketing-button-primary-text-filled);
-  --marketing-button-primary-border-color: var(--marketing-button-primary-border-color-filled);
-  --marketing-button-primary-hover-bg: var(--marketing-button-primary-hover-bg-filled);
-  --marketing-button-primary-focus-bg: var(--marketing-button-primary-focus-bg-filled);
-  --marketing-button-primary-active-bg: var(--marketing-button-primary-active-bg-filled);
-  --marketing-button-secondary-bg: var(--marketing-button-secondary-bg-filled);
-  --marketing-button-secondary-text: var(--marketing-button-secondary-text-filled);
-  --marketing-button-secondary-border-color: var(--marketing-button-secondary-border-color-filled);
-  --marketing-button-secondary-hover-bg: var(--marketing-button-secondary-hover-bg-filled);
-}
-
+/* Button style presets (override only the deltas) */
 :root[data-button-style="outline"] {
   --marketing-button-primary-bg: transparent;
   --marketing-button-primary-text: var(--marketing-primary);
@@ -193,12 +218,12 @@
   --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
   --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 16%, transparent);
   --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 20%, transparent);
+
   --marketing-button-secondary-bg: transparent;
   --marketing-button-secondary-text: var(--marketing-primary);
   --marketing-button-secondary-border-color: var(--marketing-primary);
   --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
 }
-
 :root[data-button-style="ghost"] {
   --marketing-button-primary-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
   --marketing-button-primary-text: var(--marketing-primary);
@@ -206,29 +231,63 @@
   --marketing-button-primary-hover-bg: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
   --marketing-button-primary-focus-bg: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
   --marketing-button-primary-active-bg: color-mix(in oklab, var(--marketing-primary) 28%, transparent);
+
   --marketing-button-secondary-bg: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
   --marketing-button-secondary-text: var(--marketing-primary);
   --marketing-button-secondary-border-color: color-mix(in oklab, var(--marketing-primary) 35%, transparent);
   --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 14%, transparent);
 }
 
+/* =========================================================
+   Base page bindings (marketing + CMS render)
+   ========================================================= */
+
 html[data-theme] {
   color: var(--color-text, var(--text-primary, var(--marketing-text)));
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
-
 html[data-theme] body {
   color: inherit;
   background-color: var(--marketing-background, var(--surface-page, var(--marketing-surface)));
 }
 
+/* Shared typographic rules (define ONCE) */
+body:is(.marketing-page, .cms-page-render) {
+  font-family: var(--marketing-font-stack);
+  color: var(--qr-fg);
+}
+body:is(.marketing-page, .cms-page-render) h1,
+body:is(.marketing-page, .cms-page-render) h2,
+body:is(.marketing-page, .cms-page-render) h3 {
+  color: var(--qr-text);
+  line-height: var(--marketing-heading-line-height);
+  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
+  font-weight: var(--marketing-heading-weight);
+  letter-spacing: var(--marketing-heading-letter-spacing);
+  margin: 0 0 0.6em;
+}
+body:is(.marketing-page, .cms-page-render) h1 { font-size: var(--marketing-h1); }
+body:is(.marketing-page, .cms-page-render) h2 { font-size: var(--marketing-h2); }
+body:is(.marketing-page, .cms-page-render) h3 { font-size: var(--marketing-h3); margin-bottom: 0.5em; }
+body:is(.marketing-page, .cms-page-render) p {
+  font-size: var(--marketing-body);
+  line-height: var(--marketing-body-line-height);
+  margin: 0 0 1em;
+}
+
+/* =========================================================
+   Marketing page token binding (unchanged semantics)
+   ========================================================= */
+
 body.marketing-page {
   --brand-primary: var(--marketing-primary);
   --brand-secondary: var(--marketing-accent);
   --brand-accent: var(--marketing-accent);
+
   --surface: var(--marketing-surface);
   --surface-muted: var(--marketing-surface-muted);
-  --qr-brand-50: color-mix(in oklab, var(--marketing-primary) 8%, var(--marketing-white));
+
+  --qr-brand-50:  color-mix(in oklab, var(--marketing-primary) 8%,  var(--marketing-white));
   --qr-brand-100: color-mix(in oklab, var(--marketing-primary) 16%, var(--marketing-white));
   --qr-brand-200: color-mix(in oklab, var(--marketing-primary) 24%, var(--marketing-white));
   --qr-brand-300: color-mix(in oklab, var(--marketing-primary) 32%, var(--marketing-white));
@@ -238,81 +297,246 @@ body.marketing-page {
   --qr-brand-700: color-mix(in oklab, var(--marketing-primary) 92%, var(--marketing-black));
   --qr-brand-800: color-mix(in oklab, var(--marketing-primary) 96%, var(--marketing-black));
   --qr-brand-900: color-mix(in oklab, var(--marketing-primary) 98%, var(--marketing-black));
+
   --qr-bg: var(--marketing-background, var(--marketing-surface));
   --qr-fg: var(--marketing-text-on-background);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
+
   --marketing-card: var(--marketing-card-default);
   --qr-card: var(--marketing-card, var(--marketing-surface-glass));
+
   --qr-border: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
-  --qr-text: var(--marketing-text-on-background);
+  --qr-ring:   color-mix(in oklab, var(--marketing-primary) 45%, transparent);
+
+  --qr-text:  var(--marketing-text-on-background);
+  --qr-muted: var(--marketing-text-muted-on-background);
+
   --qr-icon-color: var(--qr-text);
+
   --qr-section-bg: var(--qr-bg);
   --qr-card-border: var(--qr-border);
+
   --qr-landing-bg: var(--qr-bg);
   --qr-landing-text: var(--qr-fg);
   --qr-landing-primary: var(--marketing-primary);
   --qr-contrast-on-primary: var(--marketing-on-accent);
+
   --qr-danger-500: var(--marketing-danger-500);
   --qr-danger-600: var(--marketing-danger-600);
-  --qr-muted: var(--marketing-text-muted-on-background);
+
   --qr-shadow: var(--marketing-shadow-soft);
   --qr-link: var(--marketing-link);
+
   --accent-primary: var(--marketing-primary);
   --accent-secondary: var(--marketing-accent);
   --accent-color: var(--marketing-primary);
+
+  --qr-landing-topbar-bg-light: var(--marketing-topbar-light,
+    color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%)
+  );
+  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
+  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+
   --qr-hero-grad-start: var(--qr-landing-topbar-bg);
   --qr-hero-grad-end: var(--qr-bg-soft);
   --qr-hero-gradient: linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
-  --qr-landing-topbar-bg-light: var(--marketing-topbar-light, color-mix(in oklab, var(--qr-bg) 92%, var(--qr-card) 8%));
-  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
-  --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-light);
+
   --section-card-surface: var(--marketing-surface);
   --section-default-surface: var(--marketing-surface);
   --section-default-muted: var(--marketing-surface-muted);
-  font-family: var(--marketing-font-stack);
+
   color-scheme: light;
 }
 
-body.marketing-page.dark-mode,
-body.marketing-page[data-theme="dark"]:not(.high-contrast) {
+/* Dark mode (marketing-page) */
+body.marketing-page:is(.dark-mode, [data-theme="dark"]):not(.high-contrast) {
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
   --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
   --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
+
   --qr-bg: var(--marketing-background-dark, var(--marketing-background, var(--marketing-surface)));
   --qr-fg: var(--marketing-text-on-background-dark);
   --qr-bg-soft: var(--marketing-surface-muted, var(--marketing-surface));
   --qr-card: var(--marketing-card, var(--marketing-surface-glass-dark));
+
   --qr-border: color-mix(in oklab, var(--marketing-primary) 30%, transparent);
-  --qr-ring: color-mix(in oklab, var(--marketing-primary) 55%, transparent);
-  --qr-text: var(--marketing-text-on-background-dark);
-  --qr-landing-primary: var(--marketing-primary);
+  --qr-ring:   color-mix(in oklab, var(--marketing-primary) 55%, transparent);
+
+  --qr-text:  var(--marketing-text-on-background-dark);
   --qr-muted: var(--marketing-text-muted-on-background-dark);
+
   --qr-shadow: var(--marketing-shadow-dark);
-  --qr-link: var(--marketing-link);
-  --accent-primary: var(--marketing-primary);
-  --accent-secondary: var(--marketing-accent);
-  --accent-color: var(--marketing-primary);
-  --qr-landing-topbar-bg-light: var(--marketing-topbar-light, color-mix(in oklab, var(--qr-bg) 90%, var(--qr-card) 10%));
-  --qr-landing-topbar-bg-dark: var(--marketing-topbar-dark, var(--qr-landing-topbar-bg-light));
+
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
+
   --section-card-surface: var(--marketing-card, var(--marketing-surface));
-  --section-default-surface: var(--marketing-surface);
-  --section-default-muted: var(--marketing-surface-muted);
   --surface: var(--marketing-surface);
   --surface-muted: var(--marketing-surface-muted);
+
   color-scheme: dark;
 }
 
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary {
-  color: var(--marketing-button-primary-text) !important;
+/* =========================================================
+   Shared UI overrides (lower specificity via :where)
+   ========================================================= */
+
+body:is(.marketing-page, .cms-page-render) :where(a) {
+  color: var(--qr-link);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: opacity .2s, text-decoration-color .2s;
+}
+body:is(.marketing-page, .cms-page-render) :where(a:hover) {
+  opacity: .8;
+  text-decoration-color: currentColor;
 }
 
-body:is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon] {
-  color: inherit;
+body:is(.marketing-page, .cms-page-render) :where(.uk-button) {
+  transition: opacity .2s, transform .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body:is(.marketing-page, .cms-page-render) :where(.uk-button:hover) { opacity: .85; }
+
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary) {
+  background: var(--marketing-button-primary-bg) !important;
+  color: var(--marketing-button-primary-text) !important;
+  border: 1px solid var(--marketing-button-primary-border-color);
+}
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:hover) {
+  background: var(--marketing-button-primary-hover-bg) !important;
+}
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:focus-visible) {
+  background: var(--marketing-button-primary-focus-bg) !important;
+}
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-primary:active) {
+  background: var(--marketing-button-primary-active-bg) !important;
+  transform: translateY(1px);
+}
+
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-default) {
+  background: var(--marketing-button-secondary-bg) !important;
+  color: var(--marketing-button-secondary-text) !important;
+  border: 1px solid var(--marketing-button-secondary-border-color);
+}
+body:is(.marketing-page, .cms-page-render) :where(.uk-button-default:hover) {
+  background: var(--marketing-button-secondary-hover-bg) !important;
+}
+
+/* Cards on landing/cms */
+body:is(.marketing-page, .cms-page-render) :where(.uk-card, .qr-card, .feature-box, .feature-card) {
+  --qr-text: var(--marketing-text-on-surface);
+  --qr-muted: var(--marketing-text-muted-on-surface);
+  background: var(--qr-card) !important;
+  color: var(--qr-text) !important;
+  border: 1px solid var(--qr-card-border);
+  box-shadow: var(--marketing-shadow-card);
+  border-radius: var(--marketing-card-radius);
+}
+
+/* =========================================================
+   Topbar refactor (shared base, per-scope deltas)
+   ========================================================= */
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar {
+  padding-top: env(safe-area-inset-top);
+  background: var(--qr-landing-topbar-bg);
+  backdrop-filter: blur(8px);
+  color: var(--qr-text);
+  border-bottom: 1px solid var(--qr-card-border);
+  z-index: 1000;
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar {
+  --topbar-height: 64px;
+}
+body:is(.marketing-page, .cms-page-render) .qr-topbar {
+  min-height: 64px;
+  height: 64px;
+}
+@media (max-width: 959px) {
+  body:is(.marketing-page, .cms-page-render) .qr-topbar { min-height: 56px; height: 56px; }
+  body:is(.marketing-page, .cms-page-render) .qr-topbar nav.topbar { --topbar-height: 56px; }
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar, .uk-navbar-container) {
+  background: var(--qr-landing-topbar-bg);
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-container, .uk-navbar-right, .uk-navbar-center) {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 12px;
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right {
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-right .uk-navbar-nav, .uk-navbar-center .uk-navbar-nav) {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-right .uk-navbar-nav { justify-content: flex-end; }
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-center .uk-navbar-nav { justify-content: center; }
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a {
+  color: var(--qr-text) !important;
+  font-weight: 500;
+  opacity: .9;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  line-height: 38px;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: opacity .2s, background .12s, border-color .12s;
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li > a:hover,
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-nav > li.uk-active > a {
+  opacity: 1;
+  background: color-mix(in oklab, var(--qr-text) 8%, transparent);
+  border-color: color-mix(in oklab, var(--qr-text) 40%, transparent);
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar :where(.uk-navbar-nav > li > a:focus-visible, #configMenuToggle:focus-visible, .uk-navbar-toggle:focus-visible) {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--qr-ring);
+  border-radius: 6px;
+}
+
+body:is(.marketing-page, .cms-page-render) .qr-topbar .uk-navbar-toggle {
+  color: var(--qr-text) !important;
+}
+
+/* Only marketing-page should be sticky */
+body.marketing-page .qr-topbar { position: sticky; top: 0; }
+
+/* =========================================================
+   Section spacing (single place)
+   ========================================================= */
+.marketing-section { padding-block: var(--marketing-section-padding); }
+.marketing-section + .marketing-section { margin-top: var(--marketing-section-gap); }
+body.marketing-page .uk-section,
+body.marketing-page .page-modules { padding-top: 72px; padding-bottom: 72px; }
+@media (min-width: 1200px) {
+  body.marketing-page .uk-section,
+  body.marketing-page .page-modules { padding-top: 88px; padding-bottom: 88px; }
 }
 
 body.marketing-page.high-contrast {
@@ -462,36 +686,6 @@ body.marketing-page {
   background: var(--qr-hero-gradient);
   background-color: var(--qr-hero-grad-start);
 }
-body:is(.marketing-page, .cms-page-render) { color: var(--qr-fg); }
-body:is(.marketing-page, .cms-page-render) h1 {
-  font-size: var(--marketing-h1);
-  line-height: var(--marketing-heading-line-height);
-  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
-  font-weight: var(--marketing-heading-weight);
-  letter-spacing: var(--marketing-heading-letter-spacing);
-  margin: 0 0 0.6em;
-}
-body:is(.marketing-page, .cms-page-render) h2 {
-  font-size: var(--marketing-h2);
-  line-height: var(--marketing-heading-line-height);
-  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
-  font-weight: var(--marketing-heading-weight);
-  letter-spacing: var(--marketing-heading-letter-spacing);
-  margin: 0 0 0.6em;
-}
-body:is(.marketing-page, .cms-page-render) h3 {
-  font-size: var(--marketing-h3);
-  line-height: var(--marketing-heading-line-height);
-  font-family: var(--marketing-heading-font-stack, var(--marketing-font-stack));
-  font-weight: var(--marketing-heading-weight);
-  letter-spacing: var(--marketing-heading-letter-spacing);
-  margin: 0 0 0.5em;
-}
-body:is(.marketing-page, .cms-page-render) p {
-  font-size: var(--marketing-body);
-  line-height: var(--marketing-body-line-height);
-  margin: 0 0 1em;
-}
 .marketing-layout {
   min-height: 100%;
   display: flex;
@@ -499,13 +693,6 @@ body:is(.marketing-page, .cms-page-render) p {
 }
 .marketing-content {
   width: 100%;
-}
-.marketing-section {
-  background: var(--section-bg-color, var(--section-surface, transparent));
-  padding-block: var(--marketing-section-padding);
-}
-.marketing-section + .marketing-section {
-  margin-top: var(--marketing-section-gap);
 }
 .marketing-page .section + .section {
   margin-top: var(--marketing-section-gap);
@@ -1145,14 +1332,6 @@ body:is(.marketing-page, .cms-page-render) .btn .uk-icon {
   color: currentColor;
 }
 
-/* Navbar NUR auf Marketing-Pages, damit Kontrast stimmt */
-.marketing-page .uk-navbar,
-.marketing-page .uk-navbar-container {
-  background: var(--qr-landing-topbar-bg);
-  color: var(--qr-text);
-}
-.marketing-page .uk-navbar a { color: var(--qr-text); }
-
 /* Language option buttons for CMS/marketing topbars */
 .lang-option {
   display: flex;
@@ -1197,200 +1376,6 @@ body.cms-page-render[data-theme="dark"].high-contrast .lang-option__icon {
   box-shadow: 0 0 0 1px currentColor;
 }
 
-/* Abstände/Responsiveness (klein & safe) */
-@media (min-width: 960px) {
-  .marketing-page .uk-section { padding-top: 72px; padding-bottom: 72px; }
-}
-
-
-/* Topbar */
-.cms-page-render .qr-topbar {
-  padding-top: env(safe-area-inset-top);
-  background: var(--qr-landing-topbar-bg);
-  backdrop-filter: blur(8px);
-  color: var(--qr-text);
-  min-height: 64px;
-  height: 64px;
-  border-bottom: 1px solid var(--qr-card-border);
-  z-index: 1000;
-}
-.cms-page-render .qr-topbar nav.topbar {
-  --topbar-height: 64px;
-}
-.cms-page-render .qr-topbar .uk-navbar,
-.cms-page-render .qr-topbar .uk-navbar-container {
-  background: var(--qr-landing-topbar-bg);
-}
-@media (max-width: 959px) {
-  .cms-page-render .qr-topbar {
-    min-height: 56px;
-    height: 56px;
-  }
-  .cms-page-render .qr-topbar nav.topbar {
-    --topbar-height: 56px;
-  }
-}
-.cms-page-render .qr-topbar .uk-navbar-container,
-.cms-page-render .qr-topbar .uk-navbar-right,
-.cms-page-render .qr-topbar .uk-navbar-center {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 12px;
-}
-.cms-page-render .qr-topbar .uk-navbar-right {
-  flex: 1 1 auto;
-  min-width: 0;
-  justify-content: flex-end;
-}
-.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav,
-.cms-page-render .qr-topbar .uk-navbar-center .uk-navbar-nav {
-  display: flex;
-  flex: 1 1 auto;
-  min-width: 0;
-  flex-wrap: nowrap;
-  gap: 8px;
-}
-.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav {
-  justify-content: flex-end;
-}
-.cms-page-render .qr-topbar .uk-navbar-center .uk-navbar-nav {
-  justify-content: center;
-}
-.cms-page-render .qr-topbar .uk-navbar-right .uk-navbar-nav > li {
-  flex: 0 0 auto;
-}
-.cms-page-render .qr-topbar .top-cta,
-.cms-page-render .qr-topbar .config-menu {
-  flex: 0 0 auto;
-}
-.cms-page-render .qr-topbar .uk-navbar-nav > li > a {
-  color: var(--qr-text) !important;
-  font-weight: 500;
-  opacity: 0.9;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  line-height: 38px;
-  height: 40px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  transition: opacity 0.2s, background 0.12s, border-color 0.12s;
-}
-.cms-page-render .qr-topbar .uk-navbar-nav > li > a:hover,
-.cms-page-render .qr-topbar .uk-navbar-nav > li.uk-active > a {
-  opacity: 1;
-  background: color-mix(in oklab, var(--qr-text) 8%, transparent);
-  border-color: color-mix(in oklab, var(--qr-text) 40%, transparent);
-  text-decoration: none;
-}
-.cms-page-render .qr-topbar .uk-navbar-nav > li > a:focus-visible,
-.cms-page-render .qr-topbar #configMenuToggle:focus-visible,
-.cms-page-render .qr-topbar .uk-navbar-toggle:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px var(--qr-ring);
-  border-radius: 6px;
-}
-.cms-page-render .qr-topbar .uk-navbar-toggle {
-  color: var(--qr-text) !important;
-}
-.cms-page-render .qr-topbar .git-btn {
-  width: 48px;
-  height: 48px;
-}
-.marketing-page .qr-topbar{
-  background: var(--qr-landing-topbar-bg);
-  backdrop-filter: blur(8px);
-  color:var(--qr-text);
-  min-height:64px;
-  height:64px;
-  border-bottom: 1px solid var(--qr-card-border);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-.marketing-page .qr-topbar nav.topbar{
-  --topbar-height: 64px;
-}
-.marketing-page .qr-topbar .uk-navbar,
-.marketing-page .qr-topbar .uk-navbar-container{
-  background: var(--qr-landing-topbar-bg);
-}
-@media (max-width: 959px) {
-  .marketing-page .qr-topbar{
-    min-height:56px;
-    height:56px;
-  }
-  .marketing-page .qr-topbar nav.topbar{
-    --topbar-height: 56px;
-  }
-}
-.marketing-page .qr-topbar .uk-navbar-container,
-.marketing-page .qr-topbar .uk-navbar-right,
-.marketing-page .qr-topbar .uk-navbar-center{
-  display:flex;
-  align-items:center;
-  flex-wrap:nowrap;
-  gap:12px;
-}
-.marketing-page .qr-topbar .uk-navbar-right{
-  flex:1 1 auto;
-  min-width:0;
-  justify-content:flex-end;
-}
-.marketing-page .qr-topbar .uk-navbar-right .uk-navbar-nav,
-.marketing-page .qr-topbar .uk-navbar-center .uk-navbar-nav{
-  display:flex;
-  flex:1 1 auto;
-  min-width:0;
-  flex-wrap:nowrap;
-  gap:8px;
-}
-.marketing-page .qr-topbar .uk-navbar-right .uk-navbar-nav{
-  justify-content:flex-end;
-}
-.marketing-page .qr-topbar .uk-navbar-center .uk-navbar-nav{
-  justify-content:center;
-}
-.marketing-page .qr-topbar .uk-navbar-right .uk-navbar-nav>li{
-  flex:0 0 auto;
-}
-.marketing-page .qr-topbar .top-cta,
-.marketing-page .qr-topbar .config-menu{
-  flex:0 0 auto;
-}
-.marketing-page .qr-topbar .uk-navbar-nav>li>a{
-  color:var(--qr-text)!important;
-  font-weight:500;
-  opacity:.9;
-  text-decoration:none;
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  padding:0 10px;
-  line-height:38px;
-  height:40px;
-  border:1px solid transparent;
-  border-radius:6px;
-  transition:opacity .2s,background .12s,border-color .12s;
-}
-.marketing-page .qr-topbar .uk-navbar-nav>li>a:hover,
-.marketing-page .qr-topbar .uk-navbar-nav>li.uk-active>a{
-  opacity:1;
-  background:color-mix(in oklab,var(--qr-text) 8%,transparent);
-  border-color:color-mix(in oklab,var(--qr-text) 40%,transparent);
-  text-decoration:none;
-}
-.marketing-page .qr-topbar .uk-navbar-nav>li>a:focus-visible,
-.marketing-page .qr-topbar #configMenuToggle:focus-visible,
-.marketing-page .qr-topbar .uk-navbar-toggle:focus-visible{
-  outline:none;
-  box-shadow:0 0 0 3px var(--qr-ring);
-  border-radius:6px;
-}
-.marketing-page .qr-topbar .uk-navbar-toggle{ color:var(--qr-text)!important; }
 .git-btn{
   width:40px;height:40px;padding:0;
   border-radius:6px;
