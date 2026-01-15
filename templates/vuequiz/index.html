@@ -37,7 +37,7 @@
 </div>
 
 <script>
-const { createApp, ref, reactive, onMounted } = Vue;
+const { createApp, ref, reactive, onMounted, watch } = Vue;
 
 createApp({
   setup() {
@@ -95,6 +95,13 @@ createApp({
   props: ['question'],
   setup(props, { emit }) {
     const selected = ref(null);
+    watch(
+      () => props.question,
+      () => {
+        selected.value = null;
+      },
+      { immediate: true }
+    );
     function select(idx) {
       if (selected.value !== null) return;
       selected.value = idx;
