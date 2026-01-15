@@ -96,13 +96,11 @@ final class UsernameBlocklistController
             $this->service->getAdminEntries()
         );
 
-        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-
-        $events = $this->eventService->getAll($namespace);
+        $events = $this->eventService->getAll();
         $params = $request->getQueryParams();
         if (array_key_exists('event', $params)) {
             $uid = (string) $params['event'];
-            if ($this->eventService->getByUid($uid, $namespace) === null) {
+            if ($this->eventService->getByUid($uid) === null) {
                 return $response->withStatus(404);
             }
             $this->configService->setActiveEventUid($uid);
@@ -115,8 +113,10 @@ final class UsernameBlocklistController
             $event = null;
         } else {
             $config = $this->configService->getConfigForEvent($uid);
-            $event = $this->eventService->getByUid($uid, $namespace);
+            $event = $this->eventService->getByUid($uid);
         }
+
+        [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
 
         return $view->render($response, 'admin/username_blocklist.twig', [
             'entries' => $entries,

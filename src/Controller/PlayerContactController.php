@@ -47,8 +47,7 @@ class PlayerContactController
             return $response->withStatus(400);
         }
 
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $event = $this->events->getByUid($eventUid, $namespace);
+        $event = $this->events->getByUid($eventUid);
         if ($event === null) {
             return $response->withStatus(404);
         }

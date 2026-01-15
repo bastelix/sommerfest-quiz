@@ -11,7 +11,6 @@ use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use App\Service\EventService;
-use App\Service\NamespaceResolver;
 use App\Infrastructure\Database;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -62,8 +61,7 @@ class ImportController
      * Import data from the default data directory.
      */
     public function post(Request $request, Response $response): Response {
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        return $this->importFromDir($this->dataDir, $response, $namespace);
+        return $this->importFromDir($this->dataDir, $response);
     }
 
     /**
@@ -74,7 +72,6 @@ class ImportController
         if ($data instanceof Response) {
             return $data;
         }
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $schema = '';
         if (is_array($data) && isset($data['schema'])) {
             $schema = preg_replace('/[^a-z0-9_\-]/i', '', (string) $data['schema']);
@@ -93,9 +90,9 @@ class ImportController
                 $this->dataDir,
                 $this->backupDir
             );
-            return $tmp->importFromDir($this->defaultDir, $response, $namespace);
+            return $tmp->importFromDir($this->defaultDir, $response);
         }
-        return $this->importFromDir($this->defaultDir, $response, $namespace);
+        return $this->importFromDir($this->defaultDir, $response);
     }
 
     /**
@@ -112,8 +109,7 @@ class ImportController
             return $response->withStatus(400);
         }
 
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        return $this->importFromDir($this->backupDir . '/' . $dir, $response, $namespace);
+        return $this->importFromDir($this->backupDir . '/' . $dir, $response);
     }
 
     /**
@@ -138,7 +134,7 @@ class ImportController
     /**
      * Helper to import configuration, catalogs, results and more from a directory.
      */
-    private function importFromDir(string $dir, Response $response, string $namespace): Response {
+    private function importFromDir(string $dir, Response $response): Response {
         $catalogDir = $dir . '/kataloge';
         $catalogsFile = $catalogDir . '/catalogs.json';
         if (!is_readable($catalogsFile)) {
@@ -151,7 +147,7 @@ class ImportController
                 return $events;
             }
             if (is_array($events)) {
-                $this->events->saveAll($events, $namespace);
+                $this->events->saveAll($events);
             }
         }
 

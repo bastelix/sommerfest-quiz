@@ -9,7 +9,6 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\EventService;
 use App\Service\ConfigService;
-use App\Service\NamespaceResolver;
 use App\Infrastructure\Database;
 use PDO;
 
@@ -27,8 +26,7 @@ class EventListController
         $eventSvc = new EventService($pdo);
         $cfgSvc = new ConfigService($pdo);
         $role = $_SESSION['user']['role'] ?? null;
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $events = $eventSvc->getAll($namespace);
+        $events = $eventSvc->getAll();
         $cfg = $cfgSvc->getConfig();
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
