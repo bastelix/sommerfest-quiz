@@ -342,10 +342,25 @@ class ConfigService
             return array_map(static fn(array $r): string => (string) $r['name'], $rows);
         }
 
-        $stmt = $this->pdo->prepare(
-            "SELECT column_name FROM information_schema.columns WHERE table_name = 'config'"
-        );
-        $stmt->execute();
+        $stmt = $this->pdo->query(<<<'SQL'
+            WITH search_path AS (
+                SELECT
+                    unnest(current_schemas(false)) AS schema_name,
+                    generate_series(1, array_length(current_schemas(false), 1)) AS ord
+            ),
+            target_schema AS (
+                SELECT t.table_schema
+                FROM information_schema.tables t
+                JOIN search_path s ON s.schema_name = t.table_schema
+                WHERE t.table_name = 'config'
+                ORDER BY s.ord
+                LIMIT 1
+            )
+            SELECT c.column_name
+            FROM information_schema.columns c
+            JOIN target_schema t ON t.table_schema = c.table_schema
+            WHERE c.table_name = 'config'
+        SQL);
         return $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
     }
 
