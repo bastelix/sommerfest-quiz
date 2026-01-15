@@ -111,8 +111,7 @@ body.uk-padding {
 
 @media (prefers-color-scheme: light) {
   .sortable-list li:nth-child(2n),
-  .terms li:nth-child(2n),
-  .mc-option:nth-child(2n) {
+  .terms li:nth-child(2n) {
     background: var(--surface-muted, #f5f5f5);
   }
 
