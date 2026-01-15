@@ -2,8 +2,8 @@
 
 {% set normalizedNamespace = pageNamespace|default('default') %}
 {% set pageTitle = metaTitle|default('') %}
-{% set incomingDesign = design|default({}) %}
-{% set effectiveAppearance = incomingDesign.appearance|default(appearance|default({})) %}
+{% set incomingDesign = design|default(renderContext.design|default({})) %}
+{% set effectiveAppearance = incomingDesign.appearance|default(appearance|default(renderContext.design.appearance|default({}))) %}
 {% set design = incomingDesign|merge({
   theme: pageTheme|default(incomingDesign.theme|default('light')),
   appearance: effectiveAppearance

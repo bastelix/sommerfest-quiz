@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Infrastructure\Database;
+use RuntimeException;
 
 class NamespaceAppearanceService
 {
@@ -30,15 +31,15 @@ class NamespaceAppearanceService
             $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
             if ($fallbackConfig !== []) {
                 $config = $fallbackConfig;
-                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
             }
         }
 
-        if ($config === [] && $resolvedNamespace !== PageService::DEFAULT_NAMESPACE) {
+        try {
+            $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
+        } catch (RuntimeException $exception) {
             $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+            $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
         }
-
-        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
 
         $designColors = $this->resolveDesignColors($config);
 
