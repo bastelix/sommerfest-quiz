@@ -81,8 +81,9 @@ final class CmsPageWikiArticleController
         if ($pageNamespace === '') {
             $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
         }
+        /** @var array{namespace: string, design: array<string, mixed>} $renderContext */
         $renderContext = $this->namespaceRenderContext->build($pageNamespace);
-        $design = $renderContext['design'] ?? [];
+        $design = $renderContext['design'];
         $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($pageNamespace);
 
         $settingsPage = $page;
