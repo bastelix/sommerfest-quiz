@@ -33,15 +33,14 @@ class NamespaceRenderContextService
     {
         $resolvedNamespace = $namespace;
         $config = $this->configService->getConfigForEvent($namespace);
-        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($fallbackConfig !== []) {
-                $config = $fallbackConfig;
-                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+        if ($config === []) {
+            if ($namespace !== PageService::DEFAULT_NAMESPACE) {
+                $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+                if ($fallbackConfig !== []) {
+                    $config = $fallbackConfig;
+                }
             }
-        }
 
-        if ($config === [] && $resolvedNamespace !== PageService::DEFAULT_NAMESPACE) {
             $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
         }
 
