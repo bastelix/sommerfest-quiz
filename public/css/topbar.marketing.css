@@ -95,6 +95,99 @@ body.cms-page-render[data-theme="dark"].high-contrast{
   --drop-color: var(--topbar-text);
 }
 
+body.marketing-page .git-btn,
+body.cms-page-render .git-btn{
+  width:var(--topbar-height);
+  height:var(--topbar-height);
+  max-width:var(--topbar-height);
+  max-height:var(--topbar-height);
+  min-width:var(--topbar-height);
+  min-height:var(--topbar-height);
+  padding:0;
+  border-radius:6px;
+  border:1px solid var(--topbar-btn-border);
+  color:var(--topbar-text);
+  background:var(--topbar-btn-bg);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  cursor:pointer;
+  transition:background .12s,border-color .12s,box-shadow .12s;
+}
+
+body.marketing-page .git-btn:hover,
+body.cms-page-render .git-btn:hover{
+  background:var(--topbar-btn-bg-hover);
+  border-color:var(--topbar-btn-border-hover);
+}
+
+body.marketing-page .git-btn:focus,
+body.cms-page-render .git-btn:focus{
+  outline:none;
+  box-shadow:0 0 0 3px var(--topbar-focus-ring);
+}
+
+body.marketing-page .git-btn svg,
+body.cms-page-render .git-btn svg{
+  width:24px;
+  height:24px;
+}
+
+body.marketing-page .config-menu #configMenuToggle.git-btn,
+body.cms-page-render .config-menu #configMenuToggle.git-btn{
+  border-radius:0 0 6px 6px;
+  border:none;
+  background:transparent;
+}
+
+body.marketing-page .config-menu #configMenuToggle.git-btn:hover,
+body.marketing-page .config-menu #configMenuToggle.git-btn:focus,
+body.marketing-page .config-menu #configMenuToggle.git-btn:active,
+body.cms-page-render .config-menu #configMenuToggle.git-btn:hover,
+body.cms-page-render .config-menu #configMenuToggle.git-btn:focus,
+body.cms-page-render .config-menu #configMenuToggle.git-btn:active{
+  border:none;
+  background:transparent;
+}
+
+body.marketing-page .uk-dropdown,
+body.marketing-page .uk-drop,
+body.marketing-page .uk-offcanvas-bar,
+body.cms-page-render .uk-dropdown,
+body.cms-page-render .uk-drop,
+body.cms-page-render .uk-offcanvas-bar{
+  background-color: var(--drop-bg, var(--marketing-surface));
+  color: var(--drop-color, var(--topbar-text, var(--marketing-text, #0a0a0a)));
+  border: 1px solid var(--drop-border, var(--qr-card-border));
+}
+
+body.marketing-page #menuDrop,
+body.cms-page-render #menuDrop{
+  background:var(--topbar-drop-bg);
+  border:1px solid var(--topbar-drop-border);
+  border-radius:8px;
+  padding:8px;
+  color:var(--topbar-text);
+  min-width:auto !important;
+  width:fit-content !important;
+  transform-origin: top right;
+}
+
+body.marketing-page .uk-dropdown-nav,
+body.cms-page-render .uk-dropdown-nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+body.marketing-page .uk-dropdown-nav,
+body.marketing-page .uk-dropdown-nav *,
+body.cms-page-render .uk-dropdown-nav,
+body.cms-page-render .uk-dropdown-nav *{
+  color:var(--topbar-text);
+}
+
 .lang-option{
   display:flex;
   align-items:center;
