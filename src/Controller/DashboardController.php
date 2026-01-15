@@ -40,7 +40,7 @@ class DashboardController
         $slug = (string) ($args['slug'] ?? '');
         $token = (string) ($args['token'] ?? '');
         $variantParam = strtolower((string) ($request->getQueryParams()['variant'] ?? ''));
-        $variant = $variantParam === 'sponsor' ? 'sponsor' : 'public';
+        $requestedVariant = $variantParam === 'sponsor' ? 'sponsor' : 'public';
 
         /** @var array<string, mixed>|null $event */
         $event = $this->events->getBySlug($slug);
@@ -56,15 +56,26 @@ class DashboardController
         }
 
         $uid = (string) $event['uid'];
-        $matchedVariant = $this->config->verifyDashboardToken($uid, $token, $variant);
+        $matchedVariant = $this->config->verifyDashboardToken($uid, $token);
         if ($matchedVariant === null) {
+            return $response->withStatus(403);
+        }
+        if ($requestedVariant === 'sponsor' && $matchedVariant !== 'sponsor') {
             return $response->withStatus(403);
         }
 
         $cfg = $this->config->getConfigForEvent($uid);
         if (
-            ($matchedVariant === 'public' && empty($cfg['dashboardShareEnabled']))
-            || ($matchedVariant === 'sponsor' && empty($cfg['dashboardSponsorEnabled']))
+            $matchedVariant === 'public'
+            && array_key_exists('dashboardShareEnabled', $cfg)
+            && $cfg['dashboardShareEnabled'] === false
+        ) {
+            return $response->withStatus(403);
+        }
+        if (
+            $matchedVariant === 'sponsor'
+            && array_key_exists('dashboardSponsorEnabled', $cfg)
+            && $cfg['dashboardSponsorEnabled'] === false
         ) {
             return $response->withStatus(403);
         }
