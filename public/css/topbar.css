@@ -213,6 +213,10 @@ body[data-theme="dark"].high-contrast,
   border:none;
   background:transparent;
 }
+body[data-theme="dark"] .config-menu #configMenuToggle.git-btn,
+.qr-topbar[data-theme="dark"] .config-menu #configMenuToggle.git-btn{
+  color: color-mix(in srgb, var(--topbar-text) 70%, var(--topbar-bg));
+}
 .config-menu #configMenuToggle.git-btn:hover,
 .config-menu #configMenuToggle.git-btn:focus,
 .config-menu #configMenuToggle.git-btn:active{
