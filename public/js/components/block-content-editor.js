@@ -2042,15 +2042,13 @@ export class BlockContentEditor {
     if (!this.root) {
       return;
     }
-
-    if (this.status === 'invalid') {
-      this.root.innerHTML = '';
-      this.root.append(this.buildValidationPanel());
-      return;
-    }
     this.richTextInstances.forEach(instance => instance.destroy());
     this.richTextInstances.clear();
     this.root.innerHTML = '';
+
+    if (this.status === 'invalid') {
+      this.root.append(this.buildValidationPanel());
+    }
     const wrapper = document.createElement('div');
     wrapper.dataset.editorRoot = 'true';
     const mode = this.state.editorMode || 'structure';
@@ -2280,6 +2278,27 @@ export class BlockContentEditor {
     const aside = document.createElement('aside');
     aside.dataset.blockList = 'true';
     const list = document.createElement('ul');
+
+    if (this.validationErrors.length > 0) {
+      const validationSummary = document.createElement('div');
+      validationSummary.dataset.validationSummary = 'true';
+      validationSummary.className = 'uk-alert uk-alert-warning uk-margin-small';
+
+      const heading = document.createElement('div');
+      heading.className = 'uk-text-bold';
+      heading.textContent = 'Validierungsfehler';
+
+      const details = document.createElement('ul');
+      details.className = 'uk-list uk-list-divider uk-margin-small-top';
+      this.validationErrors.forEach(error => {
+        const item = document.createElement('li');
+        item.textContent = error.detail ? `${error.message} – ${error.detail}` : error.message;
+        details.append(item);
+      });
+
+      validationSummary.append(heading, details);
+      aside.append(validationSummary);
+    }
 
     if (Array.isArray(this.state.skippedBlocks) && this.state.skippedBlocks.length > 0) {
       const warning = document.createElement('div');
