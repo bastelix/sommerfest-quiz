@@ -2323,7 +2323,13 @@ async function runQuiz(questions, skipIntro){
       endBtn.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(endBtn);
       endBtn.addEventListener('click', () => {
+        const fallbackUrl = withBase('/');
         window.close();
+        setTimeout(() => {
+          if(!window.closed){
+            window.location.href = fallbackUrl;
+          }
+        }, 300);
       });
       div.appendChild(endBtn);
     }
