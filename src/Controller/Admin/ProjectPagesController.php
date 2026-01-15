@@ -940,10 +940,17 @@ class ProjectPagesController
     {
         $config = $this->configService->getConfigForEvent($namespace);
 
-        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
+        if ($namespace !== PageService::DEFAULT_NAMESPACE) {
             $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($fallbackConfig !== []) {
+            if ($config === [] && $fallbackConfig !== []) {
                 $config = $fallbackConfig;
+            }
+            if (
+                $fallbackConfig !== []
+                && (!array_key_exists('pageTypes', $config) || $config['pageTypes'] === [])
+                && array_key_exists('pageTypes', $fallbackConfig)
+            ) {
+                $config['pageTypes'] = $fallbackConfig['pageTypes'];
             }
         }
 
