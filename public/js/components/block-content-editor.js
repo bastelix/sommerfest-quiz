@@ -182,6 +182,8 @@ const BACKGROUND_COLOR_TOKEN_MAP = {
   surface: 'var(--surface)'
 };
 
+const BLOCK_JSON_HINT = 'Seiteninhalt ist kein Block-JSON; bitte migrieren/importieren.';
+
 const SECTION_INTENT_OPTIONS = [
   {
     value: 'hero',
@@ -1706,6 +1708,7 @@ export class BlockContentEditor {
         parsed = JSON.parse(content || '{}');
       } catch (error) {
         validationErrors.push({
+          code: 'parse_error',
           message: 'Seiteninhalt konnte nicht als JSON gelesen werden.',
           detail: error instanceof Error ? error.message : String(error || '')
         });
@@ -1740,6 +1743,10 @@ export class BlockContentEditor {
       skippedBlocks,
       validationErrors
     };
+  }
+
+  static hasParseError(errors = []) {
+    return Array.isArray(errors) && errors.some(error => error?.code === 'parse_error');
   }
 
   destroy() {
@@ -1827,12 +1834,20 @@ export class BlockContentEditor {
 
     const evaluation = BlockContentEditor.evaluateContent(content);
     const { blocks, skippedBlocks, meta, id, validationErrors } = evaluation;
+    const hasParseError = BlockContentEditor.hasParseError(validationErrors);
 
     this.validationErrors = validationErrors;
     this.status = validationErrors.length > 0 ? 'invalid' : 'ok';
 
     if (skippedBlocks.length > 0 && typeof notify === 'function') {
       notify('Einige Blöcke wurden aufgrund von Validierungsfehlern übersprungen.', 'warning');
+    }
+    if (validationErrors.length > 0 && typeof notify === 'function') {
+      if (hasParseError) {
+        notify(BLOCK_JSON_HINT, 'warning');
+      } else {
+        notify('Seiteninhalt enthält Validierungsfehler. Details sind im Editor sichtbar.', 'warning');
+      }
     }
 
     const preservedActive = this.state.activeSectionId && blocks.some(block => block.id === this.state.activeSectionId)
@@ -2129,7 +2144,9 @@ export class BlockContentEditor {
 
     const description = document.createElement('p');
     description.className = 'uk-margin-small-top';
-    description.textContent = 'Die vorhandenen Blöcke verstoßen gegen den Vertrag und müssen repariert werden.';
+    description.textContent = BlockContentEditor.hasParseError(this.validationErrors)
+      ? `${BLOCK_JSON_HINT} Der Editor kann den Inhalt erst nach der Migration laden.`
+      : 'Die vorhandenen Blöcke verstoßen gegen den Vertrag und müssen repariert werden.';
 
     const list = document.createElement('ul');
     list.className = 'uk-list uk-list-divider uk-margin-small-top';
