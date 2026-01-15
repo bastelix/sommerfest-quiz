@@ -8,6 +8,7 @@ use App\Service\ConfigService;
 use App\Service\ConfigValidator;
 use App\Service\EventService;
 use App\Domain\Roles;
+use App\Service\NamespaceResolver;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -87,7 +88,8 @@ class ConfigController
 
         if (isset($data['event_uid'])) {
             $uid = (string) $data['event_uid'];
-            if ($this->events->getByUid($uid) === null) {
+            $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+            if ($this->events->getByUid($uid, $namespace) === null) {
                 return $response->withStatus(404);
             }
             $this->service->setActiveEventUid($uid);

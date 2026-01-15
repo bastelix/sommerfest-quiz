@@ -11,6 +11,7 @@ use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use App\Service\EventService;
+use App\Service\NamespaceResolver;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -82,8 +83,9 @@ class ExportController
 
         $timestamp = date('Y-m-d_His');
         $backupPath = $this->backupDir . '/' . $timestamp;
-        $this->exportToDir($this->dataDir);
-        $this->exportToDir($backupPath);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $this->exportToDir($this->dataDir, $namespace);
+        $this->exportToDir($backupPath, $namespace);
         return $response->withStatus(204);
     }
 
@@ -91,14 +93,15 @@ class ExportController
      * Export current data to the default demo data directory.
      */
     public function exportDefaults(Request $request, Response $response): Response {
-        $this->exportToDir($this->defaultDir);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $this->exportToDir($this->defaultDir, $namespace);
         return $response->withStatus(204);
     }
 
     /**
      * Write configuration, results, teams and catalogs to the given directory.
      */
-    private function exportToDir(string $dir): void {
+    private function exportToDir(string $dir, string $namespace): void {
         if (!is_dir($dir)) {
             mkdir($dir . '/kataloge', 0777, true);
         } elseif (!is_dir($dir . '/kataloge')) {
@@ -109,7 +112,7 @@ class ExportController
             file_put_contents($dir . '/config.json', $cfg . "\n");
         }
 
-        $events = $this->events->getAll();
+        $events = $this->events->getAll($namespace);
         file_put_contents(
             $dir . '/events.json',
             json_encode($events, JSON_PRETTY_PRINT) . "\n"

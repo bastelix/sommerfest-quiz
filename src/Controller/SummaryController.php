@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\NamespaceResolver;
 use Slim\Views\Twig;
 
 /**
@@ -31,17 +32,18 @@ class SummaryController
      */
     public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
         $forceResults = $this->shouldForceResults($params);
         if ($uid !== '') {
             $cfg = $this->config->getConfigForEvent($uid);
-            $event = $this->events->getByUid($uid) ?? $this->events->getFirst();
+            $event = $this->events->getByUid($uid, $namespace) ?? $this->events->getFirst($namespace);
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }
         } else {
-            $event = $this->events->getFirst();
+            $event = $this->events->getFirst($namespace);
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }
