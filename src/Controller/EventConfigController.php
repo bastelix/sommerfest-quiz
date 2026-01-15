@@ -116,6 +116,11 @@ class EventConfigController
 
         $token = $this->config->generateDashboardToken();
         $this->config->setDashboardToken($uid, $variant, $token);
+        $enableKey = $variant === 'sponsor' ? 'dashboardSponsorEnabled' : 'dashboardShareEnabled';
+        $this->config->saveConfig([
+            'event_uid' => $uid,
+            $enableKey => true,
+        ]);
 
         $payload = ['variant' => $variant, 'token' => $token];
         $content = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
