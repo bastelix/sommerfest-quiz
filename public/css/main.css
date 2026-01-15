@@ -2808,11 +2808,6 @@ body.admin-page {
   align-items: stretch;
 }
 
-.stat-strip__grid:not([class*="uk-child-width-"]) > * {
-  width: auto;
-  flex: initial;
-}
-
 .stat-strip__card {
   display: flex;
   flex-direction: column;
