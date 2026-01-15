@@ -1,0 +1,18 @@
+{
+  "config": {
+    "designTokens": {
+      "brand": {
+        "primary": "#0ea5e9",
+        "accent": "#22c55e",
+        "secondary": "#22c55e"
+      }
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#0ea5e9",
+      "accent": "#22c55e",
+      "secondary": "#22c55e"
+    }
+  }
+}

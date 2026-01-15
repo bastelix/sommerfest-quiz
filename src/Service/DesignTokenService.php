@@ -213,7 +213,11 @@ class DesignTokenService
             if (!is_array($tokens)) {
                 $tokens = [];
             }
-            $namespaces[$namespace] = $this->mergeWithDefaults($this->validateTokens($tokens));
+            $validated = $this->validateTokens($tokens);
+            if (!$this->hasTokenOverrides($validated)) {
+                continue;
+            }
+            $namespaces[$namespace] = $this->mergeWithDefaults($validated);
         }
 
         $fileNamespaces = $this->designFiles->listNamespaces();
@@ -226,8 +230,12 @@ class DesignTokenService
             if ($tokens === []) {
                 continue;
             }
+            $validated = $this->validateTokens($tokens);
+            if (!$this->hasTokenOverrides($validated)) {
+                continue;
+            }
 
-            $namespaces[$namespace] = $this->mergeWithDefaults($this->validateTokens($tokens));
+            $namespaces[$namespace] = $this->mergeWithDefaults($validated);
         }
 
         if (!array_key_exists(PageService::DEFAULT_NAMESPACE, $namespaces)) {
@@ -237,6 +245,20 @@ class DesignTokenService
         ksort($namespaces);
 
         return $namespaces;
+    }
+
+    /**
+     * @param array<string, mixed> $tokens
+     */
+    private function hasTokenOverrides(array $tokens): bool
+    {
+        foreach ($tokens as $group) {
+            if (is_array($group) && $group !== []) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
