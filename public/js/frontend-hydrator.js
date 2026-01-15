@@ -86,22 +86,28 @@ const parseEmbeddedPayload = () => {
   }
 };
 
-const fetchPagePayload = async () => {
+const fetchPagePayload = async (fallbackPayload) => {
   const url = buildPayloadUrl();
   if (!url) {
     console.error('[CMS] Missing payload URL');
-    return null;
+    return fallbackPayload || parseEmbeddedPayload();
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Accept: 'application/json'
-    }
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: {
+        Accept: 'application/json'
+      }
+    });
+  } catch (error) {
+    console.error('[CMS] Payload fetch failed', error);
+    return fallbackPayload || parseEmbeddedPayload();
+  }
 
   if (!response.ok) {
     console.error('[CMS] Payload fetch failed', response.status, response.statusText);
-    return null;
+    return fallbackPayload || parseEmbeddedPayload();
   }
 
   try {
@@ -109,7 +115,7 @@ const fetchPagePayload = async () => {
     return normalizePagePayload(payload, 'remote');
   } catch (error) {
     console.error('[CMS] Failed to parse page payload', error);
-    return null;
+    return fallbackPayload || parseEmbeddedPayload();
   }
 };
 
@@ -129,7 +135,7 @@ const hydratePage = async () => {
       import(`${basePath}/js/components/namespace-design.js`),
       import(`${basePath}/js/components/block-renderer-matrix.js`),
       import(`${basePath}/js/effects/initEffects.js`),
-      fetchPagePayload()
+      fetchPagePayload(embeddedPayload)
     ]);
 
     const payload = remotePayload || embeddedPayload;
