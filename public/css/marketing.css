@@ -346,7 +346,7 @@
 }
 
 /* Dark mode (marketing-page) */
-:is(body, .marketing-scope).marketing-page:is(.dark-mode, [data-theme="dark"]):not(.high-contrast) {
+:is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]).marketing-page:not(.high-contrast) {
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
   --marketing-surface-muted: var(--marketing-surface-muted-dark, var(--marketing-surface-muted));
   --marketing-card: var(--marketing-card-dark, var(--marketing-surface-glass-dark));
@@ -625,7 +625,7 @@
   opacity: 0.75;
 }
 
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
+:is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]):is(.marketing-page, .cms-page-render):not(.high-contrast)
   .marketing-chat__dialog {
   --marketing-chat-surface: color-mix(
     in oklab,
@@ -748,8 +748,8 @@
     0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
 }
 
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button,
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
+html:not([data-theme="dark"]) :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .marketing-floating-button,
+html[data-theme="light"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.high-contrast) .marketing-floating-button {
   color: var(--marketing-white);
   border-color: color-mix(in oklab, var(--marketing-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
   background: color-mix(in oklab, var(--marketing-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
@@ -757,8 +757,8 @@
     0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
 
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button svg,
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button svg {
+html:not([data-theme="dark"]) :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .marketing-floating-button svg,
+html[data-theme="light"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.high-contrast) .marketing-floating-button svg {
   color: inherit;
   stroke: currentColor;
 }
@@ -788,6 +788,7 @@
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-floating-button,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-floating-button,
+html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button,
 :is(body, .marketing-scope).high-contrast .marketing-floating-button {
   background: var(--marketing-black);
   color: var(--marketing-white);
@@ -797,6 +798,7 @@
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-trigger.marketing-cookie-trigger--active,
+html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-trigger.marketing-cookie-trigger--active,
 :is(body, .marketing-scope).high-contrast .marketing-cookie-trigger.marketing-cookie-trigger--active {
   background: var(--marketing-ink);
 }
@@ -859,7 +861,7 @@
   }
 }
 
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):is(.dark-mode, [data-theme="dark"]):not(.high-contrast)
+:is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]):is(.marketing-page, .cms-page-render):not(.high-contrast)
   .marketing-cookie-banner {
   background: linear-gradient(
     160deg,
@@ -872,8 +874,8 @@
     !important;
 }
 
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-cookie-banner,
-:is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-cookie-banner {
+html:not([data-theme="dark"]) :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .marketing-cookie-banner,
+html[data-theme="light"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.high-contrast) .marketing-cookie-banner {
   background: linear-gradient(
     160deg,
     color-mix(in oklab, var(--marketing-primary) 12%, var(--marketing-white) 88%) 0%,
@@ -886,6 +888,7 @@
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner,
+html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner,
 :is(body, .marketing-scope).high-contrast .marketing-cookie-banner {
   background: var(--qr-card, var(--marketing-black));
   color: var(--qr-text, var(--marketing-white));
@@ -895,6 +898,7 @@
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render).high-contrast .marketing-cookie-banner__link,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner__link,
+html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner__link,
 :is(body, .marketing-scope).high-contrast .marketing-cookie-banner__link {
   text-decoration-thickness: 2px;
 }
