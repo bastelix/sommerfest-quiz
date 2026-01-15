@@ -1239,6 +1239,7 @@ const applyMarketingDesign = () => {
     root.style.setProperty('--marketing-background-dark', marketingBackgroundDark);
   }
   root.style.setProperty('--marketing-on-accent', marketingOnAccent);
+  root.style.setProperty('--text-on-primary', marketingOnAccent);
   root.style.setProperty('--marketing-text', marketingText);
   root.style.setProperty('--marketing-surface', marketingSurface);
   root.style.setProperty('--marketing-surface-muted', marketingSurfaceMuted);
