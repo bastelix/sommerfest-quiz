@@ -31,22 +31,40 @@
 {% if appearanceVars.surfaceMuted is defined and appearanceVars.surfaceMuted %}
   {% set cssVars = cssVars|merge(['--surface-muted: ' ~ appearanceVars.surfaceMuted]) %}
 {% endif %}
-{% if appearanceVars.textOnSurface is defined and appearanceVars.textOnSurface %}
+{% set textOnSurfaceValue = appearanceVars.textOnSurface
+  |default(appearanceVars.text_on_surface
+  |default(appearanceColors.textOnSurface
+  |default(appearanceColors.text_on_surface
+  |default(''))))
+%}
+{% if textOnSurfaceValue %}
   {% set cssVars = cssVars|merge([
-    '--text-on-surface: ' ~ appearanceVars.textOnSurface,
-    '--marketing-text-on-surface: ' ~ appearanceVars.textOnSurface
+    '--text-on-surface: ' ~ textOnSurfaceValue,
+    '--marketing-text-on-surface: ' ~ textOnSurfaceValue
   ]) %}
 {% endif %}
-{% if appearanceVars.textOnBackground is defined and appearanceVars.textOnBackground %}
+{% set textOnBackgroundValue = appearanceVars.textOnBackground
+  |default(appearanceVars.text_on_background
+  |default(appearanceColors.textOnBackground
+  |default(appearanceColors.text_on_background
+  |default(''))))
+%}
+{% if textOnBackgroundValue %}
   {% set cssVars = cssVars|merge([
-    '--text-on-background: ' ~ appearanceVars.textOnBackground,
-    '--marketing-text-on-background: ' ~ appearanceVars.textOnBackground
+    '--text-on-background: ' ~ textOnBackgroundValue,
+    '--marketing-text-on-background: ' ~ textOnBackgroundValue
   ]) %}
 {% endif %}
-{% if appearanceVars.textOnPrimary is defined and appearanceVars.textOnPrimary %}
+{% set textOnPrimaryValue = appearanceVars.textOnPrimary
+  |default(appearanceVars.text_on_primary
+  |default(appearanceColors.textOnPrimary
+  |default(appearanceColors.text_on_primary
+  |default(''))))
+%}
+{% if textOnPrimaryValue %}
   {% set cssVars = cssVars|merge([
-    '--text-on-primary: ' ~ appearanceVars.textOnPrimary,
-    '--marketing-on-accent: ' ~ appearanceVars.textOnPrimary
+    '--text-on-primary: ' ~ textOnPrimaryValue,
+    '--marketing-on-accent: ' ~ textOnPrimaryValue
   ]) %}
 {% endif %}
 {% if appearanceVars.topbarLight is defined and appearanceVars.topbarLight %}

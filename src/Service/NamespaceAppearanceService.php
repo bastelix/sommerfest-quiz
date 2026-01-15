@@ -68,6 +68,9 @@ class NamespaceAppearanceService
         $muted = $this->pickColor($colors, 'muted', 'surfaceMuted');
         $topbarLight = $this->pickColor($colors, 'topbar_light', 'topbarLight');
         $topbarDark = $this->pickColor($colors, 'topbar_dark', 'topbarDark');
+        $textOnSurface = $this->pickColor($colors, 'textOnSurface', 'text_on_surface');
+        $textOnBackground = $this->pickColor($colors, 'textOnBackground', 'text_on_background');
+        $textOnPrimary = $this->pickColor($colors, 'textOnPrimary', 'text_on_primary');
         $marketingScheme = $this->normalizeMarketingScheme(
             $this->pickColor($colors, 'marketingScheme', 'marketing_scheme')
         );
@@ -85,6 +88,9 @@ class NamespaceAppearanceService
         $variables = array_filter([
             'surface' => $surface,
             'surfaceMuted' => $muted,
+            'textOnSurface' => $textOnSurface,
+            'textOnBackground' => $textOnBackground,
+            'textOnPrimary' => $textOnPrimary,
             'topbarLight' => $topbarLight,
             'topbarDark' => $topbarDark,
             'marketingScheme' => $marketingScheme,
