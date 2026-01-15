@@ -252,6 +252,22 @@ return function (\Slim\App $app, TranslationService $translator) {
     };
 
     $marketingNamespaceMiddleware = static function (Request $request, RequestHandlerInterface $handler): Response {
+        $existingDomainNamespace = $request->getAttribute('domainNamespace');
+        $existingPageNamespace = $request->getAttribute('pageNamespace');
+        if (
+            (is_string($existingDomainNamespace) && $existingDomainNamespace !== '')
+            || (is_string($existingPageNamespace) && $existingPageNamespace !== '')
+        ) {
+            return $handler->handle($request);
+        }
+
+        $path = $request->getUri()->getPath();
+        $isLegacyMarketingPath = str_starts_with($path, '/m/')
+            || str_starts_with($path, '/landing/');
+        if (!$isLegacyMarketingPath) {
+            return $handler->handle($request);
+        }
+
         $route = RouteContext::fromRequest($request)->getRoute();
         $marketingSlug = $route?->getArgument('marketingSlug')
             ?? $route?->getArgument('landingSlug')
