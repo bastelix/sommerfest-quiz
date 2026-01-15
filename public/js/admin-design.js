@@ -590,11 +590,12 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
         const stored = resultsByRow.get(row) || {};
         const fixButton = row.querySelector('[data-contrast-fix]');
         const results = themes.map(theme => stored[theme]).filter(Boolean);
-        const anyFailed = results.some(result => !result.meetsAA);
-        const meetsAll = results.length === themes.length && results.every(result => result.meetsAA);
+        const hasResults = results.length > 0;
+        const anyFailed = hasResults && results.some(result => !result.meetsAA);
+        const meetsAll = hasResults && results.length === themes.length && results.every(result => result.meetsAA);
         row.classList.toggle('design-contrast__row--warn', anyFailed);
         if (fixButton instanceof HTMLButtonElement) {
-          fixButton.disabled = !meetsAll;
+          fixButton.disabled = !hasResults || meetsAll;
         }
       });
     };
