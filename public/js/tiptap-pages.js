@@ -41,6 +41,8 @@ const DOMPURIFY_PAGE_EDITOR_CONFIG = {
   ALLOW_DATA_ATTR: true
 };
 
+const BLOCK_JSON_HINT = 'Seiteninhalt ist kein Block-JSON; bitte migrieren/importieren.';
+
 const hasValidSrcsetDescriptor = descriptor => {
   const trimmed = descriptor.trim();
   if (trimmed === '' || /[{}/]/.test(trimmed)) {
@@ -111,6 +113,8 @@ const getPageValidationStatus = slug => {
   const normalized = normalizePageSlug(slug);
   return pageValidationState.get(normalized) || { status: 'ok', errors: [] };
 };
+
+const hasParseError = errors => Array.isArray(errors) && errors.some(error => error?.code === 'parse_error');
 
 const applyValidationIndicatorsToTree = () => {
   const container = document.querySelector('[data-page-tree]');
@@ -2247,12 +2251,31 @@ const setupPageForm = form => {
     return;
   }
 
+  const updateValidationNotice = detail => {
+    const errors = Array.isArray(detail?.errors) ? detail.errors : [];
+    const shouldShow = detail?.status === 'invalid' && hasParseError(errors);
+    const existing = form.querySelector('[data-page-validation-alert]');
+    if (!shouldShow) {
+      existing?.remove();
+      return;
+    }
+
+    const alert = existing || document.createElement('div');
+    alert.dataset.pageValidationAlert = 'true';
+    alert.className = 'uk-alert uk-alert-warning uk-margin-small-bottom';
+    alert.textContent = BLOCK_JSON_HINT;
+    if (!existing) {
+      form.insertBefore(alert, editorEl);
+    }
+  };
+
   editorEl.addEventListener('block-editor:validation', event => {
     const detail = event?.detail || {};
     setPageValidationStatus(slug, {
       status: detail.status === 'invalid' ? 'invalid' : 'ok',
       errors: Array.isArray(detail.errors) ? detail.errors : []
     });
+    updateValidationNotice(detail);
   });
 
   evaluatePageContent(form);
