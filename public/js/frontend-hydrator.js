@@ -39,6 +39,53 @@ const buildPayloadUrl = () => {
   }
 };
 
+const normalizePagePayload = (payload, sourceLabel) => {
+  if (!payload || typeof payload !== 'object') {
+    console.error(`[CMS] Invalid ${sourceLabel} payload`);
+    return null;
+  }
+
+  const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
+  const design = payload.design && typeof payload.design === 'object' ? payload.design : null;
+  const namespace = typeof payload.namespace === 'string' ? payload.namespace : null;
+  const slug = typeof payload.slug === 'string' ? payload.slug : null;
+  const pageType = typeof payload.pageType === 'string'
+    ? payload.pageType
+    : (typeof payload.type === 'string' ? payload.type : null);
+  const sectionStyleDefaults = payload.sectionStyleDefaults && typeof payload.sectionStyleDefaults === 'object'
+    ? payload.sectionStyleDefaults
+    : {};
+  const content = typeof payload.content === 'string' ? payload.content : '';
+
+  if (blocks.length === 0 && content.trim() === '') {
+    console.error(`[CMS] Invalid ${sourceLabel} payload – missing blocks and fallback content`);
+    return null;
+  }
+
+  return { blocks, design, namespace, slug, content, pageType, sectionStyleDefaults };
+};
+
+const parseEmbeddedPayload = () => {
+  const script = document.querySelector('script[data-json="page"]');
+  if (!script) {
+    return null;
+  }
+
+  const rawPayload = script.textContent?.trim();
+  if (!rawPayload) {
+    console.error('[CMS] Embedded payload is empty');
+    return null;
+  }
+
+  try {
+    const payload = JSON.parse(rawPayload);
+    return normalizePagePayload(payload, 'embedded');
+  } catch (error) {
+    console.error('[CMS] Failed to parse embedded payload', error);
+    return null;
+  }
+};
+
 const fetchPagePayload = async () => {
   const url = buildPayloadUrl();
   if (!url) {
@@ -59,27 +106,7 @@ const fetchPagePayload = async () => {
 
   try {
     const payload = await response.json();
-    if (!payload || typeof payload !== 'object') {
-      console.error('[CMS] Invalid payload response');
-      return null;
-    }
-
-    const blocks = Array.isArray(payload.blocks) ? payload.blocks : [];
-    const design = payload.design && typeof payload.design === 'object' ? payload.design : null;
-    const namespace = typeof payload.namespace === 'string' ? payload.namespace : null;
-    const slug = typeof payload.slug === 'string' ? payload.slug : null;
-    const pageType = typeof payload.pageType === 'string' ? payload.pageType : (typeof payload.type === 'string' ? payload.type : null);
-    const sectionStyleDefaults = payload.sectionStyleDefaults && typeof payload.sectionStyleDefaults === 'object'
-      ? payload.sectionStyleDefaults
-      : {};
-    const content = typeof payload.content === 'string' ? payload.content : '';
-
-    if (blocks.length === 0 && content.trim() === '') {
-      console.error('[CMS] Invalid payload – missing blocks and fallback content');
-      return null;
-    }
-
-    return { blocks, design, namespace, slug, content, pageType, sectionStyleDefaults };
+    return normalizePagePayload(payload, 'remote');
   } catch (error) {
     console.error('[CMS] Failed to parse page payload', error);
     return null;
@@ -97,13 +124,15 @@ const hydratePage = async () => {
       window.basePath = basePath;
     }
 
-    const [designModule, matrixModule, effectsModule, payload] = await Promise.all([
+    const embeddedPayload = parseEmbeddedPayload();
+    const [designModule, matrixModule, effectsModule, remotePayload] = await Promise.all([
       import(`${basePath}/js/components/namespace-design.js`),
       import(`${basePath}/js/components/block-renderer-matrix.js`),
       import(`${basePath}/js/effects/initEffects.js`),
       fetchPagePayload()
     ]);
 
+    const payload = remotePayload || embeddedPayload;
     if (!payload) {
       console.error('[CMS] Missing payload – cannot render page');
       return;
