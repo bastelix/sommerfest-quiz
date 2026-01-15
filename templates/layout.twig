@@ -16,6 +16,9 @@
 {% set includeTableStyles = includeTableStyles|default(true) %}
 {% set includeTopbarStyles = includeTopbarStyles|default(true) %}
 {% set includeNamespaceTokensStyles = includeNamespaceTokensStyles|default(true) %}
+{% set activeNamespace = normalizedNamespace|default('default') %}
+{% set hasNamespaceStyles = activeNamespace is not empty and activeNamespace != 'default' %}
+{% set namespaceSegment = hasNamespaceStyles ? '/' ~ activeNamespace : '' %}
 {# Allowed admin layout profiles: wide, standard, narrow. #}
 {% set allowedAdminLayouts = ['wide', 'standard', 'narrow'] %}
 {% set adminLayoutRaw = adminLayout|default('') %}
@@ -149,7 +152,12 @@
   {% endif %}
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
   {% if includeNamespaceTokensStyles %}
-    <link rel="stylesheet" href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}">
+    <link
+      rel="stylesheet"
+      href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+      data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+      onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
+    >
   {% endif %}
   {% if includeTableStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/table.css">
