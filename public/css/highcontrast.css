@@ -1,93 +1,93 @@
 /* High contrast mode styles */
-body.high-contrast {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) {
   background-color: #ffffff !important;
   color: #000000 !important;
   font-size: 1.125em;
 }
-body.high-contrast a {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) a {
   color: #0000ee;
   text-decoration: underline;
 }
-body.high-contrast .qr-card {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .qr-card {
   background-color: #ffffff;
   color: #000000;
   border-color: #000000;
 }
-body.high-contrast .modern-info-card {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .modern-info-card {
   border-color: #000000;
 }
-body.high-contrast .onboarding-step {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .onboarding-step {
   border-color: #000000;
   box-shadow: none;
 }
-body.high-contrast .onboarding-timeline .timeline-step {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .onboarding-timeline .timeline-step {
   border-color: #000000;
   color: #000000;
 }
-body.high-contrast .onboarding-timeline .timeline-step.active,
-body.high-contrast .onboarding-timeline .timeline-step.completed {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .onboarding-timeline .timeline-step.active,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .onboarding-timeline .timeline-step.completed {
   border-color: #000000;
   color: #000000;
 }
-body.high-contrast .onboarding-timeline .timeline-step.inactive {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .onboarding-timeline .timeline-step.inactive {
   border-color: #666666;
   color: #666666;
   cursor: not-allowed;
 }
-body.high-contrast .uk-button-primary {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-button-primary {
   background-color: #000000;
   border-color: #000000;
   color: #ffffff;
 }
-body.high-contrast .uk-button,
-body.high-contrast .uk-button-default {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-button,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-button-default {
   background-color: #ffffff;
   color: #000000;
   border-color: #000000;
 }
-body.high-contrast input,
-body.high-contrast textarea,
-body.high-contrast select {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) input,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) textarea,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) select {
   background-color: #ffffff;
   color: #000000;
   border-color: #000000;
 }
-body.high-contrast .sortable-list li,
-body.high-contrast .terms li,
-body.high-contrast .dropzone,
-body.high-contrast .mc-option {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .sortable-list li,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .terms li,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .dropzone,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .mc-option {
   background: #ffffff;
   border: 2px solid #000000;
   color: #000000;
 }
-body.high-contrast .dropzone.over {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .dropzone.over {
   background: #ffffcc;
   border-color: #000000;
 }
 
-body.high-contrast .question-timer {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .question-timer {
   background-color: #ffff00;
   color: #000000;
   border: 2px solid #000000;
 }
 
-body.high-contrast .question-timer--expired {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .question-timer--expired {
   background-color: #ff6666;
   color: #000000;
   border-color: #000000;
 }
 
-body.high-contrast .question--timeout {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .question--timeout {
   opacity: 1;
   outline: 3px solid #000000;
 }
 
-body.high-contrast .question-feedback--timeout {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .question-feedback--timeout {
   color: #000000;
   font-weight: 700;
 }
 
-body.high-contrast .qr-handle {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .qr-handle {
   width: 44px;
   height: 44px;
   display: flex;
@@ -99,197 +99,197 @@ body.high-contrast .qr-handle {
   cursor: grab;
 }
 
-body.high-contrast .qr-handle:focus {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .qr-handle:focus {
   outline: 2px solid #000000;
 }
-body.high-contrast .uk-alert-success {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-alert-success {
   background-color: #006400;
   color: #ffffff;
 }
-body.high-contrast .uk-alert-danger {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-alert-danger {
   background-color: var(--danger-500);
   color: #ffffff;
 }
-body.high-contrast .uk-alert-primary {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-alert-primary {
   background-color: #00008b;
   color: #ffffff;
 }
 
 /* High contrast styles when dark mode is also enabled */
-body[data-theme="dark"].high-contrast {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-body[data-theme="dark"].high-contrast a {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) a {
   color: #ffff00;
   text-decoration: underline;
 }
 
-body[data-theme="dark"].high-contrast .qr-card {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .qr-card {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
-body[data-theme="dark"].high-contrast .modern-info-card {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .modern-info-card {
   border-color: #ffffff;
 }
-body[data-theme="dark"].high-contrast .onboarding-step {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .onboarding-step {
   border-color: #ffffff;
   box-shadow: none;
 }
-body[data-theme="dark"].high-contrast .onboarding-timeline .timeline-step {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .onboarding-timeline .timeline-step {
   border-color: #ffffff;
   color: #ffffff;
 }
-body[data-theme="dark"].high-contrast .onboarding-timeline .timeline-step.active,
-body[data-theme="dark"].high-contrast .onboarding-timeline .timeline-step.completed {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .onboarding-timeline .timeline-step.active,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .onboarding-timeline .timeline-step.completed {
   border-color: #ffffff;
   color: #ffffff;
 }
-body.high-contrast .uk-icon-button,
-body.high-contrast .git-btn {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-icon-button,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .git-btn {
   border: 2px solid #000000;
   background-color: #ffffff;
 }
 
-body.high-contrast .git-btn {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .git-btn {
   color: #000000;
 }
 
-body[data-theme="dark"].high-contrast .uk-icon-button,
-body[data-theme="dark"].high-contrast .git-btn {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-icon-button,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .git-btn {
   border: 2px solid #ffffff;
   background-color: #000000;
 }
 
-body[data-theme="dark"].high-contrast .git-btn {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .git-btn {
   color: #ffffff;
 }
-body[data-theme="dark"].high-contrast .onboarding-timeline .timeline-step.inactive {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .onboarding-timeline .timeline-step.inactive {
   border-color: #999999;
   color: #999999;
   cursor: not-allowed;
 }
 
-body[data-theme="dark"].high-contrast .uk-button-primary {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-button-primary {
   background-color: #ffff00;
   border-color: #ffff00;
   color: #000000;
 }
 
-body[data-theme="dark"].high-contrast .uk-button,
-body[data-theme="dark"].high-contrast .uk-button-default {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-button,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-button-default {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
 
-body[data-theme="dark"].high-contrast input,
-body[data-theme="dark"].high-contrast textarea,
-body[data-theme="dark"].high-contrast select {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) input,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) textarea,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) select {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
 
-body[data-theme="dark"].high-contrast .sortable-list li,
-body[data-theme="dark"].high-contrast .terms li,
-body[data-theme="dark"].high-contrast .dropzone,
-body[data-theme="dark"].high-contrast .mc-option {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .sortable-list li,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .terms li,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .dropzone,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .mc-option {
   background: #000000;
   border: 2px solid #ffffff;
   color: #ffffff;
 }
 
-body[data-theme="dark"].high-contrast .dropzone.over {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .dropzone.over {
   background: #333333;
   border-color: #ffffff;
 }
 
-body[data-theme="dark"].high-contrast .question-timer {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .question-timer {
   background-color: #ffff00;
   color: #000000;
   border: 2px solid #000000;
 }
 
-body[data-theme="dark"].high-contrast .question-timer--expired {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .question-timer--expired {
   background-color: #ff6666;
   color: #000000;
   border-color: #000000;
 }
 
-body[data-theme="dark"].high-contrast .question-feedback--timeout {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .question-feedback--timeout {
   color: #ffff00;
 }
 
-body[data-theme="dark"].high-contrast .uk-alert-success {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-alert-success {
   background-color: #008000;
   color: #ffffff;
 }
 
-body[data-theme="dark"].high-contrast .uk-alert-danger {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-alert-danger {
   background-color: var(--danger-500);
   color: #ffffff;
 }
 
-body[data-theme="dark"].high-contrast .uk-alert-primary {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-alert-primary {
   background-color: #00008b;
   color: #ffffff;
 }
 
-body.high-contrast .uk-form-danger,
-body[data-theme="dark"].high-contrast .uk-form-danger {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .uk-form-danger,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .uk-form-danger {
   border-color: var(--danger-600) !important;
 }
 
-body.high-contrast .flip-card-front,
-body.high-contrast .flip-card-back {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .flip-card-front,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .flip-card-back {
   background-color: #ffffff;
   color: #000000;
   border: 2px solid #000000;
 }
 
-body[data-theme="dark"].high-contrast .flip-card-front,
-body[data-theme="dark"].high-contrast .flip-card-back {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .flip-card-front,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .flip-card-back {
   background-color: #000000;
   color: #ffffff;
   border: 2px solid #ffffff;
 }
 
 /* TipTap page editor */
-body.high-contrast .page-editor {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .page-editor {
   background: #ffffff;
   border: 2px solid #000000;
   color: #000000;
 }
 
-body.high-contrast .page-editor .tiptap-editor {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .page-editor .tiptap-editor {
   background: transparent;
   color: #000000;
 }
 
-body.high-contrast .page-editor .tiptap-editor:focus {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .page-editor .tiptap-editor:focus {
   outline: 3px solid #000000;
   outline-offset: 2px;
 }
 
-body.high-contrast .page-editor-toolbar .uk-button,
-body.high-contrast .preview-link {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .page-editor-toolbar .uk-button,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .preview-link {
   background: #ffffff;
   border: 2px solid #000000;
   color: #000000;
 }
 
-body[data-theme="dark"].high-contrast .page-editor-toolbar .uk-button,
-body[data-theme="dark"].high-contrast .preview-link {
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .page-editor-toolbar .uk-button,
+:where(html[data-theme="dark"] body.high-contrast, body[data-theme="dark"].high-contrast, body.dark-mode.high-contrast) .preview-link {
   background: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
 
-body.high-contrast .page-editor-toolbar .uk-button:focus-visible,
-body.high-contrast .preview-link:focus-visible {
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .page-editor-toolbar .uk-button:focus-visible,
+:where(html[data-theme="high-contrast"], body[data-theme="high-contrast"], body.high-contrast) .preview-link:focus-visible {
   outline: 3px solid #000000;
   outline-offset: 3px;
 }

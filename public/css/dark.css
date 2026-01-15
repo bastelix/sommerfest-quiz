@@ -10,101 +10,100 @@
   --qr-card-border: var(--qr-border);
   --qr-bg-soft: #161b22;
 }
-html[data-theme="dark"],
-body[data-theme="dark"] {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) {
   background-color: var(--bg-page);
   color: var(--text-primary);
 }
-body[data-theme="dark"] a {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) a {
   color: var(--accent-color, #9dc6ff);
 }
-body[data-theme="dark"] h1,
-body[data-theme="dark"] h2,
-body[data-theme="dark"] h3,
-body[data-theme="dark"] h4,
-body[data-theme="dark"] h5,
-body[data-theme="dark"] h6 {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) h1,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) h2,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) h3,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) h4,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) h5,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) h6 {
   color: #f5f5f5;
 }
-body[data-theme="dark"] .uk-card-title {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-card-title {
   color: #f5f5f5;
 }
-body[data-theme="dark"] .qr-card {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .qr-card {
   background-color: var(--qr-card);
   color: #f5f5f5;
 }
-body[data-theme="dark"] .qr-card a {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .qr-card a {
   color: var(--accent-color, #9dc6ff);
 }
-body[data-theme="dark"] .uk-card h3,
-body[data-theme="dark"] .uk-card p {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-card h3,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-card p {
   color: #f5f5f5;
 }
-body[data-theme="dark"],
-body[data-theme="dark"] .wrapper,
-body[data-theme="dark"] .content,
-body[data-theme="dark"] .uk-background-muted,
-body[data-theme="dark"] .uk-background-default,
-body[data-theme="dark"].uk-background-muted,
-body[data-theme="dark"].uk-background-default {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode),
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .wrapper,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .content,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-background-muted,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-background-default,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode).uk-background-muted,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode).uk-background-default {
   background-color: var(--bg-page);
   color: var(--text-primary);
 }
 
-body[data-theme="dark"].admin-page {
+:where(html[data-theme="dark"] body.admin-page, body[data-theme="dark"].admin-page, body.dark-mode.admin-page) {
   background: var(--bg-page);
 }
 
-body[data-theme="dark"].admin-page .uk-section,
-body[data-theme="dark"].admin-page .uk-container,
-body[data-theme="dark"].admin-page .uk-grid,
-body[data-theme="dark"].admin-page .uk-grid > * {
+:where(html[data-theme="dark"] body.admin-page, body[data-theme="dark"].admin-page, body.dark-mode.admin-page) .uk-section,
+:where(html[data-theme="dark"] body.admin-page, body[data-theme="dark"].admin-page, body.dark-mode.admin-page) .uk-container,
+:where(html[data-theme="dark"] body.admin-page, body[data-theme="dark"].admin-page, body.dark-mode.admin-page) .uk-grid,
+:where(html[data-theme="dark"] body.admin-page, body[data-theme="dark"].admin-page, body.dark-mode.admin-page) .uk-grid > * {
   background: transparent !important;
 }
-body[data-theme="dark"] .uk-progress {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-progress {
   background-color: #333;
   color: var(--accent-color, #1e87f0);
 }
-body[data-theme="dark"] .uk-button-primary {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-button-primary {
   background-color: var(--accent-color, #1e87f0);
   border-color: var(--accent-color, #1e87f0);
 }
-body[data-theme="dark"] .uk-button,
-body[data-theme="dark"] .uk-button-default {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-button,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-button-default {
   color: #fff;
   background-color: #333;
   border-color: #555;
 }
-body[data-theme="dark"] .btn-black {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .btn-black {
   background-color: #333 !important;
   color: #f5f5f5 !important;
   border: 2px solid #666;
 }
-body[data-theme="dark"] .btn-black:hover {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .btn-black:hover {
   background-color: #f5f5f5 !important;
   color: #000 !important;
   border-color: #f5f5f5;
 }
-body[data-theme="dark"] .btn-transparent {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .btn-transparent {
   background-color: transparent !important;
   color: var(--accent-color, #9dc6ff) !important;
   border: 2px solid var(--accent-color, #9dc6ff);
 }
-body[data-theme="dark"] .btn-transparent:hover {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .btn-transparent:hover {
   background-color: var(--accent-color, #9dc6ff) !important;
   color: #000 !important;
 }
-body[data-theme="dark"] input,
-body[data-theme="dark"] textarea,
-body[data-theme="dark"] select {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) input,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) textarea,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) select {
   background-color: #1e1e1e;
   color: #f5f5f5;
   border-color: #555;
 }
-body[data-theme="dark"] .sortable-list li,
-body[data-theme="dark"] .terms li,
-body[data-theme="dark"] .dropzone,
-body[data-theme="dark"] .mc-option {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .sortable-list li,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .terms li,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .dropzone,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .mc-option {
   background-color: #1e1e1e;
   border-color: #444;
   color: #f5f5f5;
@@ -112,11 +111,11 @@ body[data-theme="dark"] .mc-option {
   padding: 16px;
   white-space: normal;
 }
-body[data-theme="dark"] .dropzone.over {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .dropzone.over {
   background-color: #2a2a2a;
 }
 
-body[data-theme="dark"] .qr-handle {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .qr-handle {
   width: 44px;
   height: 44px;
   display: flex;
@@ -128,95 +127,93 @@ body[data-theme="dark"] .qr-handle {
   cursor: grab;
 }
 
-body[data-theme="dark"] .qr-handle:focus {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .qr-handle:focus {
   outline: 2px solid var(--accent-color);
 }
-body[data-theme="dark"] .uk-alert-success {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-alert-success {
   background-color: #145214;
   color: #fff;
 }
-body[data-theme="dark"] .uk-alert-danger {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-alert-danger {
   background-color: var(--danger-600);
   color: #fff;
 }
 
-body[data-theme="dark"] .uk-form-danger {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-form-danger {
   border-color: var(--danger-600) !important;
 }
-body[data-theme="dark"] .uk-alert-primary {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-alert-primary {
   background-color: var(--accent-color, #003366);
   color: #fff;
 }
 
-body[data-theme="dark"] .mc-option input {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .mc-option input {
   transform: scale(1.3);
   margin-right: 8px;
 }
 
 /* Einheitlicher Kartenrahmen fuer Admin-Tabs im Dunkelmodus */
-body[data-theme="dark"] .tab-card {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .tab-card {
   background-color: #1e1e1e;
   color: #f5f5f5;
 }
 
-body.dark-mode .topbar,
-body[data-theme="dark"] .topbar {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .topbar {
   background-color: var(--bg-card);
   border-color: var(--border-muted);
 }
 
-body[data-theme="dark"] .git-btn,
-body[data-theme="dark"] .uk-icon-button:not(.uk-button-primary) {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .git-btn,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-icon-button:not(.uk-button-primary) {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid #444;
 }
-body[data-theme="dark"] .modern-info-card {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .modern-info-card {
   border-color: #444;
 }
 
 /* Sticky actions and onboarding components in Dark Mode */
-body[data-theme="dark"] .sticky-actions {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .sticky-actions {
   background: rgba(0, 0, 0, 0.95);
 }
 
-body[data-theme="dark"] .onboarding-step {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .onboarding-step {
   border-color: #444;
   background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
   box-shadow: 0 6px 30px rgba(0,0,0,0.5);
 }
 
-body[data-theme="dark"] .onboarding-timeline .timeline-step {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .onboarding-timeline .timeline-step {
   border-color: #555;
   color: #ddd;
 }
 
-body[data-theme="dark"] .onboarding-timeline .timeline-step.inactive {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .onboarding-timeline .timeline-step.inactive {
   color: #444;
   border-color: #555;
   cursor: not-allowed;
 }
 
-body[data-theme="dark"] .onboarding-timeline .timeline-step.active,
-body[data-theme="dark"] .onboarding-timeline .timeline-step.completed {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .onboarding-timeline .timeline-step.active,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .onboarding-timeline .timeline-step.completed {
   border-color: var(--accent-color, #1e87f0);
   color: var(--accent-color, #1e87f0);
 }
 
-body[data-theme="dark"] .uk-icon,
-body[data-theme="dark"] .uk-icon-button,
-body[data-theme="dark"] .uk-form-icon {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-icon,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-icon-button,
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .uk-form-icon {
   color: #f5f5f5;
 }
 
-body.dark-mode .site-footer,
-body[data-theme="dark"] .site-footer {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .site-footer {
   background-color: var(--bg-muted);
   border-color: var(--border-muted);
   color: var(--text-primary);
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 
-body[data-theme="dark"] .footer-menu a {
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .footer-menu a {
   color: var(--accent-color, #9dc6ff);
 }
 

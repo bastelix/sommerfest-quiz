@@ -51,7 +51,7 @@ body.qr-landing{
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
   --section-gap: clamp(32px, 6vw, 64px);
 }
-body.qr-landing:not(.dark-mode){
+:where(html:not([data-theme="dark"]) body.qr-landing:not(.dark-mode):not([data-theme="dark"])){
   --qr-bg:#ffffff;
   --qr-fg:#101418;
   --qr-bg-soft:#f6f8fa;
@@ -88,15 +88,15 @@ body.qr-landing:not(.dark-mode){
   }
 }
 
-body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary{
+:where(html:not([data-theme="dark"]) body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"])) .uk-button-primary{
   color:var(--qr-contrast-on-primary)!important;
 }
 
-body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon]{
+:where(html:not([data-theme="dark"]) body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"])) .uk-button-primary [data-uk-icon]{
   color:inherit;
 }
 
-body.qr-landing.high-contrast{
+:where(html[data-theme="high-contrast"] body.qr-landing, body.qr-landing[data-theme="high-contrast"], body.qr-landing.high-contrast){
   --qr-bg:#ffffff;
   --qr-fg:#000000;
   --qr-bg-soft:#ffffff;
@@ -120,11 +120,11 @@ body.qr-landing.high-contrast{
   --color-primary: var(--qr-landing-primary);
 }
 
-body.qr-landing.high-contrast .cta-main.uk-button-primary{
+:where(html[data-theme="high-contrast"] body.qr-landing, body.qr-landing[data-theme="high-contrast"], body.qr-landing.high-contrast) .cta-main.uk-button-primary{
   color:var(--qr-contrast-on-primary)!important;
 }
 
-body.qr-landing[data-theme="dark"].high-contrast{
+:where(html[data-theme="dark"] body.qr-landing.high-contrast, body.qr-landing[data-theme="dark"].high-contrast, body.qr-landing.dark-mode.high-contrast){
   --qr-bg:#000000;
   --qr-fg:#ffffff;
   --qr-bg-soft:#000000;
@@ -148,7 +148,7 @@ body.qr-landing[data-theme="dark"].high-contrast{
   --color-primary: var(--qr-landing-primary);
 }
 
-body.qr-landing[data-theme="dark"].high-contrast .cta-main.uk-button-primary{
+:where(html[data-theme="dark"] body.qr-landing.high-contrast, body.qr-landing[data-theme="dark"].high-contrast, body.qr-landing.dark-mode.high-contrast) .cta-main.uk-button-primary{
   color:var(--qr-contrast-on-primary)!important;
 }
 
@@ -185,8 +185,8 @@ body.qr-landing.generic-marketing {
   color-scheme: light;
 }
 
-body.qr-landing.marketing-page[data-theme="dark"]:not(.high-contrast),
-body.qr-landing.generic-marketing[data-theme="dark"]:not(.high-contrast) {
+:where(html[data-theme="dark"] body.qr-landing.marketing-page:not(.high-contrast), body.qr-landing.marketing-page[data-theme="dark"]:not(.high-contrast), body.qr-landing.marketing-page.dark-mode:not(.high-contrast)),
+:where(html[data-theme="dark"] body.qr-landing.generic-marketing:not(.high-contrast), body.qr-landing.generic-marketing[data-theme="dark"]:not(.high-contrast), body.qr-landing.generic-marketing.dark-mode:not(.high-contrast)) {
   --marketing-primary: var(--brand-primary);
   --marketing-background: var(--surface-page);
   --marketing-surface: var(--surface-card);
@@ -218,8 +218,8 @@ body.qr-landing.generic-marketing[data-theme="dark"]:not(.high-contrast) {
   color-scheme: dark;
 }
 
-body.qr-landing.marketing-page.high-contrast,
-body.qr-landing.generic-marketing.high-contrast {
+:where(html[data-theme="high-contrast"] body.qr-landing.marketing-page, body.qr-landing.marketing-page[data-theme="high-contrast"], body.qr-landing.marketing-page.high-contrast),
+:where(html[data-theme="high-contrast"] body.qr-landing.generic-marketing, body.qr-landing.generic-marketing[data-theme="high-contrast"], body.qr-landing.generic-marketing.high-contrast) {
   --qr-bg: #ffffff;
   --qr-fg: #000000;
   --qr-text: #000000;
@@ -244,8 +244,8 @@ body.qr-landing.generic-marketing.high-contrast {
   color-scheme: light;
 }
 
-body.qr-landing.marketing-page[data-theme="dark"].high-contrast,
-body.qr-landing.generic-marketing[data-theme="dark"].high-contrast {
+:where(html[data-theme="dark"] body.qr-landing.marketing-page.high-contrast, body.qr-landing.marketing-page[data-theme="dark"].high-contrast, body.qr-landing.marketing-page.dark-mode.high-contrast),
+:where(html[data-theme="dark"] body.qr-landing.generic-marketing.high-contrast, body.qr-landing.generic-marketing[data-theme="dark"].high-contrast, body.qr-landing.generic-marketing.dark-mode.high-contrast) {
   --qr-bg: #000000;
   --qr-fg: #ffffff;
   --qr-text: #ffffff;
@@ -270,18 +270,18 @@ body.qr-landing.generic-marketing[data-theme="dark"].high-contrast {
   color-scheme: dark;
 }
 
-body.dark-mode {
+:where(html[data-theme="dark"] body, body[data-theme="dark"], body.dark-mode) {
   background-color: var(--qr-bg);
   color: var(--qr-text);
 }
 
-body.qr-landing[data-theme="dark"] {
+:where(html[data-theme="dark"] body.qr-landing, body.qr-landing[data-theme="dark"], body.qr-landing.dark-mode) {
   --landing-btn-bg: var(--qr-bg-soft);
   --landing-btn-bg-hover: color-mix(in oklab, var(--qr-bg) 70%, var(--qr-fg) 30%);
   --landing-btn-fg: var(--qr-landing-text);
 }
 
-body[data-theme],
+:where(html[data-theme] body, body[data-theme]),
 body.qr-landing {
   background: var(--qr-hero-gradient);
   background-color: var(--qr-hero-grad-start);
@@ -848,8 +848,8 @@ body.marketing-page .marketing-event-teaser .uk-text-muted {
   color: color-mix(in oklab, var(--qr-text) 84%, var(--qr-bg) 16%);
 }
 
-body.marketing-page[data-theme="dark"] .marketing-event-schedule .uk-text-muted,
-body.marketing-page[data-theme="dark"] .marketing-event-teaser .uk-text-muted {
+:where(html[data-theme="dark"] body.marketing-page, body.marketing-page[data-theme="dark"], body.marketing-page.dark-mode) .marketing-event-schedule .uk-text-muted,
+:where(html[data-theme="dark"] body.marketing-page, body.marketing-page[data-theme="dark"], body.marketing-page.dark-mode) .marketing-event-teaser .uk-text-muted {
   color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
 }
 
@@ -857,7 +857,7 @@ body.marketing-page .uk-text-muted {
   color: color-mix(in oklab, var(--qr-text) 80%, var(--qr-bg) 20%);
 }
 
-body.marketing-page[data-theme="dark"] .uk-text-muted {
+:where(html[data-theme="dark"] body.marketing-page, body.marketing-page[data-theme="dark"], body.marketing-page.dark-mode) .uk-text-muted {
   color: color-mix(in oklab, var(--qr-text) 90%, var(--qr-bg) 10%);
 }
 .qr-landing .uk-icon,
@@ -1072,7 +1072,7 @@ body.marketing-page[data-theme="dark"] .uk-text-muted {
   border-radius:9999px;
   margin-bottom:16px;
 }
-body.dark-mode .qr-landing .qr-badge{
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .qr-landing .qr-badge{
   background: color-mix(in oklab, var(--qr-brand-800) 40%, transparent);
   color:var(--qr-brand-100);
 }
@@ -1216,7 +1216,7 @@ body.dark-mode .qr-landing .qr-badge{
     width:100%;
   }
 }
-body.qr-landing:not(.dark-mode) .btn.btn-black.uk-button-secondary{
+:where(html:not([data-theme="dark"]) body.qr-landing:not(.dark-mode):not([data-theme="dark"])) .btn.btn-black.uk-button-secondary{
   background-color:color-mix(in oklab, var(--qr-bg) 70%, var(--qr-fg) 30%);
   color:var(--qr-landing-text);
   border:1px solid color-mix(in oklab, var(--qr-border) 60%, transparent);
@@ -1226,8 +1226,7 @@ body.qr-landing:not(.dark-mode) .btn.btn-black.uk-button-secondary{
   transition:opacity .2s;
 }
 .qr-landing .btn.btn-black.uk-button-secondary:hover{ opacity:.85; }
-body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary,
-body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
+:where(html[data-theme="dark"], body[data-theme="dark"], body.dark-mode) .qr-landing .btn.btn-black.uk-button-secondary{
   background-color:color-mix(in oklab, var(--qr-bg) 65%, var(--qr-bg-soft) 35%);
   color:var(--qr-landing-text);
   border:1px solid var(--qr-border);
@@ -1276,9 +1275,9 @@ body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
 }
 
 /* Contact details card */
-body.qr-landing:not([data-theme="dark"]) .contact-card,
-body.qr-landing:not([data-theme="dark"]) .contact-card a,
-body.qr-landing:not([data-theme="dark"]) .contact-card span{
+:where(html:not([data-theme="dark"]) body.qr-landing:not([data-theme="dark"])) .contact-card,
+:where(html:not([data-theme="dark"]) body.qr-landing:not([data-theme="dark"])) .contact-card a,
+:where(html:not([data-theme="dark"]) body.qr-landing:not([data-theme="dark"])) .contact-card span{
   color:var(--qr-text);
 }
 
@@ -1384,7 +1383,7 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   color:var(--qr-muted);
 }
 
-body.qr-landing:not([data-theme="dark"]) .calserver-proseal[data-state="error"] .calserver-proseal__error{
+:where(html:not([data-theme="dark"]) body.qr-landing:not([data-theme="dark"])) .calserver-proseal[data-state="error"] .calserver-proseal__error{
   color:color-mix(in oklab, var(--qr-text) 85%, transparent);
 }
 
@@ -1408,14 +1407,14 @@ body.qr-landing:not([data-theme="dark"]) .calserver-proseal[data-state="error"] 
   margin:0;
   color:var(--qr-muted);
 }
-body.qr-landing:not([data-theme="dark"]) #contact-form .turnstile-hint{
+:where(html:not([data-theme="dark"]) body.qr-landing:not([data-theme="dark"])) #contact-form .turnstile-hint{
   color:color-mix(in oklab, var(--qr-text) 85%, transparent);
 }
 .qr-landing #contact-form.is-turnstile-disabled button[type="submit"]{
   opacity:0.65;
   cursor:not-allowed;
 }
-body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox{
+:where(html:not([data-theme="high-contrast"]) body.qr-landing:not(.high-contrast):not([data-theme="high-contrast"])) #contact-form .uk-checkbox{
   appearance:none;
   width:20px; height:20px;
   border:1.5px solid var(--qr-muted);
@@ -1428,7 +1427,7 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox{
   cursor:pointer;
   transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease;
 }
-body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox::after{
+:where(html:not([data-theme="high-contrast"]) body.qr-landing:not(.high-contrast):not([data-theme="high-contrast"])) #contact-form .uk-checkbox::after{
   content:'';
   width:10px; height:6px;
   border:2px solid transparent;
@@ -1437,16 +1436,16 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox::after{
   opacity:0;
   transition:opacity .15s ease;
 }
-body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:checked{
+:where(html:not([data-theme="high-contrast"]) body.qr-landing:not(.high-contrast):not([data-theme="high-contrast"])) #contact-form .uk-checkbox:checked{
   background:var(--qr-landing-primary);
   border-color:color-mix(in oklab, var(--qr-landing-primary) 75%, transparent);
   box-shadow:0 0 0 1px color-mix(in oklab, var(--qr-landing-primary) 55%, transparent);
 }
-body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:checked::after{
+:where(html:not([data-theme="high-contrast"]) body.qr-landing:not(.high-contrast):not([data-theme="high-contrast"])) #contact-form .uk-checkbox:checked::after{
   border-color:color-mix(in oklab, var(--qr-contrast-on-primary) 92%, transparent);
   opacity:1;
 }
-body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
+:where(html:not([data-theme="high-contrast"]) body.qr-landing:not(.high-contrast):not([data-theme="high-contrast"])) #contact-form .uk-checkbox:focus-visible{
   box-shadow:0 0 0 3px var(--qr-ring);
   border-color: color-mix(in oklab, var(--qr-landing-primary) 50%, transparent);
 }
