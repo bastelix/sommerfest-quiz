@@ -704,9 +704,9 @@
   justify-content: center;
   width: 3.25rem;
   height: 3.25rem;
-  border: 1px solid color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
+  border: 1px solid color-mix(in oklab, var(--marketing-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
   border-radius: 9999px;
-  background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+  background: color-mix(in oklab, var(--marketing-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
   color: var(--marketing-white);
   box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent),
     0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
@@ -728,14 +728,14 @@
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:hover,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
-  background: color-mix(in oklab, var(--calserver-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
-  border-color: color-mix(in oklab, var(--calserver-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
+  background: color-mix(in oklab, var(--marketing-primary) 30%, color-mix(in oklab, var(--marketing-ink) 90%, transparent));
+  border-color: color-mix(in oklab, var(--marketing-primary) 64%, color-mix(in oklab, var(--marketing-white) 28%, transparent));
   box-shadow: 0 22px 48px color-mix(in oklab, var(--marketing-ink) 36%, transparent),
     0 10px 20px color-mix(in oklab, var(--marketing-ink) 30%, transparent);
 }
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-floating-button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, var(--marketing-white) 30%);
+  outline: 3px solid color-mix(in oklab, var(--marketing-primary) 70%, var(--marketing-white) 30%);
   outline-offset: 3px;
 }
 
@@ -752,8 +752,8 @@
 }
 
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-trigger--active {
-  background: color-mix(in oklab, var(--calserver-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
-  border-color: color-mix(in oklab, var(--calserver-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
+  background: color-mix(in oklab, var(--marketing-primary) 26%, color-mix(in oklab, var(--marketing-ink) 92%, transparent));
+  border-color: color-mix(in oklab, var(--marketing-primary) 58%, color-mix(in oklab, var(--marketing-white) 26%, transparent));
   box-shadow: 0 16px 36px color-mix(in oklab, var(--marketing-ink) 28%, transparent),
     0 6px 14px color-mix(in oklab, var(--marketing-ink) 24%, transparent);
 }
@@ -761,8 +761,8 @@
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast) .marketing-floating-button,
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="light"]:not(.high-contrast) .marketing-floating-button {
   color: var(--marketing-white);
-  border-color: color-mix(in oklab, var(--calserver-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
-  background: color-mix(in oklab, var(--calserver-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
+  border-color: color-mix(in oklab, var(--marketing-primary) 52%, color-mix(in oklab, var(--marketing-white) 24%, transparent));
+  background: color-mix(in oklab, var(--marketing-primary) 22%, color-mix(in oklab, var(--marketing-ink) 94%, transparent));
   box-shadow: 0 20px 45px color-mix(in oklab, var(--marketing-ink) 32%, transparent),
     0 8px 18px color-mix(in oklab, var(--marketing-ink) 28%, transparent);
 }
