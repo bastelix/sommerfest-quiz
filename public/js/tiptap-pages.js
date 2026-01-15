@@ -267,6 +267,7 @@ const ensurePreviewSlots = form => {
 
   const previewRoot = document.createElement('div');
   previewRoot.dataset.previewCanvas = 'true';
+  previewRoot.classList.add('marketing-scope', 'cms-page-render');
 
   const modes = [
     { id: 'desktop', label: '🖥 Desktop' },
