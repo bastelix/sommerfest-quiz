@@ -343,7 +343,7 @@ class ConfigService
         }
 
         $stmt = $this->pdo->prepare(
-            "SELECT column_name FROM information_schema.columns WHERE table_name = 'config'"
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'config' AND table_schema = current_schema()"
         );
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
