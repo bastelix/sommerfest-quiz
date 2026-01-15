@@ -31,16 +31,25 @@ class NamespaceRenderContextService
      */
     public function build(string $namespace): array
     {
+        $resolvedNamespace = $namespace;
         $config = $this->configService->getConfigForEvent($namespace);
         if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $config = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
+            if ($fallbackConfig !== []) {
+                $config = $fallbackConfig;
+                $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+            }
         }
 
-        $tokens = $this->designTokens->getTokensForNamespace($namespace);
-        $appearance = $this->namespaceAppearance->load($namespace);
+        if ($config === [] && $resolvedNamespace !== PageService::DEFAULT_NAMESPACE) {
+            $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
+        }
+
+        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
+        $appearance = $this->namespaceAppearance->load($resolvedNamespace);
 
         return [
-            'namespace' => $namespace,
+            'namespace' => $resolvedNamespace,
             'design' => [
                 'config' => $config,
                 'tokens' => $tokens,

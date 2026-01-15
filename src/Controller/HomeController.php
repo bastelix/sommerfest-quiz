@@ -41,9 +41,9 @@ class HomeController
         $namespace = $namespaceContext->getNamespace();
         $host = $namespaceContext->getHost();
         $locale = (string) ($request->getAttribute('lang') ?? ($_SESSION['lang'] ?? 'de'));
-        $appearance = (new NamespaceAppearanceService())->load($namespace);
         $renderContext = (new NamespaceRenderContextService())->build($namespace);
         $design = $renderContext['design'] ?? [];
+        $appearance = $design['appearance'] ?? (new NamespaceAppearanceService())->load($namespace);
         $namespaceContextPayload = [
             'appearance' => $appearance,
             'design' => $design,

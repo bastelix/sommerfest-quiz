@@ -57,9 +57,9 @@ class LandingNewsController
         if ($pageNamespace === '') {
             $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
         }
-        $appearance = $this->namespaceAppearance->load($pageNamespace);
         $renderContext = $this->namespaceRenderContext->build($pageNamespace);
         $design = $renderContext['design'] ?? [];
+        $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($pageNamespace);
 
         $entries = $this->news->getPublishedForPage($page->getId(), 20);
         $newsOwnerPage = $page;
@@ -120,9 +120,9 @@ class LandingNewsController
         if ($pageNamespace === '') {
             $pageNamespace = $namespace !== '' ? $namespace : PageService::DEFAULT_NAMESPACE;
         }
-        $appearance = $this->namespaceAppearance->load($pageNamespace);
         $renderContext = $this->namespaceRenderContext->build($pageNamespace);
         $design = $renderContext['design'] ?? [];
+        $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($pageNamespace);
 
         $newsSlug = isset($args['newsSlug']) ? (string) $args['newsSlug'] : '';
         if ($newsSlug === '') {
