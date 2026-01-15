@@ -123,6 +123,12 @@
   --marketing-text-on-primary: var(--marketing-on-accent);
 
   --marketing-link: var(--brand-primary, var(--marketing-primary, #1e87f0));
+  --marketing-background: var(--surface-page, var(--marketing-surface));
+  --marketing-background-dark: var(--surface-page, var(--marketing-surface-dark));
+  --marketing-border: var(--border-muted, color-mix(in oklab, var(--marketing-primary) 18%, transparent));
+  --marketing-ring: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
+  --marketing-topbar-light: color-mix(in oklab, var(--marketing-surface) 92%, var(--marketing-card) 8%);
+  --marketing-topbar-dark: color-mix(in oklab, var(--marketing-surface-dark) 92%, var(--marketing-card-dark) 8%);
 
   /* --- Presets (default) --- */
   --marketing-font-stack: var(--marketing-font-stack-modern);
