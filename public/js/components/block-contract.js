@@ -75,7 +75,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left"] },
+        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "minimal"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
