@@ -1,13 +1,13 @@
 body.marketing-page:not([data-theme="dark"]),
 body.cms-page-render:not([data-theme="dark"]){
-  --topbar-btn-bg: transparent;
-  --topbar-btn-border: var(--qr-card-border);
-  --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 40%, transparent);
-  --topbar-btn-bg-hover: color-mix(in oklab,var(--qr-text) 8%, transparent);
-  --topbar-focus-ring: var(--qr-ring);
-  --topbar-drop-bg: var(--qr-card);
-  --topbar-drop-border: var(--qr-card-border);
-  --topbar-text: var(--qr-text);
+  --topbar-btn-bg: var(--marketing-topbar-btn-bg, transparent);
+  --topbar-btn-border: var(--marketing-border, var(--qr-card-border));
+  --topbar-btn-border-hover: color-mix(in oklab, var(--marketing-primary) 32%, transparent);
+  --topbar-btn-bg-hover: color-mix(in oklab, var(--marketing-primary) 8%, transparent);
+  --topbar-focus-ring: var(--marketing-ring, var(--qr-ring));
+  --topbar-drop-bg: var(--marketing-surface, var(--qr-card));
+  --topbar-drop-border: var(--marketing-border, var(--qr-card-border));
+  --topbar-text: var(--marketing-text-on-surface, var(--qr-text));
   --drop-bg: var(--topbar-drop-bg);
   --drop-border: var(--topbar-drop-border);
   --drop-color: var(--topbar-text);
@@ -15,13 +15,13 @@ body.cms-page-render:not([data-theme="dark"]){
 body.marketing-page[data-theme="dark"],
 body.cms-page-render[data-theme="dark"]{
   --topbar-btn-bg: var(--marketing-topbar-btn-bg-dark, var(--marketing-topbar-btn-bg, #1f232a));
-  --topbar-btn-border: var(--qr-card-border);
-  --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 60%, transparent);
-  --topbar-btn-bg-hover: color-mix(in oklab,var(--qr-text) 16%, transparent);
-  --topbar-focus-ring: var(--qr-ring);
-  --topbar-drop-bg: var(--qr-card);
-  --topbar-drop-border: var(--qr-card-border);
-  --topbar-text: var(--qr-text);
+  --topbar-btn-border: var(--marketing-border, var(--qr-card-border));
+  --topbar-btn-border-hover: color-mix(in oklab, var(--marketing-primary) 60%, transparent);
+  --topbar-btn-bg-hover: color-mix(in oklab, var(--marketing-primary) 22%, transparent);
+  --topbar-focus-ring: var(--marketing-ring, var(--qr-ring));
+  --topbar-drop-bg: var(--marketing-surface-dark, var(--qr-card));
+  --topbar-drop-border: var(--marketing-border, var(--qr-card-border));
+  --topbar-text: var(--marketing-text-on-surface-dark, var(--qr-text));
   --drop-bg: var(--topbar-drop-bg);
   --drop-border: var(--topbar-drop-border);
   --drop-color: var(--topbar-text);
@@ -51,6 +51,22 @@ body.cms-page-render[data-theme="dark"]{
 .marketing-page .qr-topbar,
 .cms-page-render .qr-topbar{
   padding-top: env(safe-area-inset-top);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) #menuDrop{
+  font-family: var(--marketing-font-stack);
+  font-size: var(--marketing-body);
+  line-height: var(--marketing-body-line-height);
+  border-radius: calc(var(--marketing-card-radius, 10px) * 0.8);
+  padding: calc(var(--marketing-section-gap, 24px) * 0.25);
+  box-shadow: 0 12px 30px color-mix(in oklab, var(--marketing-primary) 18%, transparent);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) #menuDrop .git-btn{
+  font-family: inherit;
+  font-size: inherit;
+  border-radius: calc(var(--marketing-card-radius, 10px) * 0.6);
+  min-height: 44px;
 }
 
 body.cms-page-render{
