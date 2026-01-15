@@ -94,35 +94,35 @@
   --marketing-marker-underline: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
 
   /* --- Resolved marketing tokens (overrideable from system) --- */
-  --marketing-primary: var(--brand-primary, var(--marketing-primary-default));
-  --marketing-accent: var(--brand-accent, var(--marketing-accent-default));
+  --marketing-primary: var(--brand-primary, var(--marketing-primary-default, #1e87f0));
+  --marketing-accent: var(--brand-accent, var(--marketing-accent-default, #f97316));
 
-  --marketing-surface: var(--surface, var(--marketing-surface-default));
-  --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default));
+  --marketing-surface: var(--surface, var(--marketing-surface-default, #ffffff));
+  --marketing-surface-muted: var(--surface-muted, var(--marketing-surface-muted-default, #eef2f7));
 
-  --marketing-surface-dark: var(--surface-dark, var(--marketing-surface-dark-default));
-  --marketing-surface-muted-dark: var(--surface-muted-dark, var(--marketing-surface-muted-dark-default));
+  --marketing-surface-dark: var(--surface-dark, var(--marketing-surface-dark-default, #111a24));
+  --marketing-surface-muted-dark: var(--surface-muted-dark, var(--marketing-surface-muted-dark-default, #0b111a));
 
   --marketing-card-dark: var(--marketing-card-dark-default);
   --marketing-card: var(--marketing-card-default);
 
-  --marketing-text: var(--text-primary, var(--marketing-text-default));
-  --marketing-text-on-surface: var(--text-on-surface, var(--marketing-text-on-surface-default));
-  --marketing-text-on-background: var(--text-on-background, var(--marketing-text-on-background-default));
+  --marketing-text: var(--text-primary, var(--marketing-text-default, #111827));
+  --marketing-text-on-surface: var(--text-on-surface, var(--marketing-text-on-surface-default, #111827));
+  --marketing-text-on-background: var(--text-on-background, var(--marketing-text-on-background-default, #111827));
 
-  --marketing-text-muted-on-surface: var(--text-muted-on-surface, var(--marketing-text-muted-on-surface-default));
-  --marketing-text-muted-on-background: var(--text-muted-on-background, var(--marketing-text-muted-on-background-default));
+  --marketing-text-muted-on-surface: var(--text-muted-on-surface, var(--marketing-text-muted-on-surface-default, #4b5563));
+  --marketing-text-muted-on-background: var(--text-muted-on-background, var(--marketing-text-muted-on-background-default, #4b5563));
 
-  --marketing-text-on-surface-dark: var(--text-on-surface-dark, var(--marketing-text-on-surface-dark-default));
-  --marketing-text-on-background-dark: var(--text-on-background-dark, var(--marketing-text-on-background-dark-default));
+  --marketing-text-on-surface-dark: var(--text-on-surface-dark, var(--marketing-text-on-surface-dark-default, #f2f5fa));
+  --marketing-text-on-background-dark: var(--text-on-background-dark, var(--marketing-text-on-background-dark-default, #f2f5fa));
 
-  --marketing-text-muted-on-surface-dark: var(--text-muted-on-surface-dark, var(--marketing-text-muted-on-surface-dark-default));
-  --marketing-text-muted-on-background-dark: var(--text-muted-on-background-dark, var(--marketing-text-muted-on-background-dark-default));
+  --marketing-text-muted-on-surface-dark: var(--text-muted-on-surface-dark, var(--marketing-text-muted-on-surface-dark-default, #e0e6f1));
+  --marketing-text-muted-on-background-dark: var(--text-muted-on-background-dark, var(--marketing-text-muted-on-background-dark-default, #e0e6f1));
 
-  --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default));
+  --marketing-on-accent: var(--text-on-primary, var(--marketing-text-on-primary-default, #ffffff));
   --marketing-text-on-primary: var(--marketing-on-accent);
 
-  --marketing-link: var(--brand-primary, var(--marketing-primary));
+  --marketing-link: var(--brand-primary, var(--marketing-primary, #1e87f0));
 
   /* --- Presets (default) --- */
   --marketing-font-stack: var(--marketing-font-stack-modern);
