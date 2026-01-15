@@ -44,6 +44,9 @@ class DashboardController
 
         /** @var array<string, mixed>|null $event */
         $event = $this->events->getBySlug($slug);
+        if ($event === null && $slug !== '') {
+            $event = $this->events->getByUid($slug);
+        }
         if ($event === null) {
             return $response->withStatus(404);
         }

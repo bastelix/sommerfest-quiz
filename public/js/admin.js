@@ -4192,7 +4192,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function buildDashboardShareLink(variant) {
-    const slug = currentEventSlug || '';
+    const slug = currentEventSlug || currentEventUid || '';
     const token = variant === 'sponsor' ? dashboardSponsorToken : dashboardPublicToken;
     if (!slug || !token) {
       return '';
