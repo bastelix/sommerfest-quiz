@@ -2,17 +2,17 @@
   "config": {
     "designTokens": {
       "brand": {
-        "primary": "#0ea5e9",
-        "accent": "#22c55e",
-        "secondary": "#22c55e"
+        "primary": "#1f6feb",
+        "accent": "#58a6ff",
+        "secondary": "#475569"
       }
     }
   },
   "designTokens": {
     "brand": {
-      "primary": "#0ea5e9",
-      "accent": "#22c55e",
-      "secondary": "#22c55e"
+      "primary": "#1f6feb",
+      "accent": "#58a6ff",
+      "secondary": "#475569"
     }
   }
 }
