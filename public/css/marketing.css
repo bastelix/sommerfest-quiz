@@ -4,29 +4,29 @@
 
 :root {
   /* --- Core defaults (derive from global system tokens) --- */
-  --marketing-primary-default: var(--brand-primary);
-  --marketing-accent-default: var(--brand-secondary);
-  --marketing-surface-default: var(--surface-section);
-  --marketing-surface-muted-default: var(--surface-muted);
+  --marketing-primary-default: var(--brand-primary, #1e87f0);
+  --marketing-accent-default: var(--brand-secondary, #f97316);
+  --marketing-surface-default: var(--surface-section, #ffffff);
+  --marketing-surface-muted-default: var(--surface-muted, #eef2f7);
 
   /* Dark defaults: keep as explicit tokens for overrides */
-  --marketing-surface-dark-default: var(--surface-section);
-  --marketing-surface-muted-dark-default: var(--surface-muted);
-  --marketing-card-dark-default: var(--surface-card);
+  --marketing-surface-dark-default: var(--surface-section, #111a24);
+  --marketing-surface-muted-dark-default: var(--surface-muted, #0b111a);
+  --marketing-card-dark-default: var(--surface-card, #1a2636);
 
   /* Text defaults */
-  --marketing-text-default: var(--text-body);
-  --marketing-text-on-surface-default: var(--text-body);
-  --marketing-text-on-background-default: var(--text-body);
-  --marketing-text-muted-on-surface-default: var(--text-muted);
-  --marketing-text-muted-on-background-default: var(--text-muted);
+  --marketing-text-default: var(--text-body, #111827);
+  --marketing-text-on-surface-default: var(--text-body, #111827);
+  --marketing-text-on-background-default: var(--text-body, #111827);
+  --marketing-text-muted-on-surface-default: var(--text-muted, #4b5563);
+  --marketing-text-muted-on-background-default: var(--text-muted, #4b5563);
 
-  --marketing-text-on-surface-dark-default: var(--text-body);
-  --marketing-text-on-background-dark-default: var(--text-body);
-  --marketing-text-muted-on-surface-dark-default: var(--text-muted);
-  --marketing-text-muted-on-background-dark-default: var(--text-muted);
+  --marketing-text-on-surface-dark-default: var(--text-body, #f2f5fa);
+  --marketing-text-on-background-dark-default: var(--text-body, #f2f5fa);
+  --marketing-text-muted-on-surface-dark-default: var(--text-muted, #e0e6f1);
+  --marketing-text-muted-on-background-dark-default: var(--text-muted, #e0e6f1);
 
-  --marketing-text-on-primary-default: var(--text-on-primary);
+  --marketing-text-on-primary-default: var(--text-on-primary, #ffffff);
 
   /* Neutrals / misc */
   --marketing-white: #ffffff;
