@@ -1019,8 +1019,9 @@
 
   function buildShareLink(variant) {
     const token = variant === 'sponsor' ? currentSponsorToken : currentShareToken;
-    if (!token || !currentEventSlug) return '';
-    const path = `/event/${encodeURIComponent(currentEventSlug)}/dashboard/${encodeURIComponent(token)}`;
+    const identifier = currentEventSlug || eventId;
+    if (!token || !identifier) return '';
+    const path = `/event/${encodeURIComponent(identifier)}/dashboard/${encodeURIComponent(token)}`;
     const url = new URL(withBase(path), window.location.origin);
     if (variant === 'sponsor') {
       url.searchParams.set('variant', 'sponsor');
