@@ -55,21 +55,35 @@ const syncComponentTokens = (source, target = source) => {
   if (!styles) {
     return;
   }
-  target.dataset.typographyPreset = normalizeTokenValue(
-    styles.getPropertyValue('--typography-preset'),
-    TYPOGRAPHY_PRESETS,
-    DEFAULT_TYPOGRAPHY_PRESET,
-  );
-  target.dataset.cardStyle = normalizeTokenValue(
-    styles.getPropertyValue('--components-card-style'),
-    CARD_STYLES,
-    DEFAULT_CARD_STYLE,
-  );
-  target.dataset.buttonStyle = normalizeTokenValue(
-    styles.getPropertyValue('--components-button-style'),
-    BUTTON_STYLES,
-    DEFAULT_BUTTON_STYLE,
-  );
+
+  const tokens = {
+    typographyPreset: normalizeTokenValue(
+      styles.getPropertyValue('--typography-preset'),
+      TYPOGRAPHY_PRESETS,
+      DEFAULT_TYPOGRAPHY_PRESET,
+    ),
+    cardStyle: normalizeTokenValue(
+      styles.getPropertyValue('--components-card-style'),
+      CARD_STYLES,
+      DEFAULT_CARD_STYLE,
+    ),
+    buttonStyle: normalizeTokenValue(
+      styles.getPropertyValue('--components-button-style'),
+      BUTTON_STYLES,
+      DEFAULT_BUTTON_STYLE,
+    ),
+  };
+
+  const root = typeof document !== 'undefined' ? document.documentElement : null;
+  if (root) {
+    root.dataset.typographyPreset = tokens.typographyPreset;
+    root.dataset.cardStyle = tokens.cardStyle;
+    root.dataset.buttonStyle = tokens.buttonStyle;
+  }
+
+  target.dataset.typographyPreset = tokens.typographyPreset;
+  target.dataset.cardStyle = tokens.cardStyle;
+  target.dataset.buttonStyle = tokens.buttonStyle;
 };
 
 const mergeAppearance = (namespace, appearance = {}) => {
