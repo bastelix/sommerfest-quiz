@@ -48,11 +48,7 @@ const resolveWindowAppearance = () => {
   return data;
 };
 
-const resolveDataAttributes = () => {
-  if (typeof document === 'undefined') {
-    return { appearance: null, config: null };
-  }
-  const container = document.getElementById('marketing-design-data');
+const resolveDataAttributes = container => {
   if (!container) {
     return { appearance: null, config: null };
   }
@@ -118,7 +114,9 @@ const applyComponentTokens = root => {
 
 const resolveMarketingAppearance = () => {
   const windowAppearance = resolveWindowAppearance();
-  const dataAttributes = resolveDataAttributes();
+  const dataAttributes = resolveDataAttributes(
+    typeof document === 'undefined' ? null : document.getElementById('marketing-design-data'),
+  );
   const baseAppearance = windowAppearance?.appearance || windowAppearance || dataAttributes.appearance || {};
   const config = windowAppearance?.config || dataAttributes.config || {};
 
@@ -1406,4 +1404,31 @@ const applyMarketingDesign = () => {
   applyComponentTokens(root);
 };
 
-applyMarketingDesign();
+const runMarketingDesign = (attempt = 0) => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const container = document.getElementById('marketing-design-data');
+  if (!container && attempt < 10) {
+    requestAnimationFrame(() => runMarketingDesign(attempt + 1));
+    return;
+  }
+
+  applyMarketingDesign();
+};
+
+const scheduleMarketingDesign = () => {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => runMarketingDesign());
+    });
+    return;
+  }
+
+  requestAnimationFrame(() => runMarketingDesign());
+};
+
+scheduleMarketingDesign();
