@@ -167,9 +167,7 @@ class PageController
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
         $renderContext = $this->namespaceRenderContext->build($designNamespace);
-        $designNamespace = is_string($renderContext['namespace'] ?? null)
-            ? (string) $renderContext['namespace']
-            : $designNamespace;
+        $designNamespace = $renderContext['namespace'];
         $design = $this->loadDesign($designNamespace);
         $pageType = $page->getType();
         $pageFeatures = $this->resolvePageFeatures($page, $templateSlug, $design);
