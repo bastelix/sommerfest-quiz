@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 return [
     'aurora' => [
-        'primary' => '#0ea5e9',
-        'accent' => '#22c55e',
+        'primary' => '#1f6feb',
+        'accent' => '#58a6ff',
+        'secondary' => '#475569',
         'surface' => '#f8fafc',
         'surfaceMuted' => '#e2e8f0',
         'surfaceDark' => '#0f172a',
