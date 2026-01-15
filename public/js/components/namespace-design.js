@@ -47,8 +47,8 @@ const normalizeTokenValue = (value, allowedValues, fallback) => {
   return allowedValues.includes(normalized) ? normalized : fallback;
 };
 
-const syncComponentTokens = (source, target = source) => {
-  if (typeof window === 'undefined' || !source || !target) {
+const syncComponentTokens = source => {
+  if (typeof window === 'undefined' || !source) {
     return;
   }
   const styles = window.getComputedStyle(source);
@@ -75,15 +75,13 @@ const syncComponentTokens = (source, target = source) => {
   };
 
   const root = typeof document !== 'undefined' ? document.documentElement : null;
-  if (root) {
-    root.dataset.typographyPreset = tokens.typographyPreset;
-    root.dataset.cardStyle = tokens.cardStyle;
-    root.dataset.buttonStyle = tokens.buttonStyle;
+  if (!root) {
+    return;
   }
 
-  target.dataset.typographyPreset = tokens.typographyPreset;
-  target.dataset.cardStyle = tokens.cardStyle;
-  target.dataset.buttonStyle = tokens.buttonStyle;
+  root.dataset.typographyPreset = tokens.typographyPreset;
+  root.dataset.cardStyle = tokens.cardStyle;
+  root.dataset.buttonStyle = tokens.buttonStyle;
 };
 
 const mergeAppearance = (namespace, appearance = {}) => {
@@ -1021,11 +1019,10 @@ export function applyNamespaceDesign(target, namespace = DEFAULT_NAMESPACE, appe
   const resolvedNamespace = normalizeNamespace(namespace);
   const resolvedAppearance = resolveNamespaceAppearance(resolvedNamespace, appearance);
   const root = target || (typeof document !== 'undefined' ? document.documentElement : null);
-  const presetTarget = options?.presetTarget || root;
   const tokenSource = options?.tokenSource || root;
 
   applyColorsToRoot(root, resolvedAppearance);
-  syncComponentTokens(tokenSource, presetTarget);
+  syncComponentTokens(tokenSource);
 
   return resolvedAppearance;
 }
