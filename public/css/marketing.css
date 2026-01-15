@@ -184,40 +184,68 @@
   --marketing-card-dark-default: var(--marketing-surface-dark);
 }
 
-:root[data-typography-preset="classic"] {
+:where(
+  :root[data-typography-preset="classic"],
+  .page-preview-pane[data-preview-intent] [data-typography-preset="classic"],
+  [data-preview-intent][data-typography-preset="classic"]
+) {
   --marketing-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-font-stack: var(--marketing-font-stack-classic);
   --marketing-heading-weight: 600;
 }
-:root[data-typography-preset="tech"] {
+:where(
+  :root[data-typography-preset="tech"],
+  .page-preview-pane[data-preview-intent] [data-typography-preset="tech"],
+  [data-preview-intent][data-typography-preset="tech"]
+) {
   --marketing-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-font-stack: var(--marketing-font-stack-tech);
   --marketing-heading-weight: 700;
   --marketing-heading-letter-spacing: 0.01em;
 }
-:root[data-typography-preset="modern"] {
+:where(
+  :root[data-typography-preset="modern"],
+  .page-preview-pane[data-preview-intent] [data-typography-preset="modern"],
+  [data-preview-intent][data-typography-preset="modern"]
+) {
   /* explicit for clarity; same as default */
 }
 
 /* Card style presets */
-:root[data-card-style="rounded"] {
+:where(
+  :root[data-card-style="rounded"],
+  .page-preview-pane[data-preview-intent] [data-card-style="rounded"],
+  [data-preview-intent][data-card-style="rounded"]
+) {
   --marketing-card-radius: var(--card-radius, 10px);
   --marketing-shadow-card: var(--marketing-shadow-card-base);
   --marketing-shadow-card-soft: var(--marketing-shadow-card-soft-base);
 }
-:root[data-card-style="square"] {
+:where(
+  :root[data-card-style="square"],
+  .page-preview-pane[data-preview-intent] [data-card-style="square"],
+  [data-preview-intent][data-card-style="square"]
+) {
   --marketing-card-radius: var(--card-radius-square);
   --marketing-shadow-card: var(--marketing-shadow-soft);
   --marketing-shadow-card-soft: var(--marketing-shadow-soft);
 }
-:root[data-card-style="pill"] {
+:where(
+  :root[data-card-style="pill"],
+  .page-preview-pane[data-preview-intent] [data-card-style="pill"],
+  [data-preview-intent][data-card-style="pill"]
+) {
   --marketing-card-radius: var(--card-radius-pill);
   --marketing-shadow-card: var(--marketing-shadow-callout);
   --marketing-shadow-card-soft: var(--marketing-shadow-card);
 }
 
 /* Button style presets (override only the deltas) */
-:root[data-button-style="outline"] {
+:where(
+  :root[data-button-style="outline"],
+  .page-preview-pane[data-preview-intent] [data-button-style="outline"],
+  [data-preview-intent][data-button-style="outline"]
+) {
   --marketing-button-primary-bg: transparent;
   --marketing-button-primary-text: var(--marketing-primary);
   --marketing-button-primary-border-color: var(--marketing-primary);
@@ -230,7 +258,11 @@
   --marketing-button-secondary-border-color: var(--marketing-primary);
   --marketing-button-secondary-hover-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
 }
-:root[data-button-style="ghost"] {
+:where(
+  :root[data-button-style="ghost"],
+  .page-preview-pane[data-preview-intent] [data-button-style="ghost"],
+  [data-preview-intent][data-button-style="ghost"]
+) {
   --marketing-button-primary-bg: color-mix(in oklab, var(--marketing-primary) 12%, transparent);
   --marketing-button-primary-text: var(--marketing-primary);
   --marketing-button-primary-border-color: color-mix(in oklab, var(--marketing-primary) 45%, transparent);
