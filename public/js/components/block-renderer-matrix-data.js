@@ -1878,7 +1878,7 @@ function renderAudienceSpotlightTabs(block, cases, context) {
   const tabs = cases
     .map((item, index) => {
       const label = item.title || `Fallstudie ${index + 1}`;
-      return `<li><a href="#">${escapeHtml(label)}</a></li>`;
+      return `<li><a href="javascript:void(0)">${escapeHtml(label)}</a></li>`;
     })
     .join('');
   const tabList = `<ul class="uk-subnav uk-subnav-pill uk-margin-large-top usecase-tabs" data-uk-switcher="animation: uk-animation-fade">${tabs}</ul>`;
