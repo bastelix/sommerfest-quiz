@@ -2808,7 +2808,7 @@ body.admin-page {
   align-items: stretch;
 }
 
-.stat-strip__grid > * {
+.stat-strip__grid:not([class*="uk-child-width-"]) > * {
   width: auto;
   flex: initial;
 }
