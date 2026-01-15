@@ -280,13 +280,6 @@
    ========================================================= */
 
 :is(body, .marketing-scope).marketing-page {
-  --brand-primary: var(--marketing-primary);
-  --brand-secondary: var(--marketing-accent);
-  --brand-accent: var(--marketing-accent);
-
-  --surface: var(--marketing-surface);
-  --surface-muted: var(--marketing-surface-muted);
-
   --qr-brand-50:  color-mix(in oklab, var(--marketing-primary) 8%,  var(--marketing-white));
   --qr-brand-100: color-mix(in oklab, var(--marketing-primary) 16%, var(--marketing-white));
   --qr-brand-200: color-mix(in oklab, var(--marketing-primary) 24%, var(--marketing-white));
@@ -374,9 +367,6 @@
   --qr-landing-topbar-bg: var(--qr-landing-topbar-bg-dark);
 
   --section-card-surface: var(--marketing-card, var(--marketing-surface));
-  --surface: var(--marketing-surface);
-  --surface-muted: var(--marketing-surface-muted);
-
   color-scheme: dark;
 }
 
