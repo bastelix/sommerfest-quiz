@@ -10,6 +10,7 @@ use App\Service\CatalogService;
 use App\Service\TeamService;
 use App\Service\EventService;
 use App\Service\AwardService;
+use App\Service\NamespaceResolver;
 use App\Infrastructure\Database;
 use App\Service\Pdf;
 use App\Support\TimestampHelper;
@@ -390,20 +391,21 @@ class ResultController
         $awardService = new AwardService();
         $rankings = $awardService->computeRankings($allResults, $catalogCount, $questionResults);
 
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $uid = (string)($params['event'] ?? '');
         if ($uid === '' && $teamEventUid !== null) {
             $uid = $teamEventUid;
         }
         if ($uid === '') {
-            $event = $this->events->getFirst();
+            $event = $this->events->getFirst($namespace);
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }
             $uid = (string)$event['uid'];
         } else {
-            $event = $this->events->getByUid($uid);
+            $event = $this->events->getByUid($uid, $namespace);
             if ($event === null) {
-                $event = $this->events->getFirst();
+                $event = $this->events->getFirst($namespace);
                 if ($event === null) {
                     return $response->withHeader('Location', '/events')->withStatus(302);
                 }

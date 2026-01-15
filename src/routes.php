@@ -347,8 +347,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         $eventService = new EventService($pdo, $configService, $tenantService, $sub);
         $params = $request->getQueryParams();
         $evParam = (string)($params['event'] ?? '');
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
         $eventUid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
-            ? $eventService->uidBySlug($evParam) ?? ''
+            ? $eventService->uidBySlug($evParam, $namespace) ?? ''
             : $evParam;
         if ($eventUid === '') {
             $eventUid = (string) ($_SESSION['event_uid'] ?? '');
@@ -1342,7 +1343,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $start = DateTimeImmutable::createFromFormat('Y-m-d', $month . '-01')
             ?: new DateTimeImmutable('first day of this month');
         $end = $start->modify('first day of next month');
-        $rows = $eventService->getAll();
+        $rows = $eventService->getAll($namespace);
         $rows = array_filter($rows, static function (array $row) use ($start, $end): bool {
             $startValue = $row['start_date'] ?? null;
             if ($startValue === null || $startValue === '') {

@@ -37,16 +37,16 @@ class HelpController
         $uid = (string)($params['event'] ?? '');
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);
-            $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
+            $event = $eventSvc->getByUid($uid, $namespace) ?? $eventSvc->getFirst($namespace);
         } else {
             $cfg = $cfgSvc->getConfig();
             $event = null;
             $evUid = (string)($cfg['event_uid'] ?? '');
             if ($evUid !== '') {
-                $event = $eventSvc->getByUid($evUid);
+                $event = $eventSvc->getByUid($evUid, $namespace);
             }
             if ($event === null) {
-                $event = $eventSvc->getFirst();
+                $event = $eventSvc->getFirst($namespace);
             }
         }
         $role = $_SESSION['user']['role'] ?? null;

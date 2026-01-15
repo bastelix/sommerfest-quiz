@@ -12,6 +12,7 @@ use App\Service\QrCodeService;
 use App\Service\ResultService;
 use App\Service\Pdf;
 use App\Service\UrlService;
+use App\Service\NamespaceResolver;
 use App\Support\HttpCacheHelper;
 use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -299,7 +300,8 @@ class QrController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
         $cfg = $this->config->getConfigForEvent($uid);
-        $ev = $this->events->getByUid($uid);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $ev = $this->events->getByUid($uid, $namespace);
         if ($ev === null) {
             $response->getBody()->write('unknown event uid');
             return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');
@@ -410,7 +412,8 @@ class QrController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
         $cfg = $this->config->getConfigForEvent($uid);
-        $ev = $this->events->getByUid($uid);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $ev = $this->events->getByUid($uid, $namespace);
         if ($ev === null) {
             $response->getBody()->write('unknown event uid');
             return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');

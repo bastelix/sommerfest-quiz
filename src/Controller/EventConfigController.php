@@ -8,6 +8,7 @@ use App\Service\EventService;
 use App\Service\ConfigService;
 use App\Service\ImageUploadService;
 use App\Service\ConfigValidator;
+use App\Service\NamespaceResolver;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -31,7 +32,8 @@ class EventConfigController
      */
     public function show(Request $request, Response $response, array $args): Response {
         $uid = (string) ($args['id'] ?? '');
-        $event = $this->events->getByUid($uid);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $event = $this->events->getByUid($uid, $namespace);
         if ($event === null) {
             return $response->withStatus(404);
         }
@@ -47,7 +49,8 @@ class EventConfigController
      */
     public function update(Request $request, Response $response, array $args): Response {
         $uid = (string) ($args['id'] ?? '');
-        $event = $this->events->getByUid($uid);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $event = $this->events->getByUid($uid, $namespace);
         if ($event === null) {
             return $response->withStatus(404);
         }
@@ -105,7 +108,8 @@ class EventConfigController
      */
     public function rotateToken(Request $request, Response $response, array $args): Response {
         $uid = (string) ($args['id'] ?? '');
-        $event = $this->events->getByUid($uid);
+        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
+        $event = $this->events->getByUid($uid, $namespace);
         if ($event === null) {
             return $response->withStatus(404);
         }
