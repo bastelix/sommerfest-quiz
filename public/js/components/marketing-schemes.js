@@ -3,6 +3,7 @@ export const MARKETING_SCHEMES = {
     // calServer landing palette: public/css/landing.css (--qr-landing-primary, --qr-link)
     primary: '#1f6feb',
     accent: '#58a6ff',
+    secondary: '#374151',
     surface: '#f8fafc',
     surfaceMuted: '#e2e8f0',
     surfaceDark: '#0f172a',

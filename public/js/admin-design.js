@@ -949,6 +949,11 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     if (!select) return;
     const applySelection = value => {
       applyMarketingSchemeToPreview(value);
+      if (value === 'aurora') {
+        brandIsAuto = true;
+        applyBrandSchemeToInputs(value);
+        return;
+      }
       if (brandIsAuto && value) {
         applyBrandSchemeToInputs(value);
       }
