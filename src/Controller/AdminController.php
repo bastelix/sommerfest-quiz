@@ -57,6 +57,7 @@ class AdminController
         }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
+        $events = $eventSvc->getAll();
         $settingsSvc = new SettingsService($pdo);
         $settings = $settingsSvc->getAll();
         $settingsForView = $settings;
@@ -70,28 +71,10 @@ class AdminController
         $versionSvc = new VersionService();
         $version = $versionSvc->getCurrentVersion();
 
-        $namespaceResolver = new NamespaceResolver();
-        $namespace = $namespaceResolver->resolve($request)->getNamespace();
-        $requestedScope = trim((string) ($request->getQueryParams()['scope'] ?? ''));
-        $requestedNamespace = trim((string) ($request->getQueryParams()['namespace'] ?? ''));
-
-        $namespaceAccess = new NamespaceAccessService();
-        $allowedNamespaces = $namespaceAccess->resolveAllowedNamespaces(is_string($role) ? $role : null);
-        $namespaceAllowed = $namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role);
-
-        if ($namespaceAllowed && $requestedNamespace !== '') {
-            $normalized = (new NamespaceValidator())->normalizeCandidate($requestedNamespace);
-            if ($normalized !== null && $namespaceAccess->shouldExposeNamespace($normalized, $allowedNamespaces, $role)) {
-                $namespace = $normalized;
-            }
-        }
-
-        $events = $eventSvc->getAll($namespace);
-
         $params = $request->getQueryParams();
         if (array_key_exists('event', $params)) {
             $uid = (string) $params['event'];
-            if ($eventSvc->getByUid($uid, $namespace) === null) {
+            if ($eventSvc->getByUid($uid) === null) {
                 return $response->withStatus(404);
             }
             $cfgSvc->setActiveEventUid($uid);
@@ -104,7 +87,7 @@ class AdminController
             $event = null;
         } else {
             $cfg   = $cfgSvc->getConfigForEvent($uid);
-            $event = $eventSvc->getByUid($uid, $namespace);
+            $event = $eventSvc->getByUid($uid);
         }
         $context = \Slim\Routing\RouteContext::fromRequest($request);
         $route   = $context->getRoute();
@@ -169,6 +152,22 @@ class AdminController
 
         if (in_array($section, ['management', 'logins'], true)) {
             $users = (new UserService($pdo))->getAll();
+        }
+
+        $namespaceResolver = new NamespaceResolver();
+        $namespace = $namespaceResolver->resolve($request)->getNamespace();
+        $requestedScope = trim((string) ($request->getQueryParams()['scope'] ?? ''));
+        $requestedNamespace = trim((string) ($request->getQueryParams()['namespace'] ?? ''));
+
+        $namespaceAccess = new NamespaceAccessService();
+        $allowedNamespaces = $namespaceAccess->resolveAllowedNamespaces(is_string($role) ? $role : null);
+        $namespaceAllowed = $namespaceAccess->shouldExposeNamespace($namespace, $allowedNamespaces, $role);
+
+        if ($namespaceAllowed && $requestedNamespace !== '') {
+            $normalized = (new NamespaceValidator())->normalizeCandidate($requestedNamespace);
+            if ($normalized !== null && $namespaceAccess->shouldExposeNamespace($normalized, $allowedNamespaces, $role)) {
+                $namespace = $normalized;
+            }
         }
 
         $mediaScope = $namespaceAllowed ? MediaLibraryService::SCOPE_PROJECT : MediaLibraryService::SCOPE_GLOBAL;

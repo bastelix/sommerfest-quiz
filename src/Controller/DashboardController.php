@@ -6,7 +6,6 @@ namespace App\Controller;
 
 use App\Service\ConfigService;
 use App\Service\EventService;
-use App\Service\NamespaceResolver;
 use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -42,12 +41,11 @@ class DashboardController
         $token = (string) ($args['token'] ?? '');
         $variantParam = strtolower((string) ($request->getQueryParams()['variant'] ?? ''));
         $requestedVariant = $variantParam === 'sponsor' ? 'sponsor' : 'public';
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
 
         /** @var array<string, mixed>|null $event */
-        $event = $this->events->getBySlug($slug, $namespace);
+        $event = $this->events->getBySlug($slug);
         if ($event === null && $slug !== '') {
-            $event = $this->events->getByUid($slug, $namespace);
+            $event = $this->events->getByUid($slug);
         }
         if ($event === null) {
             return $response->withStatus(404);

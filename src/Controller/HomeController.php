@@ -61,7 +61,7 @@ class HomeController
         $isUid = preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
             || preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $evParam);
         $uid = $evParam !== '' && !$isUid
-            ? $eventSvc->uidBySlug($evParam, $namespace) ?? ''
+            ? $eventSvc->uidBySlug($evParam) ?? ''
             : $evParam;
         if ($uid !== '') {
             $cfgSvc->ensureConfigForEvent($uid);
@@ -70,16 +70,16 @@ class HomeController
         $role = $_SESSION['user']['role'] ?? null;
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);
-            $event = $eventSvc->getByUid($uid, $namespace) ?? $eventSvc->getFirst($namespace);
+            $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
         } else {
             $cfg = $cfgSvc->getConfig();
             $event = null;
             $evUid = (string)($cfg['event_uid'] ?? '');
             if ($evUid !== '') {
-                $event = $eventSvc->getByUid($evUid, $namespace);
+                $event = $eventSvc->getByUid($evUid);
             }
             if ($event === null) {
-                $event = $eventSvc->getFirst($namespace);
+                $event = $eventSvc->getFirst();
                 if ($event !== null) {
                     $cfg = $cfgSvc->getConfigForEvent($event['uid']) ?: [];
                 }

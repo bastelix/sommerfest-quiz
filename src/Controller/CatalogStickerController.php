@@ -8,7 +8,6 @@ use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
 use App\Service\ImageUploadService;
-use App\Service\NamespaceResolver;
 use App\Service\QrCodeService;
 use App\Service\UrlService;
 use FPDF;
@@ -157,8 +156,7 @@ class CatalogStickerController
         $printCatalog = (bool)($cfg['stickerPrintCatalog'] ?? true);
         $printDesc = (bool)($cfg['stickerPrintDesc'] ?? false);
 
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $event = $uid !== '' ? $this->events->getByUid($uid, $namespace) : null;
+        $event = $uid !== '' ? $this->events->getByUid($uid) : null;
         $eventTitle = (string)($event['name'] ?? '');
         $eventDesc = (string)($event['description'] ?? '');
         $first = $this->catalogs->fetchPagedCatalogs(0, 1, 'asc');
@@ -321,8 +319,7 @@ class CatalogStickerController
         $descSize = isset($params['desc_size'])
             ? (int)$params['desc_size']
             : (int)($cfg['stickerDescFontSize'] ?? 10);
-        $namespace = (new NamespaceResolver())->resolve($request)->getNamespace();
-        $event = $uid !== '' ? $this->events->getByUid($uid, $namespace) : null;
+        $event = $uid !== '' ? $this->events->getByUid($uid) : null;
         $eventTitle = (string)($event['name'] ?? '');
         $eventDesc = (string)($event['description'] ?? '');
 
