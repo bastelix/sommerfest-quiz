@@ -8,6 +8,8 @@ use PDO;
 use PDOException;
 use App\Service\ConfigService;
 use App\Service\TenantService;
+use App\Service\PageService;
+use App\Service\NamespaceValidator;
 
 /**
  * Service for managing quiz events.
@@ -18,6 +20,7 @@ class EventService
     private ConfigService $config;
     private ?TenantService $tenants;
     private string $subdomain;
+    private NamespaceValidator $namespaceValidator;
 
     public function __construct(
         PDO $pdo,
@@ -29,6 +32,7 @@ class EventService
         $this->config = $config ?? new ConfigService($pdo);
         $this->tenants = $tenants;
         $this->subdomain = $subdomain;
+        $this->namespaceValidator = new NamespaceValidator();
     }
 
     /**
@@ -37,6 +41,7 @@ class EventService
      * @return list<array{
      *     uid:string,
      *     slug:string,
+     *     namespace:string,
      *     name:string,
      *     start_date:?string,
      *     end_date:?string,
@@ -45,7 +50,7 @@ class EventService
      * }>
      */
     public function getAll(): array {
-        $primarySql = 'SELECT uid,slug,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
+        $primarySql = 'SELECT uid,slug,name,start_date,end_date,description,published,sort_order,namespace FROM events ORDER BY sort_order';
         $legacySql = 'SELECT uid,slug,name,start_date,end_date,description,published FROM events ORDER BY name';
         $rows = [];
 
@@ -71,6 +76,7 @@ class EventService
             $uid = array_key_exists('uid', $row) ? $row['uid'] : ($row['id'] ?? '');
             $row['uid'] = (string) $uid;
             $row['slug'] = (string) (array_key_exists('slug', $row) ? $row['slug'] : $row['uid']);
+            $row['namespace'] = $this->normalizeNamespace($row['namespace'] ?? null);
             $row['start_date'] = $this->formatDate($row['start_date'] ?? null);
             $row['end_date'] = $this->formatDate($row['end_date'] ?? null);
             $row['published'] = (bool)($row['published'] ?? false);
@@ -108,6 +114,7 @@ class EventService
      * @param list<array{
      *     uid?:string,
      *     slug?:string,
+     *     namespace?:string,
      *     name:string,
      *     start_date?:string,
      *     end_date?:string,
@@ -132,11 +139,11 @@ class EventService
 
         $updateStmt = $this->pdo->prepare(
             'UPDATE events SET name = ?, start_date = ?, end_date = ?, ' .
-            'description = ?, published = ?, sort_order = ?, slug = ? WHERE uid = ?'
+            'description = ?, published = ?, sort_order = ?, slug = ?, namespace = ? WHERE uid = ?'
         );
         $insertStmt = $this->pdo->prepare(
-            'INSERT INTO events(uid,slug,name,start_date,end_date,description,published,sort_order) ' .
-            'VALUES(?,?,?,?,?,?,?,?)'
+            'INSERT INTO events(uid,slug,name,start_date,end_date,description,published,sort_order,namespace) ' .
+            'VALUES(?,?,?,?,?,?,?,?,?)'
         );
         $uids = [];
         $processed = 0;
@@ -165,11 +172,12 @@ class EventService
             $published = filter_var($event['published'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
             $sort = $idx;
             $slug = (string) ($event['slug'] ?? $uid);
+            $namespace = $this->normalizeNamespace($event['namespace'] ?? null);
 
             if (in_array($uid, $existing, true)) {
-                $updateStmt->execute([$name, $start, $end, $desc, $published, $sort, $slug, $uid]);
+                $updateStmt->execute([$name, $start, $end, $desc, $published, $sort, $slug, $namespace, $uid]);
             } else {
-                $insertStmt->execute([$uid, $slug, $name, $start, $end, $desc, $published, $sort]);
+                $insertStmt->execute([$uid, $slug, $name, $start, $end, $desc, $published, $sort, $namespace]);
                 $this->config->ensureConfigForEvent($uid);
             }
         }
@@ -194,14 +202,15 @@ class EventService
     /**
      * Return the first event or null if none exist.
      *
-     * @return array{uid:string,name:string,start_date:?string,end_date:?string,description:?string}|null
+     * @return array{uid:string,name:string,start_date:?string,end_date:?string,description:?string,namespace:string}|null
      */
     public function getFirst(): ?array {
-        $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name LIMIT 1');
+        $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description,namespace FROM events ORDER BY name LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             return null;
         }
+        $row['namespace'] = $this->normalizeNamespace($row['namespace'] ?? null);
         $row['start_date'] = $this->formatDate($row['start_date']);
         $row['end_date'] = $this->formatDate($row['end_date']);
         return $row;
@@ -210,13 +219,14 @@ class EventService
     /**
      * Retrieve a specific event by its UID.
      *
-     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string}|null
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,namespace:string}|null
      */
     public function getByUid(string $uid): ?array {
-        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description FROM events WHERE uid = ?');
+        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE uid = ?');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {
+            $row['namespace'] = $this->normalizeNamespace($row['namespace'] ?? null);
             $row['start_date'] = $this->formatDate($row['start_date']);
             $row['end_date'] = $this->formatDate($row['end_date']);
             return $row;
@@ -235,6 +245,7 @@ class EventService
                             'start_date' => $event['start_date'] ?? null,
                             'end_date' => $event['end_date'] ?? null,
                             'description' => $event['description'] ?? null,
+                            'namespace' => $this->normalizeNamespace($event['namespace'] ?? null),
                         ];
                     }
                 }
@@ -247,13 +258,14 @@ class EventService
     /**
      * Retrieve a specific event by its slug.
      *
-     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string}|null
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,namespace:string}|null
      */
     public function getBySlug(string $slug): ?array {
-        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description FROM events WHERE slug = ?');
+        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description,namespace FROM events WHERE slug = ?');
         $stmt->execute([$slug]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {
+            $row['namespace'] = $this->normalizeNamespace($row['namespace'] ?? null);
             $row['start_date'] = $this->formatDate($row['start_date']);
             $row['end_date'] = $this->formatDate($row['end_date']);
             return $row;
@@ -281,5 +293,10 @@ class EventService
         } catch (\Exception $e) {
             return $value;
         }
+    }
+
+    private function normalizeNamespace(mixed $candidate): string {
+        $normalized = $this->namespaceValidator->normalizeCandidate($candidate);
+        return $normalized ?? PageService::DEFAULT_NAMESPACE;
     }
 }
