@@ -47,25 +47,25 @@ const normalizeTokenValue = (value, allowedValues, fallback) => {
   return allowedValues.includes(normalized) ? normalized : fallback;
 };
 
-const syncComponentTokens = root => {
-  if (typeof window === 'undefined' || !root) {
+const syncComponentTokens = (source, target = source) => {
+  if (typeof window === 'undefined' || !source || !target) {
     return;
   }
-  const styles = window.getComputedStyle(root);
+  const styles = window.getComputedStyle(source);
   if (!styles) {
     return;
   }
-  root.dataset.typographyPreset = normalizeTokenValue(
+  target.dataset.typographyPreset = normalizeTokenValue(
     styles.getPropertyValue('--typography-preset'),
     TYPOGRAPHY_PRESETS,
     DEFAULT_TYPOGRAPHY_PRESET,
   );
-  root.dataset.cardStyle = normalizeTokenValue(
+  target.dataset.cardStyle = normalizeTokenValue(
     styles.getPropertyValue('--components-card-style'),
     CARD_STYLES,
     DEFAULT_CARD_STYLE,
   );
-  root.dataset.buttonStyle = normalizeTokenValue(
+  target.dataset.buttonStyle = normalizeTokenValue(
     styles.getPropertyValue('--components-button-style'),
     BUTTON_STYLES,
     DEFAULT_BUTTON_STYLE,
@@ -1003,13 +1003,15 @@ export function resolveNamespaceAppearance(namespace, appearance = {}) {
   return mergeAppearance(resolvedNamespace, appearance);
 }
 
-export function applyNamespaceDesign(target, namespace = DEFAULT_NAMESPACE, appearance = {}) {
+export function applyNamespaceDesign(target, namespace = DEFAULT_NAMESPACE, appearance = {}, options = {}) {
   const resolvedNamespace = normalizeNamespace(namespace);
   const resolvedAppearance = resolveNamespaceAppearance(resolvedNamespace, appearance);
   const root = target || (typeof document !== 'undefined' ? document.documentElement : null);
+  const presetTarget = options?.presetTarget || root;
+  const tokenSource = options?.tokenSource || root;
 
   applyColorsToRoot(root, resolvedAppearance);
-  syncComponentTokens(root);
+  syncComponentTokens(tokenSource, presetTarget);
 
   return resolvedAppearance;
 }

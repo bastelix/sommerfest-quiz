@@ -3484,6 +3484,9 @@ export async function showPreview(formOverride = null, options = {}) {
   if (!previewContainer || !modalEl) {
     return;
   }
+  if (!previewContainer.dataset.previewIntent) {
+    previewContainer.dataset.previewIntent = 'preview';
+  }
 
   const namespace = previewContainer.dataset.namespace
     || document.documentElement?.dataset?.namespace
