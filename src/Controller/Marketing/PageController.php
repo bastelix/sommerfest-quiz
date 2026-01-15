@@ -166,6 +166,10 @@ class PageController
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
+        $renderContext = $this->namespaceRenderContext->build($designNamespace);
+        $designNamespace = is_string($renderContext['namespace'] ?? null)
+            ? (string) $renderContext['namespace']
+            : $designNamespace;
         $design = $this->loadDesign($designNamespace);
         $pageType = $page->getType();
         $pageFeatures = $this->resolvePageFeatures($page, $templateSlug, $design);
@@ -183,7 +187,6 @@ class PageController
 
         $pageBlocks = $this->extractPageBlocks($html);
 
-        $renderContext = $this->namespaceRenderContext->build($designNamespace);
         $theme = is_string($renderContext['design']['theme'] ?? null)
             ? (string) $renderContext['design']['theme']
             : 'light';
