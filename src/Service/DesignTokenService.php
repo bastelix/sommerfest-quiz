@@ -452,8 +452,18 @@ class DesignTokenService
 
     private function writeCssFile(string $path, string $contents): void
     {
+        $previousMtime = is_file($path) ? filemtime($path) : false;
         if (file_put_contents($path, $contents) === false) {
             throw new RuntimeException('Unable to write namespace token stylesheet');
+        }
+        clearstatcache(false, $path);
+        $currentMtime = filemtime($path);
+        if ($previousMtime !== false && $currentMtime !== false && $currentMtime <= $previousMtime) {
+            $forcedTime = $previousMtime + 1;
+            if (!touch($path, $forcedTime)) {
+                throw new RuntimeException('Unable to update namespace token stylesheet timestamp');
+            }
+            clearstatcache(false, $path);
         }
     }
 

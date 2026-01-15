@@ -110,6 +110,33 @@ class DesignTokenServiceTest extends TestCase
         unset($_ENV['DASHBOARD_TOKEN_SECRET']);
     }
 
+    public function testRebuildStylesheetAlwaysUpdatesTimestamp(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY, design_tokens TEXT)');
+
+        putenv('DASHBOARD_TOKEN_SECRET=test-secret');
+        $_ENV['DASHBOARD_TOKEN_SECRET'] = 'test-secret';
+
+        $cssPath = tempnam(sys_get_temp_dir(), 'namespace-tokens-');
+        $configService = new ConfigService($pdo);
+        $service = new DesignTokenService($pdo, $configService, $cssPath);
+
+        $futureTime = time() + 5;
+        touch($cssPath, $futureTime);
+
+        $service->rebuildStylesheet();
+
+        $updatedMtime = filemtime($cssPath);
+
+        $this->assertNotFalse($updatedMtime);
+        $this->assertGreaterThan($futureTime, (int) $updatedMtime);
+
+        putenv('DASHBOARD_TOKEN_SECRET');
+        unset($_ENV['DASHBOARD_TOKEN_SECRET']);
+    }
+
     public function testThrowsWhenNamespaceTokensAreMissing(): void
     {
         $pdo = new PDO('sqlite::memory:');
