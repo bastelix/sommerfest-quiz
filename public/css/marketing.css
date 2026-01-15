@@ -345,6 +345,20 @@
   color-scheme: light;
 }
 
+/* CMS render token binding (minimal fallback set) */
+:is(body, .marketing-scope).cms-page-render {
+  --qr-bg: var(--marketing-background, var(--surface-page, var(--marketing-surface, var(--surface-section))));
+  --qr-fg: var(--marketing-text-on-background, var(--text-body));
+  --qr-text: var(--marketing-text-on-background, var(--text-body));
+  --qr-muted: var(--marketing-text-muted-on-background, var(--text-muted));
+  --qr-card: var(--marketing-card, var(--marketing-surface-glass, var(--surface-card)));
+  --qr-border: var(--marketing-border, var(--border-muted));
+  --qr-card-border: var(--qr-border);
+  --qr-link: var(--marketing-link, var(--text-link));
+  --qr-landing-primary: var(--marketing-primary, var(--brand-primary));
+  --qr-ring: var(--marketing-ring, color-mix(in oklab, var(--qr-landing-primary) 45%, transparent));
+}
+
 /* Dark mode (marketing-page) */
 :is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]).marketing-page:not(.high-contrast) {
   --marketing-surface: var(--marketing-surface-dark, var(--marketing-surface));
