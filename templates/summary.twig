@@ -26,7 +26,12 @@
   <div class="uk-container uk-container-small uk-text-center">
     <h2 class="uk-heading-bullet uk-margin-small-top">Herzlichen Glückwunsch, es wurden alle Kataloge gelöst!</h2>
     {% if showTeamResults %}
-    <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisübersicht anzeigen</button>
+    <button
+      id="show-results-btn"
+      class="uk-button uk-button-primary uk-margin-top"
+      data-label-split="Ergebnisübersicht anzeigen"
+      data-label-hub="Ergebnisse &amp; Ranking anzeigen"
+    >Ergebnisübersicht anzeigen</button>
     {% endif %}
     <button id="finish-session-btn" class="uk-button uk-button-default uk-margin-top">Beenden</button>
     {% if config.photoUpload is not defined or config.photoUpload %}
