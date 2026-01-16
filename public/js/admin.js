@@ -3188,6 +3188,7 @@ document.addEventListener('DOMContentLoaded', function () {
     { id: 'containerMetrics', enabled: false, layout: 'auto', options: { title: 'Container-Metriken', refreshInterval: 30, maxMemoryMb: null, cpuMaxPercent: 100 } }
   ];
   const DASHBOARD_DEFAULT_MODULE_MAP = new Map(DASHBOARD_DEFAULT_MODULES.map(module => [module.id, module]));
+  const DASHBOARD_RESULTS_TARGET_MODULE_IDS = ['rankings', 'results', 'rankingQr'];
   const normalizeDashboardResultsLimit = (value) => {
     if (value === null || value === undefined) {
       return null;
@@ -3256,6 +3257,31 @@ document.addEventListener('DOMContentLoaded', function () {
       return DASHBOARD_POINTS_LEADER_MAX_LIMIT;
     }
     return parsed;
+  };
+
+  const buildDashboardResultsTarget = (cfg) => {
+    if (typeof window.buildResultsUrl !== 'function') {
+      return '';
+    }
+    return window.buildResultsUrl(cfg || {}, currentEventUid, '', { basePath });
+  };
+
+  const updateDashboardResultsTargets = (cfg) => {
+    if (!dashboardModulesList) {
+      return;
+    }
+    const targetUrl = buildDashboardResultsTarget(cfg);
+    DASHBOARD_RESULTS_TARGET_MODULE_IDS.forEach((moduleId) => {
+      const item = dashboardModulesList.querySelector(`[data-module-id="${moduleId}"]`);
+      if (!item) {
+        return;
+      }
+      if (targetUrl) {
+        item.dataset.resultsTarget = targetUrl;
+      } else {
+        delete item.dataset.resultsTarget;
+      }
+    });
   };
 
   const normalizeContainerRefreshInterval = (value, fallback = DASHBOARD_CONTAINER_REFRESH_DEFAULT) => {
@@ -4134,6 +4160,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       applyDashboardModuleTitle(item, module.id, module.options || {});
     });
+    updateDashboardResultsTargets(cfgInitial);
   }
 
   function applyDashboardModules(modules, variant = activeDashboardVariant, options = {}) {
@@ -4394,6 +4421,7 @@ document.addEventListener('DOMContentLoaded', function () {
         applyDashboardModules(sponsorModulesRaw, 'sponsor');
       }
     }
+    updateDashboardResultsTargets(data);
     dashboardPublicToken = data.dashboardShareToken || '';
     dashboardSponsorToken = data.dashboardSponsorToken || '';
     updateDashboardShareLinks();
@@ -10177,6 +10205,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const nameEl = document.getElementById('summaryEventName');
     const descEl = document.getElementById('summaryEventDesc');
     const qrImg = document.getElementById('summaryEventQr');
+    const resultsCodeEl = document.getElementById('summaryResultsUrl');
+    const resultsLinkEl = document.getElementById('summaryResultsLink');
     const catalogsEl = document.getElementById('summaryCatalogs');
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
@@ -10436,6 +10466,17 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           clearQrImage(qrImg);
           qrImg.hidden = true;
+        }
+      }
+      if (resultsCodeEl && resultsLinkEl && typeof window.buildResultsUrl === 'function') {
+        const targetUrl = window.buildResultsUrl(nextConfig, ev.uid || '', '', {
+          baseUrl: window.baseUrl || '',
+          basePath,
+          forceResults: true
+        });
+        if (targetUrl) {
+          resultsCodeEl.textContent = targetUrl;
+          resultsLinkEl.href = targetUrl;
         }
       }
       catalogPager.load(1);

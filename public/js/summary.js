@@ -403,19 +403,27 @@ function initSummaryPage(options = {}) {
   const user = sanitizedPlayerName || trimmedPlayerName || 'Unbekannt';
   const countdownEnabled = isTruthyFlag(cfg.countdownEnabled ?? cfg.countdown_enabled);
   const defaultCountdown = parseIntOr(cfg.countdown ?? cfg.defaultCountdown ?? 0, 0);
+  const resolveResultsTarget = (playerUid = '') => {
+    if (typeof window.buildResultsUrl === 'function') {
+      return window.buildResultsUrl(cfg, eventUid, playerUid, { basePath, resultsViewMode });
+    }
+    const params = new URLSearchParams();
+    if (eventUid) {
+      params.set('event_uid', eventUid);
+    }
+    if (playerUid) {
+      params.set('player_uid', playerUid);
+    }
+    const query = params.toString();
+    const destination = resultsViewMode === 'hub' ? '/results-hub' : '/ranking';
+    return withBase(`${destination}${query ? `?${query}` : ''}`);
+  };
 
   if (finishBtn) {
     finishBtn.addEventListener('click', () => {
-      const params = new URLSearchParams();
       const storedPlayerUid = typeof getStored === 'function' && typeof STORAGE_KEYS === 'object'
         ? getStored(playerUidKey)
         : '';
-      if (eventUid) {
-        params.set('event_uid', eventUid);
-      }
-      if (storedPlayerUid) {
-        params.set('player_uid', storedPlayerUid);
-      }
       [
         STORAGE_KEYS.CATALOG,
         STORAGE_KEYS.CATALOG_NAME,
@@ -428,10 +436,7 @@ function initSummaryPage(options = {}) {
         STORAGE_KEYS.PUZZLE_TIME,
         STORAGE_KEYS.QUIZ_SOLVED
       ].forEach(key => clearStored(key));
-      const query = params.toString();
-      const destination = resultsViewMode === 'hub' ? '/results-hub' : '/ranking';
-      const target = `${destination}${query ? `?${query}` : ''}`;
-      window.location.href = withBase(target);
+      window.location.href = resolveResultsTarget(storedPlayerUid);
     });
   }
 
@@ -1269,6 +1274,13 @@ function initSummaryPage(options = {}) {
 
   if (resultsBtn) {
     resultsBtn.addEventListener('click', () => {
+      if (resultsViewMode === 'hub') {
+        const storedPlayerUid = typeof getStored === 'function' && typeof STORAGE_KEYS === 'object'
+          ? getStored(playerUidKey)
+          : '';
+        window.location.href = resolveResultsTarget(storedPlayerUid);
+        return;
+      }
       if (resultsContainer) {
         renderResultsContent(resultsContainer);
         if (typeof resultsContainer.scrollIntoView === 'function') {
