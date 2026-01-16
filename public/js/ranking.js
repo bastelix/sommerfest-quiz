@@ -563,10 +563,12 @@ const renderTopList = ({ title, icon, items, matcher, formatter }) => {
   return col;
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-  const cfg = window.quizConfig || {};
-  const params = new URLSearchParams(window.location.search);
-  const eventUid = window.getActiveEventId ? window.getActiveEventId() : '';
+export const initRankingPage = (options = {}) => {
+  const cfg = options.config || window.quizConfig || {};
+  const params = options.params instanceof URLSearchParams
+    ? options.params
+    : new URLSearchParams(window.location.search);
+  const eventUid = options.eventUid || (window.getActiveEventId ? window.getActiveEventId() : '');
   const urlPlayerUid = params.get('uid') || params.get('player_uid') || '';
   const contactToken = params.get('contact_token') || '';
 
@@ -1510,4 +1512,14 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     refresh();
   }
-});
+};
+
+window.initRankingPage = initRankingPage;
+const autoInitRanking = () => initRankingPage();
+if (!window.disableRankingAutoInit) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoInitRanking);
+  } else {
+    autoInitRanking();
+  }
+}

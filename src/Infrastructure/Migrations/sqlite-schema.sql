@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS config (
     random_name_strategy TEXT DEFAULT 'ai',
     competitionMode BOOLEAN,
     teamResults BOOLEAN,
+    results_view_mode TEXT DEFAULT 'split',
     photoUpload BOOLEAN,
     puzzleWordEnabled BOOLEAN,
     puzzleWord TEXT,
