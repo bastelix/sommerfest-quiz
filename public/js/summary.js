@@ -351,11 +351,13 @@ function computePlayerRankings(rows, questionRows, catalogCount, matcher){
     points: { place: pointsPlace, total: scoreList.length, value: pointsValue, avg: pointsAvg }
   };
 }
-document.addEventListener('DOMContentLoaded', () => {
-  const cfg = window.quizConfig || {};
-  const params = new URLSearchParams(window.location.search);
+function initSummaryPage(options = {}) {
+  const cfg = options.config || window.quizConfig || {};
+  const params = options.params instanceof URLSearchParams
+    ? options.params
+    : new URLSearchParams(window.location.search);
   const eventUidFromQuery = params.get('event_uid');
-  const eventUid = eventUidFromQuery || (window.getActiveEventId ? window.getActiveEventId() : '');
+  const eventUid = options.eventUid || eventUidFromQuery || (window.getActiveEventId ? window.getActiveEventId() : '');
   const eventQuery = eventUid ? `?event_uid=${encodeURIComponent(eventUid)}` : '';
   const resultsJsonPath = '/results.json' + eventQuery;
   const questionResultsPath = '/question-results.json' + eventQuery;
@@ -366,6 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const finishBtn = document.getElementById('finish-session-btn');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
+  const resultsContainer = options.resultsContainer || null;
+  const resultsViewMode = String(
+    options.resultsViewMode || cfg.resultsViewMode || cfg.results_view_mode || 'split'
+  ).toLowerCase();
+  const autoShowResults = options.autoShowResults ?? true;
   const forcedResultsFromWindow = typeof window.forceResults === 'string'
     ? window.forceResults === 'true'
     : Boolean(window.forceResults);
@@ -422,7 +429,8 @@ document.addEventListener('DOMContentLoaded', () => {
         STORAGE_KEYS.QUIZ_SOLVED
       ].forEach(key => clearStored(key));
       const query = params.toString();
-      const target = `/ranking${query ? `?${query}` : ''}`;
+      const destination = resultsViewMode === 'hub' ? '/results-hub' : '/ranking';
+      const target = `${destination}${query ? `?${query}` : ''}`;
       window.location.href = withBase(target);
     });
   }
@@ -567,31 +575,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return card;
   }
 
-  function showResults(){
-    const modal = document.createElement('div');
-    modal.setAttribute('uk-modal', '');
-    modal.setAttribute('aria-modal', 'true');
-    const dialog = document.createElement('div');
-    dialog.className = 'uk-modal-dialog uk-modal-body';
-    const title = document.createElement('h3');
-    title.className = 'uk-modal-title uk-text-center';
-    title.textContent = 'Ergebnisübersicht';
-    const userP = document.createElement('p');
-    userP.className = 'uk-text-center';
-    userP.textContent = user;
-    const contentWrap = document.createElement('div');
-    contentWrap.id = 'team-results';
-    contentWrap.className = 'results-modal-content';
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
-    closeBtn.textContent = 'Schließen';
-    dialog.append(title, userP, contentWrap, closeBtn);
-    modal.appendChild(dialog);
-    document.body.appendChild(modal);
-    const ui = UIkit.modal(modal);
-    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-    closeBtn.addEventListener('click', () => ui.hide());
-
+  function renderResultsContent(contentWrap) {
+    if (!contentWrap) {
+      return;
+    }
+    contentWrap.innerHTML = '';
     Promise.all([
       fetchCatalogMap(),
       fetch(withBase(resultsJsonPath)).then(r => r.json()),
@@ -1250,15 +1238,69 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.show();
   }
 
-  if (resultsBtn) { resultsBtn.addEventListener('click', showResults); }
+  function showResults(){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    const title = document.createElement('h3');
+    title.className = 'uk-modal-title uk-text-center';
+    title.textContent = 'Ergebnisübersicht';
+    const userP = document.createElement('p');
+    userP.className = 'uk-text-center';
+    userP.textContent = user;
+    const contentWrap = document.createElement('div');
+    contentWrap.id = 'team-results';
+    contentWrap.className = 'results-modal-content';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    closeBtn.textContent = 'Schließen';
+    dialog.append(title, userP, contentWrap, closeBtn);
+    modal.appendChild(dialog);
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    closeBtn.addEventListener('click', () => ui.hide());
+
+    renderResultsContent(contentWrap);
+    ui.show();
+  }
+
+  if (resultsBtn) {
+    resultsBtn.addEventListener('click', () => {
+      if (resultsContainer) {
+        renderResultsContent(resultsContainer);
+        if (typeof resultsContainer.scrollIntoView === 'function') {
+          resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        showResults();
+      }
+    });
+  }
   if (puzzleBtn && puzzleEnabled) { puzzleBtn.addEventListener('click', showPuzzle); }
   if (photoBtn && photoEnabled) { photoBtn.addEventListener('click', showPhotoModal); }
 
-  if (resultsEnabled) {
-    showResults();
+  if (resultsEnabled && autoShowResults) {
+    if (resultsContainer) {
+      renderResultsContent(resultsContainer);
+    } else {
+      showResults();
+    }
   }
 
   if(puzzleEnabled){
     updatePuzzleInfo();
   }
-});
+}
+
+window.initSummaryPage = initSummaryPage;
+const autoInitSummary = () => initSummaryPage();
+if (!window.disableSummaryAutoInit) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoInitSummary);
+  } else {
+    autoInitSummary();
+  }
+}

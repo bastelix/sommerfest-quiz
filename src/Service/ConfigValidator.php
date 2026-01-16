@@ -35,6 +35,7 @@ class ConfigValidator
         'shuffleQuestions' => true,
         'competitionMode' => false,
         'teamResults' => false,
+        'resultsViewMode' => 'split',
         'photoUpload' => false,
         'collectPlayerUid' => false,
         'countdownEnabled' => false,
@@ -79,6 +80,8 @@ class ConfigValidator
     private const DASHBOARD_CONTAINER_REFRESH_DEFAULT = 30;
 
     private const DASHBOARD_CONTAINER_CPU_MAX_PERCENT = 400;
+
+    private const RESULTS_VIEW_MODES = ['split', 'hub'];
 
     public const RANDOM_NAME_ALLOWED_DOMAINS = [
         'nature',
@@ -181,6 +184,17 @@ class ConfigValidator
         ) {
             $config[$key] = filter_var($data[$key] ?? self::DEFAULTS[$key], FILTER_VALIDATE_BOOL);
         }
+
+        $resultsViewRaw = $data['resultsViewMode'] ?? $data['results_view_mode'] ?? self::DEFAULTS['resultsViewMode'];
+        $resultsViewMode = strtolower(trim((string) $resultsViewRaw));
+        if ($resultsViewMode === '') {
+            $resultsViewMode = self::DEFAULTS['resultsViewMode'];
+        }
+        if (!in_array($resultsViewMode, self::RESULTS_VIEW_MODES, true)) {
+            $errors['resultsViewMode'] = 'Ungültige Ergebnisansicht.';
+            $resultsViewMode = self::DEFAULTS['resultsViewMode'];
+        }
+        $config['resultsViewMode'] = $resultsViewMode;
 
         // countdown in seconds (non-negative integer)
         $countdownRaw = $data['countdown'] ?? self::DEFAULTS['countdown'];

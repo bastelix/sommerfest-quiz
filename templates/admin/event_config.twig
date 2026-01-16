@@ -155,6 +155,17 @@
                 <div class="uk-text-meta">Vergibt Punkte und erstellt ein Ranking.</div>
               </div>
               <div class="uk-margin">
+                <label class="uk-form-label" for="resultsViewMode">Ergebnisansicht</label>
+                <div class="uk-form-controls">
+                  {% set resultsViewMode = config.resultsViewMode|default('split') %}
+                  <select class="uk-select" id="resultsViewMode" name="resultsViewMode">
+                    <option value="split" {% if resultsViewMode != 'hub' %}selected{% endif %}>Getrennte Summary‑ und Ranking‑Seiten</option>
+                    <option value="hub" {% if resultsViewMode == 'hub' %}selected{% endif %}>Zentraler Hub mit Tabs</option>
+                  </select>
+                </div>
+                <div class="uk-text-meta">Legt fest, ob Summary und Ranking getrennt oder gemeinsam angezeigt werden.</div>
+              </div>
+              <div class="uk-margin">
                 <label><input class="uk-checkbox" id="puzzleWordEnabled" name="puzzleWordEnabled" type="checkbox"> R&auml;tselwort aktivieren</label>
                 <div class="uk-text-meta">Erfordert die Eingabe eines R&auml;tselworts zum Abschluss.</div>
               </div>
@@ -729,4 +740,3 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/event-config.js" data-event-id="{{ event.uid }}" data-csrf="{{ csrf_token }}"></script>
 {% endblock %}
-

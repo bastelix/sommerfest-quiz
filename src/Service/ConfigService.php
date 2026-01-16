@@ -96,6 +96,7 @@ class ConfigService
         'effectsProfile' => 'effects_profile',
         'sliderProfile' => 'slider_profile',
         'pageTypes' => 'page_types',
+        'resultsViewMode' => 'results_view_mode',
     ];
 
     /**
@@ -416,6 +417,7 @@ class ConfigService
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
+            'resultsViewMode',
             'photoUpload',
             'puzzleWordEnabled',
             'puzzleWord',
@@ -1094,6 +1096,7 @@ class ConfigService
             'shuffleQuestions',
             'competitionMode',
             'teamResults',
+            'resultsViewMode',
             'photoUpload',
             'puzzleWordEnabled',
             'puzzleWord',

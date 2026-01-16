@@ -100,6 +100,7 @@ use App\Controller\QrLogoController;
 use App\Controller\CatalogDesignController;
 use App\Controller\SummaryController;
 use App\Controller\RankingController;
+use App\Controller\ResultsHubController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
@@ -721,6 +722,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
             ->withAttribute('rankingController', new RankingController($configService, $eventService))
+            ->withAttribute('resultsHubController', new ResultsHubController($configService, $eventService))
             ->withAttribute(
                 'playerContactController',
                 new PlayerContactController($playerContactOptInService, $eventService)
@@ -2995,6 +2997,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
     $app->get('/ranking', function (Request $request, Response $response) {
         return $request->getAttribute('rankingController')($request, $response);
+    });
+    $app->get('/results-hub', function (Request $request, Response $response) {
+        return $request->getAttribute('resultsHubController')($request, $response);
     });
     $app->get('/summary', function (Request $request, Response $response) {
         return $request->getAttribute('summaryController')($request, $response);
