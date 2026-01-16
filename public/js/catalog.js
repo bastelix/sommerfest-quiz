@@ -222,6 +222,27 @@ function showRemainingModal(names) {
   ui.show();
 }
 
+function getSummaryUrl() {
+  const uid = typeof window.getActiveEventId === 'function' ? window.getActiveEventId() : '';
+  const summaryPath = '/summary' + (uid ? `?event=${encodeURIComponent(uid)}` : '');
+  if (typeof withBase === 'function') {
+    return withBase(summaryPath);
+  }
+  const base = window.basePath || '';
+  return base + summaryPath;
+}
+
+function notifyAllSolvedAndRedirect() {
+  const message = 'Alle Kataloge bereits gelöst.';
+  if (UIkit?.notification) {
+    UIkit.notification({ message, status: 'primary', timeout: 1500 });
+  }
+  const target = getSummaryUrl();
+  window.setTimeout(() => {
+    window.location.href = target;
+  }, 1500);
+}
+
 async function startQuizOnce(qs, skipIntro = false) {
   if (quizStarted) {
     return;
@@ -279,7 +300,7 @@ async function init() {
       if (names.length) {
         showRemainingModal(names);
       } else {
-        UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+        notifyAllSolvedAndRedirect();
       }
       return;
     }
@@ -383,7 +404,7 @@ async function handleSelection(opt, autostart = false) {
     if (names.length) {
       showRemainingModal(names);
     } else {
-      UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+      notifyAllSolvedAndRedirect();
     }
     opt.disabled = true;
     return;
