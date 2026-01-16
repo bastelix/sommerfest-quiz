@@ -11,6 +11,7 @@
   };
   const modulesList = document.querySelector('[data-dashboard-modules]');
   const modulesInput = document.getElementById('dashboardModules');
+  const resultsViewModeField = document.getElementById('resultsViewMode');
   const shareInputs = {
     public: document.querySelector('[data-share-link="public"]'),
     sponsor: document.querySelector('[data-share-link="sponsor"]')
@@ -328,6 +329,33 @@
   const POINTS_LEADER_MAX_LIMIT = 10;
   const POINTS_LEADER_DEFAULT_LIMIT = 5;
   const DEFAULT_MODULE_MAP = new Map(DEFAULT_MODULES.map((module) => [module.id, module]));
+  const RESULTS_TARGET_MODULE_IDS = ['rankings', 'results', 'rankingQr'];
+
+  const buildResultsTargetUrl = () => {
+    if (typeof window.buildResultsUrl !== 'function') {
+      return '';
+    }
+    const cfg = resultsViewModeField ? { resultsViewMode: resultsViewModeField.value } : {};
+    return window.buildResultsUrl(cfg, eventId, '', { basePath });
+  };
+
+  const updateResultsModuleTargets = () => {
+    if (!modulesList) {
+      return;
+    }
+    const targetUrl = buildResultsTargetUrl();
+    RESULTS_TARGET_MODULE_IDS.forEach((moduleId) => {
+      const item = modulesList.querySelector(`[data-module-id="${moduleId}"]`);
+      if (!item) {
+        return;
+      }
+      if (targetUrl) {
+        item.dataset.resultsTarget = targetUrl;
+      } else {
+        delete item.dataset.resultsTarget;
+      }
+    });
+  };
   const parseBooleanOption = (candidate) => {
     if (candidate === null || candidate === undefined) {
       return null;
@@ -1125,6 +1153,7 @@
           applyModules(modulesConfig);
           updateModulesInput(false);
         }
+        updateResultsModuleTargets();
         loadDashboardCatalogOptions(getQrModuleSelection(modulesConfig));
         updateShareInputs();
         applyRules();
@@ -1207,7 +1236,11 @@
         applyModules([]);
       }
       updateShareInputs();
+      updateResultsModuleTargets();
     }
+    resultsViewModeField?.addEventListener('change', () => {
+      updateResultsModuleTargets();
+    });
     refreshTeamNameHistory();
     puzzleWordEnabled?.addEventListener('change', applyRules);
     countdownEnabled?.addEventListener('change', applyRules);

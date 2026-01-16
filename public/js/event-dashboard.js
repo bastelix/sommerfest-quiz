@@ -454,6 +454,14 @@ function buildCatalogStartUrl(catalog) {
 }
 
 function buildRankingUrl() {
+  if (typeof window.buildResultsUrl === 'function') {
+    return window.buildResultsUrl(
+      config,
+      config.eventUid || '',
+      '',
+      { basePath, absolute: true }
+    );
+  }
   const url = new URL(`${basePath || ''}/ranking`, window.location.origin);
   if (config.eventUid) {
     url.searchParams.set('event', config.eventUid);

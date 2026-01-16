@@ -1077,8 +1077,9 @@
                 </div>
                 <div class="uk-text-left@s uk-width-expand@s">
                   <div class="uk-text-meta uk-margin-small-bottom">{{ t('label_results_frontend_link') }}</div>
-                  <code class="uk-display-block uk-text-break uk-background-muted uk-padding-small summary-results-code">{{ resultsUrl }}</code>
+                  <code id="summaryResultsUrl" class="uk-display-block uk-text-break uk-background-muted uk-padding-small summary-results-code">{{ resultsUrl }}</code>
                   <a
+                    id="summaryResultsLink"
                     class="uk-button uk-button-default uk-button-small uk-margin-small-top"
                     href="{{ resultsUrl }}"
                     target="_blank"
@@ -2609,6 +2610,7 @@
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>
   <script type="module" src="{{ basePath }}/js/events.js"></script>
+  <script src="{{ basePath }}/js/results-url.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
   <script type="module" src="{{ basePath }}/js/wiki-admin.js"></script>
   <script type="module" src="{{ basePath }}/js/media-manager.js"></script>

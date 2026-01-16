@@ -738,5 +738,6 @@
 {% endblock %}
 
 {% block scripts %}
+  <script src="{{ basePath }}/js/results-url.js"></script>
   <script src="{{ basePath }}/js/event-config.js" data-event-id="{{ event.uid }}" data-csrf="{{ csrf_token }}"></script>
 {% endblock %}
