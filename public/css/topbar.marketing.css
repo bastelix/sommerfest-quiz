@@ -176,6 +176,7 @@ body.cms-page-render .uk-offcanvas-bar{
   background-color: var(--drop-bg, var(--marketing-surface));
   color: var(--drop-color, var(--topbar-text, var(--marketing-text, #0a0a0a)));
   border: 1px solid var(--drop-border, var(--qr-card-border));
+  --uk-inverse: unset;
 }
 
 body.marketing-page #menuDrop,
@@ -202,6 +203,35 @@ body.marketing-page .uk-dropdown-nav *,
 body.cms-page-render .uk-dropdown-nav,
 body.cms-page-render .uk-dropdown-nav *{
   color:var(--topbar-text);
+}
+
+body.marketing-page .uk-offcanvas-bar .uk-nav-default > li > a,
+body.marketing-page .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default > li > a,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a{
+  color: var(--drop-color, var(--topbar-text, var(--marketing-text, #0a0a0a)));
+}
+
+body.marketing-page .uk-offcanvas-bar .uk-nav-default > li > a:hover,
+body.marketing-page .uk-offcanvas-bar .uk-nav-default > li > a:focus,
+body.marketing-page .uk-offcanvas-bar .uk-nav-default > li > a:active,
+body.marketing-page .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:hover,
+body.marketing-page .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:focus,
+body.marketing-page .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:active,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default > li > a:hover,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default > li > a:focus,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default > li > a:active,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:hover,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:focus,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a:active{
+  background-color: color-mix(in oklab, var(--topbar-text) 8%, transparent);
+  color: var(--topbar-text);
+}
+
+body.marketing-page .uk-offcanvas-bar .uk-nav-default > li.uk-active > a,
+body.cms-page-render .uk-offcanvas-bar .uk-nav-default > li.uk-active > a{
+  background-color: color-mix(in oklab, var(--topbar-text) 12%, transparent);
+  color: var(--topbar-text);
 }
 
 .lang-option{
