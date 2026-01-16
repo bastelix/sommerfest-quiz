@@ -725,6 +725,8 @@
   position: fixed;
   inset: auto 24px 24px auto;
   width: min(360px, calc(100% - 48px));
+  background-color: var(--marketing-surface, #fff);
+  border: 1px solid var(--marketing-border, #e2e2e2);
   border-radius: 16px;
   box-shadow: 0 24px 58px -34px color-mix(in oklab, var(--marketing-ink) 65%, transparent),
     0 18px 32px -28px color-mix(in oklab, var(--marketing-ink) 35%, transparent);
@@ -915,6 +917,8 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 
 :is(body.dark-mode, body[data-theme="dark"], html[data-theme="dark"] body, .marketing-scope.dark-mode, .marketing-scope[data-theme="dark"]):is(.marketing-page, .cms-page-render):not(.high-contrast)
   .marketing-cookie-banner {
+  background-color: var(--marketing-surface, #0b0b0b) !important;
+  border-color: var(--marketing-border, #222) !important;
   background: linear-gradient(
     160deg,
     color-mix(in oklab, var(--marketing-primary) 28%, color-mix(in oklab, var(--marketing-ink) 95%, transparent)) 0%,
@@ -928,6 +932,8 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
 
 html:not([data-theme="dark"]) :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .marketing-cookie-banner,
 html[data-theme="light"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render):not(.high-contrast) .marketing-cookie-banner {
+  background-color: var(--marketing-surface, #fff) !important;
+  border-color: var(--marketing-border, #e2e2e2) !important;
   background: linear-gradient(
     160deg,
     color-mix(in oklab, var(--marketing-primary) 12%, var(--marketing-white) 88%) 0%,
@@ -942,6 +948,7 @@ html[data-theme="light"] :is(body, .marketing-scope):is(.marketing-page, .cms-pa
 :is(body, .marketing-scope):is(.marketing-page, .cms-page-render)[data-theme="high-contrast"] .marketing-cookie-banner,
 html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .marketing-cookie-banner,
 :is(body, .marketing-scope).high-contrast .marketing-cookie-banner {
+  background-color: var(--qr-card, var(--marketing-black));
   background: var(--qr-card, var(--marketing-black));
   color: var(--qr-text, var(--marketing-white));
   border: 2px solid currentColor;
