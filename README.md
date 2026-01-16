@@ -969,6 +969,8 @@ Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunk
 - `GET /results/download` – erzeugt eine CSV-Datei mit allen Resultaten.
 - `GET /question-results.json` – listet falsch beantwortete Fragen.
 
+Für Ergebnis- und Ranking-Seiten gilt `event_uid` als kanonischer Query-Parameter (z. B. `/summary?event_uid=...` oder `/ranking?event_uid=...`). Der ältere Parameter `event` wird weiterhin akzeptiert, aber auf die kanonische Schreibweise weitergeleitet.
+
 Die Ergebnisübersicht zeigt drei Ranglisten. Der Titel „Ranking-Champions"
 ordnet Teams nach der Anzahl gelöster Fragen. Bei Gleichstand entscheiden
 zunächst die erreichten Punkte und anschließend die kleinste insgesamt

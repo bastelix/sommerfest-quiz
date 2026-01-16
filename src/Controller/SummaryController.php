@@ -32,11 +32,34 @@ class SummaryController
     public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $params = $request->getQueryParams();
-        $uid = (string)($params['event'] ?? '');
+        $eventUidParam = (string)($params['event_uid'] ?? '');
+        $eventParam = (string)($params['event'] ?? '');
+        $uid = '';
+        $event = null;
+
+        if ($eventUidParam !== '') {
+            $uid = $eventUidParam;
+            $event = $this->events->getByUid($uid);
+        }
+
+        if ($event === null && $eventParam !== '') {
+            $event = $this->events->getByUid($eventParam) ?? $this->events->getBySlug($eventParam);
+            if ($event !== null) {
+                $uid = (string) $event['uid'];
+            }
+        }
+
+        if ($eventUidParam === '' && $eventParam !== '' && $uid !== '') {
+            $redirectParams = $params;
+            unset($redirectParams['event']);
+            $redirectParams['event_uid'] = $uid;
+            $uri = $request->getUri()->withQuery(http_build_query($redirectParams, '', '&', PHP_QUERY_RFC3986));
+            return $response->withHeader('Location', (string) $uri)->withStatus(302);
+        }
         $forceResults = $this->shouldForceResults($params);
         if ($uid !== '') {
             $cfg = $this->config->getConfigForEvent($uid);
-            $event = $this->events->getByUid($uid) ?? $this->events->getFirst();
+            $event = $event ?? $this->events->getFirst();
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }
