@@ -2323,6 +2323,25 @@ async function runQuiz(questions, skipIntro){
       endBtn.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(endBtn);
       endBtn.addEventListener('click', () => {
+        const name = getStored(STORAGE_KEYS.PLAYER_NAME);
+        const hasValidName = name && name.trim();
+        if(hasValidName){
+          const params = new URLSearchParams();
+          if(currentEventUid){
+            params.set('event_uid', currentEventUid);
+          }
+          if(cfg.collectPlayerUid){
+            const playerUid = getStored(STORAGE_KEYS.PLAYER_UID);
+            if(playerUid){
+              params.set('player_uid', playerUid);
+            }
+          }
+          const resultPath = '/summary';
+          const queryString = params.toString();
+          const resultUrl = queryString ? `${resultPath}?${queryString}` : resultPath;
+          window.location.href = withBase(resultUrl);
+          return;
+        }
         const fallbackUrl = withBase('/');
         window.close();
         setTimeout(() => {
