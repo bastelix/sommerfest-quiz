@@ -356,7 +356,7 @@ function initSummaryPage(options = {}) {
   const params = options.params instanceof URLSearchParams
     ? options.params
     : new URLSearchParams(window.location.search);
-  const eventUidFromQuery = params.get('event_uid');
+  const eventUidFromQuery = params.get('event_uid') || params.get('event') || '';
   const eventUid = options.eventUid || eventUidFromQuery || (window.getActiveEventId ? window.getActiveEventId() : '');
   const eventQuery = eventUid ? `?event_uid=${encodeURIComponent(eventUid)}` : '';
   const resultsJsonPath = '/results.json' + eventQuery;
