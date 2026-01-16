@@ -369,9 +369,11 @@ function initSummaryPage(options = {}) {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const resultsContainer = options.resultsContainer || null;
-  const resultsViewMode = String(
-    options.resultsViewMode || cfg.resultsViewMode || cfg.results_view_mode || 'split'
-  ).toLowerCase();
+  const resultsViewMode = typeof window.resolveResultsViewMode === 'function'
+    ? window.resolveResultsViewMode(cfg, 'split', options.resultsViewMode || '')
+    : String(
+      options.resultsViewMode || cfg.resultsViewMode || cfg.results_view_mode || 'split'
+    ).toLowerCase();
   const autoShowResults = options.autoShowResults ?? true;
   const forcedResultsFromWindow = typeof window.forceResults === 'string'
     ? window.forceResults === 'true'
@@ -384,6 +386,11 @@ function initSummaryPage(options = {}) {
   const shouldForceResults = forcedResultsFromWindow || forcedResultsFromQuery;
   const resultsEnabled = shouldForceResults || !(cfg && cfg.teamResults === false);
   const puzzleEnabled = isTruthyFlag(cfg.puzzleWordEnabled ?? cfg.puzzle_word_enabled);
+  if (resultsBtn && resultsEnabled) {
+    const defaultLabel = resultsBtn.dataset.labelSplit || resultsBtn.textContent || '';
+    const hubLabel = resultsBtn.dataset.labelHub || 'Ergebnisse & Ranking anzeigen';
+    resultsBtn.textContent = resultsViewMode === 'hub' ? hubLabel : defaultLabel;
+  }
   if (resultsBtn && !resultsEnabled) {
     resultsBtn.remove();
   }
