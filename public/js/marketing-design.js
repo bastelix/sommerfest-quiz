@@ -7,9 +7,11 @@ const DEFAULT_SURFACE_MUTED = 'var(--surface-muted)';
 const DEFAULT_SURFACE_DARK = 'var(--surface-section)';
 const DEFAULT_SURFACE_MUTED_DARK = 'var(--surface-muted)';
 const DEFAULT_CARD_DARK = 'var(--surface-card)';
+const DEFAULT_LAYOUT_PROFILE = 'standard';
 const DEFAULT_TYPOGRAPHY_PRESET = 'modern';
 const DEFAULT_CARD_STYLE = 'rounded';
 const DEFAULT_BUTTON_STYLE = 'filled';
+const LAYOUT_PROFILES = ['standard', 'wide', 'narrow'];
 const TYPOGRAPHY_PRESETS = ['modern', 'classic', 'tech'];
 const CARD_STYLES = ['rounded', 'square', 'pill'];
 const BUTTON_STYLES = ['filled', 'outline', 'ghost'];
@@ -141,12 +143,19 @@ const applyMarketingDesign = () => {
   const variables = appearance?.variables || {};
   const configColors = config?.colors || {};
   const brand = tokens.brand || {};
+  const layout = tokens.layout || {};
+  const typography = tokens.typography || {};
+  const components = tokens.components || {};
 
   const fallbackPrimary = resolveFallbackToken(
     root,
     '--marketing-primary',
     resolveFallbackToken(root, '--brand-primary', DEFAULT_BRAND_PRIMARY),
   );
+  const fallbackLayoutProfile = resolveFallbackToken(root, '--layout-profile', DEFAULT_LAYOUT_PROFILE);
+  const fallbackTypographyPreset = resolveFallbackToken(root, '--typography-preset', DEFAULT_TYPOGRAPHY_PRESET);
+  const fallbackCardStyle = resolveFallbackToken(root, '--components-card-style', DEFAULT_CARD_STYLE);
+  const fallbackButtonStyle = resolveFallbackToken(root, '--components-button-style', DEFAULT_BUTTON_STYLE);
   const fallbackAccent = resolveFallbackToken(
     root,
     '--marketing-accent',
@@ -318,6 +327,27 @@ const applyMarketingDesign = () => {
   const fallbackMarketingWhite = resolveFallbackToken(root, '--marketing-white', '');
   const fallbackMarketingBlack = resolveFallbackToken(root, '--marketing-black', '');
   const fallbackMarketingBlackRgb = resolveFallbackToken(root, '--marketing-black-rgb', '');
+
+  const normalizedLayoutProfile = normalizeTokenValue(
+    layout.profile,
+    LAYOUT_PROFILES,
+    fallbackLayoutProfile,
+  );
+  const normalizedTypographyPreset = normalizeTokenValue(
+    typography.preset,
+    TYPOGRAPHY_PRESETS,
+    fallbackTypographyPreset,
+  );
+  const normalizedCardStyle = normalizeTokenValue(
+    components.cardStyle,
+    CARD_STYLES,
+    fallbackCardStyle,
+  );
+  const normalizedButtonStyle = normalizeTokenValue(
+    components.buttonStyle,
+    BUTTON_STYLES,
+    fallbackButtonStyle,
+  );
 
   const marketingScheme = normalizeMarketingScheme(
     resolveFirstValue(
@@ -1230,6 +1260,14 @@ const applyMarketingDesign = () => {
   if (sectionDefaultAccent && !isSectionDefaultReference(sectionDefaultAccent)) {
     root.style.setProperty('--section-default-accent', sectionDefaultAccent);
   }
+
+  root.style.setProperty('--layout-profile', normalizedLayoutProfile);
+  root.style.setProperty('--typography-preset', normalizedTypographyPreset);
+  root.style.setProperty('--components-card-style', normalizedCardStyle);
+  root.style.setProperty('--components-button-style', normalizedButtonStyle);
+  root.dataset.typographyPreset = normalizedTypographyPreset;
+  root.dataset.cardStyle = normalizedCardStyle;
+  root.dataset.buttonStyle = normalizedButtonStyle;
 
   root.style.setProperty('--marketing-primary', marketingPrimary);
   root.style.setProperty('--marketing-accent', marketingAccent);
