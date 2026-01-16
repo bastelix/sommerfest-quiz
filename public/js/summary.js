@@ -354,7 +354,8 @@ function computePlayerRankings(rows, questionRows, catalogCount, matcher){
 document.addEventListener('DOMContentLoaded', () => {
   const cfg = window.quizConfig || {};
   const params = new URLSearchParams(window.location.search);
-  const eventUid = window.getActiveEventId ? window.getActiveEventId() : '';
+  const eventUidFromQuery = params.get('event_uid');
+  const eventUid = eventUidFromQuery || (window.getActiveEventId ? window.getActiveEventId() : '');
   const eventQuery = eventUid ? `?event_uid=${encodeURIComponent(eventUid)}` : '';
   const resultsJsonPath = '/results.json' + eventQuery;
   const questionResultsPath = '/question-results.json' + eventQuery;

@@ -28,17 +28,37 @@ class RankingController
     {
         $view = Twig::fromRequest($request);
         $params = $request->getQueryParams();
-        $uid = (string)($params['event'] ?? $params['event_uid'] ?? '');
+        $eventUidParam = (string)($params['event_uid'] ?? '');
+        $eventParam = (string)($params['event'] ?? '');
+        $uid = '';
+        $event = null;
+
+        if ($eventUidParam !== '') {
+            $uid = $eventUidParam;
+            $event = $this->events->getByUid($uid);
+        }
+
+        if ($event === null && $eventParam !== '') {
+            $event = $this->events->getByUid($eventParam) ?? $this->events->getBySlug($eventParam);
+            if ($event !== null) {
+                $uid = (string) $event['uid'];
+            }
+        }
+
+        if ($eventUidParam === '' && $eventParam !== '' && $uid !== '') {
+            $redirectParams = $params;
+            unset($redirectParams['event']);
+            $redirectParams['event_uid'] = $uid;
+            $uri = $request->getUri()->withQuery(http_build_query($redirectParams, '', '&', PHP_QUERY_RFC3986));
+            return $response->withHeader('Location', (string) $uri)->withStatus(302);
+        }
 
         if ($uid !== '') {
-            $event = $this->events->getByUid($uid);
+            $event = $event ?? $this->events->getFirst();
             if ($event === null) {
-                $event = $this->events->getFirst();
-                if ($event === null) {
-                    return $response->withHeader('Location', '/events')->withStatus(302);
-                }
-                $uid = (string)$event['uid'];
+                return $response->withHeader('Location', '/events')->withStatus(302);
             }
+            $uid = (string) $event['uid'];
         } else {
             $event = $this->events->getFirst();
             if ($event === null) {
