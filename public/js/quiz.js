@@ -1221,7 +1221,7 @@ async function runQuiz(questions, skipIntro){
       }
       if(total !== null && solved.length === total){
         const link = document.createElement('a');
-        const summaryPath = '/summary' + (currentEventUid ? `?event=${encodeURIComponent(currentEventUid)}` : '');
+        const summaryPath = '/summary' + (currentEventUid ? `?event_uid=${encodeURIComponent(currentEventUid)}` : '');
         link.href = withBase(summaryPath);
         link.className = 'uk-button uk-button-primary uk-margin-top';
         link.textContent = 'Ergebnisübersicht';
