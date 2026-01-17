@@ -649,6 +649,70 @@ CREATE INDEX IF NOT EXISTS marketing_page_menu_items_start_idx
 CREATE INDEX IF NOT EXISTS marketing_page_menu_items_parent_idx
     ON marketing_page_menu_items(parent_id);
 
+CREATE TABLE IF NOT EXISTS marketing_menus (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    namespace TEXT NOT NULL DEFAULT 'default',
+    label TEXT NOT NULL,
+    locale TEXT NOT NULL DEFAULT 'de',
+    is_active INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS marketing_menu_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    menu_id INTEGER NOT NULL REFERENCES marketing_menus(id) ON DELETE CASCADE,
+    parent_id INTEGER REFERENCES marketing_menu_items(id) ON DELETE CASCADE,
+    namespace TEXT NOT NULL DEFAULT 'default',
+    label TEXT NOT NULL,
+    href TEXT NOT NULL,
+    icon TEXT,
+    layout TEXT NOT NULL DEFAULT 'link',
+    detail_title TEXT,
+    detail_text TEXT,
+    detail_subline TEXT,
+    position INTEGER NOT NULL DEFAULT 0,
+    is_external INTEGER NOT NULL DEFAULT 0,
+    locale TEXT NOT NULL DEFAULT 'de',
+    is_active INTEGER NOT NULL DEFAULT 1,
+    is_startpage INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS marketing_menu_assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    menu_id INTEGER NOT NULL REFERENCES marketing_menus(id) ON DELETE CASCADE,
+    page_id INTEGER REFERENCES pages(id) ON DELETE CASCADE,
+    namespace TEXT NOT NULL DEFAULT 'default',
+    slot TEXT NOT NULL,
+    locale TEXT NOT NULL DEFAULT 'de',
+    is_active INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS marketing_menu_items_menu_idx
+    ON marketing_menu_items(menu_id, namespace, locale, position, id);
+
+CREATE INDEX IF NOT EXISTS marketing_menu_items_parent_idx
+    ON marketing_menu_items(parent_id);
+
+CREATE INDEX IF NOT EXISTS marketing_menu_items_start_idx
+    ON marketing_menu_items(namespace, locale)
+    WHERE is_startpage = TRUE;
+
+CREATE INDEX IF NOT EXISTS marketing_menu_assignments_menu_idx
+    ON marketing_menu_assignments(menu_id);
+
+CREATE INDEX IF NOT EXISTS marketing_menu_assignments_page_idx
+    ON marketing_menu_assignments(page_id, namespace, slot, locale);
+
+CREATE UNIQUE INDEX IF NOT EXISTS marketing_menu_assignments_page_unique_idx
+    ON marketing_menu_assignments(namespace, page_id, slot, locale)
+    WHERE page_id IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS marketing_menu_assignments_global_unique_idx
+    ON marketing_menu_assignments(namespace, slot, locale)
+    WHERE page_id IS NULL;
+
 -- Marketing page wiki
 CREATE TABLE IF NOT EXISTS marketing_page_wiki_settings (
     page_id INTEGER PRIMARY KEY,
