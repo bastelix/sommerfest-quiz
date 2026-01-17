@@ -2324,8 +2324,8 @@ async function runQuiz(questions, skipIntro){
       styleButton(endBtn);
       endBtn.addEventListener('click', () => {
         const name = getStored(STORAGE_KEYS.PLAYER_NAME);
-        const hasValidName = name && name.trim();
-        if(hasValidName){
+        const trimmedName = name && name.trim();
+        if(trimmedName){
           const params = new URLSearchParams();
           if(currentEventUid){
             params.set('event_uid', currentEventUid);
