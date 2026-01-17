@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Domain\CmsPageMenuItem;
+use App\Domain\CmsMenuAssignment;
+use App\Domain\CmsMenuItem;
 use App\Domain\Page;
 use App\Infrastructure\Database;
 use App\Service\Marketing\MarketingMenuAiGenerator;
@@ -42,6 +43,8 @@ final class CmsPageMenuService
 
     private PageService $pages;
 
+    private CmsMenuDefinitionService $menuDefinitions;
+
     private MarketingMenuAiGenerator $menuAiGenerator;
 
     private MarketingMenuAiTranslator $menuAiTranslator;
@@ -49,11 +52,13 @@ final class CmsPageMenuService
     public function __construct(
         ?PDO $pdo = null,
         ?PageService $pages = null,
+        ?CmsMenuDefinitionService $menuDefinitions = null,
         ?MarketingMenuAiGenerator $menuAiGenerator = null,
         ?MarketingMenuAiTranslator $menuAiTranslator = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->pages = $pages ?? new PageService($this->pdo);
+        $this->menuDefinitions = $menuDefinitions ?? new CmsMenuDefinitionService($this->pdo);
         $this->menuAiGenerator = $menuAiGenerator ?? new MarketingMenuAiGenerator();
         $this->menuAiTranslator = $menuAiTranslator ?? new MarketingMenuAiTranslator();
     }
@@ -61,7 +66,7 @@ final class CmsPageMenuService
     /**
      * Load menu items for a page slug with namespace fallback support.
      *
-     * @return CmsPageMenuItem[]
+     * @return CmsMenuItem[]
      */
     public function getMenuItemsForSlug(
         string $namespace,
@@ -76,12 +81,7 @@ final class CmsPageMenuService
 
         $this->ensureMenuItemsImported($page);
 
-        $items = $this->fetchItemsForPageId(
-            $page->getId(),
-            $page->getNamespace(),
-            $locale,
-            $onlyActive
-        );
+        $items = $this->fetchItemsForPage($page, $locale, $onlyActive);
 
         if ($items !== [] || $page->getNamespace() === PageService::DEFAULT_NAMESPACE) {
             return $items;
@@ -94,18 +94,13 @@ final class CmsPageMenuService
 
         $this->ensureMenuItemsImported($fallbackPage);
 
-        return $this->fetchItemsForPageId(
-            $fallbackPage->getId(),
-            $fallbackPage->getNamespace(),
-            $locale,
-            $onlyActive
-        );
+        return $this->fetchItemsForPage($fallbackPage, $locale, $onlyActive);
     }
 
     /**
      * Load menu items for a page id.
      *
-     * @return CmsPageMenuItem[]
+     * @return CmsMenuItem[]
      */
     public function getMenuItemsForPage(int $pageId, ?string $locale = null, bool $onlyActive = true): array
     {
@@ -116,7 +111,18 @@ final class CmsPageMenuService
 
         $this->ensureMenuItemsImported($page);
 
-        return $this->fetchItemsForPageId($pageId, $page->getNamespace(), $locale, $onlyActive);
+        return $this->fetchItemsForPage($page, $locale, $onlyActive);
+    }
+
+    public function getMenuIdForPage(int $pageId, ?string $locale = null): ?int
+    {
+        $page = $this->pages->findById($pageId);
+        if ($page === null) {
+            return null;
+        }
+
+        $menuContext = $this->resolveMenuContext($page, $locale);
+        return $menuContext['menuId'] ?? null;
     }
 
     /**
@@ -164,6 +170,9 @@ final class CmsPageMenuService
             throw new RuntimeException('Page not found.');
         }
 
+        $menuContext = $this->requireMenuContext($page, $locale);
+        $menu = $this->menuDefinitions->getMenuById($page->getNamespace(), $menuContext['menuId']);
+
         $items = $this->getMenuItemsForPage($pageId, $locale, false);
         $tree = $this->buildMenuTree($items, false);
 
@@ -173,6 +182,13 @@ final class CmsPageMenuService
                 'slug' => $page->getSlug(),
                 'namespace' => $page->getNamespace(),
             ],
+            'menu' => [
+                'id' => $menuContext['menuId'],
+                'label' => $menu?->getLabel(),
+                'locale' => $menu?->getLocale(),
+                'isActive' => $menu?->isActive(),
+            ],
+            'menuId' => $menuContext['menuId'],
             'namespace' => $page->getNamespace(),
             'items' => array_map(fn (array $item): array => $this->serializeExportNode($item), $tree),
         ];
@@ -190,7 +206,7 @@ final class CmsPageMenuService
             throw new RuntimeException('Page not found.');
         }
 
-        $allowedKeys = ['items', 'namespace', 'page', 'allowNamespaceMismatch'];
+        $allowedKeys = ['items', 'namespace', 'page', 'allowNamespaceMismatch', 'menuId', 'menu', 'allowMenuMismatch'];
         $unknownKeys = array_diff(array_keys($payload), $allowedKeys);
         if ($unknownKeys !== []) {
             throw new RuntimeException(sprintf('Unerlaubte Felder im Payload: %s.', implode(', ', $unknownKeys)));
@@ -204,6 +220,22 @@ final class CmsPageMenuService
             throw new RuntimeException('Namespace des Exports stimmt nicht mit der Seite überein.');
         }
 
+        $menuContext = $this->requireMenuContext($page, null);
+        $payloadMenuId = null;
+        if (isset($payload['menuId'])) {
+            $payloadMenuId = (int) $payload['menuId'];
+        } elseif (isset($payload['menu']) && is_array($payload['menu']) && isset($payload['menu']['id'])) {
+            $payloadMenuId = (int) $payload['menu']['id'];
+        }
+
+        $allowMenuMismatch = isset($payload['allowMenuMismatch'])
+            ? (bool) $payload['allowMenuMismatch']
+            : false;
+
+        if ($payloadMenuId !== null && $payloadMenuId > 0 && $payloadMenuId !== $menuContext['menuId'] && !$allowMenuMismatch) {
+            throw new RuntimeException('Menu-ID des Exports stimmt nicht mit dem Zielmenü überein.');
+        }
+
         if (!isset($payload['items']) || !is_array($payload['items'])) {
             throw new RuntimeException('items muss ein Array sein.');
         }
@@ -215,8 +247,8 @@ final class CmsPageMenuService
 
         try {
             $this->resetStartpages($page->getNamespace());
-            $this->deleteMenuItemsForPage($pageId);
-            $this->persistImportedItems($pageId, $items, null);
+            $this->deleteMenuItemsForMenu($menuContext['menuId'], $menuContext['namespace']);
+            $this->persistImportedItems($menuContext['menuId'], $menuContext['namespace'], $items, null);
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -230,11 +262,12 @@ final class CmsPageMenuService
     /**
      * Generate menu entries from page HTML via AI and persist them.
      *
-     * @return CmsPageMenuItem[]
+     * @return CmsMenuItem[]
      */
     public function generateMenuFromPage(Page $page, ?string $locale, bool $overwrite): array
     {
         $normalizedLocale = $locale !== null ? $this->normalizeLocale($locale) : null;
+        $menuContext = $this->requireMenuContext($page, $normalizedLocale);
         $startpageLocales = $overwrite ? [] : $this->collectStartpageLocales($page, $normalizedLocale);
 
         $items = $this->menuAiGenerator->generate($page, $normalizedLocale);
@@ -245,16 +278,20 @@ final class CmsPageMenuService
         try {
             if ($overwrite) {
                 $this->resetStartpages($page->getNamespace());
-                $this->deleteMenuItemsForPage($page->getId());
+                $this->deleteMenuItemsForMenu($menuContext['menuId'], $menuContext['namespace']);
             }
 
             $positionOffset = $overwrite
                 ? 0
-                : $this->determineNextRootPosition($page->getId(), $normalizedLocale);
+                : $this->determineNextRootPosition(
+                    $menuContext['menuId'],
+                    $menuContext['namespace'],
+                    $normalizedLocale
+                );
 
             $itemsWithLocale = $this->applyLocaleAndPositions($normalizedItems, $normalizedLocale, $positionOffset);
 
-            $this->persistImportedItems($page->getId(), $itemsWithLocale, null);
+            $this->persistImportedItems($menuContext['menuId'], $menuContext['namespace'], $itemsWithLocale, null);
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -274,7 +311,7 @@ final class CmsPageMenuService
     /**
      * Translate an existing menu into another locale via AI and persist the result.
      *
-     * @return CmsPageMenuItem[]
+     * @return CmsMenuItem[]
      */
     public function translateMenuFromLocale(
         Page $page,
@@ -301,6 +338,7 @@ final class CmsPageMenuService
             $normalizedTargetLocale
         );
 
+        $menuContext = $this->requireMenuContext($page, $normalizedTargetLocale);
         $startpageLocales = $overwrite ? [] : $this->collectStartpageLocales($page, $normalizedTargetLocale);
         $normalizedItems = $this->normalizeImportItems($translatedItems, $startpageLocales);
 
@@ -308,12 +346,20 @@ final class CmsPageMenuService
 
         try {
             if ($overwrite) {
-                $this->deleteMenuItemsForPageAndLocale($page->getId(), $normalizedTargetLocale);
+                $this->deleteMenuItemsForMenuAndLocale(
+                    $menuContext['menuId'],
+                    $menuContext['namespace'],
+                    $normalizedTargetLocale
+                );
             }
 
             $positionOffset = $overwrite
                 ? 0
-                : $this->determineNextRootPosition($page->getId(), $normalizedTargetLocale);
+                : $this->determineNextRootPosition(
+                    $menuContext['menuId'],
+                    $menuContext['namespace'],
+                    $normalizedTargetLocale
+                );
 
             $itemsWithLocale = $this->applyLocaleAndPositions(
                 $normalizedItems,
@@ -321,7 +367,7 @@ final class CmsPageMenuService
                 $positionOffset
             );
 
-            $this->persistImportedItems($page->getId(), $itemsWithLocale, null);
+            $this->persistImportedItems($menuContext['menuId'], $menuContext['namespace'], $itemsWithLocale, null);
             $this->pdo->commit();
         } catch (\Throwable $exception) {
             $this->pdo->rollBack();
@@ -358,7 +404,7 @@ final class CmsPageMenuService
             return null;
         }
 
-        $page = $this->pages->findById($item->getPageId());
+        $page = $this->resolvePageFromMenuItem($item);
         if ($page === null) {
             return null;
         }
@@ -370,7 +416,7 @@ final class CmsPageMenuService
         string $namespace,
         ?string $locale = null,
         bool $requireExplicit = false
-    ): ?CmsPageMenuItem {
+    ): ?CmsMenuItem {
         $normalizedNamespace = trim($namespace);
         if ($normalizedNamespace === '') {
             return null;
@@ -409,18 +455,29 @@ final class CmsPageMenuService
 
         $this->ensureMenuItemsImported($page);
         $normalizedLocale = $locale !== null ? $this->normalizeLocale($locale) : null;
+        $menuContext = $this->requireMenuContext($page, $normalizedLocale);
+        $candidateHrefs = $this->buildPageHrefCandidates($page->getSlug());
+        if ($candidateHrefs === []) {
+            throw new RuntimeException('Startpage requires a page slug.');
+        }
 
         $this->pdo->beginTransaction();
 
         try {
             $this->resetStartpages($page->getNamespace());
 
-            $sql = 'UPDATE marketing_page_menu_items SET is_startpage = TRUE WHERE page_id = ? AND namespace = ?';
-            $params = [$pageId, $page->getNamespace()];
+            $placeholders = implode(', ', array_fill(0, count($candidateHrefs), '?'));
+            $sql = 'UPDATE marketing_menu_items SET is_startpage = TRUE WHERE menu_id = ? AND namespace = ?'
+                . ' AND is_external = FALSE';
+            $params = [$menuContext['menuId'], $page->getNamespace()];
+
             if ($normalizedLocale !== null) {
                 $sql .= ' AND locale = ?';
                 $params[] = $normalizedLocale;
             }
+
+            $sql .= ' AND href IN (' . $placeholders . ')';
+            $params = array_merge($params, $candidateHrefs);
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
@@ -452,13 +509,13 @@ final class CmsPageMenuService
     /**
      * Fetch a single menu item by its id.
      */
-    public function getMenuItemById(int $id): ?CmsPageMenuItem
+    public function getMenuItemById(int $id): ?CmsMenuItem
     {
         if ($id <= 0) {
             return null;
         }
 
-        $stmt = $this->pdo->prepare('SELECT * FROM marketing_page_menu_items WHERE id = ?');
+        $stmt = $this->pdo->prepare('SELECT * FROM marketing_menu_items WHERE id = ?');
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -487,13 +544,14 @@ final class CmsPageMenuService
         ?string $locale = null,
         bool $isActive = true,
         bool $isStartpage = false
-    ): CmsPageMenuItem {
+    ): CmsMenuItem {
         $page = $this->pages->findById($pageId);
         if ($page === null) {
             throw new RuntimeException('Page not found.');
         }
 
-        $parent = $this->normalizeParent($pageId, $parentId);
+        $menuContext = $this->requireMenuContext($page, $locale);
+        $parent = $this->normalizeParent($menuContext['menuId'], $parentId);
         $normalizedLabel = $this->normalizeLabel($label);
         $normalizedHref = $this->normalizeHref($href);
         $normalizedIcon = $this->normalizeIcon($icon);
@@ -503,24 +561,29 @@ final class CmsPageMenuService
         $normalizedDetailSubline = $this->normalizeDetail($detailSubline);
         $normalizedLocale = $this->normalizeLocale($locale);
         $normalizedPosition = $position
-            ?? $this->determineNextPosition($pageId, $page->getNamespace(), $normalizedLocale, $parent?->getId());
+            ?? $this->determineNextPosition(
+                $menuContext['menuId'],
+                $menuContext['namespace'],
+                $normalizedLocale,
+                $parent?->getId()
+            );
 
         $this->pdo->beginTransaction();
 
         try {
             if ($isStartpage) {
-                $this->resetStartpages($page->getNamespace());
+                $this->resetStartpages($menuContext['namespace']);
             }
 
             $stmt = $this->pdo->prepare(
-                'INSERT INTO marketing_page_menu_items (page_id, namespace, parent_id, label, href, icon, layout, '
+                'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, '
                 . 'detail_title, detail_text, detail_subline, position, is_external, locale, is_active, '
                 . 'is_startpage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
 
             $stmt->execute([
-                $pageId,
-                $page->getNamespace(),
+                $menuContext['menuId'],
+                $menuContext['namespace'],
                 $parent?->getId(),
                 $normalizedLabel,
                 $normalizedHref,
@@ -551,6 +614,67 @@ final class CmsPageMenuService
         return $item;
     }
 
+    private function createMenuItemForMenu(
+        int $menuId,
+        string $namespace,
+        string $label,
+        string $href,
+        ?string $icon,
+        ?int $parentId,
+        string $layout,
+        ?string $detailTitle,
+        ?string $detailText,
+        ?string $detailSubline,
+        ?int $position,
+        bool $isExternal,
+        ?string $locale,
+        bool $isActive,
+        bool $isStartpage
+    ): CmsMenuItem {
+        $parent = $this->normalizeParent($menuId, $parentId);
+        $normalizedLabel = $this->normalizeLabel($label);
+        $normalizedHref = $this->normalizeHref($href);
+        $normalizedIcon = $this->normalizeIcon($icon);
+        $normalizedLayout = $this->normalizeLayout($layout);
+        $normalizedDetailTitle = $this->normalizeDetail($detailTitle);
+        $normalizedDetailText = $this->normalizeDetail($detailText);
+        $normalizedDetailSubline = $this->normalizeDetail($detailSubline);
+        $normalizedLocale = $this->normalizeLocale($locale);
+        $normalizedPosition = $position
+            ?? $this->determineNextPosition($menuId, $namespace, $normalizedLocale, $parent?->getId());
+
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, '
+            . 'detail_title, detail_text, detail_subline, position, is_external, locale, is_active, is_startpage) '
+            . 'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([
+            $menuId,
+            $namespace,
+            $parent?->getId(),
+            $normalizedLabel,
+            $normalizedHref,
+            $normalizedIcon,
+            $normalizedLayout,
+            $normalizedDetailTitle,
+            $normalizedDetailText,
+            $normalizedDetailSubline,
+            $normalizedPosition,
+            $isExternal ? 1 : 0,
+            $normalizedLocale,
+            $isActive ? 1 : 0,
+            $isStartpage ? 1 : 0,
+        ]);
+
+        $itemId = (int) $this->pdo->lastInsertId();
+        $item = $this->getMenuItemById($itemId);
+        if ($item === null) {
+            throw new RuntimeException('Menu item could not be loaded after creation.');
+        }
+
+        return $item;
+    }
+
     /**
      * Update an existing menu item.
      */
@@ -569,13 +693,13 @@ final class CmsPageMenuService
         ?string $locale = null,
         bool $isActive = true,
         bool $isStartpage = false
-    ): CmsPageMenuItem {
+    ): CmsMenuItem {
         $existing = $this->getMenuItemById($id);
         if ($existing === null) {
             throw new RuntimeException('Menu item not found.');
         }
 
-        $parent = $this->normalizeParent($existing->getPageId(), $parentId, $id);
+        $parent = $this->normalizeParent($existing->getMenuId(), $parentId, $id);
         $normalizedLabel = $this->normalizeLabel($label);
         $normalizedHref = $this->normalizeHref($href);
         $normalizedIcon = $this->normalizeIcon($icon);
@@ -594,7 +718,7 @@ final class CmsPageMenuService
             }
 
             $stmt = $this->pdo->prepare(
-                'UPDATE marketing_page_menu_items SET parent_id = ?, label = ?, href = ?, icon = ?, layout = ?, '
+                'UPDATE marketing_menu_items SET parent_id = ?, label = ?, href = ?, icon = ?, layout = ?, '
                 . 'detail_title = ?, detail_text = ?, detail_subline = ?, position = ?, is_external = ?, '
                 . 'locale = ?, is_active = ?, is_startpage = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
             );
@@ -639,7 +763,7 @@ final class CmsPageMenuService
             return;
         }
 
-        $stmt = $this->pdo->prepare('DELETE FROM marketing_page_menu_items WHERE id = ?');
+        $stmt = $this->pdo->prepare('DELETE FROM marketing_menu_items WHERE id = ?');
         $stmt->execute([$id]);
     }
 
@@ -653,6 +777,7 @@ final class CmsPageMenuService
             throw new RuntimeException('Page not found.');
         }
 
+        $menuContext = $this->requireMenuContext($page, null);
         if ($orderedIds === []) {
             return;
         }
@@ -662,7 +787,7 @@ final class CmsPageMenuService
 
         if (is_int($firstEntry)) {
             $orderedIds = array_values(array_unique(array_map('intval', $orderedIds)));
-            $existingIds = $this->getMenuItemIdsForPage($pageId);
+            $existingIds = $this->getMenuItemIdsForMenu($menuContext['menuId'], $menuContext['namespace']);
 
             if ($existingIds === []) {
                 return;
@@ -670,19 +795,19 @@ final class CmsPageMenuService
 
             $missing = array_diff($orderedIds, $existingIds);
             if ($missing !== []) {
-                throw new RuntimeException('Unknown menu item id(s) for page: ' . implode(', ', $missing));
+                throw new RuntimeException('Unknown menu item id(s) for menu: ' . implode(', ', $missing));
             }
 
             $this->pdo->beginTransaction();
 
             try {
                 $update = $this->pdo->prepare(
-                    'UPDATE marketing_page_menu_items SET position = ? WHERE page_id = ? AND id = ?'
+                    'UPDATE marketing_menu_items SET position = ? WHERE menu_id = ? AND id = ?'
                 );
                 $position = 0;
 
                 foreach ($orderedIds as $orderedId) {
-                    $update->execute([$position, $pageId, $orderedId]);
+                    $update->execute([$position, $menuContext['menuId'], $orderedId]);
                     $position++;
                 }
 
@@ -691,20 +816,20 @@ final class CmsPageMenuService
                         continue;
                     }
 
-                    $update->execute([$position, $pageId, $itemId]);
+                    $update->execute([$position, $menuContext['menuId'], $itemId]);
                     $position++;
                 }
 
                 $this->pdo->commit();
             } catch (PDOException $exception) {
-            $this->pdo->rollBack();
-            throw new RuntimeException(
-                'Updating menu order failed: ' . $exception->getMessage(),
-                0,
-                $exception
-            );
+                $this->pdo->rollBack();
+                throw new RuntimeException(
+                    'Updating menu order failed: ' . $exception->getMessage(),
+                    0,
+                    $exception
+                );
+            }
         }
-    }
 
         $normalizedItems = [];
         foreach ($orderedIds as $entry) {
@@ -726,21 +851,21 @@ final class CmsPageMenuService
             return;
         }
 
-        $existingIds = $this->getMenuItemIdsForPage($pageId);
+        $existingIds = $this->getMenuItemIdsForMenu($menuContext['menuId'], $menuContext['namespace']);
         $missing = array_diff(array_keys($normalizedItems), $existingIds);
         if ($missing !== []) {
-            throw new RuntimeException('Unknown menu item id(s) for page: ' . implode(', ', $missing));
+            throw new RuntimeException('Unknown menu item id(s) for menu: ' . implode(', ', $missing));
         }
 
         $this->pdo->beginTransaction();
 
         try {
             $update = $this->pdo->prepare(
-                'UPDATE marketing_page_menu_items SET position = ? WHERE page_id = ? AND id = ?'
+                'UPDATE marketing_menu_items SET position = ? WHERE menu_id = ? AND id = ?'
             );
 
             foreach ($normalizedItems as $id => $position) {
-                $update->execute([$position, $pageId, $id]);
+                $update->execute([$position, $menuContext['menuId'], $id]);
             }
 
             $this->pdo->commit();
@@ -753,9 +878,14 @@ final class CmsPageMenuService
     }
 
     /**
-     * @return CmsPageMenuItem[]
+     * @return CmsMenuItem[]
      */
-    private function fetchItemsForPageId(int $pageId, string $namespace, ?string $locale, bool $onlyActive): array
+    private function fetchItemsForMenuId(
+        int $menuId,
+        string $namespace,
+        ?string $locale,
+        bool $onlyActive
+    ): array
     {
         $normalizedLocale = null;
         if ($locale !== null) {
@@ -764,8 +894,8 @@ final class CmsPageMenuService
                 $normalizedLocale = $candidate;
             }
         }
-        $params = [$pageId, $namespace];
-        $sql = 'SELECT * FROM marketing_page_menu_items WHERE page_id = ? AND namespace = ?';
+        $params = [$menuId, $namespace];
+        $sql = 'SELECT * FROM marketing_menu_items WHERE menu_id = ? AND namespace = ?';
 
         if ($normalizedLocale !== null) {
             $sql .= ' AND locale = ?';
@@ -791,6 +921,19 @@ final class CmsPageMenuService
         return $items;
     }
 
+    /**
+     * @return CmsMenuItem[]
+     */
+    private function fetchItemsForPage(Page $page, ?string $locale, bool $onlyActive): array
+    {
+        $menuContext = $this->resolveMenuContext($page, $locale);
+        if ($menuContext === null) {
+            return [];
+        }
+
+        return $this->fetchItemsForMenuId($menuContext['menuId'], $menuContext['namespace'], $locale, $onlyActive);
+    }
+
     private function resolvePageByKey(string $namespace, string $slug): ?Page
     {
         $normalizedNamespace = trim($namespace);
@@ -812,40 +955,153 @@ final class CmsPageMenuService
         return $this->pages->findByKey(PageService::DEFAULT_NAMESPACE, $normalizedSlug);
     }
 
+    private function resolvePageFromMenuItem(CmsMenuItem $item): ?Page
+    {
+        if ($item->isExternal()) {
+            return null;
+        }
+
+        $href = trim($item->getHref());
+        if ($href === '' || str_starts_with($href, '#') || str_starts_with($href, '?')) {
+            return null;
+        }
+
+        $path = parse_url($href, PHP_URL_PATH);
+        $slug = is_string($path) ? trim($path, '/') : trim($href, '/');
+        if ($slug === '') {
+            return null;
+        }
+
+        return $this->resolvePageByKey($item->getNamespace(), $slug);
+    }
+
+    /**
+     * @return string[]
+     */
+    private function buildPageHrefCandidates(string $slug): array
+    {
+        $normalizedSlug = trim($slug);
+        if ($normalizedSlug === '') {
+            return [];
+        }
+
+        $candidateWithSlash = '/' . ltrim($normalizedSlug, '/');
+
+        $candidates = array_unique([
+            $normalizedSlug,
+            $candidateWithSlash,
+        ]);
+
+        return array_values(array_filter($candidates, static fn (string $value): bool => $value !== ''));
+    }
+
+    /**
+     * @return array{menuId: int, namespace: string}|null
+     */
+    private function resolveMenuContext(Page $page, ?string $locale): ?array
+    {
+        $normalizedLocale = $locale !== null ? $this->normalizeLocale($locale) : null;
+        $assignments = $this->menuDefinitions->getAssignmentsForPage(
+            $page->getNamespace(),
+            $page->getId(),
+            $normalizedLocale,
+            true
+        );
+
+        if ($assignments === []) {
+            return null;
+        }
+
+        $this->sortAssignments($assignments);
+        $assignment = $assignments[0] ?? null;
+        if ($assignment === null) {
+            return null;
+        }
+
+        $menu = $this->menuDefinitions->getMenuById($page->getNamespace(), $assignment->getMenuId());
+        if ($menu === null) {
+            return null;
+        }
+
+        return [
+            'menuId' => $menu->getId(),
+            'namespace' => $page->getNamespace(),
+        ];
+    }
+
+    /**
+     * @return array{menuId: int, namespace: string}
+     */
+    private function requireMenuContext(Page $page, ?string $locale): array
+    {
+        $menuContext = $this->resolveMenuContext($page, $locale);
+        if ($menuContext === null) {
+            throw new RuntimeException('Menu assignment not found for the selected page.');
+        }
+
+        return $menuContext;
+    }
+
+    /**
+     * @param CmsMenuAssignment[] $assignments
+     */
+    private function sortAssignments(array &$assignments): void
+    {
+        usort($assignments, static function (CmsMenuAssignment $a, CmsMenuAssignment $b): int {
+            $localeOrder = strcmp($a->getLocale(), $b->getLocale());
+            if ($localeOrder !== 0) {
+                if ($a->getLocale() === 'de') {
+                    return -1;
+                }
+                if ($b->getLocale() === 'de') {
+                    return 1;
+                }
+                return $localeOrder;
+            }
+
+            $slotOrder = strcmp($a->getSlot(), $b->getSlot());
+            if ($slotOrder !== 0) {
+                return $slotOrder;
+            }
+
+            return $a->getId() <=> $b->getId();
+        });
+    }
+
     /**
      * @param array<string, mixed> $row
      */
-    private function hydrateItem(array $row): CmsPageMenuItem
+    private function hydrateItem(array $row): CmsMenuItem
     {
         $updatedAt = isset($row['updated_at'])
             ? new DateTimeImmutable((string) $row['updated_at'])
             : null;
 
-        return new CmsPageMenuItem(
+        return new CmsMenuItem(
             (int) $row['id'],
-            (int) $row['page_id'],
+            (int) $row['menu_id'],
+            isset($row['parent_id']) ? (int) $row['parent_id'] : null,
             (string) $row['namespace'],
             (string) $row['label'],
             (string) $row['href'],
             isset($row['icon']) ? (string) $row['icon'] : null,
-            isset($row['parent_id']) ? (int) $row['parent_id'] : null,
-            isset($row['layout']) ? (string) $row['layout'] : self::DEFAULT_LAYOUT,
-            isset($row['detail_title']) ? (string) $row['detail_title'] : null,
-            isset($row['detail_text']) ? (string) $row['detail_text'] : null,
-            isset($row['detail_subline']) ? (string) $row['detail_subline'] : null,
             (int) ($row['position'] ?? 0),
             (bool) ($row['is_external'] ?? false),
             (string) ($row['locale'] ?? 'de'),
             (bool) ($row['is_active'] ?? true),
+            isset($row['layout']) ? (string) $row['layout'] : self::DEFAULT_LAYOUT,
+            isset($row['detail_title']) ? (string) $row['detail_title'] : null,
+            isset($row['detail_text']) ? (string) $row['detail_text'] : null,
+            isset($row['detail_subline']) ? (string) $row['detail_subline'] : null,
             (bool) ($row['is_startpage'] ?? false),
             $updatedAt
         );
     }
 
-    private function determineNextPosition(int $pageId, string $namespace, string $locale, ?int $parentId): int
+    private function determineNextPosition(int $menuId, string $namespace, string $locale, ?int $parentId): int
     {
-        $sql = 'SELECT MAX(position) FROM marketing_page_menu_items WHERE page_id = ? AND namespace = ? AND locale = ?';
-        $params = [$pageId, $namespace, $locale];
+        $sql = 'SELECT MAX(position) FROM marketing_menu_items WHERE menu_id = ? AND namespace = ? AND locale = ?';
+        $params = [$menuId, $namespace, $locale];
 
         if ($parentId === null) {
             $sql .= ' AND parent_id IS NULL';
@@ -865,9 +1121,9 @@ final class CmsPageMenuService
         return ((int) $max) + 1;
     }
 
-    private function determineNextRootPosition(int $pageId, ?string $locale): int
+    private function determineNextRootPosition(int $menuId, string $namespace, ?string $locale): int
     {
-        $items = $this->getMenuItemsForPage($pageId, $locale, false);
+        $items = $this->fetchItemsForMenuId($menuId, $namespace, $locale, false);
         $max = -1;
         foreach ($items as $item) {
             if ($item->getParentId() === null) {
@@ -949,12 +1205,12 @@ final class CmsPageMenuService
     /**
      * @return int[]
      */
-    private function getMenuItemIdsForPage(int $pageId): array
+    private function getMenuItemIdsForMenu(int $menuId, string $namespace): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT id FROM marketing_page_menu_items WHERE page_id = ? ORDER BY position ASC, id ASC'
+            'SELECT id FROM marketing_menu_items WHERE menu_id = ? AND namespace = ? ORDER BY position ASC, id ASC'
         );
-        $stmt->execute([$pageId]);
+        $stmt->execute([$menuId, $namespace]);
         $ids = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
 
         return array_map(static fn ($id) => (int) $id, $ids);
@@ -980,7 +1236,7 @@ final class CmsPageMenuService
         return $normalized !== '' ? $normalized : null;
     }
 
-    private function normalizeParent(int $pageId, ?int $parentId, ?int $itemId = null): ?CmsPageMenuItem
+    private function normalizeParent(int $menuId, ?int $parentId, ?int $itemId = null): ?CmsMenuItem
     {
         if ($parentId === null || $parentId <= 0) {
             return null;
@@ -991,7 +1247,7 @@ final class CmsPageMenuService
         }
 
         $parent = $this->getMenuItemById($parentId);
-        if ($parent === null || $parent->getPageId() !== $pageId) {
+        if ($parent === null || $parent->getMenuId() !== $menuId) {
             throw new RuntimeException('Parent menu item not found.');
         }
 
@@ -1006,27 +1262,27 @@ final class CmsPageMenuService
         }
 
         $stmt = $this->pdo->prepare(
-            'UPDATE marketing_page_menu_items SET is_startpage = FALSE WHERE namespace = ?'
+            'UPDATE marketing_menu_items SET is_startpage = FALSE WHERE namespace = ?'
         );
         $stmt->execute([$normalizedNamespace]);
     }
 
-    private function deleteMenuItemsForPageAndLocale(int $pageId, string $locale): void
+    private function deleteMenuItemsForMenuAndLocale(int $menuId, string $namespace, string $locale): void
     {
         $stmt = $this->pdo->prepare(
-            'DELETE FROM marketing_page_menu_items WHERE page_id = ? AND locale = ?'
+            'DELETE FROM marketing_menu_items WHERE menu_id = ? AND namespace = ? AND locale = ?'
         );
-        $stmt->execute([$pageId, $locale]);
+        $stmt->execute([$menuId, $namespace, $locale]);
     }
 
-    private function deleteMenuItemsForPage(int $pageId): void
+    private function deleteMenuItemsForMenu(int $menuId, string $namespace): void
     {
-        $stmt = $this->pdo->prepare('DELETE FROM marketing_page_menu_items WHERE page_id = ?');
-        $stmt->execute([$pageId]);
+        $stmt = $this->pdo->prepare('DELETE FROM marketing_menu_items WHERE menu_id = ? AND namespace = ?');
+        $stmt->execute([$menuId, $namespace]);
     }
 
     /**
-     * @param CmsPageMenuItem[] $items
+     * @param CmsMenuItem[] $items
      * @return array<int, array<string, mixed>>
      */
     private function buildMenuTree(array $items, bool $applyStartpageFallback = false): array
@@ -1047,7 +1303,7 @@ final class CmsPageMenuService
         }
 
         foreach ($grouped as &$group) {
-            usort($group, static function (CmsPageMenuItem $a, CmsPageMenuItem $b): int {
+            usort($group, static function (CmsMenuItem $a, CmsMenuItem $b): int {
                 if ($a->getPosition() === $b->getPosition()) {
                     return $a->getId() <=> $b->getId();
                 }
@@ -1061,7 +1317,7 @@ final class CmsPageMenuService
             foreach ($grouped[$parentKey] ?? [] as $item) {
                 $nodes[] = [
                     'id' => $item->getId(),
-                    'pageId' => $item->getPageId(),
+                    'menuId' => $item->getMenuId(),
                     'namespace' => $item->getNamespace(),
                     'parentId' => $item->getParentId(),
                     'label' => $item->getLabel(),
@@ -1233,11 +1489,17 @@ final class CmsPageMenuService
     /**
      * @param array<int, array<string, mixed>> $items
      */
-    private function persistImportedItems(int $pageId, array $items, ?int $parentId): void
+    private function persistImportedItems(
+        int $menuId,
+        string $namespace,
+        array $items,
+        ?int $parentId
+    ): void
     {
         foreach ($items as $item) {
-            $entity = $this->createMenuItem(
-                $pageId,
+            $entity = $this->createMenuItemForMenu(
+                $menuId,
+                $namespace,
                 $item['label'],
                 $item['href'],
                 $item['icon'],
@@ -1254,13 +1516,13 @@ final class CmsPageMenuService
             );
 
             if ($item['children'] !== []) {
-                $this->persistImportedItems($pageId, $item['children'], $entity->getId());
+                $this->persistImportedItems($menuId, $namespace, $item['children'], $entity->getId());
             }
         }
     }
 
     /**
-     * @param CmsPageMenuItem[] $items
+     * @param CmsMenuItem[] $items
      */
     private function resolveFallbackStartpageId(array $items): ?int
     {
@@ -1315,8 +1577,8 @@ final class CmsPageMenuService
         string $namespace,
         string $locale,
         bool $requireStartpage
-    ): ?CmsPageMenuItem {
-        $sql = 'SELECT * FROM marketing_page_menu_items WHERE namespace = ? AND locale = ?'
+    ): ?CmsMenuItem {
+        $sql = 'SELECT * FROM marketing_menu_items WHERE namespace = ? AND locale = ?'
             . ' AND is_active = TRUE AND is_external = FALSE';
 
         if ($requireStartpage) {
@@ -1337,10 +1599,15 @@ final class CmsPageMenuService
 
     private function ensureMenuItemsImported(Page $page): void
     {
+        $menuContext = $this->resolveMenuContext($page, null);
+        if ($menuContext === null) {
+            return;
+        }
+
         $stmt = $this->pdo->prepare(
-            'SELECT 1 FROM marketing_page_menu_items WHERE page_id = ? LIMIT 1'
+            'SELECT 1 FROM marketing_menu_items WHERE menu_id = ? AND namespace = ? LIMIT 1'
         );
-        $stmt->execute([$page->getId()]);
+        $stmt->execute([$menuContext['menuId'], $menuContext['namespace']]);
         if ($stmt->fetchColumn() !== false) {
             return;
         }
@@ -1348,13 +1615,18 @@ final class CmsPageMenuService
         $definition = LegacyMarketingMenuDefinition::getDefinitionForSlug($page->getSlug())
             ?? LegacyMarketingMenuDefinition::getDefaultDefinition();
 
-        $this->importMenuDefinition($page, $definition);
+        $this->importMenuDefinition($page, $definition, $menuContext['menuId'], $menuContext['namespace']);
     }
 
     /**
      * @param array<string, mixed> $definition
      */
-    private function importMenuDefinition(Page $page, array $definition): void
+    private function importMenuDefinition(
+        Page $page,
+        array $definition,
+        int $menuId,
+        string $namespace
+    ): void
     {
         $locales = $definition['locales'] ?? ['de', 'en'];
         if (!is_array($locales) || $locales === []) {
@@ -1369,7 +1641,8 @@ final class CmsPageMenuService
         foreach ($locales as $locale) {
             $translator = new TranslationService((string) $locale);
             $this->importMenuItemsRecursive(
-                $page,
+                $menuId,
+                $namespace,
                 $items,
                 $translator,
                 null,
@@ -1383,7 +1656,8 @@ final class CmsPageMenuService
      * @param array<int, mixed> $items
      */
     private function importMenuItemsRecursive(
-        Page $page,
+        int $menuId,
+        string $namespace,
         array $items,
         TranslationService $translator,
         ?int $parentId,
@@ -1408,13 +1682,13 @@ final class CmsPageMenuService
             }
 
             $stmt = $this->pdo->prepare(
-                'INSERT INTO marketing_page_menu_items (page_id, namespace, parent_id, label, href, icon, layout, '
+                'INSERT INTO marketing_menu_items (menu_id, namespace, parent_id, label, href, icon, layout, '
                 . 'detail_title, detail_text, detail_subline, position, is_external, locale, is_active, '
                 . 'is_startpage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $stmt->execute([
-                $page->getId(),
-                $page->getNamespace(),
+                $menuId,
+                $namespace,
                 $parentId,
                 $label,
                 $href,
@@ -1434,7 +1708,8 @@ final class CmsPageMenuService
 
             if (isset($item['children']) && is_array($item['children']) && $item['children'] !== []) {
                 $this->importMenuItemsRecursive(
-                    $page,
+                    $menuId,
+                    $namespace,
                     $item['children'],
                     $translator,
                     $insertedId,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Domain\CmsPageMenuItem;
+use App\Domain\CmsMenuItem;
 use App\Service\CmsPageMenuService;
 use App\Service\PageService;
 use App\Support\BasePathHelper;
@@ -60,7 +60,7 @@ final class MarketingMenuController
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
             ],
-            'items' => array_map(fn (CmsPageMenuItem $item): array => $this->serializeItem($item), $items),
+            'items' => array_map(fn (CmsMenuItem $item): array => $this->serializeItem($item), $items),
         ];
 
         $response->getBody()->write(json_encode($payload));
@@ -89,7 +89,10 @@ final class MarketingMenuController
         $itemId = $data['id'] ?? null;
         if ($itemId !== null) {
             $existing = $this->menuService->getMenuItemById($itemId);
-            if ($existing === null || $existing->getPageId() !== $pageId) {
+            $menuId = $existing !== null
+                ? $this->menuService->getMenuIdForPage($pageId, $data['locale'] ?? $existing->getLocale())
+                : null;
+            if ($existing === null || $menuId === null || $existing->getMenuId() !== $menuId) {
                 return $this->jsonError($response, 'Menu item not found.', 404);
             }
         }
@@ -155,7 +158,8 @@ final class MarketingMenuController
         }
 
         $item = $this->menuService->getMenuItemById($itemId);
-        if ($item === null || $item->getPageId() !== $pageId) {
+        $menuId = $item !== null ? $this->menuService->getMenuIdForPage($pageId, $item->getLocale()) : null;
+        if ($item === null || $menuId === null || $item->getMenuId() !== $menuId) {
             return $this->jsonError($response, 'Menu item not found.', 404);
         }
 
@@ -399,11 +403,11 @@ final class MarketingMenuController
     /**
      * @return array<string, mixed>
      */
-    private function serializeItem(CmsPageMenuItem $item): array
+    private function serializeItem(CmsMenuItem $item): array
     {
         return [
             'id' => $item->getId(),
-            'pageId' => $item->getPageId(),
+            'menuId' => $item->getMenuId(),
             'namespace' => $item->getNamespace(),
             'label' => $item->getLabel(),
             'href' => $item->getHref(),
