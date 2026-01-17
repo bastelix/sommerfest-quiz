@@ -6,7 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
-use App\Domain\CmsPageMenuItem;
+use App\Domain\CmsMenuItem;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
@@ -386,7 +386,7 @@ class ProjectPagesController
         }
 
         $response->getBody()->write(json_encode([
-            'items' => array_map(fn (CmsPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
+            'items' => array_map(fn (CmsMenuItem $item): array => $this->serializeMenuItem($item), $items),
         ], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
@@ -434,7 +434,7 @@ class ProjectPagesController
         }
 
         $response->getBody()->write(json_encode([
-            'items' => array_map(fn (CmsPageMenuItem $item): array => $this->serializeMenuItem($item), $items),
+            'items' => array_map(fn (CmsMenuItem $item): array => $this->serializeMenuItem($item), $items),
         ], JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
@@ -801,11 +801,11 @@ class ProjectPagesController
         return (bool) $value;
     }
 
-    private function serializeMenuItem(CmsPageMenuItem $item): array
+    private function serializeMenuItem(CmsMenuItem $item): array
     {
         return [
             'id' => $item->getId(),
-            'pageId' => $item->getPageId(),
+            'menuId' => $item->getMenuId(),
             'namespace' => $item->getNamespace(),
             'parentId' => $item->getParentId(),
             'label' => $item->getLabel(),
