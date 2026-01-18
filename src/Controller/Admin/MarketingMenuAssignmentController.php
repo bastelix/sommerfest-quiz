@@ -86,7 +86,7 @@ final class MarketingMenuAssignmentController
     public function show(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $assignmentId = isset($args['id']) ? (int) $args['id'] : 0;
+        $assignmentId = (int) $args['id'];
         if ($assignmentId <= 0) {
             return $this->jsonError($response, 'Assignment id is required.', 422);
         }
@@ -153,7 +153,7 @@ final class MarketingMenuAssignmentController
     public function update(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $assignmentId = isset($args['id']) ? (int) $args['id'] : 0;
+        $assignmentId = (int) $args['id'];
         if ($assignmentId <= 0) {
             return $this->jsonError($response, 'Assignment id is required.', 422);
         }
@@ -210,7 +210,7 @@ final class MarketingMenuAssignmentController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $assignmentId = isset($args['id']) ? (int) $args['id'] : 0;
+        $assignmentId = (int) $args['id'];
         if ($assignmentId <= 0) {
             return $this->jsonError($response, 'Assignment id is required.', 422);
         }

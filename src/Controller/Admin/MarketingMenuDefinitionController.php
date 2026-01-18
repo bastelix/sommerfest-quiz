@@ -54,7 +54,7 @@ final class MarketingMenuDefinitionController
     public function show(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['id']) ? (int) $args['id'] : 0;
+        $menuId = (int) $args['id'];
         if ($menuId <= 0) {
             return $this->jsonError($response, 'Menu id is required.', 422);
         }
@@ -109,7 +109,7 @@ final class MarketingMenuDefinitionController
     public function update(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['id']) ? (int) $args['id'] : 0;
+        $menuId = (int) $args['id'];
         if ($menuId <= 0) {
             return $this->jsonError($response, 'Menu id is required.', 422);
         }
@@ -154,7 +154,7 @@ final class MarketingMenuDefinitionController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['id']) ? (int) $args['id'] : 0;
+        $menuId = (int) $args['id'];
         if ($menuId <= 0) {
             return $this->jsonError($response, 'Menu id is required.', 422);
         }
@@ -198,7 +198,7 @@ final class MarketingMenuDefinitionController
 
         $data = [
             'label' => $label ?? '',
-            'locale' => $locale ?? 'de',
+            'locale' => $locale,
             'isActive' => $isActive,
         ];
 

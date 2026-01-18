@@ -42,7 +42,7 @@ final class MarketingMenuItemController
     public function index(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
+        $menuId = (int) $args['menuId'];
         if ($menuId <= 0) {
             return $this->jsonError($response, 'Menu id is required.', 422);
         }
@@ -87,7 +87,7 @@ final class MarketingMenuItemController
     public function create(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
+        $menuId = (int) $args['menuId'];
         if ($menuId <= 0) {
             return $this->jsonError($response, 'Menu id is required.', 422);
         }
@@ -143,8 +143,8 @@ final class MarketingMenuItemController
     public function update(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
-        $itemId = isset($args['id']) ? (int) $args['id'] : 0;
+        $menuId = (int) $args['menuId'];
+        $itemId = (int) $args['id'];
         if ($menuId <= 0 || $itemId <= 0) {
             return $this->jsonError($response, 'Menu id and item id are required.', 422);
         }
@@ -204,8 +204,8 @@ final class MarketingMenuItemController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $namespace = $this->namespaceResolver->resolve($request)->getNamespace();
-        $menuId = isset($args['menuId']) ? (int) $args['menuId'] : 0;
-        $itemId = isset($args['id']) ? (int) $args['id'] : 0;
+        $menuId = (int) $args['menuId'];
+        $itemId = (int) $args['id'];
         if ($menuId <= 0 || $itemId <= 0) {
             return $this->jsonError($response, 'Menu id and item id are required.', 422);
         }
