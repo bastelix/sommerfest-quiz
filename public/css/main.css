@@ -2725,6 +2725,15 @@ body.admin-page {
   pointer-events: auto;
 }
 
+.page-preview-surface .site-footer {
+  min-height: 180px;
+}
+
+.page-preview-surface .site-footer .footer-columns {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-content: start;
+}
+
 .page-preview-surface [data-block-id] {
   outline: 1px dashed transparent;
   transition: outline-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
