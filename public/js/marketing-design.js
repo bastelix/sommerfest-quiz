@@ -136,6 +136,10 @@ const applyMarketingDesign = () => {
   if (!root?.style?.setProperty) {
     return;
   }
+  if (root.getAttribute('data-lock-design') === 'true') {
+    applyComponentTokens(root);
+    return;
+  }
 
   const { appearance, config } = resolveMarketingAppearance();
   const tokens = appearance?.tokens || {};
