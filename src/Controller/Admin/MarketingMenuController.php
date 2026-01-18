@@ -14,6 +14,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 use Slim\Routing\RouteContext;
 
+/**
+ * Legacy page-based menu endpoint. Prefer menu-based routes under /admin/menus/{menuId}/items.
+ *
+ * @deprecated UI should not rely on page-based menu endpoints.
+ */
 final class MarketingMenuController
 {
     private CmsPageMenuService $menuService;

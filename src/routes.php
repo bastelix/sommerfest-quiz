@@ -14,6 +14,7 @@ use App\Controller\AdminMediaController;
 use App\Controller\AdminLogsController;
 use App\Controller\Admin\PagesDesignController;
 use App\Controller\Admin\CmsPageWikiController;
+use App\Controller\Admin\NavigationController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
@@ -1546,8 +1547,29 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->cookies($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/navigation', function (Request $request, Response $response) {
-        $controller = new ProjectPagesController();
-        return $controller->navigation($request, $response);
+        return $response
+            ->withHeader('Location', $request->getAttribute('basePath') . '/admin/navigation/menus')
+            ->withStatus(302);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation/menus', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->menus($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation/standards', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->standards($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation/overrides', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->overrides($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation/overrides/{pageId:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new NavigationController();
+        return $controller->overrideDetail($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/settings/header', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->headerSettings($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/pages/seo', function (Request $request, Response $response) {
         $controller = new ProjectPagesController();
