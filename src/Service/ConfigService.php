@@ -316,30 +316,30 @@ class ConfigService
                 continue;
             }
 
-            if ($key === 'colors') {
-                $mergedColors = is_array($merged['colors'] ?? null) ? $merged['colors'] : [];
-                $overrideColors = is_array($namespaceOverrides['colors'] ?? null) ? $namespaceOverrides['colors'] : [];
-                foreach ($overrideColors as $colorKey => $value) {
-                    if (!in_array($colorKey, self::DESIGN_COLOR_KEYS, true)) {
-                        continue;
+            switch ($key) {
+                case 'colors':
+                    $mergedColors = is_array($merged['colors'] ?? null) ? $merged['colors'] : [];
+                    $overrideColors = is_array($namespaceOverrides['colors'] ?? null) ? $namespaceOverrides['colors'] : [];
+                    foreach ($overrideColors as $colorKey => $value) {
+                        if (!in_array($colorKey, self::DESIGN_COLOR_KEYS, true)) {
+                            continue;
+                        }
+                        $mergedColors[$colorKey] = $value;
                     }
-                    $mergedColors[$colorKey] = $value;
-                }
-                if ($mergedColors !== []) {
-                    $merged['colors'] = $mergedColors;
-                }
-                continue;
-            }
-
-            if ($key === 'pageTypes') {
-                if (is_array($namespaceOverrides['pageTypes'] ?? null) && $namespaceOverrides['pageTypes'] !== []) {
-                    $merged['pageTypes'] = $namespaceOverrides['pageTypes'];
-                }
-                continue;
-            }
-
-            if ($key === 'startTheme' && is_string($namespaceOverrides['startTheme']) && $namespaceOverrides['startTheme'] !== '') {
-                $merged['startTheme'] = $namespaceOverrides['startTheme'];
+                    if ($mergedColors !== []) {
+                        $merged['colors'] = $mergedColors;
+                    }
+                    break;
+                case 'pageTypes':
+                    if (is_array($namespaceOverrides['pageTypes'] ?? null) && $namespaceOverrides['pageTypes'] !== []) {
+                        $merged['pageTypes'] = $namespaceOverrides['pageTypes'];
+                    }
+                    break;
+                case 'startTheme':
+                    if (is_string($namespaceOverrides['startTheme']) && $namespaceOverrides['startTheme'] !== '') {
+                        $merged['startTheme'] = $namespaceOverrides['startTheme'];
+                    }
+                    break;
             }
         }
 
