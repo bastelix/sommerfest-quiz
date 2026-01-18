@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Domain\CmsMenuItem;
 use App\Infrastructure\Database;
+use App\Support\FeatureFlags;
 use PDO;
 
 final class CmsMenuResolverService
@@ -17,17 +18,20 @@ final class CmsMenuResolverService
     private CmsMenuService $legacyMenuService;
 
     private ?int $defaultMenuId;
+    private bool $allowLegacyFallback;
 
     public function __construct(
         ?PDO $pdo = null,
         ?CmsMenuDefinitionService $menuDefinitions = null,
         ?CmsMenuService $legacyMenuService = null,
-        ?int $defaultMenuId = null
+        ?int $defaultMenuId = null,
+        ?bool $allowLegacyFallback = null
     ) {
         $pdo = $pdo ?? Database::connectFromEnv();
         $this->menuDefinitions = $menuDefinitions ?? new CmsMenuDefinitionService($pdo);
         $this->legacyMenuService = $legacyMenuService ?? new CmsMenuService($pdo);
         $this->defaultMenuId = $defaultMenuId;
+        $this->allowLegacyFallback = $allowLegacyFallback ?? FeatureFlags::marketingMenuLegacyFallbackEnabled();
     }
 
     /**
@@ -112,14 +116,16 @@ final class CmsMenuResolverService
             }
         }
 
-        $legacyItems = $this->legacyMenuService->getMenuForNamespace($normalizedNamespace, $normalizedLocale);
-        if ($legacyItems !== []) {
-            return [
-                'menuId' => null,
-                'assignmentId' => null,
-                'items' => $legacyItems,
-                'source' => 'legacy_fallback',
-            ];
+        if ($this->allowLegacyFallback && !$this->menuDefinitions->hasAssignmentsForSlot($normalizedNamespace, $normalizedSlot)) {
+            $legacyItems = $this->legacyMenuService->getMenuForNamespace($normalizedNamespace, $normalizedLocale);
+            if ($legacyItems !== []) {
+                return [
+                    'menuId' => null,
+                    'assignmentId' => null,
+                    'items' => $legacyItems,
+                    'source' => 'legacy_fallback',
+                ];
+            }
         }
 
         return [

@@ -732,6 +732,8 @@ curl -X POST http://$DOMAIN/users.json \
 - `NGINX_RELOAD` – auf `0` setzen, wenn ein externer Webhook den Reload übernimmt.
 - `NGINX_RELOADER_URL` – URL eines externen Webhooks für den Proxy-Reload.
 - `DISPLAY_ERROR_DETAILS` – auf `1` setzen, um detaillierte Fehlermeldungen anzuzeigen.
+- `FEATURE_MARKETING_MENU_LEGACY_FALLBACK` – steuert den Legacy-Fallback für Marketing-Menüs.
+  Abschaltzeitpunkt: nach Abschluss der Menü-Assignment-Migration (danach auf `0` setzen).
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.
 Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an. Dieses Passwort ersetzt das zuvor generierte Standardpasswort des Admin-Benutzers.

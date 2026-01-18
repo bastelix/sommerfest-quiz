@@ -498,6 +498,69 @@ final class CmsMenuDefinitionService
     }
 
     /**
+     * Check whether any assignment exists for the given slot, regardless of active status.
+     */
+    public function hasAssignmentForSlot(
+        string $namespace,
+        string $slot,
+        ?string $locale = null,
+        ?int $pageId = null
+    ): bool {
+        $normalizedNamespace = trim($namespace);
+        $normalizedSlot = trim($slot);
+
+        if ($normalizedNamespace === '' || $normalizedSlot === '') {
+            return false;
+        }
+
+        $params = [$normalizedNamespace, $normalizedSlot];
+        $sql = 'SELECT 1 FROM marketing_menu_assignments WHERE namespace = ? AND slot = ?';
+
+        if ($pageId !== null) {
+            if ($pageId <= 0) {
+                return false;
+            }
+            $sql .= ' AND page_id = ?';
+            $params[] = $pageId;
+        } else {
+            $sql .= ' AND page_id IS NULL';
+        }
+
+        $normalizedLocale = $this->normalizeLocale($locale);
+        if ($normalizedLocale !== null) {
+            $sql .= ' AND locale = ?';
+            $params[] = $normalizedLocale;
+        }
+
+        $sql .= ' LIMIT 1';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * Check whether any assignment exists for the given slot in a namespace.
+     */
+    public function hasAssignmentsForSlot(string $namespace, string $slot): bool
+    {
+        $normalizedNamespace = trim($namespace);
+        $normalizedSlot = trim($slot);
+
+        if ($normalizedNamespace === '' || $normalizedSlot === '') {
+            return false;
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT 1 FROM marketing_menu_assignments WHERE namespace = ? AND slot = ? LIMIT 1'
+        );
+        $stmt->execute([$normalizedNamespace, $normalizedSlot]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * @param array<string, mixed> $row
      */
     private function hydrateMenu(array $row): CmsMenu
