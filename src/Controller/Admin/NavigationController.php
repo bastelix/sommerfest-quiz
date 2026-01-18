@@ -156,7 +156,7 @@ final class NavigationController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $pageId = (int) ($args['pageId'] ?? 0);
+        $pageId = (int) $args['pageId'];
         $page = $pageId > 0 ? $this->pageService->findById($pageId) : null;
         if ($page === null || $page->getNamespace() !== $namespace) {
             return $response->withStatus(404);
@@ -443,7 +443,7 @@ final class NavigationController
     {
         $locales = [];
         foreach ($menus as $menu) {
-            if ($menu->getLocale() !== null && $menu->getLocale() !== '') {
+            if ($menu->getLocale() !== '') {
                 $locales[] = $menu->getLocale();
             }
         }
@@ -461,8 +461,8 @@ final class NavigationController
         sort($locales, SORT_STRING);
 
         $projectSettings = $this->projectSettings->getCookieConsentSettings($namespace);
-        $languageToggleActive = (bool) ($projectSettings['show_language_toggle'] ?? true);
-        if (!$languageToggleActive && $locales !== []) {
+        $languageToggleActive = (bool) $projectSettings['show_language_toggle'];
+        if (!$languageToggleActive) {
             return [$locales[0]];
         }
 
