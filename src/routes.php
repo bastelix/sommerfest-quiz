@@ -123,6 +123,9 @@ use App\Controller\Admin\MarketingNewsletterConfigController;
 use App\Controller\Admin\MarketingNewsletterController;
 use App\Controller\Admin\NewsletterCampaignController;
 use App\Controller\Admin\MarketingMenuController;
+use App\Controller\Admin\MarketingMenuDefinitionController;
+use App\Controller\Admin\MarketingMenuItemController;
+use App\Controller\Admin\MarketingMenuAssignmentController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
@@ -196,6 +199,9 @@ require_once __DIR__ . '/Controller/Admin/DomainController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
 require_once __DIR__ . '/Controller/Admin/CmsPageWikiController.php';
 require_once __DIR__ . '/Controller/Admin/MarketingMenuController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingMenuDefinitionController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingMenuItemController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingMenuAssignmentController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -1796,6 +1802,98 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $controller->index($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/menus', function (Request $request, Response $response) {
+        $controller = new MarketingMenuDefinitionController();
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/menus/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuDefinitionController();
+
+        return $controller->show($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/menus', function (Request $request, Response $response) {
+        $controller = new MarketingMenuDefinitionController();
+
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->patch('/admin/menus/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuDefinitionController();
+
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/menus/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuDefinitionController();
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/menus/{menuId:[0-9]+}/items', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuItemController();
+
+        return $controller->index($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/menus/{menuId:[0-9]+}/items', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuItemController();
+
+        return $controller->create($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->patch('/admin/menus/{menuId:[0-9]+}/items/{id:[0-9]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
+        $controller = new MarketingMenuItemController();
+
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/menus/{menuId:[0-9]+}/items/{id:[0-9]+}', function (
+        Request $request,
+        Response $response,
+        array $args
+    ) {
+        $controller = new MarketingMenuItemController();
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/menu-assignments', function (Request $request, Response $response) {
+        $controller = new MarketingMenuAssignmentController();
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->get('/admin/menu-assignments/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuAssignmentController();
+
+        return $controller->show($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/menu-assignments', function (Request $request, Response $response) {
+        $controller = new MarketingMenuAssignmentController();
+
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->patch('/admin/menu-assignments/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuAssignmentController();
+
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/menu-assignments/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingMenuAssignmentController();
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->get('/admin/pages/{pageId:[0-9]+}/menu', function (Request $request, Response $response, array $args) {
         $controller = new MarketingMenuController();

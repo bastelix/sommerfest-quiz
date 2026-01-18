@@ -614,7 +614,10 @@ final class CmsPageMenuService
         return $item;
     }
 
-    private function createMenuItemForMenu(
+    /**
+     * Create a menu item directly for a menu definition.
+     */
+    public function createMenuItemForMenu(
         int $menuId,
         string $namespace,
         string $label,
