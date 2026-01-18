@@ -995,7 +995,7 @@ final class CmsPageMenuService
             $candidateWithSlash,
         ]);
 
-        return array_values(array_filter($candidates, static fn (string $value): bool => $value !== ''));
+        return array_values($candidates);
     }
 
     /**
