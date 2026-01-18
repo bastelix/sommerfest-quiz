@@ -278,7 +278,8 @@ class ProjectPagesController
             ],
             $pages
         );
-        $internalLinks = $this->buildInternalLinks($allPages);
+        $anchorPage = $this->resolveAnchorPage($pages, $namespace, $request->getQueryParams());
+        $internalLinks = $this->buildInternalLinks($allPages, $anchorPage);
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
         $navigationVariants = [
             ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
@@ -337,7 +338,7 @@ class ProjectPagesController
      * @param array<int, Page> $pages
      * @return array<int, array{value:string,label:string,group:string}>
      */
-    private function buildInternalLinks(array $pages): array
+    private function buildInternalLinks(array $pages, ?Page $anchorPage): array
     {
         $extractor = new PageAnchorExtractor();
         $pagePathOptions = [];
@@ -356,8 +357,12 @@ class ProjectPagesController
                 'label' => $namespace . ': ' . $path,
                 'group' => 'Seitenpfade',
             ];
+        }
 
-            $anchorIds = $extractor->extractAnchorIds($page->getContent());
+        if ($anchorPage !== null && $anchorPage->getSlug() !== '') {
+            $namespace = $anchorPage->getNamespace();
+            $path = '/' . ltrim($anchorPage->getSlug(), '/');
+            $anchorIds = $extractor->extractAnchorIds($anchorPage->getContent());
             foreach ($anchorIds as $anchorId) {
                 $anchorOptions[$namespace . ':' . $anchorId] = [
                     'value' => '#' . $anchorId,
@@ -384,6 +389,33 @@ class ProjectPagesController
             array_values($anchorOptions),
             array_values($pageAnchorOptions)
         );
+    }
+
+    /**
+     * @param array<int, Page> $pages
+     */
+    private function resolveAnchorPage(array $pages, string $namespace, array $params): ?Page
+    {
+        $requestedSlug = '';
+        if (isset($params['pageSlug']) || isset($params['slug'])) {
+            $requestedSlug = trim((string) ($params['pageSlug'] ?? $params['slug'] ?? ''));
+        }
+
+        if ($requestedSlug !== '') {
+            foreach ($pages as $page) {
+                if ($page->getNamespace() === $namespace && $page->getSlug() === $requestedSlug) {
+                    return $page;
+                }
+            }
+        }
+
+        foreach ($pages as $page) {
+            if ($page->getNamespace() === $namespace) {
+                return $page;
+            }
+        }
+
+        return null;
     }
 
     public function generateMenu(Request $request, Response $response, array $args): Response
