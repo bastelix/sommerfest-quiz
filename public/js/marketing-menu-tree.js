@@ -13,7 +13,7 @@ if (container) {
     const importButton = container.querySelector('[data-menu-import]');
     const importInput = container.querySelector('[data-menu-import-input]');
     const pageLabel = container.querySelector('[data-menu-page-label]');
-    const pageSelect = document.getElementById('pageContentSelect');
+    const menuSelect = document.getElementById('menuDefinitionSelect');
     const localeSelect = document.getElementById('menuLocaleSelect');
     const previewTree = document.querySelector('[data-menu-preview-tree]');
     const previewEmpty = document.querySelector('[data-menu-preview-empty]');
@@ -71,12 +71,11 @@ if (container) {
     };
 
     const state = {
-      pageId: null,
-      pageSlug: '',
+      menuId: null,
       items: [],
       byId: new Map(),
       originalItems: [],
-      pages: [],
+      menus: [],
       dirty: new Set(),
       dragging: null,
       basePath: normalizeBasePath(container.dataset.basePath || window.basePath || ''),
@@ -168,17 +167,17 @@ if (container) {
       }
     };
 
-    const parsePages = () => {
+    const parseMenus = () => {
       try {
-        const parsed = JSON.parse(container.dataset.pages || '[]');
-        state.pages = Array.isArray(parsed) ? parsed : [];
+        const parsed = JSON.parse(container.dataset.menus || '[]');
+        state.menus = Array.isArray(parsed) ? parsed : [];
       } catch (error) {
-        console.warn('Failed to parse CMS pages', error);
-        state.pages = [];
+        console.warn('Failed to parse menus', error);
+        state.menus = [];
       }
     };
 
-    const findPageBySlug = slug => state.pages.find(page => page.slug === slug) || null;
+    const findMenuById = id => state.menus.find(menu => Number(menu.id) === Number(id)) || null;
 
     const resolveCsrfToken = () =>
       document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || window.csrfToken || '';
@@ -219,49 +218,32 @@ if (container) {
 
     const withNamespace = path => appendQueryParam(path, 'namespace', state.namespace);
 
-    const withVariant = path => appendQueryParam(path, 'variant', state.variant);
-
-    const withMenuParams = (path, localeValue) => {
-      let resolved = withNamespace(withVariant(path));
-      if (localeValue !== undefined) {
-        resolved = appendQueryParam(resolved, 'locale', localeValue);
-      }
-      return resolved;
-    };
-
-    const buildPath = (pageId, suffix = '') => {
-      const path = `/admin/pages/${pageId}${suffix}`;
+    const buildItemsPath = (menuId, suffix = '') => {
+      const path = `/admin/menus/${menuId}/items${suffix}`;
       if (typeof window.apiFetch === 'function') {
         return path;
       }
       return `${state.basePath}${path}`;
     };
 
-    const formatPageLabel = page => {
-      const title = (page?.title || '').trim();
-      if (title) {
-        return title;
+    const formatMenuLabel = menu => {
+      const label = (menu?.label || '').trim();
+      if (label) {
+        return label;
       }
-      const slug = (page?.slug || '').trim();
-      if (!slug) {
-        return 'Neue Seite';
-      }
-      return slug
-        .split('-')
-        .filter(Boolean)
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ');
+      return 'Neues Menü';
     };
 
-    const setPageLabel = page => {
+    const setMenuLabel = menu => {
       if (!pageLabel) {
         return;
       }
-      if (!page) {
-        pageLabel.textContent = 'Keine Seite vorhanden.';
+      if (!menu) {
+        pageLabel.textContent = 'Kein Menü ausgewählt.';
         return;
       }
-      pageLabel.textContent = `Seite: ${formatPageLabel(page)} (${page.slug})`;
+      const locale = menu.locale ? ` (${menu.locale})` : '';
+      pageLabel.textContent = `Menü: ${formatMenuLabel(menu)}${locale}`;
     };
 
     const buildTree = items => {
@@ -327,8 +309,8 @@ if (container) {
         if (!previewSummary) {
           return;
         }
-        if (!state.pageId) {
-          previewSummary.textContent = 'Bitte Seite auswählen.';
+        if (!state.menuId) {
+          previewSummary.textContent = 'Bitte Menü auswählen.';
           return;
         }
         const label = pageLabel?.textContent?.trim() || 'Aktuelle Navigation';
@@ -434,7 +416,7 @@ if (container) {
     const updateButtons = () => {
       const hasDirty = state.dirty.size > 0;
       if (saveButton) {
-        saveButton.disabled = !hasDirty || !state.pageId;
+        saveButton.disabled = !hasDirty || !state.menuId;
       }
       if (cancelButton) {
         cancelButton.disabled = !hasDirty;
@@ -814,8 +796,8 @@ if (container) {
       if (!window.confirm('Eintrag entfernen?')) {
         return;
       }
-      if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
+      if (!state.menuId) {
+        setFeedback('Bitte zuerst ein Menü auswählen.', 'warning');
         return;
       }
 
@@ -833,10 +815,9 @@ if (container) {
         button.disabled = true;
       }
 
-      apiFetch(withMenuParams(buildPath(state.pageId, '/menu'), state.locale), {
+      apiFetch(withNamespace(buildItemsPath(state.menuId, `/${numericId}`)), {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: numericId })
+        headers: { 'Content-Type': 'application/json' }
       })
         .then(response => {
           if (!response.ok && response.status !== 204) {
@@ -871,10 +852,10 @@ if (container) {
         return;
       }
       treeRoot.innerHTML = '';
-      if (!state.pageId) {
+      if (!state.menuId) {
         const message = document.createElement('div');
         message.className = 'uk-text-meta';
-        message.textContent = 'Bitte zuerst eine Seite auswählen.';
+        message.textContent = 'Bitte zuerst ein Menü auswählen.';
         treeRoot.appendChild(message);
         return;
       }
@@ -885,17 +866,16 @@ if (container) {
       renderPreview(state.items);
     };
 
-    const updateSelectedPage = () => {
-      const slug = pageSelect?.value || container.dataset.selectedSlug || '';
-      const page = slug ? findPageBySlug(slug) : null;
-      state.pageSlug = slug;
-      state.pageId = page ? Number(page.id) : null;
-      setPageLabel(page);
-      addButton.disabled = !state.pageId;
-      exportButton.disabled = !state.pageId;
-      importButton.disabled = !state.pageId;
+    const updateSelectedMenu = () => {
+      const selectedId = menuSelect?.value || container.dataset.selectedMenuId || '';
+      const menu = selectedId ? findMenuById(selectedId) : null;
+      state.menuId = menu ? Number(menu.id) : null;
+      setMenuLabel(menu);
+      addButton.disabled = !state.menuId;
+      exportButton.disabled = !state.menuId;
+      importButton.disabled = !state.menuId;
       if (generateButton) {
-        generateButton.disabled = !state.pageId;
+        generateButton.disabled = !state.menuId;
       }
       state.dirty.clear();
       updateButtons();
@@ -903,13 +883,13 @@ if (container) {
     };
 
     const loadMenuItems = locale => {
-      if (!state.pageId) {
+      if (!state.menuId) {
         renderTree();
         return;
       }
       hideFeedback();
       treeRoot.textContent = 'Lädt…';
-      const path = withMenuParams(buildPath(state.pageId, '/menu'), locale);
+      const path = appendQueryParam(withNamespace(buildItemsPath(state.menuId)), 'locale', locale);
       apiFetch(path)
         .then(response => {
           if (!response.ok) {
@@ -924,67 +904,18 @@ if (container) {
           renderTree();
         })
         .catch(error => {
-          console.error('Failed to load CMS menu', error);
+          console.error('Failed to load menu items', error);
           setFeedback('Menüeinträge konnten nicht geladen werden.', 'danger');
           treeRoot.textContent = 'Menüeinträge konnten nicht geladen werden.';
         });
     };
 
-    const parseGenerationError = response => response
-      .json()
-      .catch(() => response.text())
-      .then(payload => {
-        const message = typeof payload === 'string'
-          ? payload.trim()
-          : typeof payload?.error === 'string'
-            ? payload.error.trim()
-            : '';
-
-        return { message, status: response.status };
-      })
-      .catch(() => ({ message: '', status: response.status }));
-
     const triggerAutoGeneration = overwrite => {
-      if (!state.pageId) {
+      if (!state.menuId) {
         return;
       }
 
-      setFeedback('Menü wird automatisch generiert…', 'primary');
-      apiFetch(withMenuParams(buildPath(state.pageId, '/menu/ai'), state.locale), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          locale: state.locale || null,
-          overwrite
-        })
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json();
-          }
-
-          return parseGenerationError(response).then(({ message, status }) => {
-            const error = new Error(message || 'menu-ai-failed');
-            error.responseStatus = status;
-            return Promise.reject(error);
-          });
-        })
-        .then(() => {
-          setFeedback('Navigation aktualisiert.', 'success');
-          loadMenuItems(state.locale);
-        })
-        .catch(error => {
-          console.error('AI menu generation failed', error);
-          const details = (error?.message || '').trim();
-          const message = error?.responseStatus === 504
-            ? 'Die KI konnte nicht rechtzeitig antworten. Bitte erneut versuchen.'
-            : error?.responseStatus === 502
-              ? 'Der KI-Dienst ist aktuell nicht erreichbar (Bad Gateway). Bitte später erneut versuchen.'
-            : details && details !== 'menu-ai-failed'
-              ? `Navigation konnte nicht automatisch generiert werden: ${details}`
-              : 'Navigation konnte nicht automatisch generiert werden.';
-          setFeedback(message, 'danger');
-        });
+      setFeedback('KI-Generierung ist für Menü-Definitionen aktuell nicht verfügbar.', 'warning');
     };
 
     const applyVariantSelection = () => {
@@ -1018,7 +949,6 @@ if (container) {
 
     const saveItem = item => {
       const payload = {
-        id: Number.isFinite(Number(item.id)) ? Number(item.id) : null,
         label: item.label || '',
         href: item.href || '',
         icon: item.icon || null,
@@ -1031,12 +961,15 @@ if (container) {
         isExternal: item.isExternal === true,
         locale: item.locale || null,
         isActive: item.isActive !== false,
-        isStartpage: item.isStartpage === true,
-        variant: state.variant || null
+        isStartpage: item.isStartpage === true
       };
+      const resolvedId = Number.isFinite(Number(item.id)) ? Number(item.id) : null;
+      const path = resolvedId
+        ? withNamespace(buildItemsPath(state.menuId, `/${resolvedId}`))
+        : withNamespace(buildItemsPath(state.menuId));
 
-      return apiFetch(withMenuParams(buildPath(state.pageId, '/menu'), item.locale || state.locale), {
-        method: 'POST',
+      return apiFetch(path, {
+        method: resolvedId ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
@@ -1077,7 +1010,7 @@ if (container) {
           setFeedback('Änderungen gespeichert.', 'success');
         })
         .catch(error => {
-          console.error('Failed to save CMS menu', error);
+          console.error('Failed to save menu', error);
           setFeedback('Speichern fehlgeschlagen.', 'danger');
         });
     };
@@ -1091,8 +1024,8 @@ if (container) {
     };
 
     const addNode = () => {
-      if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
+      if (!state.menuId) {
+        setFeedback('Bitte zuerst ein Menü auswählen.', 'warning');
         return;
       }
       const tempId = `new-${Date.now()}`;
@@ -1113,95 +1046,188 @@ if (container) {
     };
 
     const downloadMenu = () => {
-      if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
+      if (!state.menuId) {
+        setFeedback('Bitte zuerst ein Menü auswählen.', 'warning');
         return;
       }
 
-      const path = withMenuParams(buildPath(state.pageId, '/menu/export'), state.locale);
-      apiFetch(path, { headers: { Accept: 'application/json' } })
-        .then(async response => {
-          if (!response.ok) {
-            const body = await response.json().catch(() => ({}));
-            const message = body?.error || 'Export fehlgeschlagen.';
-            throw new Error(message);
+      const menu = findMenuById(state.menuId);
+      const exportPayload = {
+        menuId: state.menuId,
+        menu: menu
+          ? {
+            id: menu.id,
+            label: menu.label,
+            locale: menu.locale,
+            isActive: menu.isActive
           }
-          const data = await response.json();
-          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-          const slug = state.pageSlug || 'menu';
-          const namespace = state.namespace || 'default';
-          const locale = state.locale || 'all';
-          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-          const filename = `cms-menu-${slug}-${namespace}-${locale}-${timestamp}.json`;
+          : null,
+        namespace: state.namespace || 'default',
+        items: state.items
+      };
 
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          URL.revokeObjectURL(url);
-          setFeedback('Menü exportiert.', 'success');
-        })
-        .catch(error => {
-          console.error('Failed to export CMS menu', error);
-          setFeedback(error.message || 'Export fehlgeschlagen.', 'danger');
-        });
+      const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: 'application/json' });
+      const label = menu?.label || 'menu';
+      const normalizedLabel = label.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'menu';
+      const namespace = state.namespace || 'default';
+      const locale = state.locale || 'all';
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `marketing-menu-${normalizedLabel}-${namespace}-${locale}-${timestamp}.json`;
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setFeedback('Menü exportiert.', 'success');
     };
 
-    const NAMESPACE_MISMATCH_ERROR = 'Namespace des Exports stimmt nicht mit der Seite überein.';
-
-    const submitImportPayload = (payload, options = { allowNamespaceMismatch: false }) => {
-      const { allowNamespaceMismatch = false } = options;
-
-      if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
-        return;
+    const normalizeImportItems = items => {
+      if (!Array.isArray(items)) {
+        return [];
       }
+      return items
+        .filter(item => item && typeof item === 'object')
+        .map(item => ({
+          ...item,
+          id: item.id ?? null,
+          parentId: item.parentId ?? null
+        }));
+    };
 
-      const body = allowNamespaceMismatch
-        ? { ...payload, allowNamespaceMismatch: true }
-        : { ...payload, allowNamespaceMismatch: false };
+    const buildImportTree = items => {
+      const byId = new Map();
+      const roots = [];
 
-      apiFetch(withMenuParams(buildPath(state.pageId, '/menu/import'), state.locale), {
+      items.forEach(item => {
+        if (item.id === null || item.id === undefined) {
+          return;
+        }
+        byId.set(item.id, { ...item, children: [] });
+      });
+
+      items.forEach(item => {
+        if (item.id === null || item.id === undefined) {
+          return;
+        }
+        const node = byId.get(item.id);
+        const parentId = item.parentId;
+        if (parentId !== null && parentId !== undefined && byId.has(parentId)) {
+          byId.get(parentId).children.push(node);
+        } else {
+          roots.push(node);
+        }
+      });
+
+      const sortNodes = nodes => {
+        nodes.sort((a, b) => {
+          const posA = Number.isFinite(Number(a.position)) ? Number(a.position) : 0;
+          const posB = Number.isFinite(Number(b.position)) ? Number(b.position) : 0;
+          if (posA === posB) {
+            return Number(a.id || 0) - Number(b.id || 0);
+          }
+          return posA - posB;
+        });
+        nodes.forEach(node => sortNodes(node.children || []));
+      };
+
+      sortNodes(roots);
+      return roots;
+    };
+
+    const deleteExistingMenuItems = async () => {
+      const roots = state.items.filter(item => item.parentId === null || item.parentId === undefined);
+      for (const root of roots) {
+        const rootId = Number(root.id);
+        if (!Number.isFinite(rootId)) {
+          continue;
+        }
+        await apiFetch(withNamespace(buildItemsPath(state.menuId, `/${rootId}`)), {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    };
+
+    const createMenuItemFromPayload = async (menuId, payload, parentId, index) => {
+      const body = {
+        label: payload.label || '',
+        href: payload.href || '',
+        icon: payload.icon || null,
+        parentId: parentId ?? null,
+        layout: payload.layout || 'link',
+        detailTitle: payload.detailTitle || null,
+        detailText: payload.detailText || null,
+        detailSubline: payload.detailSubline || null,
+        position: Number.isFinite(payload.position) ? payload.position : index,
+        isExternal: payload.isExternal === true,
+        locale: payload.locale || null,
+        isActive: payload.isActive !== false,
+        isStartpage: payload.isStartpage === true
+      };
+
+      const response = await apiFetch(withNamespace(buildItemsPath(menuId)), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
-      })
-        .then(async response => {
-          if (response.ok || response.status === 204) {
-            return null;
-          }
-          const responseBody = await response.json().catch(() => ({}));
-          const message = responseBody?.error || 'Import fehlgeschlagen.';
-          const error = new Error(message);
-          error.responseStatus = response.status;
-          error.responseBody = responseBody;
-          throw error;
-        })
-        .then(() => {
-          setFeedback('Menü importiert.', 'success');
-          loadMenuItems(state.locale);
-        })
-        .catch(error => {
-          if (
-            !allowNamespaceMismatch
-            && (error?.message === NAMESPACE_MISMATCH_ERROR
-              || error?.responseBody?.error === NAMESPACE_MISMATCH_ERROR)
-          ) {
-            const confirmImport = window.confirm(
-              'Namespace des Exports stimmt nicht mit der Seite überein. Trotzdem importieren?'
-            );
-            if (confirmImport) {
-              submitImportPayload(payload, { allowNamespaceMismatch: true });
-              return;
-            }
-          }
+      });
 
-          console.error('Failed to import CMS menu', error);
-          setFeedback(error.message || 'Import fehlgeschlagen.', 'danger');
-        });
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody?.error || 'Import fehlgeschlagen.');
+      }
+
+      const data = await response.json();
+      return data?.item?.id ?? null;
+    };
+
+    const createMenuItemsFromTree = async (menuId, nodes, parentId = null) => {
+      for (let index = 0; index < nodes.length; index += 1) {
+        const node = nodes[index];
+        const newId = await createMenuItemFromPayload(menuId, node, parentId, index);
+        if (node.children?.length) {
+          await createMenuItemsFromTree(menuId, node.children, newId);
+        }
+      }
+    };
+
+    const submitImportPayload = async payload => {
+      if (!state.menuId) {
+        setFeedback('Bitte zuerst ein Menü auswählen.', 'warning');
+        return;
+      }
+
+      const payloadMenuId = payload?.menuId ?? payload?.menu?.id ?? null;
+      if (payloadMenuId && Number(payloadMenuId) !== Number(state.menuId)) {
+        const confirmImport = window.confirm(
+          'Menu-ID des Exports stimmt nicht mit dem Zielmenü überein. Trotzdem importieren?'
+        );
+        if (!confirmImport) {
+          return;
+        }
+      }
+
+      const normalizedItems = normalizeImportItems(payload?.items || []);
+      if (!normalizedItems.length) {
+        setFeedback('Import fehlgeschlagen: Keine Einträge gefunden.', 'danger');
+        return;
+      }
+
+      setFeedback('Menü wird importiert…', 'primary');
+
+      try {
+        await deleteExistingMenuItems();
+        const tree = buildImportTree(normalizedItems);
+        await createMenuItemsFromTree(state.menuId, tree);
+        setFeedback('Menü importiert.', 'success');
+        loadMenuItems(state.locale);
+      } catch (error) {
+        console.error('Failed to import menu items', error);
+        setFeedback(error?.message || 'Import fehlgeschlagen.', 'danger');
+      }
     };
 
     const handleImportFile = file => {
@@ -1212,7 +1238,7 @@ if (container) {
           const payload = JSON.parse(content);
           submitImportPayload(payload);
         } catch (error) {
-          console.error('Invalid CMS menu import file', error);
+          console.error('Invalid menu import file', error);
           setFeedback('Die Datei konnte nicht gelesen werden. Bitte gültiges JSON hochladen.', 'danger');
         } finally {
           if (importInput) {
@@ -1290,8 +1316,8 @@ if (container) {
 
     exportButton?.addEventListener('click', downloadMenu);
     importButton?.addEventListener('click', () => {
-      if (!state.pageId) {
-        setFeedback('Bitte zuerst eine Seite auswählen.', 'warning');
+      if (!state.menuId) {
+        setFeedback('Bitte zuerst ein Menü auswählen.', 'warning');
         return;
       }
       importInput?.click();
@@ -1303,20 +1329,24 @@ if (container) {
       }
     });
 
-    pageSelect?.addEventListener('change', updateSelectedPage);
+    menuSelect?.addEventListener('change', updateSelectedMenu);
+    window.addEventListener('marketing-menu:list-updated', event => {
+      const updated = Array.isArray(event.detail?.menus) ? event.detail.menus : null;
+      if (updated) {
+        state.menus = updated;
+        updateSelectedMenu();
+      }
+    });
     localeSelect?.addEventListener('change', () => {
       state.locale = localeSelect?.value || '';
       loadMenuItems(state.locale);
     });
     generateButton?.addEventListener('click', () => {
-      const overwrite = window.confirm(
-        'Menü automatisch generieren? OK überschreibt vorhandene Einträge, Abbrechen ergänzt nur fehlende.'
-      );
-      triggerAutoGeneration(overwrite);
+      triggerAutoGeneration(false);
     });
 
     applyVariantSelection();
-    parsePages();
-    updateSelectedPage();
+    parseMenus();
+    updateSelectedMenu();
   })();
 }

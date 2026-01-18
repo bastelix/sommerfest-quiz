@@ -109,33 +109,146 @@
           </div>
         </div>
 
-        {% set pagesList = pages|default([]) %}
-        {% set hasPages = pagesList is not empty %}
-        {% set selectedSlug = selectedPageSlug|default('') %}
-        {% if selectedSlug == '' and hasPages %}
-          {% set selectedSlug = (pagesList|first).slug %}
-        {% endif %}
+        {% set menuDefinitions = menu_definitions|default([]) %}
+        {% set hasMenus = menuDefinitions is not empty %}
+        {% set selectedMenuId = selected_menu_id|default('') %}
         {% set navigationMode = navigation_mode|default('cms') %}
         {% set navigationVariants = navigation_variants|default([]) %}
         {% set selectedVariant = selected_navigation_variant|default(navigationVariants|first.value|default('footer_columns_2')) %}
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin"
+          data-marketing-menu-overview
+          data-base-path="{{ basePath }}"
+          data-menus="{{ menuDefinitions|json_encode|e('html_attr') }}"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <div>
+              <div class="uk-text-meta uk-text-uppercase">Navigation</div>
+              <h3 class="uk-card-title uk-margin-remove">Menü-Übersicht</h3>
+            </div>
+            <span class="uk-text-meta">Einträge pro Namespace</span>
+          </div>
+          <form class="uk-form-stacked uk-margin-small-top" data-menu-create-form>
+            <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@s uk-flex-middle" uk-grid>
+              <div>
+                <label class="uk-form-label" for="newMenuLabel">Neues Menü</label>
+                <div class="uk-form-controls">
+                  <input
+                    id="newMenuLabel"
+                    class="uk-input"
+                    type="text"
+                    name="label"
+                    maxlength="64"
+                    placeholder="z. B. Hauptnavigation"
+                    required
+                  >
+                </div>
+              </div>
+              <div>
+                <label class="uk-form-label" for="newMenuLocale">Locale</label>
+                <div class="uk-form-controls">
+                  <input
+                    id="newMenuLocale"
+                    class="uk-input"
+                    type="text"
+                    name="locale"
+                    maxlength="8"
+                    value="{{ locale()|default('de') }}"
+                  >
+                </div>
+              </div>
+              <div class="uk-flex uk-flex-middle">
+                <label class="uk-flex uk-flex-middle uk-margin-small-right">
+                  <input class="uk-checkbox" type="checkbox" name="isActive" checked>
+                  <span class="uk-margin-small-left">Aktiv</span>
+                </label>
+                <button type="submit" class="uk-button uk-button-primary">Anlegen</button>
+              </div>
+            </div>
+          </form>
+          <div class="uk-overflow-auto admin-table-wrapper uk-margin-small-top">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
+              <thead>
+                <tr>
+                  <th>Menü</th>
+                  <th class="uk-table-shrink">Locale</th>
+                  <th class="uk-table-shrink">Status</th>
+                  <th class="uk-table-shrink uk-text-center">In Verwendung</th>
+                  <th class="uk-table-shrink">Aktualisiert</th>
+                  <th class="uk-table-shrink uk-text-right">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody data-menu-overview-items>
+                <tr data-menu-overview-loading>
+                  <td colspan="6">Lädt…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-overview-feedback hidden role="status"></div>
+        </div>
+        <div id="menuDefinitionModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title" data-menu-modal-title>Menü bearbeiten</h2>
+            <form class="uk-form-stacked" data-menu-modal-form>
+              <input type="hidden" name="menuId">
+              <input type="hidden" name="mode" value="rename">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="menuModalLabel">Menü-Label</label>
+                <div class="uk-form-controls">
+                  <input
+                    id="menuModalLabel"
+                    class="uk-input"
+                    type="text"
+                    name="label"
+                    maxlength="64"
+                    required
+                  >
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="menuModalLocale">Locale</label>
+                <div class="uk-form-controls">
+                  <input
+                    id="menuModalLocale"
+                    class="uk-input"
+                    type="text"
+                    name="locale"
+                    maxlength="8"
+                  >
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-flex uk-flex-middle">
+                  <input class="uk-checkbox" type="checkbox" name="isActive">
+                  <span class="uk-margin-small-left">Aktiv</span>
+                </label>
+              </div>
+              <div class="uk-margin uk-flex uk-flex-right uk-flex-middle" style="gap: 8px;">
+                <button type="button" class="uk-button uk-button-default uk-modal-close">Abbrechen</button>
+                <button type="submit" class="uk-button uk-button-primary" data-menu-modal-submit>Speichern</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
         <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <label class="uk-form-label" for="pageContentSelect">CMS-Seite</label>
+          <label class="uk-form-label" for="menuDefinitionSelect">Menü auswählen</label>
           <div class="uk-form-controls">
             <select
-              id="pageContentSelect"
+              id="menuDefinitionSelect"
               class="uk-select"
-              data-selected="{{ selectedSlug }}"
-              {% if not hasPages %}disabled{% endif %}
+              data-selected="{{ selectedMenuId }}"
+              {% if not hasMenus %}disabled{% endif %}
             >
-              {% if not hasPages %}
-                <option value="" selected>Keine Seiten vorhanden</option>
+              {% if not hasMenus %}
+                <option value="" selected>Keine Menüs vorhanden</option>
               {% endif %}
-              {% for page in pagesList %}
-                {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+              {% for menu in menuDefinitions %}
                 <option
-                  value="{{ page.slug }}"
-                  {% if page.slug == selectedSlug %}selected{% endif %}
-                >{{ pageLabel }}</option>
+                  value="{{ menu.id }}"
+                  {% if menu.id == selectedMenuId %}selected{% endif %}
+                >{{ menu.label }} ({{ menu.locale }})</option>
               {% endfor %}
             </select>
           </div>
@@ -166,7 +279,6 @@
 
         {% set marketingLocaleOptions = ['de', 'en'] %}
         {% set selectedMenuLocale = locale()|default('de') %}
-        {% set menuPagesData = hasPages ? menu_pages|default([]) : [] %}
         <div class="uk-card uk-card-default uk-card-body uk-margin">
           <label class="uk-form-label" for="menuLocaleSelect">Locale-Filter</label>
           <div class="uk-form-controls">
@@ -191,9 +303,9 @@
               class="uk-card uk-card-default uk-card-body uk-margin"
               data-marketing-menu-tree
               data-base-path="{{ basePath }}"
-              data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+              data-menus="{{ menuDefinitions|json_encode|e('html_attr') }}"
               data-internal-links="{{ internal_links|default([])|json_encode|e('html_attr') }}"
-              data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+              data-selected-menu-id="{{ hasMenus ? selectedMenuId : '' }}"
               data-namespace="{{ activePageNamespace|e('html_attr') }}"
               data-locale="{{ selectedMenuLocale|e('html_attr') }}"
               data-navigation-variant-options="{{ navigationVariants|json_encode|e('html_attr') }}"
@@ -209,7 +321,7 @@
                       type="button"
                       class="uk-button uk-button-default"
                       data-menu-generate-ai
-                      {% if selectedSlug == '' %}disabled{% endif %}
+                      {% if selectedMenuId == '' %}disabled{% endif %}
                     >Menü automatisch generieren/aktualisieren</button>
                     <div class="uk-button-group">
                       <button
@@ -227,26 +339,26 @@
                       >Abbrechen</button>
                     </div>
                     <div class="uk-button-group">
-                      <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedSlug == '' %}disabled{% endif %}>Menü exportieren</button>
-                    <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedSlug == '' %}disabled{% endif %}>Menü importieren</button>
+                      <button type="button" class="uk-button uk-button-default" data-menu-export {% if selectedMenuId == '' %}disabled{% endif %}>Menü exportieren</button>
+                    <button type="button" class="uk-button uk-button-default" data-menu-import {% if selectedMenuId == '' %}disabled{% endif %}>Menü importieren</button>
                   </div>
                   <input type="file" accept="application/json" data-menu-import-input hidden>
-                  <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedSlug == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
+                  <button type="button" class="uk-button uk-button-default" data-menu-add {% if selectedMenuId == '' %}disabled{% endif %}>Eintrag hinzufügen</button>
                   </div>
                 </div>
-                {% if not hasPages %}
+                {% if not hasMenus %}
                   <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                    Erstelle zuerst eine Seite, um die Navigation zu bearbeiten.
+                    Erstelle zuerst ein Menü, um die Navigation zu bearbeiten.
                   </div>
                 {% endif %}
                 <p class="uk-text-meta uk-margin-small-top">
-                  Pflege der Navigationslinks für die ausgewählte Seite. Drag &amp; Drop pro Ebene passt die Reihenfolgen an.
+                  Pflege der Navigationslinks für das ausgewählte Menü. Drag &amp; Drop pro Ebene passt die Reihenfolgen an.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
                   Basis: Label, Link, Sichtbarkeit. Erweitert: Layout, Icon, Locale, Startpage, Extern und SEO-Texte.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
-                  KI-Helfer: Lädt den Seiten-HTML-Inhalt, extrahiert Abschnitte/Anker und schreibt Menüeinträge. Optional bestehende Navigation ersetzen oder ergänzen, danach wird der Baum neu geladen.
+                  KI-Helfer: Für Menü-Definitionen derzeit nicht verfügbar.
                 </p>
                 <p class="uk-text-meta uk-margin-small-top">
                   Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.
@@ -277,9 +389,9 @@
               class="uk-card uk-card-default uk-card-body uk-margin"
               data-marketing-menu-manager
               data-base-path="{{ basePath }}"
-              data-pages="{{ menuPagesData|json_encode|e('html_attr') }}"
+              data-menus="{{ menuDefinitions|json_encode|e('html_attr') }}"
               data-internal-links="{{ internal_links|default([])|json_encode|e('html_attr') }}"
-              data-selected-slug="{{ hasPages ? selectedSlug : '' }}"
+              data-selected-menu-id="{{ hasMenus ? selectedMenuId : '' }}"
               data-namespace="{{ activePageNamespace|e('html_attr') }}"
               data-locale="{{ selectedMenuLocale|e('html_attr') }}"
               data-navigation-variant-options="{{ navigationVariants|json_encode|e('html_attr') }}"
@@ -295,20 +407,20 @@
                   type="button"
                   class="uk-button uk-button-default"
                   data-menu-generate-ai
-                  {% if selectedSlug == '' %}disabled{% endif %}
+                  {% if selectedMenuId == '' %}disabled{% endif %}
                 >Menü automatisch generieren/aktualisieren</button>
                 <div class="uk-button-group">
                   <button
                     type="button"
                     class="uk-button uk-button-default"
                     data-menu-export
-                    {% if selectedSlug == '' %}disabled{% endif %}
+                    {% if selectedMenuId == '' %}disabled{% endif %}
                   >Menü exportieren</button>
                   <button
                     type="button"
                     class="uk-button uk-button-default"
                     data-menu-import
-                    {% if selectedSlug == '' %}disabled{% endif %}
+                    {% if selectedMenuId == '' %}disabled{% endif %}
                   >Menü importieren</button>
                 </div>
                 <input type="file" accept="application/json" data-menu-import-input hidden>
@@ -316,23 +428,23 @@
                   type="button"
                   class="uk-button uk-button-default"
                   data-menu-add
-                  {% if selectedSlug == '' %}disabled{% endif %}
+                  {% if selectedMenuId == '' %}disabled{% endif %}
                 >Eintrag hinzufügen</button>
               </div>
             </div>
-            {% if not hasPages %}
+            {% if not hasMenus %}
               <div class="uk-alert uk-alert-warning uk-margin-small-top">
-                Erstelle zuerst eine Seite, um die Navigation zu bearbeiten.
+                Erstelle zuerst ein Menü, um die Navigation zu bearbeiten.
               </div>
             {% endif %}
             <p class="uk-text-meta uk-margin-small-top">
-              Pflege der Navigationslinks für die ausgewählte Seite. Drag &amp; Drop ändert die Reihenfolge.
+              Pflege der Navigationslinks für das ausgewählte Menü. Drag &amp; Drop ändert die Reihenfolge.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
               Parent &amp; Layout steuern Dropdowns, Mega-Menüs und die Hierarchie. Sortierung per Drag &amp; Drop erfolgt je Ebene.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
-              KI-Helfer: Lädt den Seiten-HTML-Inhalt, extrahiert Abschnitte/Anker und schreibt Menüeinträge. Optional bestehende Navigation ersetzen oder ergänzen, danach wird der Baum neu geladen.
+              KI-Helfer: Für Menü-Definitionen derzeit nicht verfügbar.
             </p>
             <p class="uk-text-meta uk-margin-small-top">
               Erlaubte Links: basePath-relative Pfade (z. B. /landing), #Anker, ?Parameter oder http(s)/mailto/tel.

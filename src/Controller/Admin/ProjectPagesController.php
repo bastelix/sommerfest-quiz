@@ -6,10 +6,12 @@ namespace App\Controller\Admin;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
+use App\Domain\CmsMenu;
 use App\Domain\CmsMenuItem;
 use App\Infrastructure\Database;
 use App\Repository\NamespaceRepository;
 use App\Service\DomainService;
+use App\Service\CmsMenuDefinitionService;
 use App\Service\Marketing\MarketingMenuAiErrorMapper;
 use App\Service\Marketing\PageAiPromptTemplateService;
 use App\Service\CmsPageMenuService;
@@ -49,6 +51,7 @@ class ProjectPagesController
     private PageAiPromptTemplateService $promptTemplateService;
     private ProjectSettingsService $projectSettings;
     private CmsPageMenuService $cmsMenu;
+    private CmsMenuDefinitionService $menuDefinitions;
     private ConfigService $configService;
     private NamespaceAppearanceService $namespaceAppearance;
     private EffectsPolicyService $effectsPolicy;
@@ -65,6 +68,7 @@ class ProjectPagesController
         ?PageAiPromptTemplateService $promptTemplateService = null,
         ?ProjectSettingsService $projectSettings = null,
         ?CmsPageMenuService $cmsMenu = null,
+        ?CmsMenuDefinitionService $menuDefinitions = null,
         ?ConfigService $configService = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
         ?EffectsPolicyService $effectsPolicy = null
@@ -80,6 +84,7 @@ class ProjectPagesController
         $this->promptTemplateService = $promptTemplateService ?? new PageAiPromptTemplateService();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pageService);
+        $this->menuDefinitions = $menuDefinitions ?? new CmsMenuDefinitionService($pdo);
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
@@ -273,6 +278,29 @@ class ProjectPagesController
             ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
         ];
         $selectedVariant = (string) ($request->getQueryParams()['variant'] ?? $navigationVariants[0]['value']);
+        $menuDefinitions = $this->menuDefinitions->listMenus($namespace);
+        $assignments = $this->menuDefinitions->listAssignments($namespace, null, null, null, null, false);
+        $assignmentCounts = [];
+        foreach ($assignments as $assignment) {
+            $menuId = $assignment->getMenuId();
+            $assignmentCounts[$menuId] = ($assignmentCounts[$menuId] ?? 0) + 1;
+        }
+        $menuDefinitionList = array_map(
+            static fn (CmsMenu $menu): array => [
+                'id' => $menu->getId(),
+                'namespace' => $menu->getNamespace(),
+                'label' => $menu->getLabel(),
+                'locale' => $menu->getLocale(),
+                'isActive' => $menu->isActive(),
+                'updatedAt' => $menu->getUpdatedAt()?->format(DATE_ATOM),
+                'assignmentCount' => $assignmentCounts[$menu->getId()] ?? 0,
+            ],
+            $menuDefinitions
+        );
+        $selectedMenuId = (int) ($request->getQueryParams()['menuId'] ?? 0);
+        if ($selectedMenuId <= 0 && $menuDefinitionList !== []) {
+            $selectedMenuId = (int) $menuDefinitionList[0]['id'];
+        }
 
         return $view->render($response, 'admin/pages/navigation.twig', [
             'role' => $_SESSION['user']['role'] ?? '',
@@ -293,6 +321,8 @@ class ProjectPagesController
             'navigation_mode' => $isCmsMode ? 'cms' : 'marketing',
             'navigation_variants' => $navigationVariants,
             'selected_navigation_variant' => $selectedVariant,
+            'menu_definitions' => $menuDefinitionList,
+            'selected_menu_id' => $selectedMenuId,
         ]);
     }
 
