@@ -240,10 +240,12 @@ class ProjectPagesController
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
         $mode = (string) ($request->getQueryParams()['mode'] ?? 'cms');
         $isCmsMode = $mode === 'cms';
-        $allPages = $this->pageService->getAllForNamespace($namespace);
+        $visibleNamespaces = $this->resolveVisibleNamespaces($availableNamespaces, $namespace);
+        $allPages = $this->pageService->getAllForNamespaces($visibleNamespaces);
+        $currentNamespacePages = $this->pageService->getAllForNamespace($namespace);
         $pages = $isCmsMode
-            ? $allPages
-            : $this->filterCmsPages($allPages);
+            ? $currentNamespacePages
+            : $this->filterCmsPages($currentNamespacePages);
         $pageList = array_map(
             static fn (Page $page): array => [
                 'id' => $page->getId(),
@@ -271,8 +273,9 @@ class ProjectPagesController
             ],
             $pages
         );
-        $internalLinks = $this->buildInternalLinks($allPages);
         $selectedSlug = $this->resolveSelectedSlug($pageList, $request->getQueryParams());
+        $selectedPage = $this->resolveSelectedPage($pages, $selectedSlug);
+        $internalLinks = $this->buildInternalLinks($allPages, $selectedPage, $namespace);
         $navigationVariants = [
             ['value' => 'footer_columns_2', 'label' => 'Footer (2 Spalten)', 'columns' => 2],
             ['value' => 'footer_columns_3', 'label' => 'Footer (3 Spalten)', 'columns' => 3],
@@ -330,11 +333,10 @@ class ProjectPagesController
      * @param array<int, Page> $pages
      * @return array<int, array{value:string,label:string,group:string}>
      */
-    private function buildInternalLinks(array $pages): array
+    private function buildInternalLinks(array $pages, ?Page $selectedPage, string $currentNamespace): array
     {
         $extractor = new PageAnchorExtractor();
         $pagePaths = [];
-        $anchors = [];
         $pageAnchors = [];
 
         foreach ($pages as $page) {
@@ -343,45 +345,96 @@ class ProjectPagesController
                 continue;
             }
             $path = '/' . ltrim($slug, '/');
-            $pagePaths[$path] = $path;
-
-            $anchorIds = $extractor->extractAnchorIds($page->getContent());
-            foreach ($anchorIds as $anchorId) {
-                $anchors[$anchorId] = $anchorId;
-                $pageAnchors[$path . '#' . $anchorId] = $anchorId;
-            }
+            $namespace = $page->getNamespace();
+            $value = $namespace !== '' && $namespace !== $currentNamespace
+                ? $path . '?namespace=' . rawurlencode($namespace)
+                : $path;
+            $label = $namespace !== '' && $namespace !== $currentNamespace
+                ? sprintf('%s: %s', $namespace, $path)
+                : $path;
+            $pagePaths[$value] = $label;
         }
 
         $options = [];
-        foreach (array_values($pagePaths) as $path) {
+        foreach ($pagePaths as $value => $label) {
             $options[] = [
-                'value' => $path,
-                'label' => $path,
+                'value' => $value,
+                'label' => $label,
                 'group' => 'Seitenpfade',
             ];
         }
 
-        $anchorList = array_keys($anchors);
-        sort($anchorList, SORT_STRING);
-        foreach ($anchorList as $anchorId) {
-            $options[] = [
-                'value' => '#' . $anchorId,
-                'label' => '#' . $anchorId,
-                'group' => 'Anker',
-            ];
-        }
+        if ($selectedPage !== null) {
+            $selectedSlug = $selectedPage->getSlug();
+            if ($selectedSlug !== '') {
+                $selectedPath = '/' . ltrim($selectedSlug, '/');
+                $selectedNamespace = $selectedPage->getNamespace();
+                $selectedBase = $selectedNamespace !== '' && $selectedNamespace !== $currentNamespace
+                    ? $selectedPath . '?namespace=' . rawurlencode($selectedNamespace)
+                    : $selectedPath;
+                $anchorIds = $extractor->extractAnchorIds($selectedPage->getContent());
+                sort($anchorIds, SORT_STRING);
+                foreach ($anchorIds as $anchorId) {
+                    $pageAnchors[$selectedBase . '#' . $anchorId] = $anchorId;
+                    $options[] = [
+                        'value' => '#' . $anchorId,
+                        'label' => '#' . $anchorId,
+                        'group' => 'Anker',
+                    ];
+                }
+            }
 
-        $pageAnchorList = array_keys($pageAnchors);
-        sort($pageAnchorList, SORT_STRING);
-        foreach ($pageAnchorList as $value) {
-            $options[] = [
-                'value' => $value,
-                'label' => $value,
-                'group' => 'Seiten + Anker',
-            ];
+            $pageAnchorList = array_keys($pageAnchors);
+            sort($pageAnchorList, SORT_STRING);
+            foreach ($pageAnchorList as $value) {
+                $options[] = [
+                    'value' => $value,
+                    'label' => $value,
+                    'group' => 'Seiten + Anker',
+                ];
+            }
         }
 
         return $options;
+    }
+
+    /**
+     * @param array<int, Page> $pages
+     */
+    private function resolveSelectedPage(array $pages, string $selectedSlug): ?Page
+    {
+        if ($selectedSlug === '') {
+            return null;
+        }
+
+        foreach ($pages as $page) {
+            if ($page->getSlug() === $selectedSlug) {
+                return $page;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $availableNamespaces
+     * @return array<int, string>
+     */
+    private function resolveVisibleNamespaces(array $availableNamespaces, string $currentNamespace): array
+    {
+        $visible = [];
+        foreach ($availableNamespaces as $entry) {
+            $namespace = is_string($entry['namespace'] ?? null) ? $entry['namespace'] : '';
+            if ($namespace !== '') {
+                $visible[$namespace] = $namespace;
+            }
+        }
+
+        if ($currentNamespace !== '') {
+            $visible[$currentNamespace] = $currentNamespace;
+        }
+
+        return array_values($visible);
     }
 
     public function generateMenu(Request $request, Response $response, array $args): Response
