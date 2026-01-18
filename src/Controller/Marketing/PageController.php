@@ -149,9 +149,7 @@ class PageController
         }
 
         $contentNamespace = $page->getNamespace();
-        $pageNamespace = $contentNamespace !== ''
-            ? $contentNamespace
-            : ($resolvedNamespace !== '' ? $resolvedNamespace : PageService::DEFAULT_NAMESPACE);
+        $pageNamespace = $contentNamespace;
         $designNamespace = $pageNamespace;
 
         $html = $this->contentLoader->load($page);
