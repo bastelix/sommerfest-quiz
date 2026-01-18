@@ -697,7 +697,7 @@ class PageController
     ): array {
         $columns = [];
 
-        foreach (['footer_1', 'footer_2', 'footer_3'] as $slot) {
+        foreach (CmsMenuResolverService::FOOTER_SLOTS as $slot) {
             $resolved = $menuResolver->resolveMenu($namespace, $slot, $pageId, $locale);
             if ($resolved['items'] === []) {
                 continue;
