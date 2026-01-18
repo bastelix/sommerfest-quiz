@@ -41,7 +41,8 @@ class PagesDesignController
         $designService = $this->getDesignService($request);
         $tokens = $designService->getTokensForNamespace($namespace);
         $defaults = $designService->getDefaults();
-        $config = $this->configService->getConfigForEvent($namespace);
+        $designPayload = $this->configService->resolveDesignConfig($namespace);
+        $config = $designPayload['config'];
         $marketingScheme = null;
         $appearanceColors = [];
         if (is_array($config['colors'] ?? null)) {
@@ -99,6 +100,7 @@ class PagesDesignController
             'csrf_token' => $this->ensureCsrfToken(),
             'flash' => $flash,
             'canAccessBehavior' => $canAccessBehavior,
+            'designUsedDefaults' => $designPayload['usedDefaults'],
         ]);
     }
 

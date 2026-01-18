@@ -607,14 +607,8 @@ class PageController
      */
     private function loadDesign(string $namespace): array
     {
-        $config = $this->configService->getConfigForEvent($namespace);
-
-        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($fallbackConfig !== []) {
-                $config = $fallbackConfig;
-            }
-        }
+        $designPayload = $this->configService->resolveDesignConfig($namespace);
+        $config = $designPayload['config'];
 
         $appearance = [
             ...$this->namespaceAppearance->load($namespace),

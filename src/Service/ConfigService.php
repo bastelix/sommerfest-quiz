@@ -69,6 +69,38 @@ class ConfigService
     ];
 
     /**
+     * Keys that are allowed to be merged into the page design configuration.
+     *
+     * @var array<int,string>
+     */
+    private const DESIGN_CONFIG_KEYS = [
+        'startTheme',
+        'colors',
+        'pageTypes',
+    ];
+
+    /**
+     * Allowed color configuration keys for marketing themes.
+     *
+     * @var array<int,string>
+     */
+    private const DESIGN_COLOR_KEYS = [
+        'marketingScheme',
+        'marketing_scheme',
+        'textOnSurface',
+        'text_on_surface',
+        'textOnBackground',
+        'text_on_background',
+        'textOnPrimary',
+        'text_on_primary',
+        'onAccent',
+        'on_accent',
+        'onPrimary',
+        'on_primary',
+        'contrastOnPrimary',
+    ];
+
+    /**
      * Mapping between camelCase configuration keys and their snake_case columns.
      *
      * @var array<string,string>
@@ -204,6 +236,114 @@ class ConfigService
             return $fileConfig;
         }
         return [];
+    }
+
+    /**
+     * Resolve merged design configuration for the given namespace.
+     *
+     * @return array{config: array<string,mixed>, usedDefaults: bool}
+     */
+    public function resolveDesignConfig(string $namespace): array
+    {
+        $defaultConfig = $this->filterDesignConfig($this->getConfigForEvent(PageService::DEFAULT_NAMESPACE));
+        $namespaceOverrides = $this->filterDesignConfig($this->getConfigForEvent($namespace));
+        $hasOverrides = $namespaceOverrides !== [];
+        $merged = $this->mergeDesignConfig($defaultConfig, $namespaceOverrides);
+
+        return [
+            'config' => $merged,
+            'usedDefaults' => !$hasOverrides,
+        ];
+    }
+
+    /**
+     * @param array<string,mixed> $config
+     * @return array<string,mixed>
+     */
+    private function filterDesignConfig(array $config): array
+    {
+        $filtered = [];
+
+        if (array_key_exists('startTheme', $config) && is_string($config['startTheme']) && $config['startTheme'] !== '') {
+            $filtered['startTheme'] = $config['startTheme'];
+        }
+
+        if (is_array($config['colors'] ?? null)) {
+            $colors = $this->filterDesignColors($config['colors']);
+            if ($colors !== []) {
+                $filtered['colors'] = $colors;
+            }
+        }
+
+        if (is_array($config['pageTypes'] ?? null) && $config['pageTypes'] !== []) {
+            $filtered['pageTypes'] = $config['pageTypes'];
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param array<string,mixed> $colors
+     * @return array<string,string>
+     */
+    private function filterDesignColors(array $colors): array
+    {
+        $filtered = [];
+        foreach (self::DESIGN_COLOR_KEYS as $key) {
+            if (!array_key_exists($key, $colors)) {
+                continue;
+            }
+            $value = $colors[$key];
+            if (is_string($value) && $value !== '') {
+                $filtered[$key] = $value;
+            }
+        }
+
+        return $filtered;
+    }
+
+    /**
+     * @param array<string,mixed> $defaultConfig
+     * @param array<string,mixed> $namespaceOverrides
+     * @return array<string,mixed>
+     */
+    private function mergeDesignConfig(array $defaultConfig, array $namespaceOverrides): array
+    {
+        $merged = $defaultConfig;
+
+        foreach (self::DESIGN_CONFIG_KEYS as $key) {
+            if (!array_key_exists($key, $namespaceOverrides)) {
+                continue;
+            }
+
+            if ($key === 'colors') {
+                $mergedColors = is_array($merged['colors'] ?? null) ? $merged['colors'] : [];
+                $overrideColors = is_array($namespaceOverrides['colors'] ?? null) ? $namespaceOverrides['colors'] : [];
+                foreach ($overrideColors as $colorKey => $value) {
+                    if (!in_array($colorKey, self::DESIGN_COLOR_KEYS, true)) {
+                        continue;
+                    }
+                    $mergedColors[$colorKey] = $value;
+                }
+                if ($mergedColors !== []) {
+                    $merged['colors'] = $mergedColors;
+                }
+                continue;
+            }
+
+            if ($key === 'pageTypes') {
+                if (is_array($namespaceOverrides['pageTypes'] ?? null) && $namespaceOverrides['pageTypes'] !== []) {
+                    $merged['pageTypes'] = $namespaceOverrides['pageTypes'];
+                }
+                continue;
+            }
+
+            if ($key === 'startTheme' && is_string($namespaceOverrides['startTheme']) && $namespaceOverrides['startTheme'] !== '') {
+                $merged['startTheme'] = $namespaceOverrides['startTheme'];
+            }
+        }
+
+        return $merged;
     }
 
     /**

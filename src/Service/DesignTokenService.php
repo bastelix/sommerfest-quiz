@@ -144,7 +144,10 @@ class DesignTokenService
                 return $this->mergeTokens($baseTokens, $this->validateTokens($fileTokens));
             }
 
-            throw new RuntimeException('No design tokens configured for namespace: ' . $normalized);
+            $defaultTokens = $this->fetchStoredTokens(PageService::DEFAULT_NAMESPACE);
+            return $defaultTokens !== []
+                ? $this->mergeWithDefaults($defaultTokens)
+                : self::DEFAULT_TOKENS;
         }
 
         $defaultTokens = $this->fetchStoredTokens(PageService::DEFAULT_NAMESPACE);
