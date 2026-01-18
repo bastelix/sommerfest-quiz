@@ -241,7 +241,7 @@ class ConfigService
     /**
      * Resolve merged design configuration for the given namespace.
      *
-     * @return array{config: array<string,mixed>, usedDefaults: bool}
+     * @return array{config: array<string,mixed>, usedDefaults: bool, hasOverrides: bool, namespace: string, baseNamespace: string}
      */
     public function resolveDesignConfig(string $namespace): array
     {
@@ -253,6 +253,9 @@ class ConfigService
         return [
             'config' => $merged,
             'usedDefaults' => !$hasOverrides,
+            'hasOverrides' => $hasOverrides,
+            'namespace' => $namespace,
+            'baseNamespace' => PageService::DEFAULT_NAMESPACE,
         ];
     }
 
