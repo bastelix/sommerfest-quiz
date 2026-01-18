@@ -41,7 +41,7 @@ SELECT
 FROM tmp_marketing_menu_map AS map
 ON CONFLICT DO NOTHING;
 
-WITH offset AS (
+WITH menu_item_offset AS (
     SELECT COALESCE(MAX(id), 0) AS value
     FROM marketing_menu_items
 )
@@ -65,11 +65,11 @@ INSERT INTO marketing_menu_items (
 )
 OVERRIDING SYSTEM VALUE
 SELECT
-    legacy.id + offset.value,
+    legacy.id + menu_item_offset.value,
     map.menu_id,
     CASE
         WHEN legacy.parent_id IS NULL THEN NULL
-        ELSE legacy.parent_id + offset.value
+        ELSE legacy.parent_id + menu_item_offset.value
     END,
     legacy.namespace,
     legacy.label,
@@ -89,7 +89,7 @@ JOIN tmp_marketing_menu_map AS map
     ON map.page_id = legacy.page_id
     AND map.namespace = legacy.namespace
     AND map.locale = legacy.locale
-CROSS JOIN offset;
+CROSS JOIN menu_item_offset;
 
 SELECT setval(
     'marketing_menu_items_id_seq',
