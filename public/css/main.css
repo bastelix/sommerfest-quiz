@@ -66,23 +66,70 @@ body.uk-padding {
 }
 
 .site-footer {
-  background-color: var(--surface-muted, #f5f5f5);
-  color: var(--text-body, #222);
-  padding: calc(var(--section-gap, 2.25rem) / 4);
-  text-align: center;
+  background-color: var(--surface-section, #ffffff);
+  color: var(--text-body, #111827);
+  padding: calc(var(--section-gap, 2.25rem) / 1.25) calc(var(--section-gap, 2.25rem) / 2);
+  border-top: 1px solid var(--border-muted, #dfe3eb);
+  text-align: left;
+}
+
+.site-footer .footer-columns {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: calc(var(--section-gap, 2.25rem) / 1.5);
+}
+
+@media (min-width: 640px) {
+  .site-footer .footer-columns {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    align-items: start;
+  }
+}
+
+.site-footer .footer-section strong {
+  display: block;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted, #4b5563);
+  margin-bottom: 0.75rem;
+}
+
+.site-footer .footer-section p {
+  margin: 0;
+  color: var(--text-muted, #4b5563);
+}
+
+.site-footer .footer-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.site-footer .footer-section a {
+  color: var(--text-body, #111827);
+  text-decoration: none;
+}
+
+.site-footer .footer-section a:hover,
+.site-footer .footer-section a:focus {
+  color: var(--brand-primary, #1e87f0);
+  text-decoration: underline;
 }
 
 .footer-menu ul {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  justify-content: center;
-  gap: calc(var(--section-gap, 2.25rem) / 1.5);
+  display: grid;
+  gap: 0.5rem;
 }
 
 .footer-menu a {
-  color: var(--text-body, #222);
+  color: var(--text-body, #111827);
   text-decoration: none;
 }
 
@@ -2676,6 +2723,15 @@ body.admin-page {
   max-width: 1200px;
   box-sizing: border-box;
   pointer-events: auto;
+}
+
+.page-preview-surface .site-footer {
+  min-height: 180px;
+}
+
+.page-preview-surface .site-footer .footer-columns {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-content: start;
 }
 
 .page-preview-surface [data-block-id] {
