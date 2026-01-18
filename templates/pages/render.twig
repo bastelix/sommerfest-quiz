@@ -20,7 +20,7 @@
 {% set includeTableStyles = false %}
 {% set includeTopbarStyles = false %}
 {% set includeMarketingTopbarStyles = false %}
-{% set includeNamespaceTokensStyles = true %}
+{% set includeNamespaceTokensStyles = false %}
 {% set logoSettings = headerLogo|default({}) %}
 {% set logoMode = logoSettings.mode|default('text') %}
 {% set logoSrc = logoSettings.src|default(null) %}
@@ -50,6 +50,12 @@
   <link rel="stylesheet" href="{{ basePath }}/css/marketing-utilities.css">
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  <link
+    rel="stylesheet"
+    href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+    data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+    onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
+  >
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
 
