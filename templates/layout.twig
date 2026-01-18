@@ -151,13 +151,19 @@
     <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not shouldIncludeDarkStyles %} disabled{% endif %}>
   {% endif %}
   {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
+  {% set namespaceTokensStyles = '' %}
   {% if includeNamespaceTokensStyles %}
-    <link
-      rel="stylesheet"
-      href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
-      data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
-      onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
-    >
+    {% set namespaceTokensStyles %}
+      <link
+        rel="stylesheet"
+        href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+        data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+        onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
+      >
+    {% endset %}
+  {% endif %}
+  {% if includeNamespaceTokensStyles and 'marketing-page' not in normalizedBodyClass %}
+    {{ namespaceTokensStyles|raw }}
   {% endif %}
   {% if includeTableStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/table.css">
@@ -170,6 +176,9 @@
   {% endif %}
   {% block head %}{% endblock %}
   {% block head_end %}
+    {% if includeNamespaceTokensStyles and 'marketing-page' in normalizedBodyClass %}
+      {{ namespaceTokensStyles|raw }}
+    {% endif %}
     {% block theme_vars %}
       {% if shouldIncludeMarketingThemeVars %}
         {% include 'marketing/partials/theme-vars.twig' %}
