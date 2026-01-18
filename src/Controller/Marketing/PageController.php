@@ -222,6 +222,23 @@ class PageController
         $cmsMenuService = new CmsMenuService($pdo, $this->cmsMenu);
         $menu = $cmsMenuService->getMenuForNamespace($pageNamespace, $locale);
 
+        $menuResolver = new CmsMenuResolverService($pdo);
+        $headerNavigation = $menuResolver->resolveMenu($pageNamespace, 'header', $page->getId(), $locale);
+        $cmsMainNavigation = $headerNavigation['items'];
+
+        $footerNavigation = $menuResolver->resolveMenu($pageNamespace, 'footer', $page->getId(), $locale);
+        $cmsFooterNavigation = $footerNavigation['items'];
+
+        $legalNavigation = $menuResolver->resolveMenu($pageNamespace, 'legal', $page->getId(), $locale);
+        $cmsLegalNavigation = $legalNavigation['items'];
+
+        $cmsFooterColumns = $this->resolveFooterColumns(
+            $menuResolver,
+            $pageNamespace,
+            $page->getId(),
+            $locale
+        );
+
         $navigation = $this->loadNavigationSections(
             $pageNamespace,
             $page->getSlug(),
@@ -230,20 +247,9 @@ class PageController
             $cmsMenuItems,
             $menu
         );
-        $cmsMainNavigation = $navigation['main'];
-
-        $menuResolver = new CmsMenuResolverService($pdo);
-        $headerOverride = $menuResolver->resolveMenu($pageNamespace, 'main', $page->getId(), $locale);
-        if ($headerOverride['assignmentId'] !== null) {
-            $cmsMainNavigation = $headerOverride['items'];
-        }
-
-        $cmsFooterColumns = $this->resolveFooterColumns(
-            $menuResolver,
-            $pageNamespace,
-            $page->getId(),
-            $locale
-        );
+        $navigation['main'] = $cmsMainNavigation;
+        $navigation['footer'] = $cmsFooterNavigation;
+        $navigation['legal'] = $cmsLegalNavigation;
 
         if ($menu === [] && $cmsMenuItems !== []) {
             $menu = $cmsMenuItems;
@@ -321,9 +327,9 @@ class PageController
             'pageTheme' => $theme,
             'menu' => $menu,
             'cmsMainNavigation' => $cmsMainNavigation,
-            'cmsFooterNavigation' => $navigation['footer'],
+            'cmsFooterNavigation' => $cmsFooterNavigation,
             'cmsFooterColumns' => $cmsFooterColumns,
-            'cmsLegalNavigation' => $navigation['legal'],
+            'cmsLegalNavigation' => $cmsLegalNavigation,
             'cmsSidebarNavigation' => $navigation['sidebar'],
             'cmsChatEndpoint' => $marketingPayload['featureData']['chatEndpoint'] ?? null,
             'landingNews' => $marketingPayload['featureData']['landingNews'],
@@ -691,7 +697,7 @@ class PageController
     ): array {
         $columns = [];
 
-        foreach (['footer_1', 'footer_2', 'footer_3'] as $slot) {
+        foreach (['footer_col_1', 'footer_col_2', 'footer_col_3'] as $slot) {
             $resolved = $menuResolver->resolveMenu($namespace, $slot, $pageId, $locale);
             if ($resolved['items'] === []) {
                 continue;
