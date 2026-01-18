@@ -697,7 +697,7 @@ class PageController
     ): array {
         $columns = [];
 
-        foreach (['footer_col_1', 'footer_col_2', 'footer_col_3'] as $slot) {
+        foreach (['footer_1', 'footer_2', 'footer_3'] as $slot) {
             $resolved = $menuResolver->resolveMenu($namespace, $slot, $pageId, $locale);
             if ($resolved['items'] === []) {
                 continue;
