@@ -168,6 +168,56 @@ Das Admin-Frontend setzt ausschließlich auf den Tiptap-Editor; ein alternativer
 
 Im Tab **Seiten → Navigation** lassen sich komplette Marketing-Menüs als JSON sichern oder in andere Umgebungen übernehmen. Der Export-Button lädt die aktuelle Menüstruktur (inklusive Namespace und Locale) für die ausgewählte Seite herunter. Über **Menü importieren** wird eine JSON-Datei ausgewählt; der Server validiert erlaubte Felder und ersetzt die bestehenden Menüeinträge der Seite in einem Schritt. Die Startseite wird unabhängig von den Menüeinträgen direkt an der Page gespeichert und nicht mehr über das Menü-JSON verwaltet.
 
+### Marketing-Menüs verwalten (Definitionen + Assignments)
+
+Die neue Menüverwaltung trennt **Menü-Definitionen**, **Menü-Items** und **Assignments**:
+
+* **Menü-Definitionen** bündeln eine Navigation pro Namespace und Locale (`marketing_menus`).
+* **Menü-Items** hängen an einer Menü-Definition und enthalten Label, URL, Icon, Layout sowie Startseiten-Markierung (`marketing_menu_items`).
+* **Assignments** verbinden eine Menü-Definition mit einem Slot und optional einer konkreten Seite (`marketing_menu_assignments`).
+
+Assignments sind pro Namespace, Slot und Locale eindeutig. Es gibt zwei Varianten:
+
+* **Seitengebunden** (`page_id` gesetzt): Menü gilt nur für eine konkrete Page.
+* **Global** (`page_id` leer): Menü gilt für den Slot im gesamten Namespace.
+
+### Fallback-Regeln für Menü-Assignments
+
+Die Menü-Auflösung folgt einer festen Priorität (höchste Priorität zuerst):
+
+1. Seitengebundenes Assignment mit exakter Locale (`page_locale`).
+2. Seitengebundenes Assignment mit Default-Locale (`page_default_locale`).
+3. Globales Assignment mit exakter Locale (`global_locale`).
+4. Globales Assignment mit Default-Locale (`global_default_locale`).
+5. Optionales Default-Menü, falls konfiguriert (`default_menu`).
+6. Legacy-Fallback, sofern `FEATURE_MARKETING_MENU_LEGACY_FALLBACK=1` und es im Slot noch keine Assignments gibt (`legacy_fallback`).
+
+Die Default-Locale ist aktuell `de`. Für das Default-Menü gilt: existieren keine Items in der gewünschten Locale, wird automatisch auf die Default-Locale gewechselt. Der Legacy-Fallback wird vollständig deaktiviert, sobald für einen Slot mindestens ein Assignment im Namespace existiert.
+
+### Migration & Rollback-Plan für die Menüverwaltung
+
+**Forward-Migration**
+
+1. Migration `20291213_create_marketing_menus.sql` anlegen/anwenden (legt `marketing_menus`, `marketing_menu_items`, `marketing_menu_assignments` inkl. Trigger/Indizes an).
+2. Migration `20291214_migrate_marketing_menus.sql` anwenden (kopiert bestehende Menüeinträge aus `marketing_page_menu_items` in die neuen Tabellen und erstellt Assignments für `main` sowie `footer_1` bis `footer_3`).
+3. Menü-Assignments in **Seiten → Navigation** prüfen und die Feature-Flag `FEATURE_MARKETING_MENU_LEGACY_FALLBACK` erst deaktivieren, wenn alle relevanten Slots befüllt sind.
+
+**Rollback-Hinweis**
+
+* Bei Problemen zurück auf Legacy-Menüs: `FEATURE_MARKETING_MENU_LEGACY_FALLBACK=1` setzen und die neuen Assignments löschen oder die Migration per Datenbank-Restore rückgängig machen.
+* Für einen vollständigen Rollback der Schemaänderung ist ein Restore des Datenbank-Backups vor der Migration erforderlich; die neuen Tabellen können anschließend entfernt werden (`marketing_menus`, `marketing_menu_items`, `marketing_menu_assignments`).
+
+**Betroffene Tabellen**
+
+* Neu: `marketing_menus`, `marketing_menu_items`, `marketing_menu_assignments`
+* Quelle für Migration: `marketing_page_menu_items`
+* Referenz: `pages` (für seitengebundene Assignments)
+
+**Namespace- und Abo-Auswirkungen**
+
+* Alle Menüs, Items und Assignments sind strikt namespace-gebunden.
+* Die Migration ändert keine Abo- oder Limit-Logik; sie verschiebt ausschließlich die Ablage der Menüdefinitionen.
+
 ### Namespace as the standard project identifier
 
 Namespaces are the canonical project identifier in the admin UI. Any legacy "project" labels should be treated as
