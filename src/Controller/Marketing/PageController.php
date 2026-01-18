@@ -6,6 +6,7 @@ namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
+use App\Service\CmsMenuResolverService;
 use App\Service\CmsMenuService;
 use App\Service\CmsPageMenuService;
 use App\Service\CmsPageWikiArticleService;
@@ -231,6 +232,19 @@ class PageController
         );
         $cmsMainNavigation = $navigation['main'];
 
+        $menuResolver = new CmsMenuResolverService($pdo);
+        $headerOverride = $menuResolver->resolveMenu($pageNamespace, 'main', $page->getId(), $locale);
+        if ($headerOverride['assignmentId'] !== null) {
+            $cmsMainNavigation = $headerOverride['items'];
+        }
+
+        $cmsFooterColumns = $this->resolveFooterColumns(
+            $menuResolver,
+            $pageNamespace,
+            $page->getId(),
+            $locale
+        );
+
         if ($menu === [] && $cmsMenuItems !== []) {
             $menu = $cmsMenuItems;
         }
@@ -267,6 +281,7 @@ class PageController
                 'sectionStyleDefaults' => $sectionStyleDefaults,
                 'menu' => $menu,
                 'mainNavigation' => $cmsMainNavigation,
+                'footerColumns' => $cmsFooterColumns,
                 'navigation' => $navigation,
                 'featureFlags' => $pageFeatures,
                 'featureData' => $marketingPayload['featureData'],
@@ -307,6 +322,7 @@ class PageController
             'menu' => $menu,
             'cmsMainNavigation' => $cmsMainNavigation,
             'cmsFooterNavigation' => $navigation['footer'],
+            'cmsFooterColumns' => $cmsFooterColumns,
             'cmsLegalNavigation' => $navigation['legal'],
             'cmsSidebarNavigation' => $navigation['sidebar'],
             'cmsChatEndpoint' => $marketingPayload['featureData']['chatEndpoint'] ?? null,
@@ -662,6 +678,32 @@ class PageController
             'legal' => $legalNavigation,
             'sidebar' => $sidebarNavigation,
         ];
+    }
+
+    /**
+     * @return array<int, array{slot: string, items: array<int, array<string, mixed>>}>
+     */
+    private function resolveFooterColumns(
+        CmsMenuResolverService $menuResolver,
+        string $namespace,
+        int $pageId,
+        string $locale
+    ): array {
+        $columns = [];
+
+        foreach (['footer_1', 'footer_2', 'footer_3'] as $slot) {
+            $resolved = $menuResolver->resolveMenu($namespace, $slot, $pageId, $locale);
+            if ($resolved['items'] === []) {
+                continue;
+            }
+
+            $columns[] = [
+                'slot' => $slot,
+                'items' => $resolved['items'],
+            ];
+        }
+
+        return $columns;
     }
 
     /**

@@ -521,6 +521,203 @@
         {% endif %}
 
         {% set navSettings = navigation_settings|default({}) %}
+        {% set menuPages = menu_pages|default([]) %}
+        {% set hasMenuPages = menuPages is not empty %}
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin"
+          data-menu-assignments
+          data-base-path="{{ basePath }}"
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <div>
+              <div class="uk-text-meta uk-text-uppercase">Menü-Zuordnung</div>
+              <h3 class="uk-card-title uk-margin-remove">Header &amp; Footer</h3>
+            </div>
+          </div>
+          <div class="uk-alert uk-alert-primary uk-margin-small" data-menu-assignments-feedback hidden role="status"></div>
+
+          <div class="uk-margin">
+            <h4 class="uk-heading-bullet">Header-Menü pro Seite/Locale</h4>
+            <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>
+              <div>
+                <label class="uk-form-label" for="headerMenuPageSelect">Seite</label>
+                <div class="uk-form-controls">
+                  <select
+                    id="headerMenuPageSelect"
+                    class="uk-select"
+                    data-header-page-select
+                    {% if not hasMenuPages %}disabled{% endif %}
+                  >
+                    {% if not hasMenuPages %}
+                      <option value="" selected>Keine Seiten vorhanden</option>
+                    {% endif %}
+                    {% for page in menuPages %}
+                      <option value="{{ page.id|e('html_attr') }}">
+                        {{ page.title|default(page.slug) }} (/{{ page.slug }})
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="uk-form-label" for="headerMenuLocaleSelect">Locale</label>
+                <div class="uk-form-controls">
+                  <select id="headerMenuLocaleSelect" class="uk-select" data-header-locale-select>
+                    {% for localeOption in marketingLocaleOptions %}
+                      <option
+                        value="{{ localeOption|e('html_attr') }}"
+                        {% if localeOption == selectedMenuLocale %}selected{% endif %}
+                      >{{ localeOption }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="uk-form-label" for="headerMenuSelect">Header-Menü</label>
+                <div class="uk-form-controls">
+                  <select
+                    id="headerMenuSelect"
+                    class="uk-select"
+                    data-header-menu-select
+                    {% if not hasMenus %}disabled data-locked-disabled="true"{% endif %}
+                  >
+                    <option value="">Automatisch</option>
+                    {% for menu in menuDefinitions %}
+                      <option value="{{ menu.id }}" data-menu-locale="{{ menu.locale|e('html_attr') }}">
+                        {{ menu.label }} ({{ menu.locale }})
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="uk-text-meta uk-margin-small-top">
+              Automatisch bedeutet: Kein Override, Namespace-Standard bleibt aktiv.
+            </div>
+          </div>
+
+          <hr class="uk-divider-icon">
+
+          <div class="uk-margin">
+            <h4 class="uk-heading-bullet">Footer-Spalten (Namespace)</h4>
+            <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-4@m" uk-grid>
+              <div>
+                <label class="uk-form-label" for="footerGlobalLocaleSelect">Locale</label>
+                <div class="uk-form-controls">
+                  <select id="footerGlobalLocaleSelect" class="uk-select" data-footer-global-locale-select>
+                    {% for localeOption in marketingLocaleOptions %}
+                      <option
+                        value="{{ localeOption|e('html_attr') }}"
+                        {% if localeOption == selectedMenuLocale %}selected{% endif %}
+                      >{{ localeOption }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              {% for slot in ['footer_1', 'footer_2', 'footer_3'] %}
+                <div>
+                  <label class="uk-form-label" for="footerGlobalSelect{{ loop.index }}">Slot {{ loop.index }}</label>
+                  <div class="uk-form-controls">
+                    <select
+                      id="footerGlobalSelect{{ loop.index }}"
+                      class="uk-select"
+                      data-footer-global-select="{{ slot }}"
+                      {% if not hasMenus %}disabled data-locked-disabled="true"{% endif %}
+                    >
+                      <option value="">Automatisch</option>
+                      {% for menu in menuDefinitions %}
+                        <option value="{{ menu.id }}" data-menu-locale="{{ menu.locale|e('html_attr') }}">
+                          {{ menu.label }} ({{ menu.locale }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="uk-text-meta uk-margin-small-top">
+              Diese Auswahl gilt für das gesamte Namespace (fallback pro Locale).
+            </div>
+          </div>
+
+          <div class="uk-margin">
+            <h4 class="uk-heading-bullet">Footer-Spalten Override pro Seite</h4>
+            <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m uk-flex-middle" uk-grid>
+              <div>
+                <label class="uk-form-label" for="footerOverridePageSelect">Seite</label>
+                <div class="uk-form-controls">
+                  <select
+                    id="footerOverridePageSelect"
+                    class="uk-select"
+                    data-footer-page-select
+                    {% if not hasMenuPages %}disabled{% endif %}
+                  >
+                    {% if not hasMenuPages %}
+                      <option value="" selected>Keine Seiten vorhanden</option>
+                    {% endif %}
+                    {% for page in menuPages %}
+                      <option value="{{ page.id|e('html_attr') }}">
+                        {{ page.title|default(page.slug) }} (/{{ page.slug }})
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="uk-form-label" for="footerOverrideLocaleSelect">Locale</label>
+                <div class="uk-form-controls">
+                  <select id="footerOverrideLocaleSelect" class="uk-select" data-footer-locale-select>
+                    {% for localeOption in marketingLocaleOptions %}
+                      <option
+                        value="{{ localeOption|e('html_attr') }}"
+                        {% if localeOption == selectedMenuLocale %}selected{% endif %}
+                      >{{ localeOption }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label class="uk-form-label">Override aktivieren</label>
+                <div class="uk-form-controls">
+                  <label class="uk-flex uk-flex-middle">
+                    <input
+                      class="uk-checkbox"
+                      type="checkbox"
+                      data-footer-override-toggle
+                    >
+                    <span class="uk-margin-small-left">Menüs pro Seite überschreiben</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m uk-margin-small-top" uk-grid>
+              {% for slot in ['footer_1', 'footer_2', 'footer_3'] %}
+                <div>
+                  <label class="uk-form-label" for="footerOverrideSelect{{ loop.index }}">Slot {{ loop.index }}</label>
+                  <div class="uk-form-controls">
+                    <select
+                      id="footerOverrideSelect{{ loop.index }}"
+                      class="uk-select"
+                      data-footer-override-select="{{ slot }}"
+                      {% if not hasMenus %}disabled data-locked-disabled="true"{% endif %}
+                    >
+                      <option value="">Automatisch</option>
+                      {% for menu in menuDefinitions %}
+                        <option value="{{ menu.id }}" data-menu-locale="{{ menu.locale|e('html_attr') }}">
+                          {{ menu.label }} ({{ menu.locale }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="uk-text-meta uk-margin-small-top">
+              Override aktiv = page-spezifische Zuweisungen. Deaktivieren löscht diese Zuweisungen.
+            </div>
+          </div>
+        </div>
+
         <div
           class="uk-card uk-card-default uk-card-body uk-margin"
           data-project-settings

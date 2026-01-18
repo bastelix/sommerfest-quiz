@@ -2,6 +2,7 @@
 
 import './marketing-menu-admin.js';
 import './marketing-menu-overview.js';
+import './marketing-menu-assignments.js';
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
 import {
