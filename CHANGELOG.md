@@ -57,6 +57,7 @@
 - Note management role redirect
 - Refresh contribution and coding guides
 - Explain team name ai preview
+- Document marketing menu assignments
 
 ### Feat
 
