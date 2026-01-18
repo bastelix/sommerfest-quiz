@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Domain\CmsMenuAssignment;
 use App\Service\CmsMenuDefinitionService;
+use App\Service\CmsMenuResolverService;
 use App\Service\NamespaceResolver;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -15,9 +16,6 @@ use RuntimeException;
 final class MarketingMenuAssignmentController
 {
     private const MAX_LOCALE_LENGTH = 8;
-
-    /** @var string[] */
-    private const ALLOWED_SLOTS = ['main', 'footer_1', 'footer_2', 'footer_3'];
 
     private CmsMenuDefinitionService $menuDefinitions;
     private PageService $pageService;
@@ -46,7 +44,7 @@ final class MarketingMenuAssignmentController
         $slot = isset($params['slot']) ? strtolower(trim((string) $params['slot'])) : null;
         $locale = isset($params['locale']) ? strtolower(trim((string) $params['locale'])) : null;
 
-        if ($slot !== null && $slot !== '' && !in_array($slot, self::ALLOWED_SLOTS, true)) {
+        if ($slot !== null && $slot !== '' && !in_array($slot, $this->allowedSlots(), true)) {
             return $this->jsonError($response, 'Slot is invalid.', 422, ['slot' => 'Slot is invalid.']);
         }
 
@@ -256,7 +254,7 @@ final class MarketingMenuAssignmentController
         $slot = isset($payload['slot']) ? strtolower(trim((string) $payload['slot'])) : '';
         if ($slot === '') {
             $errors['slot'] = 'Slot is required.';
-        } elseif (!in_array($slot, self::ALLOWED_SLOTS, true)) {
+        } elseif (!in_array($slot, $this->allowedSlots(), true)) {
             $errors['slot'] = 'Slot is invalid.';
         }
 
@@ -308,6 +306,14 @@ final class MarketingMenuAssignmentController
 
         $parsed = (int) $value;
         return $parsed > 0 ? $parsed : null;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function allowedSlots(): array
+    {
+        return array_merge([CmsMenuResolverService::SLOT_MAIN], CmsMenuResolverService::FOOTER_SLOTS);
     }
 
     private function normalizeBoolean(mixed $value): bool

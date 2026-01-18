@@ -12,6 +12,8 @@ use PDO;
 final class CmsMenuResolverService
 {
     private const DEFAULT_LOCALE = 'de';
+    public const SLOT_MAIN = 'main';
+    public const FOOTER_SLOTS = ['footer_1', 'footer_2', 'footer_3'];
 
     private CmsMenuDefinitionService $menuDefinitions;
 
