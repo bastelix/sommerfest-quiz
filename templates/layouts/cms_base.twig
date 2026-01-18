@@ -30,9 +30,10 @@
 {% endblock %}
 
 {% block footer %}
+  {% set footerNavigation = cmsFooterNavigation|default([]) %}
   {% include 'pages/partials/footer.twig' with {
     cmsFooterColumns: cmsFooterColumns|default([]),
-    cmsFooterNavigation: cmsFooterNavigation|default([]),
+    cmsFooterNavigation: footerNavigation,
     cmsLegalNavigation: cmsLegalNavigation|default([])
   } only %}
 {% endblock %}
