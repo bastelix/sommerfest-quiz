@@ -284,55 +284,50 @@ final class NavigationController
     private function buildInternalLinks(array $pages): array
     {
         $extractor = new PageAnchorExtractor();
-        $pagePaths = [];
-        $anchors = [];
-        $pageAnchors = [];
+        $pagePathOptions = [];
+        $anchorOptions = [];
+        $pageAnchorOptions = [];
 
         foreach ($pages as $page) {
             $slug = $page->getSlug();
             if ($slug === '') {
                 continue;
             }
+            $namespace = $page->getNamespace();
             $path = '/' . ltrim($slug, '/');
-            $pagePaths[$path] = $path;
+            $pagePathOptions[$namespace . ':' . $path] = [
+                'value' => $path,
+                'label' => $namespace . ': ' . $path,
+                'group' => 'Seitenpfade',
+            ];
 
             $anchorIds = $extractor->extractAnchorIds($page->getContent());
             foreach ($anchorIds as $anchorId) {
-                $anchors[$anchorId] = $anchorId;
-                $pageAnchors[$path . '#' . $anchorId] = $anchorId;
+                $anchorOptions[$namespace . ':' . $anchorId] = [
+                    'value' => '#' . $anchorId,
+                    'label' => $namespace . ': #' . $anchorId,
+                    'group' => 'Anker',
+                ];
+                $pageAnchorOptions[$namespace . ':' . $path . '#' . $anchorId] = [
+                    'value' => $path . '#' . $anchorId,
+                    'label' => $namespace . ': ' . $path . '#' . $anchorId,
+                    'group' => 'Seiten + Anker',
+                ];
             }
         }
 
-        $options = [];
-        foreach (array_values($pagePaths) as $path) {
-            $options[] = [
-                'value' => $path,
-                'label' => $path,
-                'group' => 'Seitenpfade',
-            ];
-        }
+        uasort($pagePathOptions, static fn (array $left, array $right): int => strcmp($left['label'], $right['label']));
+        uasort($anchorOptions, static fn (array $left, array $right): int => strcmp($left['label'], $right['label']));
+        uasort(
+            $pageAnchorOptions,
+            static fn (array $left, array $right): int => strcmp($left['label'], $right['label'])
+        );
 
-        $anchorList = array_keys($anchors);
-        sort($anchorList, SORT_STRING);
-        foreach ($anchorList as $anchorId) {
-            $options[] = [
-                'value' => '#' . $anchorId,
-                'label' => '#' . $anchorId,
-                'group' => 'Anker',
-            ];
-        }
-
-        $pageAnchorList = array_keys($pageAnchors);
-        sort($pageAnchorList, SORT_STRING);
-        foreach ($pageAnchorList as $value) {
-            $options[] = [
-                'value' => $value,
-                'label' => $value,
-                'group' => 'Seiten + Anker',
-            ];
-        }
-
-        return $options;
+        return array_merge(
+            array_values($pagePathOptions),
+            array_values($anchorOptions),
+            array_values($pageAnchorOptions)
+        );
     }
 
     /**
