@@ -15,7 +15,6 @@ use App\Service\ConfigService;
 use App\Service\EffectsPolicyService;
 use App\Service\NamespaceAppearanceService;
 use App\Service\NamespaceRenderContextService;
-use App\Service\NamespaceResolver;
 use App\Service\PageContentLoader;
 use App\Service\PageModuleService;
 use App\Service\PageService;
@@ -67,7 +66,6 @@ class PageController
     private PageModuleService $pageModules;
     private NamespaceAppearanceService $namespaceAppearance;
     private NamespaceRenderContextService $namespaceRenderContext;
-    private NamespaceResolver $namespaceResolver;
     private ProjectSettingsService $projectSettings;
     private ConfigService $configService;
     private EffectsPolicyService $effectsPolicy;
@@ -91,7 +89,6 @@ class PageController
         ?PageModuleService $pageModules = null,
         ?NamespaceAppearanceService $namespaceAppearance = null,
         ?NamespaceRenderContextService $namespaceRenderContext = null,
-        ?NamespaceResolver $namespaceResolver = null,
         ?ProjectSettingsService $projectSettings = null,
         ?ConfigService $configService = null,
         ?EffectsPolicyService $effectsPolicy = null,
@@ -110,7 +107,6 @@ class PageController
         $this->pageModules = $pageModules ?? new PageModuleService();
         $this->namespaceAppearance = $namespaceAppearance ?? new NamespaceAppearanceService();
         $this->namespaceRenderContext = $namespaceRenderContext ?? new NamespaceRenderContextService();
-        $this->namespaceResolver = $namespaceResolver ?? new NamespaceResolver();
         $this->projectSettings = $projectSettings ?? new ProjectSettingsService($pdo);
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
@@ -140,8 +136,7 @@ class PageController
 
         $resolvedNamespace = (string) ($request->getAttribute('namespace') ?? '');
         if ($resolvedNamespace === '') {
-            $namespaceContext = $this->namespaceResolver->resolve($request);
-            $resolvedNamespace = $namespaceContext->getNamespace();
+            return $response->withStatus(404);
         }
 
         $page = $this->pages->findByKey($resolvedNamespace, $contentSlug);
@@ -1473,13 +1468,8 @@ class PageController
      */
     private function loadDesign(string $namespace): array
     {
-        $config = $this->configService->getConfigForEvent($namespace);
-        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($fallbackConfig !== []) {
-                $config = $fallbackConfig;
-            }
-        }
+        $designPayload = $this->configService->resolveDesignConfig($namespace);
+        $config = $designPayload['config'];
 
         $appearance = $this->namespaceAppearance->load($namespace);
         $effects = $this->effectsPolicy->getEffectsForNamespace($namespace);

@@ -67,6 +67,11 @@
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">Design – Namespace: {{ pageNamespace }}</h1>
         <p class="uk-text-lead uk-margin-remove">Erscheinungsbild für alle Seiten dieses Namespace</p>
+        {% if designUsedDefaults|default(false) %}
+          <p class="uk-text-meta uk-margin-small-top">
+            Keine Namespace-Overrides gesetzt – es gelten die Standardwerte aus dem Default-Design.
+          </p>
+        {% endif %}
       </div>
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}

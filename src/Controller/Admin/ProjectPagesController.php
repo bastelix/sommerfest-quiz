@@ -154,6 +154,7 @@ class ProjectPagesController
             'startpage_map' => $startpageMap,
             'appearance' => $design['appearance'],
             'design' => $design,
+            'designUsedDefaults' => $design['usedDefaults'],
             'pageTypeDefaults' => $pageTypeDefaults,
             'pageTypeLayoutOptions' => self::SECTION_LAYOUTS,
             'pageTypeIntentOptions' => self::SECTION_INTENTS,
@@ -998,25 +999,12 @@ class ProjectPagesController
     }
 
     /**
-     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string}
+     * @return array{config: array<string,mixed>, appearance: array<string,mixed>, effects: array{effectsProfile: string, sliderProfile: string}, namespace: string, usedDefaults: bool}
      */
     private function loadDesign(string $namespace): array
     {
-        $config = $this->configService->getConfigForEvent($namespace);
-
-        if ($namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($config === [] && $fallbackConfig !== []) {
-                $config = $fallbackConfig;
-            }
-            if (
-                $fallbackConfig !== []
-                && (!array_key_exists('pageTypes', $config) || $config['pageTypes'] === [])
-                && array_key_exists('pageTypes', $fallbackConfig)
-            ) {
-                $config['pageTypes'] = $fallbackConfig['pageTypes'];
-            }
-        }
+        $designPayload = $this->configService->resolveDesignConfig($namespace);
+        $config = $designPayload['config'];
 
         $appearance = $this->namespaceAppearance->load($namespace);
 
@@ -1027,6 +1015,7 @@ class ProjectPagesController
             'appearance' => $appearance,
             'effects' => $effects,
             'namespace' => $namespace,
+            'usedDefaults' => $designPayload['usedDefaults'],
         ];
     }
 

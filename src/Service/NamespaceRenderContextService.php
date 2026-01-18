@@ -27,28 +27,17 @@ class NamespaceRenderContextService
     }
 
     /**
-     * @return array{namespace: string, design: array<string, mixed>}
+     * @return array{namespace: string, design: array<string, mixed>, designUsedDefaults: bool}
      */
     public function build(string $namespace): array
     {
-        $resolvedNamespace = $namespace;
-        $config = $this->configService->getConfigForEvent($namespace);
-        if ($config === []) {
-            if ($namespace !== PageService::DEFAULT_NAMESPACE) {
-                $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-                if ($fallbackConfig !== []) {
-                    $config = $fallbackConfig;
-                }
-            }
-
-            $resolvedNamespace = PageService::DEFAULT_NAMESPACE;
-        }
-
-        $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);
-        $appearance = $this->namespaceAppearance->load($resolvedNamespace);
+        $designPayload = $this->configService->resolveDesignConfig($namespace);
+        $config = $designPayload['config'];
+        $tokens = $this->designTokens->getTokensForNamespace($namespace);
+        $appearance = $this->namespaceAppearance->load($namespace);
 
         return [
-            'namespace' => $resolvedNamespace,
+            'namespace' => $namespace,
             'design' => [
                 'config' => $config,
                 'tokens' => $tokens,
@@ -57,7 +46,9 @@ class NamespaceRenderContextService
                     'profile' => $this->resolveLayoutProfile($tokens, $appearance),
                 ],
                 'theme' => $this->resolveTheme($config),
+                'usedDefaults' => $designPayload['usedDefaults'],
             ],
+            'designUsedDefaults' => $designPayload['usedDefaults'],
         ];
     }
 

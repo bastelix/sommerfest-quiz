@@ -117,6 +117,12 @@
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
       <div class="uk-container uk-container-large">
         <h1 class="uk-heading-bullet">{{ t('heading_pages') }}</h1>
+        <p class="uk-text-meta uk-margin-small-top">
+          Seiten nutzen die Design-Defaults ihres Namespace. Overrides sind optional und werden nur explizit gespeichert.
+          {% if designUsedDefaults|default(false) %}
+            Aktuell sind keine Overrides gesetzt.
+          {% endif %}
+        </p>
       </div>
       <div class="uk-container uk-container-large">
         {% set activePageNamespace = pageNamespace|default('default') %}
