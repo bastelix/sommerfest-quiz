@@ -24,15 +24,9 @@ class NamespaceAppearanceService
      */
     public function load(string $namespace): array
     {
-        $config = $this->configService->getConfigForEvent($namespace);
+        $designPayload = $this->configService->resolveDesignConfig($namespace);
+        $config = $designPayload['config'];
         $resolvedNamespace = $namespace;
-
-        if ($config === [] && $namespace !== PageService::DEFAULT_NAMESPACE) {
-            $fallbackConfig = $this->configService->getConfigForEvent(PageService::DEFAULT_NAMESPACE);
-            if ($fallbackConfig !== []) {
-                $config = $fallbackConfig;
-            }
-        }
 
         try {
             $tokens = $this->designTokens->getTokensForNamespace($resolvedNamespace);

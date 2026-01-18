@@ -27,7 +27,13 @@ class NamespaceRenderContextService
     }
 
     /**
-     * @return array{namespace: string, design: array<string, mixed>, designUsedDefaults: bool}
+     * @return array{
+     *     namespace: string,
+     *     designActiveNamespace: string,
+     *     design: array<string, mixed>,
+     *     designUsedDefaults: bool,
+     *     isDesignUsingDefaults: bool
+     * }
      */
     public function build(string $namespace): array
     {
@@ -38,6 +44,7 @@ class NamespaceRenderContextService
 
         return [
             'namespace' => $namespace,
+            'designActiveNamespace' => $namespace,
             'design' => [
                 'config' => $config,
                 'tokens' => $tokens,
@@ -49,6 +56,7 @@ class NamespaceRenderContextService
                 'usedDefaults' => $designPayload['usedDefaults'],
             ],
             'designUsedDefaults' => $designPayload['usedDefaults'],
+            'isDesignUsingDefaults' => $designPayload['usedDefaults'],
         ];
     }
 
