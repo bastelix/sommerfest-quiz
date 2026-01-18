@@ -333,7 +333,7 @@ final class CmsMenuDefinitionService
     public function createAssignment(
         string $namespace,
         int $menuId,
-        int $pageId,
+        ?int $pageId,
         string $slot,
         ?string $locale,
         bool $isActive
@@ -341,7 +341,12 @@ final class CmsMenuDefinitionService
         $normalizedNamespace = trim($namespace);
         $normalizedSlot = trim($slot);
 
-        if ($normalizedNamespace === '' || $menuId <= 0 || $pageId <= 0 || $normalizedSlot === '') {
+        if (
+            $normalizedNamespace === ''
+            || $menuId <= 0
+            || ($pageId !== null && $pageId <= 0)
+            || $normalizedSlot === ''
+        ) {
             throw new RuntimeException('Assignment payload is invalid.');
         }
 
@@ -380,7 +385,7 @@ final class CmsMenuDefinitionService
         string $namespace,
         int $assignmentId,
         int $menuId,
-        int $pageId,
+        ?int $pageId,
         string $slot,
         ?string $locale,
         bool $isActive
@@ -392,7 +397,7 @@ final class CmsMenuDefinitionService
             $normalizedNamespace === ''
             || $assignmentId <= 0
             || $menuId <= 0
-            || $pageId <= 0
+            || ($pageId !== null && $pageId <= 0)
             || $normalizedSlot === ''
         ) {
             throw new RuntimeException('Assignment payload is invalid.');

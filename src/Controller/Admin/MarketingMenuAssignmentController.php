@@ -122,9 +122,11 @@ final class MarketingMenuAssignmentController
             return $this->jsonError($response, 'Menu not found.', 404);
         }
 
-        $page = $this->pageService->findById($data['pageId']);
-        if ($page === null || $page->getNamespace() !== $namespace) {
-            return $this->jsonError($response, 'Page not found.', 404);
+        if ($data['pageId'] !== null) {
+            $page = $this->pageService->findById($data['pageId']);
+            if ($page === null || $page->getNamespace() !== $namespace) {
+                return $this->jsonError($response, 'Page not found.', 404);
+            }
         }
 
         try {
@@ -178,9 +180,11 @@ final class MarketingMenuAssignmentController
             return $this->jsonError($response, 'Menu not found.', 404);
         }
 
-        $page = $this->pageService->findById($data['pageId']);
-        if ($page === null || $page->getNamespace() !== $namespace) {
-            return $this->jsonError($response, 'Page not found.', 404);
+        if ($data['pageId'] !== null) {
+            $page = $this->pageService->findById($data['pageId']);
+            if ($page === null || $page->getNamespace() !== $namespace) {
+                return $this->jsonError($response, 'Page not found.', 404);
+            }
         }
 
         try {
@@ -224,7 +228,7 @@ final class MarketingMenuAssignmentController
 
     /**
      * @return array{
-     *     array{menuId: int, pageId: int, slot: string, locale: string, isActive: bool},
+     *     array{menuId: int, pageId: ?int, slot: string, locale: string, isActive: bool},
      *     array<string, string>
      * }
      */
@@ -237,9 +241,16 @@ final class MarketingMenuAssignmentController
             $errors['menuId'] = 'Menu id is required.';
         }
 
-        $pageId = isset($payload['pageId']) ? (int) $payload['pageId'] : 0;
-        if ($pageId <= 0) {
-            $errors['pageId'] = 'Page id is required.';
+        $pageId = null;
+        if (array_key_exists('pageId', $payload)) {
+            if ($payload['pageId'] === null || $payload['pageId'] === '') {
+                $pageId = null;
+            } else {
+                $pageId = (int) $payload['pageId'];
+            }
+        }
+        if ($pageId !== null && $pageId <= 0) {
+            $errors['pageId'] = 'Page id is invalid.';
         }
 
         $slot = isset($payload['slot']) ? strtolower(trim((string) $payload['slot'])) : '';
@@ -265,8 +276,8 @@ final class MarketingMenuAssignmentController
             if ($menuId <= 0) {
                 $menuId = $existing->getMenuId();
             }
-            if ($pageId <= 0) {
-                $pageId = $existing->getPageId() ?? 0;
+            if (!array_key_exists('pageId', $payload)) {
+                $pageId = $existing->getPageId();
             }
             if ($slot === '') {
                 $slot = $existing->getSlot();
@@ -274,6 +285,8 @@ final class MarketingMenuAssignmentController
             if ($locale === null || $locale === '') {
                 $locale = $existing->getLocale();
             }
+        } elseif (!array_key_exists('pageId', $payload)) {
+            $errors['pageId'] = 'Page id is required.';
         }
 
         $data = [

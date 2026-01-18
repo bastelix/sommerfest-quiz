@@ -31,7 +31,7 @@
 
 {% block footer %}
   {% include 'pages/partials/footer.twig' with {
-    cmsFooterNavigation: cmsFooterNavigation|default([]),
+    cmsFooterColumns: cmsFooterColumns|default([]),
     cmsLegalNavigation: cmsLegalNavigation|default([])
   } only %}
 {% endblock %}

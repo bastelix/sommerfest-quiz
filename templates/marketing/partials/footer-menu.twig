@@ -9,3 +9,15 @@
     {% endfor %}
   </ul>
 {% endmacro %}
+
+{% macro render_columns(columns, containerClass, columnClass, containerAttr) %}
+  {% import _self as footerMenu %}
+  {% set columns = columns|default([]) %}
+  <div class="{{ containerClass }}"{% if containerAttr %} {{ containerAttr|raw }}{% endif %}>
+    {% for column in columns %}
+      <div class="{{ columnClass }}">
+        {{ footerMenu.render_links(column.items|default([])) }}
+      </div>
+    {% endfor %}
+  </div>
+{% endmacro %}
