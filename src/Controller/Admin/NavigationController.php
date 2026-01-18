@@ -54,8 +54,17 @@ final class NavigationController
     {
         $view = Twig::fromRequest($request);
         [$availableNamespaces, $namespace] = $this->loadNamespaces($request);
-        $pages = $this->pageService->getAllForNamespace($namespace);
-        $internalLinks = $this->buildInternalLinks($pages);
+        $namespaceList = array_values(array_unique(array_filter(array_map(
+            static fn (array $entry): string => (string) ($entry['namespace'] ?? ''),
+            $availableNamespaces
+        ), static fn (string $entryNamespace): bool => $entryNamespace !== '')));
+        if ($namespaceList === [] && $namespace !== '') {
+            $namespaceList = [$namespace];
+        }
+
+        $pages = $this->pageService->getAllForNamespaces($namespaceList);
+        $anchorPage = $this->resolveAnchorPage($pages, $namespace, $request->getQueryParams());
+        $internalLinks = $this->buildInternalLinks($pages, $anchorPage);
 
         $menuDefinitions = $this->menuDefinitions->listMenus($namespace);
         $assignmentCounts = $this->countMenuAssignments($namespace);
@@ -281,7 +290,7 @@ final class NavigationController
      * @param array<int, Page> $pages
      * @return array<int, array{value:string,label:string,group:string}>
      */
-    private function buildInternalLinks(array $pages): array
+    private function buildInternalLinks(array $pages, ?Page $anchorPage): array
     {
         $extractor = new PageAnchorExtractor();
         $pagePathOptions = [];
@@ -300,8 +309,12 @@ final class NavigationController
                 'label' => $namespace . ': ' . $path,
                 'group' => 'Seitenpfade',
             ];
+        }
 
-            $anchorIds = $extractor->extractAnchorIds($page->getContent());
+        if ($anchorPage !== null && $anchorPage->getSlug() !== '') {
+            $namespace = $anchorPage->getNamespace();
+            $path = '/' . ltrim($anchorPage->getSlug(), '/');
+            $anchorIds = $extractor->extractAnchorIds($anchorPage->getContent());
             foreach ($anchorIds as $anchorId) {
                 $anchorOptions[$namespace . ':' . $anchorId] = [
                     'value' => '#' . $anchorId,
@@ -328,6 +341,33 @@ final class NavigationController
             array_values($anchorOptions),
             array_values($pageAnchorOptions)
         );
+    }
+
+    /**
+     * @param array<int, Page> $pages
+     */
+    private function resolveAnchorPage(array $pages, string $namespace, array $params): ?Page
+    {
+        $requestedSlug = '';
+        if (isset($params['pageSlug']) || isset($params['slug'])) {
+            $requestedSlug = trim((string) ($params['pageSlug'] ?? $params['slug'] ?? ''));
+        }
+
+        if ($requestedSlug !== '') {
+            foreach ($pages as $page) {
+                if ($page->getNamespace() === $namespace && $page->getSlug() === $requestedSlug) {
+                    return $page;
+                }
+            }
+        }
+
+        foreach ($pages as $page) {
+            if ($page->getNamespace() === $namespace) {
+                return $page;
+            }
+        }
+
+        return null;
     }
 
     /**
