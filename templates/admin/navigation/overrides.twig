@@ -1,0 +1,228 @@
+{% extends 'layout.twig' %}
+
+{% block config_color_styles %}{% endblock %}
+
+{% block title %}{{ t('tab_navigation_overrides') }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="(prefers-color-scheme: dark)">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
+      <a href="{{ basePath }}/admin/dashboard" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block center %}
+      {% include 'admin/components/namespace_breadcrumb.twig' %}
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+  {% endembed %}
+
+  <div class="uk-grid-collapse" uk-grid>
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-large">
+        <h1 class="uk-heading-bullet">{{ t('tab_navigation_overrides') }}</h1>
+        <p class="uk-text-meta uk-margin-remove">{{ t('text_navigation_overrides_hint') }}</p>
+      </div>
+      <div class="uk-container uk-container-large">
+        {% set activePageNamespace = pageNamespace|default('default') %}
+        {% set pageNamespaceOptions = available_namespaces|default([]) %}
+        {% if pageNamespaceOptions is empty %}
+          {% set pageNamespaceOptions = [{
+            namespace: activePageNamespace,
+            label: null,
+            is_active: true
+          }] %}
+        {% endif %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <div class="uk-grid-small uk-flex-middle" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+              <div class="uk-form-controls">
+                <select
+                  id="pageNamespaceSelect"
+                  class="uk-select"
+                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
+                >
+                  {% for entry in pageNamespaceOptions %}
+                    {% set entryNamespace = entry.namespace|default('') %}
+                    {% set entryLabel = entry.label|default('') %}
+                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+                    <option
+                      value="{{ entryNamespace|e('html_attr') }}"
+                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
+                    >
+                      {{ entryNamespace }}
+                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+                      {% if entryIsInactive %} – inaktiv{% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {% set localeOptions = locale_options|default(['de', 'en']) %}
+        <div
+          class="uk-card uk-card-default uk-card-body uk-margin"
+          data-navigation-overrides-list
+        >
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+            <div>
+              <div class="uk-text-meta uk-text-uppercase">{{ t('label_navigation_overrides') }}</div>
+              <h3 class="uk-card-title uk-margin-remove">{{ t('label_navigation_overrides_title') }}</h3>
+            </div>
+          </div>
+
+          <div class="uk-grid-small uk-child-width-1-1 uk-child-width-1-4@m uk-margin-small-top" uk-grid>
+            <div>
+              <label class="uk-form-label" for="overrideLocaleFilter">Locale</label>
+              <div class="uk-form-controls">
+                <select id="overrideLocaleFilter" class="uk-select" data-override-locale-filter>
+                  <option value="">Alle</option>
+                  {% for localeOption in localeOptions %}
+                    <option value="{{ localeOption|e('html_attr') }}">{{ localeOption }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="uk-form-label" for="overrideHeaderFilter">Header</label>
+              <div class="uk-form-controls">
+                <select id="overrideHeaderFilter" class="uk-select" data-override-header-filter>
+                  <option value="">Alle</option>
+                  <option value="standard">Standard</option>
+                  <option value="override">Override</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="uk-form-label" for="overrideFooterFilter">Footer</label>
+              <div class="uk-form-controls">
+                <select id="overrideFooterFilter" class="uk-select" data-override-footer-filter>
+                  <option value="">Alle</option>
+                  <option value="standard">Standard</option>
+                  <option value="override">Override</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="uk-form-label" for="overrideSort">Sortierung</label>
+              <div class="uk-form-controls">
+                <select id="overrideSort" class="uk-select" data-override-sort>
+                  <option value="title">Seitentitel</option>
+                  <option value="updated">Zuletzt geändert</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="uk-overflow-auto admin-table-wrapper uk-margin-small-top">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-middle">
+              <thead>
+                <tr>
+                  <th>Seite</th>
+                  <th class="uk-table-shrink">Slug</th>
+                  <th class="uk-table-shrink">Header</th>
+                  <th class="uk-table-shrink">Footer</th>
+                  <th class="uk-table-shrink">Zuletzt geändert</th>
+                  <th class="uk-table-shrink uk-text-right">Aktionen</th>
+                </tr>
+              </thead>
+              <tbody data-override-rows>
+                {% for page in page_overrides|default([]) %}
+                  {% set headerLocales = page.header_locales|default([]) %}
+                  {% set footerLocales = page.footer_locales|default([]) %}
+                  <tr
+                    data-override-row
+                    data-page-title="{{ page.title|default(page.slug)|e('html_attr') }}"
+                    data-page-updated="{{ page.updated_at|default('')|e('html_attr') }}"
+                    data-header-override="{{ page.has_header_override ? '1' : '0' }}"
+                    data-footer-override="{{ page.has_footer_override ? '1' : '0' }}"
+                    data-header-locales="{{ headerLocales|join(',')|e('html_attr') }}"
+                    data-footer-locales="{{ footerLocales|join(',')|e('html_attr') }}"
+                  >
+                    <td>
+                      <strong>{{ page.title|default(page.slug) }}</strong>
+                      {% if headerLocales is not empty or footerLocales is not empty %}
+                        <div class="uk-text-meta">
+                          {% if headerLocales is not empty %}Header: {{ headerLocales|join(', ') }}{% endif %}
+                          {% if headerLocales is not empty and footerLocales is not empty %} · {% endif %}
+                          {% if footerLocales is not empty %}Footer: {{ footerLocales|join(', ') }}{% endif %}
+                        </div>
+                      {% else %}
+                        <div class="uk-text-meta">Keine Overrides gesetzt.</div>
+                      {% endif %}
+                    </td>
+                    <td>/{{ page.slug }}</td>
+                    <td>
+                      {% if page.has_header_override %}
+                        <span class="uk-label uk-label-success">Override</span>
+                      {% else %}
+                        <span class="uk-label">Standard</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if page.has_footer_override %}
+                        <span class="uk-label uk-label-success">Override</span>
+                      {% else %}
+                        <span class="uk-label">Standard</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ page.updated_at ? page.updated_at|date('d.m.Y H:i') : '—' }}</td>
+                    <td class="uk-text-right">
+                      <a
+                        class="uk-button uk-button-primary uk-button-small"
+                        href="{{ basePath }}/admin/navigation/overrides/{{ page.id }}"
+                      >Details</a>
+                    </td>
+                  </tr>
+                {% else %}
+                  <tr data-override-empty>
+                    <td colspan="6">Keine Seiten vorhanden.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/admin.js"></script>
+{% endblock %}

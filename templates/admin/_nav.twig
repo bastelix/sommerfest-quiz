@@ -159,7 +159,24 @@
   {
     header: t('menu_web_structure'),
     items: [
-      { href: basePath ~ '/admin/pages/navigation', icon: 'list', text: t('tab_navigation'), activePrefixes: [basePath ~ '/admin/pages/navigation'] },
+      {
+        href: basePath ~ '/admin/navigation/menus',
+        icon: 'list',
+        text: t('tab_navigation_menus'),
+        activePrefixes: [basePath ~ '/admin/navigation/menus']
+      },
+      {
+        href: basePath ~ '/admin/navigation/standards',
+        icon: 'settings',
+        text: t('tab_navigation_standards'),
+        activePrefixes: [basePath ~ '/admin/navigation/standards']
+      },
+      {
+        href: basePath ~ '/admin/navigation/overrides',
+        icon: 'file-edit',
+        text: t('tab_navigation_overrides'),
+        activePrefixes: [basePath ~ '/admin/navigation/overrides']
+      },
     ]
   },
   {
@@ -179,6 +196,12 @@
     header: t('menu_web_design'),
     items: [
       { href: basePath ~ '/admin/pages/design', icon: 'paint-bucket', text: t('tab_design'), activePrefixes: [basePath ~ '/admin/pages/design'] },
+      {
+        href: basePath ~ '/admin/settings/header',
+        icon: 'settings',
+        text: t('tab_navigation_settings'),
+        activePrefixes: [basePath ~ '/admin/settings/header']
+      },
     ]
   },
 ] %}
