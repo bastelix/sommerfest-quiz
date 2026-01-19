@@ -59,6 +59,7 @@ class LandingNewsController
         }
         /** @var array{namespace: string, design: array<string, mixed>} $renderContext */
         $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $designNamespace = $renderContext['namespace'];
         $design = $renderContext['design'];
         $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($pageNamespace);
 
@@ -100,6 +101,7 @@ class LandingNewsController
             'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'appearance' => $appearance,
             'design' => $design,
             'renderContext' => $renderContext,
@@ -123,6 +125,7 @@ class LandingNewsController
         }
         /** @var array{namespace: string, design: array<string, mixed>} $renderContext */
         $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $designNamespace = $renderContext['namespace'];
         $design = $renderContext['design'];
         $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($pageNamespace);
 
@@ -169,6 +172,7 @@ class LandingNewsController
             'newsOwnerBaseSlug' => $newsOwnerBaseSlug,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'appearance' => $appearance,
             'design' => $design,
             'renderContext' => $renderContext,

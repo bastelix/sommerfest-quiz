@@ -82,6 +82,7 @@ final class CmsPageWikiListController
         }
         /** @var array{namespace: string, design: array<string, mixed>} $renderContext */
         $renderContext = $this->namespaceRenderContext->build($pageNamespace);
+        $designNamespace = $renderContext['namespace'];
         $design = $renderContext['design'];
         $appearance = $design['appearance'] ?? $this->namespaceAppearance->load($pageNamespace);
 
@@ -131,6 +132,7 @@ final class CmsPageWikiListController
             'wikiTheme' => $theme,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'appearance' => $appearance,
             'design' => $design,
             'renderContext' => $renderContext,

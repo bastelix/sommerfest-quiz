@@ -16,6 +16,7 @@
 {% set includeTableStyles = includeTableStyles|default(true) %}
 {% set includeTopbarStyles = includeTopbarStyles|default(true) %}
 {% set includeNamespaceTokensStyles = includeNamespaceTokensStyles|default(true) %}
+{% set enableNamespaceTokenDiagnostics = displayErrorDetails|default(false) %}
 {% set activeNamespace = normalizedNamespace|default('default') %}
 {% set hasNamespaceStyles = activeNamespace is not empty and activeNamespace != 'default' %}
 {% set namespaceSegment = hasNamespaceStyles ? '/' ~ activeNamespace : '' %}
@@ -158,7 +159,8 @@
         rel="stylesheet"
         href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
         data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
-        onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
+        data-dev="{{ enableNamespaceTokenDiagnostics ? '1' : '0' }}"
+        onerror="(function(el){var isDev=el.dataset&&el.dataset.dev==='1';if(isDev){var markFallback=function(){document.documentElement.setAttribute('data-namespace-token-fallback','1');};markFallback();if(!window.__namespaceTokenFallbackShown){window.__namespaceTokenFallbackShown=true;var banner=document.createElement('div');banner.textContent='Missing namespace token CSS: '+el.href;banner.style='position:fixed;top:0;left:0;right:0;z-index:10000;background:#b91c1c;color:#fff;padding:8px 12px;font:12px/1.4 sans-serif;text-align:center';var mount=function(){document.body.appendChild(banner);};if(document.body){mount();}else{document.addEventListener('DOMContentLoaded',mount);}}return;}if(el.dataset&&el.dataset.defaultHref){el.onerror=null;el.href=el.dataset.defaultHref;}})(this);"
       >
     {% endset %}
   {% endif %}
