@@ -136,6 +136,19 @@ const applyMarketingDesign = () => {
   if (!root?.style?.setProperty) {
     return;
   }
+  const initialStyles = window.getComputedStyle(root);
+  const getInitialTokenValue = variableName => initialStyles.getPropertyValue(variableName).trim();
+  const shouldSkipTokenWrite = (variableName, hasExplicitOverride) =>
+    !hasExplicitOverride && getInitialTokenValue(variableName);
+  const setTokenProperty = (variableName, value, hasExplicitOverride) => {
+    if (!value) {
+      return;
+    }
+    if (shouldSkipTokenWrite(variableName, hasExplicitOverride)) {
+      return;
+    }
+    root.style.setProperty(variableName, value);
+  };
   if (root.getAttribute('data-lock-design') === 'true') {
     applyComponentTokens(root);
     return;
@@ -369,6 +382,40 @@ const applyMarketingDesign = () => {
   } else {
     delete root.dataset.marketingScheme;
   }
+  const hasMarketingPrimaryOverride = Boolean(
+    marketingSchemeValues?.primary ||
+      configColors.primary ||
+      configColors.marketingPrimary ||
+      configColors.marketing_primary ||
+      variables.marketingPrimary ||
+      variables.marketing_primary,
+  );
+  const hasMarketingAccentOverride = Boolean(
+    marketingSchemeValues?.accent ||
+      configColors.accent ||
+      configColors.secondary ||
+      configColors.marketingAccent ||
+      configColors.marketing_accent ||
+      variables.marketingAccent ||
+      variables.marketing_accent,
+  );
+  const hasMarketingSecondaryOverride = Boolean(
+    marketingSchemeValues?.accent ||
+      configColors.secondary ||
+      configColors.marketingSecondary ||
+      configColors.marketing_secondary ||
+      variables.marketingSecondary ||
+      variables.marketing_secondary,
+  );
+  const hasBrandPrimaryOverride = Boolean(
+    configColors.primary || configColors.brandPrimary || configColors.brand_primary,
+  );
+  const hasBrandAccentOverride = Boolean(
+    configColors.accent || configColors.brandAccent || configColors.brand_accent,
+  );
+  const hasBrandSecondaryOverride = Boolean(
+    configColors.secondary || configColors.brandSecondary || configColors.brand_secondary,
+  );
   const marketingBackgroundToken =
     configColors['--marketing-background'] ||
     colors['--marketing-background'] ||
@@ -1273,9 +1320,9 @@ const applyMarketingDesign = () => {
   root.dataset.cardStyle = normalizedCardStyle;
   root.dataset.buttonStyle = normalizedButtonStyle;
 
-  root.style.setProperty('--marketing-primary', marketingPrimary);
-  root.style.setProperty('--marketing-accent', marketingAccent);
-  root.style.setProperty('--marketing-secondary', marketingSecondary);
+  setTokenProperty('--marketing-primary', marketingPrimary, hasMarketingPrimaryOverride);
+  setTokenProperty('--marketing-accent', marketingAccent, hasMarketingAccentOverride);
+  setTokenProperty('--marketing-secondary', marketingSecondary, hasMarketingSecondaryOverride);
   root.style.setProperty('--marketing-background', marketingBackground);
   if (marketingBackgroundDark) {
     root.style.setProperty('--marketing-background-dark', marketingBackgroundDark);
@@ -1419,11 +1466,14 @@ const applyMarketingDesign = () => {
   if (cardDark) {
     root.style.setProperty('--marketing-card-dark', cardDark);
   }
-  root.style.setProperty('--brand-primary', 'var(--marketing-primary)');
-  root.style.setProperty('--accent-primary', 'var(--marketing-primary)');
-  root.style.setProperty('--brand-accent', 'var(--marketing-accent)');
-  root.style.setProperty('--brand-secondary', 'var(--marketing-secondary)');
-  root.style.setProperty('--accent-secondary', 'var(--marketing-secondary)');
+  const shouldSyncBrandPrimary = hasBrandPrimaryOverride || hasMarketingPrimaryOverride;
+  const shouldSyncBrandAccent = hasBrandAccentOverride || hasMarketingAccentOverride;
+  const shouldSyncBrandSecondary = hasBrandSecondaryOverride || hasMarketingSecondaryOverride;
+  setTokenProperty('--brand-primary', 'var(--marketing-primary)', shouldSyncBrandPrimary);
+  setTokenProperty('--accent-primary', 'var(--marketing-primary)', shouldSyncBrandPrimary);
+  setTokenProperty('--brand-accent', 'var(--marketing-accent)', shouldSyncBrandAccent);
+  setTokenProperty('--brand-secondary', 'var(--marketing-secondary)', shouldSyncBrandSecondary);
+  setTokenProperty('--accent-secondary', 'var(--marketing-secondary)', shouldSyncBrandSecondary);
   root.style.setProperty('--surface', 'var(--marketing-surface)');
   root.style.setProperty('--surface-muted', 'var(--marketing-surface-muted)');
   root.style.setProperty('--bg-page', 'var(--surface)');
