@@ -37,13 +37,18 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
+use function clearstatcache;
 use function dirname;
 use function file_get_contents;
+use function filemtime;
+use function filter_var;
+use function getenv;
 use function html_entity_decode;
 use function htmlspecialchars;
 use function in_array;
 use function is_array;
 use function is_numeric;
+use function is_file;
 use function is_readable;
 use function json_decode;
 use function json_encode;
@@ -51,12 +56,14 @@ use function max;
 use function preg_match;
 use function preg_replace;
 use function rawurlencode;
+use function strtolower;
 use function str_contains;
 use function str_starts_with;
 use function strlen;
 use function strpos;
 use function substr;
 use function trim;
+use function time;
 
 class PageController
 {
@@ -193,6 +200,10 @@ class PageController
         $globals = $view->getEnvironment()->getGlobals();
         $canonicalFallback = isset($globals['canonicalUrl']) ? (string) $globals['canonicalUrl'] : null;
         $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
+        $marketingDesignDebug = $this->buildMarketingDesignDebug($pageNamespace, $basePath, $view);
+        if ($marketingDesignDebug['enabled']) {
+            $response = $this->attachMarketingDesignHeaders($response, $marketingDesignDebug);
+        }
 
         $cmsMenuItems = $this->cmsMenu->getMenuTreeForSlug(
             $pageNamespace,
@@ -260,6 +271,7 @@ class PageController
 
         $pageJson = [
             'namespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'contentNamespace' => $contentNamespace,
             'slug' => $page->getSlug(),
             'type' => $pageType,
@@ -274,6 +286,7 @@ class PageController
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $pageNamespace,
+                'designNamespace' => $designNamespace,
                 'contentNamespace' => $contentNamespace,
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
@@ -313,6 +326,7 @@ class PageController
             'privacyUrl' => $privacyUrl,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'contentNamespace' => $contentNamespace,
             'designNamespace' => $designNamespace,
             'designDiagnostics' => $designDiagnostics,
@@ -349,6 +363,7 @@ class PageController
             'turnstileEnabled' => $marketingPayload['featureData']['turnstileEnabled'],
             'turnstileSiteKey' => $marketingPayload['featureData']['turnstileSiteKey'],
             'featureFlags' => $pageFeatures,
+            'marketingDesignDebug' => $marketingDesignDebug,
         ];
 
         $response = $view->render($response, 'pages/render.twig', $data);
@@ -388,13 +403,14 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>, featureFlags?: array<string, bool>, featureData?: array<string, mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>, featureFlags?: array<string, bool>, featureData?: array<string, mixed>, designNamespace?: string} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
         [
             'namespace' => $namespace,
             'contentNamespace' => $contentNamespace,
+            'designNamespace' => $designNamespace,
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
@@ -407,11 +423,12 @@ class PageController
             'renderContext' => $renderContext,
             'featureFlags' => $featureFlags,
             'featureData' => $featureData,
-        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => [], 'featureFlags' => [], 'featureData' => []];
+        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => [], 'featureFlags' => [], 'featureData' => [], 'designNamespace' => null];
 
         $payload = [
             'namespace' => $namespace,
             'contentNamespace' => $contentNamespace,
+            'designNamespace' => $designNamespace,
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
@@ -1002,6 +1019,107 @@ class PageController
         $normalizedBase = rtrim($basePath, '/');
 
         return ($normalizedBase !== '' ? $normalizedBase : '') . '/' . ltrim($normalized, '/');
+    }
+
+    /**
+     * @return array{
+     *     enabled: bool,
+     *     namespace: string,
+     *     tokenCssUrl: string,
+     *     fallback: string,
+     *     version: string
+     * }
+     */
+    private function buildMarketingDesignDebug(string $pageNamespace, string $basePath, Twig $view): array
+    {
+        if (!$this->isDevMode()) {
+            return [
+                'enabled' => false,
+                'namespace' => '',
+                'tokenCssUrl' => '',
+                'fallback' => '',
+                'version' => '',
+            ];
+        }
+
+        $globals = $view->getEnvironment()->getGlobals();
+        $namespaceTokensVersion = isset($globals['namespaceTokensVersion'])
+            ? (string) $globals['namespaceTokensVersion']
+            : $this->getNamespaceTokensVersion();
+
+        $normalizedNamespace = strtolower(trim($pageNamespace));
+        $fallbackReason = null;
+        if ($normalizedNamespace === '') {
+            $normalizedNamespace = PageService::DEFAULT_NAMESPACE;
+            $fallbackReason = 'empty-namespace';
+        }
+
+        $hasNamespaceStyles = $normalizedNamespace !== '' && $normalizedNamespace !== PageService::DEFAULT_NAMESPACE;
+        $namespaceSegment = $hasNamespaceStyles ? '/' . $normalizedNamespace : '';
+        $requestedCssUrl = $basePath . '/css' . $namespaceSegment . '/namespace-tokens.css?v=' . $namespaceTokensVersion;
+
+        if ($fallbackReason === null && $hasNamespaceStyles) {
+            $namespaceCssPath = dirname(__DIR__, 3)
+                . '/public/css/'
+                . $normalizedNamespace
+                . '/namespace-tokens.css';
+            if (!is_file($namespaceCssPath)) {
+                $fallbackReason = 'missing-file';
+            }
+        }
+
+        if ($fallbackReason !== null) {
+            $normalizedNamespace = PageService::DEFAULT_NAMESPACE;
+            $requestedCssUrl = $basePath . '/css/namespace-tokens.css?v=' . $namespaceTokensVersion;
+        }
+
+        return [
+            'enabled' => true,
+            'namespace' => $normalizedNamespace,
+            'tokenCssUrl' => $requestedCssUrl,
+            'fallback' => $fallbackReason ?? 'none',
+            'version' => $namespaceTokensVersion,
+        ];
+    }
+
+    /**
+     * @param array{namespace:string,tokenCssUrl:string,fallback:string,version:string} $debug
+     */
+    private function attachMarketingDesignHeaders(Response $response, array $debug): Response
+    {
+        return $response
+            ->withHeader('X-Marketing-Design-Namespace', $debug['namespace'])
+            ->withHeader('X-Marketing-Token-Css', $debug['tokenCssUrl'])
+            ->withHeader('X-Marketing-Design-Fallback', $debug['fallback'])
+            ->withHeader('X-Marketing-Design-Version', $debug['version']);
+    }
+
+    private function isDevMode(): bool
+    {
+        $appEnv = getenv('APP_ENV');
+        if ($appEnv !== false && strtolower(trim($appEnv)) !== 'production') {
+            return true;
+        }
+
+        $displayErrors = getenv('DISPLAY_ERROR_DETAILS');
+        if ($displayErrors !== false) {
+            return filter_var($displayErrors, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return false;
+    }
+
+    private function getNamespaceTokensVersion(): string
+    {
+        $path = dirname(__DIR__, 3) . '/public/css/namespace-tokens.css';
+        clearstatcache(false, $path);
+        if (!is_file($path)) {
+            return (string) time();
+        }
+
+        $timestamp = filemtime($path);
+
+        return $timestamp === false ? (string) time() : (string) $timestamp;
     }
 
     private function buildNewsBasePath(Request $request, string $pageSlug): string

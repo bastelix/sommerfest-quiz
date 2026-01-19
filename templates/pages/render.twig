@@ -1,6 +1,6 @@
 {% extends 'layouts/cms_base.twig' %}
 
-{% set normalizedNamespace = pageNamespace|default('default') %}
+{% set normalizedNamespace = designNamespace|default(pageNamespace|default('default')) %}
 {% set pageTitle = metaTitle|default('') %}
 {% set incomingDesign = design|default(renderContext.design|default({})) %}
 {% set effectiveAppearance = incomingDesign.appearance|default(appearance|default(renderContext.design.appearance|default({}))) %}
@@ -75,14 +75,14 @@
     class="cms-page"
     data-page-root
     data-page-slug="{{ cmsSlug }}"
-    data-page-namespace="{{ pageNamespace }}"
+    data-page-namespace="{{ designNamespace|default(pageNamespace) }}"
     data-content-namespace="{{ contentNamespace }}"
   >
     <script
       type="application/json"
       data-json="page"
       data-page-slug="{{ cmsSlug }}"
-      data-page-namespace="{{ pageJson.namespace ?? pageNamespace }}"
+      data-page-namespace="{{ pageJson.designNamespace ?? pageJson.namespace ?? designNamespace|default(pageNamespace) }}"
       data-content-namespace="{{ pageJson.contentNamespace ?? contentNamespace }}"
     >
       {{ pageJson|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}
