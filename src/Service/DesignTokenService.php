@@ -498,7 +498,8 @@ class DesignTokenService
     private function mirrorCssToNamespacePaths(array $namespaces): void
     {
         $baseDirectory = dirname($this->cssPath);
-        $import = "@import '../namespace-tokens.css';\n";
+        $version = $this->getNamespaceTokensVersion();
+        $import = "@import '../namespace-tokens.css?v=" . $version . "';\n";
 
         foreach ($namespaces as $namespace) {
             if ($namespace === PageService::DEFAULT_NAMESPACE) {
@@ -513,5 +514,17 @@ class DesignTokenService
             $namespacedPath = $namespaceDirectory . '/namespace-tokens.css';
             $this->writeCssFile($namespacedPath, $import);
         }
+    }
+
+    private function getNamespaceTokensVersion(): string
+    {
+        clearstatcache(false, $this->cssPath);
+        if (!is_file($this->cssPath)) {
+            return (string) time();
+        }
+
+        $timestamp = filemtime($this->cssPath);
+
+        return $timestamp === false ? (string) time() : (string) $timestamp;
     }
 }

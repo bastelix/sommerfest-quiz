@@ -4,6 +4,7 @@
   Base layout for CMS-rendered pages. Minimises the head to essential styles
   and skips marketing bundles unless explicitly requested by the page.
 #}
+{% set designNamespace = designNamespace|default('default') %}
 
 {% block head %}
   {% set includeCmsBaseStyles = includeCmsBaseStyles|default(true) %}

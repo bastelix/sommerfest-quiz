@@ -50,6 +50,14 @@ class UrlMiddleware implements MiddlewareInterface
         $env->addGlobal('canonicalUrl', $canonicalUrl);
         $env->addGlobal('namespaceTokensVersion', $this->getNamespaceTokensVersion());
         $env->addGlobal('marketingSchemes', $this->getMarketingSchemes());
+        $designNamespace = $request->getAttribute('designNamespace')
+            ?? $request->getAttribute('pageNamespace')
+            ?? $request->getAttribute('namespace');
+        if (!is_string($designNamespace)) {
+            $designNamespace = '';
+        }
+        $designNamespace = trim($designNamespace);
+        $env->addGlobal('designNamespace', $designNamespace !== '' ? $designNamespace : null);
 
         $privacyUrl = rtrim($basePath, '/') . '/datenschutz';
         try {

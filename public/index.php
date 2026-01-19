@@ -84,6 +84,7 @@ $twig->addExtension(new DateTimeFormatExtension());
 $twig->addExtension(new TranslationExtension($translator));
 $twig->getEnvironment()->addGlobal('basePath', $basePath);
 $twig->getEnvironment()->addGlobal('pageEditorDriver', 'tiptap');
+$twig->getEnvironment()->addGlobal('displayErrorDetails', (bool) ($settings['displayErrorDetails'] ?? false));
 $marketingDomainProvider = new MarketingDomainProvider(
     static function (): \PDO {
         return Database::connectFromEnv();
