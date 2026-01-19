@@ -1042,7 +1042,7 @@ class PageController
             $fallbackReason = 'empty-namespace';
         }
 
-        $hasNamespaceStyles = $normalizedNamespace !== '' && $normalizedNamespace !== PageService::DEFAULT_NAMESPACE;
+        $hasNamespaceStyles = $normalizedNamespace !== PageService::DEFAULT_NAMESPACE;
         $namespaceSegment = $hasNamespaceStyles ? '/' . $normalizedNamespace : '';
         $requestedCssUrl = $basePath . '/css' . $namespaceSegment . '/namespace-tokens.css?v=' . $namespaceTokensVersion;
 
