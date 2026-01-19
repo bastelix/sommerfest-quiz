@@ -197,11 +197,6 @@ class DesignTokenService
 
         $this->writeCssFile($this->cssPath, $css);
         $namespaceList = $this->listNamespacesForStyles(array_keys($namespaces));
-        foreach ($namespaceList as $namespace) {
-            if (!is_string($namespace)) {
-                throw new RuntimeException('Non-string namespace encountered while rebuilding tokens.');
-            }
-        }
         $this->mirrorCssToNamespacePaths($namespaceList);
     }
 
@@ -526,17 +521,7 @@ class DesignTokenService
     {
         $baseDirectory = dirname($this->cssPath);
 
-        foreach ($namespaces as $entry) {
-            if (is_array($entry)) {
-                $namespace = (string) ($entry['namespace'] ?? '');
-            } else {
-                $namespace = $entry;
-            }
-
-            if (!is_string($namespace)) {
-                throw new RuntimeException('Non-string namespace encountered while mirroring tokens.');
-            }
-
+        foreach ($namespaces as $namespace) {
             $namespace = strtolower(trim($namespace));
             if ($namespace === '' || $namespace === PageService::DEFAULT_NAMESPACE) {
                 continue;
