@@ -185,6 +185,9 @@
         {% include 'marketing/partials/theme-vars.twig' %}
       {% endif %}
     {% endblock %}
+    {% if marketingDesignDebug is defined and marketingDesignDebug.enabled %}
+      <!-- Marketing Design Debug: namespace={{ marketingDesignDebug.namespace }}, tokenCss={{ marketingDesignDebug.tokenCssUrl }}, fallback={{ marketingDesignDebug.fallback }}, version={{ marketingDesignDebug.version }} -->
+    {% endif %}
   {% endblock %}
 </head>
 <body
