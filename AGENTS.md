@@ -168,6 +168,11 @@ Design Tokens
 	•	CSS-Variablen als Design Tokens
 	•	Namespace-spezifische Theme-Overrides erlaubt
 	•	Keine Hardcoded Styles
+	•	Namespace Design (Tokens + Appearance) gilt ausschließlich für Marketing-Seiten:
+		•	Editor/CMS-Seiten (templates/pages/render.twig)
+		•	Marketing-Templates (templates/marketing/*)
+	•	Event-/Spiel-/Auswertungs-Seiten (z. B. results, ranking, summary, dashboard) behalten
+	  eigenständige Designs und dürfen keine Marketing-Appearance-Logik übernehmen.
 
 ⸻
 

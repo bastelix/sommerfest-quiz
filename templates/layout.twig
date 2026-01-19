@@ -180,6 +180,7 @@
       {{ namespaceTokensStyles|raw }}
     {% endif %}
     {% block theme_vars %}
+      {# Marketing design injection only. Do not use on event/game/result pages. #}
       {% if shouldIncludeMarketingThemeVars %}
         {% include 'marketing/partials/theme-vars.twig' %}
       {% endif %}
