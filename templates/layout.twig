@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 {% set cfg = config is defined ? config : {} %}
 {% set lang = lang|default(locale()) %}
-{% set resolvedNamespace = namespace|default(pageNamespace|default(marketingNamespace|default(cfg.namespace|default('default'))), true) %}
+{% set resolvedNamespace = designNamespace|default(namespace|default(pageNamespace|default(marketingNamespace|default(cfg.namespace|default('default'))), true)) %}
 {% set normalizedNamespace = resolvedNamespace|trim|lower %}
 {% set themeValue %}{% block body_theme %}{{ pageTheme|default(design.theme|default('light')) }}{% endblock %}{% endset %}
 {% set resolvedTheme = themeValue|trim %}

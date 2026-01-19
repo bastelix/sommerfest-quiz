@@ -150,7 +150,12 @@ class PageController
 
         $contentNamespace = $page->getNamespace();
         $pageNamespace = $contentNamespace;
-        $designNamespace = $pageNamespace;
+        $designNamespace = trim((string) ($request->getAttribute('pageNamespace')
+            ?? $request->getAttribute('namespace')
+            ?? $contentNamespace));
+        if ($designNamespace === '') {
+            $designNamespace = $contentNamespace;
+        }
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -256,6 +261,7 @@ class PageController
 
         $pageJson = [
             'namespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'contentNamespace' => $contentNamespace,
             'slug' => $page->getSlug(),
             'type' => $pageType,
@@ -270,6 +276,7 @@ class PageController
         if ($this->wantsJson($request)) {
             return $this->renderJsonPage($response, [
                 'namespace' => $pageNamespace,
+                'designNamespace' => $designNamespace,
                 'contentNamespace' => $contentNamespace,
                 'slug' => $page->getSlug(),
                 'blocks' => $pageBlocks ?? [],
@@ -308,6 +315,7 @@ class PageController
             'privacyUrl' => $privacyUrl,
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
+            'designNamespace' => $designNamespace,
             'contentNamespace' => $contentNamespace,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
@@ -371,13 +379,14 @@ class PageController
     /**
      * Render a CMS page payload without embedding it into the DOM.
      *
-     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>, featureFlags?: array<string, bool>, featureData?: array<string, mixed>} $data
+     * @param array{namespace: string, contentNamespace: string, slug: string, blocks: array<int, mixed>, design: array<string,mixed>, content: string, menu?: array<int, mixed>, navigation?: array<string, mixed>, mainNavigation?: array<int, mixed>, pageType?: ?string, sectionStyleDefaults?: array<string, mixed>, renderContext?: array<string, mixed>, featureFlags?: array<string, bool>, featureData?: array<string, mixed>, designNamespace?: string} $data
      */
     private function renderJsonPage(Response $response, array $data): Response
     {
         [
             'namespace' => $namespace,
             'contentNamespace' => $contentNamespace,
+            'designNamespace' => $designNamespace,
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
@@ -390,11 +399,12 @@ class PageController
             'renderContext' => $renderContext,
             'featureFlags' => $featureFlags,
             'featureData' => $featureData,
-        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => [], 'featureFlags' => [], 'featureData' => []];
+        ] = $data + ['menu' => [], 'navigation' => [], 'mainNavigation' => [], 'pageType' => null, 'sectionStyleDefaults' => [], 'renderContext' => [], 'featureFlags' => [], 'featureData' => [], 'designNamespace' => null];
 
         $payload = [
             'namespace' => $namespace,
             'contentNamespace' => $contentNamespace,
+            'designNamespace' => $designNamespace,
             'slug' => $slug,
             'blocks' => $blocks,
             'design' => $design,
