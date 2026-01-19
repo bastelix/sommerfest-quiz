@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\NamespaceRepository;
 use InvalidArgumentException;
 use PDO;
 use RuntimeException;
@@ -54,12 +55,14 @@ class DesignTokenService
     private NamespaceValidator $namespaceValidator;
 
     private NamespaceDesignFileRepository $designFiles;
+    private NamespaceRepository $namespaceRepository;
 
     public function __construct(
         PDO $pdo,
         ?ConfigService $configService = null,
         ?string $cssPath = null,
-        ?NamespaceDesignFileRepository $designFiles = null
+        ?NamespaceDesignFileRepository $designFiles = null,
+        ?NamespaceRepository $namespaceRepository = null
     )
     {
         $this->pdo = $pdo;
@@ -67,6 +70,7 @@ class DesignTokenService
         $this->cssPath = $cssPath ?? dirname(__DIR__, 2) . '/public/css/namespace-tokens.css';
         $this->namespaceValidator = new NamespaceValidator();
         $this->designFiles = $designFiles ?? new NamespaceDesignFileRepository();
+        $this->namespaceRepository = $namespaceRepository ?? new NamespaceRepository($pdo);
     }
 
     /**
@@ -192,7 +196,7 @@ class DesignTokenService
         $css = $this->buildCss($namespaces);
 
         $this->writeCssFile($this->cssPath, $css);
-        $this->mirrorCssToNamespacePaths(array_keys($namespaces));
+        $this->mirrorCssToNamespacePaths($this->listNamespacesForStyles(array_keys($namespaces)));
     }
 
     /**
@@ -430,21 +434,16 @@ class DesignTokenService
             $blocks[] = $this->renderTokenCssBlock('[data-namespace="' . $namespace . '"]', $mergedTokens);
         }
 
-        $blocks[] = ':root {';
-        $blocks[] = '  --brand-surface: #0f172a;';
-        $blocks[] = '  --brand-on-surface: #ffffff;';
-        $blocks[] = '  --section-gap: 2.25rem;';
-        $blocks[] = '  --card-radius: 10px;';
-        $blocks[] = '  --font-heading-weight: 700;';
-        $blocks[] = '}';
+        $blocks[] = $this->renderBaseTokenBlock(':root');
 
         return implode("\n\n", $blocks) . "\n";
     }
 
     /**
      * @param array<string, array<string, string>> $tokens
+     * @param list<string> $extraLines
      */
-    private function renderTokenCssBlock(string $selector, array $tokens): string
+    private function renderTokenCssBlock(string $selector, array $tokens, array $extraLines = []): string
     {
         $brandPrimary = $tokens['brand']['primary'] ?? self::DEFAULT_TOKENS['brand']['primary'];
         $brandAccent = $tokens['brand']['accent'] ?? self::DEFAULT_TOKENS['brand']['accent'];
@@ -464,10 +463,32 @@ class DesignTokenService
             '  --typography-preset: ' . $this->escapeCssValue($tokens['typography']['preset'] ?? self::DEFAULT_TOKENS['typography']['preset']) . ';',
             '  --components-card-style: ' . $this->escapeCssValue($tokens['components']['cardStyle'] ?? self::DEFAULT_TOKENS['components']['cardStyle']) . ';',
             '  --components-button-style: ' . $this->escapeCssValue($tokens['components']['buttonStyle'] ?? self::DEFAULT_TOKENS['components']['buttonStyle']) . ';',
-            '}',
         ];
+        if ($extraLines !== []) {
+            $lines = array_merge($lines, $extraLines);
+        }
+        $lines[] = '}';
 
         return implode("\n", $lines);
+    }
+
+    private function renderBaseTokenBlock(string $selector): string
+    {
+        return implode("\n", array_merge([$selector . ' {'], $this->getBaseTokenLines(), ['}']));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getBaseTokenLines(): array
+    {
+        return [
+            '  --brand-surface: #0f172a;',
+            '  --brand-on-surface: #ffffff;',
+            '  --section-gap: 2.25rem;',
+            '  --card-radius: 10px;',
+            '  --font-heading-weight: 700;',
+        ];
     }
 
     private function escapeCssValue(string $value): string
@@ -498,8 +519,6 @@ class DesignTokenService
     private function mirrorCssToNamespacePaths(array $namespaces): void
     {
         $baseDirectory = dirname($this->cssPath);
-        $version = $this->getNamespaceTokensVersion();
-        $import = "@import '../namespace-tokens.css?v=" . $version . "';\n";
 
         foreach ($namespaces as $namespace) {
             if ($namespace === PageService::DEFAULT_NAMESPACE) {
@@ -512,8 +531,57 @@ class DesignTokenService
             }
 
             $namespacedPath = $namespaceDirectory . '/namespace-tokens.css';
-            $this->writeCssFile($namespacedPath, $import);
+            $this->writeCssFile($namespacedPath, $this->buildNamespacedTokenCss($namespace));
         }
+    }
+
+    private function buildNamespacedTokenCss(string $namespace): string
+    {
+        $tokens = $this->getTokensForNamespace($namespace);
+        $selector = 'html[data-namespace="' . $namespace . '"]';
+
+        return implode("\n\n", [
+            "/**\n * Auto-generated. Do not edit manually.\n */",
+            $this->renderTokenCssBlock($selector, $tokens, $this->getBaseTokenLines()),
+        ]) . "\n";
+    }
+
+    /**
+     * @param list<string> $tokenNamespaces
+     * @return list<string>
+     */
+    private function listNamespacesForStyles(array $tokenNamespaces): array
+    {
+        $namespaces = [];
+        $addNamespace = function (?string $namespace) use (&$namespaces): void {
+            if ($namespace === null || $namespace === '') {
+                return;
+            }
+            $namespaces[$namespace] = true;
+        };
+
+        foreach ($tokenNamespaces as $namespace) {
+            $addNamespace($this->namespaceValidator->normalizeCandidate($namespace));
+        }
+
+        try {
+            foreach ($this->namespaceRepository->list() as $entry) {
+                $addNamespace($this->namespaceValidator->normalizeCandidate((string) ($entry['namespace'] ?? '')));
+            }
+        } catch (RuntimeException $exception) {
+            // Namespace table might not exist in minimal setups; ignore.
+        }
+
+        foreach ($this->designFiles->listNamespaces() as $namespace) {
+            $addNamespace($this->namespaceValidator->normalizeCandidate($namespace));
+        }
+
+        $addNamespace(PageService::DEFAULT_NAMESPACE);
+
+        $sorted = array_keys($namespaces);
+        sort($sorted);
+
+        return $sorted;
     }
 
     private function getNamespaceTokensVersion(): string

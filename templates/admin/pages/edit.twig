@@ -11,12 +11,14 @@
   {% set activeNamespace = pageNamespace|default('default') %}
   {% set hasNamespaceStyles = activeNamespace is not empty and activeNamespace != 'default' %}
   {% set namespaceSegment = hasNamespaceStyles ? '/' ~ activeNamespace : '' %}
+  {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
+  {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('')) %}
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css" id="preview-uikit-css" data-preview-asset="page-preview" media="all">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css" id="preview-variables-css" data-preview-asset="page-preview" media="all">
   <link
     rel="stylesheet"
-    href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensVersion|default('') }}"
-    data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensVersion|default('') }}"
+    href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
+    data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
     id="preview-namespace-tokens-css"
     data-preview-asset="page-preview"
     media="all"

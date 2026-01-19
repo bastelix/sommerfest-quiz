@@ -50,6 +50,8 @@
   <link rel="stylesheet" href="{{ basePath }}/css/marketing-utilities.css">
   <link rel="preload" href="{{ basePath }}/css/marketing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/marketing.css">
+  {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
+  {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensQuery|default(namespaceTokensVersion|default('now'|date('U')))) %}
   <link
     rel="stylesheet"
     href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"

@@ -151,7 +151,8 @@
   {% if shouldIncludeDarkStyles %}
     <link rel="stylesheet" href="{{ basePath }}/css/dark.css" media="{{ darkMedia }}"{% if not prefersDark or not shouldIncludeDarkStyles %} disabled{% endif %}>
   {% endif %}
-  {% set namespaceTokensQuery = namespaceTokensVersion|default('now'|date('U')) %}
+  {% set namespaceTokensVersionsMap = namespaceTokensVersions|default({}) %}
+  {% set namespaceTokensQuery = namespaceTokensVersionsMap[activeNamespace]|default(namespaceTokensVersion|default('now'|date('U'))) %}
   {% set namespaceTokensStyles = '' %}
   {% if includeNamespaceTokensStyles %}
     {% set namespaceTokensStyles %}
