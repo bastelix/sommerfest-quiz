@@ -23,6 +23,7 @@ use App\Service\ProjectSettingsService;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\MarketingSlugResolver;
+use App\Service\NamespaceValidator;
 use App\Service\TurnstileConfig;
 use App\Infrastructure\Database;
 use App\Support\BasePathHelper;
@@ -76,6 +77,8 @@ class PageController
     private CmsPageWikiSettingsService $wikiSettings;
     private CmsPageWikiArticleService $wikiArticles;
 
+    private NamespaceValidator $namespaceValidator;
+
     public function __construct(
         ?string $slug = null,
         ?PageService $pages = null,
@@ -111,6 +114,7 @@ class PageController
         $this->configService = $configService ?? new ConfigService($pdo);
         $this->effectsPolicy = $effectsPolicy ?? new EffectsPolicyService($this->configService);
         $this->cmsMenu = $cmsMenu ?? new CmsPageMenuService($pdo, $this->pages);
+        $this->namespaceValidator = new NamespaceValidator();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response
@@ -150,7 +154,7 @@ class PageController
 
         $contentNamespace = $page->getNamespace();
         $pageNamespace = $contentNamespace;
-        $designNamespace = $pageNamespace;
+        $designNamespace = $this->resolveDesignNamespace($request);
 
         $html = $this->contentLoader->load($page);
         $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
@@ -287,6 +291,7 @@ class PageController
             ]);
         }
 
+        $designDiagnostics = $this->buildDesignDiagnostics($view, $basePath, $designNamespace);
         $data = [
             'content' => $html,
             'pageBlocks' => $pageBlocks,
@@ -309,6 +314,8 @@ class PageController
             'namespace' => $pageNamespace,
             'pageNamespace' => $pageNamespace,
             'contentNamespace' => $contentNamespace,
+            'designNamespace' => $designNamespace,
+            'designDiagnostics' => $designDiagnostics,
             'config' => $design['config'],
             'headerConfig' => $headerConfig,
             'headerLogo' => $headerLogo,
@@ -344,7 +351,17 @@ class PageController
             'featureFlags' => $pageFeatures,
         ];
 
-        return $view->render($response, 'pages/render.twig', $data);
+        $response = $view->render($response, 'pages/render.twig', $data);
+
+        if ($designDiagnostics !== []) {
+            $response = $response
+                ->withHeader('X-Marketing-Design-Namespace', $designDiagnostics['namespace'])
+                ->withHeader('X-Marketing-Token-Css', $designDiagnostics['tokenCssUrl'])
+                ->withHeader('X-Marketing-Design-Fallback', $designDiagnostics['fallback'])
+                ->withHeader('X-Marketing-Design-Version', $designDiagnostics['version']);
+        }
+
+        return $response;
     }
 
     /**
@@ -1483,5 +1500,39 @@ class PageController
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string
     {
         return MarketingSlugResolver::resolveLocalizedSlug($baseSlug, $locale);
+    }
+
+    private function resolveDesignNamespace(Request $request): string
+    {
+        $candidate = $request->getAttribute('pageNamespace') ?? $request->getAttribute('namespace');
+        $normalized = $this->namespaceValidator->normalizeCandidate($candidate);
+
+        return $normalized ?? PageService::DEFAULT_NAMESPACE;
+    }
+
+    /**
+     * @return array{namespace: string, tokenCssUrl: string, fallback: string, fallbackReason: string, version: string}|array{}
+     */
+    private function buildDesignDiagnostics(Twig $view, string $basePath, string $designNamespace): array
+    {
+        $appEnv = getenv('APP_ENV') ?: 'dev';
+        if ($appEnv === 'production') {
+            return [];
+        }
+
+        $globals = $view->getEnvironment()->getGlobals();
+        $version = isset($globals['namespaceTokensVersion']) ? (string) $globals['namespaceTokensVersion'] : '';
+        $segment = $designNamespace !== '' && $designNamespace !== PageService::DEFAULT_NAMESPACE
+            ? '/' . $designNamespace
+            : '';
+        $tokenCssUrl = $basePath . '/css' . $segment . '/namespace-tokens.css' . ($version !== '' ? '?v=' . $version : '');
+
+        return [
+            'namespace' => $designNamespace,
+            'tokenCssUrl' => $tokenCssUrl,
+            'fallback' => 'false',
+            'fallbackReason' => 'disabled',
+            'version' => $version,
+        ];
     }
 }

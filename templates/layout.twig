@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 {% set cfg = config is defined ? config : {} %}
 {% set lang = lang|default(locale()) %}
-{% set resolvedNamespace = namespace|default(pageNamespace|default(marketingNamespace|default(cfg.namespace|default('default'))), true) %}
+{% set legacyNamespace = namespace|default(pageNamespace|default(marketingNamespace|default(cfg.namespace|default(''))), true) %}
+{% set resolvedNamespace = designNamespace|default(legacyNamespace|default('default'), true) %}
 {% set normalizedNamespace = resolvedNamespace|trim|lower %}
 {% set themeValue %}{% block body_theme %}{{ pageTheme|default(design.theme|default('light')) }}{% endblock %}{% endset %}
 {% set resolvedTheme = themeValue|trim %}
@@ -157,8 +158,6 @@
       <link
         rel="stylesheet"
         href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
-        data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
-        onerror="if (this.dataset && this.dataset.defaultHref) { this.onerror = null; this.href = this.dataset.defaultHref; }"
       >
     {% endset %}
   {% endif %}
@@ -178,6 +177,9 @@
   {% block head_end %}
     {% if includeNamespaceTokensStyles and 'marketing-page' in normalizedBodyClass %}
       {{ namespaceTokensStyles|raw }}
+    {% endif %}
+    {% if designDiagnostics is defined and designDiagnostics is not empty and 'marketing-page' in normalizedBodyClass %}
+      <!-- design-diagnostics: namespace={{ designDiagnostics.namespace }}, tokenCss={{ designDiagnostics.tokenCssUrl }}, fallback={{ designDiagnostics.fallback }}, reason={{ designDiagnostics.fallbackReason }}, version={{ designDiagnostics.version }} -->
     {% endif %}
     {% block theme_vars %}
       {# Marketing design injection only. Do not use on event/game/result pages. #}
