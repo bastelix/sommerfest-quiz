@@ -55,9 +55,7 @@
   <link
     rel="stylesheet"
     href="{{ basePath }}/css{{ namespaceSegment }}/namespace-tokens.css?v={{ namespaceTokensQuery }}"
-    data-default-href="{{ basePath }}/css/namespace-tokens.css?v={{ namespaceTokensQuery }}"
     data-dev="{{ displayErrorDetails|default(false) ? '1' : '0' }}"
-    onerror="(function(el){var isDev=el.dataset&&el.dataset.dev==='1';if(isDev){var markFallback=function(){document.documentElement.setAttribute('data-namespace-token-fallback','1');};markFallback();if(!window.__namespaceTokenFallbackShown){window.__namespaceTokenFallbackShown=true;var banner=document.createElement('div');banner.textContent='Missing namespace token CSS: '+el.href;banner.style='position:fixed;top:0;left:0;right:0;z-index:10000;background:#b91c1c;color:#fff;padding:8px 12px;font:12px/1.4 sans-serif;text-align:center';var mount=function(){document.body.appendChild(banner);};if(document.body){mount();}else{document.addEventListener('DOMContentLoaded',mount);}}return;}if(el.dataset&&el.dataset.defaultHref){el.onerror=null;el.href=el.dataset.defaultHref;}})(this);"
   >
   <script type="module" src="{{ basePath }}/js/marketing-design.js" defer></script>
 {% endblock %}
