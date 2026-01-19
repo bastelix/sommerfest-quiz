@@ -566,7 +566,7 @@ class DesignTokenService
 
         try {
             foreach ($this->namespaceRepository->list() as $entry) {
-                $addNamespace($this->namespaceValidator->normalizeCandidate((string) ($entry['namespace'] ?? '')));
+                $addNamespace($this->namespaceValidator->normalizeCandidate((string) $entry['namespace']));
             }
         } catch (RuntimeException $exception) {
             // Namespace table might not exist in minimal setups; ignore.
@@ -584,15 +584,4 @@ class DesignTokenService
         return $sorted;
     }
 
-    private function getNamespaceTokensVersion(): string
-    {
-        clearstatcache(false, $this->cssPath);
-        if (!is_file($this->cssPath)) {
-            return (string) time();
-        }
-
-        $timestamp = filemtime($this->cssPath);
-
-        return $timestamp === false ? (string) time() : (string) $timestamp;
-    }
 }
