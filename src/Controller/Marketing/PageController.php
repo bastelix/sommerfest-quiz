@@ -1034,6 +1034,10 @@ class PageController
         $namespaceTokensVersion = isset($globals['namespaceTokensVersion'])
             ? (string) $globals['namespaceTokensVersion']
             : $this->getNamespaceTokensVersion();
+        $namespaceTokensVersions = $globals['namespaceTokensVersions'] ?? [];
+        if (!is_array($namespaceTokensVersions)) {
+            $namespaceTokensVersions = [];
+        }
 
         $normalizedNamespace = strtolower(trim($pageNamespace));
         $fallbackReason = null;
@@ -1044,7 +1048,8 @@ class PageController
 
         $hasNamespaceStyles = $normalizedNamespace !== PageService::DEFAULT_NAMESPACE;
         $namespaceSegment = $hasNamespaceStyles ? '/' . $normalizedNamespace : '';
-        $requestedCssUrl = $basePath . '/css' . $namespaceSegment . '/namespace-tokens.css?v=' . $namespaceTokensVersion;
+        $namespaceTokensQuery = $namespaceTokensVersions[$normalizedNamespace] ?? $namespaceTokensVersion;
+        $requestedCssUrl = $basePath . '/css' . $namespaceSegment . '/namespace-tokens.css?v=' . $namespaceTokensQuery;
 
         if ($fallbackReason === null && $hasNamespaceStyles) {
             $namespaceCssPath = dirname(__DIR__, 3)
@@ -1058,7 +1063,8 @@ class PageController
 
         if ($fallbackReason !== null) {
             $normalizedNamespace = PageService::DEFAULT_NAMESPACE;
-            $requestedCssUrl = $basePath . '/css/namespace-tokens.css?v=' . $namespaceTokensVersion;
+            $namespaceTokensQuery = $namespaceTokensVersions[PageService::DEFAULT_NAMESPACE] ?? $namespaceTokensVersion;
+            $requestedCssUrl = $basePath . '/css/namespace-tokens.css?v=' . $namespaceTokensQuery;
         }
 
         return [
@@ -1066,7 +1072,7 @@ class PageController
             'namespace' => $normalizedNamespace,
             'tokenCssUrl' => $requestedCssUrl,
             'fallback' => $fallbackReason ?? 'none',
-            'version' => $namespaceTokensVersion,
+            'version' => $namespaceTokensQuery,
         ];
     }
 

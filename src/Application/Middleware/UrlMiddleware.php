@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Middleware;
 
 use App\Service\NamespaceResolver;
+use App\Service\PageService;
 use App\Service\ProjectSettingsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -48,7 +49,9 @@ class UrlMiddleware implements MiddlewareInterface
         $env = $this->twig->getEnvironment();
         $env->addGlobal('baseUrl', $baseUrl);
         $env->addGlobal('canonicalUrl', $canonicalUrl);
-        $env->addGlobal('namespaceTokensVersion', $this->getNamespaceTokensVersion());
+        $namespaceTokensVersion = $this->getNamespaceTokensVersion();
+        $env->addGlobal('namespaceTokensVersion', $namespaceTokensVersion);
+        $env->addGlobal('namespaceTokensVersions', $this->getNamespaceTokensVersions($namespaceTokensVersion));
         $env->addGlobal('marketingSchemes', $this->getMarketingSchemes());
         $designNamespace = $request->getAttribute('designNamespace')
             ?? $request->getAttribute('pageNamespace')
@@ -84,6 +87,30 @@ class UrlMiddleware implements MiddlewareInterface
         $timestamp = filemtime($path);
 
         return $timestamp === false ? (string) time() : (string) $timestamp;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getNamespaceTokensVersions(string $defaultVersion): array
+    {
+        $baseDirectory = dirname(__DIR__, 3) . '/public/css';
+        $versions = [PageService::DEFAULT_NAMESPACE => $defaultVersion];
+        $paths = glob($baseDirectory . '/*/namespace-tokens.css') ?: [];
+
+        foreach ($paths as $path) {
+            if (!is_file($path)) {
+                continue;
+            }
+            $namespace = strtolower(trim(basename(dirname($path))));
+            if ($namespace === '') {
+                continue;
+            }
+            $timestamp = filemtime($path);
+            $versions[$namespace] = $timestamp === false ? $defaultVersion : (string) $timestamp;
+        }
+
+        return $versions;
     }
 
     /**
