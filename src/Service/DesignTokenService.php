@@ -196,7 +196,7 @@ class DesignTokenService
         $css = $this->buildCss($namespaces);
 
         $this->writeCssFile($this->cssPath, $css);
-        $namespaceList = $this->listNamespacesForStyles(array_keys($namespaces));
+        $namespaceList = $this->listNamespacesForStyles(array_map('strval', array_keys($namespaces)));
         $this->mirrorCssToNamespacePaths($namespaceList);
     }
 
@@ -559,7 +559,7 @@ class DesignTokenService
             if ($namespace === null || $namespace === '') {
                 return;
             }
-            $namespaces[$namespace] = true;
+            $namespaces['ns:' . $namespace] = $namespace;
         };
 
         foreach ($tokenNamespaces as $namespace) {
@@ -580,7 +580,7 @@ class DesignTokenService
 
         $addNamespace(PageService::DEFAULT_NAMESPACE);
 
-        $sorted = array_keys($namespaces);
+        $sorted = array_values($namespaces);
         sort($sorted);
 
         return $sorted;
