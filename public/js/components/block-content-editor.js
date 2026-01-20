@@ -35,6 +35,7 @@ const VARIANT_LABELS = {
     centered_cta: 'Zentriert',
     media_right: 'Bild rechts',
     media_left: 'Bild links',
+    media_video: 'Video rechts',
     minimal: 'Minimal'
   },
   feature_list: {
@@ -778,6 +779,7 @@ const LAYOUT_PREVIEWS = {
     centered_cta: createCenteredCtaPreview,
     media_right: () => createHeroPreview('right'),
     media_left: () => createHeroPreview('left'),
+    media_video: () => createHeroPreview('right'),
     minimal: () => createColumnsPreview(1)
   },
   feature_list: {
@@ -3379,6 +3381,61 @@ export class BlockContentEditor {
 
     wrapper.append(mediaSection, focalSection);
 
+    const videoSection = createFieldSection('Optional: Video-Einbindung', 'Binde ein Video oder eine Demo in der rechten Spalte ein.', { optional: true });
+    videoSection.append(
+      this.addLabeledInput('Embed-URL', block.data.video?.embedUrl, value => this.updateBlockData(block.id, ['data', 'video', 'embedUrl'], value), {
+        placeholder: 'https://www.youtube.com/embed/…',
+        helpText: 'Verwende eine Einbettungs-URL (z. B. YouTube-Embed).'
+      })
+    );
+    videoSection.append(
+      this.addLabeledInput('Video-Titel', block.data.video?.title, value => this.updateBlockData(block.id, ['data', 'video', 'title'], value), {
+        placeholder: 'z. B. Produktdemo in 2 Minuten'
+      })
+    );
+    videoSection.append(
+      this.addLabeledInput('Video-Subtitle', block.data.video?.subtitle, value => this.updateBlockData(block.id, ['data', 'video', 'subtitle'], value), {
+        placeholder: 'Kurzer Kontext unter dem Titel'
+      })
+    );
+    videoSection.append(
+      this.addLabeledInput('Video-Hinweis', block.data.video?.note, value => this.updateBlockData(block.id, ['data', 'video', 'note'], value), {
+        placeholder: 'Optionaler Hinweis zur Einbettung'
+      })
+    );
+    videoSection.append(
+      this.addLabeledInput('Video-Link-Text', block.data.video?.link?.label, value => this.updateBlockData(block.id, ['data', 'video', 'link', 'label'], value), {
+        placeholder: 'z. B. Auf YouTube öffnen'
+      })
+    );
+    videoSection.append(
+      this.addLabeledInput('Video-Link URL', block.data.video?.link?.href, value => this.updateBlockData(block.id, ['data', 'video', 'link', 'href'], value), {
+        placeholder: 'https://…'
+      })
+    );
+    videoSection.append(
+      this.addLabeledInput('Video-Link Screenreader-Text', block.data.video?.link?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'video', 'link', 'ariaLabel'], value), {
+        placeholder: 'Beschreibt den Video-Link'
+      })
+    );
+
+    const referenceSection = createFieldSection('Optional: Referenzlink', 'Platziere einen Referenz- oder Case-Link im Hero.', { optional: true });
+    referenceSection.append(
+      this.addLabeledInput('Referenz-Linktext', block.data.referenceLink?.label, value => this.updateBlockData(block.id, ['data', 'referenceLink', 'label'], value), {
+        placeholder: 'z. B. Referenzbericht ansehen'
+      })
+    );
+    referenceSection.append(
+      this.addLabeledInput('Referenz-Link URL', block.data.referenceLink?.href, value => this.updateBlockData(block.id, ['data', 'referenceLink', 'href'], value), {
+        placeholder: 'https://…'
+      })
+    );
+    referenceSection.append(
+      this.addLabeledInput('Referenz-Link Screenreader-Text', block.data.referenceLink?.ariaLabel, value => this.updateBlockData(block.id, ['data', 'referenceLink', 'ariaLabel'], value), {
+        placeholder: 'Beschreibt die Referenz'
+      })
+    );
+
     const heroCta = block.data.cta || {};
     const primaryCta = heroCta.primary || heroCta;
     const secondaryCta = heroCta.secondary || {};
@@ -3420,7 +3477,7 @@ export class BlockContentEditor {
       })
     );
 
-    wrapper.append(ctaSection, secondarySection);
+    wrapper.append(videoSection, referenceSection, ctaSection, secondarySection);
 
     return wrapper;
   }

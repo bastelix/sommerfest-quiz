@@ -6,7 +6,8 @@ const VARIANT_ALIASES = {
   hero: {
     'media-right': 'media_right',
     'media-left': 'media_left',
-    'centered-cta': 'centered_cta'
+    'centered-cta': 'centered_cta',
+    'media-video': 'media_video'
   },
   feature_list: {
     stacked_cards: 'card-stack',
@@ -75,7 +76,7 @@ const schema = {
       "title": "Hero block",
       "properties": {
         "type": { "const": "hero" },
-        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "minimal"] },
+        "variant": { "enum": ["centered_cta", "media-right", "media_right", "media-left", "media_left", "media_video", "media-video", "minimal"] },
         "data": { "$ref": "#/definitions/HeroData" }
       },
       "required": ["type", "variant", "data"]
@@ -262,7 +263,20 @@ const schema = {
         "headline": { "type": "string", "minLength": 1 },
         "subheadline": { "type": "string" },
         "media": { "$ref": "#/definitions/Media" },
-        "cta": { "$ref": "#/definitions/CallToActionGroup" }
+        "cta": { "$ref": "#/definitions/CallToActionGroup" },
+        "video": { "$ref": "#/definitions/HeroVideo" },
+        "referenceLink": { "$ref": "#/definitions/CallToAction" }
+      }
+    },
+    "HeroVideo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "embedUrl": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "note": { "type": "string" },
+        "link": { "$ref": "#/definitions/CallToAction" }
       }
     },
     "FeatureListData": {

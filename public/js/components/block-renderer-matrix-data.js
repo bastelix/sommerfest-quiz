@@ -667,6 +667,58 @@ function renderHeroMedia(media) {
   return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
 }
 
+function renderHeroMediaVideo(media, video, referenceLink) {
+  if (!video?.embedUrl && !media?.image) {
+    return '';
+  }
+
+  const videoTitle = video?.title ? escapeHtml(video.title) : '';
+  const videoSubtitle = video?.subtitle ? escapeHtml(video.subtitle) : '';
+  const videoNote = video?.note ? escapeHtml(video.note) : '';
+  const videoLinkLabel = video?.link?.label ? escapeHtml(video.link.label) : '';
+  const videoLinkAria = video?.link?.ariaLabel ? ` aria-label="${escapeAttribute(video.link.ariaLabel)}"` : '';
+  const videoLink = video?.link?.href && videoLinkLabel
+    ? `<a class="hero-media-card__link" href="${escapeAttribute(video.link.href)}"${videoLinkAria}>${videoLinkLabel}</a>`
+    : '';
+  const iframe = video?.embedUrl
+    ? `<iframe src="${escapeAttribute(video.embedUrl)}" title="${escapeAttribute(video?.title || 'Video')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>`
+    : '';
+  const fallbackImage = media?.image
+    ? `<img src="${escapeAttribute(media.image)}" alt="${escapeAttribute(media?.alt || '')}" loading="lazy">`
+    : '';
+  const referenceLabel = referenceLink?.label ? escapeHtml(referenceLink.label) : '';
+  const referenceHref = referenceLink?.href ? escapeAttribute(referenceLink.href) : '';
+  const referenceAria = referenceLink?.ariaLabel ? ` aria-label="${escapeAttribute(referenceLink.ariaLabel)}"` : '';
+  const reference = referenceLabel && referenceHref
+    ? `<a class="hero-media-card__reference" href="${referenceHref}"${referenceAria}>${referenceLabel}</a>`
+    : '';
+
+  const metaTitle = videoTitle ? `<strong>${videoTitle}</strong>` : '';
+  const metaSubtitle = videoSubtitle ? `<span>${videoSubtitle}</span>` : '';
+  const meta = metaTitle || metaSubtitle || videoNote || videoLink || reference
+    ? `
+      <div class="hero-media-card__meta">
+        <div class="hero-media-card__meta-text">
+          ${metaTitle}${metaSubtitle}
+        </div>
+        <div class="hero-media-card__meta-actions">
+          ${videoLink}${reference}
+        </div>
+        ${videoNote ? `<p class="hero-media-card__note">${videoNote}</p>` : ''}
+      </div>`
+    : '';
+
+  return `
+    <div class="hero-media-card">
+      <div class="hero-media-card__frame">
+        <div class="hero-media-card__embed">
+          ${iframe || fallbackImage}
+        </div>
+      </div>
+      ${meta}
+    </div>`;
+}
+
 function renderHeroCtas(cta, alignmentClass = '') {
   if (!cta) {
     return '';
@@ -731,6 +783,20 @@ function renderHeroMediaLeft(block, options = {}) {
   const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
   const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${mediaColumn}${textColumn}</div>`;
   return renderHeroSection({ block, variant: 'media_left', content: grid });
+}
+
+function renderHeroMediaVideo(block, options = {}) {
+  const context = options?.context || 'frontend';
+  const eyebrow = renderEyebrow(block, '', context);
+  const headline = renderHeadline(block, '', context);
+  const subheadline = renderSubheadline(block, '', context);
+  const ctas = renderHeroCtas(block.data?.cta);
+  const media = renderHeroMediaVideo(block.data?.media, block.data?.video, block.data?.referenceLink);
+  const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
+  const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
+  const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;
+  const grid = `<div class="uk-grid-large uk-flex-middle" data-uk-grid>${textColumn}${mediaColumn}</div>`;
+  return renderHeroSection({ block, variant: 'media_video', content: grid, sectionModifiers: 'hero-block hero-block--media-video' });
 }
 
 function renderHeroMinimal(block, options = {}) {
@@ -2120,6 +2186,7 @@ export const RENDERER_MATRIX = {
     centered_cta: renderHeroCenteredCta,
     media_right: renderHeroMediaRight,
     media_left: renderHeroMediaLeft,
+    media_video: renderHeroMediaVideo,
     'media-right': renderHeroMediaRight,
     'media-left': renderHeroMediaLeft,
     minimal: renderHeroMinimal

@@ -1059,3 +1059,109 @@ html[data-theme="high-contrast"] :is(body, .marketing-scope):is(.marketing-page,
   :is(body, .marketing-scope).marketing-page .uk-section,
   :is(body, .marketing-scope).marketing-page .page-modules { padding-top: 88px; padding-bottom: 88px; }
 }
+
+/* =========================================================
+   Hero: Media + Video (CMS marketing)
+   ========================================================= */
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 24px;
+  background: linear-gradient(
+    140deg,
+    color-mix(in oklab, var(--marketing-primary) 28%, var(--qr-card) 72%) 0%,
+    color-mix(in oklab, var(--marketing-primary) 12%, var(--qr-card) 88%) 100%
+  );
+  border: 1px solid color-mix(in oklab, var(--marketing-primary) 30%, transparent);
+  box-shadow: var(--marketing-shadow-hero-mockup);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__frame {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--qr-card);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__frame::before {
+  content: '';
+  display: block;
+  padding-top: 56.25%;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__embed {
+  position: absolute;
+  inset: 0;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__embed iframe,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__embed img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  object-fit: cover;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta {
+  display: grid;
+  gap: 12px;
+  color: var(--qr-text);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta-text {
+  display: grid;
+  gap: 4px;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta-text strong {
+  font-size: 1.05rem;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta-text span {
+  color: var(--qr-muted);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__meta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__link,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__reference {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--marketing-primary) 50%, transparent);
+  background: color-mix(in oklab, var(--marketing-primary) 18%, transparent);
+  color: var(--qr-text);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__link:hover,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__reference:hover,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__link:focus-visible,
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__reference:focus-visible {
+  background: color-mix(in oklab, var(--marketing-primary) 26%, transparent);
+  border-color: color-mix(in oklab, var(--marketing-primary) 68%, transparent);
+  transform: translateY(-1px);
+}
+
+:is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card__note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--qr-muted);
+}
+
+@media (max-width: 959px) {
+  :is(body, .marketing-scope):is(.marketing-page, .cms-page-render) .hero-block--media-video .hero-media-card {
+    padding: 20px;
+  }
+}
