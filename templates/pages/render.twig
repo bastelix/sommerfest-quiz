@@ -74,6 +74,9 @@
     data-page-namespace="{{ designNamespace }}"
     data-content-namespace="{{ contentNamespace }}"
   >
+    {% if pageBlocks is empty %}
+      {{ content|raw }}
+    {% endif %}
     <script
       type="application/json"
       data-json="page"

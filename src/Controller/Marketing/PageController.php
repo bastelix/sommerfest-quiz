@@ -278,6 +278,7 @@ class PageController
             'type' => $pageType,
             'sectionStyleDefaults' => $sectionStyleDefaults,
             'blocks' => $pageBlocks ?? [],
+            'content' => $html,
             'features' => $pageFeatures,
             'featureData' => $marketingPayload['featureData'],
             'design' => $design,
