@@ -276,7 +276,7 @@
           <h3 class="uk-margin-remove-top">Page Types</h3>
           <p class="uk-text-meta">
             Definiere Standardwerte für Layout und Hintergrund je Page-Type. Diese Defaults steuern die Vorschau und
-            das Rendering der Marketing-Seiten.
+            das Rendering der Marketing-Seiten. Den Akzent (Intent) setzt du pro Block im Editor.
           </p>
           {% if pageTypeFlash is defined and pageTypeFlash %}
             <div class="uk-alert-{{ pageTypeFlash.type == 'success' ? 'success' : 'danger' }} uk-margin-small" uk-alert>
@@ -284,7 +284,6 @@
             </div>
           {% endif %}
           {% set layoutLabels = { normal: 'Normal', full: 'Fullwidth', card: 'Card' } %}
-          {% set intentLabels = { content: 'Content', feature: 'Feature', highlight: 'Highlight', hero: 'Hero' } %}
           {% set backgroundLabels = { surface: 'Surface', muted: 'Muted', primary: 'Primary', secondary: 'Secondary', accent: 'Accent' } %}
           <form
             class="uk-form-stacked"
@@ -323,7 +322,7 @@
                         >
                       </div>
                     </div>
-                    <div class="uk-width-1-2 uk-width-1-4@m">
+                    <div class="uk-width-1-2 uk-width-1-3@m">
                       <label class="uk-form-label" for="pageTypeLayout-{{ loop.index0 }}">Layout-Default</label>
                       <div class="uk-form-controls">
                         <select id="pageTypeLayout-{{ loop.index0 }}" class="uk-select" name="pageTypes[{{ loop.index0 }}][layout]">
@@ -336,7 +335,7 @@
                         </select>
                       </div>
                     </div>
-                    <div class="uk-width-1-2 uk-width-1-4@m">
+                    <div class="uk-width-1-2 uk-width-1-3@m">
                       <label class="uk-form-label" for="pageTypeBackground-{{ loop.index0 }}">Hintergrund-Token</label>
                       <div class="uk-form-controls">
                         <select
@@ -349,19 +348,6 @@
                           {% for token in pageTypeBackgroundTokens|default([]) %}
                             <option value="{{ token }}" {% if backgroundSelection == token %}selected{% endif %}>
                               {{ backgroundLabels[token]|default(token) }}
-                            </option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                    </div>
-                    <div class="uk-width-1-2 uk-width-1-4@m">
-                      <label class="uk-form-label" for="pageTypeIntent-{{ loop.index0 }}">Akzent (Intent)</label>
-                      <div class="uk-form-controls">
-                        <select id="pageTypeIntent-{{ loop.index0 }}" class="uk-select" name="pageTypes[{{ loop.index0 }}][intent]">
-                          <option value="">Standard</option>
-                          {% for intent in pageTypeIntentOptions|default([]) %}
-                            <option value="{{ intent }}" {% if sectionDefaults.intent|default('') == intent %}selected{% endif %}>
-                              {{ intentLabels[intent]|default(intent) }}
                             </option>
                           {% endfor %}
                         </select>
@@ -393,7 +379,7 @@
                       >
                     </div>
                   </div>
-                  <div class="uk-width-1-2 uk-width-1-4@m">
+                  <div class="uk-width-1-2 uk-width-1-3@m">
                     <label class="uk-form-label" for="pageTypeLayout-__INDEX__">Layout-Default</label>
                     <div class="uk-form-controls">
                       <select id="pageTypeLayout-__INDEX__" class="uk-select" name="pageTypes[__INDEX__][layout]">
@@ -404,7 +390,7 @@
                       </select>
                     </div>
                   </div>
-                  <div class="uk-width-1-2 uk-width-1-4@m">
+                  <div class="uk-width-1-2 uk-width-1-3@m">
                     <label class="uk-form-label" for="pageTypeBackground-__INDEX__">Hintergrund-Token</label>
                     <div class="uk-form-controls">
                       <select id="pageTypeBackground-__INDEX__" class="uk-select" name="pageTypes[__INDEX__][backgroundToken]">
@@ -412,17 +398,6 @@
                         <option value="none">Kein Hintergrund</option>
                         {% for token in pageTypeBackgroundTokens|default([]) %}
                           <option value="{{ token }}">{{ backgroundLabels[token]|default(token) }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                  </div>
-                  <div class="uk-width-1-2 uk-width-1-4@m">
-                    <label class="uk-form-label" for="pageTypeIntent-__INDEX__">Akzent (Intent)</label>
-                    <div class="uk-form-controls">
-                      <select id="pageTypeIntent-__INDEX__" class="uk-select" name="pageTypes[__INDEX__][intent]">
-                        <option value="">Standard</option>
-                        {% for intent in pageTypeIntentOptions|default([]) %}
-                          <option value="{{ intent }}">{{ intentLabels[intent]|default(intent) }}</option>
                         {% endfor %}
                       </select>
                     </div>
