@@ -74,12 +74,22 @@ export type CallToActionGroup =
       secondary?: CallToAction;
     };
 
+export interface HeroVideo {
+  embedUrl?: string;
+  title?: string;
+  subtitle?: string;
+  note?: string;
+  link?: CallToAction;
+}
+
 export interface HeroBlockData {
   eyebrow?: string;
   headline: string;
   subheadline?: string;
   media?: Media;
   cta: CallToActionGroup;
+  video?: HeroVideo;
+  referenceLink?: CallToAction;
 }
 
 export interface FeatureItem {

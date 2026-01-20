@@ -61,6 +61,8 @@
             "media_right",
             "media-left",
             "media_left",
+            "media_video",
+            "media-video",
             "minimal"
           ]
         },
@@ -575,6 +577,33 @@
         },
         "cta": {
           "$ref": "#/definitions/CallToActionGroup"
+        },
+        "video": {
+          "$ref": "#/definitions/HeroVideo"
+        },
+        "referenceLink": {
+          "$ref": "#/definitions/CallToAction"
+        }
+      }
+    },
+    "HeroVideo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "embedUrl": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "link": {
+          "$ref": "#/definitions/CallToAction"
         }
       }
     },
