@@ -38,7 +38,6 @@ use Slim\Views\Twig;
 class ProjectPagesController
 {
     private const SECTION_LAYOUTS = ['normal', 'full', 'card'];
-    private const SECTION_INTENTS = ['content', 'feature', 'highlight', 'hero'];
     private const BACKGROUND_TOKENS = ['surface', 'muted', 'primary', 'secondary', 'accent'];
 
     private PageService $pageService;
@@ -157,7 +156,6 @@ class ProjectPagesController
             'designUsedDefaults' => $design['usedDefaults'],
             'pageTypeDefaults' => $pageTypeDefaults,
             'pageTypeLayoutOptions' => self::SECTION_LAYOUTS,
-            'pageTypeIntentOptions' => self::SECTION_INTENTS,
             'pageTypeBackgroundTokens' => self::BACKGROUND_TOKENS,
             'pageTypeFlash' => $pageTypeFlash,
         ]);
@@ -1096,15 +1094,11 @@ class ProjectPagesController
             }
 
             $layout = $this->normalizeSectionLayout($entry['layout'] ?? null);
-            $intent = $this->normalizeSectionIntent($entry['intent'] ?? null);
             $background = $this->normalizeSectionBackground($entry['backgroundToken'] ?? null);
 
             $sectionStyleDefaults = [];
             if ($layout !== null) {
                 $sectionStyleDefaults['layout'] = $layout;
-            }
-            if ($intent !== null) {
-                $sectionStyleDefaults['intent'] = $intent;
             }
             if ($background !== null) {
                 $sectionStyleDefaults['background'] = $background;
@@ -1134,13 +1128,6 @@ class ProjectPagesController
         }
 
         return in_array($candidate, self::SECTION_LAYOUTS, true) ? $candidate : null;
-    }
-
-    private function normalizeSectionIntent(mixed $value): ?string
-    {
-        $candidate = is_string($value) ? trim($value) : '';
-
-        return in_array($candidate, self::SECTION_INTENTS, true) ? $candidate : null;
     }
 
     /**
