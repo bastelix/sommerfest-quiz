@@ -2011,7 +2011,7 @@ function renderPackagePlan(plan) {
   return `<div><div class="uk-card uk-card-default uk-height-1-1 uk-flex uk-flex-column">` +
     `<div class="uk-card-body uk-flex-1">${badge}${title}${description}${featureList}${noteList}</div>` +
     (ctaGroup ? `<div class="uk-card-footer">${ctaGroup}</div>` : '') +
-    `</div></div></div>`;
+    `</div></div>`;
 }
 
 function renderPackageSummary(block, variant, options = {}) {
