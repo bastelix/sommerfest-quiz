@@ -4049,6 +4049,7 @@ const runInitStep = (label, fn) => {
 };
 
 const initPagesModule = () => {
+  runInitStep('page-editor-mode', updatePageEditorMode);
   runInitStep('theme-toggle', initThemeToggle);
   runInitStep('prefetch-quiz-links', prefetchQuizLinks);
   runInitStep('startpage-domain-select', bindStartpageDomainSelect);

@@ -86,6 +86,22 @@ const parseEmbeddedPayload = () => {
   }
 };
 
+const showHydrationFallback = (pageRoot, message) => {
+  if (!pageRoot) {
+    return;
+  }
+
+  if (pageRoot.innerHTML && pageRoot.innerHTML.trim() !== '') {
+    return;
+  }
+
+  const fallback = document.createElement('div');
+  fallback.className = 'cms-hydration-fallback uk-alert uk-alert-warning';
+  fallback.setAttribute('role', 'alert');
+  fallback.textContent = message;
+  pageRoot.appendChild(fallback);
+};
+
 const fetchPagePayload = async (fallbackPayload) => {
   const url = buildPayloadUrl();
   if (!url) {
@@ -141,6 +157,7 @@ const hydratePage = async () => {
     const payload = remotePayload || embeddedPayload;
     if (!payload) {
       console.error('[CMS] Missing payload – cannot render page');
+      showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
       return;
     }
 
@@ -186,6 +203,7 @@ const hydratePage = async () => {
 
     if (!html || typeof html !== 'string' || html.trim() === '') {
       console.error('[CMS] Empty render output');
+      showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
       return;
     }
 
@@ -199,6 +217,7 @@ const hydratePage = async () => {
     }
   } catch (error) {
     console.error('[CMS] Failed to hydrate page', error);
+    showHydrationFallback(pageRoot, 'Content could not be loaded. Please refresh the page.');
   }
 };
 
