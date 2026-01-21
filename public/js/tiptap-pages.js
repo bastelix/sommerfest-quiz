@@ -668,8 +668,72 @@ const resolveBaseTheme = theme => {
   return THEME_LIGHT;
 };
 
-const PAGE_EDITOR_MODE = (window.pageEditorMode || window.pageEditorDriver || 'tiptap').toLowerCase();
-const USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
+const normalizePageEditorMode = mode => (typeof mode === 'string' ? mode.toLowerCase() : 'tiptap');
+
+const readEditorContentCandidate = () => {
+  const forms = Array.from(document.querySelectorAll('.page-form'));
+  const activeForm = forms.find(form => !form.classList.contains('uk-hidden')) || forms[0] || null;
+  const editorEl = activeForm?.querySelector('.page-editor') || document.querySelector('.page-editor');
+  if (!editorEl) {
+    return '';
+  }
+  return editorEl.dataset.content || editorEl.textContent || '';
+};
+
+const parseBlockPayload = content => {
+  if (typeof content !== 'string') {
+    return null;
+  }
+  const trimmed = content.trim();
+  if (!trimmed || (!trimmed.startsWith('{') && !trimmed.startsWith('['))) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(trimmed);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const isValidBlockPayload = payload => {
+  if (!payload || typeof payload !== 'object' || !Array.isArray(payload.blocks)) {
+    return false;
+  }
+  return payload.blocks.every(block => {
+    const normalized = normalizeBlockContract(block);
+    const validation = validateBlockContract(normalized);
+    if (!validation.valid) {
+      return false;
+    }
+    const variant = normalizeBlockVariant(normalized.type, normalized.variant);
+    if (!RENDERER_MATRIX[normalized.type]?.[variant]) {
+      return false;
+    }
+    return true;
+  });
+};
+
+const resolveEditorModeFromContent = () => {
+  const payload = parseBlockPayload(readEditorContentCandidate());
+  return payload && isValidBlockPayload(payload) ? 'blocks' : null;
+};
+
+let PAGE_EDITOR_MODE = normalizePageEditorMode(window.pageEditorMode || window.pageEditorDriver || 'tiptap');
+let USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
+
+const updatePageEditorMode = () => {
+  const requested = normalizePageEditorMode(window.pageEditorMode || window.pageEditorDriver || 'tiptap');
+  const detected = resolveEditorModeFromContent();
+  if (detected === 'blocks') {
+    PAGE_EDITOR_MODE = 'blocks';
+  } else if (requested === 'blocks') {
+    PAGE_EDITOR_MODE = 'tiptap';
+  } else {
+    PAGE_EDITOR_MODE = requested;
+  }
+  USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
+};
 
 const basePath = (window.basePath || '').replace(/\/$/, '');
 const withBase = path => `${basePath}${path}`;
@@ -3999,6 +4063,7 @@ const runInitStep = (label, fn) => {
 };
 
 const initPagesModule = () => {
+  runInitStep('page-editor-mode', updatePageEditorMode);
   runInitStep('theme-toggle', initThemeToggle);
   runInitStep('prefetch-quiz-links', prefetchQuizLinks);
   runInitStep('startpage-domain-select', bindStartpageDomainSelect);
