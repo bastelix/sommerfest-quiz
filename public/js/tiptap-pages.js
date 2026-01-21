@@ -668,7 +668,57 @@ const resolveBaseTheme = theme => {
   return THEME_LIGHT;
 };
 
-const PAGE_EDITOR_MODE = (window.pageEditorMode || window.pageEditorDriver || 'tiptap').toLowerCase();
+const isValidBlockJsonContent = value => {
+  if (!value) {
+    return false;
+  }
+  const source = typeof value === 'string' ? value.trim() : value;
+  if (typeof source === 'string' && !source.startsWith('{')) {
+    return false;
+  }
+
+  let parsed;
+  try {
+    parsed = typeof source === 'string' ? JSON.parse(source) : source;
+  } catch (error) {
+    return false;
+  }
+
+  if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.blocks)) {
+    return false;
+  }
+
+  return parsed.blocks.every(block => validateBlockContract(block).valid);
+};
+
+const resolveEditorModeFromContent = () => {
+  const editors = Array.from(document.querySelectorAll('.page-editor'));
+  if (!editors.length) {
+    return null;
+  }
+  const activeEditor = editors.find(editor => {
+    const form = editor.closest('form');
+    return !form?.classList?.contains('uk-hidden');
+  }) || editors[0];
+  const content = activeEditor?.dataset?.content || activeEditor?.textContent || '';
+  return isValidBlockJsonContent(content) ? 'blocks' : null;
+};
+
+const resolvePageEditorMode = () => {
+  const explicitRaw = (window.pageEditorMode || window.pageEditorDriver || '').toLowerCase();
+  const explicit = explicitRaw === 'blocks' || explicitRaw === 'tiptap' ? explicitRaw : '';
+  const inferred = resolveEditorModeFromContent();
+
+  if (explicit === 'blocks' && inferred !== 'blocks') {
+    return 'tiptap';
+  }
+  if (!explicit && inferred === 'blocks') {
+    return 'blocks';
+  }
+  return explicit || 'tiptap';
+};
+
+const PAGE_EDITOR_MODE = resolvePageEditorMode();
 const USE_BLOCK_EDITOR = PAGE_EDITOR_MODE === 'blocks';
 
 const basePath = (window.basePath || '').replace(/\/$/, '');
