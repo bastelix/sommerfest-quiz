@@ -667,7 +667,7 @@ function renderHeroMedia(media) {
   return `<div class="uk-cover-container uk-height-medium uk-border-rounded uk-box-shadow-small"><img src="${escapeAttribute(media.image)}" alt="${altText}" loading="lazy" data-uk-cover><canvas width="800" height="600"></canvas></div>`;
 }
 
-function renderHeroMediaVideo(media, video, referenceLink) {
+function renderHeroMediaVideoCard(media, video, referenceLink) {
   if (!video?.embedUrl && !media?.image) {
     return '';
   }
@@ -791,7 +791,7 @@ function renderHeroMediaVideo(block, options = {}) {
   const headline = renderHeadline(block, '', context);
   const subheadline = renderSubheadline(block, '', context);
   const ctas = renderHeroCtas(block.data?.cta);
-  const media = renderHeroMediaVideo(block.data?.media, block.data?.video, block.data?.referenceLink);
+  const media = renderHeroMediaVideoCard(block.data?.media, block.data?.video, block.data?.referenceLink);
   const textColumnWidth = media ? 'uk-width-1-1 uk-width-1-2@m' : 'uk-width-1-1';
   const mediaColumn = media ? `<div class="uk-width-1-1 uk-width-1-2@m">${media}</div>` : '';
   const textColumn = `<div class="${textColumnWidth}">${eyebrow}${headline}${subheadline}${ctas}</div>`;

@@ -5,6 +5,7 @@
   and skips marketing bundles unless explicitly requested by the page.
 #}
 {% set designNamespace = designNamespace|default('default') %}
+{% set includeFrontendHydrator = includeFrontendHydrator|default(true) %}
 
 {% block head %}
   {% set includeCmsBaseStyles = includeCmsBaseStyles|default(true) %}

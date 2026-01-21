@@ -246,7 +246,9 @@
   <script src="{{ basePath }}/js/storage.js" defer></script>
   <script src="{{ basePath }}/js/app.js" defer></script>
   <script src="{{ basePath }}/js/i18n/{{ locale() == 'en' ? 'en-us' : 'de-de' }}.js" defer></script>
-  <script type="module" src="{{ basePath }}/js/frontend-hydrator.js"></script>
+  {% if includeFrontendHydrator|default(false) %}
+    <script type="module" src="{{ basePath }}/js/frontend-hydrator.js"></script>
+  {% endif %}
   {% block scripts %}{% endblock %}
 </body>
 </html>
