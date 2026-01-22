@@ -3693,23 +3693,66 @@ const buildPageTreeEndpoint = (namespace, baseEndpoint = '') => {
   return `${sanitized}${separator}namespace=${encodeURIComponent(namespace || '')}`;
 };
 
+const resolvePageTreeFallbackEndpoint = (baseEndpoint = '') => {
+  const base = (baseEndpoint || '/admin/projects/tree').trim() || '/admin/projects/tree';
+  if (base.includes('/admin/projects/tree')) {
+    return base.replace('/admin/projects/tree', '/admin/pages/tree');
+  }
+  return '/admin/pages/tree';
+};
+
 const renderPageTreeFromState = (container, emptyMessage, activeNamespace) => {
   renderPageTreeSections(container, pageIndex.get(), emptyMessage, activeNamespace);
+};
+
+const normalizePageTreePayload = (payload, activeNamespace) => {
+  if (!payload) {
+    return [];
+  }
+  if (Array.isArray(payload.namespaces)) {
+    return payload.namespaces;
+  }
+  if (Array.isArray(payload.tree)) {
+    const namespace = normalizeTreeNamespace(activeNamespace || resolvePageNamespace());
+    return [{ namespace, pages: payload.tree }];
+  }
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  return [];
 };
 
 const loadPageIndex = async (container, activeNamespace) => {
   const namespace = activeNamespace || resolvePageNamespace();
   const endpoint = buildPageTreeEndpoint(namespace, container?.dataset?.endpoint);
-  const response = await apiFetch(endpoint);
-  if (!response.ok) {
-    const error = new Error('page-tree-request-failed');
-    error.code = 'page-tree-request-failed';
-    throw error;
+  const fallbackEndpoint = buildPageTreeEndpoint(
+    namespace,
+    resolvePageTreeFallbackEndpoint(container?.dataset?.endpoint)
+  );
+
+  const fetchTree = async (url) => {
+    const response = await apiFetch(url);
+    if (!response.ok) {
+      const error = new Error('page-tree-request-failed');
+      error.code = 'page-tree-request-failed';
+      throw error;
+    }
+    const payload = await response.json();
+    const namespaces = normalizePageTreePayload(payload, namespace);
+    if (!namespaces.length) {
+      const error = new Error('page-tree-payload-empty');
+      error.code = 'page-tree-payload-empty';
+      throw error;
+    }
+    pageIndex.set(namespaces);
+    return namespaces;
+  };
+
+  try {
+    return await fetchTree(endpoint);
+  } catch (error) {
+    return await fetchTree(fallbackEndpoint);
   }
-  const payload = await response.json();
-  const namespaces = Array.isArray(payload?.namespaces) ? payload.namespaces : [];
-  pageIndex.set(namespaces);
-  return namespaces;
 };
 
 function renderPageTreeSections(container, namespaces, emptyMessage, activeNamespace) {
