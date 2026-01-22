@@ -376,6 +376,7 @@ const applyColorsToRoot = (element, appearance) => {
     'var(--brand-accent)',
   );
   const marketingSecondary = resolveFirstValue(
+    marketingSchemeValues?.secondary,
     marketingSchemeValues?.accent,
     colors.marketingSecondary,
     colors.marketing_secondary,
@@ -534,6 +535,34 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketingBorderLight,
     appearance?.variables?.marketing_border_light,
   );
+  const marketingBorder = resolveFirstValue(
+    marketingSchemeValues?.border,
+    colors.marketingBorder,
+    colors.marketing_border,
+    appearance?.variables?.marketingBorder,
+    appearance?.variables?.marketing_border,
+  );
+  const marketingBorderMuted = resolveFirstValue(
+    marketingSchemeValues?.borderMuted,
+    colors.marketingBorderMuted,
+    colors.marketing_border_muted,
+    appearance?.variables?.marketingBorderMuted,
+    appearance?.variables?.marketing_border_muted,
+  );
+  const marketingTextEmphasis = resolveFirstValue(
+    marketingSchemeValues?.textEmphasis,
+    colors.marketingTextEmphasis,
+    colors.marketing_text_emphasis,
+    appearance?.variables?.marketingTextEmphasis,
+    appearance?.variables?.marketing_text_emphasis,
+  );
+  const marketingTextInverse = resolveFirstValue(
+    marketingSchemeValues?.textInverse,
+    colors.marketingTextInverse,
+    colors.marketing_text_inverse,
+    appearance?.variables?.marketingTextInverse,
+    appearance?.variables?.marketing_text_inverse,
+  );
   const marketingRingStrong = resolveFirstValue(
     marketingSchemeValues?.ringStrong,
     colors.marketingRingStrong,
@@ -667,6 +696,20 @@ const applyColorsToRoot = (element, appearance) => {
     appearance?.variables?.marketingShadowStatAccent,
     appearance?.variables?.marketing_shadow_stat_accent,
   );
+  const marketingLink = resolveFirstValue(
+    marketingSchemeValues?.link,
+    colors.marketingLink,
+    colors.marketing_link,
+    appearance?.variables?.marketingLink,
+    appearance?.variables?.marketing_link,
+  );
+  const marketingLinkHover = resolveFirstValue(
+    marketingSchemeValues?.linkHover,
+    colors.marketingLinkHover,
+    colors.marketing_link_hover,
+    appearance?.variables?.marketingLinkHover,
+    appearance?.variables?.marketing_link_hover,
+  );
   const marketingLinkContrastLight = resolveFirstValue(
     marketingSchemeValues?.linkContrastLight,
     colors.marketingLinkContrastLight,
@@ -736,6 +779,27 @@ const applyColorsToRoot = (element, appearance) => {
     colors.marketing_topbar_focus_ring_contrast_dark,
     appearance?.variables?.marketingTopbarFocusRingContrastDark,
     appearance?.variables?.marketing_topbar_focus_ring_contrast_dark,
+  );
+  const marketingSuccess = resolveFirstValue(
+    marketingSchemeValues?.success,
+    colors.marketingSuccess,
+    colors.marketing_success,
+    appearance?.variables?.marketingSuccess,
+    appearance?.variables?.marketing_success,
+  );
+  const marketingWarning = resolveFirstValue(
+    marketingSchemeValues?.warning,
+    colors.marketingWarning,
+    colors.marketing_warning,
+    appearance?.variables?.marketingWarning,
+    appearance?.variables?.marketing_warning,
+  );
+  const marketingDanger = resolveFirstValue(
+    marketingSchemeValues?.danger,
+    colors.marketingDanger,
+    colors.marketing_danger,
+    appearance?.variables?.marketingDanger,
+    appearance?.variables?.marketing_danger,
   );
   const marketingDanger500 = resolveFirstValue(
     marketingSchemeValues?.danger500,
@@ -865,6 +929,18 @@ const applyColorsToRoot = (element, appearance) => {
   if (marketingBorderLight) {
     element.style.setProperty('--marketing-border-light', marketingBorderLight);
   }
+  if (marketingBorder) {
+    element.style.setProperty('--marketing-border', marketingBorder);
+  }
+  if (marketingBorderMuted) {
+    element.style.setProperty('--marketing-border-muted', marketingBorderMuted);
+  }
+  if (marketingTextEmphasis) {
+    element.style.setProperty('--marketing-text-emphasis', marketingTextEmphasis);
+  }
+  if (marketingTextInverse) {
+    element.style.setProperty('--marketing-text-inverse', marketingTextInverse);
+  }
   if (marketingRingStrong) {
     element.style.setProperty('--marketing-ring-strong', marketingRingStrong);
   }
@@ -925,6 +1001,12 @@ const applyColorsToRoot = (element, appearance) => {
   if (marketingLinkContrastLight) {
     element.style.setProperty('--marketing-link-contrast-light', marketingLinkContrastLight);
   }
+  if (marketingLink) {
+    element.style.setProperty('--marketing-link', marketingLink);
+  }
+  if (marketingLinkHover) {
+    element.style.setProperty('--marketing-link-hover', marketingLinkHover);
+  }
   if (marketingLinkContrastDark) {
     element.style.setProperty('--marketing-link-contrast-dark', marketingLinkContrastDark);
   }
@@ -951,6 +1033,15 @@ const applyColorsToRoot = (element, appearance) => {
   }
   if (marketingTopbarFocusRingContrastDark) {
     element.style.setProperty('--marketing-topbar-focus-ring-contrast-dark', marketingTopbarFocusRingContrastDark);
+  }
+  if (marketingSuccess) {
+    element.style.setProperty('--marketing-success', marketingSuccess);
+  }
+  if (marketingWarning) {
+    element.style.setProperty('--marketing-warning', marketingWarning);
+  }
+  if (marketingDanger) {
+    element.style.setProperty('--marketing-danger', marketingDanger);
   }
   if (marketingDanger500) {
     element.style.setProperty('--marketing-danger-500', marketingDanger500);

@@ -375,6 +375,25 @@
   --color-bg: var(--qr-bg);
   --color-text: var(--qr-text);
   --color-primary: var(--qr-landing-primary);
+  --color-secondary: var(--marketing-secondary, var(--marketing-accent));
+  --color-muted: var(--marketing-surface-muted, var(--marketing-surface));
+  --color-default: var(--marketing-surface, var(--marketing-background));
+  --color-background: var(--marketing-background, var(--marketing-surface));
+  --color-background-muted: var(--marketing-surface-muted, var(--marketing-surface));
+  --color-background-secondary: var(--marketing-secondary, var(--marketing-accent));
+  --color-text-muted: var(--marketing-text-muted-on-background);
+  --color-text-emphasis: var(--marketing-text-emphasis, var(--marketing-text-on-surface));
+  --color-text-inverse: var(--marketing-text-inverse, var(--marketing-on-accent));
+  --color-border: var(--marketing-border, var(--marketing-border-light, var(--border-muted)));
+  --color-border-muted: var(--marketing-border-muted, var(--marketing-border, var(--marketing-border-light, var(--border-muted))));
+  --color-success: var(--marketing-success, var(--marketing-primary));
+  --color-warning: var(--marketing-warning, var(--marketing-accent));
+  --color-danger: var(--marketing-danger, var(--marketing-danger-500, var(--marketing-danger-600)));
+  --color-link: var(--marketing-link, var(--marketing-primary));
+  --color-link-hover: var(--marketing-link-hover, var(--marketing-link, var(--marketing-primary)));
+  --color-button-primary: var(--marketing-button-primary-bg);
+  --color-button-secondary: var(--marketing-button-secondary-bg);
+  --color-button-default: var(--marketing-surface, var(--marketing-background));
 
   --section-card-surface: var(--marketing-surface);
   --section-default-surface: var(--marketing-surface);
@@ -395,6 +414,28 @@
   --qr-link: var(--marketing-link, var(--text-link));
   --qr-landing-primary: var(--marketing-primary, var(--brand-primary));
   --qr-ring: var(--marketing-ring, color-mix(in oklab, var(--qr-landing-primary) 45%, transparent));
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
+  --color-secondary: var(--marketing-secondary, var(--marketing-accent));
+  --color-muted: var(--marketing-surface-muted, var(--marketing-surface));
+  --color-default: var(--marketing-surface, var(--marketing-background));
+  --color-background: var(--marketing-background, var(--marketing-surface));
+  --color-background-muted: var(--marketing-surface-muted, var(--marketing-surface));
+  --color-background-secondary: var(--marketing-secondary, var(--marketing-accent));
+  --color-text-muted: var(--marketing-text-muted-on-background, var(--text-muted));
+  --color-text-emphasis: var(--marketing-text-emphasis, var(--marketing-text-on-surface, var(--text-heading)));
+  --color-text-inverse: var(--marketing-text-inverse, var(--text-on-primary));
+  --color-border: var(--marketing-border, var(--marketing-border-light, var(--border-muted)));
+  --color-border-muted: var(--marketing-border-muted, var(--marketing-border, var(--marketing-border-light, var(--border-muted))));
+  --color-success: var(--marketing-success, var(--marketing-primary));
+  --color-warning: var(--marketing-warning, var(--marketing-accent));
+  --color-danger: var(--marketing-danger, var(--marketing-danger-500, var(--marketing-danger-600)));
+  --color-link: var(--marketing-link, var(--text-link));
+  --color-link-hover: var(--marketing-link-hover, var(--marketing-link, var(--text-link)));
+  --color-button-primary: var(--marketing-button-primary-bg, var(--qr-landing-primary));
+  --color-button-secondary: var(--marketing-button-secondary-bg, var(--marketing-accent));
+  --color-button-default: var(--marketing-surface, var(--marketing-background));
 }
 
 /* Dark mode (marketing-page) */

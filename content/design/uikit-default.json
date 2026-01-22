@@ -1,0 +1,24 @@
+{
+  "config": {
+    "colors": {
+      "marketingScheme": "uikit-default"
+    }
+  },
+  "designTokens": {
+    "brand": {
+      "primary": "#1e87f0",
+      "accent": "#222",
+      "secondary": "#222"
+    },
+    "layout": {
+      "profile": "standard"
+    },
+    "typography": {
+      "preset": "modern"
+    },
+    "components": {
+      "cardStyle": "rounded",
+      "buttonStyle": "filled"
+    }
+  }
+}

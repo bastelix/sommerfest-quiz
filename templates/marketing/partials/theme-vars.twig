@@ -101,6 +101,10 @@
   ? appearanceColors.accent
   : (appearanceColors.secondary is defined and appearanceColors.secondary ? appearanceColors.secondary : 'var(--brand-accent)')
 %}
+{% set marketingSecondary = appearanceColors.secondary is defined and appearanceColors.secondary
+  ? appearanceColors.secondary
+  : marketingAccent
+%}
 {% set marketingSurface = appearanceVars.surface is defined and appearanceVars.surface
   ? appearanceVars.surface
   : 'var(--surface-card)'
@@ -117,6 +121,10 @@
 {% if marketingScheme %}
   {% set marketingPrimary = marketingScheme.primary %}
   {% set marketingAccent = marketingScheme.accent %}
+  {% set marketingSecondary = marketingScheme.secondary is defined and marketingScheme.secondary
+    ? marketingScheme.secondary
+    : marketingAccent
+  %}
   {% set marketingSurface = marketingScheme.surface %}
   {% set marketingSurfaceMuted = marketingScheme.surfaceMuted is defined and marketingScheme.surfaceMuted
     ? marketingScheme.surfaceMuted
@@ -128,7 +136,7 @@
 {% set cssVars = cssVars|merge([
   '--marketing-primary: ' ~ marketingPrimary,
   '--marketing-accent: ' ~ marketingAccent,
-  '--marketing-secondary: ' ~ marketingAccent,
+  '--marketing-secondary: ' ~ marketingSecondary,
   '--marketing-surface: ' ~ marketingSurface,
   '--marketing-surface-muted: ' ~ marketingSurfaceMuted,
   '--marketing-muted: ' ~ marketingMuted,
@@ -159,6 +167,8 @@
     surfaceGlassDark: 'surface-glass-dark',
     surfaceAccentSoft: 'surface-accent-soft',
     borderLight: 'border-light',
+    border: 'border',
+    borderMuted: 'border-muted',
     ringStrong: 'ring-strong',
     ringStrongDark: 'ring-strong-dark',
     overlaySoft: 'overlay-soft',
@@ -196,6 +206,8 @@
     buttonSecondaryHoverBg: 'button-secondary-hover-bg',
     linkContrastLight: 'link-contrast-light',
     linkContrastDark: 'link-contrast-dark',
+    link: 'link',
+    linkHover: 'link-hover',
     topbarTextContrastLight: 'topbar-text-contrast-light',
     topbarTextContrastDark: 'topbar-text-contrast-dark',
     topbarDropBgContrastLight: 'topbar-drop-bg-contrast-light',
@@ -204,6 +216,11 @@
     topbarBtnBorderContrastDark: 'topbar-btn-border-contrast-dark',
     topbarFocusRingContrastLight: 'topbar-focus-ring-contrast-light',
     topbarFocusRingContrastDark: 'topbar-focus-ring-contrast-dark',
+    textEmphasis: 'text-emphasis',
+    textInverse: 'text-inverse',
+    success: 'success',
+    warning: 'warning',
+    danger: 'danger',
     danger500: 'danger-500',
     danger600: 'danger-600',
     white: 'white',

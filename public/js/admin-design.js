@@ -86,6 +86,8 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     '--marketing-surface-glass-dark',
     '--marketing-surface-accent-soft',
     '--marketing-border-light',
+    '--marketing-border',
+    '--marketing-border-muted',
     '--marketing-ring-strong',
     '--marketing-ring-strong-dark',
     '--marketing-overlay-soft',
@@ -105,6 +107,8 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     '--marketing-shadow-callout',
     '--marketing-shadow-stat',
     '--marketing-shadow-stat-accent',
+    '--marketing-text-emphasis',
+    '--marketing-text-inverse',
     '--marketing-font-stack',
     '--marketing-heading-font-stack',
     '--marketing-heading-weight',
@@ -121,6 +125,8 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     '--marketing-button-secondary-text',
     '--marketing-button-secondary-border-color',
     '--marketing-button-secondary-hover-bg',
+    '--marketing-link',
+    '--marketing-link-hover',
     '--marketing-link-contrast-light',
     '--marketing-link-contrast-dark',
     '--marketing-topbar-text-contrast-light',
@@ -131,6 +137,9 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     '--marketing-topbar-btn-border-contrast-dark',
     '--marketing-topbar-focus-ring-contrast-light',
     '--marketing-topbar-focus-ring-contrast-dark',
+    '--marketing-success',
+    '--marketing-warning',
+    '--marketing-danger',
     '--marketing-danger-500',
     '--marketing-danger-600',
     '--marketing-white',
@@ -646,7 +655,7 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     };
     preview.style.setProperty('--marketing-primary', scheme.primary);
     preview.style.setProperty('--marketing-accent', scheme.accent);
-    preview.style.setProperty('--marketing-secondary', scheme.accent);
+    preview.style.setProperty('--marketing-secondary', scheme.secondary || scheme.accent);
     preview.style.setProperty('--marketing-surface', scheme.surface);
     preview.style.setProperty('--marketing-surface-muted', scheme.surfaceMuted || scheme.surface);
     preview.style.setProperty('--marketing-background', scheme.background);
@@ -680,6 +689,8 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     applySchemeToken('--marketing-surface-glass-dark', scheme.surfaceGlassDark);
     applySchemeToken('--marketing-surface-accent-soft', scheme.surfaceAccentSoft);
     applySchemeToken('--marketing-border-light', scheme.borderLight);
+    applySchemeToken('--marketing-border', scheme.border);
+    applySchemeToken('--marketing-border-muted', scheme.borderMuted);
     applySchemeToken('--marketing-ring-strong', scheme.ringStrong);
     applySchemeToken('--marketing-ring-strong-dark', scheme.ringStrongDark);
     applySchemeToken('--marketing-overlay-soft', scheme.overlaySoft);
@@ -715,8 +726,12 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     applySchemeToken('--marketing-button-secondary-text', scheme.buttonSecondaryText);
     applySchemeToken('--marketing-button-secondary-border-color', scheme.buttonSecondaryBorderColor);
     applySchemeToken('--marketing-button-secondary-hover-bg', scheme.buttonSecondaryHoverBg);
+    applySchemeToken('--marketing-link', scheme.link);
+    applySchemeToken('--marketing-link-hover', scheme.linkHover);
     applySchemeToken('--marketing-link-contrast-light', scheme.linkContrastLight);
     applySchemeToken('--marketing-link-contrast-dark', scheme.linkContrastDark);
+    applySchemeToken('--marketing-text-emphasis', scheme.textEmphasis);
+    applySchemeToken('--marketing-text-inverse', scheme.textInverse);
     applySchemeToken('--marketing-topbar-text-contrast-light', scheme.topbarTextContrastLight);
     applySchemeToken('--marketing-topbar-text-contrast-dark', scheme.topbarTextContrastDark);
     applySchemeToken('--marketing-topbar-drop-bg-contrast-light', scheme.topbarDropBgContrastLight);
@@ -725,6 +740,9 @@ import { MARKETING_SCHEMES } from './components/marketing-schemes.js';
     applySchemeToken('--marketing-topbar-btn-border-contrast-dark', scheme.topbarBtnBorderContrastDark);
     applySchemeToken('--marketing-topbar-focus-ring-contrast-light', scheme.topbarFocusRingContrastLight);
     applySchemeToken('--marketing-topbar-focus-ring-contrast-dark', scheme.topbarFocusRingContrastDark);
+    applySchemeToken('--marketing-success', scheme.success);
+    applySchemeToken('--marketing-warning', scheme.warning);
+    applySchemeToken('--marketing-danger', scheme.danger);
     applySchemeToken('--marketing-danger-500', scheme.danger500);
     applySchemeToken('--marketing-danger-600', scheme.danger600);
     applySchemeToken('--marketing-white', scheme.white);
