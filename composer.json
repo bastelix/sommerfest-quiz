@@ -14,7 +14,7 @@
         "ext-exif": "*",
         "guzzlehttp/guzzle": "^7",
         "symfony/mailer": "^7.3",
-        "stripe/stripe-php": "^19.1",
+        "stripe/stripe-php": "^19.3",
         "monolog/monolog": "^3",
         "symfony/process": "^7.3",
         "chillerlan/php-qrcode": "^5.0",
