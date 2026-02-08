@@ -131,6 +131,7 @@ use App\Controller\Admin\MarketingMenuController;
 use App\Controller\Admin\MarketingMenuDefinitionController;
 use App\Controller\Admin\MarketingMenuItemController;
 use App\Controller\Admin\MarketingMenuAssignmentController;
+use App\Controller\Admin\MarketingFooterBlockController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\Admin\DomainPageController;
 use App\Controller\Admin\BackupController as AdminBackupController;
@@ -1458,6 +1459,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new NavigationController();
         return $controller->overrideDetail($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
+    $app->get('/admin/navigation/footer-blocks', function (Request $request, Response $response) {
+        $controller = new NavigationController();
+        return $controller->footerBlocks($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add($namespaceQueryMiddleware);
     $app->get('/admin/settings/header', function (Request $request, Response $response) {
         $controller = new NavigationController();
         return $controller->headerSettings($request, $response);
@@ -1858,6 +1863,37 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new ProjectPagesController();
 
         return $controller->translateMenu($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    // Footer Block routes
+    $app->get('/admin/footer-blocks', function (Request $request, Response $response) {
+        $controller = new MarketingFooterBlockController();
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/footer-blocks', function (Request $request, Response $response) {
+        $controller = new MarketingFooterBlockController();
+
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->put('/admin/footer-blocks/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingFooterBlockController();
+
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->delete('/admin/footer-blocks/{id:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingFooterBlockController();
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
+
+    $app->post('/admin/footer-blocks/reorder', function (Request $request, Response $response) {
+        $controller = new MarketingFooterBlockController();
+
+        return $controller->reorder($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware())->add($namespaceQueryMiddleware);
 
     $app->post('/admin/pages/{pageId:[0-9]+}/startpage', function (Request $request, Response $response, array $args) {

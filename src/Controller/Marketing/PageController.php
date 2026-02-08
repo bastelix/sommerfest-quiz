@@ -6,6 +6,8 @@ namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
+use App\Service\CmsFooterBlockService;
+use App\Service\CmsMenuDefinitionService;
 use App\Service\CmsMenuResolverService;
 use App\Service\CmsMenuService;
 use App\Service\CmsPageMenuService;
@@ -248,6 +250,8 @@ class PageController
             $locale
         );
 
+        $cmsFooterBlocks = $this->resolveFooterBlocks($pageNamespace, $locale);
+
         $navigation = $this->loadNavigationSections(
             $pageNamespace,
             $page->getSlug(),
@@ -342,6 +346,7 @@ class PageController
             'cmsMainNavigation' => $cmsMainNavigation,
             'cmsFooterNavigation' => $cmsFooterNavigation,
             'cmsFooterColumns' => $cmsFooterColumns,
+            'cmsFooterBlocks' => $cmsFooterBlocks,
             'cmsLegalNavigation' => $cmsLegalNavigation,
             'cmsSidebarNavigation' => $navigation['sidebar'],
             'cmsChatEndpoint' => $marketingPayload['featureData']['chatEndpoint'] ?? null,
@@ -726,6 +731,55 @@ class PageController
         }
 
         return $columns;
+    }
+
+    /**
+     * Load footer blocks for a namespace and locale
+     *
+     * @return array<string, array<int, array<string, mixed>>>
+     */
+    private function resolveFooterBlocks(string $namespace, string $locale): array
+    {
+        $blockService = new CmsFooterBlockService();
+        $menuDefinitionService = new CmsMenuDefinitionService();
+        $result = [];
+
+        foreach (['footer_1', 'footer_2', 'footer_3'] as $slot) {
+            $blocks = $blockService->getBlocksForSlot($namespace, $slot, $locale, true);
+            $serialized = [];
+
+            foreach ($blocks as $block) {
+                $content = $block->getContent();
+
+                // Load menu items if block type is menu
+                if ($block->getType() === 'menu' && isset($content['menuId'])) {
+                    $menuId = (int) $content['menuId'];
+                    $menuItems = $menuDefinitionService->getMenuItemsForMenu($namespace, $menuId, $locale, true);
+                    $content['menuItems'] = array_map(
+                        static fn ($item): array => [
+                            'label' => $item->getLabel(),
+                            'href' => $item->getHref(),
+                            'icon' => $item->getIcon(),
+                            'isExternal' => $item->isExternal(),
+                        ],
+                        $menuItems
+                    );
+                }
+
+                $serialized[] = [
+                    'id' => $block->getId(),
+                    'type' => $block->getType(),
+                    'content' => $content,
+                    'isActive' => $block->isActive(),
+                ];
+            }
+
+            if ($serialized !== []) {
+                $result[$slot] = $serialized;
+            }
+        }
+
+        return $result;
     }
 
     /**
