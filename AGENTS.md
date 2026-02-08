@@ -207,4 +207,9 @@ Der AI-Code-Assistent ist Teil des Entwicklungssystems und unterliegt folgenden 
 	•	Änderungen an dieser AGENTS.md erfolgen bewusst und versioniert
 	•	Abweichungen müssen begründet werden
 
+Architektur-Entscheidungen (ADRs)
+
+Wesentliche Architekturentscheidungen werden als Architecture Decision Records in
+docs/adr/ dokumentiert. Neue Entscheidungen folgen dem Template in docs/adr/000-template.md.
+
 Diese AGENTS.md ist eine Leitplanke – kein Vorschlag.

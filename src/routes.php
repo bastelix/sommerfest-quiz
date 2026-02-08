@@ -88,6 +88,9 @@ use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\AdminAuthMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Application\Middleware\NamespaceQueryMiddleware;
+use App\Application\Middleware\MarketingNamespaceMiddleware;
+use App\Application\Middleware\MarketingAccessResolver;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\TeamNameController;
@@ -175,88 +178,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app, TranslationService $translator) {
     $app->addBodyParsingMiddleware();
-    $namespaceQueryMiddleware = static function (Request $request, RequestHandlerInterface $handler): Response {
-        $params = $request->getQueryParams();
-        $namespace = $params['namespace'] ?? null;
-        if (is_string($namespace) && $namespace !== '') {
-            $request = $request->withAttribute('namespace', $namespace);
-            $request = $request->withAttribute('pageNamespace', $namespace);
-            $request = $request->withAttribute('domainNamespace', $namespace);
-            $request = $request->withAttribute('eventNamespace', $namespace);
-        }
-
-        return $handler->handle($request);
-    };
-
-    $marketingNamespaceMiddleware = static function (Request $request, RequestHandlerInterface $handler): Response {
-        $existingDomainNamespace = $request->getAttribute('domainNamespace');
-        $existingPageNamespace = $request->getAttribute('pageNamespace');
-        if (
-            (is_string($existingDomainNamespace) && $existingDomainNamespace !== '')
-            || (is_string($existingPageNamespace) && $existingPageNamespace !== '')
-        ) {
-            return $handler->handle($request);
-        }
-
-        $path = $request->getUri()->getPath();
-        $isLegacyMarketingPath = str_starts_with($path, '/m/')
-            || str_starts_with($path, '/landing/');
-        if (!$isLegacyMarketingPath) {
-            return $handler->handle($request);
-        }
-
-        $route = RouteContext::fromRequest($request)->getRoute();
-        $marketingSlug = $route?->getArgument('marketingSlug')
-            ?? $route?->getArgument('landingSlug')
-            ?? $route?->getArgument('slug');
-
-        if (is_string($marketingSlug) && $marketingSlug !== '') {
-            $request = $request
-                ->withAttribute('namespace', $marketingSlug)
-                ->withAttribute('pageNamespace', $marketingSlug)
-                ->withAttribute('domainNamespace', $marketingSlug)
-                ->withAttribute('eventNamespace', $marketingSlug);
-        }
-
-        return $handler->handle($request);
-    };
-
+    $namespaceQueryMiddleware = new NamespaceQueryMiddleware();
+    $marketingNamespaceMiddleware = new MarketingNamespaceMiddleware();
     $resolveMarketingAccess = static function (Request $request): array {
-        $domainType = $request->getAttribute('domainType');
-        if (!in_array($domainType, ['main', 'marketing'], true)) {
-            $host = strtolower($request->getUri()->getHost());
-            $normalizedHost = DomainNameHelper::normalize($host, stripAdmin: false);
-            $marketingDomainProvider = DomainNameHelper::getMarketingDomainProvider();
-            if ($marketingDomainProvider === null) {
-                $marketingDomainProvider = new MarketingDomainProvider(
-                    static function (): \PDO {
-                        return Database::connectFromEnv();
-                    }
-                );
-                DomainNameHelper::setMarketingDomainProvider($marketingDomainProvider);
-            }
-            $mainDomain = strtolower((string) $marketingDomainProvider->getMainDomain());
-            $normalizedMainDomain = DomainNameHelper::normalize($mainDomain, stripAdmin: false);
-
-            $computed = 'tenant';
-            if ($normalizedMainDomain === '' || $normalizedHost === $normalizedMainDomain) {
-                $computed = 'main';
-            } else {
-                $marketingDomains = $marketingDomainProvider->getMarketingDomains(stripAdmin: false);
-                $marketingList = array_filter(array_map(
-                    static fn (string $domain): string => DomainNameHelper::normalize($domain, stripAdmin: false),
-                    $marketingDomains
-                ));
-                if ($marketingList !== [] && in_array($normalizedHost, $marketingList, true)) {
-                    $computed = 'marketing';
-                }
-            }
-
-            $request = $request->withAttribute('domainType', $computed);
-            $domainType = $computed;
-        }
-
-        return [$request, in_array($domainType, ['main', 'marketing'], true)];
+        return MarketingAccessResolver::resolve($request);
     };
         $cmsPageRouteResolver = new CmsPageRouteResolver();
         $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
