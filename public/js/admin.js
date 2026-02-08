@@ -439,6 +439,22 @@ window.apiFetch = (path, options = {}) => {
     });
 };
 const apiFetch = window.apiFetch;
+
+const resolveEventNamespace = () => {
+  const indicator = document.querySelector('[data-event-namespace]');
+  if (indicator && indicator.dataset.eventNamespace) {
+    return indicator.dataset.eventNamespace;
+  }
+  const params = new URLSearchParams(window.location.search);
+  return params.get('namespace') || '';
+};
+
+const appendNamespaceParam = (url) => {
+  const ns = resolveEventNamespace();
+  if (!ns) return url;
+  const separator = url.includes('?') ? '&' : '?';
+  return url + separator + 'namespace=' + encodeURIComponent(ns);
+};
 window.notify = (msg, status = 'primary', timeout = 2000) => {
   if (typeof UIkit !== 'undefined' && UIkit.notification) {
     UIkit.notification({ message: msg, status, pos: 'top-center', timeout });
@@ -7691,6 +7707,7 @@ document.addEventListener('DOMContentLoaded', function () {
       uid: id,
       slug: ev.slug || ev.uid || id,
       name: ev.name || '',
+      namespace: ev.namespace || resolveEventNamespace() || 'default',
       start_date: ev.start_date || new Date().toISOString().slice(0, 16),
       end_date: ev.end_date || new Date().toISOString().slice(0, 16),
       description: ev.description || '',
@@ -7707,6 +7724,7 @@ document.addEventListener('DOMContentLoaded', function () {
         uid: ev.id,
         slug: ev.slug || ev.id,
         name: isDraft ? `__draft__${ev.id}` : trimmedName,
+        namespace: ev.namespace || resolveEventNamespace() || 'default',
         start_date: ev.start_date,
         end_date: ev.end_date,
         description: ev.description,
@@ -7725,7 +7743,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .filter(ev => !ev.draft)
       .map(({ draft, ...rest }) => rest);
 
-    apiFetch('/events.json', {
+    apiFetch(appendNamespaceParam('/events.json'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -7997,7 +8015,7 @@ document.addEventListener('DOMContentLoaded', function () {
       eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     }
     if (eventManager) {
-      apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
+      apiFetch(appendNamespaceParam('/events.json'), { headers: { 'Accept': 'application/json' } })
         .then(r => {
           if (!r.ok) {
             if (r.status === 401 || r.status === 403) {
@@ -10418,7 +10436,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     Promise.all([
       cfgPromise,
-      apiFetch('/events.json', opts).then(r => r.json()).catch(() => [])
+      apiFetch(appendNamespaceParam('/events.json'), opts).then(r => r.json()).catch(() => [])
     ]).then(([cfg, events]) => {
       if (!isActive()) {
         return;
