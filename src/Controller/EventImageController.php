@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Service\EventService;
 use App\Support\HttpCacheHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -16,9 +17,11 @@ use Slim\Psr7\Stream;
 class EventImageController
 {
     private ConfigService $config;
+    private EventService $events;
 
-    public function __construct(ConfigService $config) {
+    public function __construct(ConfigService $config, EventService $events) {
         $this->config = $config;
+        $this->events = $events;
     }
 
     /**
@@ -31,6 +34,11 @@ class EventImageController
         $file = basename($file);
         if ($uid === '' || $file === '') {
             return $response->withStatus(404);
+        }
+        // Namespace enforcement: verify event belongs to active namespace
+        $namespace = $request->getAttribute('eventNamespace');
+        if (is_string($namespace) && $namespace !== '' && !$this->events->belongsToNamespace($uid, $namespace)) {
+            return $response->withStatus(403);
         }
 
         $this->config->migrateEventImages($uid);

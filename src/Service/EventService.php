@@ -355,6 +355,23 @@ class EventService
         return $event['namespace'] === $this->normalizeNamespace($namespace);
     }
 
+    /**
+     * Retrieve an event by UID, but only if it belongs to the given namespace.
+     * When namespace is null, no filtering is applied (backward compatible).
+     *
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,namespace:string}|null
+     */
+    public function getByUidInNamespace(string $uid, ?string $namespace): ?array {
+        $event = $this->getByUid($uid);
+        if ($event === null) {
+            return null;
+        }
+        if ($namespace !== null && $event['namespace'] !== $this->normalizeNamespace($namespace)) {
+            return null;
+        }
+        return $event;
+    }
+
     private function formatDate(?string $value): ?string {
         if ($value === null || $value === '') {
             return $value;

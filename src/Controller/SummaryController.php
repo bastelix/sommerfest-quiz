@@ -34,16 +34,22 @@ class SummaryController
         $params = $request->getQueryParams();
         $eventUidParam = (string)($params['event_uid'] ?? '');
         $eventParam = (string)($params['event'] ?? '');
+        $namespace = $request->getAttribute('eventNamespace');
+        $ns = is_string($namespace) && $namespace !== '' ? $namespace : null;
         $uid = '';
         $event = null;
 
         if ($eventUidParam !== '') {
             $uid = $eventUidParam;
-            $event = $this->events->getByUid($uid);
+            $event = $this->events->getByUidInNamespace($uid, $ns);
+            if ($event === null && $ns !== null) {
+                return $response->withStatus(403);
+            }
         }
 
         if ($event === null && $eventParam !== '') {
-            $event = $this->events->getByUid($eventParam) ?? $this->events->getBySlug($eventParam);
+            $event = $this->events->getByUidInNamespace($eventParam, $ns)
+                ?? $this->events->getBySlug($eventParam, $ns);
             if ($event !== null) {
                 $uid = (string) $event['uid'];
             }
@@ -59,12 +65,12 @@ class SummaryController
         $forceResults = $this->shouldForceResults($params);
         if ($uid !== '') {
             $cfg = $this->config->getConfigForEvent($uid);
-            $event = $event ?? $this->events->getFirst();
+            $event = $event ?? $this->events->getFirst($ns);
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }
         } else {
-            $event = $this->events->getFirst();
+            $event = $this->events->getFirst($ns);
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }

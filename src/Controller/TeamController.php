@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\TeamService;
 use App\Service\ConfigService;
 use App\Service\ResultService;
+use App\Service\EventService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -18,28 +19,44 @@ class TeamController
     private TeamService $service;
     private ConfigService $config;
     private ResultService $results;
+    private EventService $events;
 
     /**
      * Inject team service dependency.
      */
-    public function __construct(TeamService $service, ConfigService $config, ResultService $results) {
+    public function __construct(TeamService $service, ConfigService $config, ResultService $results, EventService $events) {
         $this->service = $service;
         $this->config = $config;
         $this->results = $results;
+        $this->events = $events;
     }
 
-    private function setEventFromRequest(Request $request): void {
+    /**
+     * Set the active event from request, with namespace validation.
+     * Returns false if the event_uid is cross-namespace (403 condition).
+     */
+    private function setEventFromRequest(Request $request): bool {
         $params = $request->getQueryParams();
-        if (isset($params['event_uid'])) {
-            $this->config->setActiveEventUid((string) $params['event_uid']);
+        $eventUid = (string)($params['event_uid'] ?? '');
+        if ($eventUid !== '') {
+            $namespace = $request->getAttribute('eventNamespace');
+            if (is_string($namespace) && $namespace !== '') {
+                if (!$this->events->belongsToNamespace($eventUid, $namespace)) {
+                    return false;
+                }
+            }
+            $this->config->setActiveEventUid($eventUid);
         }
+        return true;
     }
 
     /**
      * Return the list of teams as JSON.
      */
     public function get(Request $request, Response $response): Response {
-        $this->setEventFromRequest($request);
+        if (!$this->setEventFromRequest($request)) {
+            return $response->withStatus(403);
+        }
         $data = $this->service->getAll();
         $params = $request->getQueryParams();
         $perPage = isset($params['per_page']) ? (int) $params['per_page'] : 0;
@@ -79,7 +96,9 @@ class TeamController
      * Replace the entire list of teams with the provided data.
      */
     public function post(Request $request, Response $response): Response {
-        $this->setEventFromRequest($request);
+        if (!$this->setEventFromRequest($request)) {
+            return $response->withStatus(403);
+        }
         $existing = $this->service->getAll();
         $body = (string) $request->getBody();
         $data = json_decode($body, true);
@@ -101,7 +120,9 @@ class TeamController
      */
     public function delete(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
+        if (!$this->setEventFromRequest($request)) {
+            return $response->withStatus(403);
+        }
         $this->service->deleteAll();
         $uid = (string) $this->config->getActiveEventUid();
         $this->results->clear($uid);
