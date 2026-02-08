@@ -293,6 +293,7 @@
 - Guard entrypoint pipefail usage
 - Make admin.js event handling namespace-aware
 - Resolve PHPStan errors in LegacyCalserverLandingController
+- Enforce namespace isolation across all event-related endpoints
 
 ### Refactor
 
