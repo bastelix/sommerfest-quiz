@@ -185,6 +185,8 @@
             >{{ t('action_ai_page_create') }}</button>
           </div>
         </div>
+        {% set pageTypeDefaultsList = pageTypeDefaults|default([]) %}
+        {% set hasPageTypes = pageTypeDefaultsList is not empty %}
         <ul class="uk-accordion uk-margin-small" uk-accordion="multiple: true">
           <li>
             <a class="uk-accordion-title" href="#">Startseite dieses Projekts</a>
