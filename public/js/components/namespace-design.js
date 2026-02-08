@@ -872,20 +872,28 @@ const applyColorsToRoot = (element, appearance) => {
     element.style.setProperty('--section-default-accent', sectionDefaultAccent);
   }
 
-  if (primary) {
-    element.style.setProperty('--brand-primary', primary);
-    element.style.setProperty('--accent-primary', primary);
-  }
-  if (secondary) {
-    element.style.setProperty('--brand-secondary', secondary);
-    element.style.setProperty('--accent-secondary', secondary);
-  }
-  if (accent) {
-    element.style.setProperty('--brand-accent', accent);
-  }
   element.style.setProperty('--marketing-primary', marketingPrimary);
   element.style.setProperty('--marketing-accent', marketingAccent);
   element.style.setProperty('--marketing-secondary', marketingSecondary);
+  if (marketingSchemeValues) {
+    element.style.setProperty('--brand-primary', 'var(--marketing-primary)');
+    element.style.setProperty('--accent-primary', 'var(--marketing-primary)');
+    element.style.setProperty('--brand-secondary', 'var(--marketing-secondary)');
+    element.style.setProperty('--accent-secondary', 'var(--marketing-secondary)');
+    element.style.setProperty('--brand-accent', 'var(--marketing-accent)');
+  } else {
+    if (primary) {
+      element.style.setProperty('--brand-primary', primary);
+      element.style.setProperty('--accent-primary', primary);
+    }
+    if (secondary) {
+      element.style.setProperty('--brand-secondary', secondary);
+      element.style.setProperty('--accent-secondary', secondary);
+    }
+    if (accent) {
+      element.style.setProperty('--brand-accent', accent);
+    }
+  }
   element.style.setProperty('--marketing-on-accent', marketingOnAccent);
   if (marketingText) {
     element.style.setProperty('--marketing-text', marketingText);
