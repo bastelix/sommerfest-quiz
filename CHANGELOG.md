@@ -247,6 +247,7 @@
 - Add CalHelp section theming
 - Allow customizing live dashboard widget titles
 - Allow marketing event pages to adopt event branding
+- Integrate events module into namespace system
 
 ### Fix
 
