@@ -1077,8 +1077,21 @@ const withNamespace = (url) => {
 };
 
 const apiFetch = (path, options = {}) => {
-  const fetcher = window.apiFetch || ((url, opts = {}) => fetch(url, opts));
-  return fetcher(path, options);
+  if (window.apiFetch) {
+    return window.apiFetch(path, options);
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.content
+    || window.csrfToken || '';
+  return fetch(path, {
+    credentials: 'same-origin',
+    cache: 'no-store',
+    ...options,
+    headers: {
+      ...(token ? { 'X-CSRF-Token': token } : {}),
+      'X-Requested-With': 'fetch',
+      ...(options.headers || {}),
+    },
+  });
 };
 
 const normalizeTreeNamespace = (namespace) => (namespace || 'default').trim() || 'default';
@@ -3731,7 +3744,14 @@ const loadPageIndex = async (container, activeNamespace) => {
   );
 
   const fetchTree = async (url) => {
-    const response = await apiFetch(url);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let response;
+    try {
+      response = await apiFetch(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
+    }
     if (!response.ok) {
       const error = new Error('page-tree-request-failed');
       error.code = 'page-tree-request-failed';
@@ -4066,6 +4086,7 @@ async function initPageTree() {
       loading.remove();
     }
   } catch (error) {
+    console.error('[page-tree] load failed', error);
     container.innerHTML = '';
     const errorEl = document.createElement('div');
     errorEl.className = 'uk-text-danger';
@@ -4101,10 +4122,11 @@ const initPagesModule = () => {
   runInitStep('page-transfer-modal', initPageTransferModal);
   runInitStep('page-tree', initPageTree);
 };
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPagesModule);
+// Module scripts execute with readyState 'interactive', before DOMContentLoaded.
+// Wait for DOMContentLoaded so that admin.js (which sets window.apiFetch) has
+// finished evaluating.  When loaded dynamically after page load, run immediately.
+if (document.readyState === 'complete') {
+  initPagesModule();
 } else {
-  // Defer to next microtask so other module scripts (admin.js) that set
-  // window.apiFetch finish executing before we initialise.
-  Promise.resolve().then(initPagesModule);
+  document.addEventListener('DOMContentLoaded', initPagesModule);
 }
