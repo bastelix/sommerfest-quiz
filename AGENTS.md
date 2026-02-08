@@ -1,194 +1,82 @@
-Purpose
+Mission & Evolution Goal
 
-Dieses Dokument definiert verbindliche Leitplanken für die Entwicklung des Systems.
+* Betreibe QuizRace als modularen Monolithen für Events, Inhalte und Administration mit klar getrennten Verantwortlichkeiten.
+* Entwickle das System langfristig evolutiv: kleine, nachvollziehbare Änderungen statt großflächiger Umbauten.
+* Priorisiere Stabilität, Wartbarkeit und sichere Weiterentwicklung vor Feature-Geschwindigkeit.
+* Erweiterungen sollen den bestehenden Modulen folgen und keine neuen Kreuzabhängigkeiten erzeugen.
 
-Die AGENTS.md dient Human-first als:
-	•	Onboarding-Dokument für Entwickler
-	•	Architektur- und Entscheidungsreferenz
-	•	Verbindlicher Rahmen für AI-Code-Assistenten
+Core Architectural Principles
 
-Bei Unklarheiten gilt:
+* Halte die Modulgrenzen strikt ein:
+  * Events-Modul: Events, Sessions, Teilnehmer, Fragen, Antworten, Scoring, Rankings, QR-Einstiegspunkte.
+  * Inhalte-Modul: Seiten, Design/Tokens, SEO, Medien, Navigation, Domain-Zuordnung, Locale.
+  * Admin-Modul: Domains/DNS, Namespace-Lifecycle, globale Defaults, Feature-Flags, Rollen/Rechte, Limits/Abo-Logik.
+* Implementiere Fachlogik ausschließlich in Services; Controller sind HTTP-spezifisch und enthalten keine Fachlogik.
+* Nutze Repositories für Datenzugriff; Services orchestrieren Fachlogik.
+* Setze auf explizite Abhängigkeiten: keine Service-Locator, keine statischen Globals, keine versteckten Helper.
+* Verwende Slim ausschließlich für Routing und HTTP; Querschnittslogik läuft über Middleware.
+* Bevorzuge klare, getestete, wartbare Lösungen vor cleveren Abkürzungen.
 
-Nachfragen ist verpflichtend. Annahmen ohne Rückfrage sind unzulässig.
+Agent Operating Rules
 
-⸻
+* Frage nach, wenn Anforderungen unklar, widersprüchlich oder unvollständig sind.
+* Markiere Annahmen explizit, wenn Nachfragen nicht möglich sind.
+* Ändere keine Architekturregeln ohne begründete Entscheidung und dokumentierte Motivation.
+* Schreibe Code, Kommentare, Commit Messages und Dokumentation in Englisch.
+* Verwende Dependency Injection; greife auf Superglobals nur in Controllern und Middleware zu.
+* Vermeide eval, Short-Tags, var_dump/print_r im produktiven Code.
+* Nutze keine neuen Frontend-Dependencies, die einen Build-Schritt erfordern.
 
-System Model – Überblick
+System Boundaries & Entry Points
 
-Das System ist als modularer Monolith konzipiert und besteht aus drei fachlich klar getrennten Modulen:
-	•	Events-Modul – Quiz-, Spiel- und Auswertungslogik
-	•	Inhalte-Modul – Namespace-basierter Page Designer und Content-Verwaltung
-	•	Admin-Modul – System-, Domain-, Abo- und Namespace-Verwaltung
+* Verändere Events-, Inhalte- und Admin-Logik nur innerhalb ihrer jeweiligen Module.
+* Behandle Templates unter templates/pages/render.twig und templates/marketing/* als Marketing-Flächen mit Namespace-Design.
+* Lasse Event-/Spiel-/Auswertungs-Seiten (z. B. results, ranking, summary, dashboard) unabhängig vom Marketing-Design.
+* Bewahre die Namespace-Fallback-Logik für SEO und Seitenmodule (default namespace als Fallback).
+* Bewahre die Datenisolation pro Tenant: ein Tenant ist ein Datenbankschema, Namespace ist die logische Einheit.
+* Jede fachliche Tabelle enthält namespace_id UUID NOT NULL; jede Query muss einen Namespace-Scope haben.
 
-Zentrale Konzepte
-	•	Tenant (Instanz / Agentur)
-	•	Technische Isolationseinheit
-	•	Entspricht genau einem Datenbankschema
-	•	Träger von Abos, Limits und globalen Einstellungen
-	•	Namespace (Arbeitsraum / Projekt)
-	•	Logische Nutzungseinheit innerhalb eines Tenants
-	•	Kapselt Inhalte, Events, Design, Domains und Zugriffe
-	•	Benutzer können mehreren Namespaces zugewiesen sein
-	•	Abo
-	•	Gilt auf Tenant-Ebene
-	•	Definiert Limits (Namespaces, Benutzer, Features)
+Change Discipline
 
-⸻
+* Implementiere Schemaänderungen ausschließlich über neue Migrationen; modifiziere bestehende Migrationen nie.
+* Liefere bei Schemaänderungen:
+  * Forward-Migration
+  * Rollback-Hinweis
+  * Betroffene Tabellen
+  * Auswirkungen auf Namespace- und Abo-Logik
+* Halte Änderungen klein und nachvollziehbar; refactoriere nur mit klarer Begründung.
+* Dokumentiere neue Konfigurationen in README.md und sample.env sowie in relevanten Compose-Dateien.
+* Aktualisiere Tests und Fixtures, wenn Datenformate oder DOM-Erwartungen geändert werden.
 
-Modulgrenzen (Hard Rules)
+Quality Gates
 
-Events-Modul
+* Halte die Test-Suite grün und führe die Standard-Checks aus:
+  * vendor/bin/phpcs
+  * vendor/bin/phpstan analyse -c phpstan.neon.dist
+  * vendor/bin/phpunit
+  * python3 tests/test_html_validity.py
+  * python3 tests/test_json_validity.py
+  * node tests/test_competition_mode.js
+  * node tests/test_results_rankings.js
+  * node tests/test_random_name_prompt.js
+  * node tests/test_onboarding_plan.js
+  * node tests/test_onboarding_flow.js
+  * node tests/test_login_free_catalog.js
+  * node tests/test_catalog_smoke.js
+  * node tests/test_catalog_autostart_path.js
+  * node tests/test_shuffle_questions.js
+  * node tests/test_team_name_suggestion.js
+  * node tests/test_catalog_prevent_repeat.js
+  * node tests/test_event_summary_switch.js
+  * node tests/test_sticker_editor_save_events.js
+  * node tests/test_media_filters.js
+  * node tests/test_media_preview.js
+* Nutze composer test für die vollständige Pipeline, wenn verfügbar.
+* Stelle sicher, dass neue Features deterministische Tests haben und optionale Integrationen ohne Konfiguration sauber degradieren.
 
-Verantwortlich für:
-	•	Veranstaltungen (Events)
-	•	Spielrunden / Sessions
-	•	Teilnehmer (anonym, Gerät, Pseudonym, Teams)
-	•	Fragenkataloge und Antworten
-	•	Auswertung, Scoring, Rankings
-	•	QR-Codes und Einstiegspunkte
+Long-Term Maintenance Rules
 
-Regeln:
-	•	Das Events-Modul ist fachlich unabhängig vom Inhalte-Modul
-	•	Keine direkte Abhängigkeit zu Seiten, SEO oder Design
-	•	Namespace dient als Tenant-Grenze
-
-⸻
-
-Inhalte-Modul
-
-Verantwortlich für:
-	•	Seiten (Landingpages, Info-Seiten)
-	•	Design / Themes / Tokens
-	•	SEO (Meta, OG, Sitemap)
-	•	Wiki- und Wissensartikel
-	•	Medien / Assets
-	•	Navigation und Footer
-	•	Domain-Zuordnung
-	•	Sprache / Locale
-
-Regeln:
-	•	Alle Inhalte sind immer Namespace-gebunden
-	•	Keine Spiel- oder Auswertungslogik im Inhalte-Modul
-
-⸻
-
-Admin-Modul
-
-Verantwortlich für:
-	•	Domain- und DNS-Zuordnung
-	•	Namespace-Lifecycle
-	•	Globale Defaults
-	•	Feature-Flags
-	•	Systemrollen und Rechte
-	•	Limits und Abo-Logik
-
-Harte Grenze:
-
-Das Admin-Modul enthält keinerlei fachliche Logik aus Events oder Inhalte.
-
-⸻
-
-Backend-Architektur
-
-Technologiestack
-	•	PHP 8.2
-	•	SlimPHP als HTTP-Router
-	•	PostgreSQL
-
-Architekturprinzipien
-	•	Modularer Monolith
-	•	Explizite Abhängigkeiten
-	•	Keine Framework-Magie
-
-Slim-Nutzung
-	•	Slim ist ausschließlich zuständig für Routing und HTTP-Schicht
-	•	Quer­schnittslogik erfolgt über Middleware:
-	•	Authentifizierung
-	•	Namespace-Auflösung
-	•	Locale
-	•	Feature-Flags
-
-Code-Struktur
-	•	Controller: HTTP-spezifisch, keine Fachlogik
-	•	Services: Fachlogik eines Moduls
-	•	Repositories: Datenzugriff
-
-⸻
-
-Dependency Rules (Hard Rules)
-	•	Kein Service Locator
-	•	Keine statischen Globals
-	•	Keine versteckten Helper
-	•	Jede Abhängigkeit ist im Konstruktor sichtbar
-
-⸻
-
-Datenbank-Regeln
-
-Tenant- & Namespace-Modell
-	•	Ein Tenant = ein Datenbankschema
-	•	Alle fachlichen Tabellen enthalten:
-
-namespace_id UUID NOT NULL
-
-Verbindliche Regel
-
-Jede Query ohne Namespace-Scope gilt als Architekturfehler.
-
-⸻
-
-Migrationen (Pflicht)
-	•	Jede Schemaänderung erfolgt ausschließlich über Migrationen
-	•	Keine manuellen Änderungen in produktiven Datenbanken
-
-AI-Code-Assistent MUSS IMMER liefern:
-	1.	Forward-Migration
-	2.	Rollback-Hinweis
-	3.	Hinweis auf betroffene Tabellen
-	4.	Hinweis auf Namespace- und Abo-Auswirkungen
-
-⸻
-
-Frontend-Regeln
-
-CSS & UI
-	•	UIKit 3 ist das primäre CSS-System
-	•	Weitere CSS-Frameworks sind später möglich, jedoch nur explizit und isoliert
-
-JavaScript
-	•	Progressive Enhancement
-	•	HTML funktioniert ohne JavaScript
-
-HTML
-	•	Semantisches HTML ist verpflichtend
-	•	Keine unklassierten Wrapper-Divs
-	•	UIKit-Klassen sind konsistent einzusetzen
-
-Design Tokens
-	•	CSS-Variablen als Design Tokens
-	•	Namespace-spezifische Theme-Overrides erlaubt
-	•	Keine Hardcoded Styles
-	•	Namespace Design (Tokens + Appearance) gilt ausschließlich für Marketing-Seiten:
-		•	Editor/CMS-Seiten (templates/pages/render.twig)
-		•	Marketing-Templates (templates/marketing/*)
-	•	Event-/Spiel-/Auswertungs-Seiten (z. B. results, ranking, summary, dashboard) behalten
-	  eigenständige Designs und dürfen keine Marketing-Appearance-Logik übernehmen.
-
-⸻
-
-AI-Assistant Contract
-
-Der AI-Code-Assistent ist Teil des Entwicklungssystems und unterliegt folgenden Regeln:
-	•	Bei Unklarheiten ist nachzufragen
-	•	Annahmen müssen explizit gekennzeichnet sein
-	•	Code wird schrittweise und überprüfbar geliefert
-	•	Architektur- und Modulgrenzen sind strikt einzuhalten
-	•	Migrationen sind immer mitzuliefern
-
-⸻
-
-Änderungsdisziplin
-	•	Änderungen an dieser AGENTS.md erfolgen bewusst und versioniert
-	•	Abweichungen müssen begründet werden
-
-Diese AGENTS.md ist eine Leitplanke – kein Vorschlag.
+* Reduziere technische Schulden aktiv, aber nur mit klarer Nutzen-/Risiko-Abwägung.
+* Depreziere APIs und Konfigurationen mit klarer Übergangsstrategie und dokumentierter Frist.
+* Dokumentiere strukturelle Änderungen an Modulen, Datenmodellen und Schnittstellen nachvollziehbar.
+* Verwende ImageUploadService-Qualitätskonstanten für Uploads; keine abweichenden Hardcodes.

@@ -61,7 +61,7 @@ all required PHP extensions.
 * Namespaces follow PSR-4; keep one class, interface, or trait per file.
 * Prefer expressive names and keep functions small. Extract shared logic into services rather than
   duplicating code.
-* Align with the detailed engineering rules in [`ROBOTS.md`](ROBOTS.md).
+* Align with the detailed engineering rules in [`AGENTS.md`](AGENTS.md).
 
 ## Namespace fallbacks (SEO + page modules)
 
