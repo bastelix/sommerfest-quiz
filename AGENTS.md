@@ -15,10 +15,14 @@ Nachfragen ist verpflichtend. Annahmen ohne Rückfrage sind unzulässig.
 
 System Model – Überblick
 
-Das System ist als modularer Monolith konzipiert und besteht aus drei fachlich klar getrennten Modulen:
+Das System ist als modularer Monolith konzipiert. Die Zielarchitektur definiert drei fachlich getrennte Module:
 	•	Events-Modul – Quiz-, Spiel- und Auswertungslogik
 	•	Inhalte-Modul – Namespace-basierter Page Designer und Content-Verwaltung
 	•	Admin-Modul – System-, Domain-, Abo- und Namespace-Verwaltung
+
+Hinweis zum Ist-Zustand: Die Module sind aktuell nicht physisch getrennt. Alle Services
+liegen in src/Service/, Controller in src/Controller/. Die physische Trennung in
+src/Events/, src/Content/, src/Admin/ ist ein Migrationsziel (siehe docs/architecture-tasks.md, Phase 4).
 
 Zentrale Konzepte
 	•	Tenant (Instanz / Agentur)
@@ -35,7 +39,7 @@ Zentrale Konzepte
 
 ⸻
 
-Modulgrenzen (Hard Rules)
+Ziel-Modulgrenzen (Hard Rules für neuen Code)
 
 Events-Modul
 
@@ -121,19 +125,30 @@ Dependency Rules (Hard Rules)
 	•	Keine versteckten Helper
 	•	Jede Abhängigkeit ist im Konstruktor sichtbar
 
+Legacy-Ausnahme: Database::connectFromEnv() ist ein statischer Factory-Aufruf, der in
+bestehendem Code verwendet wird. Neuer Code MUSS PDO per Constructor Injection erhalten.
+Die vollständige Beseitigung statischer DB-Zugriffe ist in docs/architecture-tasks.md, Phase 3 geplant.
+
 ⸻
 
 Datenbank-Regeln
 
 Tenant- & Namespace-Modell
 	•	Ein Tenant = ein Datenbankschema
-	•	Alle fachlichen Tabellen enthalten:
+	•	Alle fachlichen Tabellen enthalten (oder müssen nachrüsten):
 
-namespace_id UUID NOT NULL
+namespace TEXT NOT NULL
+
+Der Namespace ist ein menschenlesbarer Slug (z. B. „mein-projekt") und dient als
+logische Isolationseinheit innerhalb eines Tenant-Schemas.
 
 Verbindliche Regel
 
 Jede Query ohne Namespace-Scope gilt als Architekturfehler.
+
+Hinweis zum Ist-Zustand: Event-bezogene Tabellen (config, catalogs, results,
+question_results, teams, players) scopen aktuell nur über event_uid. Die Migration
+auf durchgängiges Namespace-Scoping ist dokumentiert in docs/architecture-tasks.md, Phase 2.
 
 ⸻
 
@@ -156,8 +171,9 @@ CSS & UI
 	•	Weitere CSS-Frameworks sind später möglich, jedoch nur explizit und isoliert
 
 JavaScript
-	•	Progressive Enhancement
-	•	HTML funktioniert ohne JavaScript
+	•	Progressive Enhancement ist anzustreben
+	•	Neue Features sollen ohne JavaScript grundlegende Funktionalität bieten, soweit technisch vertretbar
+	•	Bereiche, die zwingend JavaScript erfordern: Quiz-Gameplay, Admin-UI, Theme-Switching
 
 HTML
 	•	Semantisches HTML ist verpflichtend

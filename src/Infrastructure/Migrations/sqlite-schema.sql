@@ -25,12 +25,14 @@ CREATE TABLE IF NOT EXISTS players (
     player_uid TEXT NOT NULL,
     contact_email TEXT NULL,
     consent_granted_at TEXT NULL,
+    namespace TEXT DEFAULT 'default',
     PRIMARY KEY (event_uid, player_uid)
 );
 
 -- Config
 CREATE TABLE IF NOT EXISTS config (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    namespace TEXT DEFAULT 'default',
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
     logoPath TEXT,
@@ -220,6 +222,7 @@ CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER NOT NULL,
     name TEXT NOT NULL,
     uid TEXT PRIMARY KEY,
+    namespace TEXT DEFAULT 'default',
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE,
     UNIQUE(event_uid, sort_order)
@@ -246,6 +249,7 @@ CREATE TABLE IF NOT EXISTS results (
     player_uid TEXT,
     expected_duration_sec INTEGER,
     duration_ratio REAL,
+    namespace TEXT DEFAULT 'default',
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
@@ -271,6 +275,7 @@ CREATE TABLE IF NOT EXISTS question_results (
     photo TEXT,
     consent BOOLEAN,
     player_uid TEXT,
+    namespace TEXT DEFAULT 'default',
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
@@ -290,6 +295,7 @@ CREATE TABLE IF NOT EXISTS catalogs (
     raetsel_buchstabe TEXT,
     comment TEXT,
     design_path TEXT,
+    namespace TEXT DEFAULT 'default',
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE,
     UNIQUE(event_uid, sort_order)
@@ -321,6 +327,7 @@ CREATE TABLE IF NOT EXISTS photo_consents (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     team TEXT NOT NULL,
     time INTEGER NOT NULL,
+    namespace TEXT DEFAULT 'default',
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
@@ -332,6 +339,7 @@ CREATE TABLE IF NOT EXISTS summary_photos (
     name TEXT NOT NULL,
     path TEXT NOT NULL,
     time INTEGER NOT NULL,
+    namespace TEXT DEFAULT 'default',
     event_uid TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
@@ -454,6 +462,7 @@ CREATE TABLE IF NOT EXISTS project_settings (
 -- Active event
 CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,
+    namespace TEXT DEFAULT 'default',
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 
