@@ -292,6 +292,7 @@
 - Allow automated commits to trigger ci
 - Guard entrypoint pipefail usage
 - Make admin.js event handling namespace-aware
+- Resolve PHPStan errors in LegacyCalserverLandingController
 
 ### Refactor
 
