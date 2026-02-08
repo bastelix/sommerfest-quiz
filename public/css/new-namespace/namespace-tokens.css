@@ -1,0 +1,23 @@
+/**
+ * Auto-generated. Do not edit manually.
+ */
+
+html[data-namespace="new-namespace"] {
+  --brand-primary: #222222;
+  --brand-accent: #fa6400;
+  --brand-secondary: #f97316;
+  --marketing-primary: #222222;
+  --marketing-accent: #fa6400;
+  --marketing-secondary: #f97316;
+  --marketing-link: #222222;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --layout-profile: wide;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: filled;
+  --brand-surface: #0f172a;
+  --brand-on-surface: #ffffff;
+  --section-gap: 2.25rem;
+  --card-radius: 10px;
+  --font-heading-weight: 700;
+}
