@@ -1,0 +1,23 @@
+/**
+ * Auto-generated. Do not edit manually.
+ */
+
+html[data-namespace="aurora"] {
+  --brand-primary: #1f6feb;
+  --brand-accent: #58a6ff;
+  --brand-secondary: #475569;
+  --marketing-primary: #1f6feb;
+  --marketing-accent: #58a6ff;
+  --marketing-secondary: #475569;
+  --marketing-link: #1f6feb;
+  --marketing-surface: var(--surface-card, #ffffff);
+  --layout-profile: standard;
+  --typography-preset: modern;
+  --components-card-style: rounded;
+  --components-button-style: ghost;
+  --brand-surface: #0f172a;
+  --brand-on-surface: #ffffff;
+  --section-gap: 2.25rem;
+  --card-radius: 10px;
+  --font-heading-weight: 700;
+}

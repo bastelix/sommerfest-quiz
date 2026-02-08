@@ -7,8 +7,8 @@ vendor/
 .phpunit.result.cache
 
 .env
-data/logo-*.png
-data/logo-*.webp
+data/logo*.png
+data/logo*.webp
 data/admin_password.txt
 data/page-seo.json
 data/redirects.json
@@ -20,3 +20,4 @@ data-default/config.json
 data/uploads/**
 !data/uploads/.gitkeep
 node_modules/
+test-results/
