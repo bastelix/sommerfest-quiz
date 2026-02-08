@@ -297,6 +297,7 @@
 - Resolve PHPStan errors in LegacyCalserverLandingController
 - Enforce namespace isolation across all event-related endpoints
 - Enforce namespace access checks on admin content write operations
+- Link brand tokens to marketing vars when scheme is active in namespace-design
 
 ### Refactor
 
