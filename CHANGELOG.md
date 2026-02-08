@@ -291,6 +291,7 @@
 - Remove quoted identifiers in sticker migration
 - Allow automated commits to trigger ci
 - Guard entrypoint pipefail usage
+- Make admin.js event handling namespace-aware
 
 ### Refactor
 
