@@ -174,6 +174,13 @@ class ProjectPagesController
             return $response->withStatus(400);
         }
 
+        $role = $_SESSION['user']['role'] ?? null;
+        $accessService = new NamespaceAccessService();
+        $allowedNamespaces = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
+        if (!$accessService->shouldExposeNamespace($namespace, $allowedNamespaces, is_string($role) ? $role : null)) {
+            return $response->withStatus(403);
+        }
+
         $pageTypesPayload = $parsedBody['pageTypes'] ?? [];
         if (!is_array($pageTypesPayload)) {
             $pageTypesPayload = [];

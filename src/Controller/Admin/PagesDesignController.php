@@ -123,6 +123,12 @@ class PagesDesignController
             return $response->withStatus(403);
         }
 
+        $accessService = new NamespaceAccessService();
+        $allowedNamespaces = $accessService->resolveAllowedNamespaces($role);
+        if (!$accessService->shouldExposeNamespace($namespace, $allowedNamespaces, $role)) {
+            return $response->withStatus(403);
+        }
+
         $designService = $this->getDesignService($request);
         $defaults = $designService->getDefaults();
         $currentTokens = $designService->getTokensForNamespace($namespace);
