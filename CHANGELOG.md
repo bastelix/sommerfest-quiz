@@ -58,6 +58,8 @@
 - Refresh contribution and coding guides
 - Explain team name ai preview
 - Document marketing menu assignments
+- Add comprehensive architecture review against AGENTS.md
+- Add prioritized architecture task list (27 tasks in 7 phases)
 
 ### Feat
 
@@ -294,6 +296,7 @@
 - Make admin.js event handling namespace-aware
 - Resolve PHPStan errors in LegacyCalserverLandingController
 - Enforce namespace isolation across all event-related endpoints
+- Enforce namespace access checks on admin content write operations
 
 ### Refactor
 
@@ -339,6 +342,8 @@
 - Add stage container for sticker editor
 - Centralize calhelp placeholder injection
 - Relocate admin event controls
+- Phase 0-2 – fix AGENTS.md, remove require_once, add namespace scoping
+- Phase 3/5/7 – extract middleware, shared JS utils, establish ADRs
 
 ### Style
 
