@@ -33,6 +33,7 @@
 - Handle network errors in event switcher
 - Add migration for sticker text toggles
 - Normalize spacing before EOF docblocks
+- Track namespace-specific token CSS and tighten .gitignore
 
 ### Ci
 
@@ -299,6 +300,7 @@
 - Enforce namespace isolation across all event-related endpoints
 - Enforce namespace access checks on admin content write operations
 - Link brand tokens to marketing vars when scheme is active in namespace-design
+- Resolve admin page tree loading and namespace design application
 
 ### Refactor
 
