@@ -12,6 +12,7 @@ use App\Service\NamespaceResolver;
 use App\Service\PageBlockContractMigrator;
 use App\Service\PageService;
 use App\Service\AuditLogger;
+use App\Service\NamespaceAccessService;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use JsonException;
@@ -186,6 +187,10 @@ class PageController
 
         $targetNamespace = (string) ($data['targetNamespace'] ?? $data['target_namespace'] ?? $data['namespace'] ?? '');
 
+        if ($targetNamespace !== '' && !$this->isNamespaceAllowed($targetNamespace)) {
+            return $response->withStatus(403);
+        }
+
         try {
             $result = $this->pageService->copy($namespace, (string) $slug, $targetNamespace);
         } catch (InvalidArgumentException $exception) {
@@ -235,6 +240,10 @@ class PageController
         }
 
         $targetNamespace = (string) ($data['targetNamespace'] ?? $data['target_namespace'] ?? $data['namespace'] ?? '');
+
+        if ($targetNamespace !== '' && !$this->isNamespaceAllowed($targetNamespace)) {
+            return $response->withStatus(403);
+        }
 
         try {
             $result = $this->pageService->move($namespace, (string) $slug, $targetNamespace);
@@ -522,6 +531,10 @@ class PageController
 
         $targetNamespace = (string) ($data['targetNamespace'] ?? $data['target_namespace'] ?? $data['namespace'] ?? '');
 
+        if ($targetNamespace !== '' && !$this->isNamespaceAllowed($targetNamespace)) {
+            return $response->withStatus(403);
+        }
+
         try {
             $result = $this->pageService->updateNamespace($namespace, (string) $slug, $targetNamespace);
         } catch (InvalidArgumentException $exception) {
@@ -573,6 +586,15 @@ class PageController
         $response->getBody()->write(json_encode($payload, JSON_PRETTY_PRINT));
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function isNamespaceAllowed(string $namespace): bool
+    {
+        $role = $_SESSION['user']['role'] ?? null;
+        $accessService = new NamespaceAccessService();
+        $allowed = $accessService->resolveAllowedNamespaces(is_string($role) ? $role : null);
+
+        return $accessService->shouldExposeNamespace($namespace, $allowed, is_string($role) ? $role : null);
     }
 
     /**
