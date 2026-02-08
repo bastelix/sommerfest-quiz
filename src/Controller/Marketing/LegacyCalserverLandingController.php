@@ -108,7 +108,7 @@ final class LegacyCalserverLandingController
             'pageNamespace' => $namespace,
             'designNamespace' => $namespace,
             'renderContext' => $renderContext,
-            'design' => $renderContext['design'] ?? [],
+            'design' => $renderContext['design'],
             'appearance' => $renderContext['design']['appearance'] ?? [],
             'pageTheme' => $renderContext['design']['theme'] ?? 'light',
             'headerConfig' => $headerConfig,
@@ -246,10 +246,6 @@ final class LegacyCalserverLandingController
         $mapped = [];
 
         foreach ($items as $index => $item) {
-            if (!is_array($item)) {
-                continue;
-            }
-
             $label = $this->resolveLabel($item, $translator, 'label', 'label_key');
             $detailTitle = $this->resolveLabel($item, $translator, 'detail_title', 'detail_title_key');
             $detailText = $this->resolveLabel($item, $translator, 'detail_text', 'detail_text_key');
