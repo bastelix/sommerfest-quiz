@@ -132,44 +132,7 @@
         {% set hasDomainNamespace = hasDomainNamespace is defined
           ? hasDomainNamespace
           : domainNamespace is defined and domainNamespace is not empty %}
-        {% if pageNamespaceOptions is empty %}
-          {% set pageNamespaceOptions = [{
-            namespace: activePageNamespace,
-            label: null,
-            is_active: true
-          }] %}
-        {% endif %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-          <div class="uk-grid-small uk-flex-middle" uk-grid>
-            <div class="uk-width-1-1 uk-width-expand@m">
-              <label class="uk-form-label" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
-              <div class="uk-form-controls">
-                <select
-                  id="pageNamespaceSelect"
-                  class="uk-select"
-                  data-page-namespace="{{ activePageNamespace|e('html_attr') }}"
-                >
-                  {% for entry in pageNamespaceOptions %}
-                    {% set entryNamespace = entry.namespace|default('') %}
-                    {% set entryLabel = entry.label|default('') %}
-                    {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
-                    <option
-                      value="{{ entryNamespace|e('html_attr') }}"
-                      {% if entryNamespace == activePageNamespace %}selected{% endif %}
-                    >
-                      {{ entryNamespace }}
-                      {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
-                      {% if entryIsInactive %} – inaktiv{% endif %}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="uk-width-auto uk-text-meta uk-margin-small-top uk-margin-remove-top@m">
-              Wechsel lädt die Inhalte des ausgewählten Namespace neu.
-            </div>
-          </div>
-        </div>
+        {% include 'admin/partials/namespace_select.twig' %}
 
 
         {% set pagesList = pages|default([]) %}
@@ -222,62 +185,65 @@
             >{{ t('action_ai_page_create') }}</button>
           </div>
         </div>
-        <div
-          class="uk-card uk-card-default uk-card-body uk-margin-small"
-          data-page-namespace-manager
-          data-startpage-page-id="{{ startpage_page_id|default('') }}"
-          data-startpage-map='{{ startpage_map|default({})|json_encode|e('html_attr') }}'
-          data-selected-domain="{{ startpage_selected_domain|default('')|e('html_attr') }}"
-        >
-          <label class="uk-form-label" for="startpageToggle">Startseite dieses Projekts</label>
-          {% if not hasDomainNamespace %}
-            <div class="uk-alert uk-alert-warning uk-margin-small-top" role="alert">
-              Dieser Bereich ist deaktiviert, weil kein Domain-Namespace erkannt wurde.
-            </div>
-          {% endif %}
-          <div class="uk-margin-small-top">
-            <label class="uk-form-label" for="startpageDomainSelect">Domain</label>
-            <div class="uk-form-controls">
-              <select id="startpageDomainSelect" class="uk-select" data-startpage-domain {% if not hasDomainNamespace %}disabled{% endif %}>
-                {% for domain in startpage_domain_options|default([]) %}
-                  {% set value = domain.value|default('') %}
-                  {% set label = domain.label|default(value) %}
-                  {% set inactive = domain.is_active is defined and not domain.is_active %}
-                  {% set unassigned = domain.is_unassigned is defined and domain.is_unassigned %}
-                  <option value="{{ value|e('html_attr') }}" {% if value == startpage_selected_domain %}selected{% endif %}>
-                    {{ label }}
-                    {% if inactive %} – inaktiv{% endif %}
-                    {% if unassigned %} – nicht zugewiesen{% endif %}
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
-            <p class="uk-text-meta uk-margin-small-top">
-              Wähle die Domain, für die diese Startseite gelten soll. Der Namespace-Fallback gilt für alle Domains ohne eigene Startseite.
-            </p>
-          </div>
-          <div class="uk-form-controls uk-margin-small-top">
-            <label class="uk-flex uk-flex-middle uk-flex-wrap">
-              <input
-                id="startpageToggle"
-                class="uk-checkbox"
-                type="checkbox"
-                data-startpage-toggle
-                data-startpage-disabled="{{ hasDomainNamespace ? '0' : '1' }}"
-                {% if not hasDomainNamespace %}disabled{% endif %}
+        <ul class="uk-accordion uk-margin-small" uk-accordion="multiple: true">
+          <li>
+            <a class="uk-accordion-title" href="#">Startseite dieses Projekts</a>
+            <div class="uk-accordion-content">
+              <div
+                data-page-namespace-manager
+                data-startpage-page-id="{{ startpage_page_id|default('') }}"
+                data-startpage-map='{{ startpage_map|default({})|json_encode|e('html_attr') }}'
+                data-selected-domain="{{ startpage_selected_domain|default('')|e('html_attr') }}"
               >
-              <span class="uk-margin-small-left uk-text-meta">Bestimmt, welche Marketing-Seite beim Aufruf des Projekts zuerst geladen wird.</span>
-            </label>
-          </div>
-        </div>
-        {% set pageTypeDefaultsList = pageTypeDefaults|default([]) %}
-        {% set hasPageTypes = pageTypeDefaultsList is not empty %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
-          <h3 class="uk-margin-remove-top">Page Types</h3>
-          <p class="uk-text-meta">
-            Definiere Standardwerte für Layout und Hintergrund je Page-Type. Diese Defaults steuern die Vorschau und
-            das Rendering der Marketing-Seiten. Den Akzent (Intent) setzt du pro Block im Editor.
-          </p>
+                {% if not hasDomainNamespace %}
+                  <div class="uk-alert uk-alert-warning uk-margin-small-top" role="alert">
+                    Dieser Bereich ist deaktiviert, weil kein Domain-Namespace erkannt wurde.
+                  </div>
+                {% endif %}
+                <div class="uk-margin-small-top">
+                  <label class="uk-form-label" for="startpageDomainSelect">Domain</label>
+                  <div class="uk-form-controls">
+                    <select id="startpageDomainSelect" class="uk-select" data-startpage-domain {% if not hasDomainNamespace %}disabled{% endif %}>
+                      {% for domain in startpage_domain_options|default([]) %}
+                        {% set value = domain.value|default('') %}
+                        {% set label = domain.label|default(value) %}
+                        {% set inactive = domain.is_active is defined and not domain.is_active %}
+                        {% set unassigned = domain.is_unassigned is defined and domain.is_unassigned %}
+                        <option value="{{ value|e('html_attr') }}" {% if value == startpage_selected_domain %}selected{% endif %}>
+                          {{ label }}
+                          {% if inactive %} – inaktiv{% endif %}
+                          {% if unassigned %} – nicht zugewiesen{% endif %}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">
+                    Wähle die Domain, für die diese Startseite gelten soll. Der Namespace-Fallback gilt für alle Domains ohne eigene Startseite.
+                  </p>
+                </div>
+                <div class="uk-form-controls uk-margin-small-top">
+                  <label class="uk-flex uk-flex-middle uk-flex-wrap">
+                    <input
+                      id="startpageToggle"
+                      class="uk-checkbox"
+                      type="checkbox"
+                      data-startpage-toggle
+                      data-startpage-disabled="{{ hasDomainNamespace ? '0' : '1' }}"
+                      {% if not hasDomainNamespace %}disabled{% endif %}
+                    >
+                    <span class="uk-margin-small-left uk-text-meta">Bestimmt, welche Marketing-Seite beim Aufruf des Projekts zuerst geladen wird.</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Page Types</a>
+            <div class="uk-accordion-content">
+              <p class="uk-text-meta">
+                Definiere Standardwerte für Layout und Hintergrund je Page-Type. Diese Defaults steuern die Vorschau und
+                das Rendering der Marketing-Seiten. Den Akzent (Intent) setzt du pro Block im Editor.
+              </p>
           {% if pageTypeFlash is defined and pageTypeFlash %}
             <div class="uk-alert-{{ pageTypeFlash.type == 'success' ? 'success' : 'danger' }} uk-margin-small" uk-alert>
               {{ pageTypeFlash.message|default('') }}
@@ -409,7 +375,9 @@
               </div>
             </template>
           </form>
-        </div>
+            </div>
+          </li>
+        </ul>
         <div id="pageFormsContainer">
           {% if pagesList is empty %}
             <div class="uk-alert uk-alert-warning pages-empty-alert">{{ t('text_no_marketing_pages') }}</div>
@@ -424,25 +392,31 @@
           >
             <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
             <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
-            <div class="uk-margin-top" data-editor-actions="true">
+            <div class="uk-margin-top uk-flex uk-flex-middle uk-flex-wrap" data-editor-actions="true" style="gap: 8px;">
               <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
-              <button class="uk-button uk-button-default uk-margin-small-left preview-link" type="button">Vorschau</button>
-              <button class="uk-button uk-button-default uk-margin-small-left export-page-btn" type="button">
-                Export Page as JSON
-              </button>
-              {% set importInputId = 'pageImportInput-' ~ page.slug %}
-              <label class="uk-button uk-button-default uk-margin-small-left import-page-btn" for="{{ importInputId|e('html_attr') }}">
-                Import Page from JSON
-              </label>
-              <input
-                id="{{ importInputId|e('html_attr') }}"
-                class="page-import-input"
-                type="file"
-                accept="application/json,.json,.page.json"
-                style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;"
-              >
+              <button class="uk-button uk-button-default preview-link" type="button">Vorschau</button>
+              <div class="uk-inline">
+                <button class="uk-button uk-button-default" type="button">Weitere Aktionen <span uk-icon="icon: chevron-down; ratio: 0.75"></span></button>
+                <div uk-dropdown="mode: click; pos: bottom-right">
+                  <ul class="uk-nav uk-dropdown-nav">
+                    <li><a class="export-page-btn" href="#">Export als JSON</a></li>
+                    <li>
+                      {% set importInputId = 'pageImportInput-' ~ page.slug %}
+                      <label class="import-page-btn" for="{{ importInputId|e('html_attr') }}" style="cursor: pointer;">Import aus JSON</label>
+                      <input
+                        id="{{ importInputId|e('html_attr') }}"
+                        class="page-import-input"
+                        type="file"
+                        accept="application/json,.json,.page.json"
+                        style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;"
+                      >
+                    </li>
+                    <li class="uk-nav-divider"></li>
+                    <li><a class="delete-page-btn uk-text-danger" href="#">{{ t('action_delete') }}</a></li>
+                  </ul>
+                </div>
+              </div>
               <span class="uk-text-meta" data-page-import-feedback></span>
-              <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
             </div>
           </form>
           {% endfor %}

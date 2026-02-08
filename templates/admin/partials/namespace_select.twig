@@ -1,0 +1,37 @@
+{# Compact namespace selector for admin pages.
+   Requires: activePageNamespace, pageNamespaceOptions (or available_namespaces) #}
+{% set _activePageNamespace = activePageNamespace|default(pageNamespace|default('default')) %}
+{% set _pageNamespaceOptions = pageNamespaceOptions|default(available_namespaces|default([])) %}
+{% if _pageNamespaceOptions is empty %}
+  {% set _pageNamespaceOptions = [{
+    namespace: _activePageNamespace,
+    label: null,
+    is_active: true
+  }] %}
+{% endif %}
+<div class="uk-grid-small uk-flex-middle uk-margin-small" uk-grid>
+  <div class="uk-width-auto">
+    <label class="uk-form-label uk-margin-remove" for="pageNamespaceSelect">{{ t('label_project_namespace') }}</label>
+  </div>
+  <div class="uk-width-1-1 uk-width-medium@m">
+    <select
+      id="pageNamespaceSelect"
+      class="uk-select uk-form-small"
+      data-page-namespace="{{ _activePageNamespace|e('html_attr') }}"
+    >
+      {% for entry in _pageNamespaceOptions %}
+        {% set entryNamespace = entry.namespace|default('') %}
+        {% set entryLabel = entry.label|default('') %}
+        {% set entryIsInactive = entry.is_active is defined and not entry.is_active %}
+        <option
+          value="{{ entryNamespace|e('html_attr') }}"
+          {% if entryNamespace == _activePageNamespace %}selected{% endif %}
+        >
+          {{ entryNamespace }}
+          {% if entryLabel is not empty %} – {{ entryLabel }}{% endif %}
+          {% if entryIsInactive %} – inaktiv{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
