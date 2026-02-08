@@ -158,6 +158,7 @@ class ProjectPagesController
             'pageTypeLayoutOptions' => self::SECTION_LAYOUTS,
             'pageTypeBackgroundTokens' => self::BACKGROUND_TOKENS,
             'pageTypeFlash' => $pageTypeFlash,
+            'project_tree_payload' => [],
         ]);
     }
 
