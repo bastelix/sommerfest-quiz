@@ -250,6 +250,7 @@
 - Allow customizing live dashboard widget titles
 - Allow marketing event pages to adopt event branding
 - Integrate events module into namespace system
+- Add advanced footer block system with content types
 
 ### Fix
 
