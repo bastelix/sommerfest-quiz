@@ -113,6 +113,34 @@ class NamespaceAccessService
         return in_array(strtolower(trim($namespace)), $allowed, true);
     }
 
+    /**
+     * Filter a list of events by the user's allowed namespaces.
+     *
+     * @param list<array<string, mixed>> $events
+     * @param list<string> $allowed
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function filterEventsByNamespace(array $events, array $allowed, ?string $role): array
+    {
+        if ($this->isAdmin($role)) {
+            return $events;
+        }
+
+        if ($allowed === []) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $events,
+            static fn (array $event): bool => in_array(
+                strtolower(trim((string) ($event['namespace'] ?? 'default'))),
+                $allowed,
+                true
+            )
+        ));
+    }
+
     private function isAdmin(?string $role): bool
     {
         return $role === Roles::ADMIN;

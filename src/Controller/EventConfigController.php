@@ -35,6 +35,9 @@ class EventConfigController
         if ($event === null) {
             return $response->withStatus(404);
         }
+        if (!$this->isNamespaceAllowed($request, $event)) {
+            return $response->withStatus(403);
+        }
         $cfg = $this->config->getConfigForEvent($uid);
         $payload = ['event' => $event, 'config' => $cfg];
         $content = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
@@ -50,6 +53,9 @@ class EventConfigController
         $event = $this->events->getByUid($uid);
         if ($event === null) {
             return $response->withStatus(404);
+        }
+        if (!$this->isNamespaceAllowed($request, $event)) {
+            return $response->withStatus(403);
         }
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
@@ -109,6 +115,9 @@ class EventConfigController
         if ($event === null) {
             return $response->withStatus(404);
         }
+        if (!$this->isNamespaceAllowed($request, $event)) {
+            return $response->withStatus(403);
+        }
 
         $data = $request->getParsedBody();
         $variant = is_array($data) ? (string) ($data['variant'] ?? 'public') : 'public';
@@ -127,5 +136,15 @@ class EventConfigController
         $response->getBody()->write($content);
 
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function isNamespaceAllowed(Request $request, array $event): bool
+    {
+        $eventNamespace = $request->getAttribute('eventNamespace');
+        if (!is_string($eventNamespace) || $eventNamespace === '') {
+            return true;
+        }
+        $eventNs = strtolower(trim($event['namespace'] ?? 'default'));
+        return $eventNs === strtolower(trim($eventNamespace));
     }
 }

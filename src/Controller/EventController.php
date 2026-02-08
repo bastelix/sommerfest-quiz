@@ -20,7 +20,8 @@ class EventController
     }
 
     public function get(Request $request, Response $response): Response {
-        $data = $this->service->getAll();
+        $namespace = $this->resolveNamespace($request);
+        $data = $this->service->getAll($namespace);
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -30,7 +31,21 @@ class EventController
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
-        $this->service->saveAll($data);
+        $namespace = $this->resolveNamespace($request);
+        $this->service->saveAll($data, $namespace);
         return $response->withStatus(204);
+    }
+
+    private function resolveNamespace(Request $request): ?string
+    {
+        $namespace = $request->getAttribute('eventNamespace');
+        if (is_string($namespace) && $namespace !== '') {
+            return $namespace;
+        }
+        $namespace = $request->getAttribute('pageNamespace');
+        if (is_string($namespace) && $namespace !== '') {
+            return $namespace;
+        }
+        return null;
     }
 }

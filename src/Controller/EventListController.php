@@ -26,7 +26,9 @@ class EventListController
         $eventSvc = new EventService($pdo);
         $cfgSvc = new ConfigService($pdo);
         $role = $_SESSION['user']['role'] ?? null;
-        $events = $eventSvc->getAll();
+        $namespace = $request->getAttribute('eventNamespace')
+            ?? $request->getAttribute('pageNamespace');
+        $events = $eventSvc->getAll(is_string($namespace) && $namespace !== '' ? $namespace : null);
         $cfg = $cfgSvc->getConfig();
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
@@ -35,6 +37,7 @@ class EventListController
             'events' => $events,
             'config' => $cfg,
             'role' => $role,
+            'eventNamespace' => is_string($namespace) && $namespace !== '' ? $namespace : '',
         ]);
     }
 }
